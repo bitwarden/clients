@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "Item was unarchived"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Archive item"
@@ -899,6 +896,9 @@
   "invalidVerificationCode": {
     "message": "کد تأیید نامعتبر است"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
+  },
   "valueCopied": {
     "message": "$VALUE$ کپی شد",
     "description": "Value has been copied to the clipboard.",
@@ -989,6 +989,12 @@
   },
   "no": {
     "message": "خیر"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "موقعیت"
@@ -2048,6 +2054,9 @@
   "email": {
     "message": "ایمیل"
   },
+  "emails": {
+    "message": "Emails"
+  },
   "phone": {
     "message": "تلفن"
   },
@@ -2738,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden برای ذخیره جزئیات ورود به سیستم این دامنه‌ها سوال نمی‌کند. برای اینکه تغییرات اعمال شود باید صفحه را تازه کنید."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden برای هیچ یک از حساب‌های کاربری وارد شده، درخواست ذخیره اطلاعات ورود برای این دامنه‌ها را نخواهد داد. برای اعمال تغییرات باید صفحه را تازه‌سازی کنید."
-  },
   "blockedDomainsDesc": {
     "message": "ویژگی‌های پر کردن خودکار و سایر قابلیت‌های مرتبط برای این وب‌سایت‌ها ارائه نخواهند شد. برای اعمال تغییرات باید صفحه را تازه‌سازی کنید."
   },
@@ -2853,6 +2859,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "تصویری از فهرست ورودهایی که در معرض خطر هستند."
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
   },
   "generatePasswordSlideDesc": {
     "message": "با استفاده از منوی پر کردن خودکار Bitwarden در سایت در معرض خطر، به‌سرعت یک کلمه عبور قوی و منحصر به فرد تولید کنید.",
@@ -3026,10 +3035,6 @@
   "custom": {
     "message": "سفارشی"
   },
-  "sendPasswordDescV3": {
-    "message": "یک کلمه عبور اختیاری برای دریافت‌کنندگان اضافه کنید تا بتوانند به این ارسال دسترسی داشته باشند.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "ارسال جدید",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3081,6 +3086,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "لینک ارسال کپی شد",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3089,28 +3133,8 @@
     "message": "ارسال ذخیره شد",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "باز کردن پنجره جداگانه افزونه؟",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "برای ایجاد یک ارسال پرونده، باید افزونه را در پنجره‌ای جدید باز کنید.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "برای انتخاب پرونده، پسوند را در نوار کناری باز کنید (در صورت امکان) یا با کلیک بر روی این بنر پنجره جدیدی باز کنید."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "برای انتخاب یک پرونده با استفاده از فایرفاکس، افزونه را در نوار کناری باز کنید یا با کلیک بر روی این بنر پنجره جدیدی باز کنید."
-  },
-  "sendSafariFileWarning": {
-    "message": "برای انتخاب پرونده‌ای با استفاده از سافاری، با کلیک روی این بنر پنجره جدیدی باز کنید."
-  },
   "popOut": {
     "message": "باز کردن در پنجره جداگانه"
-  },
-  "sendFileCalloutHeader": {
-    "message": "قبل از اینکه شروع کنی"
   },
   "expirationDateIsInvalid": {
     "message": "تاریخ انقضاء ارائه شده معتبر نیست."
@@ -5001,6 +5025,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Download Attachment"
+  },
   "downloadBitwarden": {
     "message": "بارگیری Bitwarden"
   },
@@ -5978,6 +6005,9 @@
   "cardNumberLabel": {
     "message": "Card number"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
@@ -6115,7 +6145,53 @@
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
+  "simplifiedAutofill": {
+    "message": "Simplified autofill"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open simplified autofill popover"
+  },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }

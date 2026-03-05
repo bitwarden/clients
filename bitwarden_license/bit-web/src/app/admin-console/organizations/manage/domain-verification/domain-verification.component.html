@@ -54,7 +54,7 @@
             </td>
             <td bitCell>
               <span *ngIf="!orgDomain?.verifiedDate" bitBadge variant="warning">{{
-                "domainStatusUnderVerification" | i18n
+                "domainStatusPending" | i18n
               }}</span>
               <span *ngIf="orgDomain?.verifiedDate" bitBadge variant="success">{{
                 "domainStatusClaimed" | i18n

@@ -14,6 +14,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { PrfKey, UserKey } from "@bitwarden/common/types/key";
@@ -53,11 +54,12 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
         return false;
       }
 
-      // If we're in the browser extension, check if we're in a Chromium browser
-      if (
-        this.platformUtilsService.getClientType() === ClientType.Browser &&
-        !this.platformUtilsService.isChromium()
-      ) {
+      // PRF unlock is only supported on Web and Chromium-based browser extensions
+      const clientType = this.platformUtilsService.getClientType();
+      if (clientType === ClientType.Browser && !this.platformUtilsService.isChromium()) {
+        return false;
+      }
+      if (clientType !== ClientType.Web && clientType !== ClientType.Browser) {
         return false;
       }
 
@@ -152,7 +154,7 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
         allowCredentials: credentials.map(({ credentialId, transports }) => {
           // The credential ID is already base64url encoded from login storage
           // We need to decode it to ArrayBuffer for WebAuthn
-          const decodedId = Fido2Utils.stringToBuffer(credentialId);
+          const decodedId = Fido2Utils.stringToArray(credentialId);
           return {
             type: "public-key",
             id: decodedId,
@@ -236,7 +238,7 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
     return prfOption;
   }
 
-  private async getUnlockWithPrfSalt(): Promise<ArrayBuffer> {
+  private async getUnlockWithPrfSalt(): Promise<Uint8Array<ArrayBuffer>> {
     try {
       // Use the same salt as login to ensure PRF keys match
       return await this.webAuthnLoginPrfKeyService.getLoginWithPrfSalt();
@@ -267,7 +269,7 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
   private async getRpIdForUser(userId: UserId): Promise<string | undefined> {
     try {
       const environment = await firstValueFrom(this.environmentService.getEnvironment$(userId));
-      const hostname = environment.getHostname();
+      const hostname = Utils.getHost(environment.getWebVaultUrl());
 
       // The navigator.credentials.get call will fail if rpId is set but is null/empty. Undefined uses the current host.
       if (!hostname) {

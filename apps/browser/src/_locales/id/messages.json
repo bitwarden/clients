@@ -228,7 +228,7 @@
     "message": "Salin Nama Kolom Pilihan"
   },
   "noMatchingLogins": {
-    "message": "Tidak ada info masuk yang cocok."
+    "message": "Tidak ada log masuk yang cocok"
   },
   "noCards": {
     "message": "Tanpa kartu"
@@ -440,7 +440,7 @@
     "message": "Sinkronisasi"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Selaraskan sekarang"
   },
   "lastSync": {
     "message": "Sinkronisasi Terakhir:"
@@ -554,36 +554,33 @@
     "message": "Atur ulang pencarian"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arsip",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arsip",
     "description": "Verb"
   },
   "unArchive": {
     "message": "Unarchive"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Butir dalam arsip"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Tidak ada butir dalam arsip"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Butir yang diarsipkan akan muncul di sini dan akan dikecualikan dari hasil pencarian umum dan saran isi otomatis."
   },
-  "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "Item was unarchived"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Arsipkan butir"
   },
   "archiveItemDialogContent": {
     "message": "Once archived, this item will be excluded from search results and autofill suggestions."
@@ -899,6 +896,9 @@
   "invalidVerificationCode": {
     "message": "Kode verifikasi tidak valid"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
+  },
   "valueCopied": {
     "message": "$VALUE$ disalin",
     "description": "Value has been copied to the clipboard.",
@@ -989,6 +989,12 @@
   },
   "no": {
     "message": "Tidak"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Lokasi"
@@ -1480,7 +1486,7 @@
     "message": "Tidak ada lampiran."
   },
   "attachmentSaved": {
-    "message": "Lampiran telah disimpan."
+    "message": "Lampiran disimpan"
   },
   "fixEncryption": {
     "message": "Fix encryption"
@@ -1498,7 +1504,7 @@
     "message": "Berkas untuk dibagikan"
   },
   "selectFile": {
-    "message": "Pilih berkas."
+    "message": "Pilih berkas"
   },
   "itemsTransferred": {
     "message": "Items transferred"
@@ -1646,7 +1652,7 @@
     "message": "Buka dalam tab baru"
   },
   "webAuthnAuthenticate": {
-    "message": "Autentikasi dengan WebAuthn."
+    "message": "Autentikasikan WebAuthn"
   },
   "readSecurityKey": {
     "message": "Baca kunci keamanan"
@@ -1755,7 +1761,7 @@
     "message": "URL Server Ikon"
   },
   "environmentSaved": {
-    "message": "URL dari semua lingkungan telah disimpan."
+    "message": "URL lingkungan disimpan"
   },
   "showAutoFillMenuOnFormFields": {
     "message": "Tampilkan menu isi otomatis pada kolom formulir",
@@ -1855,7 +1861,7 @@
     "message": "Pelajari lebih lanjut tentang isi otomatis"
   },
   "defaultAutoFillOnPageLoad": {
-    "message": "Konfigurasi autofill standard untuk item login."
+    "message": "Pengaturan isian otomatis baku bagi butir log masuk"
   },
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Setelah mengaktifkan Auto-Fill waktu website terbuka, kamu dapat mengaktifkan atau meng-nonaktifkan feature ini untuk setiap item. Ini adalah konfigurasi standard untuk item yang tidak dikonfigurasi terpisah."
@@ -1885,7 +1891,7 @@
     "message": "Isi otomatis identitas yang terakhir digunakan untuk situs web saat ini"
   },
   "commandGeneratePasswordDesc": {
-    "message": "Buat dan salin kata sandi acak baru ke papan klip."
+    "message": "Buat dan salin kata sandi acak baru ke papan klip"
   },
   "commandLockVaultDesc": {
     "message": "Kunci brankas"
@@ -2047,6 +2053,9 @@
   },
   "email": {
     "message": "Email"
+  },
+  "emails": {
+    "message": "Emails"
   },
   "phone": {
     "message": "Telepon"
@@ -2504,10 +2513,10 @@
     "message": "Item yang Diisi Otomatis dan URI Tersimpan"
   },
   "autoFillSuccess": {
-    "message": "Item Terisi Otomatis"
+    "message": "Butir terisi otomatis "
   },
   "insecurePageWarning": {
-    "message": "Peringatan: Ini adalah halaman HTTP yang tidak aman, dan setiap informasi yang Anda kirim dapat berpotensi terlihat dan diubah oleh orang lain. Login ini awalnya disimpan di halaman aman (HTTPS) "
+    "message": "Peringatan: Ini adalah halaman HTTP yang tidak aman, dan setiap informasi yang Anda kirim dapat berpotensi terlihat dan diubah oleh orang lain. Log masuk ini awalnya disimpan di halaman aman (HTTPS)."
   },
   "insecurePageWarningFillPrompt": {
     "message": "Anda masih ingin mengisi login ini?"
@@ -2738,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden tidak akan meminta untuk menyimpan detail login untuk domain ini. Anda harus menyegarkan halaman agar perubahan diterapkan."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden tidak akan meminta untuk menyimpan rincian login untuk domain tersebut. Anda harus menyegarkan halaman agar perubahan diterapkan."
-  },
   "blockedDomainsDesc": {
     "message": "Isi otomatis dan fitur terkait lain tidak akan ditawarkan bagi situs-situs web ini. Anda mesti menyegarkan halaman agar perubahan berdampak."
   },
@@ -2853,6 +2859,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Gambaran daftar info masuk yang berpotensi bahaya."
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
   },
   "generatePasswordSlideDesc": {
     "message": "Hasilkan kata sandi yang kuat dan unik dengan cepat dengan menu isi otomatis Bitwarden pada situs yang berpotensi bahaya.",
@@ -3026,10 +3035,6 @@
   "custom": {
     "message": "Kustom"
   },
-  "sendPasswordDescV3": {
-    "message": "Tambahkan kata sandi tidak wajib untuk penerima untuk mengakses Send ini.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Buat Send Baru",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3081,6 +3086,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "Tautan Send disalin",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3089,28 +3133,8 @@
     "message": "Send diedit",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Sembulkan ekstensi?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Untuk membuat sebuah berkas Send, Anda perlu menyembulkan ekstensi ke sebuah jendela baru.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Untuk memilih file ini, buka Extension di sidebar (jika memungkinkan) atau keluarkan menjadi window baru dengan menekan gambar ini."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Untuk memilih file menggunakan Firefox, buka ekstensi di sidebar atau keluar ke jendela baru dengan mengklik banner ini."
-  },
-  "sendSafariFileWarning": {
-    "message": "Untuk memilih file menggunakan Safari, keluar ke jendela baru dengan mengklik spanduk ini."
-  },
   "popOut": {
     "message": "Sembulkan"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Sebelum kamu memulai"
   },
   "expirationDateIsInvalid": {
     "message": "Tanggal kedaluwarsa yang diberikan tidak valid."
@@ -3210,7 +3234,7 @@
     "message": "Persyaratan kebijakan perusahaan telah diterapkan ke pilihan batas waktu Anda"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Kebijakan organisasi Anda memengaruhi waktu tunggu brankas Anda. Batas maksimal Waktu Tunggu Brankas yang diizinkan adalah $HOURS$ jam dan $MINUTES$ menit",
+    "message": "Kebijakan organisasi Anda telah menata waktu tunggu brankas maksimum yang diizinkan milik Anda ke $HOURS$ jam $MINUTES$ menit.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3302,7 +3326,7 @@
     "message": "Hapus Kata Sandi Utama"
   },
   "removedMasterPassword": {
-    "message": "Sandi utama dihapus."
+    "message": "Sandi utama dihapus"
   },
   "leaveOrganizationConfirmation": {
     "message": "Apakah Anda yakin ingin meninggalkan organisasi ini?"
@@ -5001,6 +5025,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Download Attachment"
+  },
   "downloadBitwarden": {
     "message": "Unduh Bitwarden"
   },
@@ -5978,6 +6005,9 @@
   "cardNumberLabel": {
     "message": "Card number"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
@@ -6115,7 +6145,53 @@
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
+  "simplifiedAutofill": {
+    "message": "Simplified autofill"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open simplified autofill popover"
+  },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }

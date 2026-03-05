@@ -7,7 +7,6 @@ import { Component, input } from "@angular/core";
   selector: "bit-step",
   templateUrl: "step.component.html",
   providers: [{ provide: CdkStep, useExisting: StepComponent }],
-  standalone: true,
 })
 export class StepComponent extends CdkStep {
   readonly subLabel = input();

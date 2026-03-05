@@ -64,7 +64,7 @@ jobs:
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -100,13 +100,13 @@ jobs:
           persist-credentials: false
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561 # stable
+        uses: dtolnay/rust-toolchain@efa25f7f19611383d5b0ccf2d1c8914531636bf9 # stable
         with:
           toolchain: stable
           components: rustfmt, clippy
 
       - name: Install Rust nightly
-        uses: dtolnay/rust-toolchain@f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561 # stable
+        uses: dtolnay/rust-toolchain@efa25f7f19611383d5b0ccf2d1c8914531636bf9 # stable
         with:
           toolchain: nightly
           components: rustfmt
@@ -142,7 +142,7 @@ jobs:
         run: cargo +nightly udeps --workspace --all-features --all-targets
 
       - name: Install cargo-deny
-        uses: taiki-e/install-action@2e9d707ef49c9b094d45955b60c7e5c0dfedeb14 # v2.66.5
+        uses: taiki-e/install-action@887bc4e03483810873d617344dd5189cd82e7b8b # v2.67.11
         with:
           tool: cargo-deny@0.18.6
 
