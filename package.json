@@ -167,7 +167,7 @@
     "@angular/router": "20.3.17",
     "@bitwarden/commercial-sdk-internal": "0.2.0-main.579",
     "@bitwarden/sdk-internal": "0.2.0-main.579",
-    "@electron/fuses": "1.8.0",
+    "@electron/fuses": "2.1.0",
     "@emotion/css": "11.13.5",
     "@koa/multer": "4.0.0",
     "@koa/router": "15.3.0",
