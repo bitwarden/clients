@@ -52,6 +52,7 @@ export class PhishingDetectionService {
       }),
     );
 
+    // Intercept at the earliest navigation event, before DNS resolution begins
     const onTabUpdated$ = fromChromeEvent(chrome.webNavigation.onBeforeNavigate).pipe(
       // Only check top-level frame navigations (frameId 0), not iframes
       filter(([details]) => details.frameId === 0),
