@@ -4,10 +4,11 @@ import { DECRYPT_ERROR } from "@bitwarden/common/key-management/crypto/models/en
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService, asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherListView, CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
+
 import { CipherSdkService, DecryptAllCiphersResult } from "../abstractions/cipher-sdk.service";
 import { Cipher } from "../models/domain/cipher";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 export class DefaultCipherSdkService implements CipherSdkService {
   constructor(
@@ -274,7 +275,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
     collectionIds: CollectionId[],
     userId: UserId,
     _originalCipherView?: CipherView,
-  ): Promise<Cipher> {
+  ): Promise<Cipher | undefined> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
@@ -331,7 +332,9 @@ export class DefaultCipherSdkService implements CipherSdkService {
               collectionIds.map((id) => asUuid(id)),
             );
 
-          return results.map((c) => Cipher.fromSdkCipher(c));
+          return results
+            .map((c) => Cipher.fromSdkCipher(c))
+            .filter((c): c is Cipher => c !== undefined);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to share multiple ciphers: ${error}`);
