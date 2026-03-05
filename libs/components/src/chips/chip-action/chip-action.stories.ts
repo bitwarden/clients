@@ -1,6 +1,6 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
-import { sharedArgTypes, variantArgType } from "../shared/shared-story-arg-types";
+import { sharedArgTypes, variantArgType, sizeArgType } from "../shared/shared-story-arg-types";
 
 import { ChipActionComponent } from "./chip-action.component";
 
@@ -19,6 +19,7 @@ export default {
   argTypes: {
     ...sharedArgTypes,
     ...variantArgType,
+    ...sizeArgType,
   },
 } as Meta;
 

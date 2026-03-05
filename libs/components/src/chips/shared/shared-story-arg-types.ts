@@ -5,15 +5,6 @@ import { BITWARDEN_ICONS } from "../../shared/icon";
 import { CHIP_SIZES, CHIP_VARIANTS } from "./base-chip.directive";
 
 const sharedArgTypes = {
-  size: {
-    options: CHIP_SIZES,
-    control: { type: "select" },
-    description: "Sets the size of the chip.",
-    table: {
-      type: { summary: CHIP_SIZES.join(" | ") },
-      defaultValue: { summary: "large" },
-    },
-  },
   startIcon: {
     control: "select",
     options: BITWARDEN_ICONS,
@@ -22,6 +13,18 @@ const sharedArgTypes = {
   disabled: {
     control: "boolean",
     description: "Disables the chip",
+  },
+} satisfies Partial<ArgTypes>;
+
+const sizeArgType = {
+  size: {
+    options: CHIP_SIZES,
+    control: { type: "select" },
+    description: "Sets the size of the chip.",
+    table: {
+      type: { summary: CHIP_SIZES.join(" | ") },
+      defaultValue: { summary: "large" },
+    },
   },
 } satisfies Partial<ArgTypes>;
 
@@ -52,4 +55,4 @@ const variantArgType = {
   },
 } satisfies Partial<ArgTypes>;
 
-export { sharedArgTypes, variantArgType, endIconArgType, fullWidthArgType };
+export { sizeArgType, sharedArgTypes, variantArgType, endIconArgType, fullWidthArgType };

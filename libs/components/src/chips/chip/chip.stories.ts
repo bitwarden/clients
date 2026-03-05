@@ -3,7 +3,7 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { I18nMockService } from "../../utils";
-import { sharedArgTypes } from "../shared/shared-story-arg-types";
+import { sharedArgTypes, sizeArgType } from "../shared/shared-story-arg-types";
 
 import { ChipComponent } from "./chip.component";
 
@@ -31,6 +31,7 @@ export default {
   },
   argTypes: {
     ...sharedArgTypes,
+    ...sizeArgType,
   },
 } as Meta;
 
