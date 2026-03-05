@@ -313,6 +313,7 @@ export declare namespace sshagent_v2 {
   /** Namespace of a sign request. */
   export const enum SignRequestNamespace {
     Git = 'Git',
+    File = 'File',
     Unsupported = 'Unsupported'
   }
   /** SSH key data, sent from Electron. */

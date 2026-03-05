@@ -38,6 +38,7 @@ pub mod sshagent_v2 {
     #[derive(Debug)]
     pub enum SignRequestNamespace {
         Git,
+        File,
         Unsupported,
     }
 
@@ -45,6 +46,7 @@ pub mod sshagent_v2 {
         fn from(ns: SSHSignRequestNamespace) -> Self {
             match ns {
                 SSHSignRequestNamespace::Git => Self::Git,
+                SSHSignRequestNamespace::File => Self::File,
                 SSHSignRequestNamespace::Unsupported => Self::Unsupported,
             }
         }

@@ -7,6 +7,7 @@ use crate::{authorization::AuthError, crypto::PublicKey};
 #[derive(Debug, Clone, PartialEq)]
 pub enum SignRequestNamespace {
     Git,
+    File,
     Unsupported,
 }
 
