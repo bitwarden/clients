@@ -11,7 +11,6 @@ on:
       - "main"
       - "rc"
       - "hotfix-rc"
-      - "uif/cl-1074/fix-push"
   pull_request:
     types: [opened, synchronize, reopened]
   workflow_call:
