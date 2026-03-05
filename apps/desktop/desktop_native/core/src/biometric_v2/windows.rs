@@ -89,6 +89,7 @@ pub struct BiometricLockSystem {
 }
 
 impl BiometricLockSystem {
+    /// Creates a new instance of the Windows biometric lock system.
     pub fn new() -> Self {
         Self {
             secure_memory: Arc::new(Mutex::new(

@@ -45,71 +45,67 @@
             ></bit-chip-select>
           }
         }
-        <bit-table-scroll [dataSource]="dataSource" [rowSize]="75">
-          @if (!isAdminConsoleActive) {
-            <ng-container header>
-              <th bitCell></th>
-              <th bitCell>{{ "name" | i18n }}</th>
-              <th bitCell>{{ "owner" | i18n }}</th>
-              <th bitCell></th>
-            </ng-container>
-          }
+        <bit-table-scroll [dataSource]="dataSource" [rowSize]="75" layout="fixed">
+          <ng-container header>
+            <th bitCell class="tw-w-12"></th>
+            <th bitCell>{{ "name" | i18n }}</th>
+            @if (!isAdminConsoleActive) {
+              <th bitCell class="tw-w-1/4">{{ "owner" | i18n }}</th>
+            }
+            <th bitCell class="tw-w-1/4"></th>
+          </ng-container>
           <ng-template bitRowDef let-row>
             <td bitCell>
               <app-vault-icon [cipher]="row"></app-vault-icon>
             </td>
-            <td bitCell>
+            <td bitCell class="tw-truncate tw-max-w-0">
               @if (!organization || canManageCipher(row)) {
-                <ng-container>
-                  <a
-                    bitLink
-                    href="#"
-                    appStopClick
-                    (click)="selectCipher(row)"
-                    title="{{ 'editItemWithName' | i18n: row.name }}"
-                    >{{ row.name }}</a
-                  >
-                </ng-container>
+                <a
+                  bitLink
+                  href="#"
+                  appStopClick
+                  (click)="selectCipher(row)"
+                  title="{{ 'editItemWithName' | i18n: row.name }}"
+                  >{{ row.name }}</a
+                >
               } @else {
-                <ng-template>
-                  <span>{{ row.name }}</span>
-                </ng-template>
+                <span title="{{ row.name }}">{{ row.name }}</span>
               }
               @if (!organization && row.organizationId) {
-                <ng-container>
-                  <i
-                    class="bwi bwi-collection-shared tw-ml-1"
-                    appStopProp
-                    title="{{ 'shared' | i18n }}"
-                    aria-hidden="true"
-                  ></i>
-                  <span class="tw-sr-only">{{ "shared" | i18n }}</span>
-                </ng-container>
+                <i
+                  class="bwi bwi-collection-shared tw-ml-1"
+                  appStopProp
+                  title="{{ 'shared' | i18n }}"
+                  aria-hidden="true"
+                ></i>
+                <span class="tw-sr-only">{{ "shared" | i18n }}</span>
               }
               @if (row.hasAttachments) {
-                <ng-container>
-                  <i
-                    class="bwi bwi-paperclip tw-ml-1"
-                    appStopProp
-                    title="{{ 'attachments' | i18n }}"
-                    aria-hidden="true"
-                  ></i>
-                  <span class="tw-sr-only">{{ "attachments" | i18n }}</span>
-                </ng-container>
+                <i
+                  class="bwi bwi-paperclip tw-ml-1"
+                  appStopProp
+                  title="{{ 'attachments' | i18n }}"
+                  aria-hidden="true"
+                ></i>
+                <span class="tw-sr-only">{{ "attachments" | i18n }}</span>
               }
               <br />
               <small>{{ row.subTitle }}</small>
             </td>
-            <td bitCell>
-              @if (!organization) {
-                <app-org-badge
-                  [disabled]="disabled"
-                  [organizationId]="row.organizationId"
-                  [organizationName]="row.organizationId | orgNameFromId: (organizations$ | async)"
-                  appStopProp
-                />
-              }
-            </td>
+            @if (!isAdminConsoleActive) {
+              <td bitCell>
+                @if (!organization) {
+                  <app-org-badge
+                    [disabled]="disabled"
+                    [organizationId]="row.organizationId"
+                    [organizationName]="
+                      row.organizationId | orgNameFromId: (organizations$ | async)
+                    "
+                    appStopProp
+                  />
+                }
+              </td>
+            }
             <td bitCell class="tw-text-right">
               @if (cipherDocs.has(row.id)) {
                 <a bitBadge href="{{ cipherDocs.get(row.id) }}" target="_blank" rel="noreferrer">

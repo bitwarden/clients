@@ -71,6 +71,8 @@ describe("FidoAuthenticatorService", () => {
 
     isValidRpId = jest.spyOn(DomainUtils, "isValidRpId");
 
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+
     client = new Fido2ClientService(
       authenticator,
       configService,
@@ -186,7 +188,7 @@ describe("FidoAuthenticatorService", () => {
         const params = createParams();
         authenticator.makeCredential.mockResolvedValue(createAuthenticatorMakeResult());
         // `params` actually has a valid rp.id, but we're mocking the function to return false
-        isValidRpId.mockReturnValue(false);
+        isValidRpId.mockResolvedValue(false);
 
         const result = async () => await client.createCredential(params, windowReference);
 
@@ -459,7 +461,7 @@ describe("FidoAuthenticatorService", () => {
         const params = createParams();
         authenticator.getAssertion.mockResolvedValue(createAuthenticatorAssertResult());
         // `params` actually has a valid rp.id, but we're mocking the function to return false
-        isValidRpId.mockReturnValue(false);
+        isValidRpId.mockResolvedValue(false);
 
         const result = async () => await client.assertCredential(params, windowReference);
 
@@ -570,9 +572,9 @@ describe("FidoAuthenticatorService", () => {
     describe("assert non-discoverable credential", () => {
       it("should call authenticator.assertCredential", async () => {
         const allowedCredentialIds = [
-          Fido2Utils.bufferToString(guidToRawFormat(Utils.newGuid())),
-          Fido2Utils.bufferToString(guidToRawFormat(Utils.newGuid())),
-          Fido2Utils.bufferToString(Utils.fromByteStringToArray("not-a-guid")),
+          Fido2Utils.arrayToString(guidToRawFormat(Utils.newGuid())),
+          Fido2Utils.arrayToString(guidToRawFormat(Utils.newGuid())),
+          Fido2Utils.arrayToString(Utils.fromByteStringToArray("not-a-guid")),
         ];
         const params = createParams({
           userVerification: "required",
@@ -588,13 +590,13 @@ describe("FidoAuthenticatorService", () => {
             rpId: RpId,
             allowCredentialDescriptorList: [
               expect.objectContaining({
-                id: Fido2Utils.stringToBuffer(allowedCredentialIds[0]),
+                id: Fido2Utils.stringToArray(allowedCredentialIds[0]),
               }),
               expect.objectContaining({
-                id: Fido2Utils.stringToBuffer(allowedCredentialIds[1]),
+                id: Fido2Utils.stringToArray(allowedCredentialIds[1]),
               }),
               expect.objectContaining({
-                id: Fido2Utils.stringToBuffer(allowedCredentialIds[2]),
+                id: Fido2Utils.stringToArray(allowedCredentialIds[2]),
               }),
             ],
           }),
@@ -686,7 +688,7 @@ describe("FidoAuthenticatorService", () => {
     function createParams(params: Partial<AssertCredentialParams> = {}): AssertCredentialParams {
       return {
         allowedCredentialIds: params.allowedCredentialIds ?? [],
-        challenge: params.challenge ?? Fido2Utils.bufferToString(randomBytes(16)),
+        challenge: params.challenge ?? Fido2Utils.arrayToString(randomBytes(16)),
         origin: params.origin ?? Origin,
         rpId: params.rpId ?? RpId,
         timeout: params.timeout,
