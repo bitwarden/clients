@@ -56,16 +56,16 @@ export class NavItemComponent extends NavBaseComponent {
   /**
    * Is `true` if `to` matches the current route
    */
-  private _isActive = false;
+  private readonly _isActive = signal(false);
   protected setIsActive(isActive: boolean) {
-    this._isActive = isActive;
-    if (this._isActive && this.parentNavGroup) {
+    this._isActive.set(isActive);
+    if (isActive && this.parentNavGroup) {
       this.parentNavGroup.setOpen(true);
     }
   }
-  protected get showActiveStyles() {
-    return this.forceActiveStyles() || (this._isActive && !this.hideActiveStyles());
-  }
+  protected readonly showActiveStyles = computed(
+    () => this.forceActiveStyles() || (this._isActive() && !this.hideActiveStyles()),
+  );
 
   /**
    * Adding calculation for nav items due to needing visual alignment on different indentation levels needed between the first level and subsequent levels
@@ -121,7 +121,7 @@ export class NavItemComponent extends NavBaseComponent {
 
   /* Determine start slot hover style depending on if item is active/selected */
   protected readonly startSlotHoverClass = computed(() =>
-    this.showActiveStyles
+    this.showActiveStyles()
       ? "[&>*]:hover:!tw-bg-bg-sidenav-active-arrow-hover"
       : "[&>*]:hover:!tw-bg-bg-sidenav-arrow-hover",
   );

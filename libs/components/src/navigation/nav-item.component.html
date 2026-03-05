@@ -7,10 +7,10 @@
       [style.padding-inline-start]="navItemIndentationPadding()"
       class="tw-relative tw-rounded-xl tw-h-10 tw-py-1.5"
       [class]="fvwStyles()"
-      [class.tw-bg-bg-sidenav-active-item]="showActiveStyles"
-      [class.tw-bg-bg-sidenav-background]="!showActiveStyles"
-      [class.hover:tw-bg-bg-sidenav-item-hover]="!showActiveStyles"
-      [class.hover:tw-bg-bg-sidenav-active-item-hover]="showActiveStyles"
+      [class.tw-bg-bg-sidenav-active-item]="showActiveStyles()"
+      [class.tw-bg-bg-sidenav-background]="!showActiveStyles()"
+      [class.hover:tw-bg-bg-sidenav-item-hover]="!showActiveStyles()"
+      [class.hover:tw-bg-bg-sidenav-active-item-hover]="showActiveStyles()"
     >
       <div class="tw-relative tw-flex tw-items-center tw-h-full">
         @if (open) {
