@@ -11,6 +11,7 @@ import { OrganizationInvite } from "@bitwarden/common/auth/services/organization
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { isId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 
 import { BaseAcceptComponent } from "../../common/base.accept.component";
@@ -110,6 +111,10 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
 
   private fromParams(params: Params): OrganizationInvite | null {
     if (params == null) {
+      return null;
+    }
+
+    if (!isId(params.organizationId) || !isId(params.organizationUserId)) {
       return null;
     }
 
