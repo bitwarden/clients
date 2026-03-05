@@ -1,10 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { once } from "node:events";
+import { pathToFileURL } from "node:url";
 import * as path from "path";
 import * as url from "url";
 
-import { app, BrowserWindow, ipcMain, nativeTheme, screen, session } from "electron";
+import { app, BrowserWindow, ipcMain, nativeTheme, screen, session, protocol, net } from "electron";
 import { concatMap, firstValueFrom, pairwise } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -26,6 +27,21 @@ import {
   isWindows,
 } from "../utils";
 
+const customFileScheme = "bw-desktop-file";
+const customFileHost = "bundle";
+const customFileOrigin = `${customFileScheme}://${customFileHost}`;
+
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: customFileScheme,
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+    },
+  },
+]);
+
 const mainWindowSizeKey = "mainWindowSize";
 const WindowEventHandlingDelay = 100;
 export class WindowMain {
@@ -37,6 +53,7 @@ export class WindowMain {
   private windowStates: { [key: string]: WindowState } = {};
   private enableAlwaysOnTop = false;
   private enableRendererProcessForceCrashReload = true;
+  private preflightRequests = new Map<number, { headers: string; method: string }>();
   session: Electron.Session;
 
   readonly defaultWidth = 950;
@@ -159,6 +176,10 @@ export class WindowMain {
         // initialization and is ready to create browser windows.
         // Some APIs can only be used after this event occurs.
         app.on("ready", async () => {
+          this.session = session.fromPartition("persist:bitwarden", { cache: false });
+          this.setupAppProtocol();
+          this.setupCorsBypass();
+
           if (!isDev()) {
             // This currently breaks the file portal for snap https://github.com/flatpak/xdg-desktop-portal/issues/785
             if (!isSnapStore()) {
@@ -242,9 +263,9 @@ export class WindowMain {
     await this.desktopSettingsService.setModalMode(modal);
     await this.win.loadURL(
       url.format({
-        protocol: "file:",
-        //pathname: `${__dirname}/index.html`,
-        pathname: path.join(__dirname, "/index.html"),
+        protocol: customFileScheme,
+        host: customFileHost,
+        pathname: "index.html",
         slashes: true,
         hash: targetPath,
         query: {
@@ -261,6 +282,100 @@ export class WindowMain {
   }
 
   /**
+   * Register a custom app:// protocol handler to serve the renderer's bundled files following Electron's
+   * guidance to use custom schemes for loading local content. Requests to app://desktopbundle/<path> are
+   * resolved against __dirname (the built output directory) and validated to prevent directory traversal.
+   *
+   * References:
+   *  https://www.electronjs.org/docs/latest/tutorial/security#18-avoid-usage-of-the-file-protocol-and-prefer-usage-of-custom-protocols
+   *  https://www.electronjs.org/docs/latest/api/protocol#protocolhandlescheme-handler
+   */
+  private setupAppProtocol() {
+    this.session.protocol.handle(customFileScheme, (req) => {
+      const url = new URL(req.url);
+      let pathname = url.pathname;
+
+      // Trim the starting slash if it exists to prevent issues with path resolution
+      if (pathname.startsWith("/")) {
+        pathname = pathname.slice(1);
+      }
+
+      // Default to index.html if no pathname is provided
+      if (pathname === "") {
+        pathname = "index.html";
+      }
+
+      if (url.host === customFileHost) {
+        // Resolve the path to an absolute path and ensure it's within the app directory to prevent directory traversal attacks
+        const pathToServe = path.resolve(__dirname, pathname);
+        const relativePath = path.relative(__dirname, pathToServe);
+
+        const isSafe =
+          relativePath && !relativePath.startsWith("..") && !path.isAbsolute(relativePath);
+
+        if (isSafe) {
+          return net.fetch(pathToFileURL(pathToServe).toString());
+        }
+      }
+
+      this.logService.error(`Invalid app protocol request: ${req.url}`);
+
+      return new Response("bad", {
+        status: 400,
+        headers: { "content-type": "text/html" },
+      });
+    });
+  }
+
+  /**
+   * Bypass CORS restrictions for API requests made from the custom app:// protocol.
+   * Ideally, this is only needed until the server supports CORS from the custom protocol.
+   */
+  private setupCorsBypass() {
+    // Rewrite outgoing Origin from app://desktopbundle to file:// so the server returns CORS headers.
+    // For OPTIONS preflights, also capture the requested headers/method so we can echo them back
+    // if the server doesn't return proper preflight response headers.
+    this.session.webRequest.onBeforeSendHeaders(
+      { urls: ["http://*/*", "https://*/*"] },
+      (details, callback) => {
+        details.requestHeaders["Origin"] = "file://";
+
+        if (details.method === "OPTIONS") {
+          this.preflightRequests.set(details.id, {
+            headers: details.requestHeaders["Access-Control-Request-Headers"] ?? "",
+            method: details.requestHeaders["Access-Control-Request-Method"] ?? "",
+          });
+        }
+
+        callback({ requestHeaders: details.requestHeaders });
+      },
+    );
+
+    // Rewrite the response's Access-Control-Allow-Origin from file:// back to app://desktopbundle.
+    // For preflight responses missing CORS headers, fill them in from the captured request.
+    this.session.webRequest.onHeadersReceived(
+      { urls: ["http://*/*", "https://*/*"] },
+      (details, callback) => {
+        details.responseHeaders["access-control-allow-origin"] = [customFileOrigin];
+
+        const preflight = this.preflightRequests.get(details.id);
+        if (preflight) {
+          this.preflightRequests.delete(details.id);
+
+          if (!details.responseHeaders["access-control-allow-headers"] && preflight.headers) {
+            details.responseHeaders["access-control-allow-headers"] = [preflight.headers];
+          }
+          if (!details.responseHeaders["access-control-allow-methods"] && preflight.method) {
+            details.responseHeaders["access-control-allow-methods"] = [preflight.method];
+          }
+        }
+
+        callback({ responseHeaders: details.responseHeaders });
+      },
+    );
+  }
+
+  /**
    * Creates the main window. The template argument is used to determine the styling of the window and what url will be loaded.
    * When the template is "modal-app", the window will be styled as a modal and the passkeys page will be loaded.
    * TODO: We might want to refactor the template argument to accomodate more target pages, e.g. ssh-agent.
@@ -271,8 +386,6 @@ export class WindowMain {
       this.defaultHeight,
     );
     this.enableAlwaysOnTop = await firstValueFrom(this.desktopSettingsService.alwaysOnTop$);
-
-    this.session = session.fromPartition("persist:bitwarden", { cache: false });
 
     // Create the browser window.
     this.win = new BrowserWindow({
@@ -331,8 +444,9 @@ export class WindowMain {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       void this.win.loadURL(
         url.format({
-          protocol: "file:",
-          pathname: path.join(__dirname, "/index.html"),
+          protocol: customFileScheme,
+          host: customFileHost,
+          pathname: "index.html",
           slashes: true,
         }),
         {
@@ -343,8 +457,9 @@ export class WindowMain {
       // we're in modal mode - load the passkeys page
       await this.win.loadURL(
         url.format({
-          protocol: "file:",
-          pathname: path.join(__dirname, "/index.html"),
+          protocol: customFileScheme,
+          host: customFileHost,
+          pathname: "index.html",
           slashes: true,
           hash: "/passkeys",
           query: {
