@@ -1,107 +1,106 @@
 @if (!!cipher()) {
-  <ng-container>
-    @if (cardIsExpired()) {
-      <bit-callout type="info" [title]="'cardExpiredTitle' | i18n">
-        {{ "cardExpiredMessage" | i18n }}
-      </bit-callout>
-    }
+  @if (cardIsExpired()) {
+    <bit-callout type="info" [title]="'cardExpiredTitle' | i18n">
+      {{ "cardExpiredMessage" | i18n }}
+    </bit-callout>
+  }
 
-    @if (!hasLoginUri() && hadPendingChangePasswordTask()) {
-      <bit-callout type="warning" [title]="'missingWebsite' | i18n">
-        {{ "changeAtRiskPasswordAndAddWebsite" | i18n }}
-      </bit-callout>
-    }
+  @if (!hasLoginUri() && hadPendingChangePasswordTask()) {
+    <bit-callout type="warning" [title]="'missingWebsite' | i18n">
+      {{ "changeAtRiskPasswordAndAddWebsite" | i18n }}
+    </bit-callout>
+  }
 
-    @if (showChangePasswordLink()) {
-      <bit-callout type="warning" [title]="''">
-        <a
-          bitLink
-          href="#"
-          appStopClick
-          (click)="launchChangePassword()"
-          linkType="secondary"
-          endIcon="bwi-external-link"
-        >
-          {{ "changeAtRiskPassword" | i18n }}
-        </a>
-      </bit-callout>
-    }
+  @if (showChangePasswordLink()) {
+    <bit-callout type="warning" [title]="''">
+      <a
+        bitLink
+        href="#"
+        appStopClick
+        (click)="launchChangePassword()"
+        linkType="secondary"
+        endIcon="bwi-external-link"
+      >
+        {{ "changeAtRiskPassword" | i18n }}
+      </a>
+    </bit-callout>
+  }
 
-    <!-- HELPER TEXT -->
-    @if (cipher()?.isDeleted && !cipher()?.edit) {
-      <p class="tw-text-muted" bitTypography="helper">
-        {{ "noEditPermissions" | i18n }}
-      </p>
-    }
+  <!-- HELPER TEXT -->
+  @if (cipher()?.isDeleted && !cipher()?.edit) {
+    <p class="tw-text-muted" bitTypography="helper">
+      {{ "noEditPermissions" | i18n }}
+    </p>
+  }
 
-    <!-- ITEM DETAILS -->
-    <app-item-details-v2
+  <!-- ITEM DETAILS -->
+  <app-item-details-v2
+    [cipher]="cipher()"
+    [organization]="organization()"
+    [collections]="resolvedCollections()"
+    [folder]="folder()"
+    [hideOwner]="isAdminConsole()"
+  >
+    <ng-content select="[slot=button]"></ng-content>
+  </app-item-details-v2>
+
+  <!-- LOGIN CREDENTIALS -->
+  @if (hasLogin()) {
+    <app-login-credentials-view
       [cipher]="cipher()"
-      [organization]="organization()"
-      [collections]="resolvedCollections()"
-      [folder]="folder()"
-      [hideOwner]="isAdminConsole()"
-    >
-    </app-item-details-v2>
+      [activeUserId]="activeUserId$ | async"
+      [showChangePasswordLink]="showChangePasswordLink()"
+      (handleChangePassword)="launchChangePassword()"
+    ></app-login-credentials-view>
+  }
 
-    <!-- LOGIN CREDENTIALS -->
-    @if (hasLogin()) {
-      <app-login-credentials-view
+  <!-- AUTOFILL OPTIONS -->
+  @if (hasAutofill()) {
+    <app-autofill-options-view [loginUris]="cipher()!.login.uris" [cipherId]="cipher()!.id">
+    </app-autofill-options-view>
+  }
+
+  <!-- CARD DETAILS -->
+  @if (hasCard()) {
+    <app-card-details-view [cipher]="cipher()"></app-card-details-view>
+  }
+
+  <!-- IDENTITY SECTIONS -->
+  @if (cipher()?.identity) {
+    <app-view-identity-sections [cipher]="cipher()"> </app-view-identity-sections>
+  }
+
+  <!-- SshKEY SECTIONS -->
+  @if (hasSshKey()) {
+    <app-sshkey-view [sshKey]="cipher()!.sshKey"></app-sshkey-view>
+  }
+
+  <!-- ADDITIONAL OPTIONS -->
+  @if (cipher()?.notes) {
+    <ng-container>
+      <app-additional-options [notes]="cipher()!.notes"> </app-additional-options>
+    </ng-container>
+  }
+
+  <!-- CUSTOM FIELDS -->
+  @if (cipher()?.hasFields) {
+    <ng-container>
+      <app-custom-fields-v2 [cipher]="cipher()"> </app-custom-fields-v2>
+    </ng-container>
+  }
+
+  <!-- ATTACHMENTS SECTION -->
+  @if (cipher()?.hasAttachments) {
+    <ng-container>
+      <app-attachments-v2-view
+        [emergencyAccessId]="emergencyAccessId()"
         [cipher]="cipher()"
-        [activeUserId]="activeUserId$ | async"
-        [showChangePasswordLink]="showChangePasswordLink()"
-        (handleChangePassword)="launchChangePassword()"
-      ></app-login-credentials-view>
-    }
+        [admin]="isAdminConsole()"
+      >
+      </app-attachments-v2-view>
+    </ng-container>
+  }
 
-    <!-- AUTOFILL OPTIONS -->
-    @if (hasAutofill()) {
-      <app-autofill-options-view [loginUris]="cipher()!.login.uris" [cipherId]="cipher()!.id">
-      </app-autofill-options-view>
-    }
-
-    <!-- CARD DETAILS -->
-    @if (hasCard()) {
-      <app-card-details-view [cipher]="cipher()"></app-card-details-view>
-    }
-
-    <!-- IDENTITY SECTIONS -->
-    @if (cipher()?.identity) {
-      <app-view-identity-sections [cipher]="cipher()"> </app-view-identity-sections>
-    }
-
-    <!-- SshKEY SECTIONS -->
-    @if (hasSshKey()) {
-      <app-sshkey-view [sshKey]="cipher()!.sshKey"></app-sshkey-view>
-    }
-
-    <!-- ADDITIONAL OPTIONS -->
-    @if (cipher()?.notes) {
-      <ng-container>
-        <app-additional-options [notes]="cipher()!.notes"> </app-additional-options>
-      </ng-container>
-    }
-
-    <!-- CUSTOM FIELDS -->
-    @if (cipher()?.hasFields) {
-      <ng-container>
-        <app-custom-fields-v2 [cipher]="cipher()"> </app-custom-fields-v2>
-      </ng-container>
-    }
-
-    <!-- ATTACHMENTS SECTION -->
-    @if (cipher()?.hasAttachments) {
-      <ng-container>
-        <app-attachments-v2-view
-          [emergencyAccessId]="emergencyAccessId()"
-          [cipher]="cipher()"
-          [admin]="isAdminConsole()"
-        >
-        </app-attachments-v2-view>
-      </ng-container>
-    }
-
-    <!-- ITEM HISTORY SECTION -->
-    <app-item-history-v2 [cipher]="cipher()"> </app-item-history-v2>
-  </ng-container>
+  <!-- ITEM HISTORY SECTION -->
+  <app-item-history-v2 [cipher]="cipher()"> </app-item-history-v2>
 }
