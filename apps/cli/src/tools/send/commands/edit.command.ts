@@ -2,10 +2,13 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 
 import { Response } from "../../../models/response";
 import { CliUtils } from "../../../utils";
@@ -19,6 +22,7 @@ export class SendEditCommand {
     private getCommand: SendGetCommand,
     private sendApiService: SendApiService,
     private accountProfileService: BillingAccountProfileStateService,
+    private accountService: AccountService,
   ) {}
 
   async run(requestJson: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -39,6 +43,8 @@ export class SendEditCommand {
       try {
         const reqJson = Buffer.from(requestJson, "base64").toString();
         req = SendResponse.fromJson(reqJson);
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         return Response.badRequest("Error parsing the encoded request data.");
       }
@@ -46,11 +52,37 @@ export class SendEditCommand {
 
     const normalizedOptions = new Options(cmdOptions);
     req.id = normalizedOptions.itemId || req.id;
-
-    if (req.id != null) {
-      req.id = req.id.toLowerCase();
+    if (normalizedOptions.emails) {
+      req.emails = normalizedOptions.emails;
+    }
+    if (normalizedOptions.password) {
+      req.password = normalizedOptions.password;
+    }
+    if (req.password && (typeof req.password !== "string" || req.password === "")) {
+      req.password = undefined;
     }
 
+    // Infer authType based on emails/password (mutually exclusive)
+    const hasEmails = req.emails != null && req.emails.length > 0;
+    const hasPassword = req.password != null && req.password.trim() !== "";
+
+    if (hasEmails && hasPassword) {
+      return Response.badRequest("--password and --emails are mutually exclusive.");
+    }
+
+    if (hasEmails) {
+      req.authType = AuthType.Email;
+    } else if (hasPassword) {
+      req.authType = AuthType.Password;
+    } else {
+      req.authType = AuthType.None;
+    }
+
+    if (!req.id) {
+      return Response.error("`itemid` was not provided.");
+    }
+
+    req.id = req.id.toLowerCase();
     const send = await this.sendService.getFromState(req.id);
 
     if (send == null) {
@@ -61,26 +93,20 @@ export class SendEditCommand {
       return Response.badRequest("Cannot change a Send's type");
     }
 
+    const account = await firstValueFrom(this.accountService.activeAccount$);
     const canAccessPremium = await firstValueFrom(
-      this.accountProfileService.hasPremiumFromAnySource$,
+      this.accountProfileService.hasPremiumFromAnySource$(account.id),
     );
     if (send.type === SendType.File && !canAccessPremium) {
       return Response.error("Premium status is required to use this feature.");
     }
 
-    let sendView = await send.decrypt();
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    let sendView = await send.decrypt(activeUserId);
     sendView = SendResponse.toView(req, sendView);
-
-    if (typeof req.password !== "string" || req.password === "") {
-      req.password = null;
-    }
 
     try {
       const [encSend, encFileData] = await this.sendService.encrypt(sendView, null, req.password);
-      // Add dates from template
-      encSend.deletionDate = sendView.deletionDate;
-      encSend.expirationDate = sendView.expirationDate;
-
       await this.sendApiService.save([encSend, encFileData]);
     } catch (e) {
       return Response.error(e);
@@ -92,8 +118,12 @@ export class SendEditCommand {
 
 class Options {
   itemId: string;
+  password: string;
+  emails: string[];
 
   constructor(passedOptions: Record<string, any>) {
     this.itemId = passedOptions?.itemId || passedOptions?.itemid;
+    this.password = passedOptions.password;
+    this.emails = passedOptions.emails;
   }
 }

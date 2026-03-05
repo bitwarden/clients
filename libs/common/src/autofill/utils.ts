@@ -1,13 +1,15 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+
+import { CardView } from "../vault/models/view/card.view";
+
 import {
   DelimiterPatternExpression,
   ExpiryFullYearPattern,
   ExpiryFullYearPatternExpression,
   IrrelevantExpiryCharactersPatternExpression,
   MonthPatternExpression,
-} from "@bitwarden/common/autofill/constants";
-import { CardView } from "@bitwarden/common/vault/models/view/card.view";
+} from "./constants";
 
 type NonZeroIntegers = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 type Year = `${NonZeroIntegers}${NonZeroIntegers}${0 | NonZeroIntegers}${0 | NonZeroIntegers}`;
@@ -25,11 +27,11 @@ export function normalizeExpiryYearFormat(yearInput: string | number): Year | nu
   let expirationYear = yearInputIsEmpty ? null : `${yearInput}`;
 
   // Exit early if year is already formatted correctly or empty
-  if (yearInputIsEmpty || /^[1-9]{1}\d{3}$/.test(expirationYear)) {
+  if (yearInputIsEmpty || (expirationYear && /^[1-9]{1}\d{3}$/.test(expirationYear))) {
     return expirationYear as Year;
   }
 
-  expirationYear = expirationYear
+  expirationYear = (expirationYear || "")
     // For safety, because even input[type="number"] will allow decimals
     .replace(/[^\d]/g, "")
     // remove any leading zero padding (leave the last leading zero if it ends the string)
@@ -53,7 +55,7 @@ export function normalizeExpiryYearFormat(yearInput: string | number): Year | nu
 
 /**
  * Takes a cipher card view and returns "true" if the month and year affirmativey indicate
- * the card is expired.
+ * the card is expired. Uncertain cases return "false".
  *
  * @param {CardView} cipherCard
  * @return {*}  {boolean}
@@ -62,27 +64,38 @@ export function isCardExpired(cipherCard: CardView): boolean {
   if (cipherCard) {
     const { expMonth = null, expYear = null } = cipherCard;
 
+    if (!expYear) {
+      return false;
+    }
+
     const now = new Date();
     const normalizedYear = normalizeExpiryYearFormat(expYear);
+    const parsedYear = normalizedYear ? parseInt(normalizedYear, 10) : NaN;
 
-    // If the card year is before the current year, don't bother checking the month
-    if (normalizedYear && parseInt(normalizedYear, 10) < now.getFullYear()) {
+    const expiryYearIsBeforeCurrentYear = parsedYear < now.getFullYear();
+    const expiryYearIsAfterCurrentYear = parsedYear > now.getFullYear();
+
+    // If the expiry year is before the current year, skip checking the month, since it must be expired
+    if (normalizedYear && expiryYearIsBeforeCurrentYear) {
       return true;
+    }
+
+    // If the expiry year is after the current year, skip checking the month, since it cannot be expired
+    if (normalizedYear && expiryYearIsAfterCurrentYear) {
+      return false;
     }
 
     if (normalizedYear && expMonth) {
       const parsedMonthInteger = parseInt(expMonth, 10);
+      const parsedMonthIsValid = parsedMonthInteger && !isNaN(parsedMonthInteger);
 
-      const parsedMonth = isNaN(parsedMonthInteger)
-        ? 0
-        : // Add a month floor of 0 to protect against an invalid low month value of "0" or negative integers
-          Math.max(
-            // `Date` months are zero-indexed
-            parsedMonthInteger - 1,
-            0,
-          );
+      // If the parsed month value is 0, we don't know when the expiry passes this year, so do not treat it as expired
+      if (!parsedMonthIsValid) {
+        return false;
+      }
 
-      const parsedYear = parseInt(normalizedYear, 10);
+      // `Date` months are zero-indexed
+      const parsedMonth = parsedMonthInteger - 1;
 
       // First day of the next month
       const cardExpiry = new Date(parsedYear, parsedMonth + 1, 1);
@@ -250,13 +263,18 @@ function parseNonDelimitedYearMonthExpiry(dateInput: string): [string | null, st
     parsedMonth = dateInput.slice(-1);
 
     const currentYear = new Date().getFullYear();
-    const normalizedParsedYear = parseInt(normalizeExpiryYearFormat(parsedYear), 10);
-    const normalizedParsedYearAlternative = parseInt(
-      normalizeExpiryYearFormat(dateInput.slice(-2)),
-      10,
-    );
+    const normalizedYearFormat = normalizeExpiryYearFormat(parsedYear);
+    const normalizedParsedYear = normalizedYearFormat && parseInt(normalizedYearFormat, 10);
+    const normalizedExpiryYearFormat = normalizeExpiryYearFormat(dateInput.slice(-2));
+    const normalizedParsedYearAlternative =
+      normalizedExpiryYearFormat && parseInt(normalizedExpiryYearFormat, 10);
 
-    if (normalizedParsedYear < currentYear && normalizedParsedYearAlternative >= currentYear) {
+    if (
+      normalizedParsedYear &&
+      normalizedParsedYear < currentYear &&
+      normalizedParsedYearAlternative &&
+      normalizedParsedYearAlternative >= currentYear
+    ) {
       parsedYear = dateInput.slice(-2);
       parsedMonth = dateInput.slice(0, 1);
     }
@@ -288,17 +306,24 @@ export function parseYearMonthExpiry(combinedExpiryValue: string): [Year | null,
 
   // If there is only one date part, no delimiter was found in the passed value
   if (dateParts.length === 1) {
-    [parsedYear, parsedMonth] = parseNonDelimitedYearMonthExpiry(sanitizedFirstPart);
+    const [parsedNonDelimitedYear, parsedNonDelimitedMonth] =
+      parseNonDelimitedYearMonthExpiry(sanitizedFirstPart);
+
+    parsedYear = parsedNonDelimitedYear;
+    parsedMonth = parsedNonDelimitedMonth;
   }
   // There are multiple date parts
   else {
-    [parsedYear, parsedMonth] = parseDelimitedYearMonthExpiry([
+    const [parsedDelimitedYear, parsedDelimitedMonth] = parseDelimitedYearMonthExpiry([
       sanitizedFirstPart,
       sanitizedSecondPart,
     ]);
+
+    parsedYear = parsedDelimitedYear;
+    parsedMonth = parsedDelimitedMonth;
   }
 
-  const normalizedParsedYear = normalizeExpiryYearFormat(parsedYear);
+  const normalizedParsedYear = parsedYear ? normalizeExpiryYearFormat(parsedYear) : null;
   const normalizedParsedMonth = parsedMonth?.replace(/^0+/, "").slice(0, 2);
 
   // Set "empty" values to null
@@ -306,4 +331,30 @@ export function parseYearMonthExpiry(combinedExpiryValue: string): [Year | null,
   parsedMonth = normalizedParsedMonth?.length ? normalizedParsedMonth : null;
 
   return [parsedYear, parsedMonth];
+}
+
+/**
+ * Takes a URL string and a NeverDomains object and determines if the passed URL's hostname is in `urlList`
+ *
+ * @param {string} url - representation of URL to check
+ * @param {NeverDomains} urlList - object with hostname key names
+ */
+export function isUrlInList(url: string = "", urlList: NeverDomains = {}): boolean {
+  const urlListKeys = urlList && Object.keys(urlList);
+
+  if (urlListKeys.length && url?.length) {
+    let tabHostname;
+    try {
+      tabHostname = Utils.getHostname(url);
+    } catch {
+      // If the input was invalid, exit early and return false
+      return false;
+    }
+
+    if (tabHostname) {
+      return urlListKeys.some((blockedHostname) => tabHostname.endsWith(blockedHostname));
+    }
+  }
+
+  return false;
 }

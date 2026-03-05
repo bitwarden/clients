@@ -1,10 +1,13 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { map, Observable } from "rxjs";
+import { combineLatest, map, Observable } from "rxjs";
+
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { UserId } from "../../../types/guid";
+import { PolicyType } from "../../enums";
 import { OrganizationData } from "../../models/data/organization.data";
 import { Organization } from "../../models/domain/organization";
+import { PolicyService } from "../policy/policy.service.abstraction";
 
 export function canAccessVaultTab(org: Organization): boolean {
   return org.canViewAllCollections;
@@ -17,7 +20,7 @@ export function canAccessSettingsTab(org: Organization): boolean {
     org.canManageSso ||
     org.canManageScim ||
     org.canAccessImport ||
-    org.canAccessExport(false) || // Feature flag value doesn't matter here, providers will have access to this group anyway
+    org.canAccessExport ||
     org.canManageDeviceApprovals
   );
 }
@@ -38,6 +41,18 @@ export function canAccessBillingTab(org: Organization): boolean {
   return org.isOwner;
 }
 
+/**
+ * Access Intelligence is only available to:
+ * - Enterprise organizations
+ * - Users in those organizations with report access
+ *
+ * @param org The organization to verify access
+ * @returns If true can access the Access Intelligence feature
+ */
+export function canAccessAccessIntelligence(org: Organization): boolean {
+  return org.canUseAccessIntelligence && org.canAccessReports;
+}
+
 export function canAccessOrgAdmin(org: Organization): boolean {
   // Admin console can only be accessed by Owners for disabled organizations
   if (!org.enabled && !org.isOwner) {
@@ -53,16 +68,22 @@ export function canAccessOrgAdmin(org: Organization): boolean {
   );
 }
 
-export function getOrganizationById(id: string) {
-  return map<Organization[], Organization | undefined>((orgs) => orgs.find((o) => o.id === id));
+export function canAccessEmergencyAccess(
+  userId: UserId,
+  configService: ConfigService,
+  policyService: PolicyService,
+) {
+  return combineLatest([
+    configService.getFeatureFlag$(FeatureFlag.AutoConfirm),
+    policyService.policyAppliesToUser$(PolicyType.AutoConfirm, userId),
+  ]).pipe(map(([enabled, policyAppliesToUser]) => !(enabled && policyAppliesToUser)));
 }
 
 /**
- * Returns `true` if a user is a member of an organization (rather than only being a ProviderUser)
- * @deprecated Use organizationService.organizations$ with a filter instead
+ * @deprecated Please use the general `getById` custom rxjs operator instead.
  */
-export function isMember(org: Organization): boolean {
-  return org.isMember;
+export function getOrganizationById(id: string) {
+  return map<Organization[], Organization | undefined>((orgs) => orgs.find((o) => o.id === id));
 }
 
 /**
@@ -73,41 +94,23 @@ export function isMember(org: Organization): boolean {
  */
 export abstract class OrganizationService {
   /**
-   * Publishes state for all organizations under the active user.
+   * Publishes state for all organizations under the specified user.
    * @returns An observable list of organizations
    */
-  organizations$: Observable<Organization[]>;
+  abstract organizations$(userId: UserId): Observable<Organization[]>;
 
   // @todo Clean these up. Continuing to expand them is not recommended.
   // @see https://bitwarden.atlassian.net/browse/AC-2252
-  memberOrganizations$: Observable<Organization[]>;
-  /**
-   * @deprecated This is currently only used in the CLI, and should not be
-   * used in any new calls. Use get$ instead for the time being, and we'll be
-   * removing this method soon. See Jira for details:
-   * https://bitwarden.atlassian.net/browse/AC-2252.
-   */
-  getFromState: (id: string) => Promise<Organization>;
+  abstract memberOrganizations$(userId: UserId): Observable<Organization[]>;
   /**
    * Emits true if the user can create or manage a Free Bitwarden Families sponsorship.
    */
-  canManageSponsorships$: Observable<boolean>;
+  abstract canManageSponsorships$(userId: UserId): Observable<boolean>;
   /**
    * Emits true if any of the user's organizations have a Free Bitwarden Families sponsorship available.
    */
-  familySponsorshipAvailable$: Observable<boolean>;
-  hasOrganizations: () => Promise<boolean>;
-  get$: (id: string) => Observable<Organization | undefined>;
-  get: (id: string) => Promise<Organization>;
-  /**
-   * @deprecated This method is only used in key connector and will be removed soon as part of https://bitwarden.atlassian.net/browse/AC-2252.
-   */
-  getAll: (userId?: string) => Promise<Organization[]>;
-
-  /**
-   * Publishes state for all organizations for the given user id or the active user.
-   */
-  getAll$: (userId?: UserId) => Observable<Organization[]>;
+  abstract familySponsorshipAvailable$(userId: UserId): Observable<boolean>;
+  abstract hasOrganizations(userId: UserId): Observable<boolean>;
 }
 
 /**
@@ -120,20 +123,21 @@ export abstract class InternalOrganizationServiceAbstraction extends Organizatio
   /**
    * Replaces state for the provided organization, or creates it if not found.
    * @param organization The organization state being saved.
-   * @param userId The userId to replace state for. Defaults to the active
-   * user.
+   * @param userId The userId to replace state for.
    */
-  upsert: (OrganizationData: OrganizationData) => Promise<void>;
+  abstract upsert(OrganizationData: OrganizationData, userId: UserId): Promise<void>;
 
   /**
-   * Replaces state for the entire registered organization list for the active user.
+   * Replaces state for the entire registered organization list for the specified user.
    * You probably don't want this unless you're calling from a full sync
    * operation or a logout. See `upsert` for creating & updating a single
    * organization in the state.
-   * @param organizations A complete list of all organization state for the active
+   * @param organizations A complete list of all organization state for the provided
    * user.
-   * @param userId The userId to replace state for. Defaults to the active
-   * user.
+   * @param userId The userId to replace state for.
    */
-  replace: (organizations: { [id: string]: OrganizationData }, userId?: UserId) => Promise<void>;
+  abstract replace(
+    organizations: { [id: string]: OrganizationData },
+    userId: UserId,
+  ): Promise<void>;
 }

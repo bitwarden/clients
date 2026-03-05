@@ -1,8 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit } from "@angular/core";
 import {
   AbstractControl,
   FormBuilder,
@@ -19,12 +16,18 @@ import {
   EnvironmentService,
   Region,
 } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   DialogModule,
   DialogService,
   FormFieldModule,
+  IconModule,
   LinkModule,
   TypographyModule,
 } from "@bitwarden/components";
@@ -51,11 +54,31 @@ function selfHostedEnvSettingsFormValidator(): ValidatorFn {
   };
 }
 
+function onlyHttpsValidator(): ValidatorFn {
+  const i18nService = inject(I18nService);
+  const platformUtilsService = inject(PlatformUtilsService);
+
+  return (control: AbstractControl): ValidationErrors | null => {
+    const url = control.value as string;
+
+    if (url && !url.startsWith("https://") && !platformUtilsService.isDev()) {
+      return {
+        onlyHttpsAllowed: {
+          message: i18nService.t("selfHostedEnvMustUseHttps"),
+        },
+      }; // invalid
+    }
+
+    return null; // valid
+  };
+}
+
 /**
  * Dialog for configuring self-hosted environment settings.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "self-hosted-env-config-dialog",
   templateUrl: "self-hosted-env-config-dialog.component.html",
   imports: [
@@ -63,6 +86,7 @@ function selfHostedEnvSettingsFormValidator(): ValidatorFn {
     JslibModule,
     DialogModule,
     ButtonModule,
+    IconModule,
     LinkModule,
     TypographyModule,
     ReactiveFormsModule,
@@ -83,17 +107,17 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
 
     const dialogResult = await firstValueFrom(dialogRef.closed);
 
-    return dialogResult;
+    return dialogResult ?? false;
   }
 
   formGroup = this.formBuilder.group(
     {
-      baseUrl: [null],
-      webVaultUrl: [null],
-      apiUrl: [null],
-      identityUrl: [null],
-      iconsUrl: [null],
-      notificationsUrl: [null],
+      baseUrl: ["", [onlyHttpsValidator()]],
+      webVaultUrl: ["", [onlyHttpsValidator()]],
+      apiUrl: ["", [onlyHttpsValidator()]],
+      identityUrl: ["", [onlyHttpsValidator()]],
+      iconsUrl: ["", [onlyHttpsValidator()]],
+      notificationsUrl: ["", [onlyHttpsValidator()]],
     },
     { validators: selfHostedEnvSettingsFormValidator() },
   );
@@ -160,12 +184,12 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
         },
       });
   }
-
   submit = async () => {
+    this.formGroup.markAllAsTouched();
     this.showErrorSummary = false;
 
     if (this.formGroup.invalid) {
-      this.showErrorSummary = true;
+      this.showErrorSummary = Boolean(this.formGroup.errors?.["atLeastOneUrlIsRequired"]);
       return;
     }
 

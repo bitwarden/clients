@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -74,20 +72,23 @@ class AutofillInit implements AutofillInitInterface {
    * to act on the page.
    */
   private collectPageDetailsOnLoad() {
-    const sendCollectDetailsMessage = () => {
-      this.clearCollectPageDetailsOnLoadTimeout();
-      this.collectPageDetailsOnLoadTimeout = setTimeout(
-        () => this.sendExtensionMessage("bgCollectPageDetails", { sender: "autofillInit" }),
-        750,
-      );
-    };
-
     if (globalThis.document.readyState === "complete") {
-      sendCollectDetailsMessage();
+      this.sendCollectDetailsMessage();
     }
 
-    globalThis.addEventListener(EVENTS.LOAD, sendCollectDetailsMessage);
+    globalThis.addEventListener(EVENTS.LOAD, this.sendCollectDetailsMessage);
   }
+
+  /**
+   * Sends a message to collect page details after a short delay.
+   */
+  private sendCollectDetailsMessage = () => {
+    this.clearCollectPageDetailsOnLoadTimeout();
+    this.collectPageDetailsOnLoadTimeout = setTimeout(
+      () => this.sendExtensionMessage("bgCollectPageDetails", { sender: "autofillInit" }),
+      750,
+    );
+  };
 
   /**
    * Collects the page details and sends them to the
@@ -122,7 +123,7 @@ class AutofillInit implements AutofillInitInterface {
    * @param {AutofillExtensionMessage} message
    */
   private async fillForm({ fillScript, pageDetailsUrl }: AutofillExtensionMessage) {
-    if ((document.defaultView || window).location.href !== pageDetailsUrl) {
+    if ((document.defaultView || window).location.href !== pageDetailsUrl || !fillScript) {
       return;
     }
 
@@ -177,7 +178,7 @@ class AutofillInit implements AutofillInitInterface {
     message: AutofillExtensionMessage,
     sender: chrome.runtime.MessageSender,
     sendResponse: (response?: any) => void,
-  ): boolean => {
+  ): boolean | null => {
     const command: string = message.command;
     const handler: CallableFunction | undefined = this.getExtensionMessageHandler(command);
     if (!handler) {
@@ -220,6 +221,7 @@ class AutofillInit implements AutofillInitInterface {
    */
   destroy() {
     this.clearCollectPageDetailsOnLoadTimeout();
+    globalThis.removeEventListener(EVENTS.LOAD, this.sendCollectDetailsMessage);
     chrome.runtime.onMessage.removeListener(this.handleExtensionMessage);
     this.collectAutofillContentService.destroy();
     this.autofillOverlayContentService?.destroy();

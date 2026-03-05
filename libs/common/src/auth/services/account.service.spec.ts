@@ -6,85 +6,116 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
+import { mockAccountInfoWith } from "../../../spec/fake-account-service";
 import { FakeGlobalState } from "../../../spec/fake-state";
-import { FakeGlobalStateProvider } from "../../../spec/fake-state-provider";
+import {
+  FakeGlobalStateProvider,
+  FakeSingleUserStateProvider,
+} from "../../../spec/fake-state-provider";
 import { trackEmissions } from "../../../spec/utils";
 import { LogService } from "../../platform/abstractions/log.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { Utils } from "../../platform/misc/utils";
 import { UserId } from "../../types/guid";
-import { AccountInfo, accountInfoEqual } from "../abstractions/account.service";
+import { AccountInfo } from "../abstractions/account.service";
 
 import {
   ACCOUNT_ACCOUNTS,
   ACCOUNT_ACTIVE_ACCOUNT_ID,
   ACCOUNT_ACTIVITY,
+  ACCOUNT_VERIFY_NEW_DEVICE_LOGIN,
   AccountServiceImplementation,
 } from "./account.service";
-
-describe("accountInfoEqual", () => {
-  const accountInfo: AccountInfo = { name: "name", email: "email", emailVerified: true };
-
-  it("compares nulls", () => {
-    expect(accountInfoEqual(null, null)).toBe(true);
-    expect(accountInfoEqual(null, accountInfo)).toBe(false);
-    expect(accountInfoEqual(accountInfo, null)).toBe(false);
-  });
-
-  it("compares all keys, not just those defined in AccountInfo", () => {
-    const different = { ...accountInfo, extra: "extra" };
-
-    expect(accountInfoEqual(accountInfo, different)).toBe(false);
-  });
-
-  it("compares name", () => {
-    const same = { ...accountInfo };
-    const different = { ...accountInfo, name: "name2" };
-
-    expect(accountInfoEqual(accountInfo, same)).toBe(true);
-    expect(accountInfoEqual(accountInfo, different)).toBe(false);
-  });
-
-  it("compares email", () => {
-    const same = { ...accountInfo };
-    const different = { ...accountInfo, email: "email2" };
-
-    expect(accountInfoEqual(accountInfo, same)).toBe(true);
-    expect(accountInfoEqual(accountInfo, different)).toBe(false);
-  });
-
-  it("compares emailVerified", () => {
-    const same = { ...accountInfo };
-    const different = { ...accountInfo, emailVerified: false };
-
-    expect(accountInfoEqual(accountInfo, same)).toBe(true);
-    expect(accountInfoEqual(accountInfo, different)).toBe(false);
-  });
-});
 
 describe("accountService", () => {
   let messagingService: MockProxy<MessagingService>;
   let logService: MockProxy<LogService>;
   let globalStateProvider: FakeGlobalStateProvider;
+  let singleUserStateProvider: FakeSingleUserStateProvider;
   let sut: AccountServiceImplementation;
   let accountsState: FakeGlobalState<Record<UserId, AccountInfo>>;
   let activeAccountIdState: FakeGlobalState<UserId>;
+  let accountActivityState: FakeGlobalState<Record<UserId, Date>>;
   const userId = Utils.newGuid() as UserId;
-  const userInfo = { email: "email", name: "name", emailVerified: true };
+  const userInfo = mockAccountInfoWith({
+    email: "email",
+    name: "name",
+  });
 
   beforeEach(() => {
     messagingService = mock();
     logService = mock();
     globalStateProvider = new FakeGlobalStateProvider();
+    singleUserStateProvider = new FakeSingleUserStateProvider();
 
-    sut = new AccountServiceImplementation(messagingService, logService, globalStateProvider);
+    sut = new AccountServiceImplementation(
+      messagingService,
+      logService,
+      globalStateProvider,
+      singleUserStateProvider,
+    );
 
     accountsState = globalStateProvider.getFake(ACCOUNT_ACCOUNTS);
     activeAccountIdState = globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID);
+    accountActivityState = globalStateProvider.getFake(ACCOUNT_ACTIVITY);
   });
 
   afterEach(() => {
     jest.resetAllMocks();
+  });
+
+  describe("accountInfoEqual", () => {
+    const accountInfo = mockAccountInfoWith();
+
+    it("compares nulls", () => {
+      expect((sut as any).accountInfoEqual(null, null)).toBe(true);
+      expect((sut as any).accountInfoEqual(null, accountInfo)).toBe(false);
+      expect((sut as any).accountInfoEqual(accountInfo, null)).toBe(false);
+    });
+
+    it("compares name", () => {
+      const same = { ...accountInfo };
+      const different = { ...accountInfo, name: "name2" };
+
+      expect((sut as any).accountInfoEqual(accountInfo, same)).toBe(true);
+      expect((sut as any).accountInfoEqual(accountInfo, different)).toBe(false);
+    });
+
+    it("compares email", () => {
+      const same = { ...accountInfo };
+      const different = { ...accountInfo, email: "email2" };
+
+      expect((sut as any).accountInfoEqual(accountInfo, same)).toBe(true);
+      expect((sut as any).accountInfoEqual(accountInfo, different)).toBe(false);
+    });
+
+    it("compares emailVerified", () => {
+      const same = { ...accountInfo };
+      const different = { ...accountInfo, emailVerified: false };
+
+      expect((sut as any).accountInfoEqual(accountInfo, same)).toBe(true);
+      expect((sut as any).accountInfoEqual(accountInfo, different)).toBe(false);
+    });
+
+    it("compares creationDate", () => {
+      const same = { ...accountInfo };
+      const different = { ...accountInfo, creationDate: new Date("2024-12-31T00:00:00.000Z") };
+
+      expect((sut as any).accountInfoEqual(accountInfo, same)).toBe(true);
+      expect((sut as any).accountInfoEqual(accountInfo, different)).toBe(false);
+    });
+
+    it("compares undefined creationDate", () => {
+      const accountWithoutCreationDate = mockAccountInfoWith({ creationDate: undefined });
+      const same = { ...accountWithoutCreationDate };
+      const different = {
+        ...accountWithoutCreationDate,
+        creationDate: new Date("2024-01-01T00:00:00.000Z"),
+      };
+
+      expect((sut as any).accountInfoEqual(accountWithoutCreationDate, same)).toBe(true);
+      expect((sut as any).accountInfoEqual(accountWithoutCreationDate, different)).toBe(false);
+    });
   });
 
   describe("activeAccount$", () => {
@@ -123,6 +154,22 @@ describe("accountService", () => {
       expect(await firstValueFrom(sut.accounts$)).toEqual({
         [userId]: userInfo,
       });
+    });
+  });
+
+  describe("accountsVerifyNewDeviceLogin$", () => {
+    it("returns expected value", async () => {
+      // Arrange
+      const expected = true;
+      // we need to set this state since it is how we initialize the VerifyNewDeviceLogin$
+      activeAccountIdState.stateSubject.next(userId);
+      singleUserStateProvider.getFake(userId, ACCOUNT_VERIFY_NEW_DEVICE_LOGIN).nextState(expected);
+
+      // Act
+      const result = await firstValueFrom(sut.accountVerifyNewDeviceLogin$);
+
+      // Assert
+      expect(result).toEqual(expected);
     });
   });
 
@@ -224,6 +271,106 @@ describe("accountService", () => {
     });
   });
 
+  describe("setCreationDate", () => {
+    const initialState = { [userId]: userInfo };
+    beforeEach(() => {
+      accountsState.stateSubject.next(initialState);
+    });
+
+    it("should update the account with a new creation date", async () => {
+      const newCreationDate = new Date("2024-12-31T00:00:00.000Z");
+      await sut.setAccountCreationDate(userId, newCreationDate);
+      const currentState = await firstValueFrom(accountsState.state$);
+
+      expect(currentState).toEqual({
+        [userId]: { ...userInfo, creationDate: newCreationDate },
+      });
+    });
+
+    it("should not update if the creation date is the same", async () => {
+      await sut.setAccountCreationDate(userId, userInfo.creationDate);
+      const currentState = await firstValueFrom(accountsState.state$);
+
+      expect(currentState).toEqual(initialState);
+    });
+
+    it("should not update if the creation date has the same timestamp but different Date object", async () => {
+      const sameTimestamp = new Date(userInfo.creationDate.getTime());
+      await sut.setAccountCreationDate(userId, sameTimestamp);
+      const currentState = await firstValueFrom(accountsState.state$);
+
+      expect(currentState).toEqual(initialState);
+    });
+
+    it("should update if the creation date has a different timestamp", async () => {
+      const differentDate = new Date(userInfo.creationDate.getTime() + 1000);
+      await sut.setAccountCreationDate(userId, differentDate);
+      const currentState = await firstValueFrom(accountsState.state$);
+
+      expect(currentState).toEqual({
+        [userId]: { ...userInfo, creationDate: differentDate },
+      });
+    });
+
+    it("should update from undefined to a defined creation date", async () => {
+      const accountWithoutCreationDate = mockAccountInfoWith({
+        ...userInfo,
+        creationDate: undefined,
+      });
+      accountsState.stateSubject.next({ [userId]: accountWithoutCreationDate });
+
+      const newCreationDate = new Date("2024-06-15T12:30:00.000Z");
+      await sut.setAccountCreationDate(userId, newCreationDate);
+      const currentState = await firstValueFrom(accountsState.state$);
+
+      expect(currentState).toEqual({
+        [userId]: { ...accountWithoutCreationDate, creationDate: newCreationDate },
+      });
+    });
+
+    it("should not update when both creation dates are undefined", async () => {
+      const accountWithoutCreationDate = mockAccountInfoWith({
+        ...userInfo,
+        creationDate: undefined,
+      });
+      accountsState.stateSubject.next({ [userId]: accountWithoutCreationDate });
+
+      // Attempt to set to undefined (shouldn't trigger update)
+      const currentStateBefore = await firstValueFrom(accountsState.state$);
+
+      // We can't directly call setAccountCreationDate with undefined, but we can verify
+      // the behavior through setAccountInfo which accountInfoEqual uses internally
+      expect(currentStateBefore[userId].creationDate).toBeUndefined();
+    });
+  });
+
+  describe("setAccountVerifyNewDeviceLogin", () => {
+    const initialState = true;
+    beforeEach(() => {
+      activeAccountIdState.stateSubject.next(userId);
+      singleUserStateProvider
+        .getFake(userId, ACCOUNT_VERIFY_NEW_DEVICE_LOGIN)
+        .nextState(initialState);
+    });
+
+    it("should update the VerifyNewDeviceLogin", async () => {
+      const expected = false;
+      expect(await firstValueFrom(sut.accountVerifyNewDeviceLogin$)).toEqual(initialState);
+
+      await sut.setAccountVerifyNewDeviceLogin(userId, expected);
+      const currentState = await firstValueFrom(sut.accountVerifyNewDeviceLogin$);
+
+      expect(currentState).toEqual(expected);
+    });
+
+    it("should NOT update VerifyNewDeviceLogin when userId is null", async () => {
+      await sut.setAccountVerifyNewDeviceLogin(null, false);
+      const currentState = await firstValueFrom(sut.accountVerifyNewDeviceLogin$);
+
+      expect(currentState).toEqual(initialState);
+    });
+  });
+
   describe("clean", () => {
     beforeEach(() => {
       accountsState.stateSubject.next({ [userId]: userInfo });
@@ -238,6 +385,7 @@ describe("accountService", () => {
           email: "",
           emailVerified: false,
           name: undefined,
+          creationDate: undefined,
         },
       });
     });
@@ -256,6 +404,7 @@ describe("accountService", () => {
     beforeEach(() => {
       accountsState.stateSubject.next({ [userId]: userInfo });
       activeAccountIdState.stateSubject.next(userId);
+      accountActivityState.stateSubject.next({ [userId]: new Date(1) });
     });
 
     it("should emit null if no account is provided", async () => {
@@ -268,6 +417,34 @@ describe("accountService", () => {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       expect(sut.switchAccount("unknown" as UserId)).rejects.toThrowError("Account does not exist");
+    });
+
+    it("should change active account when switched to the new account", async () => {
+      const newUserId = Utils.newGuid() as UserId;
+      accountsState.stateSubject.next({ [newUserId]: userInfo });
+
+      await sut.switchAccount(newUserId);
+
+      await expect(firstValueFrom(sut.activeAccount$)).resolves.toEqual({
+        id: newUserId,
+        ...userInfo,
+      });
+      await expect(firstValueFrom(sut.accountActivity$)).resolves.toEqual({
+        [userId]: new Date(1),
+        [newUserId]: expect.toAlmostEqual(new Date(), 1000),
+      });
+    });
+
+    it("should not change active account when already switched to the same account", async () => {
+      await sut.switchAccount(userId);
+
+      await expect(firstValueFrom(sut.activeAccount$)).resolves.toEqual({
+        id: userId,
+        ...userInfo,
+      });
+      await expect(firstValueFrom(sut.accountActivity$)).resolves.toEqual({
+        [userId]: new Date(1),
+      });
     });
   });
 
@@ -343,6 +520,16 @@ describe("accountService", () => {
           expect(state.nextMock).not.toHaveBeenCalled();
         },
       );
+    });
+
+    describe("setShowHeader", () => {
+      it("should update _showHeader$ when setShowHeader is called", async () => {
+        expect(sut["_showHeader$"].value).toBe(true);
+
+        await sut.setShowHeader(false);
+
+        expect(sut["_showHeader$"].value).toBe(false);
+      });
     });
   });
 });

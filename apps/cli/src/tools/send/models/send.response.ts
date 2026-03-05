@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 
 import { BaseResponse } from "../../../models/response/base.response";
 
@@ -26,6 +27,7 @@ export class SendResponse implements BaseResponse {
     req.deletionDate = this.getStandardDeletionDate(deleteInDays);
     req.expirationDate = null;
     req.password = null;
+    req.emails = null;
     req.disabled = false;
     req.hideEmail = false;
     return req;
@@ -50,8 +52,10 @@ export class SendResponse implements BaseResponse {
     view.deletionDate = send.deletionDate;
     view.expirationDate = send.expirationDate;
     view.password = send.password;
+    view.emails = send.emails ?? [];
     view.disabled = send.disabled;
     view.hideEmail = send.hideEmail;
+    view.authType = send.authType;
     return view;
   }
 
@@ -87,8 +91,10 @@ export class SendResponse implements BaseResponse {
   expirationDate: Date;
   password: string;
   passwordSet: boolean;
+  emails?: Array<string>;
   disabled: boolean;
   hideEmail: boolean;
+  authType: AuthType;
 
   constructor(o?: SendView, webVaultUrl?: string) {
     if (o == null) {
@@ -113,8 +119,10 @@ export class SendResponse implements BaseResponse {
     this.deletionDate = o.deletionDate;
     this.expirationDate = o.expirationDate;
     this.passwordSet = o.password != null;
+    this.emails = o.emails ?? [];
     this.disabled = o.disabled;
     this.hideEmail = o.hideEmail;
+    this.authType = o.authType;
 
     if (o.type === SendType.Text && o.text != null) {
       this.text = new SendTextResponse(o.text);

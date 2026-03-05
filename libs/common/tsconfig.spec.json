@@ -1,4 +1,10 @@
 {
   "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "isolatedModules": true,
+    "emitDecoratorMetadata": false,
+    "module": "nodenext",
+    "moduleResolution": "nodenext"
+  },
   "files": ["./test.setup.ts"]
 }

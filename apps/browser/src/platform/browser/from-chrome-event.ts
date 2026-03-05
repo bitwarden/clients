@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { BrowserApi } from "./browser-api";
@@ -26,13 +24,13 @@ export function fromChromeEvent<T extends unknown[]>(
   event: chrome.events.Event<(...args: T) => void>,
 ): Observable<T> {
   return new Observable<T>((subscriber) => {
-    const handler = (...args: T) => {
+    const handler = (...args: readonly unknown[]) => {
       if (chrome.runtime.lastError) {
         subscriber.error(chrome.runtime.lastError);
         return;
       }
 
-      subscriber.next(args);
+      subscriber.next(args as T);
     };
 
     BrowserApi.addListener(event, handler);

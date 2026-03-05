@@ -17,19 +17,20 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
-import { Subject } from "rxjs";
+import { BehaviorSubject, firstValueFrom, Subject, switchMap } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
   ButtonComponent,
-  CardComponent,
   FormFieldModule,
   ItemModule,
-  SectionComponent,
   SelectModule,
   ToastService,
   TypographyModule,
@@ -38,28 +39,32 @@ import {
 import { CipherFormConfig } from "../abstractions/cipher-form-config.service";
 import { CipherFormService } from "../abstractions/cipher-form.service";
 import { CipherForm, CipherFormContainer } from "../cipher-form-container";
+import { CipherFormCacheService } from "../services/default-cipher-form-cache.service";
 
 import { AdditionalOptionsSectionComponent } from "./additional-options/additional-options-section.component";
 import { CardDetailsSectionComponent } from "./card-details-section/card-details-section.component";
 import { IdentitySectionComponent } from "./identity/identity.component";
 import { ItemDetailsSectionComponent } from "./item-details/item-details-section.component";
 import { LoginDetailsSectionComponent } from "./login-details-section/login-details-section.component";
+import { NewItemNudgeComponent } from "./new-item-nudge/new-item-nudge.component";
 import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-cipher-form",
   templateUrl: "./cipher-form.component.html",
-  standalone: true,
   providers: [
     {
       provide: CipherFormContainer,
       useExisting: forwardRef(() => CipherFormComponent),
     },
+    {
+      provide: CipherFormCacheService,
+    },
   ],
   imports: [
     AsyncActionsModule,
-    CardComponent,
-    SectionComponent,
     TypographyModule,
     ItemModule,
     FormFieldModule,
@@ -72,9 +77,12 @@ import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.componen
     NgIf,
     AdditionalOptionsSectionComponent,
     LoginDetailsSectionComponent,
+    NewItemNudgeComponent,
   ],
 })
 export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, CipherFormContainer {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective)
   private bitSubmit: BitSubmitDirective;
   private destroyRef = inject(DestroyRef);
@@ -83,33 +91,53 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
   /**
    * The form ID to use for the form. Used to connect it to a submit button.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) formId: string;
 
   /**
    * The configuration for the add/edit form. Used to determine which controls are shown and what values are available.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) config: CipherFormConfig;
 
   /**
    * Optional submit button that will be disabled or marked as loading when the form is submitting.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   submitBtn?: ButtonComponent;
 
   /**
    * Optional function to call before submitting the form. If the function returns false, the form will not be submitted.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   beforeSubmit: () => Promise<boolean>;
 
   /**
    * Event emitted when the cipher is saved successfully.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() cipherSaved = new EventEmitter<CipherView>();
 
   private formReadySubject = new Subject<void>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() formReady = this.formReadySubject.asObservable();
+
+  /**
+   * Emitted when the form is enabled
+   */
+  private formStatusChangeSubject = new BehaviorSubject<"enabled" | "disabled" | null>(null);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
+  @Output() formStatusChange$ = this.formStatusChangeSubject.asObservable();
 
   /**
    * The original cipher being edited or cloned. Null for add mode.
@@ -129,6 +157,10 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
    */
   protected updatedCipherView: CipherView | null;
 
+  get website(): string | null {
+    return this.updatedCipherView?.login?.uris?.[0]?.uri ?? null;
+  }
+
   protected loading: boolean = true;
 
   CipherType = CipherType;
@@ -136,12 +168,30 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
   ngAfterViewInit(): void {
     if (this.submitBtn) {
       this.bitSubmit.loading$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((loading) => {
-        this.submitBtn.loading = loading;
+        this.submitBtn.loading.set(loading);
       });
 
       this.bitSubmit.disabled$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((disabled) => {
-        this.submitBtn.disabled = disabled;
+        this.submitBtn.disabled.set(disabled);
       });
+    }
+  }
+
+  disableFormFields(): void {
+    this.cipherForm.disable({ emitEvent: false });
+    this.formStatusChangeSubject.next("disabled");
+  }
+
+  /**
+   * Enables the form, only when it is currently disabled.
+   * Child forms could have disabled some of their controls based on
+   * other factors. Enabling the form from this level should only occur
+   * when the form was disabled at this level.
+   */
+  enableFormFields(): void {
+    if (this.formStatusChangeSubject.getValue() === "disabled") {
+      this.cipherForm.enable({ emitEvent: false });
+      this.formStatusChangeSubject.next("enabled");
     }
   }
 
@@ -164,6 +214,26 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
    */
   patchCipher(updateFn: (current: CipherView) => CipherView): void {
     this.updatedCipherView = updateFn(this.updatedCipherView);
+    // Cache the updated cipher
+    this.cipherFormCacheService.cacheCipherView(this.updatedCipherView);
+  }
+
+  /**
+   * Return initial values for given keys of a cipher
+   */
+  getInitialCipherView(): CipherView {
+    const cachedCipherView = this.cipherFormCacheService.getCachedCipherView();
+
+    if (cachedCipherView && this.initializedWithCachedCipher()) {
+      return cachedCipherView;
+    }
+
+    return this.originalCipherView;
+  }
+
+  /** */
+  initializedWithCachedCipher(): boolean {
+    return this.cipherFormCacheService.initializedWithValue;
   }
 
   /**
@@ -211,6 +281,10 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
 
       if (this.config.mode === "clone") {
         this.updatedCipherView.id = null;
+
+        if (this.updatedCipherView.login) {
+          this.updatedCipherView.login.fido2Credentials = null;
+        }
       }
     } else {
       this.updatedCipherView.type = this.config.cipherType;
@@ -220,8 +294,42 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
       }
     }
 
+    this.setInitialCipherFromCache();
+
     this.loading = false;
     this.formReadySubject.next();
+  }
+
+  /**
+   * Updates `updatedCipherView` based on the value from the cache.
+   */
+  setInitialCipherFromCache() {
+    // If we are coming from the overlay/popup flow clear the cache to avoid old cached data
+    const hasOverlayData =
+      this.config.initialValues &&
+      (this.config.initialValues.username !== undefined ||
+        this.config.initialValues.password !== undefined);
+
+    if (hasOverlayData) {
+      this.cipherFormCacheService.clearCache();
+      return;
+    }
+
+    const cachedCipher = this.cipherFormCacheService.getCachedCipherView();
+    if (cachedCipher === null) {
+      return;
+    }
+
+    const isEditingExistingCipher =
+      this.updatedCipherView.id && this.updatedCipherView.id === cachedCipher.id;
+    const isCreatingNewCipher =
+      !this.updatedCipherView.id &&
+      !cachedCipher.id &&
+      this.updatedCipherView.type === cachedCipher.type;
+
+    if (isEditingExistingCipher || isCreatingNewCipher) {
+      this.updatedCipherView = cachedCipher;
+    }
   }
 
   constructor(
@@ -230,6 +338,9 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
     private toastService: ToastService,
     private i18nService: I18nService,
     private changeDetectorRef: ChangeDetectorRef,
+    private cipherFormCacheService: CipherFormCacheService,
+    private cipherArchiveService: CipherArchiveService,
+    private accountService: AccountService,
   ) {}
 
   /**
@@ -247,6 +358,7 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
   }
 
   submit = async () => {
+    let successToast: string = "editedItem";
     if (this.cipherForm.invalid) {
       this.cipherForm.markAllAsTouched();
 
@@ -271,17 +383,33 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
       }
     }
 
+    const userCanArchive = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId)),
+      ),
+    );
+
+    // If the item is archived but user has lost archive permissions, unarchive the item.
+    if (!userCanArchive && this.updatedCipherView.archivedDate) {
+      this.updatedCipherView.archivedDate = null;
+      successToast = "itemRestored";
+    }
+
     const savedCipher = await this.addEditFormService.saveCipher(
       this.updatedCipherView,
       this.config,
     );
+
+    // Clear the cache after successful save
+    this.cipherFormCacheService.clearCache();
 
     this.toastService.showToast({
       variant: "success",
       title: null,
       message: this.i18nService.t(
         this.config.mode === "edit" || this.config.mode === "partial-edit"
-          ? "editedItem"
+          ? successToast
           : "addedItem",
       ),
     });

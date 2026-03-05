@@ -1,5 +1,6 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+
 export class OrganizationUserConfirmRequest {
-  key: string;
+  key: EncryptedString | undefined;
+  defaultUserCollectionName: EncryptedString | undefined;
 }

@@ -1,30 +1,25 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { NgIf } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
-  CardComponent,
   FormFieldModule,
   IconButtonModule,
-  SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
 
 import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-cipher-card.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "app-view-identity-sections",
   templateUrl: "./view-identity-sections.component.html",
   imports: [
     NgIf,
     JslibModule,
-    CardComponent,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     FormFieldModule,
@@ -32,21 +27,17 @@ import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-
     ReadOnlyCipherCardComponent,
   ],
 })
-export class ViewIdentitySectionsComponent implements OnInit {
-  @Input() cipher: CipherView;
-
-  showPersonalDetails: boolean;
-  showIdentificationDetails: boolean;
-  showContactDetails: boolean;
-
-  ngOnInit(): void {
-    this.showPersonalDetails = this.hasPersonalDetails();
-    this.showIdentificationDetails = this.hasIdentificationDetails();
-    this.showContactDetails = this.hasContactDetails();
-  }
+export class ViewIdentitySectionsComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input({ required: true }) cipher: CipherView | null = null;
 
   /** Returns all populated address fields */
   get addressFields(): string {
+    if (!this.cipher) {
+      return "";
+    }
+
     const { address1, address2, address3, fullAddressPart2, country } = this.cipher.identity;
     return [address1, address2, address3, fullAddressPart2, country].filter(Boolean).join("\n");
   }
@@ -57,19 +48,31 @@ export class ViewIdentitySectionsComponent implements OnInit {
   }
 
   /** Returns true when any of the "personal detail" attributes are populated */
-  private hasPersonalDetails(): boolean {
+  get hasPersonalDetails(): boolean {
+    if (!this.cipher) {
+      return false;
+    }
+
     const { username, company, fullName } = this.cipher.identity;
     return Boolean(fullName || username || company);
   }
 
   /** Returns true when any of the "identification detail" attributes are populated */
-  private hasIdentificationDetails(): boolean {
+  get hasIdentificationDetails(): boolean {
+    if (!this.cipher) {
+      return false;
+    }
+
     const { ssn, passportNumber, licenseNumber } = this.cipher.identity;
     return Boolean(ssn || passportNumber || licenseNumber);
   }
 
   /** Returns true when any of the "contact detail" attributes are populated */
-  private hasContactDetails(): boolean {
+  get hasContactDetails(): boolean {
+    if (!this.cipher) {
+      return false;
+    }
+
     const { email, phone } = this.cipher.identity;
 
     return Boolean(email || phone || this.addressFields);

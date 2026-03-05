@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ApiService } from "../../../abstractions/api.service";
+import { I18nService } from "../../../platform/abstractions/i18n.service";
 
 import { IntegrationRequest } from "./integration-request";
 import { JsonRpc } from "./rpc";
@@ -46,9 +46,13 @@ export class RestClient {
   }
 
   private async detectCommonErrors(response: Response): Promise<[string, string] | undefined> {
-    if (response.status === 401 || response.status === 403) {
+    if (response.status === 401) {
       const message = await this.tryGetErrorMessage(response);
       const key = message ? "forwaderInvalidTokenWithMessage" : "forwaderInvalidToken";
+      return [key, message];
+    } else if (response.status === 403) {
+      const message = await this.tryGetErrorMessage(response);
+      const key = message ? "forwaderInvalidOperationWithMessage" : "forwaderInvalidOperation";
       return [key, message];
     } else if (response.status >= 400) {
       const message = await this.tryGetErrorMessage(response);

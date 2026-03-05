@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires, no-console */
+/* eslint-disable @typescript-eslint/no-require-imports, no-console */
 require("dotenv").config();
 const path = require("path");
 
@@ -16,7 +16,9 @@ async function run(context) {
   const appPath = `${context.appOutDir}/${appName}.app`;
   const macBuild = context.electronPlatformName === "darwin";
   const copySafariExtension = ["darwin", "mas"].includes(context.electronPlatformName);
-  const copyAutofillExtension = ["mas"].includes(context.electronPlatformName);
+  const isMasDevBuild =
+    context.electronPlatformName === "mas" && context.targets.at(0)?.name === "mas-dev";
+  const copyAutofillExtension = ["darwin"].includes(context.electronPlatformName) || isMasDevBuild;
 
   let shouldResign = false;
 
@@ -31,7 +33,6 @@ async function run(context) {
         fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
       }
       fse.copySync(extensionPath, path.join(appPath, "Contents/PlugIns/autofill-extension.appex"));
-      shouldResign = true;
     }
   }
 

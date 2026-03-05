@@ -1,25 +1,35 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 
-import { EmailIcon } from "../icons/email.icon";
-import { RecoveryCodeIcon } from "../icons/recovery.icon";
-import { TOTPIcon } from "../icons/totp.icon";
-import { WebAuthnIcon } from "../icons/webauthn.icon";
+import {
+  BitSvg,
+  TwoFactorAuthAuthenticatorIcon,
+  TwoFactorAuthEmailIcon,
+  TwoFactorAuthWebAuthnIcon,
+} from "@bitwarden/assets/svg";
+import { SvgModule } from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "auth-two-factor-icon",
   templateUrl: "./two-factor-icon.component.html",
+  imports: [CommonModule, SvgModule],
 })
 export class TwoFactorIconComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() provider: any;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() name: string;
 
-  protected readonly Icons = {
-    TOTPIcon,
-    EmailIcon,
-    WebAuthnIcon,
-    RecoveryCodeIcon,
+  protected readonly IconProviderMap: { [key: number | string]: BitSvg } = {
+    0: TwoFactorAuthAuthenticatorIcon,
+    1: TwoFactorAuthEmailIcon,
+    7: TwoFactorAuthWebAuthnIcon,
   };
 
   constructor() {}

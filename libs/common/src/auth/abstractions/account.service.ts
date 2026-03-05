@@ -1,52 +1,43 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { UserId } from "../../types/guid";
 
 /**
- * Holds information about an account for use in the AccountService
- * if more information is added, be sure to update the equality method.
+ * Holds state that represents a user's account with Bitwarden.
+ * Any additions here should be added to the equality check in the AccountService
+ * to ensure that emissions are done on every change.
+ *
+ * @property email - User's email address.
+ * @property emailVerified - Whether the email has been verified.
+ * @property name - User's display name (optional).
+ * @property creationDate - Date when the account was created.
+ *   Will be undefined immediately after login until the first sync completes.
  */
 export type AccountInfo = {
   email: string;
   emailVerified: boolean;
   name: string | undefined;
+  creationDate: Date | undefined;
 };
 
 export type Account = { id: UserId } & AccountInfo;
-
-export function accountInfoEqual(a: AccountInfo, b: AccountInfo) {
-  if (a == null && b == null) {
-    return true;
-  }
-
-  if (a == null || b == null) {
-    return false;
-  }
-
-  const keys = new Set([...Object.keys(a), ...Object.keys(b)]) as Set<keyof AccountInfo>;
-  for (const key of keys) {
-    if (a[key] !== b[key]) {
-      return false;
-    }
-  }
-  return true;
-}
-
 export abstract class AccountService {
-  accounts$: Observable<Record<UserId, AccountInfo>>;
+  abstract accounts$: Observable<Record<UserId, AccountInfo>>;
 
-  activeAccount$: Observable<Account | null>;
+  abstract activeAccount$: Observable<Account | null>;
 
   /**
    * Observable of the last activity time for each account.
    */
-  accountActivity$: Observable<Record<UserId, Date>>;
+  abstract accountActivity$: Observable<Record<UserId, Date>>;
+  /** Observable of the new device login verification property for the account. */
+  abstract accountVerifyNewDeviceLogin$: Observable<boolean>;
   /** Account list in order of descending recency */
-  sortedUserIds$: Observable<UserId[]>;
+  abstract sortedUserIds$: Observable<UserId[]>;
   /** Next account that is not the current active account */
-  nextUpAccount$: Observable<Account>;
+  abstract nextUpAccount$: Observable<Account>;
+  /** Observable to display the header */
+  abstract showHeader$: Observable<boolean>;
   /**
    * Updates the `accounts$` observable with the new account data.
    *
@@ -74,6 +65,21 @@ export abstract class AccountService {
    */
   abstract setAccountEmailVerified(userId: UserId, emailVerified: boolean): Promise<void>;
   /**
+   * updates the `accounts$` observable with the creation date for the account.
+   * @param userId
+   * @param creationDate
+   */
+  abstract setAccountCreationDate(userId: UserId, creationDate: Date): Promise<void>;
+  /**
+   * updates the `accounts$` observable with the new VerifyNewDeviceLogin property for the account.
+   * @param userId
+   * @param VerifyNewDeviceLogin
+   */
+  abstract setAccountVerifyNewDeviceLogin(
+    userId: UserId,
+    verifyNewDeviceLogin: boolean,
+  ): Promise<void>;
+  /**
    * Updates the `activeAccount$` observable with the new active account.
    * @param userId
    */
@@ -91,6 +97,11 @@ export abstract class AccountService {
    * @param lastActivity
    */
   abstract setAccountActivity(userId: UserId, lastActivity: Date): Promise<void>;
+  /**
+   * Show the account switcher.
+   * @param value
+   */
+  abstract setShowHeader(visible: boolean): Promise<void>;
 }
 
 export abstract class InternalAccountService extends AccountService {

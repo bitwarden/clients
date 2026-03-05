@@ -11,6 +11,8 @@
   .vault > .groupings > .content > .inner-content {
     padding-top: 0;
   }
+
+  --bit-sidenav-macos-extra-top-padding: 28px;
 }
 
 .environment-selector-btn {
@@ -21,7 +23,7 @@
   padding-left: 15px;
 
   span {
-    font-weight: 600;
+    font-weight: 500;
     font-size: $font-size-small;
   }
 }

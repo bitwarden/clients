@@ -1,9 +1,8 @@
-import { sshagent as ssh } from "desktop_native/napi";
 import { ipcRenderer } from "electron";
 
 import { DeviceType } from "@bitwarden/common/enums";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ThemeType, LogLevelType } from "@bitwarden/common/platform/enums";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 
 import {
   EncryptedMessageResponse,
@@ -18,6 +17,7 @@ import {
   isFlatpak,
   isMacAppStore,
   isSnapStore,
+  isWindowsPortable,
   isWindowsStore,
 } from "../utils";
 
@@ -58,21 +58,14 @@ const sshAgent = {
   signRequestResponse: async (requestId: number, accepted: boolean) => {
     await ipcRenderer.invoke("sshagent.signrequestresponse", { requestId, accepted });
   },
-  generateKey: async (keyAlgorithm: string): Promise<ssh.SshKey> => {
-    return await ipcRenderer.invoke("sshagent.generatekey", { keyAlgorithm });
-  },
   lock: async () => {
     return await ipcRenderer.invoke("sshagent.lock");
   },
   clearKeys: async () => {
     return await ipcRenderer.invoke("sshagent.clearkeys");
   },
-  importKey: async (key: string, password: string): Promise<ssh.SshKeyImportResult> => {
-    const res = await ipcRenderer.invoke("sshagent.importkey", {
-      privateKey: key,
-      password: password,
-    });
-    return res;
+  isLoaded(): Promise<boolean> {
+    return ipcRenderer.invoke("sshagent.isloaded");
   },
 };
 
@@ -87,6 +80,7 @@ const nativeMessaging = {
   },
   sendMessage: (message: {
     appId: string;
+    messageId?: number;
     command?: string;
     sharedSecret?: string;
     message?: EncString;
@@ -105,28 +99,23 @@ const nativeMessaging = {
   },
 };
 
-const crypto = {
-  argon2: (
-    password: Uint8Array,
-    salt: Uint8Array,
-    iterations: number,
-    memory: number,
-    parallelism: number,
-  ): Promise<Uint8Array> =>
-    ipcRenderer.invoke("crypto.argon2", { password, salt, iterations, memory, parallelism }),
-};
-
 const ephemeralStore = {
   setEphemeralValue: (key: string, value: string): Promise<void> =>
     ipcRenderer.invoke("setEphemeralValue", { key, value }),
   getEphemeralValue: (key: string): Promise<string> => ipcRenderer.invoke("getEphemeralValue", key),
   removeEphemeralValue: (key: string): Promise<void> =>
     ipcRenderer.invoke("deleteEphemeralValue", key),
+  listEphemeralValueKeys: (): Promise<string[]> => ipcRenderer.invoke("listEphemeralValueKeys"),
 };
 
 const localhostCallbackService = {
-  openSsoPrompt: (codeChallenge: string, state: string): Promise<void> => {
-    return ipcRenderer.invoke("openSsoPrompt", { codeChallenge, state });
+  openSsoPrompt: (
+    codeChallenge: string,
+    state: string,
+    email: string,
+    orgSsoIdentifier?: string,
+  ): Promise<void> => {
+    return ipcRenderer.invoke("openSsoPrompt", { codeChallenge, state, email, orgSsoIdentifier });
   },
 };
 
@@ -145,6 +134,7 @@ export default {
   isDev: isDev(),
   isMacAppStore: isMacAppStore(),
   isWindowsStore: isWindowsStore(),
+  isWindowsPortable: isWindowsPortable(),
   isFlatpak: isFlatpak(),
   isSnapStore: isSnapStore(),
   isAppImage: isAppImage(),

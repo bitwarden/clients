@@ -124,47 +124,48 @@
     <value>自宅、職場、または外出先でも、Bitwarden はすべてのパスワード、パスキー、機密情報を簡単に保護します。</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>PCMag、WIRED、The Verge、CNET、G2 などから最高のパスワードマネージャーとして認められています！
+    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
 
-デジタルライフを守る
-データ漏洩を防ぐために、各アカウントに対してユニークで強力なパスワードを生成し保存することで、デジタルライフを守りましょう。エンドツーエンドで暗号化されたパスワード保管庫にすべてを保存し、あなただけがアクセスできます。
+SECURE YOUR DIGITAL LIFE
+Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
 
-どこでも、いつでも、どのデバイスでもデータにアクセス
-デバイスやパスワード数の制限は一切なく、簡単に管理、保存、保護、共有できます。
+ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
+Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
 
-誰もがオンラインで安全を保つためのツールを持つべき
-Bitwarden は広告やデータ販売なしに無料で利用できます。Bitwarden は、誰もがオンラインで安全を保つ能力を持つべきだと信じています。プレミアムプランでは高度な機能にアクセスできます。
+EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
+Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
 
-チームを Bitwarden で強化
-チームおよびエンタープライズ向けのプランには、SSO 統合、セルフホスティング、ディレクトリ統合と SCIM プロビジョニング、グローバルポリシー、API アクセス、イベントログなどのプロフェッショナルなビジネス機能が含まれます。
+EMPOWER YOUR TEAMS WITH BITWARDEN
+Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
 
-Bitwardenを使用して、従業員を保護し、同僚と機密情報を共有しましょう。
+Use Bitwarden to secure your workforce and share sensitive information with colleagues.
 
-Bitwardenを選ぶ理由
 
-世界クラスの暗号化
-パスワードは、先進的なエンドツーエンド暗号化（AES-256ビット、ソルト付きハッシュタグ、PBKDF2 SHA-256）で保護され、データは安全かつプライベートに保たれます。
+More reasons to choose Bitwarden:
 
-第三者監査
-Bitwarden は、著名なセキュリティ企業による包括的な第三者セキュリティ監査を定期的に実施しています。これらの年次監査には、ソースコードの評価や Bitwarden の IP、サーバー、ウェブアプリケーション全体にわたるペネトレーションテストが含まれます。
+World-Class Encryption
+Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
 
-高度な2要素認証
-サードパーティーの認証アプリ、メールコード、またはハードウェアセキュリティキーやパスキーなどの FIDO2 WebAuthn 資格情報でログインを保護します。
+3rd-party Audits
+Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+
+Advanced 2FA
+Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
 
 Bitwarden Send
-エンドツーエンドで暗号化されたセキュリティを維持しながら、他者にデータを直接送信し、データ漏洩を制限します。
+Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
 
-内蔵ジェネレーター
-訪問するすべてのサイトに対して、長く複雑でユニークなパスワードとユーザー名を作成できます。追加のプライバシーのためにメールエイリアスプロバイダーと統合することもできます。
+Built-in Generator
+Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
 
-グローバル翻訳
-Bitwarden の翻訳は、Crowdin を通じてグローバルコミュニティによって翻訳され、60以上の言語に対応しています。
+Global Translations
+Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
 
-クロスプラットフォームアプリケーション
-任意のブラウザ、モバイルデバイス、デスクトップ OS などから、Bitwarden 保管庫内の機密データを保護し、共有できます。
+Cross-Platform Applications
+Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
 
-Bitwarden はパスワードだけを保護するわけではありません
-Bitwarden のエンドツーエンド暗号化された資格情報管理ソリューションは、組織が開発者のシークレットやパスキー体験を含むすべてを保護することを支援します。Bitwarden シークレットマネージャーや Bitwarden Passwordless.dev について詳しくは、Bitwarden.com をご覧ください。
+Bitwarden secures more than just passwords
+End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">

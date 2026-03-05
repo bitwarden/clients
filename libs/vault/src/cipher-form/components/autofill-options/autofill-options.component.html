@@ -1,17 +1,21 @@
-<bit-section [formGroup]="autofillOptionsForm">
+<section class="tw-mb-5 bit-compact:tw-mb-4" [formGroup]="autofillOptionsForm">
   <bit-section-header>
     <h2 bitTypography="h6">
       {{ "autofillOptions" | i18n }}
     </h2>
   </bit-section-header>
 
-  <bit-card>
+  <bit-card cdkDropList (cdkDropListDropped)="onUriItemDrop($event)">
     <ng-container formArrayName="uris">
       <vault-autofill-uri-option
         *ngFor="let uri of uriControls; let i = index"
+        cdkDrag
+        [cdkDragDisabled]="uriControls.length <= 1 || autofillOptionsForm.disabled"
         [formControlName]="i"
         (remove)="removeUri(i)"
-        [canRemove]="uriControls.length > 1"
+        (onKeydown)="onUriItemKeydown($event, i)"
+        [canReorder]="uriControls.length > 1 && autofillOptionsForm.enabled"
+        [canRemove]="uriControls.length > 1 && autofillOptionsForm.enabled"
         [defaultMatchDetection]="defaultMatchDetection$ | async"
         [index]="i"
       ></vault-autofill-uri-option>
@@ -25,7 +29,7 @@
       (click)="addUri({ uri: null, matchDetection: null }, true)"
       *ngIf="autofillOptionsForm.enabled"
     >
-      <i class="bwi bwi-plus tw-font-bold" aria-hidden="true"></i>
+      <i class="bwi bwi-plus tw-font-medium" aria-hidden="true"></i>
       {{ "addWebsite" | i18n }}
     </button>
 
@@ -34,4 +38,4 @@
       <bit-select formControlName="autofillOnPageLoad" [items]="autofillOptions"></bit-select>
     </bit-form-field>
   </bit-card>
-</bit-section>
+</section>

@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { Response } from "../../models/response";
@@ -34,6 +35,8 @@ export class ShareCommand {
         if (req == null || req.length === 0) {
           return Response.badRequest("You must provide at least one collection id for this item.");
         }
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         return Response.badRequest("Error parsing the encoded request data.");
       }
@@ -46,7 +49,9 @@ export class ShareCommand {
       organizationId = organizationId.toLowerCase();
     }
 
-    const cipher = await this.cipherService.get(id);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const cipher = await this.cipherService.get(id, activeUserId);
     if (cipher == null) {
       return Response.notFound();
     }
@@ -54,18 +59,11 @@ export class ShareCommand {
       return Response.badRequest("This item already belongs to an organization.");
     }
 
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
-    const cipherView = await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-    );
+    const cipherView = await this.cipherService.decrypt(cipher, activeUserId);
     try {
       await this.cipherService.shareWithServer(cipherView, organizationId, req, activeUserId);
-      const updatedCipher = await this.cipherService.get(cipher.id);
-      const decCipher = await updatedCipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
-      );
+      const updatedCipher = await this.cipherService.get(cipher.id, activeUserId);
+      const decCipher = await this.cipherService.decrypt(updatedCipher, activeUserId);
       const res = new CipherResponse(decCipher);
       return Response.success(res);
     } catch (e) {

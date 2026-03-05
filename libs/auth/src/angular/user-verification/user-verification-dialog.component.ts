@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
@@ -11,7 +10,11 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { VerificationWithSecret } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
+  DIALOG_DATA,
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   CalloutModule,
@@ -27,9 +30,10 @@ import {
 } from "./user-verification-dialog.types";
 import { UserVerificationFormInputComponent } from "./user-verification-form-input.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "user-verification-dialog.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -273,13 +277,13 @@ export class UserVerificationDialogComponent {
           });
         }
       }
-    } catch (e) {
+    } catch {
       // Catch handles OTP and MP verification scenarios as those throw errors on verification failure instead of returning false like PIN and biometrics.
       this.invalidSecret = true;
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("error"),
-        message: e.message,
+        message: this.i18nService.t("userVerificationFailed"),
       });
       return;
     }

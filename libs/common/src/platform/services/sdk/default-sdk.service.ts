@@ -1,74 +1,97 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   combineLatest,
   concatMap,
-  firstValueFrom,
   Observable,
+  share,
   shareReplay,
+  ReplaySubject,
+  timer,
   map,
   distinctUntilChanged,
   tap,
   switchMap,
   catchError,
+  BehaviorSubject,
+  of,
+  takeWhile,
+  throwIfEmpty,
+  firstValueFrom,
 } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { UserKey } from "@bitwarden/common/types/key";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService, KdfConfigService, KdfConfig, KdfType } from "@bitwarden/key-management";
 import {
-  BitwardenClient,
+  PasswordManagerClient,
   ClientSettings,
-  LogLevel,
-  DeviceType as SdkDeviceType,
+  TokenProvider,
+  UnsignedSharedKey,
+  WrappedAccountCryptographicState,
 } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
-import { EncryptedOrganizationKeyData } from "../../../admin-console/models/data/encrypted-organization-key.data";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
-import { DeviceType } from "../../../enums/device-type.enum";
+import { AccountCryptographicStateService } from "../../../key-management/account-cryptography/account-cryptographic-state.service";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { OrganizationId, UserId } from "../../../types/guid";
-import { UserKey } from "../../../types/key";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
-import { SdkService } from "../../abstractions/sdk/sdk.service";
+import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
+import {
+  asUuid,
+  SdkService,
+  toSdkDevice,
+  UserNotLoggedInError,
+} from "../../abstractions/sdk/sdk.service";
 import { compareValues } from "../../misc/compare-values";
-import { EncryptedString } from "../../models/domain/enc-string";
+import { Rc } from "../../misc/reference-counting/rc";
+import { StateProvider } from "../../state";
 
-export class RecoverableSDKError extends Error {
-  sdk: BitwardenClient;
-  timeout: number;
+import { initializeState } from "./client-managed-state";
 
-  constructor(sdk: BitwardenClient, timeout: number) {
-    super(`SDK took ${timeout}s to initialize`);
+// A symbol that represents an overridden client that is explicitly set to undefined,
+// blocking the creation of an internal client for that user.
+const UnsetClient = Symbol("UnsetClient");
 
-    this.sdk = sdk;
-    this.timeout = timeout;
+/**
+ * A token provider that exposes the access token to the SDK.
+ */
+class JsTokenProvider implements TokenProvider {
+  constructor(
+    private apiService: ApiService,
+    private userId?: UserId,
+  ) {}
+
+  async get_access_token(): Promise<string | undefined> {
+    if (this.userId == null) {
+      return undefined;
+    }
+
+    return await this.apiService.getActiveBearerToken(this.userId);
   }
 }
 
 export class DefaultSdkService implements SdkService {
-  private sdkClientCache = new Map<UserId, Observable<BitwardenClient>>();
+  private sdkClientOverrides = new BehaviorSubject<{
+    [userId: UserId]: Rc<PasswordManagerClient> | typeof UnsetClient;
+  }>({});
+  private sdkClientCache = new Map<UserId, Observable<Rc<PasswordManagerClient>>>();
 
   client$ = this.environmentService.environment$.pipe(
     concatMap(async (env) => {
-      const settings = this.toSettings(env);
-      try {
-        return await this.sdkClientFactory.createSdkClient(settings, LogLevel.Info);
-      } catch (e) {
-        if (e instanceof RecoverableSDKError) {
-          await this.failedToInitialize("sdk", e);
-          return e.sdk;
-        }
-        throw e;
-      }
+      await SdkLoadService.Ready;
+      const settings = await this.toSettings(env);
+      const client = await this.sdkClientFactory.createSdkClient(
+        new JsTokenProvider(this.apiService),
+        settings,
+      );
+      await this.loadFeatureFlags(client);
+      return client;
     }),
     shareReplay({ refCount: true, bufferSize: 1 }),
-  );
-
-  supported$ = this.client$.pipe(
-    concatMap(async (client) => {
-      return client.echo("bitwarden wasm!") === "bitwarden wasm!";
-    }),
   );
 
   version$ = this.client$.pipe(
@@ -83,14 +106,59 @@ export class DefaultSdkService implements SdkService {
     private accountService: AccountService,
     private kdfConfigService: KdfConfigService,
     private keyService: KeyService,
-    private apiService: ApiService, // Yes we shouldn't import ApiService, but it's temporary
-    private userAgent: string = null,
+    private accountCryptographyStateService: AccountCryptographicStateService,
+    private apiService: ApiService,
+    private stateProvider: StateProvider,
+    private configService: ConfigService,
+    private userAgent: string | null = null,
   ) {}
 
-  userClient$(userId: UserId): Observable<BitwardenClient | undefined> {
-    // TODO: Figure out what happens when the user logs out
-    if (this.sdkClientCache.has(userId)) {
-      return this.sdkClientCache.get(userId);
+  userClient$(userId: UserId): Observable<Rc<PasswordManagerClient>> {
+    return this.sdkClientOverrides.pipe(
+      takeWhile((clients) => clients[userId] !== UnsetClient, false),
+      map((clients) => {
+        if (clients[userId] === UnsetClient) {
+          throw new Error("Encountered UnsetClient even though it should have been filtered out");
+        }
+        return clients[userId] as Rc<PasswordManagerClient>;
+      }),
+      distinctUntilChanged(),
+      switchMap((clientOverride) => {
+        if (clientOverride) {
+          return of(clientOverride);
+        }
+
+        return this.internalClient$(userId);
+      }),
+      takeWhile((client) => client !== undefined, false),
+      throwIfEmpty(() => new UserNotLoggedInError(userId)),
+    );
+  }
+
+  setClient(userId: UserId, client: PasswordManagerClient | undefined) {
+    const previousValue = this.sdkClientOverrides.value[userId];
+
+    this.sdkClientOverrides.next({
+      ...this.sdkClientOverrides.value,
+      [userId]: client ? new Rc(client) : UnsetClient,
+    });
+
+    if (previousValue !== UnsetClient && previousValue !== undefined) {
+      previousValue.markForDisposal();
+    }
+  }
+
+  /**
+   * This method is used to create a client for a specific user by using the existing state of the application.
+   * This methods is a fallback for when no client has been provided by Auth. As Auth starts implementing the
+   * client creation, this method will be deprecated.
+   * @param userId The user id for which to create the client
+   * @returns An observable that emits the client for the user
+   */
+  private internalClient$(userId: UserId): Observable<Rc<PasswordManagerClient>> {
+    const cached = this.sdkClientCache.get(userId);
+    if (cached !== undefined) {
+      return cached;
     }
 
     const account$ = this.accountService.accounts$.pipe(
@@ -98,8 +166,8 @@ export class DefaultSdkService implements SdkService {
       distinctUntilChanged(),
     );
     const kdfParams$ = this.kdfConfigService.getKdfConfig$(userId).pipe(distinctUntilChanged());
-    const privateKey$ = this.keyService
-      .userEncryptedPrivateKey$(userId)
+    const accountCryptographicState$ = this.accountCryptographyStateService
+      .accountCryptographicState$(userId)
       .pipe(distinctUntilChanged());
     const userKey$ = this.keyService.userKey$(userId).pipe(distinctUntilChanged());
     const orgKeys$ = this.keyService.encryptedOrgKeys$(userId).pipe(
@@ -107,95 +175,88 @@ export class DefaultSdkService implements SdkService {
     );
 
     const client$ = combineLatest([
-      this.environmentService.environment$,
+      this.environmentService.getEnvironment$(userId),
       account$,
       kdfParams$,
-      privateKey$,
+      accountCryptographicState$,
       userKey$,
       orgKeys$,
+      SdkLoadService.Ready, // Makes sure we wait (once) for the SDK to be loaded
     ]).pipe(
       // switchMap is required to allow the clean-up logic to be executed when `combineLatest` emits a new value.
-      switchMap(([env, account, kdfParams, privateKey, userKey, orgKeys]) => {
+      switchMap(([env, account, kdfParams, accountCryptographicState, userKey, orgKeys]) => {
         // Create our own observable to be able to implement clean-up logic
-        return new Observable<BitwardenClient>((subscriber) => {
-          let client: BitwardenClient;
-
+        return new Observable<Rc<PasswordManagerClient>>((subscriber) => {
           const createAndInitializeClient = async () => {
-            if (privateKey == null || userKey == null) {
+            if (
+              env == null ||
+              kdfParams == null ||
+              accountCryptographicState == null ||
+              userKey == null
+            ) {
               return undefined;
             }
 
-            const settings = this.toSettings(env);
-            client = await this.sdkClientFactory.createSdkClient(settings, LogLevel.Info);
+            const settings = await this.toSettings(env);
+            const client = await this.sdkClientFactory.createSdkClient(
+              new JsTokenProvider(this.apiService, userId),
+              settings,
+            );
 
-            await this.initializeClient(client, account, kdfParams, privateKey, userKey, orgKeys);
+            await this.initializeClient(
+              userId,
+              client,
+              account,
+              kdfParams,
+              userKey,
+              accountCryptographicState,
+              orgKeys,
+            );
 
             return client;
           };
 
+          let client: Rc<PasswordManagerClient> | undefined;
           createAndInitializeClient()
             .then((c) => {
-              client = c;
-              subscriber.next(c);
+              client = c === undefined ? undefined : new Rc(c);
+
+              subscriber.next(client);
             })
             .catch((e) => {
               subscriber.error(e);
             });
 
-          return () => client?.free();
+          return () => client?.markForDisposal();
         });
       }),
-      tap({
-        finalize: () => this.sdkClientCache.delete(userId),
+      tap({ finalize: () => this.sdkClientCache.delete(userId) }),
+      share({
+        connector: () => new ReplaySubject(1),
+        resetOnRefCountZero: () => timer(1000),
       }),
-      shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
     this.sdkClientCache.set(userId, client$);
     return client$;
   }
 
-  async failedToInitialize(category: string, error?: Error): Promise<void> {
-    // Only log on cloud instances
-    if (
-      this.platformUtilsService.isDev() ||
-      !(await firstValueFrom(this.environmentService.environment$)).isCloud
-    ) {
-      return;
-    }
-
-    return this.apiService.send(
-      "POST",
-      "/wasm-debug",
-      {
-        category: category,
-        error: error?.message,
-      },
-      false,
-      false,
-      null,
-      (headers) => {
-        headers.append("SDK-Version", "1.0.0");
-      },
-    );
-  }
-
   private async initializeClient(
-    client: BitwardenClient,
+    userId: UserId,
+    client: PasswordManagerClient,
     account: AccountInfo,
     kdfParams: KdfConfig,
-    privateKey: EncryptedString,
     userKey: UserKey,
-    orgKeys?: Record<OrganizationId, EncryptedOrganizationKeyData>,
+    accountCryptographicState: WrappedAccountCryptographicState,
+    orgKeys: Record<OrganizationId, EncString>,
   ) {
     await client.crypto().initialize_user_crypto({
+      userId: asUuid(userId),
       email: account.email,
       method: { decryptedKey: { decrypted_user_key: userKey.keyB64 } },
       kdfParams:
         kdfParams.kdfType === KdfType.PBKDF2_SHA256
-          ? {
-              pBKDF2: { iterations: kdfParams.iterations },
-            }
+          ? { pBKDF2: { iterations: kdfParams.iterations } }
           : {
               argon2id: {
                 iterations: kdfParams.iterations,
@@ -203,83 +264,42 @@ export class DefaultSdkService implements SdkService {
                 parallelism: kdfParams.parallelism,
               },
             },
-      privateKey,
+      accountCryptographicState: accountCryptographicState,
     });
 
     // We initialize the org crypto even if the org_keys are
     // null to make sure any existing org keys are cleared.
     await client.crypto().initialize_org_crypto({
       organizationKeys: new Map(
-        Object.entries(orgKeys ?? {})
-          .filter(([_, v]) => v.type === "organization")
-          .map(([k, v]) => [k, v.key]),
+        Object.entries(orgKeys).map(([k, v]) => [asUuid(k), v.toJSON() as UnsignedSharedKey]),
       ),
     });
+
+    // Initialize the SDK managed database and the client managed repositories.
+    await initializeState(userId, client.platform().state(), this.stateProvider);
+
+    await this.loadFeatureFlags(client);
   }
 
-  private toSettings(env: Environment): ClientSettings {
+  private async loadFeatureFlags(client: PasswordManagerClient) {
+    const serverConfig = await firstValueFrom(this.configService.serverConfig$);
+
+    const featureFlagMap = new Map(
+      Object.entries(serverConfig?.featureStates ?? {})
+        .filter(([, value]) => typeof value === "boolean") // The SDK only supports boolean feature flags at this time
+        .map(([key, value]) => [key, value] as [string, boolean]),
+    );
+
+    client.platform().load_flags(featureFlagMap);
+  }
+
+  private async toSettings(env: Environment): Promise<ClientSettings> {
     return {
       apiUrl: env.getApiUrl(),
       identityUrl: env.getIdentityUrl(),
-      deviceType: this.toDevice(this.platformUtilsService.getDevice()),
+      deviceType: toSdkDevice(this.platformUtilsService.getDevice()),
+      bitwardenClientVersion: await this.platformUtilsService.getApplicationVersionNumber(),
       userAgent: this.userAgent ?? navigator.userAgent,
     };
-  }
-
-  private toDevice(device: DeviceType): SdkDeviceType {
-    switch (device) {
-      case DeviceType.Android:
-        return "Android";
-      case DeviceType.iOS:
-        return "iOS";
-      case DeviceType.ChromeExtension:
-        return "ChromeExtension";
-      case DeviceType.FirefoxExtension:
-        return "FirefoxExtension";
-      case DeviceType.OperaExtension:
-        return "OperaExtension";
-      case DeviceType.EdgeExtension:
-        return "EdgeExtension";
-      case DeviceType.WindowsDesktop:
-        return "WindowsDesktop";
-      case DeviceType.MacOsDesktop:
-        return "MacOsDesktop";
-      case DeviceType.LinuxDesktop:
-        return "LinuxDesktop";
-      case DeviceType.ChromeBrowser:
-        return "ChromeBrowser";
-      case DeviceType.FirefoxBrowser:
-        return "FirefoxBrowser";
-      case DeviceType.OperaBrowser:
-        return "OperaBrowser";
-      case DeviceType.EdgeBrowser:
-        return "EdgeBrowser";
-      case DeviceType.IEBrowser:
-        return "IEBrowser";
-      case DeviceType.UnknownBrowser:
-        return "UnknownBrowser";
-      case DeviceType.AndroidAmazon:
-        return "AndroidAmazon";
-      case DeviceType.UWP:
-        return "UWP";
-      case DeviceType.SafariBrowser:
-        return "SafariBrowser";
-      case DeviceType.VivaldiBrowser:
-        return "VivaldiBrowser";
-      case DeviceType.VivaldiExtension:
-        return "VivaldiExtension";
-      case DeviceType.SafariExtension:
-        return "SafariExtension";
-      case DeviceType.Server:
-        return "Server";
-      case DeviceType.WindowsCLI:
-        return "WindowsCLI";
-      case DeviceType.MacOsCLI:
-        return "MacOsCLI";
-      case DeviceType.LinuxCLI:
-        return "LinuxCLI";
-      default:
-        return "SDK";
-    }
   }
 }

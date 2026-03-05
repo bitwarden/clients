@@ -82,6 +82,7 @@ export class I18nMainService extends BaseI18nService {
       "sl",
       "sr",
       "sv",
+      "ta",
       "te",
       "th",
       "tr",

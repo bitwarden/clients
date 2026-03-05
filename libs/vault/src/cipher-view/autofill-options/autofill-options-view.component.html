@@ -1,4 +1,4 @@
-<bit-section>
+<section class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">{{ "autofillOptions" | i18n }}</h2>
   </bit-section-header>
@@ -26,19 +26,19 @@
           type="button"
           (click)="openWebsite(login.launchUri)"
           data-testid="launch-website"
-          [attr.aria-label]="('launch' | i18n) + ' ' + login.hostOrUri"
+          [label]="('launch' | i18n) + ' ' + login.hostOrUri"
         ></button>
         <button
           bitIconButton="bwi-clone"
           bitSuffix
           type="button"
-          [appCopyClick]="login.launchUri"
+          [appCopyClick]="login.uri"
           [valueLabel]="'website' | i18n"
           showToast
-          [appA11yTitle]="'copyWebsite' | i18n"
+          [label]="'copyWebsite' | i18n"
           data-testid="copy-website"
         ></button>
       </bit-form-field>
     </ng-container>
   </bit-card>
-</bit-section>
+</section>

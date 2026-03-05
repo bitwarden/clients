@@ -2,40 +2,49 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "Bitwardenen logoa"
+  },
   "extName": {
-    "message": "Bitwarden Password Manager",
+    "message": "Bitwarden pasahitz kudeatzailea",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "message": "Etxean, lanean edo bidean, Bitwardenek zure pasahitz, giltz orokor edo informazio delikatua erraz gordetzen du",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
     "message": "Saioa hasi edo sortu kontu berri bat zure kutxa gotorrera sartzeko."
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "Gonbidapena onartua"
   },
   "createAccount": {
     "message": "Sortu kontua"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Berria Bitwardenen?"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Sartu giltz orokorrarekin"
+  },
+  "unlockWithPasskey": {
+    "message": "Ireki giltz orokorrarekin"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Erabili SSO"
+  },
+  "yourOrganizationRequiresSingleSignOn": {
+    "message": "Zure erakundeak SSO erabiltzera behartzen du."
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Ongi etorri berriro ere"
   },
   "setAStrongPassword": {
-    "message": "Set a strong password"
+    "message": "Pasahitz sendo bat ezarri"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "Amaitu zure kontua sortzen pasahitza ezarriz"
   },
   "enterpriseSingleSignOn": {
     "message": "Enpresentzako saio hasiera bakarra"
@@ -62,7 +71,7 @@
     "message": "Pasahitz nagusia ahazten baduzu, pista batek pasahitza gogoratzen lagunduko dizu."
   },
   "masterPassHintText": {
-    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "message": "Zure pasahitza ahazten bazaizu, pasahitzaren pista emailez bidal dezakegu. Gehienez $CURRENT$/$MAXIMUM$ karaktere.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -80,11 +89,20 @@
   "masterPassHint": {
     "message": "Pasahitz nagusirako pista (aukerakoa)"
   },
+  "passwordStrengthScore": {
+    "message": "Pasahitzaren sendotasun puntuazioa $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "Erakundearen kide egin"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "$ORGANIZATIONNAME$-ren kide egin",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -93,7 +111,7 @@
     }
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Finish joining this organization by setting a master password."
+    "message": "Bukatu erakunde honen kide egitea pasahitz nagusi bat ezarriz."
   },
   "tab": {
     "message": "Fitxak"
@@ -120,7 +138,7 @@
     "message": "Kopiatu pasahitza"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase"
+    "message": "Kopiatu esaldi-gakoa"
   },
   "copyNote": {
     "message": "Kopiatu oharra"
@@ -138,31 +156,31 @@
     "message": "Kopiatu segurtasun-kodea"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "Izena kopiatu"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "Kopiatu enpresa"
   },
   "copySSN": {
-    "message": "Copy Social Security number"
+    "message": "Kopiatu segurtasun sozialaren zenbakia"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "Kopiatu pasaporte zenbakia"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "Kopiatu lizentzia zenbakia"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Kopiatu gako pribatua"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Kopiatu gako publikoa"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Kopiatu hatz-marka"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "Kopiatu $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -171,26 +189,37 @@
     }
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "Kopiatu webgunea"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "Kopiatu oharrak"
+  },
+  "copy": {
+    "message": "Kopiatu",
+    "description": "Copy to clipboard"
   },
   "fill": {
-    "message": "Fill",
+    "message": "Bete",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
     "message": "Auto-betetzea"
   },
   "autoFillLogin": {
-    "message": "Autofill login"
+    "message": "Saio-hasiera autobetetzea"
   },
   "autoFillCard": {
     "message": "Auto-bete txartela"
   },
   "autoFillIdentity": {
     "message": "Auto-bete nortasuna"
+  },
+  "fillVerificationCode": {
+    "message": "Bete egiaztapen-kodea"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Bete egiaztapen-kodea",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
     "message": "Sortu pasahitza (kopiatuta)"
@@ -208,7 +237,7 @@
     "message": "Nortasunik ez"
   },
   "addLoginMenu": {
-    "message": "Add login"
+    "message": "Gehitu logina"
   },
   "addCardMenu": {
     "message": "Gehitu txartela"
@@ -232,22 +261,16 @@
     "message": "Gehitu elementua"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "Kontuaren e-maila"
   },
   "requestHint": {
-    "message": "Request hint"
+    "message": "Argibidea eskatu"
   },
   "requestPasswordHint": {
-    "message": "Request password hint"
+    "message": "Pasahitz-laguntza eskatu"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "Enter your account email address and your password hint will be sent to you"
-  },
-  "passwordHint": {
-    "message": "Pasahitza gogoratzeko pista"
-  },
-  "enterEmailToGetHint": {
-    "message": "Sartu zure kontuko emaila pasahitz nagusiaren pista jasotzeko."
+    "message": "Idatzi zure kontuaren e-maila eta pasahitzaren argibidea bidaliko dizugu"
   },
   "getMasterPasswordHint": {
     "message": "Jaso pasahitz nagusiaren pista"
@@ -274,10 +297,10 @@
     "message": "Aldatu pasahitz nagusia"
   },
   "continueToWebApp": {
-    "message": "Continue to web app?"
+    "message": "Web aplikaziora jarraitu?"
   },
   "continueToWebAppDesc": {
-    "message": "Explore more features of your Bitwarden account on the web app."
+    "message": "Esploratu zure Bitwarden kontuaren funtzio gehiago web-aplikazioan."
   },
   "continueToHelpCenter": {
     "message": "Continue to Help Center?"
@@ -309,7 +332,7 @@
     "message": "Itxi saioa"
   },
   "aboutBitwarden": {
-    "message": "About Bitwarden"
+    "message": "Bitwardeni buruz"
   },
   "about": {
     "message": "Honi buruz"
@@ -365,11 +388,20 @@
   "editFolder": {
     "message": "Editatu Karpeta"
   },
+  "editFolderWithName": {
+    "message": "Edit folder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
-    "message": "New folder"
+    "message": "Karpeta berria"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "Karpetaren izena"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
@@ -407,8 +439,8 @@
   "sync": {
     "message": "Sinkronizatu"
   },
-  "syncVaultNow": {
-    "message": "Sinkronizatu kutxa gotorra orain"
+  "syncNow": {
+    "message": "Sinkronizatu orain"
   },
   "lastSync": {
     "message": "Azken sinkronizazioa:"
@@ -424,10 +456,7 @@
     "message": "Automatikoki pasahitz sendo eta bakarrak sortzen ditu zure saio-hasieratarako."
   },
   "bitWebVaultApp": {
-    "message": "Bitwarden web app"
-  },
-  "importItems": {
-    "message": "Inportatu elementuak"
+    "message": "Bitwarden web aplikazioa"
   },
   "select": {
     "message": "Hautatu"
@@ -438,6 +467,18 @@
   "generatePassphrase": {
     "message": "Generate passphrase"
   },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "Berrezarri pasahitza"
   },
@@ -447,31 +488,12 @@
   "length": {
     "message": "Luzera"
   },
-  "passwordMinLength": {
-    "message": "Pasahitzaren gutxieneko luzera"
-  },
-  "uppercase": {
-    "message": "Letra larria (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Letra txikia (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Zenbakiak (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Karaktere bereziak (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
-    "message": "Include",
+    "message": "Sartu",
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Include uppercase characters",
+    "message": "Sartu letra maiuskulak",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -479,7 +501,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Include lowercase characters",
+    "message": "Sartu letra minuskulak",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -487,7 +509,7 @@
     "description": "Label for the password generator lowercase character checkbox"
   },
   "numbersDescription": {
-    "message": "Include numbers",
+    "message": "Sartu zenbakiak",
     "description": "Full description for the password generator numbers checkbox"
   },
   "numbersLabel": {
@@ -495,12 +517,8 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Include special characters",
+    "message": "Sartu karaktere bereziak",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Hitz kopurua"
@@ -521,10 +539,6 @@
   "minSpecial": {
     "message": "Gutxieneko karaktere bereziak"
   },
-  "avoidAmbChar": {
-    "message": "Saihestu karaktere anbiguoak",
-    "description": "deprecated. Use avoidAmbiguous instead."
-  },
   "avoidAmbiguous": {
     "message": "Avoid ambiguous characters",
     "description": "Label for the avoid ambiguous characters checkbox."
@@ -536,11 +550,70 @@
   "searchVault": {
     "message": "Bilatu kutxa gotorrean"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
+  "archiveNoun": {
+    "message": "Archive",
+    "description": "Noun"
+  },
+  "archiveVerb": {
+    "message": "Archive",
+    "description": "Verb"
+  },
+  "unArchive": {
+    "message": "Unarchive"
+  },
+  "itemsInArchive": {
+    "message": "Items in archive"
+  },
+  "noItemsInArchive": {
+    "message": "No items in archive"
+  },
+  "noItemsInArchiveDesc": {
+    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+  },
+  "itemArchiveToast": {
+    "message": "Item archived"
+  },
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
+  },
+  "archiveItem": {
+    "message": "Archive item"
+  },
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+  },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
+  },
+  "upgradeToUseArchive": {
+    "message": "A premium membership is required to use Archive."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
+  },
   "edit": {
     "message": "Editatu"
   },
   "view": {
     "message": "Erakutsi"
+  },
+  "viewAll": {
+    "message": "Ikusi denak"
+  },
+  "showAll": {
+    "message": "Dena erakutsi"
+  },
+  "viewLess": {
+    "message": "View less"
+  },
+  "viewLogin": {
+    "message": "Ikusi saio-hasiera"
   },
   "noItemsInList": {
     "message": "Ez dago erakusteko elementurik."
@@ -641,14 +714,17 @@
   "rateExtension": {
     "message": "Baloratu gehigarria"
   },
-  "rateExtensionDesc": {
-    "message": "Mesedez, aipu on batekin lagundu!"
-  },
   "browserNotSupportClipboard": {
     "message": "Zure web nabigatzaileak ez du onartzen arbelean erraz kopiatzea. Eskuz kopiatu."
   },
-  "verifyIdentity": {
-    "message": "Zure identitatea egiaztatu"
+  "verifyYourIdentity": {
+    "message": "Verify your identity"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
   },
   "yourVaultIsLocked": {
     "message": "Zure kutxa gotorra blokeatuta dago. Egiaztatu zure identitatea jarraitzeko."
@@ -680,6 +756,15 @@
   },
   "invalidMasterPassword": {
     "message": "Pasahitz nagusi baliogabea"
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "vaultTimeout": {
     "message": "Kutxa gotorraren itxaronaldia"
@@ -728,6 +813,12 @@
   },
   "onLocked": {
     "message": "Sistema blokeatzean"
+  },
+  "onIdle": {
+    "message": "On system idle"
+  },
+  "onSleep": {
+    "message": "On system sleep"
   },
   "onRestart": {
     "message": "Nabigatzailea berrabiaraztean"
@@ -805,6 +896,9 @@
   "invalidVerificationCode": {
     "message": "Egiaztatze-kodea ez da baliozkoa"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
+  },
   "valueCopied": {
     "message": "$VALUE$ kopiatuta",
     "description": "Value has been copied to the clipboard.",
@@ -852,10 +946,28 @@
     "message": "Saioa amaitu da."
   },
   "logIn": {
-    "message": "Log in"
+    "message": "Hasi saioa"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Sartu Bitwardenera"
+  },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Sartu e-mailera bidali dizugun kodea"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Sartu zure egiaztapenerako aplikazioko kodea"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
   },
   "restartRegistration": {
     "message": "Restart registration"
@@ -877,6 +989,15 @@
   },
   "no": {
     "message": "Ez"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
+  },
+  "location": {
+    "message": "Location"
   },
   "unexpectedError": {
     "message": "Ustekabeko akatsa gertatu da."
@@ -946,6 +1067,18 @@
   "editedItem": {
     "message": "Elementua editatuta"
   },
+  "savedWebsite": {
+    "message": "Saved website"
+  },
+  "savedWebsites": {
+    "message": "Saved websites ( $COUNT$ )",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "deleteItemConfirmation": {
     "message": "Ziur zaude elementu hau zakarrontzira bidali nahi duzula?"
   },
@@ -989,8 +1122,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Ask to add an item if one isn't found in your vault. Applies to all logged in accounts."
   },
-  "showCardsInVaultView": {
-    "message": "Show cards as Autofill suggestions on Vault view"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Erakutsi txartelak fitxa orrian"
@@ -998,14 +1131,20 @@
   "showCardsCurrentTabDesc": {
     "message": "Erakutsi elementuen txartelak fitxa orrian, erraz auto-betetzeko."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Show identities as Autofill suggestions on Vault view"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Erakutsi identitateak fitxa orrian"
   },
   "showIdentitiesCurrentTabDesc": {
     "message": "Erakutsi identitateak fitxa orrian, erraz auto-betetzeko."
+  },
+  "clickToAutofillOnVault": {
+    "message": "Click items to autofill on Vault view"
+  },
+  "clickToAutofill": {
+    "message": "Click items in autofill suggestion to fill"
   },
   "clearClipboard": {
     "message": "Hustu arbela",
@@ -1020,6 +1159,123 @@
   },
   "notificationAddSave": {
     "message": "Gorde"
+  },
+  "notificationViewAria": {
+    "message": "View $ITEMNAME$, opens in new window",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Aria label for the view button in notification bar confirmation message"
+  },
+  "notificationNewItemAria": {
+    "message": "New Item, opens in new window",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
+  "notificationEditTooltip": {
+    "message": "Edit before saving",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "New notification"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "notificationLoginSaveConfirmation": {
+    "message": "saved to Bitwarden.",
+    "description": "Shown to user after item is saved."
+  },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "updated in Bitwarden.",
+    "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "Select $ITEMTYPE$, $ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
+  },
+  "saveAsNewLoginAction": {
+    "message": "Save as new login",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Update login",
+    "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Unlock to save this login",
+    "description": "User prompt to take action in order to save the login they just entered."
+  },
+  "saveLogin": {
+    "message": "Save login",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLogin": {
+    "message": "Update existing login",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Login saved",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Login updated",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "loginUpdateTaskSuccess": {
+    "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Change next password",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
+  "saveFailure": {
+    "message": "Error saving",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "description": "Detailed error message shown when saving login details fails."
+  },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
   },
   "enableChangedPasswordNotification": {
     "message": "Galdetu uneko saio-hasiera eguneratzeko"
@@ -1084,15 +1340,24 @@
     "message": "Argia",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solarized iluna",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Export from"
   },
-  "exportVault": {
-    "message": "Esportatu kutxa gotorra"
+  "exportVerb": {
+    "message": "Esportatu",
+    "description": "The verb form of the word Export"
+  },
+  "exportNoun": {
+    "message": "Esportatu",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Fitxategiaren formatua"
@@ -1153,9 +1418,6 @@
   "moveToOrganization": {
     "message": "Mugitu erakundera"
   },
-  "share": {
-    "message": "Partekatu"
-  },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ $ORGNAME$-ra mugituta",
     "placeholders": {
@@ -1174,6 +1436,27 @@
   },
   "learnMore": {
     "message": "Gehiago ikasi"
+  },
+  "migrationsFailed": {
+    "message": "An error occurred updating the encryption settings."
+  },
+  "updateEncryptionSettingsTitle": {
+    "message": "Update your encryption settings"
+  },
+  "updateEncryptionSettingsDesc": {
+    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+  },
+  "confirmIdentityToContinue": {
+    "message": "Confirm your identity to continue"
+  },
+  "enterYourMasterPassword": {
+    "message": "Enter your master password"
+  },
+  "updateSettings": {
+    "message": "Update settings"
+  },
+  "later": {
+    "message": "Later"
   },
   "authenticatorKeyTotp": {
     "message": "Autentifikazio-gakoa (TOTP)"
@@ -1205,6 +1488,15 @@
   "attachmentSaved": {
     "message": "Eranskina gorde da."
   },
+  "fixEncryption": {
+    "message": "Fix encryption"
+  },
+  "fixEncryptionTooltip": {
+    "message": "This file is using an outdated encryption method."
+  },
+  "attachmentUpdated": {
+    "message": "Attachment updated"
+  },
   "file": {
     "message": "Fitxategia"
   },
@@ -1214,14 +1506,17 @@
   "selectFile": {
     "message": "Hautatu fitxategia."
   },
+  "itemsTransferred": {
+    "message": "Items transferred"
+  },
   "maxFileSize": {
     "message": "Eranskinaren gehienezko tamaina 500MB."
   },
   "featureUnavailable": {
     "message": "Ezaugarria ez dago erabilgarri"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Encryption key migration required. Please login through the web vault to update your encryption key."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "premiumMembership": {
     "message": "Premium bazkidea"
@@ -1244,11 +1539,29 @@
   "ppremiumSignUpStorage": {
     "message": "Eranskinentzako 1GB-eko zifratutako biltegia."
   },
+  "premiumSignUpStorageV2": {
+    "message": "$SIZE$ encrypted storage for file attachments.",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "1 GB"
+      }
+    }
+  },
   "premiumSignUpEmergency": {
     "message": "Emergency access."
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Proprietary two-step login options such as YubiKey and Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Pasahitzaren higienea, kontuaren egoera eta datu-bortxaketen txostenak, kutxa gotorra seguru mantentzeko."
@@ -1264,9 +1577,6 @@
   },
   "premiumPurchase": {
     "message": "Premium erosi"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Zure premium bazkidetza bitwarden.com webguneko kutxa gotorrean ordaindu dezakezu. Orain bisitatu nahi duzu webgunea?"
   },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
@@ -1310,23 +1620,11 @@
   "enableAutoBiometricsPrompt": {
     "message": "Biometria eskatu saioa hastean"
   },
-  "premiumRequired": {
-    "message": "Premium izatea beharrezkoa da"
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
   },
-  "premiumRequiredDesc": {
-    "message": "Premium bazkidetza beharrezkoa da ezaugarri hau erabiltzeko."
-  },
-  "enterVerificationCodeApp": {
-    "message": "Sartu zure autentifikazio aplikazioaren 6 digituko egiaztatze kodea."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Sartu $EMAIL$-era bidalitako 6 digituko egiaztatze-kodea.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
   },
   "verificationCodeEmailSent": {
     "message": "Egiaztatze emaila $EMAIL$-era bidalia.",
@@ -1337,29 +1635,39 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Gogora nazazu"
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
   },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Berbidali email bidezko egiaztatze-kodea."
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
   },
-  "useAnotherTwoStepMethod": {
-    "message": "Erabili bi urratseko saio hasierarako beste modu bat"
-  },
-  "insertYubiKey": {
-    "message": "Sartu zure YubiKey-a ordenagailuko USB atakan, ondoren, sakatu bere botoia."
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertU2f": {
     "message": "Sartu zure segurtasun-gakoa ordenagailuaren USB atakan. Botoia badu, sakatu ezazu."
   },
-  "webAuthnNewTab": {
-    "message": "WebAuthn 2FA egiaztatzea hasteko. Egin klik beheko botoian fitxa berria irekitzeko eta jarraitu fitxa berriko jarraibideei."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Ireki fitxa berria"
+  "openInNewTab": {
+    "message": "Open in new tab"
   },
   "webAuthnAuthenticate": {
     "message": "WebAuthn autentifikatu"
+  },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "readingPasskeyLoading": {
+    "message": "Reading passkey..."
+  },
+  "passkeyAuthenticationFailed": {
+    "message": "Passkey authentication failed"
+  },
+  "useADifferentLogInMethod": {
+    "message": "Use a different log in method"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
   },
   "loginUnavailable": {
     "message": "Ez dago eskuragarri saio-hasierarik"
@@ -1373,8 +1681,8 @@
   "twoStepOptions": {
     "message": "Bi urratseko saio hasieraren aukerak"
   },
-  "recoveryCodeDesc": {
-    "message": "Bi urratseko egiaztatzeko modu guztietarako sarbidea galdu duzu? Erabili zure berreskuratze-kodea zure kontuko bi urratseko egiaztatze hornitzaile guztiak desaktibatzeko."
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "recoveryCodeTitle": {
     "message": "Berreskuratze-kodea"
@@ -1415,9 +1723,6 @@
   "selfHostedEnvironment": {
     "message": "Ostatze ingurune propioa"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Bitwarden instalatzeko, zehaztu ostatatze propioaren oinarrizko URL-a."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -1427,11 +1732,11 @@
   "selfHostedEnvFormInvalid": {
     "message": "You must add either the base Server URL or at least one custom environment."
   },
+  "selfHostedEnvMustUseHttps": {
+    "message": "URLs must use HTTPS."
+  },
   "customEnvironment": {
     "message": "Ingurune pertsonalizatua"
-  },
-  "customEnvironmentFooter": {
-    "message": "Erabiltzaile aurreratuentzat. Zerbitzu bakoitzarentzako oinarrizko URL-a zehaztu dezakezu independienteki."
   },
   "baseUrl": {
     "message": "Zerbitzariaren URL-a"
@@ -1463,10 +1768,49 @@
     "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
-    "message": "Autofill suggestions"
+    "message": "Autobetetzeko iradokizunak"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Easily find autofill suggestions"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Turn off your browser's autofill settings, so they don't conflict with Bitwarden."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "Turn off $BROWSER$ autofill",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Turn off autofill"
+  },
+  "confirmAutofill": {
+    "message": "Confirm autofill"
+  },
+  "confirmAutofillDesc": {
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
   },
   "showInlineMenuLabel": {
     "message": "Show autofill suggestions on form fields"
+  },
+  "howDoesBitwardenProtectFromPhishing": {
+    "message": "How does Bitwarden protect your data from phishing?"
+  },
+  "currentWebsite": {
+    "message": "Current website"
+  },
+  "autofillAndAddWebsite": {
+    "message": "Autofill and add this website"
+  },
+  "autofillWithoutAdding": {
+    "message": "Autofill without adding"
+  },
+  "doNotAutofill": {
+    "message": "Do not autofill"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Display identities as suggestions"
@@ -1522,9 +1866,6 @@
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Orrialdearen kargatze aukeretan auto-betetzea aktibatu ondoren, banakako saio-hasierak aktibatu edo desaktibatu ditzakezu."
   },
-  "itemAutoFillOnPageLoad": {
-    "message": "Auto-bete orrialdea kargatzean (ezarpenetan gaituta badago)"
-  },
   "autoFillOnPageLoadUseDefault": {
     "message": "Erabili ezarpen lehenetsiak"
   },
@@ -1570,6 +1911,9 @@
   "dragToSort": {
     "message": "Arrastatu txukuntzeko"
   },
+  "dragToReorder": {
+    "message": "Drag to reorder"
+  },
   "cfTypeText": {
     "message": "Testua"
   },
@@ -1593,23 +1937,8 @@
   "popup2faCloseMessage": {
     "message": "Leiho gainjarritik kanpora klik eginez gero, zure emaila egiaztatzeko leiho gainjarria itxi egingo da. Leiho berri batean ireki nahi duzu leiho gainjarri hau itxi ez dadin?"
   },
-  "popupU2fCloseMessage": {
-    "message": "Nabigatzaile honek ezin ditu U2F eskaerak prozesatu leiho gainjarri honetan. Leiho berri batean ireki nahi duzu leiho gainjarri hau saioa U2F erabiliz hasi ahal izateko?"
-  },
-  "enableFavicon": {
-    "message": "Erakutsi webguneko ikonoak"
-  },
-  "faviconDesc": {
-    "message": "Erakutsi irudi bat saio-hasiera bakoitzaren ondoan."
-  },
-  "faviconDescAlt": {
-    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
-  },
-  "enableBadgeCounter": {
-    "message": "Erakutsi txartelen kontagailua"
-  },
-  "badgeCounterDesc": {
-    "message": "Adierazi zenbat saio-hasiera dituzun uneko webgunerako."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "cardholderName": {
     "message": "Txartelaren titularraren izena"
@@ -1625,6 +1954,9 @@
   },
   "expirationYear": {
     "message": "Iraungitze urtea"
+  },
+  "monthly": {
+    "message": "month"
   },
   "expiration": {
     "message": "Iraungitze data"
@@ -1667,6 +1999,9 @@
   },
   "securityCode": {
     "message": "Segurtasun-kodea"
+  },
+  "cardNumber": {
+    "message": "card number"
   },
   "ex": {
     "message": "adib."
@@ -1719,6 +2054,9 @@
   "email": {
     "message": "Emaila"
   },
+  "emails": {
+    "message": "Emails"
+  },
   "phone": {
     "message": "Telefonoa"
   },
@@ -1767,32 +2105,84 @@
   "typeSshKey": {
     "message": "SSH key"
   },
-  "newItemHeader": {
-    "message": "New $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "typeNote": {
+    "message": "Note"
   },
-  "editItemHeader": {
-    "message": "Edit $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
   },
-  "viewItemHeader": {
-    "message": "View $TYPE$",
-    "placeholders": {
-      "type": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Ikusi saio-hasiera",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
     "message": "Pasahitz historia"
@@ -1813,7 +2203,7 @@
     "message": "Bildumak"
   },
   "nCollections": {
-    "message": "$COUNT$ collections",
+    "message": "$COUNT$ bilduma",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1998,8 +2388,8 @@
   "setYourPinCode": {
     "message": "Ezarri zure PIN kodea Bitwarden desblokeatzeko. Zure PIN-aren konfigurazioa berrezarriko da, noizbait aplikaziotik erabat saioa ixten baduzu."
   },
-  "setYourPinCode1": {
-    "message": "Your PIN will be used to unlock Bitwarden instead of your master password. Your PIN will reset if you ever fully log out of Bitwarden."
+  "setPinCode": {
+    "message": "You can use this PIN to unlock Bitwarden. Your PIN will be reset if you ever fully log out of the application."
   },
   "pinRequired": {
     "message": "PIN-a beharrezkoa da."
@@ -2037,17 +2427,20 @@
   "clone": {
     "message": "Klonatu"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Erakundeko politika batek edo gehiagok sortzailearen konfigurazioari eragiten diote."
-  },
   "passwordGenerator": {
     "message": "Password generator"
   },
   "usernameGenerator": {
     "message": "Username generator"
   },
+  "useThisEmail": {
+    "message": "Use this email"
+  },
   "useThisPassword": {
     "message": "Use this password"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
   },
   "useThisUsername": {
     "message": "Use this username"
@@ -2062,6 +2455,9 @@
   "useGeneratorHelpTextPartTwo": {
     "message": "to create a strong unique password",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "vaultCustomization": {
+    "message": "Vault customization"
   },
   "vaultTimeoutAction": {
     "message": "Kutxa gotorraren itxaronaldiaren ekintza"
@@ -2088,6 +2484,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Elementua betirako ezabatua"
+  },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
   },
   "restoreItem": {
     "message": "Berreskuratu elementua"
@@ -2133,6 +2532,9 @@
         "example": "www.example.com"
       }
     }
+  },
+  "topLayerHijackWarning": {
+    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
   },
   "setMasterPassword": {
     "message": "Ezarri pasahitz nagusia"
@@ -2214,6 +2616,9 @@
   },
   "privacyPolicy": {
     "message": "Pribatutasun politika"
+  },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
   },
   "hintEqualsPassword": {
     "message": "Zure pasahitza ezin da izan zure pasahitzaren pistaren berdina."
@@ -2320,9 +2725,21 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "An organization policy has blocked importing items into your individual vault."
   },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
   "domainsTitle": {
     "message": "Domains",
     "description": "A category title describing the concept of web domains"
+  },
+  "blockedDomains": {
+    "message": "Blocked domains"
+  },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Learn more about blocked domains"
   },
   "excludedDomains": {
     "message": "Kanporatutako domeinuak"
@@ -2330,8 +2747,147 @@
   "excludedDomainsDesc": {
     "message": "Bitwardenek ez du eskatuko domeinu horietarako saio-hasierako xehetasunak gordetzea. Orrialdea eguneratu behar duzu aldaketek eragina izan dezaten."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden will not ask to save login details for these domains for all logged in accounts. You must refresh the page for changes to take effect."
+  "blockedDomainsDesc": {
+    "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
+  },
+  "autofillBlockedNoticeV2": {
+    "message": "Autofill is blocked for this website."
+  },
+  "autofillBlockedNoticeGuidance": {
+    "message": "Change this in settings"
+  },
+  "change": {
+    "message": "Change"
+  },
+  "changePassword": {
+    "message": "Change password",
+    "description": "Change password button for browser at risk notification on login."
+  },
+  "changeButtonTitle": {
+    "message": "Change password - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPassword": {
+    "message": "At-risk password"
+  },
+  "atRiskPasswords": {
+    "message": "At-risk passwords"
+  },
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at-risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at-risk.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskChangePrompt": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Review and change one at-risk password"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Review and change $COUNT$ at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Change at-risk passwords faster"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Review at-risk logins"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Review at-risk passwords"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
+  },
+  "updateInBitwarden": {
+    "message": "Update in Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Bitwarden will then prompt you to update the password in the password manager.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
+  },
+  "turnOnAutofill": {
+    "message": "Turn on autofill"
+  },
+  "turnedOnAutofill": {
+    "message": "Turned on autofill"
+  },
+  "dismiss": {
+    "message": "Dismiss"
   },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",
@@ -2350,6 +2906,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Blocked domain changes saved"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Excluded domain changes saved"
@@ -2372,19 +2931,11 @@
     }
   },
   "send": {
-    "message": "Send",
+    "message": "Bidali",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDetails": {
     "message": "Send details",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "searchSends": {
-    "message": "Send-ak bilatu",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Gehitu Send-a",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeText": {
@@ -2400,18 +2951,15 @@
     "message": "Send guztiak",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "maxAccessCountReached": {
+    "message": "Max access count reached",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
   "hideTextByDefault": {
     "message": "Hide text by default"
   },
-  "maxAccessCountReached": {
-    "message": "Sarbide kopuru maximoa gaindituta",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "Iraungita"
-  },
-  "pendingDeletion": {
-    "message": "Ezabatzea egiteke"
   },
   "passwordProtected": {
     "message": "Pasahitz babestua"
@@ -2462,23 +3010,8 @@
     "message": "Editatu Send-a",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "Zein Send mota da hau?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Send hau deskribatzeko izena.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "Bidali nahi duzun fitxategia."
-  },
   "deletionDate": {
     "message": "Ezabatze data"
-  },
-  "deletionDateDesc": {
-    "message": "Send-a betiko ezabatuko da zehaztutako datan eta orduan.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "The Send will be permanently deleted on this date.",
@@ -2486,10 +3019,6 @@
   },
   "expirationDate": {
     "message": "Iraungitze data"
-  },
-  "expirationDateDesc": {
-    "message": "Hala ezartzen bada, Send honetarako sarbidea zehaztutako egunean eta orduan amaituko da.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "Egun 1"
@@ -2505,43 +3034,6 @@
   },
   "custom": {
     "message": "Pertsonalizatua"
-  },
-  "maximumAccessCount": {
-    "message": "Sarbide kopuru maximoa"
-  },
-  "maximumAccessCountDesc": {
-    "message": "Hala ezartzen bada, erabiltzaileak ezin izango dira Send honetara sartu gehienezko sarbide kopurura iritsi ondoren.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "Nahi izanez gero, pasahitza eskatu erabiltzaileak Send honetara sar daitezen.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Send honi buruzko ohar pribatuak.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "Desgaitu Send hau inor sar ez dadin.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Gordetzean, kopiatu Send honen esteka arbelean.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Bidali nahi duzun testua."
-  },
-  "sendHideText": {
-    "message": "Ezkutatu Send-eko testu hau, modu lehenetsian.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Uneko sarbide kopurua"
   },
   "createSend": {
     "message": "Sortu Send berria",
@@ -2594,6 +3086,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "Send link copied",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -2602,40 +3133,8 @@
     "message": "Send-a editatua",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Pop out extension?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "To create a file Send, you need to pop out the extension to a new window.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Fitxategi bat aukeratzeko, ireki gehigarria alboko barran (ahal bada) edo atera leiho berri batera banner honetan klik eginez."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Firefox erabiliz fitxategi bat aukeratzeko, ireki gehigarria alboko barratik edo ireki beste leiho bat banner hau sakatuz."
-  },
-  "sendSafariFileWarning": {
-    "message": "Safari erabiliz fitxategi bat aukeratzeko, ireki beste leiho bat banner hau sakatuz."
-  },
   "popOut": {
     "message": "Pop out"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Hasi aurretik"
-  },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "Data aukeratzeko egutegi modua erabiltzeko",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "klikatu hemen",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "leihoa irekitzeko.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
   },
   "expirationDateIsInvalid": {
     "message": "Iraungitze data ez da baliozkoa."
@@ -2652,14 +3151,8 @@
   "dateParsingError": {
     "message": "Akatsa gertatu da ezabatze eta iraungitze datak gordetzean."
   },
-  "hideEmail": {
-    "message": "Ezkutatu nire emaila hartzaileei."
-  },
   "hideYourEmail": {
     "message": "Hide your email address from viewers."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "Erakundeko politika batek edo gehiagok Send-eko aukerei eragiten diote."
   },
   "passwordPrompt": {
     "message": "Berriro eskatu pasahitz nagusia"
@@ -2678,6 +3171,9 @@
   },
   "emailVerificationRequiredDesc": {
     "message": "Emaila egiaztatu behar duzu funtzio hau erabiltzeko. Emaila web-eko kutxa gotorrean egiazta dezakezu."
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
   },
   "updatedMasterPassword": {
     "message": "Pasahitz nagusia eguneratuta"
@@ -2817,14 +3313,11 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Ez da identifikatzaile bakarrik aurkitu."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ SSO erabiltzen ari da ostatatze propioa duen gako-zerbitzari batekin. Dagoeneko ez da pasahitz nagusirik behar erakunde honetako kideentzat saioa hasteko.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "organizationName": {
+    "message": "Organization name"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Utzi erakundea"
@@ -2859,6 +3352,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Exporting organization vault"
   },
@@ -2871,11 +3373,49 @@
       }
     }
   },
+  "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "error": {
     "message": "Akatsa"
   },
-  "regenerateUsername": {
-    "message": "Berrezarri erabiltzaile izena"
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+  },
+  "decryptionError": {
+    "message": "Decryption error"
+  },
+  "errorGettingAutoFillData": {
+    "message": "Error getting autofill data"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contact customer success",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "to avoid additional data loss.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Sortu erabiltzaile izena"
@@ -2917,9 +3457,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Erabiltzaile izen mota"
-  },
   "plusAddressedEmail": {
     "message": "Atzizkidun emaila",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2941,12 +3478,6 @@
   },
   "websiteName": {
     "message": "Webgune izena"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Zer sortu nahi duzu?"
-  },
-  "passwordType": {
-    "message": "Pasahitz mota"
   },
   "service": {
     "message": "Zerbitzua"
@@ -3006,6 +3537,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -3098,15 +3653,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Ezarpenak editatu dira"
-  },
-  "environmentEditedClick": {
-    "message": "Sakatu hemen"
-  },
-  "environmentEditedReset": {
-    "message": "ezarpen lehenetsiak ezartzeko"
-  },
   "serverVersion": {
     "message": "Zerbitzariaren bertsioa"
   },
@@ -3137,12 +3683,6 @@
   "loginWithMasterPassword": {
     "message": "Hasi saioa pasahitz nagusiarekin"
   },
-  "loggingInAs": {
-    "message": "Honela hasi saioa"
-  },
-  "notYou": {
-    "message": "Ez zara zu?"
-  },
   "newAroundHere": {
     "message": "Berria hemendik?"
   },
@@ -3151,9 +3691,6 @@
   },
   "loginWithDevice": {
     "message": "Log in with device"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Log in with device must be set up in the settings of the Bitwarden app. Need another option?"
   },
   "fingerprintPhraseHeader": {
     "message": "Fingerprint phrase"
@@ -3167,17 +3704,20 @@
   "viewAllLogInOptions": {
     "message": "View all log in options"
   },
-  "viewAllLoginOptions": {
-    "message": "Ikusi erregistro guztiak ezarpenetan"
-  },
   "notificationSentDevice": {
     "message": "A notification has been sent to your device."
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "A notification was sent to your device"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "You will be notified once the request is approved"
@@ -3187,6 +3727,34 @@
   },
   "loginInitiated": {
     "message": "Login initiated"
+  },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "device": {
+    "message": "Device"
+  },
+  "loginStatus": {
+    "message": "Login status"
+  },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
   },
   "exposedMasterPassword": {
     "message": "Exposed Master Password"
@@ -3220,9 +3788,6 @@
   },
   "autofillPageLoadPolicyActivated": {
     "message": "Your organization policies have turned on autofill on page load."
-  },
-  "howToAutofill": {
-    "message": "How to autofill"
   },
   "autofillSelectInfoWithCommand": {
     "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
@@ -3281,6 +3846,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Remember this device to make future logins seamless"
   },
+  "manageDevices": {
+    "message": "Manage devices"
+  },
+  "currentSession": {
+    "message": "Current session"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Web vault"
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Request pending"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
+  },
+  "needsApproval": {
+    "message": "Needs approval"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "time": {
+    "message": "Time"
+  },
+  "deviceType": {
+    "message": "Device Type"
+  },
+  "loginRequest": {
+    "message": "Login request"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "This request is no longer valid."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Login request has already expired."
+  },
+  "justNow": {
+    "message": "Just now"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Requested $MINUTES$ minutes ago",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "Device approval required. Select an approval option below:"
   },
@@ -3302,8 +3955,11 @@
   "requestAdminApproval": {
     "message": "Eskatu administratzailearen onarpena"
   },
-  "approveWithMasterPassword": {
-    "message": "Onartu pasahitz nagusiarekin"
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "ssoIdentifierRequired": {
     "message": "Organization SSO identifier is required."
@@ -3351,9 +4007,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Zure eskaera zure administratzaileari bidali zaio."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Jakinaraziko zaizu onartzen denean."
-  },
   "troubleLoggingIn": {
     "message": "Arazoak saioa hasterakoan?"
   },
@@ -3369,12 +4022,36 @@
   "deviceTrusted": {
     "message": "Device trusted"
   },
-  "sendsNoItemsTitle": {
-    "message": "No active Sends",
+  "trustOrganization": {
+    "message": "Trust organization"
+  },
+  "trust": {
+    "message": "Trust"
+  },
+  "doNotTrust": {
+    "message": "Do not trust"
+  },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+  },
+  "orgTrustWarning": {
+    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+  },
+  "trustUser": {
+    "message": "Trust user"
+  },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendsNoItemsMessage": {
-    "message": "Use Send to securely share encrypted information with anyone.",
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -3384,7 +4061,7 @@
     "message": "required"
   },
   "search": {
-    "message": "Search"
+    "message": "Bilatu"
   },
   "inputMinLength": {
     "message": "Input must be at least $COUNT$ characters long.",
@@ -3493,52 +4170,21 @@
     "message": "Toggle collapse",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Import your data to Bitwarden?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Protect your LastPass data and import to Bitwarden?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Save as unencrypted file",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Import to Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Inportatzen...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Datuak zuzen inportatu dira!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Errorea gertatu da inportatzean. Begiratu xehetasunak kontsolan.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Sareko errorea gertatu da inportatzerakoan.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Alias domain"
-  },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Items with master password re-prompt cannot be autofilled on page load. Autofill on page load turned off.",
-    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
     "message": "Autofill on page load set to use default setting.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Turn off master password re-prompt to edit this field",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  "cannotAutofill": {
+    "message": "Cannot autofill"
+  },
+  "cannotAutofillExactMatch": {
+    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
+  },
+  "okay": {
+    "message": "Okay"
   },
   "toggleSideNavigation": {
     "message": "Toggle side navigation"
@@ -3573,6 +4219,14 @@
   "unlockAccountAria": {
     "message": "Unlock your account, opens in a new window",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Time-based One-Time Password Verification Code",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Time remaining before current TOTP expires",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Fill credentials for",
@@ -3627,10 +4281,6 @@
   },
   "ignore": {
     "message": "Ezikusi"
-  },
-  "importData": {
-    "message": "Inportatu datuak",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
   },
   "importError": {
     "message": "Errorea inportatzerakoan"
@@ -3707,14 +4357,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredForAccount": {
     "message": "Duo two-step login is required for your account."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Popout the extension to complete login."
   },
   "popoutExtension": {
     "message": "Popout extension"
@@ -3744,17 +4388,13 @@
     "message": "Select a folder"
   },
   "selectImportCollection": {
-    "message": "Select a collection"
+    "message": "Bilduma bat aukeratu"
   },
-  "importTargetHint": {
-    "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "File contains unassigned items."
@@ -3810,9 +4450,6 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
-  },
-  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Verification required by the initiating site. This feature is not yet implemented for accounts without master password."
   },
   "logInWithPasskeyQuestion": {
     "message": "Log in with passkey?"
@@ -3930,7 +4567,7 @@
     "message": "Try again or look for an email from LastPass to verify it's you."
   },
   "collection": {
-    "message": "Collection"
+    "message": "Bilduma"
   },
   "lastPassYubikeyDesc": {
     "message": "Insert the YubiKey associated with your LastPass account into your computer's USB port, then touch its button."
@@ -3946,6 +4583,9 @@
   },
   "activeAccount": {
     "message": "Active account"
+  },
+  "bitwardenAccount": {
+    "message": "Bitwarden account"
   },
   "availableAccounts": {
     "message": "Available accounts"
@@ -3989,6 +4629,26 @@
   "commonImportFormats": {
     "message": "Common formats",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
   },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Continue to browser settings?",
@@ -4068,7 +4728,10 @@
     "message": "Passkey removed"
   },
   "autofillSuggestions": {
-    "message": "Autofill suggestions"
+    "message": "Autobetetzeko proposamenak"
+  },
+  "itemSuggestions": {
+    "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
     "message": "Save a login item for this site to autofill"
@@ -4112,6 +4775,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "More options"
+  },
   "moreOptionsTitle": {
     "message": "More options - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4132,6 +4798,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "Autofill - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4142,11 +4822,39 @@
       }
     }
   },
+  "autofillTitleWithField": {
+    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "noValuesToCopy": {
     "message": "No values to copy"
   },
   "assignToCollections": {
-    "message": "Assign to collections"
+    "message": "Esleitu bildumetan"
   },
   "copyEmail": {
     "message": "Copy email"
@@ -4160,8 +4868,50 @@
   "adminConsole": {
     "message": "Admin Console"
   },
+  "admin": {
+    "message": "Admin"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automatically confirm pending users while this device is unlocked"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Save time with automatic user confirmation"
+  },
+  "autoConfirmWarning": {
+    "message": "This could impact your organization’s data security. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Learn about the risks"
+  },
+  "autoConfirmSetup": {
+    "message": "Automatically confirm new users"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "New users will be automatically confirmed while this device is unlocked."
+  },
+  "autoConfirmSetupHint": {
+    "message": "What are the potential security risks?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Turned on automatic confirmation"
+  },
+  "availableNow": {
+    "message": "Available now"
+  },
   "accountSecurity": {
     "message": "Account security"
+  },
+  "phishingBlocker": {
+    "message": "Phishing Blocker"
+  },
+  "enablePhishingDetection": {
+    "message": "Phishing detection"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Display warning before accessing suspected phishing sites"
   },
   "notifications": {
     "message": "Notifications"
@@ -4196,7 +4946,7 @@
     }
   },
   "new": {
-    "message": "New"
+    "message": "Berria"
   },
   "removeItem": {
     "message": "Remove $NAME$",
@@ -4217,15 +4967,6 @@
   "itemName": {
     "message": "Item name"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "Organization is deactivated"
   },
@@ -4243,10 +4984,10 @@
     "message": "Additional information"
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "Aldaketen historia"
   },
   "lastEdited": {
-    "message": "Last edited"
+    "message": "Azken edizioa"
   },
   "ownerYou": {
     "message": "Owner: You"
@@ -4284,11 +5025,44 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Download Attachment"
+  },
+  "downloadBitwarden": {
+    "message": "Download Bitwarden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Download Bitwarden on all devices"
+  },
+  "getTheMobileApp": {
+    "message": "Get the mobile app"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Access your passwords on the go with the Bitwarden mobile app."
+  },
+  "getTheDesktopApp": {
+    "message": "Get the desktop app"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Download from bitwarden.com now"
+  },
+  "getItOnGooglePlay": {
+    "message": "Get it on Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Download on the App Store"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Are you sure you want to permanently delete this attachment?"
   },
   "premium": {
     "message": "Premium"
+  },
+  "unlockFeaturesWithPremium": {
+    "message": "Unlock reporting, emergency access, and more security features with Premium."
   },
   "freeOrgsCannotUseAttachments": {
     "message": "Free organizations cannot use attachments"
@@ -4297,7 +5071,7 @@
     "message": "Filters"
   },
   "filterVault": {
-    "message": "Filter vault"
+    "message": "Iragazi kutxa gotorra"
   },
   "filterApplied": {
     "message": "One filter applied"
@@ -4334,13 +5108,13 @@
     "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Saio-hasierako kredentzialak"
   },
   "authenticatorKey": {
     "message": "Authenticator key"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "Autobetetzeko aukerak"
   },
   "websiteUri": {
     "message": "Website (URI)"
@@ -4374,6 +5148,16 @@
       }
     }
   },
+  "defaultLabelWithValue": {
+    "message": "Default ( $VALUE$ )",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
   "showMatchDetection": {
     "message": "Show match detection $WEBSITE$",
     "placeholders": {
@@ -4383,14 +5167,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "Autofill on page load?"
@@ -4412,9 +5193,6 @@
         "example": "Visa"
       }
     }
-  },
-  "enableAnimations": {
-    "message": "Enable animations"
   },
   "showAnimations": {
     "message": "Show animations"
@@ -4527,6 +5305,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
     "placeholders": {
@@ -4587,15 +5368,6 @@
   "nothingSelected": {
     "message": "You have not selected anything."
   },
-  "movedItemsToOrg": {
-    "message": "Selected items moved to $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
-  },
   "itemsMovedToOrg": {
     "message": "Items moved to $ORGNAME$",
     "placeholders": {
@@ -4634,29 +5406,32 @@
   "itemLocation": {
     "message": "Item Location"
   },
-  "fileSend": {
-    "message": "File Send"
-  },
   "fileSends": {
     "message": "File Sends"
   },
-  "textSend": {
-    "message": "Text Send"
-  },
   "textSends": {
     "message": "Text Sends"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden has a new look!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "It's easier and more intuitive than ever to autofill and search from the Vault tab. Take a look around!"
   },
   "accountActions": {
     "message": "Account actions"
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Show number of login autofill suggestions on extension icon"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "showQuickCopyActions": {
+    "message": "Show quick copy actions on Vault"
   },
   "systemDefault": {
     "message": "System default"
@@ -4694,9 +5469,6 @@
   "vaultCustomTimeoutMinimum": {
     "message": "Minimum custom timeout is 1 minute."
   },
-  "additionalContentAvailable": {
-    "message": "Additional content is available"
-  },
   "fileSavedToDevice": {
     "message": "File saved to device. Manage from your device downloads."
   },
@@ -4727,6 +5499,45 @@
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
   },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometric unlock is currently unavailable."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Biometric unlock is unavailable because the Bitwarden desktop app is closed."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometric unlock is currently unavailable for an unknown reason."
+  },
+  "unlockVault": {
+    "message": "Unlock your vault in seconds"
+  },
+  "unlockVaultDesc": {
+    "message": "You can customize your unlock and timeout settings to more quickly access your vault."
+  },
+  "unlockPinSet": {
+    "message": "Unlock PIN set"
+  },
+  "unlockWithBiometricSet": {
+    "message": "Unlock with biometrics set"
+  },
   "authenticating": {
     "message": "Authenticating"
   },
@@ -4738,8 +5549,8 @@
     "message": "Password regenerated",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Save login to Bitwarden?",
+  "saveToBitwarden": {
+    "message": "Save to Bitwarden",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -4878,13 +5689,13 @@
     "message": "Lowercase"
   },
   "uppercaseAriaLabel": {
-    "message": "Uppercase"
+    "message": "Maiuskulak"
   },
   "generatedPassword": {
-    "message": "Generated password"
+    "message": "Sortutako pasahitza"
   },
   "compactMode": {
-    "message": "Compact mode"
+    "message": "Modu trinkoa"
   },
   "beta": {
     "message": "Beta"
@@ -4897,5 +5708,490 @@
   },
   "extraWide": {
     "message": "Extra wide"
+  },
+  "narrow": {
+    "message": "Narrow"
+  },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Please update your desktop application"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
+  },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
+  "settingsVaultOptions": {
+    "message": "Vault options"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "introCarouselLabel": {
+    "message": "Welcome to Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Security, prioritized"
+  },
+  "securityPrioritizedBody": {
+    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+  },
+  "quickLogin": {
+    "message": "Quick and easy login"
+  },
+  "quickLoginBody": {
+    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+  },
+  "secureUser": {
+    "message": "Level up your logins"
+  },
+  "secureUserBody": {
+    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+  },
+  "secureDevices": {
+    "message": "Your data, when and where you need it"
+  },
+  "secureDevicesBody": {
+    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
+  },
+  "nudgeBadgeAria": {
+    "message": "1 notification"
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Import existing passwords"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Use the importer to quickly transfer logins to Bitwarden without manually adding them."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Import now"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Welcome to your vault!"
+  },
+  "phishingPageTitleV2": {
+    "message": "Phishing attempt detected"
+  },
+  "phishingPageSummary": {
+    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+  },
+  "phishingPageCloseTabV2": {
+    "message": "Close this tab"
+  },
+  "phishingPageContinueV2": {
+    "message": "Continue to this site (not recommended)"
+  },
+  "phishingPageExplanation1": {
+    "message": "This site was found in ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
+  },
+  "phishingPageExplanation2": {
+    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
+  },
+  "phishingPageLearnMore": {
+    "message": "Learn more about phishing detection"
+  },
+  "protectedBy": {
+    "message": "Protected by $PRODUCT$",
+    "placeholders": {
+      "product": {
+        "content": "$1",
+        "example": "Bitwarden Phishing Blocker"
+      }
+    }
+  },
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Autofill items for the current page"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Favorite items for easy access"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Search your vault for something else"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "Sortu pasahitzak azkar"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Sortu erraz pasahitz sendo eta bakarrak Sortu pasahitza botoian klik eginez, zure saio-hasierak seguru mantentzen laguntzeko.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
+  "noPermissionsViewPage": {
+    "message": "You do not have permissions to view this page. Try logging in with a different account."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "next": {
+    "message": "Next"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "atRiskLoginsSecured": {
+    "message": "Great job securing your at-risk logins!"
+  },
+  "upgradeNow": {
+    "message": "Upgrade now"
+  },
+  "builtInAuthenticator": {
+    "message": "Built-in authenticator"
+  },
+  "secureFileStorage": {
+    "message": "Secure file storage"
+  },
+  "emergencyAccess": {
+    "message": "Emergency access"
+  },
+  "breachMonitoring": {
+    "message": "Breach monitoring"
+  },
+  "andMoreFeatures": {
+    "message": "And more!"
+  },
+  "advancedOnlineSecurity": {
+    "message": "Advanced online security"
+  },
+  "upgradeToPremium": {
+    "message": "Upgrade to Premium"
+  },
+  "unlockAdvancedSecurity": {
+    "message": "Unlock advanced security features"
+  },
+  "unlockAdvancedSecurityDesc": {
+    "message": "A Premium subscription gives you more tools to stay secure and in control"
+  },
+  "explorePremium": {
+    "message": "Explore Premium"
+  },
+  "loadingVault": {
+    "message": "Loading vault"
+  },
+  "vaultLoaded": {
+    "message": "Vault loaded"
+  },
+  "settingDisabledByPolicy": {
+    "message": "This setting is disabled by your organization's policy.",
+    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
+  },
+  "zipPostalCodeLabel": {
+    "message": "ZIP / Postal code"
+  },
+  "cardNumberLabel": {
+    "message": "Card number"
+  },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified": {
+    "message": "Organization verified"
+  },
+  "domainVerified": {
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verify your domain to log in"
+  },
+  "verifyYourDomainDescription": {
+    "message": "To continue with log in, verify this domain."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "To continue with log in, verify the organization and domain."
+  },
+  "sessionTimeoutSettingsAction": {
+    "message": "Timeout action"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "This setting is managed by your organization."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "Your organization has set the default session timeout to Immediately."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Your organization has set the default session timeout to On system lock."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Your organization has set the default session timeout to On browser restart."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "On browser restart"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Set an unlock method to change your timeout action"
+  },
+  "upgrade": {
+    "message": "Upgrade"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Are you sure you want to leave?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Contact your admin to regain access."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Leave $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "How do I manage my vault?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transfer items to $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accept transfer"
+  },
+  "declineAndLeave": {
+    "message": "Decline and leave"
+  },
+  "whyAmISeeingThis": {
+    "message": "Why am I seeing this?"
+  },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Bilaketaren emaitzak"
+  },
+  "simplifiedAutofill": {
+    "message": "Simplified autofill"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open simplified autofill popover"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }

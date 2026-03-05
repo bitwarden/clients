@@ -1,0 +1,28 @@
+<popup-page>
+  <popup-header
+    slot="header"
+    [backAction]="close"
+    showBackButton
+    [pageTitle]="titleKey | i18n"
+  ></popup-header>
+
+  <vault-cipher-form-generator
+    [type]="params.type"
+    [uri]="uri"
+    (valueGenerated)="onValueGenerated($event)"
+    (algorithmSelected)="onAlgorithmSelected($event)"
+  ></vault-cipher-form-generator>
+
+  <popup-footer slot="footer">
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      (click)="selectValue()"
+      data-testid="select-button"
+      [disabled]="!(selectButtonText && generatedValue)"
+    >
+      {{ selectButtonText }}
+    </button>
+  </popup-footer>
+</popup-page>

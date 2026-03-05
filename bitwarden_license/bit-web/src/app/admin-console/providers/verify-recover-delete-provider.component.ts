@@ -10,11 +10,13 @@ import { ProviderVerifyRecoverDeleteRequest } from "@bitwarden/common/admin-cons
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-verify-recover-delete-provider",
   templateUrl: "verify-recover-delete-provider.component.html",
+  standalone: false,
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class VerifyRecoverDeleteProviderComponent implements OnInit {
   name: string;
 

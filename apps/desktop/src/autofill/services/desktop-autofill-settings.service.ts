@@ -18,8 +18,9 @@ export class DesktopAutofillSettingsService {
   private enableDuckDuckGoBrowserIntegrationState = this.stateProvider.getGlobal(
     ENABLE_DUCK_DUCK_GO_BROWSER_INTEGRATION,
   );
-  readonly enableDuckDuckGoBrowserIntegration$ =
-    this.enableDuckDuckGoBrowserIntegrationState.state$.pipe(map((x) => x ?? false));
+  enableDuckDuckGoBrowserIntegration$ = this.enableDuckDuckGoBrowserIntegrationState.state$.pipe(
+    map((x) => x ?? false),
+  );
 
   constructor(private stateProvider: StateProvider) {}
 

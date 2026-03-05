@@ -1,37 +1,58 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, Input, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { Observable } from "rxjs";
+import { filter, firstValueFrom, map } from "rxjs";
 
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { BannerModule } from "@bitwarden/components";
+import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
 
 import { VerifyEmailComponent } from "../../../auth/settings/verify-email.component";
-import { FreeTrial } from "../../../core/types/free-trial";
 import { SharedModule } from "../../../shared";
 
 import { VaultBannersService, VisibleVaultBanner } from "./services/vault-banners.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "app-vault-banners",
   templateUrl: "./vault-banners.component.html",
-  imports: [VerifyEmailComponent, SharedModule, BannerModule],
+  imports: [
+    VerifyEmailComponent,
+    SharedModule,
+    BannerModule,
+    OrganizationFreeTrialWarningComponent,
+  ],
   providers: [VaultBannersService],
 })
 export class VaultBannersComponent implements OnInit {
   visibleBanners: VisibleVaultBanner[] = [];
-  premiumBannerVisible$: Observable<boolean>;
   VisibleVaultBanner = VisibleVaultBanner;
-  @Input() organizationsPaymentStatus: FreeTrial[] = [];
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() organizations: Organization[] = [];
+
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
   constructor(
     private vaultBannerService: VaultBannersService,
     private router: Router,
-    private i18nService: I18nService,
+    private accountService: AccountService,
+    private messageListener: MessageListener,
   ) {
-    this.premiumBannerVisible$ = this.vaultBannerService.shouldShowPremiumBanner$;
+    // Listen for auth request messages and show banner immediately
+    this.messageListener.allMessages$
+      .pipe(
+        filter((message: { command: string }) => message.command === "openLoginApproval"),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => {
+        if (!this.visibleBanners.includes(VisibleVaultBanner.PendingAuthRequest)) {
+          this.visibleBanners = [...this.visibleBanners, VisibleVaultBanner.PendingAuthRequest];
+        }
+      });
   }
 
   async ngOnInit(): Promise<void> {
@@ -39,8 +60,11 @@ export class VaultBannersComponent implements OnInit {
   }
 
   async dismissBanner(banner: VisibleVaultBanner): Promise<void> {
-    await this.vaultBannerService.dismissBanner(banner);
-
+    const activeUserId = await firstValueFrom(this.activeUserId$);
+    if (!activeUserId) {
+      return;
+    }
+    await this.vaultBannerService.dismissBanner(activeUserId, banner);
     await this.determineVisibleBanners();
   }
 
@@ -50,39 +74,29 @@ export class VaultBannersComponent implements OnInit {
     };
 
     await this.router.navigate(
-      ["organizations", organizationId, "billing", "payment-method"],
+      ["organizations", organizationId, "billing", "payment-details"],
       navigationExtras,
     );
   }
 
   /** Determine which banners should be present */
-  private async determineVisibleBanners(): Promise<void> {
-    const showBrowserOutdated = await this.vaultBannerService.shouldShowUpdateBrowserBanner();
-    const showVerifyEmail = await this.vaultBannerService.shouldShowVerifyEmailBanner();
-    const showLowKdf = await this.vaultBannerService.shouldShowLowKDFBanner();
+  async determineVisibleBanners(): Promise<void> {
+    const activeUserId = await firstValueFrom(this.activeUserId$);
+
+    if (!activeUserId) {
+      return;
+    }
+
+    const showBrowserOutdated =
+      await this.vaultBannerService.shouldShowUpdateBrowserBanner(activeUserId);
+    const showVerifyEmail = await this.vaultBannerService.shouldShowVerifyEmailBanner(activeUserId);
+    const showPendingAuthRequest =
+      await this.vaultBannerService.shouldShowPendingAuthRequestBanner(activeUserId);
 
     this.visibleBanners = [
       showBrowserOutdated ? VisibleVaultBanner.OutdatedBrowser : null,
       showVerifyEmail ? VisibleVaultBanner.VerifyEmail : null,
-      showLowKdf ? VisibleVaultBanner.KDFSettings : null,
-    ].filter(Boolean); // remove all falsy values, i.e. null
-  }
-
-  freeTrialMessage(organization: FreeTrial) {
-    if (organization.remainingDays >= 2) {
-      return this.i18nService.t(
-        "freeTrialEndPromptMultipleDays",
-        organization.organizationName,
-        organization.remainingDays.toString(),
-      );
-    } else if (organization.remainingDays === 1) {
-      return this.i18nService.t("freeTrialEndPromptTomorrow", organization.organizationName);
-    } else {
-      return this.i18nService.t("freeTrialEndPromptToday", organization.organizationName);
-    }
-  }
-
-  trackBy(index: number) {
-    return index;
+      showPendingAuthRequest ? VisibleVaultBanner.PendingAuthRequest : null,
+    ].filter((banner) => banner !== null);
   }
 }

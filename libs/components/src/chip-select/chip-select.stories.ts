@@ -1,6 +1,6 @@
 import { FormsModule } from "@angular/forms";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
-import { getAllByRole, userEvent } from "@storybook/test";
+import { getAllByRole, userEvent } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -30,6 +30,12 @@ export default {
       ],
     }),
   ],
+  parameters: {
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-29548&t=b5tDKylm5sWm2yKo-4",
+    },
+  },
 } as Meta;
 
 type Story = StoryObj<ChipSelectComponent & { value: any }>;

@@ -7,7 +7,7 @@ import { firstValueFrom } from "rxjs";
 import { DialogService } from "@bitwarden/components";
 import { CipherFormGenerationService } from "@bitwarden/vault";
 
-import { VaultGeneratorDialogComponent } from "../components/vault-v2/vault-generator-dialog/vault-generator-dialog.component";
+import { VaultGeneratorDialogComponent } from "../components/vault/vault-generator-dialog/vault-generator-dialog.component";
 
 @Injectable()
 export class BrowserCipherFormGenerationService implements CipherFormGenerationService {
@@ -28,9 +28,9 @@ export class BrowserCipherFormGenerationService implements CipherFormGenerationS
     return result.generatedValue;
   }
 
-  async generateUsername(): Promise<string> {
+  async generateUsername(uri: string): Promise<string> {
     const dialogRef = VaultGeneratorDialogComponent.open(this.dialogService, this.overlay, {
-      data: { type: "username" },
+      data: { type: "username", uri: uri },
     });
 
     const result = await firstValueFrom(dialogRef.closed);

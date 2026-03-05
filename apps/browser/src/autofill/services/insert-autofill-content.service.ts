@@ -1,8 +1,10 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EVENTS, TYPE_CHECK } from "@bitwarden/common/autofill/constants";
 
-import AutofillScript, { AutofillInsertActions, FillScript } from "../models/autofill-script";
+import AutofillScript, {
+  AutofillInsertActions,
+  FillScript,
+  FillScriptActionTypes,
+} from "../models/autofill-script";
 import { FormFieldElement } from "../types";
 import {
   currentlyInSandboxedIframe,
@@ -49,8 +51,9 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
       return;
     }
 
-    const fillActionPromises = fillScript.script.map(this.runFillScriptAction);
-    await Promise.all(fillActionPromises);
+    for (let index = 0; index < fillScript.script.length; index++) {
+      await this.runFillScriptAction(fillScript.script[index]);
+    }
   }
 
   /**
@@ -115,27 +118,28 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
   /**
    * Runs the autofill action based on the action type and the opid.
    * Each action is subsequently delayed by 20 milliseconds.
-   * @param {"click_on_opid" | "focus_by_opid" | "fill_by_opid"} action
-   * @param {string} opid
-   * @param {string} value
-   * @param {number} actionIndex
+   * @param {FillScript} [action, opid, value]
    * @returns {Promise<void>}
    * @private
    */
-  private runFillScriptAction = (
-    [action, opid, value]: FillScript,
-    actionIndex: number,
-  ): Promise<void> => {
+  private runFillScriptAction = ([action, opid, value]: FillScript): Promise<void> => {
     if (!opid || !this.autofillInsertActions[action]) {
-      return;
+      return Promise.resolve();
     }
 
     const delayActionsInMilliseconds = 20;
     return new Promise((resolve) =>
       setTimeout(() => {
-        this.autofillInsertActions[action]({ opid, value });
+        if (action === FillScriptActionTypes.fill_by_opid && !!value?.length) {
+          this.autofillInsertActions.fill_by_opid({ opid, value });
+        } else if (action === FillScriptActionTypes.click_on_opid) {
+          this.autofillInsertActions.click_on_opid({ opid });
+        } else if (action === FillScriptActionTypes.focus_by_opid) {
+          this.autofillInsertActions.focus_by_opid({ opid });
+        }
+
         resolve();
-      }, delayActionsInMilliseconds * actionIndex),
+      }, delayActionsInMilliseconds),
     );
   };
 
@@ -157,7 +161,10 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    */
   private handleClickOnFieldByOpidAction(opid: string) {
     const element = this.collectAutofillContentService.getAutofillFieldElementByOpid(opid);
-    this.triggerClickOnElement(element);
+
+    if (element) {
+      this.triggerClickOnElement(element);
+    }
   }
 
   /**
@@ -169,6 +176,10 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    */
   private handleFocusOnFieldByOpidAction(opid: string) {
     const element = this.collectAutofillContentService.getAutofillFieldElementByOpid(opid);
+
+    if (!element) {
+      return;
+    }
 
     if (document.activeElement === element) {
       element.blur();
@@ -186,13 +197,19 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private insertValueIntoField(element: FormFieldElement | null, value: string) {
+    if (!element || !value) {
+      return;
+    }
+
     const elementCanBeReadonly =
       elementIsInputElement(element) || elementIsTextAreaElement(element);
     const elementCanBeFilled = elementCanBeReadonly || elementIsSelectElement(element);
+    const elementValue = (element as HTMLInputElement)?.value || element?.innerText || "";
+
+    const elementAlreadyHasTheValue = !!(elementValue?.length && elementValue === value);
 
     if (
-      !element ||
-      !value ||
+      elementAlreadyHasTheValue ||
       (elementCanBeReadonly && element.readOnly) ||
       (elementCanBeFilled && element.disabled)
     ) {
@@ -293,7 +310,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private triggerClickOnElement(element?: HTMLElement): void {
-    if (typeof element?.click !== TYPE_CHECK.FUNCTION) {
+    if (!element || typeof element.click !== TYPE_CHECK.FUNCTION) {
       return;
     }
 
@@ -308,7 +325,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private triggerFocusOnElement(element: HTMLElement | undefined, shouldResetValue = false): void {
-    if (typeof element?.focus !== TYPE_CHECK.FUNCTION) {
+    if (!element || typeof element.focus !== TYPE_CHECK.FUNCTION) {
       return;
     }
 
@@ -344,7 +361,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private simulateUserKeyboardEventInteractions(element: FormFieldElement): void {
-    const simulatedKeyboardEvents = [EVENTS.KEYDOWN, EVENTS.KEYPRESS, EVENTS.KEYUP];
+    const simulatedKeyboardEvents = [EVENTS.KEYDOWN, EVENTS.KEYUP];
     for (let index = 0; index < simulatedKeyboardEvents.length; index++) {
       element.dispatchEvent(new KeyboardEvent(simulatedKeyboardEvents[index], { bubbles: true }));
     }

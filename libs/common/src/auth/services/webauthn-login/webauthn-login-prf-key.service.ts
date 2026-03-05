@@ -1,4 +1,4 @@
-import { CryptoFunctionService } from "../../../platform/abstractions/crypto-function.service";
+import { CryptoFunctionService } from "../../../key-management/crypto/abstractions/crypto-function.service";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { PrfKey } from "../../../types/key";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "../../abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
@@ -8,7 +8,7 @@ const LoginWithPrfSalt = "passwordless-login";
 export class WebAuthnLoginPrfKeyService implements WebAuthnLoginPrfKeyServiceAbstraction {
   constructor(private cryptoFunctionService: CryptoFunctionService) {}
 
-  async getLoginWithPrfSalt(): Promise<ArrayBuffer> {
+  async getLoginWithPrfSalt(): Promise<Uint8Array> {
     return await this.cryptoFunctionService.hash(LoginWithPrfSalt, "sha256");
   }
 

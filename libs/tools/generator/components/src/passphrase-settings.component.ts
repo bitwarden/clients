@@ -1,28 +1,42 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
-import { OnInit, Input, Output, EventEmitter, Component, OnDestroy } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { AsyncPipe } from "@angular/common";
 import {
-  BehaviorSubject,
-  skip,
-  takeUntil,
-  Subject,
-  map,
-  withLatestFrom,
-  ReplaySubject,
-} from "rxjs";
+  OnInit,
+  Input,
+  Output,
+  EventEmitter,
+  Component,
+  OnDestroy,
+  SimpleChanges,
+  OnChanges,
+} from "@angular/core";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { skip, takeUntil, Subject, map, withLatestFrom, ReplaySubject, tap } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { UserId } from "@bitwarden/common/types/guid";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
-  Generators,
+  SemanticLogger,
+  disabledSemanticLoggerProvider,
+  ifEnabledSemanticLoggerProvider,
+} from "@bitwarden/common/tools/log";
+import {
+  SectionComponent,
+  SectionHeaderComponent,
+  BaseCardDirective,
+  CardComponent,
+  TypographyModule,
+  FormFieldModule,
+  CheckboxModule,
+} from "@bitwarden/components";
+import {
   CredentialGeneratorService,
   PassphraseGenerationOptions,
+  BuiltIn,
 } from "@bitwarden/generator-core";
-
-import { completeOnAccountSwitch } from "./util";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 const Controls = Object.freeze({
   numWords: "numWords",
@@ -32,13 +46,27 @@ const Controls = Object.freeze({
 });
 
 /** Options group for passphrases */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-passphrase-settings",
   templateUrl: "passphrase-settings.component.html",
+  imports: [
+    SectionComponent,
+    SectionHeaderComponent,
+    TypographyModule,
+    ReactiveFormsModule,
+    BaseCardDirective,
+    CardComponent,
+    FormFieldModule,
+    CheckboxModule,
+    AsyncPipe,
+    JslibModule,
+    I18nPipe,
+  ],
 })
-export class PassphraseSettingsComponent implements OnInit, OnDestroy {
+export class PassphraseSettingsComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the component
-   *  @param accountService queries user availability
    *  @param generatorService settings and policy logic
    *  @param i18nService localize hints
    *  @param formBuilder reactive form controls
@@ -47,72 +75,115 @@ export class PassphraseSettingsComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private generatorService: CredentialGeneratorService,
     private i18nService: I18nService,
-    private accountService: AccountService,
+    private logService: LogService,
   ) {}
 
-  /** Binds the component to a specific user's settings.
-   *  When this input is not provided, the form binds to the active
-   *  user
+  /** Send structured debug logs from the credential generator component
+   *  to the debugger console.
+   *
+   *  @warning this may reveal sensitive information in plaintext.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
-  userId: UserId | null;
+  debug: boolean = false;
+
+  // this `log` initializer is overridden in `ngOnInit`
+  private log: SemanticLogger = disabledSemanticLoggerProvider({});
+
+  /** Binds the component to a specific user's settings.
+   *  @remarks this is initialized to null but since it's a required input it'll
+   *     never have that value in practice.
+   */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input({ required: true })
+  account: Account = null!;
+
+  protected account$ = new ReplaySubject<Account>(1);
+
+  async ngOnChanges(changes: SimpleChanges) {
+    if ("account" in changes && changes.account) {
+      this.account$.next(this.account);
+    }
+  }
 
   /** When `true`, an options header is displayed by the component. Otherwise, the header is hidden. */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   showHeader: boolean = true;
 
   /** Removes bottom margin from `bit-section` */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: coerceBooleanProperty }) disableMargin = false;
 
   /** Emits settings updates and completes if the settings become unavailable.
    * @remarks this does not emit the initial settings. If you would like
    *   to receive live settings updates including the initial update,
-   *   use `CredentialGeneratorService.settings$(...)` instead.
+   *   use {@link CredentialGeneratorService.settings} instead.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   readonly onUpdated = new EventEmitter<PassphraseGenerationOptions>();
 
   protected settings = this.formBuilder.group({
-    [Controls.numWords]: [Generators.passphrase.settings.initial.numWords],
-    [Controls.wordSeparator]: [Generators.passphrase.settings.initial.wordSeparator],
-    [Controls.capitalize]: [Generators.passphrase.settings.initial.capitalize],
-    [Controls.includeNumber]: [Generators.passphrase.settings.initial.includeNumber],
+    [Controls.numWords]: [0],
+    [Controls.wordSeparator]: [""],
+    [Controls.capitalize]: [false],
+    [Controls.includeNumber]: [false],
   });
 
   async ngOnInit() {
-    const singleUserId$ = this.singleUserId$();
-    const settings = await this.generatorService.settings(Generators.passphrase, { singleUserId$ });
+    this.log = ifEnabledSemanticLoggerProvider(this.debug, this.logService, {
+      type: "PassphraseSettingsComponent",
+    });
+
+    const settings = await this.generatorService.settings(BuiltIn.passphrase, {
+      account$: this.account$,
+    });
 
     // skips reactive event emissions to break a subscription cycle
     settings.withConstraints$
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(
+        tap((content) => this.log.debug(content, "passphrase settings loaded with constraints")),
+        takeUntil(this.destroyed$),
+      )
       .subscribe(({ state, constraints }) => {
         this.settings.patchValue(state, { emitEvent: false });
 
         let boundariesHint = this.i18nService.t(
           "spinboxBoundariesHint",
-          constraints.numWords.min?.toString(),
-          constraints.numWords.max?.toString(),
+          constraints.numWords?.min?.toString(),
+          constraints.numWords?.max?.toString(),
         );
-        if (state.numWords <= (constraints.numWords.recommendation ?? 0)) {
+        if ((state.numWords ?? 0) <= (constraints.numWords?.recommendation ?? 0)) {
           boundariesHint += this.i18nService.t(
             "passphraseNumWordsRecommendationHint",
-            constraints.numWords.recommendation?.toString(),
+            constraints.numWords?.recommendation?.toString(),
           );
         }
         this.numWordsBoundariesHint.next(boundariesHint);
       });
 
     // the first emission is the current value; subsequent emissions are updates
-    settings.pipe(skip(1), takeUntil(this.destroyed$)).subscribe(this.onUpdated);
+    settings
+      .pipe(
+        skip(1),
+        tap((settings) => this.log.debug(settings, "passphrase settings onUpdate event")),
+        takeUntil(this.destroyed$),
+      )
+      .subscribe(this.onUpdated);
 
     // explain policy & disable policy-overridden fields
     this.generatorService
-      .policy$(Generators.passphrase, { userId$: singleUserId$ })
+      .policy$(BuiltIn.passphrase, { account$: this.account$ })
       .pipe(takeUntil(this.destroyed$))
       .subscribe(({ constraints }) => {
-        this.wordSeparatorMaxLength = constraints.wordSeparator.maxLength;
-        this.policyInEffect = constraints.policyInEffect;
+        this.wordSeparatorMaxLength = constraints.wordSeparator?.maxLength ?? 0;
+        this.policyInEffect = constraints.policyInEffect ?? false;
 
         this.toggleEnabled(Controls.capitalize, !constraints.capitalize?.readonly);
         this.toggleEnabled(Controls.includeNumber, !constraints.includeNumber?.readonly);
@@ -122,22 +193,25 @@ export class PassphraseSettingsComponent implements OnInit, OnDestroy {
     this.saveSettings
       .pipe(
         withLatestFrom(this.settings.valueChanges),
-        map(([, settings]) => settings),
+        tap(([source, form]) =>
+          this.log.debug({ source, form }, "save passphrase settings request"),
+        ),
+        map(([, settings]) => settings as PassphraseGenerationOptions),
         takeUntil(this.destroyed$),
       )
       .subscribe(settings);
   }
 
   /** attribute binding for wordSeparator[maxlength] */
-  protected wordSeparatorMaxLength: number;
+  protected wordSeparatorMaxLength: number = 0;
 
   private saveSettings = new Subject<string>();
-  save(site: string = "component api call") {
-    this.saveSettings.next(site);
+  save(source: string = "component api call") {
+    this.saveSettings.next(source);
   }
 
   /** display binding for enterprise policy notice */
-  protected policyInEffect: boolean;
+  protected policyInEffect: boolean = false;
 
   private numWordsBoundariesHint = new ReplaySubject<string>(1);
 
@@ -146,23 +220,10 @@ export class PassphraseSettingsComponent implements OnInit, OnDestroy {
 
   private toggleEnabled(setting: keyof typeof Controls, enabled: boolean) {
     if (enabled) {
-      this.settings.get(setting).enable({ emitEvent: false });
+      this.settings.get(setting)?.enable({ emitEvent: false });
     } else {
-      this.settings.get(setting).disable({ emitEvent: false });
+      this.settings.get(setting)?.disable({ emitEvent: false });
     }
-  }
-
-  private singleUserId$() {
-    // FIXME: this branch should probably scan for the user and make sure
-    // the account is unlocked
-    if (this.userId) {
-      return new BehaviorSubject(this.userId as UserId).asObservable();
-    }
-
-    return this.accountService.activeAccount$.pipe(
-      completeOnAccountSwitch(),
-      takeUntil(this.destroyed$),
-    );
   }
 
   private readonly destroyed$ = new Subject<void>();

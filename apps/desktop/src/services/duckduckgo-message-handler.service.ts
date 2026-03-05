@@ -4,12 +4,18 @@ import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { NativeMessagingVersion } from "@bitwarden/common/enums";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac } from "@bitwarden/common/key-management/crypto";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { DuckDuckGoEncstring } from "@bitwarden/common/key-management/crypto/dangerous/dangerous_duckduckgo_crypto";
+import {
+  EncryptedString,
+  EncString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { DialogService } from "@bitwarden/components";
 
@@ -130,6 +136,8 @@ export class DuckDuckGoMessageHandlerService {
           sharedKey: Utils.fromBufferToB64(encryptedSecret),
         },
       });
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       this.sendResponse({
         messageId: messageId,
@@ -153,6 +161,8 @@ export class DuckDuckGoMessageHandlerService {
         await this.encryptedMessageHandlerService.responseDataForCommand(decryptedCommandData);
 
       await this.sendEncryptedResponse(message, { command, payload: responseData });
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -164,7 +174,7 @@ export class DuckDuckGoMessageHandlerService {
     payload: DecryptedCommandData,
     key: SymmetricCryptoKey,
   ): Promise<EncString> {
-    return await this.encryptService.encrypt(JSON.stringify(payload), key);
+    return await this.encryptService.encryptString(JSON.stringify(payload), key);
   }
 
   private async decryptPayload(message: EncryptedMessage): Promise<DecryptedCommandData> {
@@ -184,14 +194,10 @@ export class DuckDuckGoMessageHandlerService {
     }
 
     try {
-      let decryptedResult = await this.encryptService.decryptToUtf8(
-        message.encryptedCommand as EncString,
+      const decryptedResult = await this.decryptDuckDuckGoEncString(
+        message.encryptedCommand.encryptedString as DuckDuckGoEncstring,
         this.duckduckgoSharedSecret,
-        "ddg-shared-key",
       );
-
-      decryptedResult = this.trimNullCharsFromMessage(decryptedResult);
-
       return JSON.parse(decryptedResult);
     } catch {
       this.sendResponse({
@@ -234,22 +240,29 @@ export class DuckDuckGoMessageHandlerService {
     ipc.platform.nativeMessaging.sendReply(response);
   }
 
-  // Trim all null bytes padded at the end of messages. This happens with C encryption libraries.
-  private trimNullCharsFromMessage(message: string): string {
-    const charNull = 0;
-    const charRightCurlyBrace = 125;
-    const charRightBracket = 93;
-
-    for (let i = message.length - 1; i >= 0; i--) {
-      if (message.charCodeAt(i) === charNull) {
-        message = message.substring(0, message.length - 1);
-      } else if (
-        message.charCodeAt(i) === charRightCurlyBrace ||
-        message.charCodeAt(i) === charRightBracket
-      ) {
-        break;
+  /*
+   * Bitwarden type 2 (AES256-CBC-HMAC256) uses PKCS7 padding.
+   * DuckDuckGo does not use PKCS7 padding; and instead fills the last CBC block with null bytes.
+   * ref: https://github.com/duckduckgo/apple-browsers/blob/04d678b447869c3a640714718a466b36407db8b6/macOS/DuckDuckGo/PasswordManager/Bitwarden/Services/BWEncryption.m#L141
+   *
+   * This is incompatible which means the default encryptService cannot be used to decrypt the message,
+   * a custom EncString decrypt operation is needed.
+   *
+   * This function also trims null characters that are a result of the null-padding from the end of the message.
+   */
+  private async decryptDuckDuckGoEncString(
+    encString: DuckDuckGoEncstring,
+    key: SymmetricCryptoKey,
+  ): Promise<string> {
+    const keyInner = key.inner();
+    switch (keyInner.type) {
+      case EncryptionType.AesCbc256_HmacSha256_B64: {
+        const decryptedBytes = DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac(
+          encString,
+          keyInner,
+        );
+        return Utils.fromArrayToUtf8(decryptedBytes);
       }
     }
-    return message;
   }
 }

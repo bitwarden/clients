@@ -47,7 +47,6 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
     actual.password.tokenRequest = new PasswordTokenRequest(
       "EMAIL",
       "LOCAL_PASSWORD_HASH",
-      "CAPTCHA_TOKEN",
       twoFactorRequest,
       deviceRequest,
     );
@@ -94,8 +93,6 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
       "ACCESS_CODE",
       "AUTH_REQUEST_ID",
       new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
-      new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey,
-      "MASTER_KEY_HASH",
     );
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));
@@ -116,7 +113,7 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
       deviceResponse,
       deviceRequest,
     );
-    actual.webAuthn.captchaBypassToken = "CAPTCHA_BYPASS_TOKEN";
+
     actual.webAuthn.tokenRequest.setTwoFactor(
       new TokenTwoFactorRequest(TwoFactorProviderType.Email, "TOKEN", false),
     );

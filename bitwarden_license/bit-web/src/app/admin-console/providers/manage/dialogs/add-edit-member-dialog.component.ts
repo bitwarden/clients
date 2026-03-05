@@ -1,33 +1,41 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
+import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProviderUserType } from "@bitwarden/common/admin-console/enums";
 import { ProviderUserInviteRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-invite.request";
 import { ProviderUserUpdateRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-update.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
+import { ProviderUser } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 
 export type AddEditMemberDialogParams = {
   providerId: string;
-  user?: {
-    id: string;
-    name: string;
-    type: ProviderUserType;
-  };
+  user?: ProviderUser;
 };
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum AddEditMemberDialogResultType {
   Closed = "closed",
   Deleted = "deleted",
   Saved = "saved",
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "add-edit-member-dialog.component.html",
+  standalone: false,
 })
 export class AddEditMemberDialogComponent {
   editing = false;
@@ -49,6 +57,7 @@ export class AddEditMemberDialogComponent {
     private dialogService: DialogService,
     private i18nService: I18nService,
     private toastService: ToastService,
+    private userNamePipe: UserNamePipe,
   ) {
     this.editing = this.loading = this.dialogParams.user != null;
     if (this.editing) {
@@ -68,8 +77,10 @@ export class AddEditMemberDialogComponent {
       return;
     }
 
+    const userName = this.userNamePipe.transform(this.dialogParams.user);
+
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: this.dialogParams.user.name,
+      title: userName,
       content: { key: "removeUserConfirmation" },
       type: "warning",
     });
@@ -86,7 +97,7 @@ export class AddEditMemberDialogComponent {
     this.toastService.showToast({
       variant: "success",
       title: null,
-      message: this.i18nService.t("removedUserId", this.dialogParams.user.name),
+      message: this.i18nService.t("removedUserId", userName),
     });
 
     this.dialogRef.close(AddEditMemberDialogResultType.Deleted);
@@ -108,13 +119,12 @@ export class AddEditMemberDialogComponent {
       await this.apiService.postProviderUserInvite(this.dialogParams.providerId, request);
     }
 
+    const userName = this.editing ? this.userNamePipe.transform(this.dialogParams.user) : undefined;
+
     this.toastService.showToast({
       variant: "success",
       title: null,
-      message: this.i18nService.t(
-        this.editing ? "editedUserId" : "invitedUsers",
-        this.dialogParams.user?.name,
-      ),
+      message: this.i18nService.t(this.editing ? "editedUserId" : "invitedUsers", userName),
     });
 
     this.dialogRef.close(AddEditMemberDialogResultType.Saved);

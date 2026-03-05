@@ -1,4 +1,4 @@
-import "jest-preset-angular/setup-jest";
+import "@bitwarden/ui-common/setup-jest";
 import { addCustomMatchers } from "@bitwarden/common/spec";
 
 addCustomMatchers();
@@ -79,6 +79,7 @@ const scripting = {
   executeScript: jest.fn(),
   registerContentScripts: jest.fn(),
   unregisterContentScripts: jest.fn(),
+  ExecutionWorld: { ISOLATED: "ISOLATED", MAIN: "MAIN" },
 };
 
 const windows = {

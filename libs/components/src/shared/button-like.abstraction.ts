@@ -1,8 +1,10 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-export type ButtonType = "primary" | "secondary" | "danger" | "unstyled";
+import { ModelSignal } from "@angular/core";
+
+export type ButtonType = "primary" | "secondary" | "danger" | "dangerPrimary" | "unstyled";
+
+export type ButtonSize = "default" | "small";
 
 export abstract class ButtonLikeAbstraction {
-  loading: boolean;
-  disabled: boolean;
+  abstract loading: ModelSignal<boolean>;
+  abstract disabled: ModelSignal<boolean>;
 }

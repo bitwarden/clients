@@ -1,0 +1,24 @@
+<bit-form-field class="!tw-mb-0">
+  <bit-label>{{ "verificationCode" | i18n }}</bit-label>
+  <input
+    bitInput
+    type="text"
+    appAutofocus
+    appInputVerbatim
+    [formControl]="tokenFormControl"
+    (keyup)="onTokenChange($event)"
+  />
+</bit-form-field>
+
+<div class="tw-mb-4">
+  <a
+    bitTypography="helper"
+    class="tw-text-main"
+    bitLink
+    href="#"
+    appStopClick
+    (click)="sendEmail(true)"
+  >
+    {{ "resendCode" | i18n }}
+  </a>
+</div>

@@ -4,6 +4,9 @@ on:
   workflow_call:
   pull_request:
     types: [labeled, unlabeled, opened, edited, synchronize]
+permissions:
+  contents: read
+  pull-requests: read
 jobs:
   enforce-label:
     name: EnforceLabel

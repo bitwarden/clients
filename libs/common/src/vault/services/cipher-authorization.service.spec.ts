@@ -1,11 +1,17 @@
 import { mock } from "jest-mock-extended";
-import { firstValueFrom, of } from "rxjs";
+import { Observable, firstValueFrom, of } from "rxjs";
 
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { CollectionId } from "@bitwarden/common/types/guid";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { UserId } from "@bitwarden/common/types/guid";
 
+import { FakeAccountService, mockAccountServiceWith } from "../../../spec";
+import { CipherPermissionsApi } from "../models/api/cipher-permissions.api";
 import { CipherView } from "../models/view/cipher.view";
 
 import {
@@ -18,16 +24,20 @@ describe("CipherAuthorizationService", () => {
 
   const mockCollectionService = mock<CollectionService>();
   const mockOrganizationService = mock<OrganizationService>();
+  const mockUserId = Utils.newGuid() as UserId;
+  let mockAccountService: FakeAccountService;
 
   // Mock factories
   const createMockCipher = (
     organizationId: string | null,
     collectionIds: string[],
     edit: boolean = true,
+    permissions: CipherPermissionsApi = new CipherPermissionsApi(),
   ) => ({
     organizationId,
     collectionIds,
     edit,
+    permissions,
   });
 
   const createMockCollection = (id: string, manage: boolean) => ({
@@ -42,6 +52,7 @@ describe("CipherAuthorizationService", () => {
     isAdmin = false,
     editAnyCollection = false,
   } = {}) => ({
+    id: "org1",
     allowAdminAccessToAllCollectionItems,
     canEditAllCiphers,
     canEditUnassignedCiphers,
@@ -53,28 +64,91 @@ describe("CipherAuthorizationService", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockAccountService = mockAccountServiceWith(mockUserId);
     cipherAuthorizationService = new DefaultCipherAuthorizationService(
       mockCollectionService,
       mockOrganizationService,
+      mockAccountService,
     );
   });
 
-  describe("canDeleteCipher$", () => {
-    it("should return true if cipher has no organizationId", (done) => {
-      const cipher = createMockCipher(null, []) as CipherView;
+  describe("canRestoreCipher$", () => {
+    it("should return true if isAdminConsoleAction and cipher is unassigned", (done) => {
+      const cipher = createMockCipher("org1", []) as CipherView;
+      const organization = createMockOrganization({ canEditUnassignedCiphers: true });
+      mockOrganizationService.organizations$.mockReturnValue(
+        of([organization]) as Observable<Organization[]>,
+      );
 
-      cipherAuthorizationService.canDeleteCipher$(cipher).subscribe((result) => {
+      cipherAuthorizationService.canRestoreCipher$(cipher, true).subscribe((result) => {
         expect(result).toBe(true);
         done();
       });
     });
 
+    it("should return true if isAdminConsoleAction and user can edit all ciphers in the org", (done) => {
+      const cipher = createMockCipher("org1", ["col1"]) as CipherView;
+      const organization = createMockOrganization({ canEditAllCiphers: true });
+      mockOrganizationService.organizations$.mockReturnValue(
+        of([organization]) as Observable<Organization[]>,
+      );
+
+      cipherAuthorizationService.canRestoreCipher$(cipher, true).subscribe((result) => {
+        expect(result).toBe(true);
+        expect(mockOrganizationService.organizations$).toHaveBeenCalledWith(mockUserId);
+        done();
+      });
+    });
+
+    it("should return false if isAdminConsoleAction is true but user does not have permission to edit unassigned ciphers", (done) => {
+      const cipher = createMockCipher("org1", []) as CipherView;
+      const organization = createMockOrganization({ canEditUnassignedCiphers: false });
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
+
+      cipherAuthorizationService.canRestoreCipher$(cipher, true).subscribe((result) => {
+        expect(result).toBe(false);
+        done();
+      });
+    });
+
+    it("should return false if cipher.permission.restore is false and is not an admin action", (done) => {
+      const cipher = createMockCipher("org1", [], true, {
+        restore: false,
+      } as CipherPermissionsApi) as CipherView;
+      const organization = createMockOrganization();
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
+
+      cipherAuthorizationService.canRestoreCipher$(cipher, false).subscribe((result) => {
+        expect(result).toBe(false);
+        expect(mockCollectionService.decryptedCollections$).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it("should return true if cipher.permission.restore is true and is not an admin action", (done) => {
+      const cipher = createMockCipher("org1", [], true, {
+        restore: true,
+      } as CipherPermissionsApi) as CipherView;
+      const organization = createMockOrganization();
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
+
+      cipherAuthorizationService.canRestoreCipher$(cipher, false).subscribe((result) => {
+        expect(result).toBe(true);
+        expect(mockCollectionService.decryptedCollections$).not.toHaveBeenCalled();
+        done();
+      });
+    });
+  });
+
+  describe("canDeleteCipher$", () => {
     it("should return true if isAdminConsoleAction is true and cipher is unassigned", (done) => {
       const cipher = createMockCipher("org1", []) as CipherView;
       const organization = createMockOrganization({ canEditUnassignedCiphers: true });
-      mockOrganizationService.get$.mockReturnValue(of(organization as Organization));
+      mockOrganizationService.organizations$.mockReturnValue(
+        of([organization]) as Observable<Organization[]>,
+      );
 
-      cipherAuthorizationService.canDeleteCipher$(cipher, [], true).subscribe((result) => {
+      cipherAuthorizationService.canDeleteCipher$(cipher, true).subscribe((result) => {
         expect(result).toBe(true);
         done();
       });
@@ -83,11 +157,13 @@ describe("CipherAuthorizationService", () => {
     it("should return true if isAdminConsoleAction is true and user can edit all ciphers in the org", (done) => {
       const cipher = createMockCipher("org1", ["col1"]) as CipherView;
       const organization = createMockOrganization({ canEditAllCiphers: true });
-      mockOrganizationService.get$.mockReturnValue(of(organization as Organization));
+      mockOrganizationService.organizations$.mockReturnValue(
+        of([organization]) as Observable<Organization[]>,
+      );
 
-      cipherAuthorizationService.canDeleteCipher$(cipher, [], true).subscribe((result) => {
+      cipherAuthorizationService.canDeleteCipher$(cipher, true).subscribe((result) => {
         expect(result).toBe(true);
-        expect(mockOrganizationService.get$).toHaveBeenCalledWith("org1");
+        expect(mockOrganizationService.organizations$).toHaveBeenCalledWith(mockUserId);
         done();
       });
     });
@@ -95,110 +171,99 @@ describe("CipherAuthorizationService", () => {
     it("should return false if isAdminConsoleAction is true but user does not have permission to edit unassigned ciphers", (done) => {
       const cipher = createMockCipher("org1", []) as CipherView;
       const organization = createMockOrganization({ canEditUnassignedCiphers: false });
-      mockOrganizationService.get$.mockReturnValue(of(organization as Organization));
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
 
-      cipherAuthorizationService.canDeleteCipher$(cipher, [], true).subscribe((result) => {
+      cipherAuthorizationService.canDeleteCipher$(cipher, true).subscribe((result) => {
         expect(result).toBe(false);
         done();
       });
     });
 
-    it("should return true if activeCollectionId is provided and has manage permission", (done) => {
-      const cipher = createMockCipher("org1", ["col1", "col2"]) as CipherView;
-      const activeCollectionId = "col1" as CollectionId;
-      const org = createMockOrganization();
-      mockOrganizationService.get$.mockReturnValue(of(org as Organization));
+    it("should return true when cipher.permissions.delete is true", (done) => {
+      const cipher = createMockCipher("org1", [], true, {
+        delete: true,
+      } as CipherPermissionsApi) as CipherView;
+      const organization = createMockOrganization();
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
 
-      const allCollections = [
-        createMockCollection("col1", true),
-        createMockCollection("col2", false),
-      ];
-      mockCollectionService.decryptedCollectionViews$.mockReturnValue(
-        of(allCollections as CollectionView[]),
-      );
-
-      cipherAuthorizationService
-        .canDeleteCipher$(cipher, [activeCollectionId])
-        .subscribe((result) => {
-          expect(result).toBe(true);
-          expect(mockCollectionService.decryptedCollectionViews$).toHaveBeenCalledWith([
-            "col1",
-            "col2",
-          ] as CollectionId[]);
-          done();
-        });
-    });
-
-    it("should return false if activeCollectionId is provided and manage permission is not present", (done) => {
-      const cipher = createMockCipher("org1", ["col1", "col2"]) as CipherView;
-      const activeCollectionId = "col1" as CollectionId;
-      const org = createMockOrganization();
-      mockOrganizationService.get$.mockReturnValue(of(org as Organization));
-
-      const allCollections = [
-        createMockCollection("col1", false),
-        createMockCollection("col2", true),
-      ];
-      mockCollectionService.decryptedCollectionViews$.mockReturnValue(
-        of(allCollections as CollectionView[]),
-      );
-
-      cipherAuthorizationService
-        .canDeleteCipher$(cipher, [activeCollectionId])
-        .subscribe((result) => {
-          expect(result).toBe(false);
-          expect(mockCollectionService.decryptedCollectionViews$).toHaveBeenCalledWith([
-            "col1",
-            "col2",
-          ] as CollectionId[]);
-          done();
-        });
-    });
-
-    it("should return true if any collection has manage permission", (done) => {
-      const cipher = createMockCipher("org1", ["col1", "col2", "col3"]) as CipherView;
-      const org = createMockOrganization();
-      mockOrganizationService.get$.mockReturnValue(of(org as Organization));
-
-      const allCollections = [
-        createMockCollection("col1", false),
-        createMockCollection("col2", true),
-        createMockCollection("col3", false),
-      ];
-      mockCollectionService.decryptedCollectionViews$.mockReturnValue(
-        of(allCollections as CollectionView[]),
-      );
-
-      cipherAuthorizationService.canDeleteCipher$(cipher).subscribe((result) => {
+      cipherAuthorizationService.canDeleteCipher$(cipher, false).subscribe((result) => {
         expect(result).toBe(true);
-        expect(mockCollectionService.decryptedCollectionViews$).toHaveBeenCalledWith([
-          "col1",
-          "col2",
-          "col3",
-        ] as CollectionId[]);
         done();
       });
     });
 
-    it("should return false if no collection has manage permission", (done) => {
-      const cipher = createMockCipher("org1", ["col1", "col2"]) as CipherView;
-      const org = createMockOrganization();
-      mockOrganizationService.get$.mockReturnValue(of(org as Organization));
+    it("should return false when cipher.permissions.delete is false", (done) => {
+      const cipher = createMockCipher("org1", []) as CipherView;
+      const organization = createMockOrganization();
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
 
-      const allCollections = [
-        createMockCollection("col1", false),
-        createMockCollection("col2", false),
-      ];
-      mockCollectionService.decryptedCollectionViews$.mockReturnValue(
-        of(allCollections as CollectionView[]),
+      cipherAuthorizationService.canDeleteCipher$(cipher, false).subscribe((result) => {
+        expect(result).toBe(false);
+        expect(mockCollectionService.decryptedCollections$).not.toHaveBeenCalled();
+        done();
+      });
+    });
+  });
+
+  describe("canEditCipher$", () => {
+    it("should return true if isAdminConsoleAction is true and cipher is unassigned", (done) => {
+      const cipher = createMockCipher("org1", []) as CipherView;
+      const organization = createMockOrganization({ canEditUnassignedCiphers: true });
+      mockOrganizationService.organizations$.mockReturnValue(
+        of([organization]) as Observable<Organization[]>,
       );
 
-      cipherAuthorizationService.canDeleteCipher$(cipher).subscribe((result) => {
+      cipherAuthorizationService.canEditCipher$(cipher, true).subscribe((result) => {
+        expect(result).toBe(true);
+        done();
+      });
+    });
+
+    it("should return true if isAdminConsoleAction is true and user can edit all ciphers in the org", (done) => {
+      const cipher = createMockCipher("org1", ["col1"]) as CipherView;
+      const organization = createMockOrganization({ canEditAllCiphers: true });
+      mockOrganizationService.organizations$.mockReturnValue(
+        of([organization]) as Observable<Organization[]>,
+      );
+
+      cipherAuthorizationService.canEditCipher$(cipher, true).subscribe((result) => {
+        expect(result).toBe(true);
+        expect(mockOrganizationService.organizations$).toHaveBeenCalledWith(mockUserId);
+        done();
+      });
+    });
+
+    it("should return false if isAdminConsoleAction is true but user does not have permission to edit unassigned ciphers", (done) => {
+      const cipher = createMockCipher("org1", []) as CipherView;
+      const organization = createMockOrganization({ canEditUnassignedCiphers: false });
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
+
+      cipherAuthorizationService.canEditCipher$(cipher, true).subscribe((result) => {
         expect(result).toBe(false);
-        expect(mockCollectionService.decryptedCollectionViews$).toHaveBeenCalledWith([
-          "col1",
-          "col2",
-        ] as CollectionId[]);
+        done();
+      });
+    });
+
+    it("should return true if cipher.edit is true and is not an admin action", (done) => {
+      const cipher = createMockCipher("org1", [], true) as CipherView;
+      const organization = createMockOrganization();
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
+
+      cipherAuthorizationService.canEditCipher$(cipher, false).subscribe((result) => {
+        expect(result).toBe(true);
+        expect(mockCollectionService.decryptedCollections$).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it("should return false if cipher.edit is false and is not an admin action", (done) => {
+      const cipher = createMockCipher("org1", [], false) as CipherView;
+      const organization = createMockOrganization();
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
+
+      cipherAuthorizationService.canEditCipher$(cipher, false).subscribe((result) => {
+        expect(result).toBe(false);
+        expect(mockCollectionService.decryptedCollections$).not.toHaveBeenCalled();
         done();
       });
     });
@@ -216,7 +281,9 @@ describe("CipherAuthorizationService", () => {
       it("should return true for admin users", async () => {
         const cipher = createMockCipher("org1", []) as CipherView;
         const organization = createMockOrganization({ isAdmin: true });
-        mockOrganizationService.get$.mockReturnValue(of(organization as Organization));
+        mockOrganizationService.organizations$.mockReturnValue(
+          of([organization] as Organization[]),
+        );
 
         const result = await firstValueFrom(
           cipherAuthorizationService.canCloneCipher$(cipher, true),
@@ -227,7 +294,9 @@ describe("CipherAuthorizationService", () => {
       it("should return true for custom user with canEditAnyCollection", async () => {
         const cipher = createMockCipher("org1", []) as CipherView;
         const organization = createMockOrganization({ editAnyCollection: true });
-        mockOrganizationService.get$.mockReturnValue(of(organization as Organization));
+        mockOrganizationService.organizations$.mockReturnValue(
+          of([organization] as Organization[]),
+        );
 
         const result = await firstValueFrom(
           cipherAuthorizationService.canCloneCipher$(cipher, true),
@@ -240,13 +309,15 @@ describe("CipherAuthorizationService", () => {
       it("should return true if at least one cipher collection has manage permission", async () => {
         const cipher = createMockCipher("org1", ["col1", "col2"]) as CipherView;
         const organization = createMockOrganization();
-        mockOrganizationService.get$.mockReturnValue(of(organization as Organization));
+        mockOrganizationService.organizations$.mockReturnValue(
+          of([organization] as Organization[]),
+        );
 
         const allCollections = [
           createMockCollection("col1", true),
           createMockCollection("col2", false),
         ];
-        mockCollectionService.decryptedCollectionViews$.mockReturnValue(
+        mockCollectionService.decryptedCollections$.mockReturnValue(
           of(allCollections as CollectionView[]),
         );
 
@@ -257,13 +328,15 @@ describe("CipherAuthorizationService", () => {
       it("should return false if no collection has manage permission", async () => {
         const cipher = createMockCipher("org1", ["col1", "col2"]) as CipherView;
         const organization = createMockOrganization();
-        mockOrganizationService.get$.mockReturnValue(of(organization as Organization));
+        mockOrganizationService.organizations$.mockReturnValue(
+          of([organization] as Organization[]),
+        );
 
         const allCollections = [
           createMockCollection("col1", false),
           createMockCollection("col2", false),
         ];
-        mockCollectionService.decryptedCollectionViews$.mockReturnValue(
+        mockCollectionService.decryptedCollections$.mockReturnValue(
           of(allCollections as CollectionView[]),
         );
 

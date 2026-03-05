@@ -2,29 +2,42 @@
   <app-side-nav variant="secondary" *ngIf="organization$ | async as organization">
     <bit-nav-logo [openIcon]="logo" route="." [label]="'adminConsole' | i18n"></bit-nav-logo>
     <org-switcher [filter]="orgFilter" [hideNewButton]="hideNewOrgButton$ | async"></org-switcher>
-    <bit-nav-group
-      icon="bwi-filter"
-      *ngIf="organization.useRiskInsights"
-      [text]="'accessIntelligence' | i18n"
-    >
+
+    @if (canShowAccessIntelligenceTab(organization)) {
       <bit-nav-item
-        [text]="'riskInsights' | i18n"
-        route="access-intelligence/risk-insights"
+        icon="bwi-dashboard"
+        [text]="'accessIntelligence' | i18n"
+        route="access-intelligence"
       ></bit-nav-item>
-    </bit-nav-group>
+    }
+
     <bit-nav-item
-      icon="bwi-collection"
+      icon="bwi-collection-shared"
       [text]="'collections' | i18n"
       route="vault"
       *ngIf="canShowVaultTab(organization)"
     >
     </bit-nav-item>
-    <bit-nav-item
-      icon="bwi-user"
-      [text]="'members' | i18n"
-      route="members"
-      *ngIf="canShowMembersTab(organization)"
-    ></bit-nav-item>
+
+    <ng-container *ngIf="canShowMembersTab(organization)">
+      <ng-container *ngIf="showSponsoredFamiliesDropdown$ | async; else regularMembersItem">
+        <bit-nav-group icon="bwi-user" [text]="'members' | i18n" route="members">
+          <bit-nav-item
+            [text]="'members' | i18n"
+            route="members"
+            [routerLinkActiveOptions]="{ exact: true }"
+          ></bit-nav-item>
+          <bit-nav-item
+            [text]="'sponsoredFamilies' | i18n"
+            route="members/sponsored-families"
+          ></bit-nav-item>
+        </bit-nav-group>
+      </ng-container>
+      <ng-template #regularMembersItem>
+        <bit-nav-item icon="bwi-user" [text]="'members' | i18n" route="members"></bit-nav-item>
+      </ng-template>
+    </ng-container>
+
     <bit-nav-item
       icon="bwi-users"
       [text]="'groups' | i18n"
@@ -40,7 +53,7 @@
       <bit-nav-item
         [text]="'eventLogs' | i18n"
         route="reporting/events"
-        *ngIf="organization.canAccessEventLogs"
+        *ngIf="organization.canAccessEventLogs || organization.isOwner"
       ></bit-nav-item>
       <bit-nav-item
         [text]="'reports' | i18n"
@@ -56,12 +69,15 @@
     >
       <bit-nav-item [text]="'subscription' | i18n" route="billing/subscription"></bit-nav-item>
       <ng-container *ngIf="(showPaymentAndHistory$ | async) && (organizationIsUnmanaged$ | async)">
-        <bit-nav-item [text]="'paymentMethod' | i18n" route="billing/payment-method"></bit-nav-item>
+        <bit-nav-item
+          [text]="'paymentDetails' | i18n"
+          route="billing/payment-details"
+        ></bit-nav-item>
         <bit-nav-item [text]="'billingHistory' | i18n" route="billing/history"></bit-nav-item>
       </ng-container>
     </bit-nav-group>
     <bit-nav-item
-      icon="bwi-providers"
+      icon="bwi-msp"
       [text]="'integrations' | i18n"
       route="integrations"
       *ngIf="integrationPageEnabled$ | async"
@@ -88,17 +104,17 @@
         *ngIf="organization.use2fa && organization.isOwner"
       ></bit-nav-item>
       <bit-nav-item
-        [text]="'importData' | i18n"
+        [text]="'importNoun' | i18n"
         route="settings/tools/import"
         *ngIf="organization.canAccessImport"
       ></bit-nav-item>
       <bit-nav-item
-        [text]="'exportVault' | i18n"
+        [text]="'exportNoun' | i18n"
         route="settings/tools/export"
         *ngIf="canAccessExport$ | async"
       ></bit-nav-item>
       <bit-nav-item
-        [text]="domainVerificationNavigationTextKey | i18n"
+        [text]="'claimedDomains' | i18n"
         route="settings/domain-verification"
         *ngIf="organization?.canManageDomainVerification"
       ></bit-nav-item>
@@ -121,13 +137,15 @@
   </app-side-nav>
 
   <ng-container *ngIf="organization$ | async as organization">
-    <bit-banner
-      *ngIf="organization.isProviderUser"
-      [showClose]="false"
-      class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
-    >
+    <bit-banner *ngIf="organization.isProviderUser" [showClose]="false">
       {{ "accessingUsingProvider" | i18n: organization.providerName }}
     </bit-banner>
+    <app-tax-id-warning
+      [subscriber]="subscriber$ | async"
+      [getWarning$]="getTaxIdWarning$"
+      (billingAddressUpdated)="refreshTaxIdWarning()"
+    >
+    </app-tax-id-warning>
   </ng-container>
 
   <router-outlet></router-outlet>

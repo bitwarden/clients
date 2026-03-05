@@ -19,7 +19,10 @@ export default {
       providers: [
         {
           provide: I18nService,
-          useValue: new I18nMockService({ toggleVisibility: "Toggle visibility" }),
+          useValue: new I18nMockService({
+            toggleVisibility: "Toggle visibility",
+            loading: "Loading",
+          }),
         },
       ],
     }),
@@ -27,7 +30,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/f32LSg3jaegICkMu7rPARm/Tailwind-Component-Library-Update?node-id=1881%3A17689",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=13213-55392&t=b5tDKylm5sWm2yKo-4",
     },
     docs: {
       description: {
@@ -48,7 +51,7 @@ export const Default: Story = {
         <bit-form-field>
           <bit-label>Password</bit-label>
           <input bitInput type="password" />
-          <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+          <button type="button" label="Toggle password visibility" bitIconButton bitSuffix bitPasswordInputToggle></button>
         </bit-form-field>
       </form>
     `,
@@ -63,7 +66,7 @@ export const Binding: Story = {
         <bit-form-field>
           <bit-label>Password</bit-label>
           <input bitInput type="password" />
-          <button type="button" bitIconButton bitSuffix bitPasswordInputToggle [(toggled)]="toggled"></button>
+          <button type="button" label="Toggle password visibility" bitIconButton bitSuffix bitPasswordInputToggle [(toggled)]="toggled"></button>
         </bit-form-field>
   
         <label class="tw-text-main">

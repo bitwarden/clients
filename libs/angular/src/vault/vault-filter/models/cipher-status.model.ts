@@ -1,1 +1,1 @@
-export type CipherStatus = "all" | "favorites" | "trash";
+export type CipherStatus = "all" | "favorites" | "trash" | "archive";

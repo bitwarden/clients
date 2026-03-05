@@ -14,7 +14,12 @@ import {
   concatMap,
 } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DialogService } from "@bitwarden/components";
 
 import { ProjectCounts } from "../../models/view/counts.view";
@@ -29,9 +34,12 @@ import {
 } from "../dialog/project-dialog.component";
 import { ProjectService } from "../project.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-project",
   templateUrl: "./project.component.html",
+  standalone: false,
 })
 export class ProjectComponent implements OnInit, OnDestroy {
   protected project$: Observable<ProjectView>;
@@ -49,6 +57,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     private accessPolicyService: AccessPolicyService,
     private dialogService: DialogService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private countService: CountService,
   ) {}
 
@@ -60,12 +69,21 @@ export class ProjectComponent implements OnInit, OnDestroy {
     );
 
     this.project$ = combineLatest([this.route.params, currentProjectEdited]).pipe(
-      switchMap(([params, _]) => this.projectService.getByProjectId(params.projectId)),
+      switchMap(([params, currentProj]) =>
+        this.projectService.getByProjectId(params.projectId, currentProj != null),
+      ),
     );
-
     const projectId$ = this.route.params.pipe(map((p) => p.projectId));
     const organization$ = this.route.params.pipe(
-      concatMap((params) => this.organizationService.get$(params.organizationId)),
+      concatMap((params) =>
+        getUserId(this.accountService.activeAccount$).pipe(
+          switchMap((userId) =>
+            this.organizationService
+              .organizations$(userId)
+              .pipe(getOrganizationById(params.organizationId)),
+          ),
+        ),
+      ),
     );
     const projectCounts$ = combineLatest([
       this.route.params,

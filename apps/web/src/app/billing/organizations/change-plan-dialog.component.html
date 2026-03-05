@@ -1,33 +1,18 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog dialogSize="large" [loading]="loading">
-    <span bitDialogTitle class="tw-font-semibold">
-      {{ "upgradeFreeOrganization" | i18n: currentPlanName }}
+    <span bitDialogTitle class="tw-font-medium">
+      {{ dialogHeaderName }}
     </span>
     <div bitDialogContent>
       <p>{{ "upgradePlans" | i18n }}</p>
       <div class="tw-mb-3 tw-flex tw-justify-between">
-        <span class="tw-text-lg tw-pr-1 tw-font-bold">{{ "selectAPlan" | i18n }}</span>
+        <span [hidden]="isSubscriptionCanceled" class="tw-text-lg tw-pr-1 tw-font-medium">{{
+          "selectAPlan" | i18n
+        }}</span>
         <!-- Discount Badge -->
         <div class="tw-flex tw-items-center tw-gap-2">
-          <span
-            class="tw-mr-1"
-            *ngIf="
-              this.discountPercentageFromSub > 0
-                ? discountPercentageFromSub
-                : this.discountPercentage && selectedInterval === planIntervals.Annually
-            "
-            bitBadge
-            variant="success"
-            >{{
-              "upgradeDiscount"
-                | i18n
-                  : (selectedInterval === planIntervals.Annually && discountPercentageFromSub == 0
-                      ? this.discountPercentage
-                      : this.discountPercentageFromSub)
-            }}</span
-          >
           <!-- Plan Interval Toggle -->
-          <div class="tw-inline-block">
+          <div class="tw-inline-block" *ngIf="!isSubscriptionCanceled">
             <bit-toggle-group
               [selected]="selectedInterval"
               (selectedChange)="updateInterval($event)"
@@ -52,7 +37,7 @@
           class="tw-grid tw-grid-flow-col tw-gap-4 tw-mb-4"
           [class]="'tw-grid-cols-' + selectableProducts.length"
         >
-          <div
+          <bit-card
             *ngFor="
               let selectableProduct of selectableProducts;
               trackBy: manageSelectableProduct;
@@ -61,7 +46,6 @@
             [ngClass]="getPlanCardContainerClasses(selectableProduct, i)"
             (click)="selectPlan(selectableProduct)"
             [attr.tabindex]="focusedIndex !== i || isCardDisabled(i) ? '-1' : '0'"
-            class="product-card"
             (keyup)="onKeydown($event, i)"
             (focus)="onFocus(i)"
             [attr.aria-disabled]="isCardDisabled(i)"
@@ -69,8 +53,11 @@
           >
             <div class="tw-relative">
               <div
-                *ngIf="selectableProduct.productTier === productTypes.Enterprise"
-                class="tw-bg-secondary-100 tw-text-center !tw-border-0 tw-text-sm tw-font-bold tw-py-1"
+                *ngIf="
+                  selectableProduct.productTier === productTypes.Enterprise &&
+                  !isSubscriptionCanceled
+                "
+                class="tw-bg-secondary-100 tw-text-center !tw-border-0 tw-text-sm tw-font-medium tw-py-1"
                 [ngClass]="{
                   'tw-bg-primary-700 !tw-text-contrast': selectableProduct === selectedPlan,
                   'tw-bg-secondary-100': !(selectableProduct === selectedPlan),
@@ -86,7 +73,7 @@
                 }"
               >
                 <h3
-                  class="tw-text-[1.25rem] tw-mt-[6px] tw-font-bold tw-mb-0 tw-leading-[2rem] tw-flex tw-items-center"
+                  class="tw-text-[1.25rem] tw-mt-[6px] tw-font-medium tw-mb-0 tw-leading-[2rem] tw-flex tw-items-center"
                 >
                   <span class="tw-capitalize tw-whitespace-nowrap">{{
                     selectableProduct.nameLocalizationKey | i18n
@@ -104,7 +91,7 @@
                   <ng-container
                     *ngIf="selectableProduct.PasswordManager.basePrice && !acceptingSponsorship"
                   >
-                    <b class="tw-text-lg tw-font-semibold">
+                    <b class="tw-text-lg tw-font-medium">
                       {{
                         (selectableProduct.isAnnual
                           ? selectableProduct.PasswordManager.basePrice / 12
@@ -112,8 +99,14 @@
                         ) | currency: "$"
                       }}
                     </b>
-                    <span class="tw-text-xs tw-px-0"> /{{ "monthPerMember" | i18n }}</span>
-                    <b class="tw-text-sm tw-font-semibold">
+                    <span class="tw-text-xs tw-px-0">
+                      /{{
+                        selectableProduct.productTier === productTypes.Families
+                          ? "month"
+                          : ("monthPerMember" | i18n)
+                      }}</span
+                    >
+                    <b class="tw-text-sm tw-font-medium">
                       <ng-container
                         *ngIf="selectableProduct.PasswordManager.hasAdditionalSeatsOption"
                       >
@@ -124,7 +117,7 @@
                             : selectableProduct.PasswordManager.seatPrice
                           ) | currency: "$"
                         }}
-                        /{{ "month" | i18n }}
+                        /{{ selectedPlanInterval | i18n }}
                       </ng-container>
                     </b>
                   </ng-container>
@@ -135,14 +128,15 @@
                     selectableProduct.PasswordManager.hasAdditionalSeatsOption
                   "
                 >
-                  <b class="tw-text-lg tw-font-semibold"
+                  <b class="tw-text-lg tw-font-medium"
                     >{{
                       "costPerMember"
                         | i18n
-                          : ((selectableProduct.isAnnual
-                              ? selectableProduct.PasswordManager.seatPrice / 12
-                              : selectableProduct.PasswordManager.seatPrice
-                            )
+                          : (((this.sub.useSecretsManager
+                              ? selectableProduct.SecretsManager.seatPrice
+                              : 0) +
+                              selectableProduct.PasswordManager.seatPrice) /
+                              (selectableProduct.isAnnual ? 12 : 1)
                               | currency: "$")
                     }}
                   </b>
@@ -161,7 +155,7 @@
               "
             >
               <p
-                class="tw-text-xs tw-px-2 tw-font-semibold tw-mb-1"
+                class="tw-text-xs tw-px-2 tw-font-medium tw-mb-1"
                 *ngIf="organization.useSecretsManager"
               >
                 {{ "bitwardenPasswordManager" | i18n }}
@@ -188,7 +182,7 @@
               </ul>
 
               <p
-                class="tw-text-xs tw-px-2 tw-font-semibold tw-mb-1"
+                class="tw-text-xs tw-px-2 tw-font-medium tw-mb-1"
                 *ngIf="organization.useSecretsManager"
               >
                 {{ "bitwardenSecretsManager" | i18n }}
@@ -228,7 +222,7 @@
               </ng-container>
               <ng-template #fullFeatureList>
                 <p
-                  class="tw-text-xs tw-px-2 tw-font-semibold tw-mb-1"
+                  class="tw-text-xs tw-px-2 tw-font-medium tw-mb-1"
                   *ngIf="organization.useSecretsManager"
                 >
                   {{ "bitwardenPasswordManager" | i18n }}
@@ -280,7 +274,7 @@
                   </li>
                 </ul>
                 <p
-                  class="tw-text-xs tw-px-2 tw-font-semibold tw-mb-1"
+                  class="tw-text-xs tw-px-2 tw-font-medium tw-mb-1"
                   *ngIf="
                     organization.useSecretsManager &&
                     selectableProduct.productTier !== productTypes.Families
@@ -310,7 +304,7 @@
                 </ul>
               </ng-template>
             </ng-template>
-          </div>
+          </bit-card>
         </div>
         <br />
         <bit-callout
@@ -330,42 +324,68 @@
         <br />
       </ng-container>
       <!-- Payment info -->
-      <ng-container *ngIf="formGroup.value.productTier !== productTypes.Free">
+      <ng-container
+        *ngIf="formGroup.value.productTier !== productTypes.Free || isSubscriptionCanceled"
+      >
         <h2 bitTypography="h4">{{ "paymentMethod" | i18n }}</h2>
-        <p *ngIf="!showPayment && (paymentSource || billing?.paymentSource)">
-          <i class="bwi bwi-fw" [ngClass]="paymentSourceClasses"></i>
-          {{
-            deprecateStripeSourcesAPI
-              ? paymentSource?.description
-              : billing?.paymentSource?.description
-          }}
-          <span class="ml-2 tw-text-primary-600 tw-cursor-pointer" (click)="toggleShowPayment()">
-            {{ "changePaymentMethod" | i18n }}
-          </span>
+        <p *ngIf="!showPayment && !!paymentMethod && !isSubscriptionCanceled">
+          @switch (paymentMethod.type) {
+            @case ("bankAccount") {
+              <i class="bwi bwi-fw bwi-billing"></i>
+              {{ paymentMethod.bankName }}, *{{ paymentMethod.last4 }}
+              @if (paymentMethod.hostedVerificationUrl) {
+                <span>- {{ "unverified" | i18n }}</span>
+              }
+              <span
+                class="tw-ml-2 tw-text-primary-600 tw-cursor-pointer"
+                (click)="toggleShowPayment()"
+              >
+                {{ "changePaymentMethod" | i18n }}
+              </span>
+            }
+            @case ("card") {
+              <p class="tw-flex tw-items-center tw-gap-2">
+                @let cardBrandIcon = getCardBrandIcon();
+                @if (cardBrandIcon !== null) {
+                  <i class="bwi bwi-fw credit-card-icon {{ cardBrandIcon }}"></i>
+                } @else {
+                  <i class="bwi bwi-fw bwi-credit-card"></i>
+                }
+                {{ paymentMethod.brand | titlecase }}, *{{ paymentMethod.last4 }},
+                {{ paymentMethod.expiration }}
+                <span
+                  class="tw-ml-2 tw-text-primary-600 tw-cursor-pointer"
+                  (click)="toggleShowPayment()"
+                >
+                  {{ "changePaymentMethod" | i18n }}
+                </span>
+              </p>
+            }
+            @case ("payPal") {
+              <i class="bwi bwi-fw bwi-paypal tw-text-primary-600"></i>
+              {{ paymentMethod.email }}
+              <span
+                class="tw-ml-2 tw-text-primary-600 tw-cursor-pointer"
+                (click)="toggleShowPayment()"
+              >
+                {{ "changePaymentMethod" | i18n }}
+              </span>
+            }
+          }
           <a></a>
         </p>
-        <app-payment
-          *ngIf="
-            (upgradeRequiresPaymentMethod || showPayment || isPaymentSourceEmpty()) &&
-            !deprecateStripeSourcesAPI
-          "
-          [hideCredit]="true"
-        ></app-payment>
-        <app-payment-v2
-          *ngIf="
-            (upgradeRequiresPaymentMethod || showPayment || isPaymentSourceEmpty()) &&
-            deprecateStripeSourcesAPI
-          "
-          [showAccountCredit]="false"
-        >
-        </app-payment-v2>
-        <app-tax-info
-          *ngIf="showPayment || upgradeRequiresPaymentMethod || isPaymentSourceEmpty()"
-          (onCountryChanged)="changedCountry()"
-        ></app-tax-info>
-        <div id="price" class="tw-mt-4">
+        <ng-container *ngIf="canUpdatePaymentInformation()">
+          <app-enter-payment-method [group]="billingFormGroup.controls.paymentMethod">
+          </app-enter-payment-method>
+          <app-enter-billing-address
+            [group]="billingFormGroup.controls.billingAddress"
+            [scenario]="{ type: 'checkout', supportsTaxId }"
+          >
+          </app-enter-billing-address>
+        </ng-container>
+        <div class="tw-mt-4">
           <p class="tw-text-lg tw-mb-1">
-            <span class="tw-font-semibold"
+            <span class="tw-font-medium"
               >{{ "total" | i18n }}:
               {{ total - calculateTotalAppliedDiscount(total) | currency: "USD" : "$" }} USD</span
             >
@@ -375,14 +395,14 @@
               type="button"
               [bitIconButton]="totalOpened ? 'bwi-angle-down' : 'bwi-angle-up'"
               size="small"
-              aria-hidden="true"
+              [label]="totalOpened ? ('hidePricingSummary' | i18n) : ('showPricingSummary' | i18n)"
             ></button>
           </p>
         </div>
         <!-- SM + PM and PM only cost summary -->
-        <div *ngIf="totalOpened && !isSecretsManagerTrial()" class="row">
-          <bit-hint class="col-6" *ngIf="selectedInterval == planIntervals.Annually">
-            <p class="tw-font-semibold tw-mb-1" *ngIf="organization.useSecretsManager">
+        <div *ngIf="totalOpened && !isSecretsManagerTrial()" class="tw-flex tw-flex-wrap tw-gap-4">
+          <bit-hint class="tw-w-1/2" *ngIf="selectedInterval == planIntervals.Annually">
+            <p class="tw-font-medium tw-mb-1" *ngIf="organization.useSecretsManager">
               {{ "passwordManager" | i18n }}
             </p>
             <p
@@ -399,7 +419,7 @@
                     : selectedPlan.PasswordManager.basePrice
                   ) | currency: "$"
                 }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>
                 <ng-container *ngIf="acceptingSponsorship; else notAcceptingSponsorship">
@@ -426,7 +446,7 @@
                 <span *ngIf="!selectedPlan.PasswordManager.baseSeats">{{ "members" | i18n }}</span>
                 &times;
                 {{ selectedPlan.PasswordManager.seatPrice | currency: "$" }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
 
               <span>
@@ -443,7 +463,7 @@
                 {{ "additionalStorageGbMessage" | i18n }}
                 &times;
                 {{ additionalStoragePriceMonthly(selectedPlan) | currency: "$" }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>{{ additionalStorageTotal(selectedPlan) | currency: "$" }}</span>
             </p>
@@ -467,7 +487,7 @@
               </ng-container>
             </p>
             <!-- secrets manager summary for annual -->
-            <p class="tw-font-semibold tw-mt-3 tw-mb-1" *ngIf="organization.useSecretsManager">
+            <p class="tw-font-medium tw-mt-3 tw-mb-1" *ngIf="organization.useSecretsManager">
               {{ "secretsManager" | i18n }}
             </p>
             <p
@@ -484,7 +504,7 @@
                     : selectedPlan.SecretsManager.basePrice
                   ) | currency: "$"
                 }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
             </p>
             <p
@@ -503,7 +523,7 @@
                 <span *ngIf="!selectedPlan.SecretsManager.baseSeats">{{ "members" | i18n }}</span>
                 &times;
                 {{ selectedPlan.SecretsManager.seatPrice | currency: "$" }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
 
               <span>
@@ -523,7 +543,7 @@
                 {{ "serviceAccounts" | i18n | lowercase }}
                 &times;
                 {{ selectedPlan?.SecretsManager?.additionalPricePerServiceAccount | currency: "$" }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>{{ additionalServiceAccountTotal(selectedPlan) | currency: "$" }}</span>
             </p>
@@ -548,8 +568,8 @@
               </ng-container>
             </p>
           </bit-hint>
-          <bit-hint class="col-6" *ngIf="selectedInterval == planIntervals.Monthly">
-            <p class="tw-font-semibold tw-mb-1" *ngIf="organization.useSecretsManager">
+          <bit-hint class="tw-w-1/2" *ngIf="selectedInterval == planIntervals.Monthly">
+            <p class="tw-font-medium tw-mb-1" *ngIf="organization.useSecretsManager">
               {{ "passwordManager" | i18n }}
             </p>
             <p
@@ -579,7 +599,7 @@
                 <span *ngIf="!selectedPlan.PasswordManager.baseSeats">{{ "members" | i18n }}</span>
                 &times;
                 {{ selectedPlan.PasswordManager.seatPrice | currency: "$" }}
-                /{{ "month" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>
                 {{ passwordManagerSeatTotal(selectedPlan) | currency: "$" }}
@@ -595,7 +615,7 @@
                 {{ "additionalStorageGbMessage" | i18n }}
                 &times;
                 {{ additionalStoragePriceMonthly(selectedPlan) | currency: "$" }}
-                /{{ "month" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>{{
                 storageGb * selectedPlan.PasswordManager.additionalStoragePricePerGb | currency: "$"
@@ -622,7 +642,7 @@
               </ng-container>
             </p>
             <!-- secrets manager summary for monthly -->
-            <p class="tw-font-semibold tw-mt-3 tw-mb-1" *ngIf="organization.useSecretsManager">
+            <p class="tw-font-medium tw-mt-3 tw-mb-1" *ngIf="organization.useSecretsManager">
               {{ "secretsManager" | i18n }}
             </p>
             <p
@@ -655,7 +675,7 @@
                 <span *ngIf="!selectedPlan.SecretsManager.baseSeats">{{ "members" | i18n }}</span>
                 &times;
                 {{ selectedPlan.SecretsManager.seatPrice | currency: "$" }}
-                /{{ "month" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>
                 {{ secretsManagerSeatTotal(selectedPlan, sub?.smSeats) | currency: "$" }}
@@ -674,7 +694,7 @@
                 {{ "serviceAccounts" | i18n | lowercase }}
                 &times;
                 {{ selectedPlan.SecretsManager.additionalPricePerServiceAccount | currency: "$" }}
-                /{{ "month" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>{{ additionalServiceAccountTotal(selectedPlan) | currency: "$" }}</span>
             </p>
@@ -704,10 +724,10 @@
           </bit-hint>
         </div>
         <!-- SM + Free PM cost summary -->
-        <div *ngIf="totalOpened && isSecretsManagerTrial()" class="row">
-          <bit-hint class="col-6" *ngIf="selectedInterval == planIntervals.Annually">
+        <div *ngIf="totalOpened && isSecretsManagerTrial()" class="tw-flex tw-flex-wrap tw-gap-4">
+          <bit-hint class="tw-w-1/2" *ngIf="selectedInterval == planIntervals.Annually">
             <!-- secrets manager summary for annual -->
-            <p class="tw-font-semibold tw-mt-2 tw-mb-0" *ngIf="organization.useSecretsManager">
+            <p class="tw-font-medium tw-mt-2 tw-mb-0" *ngIf="organization.useSecretsManager">
               {{ "secretsManager" | i18n }}
             </p>
             <p
@@ -724,7 +744,7 @@
                     : selectedPlan.SecretsManager.basePrice
                   ) | currency: "$"
                 }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
             </p>
             <p
@@ -743,7 +763,7 @@
                 <span *ngIf="!selectedPlan.SecretsManager.baseSeats">{{ "members" | i18n }}</span>
                 &times;
                 {{ selectedPlan.SecretsManager.seatPrice | currency: "$" }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
 
               <span>
@@ -763,12 +783,12 @@
                 {{ "serviceAccounts" | i18n }}
                 &times;
                 {{ selectedPlan.SecretsManager.additionalPricePerServiceAccount | currency: "$" }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>{{ additionalServiceAccountTotal(selectedPlan) | currency: "$" }}</span>
             </p>
             <!-- password manager summary for annual -->
-            <p class="tw-font-semibold tw-mt-3 tw-mb-0" *ngIf="organization.useSecretsManager">
+            <p class="tw-font-medium tw-mt-3 tw-mb-0" *ngIf="organization.useSecretsManager">
               {{ "passwordManager" | i18n }}
             </p>
             <p
@@ -785,7 +805,7 @@
                     : selectedPlan.PasswordManager.basePrice
                   ) | currency: "$"
                 }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>
                 <ng-container *ngIf="acceptingSponsorship; else notAcceptingSponsorship">
@@ -812,7 +832,7 @@
                 <span *ngIf="!selectedPlan.PasswordManager.baseSeats">{{ "members" | i18n }}</span>
                 &times;
                 {{ selectedPlan.PasswordManager.seatPrice | currency: "$" }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
 
               <span *ngIf="isSecretsManagerTrial()">
@@ -824,9 +844,9 @@
               </span>
             </p>
           </bit-hint>
-          <bit-hint class="col-6" *ngIf="selectedInterval == planIntervals.Monthly">
+          <bit-hint class="tw-w-1/2" *ngIf="selectedInterval == planIntervals.Monthly">
             <!-- secrets manager summary for monthly -->
-            <p class="tw-font-semibold tw-mt-2 tw-mb-0" *ngIf="organization.useSecretsManager">
+            <p class="tw-font-medium tw-mt-2 tw-mb-0" *ngIf="organization.useSecretsManager">
               {{ "secretsManager" | i18n }}
             </p>
             <p
@@ -859,7 +879,7 @@
                 <span *ngIf="!selectedPlan.SecretsManager.baseSeats">{{ "members" | i18n }}</span>
                 &times;
                 {{ selectedPlan.SecretsManager.seatPrice | currency: "$" }}
-                /{{ "month" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>
                 {{ secretsManagerSeatTotal(selectedPlan, sub?.smSeats) | currency: "$" }}
@@ -878,12 +898,12 @@
                 {{ "serviceAccounts" | i18n }}
                 &times;
                 {{ selectedPlan.SecretsManager.additionalPricePerServiceAccount | currency: "$" }}
-                /{{ "month" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>{{ additionalServiceAccountTotal(selectedPlan) | currency: "$" }}</span>
             </p>
             <!-- password manager summary for monthly -->
-            <p class="tw-font-semibold tw-mt-3 tw-mb-0" *ngIf="organization.useSecretsManager">
+            <p class="tw-font-medium tw-mt-3 tw-mb-0" *ngIf="organization.useSecretsManager">
               {{ "passwordManager" | i18n }}
             </p>
             <p
@@ -913,7 +933,7 @@
                 <span *ngIf="!selectedPlan.PasswordManager.baseSeats">{{ "members" | i18n }}</span>
                 &times;
                 {{ selectedPlan.PasswordManager.seatPrice | currency: "$" }}
-                /{{ "month" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span *ngIf="isSecretsManagerTrial()">
                 {{ "freeForOneYear" | i18n }}
@@ -927,10 +947,10 @@
         </div>
         <!-- discountPercentage to PM Only -->
         <div
-          *ngIf="totalOpened && discountPercentage && !organization.useSecretsManager"
-          class="row"
+          *ngIf="totalOpened && !organization.useSecretsManager"
+          class="tw-flex tw-flex-wrap tw-gap-4"
         >
-          <bit-hint class="col-6">
+          <bit-hint class="tw-w-1/2">
             <p
               class="tw-mb-0 tw-flex tw-justify-between"
               bitTypography="body2"
@@ -947,19 +967,31 @@
             </p>
           </bit-hint>
         </div>
-        <div *ngIf="totalOpened" id="price" class="row tw-mt-4">
-          <bit-hint class="col-6">
+        <div *ngIf="totalOpened" class="tw-flex tw-flex-wrap tw-gap-4 tw-mt-4">
+          <bit-hint class="tw-w-1/2">
             <p
               class="tw-flex tw-justify-between tw-border-0 tw-border-solid tw-border-t tw-border-secondary-300 tw-pt-2 tw-mb-0"
             >
-              <span class="tw-font-semibold">
+              <span class="tw-font-medium">
+                {{ "estimatedTax" | i18n }}
+              </span>
+              <span>
+                {{ estimatedTax | currency: "USD" : "$" }}
+              </span>
+            </p>
+          </bit-hint>
+        </div>
+        <div *ngIf="totalOpened" class="tw-flex tw-flex-wrap tw-gap-4 tw-mt-4">
+          <bit-hint class="tw-w-1/2">
+            <p
+              class="tw-flex tw-justify-between tw-border-0 tw-border-solid tw-border-t tw-border-secondary-300 tw-pt-2 tw-mb-0"
+            >
+              <span class="tw-font-medium">
                 {{ "total" | i18n }}
               </span>
               <span>
                 {{ total - calculateTotalAppliedDiscount(total) | currency: "USD" : "$" }}
-                <span class="tw-text-xs tw-font-semibold">
-                  / {{ selectedPlanInterval | i18n }}</span
-                >
+                <span class="tw-text-xs tw-font-medium"> / {{ selectedPlanInterval | i18n }}</span>
               </span>
             </p>
           </bit-hint>
@@ -968,7 +1000,7 @@
     </div>
     <ng-container bitDialogFooter>
       <button bitButton bitFormButton buttonType="primary" type="submit">
-        {{ "upgrade" | i18n }}
+        {{ submitButtonLabel }}
       </button>
       <button bitButton buttonType="secondary" type="button" [bitDialogClose]="ResultType.Closed">
         {{ "cancel" | i18n }}

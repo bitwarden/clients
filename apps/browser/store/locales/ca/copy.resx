@@ -144,7 +144,7 @@ Utilitzeu Bitwarden per protegir la vostra força de treball i compartir informa
 Més raons per a triar Bitwarden:
 
 Xifratge de classe mundial
-Les contrasenyes estan protegides amb un xifratge avançat d'extrem a extrem (AES-256 bits, hashtag salat i PBKDF2 SHA-256) perquè les vostres dades es mantinguen segures i privades.
+Les contrasenyes estan protegides amb un xifratge avançat d'extrem a extrem (AES-256 bits, hashing salat i PBKDF2 SHA-256) perquè les vostres dades es mantinguen segures i privades.
 
 Auditories de tercers
 Bitwarden realitza regularment auditories de seguretat exhaustives de tercers amb empreses de seguretat notables. Aquestes auditories anuals inclouen avaluacions del codi font i proves de penetració a les IP, servidors i aplicacions web de Bitwarden.

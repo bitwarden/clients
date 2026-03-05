@@ -1,13 +1,15 @@
-import { Meta, Story, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
 
 import * as stories from "./progress.stories";
 
 <Meta of={stories} />
 
-# Progress
+```ts
+import { ProgressModule } from "@bitwarden/components";
+```
 
-Progress indicators may be used to visually indicate progress or to visually measure some other
-value, such as a password strength indicator.
+<Title />
+<Description />
 
 <Primary />
 <Controls />
@@ -19,14 +21,14 @@ allows those who may not be familiar with the pattern to be able to read and dig
 It also allows assistive technology to accurately describe the indicator to those who may be unable
 to see part or all of the indicator.
 
-<Story of={stories.Full} />
+<Canvas of={stories.Full} />
 
 ## Text label
 
 When measuring something other than progress, such as password strength, update the label to fit the
 context of the implementation.
 
-<Story of={stories.CustomText} />
+<Canvas of={stories.CustomText} />
 
 ### Strength indicator styles
 

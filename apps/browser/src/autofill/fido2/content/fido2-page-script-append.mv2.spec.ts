@@ -22,7 +22,9 @@ describe("FIDO2 page-script for manifest v2", () => {
   it("skips appending the `page-script.js` file if the document contentType is not `text/html`", () => {
     Object.defineProperty(window.document, "contentType", { value: "text/plain", writable: true });
 
-    require("./fido2-page-script-append.mv2");
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("./fido2-page-script-delay-append.mv2.ts");
 
     expect(window.document.createElement).not.toHaveBeenCalled();
   });
@@ -33,7 +35,9 @@ describe("FIDO2 page-script for manifest v2", () => {
       return node;
     });
 
-    require("./fido2-page-script-append.mv2");
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("./fido2-page-script-delay-append.mv2.ts");
 
     expect(window.document.createElement).toHaveBeenCalledWith("script");
     expect(chrome.runtime.getURL).toHaveBeenCalledWith(Fido2ContentScript.PageScript);
@@ -48,7 +52,9 @@ describe("FIDO2 page-script for manifest v2", () => {
       return node;
     });
 
-    require("./fido2-page-script-append.mv2");
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("./fido2-page-script-delay-append.mv2.ts");
 
     expect(window.document.createElement).toHaveBeenCalledWith("script");
     expect(chrome.runtime.getURL).toHaveBeenCalledWith(Fido2ContentScript.PageScript);

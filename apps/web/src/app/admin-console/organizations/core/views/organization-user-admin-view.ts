@@ -1,14 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import {
-  CollectionAccessSelectionView,
-  OrganizationUserDetailsResponse,
-} from "@bitwarden/admin-console/common";
+import { OrganizationUserDetailsResponse } from "@bitwarden/admin-console/common";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
+import { CollectionAccessSelectionView } from "@bitwarden/common/admin-console/models/collections";
 
 export class OrganizationUserAdminView {
   id: string;
@@ -17,6 +15,7 @@ export class OrganizationUserAdminView {
   type: OrganizationUserType;
   status: OrganizationUserStatusType;
   externalId: string;
+  ssoExternalId: string;
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
   hasMasterPassword: boolean;
@@ -39,6 +38,7 @@ export class OrganizationUserAdminView {
     view.type = response.type;
     view.status = response.status;
     view.externalId = response.externalId;
+    view.ssoExternalId = response.ssoExternalId;
     view.permissions = response.permissions;
     view.resetPasswordEnrolled = response.resetPasswordEnrolled;
     view.collections = response.collections.map((c) => ({

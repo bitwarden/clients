@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { Card as CardDomain } from "../../vault/models/domain/card";
 import { CardView } from "../../vault/models/view/card.view";
 

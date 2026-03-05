@@ -8,10 +8,17 @@ import { Observable, of, switchMap } from "rxjs";
 import { getHostname, parse } from "tldts";
 import { Merge } from "type-fest";
 
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
-import { EncryptService } from "../abstractions/encrypt.service";
+import "core-js/proposals/array-buffer-base64";
+
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { KeyService } from "@bitwarden/key-management";
+
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "../abstractions/i18n.service";
 
+// FIXME: Remove when updating file. Eslint update
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const nodeURL = typeof self === "undefined" ? require("url") : null;
 
 declare global {
@@ -37,6 +44,7 @@ export class Utils {
   static readonly validHosts: string[] = ["localhost"];
   static readonly originalMinimumPasswordLength = 8;
   static readonly minimumPasswordLength = 12;
+  static readonly maximumPasswordLength = 128;
   static readonly DomainMatchBlacklist = new Map<string, Set<string>>([
     ["google.com", new Set(["script.google.com"])],
   ]);
@@ -66,7 +74,7 @@ export class Utils {
     }
   }
 
-  static fromB64ToArray(str: string): Uint8Array {
+  static fromB64ToArray(str: string): Uint8Array<ArrayBuffer> {
     if (str == null) {
       return null;
     }
@@ -83,11 +91,11 @@ export class Utils {
     }
   }
 
-  static fromUrlB64ToArray(str: string): Uint8Array {
+  static fromUrlB64ToArray(str: string): Uint8Array<ArrayBuffer> {
     return Utils.fromB64ToArray(Utils.fromUrlB64ToB64(str));
   }
 
-  static fromHexToArray(str: string): Uint8Array {
+  static fromHexToArray(str: string): Uint8Array<ArrayBuffer> {
     if (Utils.isNode) {
       return new Uint8Array(Buffer.from(str, "hex"));
     } else {
@@ -99,7 +107,7 @@ export class Utils {
     }
   }
 
-  static fromUtf8ToArray(str: string): Uint8Array {
+  static fromUtf8ToArray(str: string): Uint8Array<ArrayBuffer> {
     if (Utils.isNode) {
       return new Uint8Array(Buffer.from(str, "utf8"));
     } else {
@@ -112,7 +120,7 @@ export class Utils {
     }
   }
 
-  static fromByteStringToArray(str: string): Uint8Array {
+  static fromByteStringToArray(str: string): Uint8Array<ArrayBuffer> {
     if (str == null) {
       return null;
     }
@@ -123,19 +131,162 @@ export class Utils {
     return arr;
   }
 
-  static fromBufferToB64(buffer: ArrayBuffer): string {
+  static fromArrayToHex(arr: Uint8Array): string;
+  static fromArrayToHex(arr: null): null;
+  /**
+   * Converts a Uint8Array to a hexadecimal string.
+   * @param arr - The Uint8Array to convert.
+   * @returns The hexadecimal string representation, or null if the input is null.
+   */
+  static fromArrayToHex(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    // @ts-expect-error - polyfilled by core-js
+    return arr.toHex();
+  }
+
+  static fromArrayToB64(arr: Uint8Array): string;
+  static fromArrayToB64(arr: null): null;
+  /**
+   * Converts a Uint8Array to a Base64 encoded string.
+   * @param arr - The Uint8Array to convert.
+   * @returns The Base64 encoded string, or null if the input is null.
+   */
+  static fromArrayToB64(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    // @ts-expect-error - polyfilled by core-js
+    return arr.toBase64({ alphabet: "base64" });
+  }
+
+  static fromArrayToUrlB64(arr: Uint8Array): string;
+  static fromArrayToUrlB64(arr: null): null;
+  /**
+   * Converts a Uint8Array to a URL-safe Base64 encoded string.
+   * @param arr - The Uint8Array to convert.
+   * @returns The URL-safe Base64 encoded string, or null if the input is null.
+   */
+  static fromArrayToUrlB64(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    // @ts-expect-error - polyfilled by core-js
+    return arr.toBase64({ alphabet: "base64url" });
+  }
+
+  static fromArrayToByteString(arr: null): null;
+  static fromArrayToByteString(arr: Uint8Array): string;
+  /**
+   * Converts a Uint8Array to a byte string (each byte as a character).
+   * @param arr - The Uint8Array to convert.
+   * @returns The byte string representation, or null if the input is null.
+   */
+  static fromArrayToByteString(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    let byteString = "";
+    for (let i = 0; i < arr.length; i++) {
+      byteString += String.fromCharCode(arr[i]);
+    }
+    return byteString;
+  }
+
+  static fromArrayToUtf8(arr: Uint8Array): string;
+  static fromArrayToUtf8(arr: null): null;
+  /**
+   * Converts a Uint8Array to a UTF-8 decoded string.
+   * @param arr - The Uint8Array containing UTF-8 encoded bytes.
+   * @returns The decoded UTF-8 string, or null if the input is null.
+   */
+  static fromArrayToUtf8(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    return BufferLib.from(arr).toString("utf8");
+  }
+
+  /**
+   * Convert binary data into a Base64 string.
+   *
+   * Overloads are provided for two categories of input:
+   *
+   * 1. ArrayBuffer
+   *    - A raw, fixed-length chunk of memory (no element semantics).
+   *    - Example: `const buf = new ArrayBuffer(16);`
+   *
+   * 2. ArrayBufferView
+   *    - A *view* onto an existing buffer that gives the bytes meaning.
+   *    - Examples: Uint8Array, Int32Array, DataView, etc.
+   *    - Views can expose only a *window* of the underlying buffer via
+   *      `byteOffset` and `byteLength`.
+   *      Example:
+   *      ```ts
+   *      const buf = new ArrayBuffer(8);
+   *      const full = new Uint8Array(buf);       // sees all 8 bytes
+   *      const half = new Uint8Array(buf, 4, 4); // sees only last 4 bytes
+   *      ```
+   *
+   * Returns:
+   * - Base64 string for non-empty inputs,
+   * - null if `buffer` is `null` or `undefined`
+   * - empty string if `buffer` is empty (0 bytes)
+   */
+  static fromBufferToB64(buffer: null | undefined): null;
+  static fromBufferToB64(buffer: ArrayBuffer): string;
+  static fromBufferToB64(buffer: ArrayBufferView): string;
+  static fromBufferToB64(buffer: ArrayBuffer | ArrayBufferView | null | undefined): string | null {
+    // Handle null / undefined input
     if (buffer == null) {
       return null;
     }
+
+    const bytes: Uint8Array = Utils.normalizeToUint8Array(buffer);
+
+    // Handle empty input
+    if (bytes.length === 0) {
+      return "";
+    }
+
     if (Utils.isNode) {
-      return Buffer.from(buffer).toString("base64");
+      return Buffer.from(bytes).toString("base64");
     } else {
       let binary = "";
-      const bytes = new Uint8Array(buffer);
       for (let i = 0; i < bytes.byteLength; i++) {
         binary += String.fromCharCode(bytes[i]);
       }
       return Utils.global.btoa(binary);
+    }
+  }
+
+  /**
+   * Normalizes input into a Uint8Array so we always have a uniform,
+   * byte-level view of the data. This avoids dealing with differences
+   * between ArrayBuffer (raw memory with no indexing) and other typed
+   * views (which may have element sizes, offsets, and lengths).
+   * @param buffer ArrayBuffer or ArrayBufferView (e.g. Uint8Array, DataView, etc.)
+   */
+  private static normalizeToUint8Array(buffer: ArrayBuffer | ArrayBufferView): Uint8Array {
+    /**
+     * 1) Uint8Array: already bytes → use directly.
+     * 2) ArrayBuffer: wrap whole buffer.
+     * 3) Other ArrayBufferView (e.g., DataView, Int32Array):
+     *    wrap the view’s window (byteOffset..byteOffset+byteLength).
+     */
+    if (buffer instanceof Uint8Array) {
+      return buffer;
+    } else if (buffer instanceof ArrayBuffer) {
+      return new Uint8Array(buffer);
+    } else {
+      const view = buffer as ArrayBufferView;
+      return new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
     }
   }
 
@@ -230,23 +381,24 @@ export class Utils {
     if (Utils.isNode) {
       return Buffer.from(utfStr, "utf8").toString("base64");
     } else {
-      return decodeURIComponent(escape(Utils.global.btoa(utfStr)));
+      return BufferLib.from(utfStr, "utf8").toString("base64");
     }
   }
 
   static fromUtf8ToUrlB64(utfStr: string): string {
-    return Utils.fromBufferToUrlB64(Utils.fromUtf8ToArray(utfStr));
+    return Utils.fromArrayToUrlB64(Utils.fromUtf8ToArray(utfStr));
   }
 
   static fromB64ToUtf8(b64Str: string): string {
     if (Utils.isNode) {
       return Buffer.from(b64Str, "base64").toString("utf8");
     } else {
-      return decodeURIComponent(escape(Utils.global.atob(b64Str)));
+      return BufferLib.from(b64Str, "base64").toString("utf8");
     }
   }
 
   // ref: http://stackoverflow.com/a/2117523/1090359
+  /** @deprecated Use newGuid from @bitwarden/guid instead */
   static newGuid(): string {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
       const r = (Math.random() * 16) | 0;
@@ -255,8 +407,10 @@ export class Utils {
     });
   }
 
-  static guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+  /** @deprecated Use guidRegex from @bitwarden/guid instead */
+  static guidRegex = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/;
 
+  /** @deprecated Use isGuid from @bitwarden/guid instead */
   static isGuid(id: string) {
     return RegExp(Utils.guidRegex, "i").test(id);
   }
@@ -306,7 +460,7 @@ export class Utils {
     }
   }
 
-  static getDomain(uriString: string): string {
+  static getDomain(uriString: string | null | undefined): string {
     if (Utils.isNullOrWhitespace(uriString)) {
       return null;
     }
@@ -384,11 +538,11 @@ export class Utils {
     };
   }
 
-  static isNullOrWhitespace(str: string): boolean {
+  static isNullOrWhitespace(str: string | null | undefined): boolean {
     return str == null || typeof str !== "string" || str.trim() === "";
   }
 
-  static isNullOrEmpty(str: string): boolean {
+  static isNullOrEmpty(str: string | null | undefined): boolean {
     return str == null || typeof str !== "string" || str == "";
   }
 
@@ -410,7 +564,7 @@ export class Utils {
     return (Object.keys(obj).filter((k) => Number.isNaN(+k)) as K[]).map((k) => obj[k]);
   }
 
-  static getUrl(uriString: string): URL {
+  static getUrl(uriString: string | undefined | null): URL {
     if (this.isNullOrWhitespace(uriString)) {
       return null;
     }
@@ -543,6 +697,55 @@ export class Utils {
     return path.normalize(decodeURIComponent(denormalizedPath)).replace(/^(\.\.(\/|\\|$))+/, "");
   }
 
+  /**
+   * Validates an url checking against invalid patterns
+   * @param url
+   * @returns true if invalid patterns found, false if safe
+   */
+  static invalidUrlPatterns(url: string): boolean {
+    const invalidUrlPatterns = ["..", "%2e", "\\", "%5c"];
+
+    const decodedUrl = decodeURIComponent(url.toLocaleLowerCase());
+
+    // Check URL for invalidUrl patterns across entire URL
+    if (invalidUrlPatterns.some((p) => decodedUrl.includes(p))) {
+      return true;
+    }
+
+    // Check for additional invalid patterns inside URL params
+    if (decodedUrl.includes("?")) {
+      const hasInvalidParams = this.validateQueryParameters(decodedUrl);
+      if (hasInvalidParams) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Validates query parameters for additional invalid patterns
+   * @param url - The URL containing query parameters
+   * @returns true if invalid patterns found, false if safe
+   */
+  private static validateQueryParameters(url: string): boolean {
+    try {
+      let queryString: string;
+
+      if (url.includes("?")) {
+        queryString = url.split("?")[1];
+      } else {
+        return false;
+      }
+
+      const paramInvalidPatterns = ["/", "%2f", "#", "%23"];
+
+      return paramInvalidPatterns.some((p) => queryString.includes(p));
+    } catch (error) {
+      throw new Error(`Error validating query parameters: ${error}`);
+    }
+  }
+
   private static isMobile(win: Window) {
     let mobile = false;
     ((a) => {
@@ -608,6 +811,8 @@ export class Utils {
       }
 
       return new URL(uriString);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       // Ignore error
     }

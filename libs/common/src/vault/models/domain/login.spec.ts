@@ -1,8 +1,8 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
-import { mockEnc, mockFromJson } from "../../../../spec";
-import { UriMatchStrategy, UriMatchStrategySetting } from "../../../models/domain/domain-service";
-import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
+import { mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
+import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
+import { UriMatchStrategy } from "../../../models/domain/domain-service";
 import { LoginData } from "../../models/data/login.data";
 import { Login } from "../../models/domain/login";
 import { LoginUri } from "../../models/domain/login-uri";
@@ -14,17 +14,29 @@ import { Fido2CredentialView } from "../view/fido2-credential.view";
 import { Fido2Credential } from "./fido2-credential";
 
 describe("Login DTO", () => {
+  beforeEach(() => {
+    mockContainerService();
+  });
+
   it("Convert from empty LoginData", () => {
     const data = new LoginData();
     const login = new Login(data);
 
     expect(login).toEqual({
-      passwordRevisionDate: null,
+      passwordRevisionDate: undefined,
       autofillOnPageLoad: undefined,
-      username: null,
-      password: null,
-      totp: null,
+      username: undefined,
+      password: undefined,
+      totp: undefined,
     });
+
+    expect(data.username).toBeUndefined();
+    expect(data.password).toBeUndefined();
+    expect(data.passwordRevisionDate).toBeUndefined();
+    expect(data.totp).toBeUndefined();
+    expect(data.autofillOnPageLoad).toBeUndefined();
+    expect(data.uris).toBeUndefined();
+    expect(data.fido2Credentials).toBeUndefined();
   });
 
   it("Convert from full LoginData", () => {
@@ -82,12 +94,7 @@ describe("Login DTO", () => {
       totp: "encrypted totp",
       uris: [
         {
-          match: null as UriMatchStrategySetting,
           _uri: "decrypted uri",
-          _domain: null as string,
-          _hostname: null as string,
-          _host: null as string,
-          _canLaunch: null as boolean,
         },
       ],
       autofillOnPageLoad: true,
@@ -104,7 +111,7 @@ describe("Login DTO", () => {
       loginUri.validateChecksum.mockResolvedValue(true);
       login.uris = [loginUri];
 
-      const loginView = await login.decrypt(null, true);
+      const loginView = await login.decrypt(true, null);
       expect(loginView).toEqual(expectedView);
     });
 
@@ -116,7 +123,7 @@ describe("Login DTO", () => {
         .mockResolvedValueOnce(true);
       login.uris = [loginUri, loginUri, loginUri];
 
-      const loginView = await login.decrypt(null, false);
+      const loginView = await login.decrypt(false, null);
       expect(loginView).toEqual(expectedView);
     });
   });
@@ -198,8 +205,56 @@ describe("Login DTO", () => {
       expect(actual).toBeInstanceOf(Login);
     });
 
-    it("returns null if object is null", () => {
-      expect(Login.fromJSON(null)).toBeNull();
+    it("returns undefined if object is null", () => {
+      expect(Login.fromJSON(null)).toBeUndefined();
+    });
+  });
+
+  describe("toSdkLogin", () => {
+    it("should map to SDK login", () => {
+      const data: LoginData = {
+        uris: [{ uri: "uri", uriChecksum: "checksum", match: UriMatchStrategy.Domain }],
+        username: "username",
+        password: "password",
+        passwordRevisionDate: "2022-01-31T12:00:00.000Z",
+        totp: "123",
+        autofillOnPageLoad: false,
+        fido2Credentials: [initializeFido2Credential(new Fido2CredentialData())],
+      };
+      const login = new Login(data);
+      const sdkLogin = login.toSdkLogin();
+
+      expect(sdkLogin).toEqual({
+        username: "username",
+        password: "password",
+        passwordRevisionDate: "2022-01-31T12:00:00.000Z",
+        uris: [
+          {
+            match: 0,
+            uri: "uri",
+            uriChecksum: "checksum",
+          },
+        ],
+        totp: "123",
+        autofillOnPageLoad: false,
+        fido2Credentials: [
+          {
+            credentialId: "credentialId",
+            keyType: "public-key",
+            keyAlgorithm: "ECDSA",
+            keyCurve: "P-256",
+            keyValue: "keyValue",
+            rpId: "rpId",
+            userHandle: "userHandle",
+            userName: "userName",
+            counter: "counter",
+            rpName: "rpName",
+            userDisplayName: "userDisplayName",
+            discoverable: "discoverable",
+            creationDate: "2023-01-01T12:00:00.000Z",
+          },
+        ],
+      });
     });
   });
 });

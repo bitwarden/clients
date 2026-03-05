@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from "@angular/core";
 
@@ -10,8 +8,6 @@ import {
   ButtonModule,
   IconButtonModule,
   ItemModule,
-  SectionComponent,
-  SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -19,7 +15,6 @@ import {
   selector: "app-fido2-cipher-row",
   templateUrl: "fido2-cipher-row.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
   imports: [
     BadgeModule,
     ButtonModule,
@@ -27,16 +22,19 @@ import {
     IconButtonModule,
     ItemModule,
     JslibModule,
-    SectionComponent,
-    SectionHeaderComponent,
     TypographyModule,
   ],
 })
 export class Fido2CipherRowComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onSelected = new EventEmitter<CipherView>();
-  @Input() cipher: CipherView;
-  @Input() last: boolean;
-  @Input() title: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input({ required: true }) cipher!: CipherView;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input({ required: true }) title!: string;
 
   protected selectCipher(c: CipherView) {
     this.onSelected.emit(c);

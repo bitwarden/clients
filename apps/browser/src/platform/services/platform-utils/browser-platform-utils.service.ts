@@ -26,6 +26,10 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
       return this.deviceCache;
     }
 
+    // ORDERING MATTERS HERE
+    // Ordered from most specific to least specific. We try to discern the greatest detail
+    // for the type of extension the user is on by checking specific cases first and as we go down
+    // the list we hope to catch all by the most generic clients they could be on.
     if (BrowserPlatformUtilsService.isFirefox()) {
       this.deviceCache = DeviceType.FirefoxExtension;
     } else if (BrowserPlatformUtilsService.isOpera(globalContext)) {
@@ -56,10 +60,7 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return ClientType.Browser;
   }
 
-  /**
-   * @deprecated Do not call this directly, use getDevice() instead
-   */
-  static isFirefox(): boolean {
+  private static isFirefox(): boolean {
     return (
       navigator.userAgent.indexOf(" Firefox/") !== -1 ||
       navigator.userAgent.indexOf(" Gecko/") !== -1
@@ -70,9 +71,6 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return this.getDevice() === DeviceType.FirefoxExtension;
   }
 
-  /**
-   * @deprecated Do not call this directly, use getDevice() instead
-   */
   private static isChrome(globalContext: Window | ServiceWorkerGlobalScope): boolean {
     return globalContext.chrome && navigator.userAgent.indexOf(" Chrome/") !== -1;
   }
@@ -81,9 +79,6 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return this.getDevice() === DeviceType.ChromeExtension;
   }
 
-  /**
-   * @deprecated Do not call this directly, use getDevice() instead
-   */
   private static isEdge(): boolean {
     return navigator.userAgent.indexOf(" Edg/") !== -1;
   }
@@ -92,9 +87,6 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return this.getDevice() === DeviceType.EdgeExtension;
   }
 
-  /**
-   * @deprecated Do not call this directly, use getDevice() instead
-   */
   private static isOpera(globalContext: Window | ServiceWorkerGlobalScope): boolean {
     return (
       !!globalContext.opr?.addons ||
@@ -107,9 +99,6 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return this.getDevice() === DeviceType.OperaExtension;
   }
 
-  /**
-   * @deprecated Do not call this directly, use getDevice() instead
-   */
   private static isVivaldi(): boolean {
     return navigator.userAgent.indexOf(" Vivaldi/") !== -1;
   }
@@ -118,10 +107,7 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return this.getDevice() === DeviceType.VivaldiExtension;
   }
 
-  /**
-   * @deprecated Do not call this directly, use getDevice() instead
-   */
-  static isSafari(globalContext: Window | ServiceWorkerGlobalScope): boolean {
+  private static isSafari(globalContext: Window | ServiceWorkerGlobalScope): boolean {
     // Opera masquerades as Safari, so make sure we're not there first
     return (
       !BrowserPlatformUtilsService.isOpera(globalContext) &&
@@ -131,6 +117,14 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
 
   private static safariVersion(): string {
     return navigator.userAgent.match("Version/([0-9.]*)")?.[1];
+  }
+
+  isSafari(): boolean {
+    return this.getDevice() === DeviceType.SafariExtension;
+  }
+
+  isChromium(): boolean {
+    return this.isChrome() || this.isEdge() || this.isOpera() || this.isVivaldi();
   }
 
   /**
@@ -147,10 +141,6 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return parts?.[0] < 16 || (parts?.[0] === 16 && parts?.[1] === 0);
   }
 
-  isSafari(): boolean {
-    return this.getDevice() === DeviceType.SafariExtension;
-  }
-
   isIE(): boolean {
     return false;
   }
@@ -164,12 +154,33 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
    * message to the popup and waiting for a response. If a response is received,
    * the view is open.
    */
-  async isViewOpen(): Promise<boolean> {
+  async isPopupOpen(): Promise<boolean> {
     if (this.isSafari()) {
       // Query views on safari since chrome.runtime.sendMessage does not timeout and will hang.
       return BrowserApi.isPopupOpen();
     }
-    return Boolean(await BrowserApi.sendMessageWithResponse("checkVaultPopupHeartbeat"));
+
+    return new Promise<boolean>((resolve, reject) => {
+      chrome.runtime.sendMessage({ command: "checkVaultPopupHeartbeat" }, (response) => {
+        if (chrome.runtime.lastError != null) {
+          // This error means that nothing was there to listen to the message,
+          // meaning the view is not open.
+          if (
+            chrome.runtime.lastError.message ===
+            "Could not establish connection. Receiving end does not exist."
+          ) {
+            resolve(false);
+            return;
+          }
+
+          // All unhandled errors still reject
+          reject(chrome.runtime.lastError);
+          return;
+        }
+
+        resolve(Boolean(response));
+      });
+    });
   }
 
   lockTimeout(): number {
@@ -198,6 +209,14 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
 
   supportsDuo(): boolean {
     return true;
+  }
+
+  supportsAutofill(): boolean {
+    return true;
+  }
+
+  supportsFileDownloads(): boolean {
+    return false;
   }
 
   abstract showToast(
@@ -308,6 +327,25 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
       );
     }
     return autofillCommand;
+  }
+
+  async packageType(): Promise<string | null> {
+    switch (this.getDevice()) {
+      case DeviceType.ChromeExtension:
+        return "Chrome Extension";
+      case DeviceType.FirefoxExtension:
+        return "Firefox Extension";
+      case DeviceType.OperaExtension:
+        return "Opera Extension";
+      case DeviceType.EdgeExtension:
+        return "Edge Extension";
+      case DeviceType.VivaldiExtension:
+        return "Vivaldi Extension";
+      case DeviceType.SafariExtension:
+        return "Safari Extension";
+      default:
+        return "Unknown Browser Extension";
+    }
   }
 
   /**

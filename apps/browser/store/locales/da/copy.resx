@@ -144,7 +144,7 @@ Brug Bitwarden til at sikre arbejdsstyrken og dele sensitive oplysninger med kol
 Flere grunde til at vælge Bitwarden:
 
 Kryptering i verdensklasse
-Adgangskoder er beskyttet med avanceret ende-til-ende-kryptering (AES-256 bit, saltet hashtag og PBKDF2 SHA-256), så dataene forbliver sikre og private.
+Adgangskoder er beskyttet med avanceret ende-til-ende-kryptering (AES-256 bit, saltet hashing og PBKDF2 SHA-256), så dataene forbliver sikre og private.
 
 Tredjepartsrevisioner
 Bitwarden udfører regelmæssigt omfattende tredjeparts sikkerhedsrevisioner med velrenommerede sikkerhedsfirmaer. Disse årlige revisioner inkluderer kildekodevurderinger og penetrationstest på tværs af Bitwarden IP'er, servere og webapplikationer.

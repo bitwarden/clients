@@ -14,7 +14,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { LoginEmailService, STORED_EMAIL } from "./login-email.service";
 
 describe("LoginEmailService", () => {
-  let sut: LoginEmailService;
+  let service: LoginEmailService;
 
   let accountService: FakeAccountService;
   let authService: MockProxy<AuthService>;
@@ -34,119 +34,93 @@ describe("LoginEmailService", () => {
     mockAuthStatuses$ = new BehaviorSubject<Record<UserId, AuthenticationStatus>>({});
     authService.authStatuses$ = mockAuthStatuses$;
 
-    sut = new LoginEmailService(accountService, authService, stateProvider);
+    service = new LoginEmailService(accountService, authService, stateProvider);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  describe("storedEmail$", () => {
-    it("returns the stored email when not adding an account", async () => {
-      await sut.setLoginEmail("userEmail@bitwarden.com");
-      sut.setRememberEmail(true);
-      await sut.saveEmailSettings();
+  describe("rememberedEmail$", () => {
+    it("returns the remembered email when not adding an account", async () => {
+      const testEmail = "test@bitwarden.com";
 
-      const result = await firstValueFrom(sut.storedEmail$);
+      await service.setRememberedEmailChoice(testEmail, true);
 
-      expect(result).toEqual("userEmail@bitwarden.com");
+      const result = await firstValueFrom(service.rememberedEmail$);
+
+      expect(result).toEqual(testEmail);
     });
 
-    it("returns the stored email when not adding an account and the user has just logged in", async () => {
-      await sut.setLoginEmail("userEmail@bitwarden.com");
-      sut.setRememberEmail(true);
-      await sut.saveEmailSettings();
+    it("returns the remembered email when not adding an account and the user has just logged in", async () => {
+      const testEmail = "test@bitwarden.com";
+
+      await service.setRememberedEmailChoice(testEmail, true);
 
       mockAuthStatuses$.next({ [userId]: AuthenticationStatus.Unlocked });
       // account service already initialized with userId as active user
 
-      const result = await firstValueFrom(sut.storedEmail$);
+      const result = await firstValueFrom(service.rememberedEmail$);
 
-      expect(result).toEqual("userEmail@bitwarden.com");
+      expect(result).toEqual(testEmail);
     });
 
     it("returns null when adding an account", async () => {
-      await sut.setLoginEmail("userEmail@bitwarden.com");
-      sut.setRememberEmail(true);
-      await sut.saveEmailSettings();
+      const testEmail = "test@bitwarden.com";
+
+      await service.setRememberedEmailChoice(testEmail, true);
 
       mockAuthStatuses$.next({
         [userId]: AuthenticationStatus.Unlocked,
         ["OtherUserId" as UserId]: AuthenticationStatus.Locked,
       });
 
-      const result = await firstValueFrom(sut.storedEmail$);
+      const result = await firstValueFrom(service.rememberedEmail$);
 
       expect(result).toBeNull();
     });
   });
 
-  describe("saveEmailSettings", () => {
-    it("saves the email when not adding an account", async () => {
-      await sut.setLoginEmail("userEmail@bitwarden.com");
-      sut.setRememberEmail(true);
-      await sut.saveEmailSettings();
+  describe("setRememberedEmailChoice", () => {
+    it("sets the remembered email when remember is true", async () => {
+      const testEmail = "test@bitwarden.com";
+
+      await service.setRememberedEmailChoice(testEmail, true);
 
       const result = await firstValueFrom(storedEmailState.state$);
 
-      expect(result).toEqual("userEmail@bitwarden.com");
+      expect(result).toEqual(testEmail);
     });
 
-    it("clears the email when not adding an account and rememberEmail is false", async () => {
+    it("clears the remembered email when remember is false", async () => {
       storedEmailState.stateSubject.next("initialEmail@bitwarden.com");
 
-      await sut.setLoginEmail("userEmail@bitwarden.com");
-      sut.setRememberEmail(false);
-      await sut.saveEmailSettings();
+      const testEmail = "test@bitwarden.com";
+
+      await service.setRememberedEmailChoice(testEmail, false);
 
       const result = await firstValueFrom(storedEmailState.state$);
 
       expect(result).toBeNull();
     });
+  });
 
-    it("saves the email when adding an account", async () => {
-      mockAuthStatuses$.next({
-        [userId]: AuthenticationStatus.Unlocked,
-        ["OtherUserId" as UserId]: AuthenticationStatus.Locked,
-      });
+  describe("setLoginEmail", () => {
+    it("sets the login email", async () => {
+      const testEmail = "test@bitwarden.com";
+      await service.setLoginEmail(testEmail);
 
-      await sut.setLoginEmail("userEmail@bitwarden.com");
-      sut.setRememberEmail(true);
-      await sut.saveEmailSettings();
-
-      const result = await firstValueFrom(storedEmailState.state$);
-
-      expect(result).toEqual("userEmail@bitwarden.com");
+      expect(await firstValueFrom(service.loginEmail$)).toEqual(testEmail);
     });
+  });
 
-    it("does not clear the email when adding an account and rememberEmail is false", async () => {
-      storedEmailState.stateSubject.next("initialEmail@bitwarden.com");
+  describe("clearLoginEmail", () => {
+    it("clears the login email", async () => {
+      const testEmail = "test@bitwarden.com";
+      await service.setLoginEmail(testEmail);
+      await service.clearLoginEmail();
 
-      mockAuthStatuses$.next({
-        [userId]: AuthenticationStatus.Unlocked,
-        ["OtherUserId" as UserId]: AuthenticationStatus.Locked,
-      });
-
-      await sut.setLoginEmail("userEmail@bitwarden.com");
-      sut.setRememberEmail(false);
-      await sut.saveEmailSettings();
-
-      const result = await firstValueFrom(storedEmailState.state$);
-
-      // result should not be null
-      expect(result).toEqual("initialEmail@bitwarden.com");
-    });
-
-    it("does not clear the email and rememberEmail after saving", async () => {
-      // Browser uses these values to maintain the email between login and 2fa components so
-      // we do not want to clear them too early.
-      await sut.setLoginEmail("userEmail@bitwarden.com");
-      sut.setRememberEmail(true);
-      await sut.saveEmailSettings();
-
-      const result = await firstValueFrom(sut.loginEmail$);
-
-      expect(result).toBe("userEmail@bitwarden.com");
+      expect(await firstValueFrom(service.loginEmail$)).toBeNull();
     });
   });
 });

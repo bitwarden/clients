@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
@@ -10,7 +9,13 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DialogConfig,
+  DialogRef,
+  DIALOG_DATA,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import { WebauthnLoginAdminService } from "../../../core";
 import { WebauthnLoginCredentialView } from "../../../core/views/webauthn-login-credential.view";
@@ -19,8 +24,11 @@ export interface DeleteCredentialDialogParams {
   credentialId: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "delete-credential-dialog.component.html",
+  standalone: false,
 })
 export class DeleteCredentialDialogComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

@@ -8,10 +8,10 @@ export class UpdateDevicesTrustRequest extends SecretVerificationRequest {
 }
 
 export class DeviceKeysUpdateRequest {
-  encryptedPublicKey: string;
-  encryptedUserKey: string;
+  encryptedPublicKey: string | undefined;
+  encryptedUserKey: string | undefined;
 }
 
 export class OtherDeviceKeysUpdateRequest extends DeviceKeysUpdateRequest {
-  id: string;
+  deviceId: string;
 }

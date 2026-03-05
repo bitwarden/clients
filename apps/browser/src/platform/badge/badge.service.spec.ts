@@ -1,0 +1,853 @@
+import { mock, MockProxy } from "jest-mock-extended";
+import { EMPTY, Observable, of, Subscription } from "rxjs";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+
+import { RawBadgeState } from "./badge-browser-api";
+import { BadgeService, BadgeStateFunction } from "./badge.service";
+import { DefaultBadgeState } from "./consts";
+import { BadgeIcon } from "./icon";
+import { BadgeStatePriority } from "./priority";
+import { BadgeState, Unset } from "./state";
+import { MockBadgeBrowserApi } from "./test/mock-badge-browser-api";
+
+describe("BadgeService", () => {
+  let badgeApi: MockBadgeBrowserApi;
+  let logService!: MockProxy<LogService>;
+  let badgeService!: BadgeService;
+
+  let badgeServiceSubscription: Subscription;
+
+  beforeEach(() => {
+    badgeApi = new MockBadgeBrowserApi();
+    logService = mock<LogService>();
+
+    badgeService = new BadgeService(badgeApi, logService, 0);
+  });
+
+  afterEach(() => {
+    badgeServiceSubscription?.unsubscribe();
+  });
+
+  describe("static state", () => {
+    describe("calling without tabId", () => {
+      const tabId = 1;
+
+      describe("given a single tab is open", () => {
+        beforeEach(() => {
+          badgeApi.tabs = [tabId];
+          badgeApi.setActiveTabs([tabId]);
+          badgeServiceSubscription = badgeService.startListening();
+        });
+
+        it("sets provided state when no other state has been set", async () => {
+          const state: BadgeState = {
+            text: "text",
+            backgroundColor: "color",
+            icon: BadgeIcon.Locked,
+          };
+
+          await badgeService.setState(
+            "state-name",
+            GeneralStateFunction(BadgeStatePriority.Default, state),
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(badgeApi.specificStates[tabId]).toEqual(state);
+        });
+
+        it("sets default values when none are provided", async () => {
+          // This is a bit of a weird thing to do, but I don't think it's something we need to prohibit
+          const state: BadgeState = {};
+
+          await badgeService.setState(
+            "state-name",
+            GeneralStateFunction(BadgeStatePriority.Default, state),
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(badgeApi.specificStates[tabId]).toEqual(DefaultBadgeState);
+        });
+
+        it("sets default values even if state function never emits", async () => {
+          badgeService.setState("state-name", (_tab) => EMPTY);
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(badgeApi.specificStates[tabId]).toEqual(DefaultBadgeState);
+        });
+
+        it("merges states when multiple same-priority states have been set", async () => {
+          await badgeService.setState(
+            "state-1",
+            GeneralStateFunction(BadgeStatePriority.Default, { text: "text" }),
+          );
+          await badgeService.setState(
+            "state-2",
+            GeneralStateFunction(BadgeStatePriority.Default, {
+              backgroundColor: "#fff",
+            }),
+          );
+          await badgeService.setState(
+            "state-3",
+            GeneralStateFunction(BadgeStatePriority.Default, {
+              icon: BadgeIcon.Locked,
+            }),
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          const expectedState: RawBadgeState = {
+            text: "text",
+            backgroundColor: "#fff",
+            icon: BadgeIcon.Locked,
+          };
+          expect(badgeApi.specificStates[tabId]).toEqual(expectedState);
+        });
+
+        it("overrides previous lower-priority state when higher-priority state is set", async () => {
+          await badgeService.setState(
+            "state-1",
+            GeneralStateFunction(BadgeStatePriority.Low, {
+              text: "text",
+              backgroundColor: "#fff",
+              icon: BadgeIcon.Locked,
+            }),
+          );
+          await badgeService.setState(
+            "state-2",
+            GeneralStateFunction(BadgeStatePriority.Default, {
+              text: "override",
+            }),
+          );
+          await badgeService.setState(
+            "state-3",
+            GeneralStateFunction(BadgeStatePriority.High, {
+              backgroundColor: "#aaa",
+            }),
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          const expectedState: RawBadgeState = {
+            text: "override",
+            backgroundColor: "#aaa",
+            icon: BadgeIcon.Locked,
+          };
+          expect(badgeApi.specificStates[tabId]).toEqual(expectedState);
+        });
+
+        it("removes override when a previously high-priority state is cleared", async () => {
+          await badgeService.setState(
+            "state-1",
+            GeneralStateFunction(BadgeStatePriority.Low, {
+              text: "text",
+              backgroundColor: "#fff",
+              icon: BadgeIcon.Locked,
+            }),
+          );
+          await badgeService.setState(
+            "state-2",
+            GeneralStateFunction(BadgeStatePriority.Default, {
+              text: "override",
+            }),
+          );
+          await badgeService.clearState("state-2");
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          const expectedState: RawBadgeState = {
+            text: "text",
+            backgroundColor: "#fff",
+            icon: BadgeIcon.Locked,
+          };
+          expect(badgeApi.specificStates[tabId]).toEqual(expectedState);
+        });
+
+        it("sets default values when all states have been cleared", async () => {
+          await badgeService.setState(
+            "state-1",
+            GeneralStateFunction(BadgeStatePriority.Low, {
+              text: "text",
+              backgroundColor: "#fff",
+              icon: BadgeIcon.Locked,
+            }),
+          );
+          await badgeService.setState(
+            "state-2",
+            GeneralStateFunction(BadgeStatePriority.Default, {
+              text: "override",
+            }),
+          );
+          await badgeService.setState(
+            "state-3",
+            GeneralStateFunction(BadgeStatePriority.High, {
+              backgroundColor: "#aaa",
+            }),
+          );
+          await badgeService.clearState("state-1");
+          await badgeService.clearState("state-2");
+          await badgeService.clearState("state-3");
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(badgeApi.specificStates[tabId]).toEqual(DefaultBadgeState);
+        });
+
+        it("sets default value high-priority state contains Unset", async () => {
+          await badgeService.setState(
+            "state-1",
+            GeneralStateFunction(BadgeStatePriority.Low, {
+              text: "text",
+              backgroundColor: "#fff",
+              icon: BadgeIcon.Locked,
+            }),
+          );
+          await badgeService.setState(
+            "state-3",
+            GeneralStateFunction(BadgeStatePriority.High, {
+              icon: Unset,
+            }),
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          const expectedState: RawBadgeState = {
+            text: "text",
+            backgroundColor: "#fff",
+            icon: DefaultBadgeState.icon,
+          };
+          expect(badgeApi.specificStates[tabId]).toEqual(expectedState);
+        });
+
+        it("ignores medium-priority Unset when high-priority contains a value", async () => {
+          await badgeService.setState(
+            "state-1",
+            GeneralStateFunction(BadgeStatePriority.Low, {
+              text: "text",
+              backgroundColor: "#fff",
+              icon: BadgeIcon.Locked,
+            }),
+          );
+          await badgeService.setState(
+            "state-3",
+            GeneralStateFunction(BadgeStatePriority.Default, {
+              icon: Unset,
+            }),
+          );
+          await badgeService.setState(
+            "state-3",
+            GeneralStateFunction(BadgeStatePriority.High, {
+              icon: BadgeIcon.Unlocked,
+            }),
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          const expectedState: RawBadgeState = {
+            text: "text",
+            backgroundColor: "#fff",
+            icon: BadgeIcon.Unlocked,
+          };
+          expect(badgeApi.specificStates[tabId]).toEqual(expectedState);
+        });
+      });
+
+      describe("given multiple tabs are open, only one active", () => {
+        const tabId = 1;
+        const tabIds = [1, 2, 3];
+
+        beforeEach(() => {
+          badgeApi.tabs = tabIds;
+          badgeApi.setActiveTabs([tabId]);
+          badgeServiceSubscription = badgeService.startListening();
+        });
+
+        it("sets general state for active tab when no other state has been set", async () => {
+          const state: BadgeState = {
+            text: "text",
+            backgroundColor: "color",
+            icon: BadgeIcon.Locked,
+          };
+
+          await badgeService.setState(
+            "state-name",
+            GeneralStateFunction(BadgeStatePriority.Default, state),
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(badgeApi.specificStates).toEqual({
+            1: state,
+            2: undefined,
+            3: undefined,
+          });
+        });
+
+        it("only updates the active tab when setting state", async () => {
+          const state: BadgeState = {
+            text: "text",
+            backgroundColor: "color",
+            icon: BadgeIcon.Locked,
+          };
+          await badgeService.setState(
+            "state-1",
+            TabSpecificStateFunction(BadgeStatePriority.Default, state, tabId),
+          );
+          await badgeService.setState(
+            "state-2",
+            TabSpecificStateFunction(BadgeStatePriority.Default, state, 2),
+          );
+          await badgeService.setState(
+            "state-2",
+            TabSpecificStateFunction(BadgeStatePriority.Default, state, 2),
+          );
+          await new Promise((resolve) => setTimeout(resolve, 0));
+
+          badgeApi.setState.mockReset();
+          badgeApi.updateTab(tabId);
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(badgeApi.setState).toHaveBeenCalledTimes(1);
+        });
+      });
+
+      describe("given multiple tabs are open and multiple are active", () => {
+        const activeTabIds = [1, 2];
+        const tabIds = [1, 2, 3];
+
+        beforeEach(() => {
+          badgeApi.tabs = tabIds;
+          badgeApi.setActiveTabs(activeTabIds);
+          badgeServiceSubscription = badgeService.startListening();
+        });
+
+        it("sets general state for active tabs when no other state has been set", async () => {
+          const state: BadgeState = {
+            text: "text",
+            backgroundColor: "color",
+            icon: BadgeIcon.Locked,
+          };
+
+          await badgeService.setState(
+            "state-name",
+            GeneralStateFunction(BadgeStatePriority.Default, state),
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(badgeApi.specificStates).toEqual({
+            1: state,
+            2: state,
+            3: undefined,
+          });
+        });
+
+        it("only updates the active tabs when setting general state", async () => {
+          const state: BadgeState = {
+            text: "text",
+            backgroundColor: "color",
+            icon: BadgeIcon.Locked,
+          };
+
+          await badgeService.setState(
+            "state-1",
+            TabSpecificStateFunction(BadgeStatePriority.Default, state, 1),
+          );
+          await badgeService.setState(
+            "state-2",
+            TabSpecificStateFunction(BadgeStatePriority.Default, state, 2),
+          );
+          await badgeService.setState(
+            "state-3",
+            TabSpecificStateFunction(BadgeStatePriority.Default, state, 3),
+          );
+          await new Promise((resolve) => setTimeout(resolve, 0));
+
+          badgeApi.setState.mockReset();
+          badgeApi.updateTab(activeTabIds[0]);
+          badgeApi.updateTab(activeTabIds[1]);
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(badgeApi.setState).toHaveBeenCalledTimes(2);
+        });
+      });
+    });
+
+    describe("setting tab-specific states", () => {
+      describe("given a single tab is open", () => {
+        const tabId = 1;
+
+        beforeEach(() => {
+          badgeApi.tabs = [tabId];
+          badgeApi.setActiveTabs([tabId]);
+          badgeServiceSubscription = badgeService.startListening();
+        });
+
+        it("sets provided state when no other state has been set", async () => {
+          const state: BadgeState = {
+            text: "text",
+            backgroundColor: "color",
+            icon: BadgeIcon.Locked,
+          };
+
+          await badgeService.setState(
+            "state-name",
+            TabSpecificStateFunction(BadgeStatePriority.Default, state, tabId),
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(badgeApi.specificStates[tabId]).toEqual(state);
+        });
+
+        it("sets default values when none are provided", async () => {
+          // This is a bit of a weird thing to do, but I don't think it's something we need to prohibit
+          const state: BadgeState = {};
+
+          await badgeService.setState(
+            "state-name",
+            TabSpecificStateFunction(BadgeStatePriority.Default, state, tabId),
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(badgeApi.specificStates[tabId]).toEqual(DefaultBadgeState);
+        });
+
+        it("merges tabId specific state with general states", async () => {
+          await badgeService.setState(
+            "general-state",
+            TabSpecificStateFunction(
+              BadgeStatePriority.Default,
+              {
+                text: "text",
+              },
+              tabId,
+            ),
+          );
+          await badgeService.setState(
+            "specific-state",
+            TabSpecificStateFunction(
+              BadgeStatePriority.Default,
+              {
+                backgroundColor: "#fff",
+              },
+              tabId,
+            ),
+          );
+          await badgeService.setState(
+            "general-state-2",
+            GeneralStateFunction(BadgeStatePriority.Default, {
+              icon: BadgeIcon.Locked,
+            }),
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(badgeApi.specificStates[tabId]).toEqual({
+            text: "text",
+            backgroundColor: "#fff",
+            icon: BadgeIcon.Locked,
+          });
+        });
+
+        it("merges states when multiple same-priority states with the same tabId have been set", async () => {
+          await badgeService.setState(
+            "state-1",
+            TabSpecificStateFunction(BadgeStatePriority.Default, { text: "text" }, tabId),
+          );
+          await badgeService.setState(
+            "state-2",
+            TabSpecificStateFunction(
+              BadgeStatePriority.Default,
+              {
+                backgroundColor: "#fff",
+              },
+              tabId,
+            ),
+          );
+          await badgeService.setState(
+            "state-3",
+            TabSpecificStateFunction(
+              BadgeStatePriority.Default,
+              {
+                icon: BadgeIcon.Locked,
+              },
+              tabId,
+            ),
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          const expectedState: RawBadgeState = {
+            text: "text",
+            backgroundColor: "#fff",
+            icon: BadgeIcon.Locked,
+          };
+          expect(badgeApi.specificStates[tabId]).toEqual(expectedState);
+        });
+
+        it("overrides previous lower-priority state when higher-priority state with the same tabId is set", async () => {
+          await badgeService.setState(
+            "state-1",
+            TabSpecificStateFunction(
+              BadgeStatePriority.Low,
+              {
+                text: "text",
+                backgroundColor: "#fff",
+                icon: BadgeIcon.Locked,
+              },
+              tabId,
+            ),
+          );
+          await badgeService.setState(
+            "state-2",
+            TabSpecificStateFunction(
+              BadgeStatePriority.Default,
+              {
+                text: "override",
+              },
+              tabId,
+            ),
+          );
+          await badgeService.setState(
+            "state-3",
+            TabSpecificStateFunction(
+              BadgeStatePriority.High,
+              {
+                backgroundColor: "#aaa",
+              },
+              tabId,
+            ),
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          const expectedState: RawBadgeState = {
+            text: "override",
+            backgroundColor: "#aaa",
+            icon: BadgeIcon.Locked,
+          };
+          expect(badgeApi.specificStates[tabId]).toEqual(expectedState);
+        });
+
+        it("overrides lower-priority tab-specific state when higher-priority general state is set", async () => {
+          await badgeService.setState(
+            "state-1",
+            TabSpecificStateFunction(
+              BadgeStatePriority.Low,
+              {
+                text: "text",
+                backgroundColor: "#fff",
+                icon: BadgeIcon.Locked,
+              },
+              tabId,
+            ),
+          );
+          await badgeService.setState(
+            "state-2",
+            GeneralStateFunction(BadgeStatePriority.Default, {
+              text: "override",
+            }),
+          );
+          await badgeService.setState(
+            "state-3",
+            GeneralStateFunction(BadgeStatePriority.High, {
+              backgroundColor: "#aaa",
+            }),
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(badgeApi.specificStates[tabId]).toEqual({
+            text: "override",
+            backgroundColor: "#aaa",
+            icon: BadgeIcon.Locked,
+          });
+        });
+
+        it("removes override when a previously high-priority state with the same tabId is cleared", async () => {
+          await badgeService.setState(
+            "state-1",
+            TabSpecificStateFunction(
+              BadgeStatePriority.Low,
+              {
+                text: "text",
+                backgroundColor: "#fff",
+                icon: BadgeIcon.Locked,
+              },
+              tabId,
+            ),
+          );
+          await badgeService.setState(
+            "state-2",
+            TabSpecificStateFunction(
+              BadgeStatePriority.Default,
+              {
+                text: "override",
+              },
+              tabId,
+            ),
+          );
+          await badgeService.clearState("state-2");
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(badgeApi.specificStates[tabId]).toEqual({
+            text: "text",
+            backgroundColor: "#fff",
+            icon: BadgeIcon.Locked,
+          });
+        });
+
+        it("sets default state when all states with the same tabId have been cleared", async () => {
+          await badgeService.setState(
+            "state-1",
+            TabSpecificStateFunction(
+              BadgeStatePriority.Low,
+              {
+                text: "text",
+                backgroundColor: "#fff",
+                icon: BadgeIcon.Locked,
+              },
+              tabId,
+            ),
+          );
+          await badgeService.setState(
+            "state-2",
+            TabSpecificStateFunction(
+              BadgeStatePriority.Default,
+              {
+                text: "override",
+              },
+              tabId,
+            ),
+          );
+          await badgeService.setState(
+            "state-3",
+            TabSpecificStateFunction(
+              BadgeStatePriority.High,
+              {
+                backgroundColor: "#aaa",
+              },
+              tabId,
+            ),
+          );
+          await badgeService.clearState("state-1");
+          await badgeService.clearState("state-2");
+          await badgeService.clearState("state-3");
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(badgeApi.specificStates[tabId]).toEqual(DefaultBadgeState);
+        });
+
+        it("sets default value when high-priority state contains Unset", async () => {
+          await badgeService.setState(
+            "state-1",
+            TabSpecificStateFunction(
+              BadgeStatePriority.Low,
+              {
+                text: "text",
+                backgroundColor: "#fff",
+                icon: BadgeIcon.Locked,
+              },
+              tabId,
+            ),
+          );
+          await badgeService.setState(
+            "state-3",
+            TabSpecificStateFunction(
+              BadgeStatePriority.High,
+              {
+                icon: Unset,
+              },
+              tabId,
+            ),
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(badgeApi.specificStates[tabId]).toEqual({
+            text: "text",
+            backgroundColor: "#fff",
+            icon: DefaultBadgeState.icon,
+          });
+        });
+
+        it("ignores medium-priority Unset when high-priority contains a value", async () => {
+          await badgeService.setState(
+            "state-1",
+            TabSpecificStateFunction(
+              BadgeStatePriority.Low,
+              {
+                text: "text",
+                backgroundColor: "#fff",
+                icon: BadgeIcon.Locked,
+              },
+              tabId,
+            ),
+          );
+          await badgeService.setState(
+            "state-3",
+            TabSpecificStateFunction(
+              BadgeStatePriority.Default,
+              {
+                icon: Unset,
+              },
+              tabId,
+            ),
+          );
+          await badgeService.setState(
+            "state-3",
+            TabSpecificStateFunction(
+              BadgeStatePriority.High,
+              {
+                icon: BadgeIcon.Unlocked,
+              },
+              tabId,
+            ),
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(badgeApi.specificStates[tabId]).toEqual({
+            text: "text",
+            backgroundColor: "#fff",
+            icon: BadgeIcon.Unlocked,
+          });
+        });
+      });
+
+      describe("given multiple tabs are open, only one active", () => {
+        const tabId = 1;
+        const tabIds = [1, 2, 3];
+
+        beforeEach(() => {
+          badgeApi.tabs = tabIds;
+          badgeApi.setActiveTabs([tabId]);
+          badgeServiceSubscription = badgeService.startListening();
+        });
+
+        it("sets tab-specific state for provided tab", async () => {
+          const generalState: BadgeState = {
+            text: "general-text",
+            backgroundColor: "general-color",
+            icon: BadgeIcon.Unlocked,
+          };
+          const specificState: BadgeState = {
+            text: "tab-text",
+            icon: BadgeIcon.Locked,
+          };
+
+          await badgeService.setState(
+            "general-state",
+            GeneralStateFunction(BadgeStatePriority.Default, generalState),
+          );
+          await badgeService.setState(
+            "tab-state",
+            TabSpecificStateFunction(BadgeStatePriority.Default, specificState, tabIds[0]),
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(badgeApi.specificStates).toEqual({
+            [tabIds[0]]: { ...specificState, backgroundColor: "general-color" },
+            [tabIds[1]]: undefined,
+            [tabIds[2]]: undefined,
+          });
+        });
+      });
+
+      describe("given multiple tabs are open and multiple are active", () => {
+        const activeTabIds = [1, 2];
+        const tabIds = [1, 2, 3];
+
+        beforeEach(() => {
+          badgeApi.tabs = tabIds;
+          badgeApi.setActiveTabs(activeTabIds);
+          badgeServiceSubscription = badgeService.startListening();
+        });
+
+        it("sets general state for all active tabs when no other state has been set", async () => {
+          const generalState: BadgeState = {
+            text: "general-text",
+            backgroundColor: "general-color",
+            icon: BadgeIcon.Unlocked,
+          };
+
+          await badgeService.setState(
+            "general-state",
+            GeneralStateFunction(BadgeStatePriority.Default, generalState),
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(badgeApi.specificStates).toEqual({
+            [tabIds[0]]: generalState,
+            [tabIds[1]]: generalState,
+            [tabIds[2]]: undefined,
+          });
+        });
+
+        it("sets tab-specific state for provided tab", async () => {
+          const generalState: BadgeState = {
+            text: "general-text",
+            backgroundColor: "general-color",
+            icon: BadgeIcon.Unlocked,
+          };
+          const specificState: BadgeState = {
+            text: "tab-text",
+            icon: BadgeIcon.Locked,
+          };
+
+          await badgeService.setState(
+            "general-state",
+            GeneralStateFunction(BadgeStatePriority.Default, generalState),
+          );
+          await badgeService.setState(
+            "tab-state",
+            TabSpecificStateFunction(BadgeStatePriority.Default, specificState, tabIds[0]),
+          );
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(badgeApi.specificStates).toEqual({
+            [tabIds[0]]: { ...specificState, backgroundColor: "general-color" },
+            [tabIds[1]]: generalState,
+            [tabIds[2]]: undefined,
+          });
+        });
+
+        it("unsubscribes from state function when tab is deactivated", async () => {
+          let subscriptions = 0;
+          badgeService.setState("state", (tab) => {
+            return new Observable(() => {
+              subscriptions++;
+              return () => {
+                subscriptions--;
+              };
+            });
+          });
+
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(subscriptions).toBe(activeTabIds.length);
+
+          badgeApi.deactivateTab(activeTabIds[0]);
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(subscriptions).toBe(activeTabIds.length - 1);
+        });
+      });
+    });
+  });
+});
+
+/**
+ * Creates a dynamic state function that only provides a state for a specific tab.
+ */
+function TabSpecificStateFunction(
+  priority: BadgeStatePriority,
+  state: BadgeState,
+  tabId: number,
+): BadgeStateFunction {
+  return (tab) => {
+    if (tab.tabId === tabId) {
+      return of({
+        priority,
+        state,
+      });
+    }
+
+    return EMPTY;
+  };
+}
+
+/**
+ * Creates a dynamic state function that provides the same state for all tabs.
+ */
+function GeneralStateFunction(priority: BadgeStatePriority, state: BadgeState): BadgeStateFunction {
+  return (_tab) =>
+    of({
+      priority,
+      state,
+    });
+}

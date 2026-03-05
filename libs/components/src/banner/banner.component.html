@@ -1,24 +1,25 @@
 <div
-  class="tw-flex tw-items-center tw-gap-2 tw-p-2 tw-pl-4 tw-text-main tw-border-transparent tw-bg-clip-padding tw-border-solid tw-border-b tw-border-0"
-  [ngClass]="bannerClass"
-  [attr.role]="useAlertRole ? 'status' : null"
-  [attr.aria-live]="useAlertRole ? 'polite' : null"
+  class="tw-flex tw-items-center tw-gap-4 tw-p-2 tw-ps-4 tw-text-main tw-border-transparent tw-bg-clip-padding tw-border-solid tw-border-b tw-border-0"
+  [class]="bannerClass()"
+  [attr.role]="useAlertRole() ? 'status' : null"
+  [attr.aria-live]="useAlertRole() ? 'polite' : null"
 >
-  <i class="bwi tw-align-middle tw-text-base" [ngClass]="icon" *ngIf="icon" aria-hidden="true"></i>
+  @if (displayIcon(); as icon) {
+    <i class="bwi tw-align-middle tw-text-base" [class]="icon" aria-hidden="true"></i>
+  }
   <!-- Overriding focus-visible color for link buttons for a11y against colored background -->
   <span class="tw-grow tw-text-base [&>button[bitlink]:focus-visible:before]:!tw-ring-text-main">
     <ng-content></ng-content>
   </span>
   <!-- Overriding hover and focus-visible colors for a11y against colored background -->
-  <button
-    *ngIf="showClose"
-    class="hover:tw-border-text-main focus-visible:before:tw-ring-text-main"
-    type="button"
-    bitIconButton="bwi-close"
-    buttonType="main"
-    size="default"
-    (click)="onClose.emit()"
-    [attr.title]="'close' | i18n"
-    [attr.aria-label]="'close' | i18n"
-  ></button>
+  @if (showClose()) {
+    <button
+      type="button"
+      bitIconButton="bwi-close"
+      buttonType="main"
+      size="small"
+      (click)="onClose.emit()"
+      [label]="'close' | i18n"
+    ></button>
+  }
 </div>

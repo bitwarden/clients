@@ -17,11 +17,13 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "provider-account",
   templateUrl: "account.component.html",
+  standalone: false,
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class AccountComponent implements OnDestroy, OnInit {
   selfHosted = false;
   loading = true;

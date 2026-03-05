@@ -1,30 +1,19 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
-import { Observable } from "rxjs";
+import { Component } from "@angular/core";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { TypographyModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
  * Component for the Danger Zone section of the Account/Organization Settings page.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-danger-zone",
   templateUrl: "danger-zone.component.html",
-  standalone: true,
-  imports: [TypographyModule, JslibModule, CommonModule],
+  imports: [CommonModule, TypographyModule, I18nPipe],
 })
-export class DangerZoneComponent implements OnInit {
-  constructor(private configService: ConfigService) {}
-  accountDeprovisioningEnabled$: Observable<boolean>;
-
-  ngOnInit(): void {
-    this.accountDeprovisioningEnabled$ = this.configService.getFeatureFlag$(
-      FeatureFlag.AccountDeprovisioning,
-    );
-  }
-}
+export class DangerZoneComponent {}

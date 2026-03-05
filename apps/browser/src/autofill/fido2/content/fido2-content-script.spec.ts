@@ -6,7 +6,7 @@ import { createPortSpyMock } from "../../../autofill/spec/autofill-mocks";
 import { triggerPortOnDisconnectEvent } from "../../../autofill/spec/testing-utils";
 import { Fido2PortName } from "../enums/fido2-port-name.enum";
 
-import { InsecureCreateCredentialParams, MessageType } from "./messaging/message";
+import { InsecureCreateCredentialParams, MessageTypes } from "./messaging/message";
 import { MessageWithMetadata, Messenger } from "./messaging/messenger";
 
 jest.mock("../../../autofill/utils", () => ({
@@ -60,6 +60,8 @@ describe("Fido2 Content Script", () => {
   chrome.runtime.connect = jest.fn(() => portSpy);
 
   it("destroys the messenger when the port is disconnected", () => {
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-content-script");
 
     triggerPortOnDisconnectEvent(portSpy);
@@ -69,12 +71,14 @@ describe("Fido2 Content Script", () => {
 
   it("handles a FIDO2 credential creation request message from the window message listener, formats the message and sends the formatted message to the extension background", async () => {
     const message = mock<MessageWithMetadata>({
-      type: MessageType.CredentialCreationRequest,
+      type: MessageTypes.CredentialCreationRequest,
       data: mock<InsecureCreateCredentialParams>(),
     });
     const mockResult = { credentialId: "mock" } as CreateCredentialResult;
-    jest.spyOn(chrome.runtime, "sendMessage").mockResolvedValue(mockResult);
+    (jest.spyOn(chrome.runtime, "sendMessage") as jest.Mock).mockResolvedValue(mockResult);
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-content-script");
 
     const response = await messenger.handler!(message, new AbortController());
@@ -88,17 +92,19 @@ describe("Fido2 Content Script", () => {
       requestId: expect.any(String),
     });
     expect(response).toEqual({
-      type: MessageType.CredentialCreationResponse,
+      type: MessageTypes.CredentialCreationResponse,
       result: mockResult,
     });
   });
 
   it("handles a FIDO2 credential get request message from the window message listener, formats the message and sends the formatted message to the extension background", async () => {
     const message = mock<MessageWithMetadata>({
-      type: MessageType.CredentialGetRequest,
+      type: MessageTypes.CredentialGetRequest,
       data: mock<InsecureCreateCredentialParams>(),
     });
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-content-script");
 
     await messenger.handler!(message, new AbortController());
@@ -115,12 +121,14 @@ describe("Fido2 Content Script", () => {
 
   it("removes the abort handler when the FIDO2 request is complete", async () => {
     const message = mock<MessageWithMetadata>({
-      type: MessageType.CredentialCreationRequest,
+      type: MessageTypes.CredentialCreationRequest,
       data: mock<InsecureCreateCredentialParams>(),
     });
     const abortController = new AbortController();
     const abortSpy = jest.spyOn(abortController.signal, "removeEventListener");
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-content-script");
 
     await messenger.handler!(message, abortController);
@@ -130,17 +138,17 @@ describe("Fido2 Content Script", () => {
 
   it("sends an extension message to abort the FIDO2 request when the abort controller is signaled", async () => {
     const message = mock<MessageWithMetadata>({
-      type: MessageType.CredentialCreationRequest,
+      type: MessageTypes.CredentialCreationRequest,
       data: mock<InsecureCreateCredentialParams>(),
     });
     const abortController = new AbortController();
     const abortSpy = jest.spyOn(abortController.signal, "addEventListener");
-    jest
-      .spyOn(chrome.runtime, "sendMessage")
-      .mockImplementationOnce(async (extensionId: string, message: unknown, options: any) => {
-        abortController.abort();
-      });
+    jest.spyOn(chrome.runtime, "sendMessage").mockImplementationOnce(async () => {
+      abortController.abort();
+    });
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-content-script");
 
     await messenger.handler!(message, abortController);
@@ -155,12 +163,16 @@ describe("Fido2 Content Script", () => {
   it("rejects credential requests and returns an error result", async () => {
     const errorMessage = "Test error";
     const message = mock<MessageWithMetadata>({
-      type: MessageType.CredentialCreationRequest,
+      type: MessageTypes.CredentialCreationRequest,
       data: mock<InsecureCreateCredentialParams>(),
     });
     const abortController = new AbortController();
-    jest.spyOn(chrome.runtime, "sendMessage").mockResolvedValue({ error: errorMessage });
+    (jest.spyOn(chrome.runtime, "sendMessage") as jest.Mock).mockResolvedValue({
+      error: errorMessage,
+    });
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-content-script");
     const result = messenger.handler!(message, abortController);
 
@@ -175,6 +187,8 @@ describe("Fido2 Content Script", () => {
       contentType: "application/json",
     }));
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-content-script");
 
     expect(messengerForDOMCommunicationSpy).not.toHaveBeenCalled();
@@ -193,6 +207,8 @@ describe("Fido2 Content Script", () => {
       },
     }));
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-content-script");
 
     expect(messengerForDOMCommunicationSpy).not.toHaveBeenCalled();

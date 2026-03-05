@@ -1,19 +1,23 @@
 <ng-select
-  [(ngModel)]="selectedOption"
+  [ngModel]="selectedOption()"
   (ngModelChange)="onChange($event)"
   [disabled]="disabled"
-  [placeholder]="placeholder"
-  [items]="items"
+  [placeholder]="placeholder()"
+  [items]="items()"
   (blur)="onBlur()"
   [labelForId]="labelForId"
   [clearable]="false"
   (close)="onClose()"
   appendTo="body"
+  [keyDownFn]="onKeyDown"
+  [attr.aria-label]="selectedOption()?.label ?? placeholder()"
 >
   <ng-template ng-option-tmp let-item="item">
     <div class="tw-flex" [title]="item.label">
-      <div class="tw-mr-2 tw-flex-initial">
-        <i *ngIf="item.icon != null" class="bwi bwi-fw {{ item.icon }}" aria-hidden="true"></i>
+      <div class="tw-me-2 tw-flex-initial">
+        @if (item.icon != null) {
+          <i class="bwi bwi-fw {{ item.icon }}" aria-hidden="true"></i>
+        }
       </div>
       <div class="tw-flex-1 tw-text-ellipsis tw-overflow-hidden">
         {{ item.label }}

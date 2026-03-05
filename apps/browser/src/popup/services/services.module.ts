@@ -1,46 +1,69 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { APP_INITIALIZER, NgModule, NgZone } from "@angular/core";
-import { Router } from "@angular/router";
-import { Subject, merge, of } from "rxjs";
+import { merge, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { ViewCacheService } from "@bitwarden/angular/platform/abstractions/view-cache.service";
+import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
+import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { AngularThemingService } from "@bitwarden/angular/platform/services/theming/angular-theming.service";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
+import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import {
   CLIENT_TYPE,
   DEFAULT_VAULT_TIMEOUT,
+  ENV_ADDITIONAL_REGIONS,
   INTRAPROCESS_MESSAGING_SUBJECT,
   MEMORY_STORAGE,
   OBSERVABLE_DISK_STORAGE,
   OBSERVABLE_MEMORY_STORAGE,
+  SafeInjectionToken,
   SECURE_STORAGE,
   SYSTEM_THEME_OBSERVABLE,
-  SafeInjectionToken,
-  ENV_ADDITIONAL_REGIONS,
+  WINDOW,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import {
-  AnonLayoutWrapperDataService,
+  AUTOFILL_NUDGE_SERVICE,
+  AUTO_CONFIRM_NUDGE_SERVICE,
+  AutoConfirmNudgeService,
+} from "@bitwarden/angular/vault";
+import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
+import {
   LoginComponentService,
-  LockComponentService,
-  LoginDecryptionOptionsService,
+  TwoFactorAuthComponentService,
+  TwoFactorAuthDuoComponentService,
+  TwoFactorAuthWebAuthnComponentService,
+  SsoComponentService,
+  NewDeviceVerificationComponentService,
 } from "@bitwarden/auth/angular";
-import { LockService, LoginEmailService, PinServiceAbstraction } from "@bitwarden/auth/common";
+import {
+  LockService,
+  LoginEmailService,
+  SsoUrlService,
+  LogoutService,
+  UserDecryptionOptionsServiceAbstraction,
+} from "@bitwarden/auth/common";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import { ExtensionAuthRequestAnsweringService } from "@bitwarden/browser/auth/services/auth-request-answering/extension-auth-request-answering.service";
+import { ExtensionNewDeviceVerificationComponentService } from "@bitwarden/browser/auth/services/new-device-verification/extension-new-device-verification-component.service";
+import { BrowserRouterService } from "@bitwarden/browser/platform/popup/services/browser-router.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import {
   AccountService,
   AccountService as AccountServiceAbstraction,
 } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
+import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import {
   AutofillSettingsService,
   AutofillSettingsServiceAbstraction,
@@ -54,82 +77,128 @@ import {
   UserNotificationSettingsServiceAbstraction,
 } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
+import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
+import {
+  InternalMasterPasswordServiceAbstraction,
+  MasterPasswordServiceAbstraction,
+} from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
+import {
+  VaultTimeoutService,
+  VaultTimeoutStringType,
+} from "@bitwarden/common/key-management/vault-timeout";
 import {
   AnimationControlService,
   DefaultAnimationControlService,
 } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/common/platform/abstractions/messaging.service";
+import {
+  MessagingService,
+  MessagingService as MessagingServiceAbstraction,
+} from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import {
   AbstractStorageService,
   ObservableStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
+import { ActionsService } from "@bitwarden/common/platform/actions";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { flagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
-import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
-import {
-  DerivedStateProvider,
-  GlobalStateProvider,
-  StateProvider,
-} from "@bitwarden/common/platform/state";
-// eslint-disable-next-line import/no-restricted-paths -- Used for dependency injection
-import { InlineDerivedStateProvider } from "@bitwarden/common/platform/state/implementations/inline-derived-state";
 import { PrimarySecondaryStorageService } from "@bitwarden/common/platform/storage/primary-secondary-storage.service";
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { SystemNotificationsService } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
+import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platform/system-notifications/unsupported-system-notifications.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
-import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
-import {
-  FolderService as FolderServiceAbstraction,
-  InternalFolderService,
-} from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
+import { DefaultCipherArchiveService } from "@bitwarden/common/vault/services/default-cipher-archive.service";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
-import { CompactModeService, DialogService, ToastService } from "@bitwarden/components";
+import {
+  AnonLayoutWrapperDataService,
+  CompactModeService,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
+import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
+  BiometricsService,
+  BiometricStateService,
+  DefaultKeyService,
   KdfConfigService,
   KeyService,
-  BiometricStateService,
-  BiometricsService,
 } from "@bitwarden/key-management";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import {
+  LockComponentService,
+  WebAuthnPrfUnlockService,
+  DefaultWebAuthnPrfUnlockService,
+  SessionTimeoutSettingsComponentService,
+} from "@bitwarden/key-management-ui";
+import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
+import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
+import {
+  DefaultSshImportPromptService,
+  PasswordRepromptService,
+  SshImportPromptService,
+} from "@bitwarden/vault";
 
+import { AccountSwitcherService } from "../../auth/popup/account-switching/services/account-switcher.service";
 import { ForegroundLockService } from "../../auth/popup/accounts/foreground-lock.service";
-import { ExtensionAnonLayoutWrapperDataService } from "../../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
+import { ExtensionChangePasswordService } from "../../auth/popup/change-password/extension-change-password.service";
 import { ExtensionLoginComponentService } from "../../auth/popup/login/extension-login-component.service";
-import { ExtensionLoginDecryptionOptionsService } from "../../auth/popup/login-decryption-options/extension-login-decryption-options.service";
+import { ExtensionSsoComponentService } from "../../auth/popup/login/extension-sso-component.service";
+import { ExtensionLogoutService } from "../../auth/popup/logout/extension-logout.service";
+import { ExtensionDeviceManagementComponentService } from "../../auth/services/extension-device-management-component.service";
+import { ExtensionTwoFactorAuthComponentService } from "../../auth/services/extension-two-factor-auth-component.service";
+import { ExtensionTwoFactorAuthDuoComponentService } from "../../auth/services/extension-two-factor-auth-duo-component.service";
+import { ExtensionTwoFactorAuthWebAuthnComponentService } from "../../auth/services/extension-two-factor-auth-webauthn-component.service";
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
 import AutofillService from "../../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
-import { BrowserKeyService } from "../../key-management/browser-key.service";
+import { ExtensionLockComponentService } from "../../key-management/lock/services/extension-lock-component.service";
+import { BrowserSessionTimeoutSettingsComponentService } from "../../key-management/session-timeout/services/browser-session-timeout-settings-component.service";
+import { BrowserSessionTimeoutTypeService } from "../../key-management/session-timeout/services/browser-session-timeout-type.service";
+import { ForegroundVaultTimeoutService } from "../../key-management/vault-timeout/foreground-vault-timeout.service";
+import { BrowserActionsService } from "../../platform/actions/browser-actions.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { runInsideAngular } from "../../platform/browser/run-inside-angular.operator";
 /* eslint-disable no-restricted-imports */
+import { ZonedMessageListenerService } from "../../platform/browser/zoned-message-listener.service";
 import { ChromeMessageSender } from "../../platform/messaging/chrome-message.sender";
 /* eslint-enable no-restricted-imports */
+import { ForegroundServerNotificationsService } from "../../platform/notifications/foreground-server-notifications.service";
 import { OffscreenDocumentService } from "../../platform/offscreen-document/abstractions/offscreen-document";
 import { DefaultOffscreenDocumentService } from "../../platform/offscreen-document/offscreen-document.service";
 import { PopupCompactModeService } from "../../platform/popup/layout/popup-compact-mode.service";
@@ -142,19 +211,19 @@ import BrowserMemoryStorageService from "../../platform/services/browser-memory-
 import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
 import I18nService from "../../platform/services/i18n.service";
 import { ForegroundPlatformUtilsService } from "../../platform/services/platform-utils/foreground-platform-utils.service";
-import { BrowserSdkClientFactory } from "../../platform/services/sdk/browser-sdk-client-factory";
+import { BrowserSdkLoadService } from "../../platform/services/sdk/browser-sdk-load.service";
 import { ForegroundTaskSchedulerService } from "../../platform/services/task-scheduler/foreground-task-scheduler.service";
 import { BrowserStorageServiceProvider } from "../../platform/storage/browser-storage-service.provider";
 import { ForegroundMemoryStorageService } from "../../platform/storage/foreground-memory-storage.service";
 import { ForegroundSyncService } from "../../platform/sync/foreground-sync.service";
+import {
+  BrowserSystemNotificationService,
+  isNotificationsSupported,
+} from "../../platform/system-notifications/browser-system-notification.service";
 import { fromChromeRuntimeMessaging } from "../../platform/utils/from-chrome-runtime-messaging";
-import { ExtensionLockComponentService } from "../../services/extension-lock-component.service";
-import { ForegroundVaultTimeoutService } from "../../services/vault-timeout/foreground-vault-timeout.service";
-import { BrowserSendStateService } from "../../tools/popup/services/browser-send-state.service";
-import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
+import { BrowserAutofillNudgeService } from "../../vault/popup/services/browser-autofill-nudge.service";
 import { Fido2UserVerificationService } from "../../vault/services/fido2-user-verification.service";
-import { VaultBrowserStateService } from "../../vault/services/vault-browser-state.service";
-import { VaultFilterService } from "../../vault/services/vault-filter.service";
+import { ExtensionAnonLayoutWrapperDataService } from "../components/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
 import { DebounceNavigationService } from "./debounce-navigation.service";
 import { InitService } from "./init.service";
@@ -219,9 +288,13 @@ const safeProviders: SafeProvider[] = [
     deps: [GlobalStateProvider],
   }),
   safeProvider({
+    provide: ActionsService,
+    useClass: BrowserActionsService,
+    deps: [LogService, PlatformUtilsService],
+  }),
+  safeProvider({
     provide: KeyService,
     useFactory: (
-      pinService: PinServiceAbstraction,
       masterPasswordService: InternalMasterPasswordServiceAbstraction,
       keyGenerationService: KeyGenerationService,
       cryptoFunctionService: CryptoFunctionService,
@@ -231,12 +304,10 @@ const safeProviders: SafeProvider[] = [
       stateService: StateService,
       accountService: AccountServiceAbstraction,
       stateProvider: StateProvider,
-      biometricStateService: BiometricStateService,
-      biometricsService: BiometricsService,
       kdfConfigService: KdfConfigService,
+      accountCryptographicStateService: AccountCryptographicStateService,
     ) => {
-      const keyService = new BrowserKeyService(
-        pinService,
+      const keyService = new DefaultKeyService(
         masterPasswordService,
         keyGenerationService,
         cryptoFunctionService,
@@ -246,15 +317,13 @@ const safeProviders: SafeProvider[] = [
         stateService,
         accountService,
         stateProvider,
-        biometricStateService,
-        biometricsService,
         kdfConfigService,
+        accountCryptographicStateService,
       );
       new ContainerService(keyService, encryptService).attachToGlobal(self);
       return keyService;
     },
     deps: [
-      PinServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
       KeyGenerationService,
       CryptoFunctionService,
@@ -264,15 +333,14 @@ const safeProviders: SafeProvider[] = [
       StateService,
       AccountServiceAbstraction,
       StateProvider,
-      BiometricStateService,
-      BiometricsService,
       KdfConfigService,
+      AccountCryptographicStateService,
     ],
   }),
   safeProvider({
     provide: TotpServiceAbstraction,
     useClass: TotpService,
-    deps: [CryptoFunctionService, LogService],
+    deps: [SdkService],
   }),
   safeProvider({
     provide: OffscreenDocumentService,
@@ -298,16 +366,14 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: BiometricsService,
-    useFactory: () => {
-      return new ForegroundBrowserBiometricsService();
-    },
-    deps: [],
+    useClass: ForegroundBrowserBiometricsService,
+    deps: [PlatformUtilsService],
   }),
   safeProvider({
     provide: SyncService,
     useClass: ForegroundSyncService,
     deps: [
-      StateService,
+      TokenService,
       InternalFolderService,
       FolderApiServiceAbstraction,
       MessageSender,
@@ -326,7 +392,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DomainSettingsService,
     useClass: DefaultDomainSettingsService,
-    deps: [StateProvider],
+    deps: [StateProvider, PolicyService, AccountService],
   }),
   safeProvider({
     provide: AbstractStorageService,
@@ -364,25 +430,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ScriptInjectorService,
     useClass: BrowserScriptInjectorService,
-    deps: [PlatformUtilsService, LogService],
+    deps: [DomainSettingsService, PlatformUtilsService, LogService],
   }),
   safeProvider({
     provide: VaultTimeoutService,
     useClass: ForegroundVaultTimeoutService,
     deps: [MessagingServiceAbstraction],
-  }),
-  safeProvider({
-    provide: VaultFilterService,
-    useClass: VaultFilterService,
-    deps: [
-      OrganizationService,
-      FolderServiceAbstraction,
-      CipherService,
-      CollectionService,
-      PolicyService,
-      StateProvider,
-      AccountServiceAbstraction,
-    ],
   }),
   safeProvider({
     provide: SECURE_STORAGE,
@@ -422,13 +475,6 @@ const safeProviders: SafeProvider[] = [
     useExisting: AbstractStorageService,
   }),
   safeProvider({
-    provide: VaultBrowserStateService,
-    useFactory: (stateProvider: StateProvider) => {
-      return new VaultBrowserStateService(stateProvider);
-    },
-    deps: [StateProvider],
-  }),
-  safeProvider({
     provide: FileDownloadService,
     useClass: BrowserFileDownloadService,
     deps: [],
@@ -450,21 +496,30 @@ const safeProviders: SafeProvider[] = [
     deps: [PlatformUtilsService],
   }),
   safeProvider({
-    provide: FilePopoutUtilsService,
-    useFactory: (platformUtilsService: PlatformUtilsService) => {
-      return new FilePopoutUtilsService(platformUtilsService);
-    },
-    deps: [PlatformUtilsService],
-  }),
-  safeProvider({
     provide: DerivedStateProvider,
     useClass: InlineDerivedStateProvider,
     deps: [],
   }),
   safeProvider({
+    provide: AuthRequestAnsweringService,
+    useClass: ExtensionAuthRequestAnsweringService,
+    deps: [
+      AccountServiceAbstraction,
+      AuthService,
+      MasterPasswordServiceAbstraction,
+      MessagingService,
+      PendingAuthRequestsStateService,
+      ActionsService,
+      I18nServiceAbstraction,
+      PlatformUtilsService,
+      SystemNotificationsService,
+      LogService,
+    ],
+  }),
+  safeProvider({
     provide: AutofillSettingsServiceAbstraction,
     useClass: AutofillSettingsService,
-    deps: [StateProvider, PolicyService],
+    deps: [StateProvider, PolicyService, AccountService, RestrictedItemTypesService],
   }),
   safeProvider({
     provide: UserNotificationSettingsServiceAbstraction,
@@ -472,9 +527,17 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
-    provide: BrowserSendStateService,
-    useClass: BrowserSendStateService,
-    deps: [StateProvider],
+    provide: PhishingDetectionSettingsServiceAbstraction,
+    useClass: PhishingDetectionSettingsService,
+    deps: [
+      AccountService,
+      BillingAccountProfileStateService,
+      ConfigService,
+      LogService,
+      OrganizationService,
+      PlatformUtilsService,
+      StateProvider,
+    ],
   }),
   safeProvider({
     provide: MessageListener,
@@ -502,15 +565,6 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
-    provide: MessageSender,
-    useFactory: (subject: Subject<Message<Record<string, unknown>>>, logService: LogService) =>
-      MessageSender.combine(
-        new SubjectMessageSender(subject), // For sending messages in the same context
-        new ChromeMessageSender(logService), // For sending messages to different contexts
-      ),
-    deps: [INTRAPROCESS_MESSAGING_SUBJECT, LogService],
-  }),
-  safeProvider({
     provide: DISK_BACKUP_LOCAL_STORAGE,
     useFactory: (diskStorage: AbstractStorageService & ObservableStorageService) =>
       new PrimarySecondaryStorageService(diskStorage, new WindowStorageService(self.localStorage)),
@@ -533,12 +587,76 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LockComponentService,
     useClass: ExtensionLockComponentService,
+    deps: [
+      UserDecryptionOptionsServiceAbstraction,
+      BiometricsService,
+      PinServiceAbstraction,
+      BiometricStateService,
+      BrowserRouterService,
+      WebAuthnPrfUnlockService,
+    ],
+  }),
+  // TODO: PM-18182 - Refactor component services into lazy loaded modules
+  safeProvider({
+    provide: TwoFactorAuthComponentService,
+    useClass: ExtensionTwoFactorAuthComponentService,
+    deps: [WINDOW],
+  }),
+  safeProvider({
+    provide: TwoFactorAuthWebAuthnComponentService,
+    useClass: ExtensionTwoFactorAuthWebAuthnComponentService,
     deps: [],
+  }),
+  safeProvider({
+    provide: TwoFactorAuthDuoComponentService,
+    useClass: ExtensionTwoFactorAuthDuoComponentService,
+    deps: [
+      ZonedMessageListenerService,
+      EnvironmentService,
+      I18nServiceAbstraction,
+      PlatformUtilsService,
+    ],
+  }),
+  safeProvider({
+    provide: ActionsService,
+    useClass: BrowserActionsService,
+    deps: [LogService, PlatformUtilsService],
+  }),
+  safeProvider({
+    provide: SystemNotificationsService,
+    useFactory: (platformUtilsService: PlatformUtilsService) => {
+      if (isNotificationsSupported()) {
+        return new BrowserSystemNotificationService(platformUtilsService);
+      }
+
+      return new UnsupportedSystemNotificationsService();
+    },
+    deps: [PlatformUtilsService],
   }),
   safeProvider({
     provide: Fido2UserVerificationService,
     useClass: Fido2UserVerificationService,
-    deps: [PasswordRepromptService, UserVerificationService, DialogService],
+    deps: [
+      PasswordRepromptService,
+      UserDecryptionOptionsServiceAbstraction,
+      DialogService,
+      AccountServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: WebAuthnPrfUnlockService,
+    useClass: DefaultWebAuthnPrfUnlockService,
+    deps: [
+      WebAuthnLoginPrfKeyServiceAbstraction,
+      KeyService,
+      UserDecryptionOptionsServiceAbstraction,
+      EncryptService,
+      EnvironmentService,
+      PlatformUtilsService,
+      WINDOW,
+      LogService,
+      ConfigService,
+    ],
   }),
   safeProvider({
     provide: AnimationControlService,
@@ -560,6 +678,11 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: SsoUrlService,
+    useClass: SsoUrlService,
+    deps: [],
+  }),
+  safeProvider({
     provide: LoginComponentService,
     useClass: ExtensionLoginComponentService,
     deps: [
@@ -569,6 +692,7 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsService,
       SsoLoginServiceAbstraction,
       ExtensionAnonLayoutWrapperDataService,
+      SsoUrlService,
     ],
   }),
   safeProvider({
@@ -577,10 +701,15 @@ const safeProviders: SafeProvider[] = [
     deps: [MessageSender, MessageListener],
   }),
   safeProvider({
-    provide: SdkClientFactory,
-    useFactory: (logService) =>
-      flagEnabled("sdk") ? new BrowserSdkClientFactory(logService) : new NoopSdkClientFactory(),
+    provide: SdkLoadService,
+    useClass: BrowserSdkLoadService,
     deps: [LogService],
+  }),
+  safeProvider({
+    provide: SdkClientFactory,
+    useFactory: () =>
+      flagEnabled("sdk") ? new DefaultSdkClientFactory() : new NoopSdkClientFactory(),
+    deps: [],
   }),
   safeProvider({
     provide: LoginEmailService,
@@ -593,19 +722,79 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: LogoutService,
+    useClass: ExtensionLogoutService,
+    deps: [MessagingServiceAbstraction, AccountSwitcherService],
+  }),
+  safeProvider({
     provide: CompactModeService,
     useExisting: PopupCompactModeService,
     deps: [],
   }),
   safeProvider({
-    provide: LoginDecryptionOptionsService,
-    useClass: ExtensionLoginDecryptionOptionsService,
-    deps: [MessagingServiceAbstraction, Router],
+    provide: SsoComponentService,
+    useClass: ExtensionSsoComponentService,
+    deps: [SyncService, AuthService, EnvironmentService, I18nServiceAbstraction, LogService],
+  }),
+  safeProvider({
+    provide: SshImportPromptService,
+    useClass: DefaultSshImportPromptService,
+    deps: [DialogService, ToastService, PlatformUtilsService, I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: ChangePasswordService,
+    useClass: ExtensionChangePasswordService,
+    deps: [KeyService, MasterPasswordApiService, InternalMasterPasswordServiceAbstraction, WINDOW],
+  }),
+  safeProvider({
+    provide: ServerNotificationsService,
+    useClass: ForegroundServerNotificationsService,
+    deps: [LogService],
+  }),
+  safeProvider({
+    provide: DeviceManagementComponentServiceAbstraction,
+    useClass: ExtensionDeviceManagementComponentService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: CipherArchiveService,
+    useClass: DefaultCipherArchiveService,
+    deps: [CipherService, ApiService, BillingAccountProfileStateService, ConfigService],
+  }),
+  safeProvider({
+    provide: NewDeviceVerificationComponentService,
+    useClass: ExtensionNewDeviceVerificationComponentService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: SessionTimeoutTypeService,
+    useClass: BrowserSessionTimeoutTypeService,
+    deps: [PlatformUtilsService],
+  }),
+  safeProvider({
+    provide: SessionTimeoutSettingsComponentService,
+    useClass: BrowserSessionTimeoutSettingsComponentService,
+    deps: [
+      I18nServiceAbstraction,
+      SessionTimeoutTypeService,
+      PolicyService,
+      MessagingServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: AUTOFILL_NUDGE_SERVICE as SafeInjectionToken<BrowserAutofillNudgeService>,
+    useClass: BrowserAutofillNudgeService,
+    deps: [StateProvider, VaultProfileService, LogService],
+  }),
+  safeProvider({
+    provide: AUTO_CONFIRM_NUDGE_SERVICE as SafeInjectionToken<AutoConfirmNudgeService>,
+    useClass: AutoConfirmNudgeService,
+    deps: [StateProvider, AutomaticUserConfirmationService],
   }),
 ];
 
 @NgModule({
-  imports: [JslibServicesModule],
+  imports: [JslibServicesModule, GeneratorServicesModule],
   declarations: [],
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,

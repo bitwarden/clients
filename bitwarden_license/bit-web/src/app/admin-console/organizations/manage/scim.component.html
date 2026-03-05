@@ -29,7 +29,7 @@
       bitSuffix
       bitIconButton="bwi-clone"
       [bitAction]="copyScimUrl"
-      [appA11yTitle]="'copyScimUrl' | i18n"
+      [label]="'copyScimUrl' | i18n"
     ></button>
   </bit-form-field>
 
@@ -46,7 +46,7 @@
       bitSuffix
       [bitIconButton]="showScimKey ? 'bwi-eye-slash' : 'bwi-eye'"
       [bitAction]="toggleScimKey"
-      [appA11yTitle]="'toggleVisibility' | i18n"
+      [label]="'toggleVisibility' | i18n"
     ></button>
     <button
       type="button"
@@ -54,14 +54,14 @@
       bitIconButton="bwi-generate"
       [bitAction]="rotateScimKey"
       bitFormButton
-      [appA11yTitle]="'rotateScimKey' | i18n"
+      [label]="'rotateScimKey' | i18n"
     ></button>
     <button
       type="button"
       bitSuffix
       bitIconButton="bwi-clone"
       [bitAction]="copyScimKey"
-      [appA11yTitle]="'copyScimKey' | i18n"
+      [label]="'copyScimKey' | i18n"
     ></button>
     <bit-hint>{{ "scimApiKeyHelperText" | i18n }}</bit-hint>
   </bit-form-field>

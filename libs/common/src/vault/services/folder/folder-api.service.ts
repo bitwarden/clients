@@ -1,4 +1,5 @@
 import { ApiService } from "../../../abstractions/api.service";
+import { UserId } from "../../../types/guid";
 import { FolderApiServiceAbstraction } from "../../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../../vault/abstractions/folder/folder.service.abstraction";
 import { FolderData } from "../../../vault/models/data/folder.data";
@@ -12,29 +13,30 @@ export class FolderApiService implements FolderApiServiceAbstraction {
     private apiService: ApiService,
   ) {}
 
-  async save(folder: Folder): Promise<any> {
+  async save(folder: Folder, userId: UserId): Promise<FolderData> {
     const request = new FolderRequest(folder);
 
     let response: FolderResponse;
-    if (folder.id == null) {
+    if (folder.id) {
+      response = await this.putFolder(folder.id, request);
+    } else {
       response = await this.postFolder(request);
       folder.id = response.id;
-    } else {
-      response = await this.putFolder(folder.id, request);
     }
 
     const data = new FolderData(response);
-    await this.folderService.upsert(data);
+    await this.folderService.upsert(data, userId);
+    return data;
   }
 
-  async delete(id: string): Promise<any> {
+  async delete(id: string, userId: UserId): Promise<any> {
     await this.deleteFolder(id);
-    await this.folderService.delete(id);
+    await this.folderService.delete(id, userId);
   }
 
-  async deleteAll(): Promise<void> {
+  async deleteAll(userId: UserId): Promise<void> {
     await this.apiService.send("DELETE", "/folders/all", null, true, false);
-    await this.folderService.clear();
+    await this.folderService.clear(userId);
   }
 
   async get(id: string): Promise<FolderResponse> {

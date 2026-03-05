@@ -133,6 +133,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
   );
 
   environment$: Observable<Environment>;
+  globalEnvironment$: Observable<Environment>;
   cloudWebVaultUrl$: Observable<string>;
 
   constructor(
@@ -147,6 +148,10 @@ export class DefaultEnvironmentService implements EnvironmentService {
       // Use == here to not trigger on undefined -> null transition
       distinctUntilChanged((oldUserId: UserId, newUserId: UserId) => oldUserId == newUserId),
     );
+
+    this.globalEnvironment$ = this.stateProvider
+      .getGlobal(GLOBAL_ENVIRONMENT_KEY)
+      .state$.pipe(map((state) => this.buildEnvironment(state?.region, state?.urls)));
 
     this.environment$ = account$.pipe(
       switchMap((userId) => {
@@ -263,7 +268,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
     return new SelfHostedEnvironment(urls);
   }
 
-  async setCloudRegion(userId: UserId, region: CloudRegion) {
+  async setCloudRegion(userId: UserId | null, region: CloudRegion) {
     if (userId == null) {
       await this.globalCloudRegionState.update(() => region);
     } else {
@@ -271,23 +276,22 @@ export class DefaultEnvironmentService implements EnvironmentService {
     }
   }
 
-  async getEnvironment(userId?: UserId): Promise<Environment | undefined> {
-    if (userId == null) {
-      return await firstValueFrom(this.environment$);
-    }
-
-    const state = await this.getEnvironmentState(userId);
-    return this.buildEnvironment(state.region, state.urls);
+  getEnvironment$(userId: UserId): Observable<Environment> {
+    return this.stateProvider.getUser(userId, USER_ENVIRONMENT_KEY).state$.pipe(
+      map((state) => {
+        return this.buildEnvironment(state?.region, state?.urls);
+      }),
+    );
   }
 
-  private async getEnvironmentState(userId: UserId | null) {
-    // Previous rules dictated that we only get from user scoped state if there is an active user.
-    const activeUserId = await firstValueFrom(this.activeAccountId$);
-    return activeUserId == null
-      ? await firstValueFrom(this.globalState.state$)
-      : await firstValueFrom(
-          this.stateProvider.getUser(userId ?? activeUserId, USER_ENVIRONMENT_KEY).state$,
-        );
+  /**
+   * @deprecated Use getEnvironment$ instead.
+   */
+  async getEnvironment(userId?: UserId): Promise<Environment | undefined> {
+    // Add backwards compatibility support for null userId
+    const definedUserId = userId ?? (await firstValueFrom(this.activeAccountId$));
+
+    return firstValueFrom(this.getEnvironment$(definedUserId));
   }
 
   async seedUserEnvironment(userId: UserId) {

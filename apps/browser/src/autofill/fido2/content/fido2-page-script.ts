@@ -1,12 +1,10 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { WebauthnUtils } from "../utils/webauthn-utils";
 
-import { MessageType } from "./messaging/message";
+import { MessageTypes } from "./messaging/message";
 import { Messenger } from "./messaging/messenger";
 
 (function (globalContext) {
-  if (globalContext.document.currentScript) {
+  if (globalContext.document.currentScript?.parentNode) {
     globalContext.document.currentScript.parentNode.removeChild(
       globalContext.document.currentScript,
     );
@@ -86,7 +84,7 @@ import { Messenger } from "./messaging/messenger";
    */
   async function createWebAuthnCredential(
     options?: CredentialCreationOptions,
-  ): Promise<Credential> {
+  ): Promise<Credential | null> {
     if (!isWebauthnCall(options)) {
       return await browserCredentials.create(options);
     }
@@ -100,19 +98,24 @@ import { Messenger } from "./messaging/messenger";
     try {
       const response = await messenger.request(
         {
-          type: MessageType.CredentialCreationRequest,
+          type: MessageTypes.CredentialCreationRequest,
           data: WebauthnUtils.mapCredentialCreationOptions(options, fallbackSupported),
         },
         options?.signal,
       );
 
-      if (response.type !== MessageType.CredentialCreationResponse) {
+      if (response.type !== MessageTypes.CredentialCreationResponse || !response.result) {
         throw new Error("Something went wrong.");
       }
 
       return WebauthnUtils.mapCredentialRegistrationResult(response.result);
     } catch (error) {
-      if (error && error.fallbackRequested && fallbackSupported) {
+      if (
+        fallbackSupported &&
+        error instanceof Object &&
+        "fallbackRequested" in error &&
+        error.fallbackRequested
+      ) {
         await waitForFocus();
         return await browserCredentials.create(options);
       }
@@ -127,7 +130,9 @@ import { Messenger } from "./messaging/messenger";
    * @param options Options for creating new credentials.
    * @returns Promise that resolves to the new credential object.
    */
-  async function getWebAuthnCredential(options?: CredentialRequestOptions): Promise<Credential> {
+  async function getWebAuthnCredential(
+    options?: CredentialRequestOptions,
+  ): Promise<Credential | null> {
     if (!isWebauthnCall(options)) {
       return await browserCredentials.get(options);
     }
@@ -141,19 +146,19 @@ import { Messenger } from "./messaging/messenger";
         try {
           const abortListener = () =>
             messenger.request({
-              type: MessageType.AbortRequest,
+              type: MessageTypes.AbortRequest,
               abortedRequestId: abortSignal.toString(),
             });
           internalAbortController.signal.addEventListener("abort", abortListener);
           const response = await messenger.request(
             {
-              type: MessageType.CredentialGetRequest,
+              type: MessageTypes.CredentialGetRequest,
               data: WebauthnUtils.mapCredentialRequestOptions(options, fallbackSupported),
             },
             internalAbortController.signal,
           );
           internalAbortController.signal.removeEventListener("abort", abortListener);
-          if (response.type !== MessageType.CredentialGetResponse) {
+          if (response.type !== MessageTypes.CredentialGetResponse || !response.result) {
             throw new Error("Something went wrong.");
           }
 
@@ -176,25 +181,30 @@ import { Messenger } from "./messaging/messenger";
       abortSignal.removeEventListener("abort", abortListener);
       internalAbortControllers.forEach((controller) => controller.abort());
 
-      return response;
+      return response ?? null;
     }
 
     try {
       const response = await messenger.request(
         {
-          type: MessageType.CredentialGetRequest,
+          type: MessageTypes.CredentialGetRequest,
           data: WebauthnUtils.mapCredentialRequestOptions(options, fallbackSupported),
         },
         options?.signal,
       );
 
-      if (response.type !== MessageType.CredentialGetResponse) {
+      if (response.type !== MessageTypes.CredentialGetResponse || !response.result) {
         throw new Error("Something went wrong.");
       }
 
       return WebauthnUtils.mapCredentialAssertResult(response.result);
     } catch (error) {
-      if (error && error.fallbackRequested && fallbackSupported) {
+      if (
+        fallbackSupported &&
+        error instanceof Object &&
+        "fallbackRequested" in error &&
+        error.fallbackRequested
+      ) {
         await waitForFocus();
         return await browserCredentials.get(options);
       }
@@ -203,8 +213,10 @@ import { Messenger } from "./messaging/messenger";
     }
   }
 
-  function isWebauthnCall(options?: CredentialCreationOptions | CredentialRequestOptions) {
-    return options && "publicKey" in options;
+  function isWebauthnCall(
+    options?: CredentialCreationOptions | CredentialRequestOptions,
+  ): options is CredentialCreationOptions | CredentialRequestOptions {
+    return options != null && "publicKey" in options;
   }
 
   /**
@@ -217,7 +229,7 @@ import { Messenger } from "./messaging/messenger";
    */
   async function waitForFocus(fallbackWait = 500, timeout = 5 * 60 * 1000) {
     try {
-      if (globalContext.top.document.hasFocus()) {
+      if (globalContext.top?.document.hasFocus()) {
         return;
       }
     } catch {
@@ -225,9 +237,14 @@ import { Messenger } from "./messaging/messenger";
       return await new Promise((resolve) => globalContext.setTimeout(resolve, fallbackWait));
     }
 
+    if (!globalContext.top) {
+      return await new Promise((resolve) => globalContext.setTimeout(resolve, fallbackWait));
+    }
+
+    const topWindow = globalContext.top;
     const focusPromise = new Promise<void>((resolve) => {
       focusListenerHandler = () => resolve();
-      globalContext.top.addEventListener("focus", focusListenerHandler);
+      topWindow.addEventListener("focus", focusListenerHandler);
     });
 
     const timeoutPromise = new Promise<void>((_, reject) => {
@@ -248,7 +265,7 @@ import { Messenger } from "./messaging/messenger";
   }
 
   function clearWaitForFocus() {
-    globalContext.top.removeEventListener("focus", focusListenerHandler);
+    globalContext.top?.removeEventListener("focus", focusListenerHandler);
     if (waitForFocusTimeout) {
       globalContext.clearTimeout(waitForFocusTimeout);
     }
@@ -267,7 +284,7 @@ import { Messenger } from "./messaging/messenger";
 
       clearWaitForFocus();
       void messenger.destroy();
-    } catch (e) {
+    } catch {
       /** empty */
     }
   }
@@ -280,7 +297,7 @@ import { Messenger } from "./messaging/messenger";
     const type = message.type;
 
     // Handle cleanup for disconnect request
-    if (type === MessageType.DisconnectRequest) {
+    if (type === MessageTypes.DisconnectRequest) {
       destroy();
     }
   };

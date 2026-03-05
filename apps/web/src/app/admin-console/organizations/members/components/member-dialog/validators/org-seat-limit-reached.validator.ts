@@ -9,41 +9,68 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
  * @param organization An object representing the organization
  * @param allOrganizationUserEmails An array of strings with existing user email addresses
  * @param errorMessage A localized string to display if validation fails
+ * @param occupiedSeatCount The current count of active users occupying the organization's seats.
  * @returns A function that validates an `AbstractControl` and returns `ValidationErrors` or `null`
  */
 export function orgSeatLimitReachedValidator(
   organization: Organization,
   allOrganizationUserEmails: string[],
   errorMessage: string,
+  occupiedSeatCount: number,
 ): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
-    if (control.value === "" || !control.value) {
+    if (!control.value?.trim()) {
       return null;
     }
 
-    const newEmailsToAdd = Array.from(
-      new Set(
-        control.value
-          .split(",")
-          .filter(
-            (newEmailToAdd: string) =>
-              newEmailToAdd &&
-              newEmailToAdd.trim() !== "" &&
-              !allOrganizationUserEmails.some(
-                (existingEmail) => existingEmail === newEmailToAdd.trim(),
-              ),
-          ),
-      ),
-    );
+    if (isDynamicSeatPlan(organization.productTierType)) {
+      return null;
+    }
 
-    const productHasAdditionalSeatsOption =
-      organization.productTierType !== ProductTierType.Free &&
-      organization.productTierType !== ProductTierType.Families &&
-      organization.productTierType !== ProductTierType.TeamsStarter;
+    const newTotalUserCount =
+      occupiedSeatCount + getUniqueNewEmailCount(allOrganizationUserEmails, control);
 
-    return !productHasAdditionalSeatsOption &&
-      allOrganizationUserEmails.length + newEmailsToAdd.length > organization.seats
-      ? { seatLimitReached: { message: errorMessage } }
-      : null;
+    if (newTotalUserCount > organization.seats) {
+      return { seatLimitReached: { message: errorMessage } };
+    }
+
+    return null;
   };
+}
+
+export function isDynamicSeatPlan(productTierType: ProductTierType): boolean {
+  return !isFixedSeatPlan(productTierType);
+}
+
+export function isFixedSeatPlan(productTierType: ProductTierType): boolean {
+  switch (productTierType) {
+    case ProductTierType.Free:
+    case ProductTierType.Families:
+    case ProductTierType.TeamsStarter:
+      return true;
+    default:
+      return false;
+  }
+}
+
+function getUniqueNewEmailCount(
+  allOrganizationUserEmails: string[],
+  control: AbstractControl,
+): number {
+  const newEmailsToAdd = Array.from(
+    new Set(
+      control.value
+        .split(",")
+        .filter(
+          (newEmailToAdd: string) =>
+            newEmailToAdd &&
+            newEmailToAdd.trim() !== "" &&
+            !allOrganizationUserEmails.some(
+              (existingEmail) => existingEmail === newEmailToAdd.trim(),
+            ),
+        ),
+    ),
+  );
+
+  return newEmailsToAdd.length;
 }

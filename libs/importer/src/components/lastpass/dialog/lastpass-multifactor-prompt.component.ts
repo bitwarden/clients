@@ -1,10 +1,11 @@
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
+  DIALOG_DATA,
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   DialogModule,
@@ -20,9 +21,10 @@ type LastPassMultifactorPromptData = {
   variant: LastPassMultifactorPromptVariant;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "lastpass-multifactor-prompt.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

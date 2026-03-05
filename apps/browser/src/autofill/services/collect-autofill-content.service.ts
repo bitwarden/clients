@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
+
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -49,8 +51,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private mutationObserver: MutationObserver;
   private mutationsQueue: MutationRecord[][] = [];
   private updateAfterMutationIdleCallback: NodeJS.Timeout | number;
+  private ownedExperienceTagNames: string[] = [];
   private readonly updateAfterMutationTimeout = 1000;
   private readonly formFieldQueryString;
+  private readonly debouncedProcessMutations = debounce(() => this.processMutations(), 100);
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
   private readonly ignoredInputTypes = new Set([
     "hidden",
@@ -59,6 +63,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     "button",
     "image",
     "file",
+    "search",
+    "url",
+    "date",
+    "time",
+    "datetime", // Note: datetime is deprecated in HTML5; keeping here for backwards compatibility
+    "datetime-local",
+    "week",
+    "color",
+    "range",
   ]);
 
   constructor(
@@ -85,6 +98,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @public
    */
   async getPageDetails(): Promise<AutofillPageDetails> {
+    // Set up listeners on top-layer candidates that predate Mutation Observer setup
+    if (this.autofillOverlayContentService) {
+      this.setupInitialTopLayerListeners();
+    }
+
     if (!this.mutationObserver) {
       this.setupMutationObserver();
     }
@@ -227,9 +245,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this._autofillFormElements.set(formElement, {
         opid: formElement.opid,
         htmlAction: this.getFormActionAttribute(formElement),
-        htmlName: this.getPropertyOrAttribute(formElement, "name"),
-        htmlID: this.getPropertyOrAttribute(formElement, "id"),
-        htmlMethod: this.getPropertyOrAttribute(formElement, "method"),
+        htmlName: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.NAME),
+        htmlClass: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.CLASS),
+        htmlID: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.ID),
+        htmlMethod: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.METHOD),
       });
     }
 
@@ -244,7 +263,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @private
    */
   private getFormActionAttribute(element: ElementWithOpId<HTMLFormElement>): string {
-    return new URL(this.getPropertyOrAttribute(element, "action"), globalThis.location.href).href;
+    return new URL(
+      this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.ACTION),
+      globalThis.location.href,
+    ).href;
   }
 
   /**
@@ -273,7 +295,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private async buildAutofillFieldsData(
     formFieldElements: FormFieldElement[],
   ): Promise<AutofillField[]> {
-    const autofillFieldElements = this.getAutofillFieldElements(100, formFieldElements);
+    // Maximum number of form fields to process for autofill to prevent performance issues on pages with excessive fields
+    const autofillFieldsLimit = 200;
+    const autofillFieldElements = this.getAutofillFieldElements(
+      autofillFieldsLimit,
+      formFieldElements,
+    );
     const autofillFieldDataPromises = autofillFieldElements.map(this.buildAutofillFieldItem);
 
     return Promise.all(autofillFieldDataPromises);
@@ -314,7 +341,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         return priorityFormFields;
       }
 
-      const fieldType = this.getPropertyOrAttribute(element, "type")?.toLowerCase();
+      const fieldType = this.getPropertyOrAttribute(
+        element,
+        AUTOFILL_ATTRIBUTES.TYPE,
+      )?.toLowerCase();
       if (unimportantFieldTypesSet.has(fieldType)) {
         unimportantFormFields.push(element);
         continue;
@@ -363,11 +393,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       elementNumber: index,
       maxLength: this.getAutofillFieldMaxLength(element),
       viewable: await this.domElementVisibilityService.isElementViewable(element),
-      htmlID: this.getPropertyOrAttribute(element, "id"),
-      htmlName: this.getPropertyOrAttribute(element, "name"),
-      htmlClass: this.getPropertyOrAttribute(element, "class"),
-      tabindex: this.getPropertyOrAttribute(element, "tabindex"),
-      title: this.getPropertyOrAttribute(element, "title"),
+      htmlID: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.ID),
+      htmlName: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.NAME),
+      htmlClass: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.CLASS),
+      tabindex: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.TABINDEX),
+      title: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.TITLE),
       tagName: this.getAttributeLowerCase(element, "tagName"),
       dataSetValues: this.getDataSetValues(element),
     };
@@ -383,16 +413,16 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     let autofillFieldLabels = {};
-    const elementType = this.getAttributeLowerCase(element, "type");
+    const elementType = this.getAttributeLowerCase(element, AUTOFILL_ATTRIBUTES.TYPE);
     if (elementType !== "hidden") {
       autofillFieldLabels = {
         "label-tag": this.createAutofillFieldLabelTag(element as FillableFormFieldElement),
-        "label-data": this.getPropertyOrAttribute(element, "data-label"),
-        "label-aria": this.getPropertyOrAttribute(element, "aria-label"),
+        "label-data": this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.DATA_LABEL),
+        "label-aria": this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.ARIA_LABEL),
         "label-top": this.createAutofillFieldTopLabel(element),
         "label-right": this.createAutofillFieldRightLabel(element),
         "label-left": this.createAutofillFieldLeftLabel(element),
-        placeholder: this.getPropertyOrAttribute(element, "placeholder"),
+        placeholder: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.PLACEHOLDER),
       };
     }
 
@@ -400,21 +430,21 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const autofillField = {
       ...autofillFieldBase,
       ...autofillFieldLabels,
-      rel: this.getPropertyOrAttribute(element, "rel"),
+      rel: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.REL),
       type: elementType,
       value: this.getElementValue(element),
-      checked: this.getAttributeBoolean(element, "checked"),
+      checked: this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.CHECKED),
       autoCompleteType: this.getAutoCompleteAttribute(element),
-      disabled: this.getAttributeBoolean(element, "disabled"),
-      readonly: this.getAttributeBoolean(element, "readonly"),
+      disabled: this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.DISABLED),
+      readonly: this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.READONLY),
       selectInfo: elementIsSelectElement(element)
         ? this.getSelectElementOptions(element as HTMLSelectElement)
         : null,
       form: fieldFormElement ? this.getPropertyOrAttribute(fieldFormElement, "opid") : null,
-      "aria-hidden": this.getAttributeBoolean(element, "aria-hidden", true),
-      "aria-disabled": this.getAttributeBoolean(element, "aria-disabled", true),
-      "aria-haspopup": this.getAttributeBoolean(element, "aria-haspopup", true),
-      "data-stripe": this.getPropertyOrAttribute(element, "data-stripe"),
+      "aria-hidden": this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.ARIA_HIDDEN, true),
+      "aria-disabled": this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.ARIA_DISABLED, true),
+      "aria-haspopup": this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.ARIA_HASPOPUP, true),
+      "data-stripe": this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.DATA_STRIPE),
     };
 
     this.cacheAutofillFieldElement(index, element, autofillField);
@@ -423,7 +453,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   /**
    * Caches the autofill field element and its data.
-   * Will not cache the element if the index is less than 0.
    *
    * @param index - The index of the autofill field element
    * @param element - The autofill field element to cache
@@ -434,10 +463,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     element: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
   ) {
-    if (index < 0) {
-      return;
-    }
-
+    // Always cache the element, even if index is -1 (for dynamically added fields)
     this.autofillFieldElements.set(element, autofillFieldData);
   }
 
@@ -450,9 +476,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    */
   private getAutoCompleteAttribute(element: ElementWithOpId<FormFieldElement>): string {
     return (
-      this.getPropertyOrAttribute(element, "x-autocompletetype") ||
-      this.getPropertyOrAttribute(element, "autocompletetype") ||
-      this.getPropertyOrAttribute(element, "autocomplete")
+      this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.AUTOCOMPLETE) ||
+      this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.X_AUTOCOMPLETE_TYPE) ||
+      this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.AUTOCOMPLETE_TYPE)
     );
   }
 
@@ -712,7 +738,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    */
   private trimAndRemoveNonPrintableText(textContent: string): string {
     return (textContent || "")
-      .replace(/[^\x20-\x7E]+|\s+/g, " ") // Strip out non-primitive characters and replace multiple spaces with a single space
+      .replace(/\p{C}+|\s+/gu, " ") // Strip out non-printable characters and replace multiple spaces with a single space
       .trim(); // Trim leading and trailing whitespace
   }
 
@@ -918,6 +944,18 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     return this.nonInputFormFieldTags.has(nodeTagName) && !nodeHasBwIgnoreAttribute;
   }
 
+  private setupInitialTopLayerListeners = () => {
+    const unownedTopLayerItems = this.autofillOverlayContentService?.getUnownedTopLayerItems(true);
+
+    if (unownedTopLayerItems?.length) {
+      for (const unownedElement of unownedTopLayerItems) {
+        if (this.shouldListenToTopLayerCandidate(unownedElement)) {
+          this.setupTopLayerCandidateListener(unownedElement);
+        }
+      }
+    }
+  };
+
   /**
    * Sets up a mutation observer on the body of the document. Observes changes to
    * DOM elements to ensure we have an updated set of autofill field data.
@@ -928,6 +966,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.mutationObserver = new MutationObserver(this.handleMutationObserverMutation);
     this.mutationObserver.observe(document.documentElement, {
       attributes: true,
+      /** Mutations to node attributes NOT on this list will not be observed! */
+      attributeFilter: Object.values(AUTOFILL_ATTRIBUTES),
       childList: true,
       subtree: true,
     });
@@ -947,7 +987,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     if (!this.mutationsQueue.length) {
-      requestIdleCallbackPolyfill(debounce(this.processMutations, 100), { timeout: 500 });
+      requestIdleCallbackPolyfill(this.debouncedProcessMutations, { timeout: 500 });
     }
     this.mutationsQueue.push(mutations);
   };
@@ -981,10 +1021,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private processMutations = () => {
     const queueLength = this.mutationsQueue.length;
 
-    if (!this.domQueryService.pageContainsShadowDomElements()) {
-      this.checkPageContainsShadowDom();
-    }
-
     for (let queueIndex = 0; queueIndex < queueLength; queueIndex++) {
       const mutations = this.mutationsQueue[queueIndex];
       const processMutationRecords = () => {
@@ -1000,17 +1036,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     this.mutationsQueue = [];
   };
-
-  /**
-   * Handles checking if the current page contains a ShadowDOM element and
-   * flags that a re-collection of page details is required if it does.
-   */
-  private checkPageContainsShadowDom() {
-    this.domQueryService.checkPageContainsShadowDom();
-    if (this.domQueryService.pageContainsShadowDomElements()) {
-      this.flagPageDetailsUpdateIsRequired();
-    }
-  }
 
   /**
    * Triggers several flags that indicate that a collection of page details should
@@ -1043,6 +1068,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @private
    */
   private processMutationRecord(mutation: MutationRecord) {
+    this.handleTopLayerChanges(mutation);
+
     if (
       mutation.type === "childList" &&
       (this.isAutofillElementNodeMutated(mutation.removedNodes, true) ||
@@ -1056,6 +1083,68 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.handleAutofillElementAttributeMutation(mutation);
     }
   }
+
+  private setupTopLayerCandidateListener = (element: Element) => {
+    if (this.autofillOverlayContentService) {
+      const ownedTags = this.autofillOverlayContentService.getOwnedInlineMenuTagNames() || [];
+      this.ownedExperienceTagNames = ownedTags;
+
+      if (!ownedTags.includes(element.tagName)) {
+        element.addEventListener("toggle", (event: ToggleEvent) => {
+          if (event.newState === "open") {
+            // Add a slight delay (but faster than a user's reaction), to ensure the layer
+            // positioning happens after any triggered toggle has completed.
+            setTimeout(this.autofillOverlayContentService.refreshMenuLayerPosition, 100);
+          }
+        });
+
+        this.autofillOverlayContentService.refreshMenuLayerPosition();
+      }
+    }
+  };
+
+  private isPopoverAttribute = (attr: string | null) => {
+    const popoverAttributes = new Set(["popover", "popovertarget", "popovertargetaction"]);
+
+    return attr && popoverAttributes.has(attr.toLowerCase());
+  };
+
+  private shouldListenToTopLayerCandidate = (element: Element) => {
+    return (
+      !this.ownedExperienceTagNames.includes(element.tagName) &&
+      (element.tagName === "DIALOG" ||
+        Array.from(element.attributes || []).some((attribute) =>
+          this.isPopoverAttribute(attribute.name),
+        ))
+    );
+  };
+
+  /**
+   * Checks if a mutation record is related features that utilize the top layer.
+   * If so, it then calls `setupTopLayerElementListener` for future event
+   * listening on the relevant element.
+   *
+   * @param mutation - The MutationRecord to check
+   */
+  private handleTopLayerChanges = (mutation: MutationRecord) => {
+    // Check attribute mutations
+    if (mutation.type === "attributes" && this.isPopoverAttribute(mutation.attributeName)) {
+      this.setupTopLayerCandidateListener(mutation.target as Element);
+    }
+
+    // Check added nodes for dialog or popover attributes
+    if (mutation.type === "childList" && mutation.addedNodes?.length > 0) {
+      for (const node of mutation.addedNodes) {
+        const mutationElement = node as Element;
+
+        if (this.shouldListenToTopLayerCandidate(mutationElement)) {
+          this.setupTopLayerCandidateListener(mutationElement);
+        }
+      }
+    }
+
+    return;
+  };
 
   /**
    * Checks if the passed nodes either contain or are autofill elements.
@@ -1122,7 +1211,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private setupOverlayListenersOnMutatedElements(mutatedElements: Node[]) {
     for (let elementIndex = 0; elementIndex < mutatedElements.length; elementIndex++) {
       const node = mutatedElements[elementIndex];
-      const buildAutofillFieldItem = () => {
+      const buildAutofillFieldItem = async () => {
         if (
           !this.isNodeFormFieldElement(node) ||
           this.autofillFieldElements.get(node as ElementWithOpId<FormFieldElement>)
@@ -1132,7 +1221,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
         // We are setting this item to a -1 index because we do not know its position in the DOM.
         // This value should be updated with the next call to collect page details.
-        void this.buildAutofillFieldItem(node as ElementWithOpId<FormFieldElement>, -1);
+        const formFieldElement = node as ElementWithOpId<FormFieldElement>;
+        const autofillField = await this.buildAutofillFieldItem(formFieldElement, -1);
+
+        // Set up overlay listeners for the new field if we have the overlay service
+        if (autofillField && this.autofillOverlayContentService) {
+          this.setupOverlayOnField(formFieldElement, autofillField);
+
+          if (this.domRecentlyMutated) {
+            this.updateAutofillElementsAfterMutation();
+          }
+        }
       };
 
       requestIdleCallbackPolyfill(buildAutofillFieldItem, { timeout: 1000 });
@@ -1233,6 +1332,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       action: () => (dataTarget.htmlAction = this.getFormActionAttribute(element)),
       name: () => updateAttribute("htmlName"),
       id: () => updateAttribute("htmlID"),
+      class: () => updateAttribute("htmlClass"),
       method: () => updateAttribute("htmlMethod"),
     };
 
@@ -1262,29 +1362,49 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.updateAutofillDataAttribute({ element, attributeName, dataTarget, dataTargetKey });
     };
     const updateActions: Record<string, CallableFunction> = {
-      maxlength: () => (dataTarget.maxLength = this.getAutofillFieldMaxLength(element)),
-      id: () => updateAttribute("htmlID"),
-      name: () => updateAttribute("htmlName"),
-      class: () => updateAttribute("htmlClass"),
-      tabindex: () => updateAttribute("tabindex"),
-      title: () => updateAttribute("tabindex"),
-      rel: () => updateAttribute("rel"),
-      tagname: () => (dataTarget.tagName = this.getAttributeLowerCase(element, "tagName")),
-      type: () => (dataTarget.type = this.getAttributeLowerCase(element, "type")),
-      value: () => (dataTarget.value = this.getElementValue(element)),
-      checked: () => (dataTarget.checked = this.getAttributeBoolean(element, "checked")),
-      disabled: () => (dataTarget.disabled = this.getAttributeBoolean(element, "disabled")),
-      readonly: () => (dataTarget.readonly = this.getAttributeBoolean(element, "readonly")),
-      autocomplete: () => (dataTarget.autoCompleteType = this.getAutoCompleteAttribute(element)),
-      "data-label": () => updateAttribute("label-data"),
+      "aria-describedby": () => updateAttribute(AUTOFILL_ATTRIBUTES.ARIA_DESCRIBEDBY),
       "aria-label": () => updateAttribute("label-aria"),
+      "aria-labelledby": () => updateAttribute(AUTOFILL_ATTRIBUTES.ARIA_LABELLEDBY),
       "aria-hidden": () =>
-        (dataTarget["aria-hidden"] = this.getAttributeBoolean(element, "aria-hidden", true)),
+        (dataTarget["aria-hidden"] = this.getAttributeBoolean(
+          element,
+          AUTOFILL_ATTRIBUTES.ARIA_HIDDEN,
+          true,
+        )),
       "aria-disabled": () =>
-        (dataTarget["aria-disabled"] = this.getAttributeBoolean(element, "aria-disabled", true)),
+        (dataTarget["aria-disabled"] = this.getAttributeBoolean(
+          element,
+          AUTOFILL_ATTRIBUTES.ARIA_DISABLED,
+          true,
+        )),
       "aria-haspopup": () =>
-        (dataTarget["aria-haspopup"] = this.getAttributeBoolean(element, "aria-haspopup", true)),
-      "data-stripe": () => updateAttribute("data-stripe"),
+        (dataTarget["aria-haspopup"] = this.getAttributeBoolean(
+          element,
+          AUTOFILL_ATTRIBUTES.ARIA_HASPOPUP,
+          true,
+        )),
+      autocomplete: () => (dataTarget.autoCompleteType = this.getAutoCompleteAttribute(element)),
+      autocompletetype: () =>
+        (dataTarget.autoCompleteType = this.getAutoCompleteAttribute(element)),
+      "x-autocompletetype": () =>
+        (dataTarget.autoCompleteType = this.getAutoCompleteAttribute(element)),
+      class: () => updateAttribute("htmlClass"),
+      checked: () =>
+        (dataTarget.checked = this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.CHECKED)),
+      "data-label": () => updateAttribute("label-data"),
+      "data-stripe": () => updateAttribute(AUTOFILL_ATTRIBUTES.DATA_STRIPE),
+      disabled: () =>
+        (dataTarget.disabled = this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.DISABLED)),
+      id: () => updateAttribute("htmlID"),
+      maxlength: () => (dataTarget.maxLength = this.getAutofillFieldMaxLength(element)),
+      name: () => updateAttribute("htmlName"),
+      placeholder: () => updateAttribute(AUTOFILL_ATTRIBUTES.PLACEHOLDER),
+      readonly: () =>
+        (dataTarget.readonly = this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.READONLY)),
+      rel: () => updateAttribute(AUTOFILL_ATTRIBUTES.REL),
+      tabindex: () => updateAttribute(AUTOFILL_ATTRIBUTES.TABINDEX),
+      title: () => updateAttribute(AUTOFILL_ATTRIBUTES.TITLE),
+      type: () => (dataTarget.type = this.getAttributeLowerCase(element, AUTOFILL_ATTRIBUTES.TYPE)),
     };
 
     if (!updateActions[attributeName]) {
@@ -1327,7 +1447,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.intersectionObserver = new IntersectionObserver(this.handleFormElementIntersection, {
       root: null,
       rootMargin: "0px",
-      threshold: 1.0,
+      threshold: 0.9999, // Safari doesn't seem to function properly with a threshold of 1,
     });
   }
 

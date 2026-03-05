@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import {
   Component,
   ElementRef,
@@ -17,19 +16,34 @@ import { ProfileResponse } from "@bitwarden/common/models/response/profile.respo
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
+
+import { SharedModule } from "../../../shared";
+
+import { SelectableAvatarComponent } from "./selectable-avatar.component";
 
 type ChangeAvatarDialogData = {
   profile: ProfileResponse;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "change-avatar-dialog.component.html",
   encapsulation: ViewEncapsulation.None,
+  imports: [SharedModule, SelectableAvatarComponent],
 })
 export class ChangeAvatarDialogComponent implements OnInit, OnDestroy {
   profile: ProfileResponse;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("colorPicker") colorPickerElement: ElementRef<HTMLElement>;
 
   loading = false;

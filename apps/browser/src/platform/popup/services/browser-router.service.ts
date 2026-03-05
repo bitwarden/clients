@@ -21,7 +21,7 @@ export class BrowserRouterService {
           child = child.firstChild;
         }
 
-        const updateUrl = !child?.data?.doNotSaveUrl ?? true;
+        const updateUrl = !child?.data?.doNotSaveUrl;
 
         if (updateUrl) {
           this.setPreviousUrl(event.url);

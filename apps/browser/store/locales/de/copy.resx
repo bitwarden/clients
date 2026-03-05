@@ -144,7 +144,7 @@ Nutze Bitwarden, um deine Mitarbeiter abzusichern und sensible Informationen mit
 Weitere Gründe, Bitwarden zu wählen:
 
 Weltklasse-Verschlüsselung
-Passwörter werden mit fortschrittlicher Ende-zu-Ende-Verschlüsselung (AES-256 bit, salted hashtag und PBKDF2 SHA-256) geschützt, damit deine Daten sicher und geheim bleiben.
+Passwörter werden mit fortschrittlicher Ende-zu-Ende-Verschlüsselung (AES-256 bit, salted hashing und PBKDF2 SHA-256) geschützt, damit deine Daten sicher und geheim bleiben.
 
 3rd-Party-Prüfungen
 Bitwarden führt regelmäßig umfassende Sicherheitsprüfungen durch Dritte von namhaften Sicherheitsfirmen durch. Diese jährlichen Prüfungen umfassen Quellcode-Bewertungen und Penetration-Tests für Bitwarden-IPs, Server und Webanwendungen.

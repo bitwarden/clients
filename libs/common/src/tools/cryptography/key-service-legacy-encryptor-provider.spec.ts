@@ -1,13 +1,15 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, Subject } from "rxjs";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { OrgKey, UserKey } from "@bitwarden/common/types/key";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { CsprngArray } from "../../types/csprng";
+import { OrganizationId, UserId } from "../../types/guid";
+import { OrgKey, UserKey } from "../../types/key";
 import { OrganizationBound, UserBound } from "../dependencies";
 
 import { KeyServiceLegacyEncryptorProvider } from "./key-service-legacy-encryptor-provider";
@@ -184,7 +186,7 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
 
       singleUserId$.complete();
 
-      expect(completed).toBeTrue();
+      expect(completed).toBe(true);
     });
 
     it("completes when `userKey$` emits a falsy value after emitting a truthy value", () => {
@@ -199,7 +201,7 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
 
       userKey$.next(null);
 
-      expect(completed).toBeTrue();
+      expect(completed).toBe(true);
     });
 
     it("completes once `dependencies.singleUserId$` emits and `userKey$` completes", () => {
@@ -214,7 +216,7 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
 
       userKey$.complete();
 
-      expect(completed).toBeTrue();
+      expect(completed).toBe(true);
     });
   });
 
@@ -445,7 +447,7 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
 
       singleOrganizationId$.complete();
 
-      expect(completed).toBeTrue();
+      expect(completed).toBe(true);
     });
 
     it("completes when `orgKeys$` emits a falsy value after emitting a truthy value", () => {
@@ -466,7 +468,7 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
       orgKey$.next(OrgRecords);
       orgKey$.next(null);
 
-      expect(completed).toBeTrue();
+      expect(completed).toBe(true);
     });
 
     it("completes once `dependencies.singleOrganizationId$` emits and `userKey$` completes", () => {
@@ -486,7 +488,7 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
 
       orgKey$.complete();
 
-      expect(completed).toBeTrue();
+      expect(completed).toBe(true);
     });
   });
 });

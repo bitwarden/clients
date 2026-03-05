@@ -1,0 +1,8 @@
+<div [formGroup]="formGroup">
+  <bit-form-field>
+    <bit-label>{{ "browserProfile" | i18n }}</bit-label>
+    <bit-select formControlName="profile">
+      <bit-option *ngFor="let p of profileList" [value]="p.id" [label]="p.name" />
+    </bit-select>
+  </bit-form-field>
+</div>

@@ -12,7 +12,7 @@
     bitIconButton="bwi-ellipsis-v"
     buttonType="main"
     [bitMenuTriggerFor]="appListDropdown"
-    appA11yTitle="{{ 'options' | i18n }}"
+    label="{{ 'options' | i18n }}"
   ></button>
   <bit-menu #appListDropdown>
     <button
@@ -32,7 +32,7 @@
       type="button"
       bitMenuItem
       (click)="revokeSponsorship()"
-      [attr.aria-label]="'revokeAccount' | i18n: sponsoringOrg.familySponsorshipFriendlyName"
+      [attr.aria-label]="'revokeAccountMessage' | i18n: sponsoringOrg.familySponsorshipFriendlyName"
     >
       <span class="tw-text-danger">{{ "remove" | i18n }}</span>
     </button>

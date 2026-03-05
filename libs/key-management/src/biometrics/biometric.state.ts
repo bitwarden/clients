@@ -1,10 +1,10 @@
-import { EncryptedString } from "../../../common/src/platform/models/domain/enc-string";
+import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import {
   KeyDefinition,
   BIOMETRIC_SETTINGS_DISK,
   UserKeyDefinition,
-} from "../../../common/src/platform/state";
-import { UserId } from "../../../common/src/types/guid";
+} from "@bitwarden/common/platform/state";
+import { UserId } from "@bitwarden/common/types/guid";
 
 /**
  * Indicates whether the user elected to store a biometric key to unlock their vault.
@@ -14,20 +14,6 @@ export const BIOMETRIC_UNLOCK_ENABLED = new UserKeyDefinition<boolean>(
   "biometricUnlockEnabled",
   {
     deserializer: (obj: any) => obj,
-    clearOn: [],
-  },
-);
-
-/**
- * Boolean indicating the user has elected to require a password to use their biometric key upon starting the application.
- *
- * A true setting controls whether {@link ENCRYPTED_CLIENT_KEY_HALF} is set.
- */
-export const REQUIRE_PASSWORD_ON_START = new UserKeyDefinition<boolean>(
-  BIOMETRIC_SETTINGS_DISK,
-  "requirePasswordOnStart",
-  {
-    deserializer: (value: any) => value,
     clearOn: [],
   },
 );
@@ -45,19 +31,6 @@ export const ENCRYPTED_CLIENT_KEY_HALF = new UserKeyDefinition<EncryptedString>(
   {
     deserializer: (obj) => obj,
     clearOn: ["logout"],
-  },
-);
-
-/**
- * Indicates the user has been warned about the security implications of using biometrics and, depending on the OS,
- * recommended to require a password on first unlock of an application instance.
- */
-export const DISMISSED_REQUIRE_PASSWORD_ON_START_CALLOUT = new UserKeyDefinition<boolean>(
-  BIOMETRIC_SETTINGS_DISK,
-  "dismissedBiometricRequirePasswordOnStartCallout",
-  {
-    deserializer: (obj) => obj,
-    clearOn: [],
   },
 );
 
@@ -93,5 +66,16 @@ export const FINGERPRINT_VALIDATED = new KeyDefinition<boolean>(
   "fingerprintValidated",
   {
     deserializer: (obj) => obj,
+  },
+);
+
+/**
+ * Last process reload time
+ */
+export const LAST_PROCESS_RELOAD = new KeyDefinition<Date>(
+  BIOMETRIC_SETTINGS_DISK,
+  "lastProcessReload",
+  {
+    deserializer: (obj) => new Date(obj),
   },
 );

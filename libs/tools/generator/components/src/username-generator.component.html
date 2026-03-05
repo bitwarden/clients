@@ -7,8 +7,8 @@
       type="button"
       bitIconButton="bwi-generate"
       buttonType="main"
-      (click)="generate('user request')"
-      [appA11yTitle]="credentialTypeGenerateLabel$ | async"
+      (click)="generate(USER_REQUEST)"
+      [label]="credentialTypeGenerateLabel$ | async"
       [disabled]="!(algorithm$ | async)"
     >
       {{ credentialTypeGenerateLabel$ | async }}
@@ -18,7 +18,7 @@
       bitIconButton="bwi-clone"
       buttonType="main"
       showToast
-      [appA11yTitle]="credentialTypeCopyLabel$ | async"
+      [label]="credentialTypeCopyLabel$ | async"
       [appCopyClick]="value$ | async"
       [valueLabel]="credentialTypeLabel$ | async"
       [disabled]="!(algorithm$ | async)"
@@ -33,7 +33,7 @@
   </bit-section-header>
   <div [ngClass]="{ 'tw-mb-4': !disableMargin }">
     <bit-card>
-      <form class="box" [formGroup]="username" class="tw-container">
+      <form [formGroup]="username" class="tw-container">
         <bit-form-field>
           <bit-label>{{ "type" | i18n }}</bit-label>
           <bit-select
@@ -42,42 +42,41 @@
             data-testid="username-type"
           >
           </bit-select>
-          <bit-hint *ngIf="!!(credentialTypeHint$ | async)">{{
-            credentialTypeHint$ | async
-          }}</bit-hint>
+          @if (credentialTypeHint$ | async) {
+            <bit-hint>{{ credentialTypeHint$ | async }}</bit-hint>
+          }
         </bit-form-field>
       </form>
-      <form *ngIf="showForwarder$ | async" [formGroup]="forwarder" class="box tw-container">
-        <bit-form-field>
-          <bit-label>{{ "service" | i18n }}</bit-label>
-          <bit-select
-            [items]="forwarderOptions$ | async"
-            formControlName="nav"
-            data-testid="email-forwarding-service"
-          >
-          </bit-select>
-        </bit-form-field>
-      </form>
-      <tools-catchall-settings
-        *ngIf="(algorithm$ | async)?.id === 'catchall'"
-        [userId]="this.userId$ | async"
-        (onUpdated)="generate('catchall settings')"
-      />
-      <tools-forwarder-settings
-        *ngIf="!!(forwarderId$ | async)"
-        [forwarder]="forwarderId$ | async"
-        [userId]="this.userId$ | async"
-      />
-      <tools-subaddress-settings
-        *ngIf="(algorithm$ | async)?.id === 'subaddress'"
-        [userId]="this.userId$ | async"
-        (onUpdated)="generate('subaddress settings')"
-      />
-      <tools-username-settings
-        *ngIf="(algorithm$ | async)?.id === 'username'"
-        [userId]="this.userId$ | async"
-        (onUpdated)="generate('username settings')"
-      />
+      @if (showForwarder$ | async) {
+        <form [formGroup]="forwarder" class="tw-container">
+          <bit-form-field>
+            <bit-label>{{ "service" | i18n }}</bit-label>
+            <bit-select
+              [items]="forwarderOptions$ | async"
+              formControlName="nav"
+              data-testid="email-forwarding-service"
+            >
+            </bit-select>
+          </bit-form-field>
+        </form>
+      }
+      @let showAlgorithm = showAlgorithm$ | async;
+      @let account = account$ | async;
+      @if (showAlgorithm?.id === Algorithm.catchall) {
+        <tools-catchall-settings [account]="account" (onUpdated)="generate('catchall settings')" />
+      }
+      @if (forwarderId$ | async; as forwarderId) {
+        <tools-forwarder-settings [forwarder]="forwarderId" [account]="account" />
+      }
+      @if (showAlgorithm?.id === Algorithm.plusAddress) {
+        <tools-subaddress-settings
+          [account]="account"
+          (onUpdated)="generate('subaddress settings')"
+        />
+      }
+      @if (showAlgorithm?.id === Algorithm.username) {
+        <tools-username-settings [account]="account" (onUpdated)="generate('username settings')" />
+      }
     </bit-card>
   </div>
 </bit-section>

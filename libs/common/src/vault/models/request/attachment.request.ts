@@ -5,4 +5,5 @@ export class AttachmentRequest {
   key: string;
   fileSize: number;
   adminRequest: boolean;
+  lastKnownRevisionDate: Date;
 }

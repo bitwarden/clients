@@ -1,12 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DatePipe } from "@angular/common";
+import { CommonModule, DatePipe } from "@angular/common";
 import { Component } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/tools/send/add-edit.component";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -16,11 +19,23 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { CalloutModule, DialogService, ToastService } from "@bitwarden/components";
 
+import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send-add-edit",
   templateUrl: "add-edit.component.html",
+  imports: [CommonModule, JslibModule, ReactiveFormsModule, CalloutModule],
+  providers: [
+    {
+      provide: PremiumUpgradePromptService,
+      useClass: DesktopPremiumUpgradePromptService,
+    },
+  ],
 })
 export class AddEditComponent extends BaseAddEditComponent {
   constructor(
@@ -39,6 +54,7 @@ export class AddEditComponent extends BaseAddEditComponent {
     billingAccountProfileStateService: BillingAccountProfileStateService,
     accountService: AccountService,
     toastService: ToastService,
+    premiumUpgradePromptService: PremiumUpgradePromptService,
   ) {
     super(
       i18nService,
@@ -56,12 +72,14 @@ export class AddEditComponent extends BaseAddEditComponent {
       billingAccountProfileStateService,
       accountService,
       toastService,
+      premiumUpgradePromptService,
     );
   }
 
   async refresh() {
     const send = await this.loadSend();
-    this.send = await send.decrypt();
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    this.send = await send.decrypt(userId);
     this.updateFormValues();
     this.hasPassword = this.send.password != null && this.send.password.trim() !== "";
   }

@@ -1,13 +1,17 @@
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, Observable } from "rxjs";
 
-// FIXME: remove `/apps` import from `/libs`
-// eslint-disable-next-line import/no-restricted-paths
-import { flushPromises } from "@bitwarden/browser/src/autofill/spec/testing-utils";
-
 import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
 
 import { Fido2ActiveRequestManager } from "./fido2-active-request-manager";
+
+// Duplicated from `apps/browser/src/autofill/spec/testing-utils.ts`.
+const scheduler = typeof setImmediate === "function" ? setImmediate : setTimeout;
+function flushPromises() {
+  return new Promise(function (resolve) {
+    scheduler(resolve);
+  });
+}
 
 jest.mock("rxjs", () => {
   const rxjs = jest.requireActual("rxjs");

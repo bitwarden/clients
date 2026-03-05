@@ -1,16 +1,20 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { UserId, OrganizationId } from "@bitwarden/common/types/guid";
+
+import { ExportedVaultAsString } from "../types";
+
 import { ExportFormat } from "./vault-export.service.abstraction";
 
 export abstract class OrganizationVaultExportServiceAbstraction {
-  getPasswordProtectedExport: (
-    organizationId: string,
+  abstract getPasswordProtectedExport: (
+    userId: UserId,
+    organizationId: OrganizationId,
     password: string,
     onlyManagedCollections: boolean,
-  ) => Promise<string>;
-  getOrganizationExport: (
-    organizationId: string,
+  ) => Promise<ExportedVaultAsString>;
+  abstract getOrganizationExport: (
+    userId: UserId,
+    organizationId: OrganizationId,
     format: ExportFormat,
     onlyManagedCollections: boolean,
-  ) => Promise<string>;
+  ) => Promise<ExportedVaultAsString>;
 }

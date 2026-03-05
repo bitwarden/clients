@@ -69,8 +69,8 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 if let url = panel.url {
                     do {
                         let fileManager = FileManager.default
-                        if !fileManager.fileExists(atPath: url.absoluteString) {
-                            fileManager.createFile(atPath: url.absoluteString, contents: Data(),
+                        if !fileManager.fileExists(atPath: url.path) {
+                            fileManager.createFile(atPath: url.path, contents: Data(),
                                                    attributes: nil)
                         }
                         try data.write(to: url)
@@ -86,8 +86,211 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 context.completeRequest(returningItems: [response], completionHandler: nil)
             }
             return
-        case "biometricUnlock":
+        case "authenticateWithBiometrics":
+            let messageId = message?["messageId"] as? Int
+            let laContext = LAContext()
+            guard let accessControl = SecAccessControlCreateWithFlags(nil, kSecAttrAccessibleWhenUnlockedThisDeviceOnly, [.privateKeyUsage, .userPresence], nil) else {
+                response.userInfo = [
+                    SFExtensionMessageKey: [
+                        "message": [
+                            "command": "authenticateWithBiometrics",
+                            "response": false,
+                            "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
+                            "messageId": messageId,
+                        ],
+                    ],
+                ]
+                break
+            }
+            laContext.evaluateAccessControl(accessControl, operation: .useKeySign, localizedReason: "authenticate") { (success, error) in
+                if success {
+                    response.userInfo = [ SFExtensionMessageKey: [
+                        "message": [
+                            "command": "authenticateWithBiometrics",
+                            "response": true,
+                            "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
+                            "messageId": messageId,
+                        ],
+                    ]]
+                } else {
+                    response.userInfo = [ SFExtensionMessageKey: [
+                        "message": [
+                            "command": "authenticateWithBiometrics",
+                            "response": false,
+                            "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
+                            "messageId": messageId,
+                        ],
+                    ]]
+                }
 
+                context.completeRequest(returningItems: [response], completionHandler: nil)
+            }
+            return
+        case "getBiometricsStatus":
+            let messageId = message?["messageId"] as? Int
+            response.userInfo = [
+                SFExtensionMessageKey: [
+                    "message": [
+                        "command": "getBiometricsStatus",
+                        "response": BiometricsStatus.Available.rawValue,
+                        "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
+                        "messageId": messageId,
+                    ],
+                ],
+            ]
+
+            context.completeRequest(returningItems: [response], completionHandler: nil);
+            break
+        case "unlockWithBiometricsForUser":
+            let messageId = message?["messageId"] as? Int
+            var error: NSError?
+            let laContext = LAContext()
+
+            laContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
+
+            if let e = error, e.code != kLAErrorBiometryLockout {
+                response.userInfo = [
+                    SFExtensionMessageKey: [
+                        "message": [
+                            "command": "unlockWithBiometricsForUser",
+                            "response": false,
+                            "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
+                            "messageId": messageId,
+                        ],
+                    ],
+                ]
+
+                context.completeRequest(returningItems: [response], completionHandler: nil)
+                break
+            }
+
+            var flags: SecAccessControlCreateFlags = [.privateKeyUsage];
+            // https://developer.apple.com/documentation/security/secaccesscontrolcreateflags/biometryany
+            if #available(macOS 10.13.4, *) {
+                flags.insert(.biometryAny)
+            } else {
+                flags.insert(.touchIDAny)
+            }
+
+            guard let accessControl = SecAccessControlCreateWithFlags(nil, kSecAttrAccessibleWhenUnlockedThisDeviceOnly, flags, nil) else {
+                let messageId = message?["messageId"] as? Int
+                response.userInfo = [
+                    SFExtensionMessageKey: [
+                        "message": [
+                            "command": "unlockWithBiometricsForUser",
+                            "response": false,
+                            "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
+                            "messageId": messageId,
+                        ],
+                    ],
+                ]
+
+                context.completeRequest(returningItems: [response], completionHandler: nil)
+                break
+            }
+            laContext.evaluateAccessControl(accessControl, operation: .useKeySign, localizedReason: "unlock your vault") { (success, error) in
+                if success {
+                    guard let userId = message?["userId"] as? String else {
+                        return
+                    }
+                    let passwordName = userId + "_user_biometric"
+                    var passwordLength: UInt32 = 0
+                    var passwordPtr: UnsafeMutableRawPointer? = nil
+
+                    var status = SecKeychainFindGenericPassword(nil, UInt32(ServiceNameBiometric.utf8.count), ServiceNameBiometric, UInt32(passwordName.utf8.count), passwordName, &passwordLength, &passwordPtr, nil)
+                    if status != errSecSuccess {
+                        let fallbackName = "key"
+                        status = SecKeychainFindGenericPassword(nil, UInt32(ServiceNameBiometric.utf8.count), ServiceNameBiometric, UInt32(fallbackName.utf8.count), fallbackName, &passwordLength, &passwordPtr, nil)
+                    }
+
+                    if status == errSecSuccess {
+                        let result = NSString(bytes: passwordPtr!, length: Int(passwordLength), encoding: String.Encoding.utf8.rawValue) as String?
+                                    SecKeychainItemFreeContent(nil, passwordPtr)
+
+                        response.userInfo = [ SFExtensionMessageKey: [
+                            "message": [
+                                "command": "unlockWithBiometricsForUser",
+                                "response": true,
+                                "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
+                                "userKeyB64": result!.replacingOccurrences(of: "\"", with: ""),
+                                "messageId": messageId,
+                            ],
+                        ]]
+                    } else {
+                        response.userInfo = [
+                            SFExtensionMessageKey: [
+                                "message": [
+                                    "command": "unlockWithBiometricsForUser",
+                                    "response": true,
+                                    "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
+                                    "messageId": messageId,
+                                ],
+                            ],
+                        ]
+                    }
+                }
+
+                context.completeRequest(returningItems: [response], completionHandler: nil)
+            }
+            return
+        case "getBiometricsStatusForUser":
+            let messageId = message?["messageId"] as? Int
+            let laContext = LAContext()
+            if !laContext.isBiometricsAvailable() {
+                response.userInfo = [
+                    SFExtensionMessageKey: [
+                        "message": [
+                            "command": "getBiometricsStatusForUser",
+                            "response": BiometricsStatus.HardwareUnavailable.rawValue,
+                            "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
+                            "messageId": messageId,
+                        ],
+                    ],
+                ]
+
+                context.completeRequest(returningItems: [response], completionHandler: nil)
+                break
+            }
+
+            guard let userId = message?["userId"] as? String else {
+                return
+            }
+            let passwordName = userId + "_user_biometric"
+            var passwordLength: UInt32 = 0
+            var passwordPtr: UnsafeMutableRawPointer? = nil
+
+            var status = SecKeychainFindGenericPassword(nil, UInt32(ServiceNameBiometric.utf8.count), ServiceNameBiometric, UInt32(passwordName.utf8.count), passwordName, &passwordLength, &passwordPtr, nil)
+            if status != errSecSuccess {
+                let fallbackName = "key"
+                status = SecKeychainFindGenericPassword(nil, UInt32(ServiceNameBiometric.utf8.count), ServiceNameBiometric, UInt32(fallbackName.utf8.count), fallbackName, &passwordLength, &passwordPtr, nil)
+            }
+
+            if status == errSecSuccess {
+                response.userInfo = [
+                    SFExtensionMessageKey: [
+                        "message": [
+                            "command": "getBiometricsStatusForUser",
+                            "response": BiometricsStatus.Available.rawValue,
+                            "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
+                            "messageId": messageId,
+                        ],
+                    ],
+                ]
+            } else {
+                response.userInfo = [
+                    SFExtensionMessageKey: [
+                        "message": [
+                            "command": "getBiometricsStatusForUser",
+                            "response": BiometricsStatus.NotEnabledInConnectedDesktopApp.rawValue,
+                            "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
+                            "messageId": messageId,
+                        ],
+                    ],
+                ]
+            }
+            break
+        case "biometricUnlock":
+            var error: NSError?
             let laContext = LAContext()
 
             if(!laContext.isBiometricsAvailable()){
@@ -115,7 +318,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 ]
                 break
             }
-            laContext.evaluateAccessControl(accessControl, operation: .useKeySign, localizedReason: "Bitwarden Safari Extension") { (success, error) in
+            laContext.evaluateAccessControl(accessControl, operation: .useKeySign, localizedReason: "Biometric Unlock") { (success, error) in
                 if success {
                     guard let userId = message?["userId"] as? String else {
                         return
@@ -157,7 +360,6 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
                 context.completeRequest(returningItems: [response], completionHandler: nil)
             }
-
             return
         case "biometricUnlockAvailable":
             let laContext = LAContext()
@@ -227,4 +429,16 @@ class DownloadFileMessage: Decodable, Encodable {
 
 class DownloadFileMessageBlobOptions: Decodable, Encodable {
     var type: String?
+}
+
+enum BiometricsStatus : Int {
+    case Available = 0
+    case UnlockNeeded = 1
+    case HardwareUnavailable = 2
+    case AutoSetupNeeded = 3
+    case ManualSetupNeeded = 4
+    case PlatformUnsupported = 5
+    case DesktopDisconnected = 6
+    case NotEnabledLocally = 7
+    case NotEnabledInConnectedDesktopApp = 8
 }

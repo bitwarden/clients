@@ -14,9 +14,11 @@ import {
   tap,
 } from "rxjs";
 
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 
 import { SendListFiltersService } from "./send-list-filters.service";
 
@@ -71,9 +73,13 @@ export class SendItemsService {
   /**
    * Observable that indicates whether a filter is currently applied to the sends.
    */
-  hasFilterApplied$ = combineLatest([this._searchText$, this.sendListFiltersService.filters$]).pipe(
-    switchMap(([searchText, filters]) => {
-      return from(this.searchService.isSearchable(searchText)).pipe(
+  hasFilterApplied$ = combineLatest([
+    this._searchText$,
+    this.sendListFiltersService.filters$,
+    getUserId(this.accountService.activeAccount$),
+  ]).pipe(
+    switchMap(([searchText, filters, activeAcctId]) => {
+      return from(this.searchService.isSearchable(activeAcctId, searchText)).pipe(
         map(
           (isSearchable) =>
             isSearchable || Object.values(filters).some((filter) => filter !== null),
@@ -98,6 +104,7 @@ export class SendItemsService {
     private sendService: SendService,
     private sendListFiltersService: SendListFiltersService,
     private searchService: SearchService,
+    private accountService: AccountService,
   ) {}
 
   applyFilter(newSearchText: string) {

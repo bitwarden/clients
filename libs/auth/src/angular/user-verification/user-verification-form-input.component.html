@@ -41,10 +41,12 @@
       "
     >
       <div class="tw-flex tw-flex-col tw-items-center">
-        <bit-icon [icon]="Icons.UserVerificationBiometricsIcon" class="tw-mb-4"></bit-icon>
-        <p class="tw-font-bold tw-mb-1">{{ "verifyWithBiometrics" | i18n }}</p>
+        <div class="tw-size-16 tw-content-center tw-mb-4">
+          <bit-svg [content]="Icons.UserVerificationBiometricsIcon"></bit-svg>
+        </div>
+        <p class="tw-font-medium tw-mb-1">{{ "verifyWithBiometrics" | i18n }}</p>
         <div *ngIf="!biometricsVerificationFailed">
-          <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+          <bit-icon name="bwi-spinner" class="bwi-spin" [ariaLabel]="'loading' | i18n"></bit-icon>
           {{ "awaitingConfirmation" | i18n }}
         </div>
       </div>
@@ -114,19 +116,19 @@
   </ng-container>
   <ng-container *ngIf="userVerificationOptions.server.otp">
     <div class="tw-mb-6" *ngIf="!sentInitialCode">
-      <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+      <bit-icon name="bwi-spinner" class="bwi-spin" [ariaLabel]="'loading' | i18n"></bit-icon>
     </div>
 
     <div class="tw-mb-6" *ngIf="sentInitialCode">
       {{ "enterVerificationCodeSentToEmail" | i18n }}
 
-      <p class="mb-0">
+      <p class="tw-mb-0">
         <button bitLink type="button" linkType="primary" (click)="requestOTP()">
           {{ "resendCode" | i18n }}
         </button>
 
         <span class="tw-ml-2 tw-text-success" role="alert" @sent *ngIf="sentCode">
-          <i class="bwi bwi-check-circle" aria-hidden="true"></i>
+          <bit-icon name="bwi-check-circle"></bit-icon>
           {{ "codeSent" | i18n }}
         </span>
       </p>

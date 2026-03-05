@@ -9,9 +9,9 @@ import { map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -29,10 +29,10 @@ import {
   SendFormModule,
 } from "@bitwarden/send-ui";
 
+import { PopupBackBrowserDirective } from "../../../../platform/popup/layout/popup-back.directive";
 import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
-import { SendFilePopoutDialogContainerComponent } from "../send-file-popout-dialog/send-file-popout-dialog-container.component";
 
 /**
  * Helper class to parse query parameters for the AddEdit route.
@@ -40,7 +40,12 @@ import { SendFilePopoutDialogContainerComponent } from "../send-file-popout-dial
 class QueryParams {
   constructor(params: Params) {
     this.sendId = params.sendId;
-    this.type = parseInt(params.type, 10);
+    const sendTypeValue = parseInt(params.type, 10);
+    if (sendTypeValue === SendType.Text || sendTypeValue === SendType.File) {
+      this.type = sendTypeValue;
+    } else {
+      throw new Error(`Invalid SendType: ${params.type}`);
+    }
   }
 
   /**
@@ -59,10 +64,11 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
 /**
  * Component for adding or editing a send item.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-send-add-edit",
   templateUrl: "send-add-edit.component.html",
-  standalone: true,
   providers: [{ provide: SendFormConfigService, useClass: DefaultSendFormConfigService }],
   imports: [
     CommonModule,
@@ -74,9 +80,9 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     PopupPageComponent,
     PopupHeaderComponent,
     PopupFooterComponent,
-    SendFilePopoutDialogContainerComponent,
     SendFormModule,
     AsyncActionsModule,
+    PopupBackBrowserDirective,
   ],
 })
 export class SendAddEditComponent {
@@ -187,14 +193,11 @@ export class SendAddEditComponent {
    * @returns The header text.
    */
   private getHeaderText(mode: SendFormMode, type: SendType) {
-    const headerKey =
-      mode === "edit" || mode === "partial-edit" ? "editItemHeader" : "newItemHeader";
-
-    switch (type) {
-      case SendType.Text:
-        return this.i18nService.t(headerKey, this.i18nService.t("textSend"));
-      case SendType.File:
-        return this.i18nService.t(headerKey, this.i18nService.t("fileSend"));
-    }
+    const isEditMode = mode === "edit" || mode === "partial-edit";
+    const translation = {
+      [SendType.Text]: isEditMode ? "editItemHeaderTextSend" : "newItemHeaderTextSend",
+      [SendType.File]: isEditMode ? "editItemHeaderFileSend" : "newItemHeaderFileSend",
+    };
+    return this.i18nService.t(translation[type]);
   }
 }

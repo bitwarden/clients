@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "BasicLib",
+  "title": "",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Library name",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "x-prompt": "What name would you like to use? (kebab-case, alphanumeric)",
+      "x-priority": "important"
+    },
+    "description": {
+      "type": "string",
+      "description": "Library description",
+      "x-prompt": "Please describe your library in one sentence (for package.json and README)",
+      "x-priority": "important"
+    },
+    "directory": {
+      "type": "string",
+      "description": "Directory where the library will be created",
+      "default": "libs",
+      "x-prompt": "What directory would you like your lib in?",
+      "x-priority": "important"
+    },
+    "team": {
+      "type": "string",
+      "description": "Maintaining team",
+      "x-priority": "important",
+      "x-prompt": {
+        "message": "What team maintains this library?",
+        "type": "list",
+        "items": [
+          {
+            "value": "admin-console",
+            "label": "Admin Console"
+          },
+          {
+            "value": "auth",
+            "label": "Auth"
+          },
+          {
+            "value": "autofill",
+            "label": "Autofill"
+          },
+          {
+            "value": "billing",
+            "label": "Billing"
+          },
+          {
+            "value": "data-insights-and-reporting",
+            "label": "Data Insights And Reporting"
+          },
+          {
+            "value": "key-management",
+            "label": "Key Management"
+          },
+          {
+            "value": "platform",
+            "label": "Platform"
+          },
+          {
+            "value": "tools",
+            "label": "Tools"
+          },
+          {
+            "value": "ui-foundation",
+            "label": "UI Foundation"
+          },
+          {
+            "value": "vault",
+            "label": "Vault"
+          }
+        ]
+      },
+      "enum": [
+        "admin-console",
+        "auth",
+        "autofill",
+        "billing",
+        "data-insights-and-reporting",
+        "key-management",
+        "platform",
+        "tools",
+        "ui-foundation",
+        "vault"
+      ]
+    }
+  },
+  "required": ["name", "description", "team"]
+}

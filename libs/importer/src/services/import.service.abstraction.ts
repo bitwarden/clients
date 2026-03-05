@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { Importer } from "../importers/importer";
@@ -11,6 +11,7 @@ export abstract class ImportServiceAbstraction {
   featuredImportOptions: readonly ImportOption[];
   regularImportOptions: readonly ImportOption[];
   getImportOptions: () => ImportOption[];
+
   import: (
     importer: Importer,
     fileContents: string,

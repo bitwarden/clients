@@ -1,4 +1,8 @@
-import { Generators } from "../data";
+/// SDK/WASM code relies on TextEncoder/TextDecoder being available globally
+import { TextEncoder, TextDecoder } from "util";
+Object.assign(global, { TextDecoder, TextEncoder });
+
+import { BuiltIn, Profile } from "../metadata";
 
 import { PassphrasePolicyConstraints } from "./passphrase-policy-constraints";
 
@@ -9,8 +13,12 @@ const SomeSettings = {
   wordSeparator: "-",
 };
 
-const disabledPolicy = Generators.passphrase.policy.disabledValue;
-const someConstraints = Generators.passphrase.settings.constraints;
+const disabledPolicy = {
+  minNumberWords: 0,
+  capitalize: false,
+  includeNumber: false,
+};
+const someConstraints = BuiltIn.passphrase.profiles[Profile.account]!.constraints.default;
 
 describe("PassphrasePolicyConstraints", () => {
   describe("constructor", () => {
@@ -61,7 +69,7 @@ describe("PassphrasePolicyConstraints", () => {
       expect(constraints.policyInEffect).toBeTruthy();
       expect(constraints.numWords).toMatchObject({
         min: 10,
-        max: someConstraints.numWords.max,
+        max: someConstraints.numWords?.max,
       });
     });
   });
@@ -84,8 +92,8 @@ describe("PassphrasePolicyConstraints", () => {
     });
 
     it.each([
-      [1, someConstraints.numWords.min, 3, someConstraints.numWords.max],
-      [21, someConstraints.numWords.min, 20, someConstraints.numWords.max],
+      [1, someConstraints.numWords?.min, 3, someConstraints.numWords?.max],
+      [21, someConstraints.numWords?.min, 20, someConstraints.numWords?.max],
     ])(
       `fits numWords (=%p) within the default bounds (%p <= %p <= %p)`,
       (value, _, expected, __) => {
@@ -98,8 +106,8 @@ describe("PassphrasePolicyConstraints", () => {
     );
 
     it.each([
-      [1, 6, 6, someConstraints.numWords.max],
-      [21, 20, 20, someConstraints.numWords.max],
+      [1, 6, 6, someConstraints.numWords?.max],
+      [21, 20, 20, someConstraints.numWords?.max],
     ])(
       "fits numWords (=%p) within the policy bounds (%p <= %p <= %p)",
       (value, minNumberWords, expected, _) => {

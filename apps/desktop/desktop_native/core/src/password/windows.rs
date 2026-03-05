@@ -11,9 +11,13 @@ use windows::{
     },
 };
 
+use crate::password::PASSWORD_NOT_FOUND;
+
 const CRED_FLAGS_NONE: u32 = 0;
 
-pub async fn get_password<'a>(service: &str, account: &str) -> Result<String> {
+/// Retrieves a password from the Windows Credential Manager.
+#[allow(clippy::unused_async)]
+pub async fn get_password(service: &str, account: &str) -> Result<String> {
     let target_name = U16CString::from_str(target_name(service, account))?;
 
     let mut credential: *mut CREDENTIALW = std::ptr::null_mut();
@@ -23,7 +27,7 @@ pub async fn get_password<'a>(service: &str, account: &str) -> Result<String> {
         CredReadW(
             PCWSTR(target_name.as_ptr()),
             CRED_TYPE_GENERIC,
-            CRED_FLAGS_NONE,
+            None,
             credential_ptr,
         )
     };
@@ -42,9 +46,11 @@ pub async fn get_password<'a>(service: &str, account: &str) -> Result<String> {
         .to_string_lossy()
     };
 
-    Ok(String::from(password))
+    Ok(password)
 }
 
+/// Stores a password in the Windows Credential Manager.
+#[allow(clippy::unused_async)]
 pub async fn set_password(service: &str, account: &str, password: &str) -> Result<()> {
     let mut target_name = U16CString::from_str(target_name(service, account))?;
     let mut user_name = U16CString::from_str(account)?;
@@ -76,20 +82,20 @@ pub async fn set_password(service: &str, account: &str, password: &str) -> Resul
     Ok(())
 }
 
+/// Deletes a password from the Windows Credential Manager.
+#[allow(clippy::unused_async)]
 pub async fn delete_password(service: &str, account: &str) -> Result<()> {
     let target_name = U16CString::from_str(target_name(service, account))?;
 
-    unsafe {
-        CredDeleteW(
-            PCWSTR(target_name.as_ptr()),
-            CRED_TYPE_GENERIC,
-            CRED_FLAGS_NONE,
-        )?
-    };
+    let result = unsafe { CredDeleteW(PCWSTR(target_name.as_ptr()), CRED_TYPE_GENERIC, None) };
+
+    result.map_err(|e| anyhow!(convert_error(e)))?;
 
     Ok(())
 }
 
+/// Checks if the Windows Credential Manager is available. Always returns true on Windows.
+#[allow(clippy::unused_async)]
 pub async fn is_available() -> Result<bool> {
     Ok(true)
 }
@@ -101,7 +107,7 @@ fn target_name(service: &str, account: &str) -> String {
 // Convert the internal WIN32 errors to descriptive messages
 fn convert_error(e: windows::core::Error) -> String {
     if e == ERROR_NOT_FOUND.into() {
-        return "Password not found.".to_string();
+        return PASSWORD_NOT_FOUND.to_string();
     }
     e.to_string()
 }
@@ -128,7 +134,7 @@ mod tests {
         // Ensure password is deleted
         match get_password("BitwardenTest", "BitwardenTest").await {
             Ok(_) => panic!("Got a result"),
-            Err(e) => assert_eq!("Password not found.", e.to_string()),
+            Err(e) => assert_eq!(PASSWORD_NOT_FOUND, e.to_string()),
         }
     }
 
@@ -136,7 +142,7 @@ mod tests {
     async fn test_error_no_password() {
         match get_password("BitwardenTest", "BitwardenTest").await {
             Ok(_) => panic!("Got a result"),
-            Err(e) => assert_eq!("Password not found.", e.to_string()),
+            Err(e) => assert_eq!(PASSWORD_NOT_FOUND, e.to_string()),
         }
     }
 }

@@ -10,9 +10,9 @@ import {
   FakeGlobalState,
   FakeSingleUserState,
   FakeStateProvider,
-  awaitAsync,
   mockAccountServiceWith,
 } from "../../../../spec";
+import { Matrix } from "../../../../spec/matrix";
 import { subscribeTo } from "../../../../spec/observable-tracker";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
@@ -74,7 +74,8 @@ describe("ConfigService", () => {
     });
 
     beforeEach(() => {
-      environmentService.environment$ = environmentSubject;
+      Matrix.autoMockMethod(environmentService.getEnvironment$, () => environmentSubject);
+      environmentService.globalEnvironment$ = environmentSubject;
       sut = new DefaultConfigService(
         configApiService,
         environmentService,
@@ -98,19 +99,17 @@ describe("ConfigService", () => {
             : serverConfigFactory(activeApiUrl + userId, tooOld);
         const globalStored =
           configStateDescription === "missing"
-            ? {}
+            ? {
+                [activeApiUrl]: null,
+              }
             : {
                 [activeApiUrl]: serverConfigFactory(activeApiUrl, tooOld),
+                [activeApiUrl + "0"]: serverConfigFactory(activeApiUrl + userId, tooOld),
               };
 
         beforeEach(() => {
           globalState.stateSubject.next(globalStored);
           userState.nextState(userStored);
-        });
-
-        // sanity check
-        test("authed and unauthorized state are different", () => {
-          expect(globalStored[activeApiUrl]).not.toEqual(userStored);
         });
 
         describe("fail to fetch", () => {
@@ -167,6 +166,46 @@ describe("ConfigService", () => {
 
             expect(actual).toEqual(newConfig);
           });
+
+          describe("serverCommunicationConfig$", () => {
+            it("emits direct bootstrap config when response has no communication config", async () => {
+              await firstValueFrom(sut.serverConfig$);
+
+              const result = await firstValueFrom(sut.serverCommunicationConfig$);
+
+              expect(result).toEqual({
+                hostname: activeApiUrl,
+                config: { bootstrap: { type: "direct" } },
+              });
+            });
+
+            it("emits ssoCookieVendor config when response includes ssoCookieVendor bootstrap", async () => {
+              const ssoResponse = serverConfigResponseFactory("hash", {
+                type: "ssoCookieVendor",
+                idpLoginUrl: "https://idp.example.com",
+                cookieName: "auth_token",
+                cookieDomain: ".example.com",
+              });
+              configApiService.get.mockResolvedValue(ssoResponse);
+
+              await firstValueFrom(sut.serverConfig$);
+
+              const result = await firstValueFrom(sut.serverCommunicationConfig$);
+
+              expect(result).toEqual({
+                hostname: activeApiUrl,
+                config: {
+                  bootstrap: {
+                    type: "ssoCookieVendor",
+                    idpLoginUrl: "https://idp.example.com",
+                    cookieName: "auth_token",
+                    cookieDomain: ".example.com",
+                    cookieValue: undefined,
+                  },
+                },
+              });
+            });
+          });
         });
       });
 
@@ -178,6 +217,7 @@ describe("ConfigService", () => {
         beforeEach(() => {
           globalState.stateSubject.next(globalStored);
           userState.nextState(userStored);
+          Matrix.autoMockMethod(environmentService.getEnvironment$, () => environmentSubject);
         });
         it("does not fetch from server", async () => {
           await firstValueFrom(sut.serverConfig$);
@@ -189,21 +229,13 @@ describe("ConfigService", () => {
           const actual = await firstValueFrom(sut.serverConfig$);
           expect(actual).toEqual(activeUserId ? userStored : globalStored[activeApiUrl]);
         });
-
-        it("does not complete after emit", async () => {
-          const emissions = [];
-          const subscription = sut.serverConfig$.subscribe((v) => emissions.push(v));
-          await awaitAsync();
-          expect(emissions.length).toBe(1);
-          expect(subscription.closed).toBe(false);
-        });
       });
     });
   });
 
   it("gets global config when there is an locked active user", async () => {
     await accountService.switchAccount(userId);
-    environmentService.environment$ = of(environmentFactory(activeApiUrl));
+    environmentService.globalEnvironment$ = of(environmentFactory(activeApiUrl));
 
     globalState.stateSubject.next({
       [activeApiUrl]: serverConfigFactory(activeApiUrl + "global"),
@@ -236,7 +268,8 @@ describe("ConfigService", () => {
 
     beforeEach(() => {
       environmentSubject = new Subject<Environment>();
-      environmentService.environment$ = environmentSubject;
+      environmentService.globalEnvironment$ = environmentSubject;
+      Matrix.autoMockMethod(environmentService.getEnvironment$, () => environmentSubject);
       sut = new DefaultConfigService(
         configApiService,
         environmentService,
@@ -327,7 +360,8 @@ describe("ConfigService", () => {
 
     beforeEach(async () => {
       const config = serverConfigFactory("existing-data", tooOld);
-      environmentService.environment$ = environmentSubject;
+      environmentService.globalEnvironment$ = environmentSubject;
+      Matrix.autoMockMethod(environmentService.getEnvironment$, () => environmentSubject);
 
       globalState.stateSubject.next({ [apiUrl(0)]: config });
       userState.stateSubject.next({
@@ -361,8 +395,6 @@ describe("ConfigService", () => {
 
       const configs = await firstValueFrom(sut.serverConfig$.pipe(bufferCount(2)));
 
-      await jest.runOnlyPendingTimersAsync();
-
       expect(configs[0].gitHash).toBe("existing-data");
       expect(configs[1].gitHash).toBe("slow-response");
     });
@@ -383,7 +415,10 @@ function serverConfigDataFactory(hash?: string) {
   return new ServerConfigData(serverConfigResponseFactory(hash));
 }
 
-function serverConfigResponseFactory(hash?: string) {
+function serverConfigResponseFactory(
+  hash?: string,
+  bootstrap?: { type: string; idpLoginUrl?: string; cookieName?: string; cookieDomain?: string },
+) {
   return new ServerConfigResponse({
     version: "myConfigVersion",
     gitHash: hash ?? Utils.newGuid(), // Use optional git hash to store uniqueness value
@@ -399,6 +434,7 @@ function serverConfigResponseFactory(hash?: string) {
       feat2: "on",
       feat3: "off",
     },
+    ...(bootstrap != null ? { communication: { bootstrap } } : {}),
   });
 }
 

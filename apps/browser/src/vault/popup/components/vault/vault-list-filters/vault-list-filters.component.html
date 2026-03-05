@@ -1,0 +1,49 @@
+<div role="toolbar" [attr.aria-label]="'filters' | i18n">
+  <form
+    [formGroup]="filterForm"
+    class="tw-gap-2 tw-mt-2 tw-grid tw-grid-cols-2 sm:tw-grid-cols-3 lg:tw-grid-cols-4"
+    *ngIf="allFilters$ | async as allFilters"
+  >
+    <ng-container *ngIf="allFilters.organizations as organizations">
+      <bit-chip-select
+        *ngIf="organizations.length"
+        fullWidth
+        formControlName="organization"
+        placeholderIcon="bwi-vault"
+        [placeholderText]="'vault' | i18n"
+        [options]="organizations"
+      >
+      </bit-chip-select>
+    </ng-container>
+    <ng-container *ngIf="allFilters.collections as collections">
+      <bit-chip-select
+        *ngIf="collections.length"
+        fullWidth
+        formControlName="collection"
+        placeholderIcon="bwi-collection-shared"
+        [placeholderText]="'collection' | i18n"
+        [options]="collections"
+      >
+      </bit-chip-select>
+    </ng-container>
+    <ng-container *ngIf="allFilters.folders as folders">
+      <bit-chip-select
+        *ngIf="folders.length"
+        fullWidth
+        placeholderIcon="bwi-folder"
+        formControlName="folder"
+        [placeholderText]="'folder' | i18n"
+        [options]="folders"
+      >
+      </bit-chip-select>
+    </ng-container>
+    <bit-chip-select
+      formControlName="cipherType"
+      fullWidth
+      placeholderIcon="bwi-list"
+      [placeholderText]="'type' | i18n"
+      [options]="cipherTypes$ | async"
+    >
+    </bit-chip-select>
+  </form>
+</div>

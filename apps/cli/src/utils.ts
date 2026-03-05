@@ -6,7 +6,7 @@ import * as path from "path";
 import * as inquirer from "inquirer";
 import * as JSZip from "jszip";
 
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -161,7 +161,6 @@ export class CliUtils {
 
       process.stdin.setEncoding("utf8");
       process.stdin.on("readable", () => {
-        // eslint-disable-next-line
         while (true) {
           const chunk = process.stdin.read();
           if (chunk == null) {

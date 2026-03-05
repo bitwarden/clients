@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 
@@ -8,28 +6,29 @@ import {
   IconButtonModule,
   CardComponent,
   InputModule,
-  SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
   FormFieldModule,
 } from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-additional-options",
   templateUrl: "additional-options.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
     CardComponent,
     IconButtonModule,
     InputModule,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     FormFieldModule,
   ],
 })
 export class AdditionalOptionsComponent {
-  @Input() notes: string;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() notes: string = "";
 }

@@ -3,25 +3,36 @@ import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { MockProxy, mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
+import { RouterService } from "@bitwarden/web-vault/app/core";
 
-import { RouterService } from "../../../../../../../../clients/apps/web/src/app/core/router.service";
 import { ServiceAccountView } from "../../models/view/service-account.view";
 import { ServiceAccountService } from "../service-account.service";
 
 import { serviceAccountAccessGuard } from "./service-account-access.guard";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "",
+  standalone: false,
 })
 export class GuardedRouteTestComponent {}
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "",
+  standalone: false,
 })
 export class RedirectTestComponent {}
 
@@ -32,6 +43,8 @@ describe("Service account Redirect Guard", () => {
   let i18nServiceMock: MockProxy<I18nService>;
   let toastService: MockProxy<ToastService>;
   let router: Router;
+  let accountService: FakeAccountService;
+  const userId = Utils.newGuid() as UserId;
 
   const smOrg1 = { id: "123", canAccessSecretsManager: true } as Organization;
   const serviceAccountView = {
@@ -46,6 +59,7 @@ describe("Service account Redirect Guard", () => {
     serviceAccountServiceMock = mock<ServiceAccountService>();
     i18nServiceMock = mock<I18nService>();
     toastService = mock<ToastService>();
+    accountService = mockAccountServiceWith(userId);
 
     TestBed.configureTestingModule({
       imports: [
@@ -67,6 +81,7 @@ describe("Service account Redirect Guard", () => {
       ],
       providers: [
         { provide: OrganizationService, useValue: organizationService },
+        { provide: AccountService, useValue: accountService },
         { provide: RouterService, useValue: routerService },
         { provide: ServiceAccountService, useValue: serviceAccountServiceMock },
         { provide: I18nService, useValue: i18nServiceMock },
@@ -79,7 +94,7 @@ describe("Service account Redirect Guard", () => {
 
   it("redirects to sm/{orgId}/machine-accounts/{serviceAccountId} if machine account exists", async () => {
     // Arrange
-    organizationService.getAll.mockResolvedValue([smOrg1]);
+    organizationService.organizations$.mockReturnValue(of([smOrg1]));
     serviceAccountServiceMock.getByServiceAccountId.mockReturnValue(
       Promise.resolve(serviceAccountView),
     );
@@ -93,7 +108,7 @@ describe("Service account Redirect Guard", () => {
 
   it("redirects to sm/machine-accounts if machine account does not exist", async () => {
     // Arrange
-    organizationService.getAll.mockResolvedValue([smOrg1]);
+    organizationService.organizations$.mockReturnValue(of([smOrg1]));
 
     // Act
     await router.navigateByUrl("sm/123/machine-accounts/124");

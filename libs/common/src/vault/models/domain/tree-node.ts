@@ -16,6 +16,6 @@ export class TreeNode<T extends ITreeNodeObject> {
 }
 
 export interface ITreeNodeObject {
-  id: string;
-  name: string;
+  id: string | undefined;
+  name: string | undefined;
 }

@@ -1,46 +1,60 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
-import { Component, EventEmitter, Inject, Output } from "@angular/core";
-import { FormControl, FormGroup } from "@angular/forms";
+import { Component, Inject } from "@angular/core";
+import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { TwoFactorResponse } from "@bitwarden/common/auth/types/two-factor-response";
-import { Verification } from "@bitwarden/common/auth/types/verification";
+import { VerificationWithSecret } from "@bitwarden/common/auth/types/verification";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  DIALOG_DATA,
+  DialogConfig,
+  DialogModule,
+  DialogRef,
+  DialogService,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 type TwoFactorVerifyDialogData = {
   type: TwoFactorProviderType;
   organizationId: string;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-verify",
   templateUrl: "two-factor-verify.component.html",
+  imports: [
+    AsyncActionsModule,
+    ButtonModule,
+    DialogModule,
+    I18nPipe,
+    ReactiveFormsModule,
+    UserVerificationFormInputComponent,
+  ],
 })
 export class TwoFactorVerifyComponent {
   type: TwoFactorProviderType;
   organizationId: string;
-  @Output() onAuthed = new EventEmitter<AuthResponse<TwoFactorResponse>>();
-
-  formPromise: Promise<TwoFactorResponse>;
+  formPromise: Promise<TwoFactorResponse> | undefined;
 
   protected formGroup = new FormGroup({
-    secret: new FormControl<Verification | null>(null),
+    secret: new FormControl<VerificationWithSecret | null>(null),
   });
   invalidSecret: boolean = false;
 
   constructor(
     @Inject(DIALOG_DATA) protected data: TwoFactorVerifyDialogData,
     private dialogRef: DialogRef,
-    private apiService: ApiService,
+    private twoFactorService: TwoFactorService,
     private i18nService: I18nService,
     private userVerificationService: UserVerificationService,
   ) {
@@ -50,22 +64,20 @@ export class TwoFactorVerifyComponent {
 
   submit = async () => {
     try {
-      let hashedSecret: string;
-      this.formPromise = this.userVerificationService
-        .buildRequest(this.formGroup.value.secret)
-        .then((request) => {
-          hashedSecret =
-            this.formGroup.value.secret.type === VerificationType.MasterPassword
-              ? request.masterPasswordHash
-              : request.otp;
-          return this.apiCall(request);
-        });
+      if (!this.formGroup.value.secret) {
+        throw new Error("Secret is required");
+      }
+
+      const secret = this.formGroup.value.secret!;
+      this.formPromise = this.userVerificationService.buildRequest(secret).then((request) => {
+        return this.apiCall(request);
+      });
 
       const response = await this.formPromise;
       this.dialogRef.close({
         response: response,
-        secret: hashedSecret,
-        verificationType: this.formGroup.value.secret.type,
+        secret: secret.secret,
+        verificationType: secret.type,
       });
     } catch (e) {
       if (e instanceof ErrorResponse && e.statusCode === 400) {
@@ -80,6 +92,7 @@ export class TwoFactorVerifyComponent {
       case -1 as TwoFactorProviderType:
         return this.i18nService.t("recoveryCodeTitle");
       case TwoFactorProviderType.Duo:
+      case TwoFactorProviderType.OrganizationDuo:
         return "Duo";
       case TwoFactorProviderType.Email:
         return this.i18nService.t("emailTitle");
@@ -89,32 +102,39 @@ export class TwoFactorVerifyComponent {
         return this.i18nService.t("authenticatorAppTitle");
       case TwoFactorProviderType.Yubikey:
         return "Yubikey";
+      default:
+        throw new Error(`Unknown two-factor type: ${this.type}`);
     }
   }
 
   private apiCall(request: SecretVerificationRequest): Promise<TwoFactorResponse> {
     switch (this.type) {
       case -1 as TwoFactorProviderType:
-        return this.apiService.getTwoFactorRecover(request);
+        return this.twoFactorService.getTwoFactorRecover(request);
       case TwoFactorProviderType.Duo:
       case TwoFactorProviderType.OrganizationDuo:
         if (this.organizationId != null) {
-          return this.apiService.getTwoFactorOrganizationDuo(this.organizationId, request);
+          return this.twoFactorService.getTwoFactorOrganizationDuo(this.organizationId, request);
         } else {
-          return this.apiService.getTwoFactorDuo(request);
+          return this.twoFactorService.getTwoFactorDuo(request);
         }
       case TwoFactorProviderType.Email:
-        return this.apiService.getTwoFactorEmail(request);
+        return this.twoFactorService.getTwoFactorEmail(request);
       case TwoFactorProviderType.WebAuthn:
-        return this.apiService.getTwoFactorWebAuthn(request);
+        return this.twoFactorService.getTwoFactorWebAuthn(request);
       case TwoFactorProviderType.Authenticator:
-        return this.apiService.getTwoFactorAuthenticator(request);
+        return this.twoFactorService.getTwoFactorAuthenticator(request);
       case TwoFactorProviderType.Yubikey:
-        return this.apiService.getTwoFactorYubiKey(request);
+        return this.twoFactorService.getTwoFactorYubiKey(request);
+      default:
+        throw new Error(`Unknown two-factor type: ${this.type}`);
     }
   }
 
   static open(dialogService: DialogService, config: DialogConfig<TwoFactorVerifyDialogData>) {
-    return dialogService.open<AuthResponse<any>>(TwoFactorVerifyComponent, config);
+    return dialogService.open<AuthResponse<any>, TwoFactorVerifyDialogData>(
+      TwoFactorVerifyComponent,
+      config as DialogConfig<TwoFactorVerifyDialogData, DialogRef<AuthResponse<any>>>,
+    );
   }
 }

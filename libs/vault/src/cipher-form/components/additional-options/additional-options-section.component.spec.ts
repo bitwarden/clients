@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, Input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
@@ -13,12 +13,17 @@ import { CustomFieldsComponent } from "../custom-fields/custom-fields.component"
 
 import { AdditionalOptionsSectionComponent } from "./additional-options-section.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "vault-custom-fields",
   template: "",
 })
-class MockCustomFieldsComponent {}
+class MockCustomFieldsComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() disableSectionMargin: boolean;
+}
 
 describe("AdditionalOptionsSectionComponent", () => {
   let component: AdditionalOptionsSectionComponent;
@@ -27,9 +32,13 @@ describe("AdditionalOptionsSectionComponent", () => {
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
   let passwordRepromptEnabled$: BehaviorSubject<boolean>;
 
-  beforeEach(async () => {
-    cipherFormProvider = mock<CipherFormContainer>();
+  const getInitialCipherView = jest.fn((): any => null);
+  const formStatusChange$ = new BehaviorSubject<"enabled" | "disabled">("enabled");
 
+  beforeEach(async () => {
+    getInitialCipherView.mockClear();
+
+    cipherFormProvider = mock<CipherFormContainer>({ getInitialCipherView, formStatusChange$ });
     passwordRepromptService = mock<PasswordRepromptService>();
     passwordRepromptEnabled$ = new BehaviorSubject(true);
     passwordRepromptService.enabled$ = passwordRepromptEnabled$;
@@ -81,7 +90,10 @@ describe("AdditionalOptionsSectionComponent", () => {
     expect(cipherFormProvider.patchCipher).toHaveBeenCalled();
     const patchFn = cipherFormProvider.patchCipher.mock.lastCall[0];
 
-    const updated = patchFn(new CipherView());
+    const newCipher = new CipherView();
+    newCipher.creationDate = newCipher.revisionDate = expectedCipher.creationDate;
+
+    const updated = patchFn(newCipher);
 
     expect(updated).toEqual(expectedCipher);
   });
@@ -94,11 +106,11 @@ describe("AdditionalOptionsSectionComponent", () => {
     expect(component.additionalOptionsForm.disabled).toBe(true);
   });
 
-  it("initializes 'additionalOptionsForm' with original cipher view values", () => {
-    (cipherFormProvider.originalCipherView as any) = {
+  it("initializes 'additionalOptionsForm' from `getInitialCipherValue`", () => {
+    getInitialCipherView.mockReturnValueOnce({
       notes: "original notes",
       reprompt: 1,
-    } as CipherView;
+    } as CipherView);
 
     component.ngOnInit();
 

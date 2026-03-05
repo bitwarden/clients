@@ -28,6 +28,15 @@ export const DECRYPTED_CIPHERS = UserKeyDefinition.record<CipherView>(
   },
 );
 
+export const FAILED_DECRYPTED_CIPHERS = UserKeyDefinition.array<CipherView>(
+  CIPHERS_MEMORY,
+  "failedDecryptedCiphers",
+  {
+    deserializer: (cipher: Jsonify<CipherView>) => CipherView.fromJSON(cipher),
+    clearOn: ["logout", "lock"],
+  },
+);
+
 export const LOCAL_DATA_KEY = new UserKeyDefinition<Record<CipherId, LocalData>>(
   CIPHERS_DISK_LOCAL,
   "localData",

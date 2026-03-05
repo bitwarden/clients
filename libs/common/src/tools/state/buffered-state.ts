@@ -45,12 +45,14 @@ export class BufferedState<Input, Output, Dependency> implements SingleUserState
       map((dependency) => [key.shouldOverwrite(dependency), dependency] as const),
     );
     const overwrite$ = combineLatest([hasValue$, overwriteDependency$]).pipe(
-      concatMap(async ([hasValue, [shouldOverwrite, dependency]]) => {
-        if (hasValue && shouldOverwrite) {
-          await this.overwriteOutput(dependency);
-        }
-        return [false, null] as const;
-      }),
+      concatMap(
+        async ([hasValue, [shouldOverwrite, dependency]]): Promise<readonly [false, null]> => {
+          if (hasValue && shouldOverwrite) {
+            await this.overwriteOutput(dependency);
+          }
+          return [false, null] as const;
+        },
+      ),
     );
 
     // drive overwrites only when there's a subscription;
@@ -71,7 +73,7 @@ export class BufferedState<Input, Output, Dependency> implements SingleUserState
   private async overwriteOutput(dependency: Dependency) {
     // take the latest value from the buffer
     let buffered: Input;
-    await this.bufferedState.update((state) => {
+    await this.bufferedState.update((state): Input | null => {
       buffered = state ?? null;
       return null;
     });

@@ -1,3 +1,7 @@
+/// SDK/WASM code relies on TextEncoder/TextDecoder being available globally
+import { TextEncoder, TextDecoder } from "util";
+Object.assign(global, { TextDecoder, TextEncoder });
+
 import { DefaultGeneratorNavigation } from "./default-generator-navigation";
 import { GeneratorNavigationEvaluator } from "./generator-navigation-evaluator";
 
@@ -24,7 +28,7 @@ describe("GeneratorNavigationEvaluator", () => {
 
   describe("applyPolicy", () => {
     it("returns the input options when a policy is not in effect", () => {
-      const evaluator = new GeneratorNavigationEvaluator(null);
+      const evaluator = new GeneratorNavigationEvaluator(null!);
       const options = { type: "password" as const };
 
       const result = evaluator.applyPolicy(options);
@@ -54,7 +58,7 @@ describe("GeneratorNavigationEvaluator", () => {
     });
 
     it("defaults options to the default generator navigation type when a policy is not in effect", () => {
-      const evaluator = new GeneratorNavigationEvaluator(null);
+      const evaluator = new GeneratorNavigationEvaluator(null!);
 
       const result = evaluator.sanitize({});
 

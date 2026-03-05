@@ -1,15 +1,17 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
+import { combineLatest, firstValueFrom, map } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
+import { CreateProviderOrganizationRequest } from "@bitwarden/common/admin-console/models/request/create-provider-organization.request";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
-import { ProviderAddOrganizationRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-add-organization.request";
-import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { PlanType } from "@bitwarden/common/billing/enums";
-import { CreateClientOrganizationRequest } from "@bitwarden/common/billing/models/request/create-client-organization.request";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { KeyService } from "@bitwarden/key-management";
@@ -22,22 +24,32 @@ export class WebProviderService {
     private apiService: ApiService,
     private i18nService: I18nService,
     private encryptService: EncryptService,
-    private billingApiService: BillingApiServiceAbstraction,
+    private providerApiService: ProviderApiServiceAbstraction,
   ) {}
 
-  async addOrganizationToProvider(providerId: string, organizationId: string) {
-    const orgKey = await this.keyService.getOrgKey(organizationId);
-    const providerKey = await this.keyService.getProviderKey(providerId);
+  async addOrganizationToProvider(
+    providerId: string,
+    organizationId: string,
+    activeUserId: UserId,
+  ): Promise<void> {
+    const [orgKeysById, providerKeys] = await firstValueFrom(
+      combineLatest([
+        this.keyService.orgKeys$(activeUserId),
+        this.keyService.providerKeys$(activeUserId),
+      ]),
+    );
 
-    const encryptedOrgKey = await this.encryptService.encrypt(orgKey.key, providerKey);
+    const orgKey = orgKeysById?.[organizationId as OrganizationId];
+    const providerKey = providerKeys?.[providerId as ProviderId];
+    assertNonNullish(orgKey, "Organization key not found");
+    assertNonNullish(providerKey, "Provider key not found");
 
-    const request = new ProviderAddOrganizationRequest();
-    request.organizationId = organizationId;
-    request.key = encryptedOrgKey.encryptedString;
-
-    const response = await this.apiService.postProviderAddOrganization(providerId, request);
+    const encryptedOrgKey = await this.encryptService.wrapSymmetricKey(orgKey, providerKey);
+    await this.providerApiService.addOrganizationToProvider(providerId, {
+      key: encryptedOrgKey.encryptedString,
+      organizationId,
+    });
     await this.syncService.fullSync(true);
-    return response;
   }
 
   async createClientOrganization(
@@ -46,24 +58,30 @@ export class WebProviderService {
     ownerEmail: string,
     planType: PlanType,
     seats: number,
+    activeUserId: UserId,
   ): Promise<void> {
-    const organizationKey = (await this.keyService.makeOrgKey<OrgKey>())[1];
+    const organizationKey = (await this.keyService.makeOrgKey<OrgKey>(activeUserId))[1];
 
     const [publicKey, encryptedPrivateKey] = await this.keyService.makeKeyPair(organizationKey);
 
-    const encryptedCollectionName = await this.encryptService.encrypt(
+    const encryptedCollectionName = await this.encryptService.encryptString(
       this.i18nService.t("defaultCollection"),
       organizationKey,
     );
 
-    const providerKey = await this.keyService.getProviderKey(providerId);
+    const providerKey = await firstValueFrom(
+      this.keyService
+        .providerKeys$(activeUserId)
+        .pipe(map((providerKeys) => providerKeys?.[providerId as ProviderId])),
+    );
+    assertNonNullish(providerKey, "Provider key not found");
 
-    const encryptedProviderKey = await this.encryptService.encrypt(
-      organizationKey.key,
+    const encryptedProviderKey = await this.encryptService.wrapSymmetricKey(
+      organizationKey,
       providerKey,
     );
 
-    const request = new CreateClientOrganizationRequest();
+    const request = new CreateProviderOrganizationRequest();
     request.name = name;
     request.ownerEmail = ownerEmail;
     request.planType = planType;
@@ -73,7 +91,7 @@ export class WebProviderService {
     request.keyPair = new OrganizationKeysRequest(publicKey, encryptedPrivateKey.encryptedString);
     request.collectionName = encryptedCollectionName.encryptedString;
 
-    await this.billingApiService.createProviderClientOrganization(providerId, request);
+    await this.providerApiService.createProviderOrganization(providerId, request);
 
     await this.apiService.refreshIdentityToken();
 

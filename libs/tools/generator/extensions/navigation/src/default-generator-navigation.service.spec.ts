@@ -1,3 +1,7 @@
+/// SDK/WASM code relies on TextEncoder/TextDecoder being available globally
+import { TextEncoder, TextDecoder } from "util";
+Object.assign(global, { TextDecoder, TextEncoder });
+
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
@@ -47,7 +51,7 @@ describe("DefaultGeneratorNavigationService", () => {
   describe("evaluator$", () => {
     it("emits a GeneratorNavigationEvaluator", async () => {
       const policyService = mock<PolicyService>({
-        getAll$() {
+        policiesByType$() {
           return of([]);
         },
       });
@@ -62,7 +66,7 @@ describe("DefaultGeneratorNavigationService", () => {
   describe("enforcePolicy", () => {
     it("applies policy", async () => {
       const policyService = mock<PolicyService>({
-        getAll$(_type: PolicyType, _user: UserId) {
+        policiesByType$(_type: PolicyType, _user: UserId) {
           return of([
             new Policy({
               id: "" as any,
@@ -70,6 +74,7 @@ describe("DefaultGeneratorNavigationService", () => {
               enabled: true,
               type: PolicyType.PasswordGenerator,
               data: { overridePasswordType: "password" },
+              revisionDate: new Date().toISOString(),
             }),
           ]);
         },

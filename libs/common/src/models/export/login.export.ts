@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { Login as LoginDomain } from "../../vault/models/domain/login";
 import { LoginView } from "../../vault/models/view/login.view";
 
@@ -15,7 +15,7 @@ export class LoginExport {
     req.username = "jdoe";
     req.password = "myp@ssword123";
     req.totp = "JBSWY3DPEHPK3PXP";
-    req.fido2Credentials = [Fido2CredentialExport.template()];
+    req.fido2Credentials = [];
     return req;
   }
 
@@ -39,7 +39,11 @@ export class LoginExport {
     domain.username = req.username != null ? new EncString(req.username) : null;
     domain.password = req.password != null ? new EncString(req.password) : null;
     domain.totp = req.totp != null ? new EncString(req.totp) : null;
-    // Fido2credentials are currently not supported for exports.
+    if (req.fido2Credentials != null) {
+      domain.fido2Credentials = req.fido2Credentials.map((f2) =>
+        Fido2CredentialExport.toDomain(f2),
+      );
+    }
 
     return domain;
   }
@@ -48,7 +52,7 @@ export class LoginExport {
   username: string;
   password: string;
   totp: string;
-  fido2Credentials: Fido2CredentialExport[] = [];
+  fido2Credentials: Fido2CredentialExport[];
 
   constructor(o?: LoginView | LoginDomain) {
     if (o == null) {

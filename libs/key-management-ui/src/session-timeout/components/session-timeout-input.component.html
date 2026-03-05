@@ -1,0 +1,51 @@
+<div [formGroup]="form" class="tw-mb-4">
+  <bit-form-field [disableMargin]="!isCustomTimeoutType">
+    <bit-label>{{ "vaultTimeout1" | i18n }}</bit-label>
+    <bit-select formControlName="vaultTimeout">
+      @for (option of availableTimeoutOptions(); track option.value) {
+        <bit-option [value]="option.value" [label]="option.name | i18n"></bit-option>
+      }
+    </bit-select>
+  </bit-form-field>
+  @if (isCustomTimeoutType) {
+    <div class="tw-grid tw-grid-cols-12 tw-gap-4" formGroupName="custom">
+      <bit-form-field class="tw-col-span-6" disableMargin>
+        <input
+          bitInput
+          type="number"
+          min="0"
+          formControlName="hours"
+          aria-describedby="session-timeout-maximum-error"
+        />
+        <bit-label>{{ "hours" | i18n }}</bit-label>
+      </bit-form-field>
+      <bit-form-field class="tw-col-span-6 tw-self-start" disableMargin>
+        <input
+          bitInput
+          type="number"
+          [min]="customMinutesMin"
+          max="59"
+          formControlName="minutes"
+          aria-describedby="session-timeout-maximum-error"
+        />
+        <bit-label>{{ "minutes" | i18n }}</bit-label>
+      </bit-form-field>
+    </div>
+  }
+  @if (form.hasError("maxTimeoutError")) {
+    <div class="tw-mt-1 tw-text-danger tw-text-xs" id="session-timeout-maximum-error">
+      <i class="bwi bwi-error" aria-hidden="true"></i>
+      {{
+        "sessionTimeoutSettingsPolicyMaximumError"
+          | i18n: maxSessionTimeoutPolicyHours : maxSessionTimeoutPolicyMinutes
+      }}
+    </div>
+  } @else if (maxSessionTimeoutPolicyData != null) {
+    @let policyTimeoutMessage = policyTimeoutMessage$ | async;
+    @if (policyTimeoutMessage != null) {
+      <bit-hint class="tw-mb-1" id="session-timeout-maximum-error">
+        {{ policyTimeoutMessage }}
+      </bit-hint>
+    }
+  }
+</div>

@@ -1,0 +1,34 @@
+{
+  "name": "logging",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/logging/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/logging",
+        "main": "libs/logging/src/index.ts",
+        "tsConfig": "libs/logging/tsconfig.lib.json",
+        "assets": ["libs/logging/*.md"],
+        "rootDir": "libs/logging/src"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/logging/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/logging/jest.config.js"
+      }
+    }
+  }
+}

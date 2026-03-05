@@ -9,8 +9,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ColorPasswordModule, ItemModule } from "@bitwarden/components";
-import { ColorPasswordComponent } from "@bitwarden/components/src/color-password/color-password.component";
+import { PasswordHistoryView } from "@bitwarden/common/vault/models/view/password-history.view";
+import { ColorPasswordComponent, ColorPasswordModule, ItemModule } from "@bitwarden/components";
 
 import { PasswordHistoryViewComponent } from "./password-history-view.component";
 
@@ -46,6 +46,7 @@ describe("PasswordHistoryViewComponent", () => {
 
     fixture = TestBed.createComponent(PasswordHistoryViewComponent);
     component = fixture.componentInstance;
+    component.cipher = mockCipher;
     fixture.detectChanges();
   });
 
@@ -54,21 +55,27 @@ describe("PasswordHistoryViewComponent", () => {
   });
 
   describe("history", () => {
-    const password1 = { password: "bad-password-1", lastUsedDate: new Date("09/13/2004") };
-    const password2 = { password: "bad-password-2", lastUsedDate: new Date("02/01/2004") };
+    const password1 = {
+      password: "bad-password-1",
+      lastUsedDate: new Date("09/13/2004"),
+    } as PasswordHistoryView;
+    const password2 = {
+      password: "bad-password-2",
+      lastUsedDate: new Date("02/01/2004"),
+    } as PasswordHistoryView;
 
     beforeEach(async () => {
       mockCipher.passwordHistory = [password1, password2];
 
-      mockCipherService.get.mockResolvedValue({ decrypt: jest.fn().mockResolvedValue(mockCipher) });
-      await component.ngOnInit();
+      component.cipher = mockCipher;
+      component.ngOnInit();
       fixture.detectChanges();
     });
 
     it("renders all passwords", () => {
       const passwords = fixture.debugElement.queryAll(By.directive(ColorPasswordComponent));
 
-      expect(passwords.map((password) => password.componentInstance.password)).toEqual([
+      expect(passwords.map((password) => password.componentInstance.password())).toEqual([
         "bad-password-1",
         "bad-password-2",
       ]);

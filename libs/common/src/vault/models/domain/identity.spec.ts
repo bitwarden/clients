@@ -1,5 +1,5 @@
-import { mockEnc, mockFromJson } from "../../../../spec";
-import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
+import { mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
+import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { IdentityData } from "../../models/data/identity.data";
 import { Identity } from "../../models/domain/identity";
 
@@ -27,6 +27,8 @@ describe("Identity", () => {
       passportNumber: "encpassportNumber",
       licenseNumber: "enclicenseNumber",
     };
+
+    mockContainerService();
   });
 
   it("Convert from empty", () => {
@@ -34,24 +36,45 @@ describe("Identity", () => {
     const identity = new Identity(data);
 
     expect(identity).toEqual({
-      address1: null,
-      address2: null,
-      address3: null,
-      city: null,
-      company: null,
-      country: null,
-      email: null,
-      firstName: null,
-      lastName: null,
-      licenseNumber: null,
-      middleName: null,
-      passportNumber: null,
-      phone: null,
-      postalCode: null,
-      ssn: null,
-      state: null,
-      title: null,
-      username: null,
+      address1: undefined,
+      address2: undefined,
+      address3: undefined,
+      city: undefined,
+      company: undefined,
+      country: undefined,
+      email: undefined,
+      firstName: undefined,
+      lastName: undefined,
+      licenseNumber: undefined,
+      middleName: undefined,
+      passportNumber: undefined,
+      phone: undefined,
+      postalCode: undefined,
+      ssn: undefined,
+      state: undefined,
+      title: undefined,
+      username: undefined,
+    });
+
+    expect(data).toEqual({
+      title: undefined,
+      firstName: undefined,
+      middleName: undefined,
+      lastName: undefined,
+      address1: undefined,
+      address2: undefined,
+      address3: undefined,
+      city: undefined,
+      state: undefined,
+      postalCode: undefined,
+      country: undefined,
+      company: undefined,
+      email: undefined,
+      phone: undefined,
+      ssn: undefined,
+      username: undefined,
+      passportNumber: undefined,
+      licenseNumber: undefined,
     });
   });
 
@@ -112,7 +135,6 @@ describe("Identity", () => {
     expect(view).toEqual({
       _firstName: "mockFirstName",
       _lastName: "mockLastName",
-      _subTitle: null,
       address1: "mockAddress1",
       address2: "mockAddress2",
       address3: "mockAddress3",
@@ -180,8 +202,36 @@ describe("Identity", () => {
       expect(actual).toBeInstanceOf(Identity);
     });
 
-    it("returns null if object is null", () => {
-      expect(Identity.fromJSON(null)).toBeNull();
+    it("returns undefined if object is null", () => {
+      expect(Identity.fromJSON(null)).toBeUndefined();
+    });
+  });
+
+  describe("toSdkIdentity", () => {
+    it("returns the correct SDK Identity object", () => {
+      const identity = new Identity(data);
+      const sdkIdentity = identity.toSdkIdentity();
+
+      expect(sdkIdentity).toEqual({
+        title: "enctitle",
+        firstName: "encfirstName",
+        middleName: "encmiddleName",
+        lastName: "enclastName",
+        address1: "encaddress1",
+        address2: "encaddress2",
+        address3: "encaddress3",
+        city: "enccity",
+        state: "encstate",
+        postalCode: "encpostalCode",
+        country: "enccountry",
+        company: "enccompany",
+        email: "encemail",
+        phone: "encphone",
+        ssn: "encssn",
+        username: "encusername",
+        passportNumber: "encpassportNumber",
+        licenseNumber: "enclicenseNumber",
+      });
     });
   });
 });

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 export const UserRequestedFallbackAbortReason = "UserRequestedFallback";
 
 export type UserVerification = "discouraged" | "preferred" | "required";
@@ -15,8 +13,8 @@ export type UserVerification = "discouraged" | "preferred" | "required";
  * It is responsible for both marshalling the inputs for the underlying authenticator operations,
  * and for returning the results of the latter operations to the Web Authentication API's callers.
  */
-export abstract class Fido2ClientService {
-  isFido2FeatureEnabled: (hostname: string, origin: string) => Promise<boolean>;
+export abstract class Fido2ClientService<ParentWindowReference> {
+  abstract isFido2FeatureEnabled(hostname: string, origin: string): Promise<boolean>;
 
   /**
    * Allows WebAuthn Relying Party scripts to request the creation of a new public key credential source.
@@ -26,11 +24,11 @@ export abstract class Fido2ClientService {
    * @param abortController An AbortController that can be used to abort the operation.
    * @returns A promise that resolves with the new credential.
    */
-  createCredential: (
+  abstract createCredential(
     params: CreateCredentialParams,
-    tab: chrome.tabs.Tab,
+    window: ParentWindowReference,
     abortController?: AbortController,
-  ) => Promise<CreateCredentialResult>;
+  ): Promise<CreateCredentialResult>;
 
   /**
    * Allows WebAuthn Relying Party scripts to discover and use an existing public key credential, with the user’s consent.
@@ -41,11 +39,11 @@ export abstract class Fido2ClientService {
    * @param abortController An AbortController that can be used to abort the operation.
    * @returns A promise that resolves with the asserted credential.
    */
-  assertCredential: (
+  abstract assertCredential(
     params: AssertCredentialParams,
-    tab: chrome.tabs.Tab,
+    window: ParentWindowReference,
     abortController?: AbortController,
-  ) => Promise<AssertCredentialResult>;
+  ): Promise<AssertCredentialResult>;
 }
 
 /**
@@ -138,11 +136,11 @@ export interface CreateCredentialResult {
  */
 export interface AssertCredentialParams {
   allowedCredentialIds: string[];
-  rpId: string;
+  rpId?: string;
   origin: string;
   challenge: string;
   userVerification?: UserVerification;
-  timeout: number;
+  timeout?: number;
   sameOriginWithAncestors: boolean;
   mediation?: "silent" | "optional" | "required" | "conditional";
   fallbackSupported: boolean;

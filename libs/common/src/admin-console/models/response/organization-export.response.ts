@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CollectionResponse } from "@bitwarden/admin-console/common";
+import { CollectionResponse } from "@bitwarden/common/admin-console/models/collections";
 
 import { BaseResponse } from "../../../models/response/base.response";
 import { CipherResponse } from "../../../vault/models/response/cipher.response";

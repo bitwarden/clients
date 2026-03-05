@@ -5,8 +5,6 @@ import { pairwise } from "rxjs/operators";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/abstractions/fido2/fido2-active-request-manager.abstraction";
 import {
   AssertCredentialParams,
@@ -23,10 +21,11 @@ import { ScriptInjectorService } from "../../../platform/services/abstractions/s
 import { AbortManager } from "../../../vault/background/abort-manager";
 import { Fido2ContentScript, Fido2ContentScriptId } from "../enums/fido2-content-script.enum";
 import { Fido2PortName } from "../enums/fido2-port-name.enum";
+import { BrowserFido2ParentWindowReference } from "../services/browser-fido2-user-interface.service";
 
 import {
-  Fido2Background as Fido2BackgroundInterface,
   Fido2BackgroundExtensionMessageHandlers,
+  Fido2Background as Fido2BackgroundInterface,
   Fido2ExtensionMessage,
   SharedFido2ScriptInjectionDetails,
   SharedFido2ScriptRegistrationOptions,
@@ -36,6 +35,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
   private currentAuthStatus$: Subscription;
   private abortManager = new AbortManager();
   private fido2ContentScriptPortsSet = new Set<chrome.runtime.Port>();
+  private activeCredentialRequests = new Set<number>();
   private registeredContentScripts: browser.contentScripts.RegisteredContentScript;
   private readonly sharedInjectionDetails: SharedFido2ScriptInjectionDetails = {
     runAt: "document_start",
@@ -56,12 +56,21 @@ export class Fido2Background implements Fido2BackgroundInterface {
   constructor(
     private logService: LogService,
     private fido2ActiveRequestManager: Fido2ActiveRequestManager,
-    private fido2ClientService: Fido2ClientService,
+    private fido2ClientService: Fido2ClientService<BrowserFido2ParentWindowReference>,
     private vaultSettingsService: VaultSettingsService,
     private scriptInjectorService: ScriptInjectorService,
-    private configService: ConfigService,
     private authService: AuthService,
   ) {}
+
+  /**
+   * Checks if a FIDO2 credential request (registration or assertion)
+   * is currently in progress for the given tab.
+   *
+   * @param tabId - The tab id to check.
+   */
+  isCredentialRequestInProgress(tabId: number): boolean {
+    return this.activeCredentialRequests.has(tabId);
+  }
 
   /**
    * Initializes the FIDO2 background service. Sets up the extension message
@@ -220,7 +229,10 @@ export class Fido2Background implements Fido2BackgroundInterface {
       tabId: tab.id,
       injectDetails: { frame: "all_frames", ...this.sharedInjectionDetails },
       mv2Details: { file: await this.getFido2PageScriptAppendFileName() },
-      mv3Details: { file: Fido2ContentScript.PageScript, world: "MAIN" },
+      mv3Details: {
+        file: Fido2ContentScript.PageScript,
+        world: chrome.scripting.ExecutionWorld.MAIN,
+      },
     });
 
     void this.scriptInjectorService.inject({
@@ -306,20 +318,25 @@ export class Fido2Background implements Fido2BackgroundInterface {
       abortController: AbortController,
     ) => Promise<T>,
   ) => {
-    return await this.abortManager.runWithAbortController(requestId, async (abortController) => {
-      try {
-        return await callback(data, tab, abortController);
-      } finally {
-        await BrowserApi.focusTab(tab.id);
-        await BrowserApi.focusWindow(tab.windowId);
-      }
-    });
+    this.activeCredentialRequests.add(tab.id);
+    try {
+      return await this.abortManager.runWithAbortController(requestId, async (abortController) => {
+        try {
+          return await callback(data, tab, abortController);
+        } finally {
+          await BrowserApi.focusTab(tab.id);
+          await BrowserApi.focusWindow(tab.windowId);
+        }
+      });
+    } finally {
+      this.activeCredentialRequests.delete(tab.id);
+    }
   };
 
   /**
    * Checks if the enablePasskeys setting is enabled.
    */
-  private async isPasskeySettingEnabled() {
+  async isPasskeySettingEnabled() {
     return await firstValueFrom(this.vaultSettingsService.enablePasskeys$);
   }
 
@@ -402,14 +419,6 @@ export class Fido2Background implements Fido2BackgroundInterface {
    * delayed append script if the associated feature flag is enabled.
    */
   private async getFido2PageScriptAppendFileName() {
-    const shouldDelayInit = await this.configService.getFeatureFlag(
-      FeatureFlag.DelayFido2PageScriptInitWithinMv2,
-    );
-
-    if (shouldDelayInit) {
-      return Fido2ContentScript.PageScriptDelayAppend;
-    }
-
-    return Fido2ContentScript.PageScriptAppend;
+    return Fido2ContentScript.PageScriptDelayAppend;
   }
 }

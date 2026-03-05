@@ -2,13 +2,26 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, combineLatestWith, filter, Observable, startWith, switchMap } from "rxjs";
+import {
+  combineLatest,
+  combineLatestWith,
+  filter,
+  firstValueFrom,
+  Observable,
+  startWith,
+  switchMap,
+} from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService } from "@bitwarden/components";
+import { CenterPositionStrategy, DialogService } from "@bitwarden/components";
 
 import { ProjectView } from "../../models/view/project.view";
 import { SecretListView } from "../../models/view/secret-list.view";
@@ -28,10 +41,12 @@ import {
 import { SecretService } from "../../secrets/secret.service";
 import { SecretsListComponent } from "../../shared/secrets-list.component";
 import { ProjectService } from "../project.service";
-
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-project-secrets",
   templateUrl: "./project-secrets.component.html",
+  standalone: false,
 })
 export class ProjectSecretsComponent implements OnInit {
   secrets$: Observable<SecretListView[]>;
@@ -49,20 +64,18 @@ export class ProjectSecretsComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private logService: LogService,
   ) {}
 
   ngOnInit() {
-    // Refresh list if project is edited
     const currentProjectEdited = this.projectService.project$.pipe(
       filter((p) => p?.id === this.projectId),
       startWith(null),
     );
 
     this.project$ = combineLatest([this.route.params, currentProjectEdited]).pipe(
-      switchMap(([params, _]) => {
-        return this.projectService.getByProjectId(params.projectId);
-      }),
+      switchMap(([params, _]) => this.projectService.getByProjectId(params.projectId, false)),
     );
 
     this.secrets$ = this.secretService.secret$.pipe(
@@ -71,8 +84,13 @@ export class ProjectSecretsComponent implements OnInit {
       switchMap(async ([_, params]) => {
         this.organizationId = params.organizationId;
         this.projectId = params.projectId;
+        const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
         this.organizationEnabled = (
-          await this.organizationService.get(params.organizationId)
+          await firstValueFrom(
+            this.organizationService
+              .organizations$(userId)
+              .pipe(getOrganizationById(params.organizationId)),
+          )
         )?.enabled;
         return await this.getSecretsByProject();
       }),
@@ -108,6 +126,7 @@ export class ProjectSecretsComponent implements OnInit {
       data: {
         secrets: event,
       },
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 

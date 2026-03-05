@@ -1,3 +1,7 @@
+/// SDK/WASM code relies on TextEncoder/TextDecoder being available globally
+import { TextEncoder, TextDecoder } from "util";
+Object.assign(global, { TextDecoder, TextEncoder });
+
 import { mock } from "jest-mock-extended";
 import { of, firstValueFrom } from "rxjs";
 
@@ -8,7 +12,7 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { DefaultPassphraseGenerationOptions, Policies } from "../data";
+import { DefaultPassphraseGenerationOptions } from "../data";
 import { PasswordRandomizer } from "../engine";
 import { PassphraseGeneratorOptionsEvaluator } from "../policies";
 
@@ -20,7 +24,7 @@ const SomeUser = "some user" as UserId;
 describe("Passphrase generation strategy", () => {
   describe("toEvaluator()", () => {
     it("should map to the policy evaluator", async () => {
-      const strategy = new PassphraseGeneratorStrategy(null, null);
+      const strategy = new PassphraseGeneratorStrategy(null!, null!);
       const policy = mock<Policy>({
         type: PolicyType.PasswordGenerator,
         data: {
@@ -44,13 +48,18 @@ describe("Passphrase generation strategy", () => {
     it.each([[[]], [null], [undefined]])(
       "should map `%p` to a disabled password policy evaluator",
       async (policies) => {
-        const strategy = new PassphraseGeneratorStrategy(null, null);
+        const strategy = new PassphraseGeneratorStrategy(null!, null!);
 
-        const evaluator$ = of(policies).pipe(strategy.toEvaluator());
+        // this case tests when the type system is subverted
+        const evaluator$ = of(policies!).pipe(strategy.toEvaluator());
         const evaluator = await firstValueFrom(evaluator$);
 
         expect(evaluator).toBeInstanceOf(PassphraseGeneratorOptionsEvaluator);
-        expect(evaluator.policy).toMatchObject(Policies.Passphrase.disabledValue);
+        expect(evaluator.policy).toMatchObject({
+          minNumberWords: 0,
+          capitalize: false,
+          includeNumber: false,
+        });
       },
     );
   });
@@ -58,7 +67,7 @@ describe("Passphrase generation strategy", () => {
   describe("durableState", () => {
     it("should use password settings key", () => {
       const provider = mock<StateProvider>();
-      const strategy = new PassphraseGeneratorStrategy(null, provider);
+      const strategy = new PassphraseGeneratorStrategy(null!, provider);
 
       strategy.durableState(SomeUser);
 
@@ -68,7 +77,7 @@ describe("Passphrase generation strategy", () => {
 
   describe("defaults$", () => {
     it("should return the default subaddress options", async () => {
-      const strategy = new PassphraseGeneratorStrategy(null, null);
+      const strategy = new PassphraseGeneratorStrategy(null!, null!);
 
       const result = await firstValueFrom(strategy.defaults$(SomeUser));
 
@@ -78,7 +87,7 @@ describe("Passphrase generation strategy", () => {
 
   describe("policy", () => {
     it("should use password generator policy", () => {
-      const strategy = new PassphraseGeneratorStrategy(null, null);
+      const strategy = new PassphraseGeneratorStrategy(null!, null!);
 
       expect(strategy.policy).toBe(PolicyType.PasswordGenerator);
     });
@@ -95,7 +104,7 @@ describe("Passphrase generation strategy", () => {
     });
 
     it("should map options", async () => {
-      const strategy = new PassphraseGeneratorStrategy(randomizer, null);
+      const strategy = new PassphraseGeneratorStrategy(randomizer, null!);
 
       const result = await strategy.generate({
         numWords: 6,
@@ -114,7 +123,7 @@ describe("Passphrase generation strategy", () => {
     });
 
     it("should default numWords", async () => {
-      const strategy = new PassphraseGeneratorStrategy(randomizer, null);
+      const strategy = new PassphraseGeneratorStrategy(randomizer, null!);
 
       const result = await strategy.generate({
         capitalize: true,
@@ -132,7 +141,7 @@ describe("Passphrase generation strategy", () => {
     });
 
     it("should default capitalize", async () => {
-      const strategy = new PassphraseGeneratorStrategy(randomizer, null);
+      const strategy = new PassphraseGeneratorStrategy(randomizer, null!);
 
       const result = await strategy.generate({
         numWords: 6,
@@ -150,7 +159,7 @@ describe("Passphrase generation strategy", () => {
     });
 
     it("should default includeNumber", async () => {
-      const strategy = new PassphraseGeneratorStrategy(randomizer, null);
+      const strategy = new PassphraseGeneratorStrategy(randomizer, null!);
 
       const result = await strategy.generate({
         numWords: 6,
@@ -168,7 +177,7 @@ describe("Passphrase generation strategy", () => {
     });
 
     it("should default wordSeparator", async () => {
-      const strategy = new PassphraseGeneratorStrategy(randomizer, null);
+      const strategy = new PassphraseGeneratorStrategy(randomizer, null!);
 
       const result = await strategy.generate({
         numWords: 6,

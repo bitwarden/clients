@@ -1,6 +1,6 @@
-<bit-section *ngIf="sends?.length > 0">
+<bit-section *ngIf="sends?.length > 0" disableMargin>
   <bit-section-header>
-    <h2 class="tw-font-bold" bitTypography="h6">
+    <h2 class="tw-font-medium" bitTypography="h6">
       {{ headerText }}
     </h2>
     <span bitTypography="body1" slot="end">{{ sends.length }}</span>
@@ -14,19 +14,34 @@
         [queryParams]="{ sendId: send.id, type: send.type }"
         appStopClick
         type="button"
-        class="tw-pb-1"
       >
-        <i
-          slot="start"
-          *ngIf="send.type === sendType.Text"
-          class="bwi bwi-file-text tw-text-2xl text-muted"
-        ></i>
-        <i
-          slot="start"
-          *ngIf="send.type === sendType.File"
-          class="bwi bwi-file tw-text-2xl text-muted"
-        ></i>
+        <div slot="start" class="tw-justify-start">
+          <i
+            *ngIf="send.type === sendType.Text"
+            class="bwi bwi-lg bwi-file-text tw-text-muted tw-w-6"
+          ></i>
+          <i
+            *ngIf="send.type === sendType.File"
+            class="bwi bwi-lg bwi-file tw-text-muted tw-w-6"
+          ></i>
+        </div>
         {{ send.name }}
+        <div slot="default-trailing" class="tw-flex tw-gap-2 tw-relative tw-z-10">
+          @if (send.authType !== authType.None) {
+            @let titleKey =
+              send.authType === authType.Email ? "emailProtected" : "passwordProtected";
+            <i class="bwi bwi-lock" appA11yTitle="{{ titleKey | i18n }}" aria-hidden="true"></i>
+            <span class="tw-sr-only">{{ titleKey | i18n }}</span>
+          }
+          @if (send.maxAccessCountReached) {
+            <i
+              class="bwi bwi-exclamation-triangle"
+              appA11yTitle="{{ 'maxAccessCountReached' | i18n }}"
+              aria-hidden="true"
+            ></i>
+            <span class="tw-sr-only">{{ "maxAccessCountReached" | i18n }}</span>
+          }
+        </div>
         <span slot="secondary">
           {{ "deletionDate" | i18n }}:&nbsp;{{ send.deletionDate | date: "mediumDate" }}
         </span>
@@ -39,7 +54,7 @@
             size="small"
             type="button"
             (click)="copySendLink(send)"
-            appA11yTitle="{{ 'copyLink' | i18n }} - {{ send.name }}"
+            label="{{ 'copyLink' | i18n }} - {{ send.name }}"
           ></button>
         </bit-item-action>
         <bit-item-action>
@@ -48,7 +63,7 @@
             size="small"
             type="button"
             (click)="deleteSend(send)"
-            appA11yTitle="{{ 'delete' | i18n }} - {{ send.name }}"
+            label="{{ 'delete' | i18n }} - {{ send.name }}"
           ></button>
         </bit-item-action>
       </ng-container>

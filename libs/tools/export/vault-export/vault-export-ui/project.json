@@ -1,0 +1,41 @@
+{
+  "name": "@bitwarden/vault-export-ui",
+  "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/tools/export/vault-export/vault-export-ui/src",
+  "projectType": "library",
+  "tags": ["scope:vault-export-ui", "type:lib"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-script",
+      "dependsOn": [],
+      "options": {
+        "script": "build"
+      }
+    },
+    "build:watch": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:watch"
+      }
+    },
+    "clean": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "clean"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/tools/export/vault-export/vault-export-ui/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "test"
+      }
+    }
+  }
+}

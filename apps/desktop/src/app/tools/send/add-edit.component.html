@@ -46,7 +46,9 @@
           </div>
           <div class="box-content-row" appBoxRow *ngIf="editMode && type === sendType.File">
             <label for="file">{{ "file" | i18n }}</label>
-            <div class="row-main">{{ send.file.fileName }} ({{ send.file.sizeName }})</div>
+            <div class="row-main tw-text-wrap tw-break-all">
+              {{ send.file.fileName }} ({{ send.file.sizeName }})
+            </div>
           </div>
           <div class="box-content-row" appBoxRow *ngIf="type === sendType.Text">
             <label for="text">{{ "text" | i18n }}</label>
@@ -282,14 +284,9 @@
     </div>
   </div>
   <div class="footer">
-    <button
-      type="submit"
-      class="primary btn-submit"
-      appA11yTitle="{{ 'save' | i18n }}"
-      *ngIf="!disableSend"
-    >
+    <button type="submit" class="primary btn-submit" *ngIf="!disableSend">
       <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-      <span><i class="bwi bwi-save-changes bwi-lg bwi-fw" aria-hidden="true"></i></span>
+      {{ "save" | i18n }}
     </button>
     <button type="button" (click)="cancel()">
       {{ "cancel" | i18n }}

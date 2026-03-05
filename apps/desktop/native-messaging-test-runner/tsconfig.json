@@ -1,16 +1,31 @@
 {
+  "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "dist",
     "target": "es6",
     "module": "CommonJS",
     "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "sourceMap": false,
     "declaration": false,
     "paths": {
       "@src/*": ["src/*"],
+      "@bitwarden/user-core": ["../../../libs/user-core/src/index.ts"],
+      "@bitwarden/storage-core": ["../../../libs/storage-core/src/index.ts"],
+      "@bitwarden/logging": ["../../../libs/logging/src/index.ts"],
+      "@bitwarden/admin-console/*": ["../../../libs/admin-console/src/*"],
+      "@bitwarden/auth/*": ["../../../libs/auth/src/*"],
+      "@bitwarden/common/*": ["../../../libs/common/src/*"],
+      "@bitwarden/key-management": ["../../../libs/key-management/src/"],
       "@bitwarden/node/*": ["../../../libs/node/src/*"],
-      "@bitwarden/common/*": ["../../../libs/common/src/*"]
+      "@bitwarden/state": ["../../../libs/state/src/index.ts"],
+      "@bitwarden/state-internal": ["../../../libs/state-internal/src/index.ts"],
+      "@bitwarden/client-type": ["../../../libs/client-type/src/index.ts"],
+      "@bitwarden/messaging": ["../../../libs/messaging/src/index.ts"],
+      "@bitwarden/guid": ["../../../libs/guid/src/index.ts"],
+      "@bitwarden/serialization": ["../../../libs/serialization/src/index.ts"]
     },
     "plugins": [
       {
@@ -18,5 +33,6 @@
       }
     ]
   },
-  "exclude": ["node_modules"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

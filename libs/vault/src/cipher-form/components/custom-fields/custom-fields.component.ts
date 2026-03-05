@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { LiveAnnouncer } from "@angular/cdk/a11y";
-import { DialogRef } from "@angular/cdk/dialog";
 import { CdkDragDrop, DragDropModule, moveItemInArray } from "@angular/cdk/drag-drop";
 import { CommonModule } from "@angular/common";
 import {
@@ -11,6 +10,7 @@ import {
   ElementRef,
   EventEmitter,
   inject,
+  Input,
   OnInit,
   Output,
   QueryList,
@@ -30,13 +30,13 @@ import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import {
+  DialogRef,
   CardComponent,
   CheckboxModule,
   DialogService,
   FormFieldModule,
   IconButtonModule,
   LinkModule,
-  SectionComponent,
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
@@ -68,8 +68,9 @@ export type CustomField = {
   newField: boolean;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "vault-custom-fields",
   templateUrl: "./custom-fields.component.html",
   imports: [
@@ -78,7 +79,6 @@ export type CustomField = {
     FormsModule,
     FormFieldModule,
     ReactiveFormsModule,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     CardComponent,
@@ -90,9 +90,17 @@ export type CustomField = {
   ],
 })
 export class CustomFieldsComponent implements OnInit, AfterViewInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() numberOfFieldsChange = new EventEmitter<number>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChildren("customFieldRow") customFieldRows: QueryList<ElementRef<HTMLDivElement>>;
+
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() disableSectionMargin: boolean;
 
   customFieldsForm = this.formBuilder.group({
     fields: new FormArray([]),
@@ -113,6 +121,11 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
   /** Emits when a new custom field should be focused */
   private focusOnNewInput$ = new Subject<void>();
 
+  /** Tracks the disabled status of the edit cipher form */
+  protected parentFormDisabled: boolean = false;
+
+  disallowHiddenField?: boolean;
+
   destroyed$: DestroyRef;
   FieldType = FieldType;
 
@@ -127,14 +140,28 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
     this.destroyed$ = inject(DestroyRef);
     this.cipherFormContainer.registerChildForm("customFields", this.customFieldsForm);
 
-    this.customFieldsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((values) => {
-      this.updateCipher(values.fields);
+    this.customFieldsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      // getRawValue ensures disabled fields are included
+      this.updateCipher(this.fields.getRawValue());
+    });
+
+    this.cipherFormContainer.formStatusChange$.pipe(takeUntilDestroyed()).subscribe((status) => {
+      this.parentFormDisabled = status === "disabled";
     });
   }
 
   /** Fields form array, referenced via a getter to avoid type-casting in multiple places  */
   get fields(): FormArray {
     return this.customFieldsForm.controls.fields as FormArray;
+  }
+
+  canEdit(type: FieldType): boolean {
+    return (
+      !this.isPartialEdit &&
+      (type !== FieldType.Hidden ||
+        this.cipherFormContainer.originalCipherView === null ||
+        this.cipherFormContainer.originalCipherView.viewPassword)
+    );
   }
 
   ngOnInit() {
@@ -145,26 +172,35 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
     // Populate options for linked custom fields
     this.linkedFieldOptions = optionsArray.map(([id, linkedFieldOption]) => ({
       name: this.i18nService.t(linkedFieldOption.i18nKey),
-      value: id,
+      value: id as LinkedIdType,
     }));
 
-    // Populate the form with the existing fields
-    this.cipherFormContainer.originalCipherView?.fields?.forEach((field) => {
+    const prefillCipher = this.cipherFormContainer.getInitialCipherView();
+
+    // When available, populate the form with the existing fields
+    prefillCipher?.fields?.forEach((field) => {
       let value: string | boolean = field.value;
 
       if (field.type === FieldType.Boolean) {
         value = field.value === "true" ? true : false;
       }
 
-      this.fields.push(
-        this.formBuilder.group<CustomField>({
-          type: field.type,
-          name: field.name,
-          value: value,
-          linkedId: field.linkedId,
-          newField: false,
-        }),
-      );
+      const customField = this.formBuilder.group<CustomField>({
+        type: field.type,
+        name: field.name,
+        value: value,
+        linkedId: field.linkedId,
+        newField: false,
+      });
+
+      if (
+        field.type === FieldType.Hidden &&
+        !this.cipherFormContainer.originalCipherView?.viewPassword
+      ) {
+        customField.controls.value.disable();
+      }
+
+      this.fields.push(customField);
     });
 
     // Disable the form if in partial-edit mode
@@ -197,6 +233,7 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
 
   /** Opens the add/edit custom field dialog */
   openAddEditCustomFieldDialog(editLabelConfig?: AddEditCustomFieldDialogData["editLabelConfig"]) {
+    const { cipherType, mode, originalCipher } = this.cipherFormContainer.config;
     this.dialogRef = this.dialogService.open<unknown, AddEditCustomFieldDialogData>(
       AddEditCustomFieldDialogComponent,
       {
@@ -204,8 +241,9 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
           addField: this.addField.bind(this),
           updateLabel: this.updateLabel.bind(this),
           removeField: this.removeField.bind(this),
-          cipherType: this.cipherFormContainer.config.cipherType,
+          cipherType,
           editLabelConfig,
+          disallowHiddenField: mode === "edit" && !originalCipher.viewPassword,
         },
       },
     );
@@ -356,7 +394,7 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
       fieldView.type = field.type;
       fieldView.name = field.name;
       fieldView.value = value;
-      fieldView.linkedId = field.linkedId;
+      fieldView.linkedId = field.linkedId ?? undefined;
       return fieldView;
     });
 

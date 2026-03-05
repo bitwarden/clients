@@ -2,6 +2,8 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { I18nMockService } from "@bitwarden/components";
 
 import { PasswordCalloutComponent } from "./password-callout.component";

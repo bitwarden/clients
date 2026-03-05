@@ -1,9 +1,8 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
+import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 import { CipherResponse } from "../response/cipher.response";
 
 import { AttachmentData } from "./attachment.data";
@@ -16,17 +15,18 @@ import { SecureNoteData } from "./secure-note.data";
 import { SshKeyData } from "./ssh-key.data";
 
 export class CipherData {
-  id: string;
-  organizationId: string;
-  folderId: string;
-  edit: boolean;
-  viewPassword: boolean;
-  organizationUseTotp: boolean;
-  favorite: boolean;
+  id: string = "";
+  organizationId?: string;
+  folderId?: string;
+  edit: boolean = false;
+  viewPassword: boolean = true;
+  permissions?: CipherPermissionsApi;
+  organizationUseTotp: boolean = false;
+  favorite: boolean = false;
   revisionDate: string;
-  type: CipherType;
-  name: string;
-  notes: string;
+  type: CipherType = CipherType.Login;
+  name: string = "";
+  notes?: string;
   login?: LoginData;
   secureNote?: SecureNoteData;
   card?: CardData;
@@ -37,12 +37,14 @@ export class CipherData {
   passwordHistory?: PasswordHistoryData[];
   collectionIds?: string[];
   creationDate: string;
-  deletedDate: string;
-  reprompt: CipherRepromptType;
-  key: string;
+  deletedDate?: string;
+  archivedDate?: string;
+  reprompt: CipherRepromptType = CipherRepromptType.None;
+  key?: string;
 
   constructor(response?: CipherResponse, collectionIds?: string[]) {
     if (response == null) {
+      this.creationDate = this.revisionDate = new Date().toISOString();
       return;
     }
 
@@ -51,15 +53,17 @@ export class CipherData {
     this.folderId = response.folderId;
     this.edit = response.edit;
     this.viewPassword = response.viewPassword;
+    this.permissions = response.permissions;
     this.organizationUseTotp = response.organizationUseTotp;
     this.favorite = response.favorite;
     this.revisionDate = response.revisionDate;
-    this.type = response.type;
+    this.type = response.type as CipherType;
     this.name = response.name;
     this.notes = response.notes;
     this.collectionIds = collectionIds != null ? collectionIds : response.collectionIds;
     this.creationDate = response.creationDate;
     this.deletedDate = response.deletedDate;
+    this.archivedDate = response.archivedDate;
     this.reprompt = response.reprompt;
     this.key = response.key;
 
@@ -95,6 +99,10 @@ export class CipherData {
   }
 
   static fromJSON(obj: Jsonify<CipherData>) {
-    return Object.assign(new CipherData(), obj);
+    const result = Object.assign(new CipherData(), obj);
+    if (obj.permissions != null) {
+      result.permissions = CipherPermissionsApi.fromJSON(obj.permissions);
+    }
+    return result;
   }
 }

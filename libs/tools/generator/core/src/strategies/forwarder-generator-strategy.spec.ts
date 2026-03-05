@@ -1,3 +1,7 @@
+/// SDK/WASM code relies on TextEncoder/TextDecoder being available globally
+import { TextEncoder, TextDecoder } from "util";
+Object.assign(global, { TextDecoder, TextEncoder });
+
 import { mock } from "jest-mock-extended";
 import { of, firstValueFrom } from "rxjs";
 
@@ -5,7 +9,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 // FIXME: use index.ts imports once policy abstractions and models
 // implement ADR-0002
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { RestClient } from "@bitwarden/common/tools/integration/rpc";
 import { BufferedState } from "@bitwarden/common/tools/state/buffered-state";

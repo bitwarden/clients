@@ -124,48 +124,47 @@
     <value>İster evde ister işte veya yolda olun; Bitwarden tüm parolalarınızı, geçiş anahtarlarınızı ve hassas bilgilerinizi güvenle saklar.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>PCMag, WIRED, The Verge, CNET, G2 ve daha fazlası tarafından en iyi şifre yöneticisi olarak kabul edildi!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+DİJİTAL HAYATINIZI GÜVENLİ HALE GETİRİN
+Her hesap için benzersiz, güçlü şifreler oluşturup kaydederek dijital hayatınızı güvence altına alın ve veri ihlallerine karşı koruyun. Her şeyi yalnızca sizin erişebileceğiniz uçtan uca şifrelenmiş bir şifre kasasında saklayın.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+VERİLERİNİZE HER YERDEN, HER ZAMAN, HER CİHAZDAN ERİŞİN
+Sınırsız sayıda cihazda sınırsız sayıda şifreyi kolayca yönetin, saklayın, koruyun ve paylaşın.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+HERKESİN ÇEVRİMİÇİ GÜVENLİĞİ SAĞLAYACAK ARAÇLARA SAHİP OLMASI GEREKİR
+Bitwarden'ı reklamlar veya veri satışı olmadan ücretsiz olarak kullanın. Bitwarden, herkesin çevrimiçi güvenliğini sağlayabilmesi gerektiğine inanır. Premium planlar, gelişmiş özelliklere erişim sunar.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+BITWARDEN İLE EKİPLERİNİZE GÜÇ KATIN
+Takımlar ve Kurumsal planlar, profesyonel iş özellikleri ile birlikte gelir. Bazı örnekler arasında SSO entegrasyonu, kendi kendine barındırma, dizin entegrasyonu ve SCIM provizyonu, global politikalar, API erişimi, olay günlükleri ve daha fazlası bulunur.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Bitwarden'ı kullanarak çalışanlarınızı güvence altına alın ve hassas bilgileri iş arkadaşlarınızla paylaşın.
 
+Bitwarden'ı seçmek için daha fazla neden:
 
-More reasons to choose Bitwarden:
+Dünya Standartlarında Şifreleme
+Şifreler, gelişmiş uçtan uca şifreleme (AES-256 bit, tuzlu hashing ve PBKDF2 SHA-256) ile korunur, böylece verileriniz güvenli ve gizli kalır.
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) so your data stays secure and private.
+Üçüncü Taraf Denetimleri
+Bitwarden, tanınmış güvenlik firmalarıyla düzenli olarak kapsamlı üçüncü taraf güvenlik denetimleri gerçekleştirir. Bu yıllık denetimler, Bitwarden IP'leri, sunucuları ve web uygulamaları genelinde kaynak kodu değerlendirmeleri ve sızma testlerini içerir.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
-
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+Gelişmiş 2FA
+Üçüncü taraf kimlik doğrulayıcı, e-posta ile gönderilen kodlar veya donanım güvenlik anahtarı veya geçiş anahtarı gibi FIDO2 WebAuthn kimlik bilgileri ile girişinizi güvenli hale getirin.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Uçtan uca şifreli güvenliği koruyarak ve maruz kalmayı sınırlayarak verileri doğrudan başkalarına aktarın.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Yerleşik Oluşturucu
+Ziyaret ettiğiniz her site için uzun, karmaşık ve farklı şifreler ve benzersiz kullanıcı adları oluşturun. Ek gizlilik için e-posta takma ad sağlayıcılarıyla entegre edin.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Küresel Çeviriler
+Bitwarden çevirileri, Crowdin aracılığıyla küresel topluluk tarafından 60'tan fazla dile çevrilmiştir.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Çapraz Platform Uygulamaları
+Bitwarden Vault'unuzdaki hassas verileri herhangi bir tarayıcı, mobil cihaz, masaüstü işletim sistemi ve daha fazlasından güvenli bir şekilde paylaşın.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+Bitwarden, şifrelerden daha fazlasını güvence altına alır
+Bitwarden'ın uçtan uca şifrelenmiş kimlik bilgisi yönetimi çözümleri, kuruluşların geliştirici sırları ve anahtar deneyimleri dahil her şeyi güvence altına almasını sağlar. Bitwarden Secrets Manager ve Bitwarden Passwordless.dev hakkında daha fazla bilgi edinmek için Bitwarden.com adresini ziyaret edin!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">

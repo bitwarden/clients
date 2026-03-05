@@ -1,11 +1,17 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
+import { firstValueFrom } from "rxjs";
+
+import { LockService } from "@bitwarden/auth/common";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ExtensionCommand, ExtensionCommandType } from "@bitwarden/common/autofill/constants";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import { openUnlockPopout } from "../auth/popup/utils/auth-popout-window";
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
 import { BrowserApi } from "../platform/browser/browser-api";
@@ -19,9 +25,10 @@ export default class CommandsBackground {
   constructor(
     private main: MainBackground,
     private platformUtilsService: PlatformUtilsService,
-    private vaultTimeoutService: VaultTimeoutService,
     private authService: AuthService,
     private generatePasswordToClipboard: () => Promise<void>,
+    private accountService: AccountService,
+    private lockService: LockService,
   ) {
     this.isSafari = this.platformUtilsService.isSafari();
     this.isVivaldi = this.platformUtilsService.isVivaldi();
@@ -70,9 +77,11 @@ export default class CommandsBackground {
       case "open_popup":
         await this.openPopup();
         break;
-      case "lock_vault":
-        await this.vaultTimeoutService.lock();
+      case "lock_vault": {
+        const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+        await this.lockService.lock(activeUserId);
         break;
+      }
       default:
         break;
     }

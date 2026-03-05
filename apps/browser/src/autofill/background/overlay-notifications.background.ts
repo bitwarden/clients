@@ -1,11 +1,6 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { startWith, Subject, Subscription, switchMap, timer } from "rxjs";
-import { pairwise } from "rxjs/operators";
+import { firstValueFrom, Subject, switchMap, timer } from "rxjs";
 
 import { CLEAR_NOTIFICATION_LOGIN_DATA_DURATION } from "@bitwarden/common/autofill/constants";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -18,6 +13,8 @@ import {
   OverlayNotificationsBackground as OverlayNotificationsBackgroundInterface,
   OverlayNotificationsExtensionMessage,
   OverlayNotificationsExtensionMessageHandlers,
+  NotificationScenarios,
+  NotificationScenario,
   WebsiteOriginsWithFields,
 } from "./abstractions/overlay-notifications.background";
 import NotificationBackground from "./notification.background";
@@ -26,19 +23,18 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   private websiteOriginsWithFields: WebsiteOriginsWithFields = new Map();
   private activeFormSubmissionRequests: ActiveFormSubmissionRequests = new Set();
   private modifyLoginCipherFormData: ModifyLoginCipherFormDataForTab = new Map();
-  private featureFlagState$: Subscription;
   private clearLoginCipherFormDataSubject: Subject<void> = new Subject();
-  private notificationFallbackTimeout: number | NodeJS.Timeout | null;
+  private notificationFallbackTimeout: number | NodeJS.Timeout | null = null;
   private readonly formSubmissionRequestMethods: Set<string> = new Set(["POST", "PUT", "PATCH"]);
   private readonly extensionMessageHandlers: OverlayNotificationsExtensionMessageHandlers = {
+    generatedPasswordFilled: ({ message, sender }) =>
+      this.storeModifiedLoginFormData(message, sender),
     formFieldSubmitted: ({ message, sender }) => this.storeModifiedLoginFormData(message, sender),
     collectPageDetailsResponse: ({ message, sender }) =>
       this.handleCollectPageDetailsResponse(message, sender),
   };
-
   constructor(
     private logService: LogService,
-    private configService: ConfigService,
     private notificationBackground: NotificationBackground,
   ) {}
 
@@ -46,34 +42,12 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    * Initialize the overlay notifications background service.
    */
   async init() {
-    this.featureFlagState$ = this.configService
-      .getFeatureFlag$(FeatureFlag.NotificationBarAddLoginImprovements)
-      .pipe(startWith(undefined), pairwise())
-      .subscribe(([prev, current]) => this.handleInitFeatureFlagChange(prev, current));
+    this.setupExtensionListeners();
+
     this.clearLoginCipherFormDataSubject
       .pipe(switchMap(() => timer(CLEAR_NOTIFICATION_LOGIN_DATA_DURATION)))
       .subscribe(() => this.modifyLoginCipherFormData.clear());
   }
-
-  /**
-   * Handles enabling/disabling the extension listeners that trigger the
-   * overlay notifications based on the feature flag state.
-   *
-   * @param previousValue - The previous value of the feature flag
-   * @param currentValue - The current value of the feature flag
-   */
-  private handleInitFeatureFlagChange = (previousValue: boolean, currentValue: boolean) => {
-    if (previousValue === currentValue) {
-      return;
-    }
-
-    if (currentValue) {
-      this.setupExtensionListeners();
-      return;
-    }
-
-    this.removeExtensionListeners();
-  };
 
   /**
    * Handles the response from the content script with the page details. Triggers an initialization
@@ -87,7 +61,11 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     sender: chrome.runtime.MessageSender,
   ) {
     if (await this.shouldInitAddLoginOrChangePasswordNotification(message, sender)) {
-      this.websiteOriginsWithFields.set(sender.tab.id, this.getSenderUrlMatchPatterns(sender));
+      const tabId = sender.tab?.id;
+      if (tabId === undefined) {
+        return;
+      }
+      this.websiteOriginsWithFields.set(tabId, this.getSenderUrlMatchPatterns(sender));
       this.setupWebRequestsListeners();
     }
   }
@@ -104,11 +82,16 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     message: OverlayNotificationsExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
+    const tabId = sender.tab?.id;
+    if (tabId === undefined) {
+      return false;
+    }
+
     return (
       (await this.isAddLoginOrChangePasswordNotificationEnabled()) &&
       !(await this.isSenderFromExcludedDomain(sender)) &&
-      message.details?.fields?.length > 0 &&
-      !this.websiteOriginsWithFields.has(sender.tab.id)
+      (message.details?.fields?.length ?? 0) > 0 &&
+      !this.websiteOriginsWithFields.has(tabId)
     );
   }
 
@@ -131,8 +114,8 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    */
   private getSenderUrlMatchPatterns(sender: chrome.runtime.MessageSender) {
     return new Set([
-      ...generateDomainMatchPatterns(sender.url),
-      ...generateDomainMatchPatterns(sender.tab.url),
+      ...(sender.url ? generateDomainMatchPatterns(sender.url) : []),
+      ...(sender.tab?.url ? generateDomainMatchPatterns(sender.tab.url) : []),
     ]);
   }
 
@@ -147,7 +130,8 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     message: OverlayNotificationsExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) => {
-    if (!this.websiteOriginsWithFields.has(sender.tab.id)) {
+    const tabId = sender.tab?.id;
+    if (tabId === undefined || !this.websiteOriginsWithFields.has(tabId)) {
       return;
     }
 
@@ -159,25 +143,24 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     this.clearLoginCipherFormDataSubject.next();
     const formData = { uri, username, password, newPassword };
 
-    const existingModifyLoginData = this.modifyLoginCipherFormData.get(sender.tab.id);
+    const existingModifyLoginData = this.modifyLoginCipherFormData.get(tabId);
     if (existingModifyLoginData) {
       formData.username = formData.username || existingModifyLoginData.username;
       formData.password = formData.password || existingModifyLoginData.password;
       formData.newPassword = formData.newPassword || existingModifyLoginData.newPassword;
     }
 
-    this.modifyLoginCipherFormData.set(sender.tab.id, formData);
+    this.modifyLoginCipherFormData.set(tabId, formData);
 
     this.clearNotificationFallbackTimeout();
-    this.notificationFallbackTimeout = setTimeout(
-      () =>
-        this.setupNotificationInitTrigger(
-          sender.tab.id,
-          "",
-          this.modifyLoginCipherFormData.get(sender.tab.id),
-        ).catch((error) => this.logService.error(error)),
-      1500,
-    );
+    this.notificationFallbackTimeout = setTimeout(() => {
+      const modifyLoginData = this.modifyLoginCipherFormData.get(tabId);
+      if (modifyLoginData) {
+        this.setupNotificationInitTrigger(tabId, "", modifyLoginData).catch((error) =>
+          this.logService.error(error),
+        );
+      }
+    }, 1500);
   };
 
   /**
@@ -200,6 +183,10 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   private async isSenderFromExcludedDomain(sender: chrome.runtime.MessageSender): Promise<boolean> {
     try {
       const senderOrigin = sender.origin;
+      if (!senderOrigin) {
+        return false;
+      }
+
       const serverConfig = await this.notificationBackground.getActiveUserServerConfig();
       const activeUserVault = serverConfig?.environment?.vault;
       if (activeUserVault === senderOrigin) {
@@ -252,13 +239,16 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    *
    * @param details - The details of the web request
    */
-  private handleOnBeforeRequestEvent = (details: chrome.webRequest.WebRequestDetails) => {
+  private handleOnBeforeRequestEvent = (
+    details: chrome.webRequest.OnBeforeRequestDetails,
+  ): undefined => {
     if (this.isPostSubmissionFormRedirection(details)) {
-      this.setupNotificationInitTrigger(
-        details.tabId,
-        details.requestId,
-        this.modifyLoginCipherFormData.get(details.tabId),
-      ).catch((error) => this.logService.error(error));
+      const modifyLoginData = this.modifyLoginCipherFormData.get(details.tabId);
+      if (modifyLoginData) {
+        this.setupNotificationInitTrigger(details.tabId, details.requestId, modifyLoginData).catch(
+          (error) => this.logService.error(error),
+        );
+      }
 
       return;
     }
@@ -284,11 +274,30 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    */
   private notificationDataIncompleteOnBeforeRequest = (tabId: number) => {
     const modifyLoginData = this.modifyLoginCipherFormData.get(tabId);
-    return (
-      !modifyLoginData ||
-      !this.shouldTriggerAddLoginNotification(modifyLoginData) ||
-      !this.shouldTriggerChangePasswordNotification(modifyLoginData)
+
+    if (!modifyLoginData) {
+      return true;
+    }
+
+    const shouldAttemptAddNotification = this.shouldAttemptNotification(
+      modifyLoginData,
+      NotificationScenarios.Add,
     );
+
+    if (shouldAttemptAddNotification) {
+      return false;
+    }
+
+    const shouldAttemptChangeNotification = this.shouldAttemptNotification(
+      modifyLoginData,
+      NotificationScenarios.Change,
+    );
+
+    if (shouldAttemptChangeNotification) {
+      return false;
+    }
+
+    return false;
   };
 
   /**
@@ -299,7 +308,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    *
    * @param details - The details of the web request
    */
-  private isPostSubmissionFormRedirection = (details: chrome.webRequest.WebRequestDetails) => {
+  private isPostSubmissionFormRedirection = (details: chrome.webRequest.OnBeforeRequestDetails) => {
     return (
       details.method?.toUpperCase() === "GET" &&
       this.activeFormSubmissionRequests.has(details.requestId) &&
@@ -313,7 +322,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    *
    * @param details - The details of the web request
    */
-  private isValidFormSubmissionRequest = (details: chrome.webRequest.WebRequestDetails) => {
+  private isValidFormSubmissionRequest = (details: chrome.webRequest.OnBeforeRequestDetails) => {
     return (
       !this.requestHostIsInvalid(details) &&
       this.formSubmissionRequestMethods.has(details.method?.toUpperCase())
@@ -349,7 +358,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    *
    * @param details - The details of the web response
    */
-  private handleOnCompletedRequestEvent = async (details: chrome.webRequest.WebResponseDetails) => {
+  private handleOnCompletedRequestEvent = async (details: chrome.webRequest.OnCompletedDetails) => {
     if (
       this.requestHostIsInvalid(details) ||
       !this.activeFormSubmissionRequests.has(details.requestId)
@@ -388,12 +397,16 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     this.clearNotificationFallbackTimeout();
 
     const tab = await BrowserApi.getTab(tabId);
+    if (!tab) {
+      return;
+    }
+
     if (tab.status !== "complete") {
       await this.delayNotificationInitUntilTabIsComplete(tabId, requestId, modifyLoginData);
       return;
     }
 
-    await this.triggerNotificationInit(requestId, modifyLoginData, tab);
+    await this.processNotifications(requestId, modifyLoginData, tab);
   };
 
   /**
@@ -406,83 +419,130 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    * @param modifyLoginData - The modified login form data
    */
   private delayNotificationInitUntilTabIsComplete = async (
-    tabId: chrome.webRequest.ResourceRequest["tabId"],
-    requestId: chrome.webRequest.ResourceRequest["requestId"],
+    tabId: chrome.webRequest.WebRequestDetails["tabId"],
+    requestId: chrome.webRequest.WebRequestDetails["requestId"],
     modifyLoginData: ModifyLoginCipherFormData,
   ) => {
     const handleWebNavigationOnCompleted = async () => {
       chrome.webNavigation.onCompleted.removeListener(handleWebNavigationOnCompleted);
       const tab = await BrowserApi.getTab(tabId);
-      await this.triggerNotificationInit(requestId, modifyLoginData, tab);
+      if (tab) {
+        await this.processNotifications(requestId, modifyLoginData, tab);
+      }
     };
     chrome.webNavigation.onCompleted.addListener(handleWebNavigationOnCompleted);
   };
 
   /**
-   * Initializes the add login or change password notification based on the modified login form data
-   * and the tab details. This will trigger the notification to be displayed to the user.
+   * This method attempts to trigger the add login, change password, or at-risk password notifications
+   * based on the modified login data and the tab details.
    *
    * @param requestId - The details of the web response
    * @param modifyLoginData  - The modified login form data
    * @param tab - The tab details
    */
-  private triggerNotificationInit = async (
-    requestId: chrome.webRequest.ResourceRequest["requestId"],
+  private processNotifications = async (
+    requestId: chrome.webRequest.WebRequestDetails["requestId"],
     modifyLoginData: ModifyLoginCipherFormData,
     tab: chrome.tabs.Tab,
+    config: { skippable: NotificationScenario[] } = { skippable: [] },
   ) => {
-    if (this.shouldTriggerChangePasswordNotification(modifyLoginData)) {
-      // These notifications are temporarily setup as "messages" to the notification background.
-      // This will be structured differently in a future refactor.
-      await this.notificationBackground.changedPassword(
-        {
-          command: "bgChangedPassword",
-          data: {
-            url: modifyLoginData.uri,
-            currentPassword: modifyLoginData.password,
-            newPassword: modifyLoginData.newPassword,
+    const useUndeterminedCipherScenarioTriggeringLogic = await firstValueFrom(
+      this.notificationBackground.useUndeterminedCipherScenarioTriggeringLogic$,
+    );
+
+    const notificationCandidates = useUndeterminedCipherScenarioTriggeringLogic
+      ? [
+          {
+            type: NotificationScenarios.Cipher,
+            trigger: this.notificationBackground.triggerCipherNotification,
           },
-        },
-        { tab },
-      );
-      this.clearCompletedWebRequest(requestId, tab);
-      return;
+          {
+            type: NotificationScenarios.AtRiskPassword,
+            trigger: this.notificationBackground.triggerAtRiskPasswordNotification,
+          },
+        ]
+      : [
+          {
+            type: NotificationScenarios.Change,
+            trigger: this.notificationBackground.triggerChangedPasswordNotification,
+          },
+          {
+            type: NotificationScenarios.Add,
+            trigger: this.notificationBackground.triggerAddLoginNotification,
+          },
+          {
+            type: NotificationScenarios.AtRiskPassword,
+            trigger: this.notificationBackground.triggerAtRiskPasswordNotification,
+          },
+        ];
+    const filteredNotificationCandidates = notificationCandidates.filter(
+      (candidate) =>
+        this.shouldAttemptNotification(modifyLoginData, candidate.type) ||
+        config.skippable.includes(candidate.type),
+    );
+
+    const results: string[] = [];
+    for (const { trigger, type } of filteredNotificationCandidates) {
+      const success = await trigger.bind(this.notificationBackground)(modifyLoginData, tab);
+      if (success) {
+        results.push(`Success: ${type}`);
+        break;
+      } else {
+        results.push(`Unqualified ${type} notification attempt.`);
+      }
     }
 
-    if (this.shouldTriggerAddLoginNotification(modifyLoginData)) {
-      await this.notificationBackground.addLogin(
-        {
-          command: "bgAddLogin",
-          login: {
-            url: modifyLoginData.uri,
-            username: modifyLoginData.username,
-            password: modifyLoginData.password || modifyLoginData.newPassword,
-          },
-        },
-        { tab },
-      );
-      this.clearCompletedWebRequest(requestId, tab);
-    }
+    this.clearCompletedWebRequest(requestId, tab.id);
+    return results.join(" ");
   };
 
   /**
-   * Determines if the change password notification should be triggered.
-   *
-   * @param modifyLoginData - The modified login form data
+   * Determines if the add login notification should be attempted based on the modified login form data.
+   * @param modifyLoginData modified login form data
+   * @param notificationType The type of notification to be triggered
+   * @returns true if the notification should be attempted, false otherwise
    */
-  private shouldTriggerChangePasswordNotification = (
+  private shouldAttemptNotification = (
     modifyLoginData: ModifyLoginCipherFormData,
-  ) => {
-    return modifyLoginData?.newPassword && !modifyLoginData.username;
-  };
+    notificationType: NotificationScenario,
+  ): boolean => {
+    if (notificationType === NotificationScenarios.Cipher) {
+      // The logic after this block pre-qualifies some cipher add/update scenarios
+      // prematurely (where matching against vault contents is required) and should be
+      // skipped for this case (these same checks are performed early in the
+      // notification triggering logic).
+      return true;
+    }
 
-  /**
-   * Determines if the add login notification should be triggered.
-   *
-   * @param modifyLoginData - The modified login form data
-   */
-  private shouldTriggerAddLoginNotification = (modifyLoginData: ModifyLoginCipherFormData) => {
-    return modifyLoginData?.username && (modifyLoginData.password || modifyLoginData.newPassword);
+    // Intentionally not stripping whitespace characters here as they
+    // represent user entry.
+    const usernameFieldHasValue = !!(modifyLoginData?.username || "").length;
+    const passwordFieldHasValue = !!(modifyLoginData?.password || "").length;
+    const newPasswordFieldHasValue = !!(modifyLoginData?.newPassword || "").length;
+
+    const canBeUserLogin = usernameFieldHasValue && passwordFieldHasValue;
+    const canBePasswordUpdate = passwordFieldHasValue && newPasswordFieldHasValue;
+
+    switch (notificationType) {
+      // `Add` case included because all forms with cached usernames (from previous
+      // visits) will appear to be "password only" and otherwise trigger the new login
+      // save notification.
+      case NotificationScenarios.Add:
+        // Can be values for nonstored login or account creation
+        return usernameFieldHasValue && (passwordFieldHasValue || newPasswordFieldHasValue);
+      case NotificationScenarios.Change:
+        // Can be login with nonstored login changes or account password update
+        return canBeUserLogin || canBePasswordUpdate;
+      case NotificationScenarios.AtRiskPassword:
+        return !newPasswordFieldHasValue;
+      case NotificationScenarios.Unlock:
+        // Unlock notifications are handled separately and do not require form data
+        return false;
+      default:
+        this.logService.error(`Unknown notification type: ${notificationType}`);
+        return false;
+    }
   };
 
   /**
@@ -492,12 +552,12 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    * @param tab - The tab details
    */
   private clearCompletedWebRequest = (
-    requestId: chrome.webRequest.ResourceRequest["requestId"],
-    tab: chrome.tabs.Tab,
+    requestId: chrome.webRequest.WebRequestDetails["requestId"],
+    tabId: chrome.tabs.Tab["id"],
   ) => {
     this.activeFormSubmissionRequests.delete(requestId);
-    this.modifyLoginCipherFormData.delete(tab.id);
-    this.websiteOriginsWithFields.delete(tab.id);
+    this.modifyLoginCipherFormData.delete(tabId);
+    this.websiteOriginsWithFields.delete(tabId);
     this.setupWebRequestsListeners();
   };
 
@@ -507,7 +567,12 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    *
    * @param details - The details of the web request
    */
-  private requestHostIsInvalid = (details: chrome.webRequest.ResourceRequest) => {
+  private requestHostIsInvalid = (
+    details: SetPartial<
+      chrome.webRequest.WebRequestDetails,
+      "documentId" | "documentLifecycle" | "frameType"
+    >,
+  ) => {
     return !details.url?.startsWith("http") || details.tabId < 0;
   };
 
@@ -518,15 +583,6 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     BrowserApi.addListener(chrome.runtime.onMessage, this.handleExtensionMessage);
     chrome.tabs.onRemoved.addListener(this.handleTabRemoved);
     chrome.tabs.onUpdated.addListener(this.handleTabUpdated);
-  }
-
-  /**
-   * Removes the listeners for the extension messages and the tab events.
-   */
-  private removeExtensionListeners() {
-    BrowserApi.removeListener(chrome.runtime.onMessage, this.handleExtensionMessage);
-    chrome.tabs.onRemoved.removeListener(this.handleTabRemoved);
-    chrome.tabs.onUpdated.removeListener(this.handleTabUpdated);
   }
 
   /**
@@ -577,7 +633,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    * @param tabId - The id of the tab that was updated
    * @param changeInfo - The change info of the tab
    */
-  private handleTabUpdated = (tabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {
+  private handleTabUpdated = (tabId: number, changeInfo: chrome.tabs.OnUpdatedInfo) => {
     if (changeInfo.status !== "loading" || !changeInfo.url) {
       return;
     }

@@ -1,22 +1,32 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, Validators } from "@angular/forms";
-import { combineLatest, Subject, takeUntil } from "rxjs";
+import { combineLatest, firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, toCipherTypeName } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import { UserVerificationModule } from "../../../../auth/shared/components/user-verification";
 import { SharedModule } from "../../../../shared/shared.module";
@@ -61,14 +71,17 @@ export interface DeleteOrganizationDialogParams {
   requestType: "InvalidFamiliesForEnterprise" | "RegularDelete";
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum DeleteOrganizationDialogResult {
   Deleted = "deleted",
   Canceled = "canceled",
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-delete-organization",
-  standalone: true,
   imports: [SharedModule, UserVerificationModule],
   templateUrl: "delete-organization-dialog.component.html",
 })
@@ -94,6 +107,7 @@ export class DeleteOrganizationDialogComponent implements OnInit, OnDestroy {
     private userVerificationService: UserVerificationService,
     private cipherService: CipherService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private formBuilder: FormBuilder,
     private toastService: ToastService,
@@ -106,9 +120,12 @@ export class DeleteOrganizationDialogComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.deleteOrganizationRequestType = this.params.requestType;
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     combineLatest([
-      this.organizationService.get$(this.params.organizationId),
+      this.organizationService
+        .organizations$(userId)
+        .pipe(getOrganizationById(this.params.organizationId)),
       this.cipherService.getAllFromApiForOrganization(this.params.organizationId),
     ])
       .pipe(takeUntil(this.destroy$))
@@ -147,7 +164,7 @@ export class DeleteOrganizationDialogComponent implements OnInit, OnDestroy {
         organizationContentSummary.itemCountByType.push(
           new OrganizationContentSummaryItem(
             count,
-            this.getOrganizationItemLocalizationKeysByType(CipherType[cipherType]),
+            this.getOrganizationItemLocalizationKeysByType(toCipherTypeName(cipherType)),
           ),
         );
       }

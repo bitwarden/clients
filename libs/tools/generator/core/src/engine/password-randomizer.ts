@@ -1,10 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
-import { GenerationRequest } from "@bitwarden/common/tools/types";
 
+import { Type } from "../metadata";
 import {
   CredentialGenerator,
+  GenerateRequest,
   GeneratedCredential,
   PassphraseGenerationOptions,
   PasswordGenerationOptions,
@@ -24,7 +25,10 @@ export class PasswordRandomizer
   /** Instantiates the password randomizer
    *  @param randomizer data source for random data
    */
-  constructor(private randomizer: Randomizer) {}
+  constructor(
+    private randomizer: Randomizer,
+    private currentTime: () => number,
+  ) {}
 
   /** create a password from ASCII codepoints
    *  @param request refines the generated password
@@ -69,27 +73,39 @@ export class PasswordRandomizer
   }
 
   generate(
-    request: GenerationRequest,
+    request: GenerateRequest,
     settings: PasswordGenerationOptions,
   ): Promise<GeneratedCredential>;
   generate(
-    request: GenerationRequest,
+    request: GenerateRequest,
     settings: PassphraseGenerationOptions,
   ): Promise<GeneratedCredential>;
   async generate(
-    _request: GenerationRequest,
+    request: GenerateRequest,
     settings: PasswordGenerationOptions | PassphraseGenerationOptions,
   ) {
     if (isPasswordGenerationOptions(settings)) {
-      const request = optionsToRandomAsciiRequest(settings);
-      const password = await this.randomAscii(request);
+      const req = optionsToRandomAsciiRequest(settings);
+      const password = await this.randomAscii(req);
 
-      return new GeneratedCredential(password, "password", Date.now());
+      return new GeneratedCredential(
+        password,
+        Type.password,
+        this.currentTime(),
+        request.source,
+        request.website,
+      );
     } else if (isPassphraseGenerationOptions(settings)) {
-      const request = optionsToEffWordListRequest(settings);
-      const passphrase = await this.randomEffLongWords(request);
+      const req = optionsToEffWordListRequest(settings);
+      const passphrase = await this.randomEffLongWords(req);
 
-      return new GeneratedCredential(passphrase, "passphrase", Date.now());
+      return new GeneratedCredential(
+        passphrase,
+        Type.password,
+        this.currentTime(),
+        request.source,
+        request.website,
+      );
     }
 
     throw new Error("Invalid settings received by generator.");

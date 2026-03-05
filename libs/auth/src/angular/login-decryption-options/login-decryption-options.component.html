@@ -1,11 +1,10 @@
 <ng-container *ngIf="loading">
-  <div class="text-center">
-    <i
-      class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
-      title="{{ 'loading' | i18n }}"
-      aria-hidden="true"
-    ></i>
-    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  <div class="tw-text-center">
+    <bit-icon
+      name="bwi-spinner"
+      class="bwi-spin bwi-2x tw-text-muted"
+      [ariaLabel]="'loading' | i18n"
+    ></bit-icon>
   </div>
 </ng-container>
 
@@ -55,6 +54,10 @@
       (click)="requestAdminApproval()"
     >
       {{ "requestAdminApproval" | i18n }}
+    </button>
+
+    <button type="button" bitButton bitFormButton block (click)="logOut()">
+      {{ "logOut" | i18n }}
     </button>
   </div>
 </ng-container>

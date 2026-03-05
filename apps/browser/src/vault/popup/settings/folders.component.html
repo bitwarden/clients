@@ -1,38 +1,56 @@
-<header>
-  <div class="left">
-    <button type="button" routerLink="/vault-settings">
-      <span class="header-icon"><i class="bwi bwi-angle-left" aria-hidden="true"></i></span>
-      <span>{{ "back" | i18n }}</span>
-    </button>
-  </div>
-  <h1 class="center">
-    <span class="title">{{ "folders" | i18n }}</span>
-  </h1>
-  <div class="right">
-    <button type="button" (click)="addFolder()" appA11yTitle="{{ 'addFolder' | i18n }}">
-      <i class="bwi bwi-plus bwi-lg bwi-fw" aria-hidden="true"></i>
-    </button>
-  </div>
-</header>
-<main tabindex="-1">
+<popup-page>
+  <popup-header slot="header" [pageTitle]="'folders' | i18n" showBackButton>
+    <ng-container slot="end">
+      <button
+        bitButton
+        size="small"
+        buttonType="primary"
+        type="button"
+        (click)="openAddEditFolderDialog()"
+      >
+        <i class="bwi bwi-plus" aria-hidden="true"></i>
+        {{ "new" | i18n }}
+      </button>
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
   <ng-container *ngIf="folders$ | async as folders">
-    <div class="box list full-list" *ngIf="folders.length; else noFoldersTemplate">
-      <div class="box-content">
+    <ng-container *ngIf="folders.length; else noFolders">
+      <bit-item-group>
+        <bit-item *ngFor="let folder of folders">
+          <bit-item-content>
+            {{ folder.name }}
+            <button
+              slot="end"
+              type="button"
+              (click)="openAddEditFolderDialog(folder)"
+              [label]="'editFolderWithName' | i18n: folder.name"
+              bitIconButton="bwi-pencil-square"
+              class="tw-self-end"
+              data-testid="edit-folder-button"
+            ></button>
+          </bit-item-content>
+        </bit-item>
+      </bit-item-group>
+    </ng-container>
+
+    <ng-template #noFolders>
+      <bit-no-items [icon]="NoFoldersIcon" class="tw-h-full tw-flex tw-items-center">
+        <ng-container slot="title">{{ "noFoldersAdded" | i18n }}</ng-container>
+        <ng-container slot="description">{{ "createFoldersToOrganize" | i18n }}</ng-container>
         <button
+          bitButton
+          buttonType="primary"
           type="button"
-          appStopClick
-          (click)="folderSelected(f)"
-          class="box-content-row padded"
-          *ngFor="let f of folders"
+          slot="button"
+          (click)="openAddEditFolderDialog()"
+          data-testid="empty-new-folder-button"
         >
-          {{ f.name }}
+          <i class="bwi bwi-plus" aria-hidden="true"></i>
+          {{ "newFolder" | i18n }}
         </button>
-      </div>
-    </div>
+      </bit-no-items>
+    </ng-template>
   </ng-container>
-  <ng-template #noFoldersTemplate>
-    <div class="no-items">
-      <p>{{ "noFolders" | i18n }}</p>
-    </div>
-  </ng-template>
-</main>
+</popup-page>

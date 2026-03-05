@@ -1,10 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import "./tw-theme.css";
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "./tw-theme-preflight.css";
 
 html {
   font-size: 16px;

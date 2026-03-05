@@ -1,43 +1,34 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 export abstract class LoginEmailServiceAbstraction {
   /**
-   * An observable that monitors the loginEmail in memory.
+   * An observable that monitors the loginEmail.
    * The loginEmail is the email that is being used in the current login process.
    */
-  loginEmail$: Observable<string | null>;
+  abstract loginEmail$: Observable<string | null>;
   /**
-   * An observable that monitors the storedEmail on disk.
+   * An observable that monitors the remembered email.
    * This will return null if an account is being added.
    */
-  storedEmail$: Observable<string | null>;
+  abstract rememberedEmail$: Observable<string | null>;
   /**
    * Sets the loginEmail in memory.
    * The loginEmail is the email that is being used in the current login process.
+   * Consumed through `loginEmail$` observable.
    */
-  setLoginEmail: (email: string) => Promise<void>;
+  abstract setLoginEmail: (email: string) => Promise<void>;
   /**
-   * Gets from memory whether or not the email should be stored on disk when `saveEmailSettings` is called.
-   * @returns A boolean stating whether or not the email should be stored on disk.
+   * Persist the user's choice of whether to remember their email on subsequent login attempts.
+   * Consumed through `rememberedEmail$` observable.
    */
-  getRememberEmail: () => boolean;
+  abstract setRememberedEmailChoice: (email: string, remember: boolean) => Promise<void>;
   /**
-   * Sets in memory whether or not the email should be stored on disk when `saveEmailSettings` is called.
+   * Clears the in-progress login email, to be used after a successful login.
    */
-  setRememberEmail: (value: boolean) => void;
+  abstract clearLoginEmail: () => Promise<void>;
+
   /**
-   * Sets the email and rememberEmail properties in memory to null.
+   * Clears the remembered email.
    */
-  clearValues: () => void;
-  /**
-   * Saves or clears the email on disk
-   * - If an account is being added, only changes the stored email when rememberEmail is true.
-   * - If rememberEmail is true, sets the email on disk to the current email.
-   * - If rememberEmail is false, sets the email on disk to null.
-   * Always clears the email and rememberEmail properties from memory.
-   * @returns A promise that resolves once the email settings are saved.
-   */
-  saveEmailSettings: () => Promise<void>;
+  abstract clearRememberedEmail: () => Promise<void>;
 }

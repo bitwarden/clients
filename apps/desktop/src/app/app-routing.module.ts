@@ -1,67 +1,70 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
-import {
-  DesktopDefaultOverlayPosition,
-  EnvironmentSelectorComponent,
-} from "@bitwarden/angular/auth/components/environment-selector.component";
-import { TwoFactorTimeoutComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth-expired.component";
-import { unauthUiRefreshSwap } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-route-swap";
+import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
+import { AuthRoute } from "@bitwarden/angular/auth/constants";
+import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/environment-selector/environment-selector.component";
 import {
   authGuard,
   lockGuard,
+  activeAuthGuard,
   redirectGuard,
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
+import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
+import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
-import { extensionRefreshRedirect } from "@bitwarden/angular/utils/extension-refresh-redirect";
 import {
-  AnonLayoutWrapperComponent,
-  AnonLayoutWrapperData,
+  DevicesIcon,
+  RegistrationUserAddIcon,
+  TwoFactorTimeoutIcon,
+  TwoFactorAuthEmailIcon,
+  UserLockIcon,
+  VaultIcon,
+  LockIcon,
+  DomainIcon,
+} from "@bitwarden/assets/svg";
+import {
   LoginComponent,
   LoginSecondaryContentComponent,
-  LockIcon,
-  LockV2Component,
   LoginViaAuthRequestComponent,
   PasswordHintComponent,
   RegistrationFinishComponent,
-  RegistrationLockAltIcon,
   RegistrationStartComponent,
   RegistrationStartSecondaryComponent,
   RegistrationStartSecondaryComponentData,
-  RegistrationUserAddIcon,
-  SetPasswordJitComponent,
-  UserLockIcon,
-  VaultIcon,
   LoginDecryptionOptionsComponent,
-  DevicesIcon,
-  TwoFactorTimeoutIcon,
+  SsoComponent,
+  TwoFactorAuthComponent,
+  TwoFactorAuthGuard,
+  NewDeviceVerificationComponent,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
+import {
+  LockComponent,
+  ConfirmKeyConnectorDomainComponent,
+  RemovePasswordComponent,
+} from "@bitwarden/key-management-ui";
 
-import { twofactorRefactorSwap } from "../../../../libs/angular/src/utils/two-factor-component-refactor-route-swap";
-import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
+import { AccountSwitcherV2Component } from "../auth/components/account-switcher/account-switcher-v2.component";
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
-import { HintComponent } from "../auth/hint.component";
-import { LockComponent } from "../auth/lock.component";
-import { LoginDecryptionOptionsComponentV1 } from "../auth/login/login-decryption-options/login-decryption-options-v1.component";
-import { LoginComponentV1 } from "../auth/login/login-v1.component";
-import { LoginViaAuthRequestComponentV1 } from "../auth/login/login-via-auth-request-v1.component";
-import { RegisterComponent } from "../auth/register.component";
-import { RemovePasswordComponent } from "../auth/remove-password.component";
-import { SetPasswordComponent } from "../auth/set-password.component";
-import { SsoComponent } from "../auth/sso.component";
-import { TwoFactorAuthComponent } from "../auth/two-factor-auth.component";
-import { TwoFactorComponent } from "../auth/two-factor.component";
-import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
-import { VaultComponent } from "../vault/app/vault/vault.component";
+import { reactiveUnlockVaultGuard } from "../autofill/guards/reactive-vault-guard";
+import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create.component";
+import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
+import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
+import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
+import { VaultWrapperComponent } from "../vault/app/vault-v3/vault-wrapper.component";
 
+import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
 import { SendComponent } from "./tools/send/send.component";
+import { SendV2Component } from "./tools/send-v2/send-v2.component";
 
 /**
  * Data properties acceptable for use in route objects in the desktop
  */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface RouteDataProperties {
   // For any new route data properties, add them here.
   // then assert that the data object satisfies this interface in the route object.
@@ -75,36 +78,17 @@ const routes: Routes = [
     canActivate: [redirectGuard({ loggedIn: "/vault", loggedOut: "/login", locked: "/lock" })],
   },
   {
-    path: "lock",
-    component: LockComponent,
-    canActivate: [lockGuard()],
-    canMatch: [extensionRefreshRedirect("/lockV2")],
-  },
-  ...twofactorRefactorSwap(
-    TwoFactorComponent,
-    AnonLayoutWrapperComponent,
-    {
-      path: "2fa",
-    },
-    {
-      path: "2fa",
-      component: AnonLayoutWrapperComponent,
-      children: [
-        {
-          path: "",
-          component: TwoFactorAuthComponent,
-          canActivate: [unauthGuardFn()],
-        },
-      ],
-    },
-  ),
-  {
-    path: "2fa-timeout",
+    path: AuthRoute.AuthenticationTimeout,
     component: AnonLayoutWrapperComponent,
     children: [
       {
         path: "",
-        component: TwoFactorTimeoutComponent,
+        component: AuthenticationTimeoutComponent,
+      },
+      {
+        path: "",
+        component: AccountSwitcherV2Component,
+        outlet: "header-actions",
       },
     ],
     data: {
@@ -114,170 +98,62 @@ const routes: Routes = [
       },
     } satisfies RouteDataProperties & AnonLayoutWrapperData,
   },
-  { path: "register", component: RegisterComponent },
+  {
+    path: AuthRoute.NewDeviceVerification,
+    component: AnonLayoutWrapperComponent,
+    canActivate: [unauthGuardFn(), activeAuthGuard()],
+    children: [
+      { path: "", component: NewDeviceVerificationComponent },
+      {
+        path: "",
+        component: AccountSwitcherV2Component,
+        outlet: "header-actions",
+      },
+    ],
+    data: {
+      pageIcon: TwoFactorAuthEmailIcon,
+      pageTitle: {
+        key: "verifyYourIdentity",
+      },
+      pageSubtitle: {
+        key: "weDontRecognizeThisDevice",
+      },
+    } satisfies RouteDataProperties & AnonLayoutWrapperData,
+  },
   {
     path: "vault",
-    component: VaultComponent,
-    canActivate: [authGuard],
+    component: VaultV2Component,
+    canActivate: [
+      authGuard,
+      canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone1, false, "new-vault", false),
+    ],
+    // Needed to ensure feature flag changes are picked up on account switching
+    runGuardsAndResolvers: "always",
   },
-  { path: "accessibility-cookie", component: AccessibilityCookieComponent },
-  { path: "set-password", component: SetPasswordComponent },
-  { path: "sso", component: SsoComponent },
   {
     path: "send",
     component: SendComponent,
     canActivate: [authGuard],
   },
   {
-    path: "update-temp-password",
-    component: UpdateTempPasswordComponent,
-    canActivate: [authGuard],
+    path: "fido2-assertion",
+    component: Fido2VaultComponent,
   },
   {
-    path: "remove-password",
-    component: RemovePasswordComponent,
-    canActivate: [authGuard],
+    path: "fido2-creation",
+    component: Fido2CreateComponent,
   },
-  ...unauthUiRefreshSwap(
-    LoginViaAuthRequestComponentV1,
-    AnonLayoutWrapperComponent,
-    {
-      path: "login-with-device",
-    },
-    {
-      path: "login-with-device",
-      data: {
-        pageIcon: DevicesIcon,
-        pageTitle: {
-          key: "loginInitiated",
-        },
-        pageSubtitle: {
-          key: "aNotificationWasSentToYourDevice",
-        },
-      } satisfies AnonLayoutWrapperData,
-      children: [
-        { path: "", component: LoginViaAuthRequestComponent },
-        {
-          path: "",
-          component: EnvironmentSelectorComponent,
-          outlet: "environment-selector",
-        },
-      ],
-    },
-  ),
-  ...unauthUiRefreshSwap(
-    LoginViaAuthRequestComponentV1,
-    AnonLayoutWrapperComponent,
-    {
-      path: "admin-approval-requested",
-    },
-    {
-      path: "admin-approval-requested",
-      data: {
-        pageIcon: DevicesIcon,
-        pageTitle: {
-          key: "adminApprovalRequested",
-        },
-        pageSubtitle: {
-          key: "adminApprovalRequestSentToAdmins",
-        },
-      } satisfies AnonLayoutWrapperData,
-      children: [{ path: "", component: LoginViaAuthRequestComponent }],
-    },
-  ),
-  ...unauthUiRefreshSwap(
-    HintComponent,
-    AnonLayoutWrapperComponent,
-    {
-      path: "hint",
-      canActivate: [unauthGuardFn()],
-    },
-    {
-      path: "",
-      children: [
-        {
-          path: "hint",
-          canActivate: [unauthGuardFn()],
-          data: {
-            pageTitle: {
-              key: "requestPasswordHint",
-            },
-            pageSubtitle: {
-              key: "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou",
-            },
-            pageIcon: UserLockIcon,
-          } satisfies AnonLayoutWrapperData,
-          children: [
-            { path: "", component: PasswordHintComponent },
-            {
-              path: "",
-              component: EnvironmentSelectorComponent,
-              outlet: "environment-selector",
-            },
-          ],
-        },
-      ],
-    },
-  ),
-  ...unauthUiRefreshSwap(
-    LoginComponentV1,
-    AnonLayoutWrapperComponent,
-    {
-      path: "login",
-      component: LoginComponentV1,
-      canActivate: [maxAccountsGuardFn()],
-    },
-    {
-      path: "",
-      children: [
-        {
-          path: "login",
-          canActivate: [maxAccountsGuardFn()],
-          data: {
-            pageTitle: {
-              key: "logInToBitwarden",
-            },
-            pageIcon: VaultIcon,
-          },
-          children: [
-            { path: "", component: LoginComponent },
-            { path: "", component: LoginSecondaryContentComponent, outlet: "secondary" },
-            {
-              path: "",
-              component: EnvironmentSelectorComponent,
-              outlet: "environment-selector",
-              data: {
-                overlayPosition: DesktopDefaultOverlayPosition,
-              },
-            },
-          ],
-        },
-      ],
-    },
-  ),
-  ...unauthUiRefreshSwap(
-    LoginDecryptionOptionsComponentV1,
-    AnonLayoutWrapperComponent,
-    {
-      path: "login-initiated",
-      canActivate: [tdeDecryptionRequiredGuard()],
-    },
-    {
-      path: "login-initiated",
-      canActivate: [tdeDecryptionRequiredGuard()],
-      data: {
-        pageIcon: DevicesIcon,
-      },
-      children: [{ path: "", component: LoginDecryptionOptionsComponent }],
-    },
-  ),
+  {
+    path: "fido2-excluded",
+    component: Fido2ExcludedCiphersComponent,
+  },
   {
     path: "",
     component: AnonLayoutWrapperComponent,
     children: [
       {
-        path: "signup",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
+        path: AuthRoute.SignUp,
+        canActivate: [unauthGuardFn()],
         data: {
           pageIcon: RegistrationUserAddIcon,
           pageTitle: {
@@ -294,27 +170,172 @@ const routes: Routes = [
             component: RegistrationStartSecondaryComponent,
             outlet: "secondary",
             data: {
-              loginRoute: "/login",
+              loginRoute: `/${AuthRoute.Login}`,
             } satisfies RegistrationStartSecondaryComponentData,
+          },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
           },
         ],
       },
       {
-        path: "finish-signup",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
+        path: AuthRoute.FinishSignUp,
+        canActivate: [unauthGuardFn()],
         data: {
-          pageIcon: RegistrationLockAltIcon,
+          pageIcon: LockIcon,
         } satisfies AnonLayoutWrapperData,
         children: [
           {
             path: "",
             component: RegistrationFinishComponent,
           },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
         ],
       },
       {
-        path: "lockV2",
-        canActivate: [canAccessFeature(FeatureFlag.ExtensionRefresh), lockGuard()],
+        path: AuthRoute.Login,
+        canActivate: [maxAccountsGuardFn()],
+        data: {
+          pageTitle: {
+            key: "logInToBitwarden",
+          },
+          pageIcon: VaultIcon,
+        },
+        children: [
+          { path: "", component: LoginComponent },
+          { path: "", component: LoginSecondaryContentComponent, outlet: "secondary" },
+          {
+            path: "",
+            component: EnvironmentSelectorComponent,
+            outlet: "environment-selector",
+          },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
+        ],
+      },
+      {
+        path: AuthRoute.LoginInitiated,
+        canActivate: [tdeDecryptionRequiredGuard()],
+        data: {
+          pageIcon: DevicesIcon,
+        },
+        children: [
+          { path: "", component: LoginDecryptionOptionsComponent },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
+        ],
+      },
+      {
+        path: AuthRoute.Sso,
+        data: {
+          pageIcon: VaultIcon,
+          pageTitle: {
+            key: "enterpriseSingleSignOn",
+          },
+          pageSubtitle: {
+            key: "singleSignOnEnterOrgIdentifierText",
+          },
+        } satisfies AnonLayoutWrapperData,
+        children: [
+          { path: "", component: SsoComponent },
+          {
+            path: "",
+            component: EnvironmentSelectorComponent,
+            outlet: "environment-selector",
+          },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
+        ],
+      },
+      {
+        path: AuthRoute.LoginWithDevice,
+        data: {
+          pageIcon: DevicesIcon,
+          pageTitle: {
+            key: "logInRequestSent",
+          },
+          pageSubtitle: {
+            key: "aNotificationWasSentToYourDevice",
+          },
+        } satisfies AnonLayoutWrapperData,
+        children: [
+          { path: "", component: LoginViaAuthRequestComponent },
+          {
+            path: "",
+            component: EnvironmentSelectorComponent,
+            outlet: "environment-selector",
+          },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
+        ],
+      },
+      {
+        path: AuthRoute.AdminApprovalRequested,
+        data: {
+          pageIcon: DevicesIcon,
+          pageTitle: {
+            key: "adminApprovalRequested",
+          },
+          pageSubtitle: {
+            key: "adminApprovalRequestSentToAdmins",
+          },
+        } satisfies AnonLayoutWrapperData,
+        children: [
+          { path: "", component: LoginViaAuthRequestComponent },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
+        ],
+      },
+      {
+        path: AuthRoute.PasswordHint,
+        canActivate: [unauthGuardFn()],
+        data: {
+          pageTitle: {
+            key: "requestPasswordHint",
+          },
+          pageSubtitle: {
+            key: "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou",
+          },
+          pageIcon: UserLockIcon,
+        } satisfies AnonLayoutWrapperData,
+        children: [
+          { path: "", component: PasswordHintComponent },
+          {
+            path: "",
+            component: EnvironmentSelectorComponent,
+            outlet: "environment-selector",
+          },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
+        ],
+      },
+      {
+        path: "lock",
+        canActivate: [lockGuard(), reactiveUnlockVaultGuard],
         data: {
           pageIcon: LockIcon,
           pageTitle: {
@@ -325,22 +346,132 @@ const routes: Routes = [
         children: [
           {
             path: "",
-            component: LockV2Component,
+            component: LockComponent,
+          },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
           },
         ],
       },
       {
-        path: "set-password-jit",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification)],
-        component: SetPasswordJitComponent,
+        path: AuthRoute.TwoFactor,
+        canActivate: [unauthGuardFn(), TwoFactorAuthGuard],
+        children: [
+          {
+            path: "",
+            component: TwoFactorAuthComponent,
+          },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
+        ],
         data: {
           pageTitle: {
-            key: "joinOrganization",
+            key: "verifyYourIdentity",
           },
-          pageSubtitle: {
-            key: "finishJoiningThisOrganizationBySettingAMasterPassword",
-          },
+          // `TwoFactorAuthComponent` manually sets its icon based on the 2fa type
+          pageIcon: null,
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+      },
+      {
+        path: AuthRoute.SetInitialPassword,
+        canActivate: [authGuard],
+        data: {
+          maxWidth: "lg",
+          pageIcon: LockIcon,
         } satisfies AnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: SetInitialPasswordComponent,
+          },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
+        ],
+      },
+      {
+        path: AuthRoute.ChangePassword,
+        canActivate: [authGuard],
+        data: {
+          pageIcon: LockIcon,
+        } satisfies AnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: ChangePasswordComponent,
+          },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
+        ],
+      },
+      {
+        path: "remove-password",
+        canActivate: [authGuard],
+        data: {
+          pageTitle: {
+            key: "verifyYourOrganization",
+          },
+          pageIcon: LockIcon,
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: RemovePasswordComponent,
+          },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
+        ],
+      },
+      {
+        path: "confirm-key-connector-domain",
+        canActivate: [],
+        data: {
+          pageTitle: {
+            key: "verifyYourOrganization",
+          },
+          pageIcon: DomainIcon,
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: ConfirmKeyConnectorDomainComponent,
+          },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    path: "",
+    component: DesktopLayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: "new-vault",
+        component: VaultWrapperComponent,
+        data: { pageTitle: { key: "vault" } } satisfies RouteDataProperties,
+      },
+      {
+        path: "new-sends",
+        component: SendV2Component,
+        data: { pageTitle: { key: "send" } } satisfies RouteDataProperties,
       },
     ],
   },
@@ -350,7 +481,7 @@ const routes: Routes = [
   imports: [
     RouterModule.forRoot(routes, {
       useHash: true,
-      /*enableTracing: true,*/
+      // enableTracing: true,
     }),
   ],
   exports: [RouterModule],

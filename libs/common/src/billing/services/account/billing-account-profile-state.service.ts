@@ -1,16 +1,12 @@
-import { map, Observable, of, switchMap } from "rxjs";
+import { map, Observable } from "rxjs";
 
-import {
-  ActiveUserState,
-  BILLING_DISK,
-  StateProvider,
-  UserKeyDefinition,
-} from "../../../platform/state";
-import { UserId } from "../../../types/guid";
 import {
   BillingAccountProfile,
   BillingAccountProfileStateService,
-} from "../../abstractions/account/billing-account-profile-state.service";
+} from "@bitwarden/common/billing/abstractions";
+import { BILLING_DISK, StateProvider, UserKeyDefinition } from "@bitwarden/state";
+
+import { UserId } from "../../../types/guid";
 
 export const BILLING_ACCOUNT_PROFILE_KEY_DEFINITION = new UserKeyDefinition<BillingAccountProfile>(
   BILLING_DISK,
@@ -22,42 +18,30 @@ export const BILLING_ACCOUNT_PROFILE_KEY_DEFINITION = new UserKeyDefinition<Bill
 );
 
 export class DefaultBillingAccountProfileStateService implements BillingAccountProfileStateService {
-  private billingAccountProfileState: ActiveUserState<BillingAccountProfile>;
+  constructor(private readonly stateProvider: StateProvider) {}
 
-  hasPremiumFromAnyOrganization$: Observable<boolean>;
-  hasPremiumPersonally$: Observable<boolean>;
-  hasPremiumFromAnySource$: Observable<boolean>;
+  hasPremiumFromAnyOrganization$(userId: UserId): Observable<boolean> {
+    return this.stateProvider
+      .getUser(userId, BILLING_ACCOUNT_PROFILE_KEY_DEFINITION)
+      .state$.pipe(map((profile) => !!profile?.hasPremiumFromAnyOrganization));
+  }
 
-  constructor(private readonly stateProvider: StateProvider) {
-    this.billingAccountProfileState = stateProvider.getActive(
-      BILLING_ACCOUNT_PROFILE_KEY_DEFINITION,
-    );
+  hasPremiumPersonally$(userId: UserId): Observable<boolean> {
+    return this.stateProvider
+      .getUser(userId, BILLING_ACCOUNT_PROFILE_KEY_DEFINITION)
+      .state$.pipe(map((profile) => !!profile?.hasPremiumPersonally));
+  }
 
-    // Setup an observable that will always track the currently active user
-    // but will fallback to emitting null when there is no active user.
-    const billingAccountProfileOrNull = stateProvider.activeUserId$.pipe(
-      switchMap((userId) =>
-        userId != null
-          ? stateProvider.getUser(userId, BILLING_ACCOUNT_PROFILE_KEY_DEFINITION).state$
-          : of(null),
-      ),
-    );
-
-    this.hasPremiumFromAnyOrganization$ = billingAccountProfileOrNull.pipe(
-      map((billingAccountProfile) => !!billingAccountProfile?.hasPremiumFromAnyOrganization),
-    );
-
-    this.hasPremiumPersonally$ = billingAccountProfileOrNull.pipe(
-      map((billingAccountProfile) => !!billingAccountProfile?.hasPremiumPersonally),
-    );
-
-    this.hasPremiumFromAnySource$ = billingAccountProfileOrNull.pipe(
-      map(
-        (billingAccountProfile) =>
-          billingAccountProfile?.hasPremiumFromAnyOrganization === true ||
-          billingAccountProfile?.hasPremiumPersonally === true,
-      ),
-    );
+  hasPremiumFromAnySource$(userId: UserId): Observable<boolean> {
+    return this.stateProvider
+      .getUser(userId, BILLING_ACCOUNT_PROFILE_KEY_DEFINITION)
+      .state$.pipe(
+        map(
+          (profile) =>
+            profile?.hasPremiumFromAnyOrganization === true ||
+            profile?.hasPremiumPersonally === true,
+        ),
+      );
   }
 
   async setHasPremium(
@@ -65,11 +49,19 @@ export class DefaultBillingAccountProfileStateService implements BillingAccountP
     hasPremiumFromAnyOrganization: boolean,
     userId: UserId,
   ): Promise<void> {
-    await this.stateProvider.getUser(userId, BILLING_ACCOUNT_PROFILE_KEY_DEFINITION).update((_) => {
-      return {
-        hasPremiumPersonally: hasPremiumPersonally,
-        hasPremiumFromAnyOrganization: hasPremiumFromAnyOrganization,
-      };
-    });
+    await this.stateProvider.getUser(userId, BILLING_ACCOUNT_PROFILE_KEY_DEFINITION).update(
+      (_) => {
+        return {
+          hasPremiumPersonally: hasPremiumPersonally,
+          hasPremiumFromAnyOrganization: hasPremiumFromAnyOrganization,
+        };
+      },
+      {
+        shouldUpdate: (state) =>
+          state == null ||
+          state.hasPremiumFromAnyOrganization !== hasPremiumFromAnyOrganization ||
+          state.hasPremiumPersonally !== hasPremiumPersonally,
+      },
+    );
   }
 }

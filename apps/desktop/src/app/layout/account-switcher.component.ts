@@ -17,6 +17,8 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
 
+import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
+
 type ActiveAccount = {
   id: string;
   name: string;
@@ -29,6 +31,8 @@ type InactiveAccount = ActiveAccount & {
   authenticationStatus: AuthenticationStatus;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-account-switcher",
   templateUrl: "account-switcher.component.html",
@@ -52,6 +56,7 @@ type InactiveAccount = ActiveAccount & {
       transition("* => void", animate("100ms linear", style({ opacity: 0 }))),
     ]),
   ],
+  standalone: false,
 })
 export class AccountSwitcherComponent implements OnInit {
   activeAccount$: Observable<ActiveAccount | null>;
@@ -90,6 +95,7 @@ export class AccountSwitcherComponent implements OnInit {
     private environmentService: EnvironmentService,
     private loginEmailService: LoginEmailServiceAbstraction,
     private accountService: AccountService,
+    private biometricsService: DesktopBiometricsService,
   ) {
     this.activeAccount$ = this.accountService.activeAccount$.pipe(
       switchMap(async (active) => {
@@ -107,7 +113,9 @@ export class AccountSwitcherComponent implements OnInit {
           name: active.name,
           email: active.email,
           avatarColor: await firstValueFrom(this.avatarService.avatarColor$),
-          server: (await this.environmentService.getEnvironment())?.getHostname(),
+          server: (
+            await firstValueFrom(this.environmentService.getEnvironment$(active.id))
+          )?.getHostname(),
         };
       }),
     );
@@ -181,6 +189,7 @@ export class AccountSwitcherComponent implements OnInit {
 
   async switch(userId: string) {
     this.close();
+    await this.biometricsService.setShouldAutopromptNow(true);
 
     this.disabled = true;
     const accountSwitchFinishedPromise = firstValueFrom(
@@ -217,7 +226,9 @@ export class AccountSwitcherComponent implements OnInit {
         email: baseAccounts[userId].email,
         authenticationStatus: await this.authService.getAuthStatus(userId),
         avatarColor: await firstValueFrom(this.avatarService.getUserAvatarColor$(userId as UserId)),
-        server: (await this.environmentService.getEnvironment(userId))?.getHostname(),
+        server: (
+          await firstValueFrom(this.environmentService.getEnvironment$(userId as UserId))
+        )?.getHostname(),
       };
     }
 

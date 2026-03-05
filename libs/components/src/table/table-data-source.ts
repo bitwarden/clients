@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { _isNumberValue } from "@angular/cdk/coercion";
 import { DataSource } from "@angular/cdk/collections";
 import { BehaviorSubject, combineLatest, map, Observable, Subscription } from "rxjs";
@@ -19,7 +17,7 @@ export type FilterFn<T> = (data: T) => boolean;
 export class TableDataSource<T> extends DataSource<T> {
   private readonly _data: BehaviorSubject<T[]>;
   private readonly _sort: BehaviorSubject<Sort>;
-  private readonly _filter = new BehaviorSubject<string | FilterFn<T>>(null);
+  private readonly _filter = new BehaviorSubject<string | FilterFn<T>>(() => true);
   private readonly _renderData = new BehaviorSubject<T[]>([]);
   private _renderChangesSubscription: Subscription | null = null;
 
@@ -29,12 +27,12 @@ export class TableDataSource<T> extends DataSource<T> {
    * For example, a 'selectAll()' function would likely want to select the set of filtered data
    * shown to the user rather than all the data.
    */
-  filteredData: T[];
+  filteredData?: T[];
 
   constructor() {
     super();
-    this._data = new BehaviorSubject([]);
-    this._sort = new BehaviorSubject({ direction: "asc" });
+    this._data = new BehaviorSubject([] as T[]);
+    this._sort = new BehaviorSubject<Sort>({ direction: "asc" } as Sort);
   }
 
   get data() {

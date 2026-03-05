@@ -1,41 +1,66 @@
+import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
-import { Router } from "@angular/router";
-import { map, Observable } from "rxjs";
+import { filter, map, Observable, switchMap } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { NoFolders } from "@bitwarden/assets/svg";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  DialogService,
+  IconButtonModule,
+  ItemModule,
+  NoItemsModule,
+} from "@bitwarden/components";
+import { AddEditFolderDialogComponent } from "@bitwarden/vault";
 
+import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
+import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
+import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "app-folders",
-  templateUrl: "folders.component.html",
+  templateUrl: "./folders.component.html",
+  imports: [
+    CommonModule,
+    JslibModule,
+    PopOutComponent,
+    PopupPageComponent,
+    PopupHeaderComponent,
+    ItemModule,
+    NoItemsModule,
+    IconButtonModule,
+    ButtonModule,
+    AsyncActionsModule,
+  ],
 })
 export class FoldersComponent {
   folders$: Observable<FolderView[]>;
 
+  NoFoldersIcon = NoFolders;
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+
   constructor(
     private folderService: FolderService,
-    private router: Router,
+    private dialogService: DialogService,
+    private accountService: AccountService,
   ) {
-    this.folders$ = this.folderService.folderViews$.pipe(
-      map((folders) => {
-        if (folders.length > 0) {
-          folders = folders.slice(0, folders.length - 1);
-        }
-
-        return folders;
-      }),
+    this.folders$ = this.activeUserId$.pipe(
+      filter((userId): userId is UserId => userId !== null),
+      switchMap((userId) => this.folderService.folderViews$(userId)),
     );
   }
 
-  folderSelected(folder: FolderView) {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate(["/edit-folder"], { queryParams: { folderId: folder.id } });
-  }
+  /** Open the Add/Edit folder dialog */
+  openAddEditFolderDialog(folder?: FolderView) {
+    // If a folder is provided, the edit variant should be shown
+    const editFolderConfig = folder ? { folder } : undefined;
 
-  addFolder() {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate(["/add-folder"]);
+    AddEditFolderDialogComponent.open(this.dialogService, { editFolderConfig });
   }
 }

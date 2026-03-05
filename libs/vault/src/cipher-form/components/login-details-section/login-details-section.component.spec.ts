@@ -3,6 +3,7 @@ import { Component } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -13,8 +14,7 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
-import { ToastService } from "@bitwarden/components";
-import { BitPasswordInputToggleDirective } from "@bitwarden/components/src/form-field/password-input-toggle.directive";
+import { BitPasswordInputToggleDirective, ToastService } from "@bitwarden/components";
 
 import { CipherFormGenerationService } from "../../abstractions/cipher-form-generation.service";
 import { TotpCaptureService } from "../../abstractions/totp-capture.service";
@@ -23,8 +23,9 @@ import { AutofillOptionsComponent } from "../autofill-options/autofill-options.c
 
 import { LoginDetailsSectionComponent } from "./login-details-section.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   selector: "vault-autofill-options",
   template: "",
 })
@@ -43,9 +44,15 @@ describe("LoginDetailsSectionComponent", () => {
   let configService: MockProxy<ConfigService>;
 
   const collect = jest.fn().mockResolvedValue(null);
+  const getInitialCipherView = jest.fn((): any => null);
 
   beforeEach(async () => {
-    cipherFormContainer = mock<CipherFormContainer>();
+    getInitialCipherView.mockClear();
+    cipherFormContainer = mock<CipherFormContainer>({
+      getInitialCipherView,
+      formStatusChange$: new BehaviorSubject<"enabled" | "disabled">("enabled"),
+      website: "example.com",
+    });
 
     generationService = mock<CipherFormGenerationService>();
     auditService = mock<AuditService>();
@@ -120,18 +127,18 @@ describe("LoginDetailsSectionComponent", () => {
   });
 
   it("initializes 'loginDetailsForm' with original cipher view values", async () => {
-    (cipherFormContainer.originalCipherView as CipherView) = {
+    getInitialCipherView.mockReturnValueOnce({
       viewPassword: true,
       login: {
         password: "original-password",
         username: "original-username",
         totp: "original-totp",
-      } as LoginView,
-    } as CipherView;
+      },
+    });
 
-    await component.ngOnInit();
+    component.ngOnInit();
 
-    expect(component.loginDetailsForm.value).toEqual({
+    expect(component.loginDetailsForm.getRawValue()).toEqual({
       username: "original-username",
       password: "original-password",
       totp: "original-totp",
@@ -139,22 +146,23 @@ describe("LoginDetailsSectionComponent", () => {
   });
 
   it("initializes 'loginDetailsForm' with initialValues that override any original cipher view values", async () => {
-    (cipherFormContainer.originalCipherView as CipherView) = {
+    getInitialCipherView.mockReturnValueOnce({
       viewPassword: true,
       login: {
         password: "original-password",
         username: "original-username",
         totp: "original-totp",
-      } as LoginView,
-    } as CipherView;
+      },
+    });
+
     cipherFormContainer.config.initialValues = {
       username: "new-username",
       password: "new-password",
     };
 
-    await component.ngOnInit();
+    component.ngOnInit();
 
-    expect(component.loginDetailsForm.value).toEqual({
+    expect(component.loginDetailsForm.getRawValue()).toEqual({
       username: "new-username",
       password: "new-password",
       totp: "original-totp",
@@ -163,12 +171,12 @@ describe("LoginDetailsSectionComponent", () => {
 
   describe("viewHiddenFields", () => {
     beforeEach(() => {
-      (cipherFormContainer.originalCipherView as CipherView) = {
+      getInitialCipherView.mockReturnValue({
         viewPassword: false,
         login: {
           password: "original-password",
-        } as LoginView,
-      } as CipherView;
+        },
+      });
     });
 
     it("returns value of originalCipher.viewPassword", () => {
@@ -249,6 +257,10 @@ describe("LoginDetailsSectionComponent", () => {
   });
 
   describe("password", () => {
+    beforeEach(() => {
+      getInitialCipherView.mockReturnValue(null);
+    });
+
     const getGeneratePasswordBtn = () =>
       fixture.nativeElement.querySelector("button[data-testid='generate-password-button']");
 
@@ -434,6 +446,7 @@ describe("LoginDetailsSectionComponent", () => {
     });
 
     it("should call captureTotp when the capture totp button is clicked", fakeAsync(() => {
+      jest.spyOn(component, "canCaptureTotp", "get").mockReturnValue(true);
       component.captureTotp = jest.fn();
       fixture.detectChanges();
 
@@ -445,7 +458,8 @@ describe("LoginDetailsSectionComponent", () => {
     }));
 
     describe("canCaptureTotp", () => {
-      it("should return true when totpCaptureService is present and totp is editable", () => {
+      it("should return true when totpCaptureService is present and totpCaptureService.canCaptureTotp is true and totp is editable", () => {
+        jest.spyOn(component, "canCaptureTotp", "get").mockReturnValue(true);
         component.loginDetailsForm.controls.totp.enable();
         expect(component.canCaptureTotp).toBe(true);
       });
@@ -516,11 +530,11 @@ describe("LoginDetailsSectionComponent", () => {
       fixture.nativeElement.querySelector("input[data-testid='passkey-field']");
 
     beforeEach(() => {
-      (cipherFormContainer.originalCipherView as CipherView) = {
+      getInitialCipherView.mockReturnValue({
         login: Object.assign(new LoginView(), {
           fido2Credentials: [{ creationDate: passkeyDate } as Fido2CredentialView],
         }),
-      } as CipherView;
+      });
 
       fixture = TestBed.createComponent(LoginDetailsSectionComponent);
       component = fixture.componentInstance;
@@ -563,7 +577,11 @@ describe("LoginDetailsSectionComponent", () => {
     });
 
     it("hides the passkey field when missing a passkey", () => {
-      (cipherFormContainer.originalCipherView as CipherView).login.fido2Credentials = [];
+      getInitialCipherView.mockReturnValueOnce({
+        login: Object.assign(new LoginView(), {
+          fido2Credentials: [],
+        }),
+      });
 
       fixture.detectChanges();
 

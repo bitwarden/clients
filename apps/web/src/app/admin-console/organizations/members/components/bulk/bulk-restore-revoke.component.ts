@@ -1,15 +1,20 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
-import { Observable } from "rxjs";
+import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
-import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import {
+  OrganizationUserApiService,
+  OrganizationUserService,
+} from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService } from "@bitwarden/components";
+import { getById } from "@bitwarden/common/platform/misc";
+import { DIALOG_DATA, DialogService } from "@bitwarden/components";
 
 import { BulkUserDetails } from "./bulk-status.component";
 
@@ -19,9 +24,12 @@ type BulkRestoreDialogParams = {
   isRevoking: boolean;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "app-bulk-restore-revoke",
+  selector: "member-bulk-restore-revoke",
   templateUrl: "bulk-restore-revoke.component.html",
+  standalone: false,
 })
 export class BulkRestoreRevokeComponent {
   isRevoking: boolean;
@@ -35,12 +43,14 @@ export class BulkRestoreRevokeComponent {
   error: string;
   showNoMasterPasswordWarning = false;
   nonCompliantMembers: boolean = false;
-  accountDeprovisioningEnabled$: Observable<boolean>;
+  organization$: Observable<Organization>;
 
   constructor(
     protected i18nService: I18nService,
     private organizationUserApiService: OrganizationUserApiService,
-    private configService: ConfigService,
+    private organizationUserService: OrganizationUserService,
+    private accountService: AccountService,
+    private organizationService: OrganizationService,
     @Inject(DIALOG_DATA) protected data: BulkRestoreDialogParams,
   ) {
     this.isRevoking = data.isRevoking;
@@ -49,17 +59,21 @@ export class BulkRestoreRevokeComponent {
     this.showNoMasterPasswordWarning = this.users.some(
       (u) => u.status > OrganizationUserStatusType.Invited && u.hasMasterPassword === false,
     );
-    this.accountDeprovisioningEnabled$ = this.configService.getFeatureFlag$(
-      FeatureFlag.AccountDeprovisioning,
+
+    this.organization$ = accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => organizationService.organizations$(userId)),
+      getById(this.organizationId),
+      map((organization) => {
+        if (organization == null) {
+          throw new Error("Organization not found");
+        }
+        return organization;
+      }),
     );
   }
 
   get bulkTitle() {
-    const titleKey = this.isRevoking ? "revokeUsers" : "restoreUsers";
-    return this.i18nService.t(titleKey);
-  }
-
-  get bulkMemberTitle() {
     const titleKey = this.isRevoking ? "revokeMembers" : "restoreMembers";
     return this.i18nService.t(titleKey);
   }
@@ -71,12 +85,9 @@ export class BulkRestoreRevokeComponent {
       const bulkMessage = this.isRevoking ? "bulkRevokedMessage" : "bulkRestoredMessage";
 
       response.data.forEach(async (entry) => {
-        const error =
-          entry.error !== ""
-            ? this.i18nService.t("cannotRestoreAccessError")
-            : this.i18nService.t(bulkMessage);
-        this.statuses.set(entry.id, error);
-        if (entry.error !== "") {
+        const status = entry.error !== "" ? entry.error : this.i18nService.t(bulkMessage);
+        this.statuses.set(entry.id, status);
+        if (entry.error !== "" && !this.isRevoking) {
           this.nonCompliantMembers = true;
         }
       });
@@ -94,9 +105,12 @@ export class BulkRestoreRevokeComponent {
         userIds,
       );
     } else {
-      return await this.organizationUserApiService.restoreManyOrganizationUsers(
-        this.organizationId,
-        userIds,
+      return await firstValueFrom(
+        this.organization$.pipe(
+          switchMap((organization) =>
+            this.organizationUserService.bulkRestoreUsers(organization, userIds),
+          ),
+        ),
       );
     }
   }

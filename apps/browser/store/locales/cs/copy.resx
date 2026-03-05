@@ -144,7 +144,7 @@ Použijte Bitwarden k zabezpečení svých zaměstnanců a sdílení citlivých 
 Další důvody, proč si vybrat Bitwarden:
 
 Šifrování na světové úrovni
-Hesla jsou chráněna pokročilým end-to-end šifrováním (AES-256 bitů, solený hashtag a PBKDF2 SHA-256), takže Vaše data zůstanou v bezpečí a soukromí.
+Hesla jsou chráněna pokročilým end-to-end šifrováním (AES-256 bitů, solený hashing a PBKDF2 SHA-256), takže Vaše data zůstanou v bezpečí a soukromí.
 
 Audity třetích stran
 Společnost Bitwarden pravidelně provádí komplexní bezpečnostní audity třetích stran s významnými bezpečnostními firmami. Tyto každoroční audity zahrnují posouzení zdrojového kódu a penetrační testy napříč IP adresami, servery a webovými aplikacemi společnosti Bitwarden.

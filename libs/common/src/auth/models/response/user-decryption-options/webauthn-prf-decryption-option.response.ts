@@ -1,24 +1,35 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import { BaseResponse } from "../../../../models/response/base.response";
-import { EncString } from "../../../../platform/models/domain/enc-string";
 
 export interface IWebAuthnPrfDecryptionOptionServerResponse {
   EncryptedPrivateKey: string;
   EncryptedUserKey: string;
+  CredentialId: string;
+  Transports: string[];
 }
 
 export class WebAuthnPrfDecryptionOptionResponse extends BaseResponse {
   encryptedPrivateKey: EncString;
   encryptedUserKey: EncString;
+  credentialId: string;
+  transports: string[];
 
   constructor(response: IWebAuthnPrfDecryptionOptionServerResponse) {
     super(response);
-    if (response.EncryptedPrivateKey) {
-      this.encryptedPrivateKey = new EncString(this.getResponseProperty("EncryptedPrivateKey"));
+
+    const encPrivateKey = this.getResponseProperty("EncryptedPrivateKey");
+    if (encPrivateKey) {
+      this.encryptedPrivateKey = new EncString(encPrivateKey);
     }
-    if (response.EncryptedUserKey) {
-      this.encryptedUserKey = new EncString(this.getResponseProperty("EncryptedUserKey"));
+
+    const encUserKey = this.getResponseProperty("EncryptedUserKey");
+    if (encUserKey) {
+      this.encryptedUserKey = new EncString(encUserKey);
     }
+
+    this.credentialId = this.getResponseProperty("CredentialId");
+    this.transports = this.getResponseProperty("Transports") || [];
   }
 }

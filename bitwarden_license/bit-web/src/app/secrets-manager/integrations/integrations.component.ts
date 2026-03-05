@@ -1,20 +1,22 @@
-import { Component } from "@angular/core";
+import { Component, Signal } from "@angular/core";
 
+import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
+import { IntegrationStateService } from "@bitwarden/bit-common/dirt/organization-integrations/shared/integration-state.service";
 import { IntegrationType } from "@bitwarden/common/enums";
-import { Integration } from "@bitwarden/web-vault/app/shared";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-integrations",
   templateUrl: "./integrations.component.html",
+  standalone: false,
 })
 export class IntegrationsComponent {
-  private integrationsAndSdks: Integration[] = [];
-
-  constructor() {
-    this.integrationsAndSdks = [
+  constructor(private state: IntegrationStateService) {
+    const integrations = [
       {
         name: "Rust",
-        linkURL: "https://github.com/bitwarden/sdk",
+        linkURL: "https://github.com/bitwarden/sdk-sm",
         image: "../../../../../../../images/secrets-manager/sdks/rust.svg",
         imageDarkMode: "../../../../../../../images/secrets-manager/sdks/rust-white.svg",
         type: IntegrationType.SDK,
@@ -35,56 +37,56 @@ export class IntegrationsComponent {
       },
       {
         name: "Ansible",
-        linkURL: "https://bitwarden.com/help/ansible-integration/",
+        linkURL: "https://galaxy.ansible.com/ui/repo/published/bitwarden/secrets",
         image: "../../../../../../../images/secrets-manager/integrations/ansible.svg",
         type: IntegrationType.Integration,
       },
       {
         name: "C#",
-        linkURL: "https://github.com/bitwarden/sdk/tree/main/languages/csharp",
+        linkURL: "https://github.com/bitwarden/sdk-sm/tree/main/languages/csharp",
         image: "../../../../../../../images/secrets-manager/sdks/c-sharp.svg",
         type: IntegrationType.SDK,
       },
       {
         name: "C++",
-        linkURL: "https://github.com/bitwarden/sdk/tree/main/languages/cpp",
+        linkURL: "https://github.com/bitwarden/sdk-sm/tree/main/languages/cpp",
         image: "../../../../../../../images/secrets-manager/sdks/c-plus-plus.png",
         type: IntegrationType.SDK,
       },
       {
         name: "Go",
-        linkURL: "https://github.com/bitwarden/sdk/tree/main/languages/go",
+        linkURL: "https://github.com/bitwarden/sdk-sm/tree/main/languages/go",
         image: "../../../../../../../images/secrets-manager/sdks/go.svg",
         type: IntegrationType.SDK,
       },
       {
         name: "Java",
-        linkURL: "https://github.com/bitwarden/sdk/tree/main/languages/java",
+        linkURL: "https://github.com/bitwarden/sdk-sm/tree/main/languages/java",
         image: "../../../../../../../images/secrets-manager/sdks/java.svg",
         imageDarkMode: "../../../../../../../images/secrets-manager/sdks/java-white.svg",
         type: IntegrationType.SDK,
       },
       {
         name: "JS WebAssembly",
-        linkURL: "https://github.com/bitwarden/sdk/tree/main/languages/js",
+        linkURL: "https://github.com/bitwarden/sdk-sm/tree/main/languages/js",
         image: "../../../../../../../images/secrets-manager/sdks/wasm.svg",
         type: IntegrationType.SDK,
       },
       {
         name: "php",
-        linkURL: "https://github.com/bitwarden/sdk/tree/main/languages/php",
+        linkURL: "https://github.com/bitwarden/sdk-sm/tree/main/languages/php",
         image: "../../../../../../../images/secrets-manager/sdks/php.svg",
         type: IntegrationType.SDK,
       },
       {
         name: "Python",
-        linkURL: "https://github.com/bitwarden/sdk/tree/main/languages/python",
+        linkURL: "https://github.com/bitwarden/sdk-sm/tree/main/languages/python",
         image: "../../../../../../../images/secrets-manager/sdks/python.svg",
         type: IntegrationType.SDK,
       },
       {
         name: "Ruby",
-        linkURL: "https://github.com/bitwarden/sdk/tree/main/languages/ruby",
+        linkURL: "https://github.com/bitwarden/sdk-sm/tree/main/languages/ruby",
         image: "../../../../../../../images/secrets-manager/sdks/ruby.png",
         type: IntegrationType.SDK,
       },
@@ -95,20 +97,24 @@ export class IntegrationsComponent {
         type: IntegrationType.Integration,
         newBadgeExpiration: "2024-8-12",
       },
+      {
+        name: "Terraform Provider",
+        linkURL: "https://registry.terraform.io/providers/bitwarden/bitwarden-secrets/latest",
+        image: "../../../../../../../images/secrets-manager/integrations/terraform.svg",
+        type: IntegrationType.Integration,
+        newBadgeExpiration: "2025-12-12", // December 12, 2025
+      },
     ];
+
+    this.state.setIntegrations(integrations);
   }
 
-  /** Filter out content for the integrations sections */
-  get integrations(): Integration[] {
-    return this.integrationsAndSdks.filter(
-      (integration) => integration.type === IntegrationType.Integration,
-    );
+  get integrations(): Signal<Integration[]> {
+    return this.state.integrations;
   }
 
-  /** Filter out content for the SDKs section */
-  get sdks(): Integration[] {
-    return this.integrationsAndSdks.filter(
-      (integration) => integration.type === IntegrationType.SDK,
-    );
+  // use in the view
+  get IntegrationType(): typeof IntegrationType {
+    return IntegrationType;
   }
 }
