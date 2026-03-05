@@ -46,10 +46,14 @@ describe("GenerateCommand", () => {
     accountService.activeAccount$ = of(null);
   }
 
-  function mockEnforce(overrides: Partial<PasswordGeneratorOptions>) {
+  function mockEnforce(
+    overrides: Partial<PasswordGeneratorOptions>,
+    policyOverrides: Partial<PasswordGeneratorPolicyOptions> = {},
+  ) {
+    const policy = Object.assign(new PasswordGeneratorPolicyOptions(), policyOverrides);
     passwordGenerationService.enforcePasswordGeneratorPoliciesOnOptions.mockImplementation(
       async (options) =>
-        [{ ...options, ...overrides }, new PasswordGeneratorPolicyOptions()] as [
+        [{ ...options, ...overrides }, policy] as [
           PasswordGeneratorOptions,
           PasswordGeneratorPolicyOptions,
         ],
@@ -123,6 +127,40 @@ describe("GenerateCommand", () => {
         expect(response.success).toBe(false);
         expect(response.message).toContain("--minSpecial 0");
         expect(response.message).toContain("policy requires a minimum of 3 special characters");
+      });
+
+      it("shows the raw user-typed value in the error when CLI clamps the input", async () => {
+        // User types --length 2; CLI clamps to 5 internally, but error should show 2
+        mockEnforce({ length: 20 });
+
+        const response = await command.run({ length: 2 });
+
+        expect(response.success).toBe(false);
+        expect(response.message).toContain("--length 2");
+        expect(response.message).not.toContain("--length 5");
+      });
+
+      it("explains when effective minimum length exceeds the configured policy minimum", async () => {
+        // Policy minLength=10, but character minimums force effective floor to 12
+        mockEnforce({ length: 12 }, { minLength: 10 });
+
+        const response = await command.run({ length: 8 });
+
+        expect(response.success).toBe(false);
+        expect(response.message).toContain("policy requires a minimum length of 12");
+        expect(response.message).toContain("raised from 10");
+        expect(response.message).toContain("minimum character requirements");
+      });
+
+      it("does not show raised-from note when effective length equals the configured minimum", async () => {
+        // Policy minLength=20, effective length also 20 — no adjustment note needed
+        mockEnforce({ length: 20 }, { minLength: 20 });
+
+        const response = await command.run({ length: 8 });
+
+        expect(response.success).toBe(false);
+        expect(response.message).toContain("policy requires a minimum length of 20");
+        expect(response.message).not.toContain("raised from");
       });
 
       it("reports all numeric conflicts in a single response", async () => {

@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { firstValueFrom, of, switchMap } from "rxjs";
 
+import { PasswordGeneratorPolicyOptions } from "@bitwarden/common/admin-console/models/domain/password-generator-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import {
@@ -27,6 +28,11 @@ type ExplicitFlags = {
   minNumber: boolean;
   minSpecial: boolean;
   words: boolean;
+  // Raw values as typed by the user, before CLI normalization/clamping
+  rawLength: number | null;
+  rawMinNumber: number | null;
+  rawMinSpecial: number | null;
+  rawWords: number | null;
 };
 
 export class GenerateCommand {
@@ -65,17 +71,26 @@ export class GenerateCommand {
         }),
       ),
     );
+
     // snapshot before the service mutates options in place
     const optionsBeforeEnforcement = { ...options };
-    const enforcedOptions = shouldEnforceOptions
-      ? (await this.passwordGenerationService.enforcePasswordGeneratorPoliciesOnOptions(options))[0]
-      : options;
+    let policyOptions: PasswordGeneratorPolicyOptions | null = null;
+    let enforcedOptions: PasswordGeneratorOptions;
+    if (shouldEnforceOptions) {
+      const result =
+        await this.passwordGenerationService.enforcePasswordGeneratorPoliciesOnOptions(options);
+      enforcedOptions = result[0];
+      policyOptions = result[1];
+    } else {
+      enforcedOptions = options;
+    }
 
     if (shouldEnforceOptions) {
       const conflicts = this.detectPolicyConflicts(
         normalizedOptions.explicit,
         optionsBeforeEnforcement,
         enforcedOptions,
+        policyOptions,
       );
       if (conflicts.length > 0) {
         const msg =
@@ -95,24 +110,33 @@ export class GenerateCommand {
     explicit: ExplicitFlags,
     before: PasswordGeneratorOptions,
     after: PasswordGeneratorOptions,
+    policy: PasswordGeneratorPolicyOptions | null,
   ): string[] {
     const conflicts: string[] = [];
     const isPassword = before.type !== "passphrase";
 
     if (isPassword) {
       if (explicit.length && after.length > before.length) {
+        const userValue = explicit.rawLength ?? before.length;
+        const configuredMin = policy?.minLength > 0 ? policy.minLength : null;
+        const raisedNote =
+          configuredMin != null && after.length > configuredMin
+            ? ` (raised from ${configuredMin} to accommodate minimum character requirements)`
+            : "";
         conflicts.push(
-          `--length ${before.length}: policy requires a minimum length of ${after.length}.`,
+          `--length ${userValue}: policy requires a minimum length of ${after.length}${raisedNote}.`,
         );
       }
       if (explicit.minNumber && after.minNumber > before.minNumber) {
+        const userValue = explicit.rawMinNumber ?? before.minNumber;
         conflicts.push(
-          `--minNumber ${before.minNumber}: policy requires a minimum of ${after.minNumber} numbers.`,
+          `--minNumber ${userValue}: policy requires a minimum of ${after.minNumber} numbers.`,
         );
       }
       if (explicit.minSpecial && after.minSpecial > before.minSpecial) {
+        const userValue = explicit.rawMinSpecial ?? before.minSpecial;
         conflicts.push(
-          `--minSpecial ${before.minSpecial}: policy requires a minimum of ${after.minSpecial} special characters.`,
+          `--minSpecial ${userValue}: policy requires a minimum of ${after.minSpecial} special characters.`,
         );
       }
 
@@ -135,8 +159,9 @@ export class GenerateCommand {
       }
     } else {
       if (explicit.words && after.numWords > before.numWords) {
+        const userValue = explicit.rawWords ?? before.numWords;
         conflicts.push(
-          `--words ${before.numWords}: policy requires a minimum of ${after.numWords} words.`,
+          `--words ${userValue}: policy requires a minimum of ${after.numWords} words.`,
         );
       }
     }
@@ -171,6 +196,22 @@ class Options {
       minNumber: passedOptions?.minNumber != null,
       minSpecial: passedOptions?.minSpecial != null,
       words: passedOptions?.words != null,
+      rawLength:
+        passedOptions?.length != null
+          ? CliUtils.convertNumberOption(passedOptions.length, null)
+          : null,
+      rawMinNumber:
+        passedOptions?.minNumber != null
+          ? CliUtils.convertNumberOption(passedOptions.minNumber, null)
+          : null,
+      rawMinSpecial:
+        passedOptions?.minSpecial != null
+          ? CliUtils.convertNumberOption(passedOptions.minSpecial, null)
+          : null,
+      rawWords:
+        passedOptions?.words != null
+          ? CliUtils.convertNumberOption(passedOptions.words, null)
+          : null,
     };
 
     this.uppercase = CliUtils.convertBooleanOption(passedOptions?.uppercase);
