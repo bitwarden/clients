@@ -24,6 +24,7 @@ jest.mock("@bitwarden/sdk-internal", () => ({
     needsBootstrap: jest.fn(),
     cookies: jest.fn(),
     setCommunicationType: jest.fn(),
+    acquireCookie: jest.fn(),
   })),
 }));
 
