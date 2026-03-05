@@ -252,7 +252,8 @@ jobs:
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ steps.retrieve-secrets.outputs.snapcraft-store-token }}
         run: |
-          snapcraft upload "bitwarden_${_PKG_VERSION}_amd64.snap" --release ${{ inputs.snap_channel }}
+          # TODO: Restore before merging - temporarily commented out for arm64 beta testing (amd64 already uploaded as rev 155)
+          # snapcraft upload "bitwarden_${_PKG_VERSION}_amd64.snap" --release ${{ inputs.snap_channel }}
           snapcraft upload "bitwarden_${_PKG_VERSION}_arm64.snap" --release ${{ inputs.snap_channel }}
           snapcraft logout
         working-directory: apps/desktop/dist
