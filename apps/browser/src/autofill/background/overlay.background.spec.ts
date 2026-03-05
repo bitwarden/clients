@@ -206,8 +206,6 @@ describe("OverlayBackground", () => {
     generatorService.preferredAlgorithm$.mockReturnValue(
       of({ capabilities: { autogenerate: true } } as any),
     );
-    // Forwards request.source so tests can assert on which source triggered tracking
-    // without needing to re-mock generate$ in each test body.
     generatorService.generate$.mockImplementation(({ on$ }) =>
       on$.pipe(
         map(
@@ -3842,7 +3840,6 @@ describe("OverlayBackground", () => {
     });
 
     it("tracks history for InlineMenu-sourced credentials", async () => {
-      // The beforeEach mock forwards request.source, so no re-mock is needed here.
       await flushPromises();
 
       overlayBackground["requestGeneratedPassword$"].next({
