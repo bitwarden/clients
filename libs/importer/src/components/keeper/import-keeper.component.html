@@ -1,0 +1,13 @@
+<div [formGroup]="formGroup">
+  <bit-form-field>
+    <bit-label>{{ "keeperEmail" | i18n }}</bit-label>
+    <input bitInput type="text" formControlName="email" />
+    <bit-hint>{{ emailHint$ | async }}</bit-hint>
+  </bit-form-field>
+  <bit-form-field>
+    <bit-label>{{ "keeperRegion" | i18n }}</bit-label>
+    <bit-select formControlName="region">
+      <bit-option *ngFor="let r of regions" [value]="r.value" [label]="r.label" />
+    </bit-select>
+  </bit-form-field>
+</div>

@@ -1,0 +1,1187 @@
+syntax = "proto3";
+
+package Enterprise;
+
+enum KeyType {
+  RSA = 0;
+  ECC = 1;
+}
+
+enum RoleUserModifyStatus {
+  ROLE_EXISTS = 0;
+  MISSING_TREE_KEY = 1;
+  MISSING_ROLE_KEY = 2;
+  INVALID_ENTERPRISE_USER_ID = 3;
+  PENDING_ENTERPRISE_USER = 4;
+  INVALID_NODE_ID = 5;
+  MAY_NOT_REMOVE_SELF_FROM_ROLE = 6;
+  MUST_HAVE_ONE_USER_ADMIN = 7;
+}
+
+enum EnterpriseType {
+  ENTERPRISE_STANDARD = 0;
+  ENTERPRISE_MSP = 1;
+}
+
+enum TransferAcceptanceStatus {
+  UNDEFINED = 0;
+  NOT_REQUIRED = 1;
+  NOT_ACCEPTED = 2;
+  PARTIALLY_ACCEPTED = 3;
+  ACCEPTED = 4;
+}
+
+enum EnterpriseDataEntity {
+  UNKNOWN = 0;
+  NODES = 1;
+  ROLES = 2;
+  USERS = 3;
+  TEAMS = 4;
+  TEAM_USERS = 5;
+  ROLE_USERS = 6;
+  ROLE_PRIVILEGES = 7;
+  ROLE_ENFORCEMENTS = 8;
+  ROLE_TEAMS = 9;
+  LICENSES = 10;
+  MANAGED_NODES = 11;
+  MANAGED_COMPANIES = 12;
+  BRIDGES = 13;
+  SCIMS = 14;
+  EMAIL_PROVISION = 15;
+  QUEUED_TEAMS = 16;
+  QUEUED_TEAM_USERS = 17;
+  SSO_SERVICES = 18;
+  REPORT_FILTER_USERS = 19;
+  DEVICES_REQUEST_FOR_ADMIN_APPROVAL = 20;
+  USER_ALIASES = 21;
+  COMPLIANCE_REPORT_CRITERIA_AND_FILTER = 22;
+  COMPLIANCE_REPORTS = 23;
+  QUEUED_TEAM_USERS_INCLUDING_PENDING = 24;
+}
+
+enum CacheStatus {
+  KEEP = 0;
+  CLEAR = 1;
+}
+
+enum BackupKeyType {
+  NO_KEY = 0;
+  ENCRYPTED_BY_DATA_KEY = 1;
+  ENCRYPTED_BY_PUBLIC_KEY = 2;
+  ENCRYPTED_BY_DATA_KEY_GCM = 3;
+  ENCRYPTED_BY_PUBLIC_KEY_ECC = 4;
+}
+
+enum BackupUserDataKeyType {
+  OWN = 0;
+  SHARED_TO_ENTERPRISE = 1;
+}
+
+enum EncryptedKeyType {
+  KT_NO_KEY = 0;
+  KT_ENCRYPTED_BY_DATA_KEY = 1;
+  KT_ENCRYPTED_BY_PUBLIC_KEY = 2;
+  KT_ENCRYPTED_BY_DATA_KEY_GCM = 3;
+  KT_ENCRYPTED_BY_PUBLIC_KEY_ECC = 4;
+}
+
+enum EnterpriseFlagType {
+  INVALID = 0;
+  ALLOW_PERSONAL_LICENSE = 1;
+  SPECIAL_PROVISIONING = 2;
+  RECORD_TYPES = 3;
+  SECRETS_MANAGER = 4;
+  ENTERPRISE_LOCKED = 5;
+  FORBID_KEY_TYPE_2 = 6;
+  CONSOLE_ONBOARDED = 7;
+  FORBID_ACCOUNT_TRANSFER = 8;
+  NPS_POPUP_OPT_OUT = 9;
+  SHOW_USER_ONBOARD = 10;
+}
+
+enum UserUpdateStatus {
+  USER_UPDATE_OK = 0;
+  USER_UPDATE_ACCESS_DENIED = 1;
+}
+
+enum AuditUserStatus {
+  OK = 0;
+  ACCESS_DENIED = 1;
+  NO_LONGER_IN_ENTERPRISE = 2;
+}
+
+enum TeamUserType {
+  USER = 0;
+  ADMIN = 1;
+  ADMIN_ONLY = 2;
+}
+
+enum AppClientType {
+  NOT_USED = 0;
+  GENERAL = 1;
+  DISCOVERY_AND_ROTATION_CONTROLLER = 2;
+  KCM_CONTROLLER = 3;
+  SELF_DESTRUCT = 4;
+}
+
+enum DeleteEnterpriseUsersResult {
+  SUCCESS = 0;
+  NOT_AN_ENTERPRISE_USER = 1;
+  CANNOT_DELETE_SELF = 2;
+  BRIDGE_CANNOT_DELETE_ACTIVE_USER = 3;
+  ERROR = 4;
+}
+
+enum ClearSecurityDataType {
+  RECALCULATE_SUMMARY_REPORT = 0;
+  FORCE_CLIENT_CHECK_FOR_MISSING_DATA = 1;
+  FORCE_CLIENT_RESEND_SECURITY_DATA = 2;
+}
+
+message EnterpriseKeyPairRequest {
+  bytes enterprisePublicKey = 1;
+  bytes encryptedEnterprisePrivateKey = 2;
+  KeyType keyType = 3;
+}
+
+message GetTeamMemberRequest {
+  bytes teamUid = 1;
+}
+
+message EnterpriseUser {
+  int64 enterpriseUserId = 1;
+  string email = 2;
+  string enterpriseUsername = 3;
+  bool isShareAdmin = 4;
+  string username = 5;
+}
+
+message GetTeamMemberResponse {
+  repeated EnterpriseUser enterpriseUser = 1;
+}
+
+message EnterpriseUserIds {
+  repeated int64 enterpriseUserId = 1;
+}
+
+message EnterprisePersonalAccount {
+  string email = 1;
+  bytes OBSOLETE_FIELD = 2;
+}
+
+message EncryptedTeamKeyRequest {
+  bytes teamUid = 1;
+  bytes encryptedTeamKey = 2;
+  bool force = 3;
+}
+
+message ReEncryptedData {
+  int64 id = 1;
+  string data = 2;
+}
+
+message ReEncryptedRoleKey {
+  int64 role_id = 1;
+  bytes encryptedRoleKey = 2;
+}
+
+message ReEncryptedUserDataKey {
+  int64 enterpriseUserId = 1;
+  bytes userEncryptedDataKey = 2;
+}
+
+message NodeToManagedCompanyRequest {
+  int32 companyId = 1;
+  repeated ReEncryptedData nodes = 2;
+  repeated ReEncryptedData roles = 3;
+  repeated ReEncryptedData users = 4;
+  repeated ReEncryptedRoleKey roleKeys = 5;
+  repeated EncryptedTeamKeyRequest teamKeys = 6;
+  repeated ReEncryptedUserDataKey usersDataKeys = 7;
+}
+
+message RoleTeam {
+  int64 role_id = 1;
+  bytes teamUid = 2;
+}
+
+message RoleTeams {
+  repeated RoleTeam role_team = 1;
+}
+
+message RoleUserAddKeys {
+  int64 enterpriseUserId = 1;
+  string treeKey = 2;
+  string roleAdminKey = 3;
+}
+
+message RoleUserAdd {
+  int64 role_id = 1;
+  repeated RoleUserAddKeys roleUserAddKeys = 2;
+}
+
+message RoleUsersAddRequest {
+  repeated RoleUserAdd roleUserAdds = 1;
+}
+
+message RoleUserAddResult {
+  int64 roleId = 1;
+  int64 enterpriseUserId = 2;
+  RoleUserModifyStatus status = 3;
+  string message = 4;
+}
+
+message RoleUsersAddResponse {
+  repeated RoleUserAddResult results = 1;
+}
+
+message RoleUserRemove {
+  int64 role_id = 1;
+  repeated int64 enterpriseUserIds = 2;
+}
+
+message RoleUsersRemoveRequest {
+  repeated RoleUserRemove roleUserRemoves = 1;
+}
+
+message RoleUserRemoveResult {
+  int64 roleId = 1;
+  int64 enterpriseUserId = 2;
+  RoleUserModifyStatus status = 3;
+  string message = 4;
+}
+
+message RoleUsersRemoveResponse {
+  repeated RoleUserRemoveResult results = 1;
+}
+
+message EnterpriseRegistration {
+  bytes encryptedTreeKey = 1;
+  string enterpriseName = 2;
+  bytes rootNodeData = 3;
+  bytes adminUserData = 4;
+  string adminName = 5;
+  bytes roleData = 6;
+  EnterpriseKeyPairRequest rsaKeyPair = 7;
+  int32 numberSeats = 8;
+  EnterpriseType enterpriseType = 9;
+  bytes rolePublicKey = 10;
+  bytes rolePrivateKeyEncryptedWithRoleKey = 11;
+  bytes roleKeyEncryptedWithTreeKey = 12;
+  EnterpriseKeyPairRequest eccKeyPair = 13;
+  bytes allUsersRoleData = 14;
+  bytes roleKeyEncryptedWithUserPublicKey = 15;
+  bytes approverRoleData = 16;
+}
+
+message DomainPasswordRulesRequest {
+  string username = 1;
+  string verificationCode = 2;
+}
+
+message DomainPasswordRulesFields {
+  string type = 1;
+  int32 minimum = 2;
+  int32 maximum = 3;
+  bool allowed = 4;
+}
+
+message LoginToMcRequest {
+  int32 mcEnterpriseId = 1;
+  bytes messageSessionUid = 2;
+}
+
+message LoginToMcResponse {
+  bytes encryptedSessionToken = 1;
+  string encryptedTreeKey = 2;
+}
+
+message DomainPasswordRulesResponse {
+  repeated DomainPasswordRulesFields domainPasswordRulesFields = 1;
+}
+
+message ApproveUserDeviceRequest {
+  int64 enterpriseUserId = 1;
+  bytes encryptedDeviceToken = 2;
+  bytes encryptedDeviceDataKey = 3;
+  bool denyApproval = 4;
+}
+
+message ApproveUserDeviceResponse {
+  int64 enterpriseUserId = 1;
+  bytes encryptedDeviceToken = 2;
+  bool failed = 3;
+  string message = 4;
+}
+
+message ApproveUserDevicesRequest {
+  repeated ApproveUserDeviceRequest deviceRequests = 1;
+}
+
+message ApproveUserDevicesResponse {
+  repeated ApproveUserDeviceResponse deviceResponses = 1;
+}
+
+message EnterpriseUserDataKey {
+  int64 enterpriseUserId = 1;
+  bytes userEncryptedDataKey = 2;
+  int32 keyTypeId = 3;
+  bytes roleKey = 4;
+  bytes privateKey = 5;
+}
+
+message EnterpriseUserDataKeys {
+  repeated EnterpriseUserDataKey keys = 1;
+}
+
+message EnterpriseUserDataKeyLight {
+  int64 enterpriseUserId = 1;
+  bytes userEncryptedDataKey = 2;
+  int32 keyTypeId = 3;
+}
+
+message EnterpriseUserDataKeysByNode {
+  int64 nodeId = 1;
+  repeated EnterpriseUserDataKeyLight keys = 2;
+}
+
+message EnterpriseUserDataKeysByNodeResponse {
+  repeated EnterpriseUserDataKeysByNode keys = 1;
+}
+
+message EnterpriseDataRequest {
+  bytes continuationToken = 1;
+}
+
+message SpecialProvisioning {
+  string url = 1;
+  string name = 2;
+}
+
+message GeneralDataEntity {
+  string enterpriseName = 1;
+  bool restrictVisibility = 2;
+  SpecialProvisioning specialProvisioning = 4;
+  UserPrivilege userPrivilege = 7;
+  bool distributor = 8;
+  bool forbidAccountTransfer = 9;
+  bool showUserOnboard = 10;
+}
+
+message Node {
+  int64 nodeId = 1;
+  int64 parentId = 2;
+  int64 bridgeId = 3;
+  int64 scimId = 4;
+  int64 licenseId = 5;
+  string encryptedData = 6;
+  bool duoEnabled = 7;
+  bool rsaEnabled = 8;
+  int64 ssoServiceProviderId = 9;
+  bool restrictVisibility = 10;
+  repeated int64 ssoServiceProviderIds = 11;
+}
+
+message Role {
+  int64 roleId = 1;
+  int64 nodeId = 2;
+  string encryptedData = 3;
+  string keyType = 4;
+  bool visibleBelow = 5;
+  bool newUserInherit = 6;
+  string roleType = 7;
+}
+
+message User {
+  int64 enterpriseUserId = 1;
+  int64 nodeId = 2;
+  string encryptedData = 3;
+  string keyType = 4;
+  string username = 5;
+  string status = 6;
+  int32 lock = 7;
+  int32 userId = 8;
+  int64 accountShareExpiration = 9;
+  string fullName = 10;
+  string jobTitle = 11;
+  bool tfaEnabled = 12;
+  TransferAcceptanceStatus transferAcceptanceStatus = 13;
+}
+
+message UserAlias {
+  int64 enterpriseUserId = 1;
+  string username = 2;
+}
+
+message ComplianceReportMetaData {
+  bytes reportUid = 1;
+  int64 nodeId = 2;
+  string reportName = 3;
+  int64 dateGenerated = 4;
+  string runByName = 5;
+  int32 numberOfOwners = 7;
+  int32 numberOfRecords = 8;
+}
+
+message ManagedNode {
+  int64 roleId = 1;
+  int64 managedNodeId = 2;
+  bool cascadeNodeManagement = 3;
+}
+
+message UserManagedNode {
+  int64 nodeId = 1;
+  bool cascadeNodeManagement = 2;
+  repeated string privileges = 3;
+}
+
+message UserPrivilege {
+  repeated UserManagedNode userManagedNodes = 1;
+  int64 enterpriseUserId = 2;
+  string encryptedData = 3;
+}
+
+message RoleUser {
+  int64 roleId = 1;
+  int64 enterpriseUserId = 2;
+}
+
+message RolePrivilege {
+  int64 managedNodeId = 1;
+  int64 roleId = 2;
+  string privilegeType = 3;
+}
+
+message RoleEnforcement {
+  int64 roleId = 1;
+  string enforcementType = 2;
+  string value = 3;
+}
+
+message Team {
+  bytes teamUid = 1;
+  string name = 2;
+  int64 nodeId = 3;
+  bool restrictEdit = 4;
+  bool restrictShare = 5;
+  bool restrictView = 6;
+  string encryptedData = 7;
+  string encryptedTeamKey = 8;
+}
+
+message TeamUser {
+  bytes teamUid = 1;
+  int64 enterpriseUserId = 2;
+  string userType = 3;
+}
+
+message GetDistributorInfoResponse {
+  repeated Distributor distributors = 1;
+}
+
+message Distributor {
+  string name = 1;
+  repeated MspInfo mspInfos = 2;
+}
+
+message MspInfo {
+  int32 enterpriseId = 1;
+  string enterpriseName = 2;
+  int32 allocatedLicenses = 3;
+  repeated string allowedMcProducts = 4;
+  repeated string allowedAddOns = 5;
+  string maxFilePlanType = 6;
+  repeated ManagedCompany managedCompanies = 7;
+  bool allowUnlimitedLicenses = 8;
+  repeated LicenseAddOn addOns = 9;
+}
+
+message ManagedCompany {
+  int32 mcEnterpriseId = 1;
+  string mcEnterpriseName = 2;
+  int64 mspNodeId = 3;
+  int32 numberOfSeats = 4;
+  int32 numberOfUsers = 5;
+  string productId = 6;
+  bool isExpired = 7;
+  string treeKey = 8;
+  int64 tree_key_role = 9;
+  string filePlanType = 10;
+  repeated LicenseAddOn addOns = 11;
+}
+
+message MSPPool {
+  string productId = 1;
+  int32 seats = 2;
+  int32 availableSeats = 3;
+  int32 stash = 4;
+}
+
+message MSPContact {
+  int32 enterpriseId = 1;
+  string enterpriseName = 2;
+}
+
+message LicenseAddOn {
+  string name = 1;
+  bool enabled = 2;
+  bool isTrial = 3;
+  int64 expiration = 4;
+  int64 created = 5;
+  int32 seats = 6;
+  int64 activationTime = 7;
+  bool includedInProduct = 8;
+  int32 apiCallCount = 9;
+  string tierDescription = 10;
+  int32 seatsAllocated = 11;
+}
+
+message MCDefault {
+  string mcProduct = 1;
+  repeated string addOns = 2;
+  string filePlanType = 3;
+  int32 maxLicenses = 4;
+  bool fixedMaxLicenses = 5;
+}
+
+message MSPPermits {
+  bool restricted = 1;
+  int32 maxAllowedLicenses = 2;
+  repeated string allowedMcProducts = 3;
+  repeated string allowedAddOns = 4;
+  string maxFilePlanType = 5;
+  bool allowUnlimitedLicenses = 6;
+  repeated MCDefault mcDefaults = 7;
+}
+
+message License {
+  bool paid = 1;
+  int32 numberOfSeats = 2;
+  int64 expiration = 3;
+  int32 licenseKeyId = 4;
+  int32 productTypeId = 5;
+  string name = 6;
+  int64 enterpriseLicenseId = 7;
+  int32 seatsAllocated = 8;
+  int32 seatsPending = 9;
+  int32 tier = 10;
+  int32 filePlanTypeId = 11;
+  int64 maxBytes = 12;
+  int64 storageExpiration = 13;
+  string licenseStatus = 14;
+  repeated MSPPool mspPool = 15;
+  MSPContact managedBy = 16;
+  repeated LicenseAddOn addOns = 17;
+  int64 nextBillingDate = 18;
+  bool hasMSPLegacyLog = 19;
+  MSPPermits mspPermits = 20;
+  bool distributor = 21;
+}
+
+message Bridge {
+  int64 bridgeId = 1;
+  int64 nodeId = 2;
+  string wanIpEnforcement = 3;
+  string lanIpEnforcement = 4;
+  string status = 5;
+}
+
+message Scim {
+  int64 scimId = 1;
+  int64 nodeId = 2;
+  string status = 3;
+  int64 lastSynced = 4;
+  string rolePrefix = 5;
+  bool uniqueGroups = 6;
+}
+
+message EmailProvision {
+  int32 id = 1;
+  int64 nodeId = 2;
+  string domain = 3;
+  string method = 4;
+}
+
+message QueuedTeam {
+  bytes teamUid = 1;
+  string name = 2;
+  int64 nodeId = 3;
+  string encryptedData = 4;
+}
+
+message QueuedTeamUser {
+  bytes teamUid = 1;
+  repeated int64 users = 2;
+}
+
+message TeamsAddResult {
+  repeated TeamAddResult successfulTeamAdd = 1;
+  repeated TeamAddResult unsuccessfulTeamAdd = 2;
+  string result = 3;
+  string errorMessage = 4;
+}
+
+message TeamAddResult {
+  Team team = 1;
+  string result = 2;
+  string errorMessage = 3;
+}
+
+message SsoService {
+  int64 ssoServiceProviderId = 1;
+  int64 nodeId = 2;
+  string name = 3;
+  string sp_url = 4;
+  bool inviteNewUsers = 5;
+  bool active = 6;
+  bool isCloud = 7;
+}
+
+message ReportFilterUser {
+  int32 userId = 1;
+  string email = 2;
+}
+
+message DeviceRequestForAdminApproval {
+  int64 deviceId = 1;
+  int64 enterpriseUserId = 2;
+  bytes encryptedDeviceToken = 3;
+  bytes devicePublicKey = 4;
+  string deviceName = 5;
+  string clientVersion = 6;
+  string deviceType = 7;
+  int64 date = 8;
+  string ipAddress = 9;
+  string location = 10;
+  string email = 11;
+  bytes accountUid = 12;
+}
+
+message EnterpriseData {
+  EnterpriseDataEntity entity = 1;
+  bool delete = 2;
+  repeated bytes data = 3;
+}
+
+message EnterpriseDataResponse {
+  bytes continuationToken = 1;
+  bool hasMore = 2;
+  CacheStatus cacheStatus = 3;
+  repeated EnterpriseData data = 4;
+  GeneralDataEntity generalData = 5;
+}
+
+message BackupRequest {
+  bytes continuationToken = 1;
+}
+
+message BackupRecord {
+  int32 userId = 1;
+  bytes recordUid = 2;
+  bytes key = 3;
+  BackupKeyType keyType = 4;
+  int32 version = 5;
+  bytes data = 6;
+  bytes extra = 7;
+}
+
+message BackupKey {
+  int32 userId = 1;
+  bytes backupKey = 2;
+}
+
+message BackupUser {
+  int32 userId = 1;
+  string userName = 2;
+  bytes dataKey = 3;
+  BackupUserDataKeyType dataKeyType = 4;
+  bytes privateKey = 5;
+  bytes treeKey = 6;
+  BackupKeyType treeKeyType = 7;
+  repeated BackupKey backupKeys = 8;
+  bytes privateECKey = 9;
+}
+
+message BackupResponse {
+  bytes enterpriseEccPrivateKey = 1;
+  repeated BackupUser users = 2;
+  repeated BackupRecord records = 3;
+  bytes continuationToken = 4;
+}
+
+message BackupFile {
+  string user = 1;
+  bytes backupUid = 2;
+  string fileName = 3;
+  int64 created = 4;
+  string downloadUrl = 5;
+}
+
+message BackupsResponse {
+  repeated BackupFile files = 1;
+}
+
+message GetEnterpriseDataKeysRequest {
+  repeated int64 roleId = 1;
+}
+
+message GetEnterpriseDataKeysResponse {
+  repeated ReEncryptedRoleKey reEncryptedRoleKey = 1;
+  repeated RoleKey roleKey = 2;
+  MspKey mspKey = 3;
+  EnterpriseKeys enterpriseKeys = 4;
+  TreeKey treeKey = 5;
+}
+
+message RoleKey {
+  int64 roleId = 1;
+  string encryptedKey = 2;
+  EncryptedKeyType keyType = 3;
+}
+
+message MspKey {
+  string encryptedMspTreeKey = 1;
+  EncryptedKeyType encryptedMspTreeKeyType = 2;
+}
+
+message EnterpriseKeys {
+  bytes rsaPublicKey = 1;
+  bytes rsaEncryptedPrivateKey = 2;
+  bytes eccPublicKey = 3;
+  bytes eccEncryptedPrivateKey = 4;
+}
+
+message TreeKey {
+  string treeKey = 1;
+  BackupKeyType keyTypeId = 2;
+}
+
+message SharedRecordResponse {
+  repeated SharedRecordEvent events = 1;
+}
+
+message SharedRecordEvent {
+  bytes recordUid = 1;
+  string userName = 2;
+  bool canEdit = 3;
+  bool canReshare = 4;
+  int32 shareFrom = 5;
+}
+
+message SetRestrictVisibilityRequest {
+  int64 nodeId = 1;
+}
+
+message UserAddRequest {
+  int64 enterpriseUserId = 1;
+  int64 nodeId = 2;
+  bytes encryptedData = 3;
+  EncryptedKeyType keyType = 4;
+  string fullName = 5;
+  string jobTitle = 6;
+  string email = 7;
+  bool suppressEmailInvite = 8;
+}
+
+message UserUpdateRequest {
+  repeated UserUpdate users = 1;
+}
+
+message UserUpdate {
+  int64 enterpriseUserId = 1;
+  int64 nodeId = 2;
+  bytes encryptedData = 3;
+  EncryptedKeyType keyType = 4;
+  string fullName = 5;
+  string jobTitle = 6;
+  string email = 7;
+}
+
+message UserUpdateResponse {
+  repeated UserUpdateResult users = 1;
+}
+
+message UserUpdateResult {
+  int64 enterpriseUserId = 1;
+  UserUpdateStatus status = 2;
+}
+
+message ComplianceRecordOwnersRequest {
+  repeated int64 nodeIds = 1;
+  bool includeNonShared = 2;
+}
+
+message ComplianceRecordOwnersResponse {
+  repeated RecordOwner recordOwners = 1;
+}
+
+message RecordOwner {
+  int64 enterpriseUserId = 1;
+  bool shared = 2;
+}
+
+message PreliminaryComplianceDataRequest {
+  repeated int64 enterpriseUserIds = 1;
+  bool includeNonShared = 2;
+  bytes continuationToken = 3;
+  bool includeTotalMatchingRecordsInFirstResponse = 4;
+}
+
+message PreliminaryComplianceDataResponse {
+  repeated AuditUserData auditUserData = 1;
+  bytes continuationToken = 2;
+  bool hasMore = 3;
+  int32 totalMatchingRecords = 4;
+}
+
+message AuditUserRecord {
+  bytes recordUid = 1;
+  bytes encryptedData = 2;
+  bool shared = 3;
+}
+
+message AuditUserData {
+  int64 enterpriseUserId = 1;
+  repeated AuditUserRecord auditUserRecords = 2;
+  AuditUserStatus status = 3;
+}
+
+message ComplianceReportFilters {
+  repeated string recordTitles = 1;
+  repeated bytes recordUids = 2;
+  repeated int64 jobTitles = 3;
+  repeated string urls = 4;
+  repeated int64 enterpriseUserIds = 5;
+}
+
+message ComplianceReportRequest {
+  ComplianceReportRun complianceReportRun = 1;
+  string reportName = 2;
+  bool saveReport = 3;
+}
+
+message ComplianceReportRun {
+  ComplianceReportCriteriaAndFilter reportCriteriaAndFilter = 1;
+  repeated int64 users = 2;
+  repeated bytes records = 3;
+}
+
+message ComplianceReportCriteriaAndFilter {
+  int64 nodeId = 1;
+  bytes criteriaUid = 2;
+  string criteriaName = 3;
+  ComplianceReportCriteria criteria = 4;
+  repeated ComplianceReportFilter filters = 5;
+  int64 lastModified = 6;
+  bytes nodeEncryptedData = 7;
+}
+
+message ComplianceReportCriteria {
+  repeated string jobTitles = 1;
+  repeated int64 enterpriseUserIds = 2;
+  bool includeNonShared = 3;
+}
+
+message ComplianceReportFilter {
+  repeated string recordTitles = 1;
+  repeated bytes recordUids = 2;
+  repeated string jobTitles = 3;
+  repeated string urls = 4;
+  repeated string recordTypes = 5;
+}
+
+message ComplianceReportResponse {
+  int64 dateGenerated = 1;
+  string runByUserName = 2;
+  string reportName = 3;
+  bytes reportUid = 4;
+  ComplianceReportRun complianceReportRun = 5;
+  repeated UserProfile userProfiles = 6;
+  repeated AuditTeam auditTeams = 7;
+  repeated AuditRecord auditRecords = 8;
+  repeated UserRecord userRecords = 9;
+  repeated SharedFolderRecord sharedFolderRecords = 10;
+  repeated SharedFolderUser sharedFolderUsers = 11;
+  repeated SharedFolderTeam sharedFolderTeams = 12;
+  repeated AuditTeamUser auditTeamUsers = 13;
+  repeated AuditRole auditRoles = 14;
+  repeated LinkedRecord linkedRecords = 15;
+}
+
+message AuditRecord {
+  bytes recordUid = 1;
+  bytes auditData = 2;
+  bool hasAttachments = 3;
+  bool inTrash = 4;
+  int32 treeLeft = 5;
+  int32 treeRight = 6;
+}
+
+message AuditRole {
+  int64 roleId = 1;
+  bytes encryptedData = 2;
+  bool restrictShareOutsideEnterprise = 3;
+  bool restrictShareAll = 4;
+  bool restrictShareOfAttachments = 5;
+  bool restrictMaskPasswordsWhileEditing = 6;
+  repeated RoleNodeManagement roleNodeManagements = 7;
+}
+
+message RoleNodeManagement {
+  int32 treeLeft = 1;
+  int32 treeRight = 2;
+  bool cascade = 3;
+  int32 privileges = 4;
+}
+
+message UserProfile {
+  int64 enterpriseUserId = 1;
+  string fullName = 2;
+  string jobTitle = 3;
+  string email = 4;
+  repeated int64 roleIds = 5;
+}
+
+message RecordPermission {
+  bytes recordUid = 1;
+  int32 permissionBits = 2;
+}
+
+message UserRecord {
+  int64 enterpriseUserId = 1;
+  repeated RecordPermission recordPermissions = 2;
+}
+
+message AuditTeam {
+  bytes teamUid = 1;
+  string teamName = 2;
+  bool restrictEdit = 3;
+  bool restrictShare = 4;
+}
+
+message AuditTeamUser {
+  bytes teamUid = 1;
+  repeated int64 enterpriseUserIds = 2;
+}
+
+message SharedFolderRecord {
+  bytes sharedFolderUid = 1;
+  repeated RecordPermission recordPermissions = 2;
+  repeated ShareAdminRecord shareAdminRecords = 3;
+}
+
+message ShareAdminRecord {
+  int64 enterpriseUserId = 1;
+  repeated int32 recordPermissionIndexes = 2;
+}
+
+message SharedFolderUser {
+  bytes sharedFolderUid = 1;
+  repeated int64 enterpriseUserIds = 2;
+}
+
+message SharedFolderTeam {
+  bytes sharedFolderUid = 1;
+  repeated bytes teamUids = 2;
+}
+
+message GetComplianceReportRequest {
+  bytes reportUid = 1;
+}
+
+message GetComplianceReportResponse {
+  string downloadUrl = 1;
+}
+
+message ComplianceReportCriteriaRequest {
+  bytes criteriaUid = 1;
+}
+
+message SaveComplianceReportCriteriaResponse {
+  bytes criteriaUid = 1;
+}
+
+message LinkedRecord {
+  bytes ownerUid = 1;
+  repeated bytes recordUids = 2;
+}
+
+message GetSharingAdminsRequest {
+  bytes sharedFolderUid = 1;
+  bytes recordUid = 2;
+  string username = 3;
+}
+
+message UserProfileExt {
+  string email = 1;
+  string fullName = 2;
+  string jobTitle = 3;
+  bool isMSPMCAdmin = 4;
+  bool isInSharedFolder = 5;
+  bool isShareAdminForRequestedObject = 6;
+  bool isShareAdminForSharedFolderOwner = 7;
+  bool hasAccessToObject = 8;
+}
+
+message GetSharingAdminsResponse {
+  repeated UserProfileExt userProfileExts = 1;
+}
+
+message TeamsEnterpriseUsersAddRequest {
+  repeated TeamsEnterpriseUsersAddTeamRequest teams = 1;
+}
+
+message TeamsEnterpriseUsersAddTeamRequest {
+  bytes teamUid = 1;
+  repeated TeamsEnterpriseUsersAddUserRequest users = 2;
+}
+
+message TeamsEnterpriseUsersAddUserRequest {
+  int64 enterpriseUserId = 1;
+  TeamUserType userType = 2;
+  string teamKey = 3;
+  TypedKey typedTeamKey = 4;
+}
+
+message TypedKey {
+  bytes key = 1;
+  EncryptedKeyType keyType = 2;
+}
+
+message TeamsEnterpriseUsersAddResponse {
+  repeated TeamsEnterpriseUsersAddTeamResponse teams = 1;
+  int64 revision = 2;
+}
+
+message TeamsEnterpriseUsersAddTeamResponse {
+  bytes teamUid = 1;
+  repeated TeamsEnterpriseUsersAddUserResponse users = 2;
+  bool success = 3;
+  string message = 4;
+  string resultCode = 5;
+  string additionalInfo = 6;
+}
+
+message TeamsEnterpriseUsersAddUserResponse {
+  int64 enterpriseUserId = 1;
+  int64 revision = 2;
+  bool success = 3;
+  string message = 4;
+  string resultCode = 5;
+  string additionalInfo = 6;
+}
+
+message DomainAlias {
+  string domain = 1;
+  string alias = 2;
+  int32 status = 3;
+  string message = 4;
+}
+
+message DomainAliasRequest {
+  repeated DomainAlias domainAlias = 1;
+}
+
+message DomainAliasResponse {
+  repeated DomainAlias domainAlias = 1;
+}
+
+message EnterpriseUsersProvisionRequest {
+  repeated EnterpriseUsersProvision users = 1;
+  string clientVersion = 2;
+}
+
+message EnterpriseUsersProvision {
+  int64 enterpriseUserId = 1;
+  string username = 2;
+  int64 nodeId = 3;
+  string encryptedData = 4;
+  EncryptedKeyType keyType = 5;
+  string fullName = 6;
+  string jobTitle = 7;
+  bytes enterpriseUsersDataKey = 8;
+  bytes authVerifier = 9;
+  bytes encryptionParams = 10;
+  bytes rsaPublicKey = 11;
+  bytes rsaEncryptedPrivateKey = 12;
+  bytes eccPublicKey = 13;
+  bytes eccEncryptedPrivateKey = 14;
+  bytes encryptedDeviceToken = 15;
+  bytes encryptedClientKey = 16;
+}
+
+message EnterpriseUsersProvisionResponse {
+  repeated EnterpriseUsersProvisionResult results = 1;
+}
+
+message EnterpriseUsersProvisionResult {
+  int64 enterpriseUserId = 1;
+  string code = 2;
+  string message = 3;
+  string additionalInfo = 4;
+}
+
+message EnterpriseUsersAddRequest {
+  repeated EnterpriseUsersAdd users = 1;
+  string clientVersion = 2;
+}
+
+message EnterpriseUsersAdd {
+  int64 enterpriseUserId = 1;
+  string username = 2;
+  int64 nodeId = 3;
+  string encryptedData = 4;
+  EncryptedKeyType keyType = 5;
+  string fullName = 6;
+  string jobTitle = 7;
+  bool suppressEmailInvite = 8;
+  string inviteeLocale = 9;
+  bool move = 10;
+  int64 roleId = 11;
+}
+
+message EnterpriseUsersAddResponse {
+  repeated EnterpriseUsersAddResult results = 1;
+  bool success = 2;
+  string code = 3;
+  string message = 4;
+  string additionalInfo = 5;
+}
+
+message EnterpriseUsersAddResult {
+  int64 enterpriseUserId = 1;
+  bool success = 2;
+  string verificationCode = 3;
+  string code = 4;
+  string message = 5;
+  string additionalInfo = 6;
+}
+
+message UpdateMSPPermitsRequest {
+  int32 mspEnterpriseId = 1;
+  int32 maxAllowedLicenses = 2;
+  repeated string allowedMcProducts = 3;
+  repeated string allowedAddOns = 4;
+  string maxFilePlanType = 5;
+  bool allowUnlimitedLicenses = 6;
+}
+
+message DeleteEnterpriseUsersRequest {
+  repeated int64 enterpriseUserIds = 1;
+}
+
+message DeleteEnterpriseUserStatus {
+  int64 enterpriseUserId = 1;
+  DeleteEnterpriseUsersResult status = 2;
+}
+
+message DeleteEnterpriseUsersResponse {
+  repeated DeleteEnterpriseUserStatus deleteStatus = 1;
+}
+
+message ClearSecurityDataRequest {
+  repeated int64 enterpriseUserId = 1;
+  bool allUsers = 2;
+  ClearSecurityDataType type = 3;
+}
+

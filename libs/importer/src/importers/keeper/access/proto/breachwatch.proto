@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+package BreachWatch;
+
+enum BreachWatchInfoType {
+  RECORD = 0;
+  ALTERNATE_PASSWORD = 1;
+}
+
+message BreachWatchRecordRequest {
+  bytes recordUid = 1;
+  bytes encryptedData = 2;
+  BreachWatchInfoType breachWatchInfoType = 3;
+  bool updateUserWhoScanned = 4;
+}
+
+message BreachWatchUpdateRequest {
+  repeated BreachWatchRecordRequest breachWatchRecordRequest = 1;
+  bytes encryptedData = 2;
+}
+
+message BreachWatchRecordStatus {
+  bytes recordUid = 1;
+  string status = 2;
+  string reason = 3;
+}
+
+message BreachWatchUpdateResponse {
+  repeated BreachWatchRecordStatus breachWatchRecordStatus = 1;
+}
+
+message BreachWatchTokenRequest {
+  bytes breachWatchToken = 1;
+}
+
+message BreachWatchTokenResponse {
+  bytes breachWatchToken = 1;
+  bool clientEncrypted = 2;
+}
+
+message AnonymizedTokenResponse {
+  bytes domainToken = 1;
+  bytes emailToken = 2;
+  bytes passwordToken = 3;
+}
+
+message HashCheck {
+  bytes hash1 = 1;
+  bytes euid = 2;
+}
+
+message BreachWatchStatusRequest {
+  bytes anonymizedToken = 1;
+  repeated HashCheck hashCheck = 2;
+  repeated bytes removedEuid = 3;
+}
+
+message HashStatus {
+  bytes hash1 = 1;
+  bytes euid = 2;
+  bool breachDetected = 3;
+}
+
+message BreachWatchStatusResponse {
+  repeated HashStatus hashStatus = 2;
+}
+
+message EnterprisePublicKeyResponse {
+  bytes enterprisePublicKey = 1;
+  bytes enterpriseECCPublicKey = 2;
+}
+
+message FreeScanRequest {
+  bytes hashedEmail = 1;
+}
+
+message FreeScanResponse {
+  int32 emailBreaches = 1;
+  int32 passwordBreaches = 2;
+}
+
+message PaidUserRequest {
+  string email = 1;
+}
+
+message PaidUserResponse {
+  bool paidUser = 1;
+}
+
+message DetailedScanRequest {
+  string email = 1;
+}
+
+message UseOneTimeTokenRequest {
+  bytes token = 1;
+}
+
+message BreachEvent {
+  string site = 1;
+  string email = 2;
+  bool passwordInBreach = 3;
+  string date = 4;
+  string description = 5;
+}
+
+message UseOneTimeTokenResponse {
+  int32 emailBreaches = 1;
+  int32 passwordBreaches = 2;
+  repeated BreachEvent breachEvents = 3;
+  string email = 4;
+}
+
+message OneTimeUseToken {
+  string email = 1;
+  string pad = 2;
+}
+
+message FreePasswordScanRequest {
+  bytes hashedPassword = 1;
+}
+
+message FreePasswordScanResponse {
+  int64 passwordBreaches = 1;
+}
+
