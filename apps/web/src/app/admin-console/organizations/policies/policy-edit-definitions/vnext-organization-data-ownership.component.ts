@@ -1,14 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  signal,
-  Signal,
-  TemplateRef,
-  viewChild,
-  WritableSignal,
-} from "@angular/core";
-import { Observable } from "rxjs";
+import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { FormBuilder } from "@angular/forms";
+import { Observable, startWith } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -27,6 +20,10 @@ import { OrganizationDataOwnershipPolicyDialogComponent } from "../policy-edit-d
 type VNextSaveOrganizationDataOwnershipPolicyRequest = VNextSavePolicyRequest<{
   defaultUserCollectionName: string;
 }>;
+
+type OrganizationDataOwnershipPolicyData = {
+  enableIndividualItemsTransfer: boolean;
+};
 
 export class vNextOrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
   name = "centralizeDataOwnership";
@@ -55,14 +52,54 @@ export class vNextOrganizationDataOwnershipPolicyComponent
   constructor(
     private i18nService: I18nService,
     private encryptService: EncryptService,
+    private formBuilder: FormBuilder,
   ) {
     super();
-  }
-  private readonly policyForm: Signal<TemplateRef<any> | undefined> = viewChild("step0");
-  private readonly warningContent: Signal<TemplateRef<any> | undefined> = viewChild("step1");
-  protected readonly step: WritableSignal<number> = signal(0);
 
-  protected steps = [this.policyForm, this.warningContent];
+    this.enabled.valueChanges.pipe(takeUntilDestroyed()).subscribe((enabled) => {
+      if (enabled) {
+        this.data.controls.enableIndividualItemsTransfer.enable();
+      } else {
+        this.data.controls.enableIndividualItemsTransfer.disable();
+        this.data.controls.enableIndividualItemsTransfer.setValue(false);
+      }
+    });
+  }
+
+  data = this.formBuilder.group({
+    enableIndividualItemsTransfer: [{ value: false, disabled: true }],
+  });
+
+  protected readonly enableIndividualItemsTransfer = toSignal(
+    this.data.controls.enableIndividualItemsTransfer.valueChanges.pipe(startWith(false)),
+    { initialValue: false },
+  );
+
+  override ngOnInit(): void {
+    super.ngOnInit();
+
+    if (this.enabled.value) {
+      this.data.controls.enableIndividualItemsTransfer.enable();
+    }
+  }
+
+  protected override loadData() {
+    if (!this.policyResponse?.data) {
+      return;
+    }
+
+    const data = this.policyResponse.data as OrganizationDataOwnershipPolicyData;
+    this.data.patchValue({
+      enableIndividualItemsTransfer: data.enableIndividualItemsTransfer ?? false,
+    });
+  }
+
+  protected override buildRequestData(): OrganizationDataOwnershipPolicyData {
+    const raw = this.data.getRawValue();
+    return {
+      enableIndividualItemsTransfer: raw.enableIndividualItemsTransfer ?? false,
+    };
+  }
 
   async buildVNextRequest(
     orgKey: OrgKey,
@@ -95,9 +132,5 @@ export class vNextOrganizationDataOwnershipPolicyComponent
     }
 
     return encrypted.encryptedString;
-  }
-
-  setStep(step: number) {
-    this.step.set(step);
   }
 }
