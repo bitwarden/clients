@@ -3139,6 +3139,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     if (await firstValueFrom(autogenerate$)) {
       this.requestGeneratedPassword({ source: "inline-menu.init", type: Type.password });
+      await firstValueFrom(this.credential$.pipe(skip(1), filter(Boolean)));
     }
 
     return true;
