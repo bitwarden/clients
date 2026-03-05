@@ -47,7 +47,7 @@ export class MultiStepPolicyEditDialogComponent
 {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("policyForm", { read: ViewContainerRef, static: true })
+  @ViewChild("policyForm", { read: ViewContainerRef, static: false })
   override policyFormRef: ViewContainerRef | undefined;
 
   policySteps: PolicyStep[] = [];
@@ -83,6 +83,10 @@ export class MultiStepPolicyEditDialogComponent
   override async ngAfterViewInit() {
     const policyResponse = await this.load();
     this.loading = false;
+    // Force re-render so the @else branch renders #policyForm and policyFormRef is resolved.
+    // #policyForm lives inside @if (loading) ... @else { ... }, so it doesn't exist until
+    // loading is false and change detection has run.
+    this.changeDetectorRef.detectChanges();
 
     if (!this.policyFormRef) {
       throw new Error("Template not initialized.");

@@ -40,7 +40,7 @@
         <button
           bitButton
           buttonType="primary"
-          [disabled]="saveDisabled$ | async"
+          [disabled]="loading || (saveDisabled$ | async)"
           bitFormButton
           type="submit"
         >
