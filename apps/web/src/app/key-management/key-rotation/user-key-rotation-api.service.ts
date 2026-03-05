@@ -4,7 +4,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 
 import { RotateUserAccountKeysRequest } from "./request/rotate-user-account-keys.request";
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class UserKeyRotationApiService {
   readonly apiService = inject(ApiService);
 
