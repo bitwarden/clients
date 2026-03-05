@@ -16,8 +16,8 @@ import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorService } from "@bitwarden/generator-core";
 
-import { SendFormContainer } from "../../send-form-container";
 import { SendFormGenerationService } from "../../abstractions/send-form-generation.service";
+import { SendFormContainer } from "../../send-form-container";
 
 import {
   DatePreset,
