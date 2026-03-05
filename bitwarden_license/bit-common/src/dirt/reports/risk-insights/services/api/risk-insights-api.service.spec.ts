@@ -274,4 +274,73 @@ describe("RiskInsightsApiService", () => {
     );
     expect(result).toBeTruthy();
   });
+
+  describe("getRiskOverTime$", () => {
+    it("should call summary endpoint with date range derived from timeframe and return entries", async () => {
+      const mockResponse = [
+        {
+          organizationId: orgId,
+          encryptedData: "enc-summary-1",
+          encryptionKey: "enc-key-1",
+          date: "2026-01-15T00:00:00Z",
+        },
+        {
+          organizationId: orgId,
+          encryptedData: "enc-summary-2",
+          encryptionKey: "enc-key-2",
+          date: "2026-02-15T00:00:00Z",
+        },
+      ];
+
+      mockApiService.send.mockResolvedValueOnce(mockResponse);
+
+      const result = await firstValueFrom(service.getRiskOverTime$(orgId, "month"));
+
+      // Verify it calls the summary endpoint with startDate/endDate query params
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "GET",
+        expect.stringMatching(
+          /\/reports\/organizations\/org1\/data\/summary\?startDate=\d{4}-\d{2}-\d{2}&endDate=\d{4}-\d{2}-\d{2}/,
+        ),
+        null,
+        true,
+        true,
+      );
+      expect(result).toHaveLength(2);
+      expect(result[0].date).toEqual(new Date("2026-01-15T00:00:00Z"));
+      expect(result[1].date).toEqual(new Date("2026-02-15T00:00:00Z"));
+    });
+
+    it("should return empty array when server responds with 404", async () => {
+      const mockError = new ErrorResponse(null, 404);
+      mockApiService.send.mockReturnValue(Promise.reject(mockError));
+
+      const result = await firstValueFrom(service.getRiskOverTime$(orgId, "month"));
+
+      expect(result).toEqual([]);
+    });
+
+    it("should propagate non-404 errors", async () => {
+      const error = { statusCode: 500, message: "Server error" };
+      mockApiService.send.mockReturnValue(Promise.reject(error));
+
+      await expect(firstValueFrom(service.getRiskOverTime$(orgId, "3mo"))).rejects.toEqual(error);
+    });
+
+    it("should return empty array for null response", async () => {
+      mockApiService.send.mockResolvedValueOnce(null);
+
+      const result = await firstValueFrom(service.getRiskOverTime$(orgId, "12mo"));
+
+      expect(result).toEqual([]);
+    });
+
+    it("should return empty array for non-array response", async () => {
+      mockApiService.send.mockResolvedValueOnce({});
+
+      const result = await firstValueFrom(service.getRiskOverTime$(orgId, "6mo"));
+
+      expect(result).toEqual([]);
+    });
+  });
 });

@@ -149,3 +149,36 @@ export class UpdateRiskInsightsApplicationDataResponse extends BaseResponse {
     super(response);
   }
 }
+
+// -------------------- Risk Over Time Models --------------------
+
+/**
+ * Response model for a single entry from the summary-by-date-range endpoint.
+ * Matches server's OrganizationReportSummaryDataResponse.
+ *
+ * Server endpoint: GET /reports/organizations/{orgId}/data/summary?startDate=...&endDate=...
+ * Returns an array of these entries (up to 6, evenly spaced across the date range).
+ *
+ * Each entry contains encrypted summary data that must be decrypted using
+ * the encryptionKey to obtain an OrganizationReportSummary with member/application counts.
+ * The consuming code (domain service) should handle decryption and metric extraction
+ * based on the selected RiskOverTimeDataView.
+ */
+export class RiskOverTimeSummaryEntryResponse extends BaseResponse {
+  organizationId: string = "";
+  encryptedData: EncString;
+  encryptionKey: EncString;
+  date: Date;
+
+  constructor(response: any) {
+    super(response);
+    if (response == null) {
+      return;
+    }
+
+    this.organizationId = this.getResponseProperty("organizationId");
+    this.encryptedData = new EncString(this.getResponseProperty("encryptedData"));
+    this.encryptionKey = new EncString(this.getResponseProperty("encryptionKey"));
+    this.date = new Date(this.getResponseProperty("date"));
+  }
+}
