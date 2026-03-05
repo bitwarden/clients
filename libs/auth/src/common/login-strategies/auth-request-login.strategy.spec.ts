@@ -146,7 +146,7 @@ describe("AuthRequestLoginStrategy", () => {
     );
   });
 
-  it("sets keys after a successful authentication when only userKey provided in login credentials", async () => {
+  it("sets keys after a successful authentication", async () => {
     // Initialize credentials with only userKey
     credentials = new AuthRequestLoginCredentials(
       email,
@@ -174,7 +174,7 @@ describe("AuthRequestLoginStrategy", () => {
     );
 
     // trustDeviceIfRequired should be called
-    expect(deviceTrustService.trustDeviceIfRequired).not.toHaveBeenCalled();
+    expect(deviceTrustService.trustDeviceIfRequired).toHaveBeenCalled();
   });
 
   it("sets account cryptographic state when accountKeysResponseModel is present", async () => {
