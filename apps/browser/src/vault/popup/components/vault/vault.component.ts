@@ -21,7 +21,7 @@ import {
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
+import { NudgesService, NudgeType, PremiumUpsellService } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { DeactivatedOrg, NoResults, VaultOpen } from "@bitwarden/assets/svg";
 import {
@@ -169,19 +169,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
   protected cipherCount$ = this.vaultPopupItemsService.cipherCount$;
-  protected hasPremium$ = this.activeUserId$.pipe(
-    switchMap((userId) => this.billingAccountService.hasPremiumFromAnySource$(userId)),
-  );
-  protected accountAgeInDays$ = this.accountService.activeAccount$.pipe(
-    map((account) => {
-      if (!account || !account.creationDate) {
-        return 0;
-      }
-      const creationDate = account.creationDate;
-      const ageInMilliseconds = Date.now() - creationDate.getTime();
-      return Math.floor(ageInMilliseconds / (1000 * 60 * 60 * 24));
-    }),
-  );
 
   protected showPremiumSpotlight$ = combineLatest([
     this.premiumSpotlightFeatureFlag$,
@@ -191,18 +178,13 @@ export class VaultComponent implements OnInit, OnDestroy {
       ),
     ),
     this.showHasItemsVaultSpotlight$,
-    this.hasPremium$,
-    this.cipherCount$,
-    this.accountAgeInDays$,
   ]).pipe(
-    map(([featureFlagEnabled, showPremiumNudge, showHasItemsNudge, hasPremium, count, age]) => {
+    map(([featureFlagEnabled, showPremiumNudge, showHasItemsNudge]) => {
       return (
         featureFlagEnabled &&
         showPremiumNudge &&
         !showHasItemsNudge &&
-        !hasPremium &&
-        count >= 5 &&
-        age >= 7
+        this.premiumUpsellService.showUpsell()
       );
     }),
     shareReplay({ bufferSize: 1, refCount: true }),
@@ -271,6 +253,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private vaultItemsTransferService: VaultItemsTransferService,
     private eventCollectionService: EventCollectionService,
     private organizationService: InternalOrganizationServiceAbstraction,
+    private premiumUpsellService: PremiumUpsellService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
