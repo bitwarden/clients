@@ -10,16 +10,11 @@ argument-hint: "<cipher-type-name> - e.g., BankAccount, Passport"
 Plans the full implementation of a new or modified cipher type across all layers of the Bitwarden
 clients monorepo, the server repository, and the SDK repository.
 
-**Reference documentation:** `docs/cipher-types.md` in the repo root.
-
 ## Workflow
 
 ### Step 1: Gather Requirements
 
-Read the reference documentation at `docs/cipher-types.md` to refresh context on the five-layer
-model stack, container classes, UI components, and cross-repo dependencies.
-
-Then ask the user the following questions (use `AskUserQuestion`). Adapt questions based on what
+Ask the user the following questions (use `AskUserQuestion`). Adapt questions based on what
 the user has already provided.
 
 **Required questions:**
@@ -221,7 +216,7 @@ List all test files that need to be created or updated:
 
 ### 7. Recommended Implementation Order
 
-Follow the order from `docs/cipher-types.md` Section 14, customized for this specific type:
+Recommended implementation order, customized for this specific type:
 
 1. Server prerequisites (enum, models, DTOs, feature flag, version gate)
 2. SDK prerequisites (Rust types, WASM bindings)
@@ -315,11 +310,3 @@ menu). This requires changes across **7 files** spanning core infrastructure and
 - Follow the SshKey implementation as the canonical template
 - Use `@linkedFieldOption` decorators if linked fields are supported
 - View models must extend `ItemView` and implement the `subTitle` getter
-
-## References
-
-- `docs/cipher-types.md` - Complete cipher type reference documentation
-- SshKey commits: `b18fa68acc` (model stack), `081fe83d83` (UI components)
-- [ADR-0025: Const Objects vs Enums](https://contributing.bitwarden.com/architecture/adr/0025-const-objects-vs-enums/)
-- [ADR-0003: Observable Data Services](https://contributing.bitwarden.com/architecture/adr/observable-data-services)
-- [ADR-0027: Angular Signals](https://contributing.bitwarden.com/architecture/adr/angular-signals)
