@@ -1,1 +1,8 @@
 <bit-search [placeholder]="'search' | i18n" [(ngModel)]="searchText" appAutofocus />
+@if (showSearchFilters()) {
+  <bit-toggle-group class="tw-mt-4" [(selected)]="searchFilter">
+    <bit-toggle [value]="SendFilterType.All">{{ "allSends" | i18n }}</bit-toggle>
+    <bit-toggle [value]="SendFilterType.Text">{{ "sendTypeText" | i18n }}</bit-toggle>
+    <bit-toggle [value]="SendFilterType.File">{{ "sendTypeFile" | i18n }}</bit-toggle>
+  </bit-toggle-group>
+}

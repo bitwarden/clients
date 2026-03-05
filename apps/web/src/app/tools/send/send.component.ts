@@ -1,36 +1,21 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, NgZone, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { lastValueFrom, Observable, switchMap, EMPTY } from "rxjs";
+import { EMPTY, lastValueFrom, Observable, switchMap } from "rxjs";
 
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
 import { NoSendsIcon } from "@bitwarden/assets/svg";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
-import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendFilterType } from "@bitwarden/common/tools/send/types/send-filter-type";
-import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
-import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import {
   DialogRef,
-  DialogService,
   NoItemsModule,
   SearchModule,
   TableDataSource,
-  ToastService,
-  ToggleGroupModule,
+  SpinnerComponent,
 } from "@bitwarden/components";
 import {
   DefaultSendFormConfigService,
@@ -38,6 +23,7 @@ import {
   SendAddEditDialogComponent,
   SendItemDialogResult,
   SendTableComponent,
+  SendListComponent,
 } from "@bitwarden/send-ui";
 
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -45,8 +31,6 @@ import { SharedModule } from "../../shared";
 
 import { NewSendDropdownComponent } from "./new-send/new-send-dropdown.component";
 import { SendSuccessDrawerDialogComponent } from "./shared";
-
-const BroadcasterSubscriptionId = "SendComponent";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -58,65 +42,33 @@ const BroadcasterSubscriptionId = "SendComponent";
     NoItemsModule,
     HeaderModule,
     NewSendDropdownComponent,
-    ToggleGroupModule,
     SendTableComponent,
+    SpinnerComponent,
+    SendListComponent,
   ],
   templateUrl: "send.component.html",
   providers: [DefaultSendFormConfigService],
 })
-export class SendComponent extends BaseSendComponent implements OnInit, OnDestroy {
+export class SendComponent extends BaseSendComponent implements OnDestroy {
   private sendItemDialogRef?: DialogRef<SendItemDialogResult> | undefined;
+  SendFilterType = SendFilterType;
+
+  // These should be removed once the Send UI refresh is live
+  protected dataSource = new TableDataSource<SendView>();
+  selectedSendFilter: SendFilterType = SendFilterType.All;
   noItemIcon = NoSendsIcon;
-  selectedToggleValue?: SendFilterType;
   SendUIRefresh$: Observable<boolean>;
 
-  override set filteredSends(filteredSends: SendView[]) {
-    super.filteredSends = filteredSends;
-    this.dataSource.data = filteredSends;
-  }
-
-  override get filteredSends() {
-    return super.filteredSends;
-  }
-
-  protected dataSource = new TableDataSource<SendView>();
-
   constructor(
-    sendService: SendService,
-    i18nService: I18nService,
-    platformUtilsService: PlatformUtilsService,
-    environmentService: EnvironmentService,
-    ngZone: NgZone,
-    searchService: SearchService,
-    policyService: PolicyService,
-    private broadcasterService: BroadcasterService,
-    logService: LogService,
-    sendApiService: SendApiService,
-    dialogService: DialogService,
-    toastService: ToastService,
     private addEditFormConfigService: DefaultSendFormConfigService,
-    accountService: AccountService,
     private route: ActivatedRoute,
     private router: Router,
     private configService: ConfigService,
   ) {
-    super(
-      sendService,
-      i18nService,
-      platformUtilsService,
-      environmentService,
-      ngZone,
-      searchService,
-      policyService,
-      logService,
-      sendApiService,
-      dialogService,
-      toastService,
-      accountService,
-    );
-
+    super();
     this.SendUIRefresh$ = this.configService.getFeatureFlag$(FeatureFlag.SendUIRefresh);
 
+    // Ensure the component filters react to changes in query params
     this.SendUIRefresh$.pipe(
       switchMap((sendUiRefreshEnabled) => {
         if (sendUiRefreshEnabled) {
@@ -127,57 +79,31 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
       takeUntilDestroyed(),
     ).subscribe((params) => {
       const typeParam = params.get("type");
-      const value = (
-        typeParam === SendFilterType.Text || typeParam === SendFilterType.File
-          ? typeParam
-          : SendFilterType.All
-      ) as SendFilterType;
-      this.selectedToggleValue = value;
-
-      if (this.loaded) {
-        this.applyTypeFilter(value);
-      }
+      const sendType = this.sendFilterTypeToSendType(typeParam as SendFilterType);
+      this.sendListFiltersService.filterForm.patchValue({ sendType });
     });
-  }
-
-  async ngOnInit() {
-    await super.ngOnInit();
-    this.onSuccessfulLoad = async () => {
-      this.applyTypeFilter(this.selectedToggleValue);
-    };
-
-    await this.load();
-
-    // Broadcaster subscription - load if sync completes in the background
-    this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.ngZone.run(async () => {
-        switch (message.command) {
-          case "syncCompleted":
-            if (message.successfully) {
-              await this.load();
-            }
-            break;
-        }
-      });
+    // Ensure that query params are updated when the component changes filters
+    this.sendListFiltersService.filters$.pipe(takeUntilDestroyed()).subscribe((value) => {
+      const type = this.sendTypeToSendFilterType(value.sendType);
+      this.router
+        .navigate([], {
+          relativeTo: this.route,
+          queryParams: { type },
+          queryParamsHandling: "merge",
+        })
+        .catch((err) => {
+          this.logService.error("Failed to update route query params:", err);
+        });
+    });
+    // Pre-refresh data setup. Can be removed once Send UI refresh is live.
+    this.sendItemsService.filteredAndSortedSends$.pipe(takeUntilDestroyed()).subscribe((sends) => {
+      this.dataSource.data = sends;
     });
   }
 
   ngOnDestroy() {
     this.dialogService.closeAll();
     this.dialogService.closeDrawer();
-    this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
-  }
-
-  async addSend() {
-    if (this.disableSend) {
-      return;
-    }
-
-    const config = await this.addEditFormConfigService.buildConfig("add", null, 0);
-
-    await this.openSendItemDialog(config);
   }
 
   async editSend(send: SendView) {
@@ -214,14 +140,6 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     const result: SendItemDialogResult = await lastValueFrom(this.sendItemDialogRef.closed);
     this.sendItemDialogRef = undefined;
 
-    // If the dialog was closed by deleting the cipher, refresh the vault.
-    if (
-      result?.result === SendItemDialogResult.Deleted ||
-      result?.result === SendItemDialogResult.Saved
-    ) {
-      await this.load();
-    }
-
     if (
       result?.result === SendItemDialogResult.Saved &&
       result?.send &&
@@ -233,27 +151,16 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     }
   }
 
-  private applyTypeFilter(value: SendFilterType) {
-    if (value === SendFilterType.All) {
-      this.selectAll();
-    } else if (value === SendFilterType.Text) {
-      this.selectType(SendType.Text);
-    } else if (value === SendFilterType.File) {
-      this.selectType(SendType.File);
+  /** Pre-Refresh methods. Can be removed once Send UI refresh is live */
+  searchTextChanged(event: Event) {
+    if (event instanceof InputEvent) {
+      this.sendItemsService.applyFilter(event.data ?? "");
     }
   }
 
-  onToggleChange(value: SendFilterType) {
-    const queryParams = value === SendFilterType.All ? { type: null } : { type: value };
-
-    this.router
-      .navigate([], {
-        relativeTo: this.route,
-        queryParams,
-        queryParamsHandling: "merge",
-      })
-      .catch((err) => {
-        this.logService.error("Failed to update route query params:", err);
-      });
+  selectType(type: SendFilterType) {
+    this.selectedSendFilter = type;
+    const sendType = this.sendFilterTypeToSendType(type);
+    this.sendListFiltersService.filterForm.patchValue({ sendType });
   }
 }

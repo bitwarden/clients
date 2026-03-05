@@ -1,16 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, NgZone, OnDestroy, OnInit } from "@angular/core";
-import {
-  BehaviorSubject,
-  Subject,
-  firstValueFrom,
-  mergeMap,
-  from,
-  switchMap,
-  takeUntil,
-  combineLatest,
-} from "rxjs";
+import { Directive, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { firstValueFrom, switchMap, combineLatest, map } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -22,163 +14,100 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { SendFilterType } from "@bitwarden/common/tools/send/types/send-filter-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { SendItemsService, SendListState, SendListFiltersService } from "@bitwarden/send-ui";
 
 @Directive()
-export class SendComponent implements OnInit, OnDestroy {
-  disableSend = false;
+export class SendComponent {
   sendType = SendType;
-  loaded = false;
-  loading = true;
-  refreshing = false;
-  expired = false;
-  type: SendType = null;
-  sends: SendView[] = [];
-  selectedType: SendType;
-  selectedAll: boolean;
-  filter: (cipher: SendView) => boolean;
-  searchPending = false;
-  hasSearched = false; // search() function called - returns true if text qualifies for search
 
   actionPromise: any;
-  onSuccessfulRemovePassword: () => Promise<any>;
-  onSuccessfulDelete: () => Promise<any>;
-  onSuccessfulLoad: () => Promise<any>;
 
-  private searchTimeout: any;
-  private destroy$ = new Subject<void>();
-  private _filteredSends: SendView[];
-  private _searchText$ = new BehaviorSubject<string>("");
-  protected isSearchable: boolean = false;
+  protected sendItemsService = inject(SendItemsService);
+  protected sendListFiltersService = inject(SendListFiltersService);
+  protected dialogService = inject(DialogService);
+  protected i18nService = inject(I18nService);
+  protected sendApiService = inject(SendApiService);
+  protected toastService = inject(ToastService);
+  protected logService = inject(LogService);
+  protected platformUtilsService = inject(PlatformUtilsService);
+  protected environmentService = inject(EnvironmentService);
 
-  get filteredSends(): SendView[] {
-    return this._filteredSends;
-  }
+  private accountService = inject(AccountService);
+  private policyService = inject(PolicyService);
 
-  set filteredSends(filteredSends: SendView[]) {
-    this._filteredSends = filteredSends;
-  }
+  protected readonly filteredSends = toSignal(this.sendItemsService.filteredAndSortedSends$, {
+    initialValue: [],
+  });
 
-  get searchText() {
-    return this._searchText$.value;
-  }
+  protected readonly loading = toSignal(this.sendItemsService.loading$, { initialValue: true });
 
-  set searchText(value: string) {
-    this._searchText$.next(value);
-  }
+  protected readonly disableSend = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
+      ),
+    ),
+    { initialValue: false },
+  );
 
-  constructor(
-    protected sendService: SendService,
-    protected i18nService: I18nService,
-    protected platformUtilsService: PlatformUtilsService,
-    protected environmentService: EnvironmentService,
-    protected ngZone: NgZone,
-    protected searchService: SearchService,
-    protected policyService: PolicyService,
-    protected logService: LogService,
-    protected sendApiService: SendApiService,
-    protected dialogService: DialogService,
-    protected toastService: ToastService,
-    private accountService: AccountService,
-  ) {}
+  protected readonly listState = toSignal(
+    combineLatest([
+      this.sendItemsService.emptyList$,
+      this.sendItemsService.noFilteredResults$,
+    ]).pipe(
+      map(([emptyList, noFilteredResults]): SendListState | null => {
+        if (emptyList) {
+          return SendListState.Empty;
+        }
+        if (noFilteredResults) {
+          return SendListState.NoResults;
+        }
+        return null;
+      }),
+    ),
+    { initialValue: null },
+  );
 
-  async ngOnInit() {
-    this.accountService.activeAccount$
-      .pipe(
-        getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
-        ),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((policyAppliesToUser) => {
-        this.disableSend = policyAppliesToUser;
-      });
+  protected readonly currentSearchText = toSignal(this.sendItemsService.latestSearchText$, {
+    initialValue: "",
+  });
 
-    combineLatest([this._searchText$, this.accountService.activeAccount$.pipe(getUserId)])
-      .pipe(
-        switchMap(([searchText, userId]) =>
-          from(this.searchService.isSearchable(userId, searchText)),
-        ),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((isSearchable) => {
-        this.isSearchable = isSearchable;
-      });
-  }
+  protected readonly currentSearchFilter = toSignal(
+    this.sendListFiltersService.filters$.pipe(
+      map((value): SendFilterType => this.sendTypeToSendFilterType(value.sendType)),
+    ),
+    { initialValue: SendFilterType.All },
+  );
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  async load(filter: (send: SendView) => boolean = null) {
-    this.loading = true;
-    this.sendService.sendViews$
-      .pipe(
-        mergeMap(async (sends) => {
-          this.sends = sends;
-          await this.search(null);
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
-    if (this.onSuccessfulLoad != null) {
-      await this.onSuccessfulLoad();
-    } else {
-      // Default action
-      this.selectAll();
-    }
-    this.loading = false;
-    this.loaded = true;
-  }
-
-  async reload(filter: (send: SendView) => boolean = null) {
-    this.loaded = false;
-    this.sends = [];
-    await this.load(filter);
-  }
-
-  async refresh() {
-    try {
-      this.refreshing = true;
-      await this.reload(this.filter);
-    } finally {
-      this.refreshing = false;
+  protected sendFilterTypeToSendType(filterType: SendFilterType): SendType | null {
+    switch (filterType) {
+      case SendFilterType.Text:
+        return SendType.Text;
+      case SendFilterType.File:
+        return SendType.File;
+      default: // SendFilterType.All
+        return null;
     }
   }
 
-  async applyFilter(filter: (send: SendView) => boolean = null) {
-    this.filter = filter;
-    await this.search(null);
-  }
-
-  async search(timeout: number = null) {
-    this.searchPending = false;
-    if (this.searchTimeout != null) {
-      clearTimeout(this.searchTimeout);
+  protected sendTypeToSendFilterType(sendType: SendType | null): SendFilterType {
+    switch (sendType) {
+      case SendType.Text:
+        return SendFilterType.Text;
+      case SendType.File:
+        return SendFilterType.File;
+      default:
+        return SendFilterType.All;
     }
-    if (timeout == null) {
-      this.hasSearched = this.isSearchable;
-      this.filteredSends = this.sends.filter((s) => this.filter == null || this.filter(s));
-      this.applyTextSearch();
-      return;
-    }
-    this.searchPending = true;
-    this.searchTimeout = setTimeout(async () => {
-      this.hasSearched = this.isSearchable;
-      this.filteredSends = this.sends.filter((s) => this.filter == null || this.filter(s));
-      this.applyTextSearch();
-      this.searchPending = false;
-    }, timeout);
   }
 
   async removePassword(s: SendView): Promise<boolean> {
     if (this.actionPromise != null || s.password == null) {
-      return;
+      return false;
     }
 
     const confirmed = await this.dialogService.openSimpleDialog({
@@ -194,23 +123,16 @@ export class SendComponent implements OnInit, OnDestroy {
     try {
       this.actionPromise = this.sendApiService.removePassword(s.id);
       await this.actionPromise;
-      if (this.onSuccessfulRemovePassword != null) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.onSuccessfulRemovePassword();
-      } else {
-        // Default actions
-        this.toastService.showToast({
-          variant: "success",
-          title: null,
-          message: this.i18nService.t("removedPassword"),
-        });
-        await this.load();
-      }
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("removedPassword"),
+      });
     } catch (e) {
       this.logService.error(e);
     }
     this.actionPromise = null;
+    return true;
   }
 
   async delete(s: SendView): Promise<boolean> {
@@ -231,20 +153,11 @@ export class SendComponent implements OnInit, OnDestroy {
     try {
       this.actionPromise = this.sendApiService.delete(s.id);
       await this.actionPromise;
-
-      if (this.onSuccessfulDelete != null) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.onSuccessfulDelete();
-      } else {
-        // Default actions
-        this.toastService.showToast({
-          variant: "success",
-          title: null,
-          message: this.i18nService.t("deletedSend"),
-        });
-        await this.refresh();
-      }
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("deletedSend"),
+      });
     } catch (e) {
       this.logService.error(e);
     }
@@ -261,38 +174,5 @@ export class SendComponent implements OnInit, OnDestroy {
       title: null,
       message: this.i18nService.t("valueCopied", this.i18nService.t("sendLink")),
     });
-  }
-
-  searchTextChanged() {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.search(200);
-  }
-
-  selectAll() {
-    this.clearSelections();
-    this.selectedAll = true;
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.applyFilter(null);
-  }
-
-  selectType(type: SendType) {
-    this.clearSelections();
-    this.selectedType = type;
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.applyFilter((s) => s.type === type);
-  }
-
-  clearSelections() {
-    this.selectedAll = false;
-    this.selectedType = null;
-  }
-
-  private applyTextSearch() {
-    if (this.searchText != null) {
-      this.filteredSends = this.searchService.searchSends(this.filteredSends, this.searchText);
-    }
   }
 }
