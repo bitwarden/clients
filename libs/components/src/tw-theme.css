@@ -314,6 +314,7 @@
 
   /* Hover & Overlay */
   --color-bg-hover: rgba(var(--color-gray-950-rgb), 0.05);
+  --color-bg-hover-contrast: rgba(var(--color-white-rgb), 0.05);
   --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.3);
 
   /* ========================================
@@ -330,7 +331,7 @@
   /* Brand Border */
   --color-border-brand-soft: var(--color-brand-200);
   --color-border-brand: var(--color-brand-700);
-  --color-border-brand-strong: var(--color-brand-900);
+  --color-border-brand-strong: var(--color-brand-800);
 
   /* Status Border */
   --color-border-success-soft: var(--color-green-200);
@@ -353,6 +354,7 @@
 
   /* Focus Border */
   --color-border-focus: var(--color-black);
+  --color-border-focus-contrast: var(--color-white);
 
   /**========================================
    * SIDENAV BACKGROUND COLORS (Light mode)
@@ -517,6 +519,7 @@
 
   /* Hover & Overlay */
   --color-bg-hover: rgba(var(--color-white-rgb), 0.05);
+  --color-bg-hover-contrast: rgba(var(--color-gray-950-rgb), 0.05);
   --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.85);
 
   /* ========================================
@@ -555,6 +558,7 @@
 
   /* Focus Border */
   --color-border-focus: var(--color-white);
+  --color-border-focus-contrast: var(--color-black);
 
   /**========================================
     * SIDENAV BACKGROUND COLORS (Dark mode)
@@ -626,5 +630,9 @@
     position: relative;
     height: 100%;
     overflow: hidden;
+  }
+
+  router-outlet {
+    display: none;
   }
 }

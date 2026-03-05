@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Favorieten"
   },
+  "unfavorite": {
+    "message": "Unfavorite"
+  },
   "types": {
     "message": "Categorieën"
   },
@@ -586,6 +589,12 @@
   "editedItem": {
     "message": "Item opgeslagen"
   },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
+  },
   "deleteItem": {
     "message": "Verwijder item"
   },
@@ -1022,6 +1031,9 @@
   },
   "invalidVerificationCode": {
     "message": "Ongeldige verificatiecode"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Ongeldig e-mailadres verificatiecode"
   },
   "continue": {
     "message": "Doorgaan"
@@ -1552,6 +1564,18 @@
   "unknown": {
     "message": "Onbekend"
   },
+  "copyAddress": {
+    "message": "Copy address"
+  },
+  "copyPhone": {
+    "message": "Copy phone"
+  },
+  "copyNote": {
+    "message": "Copy note"
+  },
+  "copyVerificationCode": {
+    "message": "Copy verification code"
+  },
   "copyUsername": {
     "message": "Gebruikersnaam kopiëren"
   },
@@ -2079,6 +2103,24 @@
   "searchTrash": {
     "message": "Prullenbak doorzoeken"
   },
+  "searchArchive": {
+    "message": "Search archive"
+  },
+  "searchLogin": {
+    "message": "Search login"
+  },
+  "searchCard": {
+    "message": "Search card"
+  },
+  "searchIdentity": {
+    "message": "Search identity"
+  },
+  "searchSecureNote": {
+    "message": "Search secure note"
+  },
+  "searchSshKey": {
+    "message": "Search SSH key"
+  },
   "permanentlyDeleteItem": {
     "message": "Item definitief verwijderen"
   },
@@ -2374,6 +2416,9 @@
   "editSend": {
     "message": "Send bewerken",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Me"
   },
   "myVault": {
     "message": "Mijn kluis"
@@ -3755,7 +3800,7 @@
     "message": "Ga door met inloggen met de inloggegevens van je bedrijf."
   },
   "importDirectlyFromBrowser": {
-    "message": "Import directly from browser"
+    "message": "Direct importeren vanuit browser"
   },
   "browserProfile": {
     "message": "Browserprofiel"
@@ -4083,6 +4128,9 @@
   "missingWebsite": {
     "message": "Ontbrekende website"
   },
+  "missingPermissions": {
+    "message": "You lack the necessary permissions to perform this action."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Je kunt verzamelingen niet verwijderen met alleen rechten voor weergeven: $COLLECTIONS$",
     "placeholders": {
@@ -4387,11 +4435,11 @@
   "noItemsInArchiveDesc": {
     "message": "Gearchiveerde items verschijnen hier en worden uitgesloten van algemene zoekresultaten en automatisch invulsuggesties."
   },
-  "itemWasSentToArchive": {
-    "message": "Item naar archief verzonden"
+  "itemArchiveToast": {
+    "message": "Item gearchiveerd"
   },
-  "itemWasUnarchived": {
-    "message": "Item uit het archief gehaald"
+  "itemUnarchivedToast": {
+    "message": "Item gedearchiveerd"
   },
   "archiveItem": {
     "message": "Item archiveren"
@@ -4439,7 +4487,7 @@
     "message": "En meer!"
   },
   "advancedOnlineSecurity": {
-    "message": "Advanced online security"
+    "message": "Geavanceerde online beveiliging"
   },
   "upgradeToPremium": {
     "message": "Opwaarderen naar Premium"
@@ -4485,6 +4533,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Time-out actie"
+  },
+  "errorCannotDecrypt": {
+    "message": "Fout: Kan niet ontsleutelen"
   },
   "sessionTimeoutHeader": {
     "message": "Sessietime-out"
@@ -4584,8 +4635,71 @@
   "whyAmISeeingThis": {
     "message": "Waarom zie ik dit?"
   },
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
+  },
   "sendPasswordHelperText": {
     "message": "Individuen moeten het wachtwoord invoeren om deze Send te bekijken",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "E-mail beveiligd"
+  },
+  "emails": {
+    "message": "E-mails"
+  },
+  "noAuth": {
+    "message": "Iedereen met de link"
+  },
+  "anyOneWithPassword": {
+    "message": "Iedereen met een door jou ingesteld wachtwoord"
+  },
+  "whoCanView": {
+    "message": "Wie kan weergeven"
+  },
+  "specificPeople": {
+    "message": "Specifieke mensen"
+  },
+  "emailVerificationDesc": {
+    "message": "Na het delen van deze Send-link moeten individuen hun e-mailadres met een code verifiëren om deze Send te kunnen bekijken."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Voer meerdere e-mailadressen in door te scheiden met een komma."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "E-mailverificatie vereist ten minste één e-mailadres. Om alle e-mailadressen te verwijderen, moet je het toegangstype hierboven wijzigen."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Gebruikersverificatie is mislukt."
   }
 }

@@ -495,11 +495,7 @@ describe("KeyConnectorService", () => {
         const mockRegistration = mockSdkRef.value
           .auth()
           .registration().post_keys_for_key_connector_registration;
-        expect(mockRegistration).toHaveBeenCalledWith(
-          keyConnectorUrl,
-          mockSsoOrgIdentifier,
-          mockUserId,
-        );
+        expect(mockRegistration).toHaveBeenCalledWith(keyConnectorUrl, mockSsoOrgIdentifier);
 
         expect(masterPasswordService.mock.setMasterKey).toHaveBeenCalledWith(
           expect.any(SymmetricCryptoKey),
@@ -524,14 +520,6 @@ describe("KeyConnectorService", () => {
           },
           mockUserId,
         );
-        expect(keyService.setPrivateKey).toHaveBeenCalledWith(mockPrivateKey, mockUserId);
-        expect(keyService.setUserSigningKey).toHaveBeenCalledWith(mockSigningKey, mockUserId);
-        expect(securityStateService.setAccountSecurityState).toHaveBeenCalledWith(
-          mockSecurityState,
-          mockUserId,
-        );
-        expect(keyService.setSignedPublicKey).toHaveBeenCalledWith(mockSignedPublicKey, mockUserId);
-
         expect(await firstValueFrom(conversionState.state$)).toBeNull();
       });
 
@@ -557,10 +545,6 @@ describe("KeyConnectorService", () => {
         expect(
           accountCryptographicStateService.setAccountCryptographicState,
         ).not.toHaveBeenCalled();
-        expect(keyService.setPrivateKey).not.toHaveBeenCalled();
-        expect(keyService.setUserSigningKey).not.toHaveBeenCalled();
-        expect(securityStateService.setAccountSecurityState).not.toHaveBeenCalled();
-        expect(keyService.setSignedPublicKey).not.toHaveBeenCalled();
       });
 
       it("should throw error when account cryptographic state is not V2", async () => {
@@ -595,10 +579,6 @@ describe("KeyConnectorService", () => {
         expect(
           accountCryptographicStateService.setAccountCryptographicState,
         ).not.toHaveBeenCalled();
-        expect(keyService.setPrivateKey).not.toHaveBeenCalled();
-        expect(keyService.setUserSigningKey).not.toHaveBeenCalled();
-        expect(securityStateService.setAccountSecurityState).not.toHaveBeenCalled();
-        expect(keyService.setSignedPublicKey).not.toHaveBeenCalled();
       });
 
       it("should throw error when post_keys_for_key_connector_registration fails", async () => {
@@ -625,10 +605,6 @@ describe("KeyConnectorService", () => {
         expect(
           accountCryptographicStateService.setAccountCryptographicState,
         ).not.toHaveBeenCalled();
-        expect(keyService.setPrivateKey).not.toHaveBeenCalled();
-        expect(keyService.setUserSigningKey).not.toHaveBeenCalled();
-        expect(securityStateService.setAccountSecurityState).not.toHaveBeenCalled();
-        expect(keyService.setSignedPublicKey).not.toHaveBeenCalled();
       });
     });
 
