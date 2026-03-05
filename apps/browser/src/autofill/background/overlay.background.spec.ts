@@ -2,7 +2,6 @@ import { mock, MockProxy, mockReset } from "jest-mock-extended";
 import { BehaviorSubject, Observable, of } from "rxjs";
 import { map } from "rxjs/operators";
 
-
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -41,6 +40,7 @@ import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
+import { CredentialGeneratorService } from "@bitwarden/generator-core";
 import { GeneratedCredential } from "@bitwarden/generator-history";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -119,6 +119,7 @@ describe("OverlayBackground", () => {
   let inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
   let themeStateService: MockProxy<ThemeStateService>;
   let totpService: MockProxy<TotpService>;
+  let generatorService: MockProxy<CredentialGeneratorService>;
   let overlayBackground: OverlayBackground;
   let portKeyForTabSpy: Record<number, string>;
   let pageDetailsForTabSpy: PageDetailsForTab;
@@ -205,6 +206,10 @@ describe("OverlayBackground", () => {
     totpService = mock<TotpService>({
       getCode$: jest.fn().mockReturnValue(of(undefined)),
     });
+    generatorService = mock<CredentialGeneratorService>();
+    generatorService.preferredAlgorithm$.mockReturnValue(
+      of({ capabilities: { autogenerate: true } } as any),
+    );
     overlayBackground = new OverlayBackground(
       logService,
       cipherService,
@@ -223,6 +228,7 @@ describe("OverlayBackground", () => {
       accountService,
       generatedPasswordCallbackMock,
       addPasswordCallbackMock,
+      generatorService,
     );
     portKeyForTabSpy = overlayBackground["portKeyForTab"];
     pageDetailsForTabSpy = overlayBackground["pageDetailsForTab"];
