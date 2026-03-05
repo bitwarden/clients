@@ -27,17 +27,17 @@ All options can be set via environment variable or CLI argument. CLI arguments t
 | CLI argument       | Environment variable | Default                       |
 | ------------------ | -------------------- | ----------------------------- |
 | `--port`           | `RPE_PORT`           | `8000`                        |
-| `--backend`        | `RPE_BACKEND_URL`    | `http://localhost:4000`       |
+| `--backend`        | `RPE_BACKEND_URL`    | `http://localhost:8080`       |
 | `--cookie-name`    | `RPE_COOKIE_NAME`    | `BitwardenLoadBalancerCookie` |
 | `--cookie-max-age` | `RPE_COOKIE_MAX_AGE` | `86400` (24 h, in seconds)    |
 | `--insecure`       | _(flag only)_        | `false`                       |
 
 ## Examples
 
-Point at a remote or staging backend:
+Point at a remote backend:
 
 ```bash
-npm run dev:reverse-proxy -- --backend https://staging.bitwarden.example.com --insecure
+npm run dev:reverse-proxy -- --backend https://vault.bitwarden.com
 ```
 
 Use a different port and cookie TTL:
