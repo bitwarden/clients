@@ -293,6 +293,7 @@
       matchPackageNames: [
         "@microsoft/signalr-protocol-msgpack",
         "@microsoft/signalr",
+        "@protobuf-ts/runtime",
         "@types/jsdom",
         "@types/papaparse",
         "@types/zxcvbn",
