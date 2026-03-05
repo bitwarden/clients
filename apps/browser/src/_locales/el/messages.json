@@ -568,13 +568,13 @@
     "message": "Στοιχεία στην αρχειοθήκη"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Δεν υπάρχουν στοιχεία στην αρχειοθήκη"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Τα αρχειοθετημένα στοιχεία θα εμφανίζονται εδώ και θα εξαιρούνται από τα αποτελέσματα της καθολικής αναζήτησης και τις προτάσεις αυτόματης συμπλήρωσης."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "Το στοιχείο αρχειοθετήθηκε"
   },
   "itemUnarchivedToast": {
     "message": "Item unarchived"
@@ -895,6 +895,9 @@
   },
   "invalidVerificationCode": {
     "message": "Μη έγκυρος κωδικός επαλήθευσης"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
   },
   "valueCopied": {
     "message": "$VALUE$ αντιγράφηκε",
@@ -2857,6 +2860,9 @@
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Illustration of a list of logins that are at-risk."
   },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
+  },
   "generatePasswordSlideDesc": {
     "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
@@ -3077,6 +3083,45 @@
       "days": {
         "content": "$1",
         "example": "5"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ ώρες",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -4139,7 +4184,7 @@
     "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
   },
   "okay": {
-    "message": "Okay"
+    "message": "Εντάξει"
   },
   "toggleSideNavigation": {
     "message": "Εναλλαγή πλευρικής πλοήγησης"
@@ -4731,7 +4776,7 @@
     }
   },
   "moreOptionsLabelNoPlaceholder": {
-    "message": "More options"
+    "message": "Περισσότερες επιλογές"
   },
   "moreOptionsTitle": {
     "message": "Περισσότερες επιλογές - $ITEMNAME$",
@@ -4824,10 +4869,10 @@
     "message": "Κονσόλα Διαχειριστή"
   },
   "admin": {
-    "message": "Admin"
+    "message": "Διαχειριστής"
   },
   "automaticUserConfirmation": {
-    "message": "Automatic user confirmation"
+    "message": "Αυτόματη επιβεβαίωση χρηστών"
   },
   "automaticUserConfirmationHint": {
     "message": "Automatically confirm pending users while this device is unlocked"
@@ -4839,10 +4884,10 @@
     "message": "This could impact your organization’s data security. "
   },
   "autoConfirmWarningLink": {
-    "message": "Learn about the risks"
+    "message": "Μάθετε για τους κινδύνους"
   },
   "autoConfirmSetup": {
-    "message": "Automatically confirm new users"
+    "message": "Αυτόματη επιβεβαίωση νέων χρηστών"
   },
   "autoConfirmSetupDesc": {
     "message": "New users will be automatically confirmed while this device is unlocked."
@@ -5716,10 +5761,10 @@
     "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Ευάλωτος κωδικός πρόσβασης."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Αλλαγή τώρα"
   },
   "missingWebsite": {
     "message": "Missing website"
@@ -5958,7 +6003,7 @@
     "message": "ZIP / Postal code"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "Αριθμός κάρτας"
   },
   "errorCannotDecrypt": {
     "message": "Error: Cannot decrypt"
@@ -5973,7 +6018,7 @@
     "message": "Do not continue"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Τομέας"
   },
   "keyConnectorDomainTooltip": {
     "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
@@ -5991,7 +6036,7 @@
     "message": "If you don't verify your organization, your access to the organization will be revoked."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Αποχώρηση τώρα"
   },
   "verifyYourDomainToLogin": {
     "message": "Verify your domain to log in"
@@ -6044,13 +6089,13 @@
     }
   },
   "sessionTimeoutOnRestart": {
-    "message": "On browser restart"
+    "message": "Κατά την επανεκκίνηση του προγράμματος περιήγησης"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
   },
   "upgrade": {
-    "message": "Upgrade"
+    "message": "Αναβάθμιση"
   },
   "leaveConfirmationDialogTitle": {
     "message": "Are you sure you want to leave?"
@@ -6092,19 +6137,28 @@
     }
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "Αποδοχή μεταφοράς"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
+    "message": "Απόρριψη και αποχώρηση"
   },
   "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+    "message": "Γιατί το βλέπω αυτό;"
   },
   "items": {
-    "message": "Items"
+    "message": "Στοιχεία"
   },
   "searchResults": {
-    "message": "Search results"
+    "message": "Αποτελέσματα αναζήτησης"
+  },
+  "simplifiedAutofill": {
+    "message": "Απλοποιημένη αυτόματη συμπλήρωση"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open simplified autofill popover"
   },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
@@ -6113,13 +6167,16 @@
     "message": "Who can view"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Συγκεκριμένα άτομα"
   },
   "emailVerificationDesc": {
     "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
@@ -6133,5 +6190,8 @@
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }
