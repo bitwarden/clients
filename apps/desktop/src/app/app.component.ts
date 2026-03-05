@@ -104,9 +104,6 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
   template: `
     <ng-template #settings></ng-template>
     <ng-template #premium></ng-template>
-    <ng-template #passwordHistory></ng-template>
-    <ng-template #exportVault></ng-template>
-    <ng-template #appGenerator></ng-template>
     <ng-template #loginApproval></ng-template>
     <app-header *ngIf="showHeader$ | async"></app-header>
 
@@ -128,18 +125,6 @@ export class AppComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("premium", { read: ViewContainerRef, static: true }) premiumRef: ViewContainerRef;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("passwordHistory", { read: ViewContainerRef, static: true })
-  passwordHistoryRef: ViewContainerRef;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("exportVault", { read: ViewContainerRef, static: true })
-  exportVaultModalRef: ViewContainerRef;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("appGenerator", { read: ViewContainerRef, static: true })
-  generatorModalRef: ViewContainerRef;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("loginApproval", { read: ViewContainerRef, static: true })
