@@ -1,4 +1,3 @@
-import { NgClass } from "@angular/common";
 import { Component, inject, ElementRef, computed, input, model } from "@angular/core";
 
 import { AriaDisableDirective } from "../a11y";
@@ -16,7 +15,7 @@ export type ButtonSize = "default" | "small" | "large";
   selector: "button[bitButton], a[bitButton]",
   templateUrl: "button.component.html",
   providers: [{ provide: ButtonLikeAbstraction, useExisting: ButtonComponent }],
-  imports: [NgClass, SpinnerComponent],
+  imports: [SpinnerComponent],
   host: {
     "[class]": "classList()",
   },
