@@ -346,7 +346,9 @@ describe("DefaultChangePasswordService", () => {
 
         it("should throw an error if the API method fails", async () => {
           // Arrange
-          masterPasswordApiService.postPassword.mockRejectedValueOnce(new Error("error"));
+          masterPasswordApiService.postPassword.mockRejectedValue(
+            new Error("error during API call"),
+          );
 
           // Act
           const promise = sut.changePassword(passwordInputResult, userId);
@@ -483,7 +485,9 @@ describe("DefaultChangePasswordService", () => {
 
         it("should throw an error if the API method fails", async () => {
           // Arrange
-          masterPasswordApiService.putUpdateTempPassword.mockRejectedValueOnce(new Error("error"));
+          masterPasswordApiService.putUpdateTempPassword.mockRejectedValue(
+            new Error("error during API call"),
+          );
 
           // Act
           const promise = sut.changePasswordForAccountRecovery(passwordInputResult, userId);

@@ -541,7 +541,7 @@ export class InputPasswordComponent implements OnInit {
   }
 
   /**
-   * @deprecated To be removed in PM-28143 (use `MasterPasswordUnlockService.proofOfDecryption()` instead)
+   * @deprecated To be removed in PM-28143
    *
    * Returns `true` if the current password is correct (it can be used to successfully decrypt
    * the masterKeyEncryptedUserKey), `false` otherwise
