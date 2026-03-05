@@ -1,49 +1,29 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import * as fs from "fs";
-
 import { ipcMain } from "electron";
-import ElectronStore, { Options as ElectronStoreOptions } from "electron-store";
-import { Subject } from "rxjs";
+import { Observable, Subject } from "rxjs";
 
 import {
   AbstractStorageService,
   StorageUpdate,
 } from "@bitwarden/common/platform/abstractions/storage.service";
-import { NodeUtils } from "@bitwarden/node/node-utils";
 
-import { isWindowsPortable } from "../../utils";
+import { JsonStateStore } from "./json-state-store";
 
-interface BaseOptions<T extends string> {
-  action: T;
-  key: string;
-}
-
-interface SaveOptions extends BaseOptions<"save"> {
-  obj: unknown;
-}
-
-type Options = BaseOptions<"get"> | BaseOptions<"has"> | SaveOptions | BaseOptions<"remove">;
+type StorageIpcRequest =
+  | { action: "get"; key: string }
+  | { action: "has"; key: string }
+  | { action: "save"; key: string; obj: unknown }
+  | { action: "remove"; key: string };
 
 export class ElectronStorageService implements AbstractStorageService {
-  private store: ElectronStore;
-  private updatesSubject = new Subject<StorageUpdate>();
-  updates$;
+  private readonly updatesSubject = new Subject<StorageUpdate>();
+  private readonly stateStore: JsonStateStore;
+  readonly updates$: Observable<StorageUpdate>;
 
-  constructor(dir: string, defaults = {}) {
-    if (!fs.existsSync(dir)) {
-      NodeUtils.mkdirpSync(dir, "700");
-    }
-    const fileMode = isWindowsPortable() ? 0o666 : 0o600;
-    const storeConfig: ElectronStoreOptions<Record<string, unknown>> = {
-      defaults: defaults,
-      name: "data",
-      configFileMode: fileMode,
-    };
-    this.store = new ElectronStore(storeConfig);
+  constructor(directoryPath: string, defaults: Record<string, unknown> = {}) {
+    this.stateStore = new JsonStateStore(directoryPath, defaults);
+
     this.updates$ = this.updatesSubject.asObservable();
-
-    ipcMain.handle("storageService", (event, options: Options) => {
+    ipcMain.handle("storageService", (_event, options: StorageIpcRequest) => {
       switch (options.action) {
         case "get":
           return this.get(options.key);
@@ -53,6 +33,8 @@ export class ElectronStorageService implements AbstractStorageService {
           return this.save(options.key, options.obj);
         case "remove":
           return this.remove(options.key);
+        default:
+          return Promise.reject(new Error("Unsupported storage action."));
       }
     });
   }
@@ -62,32 +44,39 @@ export class ElectronStorageService implements AbstractStorageService {
   }
 
   get<T>(key: string): Promise<T> {
-    const val = this.store.get(key) as T;
-    return Promise.resolve(val != null ? val : null);
+    return Promise.resolve(this.stateStore.get<T>(key));
   }
 
   has(key: string): Promise<boolean> {
-    const val = this.store.get(key);
-    return Promise.resolve(val != null);
+    return Promise.resolve(this.stateStore.has(key));
   }
 
-  save(key: string, obj: unknown): Promise<void> {
+  save<T>(key: string, obj: T): Promise<void> {
     if (obj === undefined) {
       return this.remove(key);
     }
 
+    let valueToStore: unknown = obj;
     if (obj instanceof Set) {
-      obj = Array.from(obj);
+      valueToStore = Array.from(obj);
     }
 
-    this.store.set(key, obj);
+    this.stateStore.set(key, valueToStore);
     this.updatesSubject.next({ key, updateType: "save" });
     return Promise.resolve();
   }
 
   remove(key: string): Promise<void> {
-    this.store.delete(key);
+    this.stateStore.remove(key);
     this.updatesSubject.next({ key, updateType: "remove" });
     return Promise.resolve();
+  }
+
+  flush(): void {
+    this.stateStore.flush();
+  }
+
+  dispose(): void {
+    this.stateStore.dispose();
   }
 }
