@@ -94,7 +94,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
       this.providerUsersUserIdMap.set(u.userId, { name: name, email: u.email });
     });
     await this.refreshEvents();
-    this.loaded = true;
+    this.loaded.set(true);
   }
 
   protected requestEvents(startDate: string, endDate: string, continuationToken: string) {

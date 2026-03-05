@@ -1,5 +1,5 @@
-<form [formGroup]="formGroup" [bitSubmit]="submit" class="tw-h-full tw-flex tw-flex-col">
-  <bit-dialog dialogSize="large" [loading]="loading">
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog [loading]="loading">
     <ng-container bitDialogTitle>
       @let title = multiStepSubmit()[currentStep()]?.titleContent();
       @if (title) {
@@ -35,16 +35,7 @@
 </form>
 
 <ng-template #step0Title>
-  <span class="tw-flex tw-items-center tw-gap-2">
-    {{ policy.name | i18n }}
-    @if (isPolicyEnabled) {
-      <span bitBadge variant="success">{{ "on" | i18n }}</span>
-    }
-  </span>
-</ng-template>
-
-<ng-template #step1Title>
-  {{ "centralizeDataOwnershipWarningTitle" | i18n }}
+  {{ policy.name | i18n }}
 </ng-template>
 
 <ng-template #step0>
@@ -55,22 +46,9 @@
     bitFormButton
     type="submit"
   >
-    @if (policyComponent?.policyResponse?.enabled) {
-      {{ "save" | i18n }}
-    } @else {
-      {{ "continue" | i18n }}
-    }
+    {{ "save" | i18n }}
   </button>
 
-  <button bitButton buttonType="secondary" bitDialogClose type="button">
-    {{ "cancel" | i18n }}
-  </button>
-</ng-template>
-
-<ng-template #step1>
-  <button bitButton buttonType="primary" bitFormButton type="submit">
-    {{ "continue" | i18n }}
-  </button>
   <button bitButton buttonType="secondary" bitDialogClose type="button">
     {{ "cancel" | i18n }}
   </button>

@@ -3,6 +3,7 @@ import { CdkScrollable } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import {
   Component,
+  effect,
   inject,
   viewChild,
   input,
@@ -20,6 +21,8 @@ import { combineLatest, firstValueFrom, switchMap } from "rxjs";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitIconButtonComponent } from "../../icon-button/icon-button.component";
+import { queryForAutofocusDescendents } from "../../input";
+import { getRootFontSizePx } from "../../shared";
 import { SpinnerComponent } from "../../spinner";
 import { TypographyDirective } from "../../typography/typography.directive";
 import { hasScrollableContent$ } from "../../utils/";
@@ -27,6 +30,7 @@ import { hasScrolledFrom } from "../../utils/has-scrolled-from";
 import { DialogRef } from "../dialog.service";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
+import { DrawerService } from "../drawer.service";
 
 type DialogSize = "small" | "default" | "large";
 
@@ -42,10 +46,17 @@ const drawerSizeToWidth = {
   large: "md:tw-max-w-2xl",
 } as const;
 
+/** Width in rem for each drawer size, used to declare push-mode column widths. */
+export const drawerSizeToWidthRem: Record<string, number> = {
+  small: 24,
+  default: 32,
+  large: 42,
+};
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "bit-dialog",
+  selector: "bit-dialog, [bit-dialog]",
   templateUrl: "./dialog.component.html",
   host: {
     "[class]": "classes()",
@@ -67,7 +78,19 @@ const drawerSizeToWidth = {
 export class DialogComponent implements AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
-  private readonly el = inject(ElementRef);
+  private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly drawerService = inject(DrawerService);
+
+  constructor() {
+    effect(() => {
+      if (!this.dialogRef?.isDrawer) {
+        return;
+      }
+      const size = this.dialogSize();
+      const rootFontSizePx = getRootFontSizePx();
+      this.drawerService.declarePushWidth((drawerSizeToWidthRem[size] ?? 32) * rootFontSizePx);
+    });
+  }
 
   private readonly dialogHeader =
     viewChild.required<ElementRef<HTMLHeadingElement>>("dialogHeader");
@@ -121,23 +144,31 @@ export class DialogComponent implements AfterViewInit {
 
   private readonly animationCompleted = signal(false);
 
+  /** Max width class */
   protected readonly width = computed(() => {
-    const size = this.dialogSize() ?? "default";
-    const isDrawer = this.dialogRef?.isDrawer;
+    const size = this.dialogSize();
 
-    if (isDrawer) {
-      return drawerSizeToWidth[size];
+    if (this.dialogRef?.isDrawer) {
+      return this.drawerService.isPushMode() ? drawerSizeToWidth[size] : "";
     }
-
     return dialogSizeToWidth[size];
   });
 
   protected readonly classes = computed(() => {
-    // `tw-max-h-[90vh]` is needed to prevent dialogs from overlapping the desktop header
-    const baseClasses = ["tw-flex", "tw-flex-col", "tw-w-screen"];
-    const sizeClasses = this.dialogRef?.isDrawer ? ["tw-h-full"] : ["md:tw-p-4", "tw-max-h-[90vh]"];
+    const isDrawer = this.dialogRef?.isDrawer;
+    // Drawers use tw-w-full (100% of column) so the element fills its grid track
+    // without overflowing — the column itself is capped by the grid template.
+    // Regular dialogs use tw-w-screen for full-width mobile presentation.
+    const widthClass = isDrawer ? "tw-w-full" : "tw-w-screen";
+    const baseClasses = ["tw-flex", "tw-flex-col", widthClass];
+    const sizeClasses = isDrawer
+      ? ["tw-h-full"]
+      : [
+          "md:tw-p-4",
+          "tw-max-h-[90vh]", // needed to prevent dialogs from overlapping the desktop header
+        ];
 
-    const size = this.dialogSize() ?? "default";
+    const size = this.dialogSize();
     const animationClasses =
       this.disableAnimations() || this.animationCompleted() || this.dialogRef?.isDrawer
         ? []
@@ -187,8 +218,7 @@ export class DialogComponent implements AfterViewInit {
      * AutofocusDirective.
      */
     const dialogRef = this.el.nativeElement;
-    // Must match selectors of AutofocusDirective
-    const autofocusDescendants = dialogRef.querySelectorAll("[appAutofocus], [bitAutofocus]");
+    const autofocusDescendants = queryForAutofocusDescendents(dialogRef);
     const hasAutofocusDescendants = autofocusDescendants.length > 0;
 
     if (!hasAutofocusDescendants) {
