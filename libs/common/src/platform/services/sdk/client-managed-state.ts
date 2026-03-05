@@ -2,8 +2,9 @@ import { firstValueFrom, map } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherRecordMapper } from "@bitwarden/common/vault/models/domain/cipher-sdk-mapper";
-import { StateClient, Repository } from "@bitwarden/sdk-internal";
+import { Repository, StateClient } from "@bitwarden/sdk-internal";
 
+import { LocalUserDataKeyRecordMapper } from "../../../key-management/local-user-data-key-mapper";
 import { UserKeyRecordMapper } from "../../../key-management/user-key-mapper";
 import { StateProvider, UserKeyDefinition } from "../../state";
 
@@ -16,6 +17,11 @@ export async function initializeState(
     cipher: new RepositoryRecord(userId, stateProvider, new CipherRecordMapper()),
     folder: null,
     user_key_state: new RepositoryRecord(userId, stateProvider, new UserKeyRecordMapper()),
+    local_user_data_key_state: new RepositoryRecord(
+      userId,
+      stateProvider,
+      new LocalUserDataKeyRecordMapper(),
+    ),
   });
 }
 

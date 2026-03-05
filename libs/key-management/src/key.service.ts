@@ -30,7 +30,11 @@ import {
   EncryptedString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { SignedPublicKey, WrappedSigningKey } from "@bitwarden/common/key-management/types";
+import {
+  LocalUserDataKey,
+  SignedPublicKey,
+  WrappedSigningKey,
+} from "@bitwarden/common/key-management/types";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -41,6 +45,7 @@ import { convertValues } from "@bitwarden/common/platform/misc/convert-values";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { LOCAL_USER_DATA_KEY } from "@bitwarden/common/platform/services/key-state/local-user-data-key.state";
 import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/services/key-state/org-keys.state";
 import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
 import {
@@ -69,6 +74,7 @@ import {
 import { KdfConfig } from "./models/kdf-config";
 
 const USER_KEY_STATE_KEY: string = "";
+const LOCAL_USER_DATA_KEY_STATE_KEY: string = "";
 
 export class DefaultKeyService implements KeyServiceAbstraction {
   /**
@@ -924,6 +930,16 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         }
       }),
     );
+  }
+
+  localUserDataKey$(userId: UserId): Observable<LocalUserDataKey | null> {
+    return this.stateProvider
+      .getUserState$(LOCAL_USER_DATA_KEY, userId)
+      .pipe(
+        map((stateObject) =>
+          stateObject != null ? stateObject[LOCAL_USER_DATA_KEY_STATE_KEY] : null,
+        ),
+      );
   }
 
   private userKeyToStateObject(userKey: UserKey | null): Record<string, UserKey> | null {

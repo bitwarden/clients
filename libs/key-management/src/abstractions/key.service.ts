@@ -7,7 +7,11 @@ import {
   EncryptedString,
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { SignedPublicKey, WrappedSigningKey } from "@bitwarden/common/key-management/types";
+import {
+  LocalUserDataKey,
+  SignedPublicKey,
+  WrappedSigningKey,
+} from "@bitwarden/common/key-management/types";
 import { KeySuffixOptions, HashPurpose } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
@@ -381,4 +385,6 @@ export abstract class KeyService {
   abstract validateUserKey(key: UserKey, userId: UserId): Promise<boolean>;
 
   abstract userSignedPublicKey$(userId: UserId): Observable<SignedPublicKey | null>;
+
+  abstract localUserDataKey$(userId: UserId): Observable<LocalUserDataKey | null>;
 }

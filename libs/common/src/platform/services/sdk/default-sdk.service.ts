@@ -250,6 +250,14 @@ export class DefaultSdkService implements SdkService {
     accountCryptographicState: WrappedAccountCryptographicState,
     orgKeys: Record<OrganizationId, EncString>,
   ) {
+    // TODO this will be done by https://bitwarden.atlassian.net/browse/PM-31049
+    //  moved temporarily for testing
+
+    // Initialize the SDK managed database and the client managed repositories.
+    await initializeState(userId, client.platform().state(), this.stateProvider);
+
+    await this.loadFeatureFlags(client);
+
     await client.crypto().initialize_user_crypto({
       userId: asUuid(userId),
       email: account.email,
@@ -274,11 +282,6 @@ export class DefaultSdkService implements SdkService {
         Object.entries(orgKeys).map(([k, v]) => [asUuid(k), v.toJSON() as UnsignedSharedKey]),
       ),
     });
-
-    // Initialize the SDK managed database and the client managed repositories.
-    await initializeState(userId, client.platform().state(), this.stateProvider);
-
-    await this.loadFeatureFlags(client);
   }
 
   private async loadFeatureFlags(client: PasswordManagerClient) {
