@@ -66,8 +66,8 @@ describe("LinkSsoService", () => {
       mockPlatformUtilsService,
     );
 
-    // Mock Utils.fromBufferToUrlB64
-    jest.spyOn(Utils, "fromBufferToUrlB64").mockReturnValue("mockCodeChallenge");
+    // Mock Utils.fromArrayToUrlB64
+    jest.spyOn(Utils, "fromArrayToUrlB64").mockReturnValue("mockCodeChallenge");
 
     // Mock window.location
     Object.defineProperty(window, "location", {

@@ -238,7 +238,7 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
     return prfOption;
   }
 
-  private async getUnlockWithPrfSalt(): Promise<ArrayBuffer> {
+  private async getUnlockWithPrfSalt(): Promise<Uint8Array<ArrayBuffer>> {
     try {
       // Use the same salt as login to ensure PRF keys match
       return await this.webAuthnLoginPrfKeyService.getLoginWithPrfSalt();

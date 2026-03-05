@@ -34,7 +34,7 @@ export class LoginViaAuthRequestCacheService {
     // will not be parsable by the cryptography library after coming out of storage.
     this.defaultLoginViaAuthRequestCache.set({
       id: id,
-      privateKey: Utils.fromBufferToB64(privateKey.buffer),
+      privateKey: Utils.fromArrayToB64(privateKey),
       accessCode: accessCode,
     } as LoginViaAuthRequestView);
   }
