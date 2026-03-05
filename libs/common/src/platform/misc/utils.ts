@@ -176,7 +176,7 @@ export class Utils {
     }
 
     // @ts-expect-error - polyfilled by core-js
-    return arr.toBase64({ alphabet: "base64url" });
+    return arr.toBase64({ alphabet: "base64url", omitPadding: true });
   }
 
   static fromArrayToByteString(arr: null): null;
