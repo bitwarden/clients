@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -9,11 +9,10 @@ import { VaultCarouselModule } from "@bitwarden/vault";
 
 import { IntroCarouselService } from "../../../services/intro-carousel.service";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-intro-carousel",
   templateUrl: "./intro-carousel.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     VaultCarouselModule,
     ButtonModule,
