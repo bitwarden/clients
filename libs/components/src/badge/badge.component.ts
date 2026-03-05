@@ -103,8 +103,8 @@ export class BadgeComponent implements FocusableElement {
   protected readonly classList = computed(() => {
     return [
       "tw-inline-block",
-      "tw-py-1",
-      "tw-px-2",
+      "tw-p-1",
+      "tw-min-w-7",
       "tw-font-medium",
       "tw-text-center",
       "tw-align-text-top",

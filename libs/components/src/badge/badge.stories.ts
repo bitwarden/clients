@@ -96,6 +96,20 @@ export const Notification: Story = {
   },
 };
 
+export const Count: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <div class="tw-flex tw-items-center tw-gap-2">
+        <span bitBadge variant="notification" [truncate]="false">1</span>
+        <span bitBadge variant="notification" [truncate]="false">9</span>
+        <span bitBadge variant="notification" [truncate]="false">33</span>
+        <span bitBadge variant="notification" [truncate]="false">99</span>
+      </div>
+    `,
+  }),
+};
+
 export const Truncated: Story = {
   ...Primary,
   args: {
