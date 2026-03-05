@@ -12,7 +12,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { NavigationModule, DialogService, A11yTitleDirective } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
@@ -22,8 +21,6 @@ import {
   AddEditFolderDialogComponent,
   RoutedVaultFilterBridgeService,
 } from "@bitwarden/vault";
-
-import { DesktopPremiumUpgradePromptService } from "../../../../services/desktop-premium-upgrade-prompt.service";
 
 import { CollectionFilterComponent } from "./filters/collection-filter.component";
 import { FolderFilterComponent } from "./filters/folder-filter.component";
@@ -46,12 +43,6 @@ import { TypeFilterComponent } from "./filters/type-filter.component";
     CollectionFilterComponent,
     FolderFilterComponent,
     A11yTitleDirective,
-  ],
-  providers: [
-    {
-      provide: PremiumUpgradePromptService,
-      useClass: DesktopPremiumUpgradePromptService,
-    },
   ],
 })
 export class VaultFilterComponent implements OnInit {

@@ -6,7 +6,6 @@ import "../platform/app/locales";
 import { NgModule } from "@angular/core";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
-import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CalloutModule, DialogModule } from "@bitwarden/components";
 import { AssignCollectionsComponent } from "@bitwarden/vault";
 
@@ -14,7 +13,6 @@ import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { LoginModule } from "../auth/login/login.module";
 import { SshAgentService } from "../autofill/services/ssh-agent.service";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
-import { DesktopPremiumUpgradePromptService } from "../services/desktop-premium-upgrade-prompt.service";
 import { VaultFilterModule } from "../vault/app/vault/vault-filter/vault-filter.module";
 import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 
@@ -49,13 +47,7 @@ import { SharedModule } from "./shared/shared.module";
     PremiumComponent,
     SearchComponent,
   ],
-  providers: [
-    SshAgentService,
-    {
-      provide: PremiumUpgradePromptService,
-      useClass: DesktopPremiumUpgradePromptService,
-    },
-  ],
+  providers: [SshAgentService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
