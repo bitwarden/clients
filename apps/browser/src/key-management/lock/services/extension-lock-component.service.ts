@@ -66,7 +66,6 @@ export class ExtensionLockComponentService implements LockComponentService {
   }
 
   getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions> {
-    // Note: defer is preferable b/c it delays the execution of the function until the observable is subscribed to
     return combineLatest([
       // Check biometricUnlockEnabled$ first to avoid background native messaging & IPC calls when biometrics is disabled.
       this.biometricStateService
