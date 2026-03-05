@@ -84,11 +84,12 @@ describe("VaultListItemsContainerComponent", () => {
         { provide: CipherService, useValue: mock<CipherService>() },
         { provide: Router, useValue: { navigate: jest.fn() } },
         { provide: PlatformUtilsService, useValue: { getAutofillKeyboardShortcut: () => "" } },
-        { provide: DialogService, useValue: mock<DialogService>() },
         { provide: PasswordRepromptService, useValue: mock<PasswordRepromptService>() },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
+    })
+      .overrideProvider(DialogService, { useValue: mock<DialogService>() })
+      .compileComponents();
 
     fixture = TestBed.createComponent(VaultListItemsContainerComponent);
     component = fixture.componentInstance;
