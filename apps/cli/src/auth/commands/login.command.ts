@@ -34,6 +34,10 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import {
+  MasterPasswordAuthenticationData,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -43,17 +47,12 @@ import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/pass
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import {  KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
 import { ConfirmKeyConnectorDomainCommand } from "../../key-management/confirm-key-connector-domain.command";
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
-import {
-  MasterPasswordAuthenticationData,
-  MasterPasswordSalt,
-  MasterPasswordUnlockData,
-} from "@bitwarden/common/key-management/master-password/types/master-password.types";
 
 export class LoginCommand {
   protected canInteract: boolean;
