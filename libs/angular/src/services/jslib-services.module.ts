@@ -278,7 +278,7 @@ import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/defau
 import { DefaultRegisterSdkService } from "@bitwarden/common/platform/services/sdk/register-sdk.service";
 import {
   DefaultServerCommunicationConfigService,
-  NoopServerCommunicationConfigPlatformApiService,
+  ServerCommunicationConfigPlatformApiService,
   ServerCommunicationConfigRepository,
 } from "@bitwarden/common/platform/services/server-communication-config";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
@@ -1318,16 +1318,16 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
-    provide: NoopServerCommunicationConfigPlatformApiService,
-    useClass: NoopServerCommunicationConfigPlatformApiService,
-    deps: [],
+    provide: ServerCommunicationConfigPlatformApiService,
+    useClass: ServerCommunicationConfigPlatformApiService,
+    deps: [PlatformUtilsServiceAbstraction, MessageListener, LogService],
   }),
   safeProvider({
     provide: ServerCommunicationConfigService,
     useClass: DefaultServerCommunicationConfigService,
     deps: [
       ServerCommunicationConfigRepository,
-      NoopServerCommunicationConfigPlatformApiService,
+      ServerCommunicationConfigPlatformApiService,
       ConfigService,
     ],
   }),

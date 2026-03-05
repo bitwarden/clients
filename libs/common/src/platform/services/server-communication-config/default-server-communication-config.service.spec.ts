@@ -24,6 +24,7 @@ jest.mock("@bitwarden/sdk-internal", () => ({
     needsBootstrap: jest.fn(),
     cookies: jest.fn(),
     setCommunicationType: jest.fn(),
+    acquireCookie: jest.fn(),
   })),
 }));
 
@@ -192,22 +193,22 @@ describe("DefaultServerCommunicationConfigService", () => {
     });
   });
 
-  // describe("acquireCookie", () => {
-  //   it("delegates to SDK client acquireCookie method", async () => {
-  //     mockClient.acquireCookie.mockResolvedValue(undefined);
+  describe("acquireCookie", () => {
+    it("delegates to SDK client acquireCookie method", async () => {
+      mockClient.acquireCookie.mockResolvedValue(undefined);
 
-  //     await service.acquireCookie("vault.bitwarden.com");
+      await service.acquireCookie("vault.bitwarden.com");
 
-  //     expect(mockClient.acquireCookie).toHaveBeenCalledWith("vault.bitwarden.com");
-  //   });
+      expect(mockClient.acquireCookie).toHaveBeenCalledWith("vault.bitwarden.com");
+    });
 
-  //   it("propagates SDK client errors", async () => {
-  //     const error = new Error("Cookie acquisition failed");
-  //     mockClient.acquireCookie.mockRejectedValue(error);
+    it("propagates SDK client errors", async () => {
+      const error = new Error("Cookie acquisition failed");
+      mockClient.acquireCookie.mockRejectedValue(error);
 
-  //     await expect(service.acquireCookie("vault.bitwarden.com")).rejects.toThrow(
-  //       "Cookie acquisition failed",
-  //     );
-  //   });
-  // });
+      await expect(service.acquireCookie("vault.bitwarden.com")).rejects.toThrow(
+        "Cookie acquisition failed",
+      );
+    });
+  });
 });
