@@ -77,28 +77,22 @@
 
   <!-- ADDITIONAL OPTIONS -->
   @if (cipher()?.notes) {
-    <ng-container>
-      <app-additional-options [notes]="cipher()!.notes"> </app-additional-options>
-    </ng-container>
+    <app-additional-options [notes]="cipher()!.notes"> </app-additional-options>
   }
 
   <!-- CUSTOM FIELDS -->
   @if (cipher()?.hasFields) {
-    <ng-container>
-      <app-custom-fields-v2 [cipher]="cipher()"> </app-custom-fields-v2>
-    </ng-container>
+    <app-custom-fields-v2 [cipher]="cipher()"> </app-custom-fields-v2>
   }
 
   <!-- ATTACHMENTS SECTION -->
   @if (cipher()?.hasAttachments) {
-    <ng-container>
-      <app-attachments-v2-view
-        [emergencyAccessId]="emergencyAccessId()"
-        [cipher]="cipher()"
-        [admin]="isAdminConsole()"
-      >
-      </app-attachments-v2-view>
-    </ng-container>
+    <app-attachments-v2-view
+      [emergencyAccessId]="emergencyAccessId()"
+      [cipher]="cipher()"
+      [admin]="isAdminConsole()"
+    >
+    </app-attachments-v2-view>
   }
 
   <!-- ITEM HISTORY SECTION -->
