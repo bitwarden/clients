@@ -5445,7 +5445,7 @@
   "minimumNumberOfWords": {
     "message": "Минимальное количество слов"
   },
-  "passwordTypePolicyOverride": {
+  "overridePasswordTypePolicy": {
     "message": "Тип пароля",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -10624,6 +10624,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Отправлять данные о событиях в ваш инстанс Huntress SIEM"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ подключен успешно.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Не удалось сохранить интеграцию. Пожалуйста, повторите попытку позже."
   },
@@ -10976,6 +10985,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Выкл"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Не удалось загрузить отчет о доступе участников. Это может быть связано с большим размером организации или проблемами с сетью. Повторите попытку или обратитесь в службу поддержки, если проблема не устраняется."
   },
   "kdfIterationRecommends": {
     "message": "Мы рекомендуем 600000 или более"
