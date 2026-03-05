@@ -240,10 +240,12 @@ import {
   createCredentialGeneratorService,
   createRandomizer,
   CredentialGeneratorService,
-  GenerateRequest,
   Type,
 } from "@bitwarden/generator-core";
-import { GeneratedCredential } from "@bitwarden/generator-history";
+import {
+  GeneratorHistoryService,
+  LocalGeneratorHistoryService,
+} from "@bitwarden/generator-history";
 import {
   legacyPasswordGenerationServiceFactory,
   legacyUsernameGenerationServiceFactory,
@@ -301,7 +303,10 @@ import { ExtensionAuthRequestAnsweringService } from "../auth/services/auth-requ
 import { AuthStatusBadgeUpdaterService } from "../auth/services/auth-status-badge-updater.service";
 import { ExtensionLockService } from "../auth/services/extension-lock.service";
 import { OverlayNotificationsBackground as OverlayNotificationsBackgroundInterface } from "../autofill/background/abstractions/overlay-notifications.background";
-import { OverlayBackground as OverlayBackgroundInterface } from "../autofill/background/abstractions/overlay.background";
+import {
+  OverlayBackground as OverlayBackgroundInterface,
+  PasswordGenerateRequestSource,
+} from "../autofill/background/abstractions/overlay.background";
 import { AutoSubmitLoginBackground } from "../autofill/background/auto-submit-login.background";
 import ContextMenusBackground from "../autofill/background/context-menus.background";
 import NotificationBackground from "../autofill/background/notification.background";
@@ -322,6 +327,7 @@ import { AutofillService as AutofillServiceAbstraction } from "../autofill/servi
 import { AutofillBadgeUpdaterService } from "../autofill/services/autofill-badge-updater.service";
 import AutofillService from "../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
+import { trackGeneratedCredential } from "../autofill/utils/credential-history-utils";
 import { SafariApp } from "../browser/safariApp";
 import { PhishingDataService } from "../dirt/phishing-detection/services/phishing-data.service";
 import { PhishingDetectionService } from "../dirt/phishing-detection/services/phishing-detection.service";
@@ -401,6 +407,7 @@ export default class MainBackground {
   vaultTimeoutSettingsService: VaultTimeoutSettingsService;
   passwordGenerationService: PasswordGenerationServiceAbstraction;
   credentialGeneratorService: CredentialGeneratorService;
+  generatorHistoryService: GeneratorHistoryService;
   syncService: SyncService;
   passwordStrengthService: PasswordStrengthServiceAbstraction;
   totpService: TotpServiceAbstraction;
@@ -1449,12 +1456,7 @@ export default class MainBackground {
     const contextMenuClickedHandler = new ContextMenuClickedHandler(
       (options) => this.platformUtilsService.copyToClipboard(options.text),
       async (_tab) => {
-        const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
-        const password = await this.passwordGenerationService.generatePassword(options);
-        this.platformUtilsService.copyToClipboard(password);
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.passwordGenerationService.addHistory(password);
+        await firstValueFrom(this.generatePasswordToClipboard());
       },
       async (tab, cipher) => {
         this.loginToAutoFill = cipher;
@@ -2052,6 +2054,15 @@ export default class MainBackground {
       this.apiService,
     );
 
+    // LocalGeneratorHistoryService is always the correct implementation for the
+    // browser extension background — there is no feature-flag branching here unlike
+    // createCredentialGeneratorService.
+    this.generatorHistoryService = new LocalGeneratorHistoryService(
+      this.encryptService,
+      this.keyService,
+      this.stateProvider,
+    );
+
     this.overlayBackground = new OverlayBackground(
       this.logService,
       this.cipherService,
@@ -2068,8 +2079,7 @@ export default class MainBackground {
       this.themeStateService,
       this.totpService,
       this.accountService,
-      this.yieldGeneratedPassword,
-      this.addPasswordToHistory,
+      this.generatorHistoryService,
       this.credentialGeneratorService,
     );
 
@@ -2100,30 +2110,22 @@ export default class MainBackground {
     await this.atRiskCipherUpdaterService.init();
   }
 
-  yieldGeneratedPassword = ($on: Observable<GenerateRequest>): Observable<GeneratedCredential> => {
-    return $on.pipe(
-      concatMap(async () => {
-        const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
-        const password = await this.passwordGenerationService.generatePassword(options);
-        const credential = new GeneratedCredential(password, "password", new Date());
-
-        return credential;
-      }),
-    );
-  };
-
   generatePasswordToClipboard = () => {
-    return this.yieldGeneratedPassword(of({ source: "clipboard", type: Type.password })).pipe(
-      concatMap(async (generated) => {
-        this.platformUtilsService.copyToClipboard(generated.credential);
-        await this.addPasswordToHistory(generated.credential);
-
-        return generated.credential;
-      }),
-    );
-  };
-
-  addPasswordToHistory = async (password: string) => {
-    await this.passwordGenerationService.addHistory(password);
+    return this.credentialGeneratorService
+      .generate$({
+        on$: of({ source: PasswordGenerateRequestSource.Clipboard, type: Type.password }),
+        account$: this.accountService.activeAccount$,
+      })
+      .pipe(
+        concatMap(async (generated) => {
+          this.platformUtilsService.copyToClipboard(generated.credential);
+          await trackGeneratedCredential(
+            this.generatorHistoryService,
+            this.accountService.activeAccount$,
+            generated,
+          );
+          return generated.credential;
+        }),
+      );
   };
 }

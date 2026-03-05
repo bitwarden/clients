@@ -1,5 +1,5 @@
 import { mock, MockProxy, mockReset } from "jest-mock-extended";
-import { BehaviorSubject, Observable, of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -41,7 +41,7 @@ import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { CredentialGeneratorService } from "@bitwarden/generator-core";
-import { GeneratedCredential } from "@bitwarden/generator-history";
+import { GeneratedCredential, GeneratorHistoryService } from "@bitwarden/generator-history";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserPlatformUtilsService } from "../../platform/services/platform-utils/browser-platform-utils.service";
@@ -79,6 +79,7 @@ import {
   FocusedFieldData,
   InlineMenuPosition,
   PageDetailsForTab,
+  PasswordGenerateRequestSource,
   SubFrameOffsetData,
   SubFrameOffsetsForTab,
 } from "./abstractions/overlay.background";
@@ -86,12 +87,6 @@ import { OverlayBackground } from "./overlay.background";
 
 describe("OverlayBackground", () => {
   const generatedPassword = "generated-password";
-  const generatedPasswordCallbackMock = jest
-    .fn()
-    .mockImplementation(($on: Observable<any>) =>
-      $on.pipe(map(() => new GeneratedCredential(generatedPassword, "password", new Date()))),
-    );
-  const addPasswordCallbackMock = jest.fn();
   const mockUserId = Utils.newGuid() as UserId;
   const sendResponse = jest.fn();
   let accountService: FakeAccountService;
@@ -120,6 +115,7 @@ describe("OverlayBackground", () => {
   let themeStateService: MockProxy<ThemeStateService>;
   let totpService: MockProxy<TotpService>;
   let generatorService: MockProxy<CredentialGeneratorService>;
+  let generatorHistoryService: MockProxy<GeneratorHistoryService>;
   let overlayBackground: OverlayBackground;
   let portKeyForTabSpy: Record<number, string>;
   let pageDetailsForTabSpy: PageDetailsForTab;
@@ -210,6 +206,18 @@ describe("OverlayBackground", () => {
     generatorService.preferredAlgorithm$.mockReturnValue(
       of({ capabilities: { autogenerate: true } } as any),
     );
+    // Forwards request.source so tests can assert on which source triggered tracking
+    // without needing to re-mock generate$ in each test body.
+    generatorService.generate$.mockImplementation(({ on$ }) =>
+      on$.pipe(
+        map(
+          (request) =>
+            new GeneratedCredential(generatedPassword, "password", new Date(), request.source),
+        ),
+      ),
+    );
+    generatorHistoryService = mock<GeneratorHistoryService>();
+    generatorHistoryService.track.mockResolvedValue(null);
     overlayBackground = new OverlayBackground(
       logService,
       cipherService,
@@ -226,8 +234,7 @@ describe("OverlayBackground", () => {
       themeStateService,
       totpService,
       accountService,
-      generatedPasswordCallbackMock,
-      addPasswordCallbackMock,
+      generatorHistoryService,
       generatorService,
     );
     portKeyForTabSpy = overlayBackground["portKeyForTab"];
@@ -3613,11 +3620,11 @@ describe("OverlayBackground", () => {
         sendPortMessage(listMessageConnectorSpy, { command: "refreshGeneratedPassword", portKey });
         await flushPromises();
 
-        expect(generatedPasswordCallbackMock).toHaveBeenCalled();
+        expect(generatorService.generate$).toHaveBeenCalled();
       });
 
       it("sends a message to the list port indicating that the generated password should be updated", async () => {
-        overlayBackground["credential$"].next("refresh");
+        overlayBackground["credential$"].next(generatedPassword);
 
         sendPortMessage(listMessageConnectorSpy, { command: "refreshGeneratedPassword", portKey });
 
@@ -3628,6 +3635,18 @@ describe("OverlayBackground", () => {
           generatedPassword: "generated-password",
           refreshPassword: true,
         });
+      });
+
+      it("adds the refreshed password to generator history", async () => {
+        sendPortMessage(listMessageConnectorSpy, { command: "refreshGeneratedPassword", portKey });
+        await flushPromises();
+
+        expect(generatorHistoryService.track).toHaveBeenCalledWith(
+          mockUserId,
+          generatedPassword,
+          "password",
+          expect.any(Date),
+        );
       });
     });
 
@@ -3800,7 +3819,44 @@ describe("OverlayBackground", () => {
       await initOverlayElementPorts();
       await flushPromises();
 
-      expect(generatedPasswordCallbackMock).toHaveBeenCalled();
+      expect(generatorService.generate$).toHaveBeenCalled();
+    });
+  });
+
+  describe("credential pipeline history tracking", () => {
+    it("tracks history for InlineMenuInit-sourced credentials", async () => {
+      await flushPromises();
+
+      overlayBackground["requestGeneratedPassword$"].next({
+        source: PasswordGenerateRequestSource.InlineMenuInit,
+        type: "password",
+      } as any);
+      await flushPromises();
+
+      expect(generatorHistoryService.track).toHaveBeenCalledWith(
+        mockUserId,
+        generatedPassword,
+        "password",
+        expect.any(Date),
+      );
+    });
+
+    it("tracks history for InlineMenu-sourced credentials", async () => {
+      // The beforeEach mock forwards request.source, so no re-mock is needed here.
+      await flushPromises();
+
+      overlayBackground["requestGeneratedPassword$"].next({
+        source: PasswordGenerateRequestSource.InlineMenu,
+        type: "password",
+      } as any);
+      await flushPromises();
+
+      expect(generatorHistoryService.track).toHaveBeenCalledWith(
+        mockUserId,
+        generatedPassword,
+        "password",
+        expect.any(Date),
+      );
     });
   });
 
