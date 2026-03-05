@@ -3,15 +3,17 @@
 import "core-js/proposals/explicit-resource-management";
 
 import {
+  NEVER,
+  Observable,
+  Subject,
   concatMap,
+  concat,
   filter,
   firstValueFrom,
   from,
   map,
   merge,
-  Observable,
   of,
-  Subject,
   switchMap,
   timeout,
 } from "rxjs";
@@ -2113,7 +2115,10 @@ export default class MainBackground {
   generatePasswordToClipboard = () => {
     return this.credentialGeneratorService
       .generate$({
-        on$: of({ source: PasswordGenerateRequestSource.Clipboard, type: Type.password }),
+        on$: concat(
+          of({ source: PasswordGenerateRequestSource.Clipboard, type: Type.password }),
+          NEVER,
+        ),
         account$: this.accountService.activeAccount$,
       })
       .pipe(
