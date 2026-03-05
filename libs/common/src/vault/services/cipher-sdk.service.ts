@@ -26,14 +26,18 @@ export class DefaultCipherSdkService implements CipherSdkService {
             throw new Error("SDK not available");
           }
           using ref = sdk.take();
-          const sdkCreateRequest = cipherView.toSdkCreateCipherRequest();
+          const sdkCiphersClient = ref.value.vault().ciphers();
+
+          const sdkCreateRequest = cipherView.toSdkCreateCipherRequest(sdkCiphersClient);
+
           let result: SdkCipherView;
           if (orgAdmin) {
-            result = await ref.value.vault().ciphers().admin().create(sdkCreateRequest);
+            result = await sdkCiphersClient.admin().create(sdkCreateRequest);
           } else {
-            result = await ref.value.vault().ciphers().create(sdkCreateRequest);
+            result = await sdkCiphersClient.create(sdkCreateRequest);
           }
-          return CipherView.fromSdkCipherView(result);
+
+          return CipherView.fromSdkCipherView(result, sdkCiphersClient);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to create cipher: ${error}`);
@@ -56,21 +60,23 @@ export class DefaultCipherSdkService implements CipherSdkService {
             throw new Error("SDK not available");
           }
           using ref = sdk.take();
-          const sdkUpdateRequest = cipher.toSdkUpdateCipherRequest();
+          const sdkCiphersClient = ref.value.vault().ciphers();
+
+          const sdkUpdateRequest = cipher.toSdkUpdateCipherRequest(sdkCiphersClient);
+
           let result: SdkCipherView;
           if (orgAdmin) {
-            result = await ref.value
-              .vault()
-              .ciphers()
+            result = await sdkCiphersClient
               .admin()
               .edit(
                 sdkUpdateRequest,
                 originalCipherView?.toSdkCipherView() || new CipherView().toSdkCipherView(),
               );
           } else {
-            result = await ref.value.vault().ciphers().edit(sdkUpdateRequest);
+            result = await sdkCiphersClient.edit(sdkUpdateRequest);
           }
-          return CipherView.fromSdkCipherView(result);
+
+          return CipherView.fromSdkCipherView(result, sdkCiphersClient);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to update cipher: ${error}`);

@@ -25,7 +25,6 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { TwoFactorIconComponent } from "./auth/components/two-factor-icon.component";
 import { ApiActionDirective } from "./directives/api-action.directive";
 import { BoxRowDirective } from "./directives/box-row.directive";
 import { IfFeatureDirective } from "./directives/if-feature.directive";
@@ -92,7 +91,7 @@ import { IconComponent } from "./vault/components/icon.component";
     UserNamePipe,
     UserTypePipe,
   ],
-  declarations: [ApiActionDirective, BoxRowDirective, SearchPipe, TwoFactorIconComponent],
+  declarations: [ApiActionDirective, BoxRowDirective, SearchPipe],
   exports: [
     A11yTitleDirective,
     ApiActionDirective,
@@ -112,7 +111,6 @@ import { IconComponent } from "./vault/components/icon.component";
     UserNamePipe,
     UserTypePipe,
     IfFeatureDirective,
-    TwoFactorIconComponent,
     TextDragDirective,
   ],
   providers: [DatePipe, I18nPipe, SearchPipe, UserNamePipe, UserTypePipe, PluralizePipe],
