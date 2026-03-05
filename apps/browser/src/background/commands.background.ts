@@ -54,7 +54,7 @@ export default class CommandsBackground {
   private async processCommand(command: string, sender?: chrome.runtime.MessageSender) {
     switch (command) {
       case ExtensionCommand.GeneratePassword:
-        await firstValueFrom(this.generatePasswordToClipboard());
+        await firstValueFrom(this.generatePasswordToClipboard(), { defaultValue: undefined });
         break;
       case ExtensionCommand.AutofillLogin:
         await this.triggerAutofillCommand(

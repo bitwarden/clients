@@ -3,6 +3,7 @@
 import "core-js/proposals/explicit-resource-management";
 
 import {
+  EMPTY,
   NEVER,
   Observable,
   Subject,
@@ -1458,7 +1459,7 @@ export default class MainBackground {
     const contextMenuClickedHandler = new ContextMenuClickedHandler(
       (options) => this.platformUtilsService.copyToClipboard(options.text),
       async (_tab) => {
-        await firstValueFrom(this.generatePasswordToClipboard());
+        await firstValueFrom(this.generatePasswordToClipboard(), { defaultValue: undefined });
       },
       async (tab, cipher) => {
         this.loginToAutoFill = cipher;
@@ -2113,6 +2114,15 @@ export default class MainBackground {
   }
 
   generatePasswordToClipboard = () => {
+    // FIXME: `credentialGeneratorService` and `generatorHistoryService` are initialized in
+    // `initOverlayAndTabsBackground()`, which only runs for authenticated users. Returning EMPTY
+    // here preserves the pre-migration behavior (unauthenticated users could not generate passwords
+    // to clipboard), but this needs intentional assessment: should clipboard generation be allowed
+    // without authentication?
+    if (!this.credentialGeneratorService || !this.generatorHistoryService) {
+      return EMPTY;
+    }
+
     return this.credentialGeneratorService
       .generate$({
         on$: concat(
