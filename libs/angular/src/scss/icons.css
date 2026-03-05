@@ -1,0 +1,79 @@
+.credit-card-icon {
+  display: block;
+  height: 19px;
+  width: 24px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.card-visa {
+  background-image: url(../billing/images/cards/visa-light.png);
+}
+
+.theme_dark .card-visa {
+  background-image: url(../billing/images/cards/visa-dark.png);
+}
+
+.card-amex {
+  background-image: url(../billing/images/cards/amex-light.png);
+}
+
+.theme_dark .card-amex {
+  background-image: url(../billing/images/cards/amex-dark.png);
+}
+
+.card-diners-club {
+  background-image: url(../billing/images/cards/diners_club-light.png);
+}
+
+.theme_dark .card-diners-club {
+  background-image: url(../billing/images/cards/diners_club-dark.png);
+}
+
+.card-discover {
+  background-image: url(../billing/images/cards/discover-light.png);
+}
+
+.theme_dark .card-discover {
+  background-image: url(../billing/images/cards/discover-dark.png);
+}
+
+.card-jcb {
+  background-image: url(../billing/images/cards/jcb-light.png);
+}
+
+.theme_dark .card-jcb {
+  background-image: url(../billing/images/cards/jcb-dark.png);
+}
+
+.card-maestro {
+  background-image: url(../billing/images/cards/maestro-light.png);
+}
+
+.theme_dark .card-maestro {
+  background-image: url(../billing/images/cards/maestro-dark.png);
+}
+
+.card-mastercard {
+  background-image: url(../billing/images/cards/mastercard-light.png);
+}
+
+.theme_dark .card-mastercard {
+  background-image: url(../billing/images/cards/mastercard-dark.png);
+}
+
+.card-union-pay {
+  background-image: url(../billing/images/cards/union_pay-light.png);
+}
+
+.theme_dark .card-union-pay {
+  background-image: url(../billing/images/cards/union_pay-dark.png);
+}
+
+.card-ru-pay {
+  background-image: url(../billing/images/cards/ru_pay-light.png);
+}
+
+.theme_dark .card-ru-pay {
+  background-image: url(../billing/images/cards/ru_pay-dark.png);
+}

@@ -1,5 +1,10 @@
 @import "../../../../../libs/components/src/tw-theme-preflight.css";
 
+@import "../../../../../libs/angular/src/scss/bwicons/styles/style.css";
+@import "../../../../../libs/angular/src/scss/icons.css";
+@import "@angular/cdk/overlay-prebuilt.css";
+@import "../../../../../libs/components/src/multi-select/scss/bw.theme.css";
+
 @layer base {
   html {
     overflow: hidden;
@@ -173,5 +178,62 @@
   :not(bit-form-field input)::selection {
     @apply tw-text-contrast;
     @apply tw-bg-primary-700;
+  }
+
+  .cdk-virtual-scroll-content-wrapper {
+    width: 100%;
+  }
+
+  /** Two-factor icons */
+  .mfaType0 {
+    content: url(../images/two-factor/0.png);
+    max-width: 100px;
+  }
+
+  .mfaType2 {
+    content: url(../images/two-factor/2.png);
+    max-width: 100px;
+  }
+
+  .mfaType3 {
+    content: url(../images/two-factor/3.png);
+    max-width: 100px;
+  }
+
+  .mfaType4 {
+    content: url(../images/two-factor/4.png);
+    max-width: 100px;
+  }
+
+  .mfaType6 {
+    content: url(../images/two-factor/6.png);
+    max-width: 100px;
+  }
+
+  .mfaType0 {
+    content: url(../images/two-factor/0.png);
+    max-width: 100px;
+    max-height: 45px;
+  }
+
+  .mfaType1 {
+    max-width: 100px;
+    max-height: 45px;
+  }
+  .mfaType1:is(.theme_light *) {
+    content: url(../images/two-factor/1.png);
+  }
+  .mfaType1:is(.theme_dark *) {
+    content: url(../images/two-factor/1-w.png);
+  }
+
+  .mfaType7 {
+    max-width: 100px;
+  }
+  .mfaType7:is(.theme_light *) {
+    content: url(../images/two-factor/7.png);
+  }
+  .mfaType7:is(.theme_dark *) {
+    content: url(../images/two-factor/7-w.png);
   }
 }
