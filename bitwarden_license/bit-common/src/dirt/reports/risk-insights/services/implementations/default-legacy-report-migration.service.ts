@@ -17,7 +17,8 @@ import { RiskInsightsSummaryView } from "../../models/view/risk-insights-summary
 import { MemberRegistry, RiskInsightsView } from "../../models/view/risk-insights.view";
 import { LegacyReportMigrationService } from "../abstractions/legacy-report-migration.service";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
-import { RiskInsightsEncryptionService } from "../domain/risk-insights-encryption.service";
+
+import { LegacyRiskInsightsEncryptionService } from "./legacy-risk-insights-encryption.service";
 
 /**
  * Default implementation of LegacyReportMigrationService.
@@ -29,7 +30,7 @@ import { RiskInsightsEncryptionService } from "../domain/risk-insights-encryptio
 export class DefaultLegacyReportMigrationService extends LegacyReportMigrationService {
   constructor(
     private riskInsightsApiService: RiskInsightsApiService,
-    private encryptionService: RiskInsightsEncryptionService,
+    private encryptionService: LegacyRiskInsightsEncryptionService,
     private accountService: AccountService,
     private logService: LogService,
   ) {

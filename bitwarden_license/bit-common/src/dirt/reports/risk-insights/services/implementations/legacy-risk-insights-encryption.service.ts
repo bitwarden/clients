@@ -29,7 +29,12 @@ import {
   RiskInsightsReportData,
 } from "../../models/data/risk-insights-report.data";
 
-export class RiskInsightsEncryptionService {
+/**
+ * @deprecated V1 encryption service. Used only by the V1 orchestrator, V1 report service,
+ * and the V1→V2 migration path. Will be deleted when the V1 code tree is removed.
+ * For V2, use {@link DefaultAccessReportEncryptionService}.
+ */
+export class LegacyRiskInsightsEncryptionService {
   /**
    * Sentinel value for MemberDetails.cipherId in downgraded V2→V1 reports.
    * V2 does not store per-cipher member associations (that mapping was already lossy in V1
@@ -53,7 +58,7 @@ export class RiskInsightsEncryptionService {
     data: DecryptedReportData,
     wrappedKey?: EncString,
   ): Promise<EncryptedDataWithKey> {
-    this.logService.info("[RiskInsightsEncryptionService] Encrypting risk insights report");
+    this.logService.info("[LegacyRiskInsightsEncryptionService] Encrypting risk insights report");
     const { userId, organizationId } = context;
     const orgKey = await firstValueFrom(
       this.keyService
@@ -67,7 +72,7 @@ export class RiskInsightsEncryptionService {
 
     if (!orgKey) {
       this.logService.warning(
-        "[RiskInsightsEncryptionService] Attempted to encrypt report data without org id",
+        "[LegacyRiskInsightsEncryptionService] Attempted to encrypt report data without org id",
       );
       throw new Error("Organization key not found");
     }
@@ -82,7 +87,10 @@ export class RiskInsightsEncryptionService {
         contentEncryptionKey = await this.encryptService.unwrapSymmetricKey(wrappedKey, orgKey);
       }
     } catch (error: unknown) {
-      this.logService.error("[RiskInsightsEncryptionService] Failed to get encryption key", error);
+      this.logService.error(
+        "[LegacyRiskInsightsEncryptionService] Failed to get encryption key",
+        error,
+      );
       throw new Error("Failed to get encryption key");
     }
 
@@ -114,7 +122,7 @@ export class RiskInsightsEncryptionService {
       !wrappedEncryptionKey.encryptedString
     ) {
       this.logService.error(
-        "[RiskInsightsEncryptionService] Encryption failed, encrypted strings are null",
+        "[LegacyRiskInsightsEncryptionService] Encryption failed, encrypted strings are null",
       );
       throw new Error("Encryption failed, encrypted strings are null");
     }
@@ -138,7 +146,7 @@ export class RiskInsightsEncryptionService {
     encryptedData: EncryptedReportData,
     wrappedKey: EncString,
   ): Promise<DecryptedReportData> {
-    this.logService.info("[RiskInsightsEncryptionService] Decrypting risk insights report");
+    this.logService.info("[LegacyRiskInsightsEncryptionService] Decrypting risk insights report");
 
     const { userId, organizationId } = context;
     const orgKey = await firstValueFrom(
@@ -153,14 +161,14 @@ export class RiskInsightsEncryptionService {
 
     if (!orgKey) {
       this.logService.warning(
-        "[RiskInsightsEncryptionService] Attempted to decrypt report data without org id",
+        "[LegacyRiskInsightsEncryptionService] Attempted to decrypt report data without org id",
       );
       throw new Error("Organization key not found");
     }
 
     const unwrappedEncryptionKey = await this.encryptService.unwrapSymmetricKey(wrappedKey, orgKey);
     if (!unwrappedEncryptionKey) {
-      this.logService.error("[RiskInsightsEncryptionService] Encryption key not found");
+      this.logService.error("[LegacyRiskInsightsEncryptionService] Encryption key not found");
       throw Error("Encryption key not found");
     }
 
@@ -205,7 +213,7 @@ export class RiskInsightsEncryptionService {
       // Validate and reconstruct V1 structure from V2 payload using the member registry.
       if (typeof parsedData === "object" && parsedData !== null && "version" in parsedData) {
         this.logService.warning(
-          "[RiskInsightsEncryptionService] V2 report detected in V1 path, running downgrade transform",
+          "[LegacyRiskInsightsEncryptionService] V2 report detected in V1 path, running downgrade transform",
         );
         const payload = validateAccessReportPayload(parsedData);
         return this._convertV2ReportToV1(payload.reports, payload.memberRegistry);
@@ -215,7 +223,10 @@ export class RiskInsightsEncryptionService {
       return validateApplicationHealthReportDetailArray(parsedData);
     } catch (error: unknown) {
       // Log detailed error for debugging
-      this.logService.error("[RiskInsightsEncryptionService] Failed to decrypt report", error);
+      this.logService.error(
+        "[LegacyRiskInsightsEncryptionService] Failed to decrypt report",
+        error,
+      );
       // Always throw generic message to prevent information disclosure
       // Original error with detailed validation info is logged, not exposed to caller
       throw new Error(
@@ -241,7 +252,7 @@ export class RiskInsightsEncryptionService {
     } catch (error: unknown) {
       // Log detailed error for debugging
       this.logService.error(
-        "[RiskInsightsEncryptionService] Failed to decrypt report summary",
+        "[LegacyRiskInsightsEncryptionService] Failed to decrypt report summary",
         error,
       );
       // Always throw generic message to prevent information disclosure
@@ -269,7 +280,7 @@ export class RiskInsightsEncryptionService {
     } catch (error: unknown) {
       // Log detailed error for debugging
       this.logService.error(
-        "[RiskInsightsEncryptionService] Failed to decrypt report applications",
+        "[LegacyRiskInsightsEncryptionService] Failed to decrypt report applications",
         error,
       );
       // Always throw generic message to prevent information disclosure

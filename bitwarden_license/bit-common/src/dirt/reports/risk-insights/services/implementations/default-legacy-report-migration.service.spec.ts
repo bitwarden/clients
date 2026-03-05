@@ -18,14 +18,14 @@ import {
   OrganizationReportSummary,
 } from "../../models/report-models";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
-import { RiskInsightsEncryptionService } from "../domain/risk-insights-encryption.service";
 
 import { DefaultLegacyReportMigrationService } from "./default-legacy-report-migration.service";
+import { LegacyRiskInsightsEncryptionService } from "./legacy-risk-insights-encryption.service";
 
 describe("DefaultLegacyReportMigrationService", () => {
   let service: DefaultLegacyReportMigrationService;
   let mockApiService: MockProxy<RiskInsightsApiService>;
-  let mockEncryptionService: MockProxy<RiskInsightsEncryptionService>;
+  let mockEncryptionService: MockProxy<LegacyRiskInsightsEncryptionService>;
   let mockAccountService: MockProxy<AccountService>;
   let mockLogService: MockProxy<LogService>;
 
@@ -35,7 +35,7 @@ describe("DefaultLegacyReportMigrationService", () => {
 
   beforeEach(() => {
     mockApiService = mock<RiskInsightsApiService>();
-    mockEncryptionService = mock<RiskInsightsEncryptionService>();
+    mockEncryptionService = mock<LegacyRiskInsightsEncryptionService>();
     mockAccountService = mock<AccountService>();
     mockLogService = mock<LogService>();
 

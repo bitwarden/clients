@@ -18,10 +18,10 @@ import {
 } from "../../models/data/risk-insights-report.data";
 import { mockApplicationData, mockReportData, mockSummaryData } from "../../models/mocks/mock-data";
 
-import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
+import { LegacyRiskInsightsEncryptionService } from "./legacy-risk-insights-encryption.service";
 
-describe("RiskInsightsEncryptionService", () => {
-  let service: RiskInsightsEncryptionService;
+describe("LegacyRiskInsightsEncryptionService", () => {
+  let service: LegacyRiskInsightsEncryptionService;
   const mockKeyService = mock<KeyService>();
   const mockEncryptService = mock<EncryptService>();
   const mockKeyGenerationService = mock<KeyGenerationService>();
@@ -45,7 +45,7 @@ describe("RiskInsightsEncryptionService", () => {
   let mockKey: EncString;
 
   beforeEach(() => {
-    service = new RiskInsightsEncryptionService(
+    service = new LegacyRiskInsightsEncryptionService(
       mockKeyService,
       mockEncryptService,
       mockKeyGenerationService,
