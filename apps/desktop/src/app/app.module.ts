@@ -10,7 +10,6 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { CalloutModule, DialogModule } from "@bitwarden/components";
 import { AssignCollectionsComponent } from "@bitwarden/vault";
 
-import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { LoginModule } from "../auth/login/login.module";
 import { SshAgentService } from "../autofill/services/ssh-agent.service";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
@@ -20,7 +19,6 @@ import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
-import { UserVerificationComponent } from "./components/user-verification.component";
 import { AccountSwitcherComponent } from "./layout/account-switcher.component";
 import { HeaderComponent } from "./layout/header.component";
 import { NavComponent } from "./layout/nav.component";
@@ -36,8 +34,6 @@ import { SharedModule } from "./shared/shared.module";
     LoginModule,
     DialogModule,
     CalloutModule,
-    DeleteAccountComponent,
-    UserVerificationComponent,
     NavComponent,
     AssignCollectionsComponent,
     VaultV2Component,
