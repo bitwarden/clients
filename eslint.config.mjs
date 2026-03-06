@@ -19,6 +19,7 @@ export default tseslint.config(
   {
     // Everything in this config object targets our TypeScript files (Components, Directives, Pipes etc)
     files: ["**/*.ts", "**/*.js"],
+    ignores: ["**/node_modules/**", "**/.pnpm/**"],
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.recommended,
@@ -658,7 +659,8 @@ export default tseslint.config(
       ".angular/",
       "storybook-static/",
 
-      "**/node_modules/",
+      "**/node_modules/**",
+      "**/.pnpm/**",
 
       "**/webpack.*.js",
       "**/jest.config.js",
