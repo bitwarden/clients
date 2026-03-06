@@ -488,6 +488,11 @@ describe("VaultComponent", () => {
   });
 
   it("renders Premium spotlight when eligible and opens dialog on click", fakeAsync(() => {
+    activeAccount$.next({
+      id: "user-1",
+      creationDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+    } as any);
+
     itemsSvc.cipherCount$.next(10);
 
     hasPremiumFromAnySource$.next(false);
@@ -516,7 +521,9 @@ describe("VaultComponent", () => {
     const spotDe = fixture.debugElement.query(By.css("bit-callout"));
     expect(spotDe).toBeTruthy();
 
-    spotDe.triggerEventHandler("onButtonClick", undefined);
+    const button = spotDe.query(By.css("[slot='end']"));
+    button.nativeElement.click();
+
     fixture.detectChanges();
 
     expect(PremiumUpgradeDialogComponent.open).toHaveBeenCalledTimes(1);
