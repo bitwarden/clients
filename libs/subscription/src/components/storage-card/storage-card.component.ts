@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from "@angular/core";
 
@@ -28,7 +26,7 @@ export type StorageCardAction = (typeof StorageCardActions)[keyof typeof Storage
   imports: [CommonModule, ButtonModule, CardComponent, ProgressModule, TypographyModule, I18nPipe],
 })
 export class StorageCardComponent {
-  private i18nService = inject(I18nService);
+  private readonly i18nService = inject(I18nService);
 
   readonly storage = input.required<Storage>();
 

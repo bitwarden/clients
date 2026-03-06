@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, OnInit, TemplateRef, ViewChild } from "@angular/core";
 import { lastValueFrom, map, Observable } from "rxjs";
 
@@ -46,9 +44,9 @@ export class OrganizationDataOwnershipPolicyComponent
   implements OnInit
 {
   constructor(
-    private dialogService: DialogService,
-    private i18nService: I18nService,
-    private encryptService: EncryptService,
+    private readonly dialogService: DialogService,
+    private readonly i18nService: I18nService,
+    private readonly encryptService: EncryptService,
   ) {
     super();
   }

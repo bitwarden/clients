@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 
@@ -16,7 +14,7 @@ import { Maybe } from "../../types/maybe";
   imports: [CommonModule, BadgeModule],
 })
 export class DiscountBadgeComponent {
-  private i18nService = inject(I18nService);
+  private readonly i18nService = inject(I18nService);
 
   readonly discount = input<Maybe<Discount>>(null);
 

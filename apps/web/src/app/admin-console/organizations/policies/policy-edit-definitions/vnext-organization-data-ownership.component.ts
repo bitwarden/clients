@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
@@ -52,9 +50,9 @@ export class vNextOrganizationDataOwnershipPolicyComponent
   implements OnInit
 {
   constructor(
-    private i18nService: I18nService,
-    private encryptService: EncryptService,
-    private formBuilder: FormBuilder,
+    private readonly i18nService: I18nService,
+    private readonly encryptService: EncryptService,
+    private readonly formBuilder: FormBuilder,
   ) {
     super();
 
@@ -68,7 +66,7 @@ export class vNextOrganizationDataOwnershipPolicyComponent
     });
   }
 
-  data = this.formBuilder.group({
+  readonly data = this.formBuilder.group({
     enableIndividualItemsTransfer: [{ value: false, disabled: true }],
   });
 

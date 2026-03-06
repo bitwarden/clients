@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
@@ -17,8 +15,8 @@ import { AccountSwitcherV2Component } from "../../../auth/components/account-swi
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DesktopHeaderComponent {
-  private route = inject(ActivatedRoute);
-  private i18nService = inject(I18nService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly i18nService = inject(I18nService);
 
   /**
    * Title to display in header (takes precedence over route data)

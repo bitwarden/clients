@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import {
   ChangeDetectionStrategy,
   Component,
@@ -129,7 +127,7 @@ export class DisplayPaymentMethodInlineComponent {
 
   readonly updated = output<MaskedPaymentMethod>();
 
-  protected formGroup: FormGroup;
+  protected readonly formGroup: FormGroup;
 
   private readonly enterPaymentMethodComponent = viewChild<EnterPaymentMethodComponent>(
     EnterPaymentMethodComponent,
@@ -155,7 +153,7 @@ export class DisplayPaymentMethodInlineComponent {
   /**
    * Initiates the payment method change process by displaying the inline form.
    */
-  protected changePaymentMethod = async (): Promise<void> => {
+  protected readonly changePaymentMethod = async (): Promise<void> => {
     this.isChangingPayment.set(true);
   };
 
@@ -209,7 +207,7 @@ export class DisplayPaymentMethodInlineComponent {
    * Submits the payment method update form.
    * Validates the form, tokenizes the payment method, and sends the update request.
    */
-  protected submit = async (): Promise<void> => {
+  protected readonly submit = async (): Promise<void> => {
     try {
       const paymentMethod = await this.getTokenizedPaymentMethod();
 
@@ -267,7 +265,7 @@ export class DisplayPaymentMethodInlineComponent {
   /**
    * Cancels the inline editing and resets the form.
    */
-  protected cancel = (): void => {
+  protected readonly cancel = (): void => {
     this.resetForm();
   };
 }

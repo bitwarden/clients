@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, signal } from "@angular/core";
@@ -29,16 +27,16 @@ type SendViewState = (typeof SendViewState)[keyof typeof SendViewState];
 })
 export class AccessComponent implements OnInit {
   readonly viewState = signal<SendViewState>(SendViewState.Auth);
-  id: string;
-  key: string;
+  readonly id: string;
+  readonly key: string;
 
-  sendAccessToken: SendAccessToken | null = null;
-  sendAccessResponse: SendAccessResponse | null = null;
-  sendAccessRequest: SendAccessRequest = new SendAccessRequest();
+  readonly sendAccessToken: SendAccessToken | null = null;
+  readonly sendAccessResponse: SendAccessResponse | null = null;
+  readonly sendAccessRequest: SendAccessRequest = new SendAccessRequest();
 
   constructor(
-    private route: ActivatedRoute,
-    private destroyRef: DestroyRef,
+    private readonly route: ActivatedRoute,
+    private readonly destroyRef: DestroyRef,
   ) {}
 
   ngOnInit() {

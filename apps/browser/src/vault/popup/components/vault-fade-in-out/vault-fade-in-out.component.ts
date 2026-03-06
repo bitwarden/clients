@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { animate, style, transition, trigger } from "@angular/animations";
 import { ChangeDetectionStrategy, Component, HostBinding } from "@angular/core";
 
@@ -18,5 +16,5 @@ import { ChangeDetectionStrategy, Component, HostBinding } from "@angular/core";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VaultFadeInOutComponent {
-  @HostBinding("@fadeInOut") fadeInOut = true;
+  @HostBinding("@fadeInOut") readonly fadeInOut = true;
 }

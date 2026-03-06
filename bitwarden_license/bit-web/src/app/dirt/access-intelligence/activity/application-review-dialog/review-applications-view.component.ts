@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
 import { Component, input, output, ChangeDetectionStrategy, signal, computed } from "@angular/core";
 import { FormsModule } from "@angular/forms";

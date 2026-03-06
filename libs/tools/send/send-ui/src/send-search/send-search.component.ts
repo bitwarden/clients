@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, inject, model } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
@@ -25,7 +23,7 @@ const SearchTextDebounceInterval = 200;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendSearchComponent {
-  private sendListItemService = inject(SendItemsService);
+  private readonly sendListItemService = inject(SendItemsService);
 
   /** The current search text entered by the user. */
   protected readonly searchText = model("");

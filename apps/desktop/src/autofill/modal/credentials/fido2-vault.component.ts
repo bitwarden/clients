@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
@@ -63,11 +61,11 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Fido2VaultComponent implements OnInit, OnDestroy {
-  session?: DesktopFido2UserInterfaceSession = null;
-  private destroy$ = new Subject<void>();
-  private ciphersSubject = new BehaviorSubject<CipherView[]>([]);
-  ciphers$: Observable<CipherView[]> = this.ciphersSubject.asObservable();
-  cipherIds$: Observable<string[]> | undefined;
+  readonly session?: DesktopFido2UserInterfaceSession = null;
+  private readonly destroy$ = new Subject<void>();
+  private readonly ciphersSubject = new BehaviorSubject<CipherView[]>([]);
+  readonly ciphers$: Observable<CipherView[]> = this.ciphersSubject.asObservable();
+  readonly cipherIds$: Observable<string[]> | undefined;
   readonly Icons = { BitwardenShield };
 
   constructor(

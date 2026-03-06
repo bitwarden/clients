@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
@@ -31,5 +29,5 @@ export class GroupNameBadgeComponent {
       .sort(this.i18nService.collator.compare);
   });
 
-  constructor(private i18nService: I18nService) {}
+  constructor(private readonly i18nService: I18nService) {}
 }

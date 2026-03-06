@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
@@ -32,21 +30,21 @@ type ThemeOption = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppearanceComponent implements OnInit {
-  localeOptions: LocaleOption[];
-  themeOptions: ThemeOption[];
+  readonly localeOptions: LocaleOption[];
+  readonly themeOptions: ThemeOption[];
 
-  form = this.formBuilder.group({
+  readonly form = this.formBuilder.group({
     enableFavicons: true,
     theme: [ThemeTypes.Light as Theme],
     locale: [null as string | null],
   });
 
   constructor(
-    private formBuilder: FormBuilder,
-    private i18nService: I18nService,
-    private themeStateService: ThemeStateService,
-    private domainSettingsService: DomainSettingsService,
-    private destroyRef: DestroyRef,
+    private readonly formBuilder: FormBuilder,
+    private readonly i18nService: I18nService,
+    private readonly themeStateService: ThemeStateService,
+    private readonly domainSettingsService: DomainSettingsService,
+    private readonly destroyRef: DestroyRef,
   ) {
     const localeOptions: LocaleOption[] = [];
     i18nService.supportedTranslationLocales.forEach((locale) => {

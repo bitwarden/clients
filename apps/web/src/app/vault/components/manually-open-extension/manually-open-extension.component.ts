@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 
 import { BitwardenIcon } from "@bitwarden/assets/svg";
@@ -13,5 +11,5 @@ import { I18nPipe } from "@bitwarden/ui-common";
   imports: [I18nPipe, SvgModule],
 })
 export class ManuallyOpenExtensionComponent {
-  protected BitwardenIcon = BitwardenIcon;
+  protected readonly BitwardenIcon = BitwardenIcon;
 }

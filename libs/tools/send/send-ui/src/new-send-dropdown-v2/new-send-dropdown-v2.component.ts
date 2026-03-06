@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, inject, input, output } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { map, of, switchMap } from "rxjs";
@@ -27,7 +25,7 @@ export class NewSendDropdownV2Component {
 
   readonly addSend = output<SendType>();
 
-  protected sendType = SendType;
+  protected readonly sendType = SendType;
 
   private readonly billingAccountProfileStateService = inject(BillingAccountProfileStateService);
   private readonly accountService = inject(AccountService);

@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import {
@@ -114,11 +112,11 @@ export class PremiumOrgUpgradeDialogComponent implements OnInit {
   protected readonly PlanSelectionStep = PremiumOrgUpgradeDialogStep.PlanSelection;
 
   constructor(
-    private dialogRef: DialogRef<PremiumOrgUpgradeDialogResult>,
-    @Inject(DIALOG_DATA) private params: PremiumOrgUpgradeDialogParams,
-    private router: Router,
-    private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private configService: ConfigService,
+    private readonly dialogRef: DialogRef<PremiumOrgUpgradeDialogResult>,
+    @Inject(DIALOG_DATA) private readonly params: PremiumOrgUpgradeDialogParams,
+    private readonly router: Router,
+    private readonly billingAccountProfileStateService: BillingAccountProfileStateService,
+    private readonly configService: ConfigService,
   ) {}
 
   async ngOnInit(): Promise<void> {

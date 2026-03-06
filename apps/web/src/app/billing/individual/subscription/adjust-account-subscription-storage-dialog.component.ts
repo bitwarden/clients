@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CurrencyPipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -133,7 +131,7 @@ export class AdjustAccountSubscriptionStorageDialogComponent {
     }
   });
 
-  formGroup = new FormGroup({
+  readonly formGroup = new FormGroup({
     amount: new FormControl<number>(1, {
       nonNullable: true,
       validators: [
@@ -144,7 +142,7 @@ export class AdjustAccountSubscriptionStorageDialogComponent {
     }),
   });
 
-  submit = async () => {
+  readonly submit = async () => {
     this.formGroup.markAllAsTouched();
     if (!this.formGroup.valid || !this.formGroup.value.amount) {
       return;
@@ -173,7 +171,7 @@ export class AdjustAccountSubscriptionStorageDialogComponent {
     this.dialogRef.close("submitted");
   };
 
-  static open = (
+  static readonly open = (
     dialogService: DialogService,
     dialogConfig: DialogConfig<AdjustAccountSubscriptionStorageDialogParams>,
   ) =>

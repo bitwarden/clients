@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { ChangeDetectionStrategy, Component, Inject, signal, WritableSignal } from "@angular/core";
 
@@ -27,13 +25,13 @@ export interface BulkReinviteFailureDialogParams {
   standalone: false,
 })
 export class BulkReinviteFailureDialogComponent {
-  private organization: Organization;
-  protected totalCount: string;
+  private readonly organization: Organization;
+  protected readonly totalCount: string;
   protected readonly dataSource: WritableSignal<MembersTableDataSource>;
 
   constructor(
-    public dialogRef: DialogRef,
-    private memberActionsService: MemberActionsService,
+    readonly dialogRef: DialogRef,
+    private readonly memberActionsService: MemberActionsService,
     @Inject(DIALOG_DATA) data: BulkReinviteFailureDialogParams,
     environmentService: EnvironmentService,
   ) {

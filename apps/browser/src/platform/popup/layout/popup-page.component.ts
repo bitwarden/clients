@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
 import {
   booleanAttribute,
@@ -27,9 +25,9 @@ import { IconModule, ScrollLayoutHostDirective, ScrollLayoutService } from "@bit
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PopupPageComponent {
-  protected i18nService = inject(I18nService);
-  private scrollLayout = inject(ScrollLayoutService);
-  private destroyRef = inject(DestroyRef);
+  protected readonly i18nService = inject(I18nService);
+  private readonly scrollLayout = inject(ScrollLayoutService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly loading = input<boolean>(false);
 
@@ -39,7 +37,7 @@ export class PopupPageComponent {
   readonly hideOverflow = input(false, { transform: booleanAttribute });
 
   protected readonly scrolled = signal(false);
-  isScrolled = this.scrolled.asReadonly();
+  readonly isScrolled = this.scrolled.asReadonly();
 
   constructor() {
     this.scrollLayout.scrollableRef$

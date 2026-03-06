@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, DestroyRef } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
@@ -40,13 +38,13 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PoliciesComponent {
-  private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
+  private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
-  protected organizationId$: Observable<OrganizationId> = this.route.params.pipe(
+  protected readonly organizationId$: Observable<OrganizationId> = this.route.params.pipe(
     map((params) => params.organizationId),
   );
 
-  protected organization$: Observable<Organization> = combineLatest([
+  protected readonly organization$: Observable<Organization> = combineLatest([
     this.userId$,
     this.organizationId$,
   ]).pipe(
@@ -63,11 +61,11 @@ export class PoliciesComponent {
     ),
   );
 
-  protected policies$: Observable<readonly BasePolicyEditDefinition[]> = of(
+  protected readonly policies$: Observable<readonly BasePolicyEditDefinition[]> = of(
     this.policyListService.getPolicies(),
   );
 
-  private orgPolicies$: Observable<PolicyResponse[]> = this.accountService.activeAccount$.pipe(
+  private readonly orgPolicies$: Observable<PolicyResponse[]> = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) => this.policyService.policies$(userId)),
     switchMap(() => this.organizationId$),
@@ -76,7 +74,7 @@ export class PoliciesComponent {
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  protected policiesEnabledMap$: Observable<Map<PolicyType, boolean>> = this.orgPolicies$.pipe(
+  protected readonly policiesEnabledMap$: Observable<Map<PolicyType, boolean>> = this.orgPolicies$.pipe(
     map((orgPolicies) => {
       const policiesEnabledMap: Map<PolicyType, boolean> = new Map<PolicyType, boolean>();
       orgPolicies.forEach((op) => {
@@ -87,15 +85,15 @@ export class PoliciesComponent {
   );
 
   constructor(
-    private route: ActivatedRoute,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-    private policyApiService: PolicyApiServiceAbstraction,
-    private policyListService: PolicyListService,
-    private dialogService: DialogService,
-    private policyService: PolicyService,
-    protected configService: ConfigService,
-    private destroyRef: DestroyRef,
+    private readonly route: ActivatedRoute,
+    private readonly organizationService: OrganizationService,
+    private readonly accountService: AccountService,
+    private readonly policyApiService: PolicyApiServiceAbstraction,
+    private readonly policyListService: PolicyListService,
+    private readonly dialogService: DialogService,
+    private readonly policyService: PolicyService,
+    protected readonly configService: ConfigService,
+    private readonly destroyRef: DestroyRef,
   ) {
     this.handleLaunchEvent();
   }

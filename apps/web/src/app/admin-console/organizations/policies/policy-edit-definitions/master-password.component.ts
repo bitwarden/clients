@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
@@ -35,10 +33,10 @@ export class MasterPasswordPolicy extends BasePolicyEditDefinition {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MasterPasswordPolicyComponent extends BasePolicyEditComponent implements OnInit {
-  MinPasswordLength = Utils.minimumPasswordLength;
-  MaxPasswordLength = Utils.maximumPasswordLength;
+  readonly MinPasswordLength = Utils.minimumPasswordLength;
+  readonly MaxPasswordLength = Utils.maximumPasswordLength;
 
-  data: FormGroup<ControlsOf<MasterPasswordPolicyOptions>> = this.formBuilder.group({
+  readonly data: FormGroup<ControlsOf<MasterPasswordPolicyOptions>> = this.formBuilder.group({
     minComplexity: [null],
     minLength: [
       this.MinPasswordLength,
@@ -51,14 +49,14 @@ export class MasterPasswordPolicyComponent extends BasePolicyEditComponent imple
     enforceOnLogin: [false],
   });
 
-  passwordScores: { name: string; value: number }[];
-  showKeyConnectorInfo = false;
+  readonly passwordScores: { name: string; value: number }[];
+  readonly showKeyConnectorInfo = false;
 
   constructor(
-    private formBuilder: FormBuilder,
+    private readonly formBuilder: FormBuilder,
     i18nService: I18nService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
+    private readonly organizationService: OrganizationService,
+    private readonly accountService: AccountService,
   ) {
     super();
 

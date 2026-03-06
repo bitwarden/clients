@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
@@ -47,7 +45,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Fido2ExcludedCiphersComponent implements OnInit, OnDestroy {
-  session?: DesktopFido2UserInterfaceSession = null;
+  readonly session?: DesktopFido2UserInterfaceSession = null;
   readonly Icons = { BitwardenShield, NoResults };
 
   constructor(

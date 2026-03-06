@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
@@ -55,35 +53,35 @@ const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
   imports: [SharedModule, HeaderModule],
 })
 export class EventsComponent extends BaseEventsComponent implements OnInit, OnDestroy {
-  exportFileName = "org-events";
-  organizationId: string;
-  organization: Organization;
-  organizationSubscription: OrganizationSubscriptionResponse;
+  readonly exportFileName = "org-events";
+  readonly organizationId: string;
+  readonly organization: Organization;
+  readonly organizationSubscription: OrganizationSubscriptionResponse;
 
-  placeholderEvents = placeholderEvents as EventView[];
+  readonly placeholderEvents = placeholderEvents as EventView[];
 
-  private orgUsersUserIdMap = new Map<string, any>();
+  private readonly orgUsersUserIdMap = new Map<string, any>();
   readonly ProductTierType = ProductTierType;
 
   constructor(
-    private apiService: ApiService,
-    private route: ActivatedRoute,
+    private readonly apiService: ApiService,
+    private readonly route: ActivatedRoute,
     eventService: EventService,
     i18nService: I18nService,
     exportService: EventExportService,
     platformUtilsService: PlatformUtilsService,
     logService: LogService,
-    private userNamePipe: UserNamePipe,
-    protected organizationService: OrganizationService,
-    private organizationUserApiService: OrganizationUserApiService,
-    private organizationApiService: OrganizationApiServiceAbstraction,
-    private providerService: ProviderService,
+    private readonly userNamePipe: UserNamePipe,
+    protected readonly organizationService: OrganizationService,
+    private readonly organizationUserApiService: OrganizationUserApiService,
+    private readonly organizationApiService: OrganizationApiServiceAbstraction,
+    private readonly providerService: ProviderService,
     fileDownloadService: FileDownloadService,
     toastService: ToastService,
-    protected accountService: AccountService,
-    private dialogService: DialogService,
-    private configService: ConfigService,
-    protected activeRoute: ActivatedRoute,
+    protected readonly accountService: AccountService,
+    private readonly dialogService: DialogService,
+    private readonly configService: ConfigService,
+    protected readonly activeRoute: ActivatedRoute,
   ) {
     super(
       eventService,

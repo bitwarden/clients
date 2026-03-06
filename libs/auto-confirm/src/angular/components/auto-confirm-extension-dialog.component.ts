@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
@@ -70,7 +68,7 @@ import {
   imports: [ButtonModule, DialogModule, CommonModule, JslibModule, BadgeComponent],
 })
 export class AutoConfirmExtensionSetupDialogComponent {
-  constructor(public dialogRef: DialogRef<boolean>) {}
+  constructor(readonly dialogRef: DialogRef<boolean>) {}
 
   static open(dialogService: DialogService) {
     return dialogService.open<boolean>(AutoConfirmExtensionSetupDialogComponent, {

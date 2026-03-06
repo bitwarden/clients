@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, input, signal } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
@@ -61,11 +59,11 @@ export class IconComponent {
     return {};
   });
 
-  protected data$: Observable<CipherIconDetails>;
+  protected readonly data$: Observable<CipherIconDetails>;
 
   constructor(
-    private environmentService: EnvironmentService,
-    private domainSettingsService: DomainSettingsService,
+    private readonly environmentService: EnvironmentService,
+    private readonly domainSettingsService: DomainSettingsService,
   ) {
     const iconSettings$ = combineLatest([
       this.environmentService.environment$.pipe(map((e) => e.getIconsUrl())),

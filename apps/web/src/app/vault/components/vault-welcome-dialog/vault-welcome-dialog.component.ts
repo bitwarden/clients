@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { firstValueFrom } from "rxjs";
@@ -42,10 +40,10 @@ const VAULT_WELCOME_DIALOG_ACKNOWLEDGED_KEY = new UserKeyDefinition<boolean>(
   imports: [CommonModule, DialogModule, ButtonModule, TypographyModule, JslibModule],
 })
 export class VaultWelcomeDialogComponent {
-  private accountService = inject(AccountService);
-  private stateProvider = inject(StateProvider);
+  private readonly accountService = inject(AccountService);
+  private readonly stateProvider = inject(StateProvider);
 
-  constructor(private dialogRef: DialogRef<VaultWelcomeDialogResult>) {}
+  constructor(private readonly dialogRef: DialogRef<VaultWelcomeDialogResult>) {}
 
   protected async onDismiss(): Promise<void> {
     await this.setAcknowledged();

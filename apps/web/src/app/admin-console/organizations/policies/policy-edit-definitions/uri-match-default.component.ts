@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormControl, Validators } from "@angular/forms";
 
@@ -27,11 +25,11 @@ export class UriMatchDefaultPolicy extends BasePolicyEditDefinition {
   imports: [SharedModule],
 })
 export class UriMatchDefaultPolicyComponent extends BasePolicyEditComponent {
-  uriMatchOptions: { label: string; value: UriMatchStrategySetting | null; disabled?: boolean }[];
+  readonly uriMatchOptions: { label: string; value: UriMatchStrategySetting | null; disabled?: boolean }[];
 
   constructor(
-    private formBuilder: FormBuilder,
-    private i18nService: I18nService,
+    private readonly formBuilder: FormBuilder,
+    private readonly i18nService: I18nService,
   ) {
     super();
 

@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 
@@ -29,9 +27,9 @@ import { TrashListItemsContainerComponent } from "./trash-list-items-container/t
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TrashComponent {
-  protected deletedCiphers$ = this.vaultPopupItemsService.deletedCiphers$;
+  protected readonly deletedCiphers$ = this.vaultPopupItemsService.deletedCiphers$;
 
-  protected emptyTrashIcon = EmptyTrash;
+  protected readonly emptyTrashIcon = EmptyTrash;
 
-  constructor(private vaultPopupItemsService: VaultPopupItemsService) {}
+  constructor(private readonly vaultPopupItemsService: VaultPopupItemsService) {}
 }
