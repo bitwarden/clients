@@ -12,7 +12,7 @@
     "message": "Obľúbené"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Odstrániť z obľúbených"
   },
   "types": {
     "message": "Typy"
@@ -590,10 +590,10 @@
     "message": "Položka bola uložená"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Položka pridaná medzi obľúbené"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Položka odobraná z obľúbených"
   },
   "deleteItem": {
     "message": "Odstrániť položku"
@@ -1033,7 +1033,7 @@
     "message": "Neplatný verifikačný kód"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "Neplatný e-mail alebo overovací kód"
   },
   "continue": {
     "message": "Pokračovať"
@@ -1565,16 +1565,16 @@
     "message": "Neznáme"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Kopírovať adresu"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Kopírovať telefón"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Kopírovať poznámku"
   },
   "copyVerificationCode": {
-    "message": "Copy verification code"
+    "message": "Kopírovať overovací kód"
   },
   "copyUsername": {
     "message": "Kopírovať používateľské meno"
@@ -2104,22 +2104,22 @@
     "message": "Hľadať v koši"
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Prehľadať archív"
   },
   "searchLogin": {
-    "message": "Search login"
+    "message": "Hľadať prihlásenia"
   },
   "searchCard": {
-    "message": "Search card"
+    "message": "Hľadať karty"
   },
   "searchIdentity": {
-    "message": "Search identity"
+    "message": "Hľadať identity"
   },
   "searchSecureNote": {
-    "message": "Search secure note"
+    "message": "Hľadať zabezpečené poznámky"
   },
   "searchSshKey": {
-    "message": "Search SSH key"
+    "message": "Hľadať kľúč SSH"
   },
   "permanentlyDeleteItem": {
     "message": "Natrvalo odstrániť položku"
@@ -2418,7 +2418,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "me": {
-    "message": "Me"
+    "message": "Ja"
   },
   "myVault": {
     "message": "Môj trezor"
@@ -4129,7 +4129,7 @@
     "message": "Chýbajúca webová stránka"
   },
   "missingPermissions": {
-    "message": "You lack the necessary permissions to perform this action."
+    "message": "Na vykonanie tejto akcie vám chýbajú potrebné povolenia."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Zbierky, ktoré môžete len zobraziť nemôžete odstrániť: $COLLECTIONS$",
@@ -4636,34 +4636,34 @@
     "message": "Prečo to vidím?"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "Organizácia je pozastavená"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "K položkám v pozastavenej organizácii nie je možné pristupovať. Požiadajte o pomoc vlastníka organizácie."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "V koši nie sú žiadne položky"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Položky, ktoré odstránite, sa zobrazia tu a po 30 dňoch sa odstránia natrvalo"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "V trezore nie sú žiadne položky"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "Trezor chráni viac ako len heslá. Môžete tu bezpečne ukladať prihlasovacie údaje, identifikačné údaje, karty a poznámky."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "Nemáte žiadne obľúbené položky"
   },
   "emptyFavoritesDesc": {
-    "message": "Add frequently used items to favorites for quick access."
+    "message": "Pre rýchly prístup pridajte položky medzi obľúbené."
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "Nenašli sa žiadne výsledky vyhľadávania"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Vymažte filtre alebo zmeňte vyhľadávaný výraz"
   },
   "sendPasswordHelperText": {
     "message": "Jednotlivci budú musieť zadať heslo, aby mohli zobraziť tento Send",

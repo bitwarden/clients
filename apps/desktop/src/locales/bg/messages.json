@@ -12,7 +12,7 @@
     "message": "Любими"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Премахване от любимите"
   },
   "types": {
     "message": "Видове"
@@ -590,10 +590,10 @@
     "message": "Елементът е редактиран"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Елементът е добавен към любимите"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Елементът е премахнат от любимите"
   },
   "deleteItem": {
     "message": "Изтриване на елемента"
@@ -1565,16 +1565,16 @@
     "message": "Неизвестно"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Копиране на адреса"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Копиране на телефона"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Копиране на бележката"
   },
   "copyVerificationCode": {
-    "message": "Copy verification code"
+    "message": "Копиране на кода за потвърждаване"
   },
   "copyUsername": {
     "message": "Копиране на потребителското име"
@@ -2104,22 +2104,22 @@
     "message": "Търсене в кошчето"
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Търсене в архива"
   },
   "searchLogin": {
-    "message": "Search login"
+    "message": "Търсене на запис"
   },
   "searchCard": {
-    "message": "Search card"
+    "message": "Търсене на карта"
   },
   "searchIdentity": {
-    "message": "Search identity"
+    "message": "Търсене на идентификатор"
   },
   "searchSecureNote": {
-    "message": "Search secure note"
+    "message": "Търсене на защитена бележка"
   },
   "searchSshKey": {
-    "message": "Search SSH key"
+    "message": "Търсене на SSH ключ"
   },
   "permanentlyDeleteItem": {
     "message": "Окончателно изтриване на запис"
@@ -2418,7 +2418,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "me": {
-    "message": "Me"
+    "message": "Аз"
   },
   "myVault": {
     "message": "Моят трезор"
@@ -4129,7 +4129,7 @@
     "message": "Липсващ уеб сайт"
   },
   "missingPermissions": {
-    "message": "You lack the necessary permissions to perform this action."
+    "message": "Нямате нужните правомощия да извършите това действие."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Не можете да премахвате колекции с права „Само за преглед“: $COLLECTIONS$",
@@ -4636,34 +4636,34 @@
     "message": "Защо виждам това?"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "Организацията е с преустановен достъп"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "Записите в организации с преустановен достъп не са достъпни. Свържете се със собственика на организацията си за помощ."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "Няма елементи в кошчето"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Елементите, които изтривате, ще бъдат премествани тук и изтривани окончателно след 30 дни"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Няма елементи в трезора"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "Трезорът може да пази не само паролите Ви. Тум можете да съхранявате сигурно данни за вписване, идентификационни данни, карти и бележки."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "Все още нямате любими неща"
   },
   "emptyFavoritesDesc": {
-    "message": "Add frequently used items to favorites for quick access."
+    "message": "Добавете често ползваните неща в любимите си, за бърз достъп."
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "Няма резултати от търсенето"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Изчистете филтрите или опитайте да търсите нещо друго"
   },
   "sendPasswordHelperText": {
     "message": "Хората ще трябва да въведат паролата, за да видят това Изпращане",

@@ -12,7 +12,7 @@
     "message": "Favorieten"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Verwijderen uit favorieten"
   },
   "types": {
     "message": "Categorieën"
@@ -590,10 +590,10 @@
     "message": "Item opgeslagen"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Item toegevoegd aan favorieten"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Item verwijderd uit favorieten"
   },
   "deleteItem": {
     "message": "Verwijder item"
@@ -1565,16 +1565,16 @@
     "message": "Onbekend"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Adres kopiëren"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Telefoon kopiëren"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Notitie kopiëren"
   },
   "copyVerificationCode": {
-    "message": "Copy verification code"
+    "message": "Verificatiecode kopiëren"
   },
   "copyUsername": {
     "message": "Gebruikersnaam kopiëren"
@@ -2104,22 +2104,22 @@
     "message": "Prullenbak doorzoeken"
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Archief doorzoeken"
   },
   "searchLogin": {
-    "message": "Search login"
+    "message": "Login zoeken"
   },
   "searchCard": {
-    "message": "Search card"
+    "message": "Kaart zoeken"
   },
   "searchIdentity": {
-    "message": "Search identity"
+    "message": "Identiteit zoeken"
   },
   "searchSecureNote": {
-    "message": "Search secure note"
+    "message": "Veilige notitie zoeken"
   },
   "searchSshKey": {
-    "message": "Search SSH key"
+    "message": "SSH-sleutel zoeken"
   },
   "permanentlyDeleteItem": {
     "message": "Item definitief verwijderen"
@@ -2418,7 +2418,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "me": {
-    "message": "Me"
+    "message": "Ik"
   },
   "myVault": {
     "message": "Mijn kluis"
@@ -4129,7 +4129,7 @@
     "message": "Ontbrekende website"
   },
   "missingPermissions": {
-    "message": "You lack the necessary permissions to perform this action."
+    "message": "Je hebt geen rechten om deze actie uit te voeren."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Je kunt verzamelingen niet verwijderen met alleen rechten voor weergeven: $COLLECTIONS$",
@@ -4636,34 +4636,34 @@
     "message": "Waarom zie ik dit?"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "Organisatie is opgeschort"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "Je kunt items in opgeschorte organisaties niet benaderen. Neem contact op met de eigenaar van je organisatie voor hulp."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "Geen items in prullenbak"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Items die je verwijdert verschijnen hier en worden na 30 dagen definitief verwijderd"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Geen items in de kluis"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "De kluis beschermt meer dan alleen je wachtwoorden. Sla hier beveiligde inloggegevens, ID's, kaarten en notities op."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "Je hebt geen favoriete items"
   },
   "emptyFavoritesDesc": {
-    "message": "Add frequently used items to favorites for quick access."
+    "message": "Voeg veelgebruikte items toe aan favorieten voor snelle toegang."
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "Geen resultaten teruggekregen"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Wis filters of probeer een andere zoekterm"
   },
   "sendPasswordHelperText": {
     "message": "Individuen moeten het wachtwoord invoeren om deze Send te bekijken",

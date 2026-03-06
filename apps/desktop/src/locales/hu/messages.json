@@ -12,7 +12,7 @@
     "message": "Kedvencek"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Nem kedvenc"
   },
   "types": {
     "message": "Típusok"
@@ -590,10 +590,10 @@
     "message": "Az elem szerkesztésre került."
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Az elem bekerült a kedvencekhez.."
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Az elem kikerült a kedvencekből."
   },
   "deleteItem": {
     "message": "Elem törlése"
@@ -1565,16 +1565,16 @@
     "message": "Ismeretlen"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Postai cím másolása"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Telefonszám másolása"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Jegyzet másolása"
   },
   "copyVerificationCode": {
-    "message": "Copy verification code"
+    "message": "Ellenőrző kód másolása"
   },
   "copyUsername": {
     "message": "Felhasználónév másolása"
@@ -2104,22 +2104,22 @@
     "message": "Keresés a lomtárban"
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Archívum keresés"
   },
   "searchLogin": {
-    "message": "Search login"
+    "message": "Bejelentkezés keresése"
   },
   "searchCard": {
-    "message": "Search card"
+    "message": "Kártya keresése"
   },
   "searchIdentity": {
-    "message": "Search identity"
+    "message": "Azonosítás keresése"
   },
   "searchSecureNote": {
-    "message": "Search secure note"
+    "message": "Biztonságos jegyzet keresése"
   },
   "searchSshKey": {
-    "message": "Search SSH key"
+    "message": "SSH kulcs keresése"
   },
   "permanentlyDeleteItem": {
     "message": "Az elem végleges törlése"
@@ -2418,7 +2418,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "me": {
-    "message": "Me"
+    "message": "Én"
   },
   "myVault": {
     "message": "Saját széf"
@@ -4129,7 +4129,7 @@
     "message": "Hiányzó webhely"
   },
   "missingPermissions": {
-    "message": "You lack the necessary permissions to perform this action."
+    "message": "Nincs megfelelő jogosultság a művelet végrehajtásához."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nem távolíthatók el a csak megtekintési engedéllyel bíró gyűjtemények: $COLLECTIONS$",
@@ -4636,34 +4636,34 @@
     "message": "Miért látható ez?"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "A szervezet felfüggesztésre került."
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "A felfüggesztett szervezetek elemei nem érhetők el. Vegyük fel a kapcsolatot a szervezet tulajdonosával segítségért."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "Nincs elem a lomtárban."
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "A törölt elemek itt jelennek meg és 30 nap elteltével véglegesen törlődnek."
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Nincsenek elemek a széfben."
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "A széf nemcsak a jelszavakat védi. Itt biztonságosan tárolhatjuk a bejelentkezési adatokat, egyéb azonosítókat, kártyákat és jegyzeteket."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "Nem lett kedvencnek minősítve egyetlen elem sem."
   },
   "emptyFavoritesDesc": {
-    "message": "Add frequently used items to favorites for quick access."
+    "message": "Gyakran használt elemek hozzáadása a kedvencekhez a gyors hozzáférés érdekében."
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "Nincsenek visszakapott keresési eredmények."
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Töröljük a szűrőket vagy próbálkozzunk másik keresési kifejezéssel."
   },
   "sendPasswordHelperText": {
     "message": "A személyeknek meg kell adniuk a jelszót a Send elem megtekintéséhez.",

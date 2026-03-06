@@ -12,7 +12,7 @@
     "message": "Favoriten"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Aus Favoriten entfernen"
   },
   "types": {
     "message": "Typen"
@@ -590,10 +590,10 @@
     "message": "Eintrag gespeichert"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Eintrag zu Favoriten hinzugefügt"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Eintrag aus Favoriten entfernt"
   },
   "deleteItem": {
     "message": "Eintrag löschen"
@@ -1033,7 +1033,7 @@
     "message": "Ungültiger Verifizierungscode"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "E-Mail oder Verifizierungscode ungültig"
+    "message": "Ungültige E-Mail-Adresse oder Verifizierungscode"
   },
   "continue": {
     "message": "Weiter"
@@ -1565,16 +1565,16 @@
     "message": "Unbekannt"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Adresse kopieren"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Telefonnummer kopieren"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Notiz kopieren"
   },
   "copyVerificationCode": {
-    "message": "Copy verification code"
+    "message": "Verifizierungscode kopieren"
   },
   "copyUsername": {
     "message": "Benutzername kopieren"
@@ -2104,22 +2104,22 @@
     "message": "Papierkorb durchsuchen"
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Archiv durchsuchen"
   },
   "searchLogin": {
-    "message": "Search login"
+    "message": "Zugangsdaten suchen"
   },
   "searchCard": {
-    "message": "Search card"
+    "message": "Karte suchen"
   },
   "searchIdentity": {
-    "message": "Search identity"
+    "message": "Identität suchen"
   },
   "searchSecureNote": {
-    "message": "Search secure note"
+    "message": "Sichere Notiz suchen"
   },
   "searchSshKey": {
-    "message": "Search SSH key"
+    "message": "SSH-Schlüssel suchen"
   },
   "permanentlyDeleteItem": {
     "message": "Eintrag dauerhaft löschen"
@@ -2418,7 +2418,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "me": {
-    "message": "Me"
+    "message": "Ich"
   },
   "myVault": {
     "message": "Mein Tresor"
@@ -2740,7 +2740,7 @@
     }
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "Minimale benutzerdefinierte Timeout-Zeit beträgt 1 Minute."
+    "message": "Minimales benutzerdefiniertes Timeout beträgt 1 Minute."
   },
   "inviteAccepted": {
     "message": "Einladung angenommen"
@@ -4129,7 +4129,7 @@
     "message": "Fehlende Website"
   },
   "missingPermissions": {
-    "message": "You lack the necessary permissions to perform this action."
+    "message": "Dir fehlen die erforderlichen Berechtigungen, um diese Aktion auszuführen."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Du kannst Sammlungen mit Leseberechtigung nicht entfernen: $COLLECTIONS$",
@@ -4636,34 +4636,34 @@
     "message": "Warum wird mir das angezeigt?"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "Organisation ist deaktiviert"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "Auf Einträge in deaktivierten Organisationen kann nicht zugegriffen werden. Kontaktiere den Besitzer deiner Organisation, um Unterstützung zu erhalten."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "Keine Einträge im Papierkorb"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Einträge, die du löschst, erscheinen hier und werden nach 30 Tagen dauerhaft gelöscht"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Keine Einträge im Tresor"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "Der Tresor schützt mehr als nur deine Passwörter. Speicher hier sichere Zugangsdaten, Identitäten, Karten und Notizen."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "Du hast keine Einträge zu den Favoriten hinzugefügt"
   },
   "emptyFavoritesDesc": {
-    "message": "Add frequently used items to favorites for quick access."
+    "message": "Füge häufig verwendete Einträge zu den Favoriten hinzu, um schnell darauf zuzugreifen."
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "Keine Suchergebnisse gefunden"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Lösche Filter oder versuche es mit einem anderen Suchbegriff"
   },
   "sendPasswordHelperText": {
     "message": "Personen müssen das Passwort eingeben, um dieses Send anzusehen",
@@ -4694,7 +4694,7 @@
     "message": "Gib mehrere E-Mail-Adressen ein, indem du sie mit einem Komma trennst."
   },
   "emailsRequiredChangeAccessType": {
-    "message": "E-Mail-Verifizierung erfordert mindestens eine E-Mail-Adresse. Ändere den Zugriffstyp oben, um alle E-Mails zu entfernen."
+    "message": "Die E-Mail-Verifizierung erfordert mindestens eine E-Mail-Adresse. Ändere den Zugriffstyp oben, um alle E-Mails zu entfernen."
   },
   "emailPlaceholder": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"
