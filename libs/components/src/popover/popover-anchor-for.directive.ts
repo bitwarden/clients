@@ -1,3 +1,4 @@
+import { hasModifierKey } from "@angular/cdk/keycodes";
 import { Overlay, OverlayConfig, OverlayRef } from "@angular/cdk/overlay";
 import { TemplatePortal } from "@angular/cdk/portal";
 import {
@@ -151,7 +152,13 @@ export class PopoverAnchorForDirective implements OnDestroy {
     const templatePortal = new TemplatePortal(this.popover().templateRef(), this.viewContainerRef);
 
     this.overlayRef.attach(templatePortal);
-    this.closedEventsSub = this.getClosedEvents().subscribe(() => {
+    this.closedEventsSub = this.getClosedEvents().subscribe((event) => {
+      // Closing the popover is handled in this.destroyPopover, so we want to prevent the escape
+      // key from doing its normal default action, which would otherwise cause a parent component
+      // (like a dialog) or extension window to close
+      if (event instanceof KeyboardEvent && event.key === "Escape" && !hasModifierKey(event)) {
+        event.preventDefault();
+      }
       this.destroyPopover();
     });
   }
