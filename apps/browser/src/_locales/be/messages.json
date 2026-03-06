@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Скапіяваць адрас"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "adminConsole": {
     "message": "Кансоль адміністратара"
   },

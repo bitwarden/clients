@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>مدير كلمات المرور بتواردن</value>
+    <value>Bitwarden Password Manager</value>
   </data>
   <data name="Summary" xml:space="preserve">
     <value>في المنزل، في العمل، أو في أثناء التنقل، يقوم بتواردن بتأمين جميع كلمات المرور والمعلومات الحساسة بسهولة.</value>

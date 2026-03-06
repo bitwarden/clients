@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Cím másolása"
   },
+  "myItems": {
+    "message": "Saját elemek"
+  },
   "adminConsole": {
     "message": "Adminisztrátori konzol"
   },

@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Sao chép địa chỉ"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "adminConsole": {
     "message": "Bảng điều khiển dành cho quản trị viên"
   },

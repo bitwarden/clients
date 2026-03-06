@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Αντιγραφή διεύθυνσης"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "adminConsole": {
     "message": "Κονσόλα Διαχειριστή"
   },

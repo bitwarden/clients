@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Копиране на адреса"
   },
+  "myItems": {
+    "message": "Моите елементи"
+  },
   "adminConsole": {
     "message": "Административна конзола"
   },

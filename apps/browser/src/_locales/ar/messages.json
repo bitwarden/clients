@@ -35,7 +35,7 @@
     "message": "استخدام تسجيل الدخول الأحادي"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "يتطلب مؤسستك تسجيل دخول واحد."
   },
   "welcomeBack": {
     "message": "مرحبًا بعودتك"
@@ -129,7 +129,7 @@
     "message": "الأدوات"
   },
   "settings": {
-    "message": "الإعدادات"
+    "message": "الإعداداتالإعدادات"
   },
   "currentTab": {
     "message": "علامة التبويب الحالية"
@@ -4864,6 +4864,9 @@
   },
   "copyAddress": {
     "message": "Copy address"
+  },
+  "myItems": {
+    "message": "My Items"
   },
   "adminConsole": {
     "message": "Admin Console"

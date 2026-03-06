@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "کپی نشانی"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "adminConsole": {
     "message": "کنسول مدیر"
   },
