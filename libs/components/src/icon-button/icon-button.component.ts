@@ -1,14 +1,15 @@
-import { NgClass } from "@angular/common";
 import { Component, computed, effect, ElementRef, inject, input, model } from "@angular/core";
 
 import { AriaDisableDirective } from "../a11y";
 import { setA11yTitleAndAriaLabel } from "../a11y/set-a11y-title-and-aria-label";
-import { BaseButtonDirective, getIconButtonSizeStyles } from "../shared/base-button.directive";
+import { BaseButtonDirective } from "../shared/base-button.directive";
 import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
 import { FocusableElement } from "../shared/focusable-element";
 import { SpinnerComponent } from "../spinner";
 import { TooltipDirective } from "../tooltip";
 import { ariaDisableElement } from "../utils";
+
+type IconButtonSize = "default" | "xsmall" | "small" | "large";
 
 /**
   * Icon buttons are used when no text accompanies the button. It consists of an icon that may be updated to any icon in the `bwi-font`, a `title` attribute, and an `aria-label` that are added via the `label` input.
@@ -26,7 +27,7 @@ import { ariaDisableElement } from "../utils";
     { provide: ButtonLikeAbstraction, useExisting: BitIconButtonComponent },
     { provide: FocusableElement, useExisting: BitIconButtonComponent },
   ],
-  imports: [NgClass, SpinnerComponent],
+  imports: [SpinnerComponent],
   host: {
     /**
      * When the `bitIconButton` input is dynamic from a consumer, Angular doesn't put the
@@ -42,7 +43,7 @@ import { ariaDisableElement } from "../utils";
     { directive: TooltipDirective, inputs: ["tooltipPosition"] },
     {
       directive: BaseButtonDirective,
-      inputs: ["loading", "disabled", "buttonType", "size"],
+      inputs: ["loading", "disabled", "buttonType"],
     },
   ],
 })
@@ -61,10 +62,11 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
    */
   readonly label = input<string>();
 
+  readonly size = model<IconButtonSize>("default");
+
   // Expose loading and disabled from base directive for ButtonLikeAbstraction
   readonly loading = this.baseButton.loading;
   readonly disabled = this.baseButton.disabled;
-  readonly size = this.baseButton.size;
 
   readonly iconClass = computed(() => [this.icon(), "!tw-m-0"]);
 
@@ -76,10 +78,13 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     const classes: string[] = [];
 
     // Icon-button specific layout styles
-    classes.push("tw-relative", "tw-rounded-md", "tw-inline-block", "tw-align-middle");
+    classes.push("tw-relative", "tw-inline-block", "tw-align-middle");
 
     // Add icon-button specific size styles (color styles are applied by BaseButtonDirective)
-    classes.push(...getIconButtonSizeStyles(this.baseButton.size()));
+    classes.push(...getIconButtonSizeStyles(this.size()));
+
+    // Add icon-button specific border-radius style
+    classes.push(getRadiusStyle(this.size()));
 
     return classes.join(" ");
   });
@@ -110,3 +115,17 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     });
   }
 }
+
+const getIconButtonSizeStyles = (size: IconButtonSize): string[] => {
+  const iconButtonSizes: Record<IconButtonSize, string[]> = {
+    xsmall: ["tw-text-xl", "tw-size-6"],
+    small: ["tw-text-xl", "tw-size-8"],
+    default: ["tw-text-2xl", "tw-size-10"],
+    large: ["tw-text-[2rem]", "tw-size-11"],
+  };
+  return iconButtonSizes[size] || iconButtonSizes.default;
+};
+
+const getRadiusStyle = (size: IconButtonSize): string => {
+  return size === "xsmall" ? "tw-rounded" : "tw-rounded-xl";
+};
