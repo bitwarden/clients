@@ -40,25 +40,11 @@ export class SecretVersionService {
     return await firstValueFrom(this.getOrganizationKey$(organizationId));
   }
 
-  /**
-   * Gets secret versions
-   * @param organizationId - Organization ID for decryption key
-   * @param secretId - Secret ID to get versions for
-   * @returns Object containing versions array and continuationToken for pagination
-   */
-  async getSecretVersions(
-    organizationId: string,
-    secretId: string,
-  ): Promise<{ versions: SecretVersionView[]; continuationToken: string }> {
+  async getSecretVersions(organizationId: string, secretId: string): Promise<SecretVersionView[]> {
     const r = await this.apiService.send("GET", `/secrets/${secretId}/versions`, null, true, true);
 
     const response = new SecretVersionListResponse(r);
-    const versions = await this.createSecretVersionViews(organizationId, response.versions);
-
-    return {
-      versions,
-      continuationToken: response.continuationToken,
-    };
+    return await this.createSecretVersionViews(organizationId, response.versions);
   }
 
   /**

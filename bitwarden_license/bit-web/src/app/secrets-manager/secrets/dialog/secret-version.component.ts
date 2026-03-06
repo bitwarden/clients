@@ -120,7 +120,7 @@ export class SecretVersionDialogComponent implements OnInit {
     this.currentValueVisible = false;
 
     try {
-      const [secretOrNull, response] = await Promise.all([
+      const [secretOrNull, versions] = await Promise.all([
         refreshCurrentSecret
           ? this.secretService.getBySecretId(this.params.secretId)
           : Promise.resolve(null),
@@ -136,11 +136,11 @@ export class SecretVersionDialogComponent implements OnInit {
       }
 
       // Extract editor name from the most recent version (first in the list)
-      if (response.versions.length > 0) {
-        this.currentEditorName = response.versions[0].editorName;
+      if (versions.length > 0) {
+        this.currentEditorName = versions[0].editorName;
       }
 
-      this.flatVersions = response.versions;
+      this.flatVersions = versions;
     } catch (e) {
       this.logService.error(e);
       this.validationService.showError(e);
