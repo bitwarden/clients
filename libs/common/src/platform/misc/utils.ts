@@ -434,12 +434,6 @@ export class Utils {
       return null;
     }
 
-    // Does uriString contain invalid characters
-    // TODO Needs to possibly be extended, although '!' is a reserved character
-    if (uriString.indexOf("!") > 0) {
-      return null;
-    }
-
     try {
       const hostname = getHostname(uriString, { validHosts: this.validHosts });
       if (hostname != null) {
