@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import { Component, computed, input, output, booleanAttribute } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -35,7 +36,7 @@ let nextId = 0;
 @Component({
   selector: "bit-callout",
   templateUrl: "callout.component.html",
-  imports: [TypographyModule, IconButtonModule],
+  imports: [CommonModule, TypographyModule, IconButtonModule],
 })
 export class CalloutComponent {
   // The variant type of the callout. Defaults to "info".

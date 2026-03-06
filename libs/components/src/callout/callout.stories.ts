@@ -108,7 +108,7 @@ export const WithFooterButtons: Story = {
       <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>
         ${calloutContent}
         <button slot="end" type="button" bitButton buttonType="primary">Button text</button>
-        <button slot="end" type="button" bitButton>Button text</button>
+        <button slot="end" type="button" bitButton buttonType="primaryOutline">Button text</button>
       </bit-callout>
     `,
   }),
@@ -128,7 +128,7 @@ export const WithCloseButton: Story = {
       <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)} persistent="false">
         ${calloutContent}
         <button slot="end" type="button" bitButton buttonType="primary">Button text</button>
-        <button slot="end" type="button" bitButton>Button text</button>
+        <button slot="end" type="button" bitButton buttonType="primaryOutline">Button text</button>
       </bit-callout>
     </div>
     `,
