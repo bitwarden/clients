@@ -28,8 +28,6 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "tw-flex-none", // Flexbox fix for bit-form-control
     "tw-h-6",
     "tw-w-6",
-    "after:tw-inset-1",
-
     "before:tw-content-['']",
     "before:tw-block",
     "before:tw-inset-1",
