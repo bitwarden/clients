@@ -251,6 +251,7 @@ export class PhishingDataService {
       new URL("http://phishing.testcategory.com").href,
       new URL("https://phishing.testcategory.com").href,
       new URL("https://phishing.testcategory.com/block").href,
+      new URL("https://alexrubik.github.io/phishing-test-page/").href, // infinite loading page
     ];
     if (!flag) {
       return testWebAddresses;
