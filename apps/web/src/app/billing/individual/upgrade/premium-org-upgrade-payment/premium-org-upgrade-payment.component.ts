@@ -136,6 +136,10 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
     () => this.PLAN_MEMBERSHIP_MESSAGES[this.selectedPlanId()] ?? "",
   );
 
+  protected readonly showTaxIdField = computed<boolean>(() => {
+    return this.selectedPlanId() !== PersonalSubscriptionPricingTierIds.Families;
+  });
+
   // Use defer to lazily create the observable when subscribed to
   protected estimatedInvoice$ = defer(() =>
     combineLatest([this.formGroup.controls.billingAddress.valueChanges]).pipe(
