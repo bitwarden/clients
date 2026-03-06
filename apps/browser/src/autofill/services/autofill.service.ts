@@ -57,6 +57,7 @@ import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
+import { fieldContainsKeyword } from "../utils/qualification";
 
 import {
   AutoFillOptions,
@@ -885,14 +886,12 @@ export default class AutofillService implements AutofillServiceInterface {
       (focusedField.type === "text" ||
         focusedField.type === "number" ||
         focusedField.type === "tel") &&
-      (AutofillService.fieldIsFuzzyMatch(focusedField, [
+      (fieldContainsKeyword(focusedField, [
         ...AutoFillConstants.TotpFieldNames,
         ...AutoFillConstants.AmbiguousTotpFieldNames,
       ]) ||
         focusedField.autoCompleteType === "one-time-code") &&
-      !AutofillService.fieldIsFuzzyMatch(focusedField, [
-        ...AutoFillConstants.RecoveryCodeFieldNames,
-      ]);
+      !fieldContainsKeyword(focusedField, [...AutoFillConstants.RecoveryCodeFieldNames]);
 
     const focusedUsernameField =
       focusedField &&
@@ -1038,17 +1037,17 @@ export default class AutofillService implements AutofillServiceInterface {
         const isFillableTotpField =
           options.allowTotpAutofill &&
           ["number", "tel", "text"].some((t) => t === field.type) &&
-          (AutofillService.fieldIsFuzzyMatch(field, [
+          (fieldContainsKeyword(field, [
             ...AutoFillConstants.TotpFieldNames,
             ...AutoFillConstants.AmbiguousTotpFieldNames,
           ]) ||
             field.autoCompleteType === "one-time-code") &&
-          !AutofillService.fieldIsFuzzyMatch(field, [...AutoFillConstants.RecoveryCodeFieldNames]);
+          !fieldContainsKeyword(field, [...AutoFillConstants.RecoveryCodeFieldNames]);
 
         const isFillableUsernameField =
           !options.skipUsernameOnlyFill &&
           ["email", "tel", "text"].some((t) => t === field.type) &&
-          AutofillService.fieldIsFuzzyMatch(field, AutoFillConstants.UsernameFieldNames);
+          fieldContainsKeyword(field, AutoFillConstants.UsernameFieldNames);
 
         // Prefer more uniquely keyworded fields first.
         switch (true) {
@@ -2337,7 +2336,7 @@ export default class AutofillService implements AutofillServiceInterface {
       }
 
       // We want to avoid treating TOTP fields as password fields
-      if (AutofillService.fieldIsFuzzyMatch(f, AutoFillConstants.TotpFieldNames)) {
+      if (fieldContainsKeyword(f, AutoFillConstants.TotpFieldNames)) {
         return;
       }
 
@@ -2434,8 +2433,10 @@ export default class AutofillService implements AutofillServiceInterface {
         break;
       }
 
-      const includesUsernameFieldName =
-        this.findMatchingFieldIndex(f, AutoFillConstants.UsernameFieldNames) > -1;
+      const includesUsernameFieldName = fieldContainsKeyword(
+        f,
+        AutoFillConstants.UsernameFieldNames,
+      );
       // only consider fields in same form if both have non-null form values
       // null forms are treated as separate
       const isInSameForm =
@@ -2505,11 +2506,11 @@ export default class AutofillService implements AutofillServiceInterface {
           f.type === "number" ||
           // sites will commonly use tel in order to get the digit pad against semantic recommendations
           f.type === "tel") &&
-        AutofillService.fieldIsFuzzyMatch(f, [
+        fieldContainsKeyword(f, [
           ...AutoFillConstants.TotpFieldNames,
           ...AutoFillConstants.AmbiguousTotpFieldNames,
         ]) &&
-        !AutofillService.fieldIsFuzzyMatch(f, [...AutoFillConstants.RecoveryCodeFieldNames])
+        !fieldContainsKeyword(f, [...AutoFillConstants.RecoveryCodeFieldNames])
       ) {
         totpField = f;
 
@@ -2659,85 +2660,6 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     return fieldVal.toLowerCase() === name;
-  }
-
-  /**
-   * Accepts a field and returns true if the field contains a
-   * value that matches any of the names in the provided list.
-   *
-   * Returns boolean and attr of value that was matched as a tuple if showMatch is set to true.
-   *
-   * @param {AutofillField} field
-   * @param {string[]} names
-   * @param {boolean} showMatch
-   * @returns {boolean | [boolean, { attr: string; value: string }?]}
-   */
-  static fieldIsFuzzyMatch(
-    field: AutofillField,
-    names: string[],
-    showMatch: true,
-  ): [boolean, { attr: string; value: string }?];
-  static fieldIsFuzzyMatch(field: AutofillField, names: string[]): boolean;
-  static fieldIsFuzzyMatch(
-    field: AutofillField,
-    names: string[],
-    showMatch: boolean = false,
-  ): boolean | [boolean, { attr: string; value: string }?] {
-    const attrs = [
-      "htmlID",
-      "htmlName",
-      "label-tag",
-      "placeholder",
-      "label-left",
-      "label-right",
-      "label-top",
-      "label-aria",
-      "dataSetValues",
-    ];
-
-    for (const attr of attrs) {
-      const value = field[attr];
-      if (!AutofillService.hasValue(value)) {
-        continue;
-      }
-      if (AutofillService.fuzzyMatch(names, value)) {
-        return showMatch ? [true, { attr, value }] : true;
-      }
-    }
-    return showMatch ? [false] : false;
-  }
-
-  /**
-   * Accepts a list of options and a value and returns
-   * true if the value matches any of the options.
-   * @param {string[]} options
-   * @param {string} value
-   * @returns {boolean}
-   * @private
-   */
-  private static fuzzyMatch(options: string[], value: string): boolean {
-    if (
-      options == null ||
-      options.length === 0 ||
-      value == null ||
-      typeof value !== "string" ||
-      value.length < 1
-    ) {
-      return false;
-    }
-
-    value = value
-      .replace(/(?:\r\n|\r|\n)/g, "")
-      .trim()
-      .toLowerCase();
-
-    for (let i = 0; i < options.length; i++) {
-      if (value.indexOf(options[i]) > -1) {
-        return true;
-      }
-    }
-
-    return false;
   }
 
   /**
