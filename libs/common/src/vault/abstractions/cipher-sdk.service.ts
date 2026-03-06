@@ -136,7 +136,7 @@ export abstract class CipherSdkService {
     collectionIds: CollectionId[],
     userId: UserId,
     originalCipherView?: CipherView,
-  ): Promise<Cipher | undefined>;
+  ): Promise<CipherView | undefined>;
 
   /**
    * Shares multiple ciphers with an organization using the SDK.
@@ -153,7 +153,7 @@ export abstract class CipherSdkService {
     organizationId: OrganizationId,
     collectionIds: CollectionId[],
     userId: UserId,
-  ): Promise<Cipher[]>;
+  ): Promise<CipherView[]>;
 
   /**
    * Lists and decrypts all ciphers from state using the SDK.

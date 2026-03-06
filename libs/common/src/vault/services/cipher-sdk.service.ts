@@ -275,7 +275,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
     collectionIds: CollectionId[],
     userId: UserId,
     originalCipherView?: CipherView,
-  ): Promise<Cipher | undefined> {
+  ): Promise<CipherView | undefined> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
@@ -294,10 +294,10 @@ export class DefaultCipherSdkService implements CipherSdkService {
               sdkCipherView,
               asUuid(organizationId),
               collectionIds.map((id) => asUuid(id)),
-              null,
+              originalCipherView?.toSdkCipherView(),
             );
 
-          return Cipher.fromSdkCipher(result);
+          return CipherView.fromSdkCipherView(result);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to share cipher: ${error}`);
@@ -312,7 +312,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
     organizationId: OrganizationId,
     collectionIds: CollectionId[],
     userId: UserId,
-  ): Promise<Cipher[]> {
+  ): Promise<CipherView[]> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
@@ -333,8 +333,8 @@ export class DefaultCipherSdkService implements CipherSdkService {
             );
 
           return results
-            .map((c) => Cipher.fromSdkCipher(c))
-            .filter((c): c is Cipher => c !== undefined);
+            .map((c) => CipherView.fromSdkCipherView(c))
+            .filter((c): c is CipherView => c !== undefined);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to share multiple ciphers: ${error}`);
