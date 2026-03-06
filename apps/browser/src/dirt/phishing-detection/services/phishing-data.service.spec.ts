@@ -41,9 +41,9 @@ describe("PhishingDataService", () => {
     mockIndexedDbService.hasUrl.mockResolvedValue(false);
     mockIndexedDbService.loadAllUrls.mockResolvedValue([]);
     mockIndexedDbService.findMatchingUrl.mockResolvedValue(false);
-    mockIndexedDbService.saveUrls.mockResolvedValue(undefined);
-    mockIndexedDbService.addUrls.mockResolvedValue(undefined);
-    mockIndexedDbService.saveUrlsFromStream.mockResolvedValue(undefined);
+    mockIndexedDbService.saveUrls.mockResolvedValue(true);
+    mockIndexedDbService.addUrls.mockResolvedValue(true);
+    mockIndexedDbService.saveUrlsFromStream.mockResolvedValue(true);
 
     platformUtilsService = mock<PlatformUtilsService>();
     platformUtilsService.getApplicationVersion.mockResolvedValue("1.0.0");
@@ -309,11 +309,6 @@ describe("PhishingDataService", () => {
       // Mock conditions where no update is needed
       fetchChecksumSpy.mockResolvedValue("existing-checksum"); // Same checksum
       platformUtilsService.getApplicationVersion.mockResolvedValue("1.0.0"); // Same version
-      const mockResponse = {
-        ok: true,
-        body: {} as ReadableStream,
-      } as Response;
-      apiService.nativeFetch.mockResolvedValue(mockResponse);
 
       // Trigger background update
       const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
@@ -322,7 +317,8 @@ describe("PhishingDataService", () => {
       expect(result).toEqual(existingMeta);
       expect(result?.timestamp).toBe(existingMeta.timestamp);
 
-      // Verify no data updates were performed
+      // Verify no fetches or data updates were performed
+      expect(apiService.nativeFetch).not.toHaveBeenCalled();
       expect(mockIndexedDbService.saveUrlsFromStream).not.toHaveBeenCalled();
       expect(mockIndexedDbService.addUrls).not.toHaveBeenCalled();
     });
@@ -399,17 +395,11 @@ describe("PhishingDataService", () => {
       // Mock conditions for daily update only
       fetchChecksumSpy.mockResolvedValue("same-checksum"); // Same checksum (no full update)
       platformUtilsService.getApplicationVersion.mockResolvedValue("1.0.0"); // Same version
-      const mockFullResponse = {
-        ok: true,
-        body: {} as ReadableStream,
-      } as Response;
       const mockDailyResponse = {
         ok: true,
         text: jest.fn().mockResolvedValue("newdomain.com"),
       } as unknown as Response;
-      apiService.nativeFetch
-        .mockResolvedValueOnce(mockFullResponse)
-        .mockResolvedValueOnce(mockDailyResponse);
+      apiService.nativeFetch.mockResolvedValue(mockDailyResponse);
 
       // Trigger background update
       const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
