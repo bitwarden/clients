@@ -36,11 +36,11 @@ import { AccountCryptographicStateService } from "../../account-cryptography/acc
 import { KeyGenerationService } from "../../crypto";
 import { EncString } from "../../crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
-import { SecurityStateService } from "../../security-state/abstractions/security-state.service";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
 import { KeyConnectorDomainConfirmation } from "../models/key-connector-domain-confirmation";
 import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../models/set-key-connector-key.request";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 
 export const USES_KEY_CONNECTOR = new UserKeyDefinition<boolean | null>(
   KEY_CONNECTOR_DISK,
@@ -89,8 +89,8 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     private stateProvider: StateProvider,
     private configService: ConfigService,
     private registerSdkService: RegisterSdkService,
-    private securityStateService: SecurityStateService,
     private accountCryptographicStateService: AccountCryptographicStateService,
+    private sdkService: SdkService,
   ) {
     this.convertAccountRequired$ = accountService.activeAccount$.pipe(
       filter((account) => account != null),
@@ -127,18 +127,43 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   }
 
   async migrateUser(keyConnectorUrl: string, userId: UserId) {
-    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-    const keyConnectorRequest = new KeyConnectorUserKeyRequest(
-      Utils.fromBufferToB64(masterKey.inner().encryptionKey),
+    const sdkKeyConnectorMigration = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.SdkKeyConnectorMigration),
     );
+    if (sdkKeyConnectorMigration) {
+      try {
+        await firstValueFrom(
+          this.sdkService.userClient$(userId).pipe(
+            map((sdk) => {
+              if (!sdk) {
+                throw new Error("SDK not available");
+              }
 
-    try {
-      await this.apiService.postUserKeyToKeyConnector(keyConnectorUrl, keyConnectorRequest);
-    } catch (e) {
-      this.handleKeyConnectorError(e);
+              using ref = sdk.take();
+
+              return ref.value
+                .user_crypto_management()
+                .migrate_to_key_connector(keyConnectorUrl)
+            }),
+          ),
+        );
+      } catch (e) {
+        this.handleKeyConnectorError(e);
+      }
+    } else {
+      const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
+      const keyConnectorRequest = new KeyConnectorUserKeyRequest(
+        Utils.fromBufferToB64(masterKey.inner().encryptionKey),
+      );
+
+      try {
+        await this.apiService.postUserKeyToKeyConnector(keyConnectorUrl, keyConnectorRequest);
+      } catch (e) {
+        this.handleKeyConnectorError(e);
+      }
+
+      await this.apiService.postConvertToKeyConnector();
     }
-
-    await this.apiService.postConvertToKeyConnector();
 
     await this.setUsesKeyConnector(true, userId);
   }
