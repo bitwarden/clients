@@ -1,26 +1,14 @@
-const LEGACY_DECORATOR_TO_SIGNAL = {
-  Input: { messageId: "legacyInput", signal: "input()" },
-  Output: { messageId: "legacyOutput", signal: "output()" },
-  ViewChild: { messageId: "legacyViewChild", signal: "viewChild()" },
-  ViewChildren: { messageId: "legacyViewChildren", signal: "viewChildren()" },
-  ContentChild: { messageId: "legacyContentChild", signal: "contentChild()" },
-  ContentChildren: { messageId: "legacyContentChildren", signal: "contentChildren()" },
-};
+const LEGACY_DECORATORS = new Set([
+  "Input",
+  "Output",
+  "ViewChild",
+  "ViewChildren",
+  "ContentChild",
+  "ContentChildren",
+]);
 
 export const messages = {
   nonReadonly: "Class properties must be readonly. Use signals for mutable state.",
-  legacyInput:
-    "Replace @Input() with the signal-based input() API. All properties must be readonly.",
-  legacyOutput:
-    "Replace @Output() with the signal-based output() API. All properties must be readonly.",
-  legacyViewChild:
-    "Replace @ViewChild() with the signal-based viewChild() API. All properties must be readonly.",
-  legacyViewChildren:
-    "Replace @ViewChildren() with the signal-based viewChildren() API. All properties must be readonly.",
-  legacyContentChild:
-    "Replace @ContentChild() with the signal-based contentChild() API. All properties must be readonly.",
-  legacyContentChildren:
-    "Replace @ContentChildren() with the signal-based contentChildren() API. All properties must be readonly.",
 };
 
 function getDecoratorName(decorator) {
@@ -34,14 +22,11 @@ function getDecoratorName(decorator) {
   return null;
 }
 
-function findLegacyDecorator(decorators) {
-  for (const d of decorators ?? []) {
+function hasLegacyDecorator(decorators) {
+  return (decorators ?? []).some((d) => {
     const name = getDecoratorName(d);
-    if (name && LEGACY_DECORATOR_TO_SIGNAL[name]) {
-      return name;
-    }
-  }
-  return null;
+    return name && LEGACY_DECORATORS.has(name);
+  });
 }
 
 function getNearestClass(node) {
@@ -122,12 +107,8 @@ export default {
         if (node.declare) return;
         if (node.abstract) return;
 
-        const legacyDecorator = findLegacyDecorator(node.decorators);
-        if (legacyDecorator) {
-          context.report({
-            node,
-            messageId: LEGACY_DECORATOR_TO_SIGNAL[legacyDecorator].messageId,
-          });
+        if (hasLegacyDecorator(node.decorators)) {
+          context.report({ node, messageId: "nonReadonly" });
           return;
         }
 

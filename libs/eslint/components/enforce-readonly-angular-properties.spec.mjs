@@ -139,7 +139,7 @@ ruleTester.run("enforce-readonly-angular-properties", rule.default, {
           @Input() title: string;
         }
       `,
-      errors: [{ messageId: "legacyInput" }],
+      errors: [{ messageId: "nonReadonly" }],
     },
     {
       name: "legacy @Input decorator without call should be migrated to input()",
@@ -148,7 +148,7 @@ ruleTester.run("enforce-readonly-angular-properties", rule.default, {
           @Input title: string;
         }
       `,
-      errors: [{ messageId: "legacyInput" }],
+      errors: [{ messageId: "nonReadonly" }],
     },
     {
       name: "legacy @ViewChild() should be migrated to viewChild()",
@@ -157,7 +157,7 @@ ruleTester.run("enforce-readonly-angular-properties", rule.default, {
           @ViewChild('ref') el: ElementRef;
         }
       `,
-      errors: [{ messageId: "legacyViewChild" }],
+      errors: [{ messageId: "nonReadonly" }],
     },
     {
       name: "legacy @ViewChildren() should be migrated to viewChildren()",
@@ -166,7 +166,7 @@ ruleTester.run("enforce-readonly-angular-properties", rule.default, {
           @ViewChildren('ref') items: QueryList<ElementRef>;
         }
       `,
-      errors: [{ messageId: "legacyViewChildren" }],
+      errors: [{ messageId: "nonReadonly" }],
     },
     {
       name: "legacy @ContentChild() should be migrated to contentChild()",
@@ -175,7 +175,7 @@ ruleTester.run("enforce-readonly-angular-properties", rule.default, {
           @ContentChild('ref') template: TemplateRef<unknown>;
         }
       `,
-      errors: [{ messageId: "legacyContentChild" }],
+      errors: [{ messageId: "nonReadonly" }],
     },
     {
       name: "legacy @ContentChildren() should be migrated to contentChildren()",
@@ -184,7 +184,7 @@ ruleTester.run("enforce-readonly-angular-properties", rule.default, {
           @ContentChildren('ref') items: QueryList<TemplateRef<unknown>>;
         }
       `,
-      errors: [{ messageId: "legacyContentChildren" }],
+      errors: [{ messageId: "nonReadonly" }],
     },
     {
       name: "non-readonly @HostBinding property",
@@ -207,7 +207,7 @@ ruleTester.run("enforce-readonly-angular-properties", rule.default, {
           @Output() clicked = new EventEmitter<void>();
         }
       `,
-      errors: [{ messageId: "legacyOutput" }],
+      errors: [{ messageId: "nonReadonly" }],
     },
     {
       name: "non-readonly output()",
@@ -325,7 +325,7 @@ ruleTester.run("enforce-readonly-angular-properties (onlyOnPush)", rule.default,
           @Input() title: string;
         }
       `,
-      errors: [{ messageId: "legacyInput" }],
+      errors: [{ messageId: "nonReadonly" }],
     },
   ],
 });
