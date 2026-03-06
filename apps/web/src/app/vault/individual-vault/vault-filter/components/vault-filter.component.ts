@@ -1,5 +1,6 @@
 import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import {
+  Observable,
   combineLatest,
   distinctUntilChanged,
   firstValueFrom,
@@ -22,6 +23,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
@@ -309,6 +311,10 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     return orgFilterSection;
   }
 
+  protected getCiphers$(userId: UserId): Observable<CipherViewLike[] | null> {
+    return this.cipherService.cipherListViews$(userId);
+  }
+
   protected async addTypeFilter(
     excludeTypes: CipherStatus[] = [],
     organizationId?: string,
@@ -319,7 +325,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
 
     const data$ = combineLatest([
       this.restrictedItemTypesService.restricted$,
-      this.cipherService.cipherListViews$(userId),
+      this.getCiphers$(userId),
     ]).pipe(
       map(([restrictedTypes, ciphers]) => {
         const restrictedForUser = restrictedTypes

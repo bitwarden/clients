@@ -36,6 +36,7 @@
       <div class="tw-w-1/4 tw-mr-5">
         <app-organization-vault-filter
           [organization]="organization"
+          [orgCiphers$]="allCiphers$"
           [activeFilter]="activeFilter"
           [searchText]="currentSearchText$ | async"
           (searchTextChanged)="filterSearchText($event)"
