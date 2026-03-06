@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Favorieten"
   },
+  "unfavorite": {
+    "message": "Verwijderen uit favorieten"
+  },
   "types": {
     "message": "Categorieën"
   },
@@ -586,6 +589,12 @@
   "editedItem": {
     "message": "Item opgeslagen"
   },
+  "itemAddedToFavorites": {
+    "message": "Item toegevoegd aan favorieten"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item verwijderd uit favorieten"
+  },
   "deleteItem": {
     "message": "Verwijder item"
   },
@@ -1022,6 +1031,9 @@
   },
   "invalidVerificationCode": {
     "message": "Ongeldige verificatiecode"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Ongeldig e-mailadres verificatiecode"
   },
   "continue": {
     "message": "Doorgaan"
@@ -1552,6 +1564,18 @@
   "unknown": {
     "message": "Onbekend"
   },
+  "copyAddress": {
+    "message": "Adres kopiëren"
+  },
+  "copyPhone": {
+    "message": "Telefoon kopiëren"
+  },
+  "copyNote": {
+    "message": "Notitie kopiëren"
+  },
+  "copyVerificationCode": {
+    "message": "Verificatiecode kopiëren"
+  },
   "copyUsername": {
     "message": "Gebruikersnaam kopiëren"
   },
@@ -2079,6 +2103,24 @@
   "searchTrash": {
     "message": "Prullenbak doorzoeken"
   },
+  "searchArchive": {
+    "message": "Archief doorzoeken"
+  },
+  "searchLogin": {
+    "message": "Login zoeken"
+  },
+  "searchCard": {
+    "message": "Kaart zoeken"
+  },
+  "searchIdentity": {
+    "message": "Identiteit zoeken"
+  },
+  "searchSecureNote": {
+    "message": "Veilige notitie zoeken"
+  },
+  "searchSshKey": {
+    "message": "SSH-sleutel zoeken"
+  },
   "permanentlyDeleteItem": {
     "message": "Item definitief verwijderen"
   },
@@ -2374,6 +2416,9 @@
   "editSend": {
     "message": "Send bewerken",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Ik"
   },
   "myVault": {
     "message": "Mijn kluis"
@@ -4083,6 +4128,9 @@
   "missingWebsite": {
     "message": "Ontbrekende website"
   },
+  "missingPermissions": {
+    "message": "Je hebt geen rechten om deze actie uit te voeren."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Je kunt verzamelingen niet verwijderen met alleen rechten voor weergeven: $COLLECTIONS$",
     "placeholders": {
@@ -4587,6 +4635,36 @@
   "whyAmISeeingThis": {
     "message": "Waarom zie ik dit?"
   },
+  "organizationIsSuspended": {
+    "message": "Organisatie is opgeschort"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Je kunt items in opgeschorte organisaties niet benaderen. Neem contact op met de eigenaar van je organisatie voor hulp."
+  },
+  "noItemsInTrash": {
+    "message": "Geen items in prullenbak"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items die je verwijdert verschijnen hier en worden na 30 dagen definitief verwijderd"
+  },
+  "noItemsInVault": {
+    "message": "Geen items in de kluis"
+  },
+  "emptyVaultDescription": {
+    "message": "De kluis beschermt meer dan alleen je wachtwoorden. Sla hier beveiligde inloggegevens, ID's, kaarten en notities op."
+  },
+  "emptyFavorites": {
+    "message": "Je hebt geen favoriete items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Voeg veelgebruikte items toe aan favorieten voor snelle toegang."
+  },
+  "noSearchResults": {
+    "message": "Geen resultaten teruggekregen"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Wis filters of probeer een andere zoekterm"
+  },
   "sendPasswordHelperText": {
     "message": "Individuen moeten het wachtwoord invoeren om deze Send te bekijken",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4615,7 +4693,13 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Voer meerdere e-mailadressen in door te scheiden met een komma."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "E-mailverificatie vereist ten minste één e-mailadres. Om alle e-mailadressen te verwijderen, moet je het toegangstype hierboven wijzigen."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Gebruikersverificatie is mislukt."
   }
 }
