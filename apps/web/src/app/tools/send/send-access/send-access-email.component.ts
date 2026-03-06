@@ -25,6 +25,8 @@ export class SendAccessEmailComponent implements OnInit, OnDestroy {
   protected email: FormControl;
   protected otp: FormControl;
 
+  readonly resendCode = output<void>();
+
   readonly loading = input.required<boolean>();
   readonly backToEmail = output<void>();
 
@@ -55,6 +57,12 @@ export class SendAccessEmailComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.formGroup().removeControl("email");
     this.formGroup().removeControl("otp");
+  }
+
+  onResendCode(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.resendCode.emit();
   }
 
   onBackClick() {
