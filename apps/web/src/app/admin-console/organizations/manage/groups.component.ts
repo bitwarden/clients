@@ -15,7 +15,7 @@ import {
   switchMap,
   tap,
 } from "rxjs";
-import { debounceTime, first } from "rxjs/operators";
+import { debounceTime, first, startWith } from "rxjs/operators";
 
 import {
   CollectionService,
@@ -43,6 +43,9 @@ import {
 } from "./group-add-edit.component";
 
 type GroupDetailsRow = {
+  id: string;
+  name: string;
+
   /**
    * Details used for displaying group information
    */
@@ -56,23 +59,34 @@ type GroupDetailsRow = {
   /**
    * A list of collection names the group has access to
    */
-  collectionNames?: string[];
+  collectionNames: string[];
 };
 
 /**
- * Custom filter predicate that filters the groups table by id and name only.
- * This is required because the default implementation searches by all properties, which can unintentionally match
- * with members' names (who are assigned to the group) or collection names (which the group has access to).
+ * Custom filter predicate for groups.
+ * The primary search matches group id/name, while the collection search narrows the list by collection names.
+ * This avoids false positives from the default string search across unrelated row properties.
  */
-const groupsFilter = (filter: string) => {
-  filter ??= "";
-  const transformedFilter = filter.trim().toLowerCase();
+const groupsFilter = (groupFilter: string, collectionFilter: string) => {
+  const transformedGroupFilter = (groupFilter ?? "").trim().toLowerCase();
+  const transformedCollectionFilter = (collectionFilter ?? "").trim().toLowerCase();
+
   return (data: GroupDetailsRow) => {
     const group = data.details;
+    const matchesGroup =
+      group.id.toLowerCase().includes(transformedGroupFilter) ||
+      group.name.toLowerCase().includes(transformedGroupFilter);
 
-    return (
-      group.id.toLowerCase().indexOf(transformedFilter) != -1 ||
-      group.name.toLowerCase().indexOf(transformedFilter) != -1
+    if (!matchesGroup) {
+      return false;
+    }
+
+    if (transformedCollectionFilter.length === 0) {
+      return true;
+    }
+
+    return data.collectionNames.some((collectionName) =>
+      collectionName.toLowerCase().includes(transformedCollectionFilter),
     );
   };
 };
@@ -88,7 +102,8 @@ export class GroupsComponent {
   organizationId: string;
 
   protected dataSource = new TableDataSource<GroupDetailsRow>();
-  protected searchControl = new FormControl("");
+  protected searchControl = new FormControl("", { nonNullable: true });
+  protected collectionSearchControl = new FormControl("", { nonNullable: true });
 
   // Fixed sizes used for cdkVirtualScroll
   protected rowHeight = 50;
@@ -126,13 +141,14 @@ export class GroupsComponent {
         ),
         map(([collectionMap, groups]) => {
           return groups.map<GroupDetailsRow>((g) => ({
+            collectionNames: g.collections
+              .map((c) => collectionMap[c.id]?.name)
+              .filter((name): name is string => typeof name === "string")
+              .sort(this.i18nService.collator?.compare),
             id: g.id,
             name: g.name,
             details: g,
             checked: false,
-            collectionNames: g.collections
-              .map((c) => collectionMap[c.id]?.name)
-              .sort(this.i18nService.collator?.compare),
           }));
         }),
         takeUntilDestroyed(),
@@ -142,13 +158,21 @@ export class GroupsComponent {
         this.loading = false;
       });
 
-    // Connect the search input to the table dataSource filter input
-    this.searchControl.valueChanges
-      .pipe(debounceTime(200), takeUntilDestroyed())
-      .subscribe((v) => (this.dataSource.filter = groupsFilter(v)));
+    // Connect both search inputs to the table dataSource filter input
+    combineLatest([
+      this.searchControl.valueChanges.pipe(debounceTime(200), startWith(this.searchControl.value)),
+      this.collectionSearchControl.valueChanges.pipe(
+        debounceTime(200),
+        startWith(this.collectionSearchControl.value),
+      ),
+    ])
+      .pipe(takeUntilDestroyed())
+      .subscribe(([groupFilter, collectionFilter]) => {
+        this.dataSource.filter = groupsFilter(groupFilter, collectionFilter);
+      });
 
     this.route.queryParams.pipe(first(), takeUntilDestroyed()).subscribe((qParams) => {
-      this.searchControl.setValue(qParams.search);
+      this.searchControl.setValue(qParams.search ?? "");
     });
   }
 

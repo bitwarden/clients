@@ -1,9 +1,16 @@
 <app-header>
-  <bit-search
-    [placeholder]="'searchGroups' | i18n"
-    [formControl]="searchControl"
-    class="tw-w-80"
-  ></bit-search>
+  <div class="tw-flex tw-flex-wrap tw-gap-2">
+    <bit-search
+      [placeholder]="'searchGroups' | i18n"
+      [formControl]="searchControl"
+      class="tw-w-80"
+    ></bit-search>
+    <bit-search
+      [placeholder]="('search' | i18n) + ' ' + ('collections' | i18n)"
+      [formControl]="collectionSearchControl"
+      class="tw-w-80"
+    ></bit-search>
+  </div>
   <button bitButton type="button" buttonType="primary" (click)="add()">
     <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
     {{ "newGroup" | i18n }}
