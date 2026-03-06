@@ -4,7 +4,6 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -20,6 +19,7 @@ import {
   ToastService,
   DialogModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { SendFormConfig, SendFormMode, SendFormModule } from "../send-form";
 
@@ -33,6 +33,12 @@ export interface SendItemDialogParams {
    * If true, the "edit" button will be disabled in the dialog.
    */
   disableForm?: boolean;
+
+  /**
+   * A function that is called to determine whether the dialog is allowed
+   * to close. Used to trigger the "unsaved edits" dialog.
+   */
+  closePredicate?: () => Promise<boolean>;
 }
 
 /** A result of the Send add/edit dialog. */
@@ -58,7 +64,7 @@ export type SendItemDialogResult = {
   imports: [
     CommonModule,
     SearchModule,
-    JslibModule,
+    I18nPipe,
     FormsModule,
     ButtonModule,
     IconButtonModule,
@@ -68,14 +74,10 @@ export type SendItemDialogResult = {
   ],
 })
 export class SendAddEditDialogComponent {
-  /**
-   * The header text for the component.
-   */
+  /** The header text for the component. */
   headerText: string;
 
-  /**
-   * The configuration for the send form.
-   */
+  /** The configuration for the Send form. */
   config: SendFormConfig;
 
   constructor(
@@ -95,22 +97,21 @@ export class SendAddEditDialogComponent {
    */
   async onSendCreated(send: SendView) {
     // FIXME Add dialogService.open send-created dialog
-    this.dialogRef.close({ result: SendItemDialogResult.Saved, send });
-    return;
+    await this.dialogRef.close({ result: SendItemDialogResult.Saved, send });
   }
 
   /**
    * Handles the event when the send is updated.
    */
   async onSendUpdated(send: SendView) {
-    this.dialogRef.close({ result: SendItemDialogResult.Saved });
+    await this.dialogRef.close({ result: SendItemDialogResult.Saved });
   }
 
   /**
    * Handles the event when the send is deleted.
    */
   async onSendDeleted() {
-    this.dialogRef.close({ result: SendItemDialogResult.Deleted });
+    await this.dialogRef.close({ result: SendItemDialogResult.Deleted });
 
     this.toastService.showToast({
       variant: "success",
@@ -169,12 +170,14 @@ export class SendAddEditDialogComponent {
    * @returns The dialog result.
    */
   static open(dialogService: DialogService, params: SendItemDialogParams) {
-    return dialogService.open<SendItemDialogResult, SendItemDialogParams>(
-      SendAddEditDialogComponent,
-      {
-        data: params,
-      },
-    );
+    return dialogService.open<
+      SendItemDialogResult,
+      SendItemDialogParams,
+      SendAddEditDialogComponent
+    >(SendAddEditDialogComponent, {
+      data: params,
+      closePredicate: params.closePredicate,
+    });
   }
 
   /**
@@ -184,11 +187,13 @@ export class SendAddEditDialogComponent {
    * @returns The drawer result.
    */
   static openDrawer(dialogService: DialogService, params: SendItemDialogParams) {
-    return dialogService.openDrawer<SendItemDialogResult, SendItemDialogParams>(
-      SendAddEditDialogComponent,
-      {
-        data: params,
-      },
-    );
+    return dialogService.openDrawer<
+      SendItemDialogResult,
+      SendItemDialogParams,
+      SendAddEditDialogComponent
+    >(SendAddEditDialogComponent, {
+      data: params,
+      closePredicate: params.closePredicate,
+    });
   }
 }

@@ -20,7 +20,12 @@ import { SessionTimeoutPolicyComponent } from "./session-timeout.component";
 
 // Mock DialogRef, so we can mock "readonly closed" property.
 class MockDialogRef extends DialogRef {
-  close(result: unknown | undefined, options: DialogCloseOptions | undefined): void {}
+  async close(
+    result: unknown | undefined,
+    options: DialogCloseOptions | undefined,
+  ): Promise<boolean> {
+    return true;
+  }
 
   closed: Observable<unknown | undefined> = of();
   componentInstance: unknown | null;

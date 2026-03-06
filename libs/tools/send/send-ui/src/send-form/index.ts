@@ -5,3 +5,4 @@ export {
   SendFormMode,
 } from "./abstractions/send-form-config.service";
 export { DefaultSendFormConfigService } from "./services/default-send-form-config.service";
+export { SendFormService } from "./abstractions/send-form.service";

@@ -9,17 +9,12 @@
       <input bitInput type="text" formControlName="name" />
     </bit-form-field>
 
-    <tools-send-text-details
-      *ngIf="config.sendType === TextSendType"
-      [config]="config"
-      [originalSendView]="originalSendView"
-    ></tools-send-text-details>
-
-    <tools-send-file-details
-      *ngIf="config.sendType === FileSendType"
-      [config]="config"
-      [originalSendView]="originalSendView"
-    ></tools-send-file-details>
+    @if (sendFormService.sendFormConfig.sendType === SendType.Text) {
+      <tools-send-text-details></tools-send-text-details>
+    }
+    @if (sendFormService.sendFormConfig.sendType === SendType.File) {
+      <tools-send-file-details></tools-send-file-details>
+    }
 
     <bit-form-field>
       <bit-label>{{ "deletionDate" | i18n }}</bit-label>
@@ -70,7 +65,7 @@
               bitIconButton="bwi-generate"
               size="small"
               [label]="'generatePassword' | i18n"
-              [disabled]="!config.areSendsAllowed"
+              [disabled]="!sendFormService.sendFormConfig.areSendsAllowed"
               (click)="generatePassword()"
               data-testid="generate-password"
             ></button>
@@ -79,7 +74,10 @@
               bitIconButton="bwi-clone"
               size="small"
               [label]="'copyPassword' | i18n"
-              [disabled]="!config.areSendsAllowed || !sendDetailsForm.get('password').value"
+              [disabled]="
+                !sendFormService.sendFormConfig.areSendsAllowed ||
+                !sendDetailsForm.get('password').value
+              "
               [valueLabel]="'password' | i18n"
               [appCopyClick]="sendDetailsForm.get('password').value"
               showToast
@@ -127,5 +125,5 @@
       ></button>
     </bit-form-field>
   </bit-card>
-  <tools-send-options [config]="config" [originalSendView]="originalSendView"></tools-send-options>
+  <tools-send-options></tools-send-options>
 </bit-section>

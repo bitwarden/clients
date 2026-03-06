@@ -134,7 +134,7 @@ export class SendV2Component {
 
   constructor() {
     this.destroyRef.onDestroy(() => {
-      this.activeDrawerRef?.close();
+      void this.activeDrawerRef?.close();
     });
   }
 
@@ -153,7 +153,7 @@ export class SendV2Component {
     if (this.useDrawerEditMode()) {
       const formConfig = await this.sendFormConfigService.buildConfig("add", undefined, type);
 
-      this.activeDrawerRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+      this.activeDrawerRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
         formConfig,
       });
 
@@ -184,7 +184,7 @@ export class SendV2Component {
     if (this.useDrawerEditMode()) {
       const formConfig = await this.sendFormConfigService.buildConfig("edit", sendId as SendId);
 
-      this.activeDrawerRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+      this.activeDrawerRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
         formConfig,
       });
 
