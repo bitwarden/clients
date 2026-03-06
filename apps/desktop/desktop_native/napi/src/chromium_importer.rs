@@ -2,12 +2,9 @@
 pub mod chromium_importer {
     use std::collections::HashMap;
 
-    use chromium_importer::{
-        chromium::{
-            DefaultInstalledBrowserRetriever, LoginImportResult as _LoginImportResult,
-            ProfileInfo as _ProfileInfo,
-        },
-        metadata::NativeImporterMetadata as _NativeImporterMetadata,
+    use chromium_importer::chromium::{
+        DefaultInstalledBrowserRetriever, LoginImportResult as _LoginImportResult,
+        ProfileInfo as _ProfileInfo,
     };
 
     #[napi(object)]
@@ -37,11 +34,14 @@ pub mod chromium_importer {
         pub failure: Option<LoginImportFailure>,
     }
 
-    #[napi(object)]
-    pub struct NativeImporterMetadata {
-        pub id: String,
-        pub loaders: Vec<String>,
-        pub instructions: String,
+    napi_mirrors! {
+        "chromium_importer" => {
+            object NativeImporterMetadata from chromium_importer::metadata::NativeImporterMetadata {
+                id: String,
+                loaders: Vec<String>,
+                instructions: String,
+            }
+        }
     }
 
     impl From<_LoginImportResult> for LoginImportResult {
@@ -73,16 +73,6 @@ pub mod chromium_importer {
             ProfileInfo {
                 id: p.folder,
                 name: p.name,
-            }
-        }
-    }
-
-    impl From<_NativeImporterMetadata> for NativeImporterMetadata {
-        fn from(m: _NativeImporterMetadata) -> Self {
-            NativeImporterMetadata {
-                id: m.id,
-                loaders: m.loaders,
-                instructions: m.instructions,
             }
         }
     }

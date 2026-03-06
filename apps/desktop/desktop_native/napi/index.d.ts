@@ -297,24 +297,20 @@ export declare namespace sshagent_v2 {
     unlock(): void
   }
   export type SSHAgentState = SshAgentState
-  /** SSH public key data */
   export interface PublicKey {
     alg: string
     blob: Array<number>
   }
-  /** SSH sign request fields. */
   export interface SignRequest {
     publicKey: PublicKey
     processName?: string
     isForwarding: boolean
     namespace?: SignRequestNamespace
   }
-  /** Data for a sign request, including vault cipher context. */
   export interface SignRequestData {
     signRequest: SignRequest
     cipherId?: string
   }
-  /** Namespace of a sign request. */
   export const enum SignRequestNamespace {
     Git = 'Git',
     File = 'File',

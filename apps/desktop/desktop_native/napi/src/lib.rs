@@ -1,6 +1,9 @@
 #[macro_use]
 extern crate napi_derive;
 
+#[macro_use]
+mod macros;
+
 mod passkey_authenticator_internal;
 mod registry;
 

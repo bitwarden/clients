@@ -3,24 +3,18 @@ pub mod ipc {
     use desktop_core::ipc::server::{Message, MessageType};
     use napi::threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode};
 
-    #[napi(object)]
-    pub struct IpcMessage {
-        pub client_id: u32,
-        pub kind: IpcMessageType,
-        pub message: Option<String>,
-    }
-
-    impl From<Message> for IpcMessage {
-        fn from(message: Message) -> Self {
-            IpcMessage {
-                client_id: message.client_id,
-                kind: message.kind.into(),
-                message: message.message,
+    napi_mirrors! {
+        "ipc" => {
+            object IpcMessage from Message {
+                client_id: u32,
+                kind: IpcMessageType,
+                message: Option<String>,
             }
         }
     }
 
     #[napi]
+    #[derive(Debug, Clone, PartialEq)]
     pub enum IpcMessageType {
         Connected,
         Disconnected,
