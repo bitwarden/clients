@@ -12,7 +12,7 @@
     "message": "Sevimlilər"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Sevimlilərdən sil"
   },
   "types": {
     "message": "Növlər"
@@ -590,10 +590,10 @@
     "message": "Elementə düzəliş edildi"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Element sevimlilərə əlavə edildi"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Element sevimlilərdən xaric edildi"
   },
   "deleteItem": {
     "message": "Elementi sil"
@@ -1565,16 +1565,16 @@
     "message": "Bilinməyən"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Ünvanı kopyala"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Telefonu kopyala"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Notu kopyala"
   },
   "copyVerificationCode": {
-    "message": "Copy verification code"
+    "message": "Doğrulama kodunu kopyala"
   },
   "copyUsername": {
     "message": "İstifadəçi adını kopyala"
@@ -2104,22 +2104,22 @@
     "message": "Tullantı qutusunda axtar"
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Arxivdə axtar"
   },
   "searchLogin": {
-    "message": "Search login"
+    "message": "Giriş axtar"
   },
   "searchCard": {
-    "message": "Search card"
+    "message": "Kart axtar"
   },
   "searchIdentity": {
-    "message": "Search identity"
+    "message": "Kimlik axtar"
   },
   "searchSecureNote": {
-    "message": "Search secure note"
+    "message": "Güvənli not axtar"
   },
   "searchSshKey": {
-    "message": "Search SSH key"
+    "message": "SSH açarını axtar"
   },
   "permanentlyDeleteItem": {
     "message": "Elementi birdəfəlik sil"
@@ -2418,7 +2418,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "me": {
-    "message": "Me"
+    "message": "Mən"
   },
   "myVault": {
     "message": "Seyfim"
@@ -4129,7 +4129,7 @@
     "message": "Əskik veb sayt"
   },
   "missingPermissions": {
-    "message": "You lack the necessary permissions to perform this action."
+    "message": "Bu əməliyyatı icra etmək üçün lazımi icazələrin yoxdur."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "\"Yalnız baxma\" icazələrinə sahib kolleksiyaları silə bilməzsiniz: $COLLECTIONS$",
@@ -4636,34 +4636,34 @@
     "message": "Bunu niyə görürəm?"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "Təşkilatın fəaliyyəti dayandırılıb"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "Fəaliyyəti dayandırılmış təşkilatlardakı elementlərə erişilə bilməz. Kömək üçün təşkilatınızın sahibi ilə əlaqə saxlayın."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "Tullantıda element yoxdur"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Sildiyiniz elementlər burada görünəcək və 30 gün sonra həmişəlik silinəcək"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Seyfdə element yoxdur"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "Seyf, yalnız parollarızı yox, həm də daha çoxunu qoruyur. Giriş məlumatlarınızı, kimlikləri, kartları və notları burada güvənli şəkildə saxlayın."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "Hələ sevimlilərinizdə heç nə yoxdur"
   },
   "emptyFavoritesDesc": {
-    "message": "Add frequently used items to favorites for quick access."
+    "message": "Çox istifadə etdiyiniz elementləri cəld erişim üçün sevimlilərə əlavə edin."
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "Heç bir axtarış nəticəsi qayıtmadı"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Filtrləri təmizləyin və ya başqa bir axtarış terminini sınayın"
   },
   "sendPasswordHelperText": {
     "message": "Şəxslər, Send-ə baxması üçün parolu daxil etməli olacaqlar",

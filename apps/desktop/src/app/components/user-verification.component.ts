@@ -4,8 +4,8 @@ import { Component } from "@angular/core";
 import { FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from "@angular/forms";
 
 import { UserVerificationComponent as BaseComponent } from "@bitwarden/angular/auth/components/user-verification.component";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { FormFieldModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
  * @deprecated Jan 24, 2024: Use new libs/auth UserVerificationDialogComponent or UserVerificationFormInputComponent instead.
@@ -15,7 +15,7 @@ import { FormFieldModule } from "@bitwarden/components";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-user-verification",
-  imports: [CommonModule, JslibModule, ReactiveFormsModule, FormFieldModule, FormsModule],
+  imports: [CommonModule, I18nPipe, ReactiveFormsModule, FormFieldModule, FormsModule],
   templateUrl: "user-verification.component.html",
   providers: [
     {

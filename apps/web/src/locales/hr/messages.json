@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Learn more about the transfer"
   },
+  "promptUsersToMoveItems": {
+    "message": "Prompt users to move individual vault items to the organization"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
   "organizationDataOwnership": {
     "message": "Provedi vlasništvo nad podacima organizacije"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Dostupno sada"
   },
-  "autoConfirm": {
-    "message": "Automatska potvrda novih korisnika"
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
   },
   "autoConfirmDescription": {
     "message": "Novi korisnici pozvani u organizaciju bit će automatski potvrđeni kada se uređaj administratora otključa.",

@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Kopírovat adresu"
   },
+  "myItems": {
+    "message": "Moje položky"
+  },
   "adminConsole": {
     "message": "Konzole správce"
   },

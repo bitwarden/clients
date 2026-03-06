@@ -50,6 +50,7 @@ interface OrganizationUserData {
   twoFactorEnabled: boolean;
   usesKeyConnector: boolean;
   resetPasswordEnrolled: boolean;
+  userIdFromOrgUser: string | null; // userId from organization user endpoint (may be null for some users, e.g. pending invites)
 }
 
 interface MemberCipherAccess {
@@ -128,6 +129,7 @@ export class MemberAccessReportService {
         groupsCount: groupCount,
         itemsCount: itemsCount,
         usesKeyConnector: userDataArray.some((data) => data.usesKeyConnector),
+        userIdFromOrgUser: "", // V1 API doesn't provide userId from OrgUser endpoint
       };
 
       memberAccessReportViewCollection.push(aggregatedData);
@@ -298,6 +300,7 @@ export class MemberAccessReportService {
           twoFactorEnabled: orgUser.twoFactorEnabled || false,
           usesKeyConnector: orgUser.usesKeyConnector || false,
           resetPasswordEnrolled: orgUser.resetPasswordEnrolled || false,
+          userIdFromOrgUser: orgUser.userId || null,
         });
       }
 
@@ -531,6 +534,7 @@ export class MemberAccessReportService {
         groupsCount: data.groups.size,
         itemsCount: data.items.size,
         usesKeyConnector: metadata.usesKeyConnector,
+        userIdFromOrgUser: metadata.userIdFromOrgUser,
       });
     }
 

@@ -4,7 +4,7 @@ import { NgClass } from "@angular/common";
 import { Component, HostListener, ViewChild, computed, inject, input, output } from "@angular/core";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge/premium-badge.component";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -20,6 +20,7 @@ import {
   TooltipDirective,
   TableModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import {
   CopyAction,
   CopyCipherFieldDirective,
@@ -42,7 +43,7 @@ interface CopyFieldConfig {
   templateUrl: "vault-cipher-row.component.html",
   imports: [
     NgClass,
-    JslibModule,
+    I18nPipe,
     TableModule,
     AriaDisableDirective,
     OrganizationNameBadgeComponent,
@@ -52,6 +53,7 @@ interface CopyFieldConfig {
     CopyCipherFieldDirective,
     PremiumBadgeComponent,
     GetOrgNameFromIdPipe,
+    IconComponent,
   ],
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> {

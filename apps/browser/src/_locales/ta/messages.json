@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "முகவரியை நகலெடு"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "adminConsole": {
     "message": "நிர்வாகக் கன்சோல்"
   },

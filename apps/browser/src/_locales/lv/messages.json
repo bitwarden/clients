@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Ievietot starpliktuvē adresi"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "adminConsole": {
     "message": "pārvaldības konsolē,"
   },

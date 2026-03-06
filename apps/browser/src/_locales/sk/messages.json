@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Skopírovať adresu"
   },
+  "myItems": {
+    "message": "Moje položky"
+  },
   "adminConsole": {
     "message": "Správcovská konzola"
   },
@@ -6182,7 +6185,7 @@
     "message": "pouzivate@bitwarden.com, pouzivatel@acme.com"
   },
   "downloadBitwardenApps": {
-    "message": "Download Bitwarden apps"
+    "message": "Stiahnuť aplikácie Bitwarden"
   },
   "emailProtected": {
     "message": "Chránené e-mailom"

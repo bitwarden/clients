@@ -197,6 +197,13 @@ export abstract class InternalMasterPasswordServiceAbstraction extends MasterPas
   ): Promise<void>;
 
   /**
+   * Clears the master password unlock data for the user.
+   * @param userId The user ID.
+   * @throws Error If the user ID is missing.
+   */
+  abstract clearMasterPasswordUnlockData(userId: UserId): Promise<void>;
+
+  /**
    * An observable that emits the master password unlock data for the target user.
    * @param userId The user ID.
    * @throws If the user ID is null or undefined.

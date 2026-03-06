@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "주소 복사하기"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "adminConsole": {
     "message": "관리자 콘솔"
   },
@@ -4878,7 +4881,7 @@
     "message": "Automatically confirm pending users while this device is unlocked"
   },
   "autoConfirmOnboardingCallout": {
-    "message": "Save time with automatic user confirmation"
+    "message": "사용자 자동 인증으로 시간 절약"
   },
   "autoConfirmWarning": {
     "message": "조직의 데이터 보안에 영향을 끼칠 수 있습니다. "
@@ -5889,16 +5892,16 @@
     "message": "With identities, quickly autofill long registration or contact forms."
   },
   "newNoteNudgeTitle": {
-    "message": "Keep your sensitive data safe"
+    "message": "민감한 정보를 안전하게 보관"
   },
   "newNoteNudgeBody": {
-    "message": "With notes, securely store sensitive data like banking or insurance details."
+    "message": "메모를 이용해, 은행이나 보험 등 민감정보를 안전하게 보관하세요."
   },
   "newSshNudgeTitle": {
-    "message": "Developer-friendly SSH access"
+    "message": "개발자 친화적 SSH 접근"
   },
   "newSshNudgeBodyOne": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "message": "빠르고 암호화된 인증을 위해 키를 저장하고 SSH 에이전트에 연결하세요.",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
@@ -5908,7 +5911,7 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "generatorNudgeTitle": {
-    "message": "Quickly create passwords"
+    "message": "빠르게 비밀번호 생성"
   },
   "generatorNudgeBodyOne": {
     "message": "Easily create strong and unique passwords by clicking on",
@@ -5934,7 +5937,7 @@
     "message": "You do not have permissions to view this page. Try logging in with a different account."
   },
   "wasmNotSupported": {
-    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "message": "WebAssembly를 브라우저에서 지원하지 않거나 비활성화되어 있습니다. Bitwarden 앱을 이용하려면 WebAssembly가 필요합니다.",
     "description": "'WebAssembly' is a technical term and should not be translated."
   },
   "showMore": {

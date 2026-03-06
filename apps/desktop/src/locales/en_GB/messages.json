@@ -12,7 +12,7 @@
     "message": "Favourites"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Unfavourite"
   },
   "types": {
     "message": "Types"
@@ -590,10 +590,10 @@
     "message": "Item saved"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Item added to favourites"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Item removed from favourites"
   },
   "deleteItem": {
     "message": "Delete item"
@@ -4636,13 +4636,13 @@
     "message": "Why am I seeing this?"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "Organisation is suspended"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "Items in suspended organisations cannot be accessed. Contact your organisation owner for assistance."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "No items in bin"
   },
   "noItemsInTrashDesc": {
     "message": "Items you delete will appear here and be permanently deleted after 30 days"
@@ -4654,10 +4654,10 @@
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "You haven't favourited any items"
   },
   "emptyFavoritesDesc": {
-    "message": "Add frequently used items to favorites for quick access."
+    "message": "Add frequently used items to favourites for quick access."
   },
   "noSearchResults": {
     "message": "No search results returned"

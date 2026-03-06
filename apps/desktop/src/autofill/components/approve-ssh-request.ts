@@ -2,7 +2,6 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   DIALOG_DATA,
   DialogRef,
@@ -14,6 +13,7 @@ import {
   DialogService,
   CalloutModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 export interface ApproveSshRequestParams {
   cipherName: string;
@@ -30,7 +30,7 @@ export interface ApproveSshRequestParams {
   imports: [
     DialogModule,
     CommonModule,
-    JslibModule,
+    I18nPipe,
     ButtonModule,
     IconButtonModule,
     ReactiveFormsModule,

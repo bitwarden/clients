@@ -9,7 +9,6 @@ import {
   ValidationErrors,
 } from "@angular/forms";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
@@ -21,6 +20,7 @@ import {
   FormFieldModule,
   IconButtonModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -29,7 +29,7 @@ import {
   imports: [
     DialogModule,
     CommonModule,
-    JslibModule,
+    I18nPipe,
     ButtonModule,
     IconButtonModule,
     ReactiveFormsModule,

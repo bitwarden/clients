@@ -23,7 +23,6 @@ import {
   timeout,
 } from "rxjs";
 
-import { CollectionService } from "@bitwarden/admin-console/common";
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
@@ -39,7 +38,6 @@ import {
 } from "@bitwarden/auth/common";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -49,13 +47,10 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
-import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
-import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeout,
   VaultTimeoutAction,
-  VaultTimeoutService,
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
@@ -74,7 +69,6 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogRef, DialogService, ToastOptions, ToastService } from "@bitwarden/components";
@@ -83,7 +77,6 @@ import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwarden/vault";
 
 import { DeleteAccountComponent } from "../auth/delete-account.component";
-import { DesktopAutotypeDefaultSettingPolicy } from "../autofill/services/desktop-autotype-policy.service";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
 
@@ -104,9 +97,6 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
   template: `
     <ng-template #settings></ng-template>
     <ng-template #premium></ng-template>
-    <ng-template #passwordHistory></ng-template>
-    <ng-template #exportVault></ng-template>
-    <ng-template #appGenerator></ng-template>
     <ng-template #loginApproval></ng-template>
     <app-header *ngIf="showHeader$ | async"></app-header>
 
@@ -130,18 +120,6 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild("premium", { read: ViewContainerRef, static: true }) premiumRef: ViewContainerRef;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("passwordHistory", { read: ViewContainerRef, static: true })
-  passwordHistoryRef: ViewContainerRef;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("exportVault", { read: ViewContainerRef, static: true })
-  exportVaultModalRef: ViewContainerRef;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("appGenerator", { read: ViewContainerRef, static: true })
-  generatorModalRef: ViewContainerRef;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("loginApproval", { read: ViewContainerRef, static: true })
   loginApprovalModalRef: ViewContainerRef;
 
@@ -162,7 +140,6 @@ export class AppComponent implements OnInit, OnDestroy {
   private accountCleanUpInProgress: { [userId: string]: boolean } = {};
 
   constructor(
-    private masterPasswordService: MasterPasswordServiceAbstraction,
     private broadcasterService: BroadcasterService,
     private folderService: InternalFolderService,
     private syncService: SyncService,
@@ -172,22 +149,17 @@ export class AppComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private i18nService: I18nService,
     private ngZone: NgZone,
-    private vaultTimeoutService: VaultTimeoutService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private keyService: KeyService,
     private logService: LogService,
     private messagingService: MessagingService,
-    private collectionService: CollectionService,
-    private searchService: SearchService,
     private notificationsService: ServerNotificationsService,
     private platformUtilsService: PlatformUtilsService,
     private systemService: SystemService,
     private processReloadService: ProcessReloadServiceAbstraction,
     private stateService: StateService,
     private eventUploadService: EventUploadService,
-    private policyService: InternalPolicyService,
     private modalService: ModalService,
-    private keyConnectorService: KeyConnectorService,
     private userVerificationService: UserVerificationService,
     private configService: ConfigService,
     private dialogService: DialogService,
@@ -202,7 +174,6 @@ export class AppComponent implements OnInit, OnDestroy {
     private restrictedItemTypesService: RestrictedItemTypesService,
     private pinService: PinServiceAbstraction,
     private readonly tokenService: TokenService,
-    private desktopAutotypeDefaultSettingPolicy: DesktopAutotypeDefaultSettingPolicy,
     private readonly lockService: LockService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
     private pendingAuthRequestsState: PendingAuthRequestsStateService,

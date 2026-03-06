@@ -746,7 +746,7 @@ export class LoginCommand {
     const state = await this.passwordGenerationService.generatePassword(passwordOptions);
     const ssoCodeVerifier = await this.passwordGenerationService.generatePassword(passwordOptions);
     const codeVerifierHash = await this.cryptoFunctionService.hash(ssoCodeVerifier, "sha256");
-    const codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
+    const codeChallenge = Utils.fromArrayToUrlB64(codeVerifierHash);
     return { ssoCodeVerifier, codeChallenge, state };
   }
 

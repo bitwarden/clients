@@ -14,7 +14,7 @@ import {
   takeUntil,
 } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { BitwardenShield } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -33,6 +33,7 @@ import {
   BitIconButtonComponent,
   SectionHeaderComponent,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
@@ -49,13 +50,14 @@ import {
     SectionHeaderComponent,
     BitIconButtonComponent,
     TableModule,
-    JslibModule,
+    I18nPipe,
     SvgModule,
     ButtonModule,
     DialogModule,
     SectionComponent,
     ItemModule,
     BadgeModule,
+    IconComponent,
   ],
   templateUrl: "fido2-vault.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,

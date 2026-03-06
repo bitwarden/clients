@@ -192,6 +192,7 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
     const iframeUrl = new URL(BrowserApi.getRuntimeURL("notification/bar.html"));
     iframeUrl.searchParams.set("parentOrigin", parentOrigin);
     this.notificationBarIframeElement.src = iframeUrl.toString();
+    this.notificationBarIframeElement.setAttribute("credentialless", "");
     setElementStyles(
       this.notificationBarIframeElement,
       {

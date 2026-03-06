@@ -2157,7 +2157,7 @@
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Изменить тестовую Send",
+    "message": "Изменить текстовую Send",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
@@ -4864,6 +4864,9 @@
   },
   "copyAddress": {
     "message": "Скопировать адрес"
+  },
+  "myItems": {
+    "message": "Мои элементы"
   },
   "adminConsole": {
     "message": "консоли администратора"

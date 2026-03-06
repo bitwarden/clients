@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Ünvanı kopyala"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "adminConsole": {
     "message": "Admin Konsolu"
   },
@@ -6152,13 +6155,13 @@
     "message": "Axtarış nəticələri"
   },
   "simplifiedAutofill": {
-    "message": "Simplified autofill"
+    "message": "Sadələşdirilmiş avto-doldurma"
   },
   "simplifiedAutofillDescription": {
-    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+    "message": "Təklif edilən avto-doldurma elementinə kliklədiyiniz zaman, sizi detallara aparmaq əvəzinə avtomatik dolduracaq. Bu elementlərə Daha çox menyusunda baxa bilərsiniz."
   },
   "openSimplifiedAutofillPopover": {
-    "message": "Open simplified autofill popover"
+    "message": "Sadələşdirilmiş avto-doldurma pəncərəsini aç"
   },
   "resizeSideNavigation": {
     "message": "Yan naviqasiyanı yeni. ölçüləndir"

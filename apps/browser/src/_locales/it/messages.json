@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Copia indirizzo"
   },
+  "myItems": {
+    "message": "I miei elementi"
+  },
   "adminConsole": {
     "message": "Console di amministrazione"
   },
@@ -6152,13 +6155,13 @@
     "message": "Risultati di ricerca"
   },
   "simplifiedAutofill": {
-    "message": "Simplified autofill"
+    "message": "Riempimento automatico semplificato"
   },
   "simplifiedAutofillDescription": {
-    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+    "message": "Al clic su una voce di riempimento automatico, questa viene inserita nel campo corrispondente. Puoi comunque accedere ai dettagli dal menu 'Altro'."
   },
   "openSimplifiedAutofillPopover": {
-    "message": "Open simplified autofill popover"
+    "message": "Apri il pannello del riempimento automatico semplificato"
   },
   "resizeSideNavigation": {
     "message": "Ridimensiona la navigazione laterale"

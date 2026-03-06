@@ -12,7 +12,7 @@
     "message": "Favoritos"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Desmarcar como favorito"
   },
   "types": {
     "message": "Tipos"
@@ -590,10 +590,10 @@
     "message": "Elemento editado"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Elemento añadido a favoritos"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Elemento eliminado de favoritos"
   },
   "deleteItem": {
     "message": "Eliminar elemento"
@@ -1565,16 +1565,16 @@
     "message": "Desconocido"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Copiar dirección"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Copiar teléfono"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Copia nota"
   },
   "copyVerificationCode": {
-    "message": "Copy verification code"
+    "message": "Copiar código de verificación"
   },
   "copyUsername": {
     "message": "Copiar usuario"
@@ -1872,7 +1872,7 @@
     "description": "The verb form of the word Export"
   },
   "importNoun": {
-    "message": "Importación",
+    "message": "Importar",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
@@ -2104,22 +2104,22 @@
     "message": "Buscar en la Papelera"
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Buscar en el archivo"
   },
   "searchLogin": {
-    "message": "Search login"
+    "message": "Buscar inicio de sesión"
   },
   "searchCard": {
-    "message": "Search card"
+    "message": "Buscar tarjeta"
   },
   "searchIdentity": {
-    "message": "Search identity"
+    "message": "Buscar identidad"
   },
   "searchSecureNote": {
-    "message": "Search secure note"
+    "message": "Buscar nota segura"
   },
   "searchSshKey": {
-    "message": "Search SSH key"
+    "message": "Buscar clave SSH"
   },
   "permanentlyDeleteItem": {
     "message": "Eliminar elemento de forma permanente"
@@ -2418,7 +2418,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "me": {
-    "message": "Me"
+    "message": "Yo"
   },
   "myVault": {
     "message": "Mi caja fuerte"
@@ -4129,7 +4129,7 @@
     "message": "Sitio web no encontrado"
   },
   "missingPermissions": {
-    "message": "You lack the necessary permissions to perform this action."
+    "message": "No tienes los permisos necesarios para realizar esta acción."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "No puedes eliminar colecciones con permisos de solo Visualización: $COLLECTIONS$",
@@ -4636,34 +4636,34 @@
     "message": "¿Por qué estoy viendo esto?"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "La organización está suspendida"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "No se puede acceder a los elementos de las organizaciones suspendidas. Póngase en contacto con el propietario de su organización para obtener ayuda."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "No hay elementos en la papelera"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Los elementos que elimines aparecerán aquí y se eliminarán definitivamente al cabo de 30 días"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "No hay elementos en la caja fuerte"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "La bóveda protege mucho más que tus contraseñas. Guarda aquí de forma segura tus datos de inicio de sesión, identificaciones, tarjetas y notas."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "No has marcado ningún elemento como favorito"
   },
   "emptyFavoritesDesc": {
-    "message": "Add frequently used items to favorites for quick access."
+    "message": "Añade los elementos que utilizas con frecuencia a favoritos para acceder rápidamente a ellos."
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "No se han encontrado resultados de búsqueda"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Borrar filtros o probar otro término de búsqueda"
   },
   "sendPasswordHelperText": {
     "message": "Las personas deberán introducir la contraseña para Enviar y ver",

@@ -2861,7 +2861,7 @@
     "message": "Illustration d'une liste de connexions à risque."
   },
   "welcomeDialogGraphicAlt": {
-    "message": "Illustration of the layout of the Bitwarden vault page."
+    "message": "Illustration de la mise en page du coffre Bitwarden."
   },
   "generatePasswordSlideDesc": {
     "message": "Générez rapidement un mot de passe fort et unique grâce au menu de saisie automatique de Bitwarden sur le site à risque.",
@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Copier l'adresse"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "adminConsole": {
     "message": "Console Admin"
   },
@@ -6152,13 +6155,13 @@
     "message": "Résultats de la recherche"
   },
   "simplifiedAutofill": {
-    "message": "Simplified autofill"
+    "message": "Saisie automatique simplifiée"
   },
   "simplifiedAutofillDescription": {
-    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+    "message": "Quand vous cliquez un élément de saisie automatique, il est saisi au lieu d'afficher les détails. Vous pouvez toujours voir ces éléments dans le menu Plus."
   },
   "openSimplifiedAutofillPopover": {
-    "message": "Open simplified autofill popover"
+    "message": "Ouvrir le popover de saisie automatique simplifiée"
   },
   "resizeSideNavigation": {
     "message": "Ajuster la taille de la navigation latérale"

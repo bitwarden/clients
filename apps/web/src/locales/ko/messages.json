@@ -203,7 +203,7 @@
     }
   },
   "noDataInOrgTitle": {
-    "message": "No data found"
+    "message": "데이터를 찾을 수 없습니다"
   },
   "noDataInOrgDescription": {
     "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
@@ -227,10 +227,10 @@
     "message": "Track changes over time to show security improvements."
   },
   "noReportsRunTitle": {
-    "message": "Generate report"
+    "message": "보고서 생성"
   },
   "noReportsRunDescription": {
-    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
+    "message": "보고서 생성을 시작할 준비가 되었습니다. 한 번 생성하면 다음 기능들을 이용할 수 있습니다:"
   },
   "noCriticalApplicationsTitle": {
     "message": "You haven’t marked any applications as critical"
@@ -251,10 +251,10 @@
     "message": "applications selected"
   },
   "selectApplication": {
-    "message": "Select application"
+    "message": "애플리케이션 선택"
   },
   "unselectApplication": {
-    "message": "Unselect application"
+    "message": "애플리케이션 선택 해제"
   },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applications marked as critical"
@@ -308,22 +308,22 @@
     "message": "Failed to mark applications as critical"
   },
   "application": {
-    "message": "Application"
+    "message": "애플리케이션"
   },
   "applications": {
-    "message": "Applications"
+    "message": "애플리케이션"
   },
   "atRiskPasswords": {
-    "message": "At-risk passwords"
+    "message": "위험한 비밀번호"
   },
   "requestPasswordChange": {
-    "message": "Request password change"
+    "message": "비밀번호 변경 요청"
   },
   "totalPasswords": {
-    "message": "Total passwords"
+    "message": "총 비밀번호"
   },
   "searchApps": {
-    "message": "Search applications"
+    "message": "애플리케이션 검색"
   },
   "atRiskMembers": {
     "message": "At-risk members"
@@ -410,7 +410,7 @@
     "message": "Review new applications"
   },
   "newApplicationsWithCount": {
-    "message": "$COUNT$ new applications",
+    "message": "새 애플리케이션 $COUNT$개",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -422,10 +422,10 @@
     "message": "Review new applications to mark as critical and keep your organization secure"
   },
   "reviewNow": {
-    "message": "Review now"
+    "message": "지금 검토"
   },
   "allCaughtUp": {
-    "message": "All caught up!"
+    "message": "모두 확인했습니다!"
   },
   "noNewApplicationsToReviewAtThisTime": {
     "message": "No new applications to review at this time"
@@ -473,7 +473,7 @@
     "message": "Error saving review status"
   },
   "pleaseTryAgain": {
-    "message": "Please try again"
+    "message": "다시 시도하세요"
   },
   "unmarkAsCritical": {
     "message": "Unmark as critical"
@@ -564,10 +564,10 @@
     "message": "Autofill options"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "웹사이트 (URI)"
   },
   "websiteUriCount": {
-    "message": "Website (URI) $COUNT$",
+    "message": "웹사이트 (URI) $COUNT$",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -577,16 +577,16 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "웹사이트 추가됨"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "웹사이트 추가"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "웹사이트 삭제"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "기본값 ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -650,7 +650,7 @@
     "message": "이메일"
   },
   "emails": {
-    "message": "Emails"
+    "message": "이메일"
   },
   "phone": {
     "message": "전화번호"
@@ -710,10 +710,10 @@
     "message": "Dr"
   },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "만료된 카드"
   },
   "cardExpiredMessage": {
-    "message": "If you've renewed it, update the card's information"
+    "message": "갱신했다면 카드 정보를 업데이트하세요"
   },
   "expirationMonth": {
     "message": "만료 월"
@@ -728,13 +728,13 @@
     "message": "Make 2-step verification seamless"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden은 2단계 인증 코드들을 저장하고, 채워넣을 수 있습니다. 키를 복사하여 이 입력란에 붙여넣으세요."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden은 2단계 인증 코드들을 저장하고, 채워넣을 수 있습니다. 카메라 아이콘을 선택하고, 이 웹사이드의 인증 도구 QR코드를 스크린샷을 찍거나, 키를 복사하여 이 입력란에 붙여넣으세요."
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Learn more about authenticators"
+    "message": "인증 도구에 대해 자세히 알아보기"
   },
   "folder": {
     "message": "폴더"
@@ -752,17 +752,17 @@
     "message": "참 / 거짓"
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "체크박스"
   },
   "cfTypeLinked": {
     "message": "연결됨",
     "description": "This describes a field that is 'linked' (related) to another field."
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "필드 유형"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "필드 레이블"
   },
   "remove": {
     "message": "제거"
@@ -775,7 +775,7 @@
     "description": "This is the folder for uncategorized items"
   },
   "selfOwnershipLabel": {
-    "message": "You",
+    "message": "당신",
     "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "addFolder": {
@@ -785,7 +785,7 @@
     "message": "폴더 편집"
   },
   "editWithName": {
-    "message": "Edit $ITEM$: $NAME$",
+    "message": "$ITEM$ 편집: $NAME$",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -798,10 +798,10 @@
     }
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "새 폴더"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "폴더 이름"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
@@ -871,7 +871,7 @@
     "message": "취소"
   },
   "later": {
-    "message": "Later"
+    "message": "나중에"
   },
   "canceled": {
     "message": "취소됨"
@@ -932,7 +932,7 @@
     "message": "그룹 검색"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "검색 초기화"
   },
   "allItems": {
     "message": "모든 항목"
@@ -941,7 +941,7 @@
     "message": "즐겨찾기"
   },
   "taskSummary": {
-    "message": "Task summary"
+    "message": "작업 요약"
   },
   "types": {
     "message": "유형"
@@ -959,10 +959,10 @@
     "message": "보안 메모"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "메모"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "SSH 키"
   },
   "typeLoginPlural": {
     "message": "로그인"
@@ -995,7 +995,7 @@
     "message": "전체 이름"
   },
   "address": {
-    "message": "Address"
+    "message": "주소"
   },
   "address1": {
     "message": "주소 1"
@@ -1040,67 +1040,67 @@
     "message": "항목 보기"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "새 로그인",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "새 카드",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "새 신원",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "새 메모",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "새 SSH 키",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "새 텍스트 Send",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "새 파일 Send",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "로그인 편집",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "카드 편집",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "신원 편집",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "메모 편집",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "SSH 키 편집",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+    "message": "텍스트 Send 편집",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+    "message": "파일 Send 편집",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "로그인 보기",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "카드 보기",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
@@ -1471,7 +1471,7 @@
     "message": "Use a different log in method"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "패스키로 로그인"
   },
   "useSingleSignOn": {
     "message": "Use single sign-on"
@@ -1498,16 +1498,16 @@
     "message": "Learn more about passwordless"
   },
   "creatingPasskeyLoading": {
-    "message": "Creating passkey..."
+    "message": "패스키 생성 중..."
   },
   "creatingPasskeyLoadingInfo": {
     "message": "Keep this window open and follow prompts from your browser."
   },
   "errorCreatingPasskey": {
-    "message": "Error creating passkey"
+    "message": "패스키 생성 오류"
   },
   "errorCreatingPasskeyInfo": {
-    "message": "There was a problem creating your passkey."
+    "message": "패스키를 생성하는 데 문제가 발생했습니다."
   },
   "passkeySuccessfullyCreated": {
     "message": "패스키가 생성되었습니다!"
@@ -1528,7 +1528,7 @@
     "message": "Encryption not supported"
   },
   "enablePasskeyEncryption": {
-    "message": "Set up encryption"
+    "message": "암호화 설정"
   },
   "usedForEncryption": {
     "message": "Used for encryption"
@@ -1537,7 +1537,7 @@
     "message": "Log in with passkey turned on"
   },
   "passkeySaved": {
-    "message": "$NAME$ saved",
+    "message": "$NAME$ 저장됨",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1546,10 +1546,10 @@
     }
   },
   "passkeyRemoved": {
-    "message": "Passkey removed"
+    "message": "패스키 제거됨"
   },
   "removePasskey": {
-    "message": "Remove passkey"
+    "message": "패스키 제거"
   },
   "removePasskeyInfo": {
     "message": "If all passkeys are removed, you will be unable to log into new devices without your master password."
@@ -1558,13 +1558,13 @@
     "message": "Passkey limit reached. Remove a passkey to add another."
   },
   "tryAgain": {
-    "message": "Try again"
+    "message": "다시 시도"
   },
   "createAccount": {
     "message": "계정 만들기"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Bitwarden이 처음이신가요?"
   },
   "setAStrongPassword": {
     "message": "Set a strong password"
@@ -1600,13 +1600,13 @@
     "message": "The authentication session timed out. Please restart the login process."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "신원을 인증하세요"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "이 기기를 인식할 수 없습니다. 신원을 확인하려면 이메일로 전송된 코드를 입력하세요."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "로그인 계속하기"
   },
   "whatIsADevice": {
     "message": "What is a device?"
@@ -1615,10 +1615,10 @@
     "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
   },
   "logInInitiated": {
-    "message": "Log in initiated"
+    "message": "로그인 시작됨"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "요청 전송됨"
   },
   "submit": {
     "message": "보내기"
@@ -1651,13 +1651,13 @@
     "message": "마스터 비밀번호 힌트 (선택)"
   },
   "newMasterPassHint": {
-    "message": "New master password hint (optional)"
+    "message": "새 마스터 비밀번호 힌트 (선택)"
   },
   "masterPassHintLabel": {
     "message": "마스터 비밀번호 힌트"
   },
   "masterPassHintText": {
-    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "message": "비밀번호를 잊어버린 경우 비밀번호 힌트가 이메일로 전송됩니다. 최대 길이는 $CURRENT$/$MAXIMUM$자입니다.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -1673,13 +1673,13 @@
     "message": "설정"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "계정 이메일"
   },
   "requestHint": {
-    "message": "Request hint"
+    "message": "힌트 요청"
   },
   "requestPasswordHint": {
-    "message": "Request password hint"
+    "message": "비밀번호 힌트 요청"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
@@ -1716,10 +1716,10 @@
     "message": "계정 생성이 완료되었습니다! 이제 로그인하실 수 있습니다."
   },
   "newAccountCreated2": {
-    "message": "Your new account has been created!"
+    "message": "계정 생성이 완료되었습니다!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "로그인했습니다!"
   },
   "trialAccountCreated": {
     "message": "계정이 생성되었습니다."
@@ -2048,11 +2048,11 @@
     "message": "모든 Bitwarden 사용자 계정은 고유한 계정 암호화 키를 가지고 있습니다. 따라서, 다른 계정에서는 암호화된 내보내기를 가져올 수 없습니다."
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "내보내기",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "내보내기",
     "description": "The verb form of the word Export"
   },
   "exportFrom": {
@@ -2227,10 +2227,10 @@
     "message": "다시 로그인해 주세요."
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "현재 세션"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "요청 보류 중"
   },
   "logBackInOthersToo": {
     "message": "다시 로그인해 주세요. 다른 Bitwarden 앱을 사용 중인 경우 해당 앱에서도 다시 로그인해야 합니다."
@@ -2303,13 +2303,13 @@
     "message": "계속 진행하면, 현재 세션 또한 로그아웃 되므로 다시 로그인하여야 합니다. 2단계 로그인이 활성화 된 경우 다시 요구하는 메세지가 표시됩니다. 다른 기기의 활성화 된 세션은 최대 1시간 동안 유지 될 수 있습니다."
   },
   "newDeviceLoginProtection": {
-    "message": "New device login"
+    "message": "새 기기 로그인"
   },
   "turnOffNewDeviceLoginProtection": {
-    "message": "Turn off new device login protection"
+    "message": "새 기기 로그인 보호 끄기"
   },
   "turnOnNewDeviceLoginProtection": {
-    "message": "Turn on new device login protection"
+    "message": "새 기기 로그인 보호 켜기"
   },
   "turnOffNewDeviceLoginProtectionModalDesc": {
     "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
@@ -2381,11 +2381,11 @@
     "message": "도구"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "가져오기",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "가져오기",
     "description": "The verb form of the word Import"
   },
   "importData": {
@@ -2400,7 +2400,7 @@
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLoginLink": {
-    "message": "new login",
+    "message": "새 로그인",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsPartTwoNoOrgs": {
@@ -2421,7 +2421,7 @@
     "message": "데이터를 보관함으로 성공적으로 불러왔습니다."
   },
   "importSuccessNumberOfItems": {
-    "message": "A total of $AMOUNT$ items were imported.",
+    "message": "총 $AMOUNT$개의 항목을 가져왔습니다.",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Learn more about the transfer"
   },
+  "promptUsersToMoveItems": {
+    "message": "Prompt users to move individual vault items to the organization"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
   "organizationDataOwnership": {
     "message": "Enforce organization data ownership"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Available now"
   },
-  "autoConfirm": {
-    "message": "Automatic confirmation of new users"
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
   },
   "autoConfirmDescription": {
     "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",

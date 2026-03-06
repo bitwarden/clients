@@ -637,7 +637,7 @@
     "message": "Favoriet"
   },
   "unfavorite": {
-    "message": "Ontfavoriet"
+    "message": "Verwijderen uit favorieten"
   },
   "itemAddedToFavorites": {
     "message": "Item toegevoegd aan favorieten"
@@ -4864,6 +4864,9 @@
   },
   "copyAddress": {
     "message": "Adres kopiëren"
+  },
+  "myItems": {
+    "message": "Mijn items"
   },
   "adminConsole": {
     "message": "Beheerconsole"

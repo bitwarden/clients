@@ -1,7 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
@@ -12,12 +11,14 @@ import {
   ItemModule,
   LinkModule,
   DialogRef,
+  A11yTitleDirective,
 } from "@bitwarden/components";
 import {
   CredentialGeneratorHistoryDialogComponent,
   GeneratorModule,
 } from "@bitwarden/generator-components";
 import { AlgorithmInfo } from "@bitwarden/generator-core";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 type CredentialGeneratorParams = {
@@ -45,11 +46,12 @@ type CredentialGeneratorDialogAction = UnionOfValues<typeof CredentialGeneratorD
   selector: "credential-generator-dialog",
   templateUrl: "credential-generator-dialog.component.html",
   imports: [
+    A11yTitleDirective,
     CipherFormGeneratorComponent,
     CommonModule,
     DialogModule,
     ButtonModule,
-    JslibModule,
+    I18nPipe,
     GeneratorModule,
     ItemModule,
     LinkModule,

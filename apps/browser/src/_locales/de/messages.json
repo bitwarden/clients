@@ -897,7 +897,7 @@
     "message": "Ungültiger Verifizierungscode"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "E-Mail oder Verifizierungscode ungültig"
+    "message": "Ungültige E-Mail-Adresse oder Verifizierungscode"
   },
   "valueCopied": {
     "message": "$VALUE$ kopiert",
@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Adresse kopieren"
   },
+  "myItems": {
+    "message": "Meine Einträge"
+  },
   "adminConsole": {
     "message": "Administrator-Konsole"
   },
@@ -6152,13 +6155,13 @@
     "message": "Suchergebnisse"
   },
   "simplifiedAutofill": {
-    "message": "Vereinfachtes Autofill"
+    "message": "Vereinfachtes Auto-Ausfüllen"
   },
   "simplifiedAutofillDescription": {
-    "message": "Wenn du auf einen vorgeschlagenen Autofill-Eintrag klickst, wird er direkt ausgefüllt, anstatt die Details anzuzeigen. Du kannst diese Einträge weiterhin über das Mehr-Menü aufrufen."
+    "message": "Wenn du auf einen vorgeschlagenen Auto-Ausfüllen-Eintrag klickst, wird dieser direkt ausgefüllt, anstatt dir die Details anzuzeigen. Du kannst diese Einträge weiterhin über das Mehr-Menü aufrufen."
   },
   "openSimplifiedAutofillPopover": {
-    "message": "Vereinfachtes Autofill-Popover öffnen"
+    "message": "Vereinfachtes Auto-Ausfüllen-Popover öffnen"
   },
   "resizeSideNavigation": {
     "message": "Größe der Seitennavigation ändern"
@@ -6176,7 +6179,7 @@
     "message": "Gib mehrere E-Mail-Adressen ein, indem du sie mit einem Komma trennst."
   },
   "emailsRequiredChangeAccessType": {
-    "message": "E-Mail-Verifizierung erfordert mindestens eine E-Mail-Adresse. Ändere den Zugriffstyp oben, um alle E-Mails zu entfernen."
+    "message": "Die E-Mail-Verifizierung erfordert mindestens eine E-Mail-Adresse. Ändere den Zugriffstyp oben, um alle E-Mails zu entfernen."
   },
   "emailPlaceholder": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"

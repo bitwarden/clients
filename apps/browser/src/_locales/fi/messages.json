@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Kopioi osoite"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "adminConsole": {
     "message": "Hallintapaneelista"
   },

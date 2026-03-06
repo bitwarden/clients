@@ -2,4 +2,7 @@
 // integration.
 
 export { DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac } from "./dangerous_duckduckgo_crypto";
-export { DANGEROUS_aesEcbDecryptLastpassImport } from "./dangerous_lastpass_crypto";
+export {
+  DANGEROUS_aesEcbDecryptLastpassImport,
+  DANGEROUS_aesCbcDecryptLastpassImport,
+} from "./dangerous_lastpass_crypto";
