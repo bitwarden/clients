@@ -6,7 +6,7 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import {
   DialogConfig,
   DialogRef,
@@ -61,10 +61,10 @@ export class EmergencyAccessAddEditComponent implements OnInit {
     private formBuilder: FormBuilder,
     private emergencyAccessService: EmergencyAccessService,
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
     private logService: LogService,
     private dialogRef: DialogRef<EmergencyAccessAddEditDialogResult>,
     private toastService: ToastService,
+    private validationService: ValidationService,
   ) {}
   async ngOnInit() {
     this.editMode = this.loading = this.params.emergencyAccessId != null;
@@ -128,6 +128,7 @@ export class EmergencyAccessAddEditComponent implements OnInit {
       });
       this.dialogRef.close(EmergencyAccessAddEditDialogResult.Saved);
     } catch (e) {
+      this.validationService.showError(e);
       this.logService.error(e);
     }
   };
