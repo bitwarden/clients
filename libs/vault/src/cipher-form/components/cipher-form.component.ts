@@ -17,7 +17,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
-import { BehaviorSubject, firstValueFrom, Subject, switchMap } from "rxjs";
+import { BehaviorSubject, firstValueFrom, Subject, Subscription, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -140,6 +140,17 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
   @Output() formStatusChange$ = this.formStatusChangeSubject.asObservable();
 
   /**
+   * Emitted when the form dirty state changes. Used by parent components to track
+   * unsaved changes without direct DOM access.
+   */
+  private formDirtySubject = new BehaviorSubject<boolean>(false);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
+  @Output() formDirtyChange$ = this.formDirtySubject.asObservable();
+
+  private formDirtySubscription?: Subscription;
+
+  /**
    * The original cipher being edited or cloned. Null for add mode.
    */
   originalCipherView: CipherView | null;
@@ -156,6 +167,10 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
    * @protected
    */
   protected updatedCipherView: CipherView | null;
+
+  get isDirty(): boolean {
+    return this.cipherForm.dirty;
+  }
 
   get website(): string | null {
     return this.updatedCipherView?.login?.uris?.[0]?.uri ?? null;
