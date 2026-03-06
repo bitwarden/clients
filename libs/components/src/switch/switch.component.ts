@@ -1,20 +1,8 @@
-import { NgClass } from "@angular/common";
-import {
-  Component,
-  computed,
-  contentChild,
-  ElementRef,
-  inject,
-  input,
-  model,
-  AfterViewInit,
-} from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
+import { booleanAttribute, Component, computed, inject, input, model } from "@angular/core";
+import { ControlValueAccessor, NgControl, NG_VALUE_ACCESSOR, Validators } from "@angular/forms";
 
 import { AriaDisableDirective } from "../a11y";
-import { FormControlModule } from "../form-control/form-control.module";
-import { BitHintDirective } from "../form-control/hint.directive";
-import { BitLabelComponent } from "../form-control/label.component";
+import { BitFormControlAbstraction } from "../form-control";
 
 let nextId = 0;
 
@@ -31,50 +19,97 @@ let nextId = 0;
       useExisting: SwitchComponent,
       multi: true,
     },
+    { provide: BitFormControlAbstraction, useExisting: SwitchComponent },
   ],
   templateUrl: "switch.component.html",
-  imports: [FormControlModule, NgClass],
   host: {
     "[id]": "this.id()",
-    "[attr.aria-disabled]": "this.disabled()",
-    "[attr.title]": "this.disabled() ? this.disabledReasonText() : null",
+    "[attr.aria-disabled]": "this.disabled",
   },
   hostDirectives: [AriaDisableDirective],
 })
-export class SwitchComponent implements ControlValueAccessor, AfterViewInit {
-  private el = inject(ElementRef<HTMLButtonElement>);
-  private readonly label = contentChild.required(BitLabelComponent);
+export class SwitchComponent implements ControlValueAccessor, BitFormControlAbstraction {
+  private readonly ngControl = inject(NgControl, { optional: true, self: true });
+
+  protected readonly size = input<"base" | "lg">("base");
 
   /**
    * Model signal for selected state binding when used outside of a form
    */
   protected readonly selected = model(false);
 
-  /**
-   * Model signal for disabled binding when used outside of a form
-   */
-  protected readonly disabled = model(false);
-  protected readonly disabledReasonText = input<string | null>(null);
+  readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
 
-  private readonly hintComponent = contentChild<BitHintDirective>(BitHintDirective);
+  protected readonly trackClasses = computed(() =>
+    [
+      "tw-flex",
+      "tw-relative",
+      "!tw-w-8",
+      "tw-shrink-0",
+      "tw-h-[1.125rem]",
+      "tw-rounded-full",
+      "after:tw-transition-[background-color]",
+      "after:tw-absolute",
+      "after:tw-inset-0",
+      "after:tw-rounded-full",
+      "after:tw-size-full",
+      ...(this.disabled
+        ? ["tw-bg-secondary-100"]
+        : this.selected()
+          ? [
+              "tw-bg-primary-600",
+              "[&:has(input:focus-visible)]:after:tw-bg-primary-700",
+              "group-hover/switch-label:after:tw-bg-primary-700",
+            ]
+          : [
+              "tw-bg-secondary-300",
+              "[&:has(input:focus-visible)]:after:tw-bg-hover-default",
+              "group-hover/switch-label:after:tw-bg-hover-default",
+            ]),
+    ].join(" "),
+  );
 
-  protected readonly disabledReasonTextId = `bit-switch-disabled-text-${nextId++}`;
+  protected readonly thumbClasses = computed(() =>
+    [
+      "tw-absolute",
+      "tw-z-10",
+      "tw-block",
+      "tw-size-3.5",
+      "tw-top-[2px]",
+      "tw-start-[2px]",
+      "tw-bg-text-alt2",
+      "tw-rounded-full",
+      "tw-shadow-md",
+      "tw-transform",
+      "tw-transition-transform",
+      ...(this.selected()
+        ? [
+            "tw-translate-x-[calc(theme(spacing.9)_-_(1.125rem_+_4px))]",
+            "rtl:-tw-translate-x-[calc(theme(spacing.9)_-_(1.125rem_+_4px))]",
+          ]
+        : []),
+    ].join(" "),
+  );
 
-  protected readonly describedByIds = computed(() => {
-    const ids: string[] = [];
+  // TODO migrate to computed signal when Angular adds signal support to reactive forms
+  // https://bitwarden.atlassian.net/browse/CL-819
+  get disabled() {
+    return this.disabledInput() || this.ngControl?.disabled || false;
+  }
 
-    if (this.disabledReasonText() && this.disabled()) {
-      ids.push(this.disabledReasonTextId);
-    } else {
-      const hintId = this.hintComponent()?.id;
+  get required() {
+    return this.ngControl?.control?.hasValidator(Validators.requiredTrue) ?? false;
+  }
 
-      if (hintId) {
-        ids.push(hintId);
-      }
-    }
+  get hasError() {
+    return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
+  }
 
-    return ids.join(" ");
-  });
+  get error(): [string, any] {
+    const errors = this.ngControl?.errors ?? {};
+    const key = Object.keys(errors)[0];
+    return [key, errors[key]];
+  }
 
   // ControlValueAccessor functions
   private notifyOnChange: (value: boolean) => void = () => {};
@@ -106,8 +141,8 @@ export class SwitchComponent implements ControlValueAccessor, AfterViewInit {
     this.notifyOnTouch = fn;
   }
 
-  setDisabledState(isDisabled: boolean) {
-    this.disabled.set(isDisabled);
+  setDisabledState(_isDisabled: boolean) {
+    // disabled state is read from ngControl directly via computed signal
   }
   // end ControlValueAccessor functions
 
@@ -121,14 +156,5 @@ export class SwitchComponent implements ControlValueAccessor, AfterViewInit {
 
   get inputId() {
     return `${this.id()}-input`;
-  }
-
-  ngAfterViewInit() {
-    if (!this.label()) {
-      // This is only here so Angular throws a compilation error if no label is provided.
-      // the `this.label()` value must try to be accessed for the required content child check to throw
-      // eslint-disable-next-line no-console
-      console.error("No label component provided. <bit-switch> must be used with a <bit-label>.");
-    }
   }
 }
