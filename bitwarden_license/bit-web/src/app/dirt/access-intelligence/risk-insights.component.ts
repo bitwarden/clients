@@ -100,7 +100,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   protected emptyStateVideoSrc: string | null = "/videos/risk-insights-mark-as-critical.mp4";
 
   protected IMPORT_ICON = "bwi bwi-download";
-  protected currentDialogRef: DialogRef<unknown, RiskInsightsDrawerDialogComponent> | null = null;
+  protected currentDialogRef: DialogRef<unknown, RiskInsightsDrawerDialogComponent> | undefined;
 
   // Current progress step for loading component (null = not loading)
   // Uses concatMap with delay to ensure each step is displayed for a minimum time
@@ -167,14 +167,18 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         takeUntilDestroyed(this.destroyRef),
         switchMap(async (details) => {
           if (details.activeDrawerType !== DrawerType.None) {
-            this.currentDialogRef = await this.dialogService.openDrawer(RiskInsightsDrawerDialogComponent, {
-              data: details,
-            });
+            this.currentDialogRef = await this.dialogService.openDrawer(
+              RiskInsightsDrawerDialogComponent,
+              {
+                data: details,
+              },
+            );
           } else {
             await this.currentDialogRef?.close();
           }
-        })
-      );
+        }),
+      )
+      .subscribe();
 
     // if any dialogs are open close it
     // this happens when navigating between orgs
