@@ -11,8 +11,8 @@ pub mod sshagent_v2 {
     use async_trait::async_trait;
     use napi::threadsafe_function::ThreadsafeFunction;
     use ssh_agent::{
-        ApprovalRequester, BitwardenSSHAgent, InMemoryEncryptedKeyStore,
-        SignApprovalRequest as SSHSignApprovalRequest,
+        ApprovalRequester, BitwardenSSHAgent, InMemoryEncryptedKeyStore, PublicKey as SSHPublicKey,
+        SignApprovalRequest as SSHSignApprovalRequest, SignRequest as SSHSignRequest,
         SignRequestNamespace as SSHSignRequestNamespace,
     };
     use tracing::{debug, error};
@@ -26,70 +26,24 @@ pub mod sshagent_v2 {
         pub cipher_id: String,
     }
 
-    /// SSH public key data
-    #[napi(object)]
-    #[derive(Debug, Clone)]
-    pub struct PublicKey {
-        pub alg: String,
-        pub blob: Vec<u8>,
-    }
-
-    /// Namespace of a sign request.
-    #[napi(string_enum)]
-    #[derive(Debug)]
-    pub enum SignRequestNamespace {
-        Git,
-        File,
-        Unsupported,
-    }
-
-    impl From<SSHSignRequestNamespace> for SignRequestNamespace {
-        fn from(ns: SSHSignRequestNamespace) -> Self {
-            match ns {
-                SSHSignRequestNamespace::Git => Self::Git,
-                SSHSignRequestNamespace::File => Self::File,
-                SSHSignRequestNamespace::Unsupported => Self::Unsupported,
+    napi_mirrors! {
+        "sshagent_v2" => {
+            string_enum SignRequestNamespace from SSHSignRequestNamespace {
+                Git, File, Unsupported,
             }
-        }
-    }
-
-    /// SSH sign request fields.
-    #[napi(object)]
-    #[derive(Debug)]
-    pub struct SignRequest {
-        pub public_key: PublicKey,
-        pub process_name: Option<String>,
-        pub is_forwarding: bool,
-        pub namespace: Option<SignRequestNamespace>,
-    }
-
-    impl From<ssh_agent::SignRequest> for SignRequest {
-        fn from(r: ssh_agent::SignRequest) -> Self {
-            Self {
-                public_key: PublicKey {
-                    alg: r.public_key.alg,
-                    blob: r.public_key.blob,
-                },
-                process_name: r.process_name,
-                is_forwarding: r.is_forwarding,
-                namespace: r.namespace.map(Into::into),
+            object PublicKey from SSHPublicKey {
+                alg: String,
+                blob: Vec<u8>,
             }
-        }
-    }
-
-    /// Data for a sign request, including vault cipher context.
-    #[napi(object)]
-    #[derive(Debug)]
-    pub struct SignRequestData {
-        pub sign_request: SignRequest,
-        pub cipher_id: Option<String>,
-    }
-
-    impl From<SSHSignApprovalRequest> for SignRequestData {
-        fn from(request: SSHSignApprovalRequest) -> Self {
-            Self {
-                sign_request: request.sign_request.into(),
-                cipher_id: request.cipher_id,
+            object SignRequest from SSHSignRequest {
+                public_key: PublicKey,
+                process_name: Option<String>,
+                is_forwarding: bool,
+                namespace: Option<SignRequestNamespace>,
+            }
+            object SignRequestData from SSHSignApprovalRequest {
+                sign_request: SignRequest,
+                cipher_id: Option<String>,
             }
         }
     }
