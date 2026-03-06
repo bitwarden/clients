@@ -136,7 +136,7 @@ describe("WebAuthnLoginService", () => {
 
       // Mock webAuthnUtils functions
       const expectedSaltHex = "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890";
-      const saltArrayBuffer = Utils.hexStringToArrayBuffer(expectedSaltHex);
+      const saltArrayBuffer = Utils.fromHexToArray(expectedSaltHex);
 
       const publicKeyCredential = new MockPublicKeyCredential();
       const prfResult: ArrayBuffer =
@@ -263,7 +263,7 @@ describe("WebAuthnLoginService", () => {
 });
 
 // Test helpers
-function randomBytes(length: number): Uint8Array {
+function randomBytes(length: number): Uint8Array<ArrayBuffer> {
   return new Uint8Array(Array.from({ length }, (_, k) => k % 255));
 }
 
