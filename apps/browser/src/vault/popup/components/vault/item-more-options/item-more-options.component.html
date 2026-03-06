@@ -8,14 +8,12 @@
   ></button>
   <bit-menu #moreOptions>
     @if (!decryptionFailure) {
-      @if (canAutofill && !hideAutofillOptions) {
-        @if (autofillAllowed$ | async) {
-          <button type="button" bitMenuItem (click)="doAutofill()">
-            {{ "autofill" | i18n }}
-          </button>
-        }
+      @if (canAutofill && showAutofill() && autofillAllowed$ | async) {
+        <button type="button" bitMenuItem (click)="doAutofill()">
+          {{ "autofill" | i18n }}
+        </button>
       }
-      @if (showViewOption) {
+      @if (showViewOption()) {
         <button type="button" bitMenuItem (click)="onView()">
           {{ "view" | i18n }}
         </button>

@@ -42,6 +42,7 @@
         [label]="'refresh' | i18n"
       ></button>
     }
+    <ng-content select="[slot=title-end]"></ng-content>
     <span bitTypography="body2" slot="end">
       <span
         [ngClass]="{
@@ -91,11 +92,17 @@
       }
 
       <cdk-virtual-scroll-viewport [itemSize]="itemHeight$ | async" bitScrollLayout>
-        <bit-item *cdkVirtualFor="let cipher of group.ciphers">
+        <bit-item
+          *cdkVirtualFor="let cipher of group.ciphers"
+          class="tw-group/vault-item"
+          [ngClass]="{
+            'hover:tw-bg-hover-default hover:tw-cursor-pointer': showFillTextOnHover(),
+          }"
+        >
           <button
             bit-item-content
             type="button"
-            (click)="primaryActionOnSelect(cipher)"
+            (click)="onCipherSelect(cipher)"
             (dblclick)="launchCipher(cipher)"
             [appA11yTitle]="
               cipherItemTitleKey()(cipher)
@@ -125,7 +132,18 @@
           </button>
 
           <ng-container slot="end">
-            @if (!hideAutofillButton()) {
+            @if (showFillTextOnHover()) {
+              <bit-item-action>
+                <button
+                  type="button"
+                  (click)="doAutofill(cipher)"
+                  class="tw-opacity-0 tw-text-primary-600 tw-px-2 tw-bg-transparent tw-border-0 group-hover/vault-item:tw-opacity-100 group-focus-within/vault-item:tw-opacity-100"
+                >
+                  {{ "fill" | i18n }}
+                </button>
+              </bit-item-action>
+            }
+            @if (showAutofillBadge()) {
               <bit-item-action>
                 <button
                   type="button"
@@ -139,7 +157,7 @@
                 </button>
               </bit-item-action>
             }
-            @if (!showAutofillButton() && CipherViewLikeUtils.canLaunch(cipher)) {
+            @if (showLaunchButton() && CipherViewLikeUtils.canLaunch(cipher)) {
               <bit-item-action>
                 <button
                   type="button"
@@ -153,8 +171,8 @@
             <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
             <app-item-more-options
               [cipher]="cipher"
-              [hideAutofillOptions]="hideAutofillMenuOptions()"
-              [showViewOption]="primaryActionAutofill()"
+              [showAutofill]="showAutofillInMenu()"
+              [showViewOption]="showViewInMenu()"
             ></app-item-more-options>
           </ng-container>
         </bit-item>
