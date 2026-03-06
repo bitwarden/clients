@@ -12,7 +12,7 @@
     "message": "Favoriler"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Favorilerden kaldır"
   },
   "types": {
     "message": "Türler"
@@ -590,10 +590,10 @@
     "message": "Kayıt kaydedildi"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Kayıt favorilere eklendi"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Kayıt favorilerden silindi"
   },
   "deleteItem": {
     "message": "Kaydı sil"
@@ -1565,16 +1565,16 @@
     "message": "Bilinmiyor"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Adresi kopyala"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Telefonu kopyala"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Notu kopyala"
   },
   "copyVerificationCode": {
-    "message": "Copy verification code"
+    "message": "Doğrulama kodunu kopyala"
   },
   "copyUsername": {
     "message": "Kullanıcı adını kopyala"
@@ -2104,22 +2104,22 @@
     "message": "Çöp kutusunda ara"
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Arşivde ara"
   },
   "searchLogin": {
-    "message": "Search login"
+    "message": "Hesaplarda ara"
   },
   "searchCard": {
-    "message": "Search card"
+    "message": "Kartlarda ara"
   },
   "searchIdentity": {
-    "message": "Search identity"
+    "message": "Kimliklerde ara"
   },
   "searchSecureNote": {
-    "message": "Search secure note"
+    "message": "Güvenli notlarda ara"
   },
   "searchSshKey": {
-    "message": "Search SSH key"
+    "message": "SSH anahtarlarında ara"
   },
   "permanentlyDeleteItem": {
     "message": "Kaydı kalıcı olarak sil"
@@ -2418,7 +2418,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "me": {
-    "message": "Me"
+    "message": "Ben"
   },
   "myVault": {
     "message": "Kasam"
@@ -4129,7 +4129,7 @@
     "message": "Web sitesi eksik"
   },
   "missingPermissions": {
-    "message": "You lack the necessary permissions to perform this action."
+    "message": "Bu eylemi gerçekleştirmek için gereken izinlere sahip değilsiniz."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Yalnızca Görüntüleme izinlerine sahip koleksiyonları kaldıramazsınız: $COLLECTIONS$",
@@ -4636,34 +4636,34 @@
     "message": "Bunu neden görüyorum?"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "Kuruluş askıya alındı"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "Askıya alınmış kuruluşlardaki kayıtlara erişilemez. Destek almak için kuruluş sahibinizle iletişime geçin."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "Çöp kutusunda hiç kayıt yok"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Sildiğiniz kayıtlar burada görünecek ve 30 gün sonra kalıcı olarak silinecektir"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Kasada hiç kayıt yok"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "Kasanız sadece parolalarınız için değil. Hesaplarınızı, kimliklerinizi, kredi kartlarınızı ve notlarınızı da güvenle burada depolayabilirsiniz."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "Henüz hiçbir kaydı favorilere eklemediniz"
   },
   "emptyFavoritesDesc": {
-    "message": "Add frequently used items to favorites for quick access."
+    "message": "Sık kullandığınız kayıtları hızlı erişim için favorilere ekleyin."
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "Hiçbir sonuç bulunamadı"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Filtreleri temizleyin veya başka bir arama yapmayı deneyin"
   },
   "sendPasswordHelperText": {
     "message": "Bu Send'i görmek isteyen kişilerin parola girmesi gerekecektir",
