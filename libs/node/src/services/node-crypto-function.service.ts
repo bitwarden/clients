@@ -65,7 +65,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
       t.set(previousT);
       t.set(infoArr, previousT.length);
       t.set([i + 1], t.length - 1);
-      previousT = (await this.hmac(t, prk, algorithm)) as Uint8Array<ArrayBuffer>;
+      previousT = await this.hmac(t, prk, algorithm);
       okm.set(previousT, runningOkmLength);
       runningOkmLength += previousT.length;
       if (runningOkmLength >= outputByteSize) {
