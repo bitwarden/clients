@@ -38,6 +38,7 @@ export const NudgeType = {
   NewIdentityItemStatus: "new-identity-item-status",
   NewNoteItemStatus: "new-note-item-status",
   NewSshItemStatus: "new-ssh-item-status",
+  NewBankAccountItemStatus: "new-bank-account-item-status",
   GeneratorNudgeStatus: "generator-nudge-status",
   AutoConfirmNudge: "auto-confirm-nudge",
   PremiumUpgrade: "premium-upgrade",
@@ -92,6 +93,7 @@ export class NudgesService {
     [NudgeType.NewIdentityItemStatus]: this.newItemNudgeService,
     [NudgeType.NewNoteItemStatus]: this.newItemNudgeService,
     [NudgeType.NewSshItemStatus]: this.newItemNudgeService,
+    [NudgeType.NewBankAccountItemStatus]: this.newItemNudgeService,
     [NudgeType.AutoConfirmNudge]: this.autoConfirmNudgeService ?? this.noOpNudgeService,
   };
 

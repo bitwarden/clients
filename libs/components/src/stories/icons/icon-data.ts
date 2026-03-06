@@ -323,6 +323,10 @@ const miscObjects = [
     usage: "desktop client",
   },
   {
+    id: "bwi-bank",
+    usage: "bank account cipher type",
+  },
+  {
     id: "bwi-dollar",
     usage: "account credit",
   },

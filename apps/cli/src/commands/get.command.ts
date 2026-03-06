@@ -13,7 +13,9 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { BankAccountExport } from "@bitwarden/common/models/export/bank-account.export";
 import { CardExport } from "@bitwarden/common/models/export/card.export";
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
@@ -24,6 +26,7 @@ import { LoginUriExport } from "@bitwarden/common/models/export/login-uri.export
 import { LoginExport } from "@bitwarden/common/models/export/login.export";
 import { SecureNoteExport } from "@bitwarden/common/models/export/secure-note.export";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -67,6 +70,7 @@ export class GetCommand extends DownloadCommand {
     private accountProfileService: BillingAccountProfileStateService,
     private accountService: AccountService,
     private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
+    private configService: ConfigService,
   ) {
     super(encryptService, apiService);
   }
@@ -579,6 +583,16 @@ export class GetCommand extends DownloadCommand {
       case "item.securenote":
         template = SecureNoteExport.template();
         break;
+      case "item.bankaccount": {
+        const bankAccountEnabled = await firstValueFrom(
+          this.configService.getFeatureFlag$(FeatureFlag.PM32009_NewItemTypes),
+        );
+        if (!bankAccountEnabled) {
+          return Response.badRequest("Bank account item type is not available.");
+        }
+        template = BankAccountExport.template();
+        break;
+      }
       case "folder":
         template = FolderExport.template();
         break;

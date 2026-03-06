@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -66,7 +66,13 @@ describe("NewItemDropdownComponent", () => {
       ],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
-        { provide: ConfigService, useValue: { getFeatureFlag: () => Promise.resolve(false) } },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag: () => Promise.resolve(false),
+            getFeatureFlag$: () => of(false),
+          },
+        },
         { provide: DialogService, useValue: dialogServiceMock },
         { provide: I18nService, useValue: i18nServiceMock },
         { provide: ActivatedRoute, useValue: activatedRouteMock },
@@ -171,6 +177,19 @@ describe("NewItemDropdownComponent", () => {
 
       expect(params).toEqual({
         type: CipherType.SshKey.toString(),
+        collectionId: "777-888-999",
+      });
+    });
+
+    it("should build query params for a BankAccount", async () => {
+      component.initialValues = {
+        collectionId: "777-888-999",
+      } as NewItemInitialValues;
+
+      const params = await component.buildQueryParams(CipherType.BankAccount);
+
+      expect(params).toEqual({
+        type: CipherType.BankAccount.toString(),
         collectionId: "777-888-999",
       });
     });

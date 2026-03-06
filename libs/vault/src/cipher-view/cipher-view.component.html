@@ -67,6 +67,11 @@
   <!-- SshKEY SECTIONS -->
   <app-sshkey-view *ngIf="hasSshKey()" [sshKey]="cipher()!.sshKey"></app-sshkey-view>
 
+  <!-- BANK ACCOUNT SECTIONS -->
+  @if (hasBankAccount()) {
+    <app-bank-account-view [bankAccount]="cipher()!.bankAccount"></app-bank-account-view>
+  }
+
   <!-- ADDITIONAL OPTIONS -->
   <ng-container *ngIf="cipher()?.notes">
     <app-additional-options [notes]="cipher()!.notes"> </app-additional-options>

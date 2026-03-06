@@ -174,6 +174,7 @@ describe("VaultPopupListFiltersService", () => {
           CipherType.Identity,
           CipherType.SecureNote,
           CipherType.SshKey,
+          CipherType.BankAccount,
         ]);
         done();
       });
@@ -190,6 +191,7 @@ describe("VaultPopupListFiltersService", () => {
           CipherType.Identity,
           CipherType.SecureNote,
           CipherType.SshKey,
+          CipherType.BankAccount,
         ]);
         done();
       });
@@ -823,6 +825,7 @@ function createSeededVaultPopupListFiltersService(
       accountServiceMock,
       viewCacheServiceMock,
       restrictedItemTypesServiceMock,
+      configService,
     );
   });
 

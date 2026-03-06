@@ -30,6 +30,7 @@ export class NewCipherMenuComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   canCreateSshKey = input(false);
+  readonly canCreateBankAccount = input(false);
   folderAdded = output();
   collectionAdded = output();
   cipherAdded = output<CipherType>();
@@ -43,14 +44,18 @@ export class NewCipherMenuComponent {
     this.restrictedItemTypesService.restricted$,
     toObservable(this.canCreateCipher),
     toObservable(this.canCreateSshKey),
+    toObservable(this.canCreateBankAccount),
   ]).pipe(
-    map(([restrictedTypes, canCreateCipher, canCreateSshKey]) => {
+    map(([restrictedTypes, canCreateCipher, canCreateSshKey, canCreateBankAccount]) => {
       // If user cannot create ciphers at all, return empty array
       if (!canCreateCipher) {
         return [];
       }
       return CIPHER_MENU_ITEMS.filter((item) => {
         if (!canCreateSshKey && item.type === CipherType.SshKey) {
+          return false;
+        }
+        if (!canCreateBankAccount && item.type === CipherType.BankAccount) {
           return false;
         }
         return !restrictedTypes.some((restrictedType) => restrictedType.cipherType === item.type);

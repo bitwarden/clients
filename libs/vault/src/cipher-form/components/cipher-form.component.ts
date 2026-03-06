@@ -42,6 +42,7 @@ import { CipherForm, CipherFormContainer } from "../cipher-form-container";
 import { CipherFormCacheService } from "../services/default-cipher-form-cache.service";
 
 import { AdditionalOptionsSectionComponent } from "./additional-options/additional-options-section.component";
+import { BankAccountSectionComponent } from "./bank-account-section/bank-account-section.component";
 import { CardDetailsSectionComponent } from "./card-details-section/card-details-section.component";
 import { IdentitySectionComponent } from "./identity/identity.component";
 import { ItemDetailsSectionComponent } from "./item-details/item-details-section.component";
@@ -74,6 +75,7 @@ import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.componen
     CardDetailsSectionComponent,
     IdentitySectionComponent,
     SshKeySectionComponent,
+    BankAccountSectionComponent,
     NgIf,
     AdditionalOptionsSectionComponent,
     LoginDetailsSectionComponent,
