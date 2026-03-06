@@ -3,35 +3,39 @@
 >
   <div class="tw-flex tw-justify-between tw-items-start tw-flex-grow">
     <div>
-      <h2 *ngIf="title()" bitTypography="h4" class="tw-font-medium !tw-mb-1">{{ title() }}</h2>
-      <p
-        *ngIf="subtitle()"
-        class="tw-text-main tw-mb-0"
-        bitTypography="body2"
-        [innerHTML]="subtitle()"
-      ></p>
-      <ng-content *ngIf="!subtitle()"></ng-content>
+      @if (title()) {
+        <h2 bitTypography="h4" class="tw-font-medium !tw-mb-1">{{ title() }}</h2>
+      }
+      @if (subtitle()) {
+        <p class="tw-text-main tw-mb-0" bitTypography="body2" [innerHTML]="subtitle()"></p>
+      } @else {
+        <ng-content></ng-content>
+      }
     </div>
-    <button
-      type="button"
-      bitIconButton="bwi-close"
-      size="small"
-      *ngIf="!persistent()"
-      (click)="handleDismiss()"
-      class="-tw-me-2"
-      [label]="'close' | i18n"
-    ></button>
+    @if (!persistent()) {
+      <button
+        type="button"
+        bitIconButton="bwi-close"
+        size="small"
+        (click)="handleDismiss()"
+        class="-tw-me-2"
+        [label]="'close' | i18n"
+      ></button>
+    }
   </div>
 
-  <button
-    class="tw-w-full"
-    bitButton
-    type="button"
-    buttonType="primary"
-    *ngIf="buttonText()"
-    (click)="handleButtonClick($event)"
-  >
-    {{ buttonText() }}
-    <i *ngIf="buttonIcon()" [ngClass]="buttonIcon()" class="bwi tw-ml-1" aria-hidden="true"></i>
-  </button>
+  @if (buttonText()) {
+    <button
+      class="tw-w-full"
+      bitButton
+      type="button"
+      buttonType="primary"
+      (click)="handleButtonClick($event)"
+    >
+      {{ buttonText() }}
+      @if (buttonIcon()) {
+        <i [ngClass]="buttonIcon()" class="bwi tw-ml-1" aria-hidden="true"></i>
+      }
+    </button>
+  }
 </div>

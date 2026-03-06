@@ -155,13 +155,19 @@ describe("SpotlightComponent", () => {
       changeDetection: ChangeDetectionStrategy.OnPush,
       template: `
         <!-- bare persistent attribute -->
-        <bit-spotlight *ngIf="mode === 'bare'" persistent></bit-spotlight>
+        @if (mode === "bare") {
+          <bit-spotlight persistent></bit-spotlight>
+        }
 
         <!-- no persistent attribute -->
-        <bit-spotlight *ngIf="mode === 'none'"></bit-spotlight>
+        @if (mode === "none") {
+          <bit-spotlight></bit-spotlight>
+        }
 
         <!-- explicit persistent="false" -->
-        <bit-spotlight *ngIf="mode === 'falseStr'" persistent="false"></bit-spotlight>
+        @if (mode === "falseStr") {
+          <bit-spotlight persistent="false"></bit-spotlight>
+        }
       `,
     })
     class BooleanHostComponent {
