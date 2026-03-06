@@ -233,6 +233,16 @@ ruleTester.run("enforce-readonly-angular-properties", rule.default, {
       errors: [{ messageId: "nonReadonly" }, { messageId: "nonReadonly" }],
     },
     {
+      name: "computed property key is flagged but not autofixed",
+      code: `
+        class MyComponent {
+          [Symbol.iterator] = function*() {};
+        }
+      `,
+      output: null,
+      errors: [{ messageId: "nonReadonly" }],
+    },
+    {
       name: "static non-readonly property",
       code: `
         class MyService {
@@ -290,8 +300,34 @@ ruleTester.run("enforce-readonly-angular-properties (onlyOnPush)", rule.default,
         }
       `,
     },
+    {
+      name: "non-readonly constructor param on non-OnPush class is ignored",
+      options: [{ onlyOnPush: true }],
+      code: `
+        class MyService {
+          constructor(private svc: SomeService) {}
+        }
+      `,
+    },
   ],
   invalid: [
+    {
+      name: "non-readonly constructor param on OnPush component is flagged",
+      options: [{ onlyOnPush: true }],
+      code: `
+        @Component({ changeDetection: ChangeDetectionStrategy.OnPush })
+        class MyComponent {
+          constructor(private svc: SomeService) {}
+        }
+      `,
+      output: `
+        @Component({ changeDetection: ChangeDetectionStrategy.OnPush })
+        class MyComponent {
+          constructor(private readonly svc: SomeService) {}
+        }
+      `,
+      errors: [{ messageId: "nonReadonly" }],
+    },
     {
       name: "non-readonly property on OnPush component is flagged",
       options: [{ onlyOnPush: true }],

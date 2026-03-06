@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { takeUntil } from "rxjs";
@@ -28,7 +30,7 @@ export class ServiceAccountEventsComponent
   implements OnInit, OnDestroy
 {
   readonly exportFileName = "machine-account-events";
-  private readonly serviceAccountId: string;
+  private serviceAccountId: string;
 
   constructor(
     eventService: EventService,

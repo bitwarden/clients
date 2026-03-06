@@ -114,7 +114,7 @@ export default {
         context.report({
           node,
           messageId: "nonReadonly",
-          fix: (fixer) => fixer.insertTextBefore(node.key, "readonly "),
+          fix: (fixer) => (node.computed ? null : fixer.insertTextBefore(node.key, "readonly ")),
         });
       },
       TSParameterProperty(node) {
