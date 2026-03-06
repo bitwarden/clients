@@ -1,15 +1,16 @@
 import {
   Component,
   computed,
+  DestroyRef,
   inject,
   input,
   model,
-  OnDestroy,
   OnInit,
   output,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { firstValueFrom, Subject, takeUntil } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ClientType } from "@bitwarden/client-type";
@@ -53,7 +54,8 @@ import { UnlockViaPrfComponent } from "../unlock-via-prf.component";
     UnlockViaPrfComponent,
   ],
 })
-export class MasterPasswordLockComponent implements OnInit, OnDestroy {
+export class MasterPasswordLockComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly accountService = inject(AccountService);
   private readonly masterPasswordUnlockService = inject(MasterPasswordUnlockService);
   private readonly i18nService = inject(I18nService);
@@ -82,7 +84,6 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
   logOut = output<void>();
 
   protected showPassword = false;
-  private destroy$ = new Subject<void>();
 
   formGroup = new FormGroup({
     masterPassword: new FormControl("", {
@@ -95,16 +96,11 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
     if (this.platformUtilsService.getClientType() === ClientType.Desktop) {
       this.messageListener
         .messages$(new CommandDefinition("windowHidden"))
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
           this.showPassword = false;
         });
     }
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   submit = async () => {
