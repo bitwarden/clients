@@ -39,6 +39,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { MasterPasswordApiService as MasterPasswordApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { SendTokenService, DefaultSendTokenService } from "@bitwarden/common/auth/send-access";
 import {
   AccountServiceImplementation,
   getUserId,
@@ -91,6 +92,8 @@ import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
+import { SendPasswordService } from "@bitwarden/common/key-management/sends/abstractions/send-password.service";
+import { DefaultSendPasswordService } from "@bitwarden/common/key-management/sends/services/default-send-password.service";
 import {
   DefaultVaultTimeoutService,
   DefaultVaultTimeoutSettingsService,
@@ -306,6 +309,8 @@ export class ServiceContainer {
   userVerificationApiService: UserVerificationApiService;
   organizationApiService: OrganizationApiServiceAbstraction;
   sendApiService: SendApiService;
+  sendTokenService: SendTokenService;
+  sendPasswordService: SendPasswordService;
   devicesApiService: DevicesApiServiceAbstraction;
   deviceTrustService: DeviceTrustServiceAbstraction;
   authRequestService: AuthRequestService;
@@ -629,6 +634,8 @@ export class ServiceContainer {
       this.sendService,
     );
 
+    this.sendPasswordService = new DefaultSendPasswordService(this.cryptoFunctionService);
+
     this.searchService = new SearchService(this.logService, this.i18nService, this.stateProvider);
 
     this.collectionService = new DefaultCollectionService(
@@ -657,7 +664,7 @@ export class ServiceContainer {
       this.accountService,
       this.kdfConfigService,
       this.keyService,
-      this.securityStateService,
+      this.accountCryptographicStateService,
       this.apiService,
       this.stateProvider,
       this.configService,
@@ -675,6 +682,12 @@ export class ServiceContainer {
       customUserAgent,
     );
 
+    this.sendTokenService = new DefaultSendTokenService(
+      this.globalStateProvider,
+      this.sdkService,
+      this.sendPasswordService,
+    );
+
     this.keyConnectorService = new KeyConnectorService(
       this.accountService,
       this.masterPasswordService,
@@ -690,6 +703,7 @@ export class ServiceContainer {
       this.registerSdkService,
       this.securityStateService,
       this.accountCryptographicStateService,
+      this.userDecryptionOptionsService,
     );
 
     this.twoFactorService = new DefaultTwoFactorService(
@@ -724,8 +738,6 @@ export class ServiceContainer {
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
       this.stateProvider,
-      this.platformUtilsService,
-      this.apiService,
     );
 
     this.taskSchedulerService = new DefaultTaskSchedulerService(this.logService);
@@ -850,6 +862,7 @@ export class ServiceContainer {
       this.pinService,
       this.kdfConfigService,
       new CliBiometricsService(),
+      this.masterPasswordUnlockService,
     );
 
     const biometricService = new CliBiometricsService();

@@ -8,6 +8,7 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
+import { FormGroup } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService, IconComponent } from "@bitwarden/components";
@@ -90,26 +91,28 @@ import { EnterPaymentMethodComponent } from "./enter-payment-method.component";
       } @else {
         <app-enter-payment-method
           #enterPaymentMethodComponent
-          [includeBillingAddress]="true"
+          [includeBillingAddress]="false"
           [group]="formGroup"
           [showBankAccount]="true"
           [showAccountCredit]="false"
         >
         </app-enter-payment-method>
-        <div class="tw-mt-4 tw-flex tw-gap-2">
-          <button
-            bitLink
-            linkType="default"
-            type="button"
-            (click)="submit()"
-            [disabled]="formGroup.invalid"
-          >
-            {{ "save" | i18n }}
-          </button>
-          <button bitLink linkType="subtle" type="button" (click)="cancel()">
-            {{ "cancel" | i18n }}
-          </button>
-        </div>
+        @if (showFormButtons()) {
+          <div class="tw-mt-4 tw-flex tw-gap-2">
+            <button
+              bitLink
+              linkType="default"
+              type="button"
+              (click)="submit()"
+              [disabled]="formGroup.invalid"
+            >
+              {{ "save" | i18n }}
+            </button>
+            <button bitLink linkType="subtle" type="button" (click)="cancel()">
+              {{ "cancel" | i18n }}
+            </button>
+          </div>
+        }
       }
     </bit-section>
   `,
@@ -120,30 +123,85 @@ import { EnterPaymentMethodComponent } from "./enter-payment-method.component";
 export class DisplayPaymentMethodInlineComponent {
   readonly subscriber = input.required<BitwardenSubscriber>();
   readonly paymentMethod = input.required<MaskedPaymentMethod | null>();
-  readonly updated = output<MaskedPaymentMethod>();
-  readonly changingStateChanged = output<boolean>();
+  readonly externalFormGroup = input<FormGroup | null>(null);
 
-  protected formGroup = EnterPaymentMethodComponent.getFormGroup();
+  readonly updated = output<MaskedPaymentMethod>();
+
+  protected formGroup: FormGroup;
 
   private readonly enterPaymentMethodComponent = viewChild<EnterPaymentMethodComponent>(
     EnterPaymentMethodComponent,
   );
 
-  protected readonly isChangingPayment = signal(false);
+  readonly isChangingPayment = signal(false);
+
   protected readonly cardBrandIcon = computed(() => getCardBrandIcon(this.paymentMethod()));
+
+  // Show submit buttons only when component is managing its own form (no external form provided)
+  protected readonly showFormButtons = computed(() => this.externalFormGroup() === null);
 
   private readonly billingClient = inject(SubscriberBillingClient);
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
 
+  constructor() {
+    // Use external form group if provided, otherwise create our own
+    this.formGroup = this.externalFormGroup() ?? EnterPaymentMethodComponent.getFormGroup();
+  }
+
   /**
    * Initiates the payment method change process by displaying the inline form.
    */
   protected changePaymentMethod = async (): Promise<void> => {
     this.isChangingPayment.set(true);
-    this.changingStateChanged.emit(true);
   };
+
+  /**
+   * Public method to get tokenized payment method data.
+   * Use this when parent component handles submission.
+   * Parent is responsible for handling billing address separately.
+   * @returns Promise with tokenized payment method
+   */
+  async getTokenizedPaymentMethod(): Promise<any> {
+    if (!this.formGroup.valid) {
+      this.formGroup.markAllAsTouched();
+      throw new Error("Form is invalid");
+    }
+
+    const component = this.enterPaymentMethodComponent();
+    if (!component) {
+      throw new Error("Payment method component not found");
+    }
+
+    const paymentMethod = await component.tokenize();
+    if (!paymentMethod) {
+      throw new Error("Failed to tokenize payment method");
+    }
+
+    return paymentMethod;
+  }
+
+  /**
+   * Validates the form and returns whether it's ready for submission.
+   * Used when parent component handles submission to determine button state.
+   */
+  isFormValid(): boolean {
+    const enterPaymentMethodComponent = this.enterPaymentMethodComponent();
+    if (enterPaymentMethodComponent) {
+      return this.enterPaymentMethodComponent()!.validate();
+    }
+    return false;
+  }
+
+  /**
+   * Public method to reset the form and exit edit mode.
+   * Use this after parent successfully handles the update.
+   */
+  resetForm(): void {
+    this.formGroup.reset();
+    this.isChangingPayment.set(false);
+  }
 
   /**
    * Submits the payment method update form.
@@ -151,20 +209,7 @@ export class DisplayPaymentMethodInlineComponent {
    */
   protected submit = async (): Promise<void> => {
     try {
-      if (!this.formGroup.valid) {
-        this.formGroup.markAllAsTouched();
-        throw new Error("Form is invalid");
-      }
-
-      const component = this.enterPaymentMethodComponent();
-      if (!component) {
-        throw new Error("Payment method component not found");
-      }
-
-      const paymentMethod = await component.tokenize();
-      if (!paymentMethod) {
-        throw new Error("Failed to tokenize payment method");
-      }
+      const paymentMethod = await this.getTokenizedPaymentMethod();
 
       const billingAddress =
         this.formGroup.value.type !== TokenizablePaymentMethods.payPal
@@ -201,9 +246,7 @@ export class DisplayPaymentMethodInlineComponent {
           message: this.i18nService.t("paymentMethodUpdated"),
         });
         this.updated.emit(result.value);
-        this.isChangingPayment.set(false);
-        this.changingStateChanged.emit(false);
-        this.formGroup.reset();
+        this.resetForm();
         break;
       }
       case "error": {
@@ -223,8 +266,6 @@ export class DisplayPaymentMethodInlineComponent {
    * Cancels the inline editing and resets the form.
    */
   protected cancel = (): void => {
-    this.formGroup.reset();
-    this.changingStateChanged.emit(false);
-    this.isChangingPayment.set(false);
+    this.resetForm();
   };
 }

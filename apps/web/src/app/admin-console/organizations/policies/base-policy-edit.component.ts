@@ -6,8 +6,10 @@ import { Constructor } from "type-fest";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
+import { VNextSavePolicyRequest } from "@bitwarden/common/admin-console/models/request/v-next-save-policy.request";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { OrgKey } from "@bitwarden/common/types/key";
 import { DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 
 import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit-dialog.component";
@@ -101,6 +103,19 @@ export abstract class BasePolicyEditComponent implements OnInit {
     if (this.policyResponse?.data != null) {
       this.loadData();
     }
+  }
+
+  async buildVNextRequest(orgKey: OrgKey): Promise<VNextSavePolicyRequest> {
+    if (!this.policy) {
+      throw new Error("Policy was not found");
+    }
+
+    const request: VNextSavePolicyRequest = {
+      policy: await this.buildRequest(),
+      metadata: null,
+    };
+
+    return request;
   }
 
   buildRequest() {

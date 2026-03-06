@@ -42,6 +42,7 @@ import {
   CheckboxModule,
   FormFieldModule,
   IconButtonModule,
+  IconModule,
   LinkModule,
   ToastService,
 } from "@bitwarden/components";
@@ -73,6 +74,7 @@ interface QueryParams {
     CommonModule,
     FormFieldModule,
     IconButtonModule,
+    IconModule,
     LinkModule,
     JslibModule,
     ReactiveFormsModule,
@@ -357,7 +359,7 @@ export class SsoComponent implements OnInit {
     if (codeChallenge == null) {
       const codeVerifier = await this.passwordGenerationService.generatePassword(passwordOptions);
       const codeVerifierHash = await this.cryptoFunctionService.hash(codeVerifier, "sha256");
-      codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
+      codeChallenge = Utils.fromArrayToUrlB64(codeVerifierHash)!;
       await this.ssoLoginService.setCodeVerifier(codeVerifier);
     }
 
