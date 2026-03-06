@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Learn more about the transfer"
   },
+  "promptUsersToMoveItems": {
+    "message": "Prompt users to move individual vault items to the organization"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
   "organizationDataOwnership": {
     "message": "אכוף בעלות נתוני ארגון"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "זמין עכשיו"
   },
-  "autoConfirm": {
-    "message": "אישור אוטומטי של משתמשים חדשים"
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
   },
   "autoConfirmDescription": {
     "message": "משתמשים חדשים המוזמנים לארגון יאושרו באופן אוטומטי כאשר מכשיר של מנהל נפתח.",
