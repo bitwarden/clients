@@ -43,9 +43,8 @@
       <td bitCell>
         <div class="tw-flex tw-items-center">
           <bit-avatar
-            [text]="row.name"
-            [id]="row.userGuid"
-            [color]="row.avatarColor"
+            [text]="row.name ? row.name : row.email"
+            [id]="row.userIdFromOrgUser"
             class="tw-mr-3"
           ></bit-avatar>
           <div class="tw-flex tw-flex-col">

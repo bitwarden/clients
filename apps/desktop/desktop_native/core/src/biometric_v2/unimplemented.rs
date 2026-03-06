@@ -1,6 +1,8 @@
+/// Biometric lock system (unimplemented on this platform).
 pub struct BiometricLockSystem {}
 
 impl BiometricLockSystem {
+    /// Creates a new biometric lock system.
     pub fn new() -> Self {
         Self {}
     }
