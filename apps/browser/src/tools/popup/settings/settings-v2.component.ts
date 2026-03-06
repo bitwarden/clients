@@ -46,10 +46,11 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 export class SettingsV2Component {
   readonly NudgeType = NudgeType;
 
-  private readonly authenticatedAccount$: Observable<Account> = this.accountService.activeAccount$.pipe(
-    filter((account): account is Account => account !== null),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  private readonly authenticatedAccount$: Observable<Account> =
+    this.accountService.activeAccount$.pipe(
+      filter((account): account is Account => account !== null),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
 
   protected readonly hasPremium$ = this.authenticatedAccount$.pipe(
     switchMap((account) => this.accountProfileStateService.hasPremiumFromAnySource$(account.id)),

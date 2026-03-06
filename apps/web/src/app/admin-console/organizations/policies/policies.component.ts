@@ -65,24 +65,26 @@ export class PoliciesComponent {
     this.policyListService.getPolicies(),
   );
 
-  private readonly orgPolicies$: Observable<PolicyResponse[]> = this.accountService.activeAccount$.pipe(
-    getUserId,
-    switchMap((userId) => this.policyService.policies$(userId)),
-    switchMap(() => this.organizationId$),
-    switchMap((organizationId) => this.policyApiService.getPolicies(organizationId)),
-    map((response) => (response.data != null && response.data.length > 0 ? response.data : [])),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  private readonly orgPolicies$: Observable<PolicyResponse[]> =
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.policyService.policies$(userId)),
+      switchMap(() => this.organizationId$),
+      switchMap((organizationId) => this.policyApiService.getPolicies(organizationId)),
+      map((response) => (response.data != null && response.data.length > 0 ? response.data : [])),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
 
-  protected readonly policiesEnabledMap$: Observable<Map<PolicyType, boolean>> = this.orgPolicies$.pipe(
-    map((orgPolicies) => {
-      const policiesEnabledMap: Map<PolicyType, boolean> = new Map<PolicyType, boolean>();
-      orgPolicies.forEach((op) => {
-        policiesEnabledMap.set(op.type, op.enabled);
-      });
-      return policiesEnabledMap;
-    }),
-  );
+  protected readonly policiesEnabledMap$: Observable<Map<PolicyType, boolean>> =
+    this.orgPolicies$.pipe(
+      map((orgPolicies) => {
+        const policiesEnabledMap: Map<PolicyType, boolean> = new Map<PolicyType, boolean>();
+        orgPolicies.forEach((op) => {
+          policiesEnabledMap.set(op.type, op.enabled);
+        });
+        return policiesEnabledMap;
+      }),
+    );
 
   constructor(
     private readonly route: ActivatedRoute,

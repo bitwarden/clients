@@ -142,9 +142,10 @@ export class AtRiskPasswordsComponent implements OnInit {
   private readonly calloutDismissed$ = this.activeUserData$.pipe(
     switchMap(({ userId }) => this.atRiskPasswordPageService.isCalloutDismissed(userId)),
   );
-  private readonly inlineAutofillSettingEnabled$ = this.autofillSettingsService.inlineMenuVisibility$.pipe(
-    map((setting) => setting !== AutofillOverlayVisibility.Off),
-  );
+  private readonly inlineAutofillSettingEnabled$ =
+    this.autofillSettingsService.inlineMenuVisibility$.pipe(
+      map((setting) => setting !== AutofillOverlayVisibility.Off),
+    );
 
   protected readonly showAutofillCallout$ = combineLatest([
     this.calloutDismissed$,
@@ -172,7 +173,10 @@ export class AtRiskPasswordsComponent implements OnInit {
     ),
   );
 
-  protected readonly pageDescription$ = combineLatest([this.activeUserData$, this.atRiskItems$]).pipe(
+  protected readonly pageDescription$ = combineLatest([
+    this.activeUserData$,
+    this.atRiskItems$,
+  ]).pipe(
     switchMap(([{ userId }, atRiskCiphers]) => {
       const orgIds = new Set(
         atRiskCiphers.filter((c) => c.organizationId).map((c) => c.organizationId),
