@@ -1,4 +1,12 @@
-import { booleanAttribute, Component, computed, inject, input, model } from "@angular/core";
+import {
+  booleanAttribute,
+  Component,
+  computed,
+  inject,
+  Injector,
+  input,
+  model,
+} from "@angular/core";
 import { ControlValueAccessor, NgControl, NG_VALUE_ACCESSOR, Validators } from "@angular/forms";
 
 import { AriaDisableDirective } from "../a11y";
@@ -29,7 +37,10 @@ let nextId = 0;
   hostDirectives: [AriaDisableDirective],
 })
 export class SwitchComponent implements ControlValueAccessor, BitFormControlAbstraction {
-  private readonly ngControl = inject(NgControl, { optional: true, self: true });
+  private readonly injector = inject(Injector);
+  private get ngControl(): NgControl | null {
+    return this.injector.get(NgControl, null, { self: true, optional: true });
+  }
 
   protected readonly size = input<"base" | "lg">("base");
 

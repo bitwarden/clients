@@ -28,7 +28,12 @@ export class FormControlCardComponent {
 
   constructor() {
     effect(() => {
-      const el = this.base.formControlEl().nativeElement;
+      const hostEl = this.base.formControlEl().nativeElement;
+      const inputId = this.base.inputId();
+
+      // For components like SwitchComponent where the actual input is nested
+      // inside the template, target that element directly
+      const el = (hostEl.id !== inputId && hostEl.querySelector(`[id="${inputId}"]`)) || hostEl;
 
       el.setAttribute("aria-labelledby", this.labelId);
 
