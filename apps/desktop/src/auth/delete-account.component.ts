@@ -3,7 +3,6 @@
 import { Component } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { VerificationWithSecret } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -17,6 +16,7 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { UserVerificationComponent } from "../app/components/user-verification.component";
 
@@ -26,7 +26,7 @@ import { UserVerificationComponent } from "../app/components/user-verification.c
   selector: "app-delete-account",
   templateUrl: "delete-account.component.html",
   imports: [
-    JslibModule,
+    I18nPipe,
     UserVerificationComponent,
     ButtonModule,
     CalloutModule,

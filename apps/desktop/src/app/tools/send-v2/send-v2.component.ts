@@ -4,7 +4,6 @@ import { Component, computed, DestroyRef, inject, signal, viewChild } from "@ang
 import { toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, map, switchMap, lastValueFrom } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -30,6 +29,7 @@ import {
   DefaultSendFormConfigService,
   SendItemDialogResult,
 } from "@bitwarden/send-ui";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { DesktopHeaderComponent } from "../../layout/header";
@@ -51,7 +51,7 @@ type Action = (typeof Action)[keyof typeof Action];
 @Component({
   selector: "app-send-v2",
   imports: [
-    JslibModule,
+    I18nPipe,
     ButtonModule,
     AddEditComponent,
     SendListComponent,
