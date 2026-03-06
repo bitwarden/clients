@@ -159,7 +159,7 @@ export class SecretVersionDialogComponent implements OnInit {
       this.platformUtilsService.copyToClipboard(value);
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: undefined,
         message: this.i18nService.t("secretValueCopied"),
       });
     };
@@ -183,7 +183,7 @@ export class SecretVersionDialogComponent implements OnInit {
         await this.secretVersionService.restoreVersion(this.params.secretId, version.id);
         this.toastService.showToast({
           variant: "success",
-          title: null,
+          title: undefined,
           message: this.i18nService.t("secretVersionRestored"),
         });
         await this.load(true);
