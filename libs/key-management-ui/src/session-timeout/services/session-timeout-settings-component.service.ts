@@ -150,7 +150,7 @@ export class SessionTimeoutSettingsComponentService {
       { name: "onIdle", value: VaultTimeoutStringType.OnIdle },
       { name: "onSleep", value: VaultTimeoutStringType.OnSleep },
       { name: "onLocked", value: VaultTimeoutStringType.OnLocked },
-      { name: "sessionTimeoutOnRestart", value: VaultTimeoutStringType.OnRestart },
+      { name: "sessionTimeoutOnAppRestart", value: VaultTimeoutStringType.OnRestart },
       { name: "never", value: VaultTimeoutStringType.Never },
       { name: "custom", value: VaultTimeoutStringType.Custom },
     ];

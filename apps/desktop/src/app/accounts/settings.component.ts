@@ -1016,7 +1016,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     vaultTimeoutOptions = vaultTimeoutOptions.concat([
-      { name: this.i18nService.t("onRestart"), value: VaultTimeoutStringType.OnRestart },
+      { name: this.i18nService.t("onAppRestart"), value: VaultTimeoutStringType.OnRestart },
       { name: this.i18nService.t("never"), value: VaultTimeoutStringType.Never },
     ]);
 

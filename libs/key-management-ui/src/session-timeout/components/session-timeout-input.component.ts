@@ -309,7 +309,7 @@ export class SessionTimeoutInputComponent implements ControlValueAccessor, Valid
       case VaultTimeoutStringType.OnLocked:
         return this.i18nService.t("sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked");
       case VaultTimeoutStringType.OnRestart:
-        return this.i18nService.t("sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart");
+        return this.i18nService.t("sessionTimeoutSettingsPolicySetDefaultTimeoutToOnAppRestart");
       default:
         if (isVaultTimeoutTypeNumeric(timeout)) {
           const hours = Math.floor((timeout as number) / 60);
