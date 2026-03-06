@@ -191,23 +191,4 @@ describe("DefaultServerCommunicationConfigService", () => {
       expect(mockClient.cookies).toHaveBeenCalledTimes(2);
     });
   });
-
-  // describe("acquireCookie", () => {
-  //   it("delegates to SDK client acquireCookie method", async () => {
-  //     mockClient.acquireCookie.mockResolvedValue(undefined);
-
-  //     await service.acquireCookie("vault.bitwarden.com");
-
-  //     expect(mockClient.acquireCookie).toHaveBeenCalledWith("vault.bitwarden.com");
-  //   });
-
-  //   it("propagates SDK client errors", async () => {
-  //     const error = new Error("Cookie acquisition failed");
-  //     mockClient.acquireCookie.mockRejectedValue(error);
-
-  //     await expect(service.acquireCookie("vault.bitwarden.com")).rejects.toThrow(
-  //       "Cookie acquisition failed",
-  //     );
-  //   });
-  // });
 });
