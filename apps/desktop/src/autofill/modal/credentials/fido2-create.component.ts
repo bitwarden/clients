@@ -5,7 +5,7 @@ import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from "@angular/
 import { RouterModule, Router } from "@angular/router";
 import { combineLatest, map, Observable, Subject, switchMap } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { BitwardenShield, NoResults } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -26,6 +26,7 @@ import {
   BitIconButtonComponent,
   SimpleDialogOptions,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { DesktopAutofillService } from "../../../autofill/services/desktop-autofill.service";
@@ -43,13 +44,14 @@ import {
     SectionHeaderComponent,
     BitIconButtonComponent,
     TableModule,
-    JslibModule,
+    I18nPipe,
     SvgModule,
     ButtonModule,
     DialogModule,
     SectionComponent,
     ItemModule,
     BadgeModule,
+    IconComponent,
   ],
   templateUrl: "fido2-create.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
