@@ -4,6 +4,7 @@ import { Meta, moduleMetadata, StoryObj, componentWrapperDecorator } from "@stor
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { FormControlModule } from "../form-control";
+import { FormControlCardComponent } from "../form-control/form-control-card.component";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { SwitchComponent } from "./switch.component";
@@ -18,7 +19,13 @@ export default {
       return /* HTML */ `<div class="tw-max-w-[600px] ">${story}</div>`;
     }),
     moduleMetadata({
-      imports: [FormsModule, ReactiveFormsModule, SwitchComponent, FormControlModule],
+      imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        SwitchComponent,
+        FormControlModule,
+        FormControlCardComponent,
+      ],
       providers: [
         {
           provide: I18nService,
@@ -131,4 +138,22 @@ export const Disabled: Story = {
     disabled: true,
     selected: true,
   },
+};
+
+export const FormControlCard: Story = {
+  render: () => ({
+    props: {
+      formObj: new FormGroup({
+        switch: new FormControl(false),
+      }),
+    },
+    template: /* HTML */ `
+      <form [formGroup]="formObj">
+        <bit-form-control-card>
+          <bit-switch formControlName="switch"></bit-switch>
+          <bit-label>Enable feature</bit-label>
+        </bit-form-control-card>
+      </form>
+    `,
+  }),
 };
