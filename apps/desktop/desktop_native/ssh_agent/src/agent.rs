@@ -31,8 +31,8 @@ where
 
 impl<K, H> BitwardenSSHAgent<K, H>
 where
-    K: KeyStore + Send + Sync,
-    H: ApprovalRequester,
+    K: KeyStore + Send + Sync + 'static,
+    H: ApprovalRequester + 'static,
 {
     /// Creates a new [`BitwardenSSHAgent`]
     pub fn new(keystore: K, approval_handler: H) -> Self {
@@ -50,7 +50,9 @@ where
     /// Starts the ssh agent server
     pub fn start_server(&mut self) -> Result<()> {
         debug!("Starting the server.");
-        self.server.start()
+        // TODO: PM-30756 Create platform-specific listeners and pass to start()
+        // self.server.start(listeners)
+        Ok(())
     }
 
     /// Stops the ssh agent server
