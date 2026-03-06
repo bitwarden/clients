@@ -59,7 +59,11 @@ body * {
 .inline-menu-list-button-container {
   width: 100%;
   padding: 0.2rem;
-  transition: background-color 0.2s ease-in-out;
+
+  @media (prefers-reduced-motion: no-preference) {
+    transition: background-color 0.2s ease-in-out;
+  }
+
   border-top-width: 0.1rem;
   border-top-style: solid;
 
@@ -203,7 +207,9 @@ body * {
   }
 
   &--bordered {
-    transition: border-bottom-color 0.15s ease;
+    @media (prefers-reduced-motion: no-preference) {
+      transition: border-bottom-color 0.15s ease;
+    }
 
     @include themify($themes) {
       border-bottom-color: themed("borderColor");
@@ -218,7 +224,10 @@ body * {
 }
 
 .inline-menu-list-actions-item {
-  transition: background-color 0.2s ease-in-out;
+  @media (prefers-reduced-motion: no-preference) {
+    transition: background-color 0.2s ease-in-out;
+  }
+
   list-style: none;
   padding: 0.2rem;
 
@@ -489,7 +498,10 @@ body * {
   justify-content: flex-start;
   padding: 0.8rem 0.4rem 1.1rem 0.65rem;
   border-radius: 0.4rem;
-  transition: background-color 0.2s ease-in-out;
+
+  @media (prefers-reduced-motion: no-preference) {
+    transition: background-color 0.2s ease-in-out;
+  }
 
   &:hover {
     @include themify($themes) {
