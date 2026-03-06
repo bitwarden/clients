@@ -3,4 +3,5 @@ export abstract class BitFormControlAbstraction {
   abstract required: boolean;
   abstract hasError: boolean;
   abstract error: [string, any];
+  inputId?: string;
 }

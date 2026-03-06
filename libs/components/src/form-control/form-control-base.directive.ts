@@ -42,7 +42,14 @@ export class FormControlBaseDirective {
 
   constructor() {
     effect(() => {
+      const control = this.formControl();
       const el = this.formControlEl().nativeElement;
+
+      if (control.inputId != null) {
+        this.inputId.set(control.inputId);
+        return;
+      }
+
       const existingId = el.getAttribute("id");
       if (existingId) {
         this.inputId.set(existingId);
