@@ -16,7 +16,7 @@ import { DefaultAdminTaskService } from "../../../vault/services/default-admin-t
  */
 export class AccessIntelligenceSecurityTasksService {
   private _tasksSubject$ = new BehaviorSubject<SecurityTask[]>([]);
-  tasks$ = this._tasksSubject$.asObservable();
+  readonly tasks$ = this._tasksSubject$.asObservable();
 
   /**
    * Observable stream of unassigned critical cipher IDs.

@@ -20,10 +20,10 @@ import {
 } from "../../models/mocks/mock-data";
 import { MemberCipherDetailsApiService } from "../api/member-cipher-details-api.service";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
+import { LegacyRiskInsightsEncryptionService } from "../implementations/legacy-risk-insights-encryption.service";
 
 import { CriticalAppsService } from "./critical-apps.service";
 import { PasswordHealthService } from "./password-health.service";
-import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 import { RiskInsightsOrchestratorService } from "./risk-insights-orchestrator.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
 
@@ -60,7 +60,7 @@ describe("RiskInsightsOrchestratorService", () => {
   let mockPasswordHealthService: PasswordHealthService;
   const mockReportApiService = mock<RiskInsightsApiService>();
   let mockReportService: RiskInsightsReportService;
-  const mockRiskInsightsEncryptionService = mock<RiskInsightsEncryptionService>();
+  const mockRiskInsightsEncryptionService = mock<LegacyRiskInsightsEncryptionService>();
   const mockLogService = mock<LogService>();
 
   beforeEach(() => {

@@ -48,18 +48,6 @@ export abstract class DrawerStateService {
    * @param invokerId - The invoker ID to check
    */
   abstract isDrawerOpenForInvoker(invokerId: string): boolean;
-
-  /**
-   * Gets the current drawer type.
-   * Convenience method for components.
-   */
-  abstract getDrawerType(): DrawerType;
-
-  /**
-   * Gets the current invoker ID.
-   * Convenience method for components.
-   */
-  abstract getInvokerId(): string;
 }
 
 /**

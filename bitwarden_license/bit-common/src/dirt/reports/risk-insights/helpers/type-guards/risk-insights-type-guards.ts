@@ -6,20 +6,30 @@ import {
   OrganizationReportApplication,
   OrganizationReportSummary,
 } from "../../models";
+import { RiskInsightsApplicationData } from "../../models/data/risk-insights-application.data";
+import {
+  MemberRegistryEntryData,
+  RiskInsightsReportData,
+} from "../../models/data/risk-insights-report.data";
+import { RiskInsightsSummaryData } from "../../models/data/risk-insights-summary.data";
+import { AccessReportPayload } from "../../services/abstractions/access-report-encryption.service";
 
 import {
   createBoundedArrayGuard,
   createValidator,
   isBoolean,
+  isBooleanRecord,
   isBoundedString,
   isBoundedStringOrNull,
+  isBoundedStringOrUndefined,
   isBoundedPositiveNumber,
   BOUNDED_ARRAY_MAX_LENGTH,
   isDate,
   isDateString,
+  isDateStringOrUndefined,
 } from "./basic-type-guards";
 
-// Risk Insights specific type guards
+// === Type Guards for Access Intelligence ===
 
 /**
  * Type guard to validate MemberDetails structure
@@ -34,10 +44,22 @@ export const isMemberDetails = createValidator<MemberDetails>({
 });
 export const isMemberDetailsArray = createBoundedArrayGuard(isMemberDetails);
 
+/**
+ * Type guard to validate MemberRegistryEntryData structure
+ * Exported for testability
+ * Strict validation: rejects objects with unexpected properties and prototype pollution
+ */
+export const isMemberRegistryEntryData = createValidator<MemberRegistryEntryData>({
+  id: isBoundedString,
+  userName: isBoundedString,
+  email: isBoundedString,
+});
+
 export function isCipherId(value: unknown): value is CipherId {
   return value == null || isBoundedString(value);
 }
 export const isCipherIdArray = createBoundedArrayGuard(isCipherId);
+
 /**
  * Type guard to validate ApplicationHealthReportDetail structure
  * Exported for testability
@@ -57,6 +79,19 @@ export const isApplicationHealthReportDetail = createValidator<ApplicationHealth
 export const isApplicationHealthReportDetailArray = createBoundedArrayGuard(
   isApplicationHealthReportDetail,
 );
+
+const isRiskInsightsReportDataV2Entry = createValidator<RiskInsightsReportData>({
+  applicationName: isBoundedString,
+  passwordCount: isBoundedPositiveNumber,
+  atRiskPasswordCount: isBoundedPositiveNumber,
+  memberRefs: isBooleanRecord,
+  cipherRefs: isBooleanRecord,
+  memberCount: isBoundedPositiveNumber,
+  atRiskMemberCount: isBoundedPositiveNumber,
+  iconUri: isBoundedStringOrUndefined,
+  iconCipherId: isBoundedStringOrUndefined,
+});
+const isRiskInsightsReportDataV2Array = createBoundedArrayGuard(isRiskInsightsReportDataV2Entry);
 
 /**
  * Type guard to validate OrganizationReportSummary structure
@@ -97,6 +132,8 @@ export const isOrganizationReportApplication = createValidator<OrganizationRepor
 export const isOrganizationReportApplicationArray = createBoundedArrayGuard(
   isOrganizationReportApplication,
 );
+
+// === Validate Functions ===
 
 /**
  * Validates and returns an array of ApplicationHealthReportDetail
@@ -147,6 +184,17 @@ export function validateOrganizationReportSummary(data: unknown): OrganizationRe
   }
 
   return data;
+}
+
+/**
+ * Validates and returns RiskInsightsSummaryData
+ * @throws Error if validation fails
+ */
+export function validateRiskInsightsSummaryData(data: unknown): RiskInsightsSummaryData {
+  if (!isOrganizationReportSummary(data)) {
+    throw new Error("Invalid report summary");
+  }
+  return data as unknown as RiskInsightsSummaryData;
 }
 
 /**
@@ -202,4 +250,95 @@ export function validateOrganizationReportApplicationArray(
 
   // Convert string dates to Date objects for reviewedDate
   return mappedData;
+}
+
+const isRiskInsightsApplicationData = createValidator<RiskInsightsApplicationData>({
+  applicationName: isBoundedString,
+  isCritical: isBoolean,
+  reviewedDate: isDateStringOrUndefined,
+});
+const isRiskInsightsApplicationDataArray = createBoundedArrayGuard(isRiskInsightsApplicationData);
+
+/**
+ * Validates and returns an array of RiskInsightsApplicationData
+ * @throws Error if validation fails
+ */
+export function validateRiskInsightsApplicationDataArray(
+  data: unknown,
+): RiskInsightsApplicationData[] {
+  if (!Array.isArray(data)) {
+    throw new Error(
+      "Invalid application data: expected array of RiskInsightsApplicationData, received non-array",
+    );
+  }
+
+  if (data.length > BOUNDED_ARRAY_MAX_LENGTH) {
+    throw new Error(
+      `Invalid application data: array length ${data.length} exceeds maximum allowed length ${BOUNDED_ARRAY_MAX_LENGTH}`,
+    );
+  }
+
+  const invalidItems = data
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => !isRiskInsightsApplicationData(item));
+
+  if (invalidItems.length > 0) {
+    const invalidIndices = invalidItems.map(({ index }) => index).join(", ");
+    throw new Error(
+      `Invalid application data: array contains ${invalidItems.length} invalid RiskInsightsApplicationData element(s) at indices: ${invalidIndices}`,
+    );
+  }
+
+  if (!isRiskInsightsApplicationDataArray(data)) {
+    // Throw for type casting return
+    // Should never get here
+    throw new Error("Invalid application data");
+  }
+
+  return data;
+}
+
+/**
+ * Validates and returns AccessReportPayload
+ * @throws Error if validation fails
+ */
+export function validateAccessReportPayload(data: unknown): AccessReportPayload {
+  if (data == null || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error("Invalid V2 report data: expected a versioned object, received non-object");
+  }
+
+  const obj = data as Record<string, unknown>;
+
+  if (obj["version"] !== 2) {
+    throw new Error(
+      `Invalid V2 report data: expected version 2, received version ${obj["version"]}`,
+    );
+  }
+
+  if (!isRiskInsightsReportDataV2Array(obj["reports"])) {
+    throw new Error("Invalid V2 report data: reports array failed validation");
+  }
+
+  if (
+    obj["memberRegistry"] == null ||
+    typeof obj["memberRegistry"] !== "object" ||
+    Array.isArray(obj["memberRegistry"])
+  ) {
+    throw new Error("Invalid V2 report data: memberRegistry is not an object");
+  }
+
+  const registry = obj["memberRegistry"] as Record<string, unknown>;
+  const registryEntries = Object.entries(registry);
+  if (registryEntries.length > BOUNDED_ARRAY_MAX_LENGTH) {
+    throw new Error(
+      `Invalid V2 report data: memberRegistry length ${registryEntries.length} exceeds maximum`,
+    );
+  }
+  for (const [key, entry] of registryEntries) {
+    if (!isBoundedString(key) || !isMemberRegistryEntryData(entry)) {
+      throw new Error(`Invalid V2 report data: invalid memberRegistry entry for key "${key}"`);
+    }
+  }
+
+  return data as AccessReportPayload;
 }

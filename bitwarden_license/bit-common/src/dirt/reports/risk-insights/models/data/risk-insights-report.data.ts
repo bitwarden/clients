@@ -36,6 +36,10 @@ export class RiskInsightsReportData {
   memberCount: number = 0;
   atRiskMemberCount: number = 0;
 
+  // TODO: This has been added but we should review if this is how we want to handle the icon metadata
+  iconUri?: string;
+  iconCipherId?: string;
+
   constructor(data?: RiskInsightsReportApi) {
     if (data == null) {
       return;
@@ -48,4 +52,11 @@ export class RiskInsightsReportData {
     this.memberCount = data.memberCount;
     this.atRiskMemberCount = data.atRiskMemberCount;
   }
+}
+
+/** Member entry in the deduplicated member registry */
+export interface MemberRegistryEntryData {
+  id: string;
+  userName: string;
+  email: string;
 }

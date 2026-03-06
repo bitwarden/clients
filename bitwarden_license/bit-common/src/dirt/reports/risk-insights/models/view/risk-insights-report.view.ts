@@ -3,7 +3,6 @@ import { DeepJsonify } from "@bitwarden/common/types/deep-jsonify";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RiskInsightsReportApi } from "../api/risk-insights-report.api";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RiskInsightsReportData } from "../data/risk-insights-report.data";
 import { RiskInsightsReport } from "../domain/risk-insights-report";
 
@@ -23,6 +22,15 @@ export class RiskInsightsReportView implements View {
   applicationName: string = "";
   passwordCount: number = 0;
   atRiskPasswordCount: number = 0;
+
+  /**
+   * Icon metadata for display purposes
+   *
+   * Pre-computed during report generation to avoid runtime lookups.
+   * Contains the URI/hostname and cipher ID of the first cipher for icon display.
+   */
+  iconUri?: string;
+  iconCipherId?: string;
 
   /**
    * Member references with at-risk status
@@ -130,8 +138,39 @@ export class RiskInsightsReportView implements View {
       .map(([id]) => id);
   }
 
+  /**
+   * Get the cipher ID to use for icon display
+   *
+   * Returns the pre-computed icon cipher ID if available,
+   * otherwise returns the first cipher ID from cipherRefs.
+   *
+   * @returns Cipher ID for icon display, or undefined if no ciphers
+   */
+  getIconCipherId(): string | undefined {
+    if (this.iconCipherId) {
+      return this.iconCipherId;
+    }
+
+    const cipherIds = this.getAllCipherIds();
+    return cipherIds.length > 0 ? cipherIds[0] : undefined;
+  }
+
   toJSON() {
     return this;
+  }
+
+  static fromData(data: RiskInsightsReportData): RiskInsightsReportView {
+    const view = new RiskInsightsReportView();
+    view.applicationName = data.applicationName;
+    view.passwordCount = data.passwordCount;
+    view.atRiskPasswordCount = data.atRiskPasswordCount;
+    view.memberRefs = { ...data.memberRefs };
+    view.cipherRefs = { ...data.cipherRefs };
+    view.memberCount = data.memberCount;
+    view.atRiskMemberCount = data.atRiskMemberCount;
+    view.iconUri = data.iconUri;
+    view.iconCipherId = data.iconCipherId;
+    return view;
   }
 
   static fromJSON(

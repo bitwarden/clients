@@ -24,9 +24,9 @@ import {
 } from "../../models/mocks/mock-data";
 import { MemberCipherDetailsApiService } from "../api/member-cipher-details-api.service";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
+import { LegacyRiskInsightsEncryptionService } from "../implementations/legacy-risk-insights-encryption.service";
 
 import { PasswordHealthService } from "./password-health.service";
-import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
 
 describe("RiskInsightsReportService", () => {
@@ -37,7 +37,7 @@ describe("RiskInsightsReportService", () => {
   const memberCipherDetailsService = mock<MemberCipherDetailsApiService>();
   const mockPasswordHealthService = mock<PasswordHealthService>();
   const mockRiskInsightsApiService = mock<RiskInsightsApiService>();
-  const mockRiskInsightsEncryptionService = mock<RiskInsightsEncryptionService>({
+  const mockRiskInsightsEncryptionService = mock<LegacyRiskInsightsEncryptionService>({
     encryptRiskInsightsReport: jest.fn().mockResolvedValue("encryptedReportData"),
     decryptRiskInsightsReport: jest.fn().mockResolvedValue("decryptedReportData"),
   });

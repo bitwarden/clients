@@ -24,13 +24,12 @@ import {
   RiskInsightsData,
 } from "../../models/report-models";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
-
-import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
+import { LegacyRiskInsightsEncryptionService } from "../implementations/legacy-risk-insights-encryption.service";
 
 export class RiskInsightsReportService {
   constructor(
     private riskInsightsApiService: RiskInsightsApiService,
-    private riskInsightsEncryptionService: RiskInsightsEncryptionService,
+    private riskInsightsEncryptionService: LegacyRiskInsightsEncryptionService,
   ) {}
 
   filterApplicationsByCritical(

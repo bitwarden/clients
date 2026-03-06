@@ -4,12 +4,13 @@ import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
 import { createNewSummaryData } from "../../helpers";
 import {
+  validateAccessReportPayload,
   validateApplicationHealthReportDetailArray,
   validateOrganizationReportApplicationArray,
   validateOrganizationReportSummary,
@@ -19,11 +20,29 @@ import {
   DecryptedReportData,
   EncryptedDataWithKey,
   EncryptedReportData,
+  MemberDetails,
   OrganizationReportApplication,
   OrganizationReportSummary,
 } from "../../models";
+import {
+  MemberRegistryEntryData,
+  RiskInsightsReportData,
+} from "../../models/data/risk-insights-report.data";
 
-export class RiskInsightsEncryptionService {
+/**
+ * @deprecated V1 encryption service. Used only by the V1 orchestrator, V1 report service,
+ * and the V1→V2 migration path. Will be deleted when the V1 code tree is removed.
+ * For V2, use {@link DefaultAccessReportEncryptionService}.
+ */
+export class LegacyRiskInsightsEncryptionService {
+  /**
+   * Sentinel value for MemberDetails.cipherId in downgraded V2→V1 reports.
+   * V2 does not store per-cipher member associations (that mapping was already lossy in V1
+   * due to email-based deduplication — see report-data-model-evolution.md). An empty string
+   * fails isBoundedString, and using the userId risks confusion, so we use the nil UUID.
+   */
+  private readonly _nilCipherId = "00000000-0000-0000-0000-000000000000" as CipherId;
+
   constructor(
     private keyService: KeyService,
     private encryptService: EncryptService,
@@ -39,7 +58,7 @@ export class RiskInsightsEncryptionService {
     data: DecryptedReportData,
     wrappedKey?: EncString,
   ): Promise<EncryptedDataWithKey> {
-    this.logService.info("[RiskInsightsEncryptionService] Encrypting risk insights report");
+    this.logService.info("[LegacyRiskInsightsEncryptionService] Encrypting risk insights report");
     const { userId, organizationId } = context;
     const orgKey = await firstValueFrom(
       this.keyService
@@ -53,7 +72,7 @@ export class RiskInsightsEncryptionService {
 
     if (!orgKey) {
       this.logService.warning(
-        "[RiskInsightsEncryptionService] Attempted to encrypt report data without org id",
+        "[LegacyRiskInsightsEncryptionService] Attempted to encrypt report data without org id",
       );
       throw new Error("Organization key not found");
     }
@@ -68,7 +87,10 @@ export class RiskInsightsEncryptionService {
         contentEncryptionKey = await this.encryptService.unwrapSymmetricKey(wrappedKey, orgKey);
       }
     } catch (error: unknown) {
-      this.logService.error("[RiskInsightsEncryptionService] Failed to get encryption key", error);
+      this.logService.error(
+        "[LegacyRiskInsightsEncryptionService] Failed to get encryption key",
+        error,
+      );
       throw new Error("Failed to get encryption key");
     }
 
@@ -100,7 +122,7 @@ export class RiskInsightsEncryptionService {
       !wrappedEncryptionKey.encryptedString
     ) {
       this.logService.error(
-        "[RiskInsightsEncryptionService] Encryption failed, encrypted strings are null",
+        "[LegacyRiskInsightsEncryptionService] Encryption failed, encrypted strings are null",
       );
       throw new Error("Encryption failed, encrypted strings are null");
     }
@@ -124,7 +146,7 @@ export class RiskInsightsEncryptionService {
     encryptedData: EncryptedReportData,
     wrappedKey: EncString,
   ): Promise<DecryptedReportData> {
-    this.logService.info("[RiskInsightsEncryptionService] Decrypting risk insights report");
+    this.logService.info("[LegacyRiskInsightsEncryptionService] Decrypting risk insights report");
 
     const { userId, organizationId } = context;
     const orgKey = await firstValueFrom(
@@ -139,14 +161,14 @@ export class RiskInsightsEncryptionService {
 
     if (!orgKey) {
       this.logService.warning(
-        "[RiskInsightsEncryptionService] Attempted to decrypt report data without org id",
+        "[LegacyRiskInsightsEncryptionService] Attempted to decrypt report data without org id",
       );
       throw new Error("Organization key not found");
     }
 
     const unwrappedEncryptionKey = await this.encryptService.unwrapSymmetricKey(wrappedKey, orgKey);
     if (!unwrappedEncryptionKey) {
-      this.logService.error("[RiskInsightsEncryptionService] Encryption key not found");
+      this.logService.error("[LegacyRiskInsightsEncryptionService] Encryption key not found");
       throw Error("Encryption key not found");
     }
 
@@ -187,11 +209,24 @@ export class RiskInsightsEncryptionService {
       const decryptedData = await this.encryptService.decryptString(encryptedData, key);
       const parsedData = JSON.parse(decryptedData);
 
-      // Validate parsed data structure with runtime type guards
+      // Downgrade path: V2 blob detected in V1 context (feature flag was reverted).
+      // Validate and reconstruct V1 structure from V2 payload using the member registry.
+      if (typeof parsedData === "object" && parsedData !== null && "version" in parsedData) {
+        this.logService.warning(
+          "[LegacyRiskInsightsEncryptionService] V2 report detected in V1 path, running downgrade transform",
+        );
+        const payload = validateAccessReportPayload(parsedData);
+        return this._convertV2ReportToV1(payload.reports, payload.memberRegistry);
+      }
+
+      // Normal V1 path: validate parsed data structure with runtime type guards
       return validateApplicationHealthReportDetailArray(parsedData);
     } catch (error: unknown) {
       // Log detailed error for debugging
-      this.logService.error("[RiskInsightsEncryptionService] Failed to decrypt report", error);
+      this.logService.error(
+        "[LegacyRiskInsightsEncryptionService] Failed to decrypt report",
+        error,
+      );
       // Always throw generic message to prevent information disclosure
       // Original error with detailed validation info is logged, not exposed to caller
       throw new Error(
@@ -217,7 +252,7 @@ export class RiskInsightsEncryptionService {
     } catch (error: unknown) {
       // Log detailed error for debugging
       this.logService.error(
-        "[RiskInsightsEncryptionService] Failed to decrypt report summary",
+        "[LegacyRiskInsightsEncryptionService] Failed to decrypt report summary",
         error,
       );
       // Always throw generic message to prevent information disclosure
@@ -245,7 +280,7 @@ export class RiskInsightsEncryptionService {
     } catch (error: unknown) {
       // Log detailed error for debugging
       this.logService.error(
-        "[RiskInsightsEncryptionService] Failed to decrypt report applications",
+        "[LegacyRiskInsightsEncryptionService] Failed to decrypt report applications",
         error,
       );
       // Always throw generic message to prevent information disclosure
@@ -254,5 +289,55 @@ export class RiskInsightsEncryptionService {
         "Application data validation failed. This may indicate data corruption or tampering.",
       );
     }
+  }
+
+  /**
+   * Reconstructs a V1 ApplicationHealthReportDetail[] from a V2 report payload.
+   * Used when a V2-format blob is encountered during V1 decryption (feature flag downgrade).
+   */
+  private _convertV2ReportToV1(
+    reports: RiskInsightsReportData[],
+    memberRegistry: Record<string, MemberRegistryEntryData>,
+  ): ApplicationHealthReportDetail[] {
+    return reports.map((report) => {
+      const cipherIds = Object.keys(report.cipherRefs) as CipherId[];
+      const atRiskCipherIds = Object.entries(report.cipherRefs)
+        .filter(([, isAtRisk]) => isAtRisk)
+        .map(([id]) => id as CipherId);
+
+      const toMemberDetails = (userId: string): MemberDetails | null => {
+        const entry = memberRegistry[userId];
+        if (!entry) {
+          return null;
+        }
+        return {
+          userGuid: entry.id,
+          userName: entry.userName,
+          email: entry.email,
+          cipherId: this._nilCipherId,
+        };
+      };
+
+      const memberDetails = Object.keys(report.memberRefs)
+        .map(toMemberDetails)
+        .filter((m): m is MemberDetails => m !== null);
+
+      const atRiskMemberDetails = Object.entries(report.memberRefs)
+        .filter(([, isAtRisk]) => isAtRisk)
+        .map(([userId]) => toMemberDetails(userId))
+        .filter((m): m is MemberDetails => m !== null);
+
+      return {
+        applicationName: report.applicationName,
+        passwordCount: report.passwordCount,
+        atRiskPasswordCount: report.atRiskPasswordCount,
+        memberCount: report.memberCount,
+        atRiskMemberCount: report.atRiskMemberCount,
+        cipherIds,
+        atRiskCipherIds,
+        memberDetails,
+        atRiskMemberDetails,
+      };
+    });
   }
 }

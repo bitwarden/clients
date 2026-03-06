@@ -1,0 +1,102 @@
+@if (loading()) {
+  <dirt-report-loading></dirt-report-loading>
+} @else {
+  @let currentDrawerState = drawerState();
+  <div class="tw-mt-4 tw-flex tw-flex-col">
+    <div
+      class="tw-flex tw-flex-col tw-gap-4 tw-mb-4 md:tw-flex-row md:tw-flex-wrap md:tw-items-center md:tw-justify-between"
+    >
+      <!-- Left section: Search + Filter -->
+      <div class="tw-flex tw-flex-col tw-gap-4 tw-w-full md:tw-flex-row md:tw-w-auto">
+        <bit-search
+          [placeholder]="'searchApps' | i18n"
+          class="tw-w-full md:tw-min-w-64 lg:tw-min-w-96"
+          [formControl]="searchControl"
+        ></bit-search>
+
+        <bit-chip-select
+          [placeholderText]="'filter' | i18n"
+          placeholderIcon="bwi-sliders"
+          [options]="filterOptions()"
+          [ngModel]="selectedFilter()"
+          (ngModelChange)="setFilterApplicationsByStatus($event)"
+          fullWidth="false"
+          class="tw-w-full md:tw-min-w-48 md:tw-w-auto"
+        >
+        </bit-chip-select>
+      </div>
+
+      <!-- Right section: Action buttons -->
+      <div class="tw-flex tw-flex-col tw-gap-3 tw-w-full sm:tw-flex-row sm:tw-gap-4 md:tw-w-auto">
+        @if (selectedUrls().size > 0) {
+          @if (allSelectedAppsAreCritical()) {
+            <button
+              type="button"
+              [buttonType]="'primary'"
+              bitButton
+              class="tw-w-full sm:tw-w-auto"
+              [loading]="updatingCriticalApps()"
+              (click)="unmarkAppsAsCritical()"
+              data-testid="unmark-critical-button"
+            >
+              {{ "markAppCountAsNotCritical" | i18n: selectedUrls().size }}
+            </button>
+          } @else {
+            <button
+              type="button"
+              [buttonType]="'primary'"
+              bitButton
+              class="tw-w-full sm:tw-w-auto"
+              [loading]="updatingCriticalApps()"
+              (click)="markAppsAsCritical()"
+              data-testid="mark-critical-button"
+            >
+              {{ "markAppCountAsCritical" | i18n: selectedUrls().size }}
+            </button>
+          }
+        }
+
+        <button
+          bitButton
+          buttonType="secondary"
+          type="button"
+          class="tw-w-full sm:tw-w-auto"
+          [disabled]="!enableRequestPasswordChange()"
+          [bitTooltip]="!enableRequestPasswordChange() ? ('allTasksAssigned' | i18n) : null"
+          [addTooltipToDescribedby]="!enableRequestPasswordChange()"
+          (click)="requestPasswordChange()"
+          data-testid="assign-tasks-button"
+        >
+          <bit-icon class="tw-mr-2" name="bwi-envelope" />
+          {{ "assignTasks" | i18n }}
+        </button>
+
+        <button
+          type="button"
+          bitIconButton="bwi-download"
+          buttonType="main"
+          class="tw-w-full sm:tw-w-auto"
+          [label]="'downloadCSV' | i18n"
+          [disabled]="!dataSource.filteredData.length"
+          (click)="downloadApplicationsCSV()"
+        ></button>
+      </div>
+    </div>
+
+    <app-applications-table-v2
+      [dataSource]="dataSource"
+      [selectedUrls]="selectedUrls()"
+      [openApplication]="currentDrawerState?.invokerId || ''"
+      (checkboxChange)="onCheckboxChange($event)"
+      (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
+      (selectAllChange)="onSelectAllChange($event)"
+      class="tw-mb-10"
+    ></app-applications-table-v2>
+
+    @if (emptyTableExplanation()) {
+      <div class="tw-flex tw-mt-10 tw-justify-center">
+        <span bitTypography="body2">{{ emptyTableExplanation() }}</span>
+      </div>
+    }
+  </div>
+}

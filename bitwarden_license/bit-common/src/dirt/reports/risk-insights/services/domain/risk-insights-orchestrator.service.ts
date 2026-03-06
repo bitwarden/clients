@@ -63,10 +63,10 @@ import {
 } from "../../models/report-models";
 import { MemberCipherDetailsApiService } from "../api/member-cipher-details-api.service";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
+import { LegacyRiskInsightsEncryptionService } from "../implementations/legacy-risk-insights-encryption.service";
 
 import { CriticalAppsService } from "./critical-apps.service";
 import { PasswordHealthService } from "./password-health.service";
-import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
 
 export class RiskInsightsOrchestratorService {
@@ -163,7 +163,7 @@ export class RiskInsightsOrchestratorService {
     private passwordHealthService: PasswordHealthService,
     private reportApiService: RiskInsightsApiService,
     private reportService: RiskInsightsReportService,
-    private riskInsightsEncryptionService: RiskInsightsEncryptionService,
+    private riskInsightsEncryptionService: LegacyRiskInsightsEncryptionService,
   ) {
     this.logService.debug("[RiskInsightsOrchestratorService] Setting up");
     this._setupCriticalApplicationContext();
