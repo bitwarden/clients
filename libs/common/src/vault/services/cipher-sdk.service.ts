@@ -274,7 +274,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
     organizationId: OrganizationId,
     collectionIds: CollectionId[],
     userId: UserId,
-    _originalCipherView?: CipherView,
+    originalCipherView?: CipherView,
   ): Promise<Cipher | undefined> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
