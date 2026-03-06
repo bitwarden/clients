@@ -40,31 +40,52 @@
   <!-- Show search & filters outside of the scroll area of the page -->
   <ng-container slot="above-scroll-area">
     <ng-container *ngIf="showPremiumSpotlight$ | async">
-      <bit-spotlight
+      <bit-callout
         [title]="'unlockAdvancedSecurity' | i18n"
-        [subtitle]="'unlockAdvancedSecurityDesc' | i18n"
-        [buttonText]="'explorePremium' | i18n"
-        (onButtonClick)="showPremiumDialog()"
+        [icon]="null"
+        persistent="false"
         (onDismiss)="dismissVaultNudgeSpotlight(NudgeType.PremiumUpgrade)"
-      ></bit-spotlight>
+      >
+        {{ "unlockAdvancedSecurityDesc" | i18n }}
+        <button
+          slot="end"
+          bitButton
+          type="button"
+          buttonType="primary"
+          (click)="showPremiumDialog()"
+        >
+          {{ "explorePremium" | i18n }}
+        </button>
+      </bit-callout>
     </ng-container>
     <ng-container *ngIf="vaultState === VaultStateEnum.Empty && showEmptyVaultSpotlight$ | async">
-      <bit-spotlight
+      <bit-callout
         [title]="'emptyVaultNudgeTitle' | i18n"
-        [subtitle]="'emptyVaultNudgeBody' | i18n"
-        [buttonText]="'emptyVaultNudgeButton' | i18n"
-        (onButtonClick)="navigateToImport()"
+        [icon]="null"
+        persistent="false"
         (onDismiss)="dismissVaultNudgeSpotlight(NudgeType.EmptyVaultNudge)"
       >
-      </bit-spotlight>
+        {{ "emptyVaultNudgeBody" | i18n }}
+        <button
+          slot="end"
+          bitButton
+          type="button"
+          buttonType="primary"
+          (click)="navigateToImport()"
+        >
+          {{ "emptyVaultNudgeButton" | i18n }}
+        </button>
+      </bit-callout>
     </ng-container>
     <ng-container *ngIf="vaultState !== VaultStateEnum.Empty">
       <!-- At-Risk callout displays as a banner and should always remain visually above all other callouts -->
       <vault-at-risk-password-callout></vault-at-risk-password-callout>
 
       <div class="tw-mb-4" *ngIf="showHasItemsVaultSpotlight$ | async">
-        <bit-spotlight
+        <bit-callout
           [title]="'hasItemsVaultNudgeTitle' | i18n"
+          [icon]="null"
+          persistent="false"
           (onDismiss)="dismissVaultNudgeSpotlight(NudgeType.HasVaultItems)"
         >
           <ul class="tw-pl-4 tw-text-main tw-mb-0" bitTypography="body2">
@@ -72,7 +93,7 @@
             <li>{{ "hasItemsVaultNudgeBodyTwo" | i18n }}</li>
             <li>{{ "hasItemsVaultNudgeBodyThree" | i18n }}</li>
           </ul>
-        </bit-spotlight>
+        </bit-callout>
       </div>
       <app-vault-header></app-vault-header>
     </ng-container>

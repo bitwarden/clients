@@ -38,7 +38,7 @@
     }
 
     @if (showSubscriptionEndedMessaging$ | async) {
-      <bit-callout type="default" [title]="'premiumSubscriptionEnded' | i18n">
+      <bit-callout type="subtle" [title]="'premiumSubscriptionEnded' | i18n">
         <ng-container>
           <div>
             {{ "premiumSubscriptionEndedDesc" | i18n }}

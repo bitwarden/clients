@@ -1,10 +1,12 @@
 @if (showGeneratorSpotlight$ | async) {
   <div class="tw-mb-4">
-    <bit-spotlight
+    <bit-callout
       [title]="'generatorNudgeTitle' | i18n"
+      [icon]="null"
+      persistent="false"
       (onDismiss)="dismissGeneratorSpotlight(NudgeType.GeneratorNudgeStatus)"
     >
-      <p class="tw-text-main tw-mb-0" bitTypography="body2">
+      <p class="tw-text-main tw-mb-0">
         <span class="tw-sr-only">
           {{ "generatorNudgeBodyAria" | i18n }}
         </span>
@@ -13,6 +15,6 @@
           {{ "generatorNudgeBodyTwo" | i18n }}
         </span>
       </p>
-    </bit-spotlight>
+    </bit-callout>
   </div>
 }
