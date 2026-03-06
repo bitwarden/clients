@@ -104,33 +104,28 @@ export class EmergencyAccessAddEditComponent implements OnInit {
       this.addEditForm.markAllAsTouched();
       return;
     }
-    try {
-      if (this.editMode) {
-        await this.emergencyAccessService.update(
-          this.params.emergencyAccessId,
-          this.addEditForm.value.emergencyAccessType,
-          this.addEditForm.value.waitTime,
-        );
-      } else {
-        await this.emergencyAccessService.invite(
-          this.addEditForm.value.email,
-          this.addEditForm.value.emergencyAccessType,
-          this.addEditForm.value.waitTime,
-        );
-      }
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t(
-          this.editMode ? "editedUserId" : "invitedUsers",
-          this.params.name,
-        ),
-      });
-      this.dialogRef.close(EmergencyAccessAddEditDialogResult.Saved);
-    } catch (e) {
-      this.validationService.showError(e);
-      this.logService.error(e);
+    if (this.editMode) {
+      await this.emergencyAccessService.update(
+        this.params.emergencyAccessId,
+        this.addEditForm.value.emergencyAccessType,
+        this.addEditForm.value.waitTime,
+      );
+    } else {
+      await this.emergencyAccessService.invite(
+        this.addEditForm.value.email,
+        this.addEditForm.value.emergencyAccessType,
+        this.addEditForm.value.waitTime,
+      );
     }
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t(
+        this.editMode ? "editedUserId" : "invitedUsers",
+        this.params.name,
+      ),
+    });
+    this.dialogRef.close(EmergencyAccessAddEditDialogResult.Saved);
   };
 
   delete = async () => {
