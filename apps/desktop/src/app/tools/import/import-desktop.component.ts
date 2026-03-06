@@ -1,7 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DialogRef, AsyncActionsModule, ButtonModule, DialogModule } from "@bitwarden/components";
 import type { chromium_importer } from "@bitwarden/desktop-napi";
 import { ImportMetadataServiceAbstraction } from "@bitwarden/importer-core";
@@ -10,7 +9,7 @@ import {
   ImporterProviders,
   SYSTEM_SERVICE_PROVIDER,
 } from "@bitwarden/importer-ui";
-import { safeProvider } from "@bitwarden/ui-common";
+import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 
 import { DesktopImportMetadataService } from "./desktop-import-metadata.service";
 
@@ -20,7 +19,7 @@ import { DesktopImportMetadataService } from "./desktop-import-metadata.service"
   templateUrl: "import-desktop.component.html",
   imports: [
     CommonModule,
-    JslibModule,
+    I18nPipe,
     DialogModule,
     AsyncActionsModule,
     ButtonModule,
