@@ -88,6 +88,7 @@ module.exports = {
         tertiary: "var(--color-bg-tertiary)",
         quaternary: "var(--color-bg-quaternary)",
         gray: "var(--color-bg-gray)",
+        "gray-strong": "var(--color-bg-gray-strong)",
         disabled: "var(--color-bg-disabled)",
         "brand-softer": "var(--color-bg-brand-softer)",
         "brand-soft": "var(--color-bg-brand-soft)",
