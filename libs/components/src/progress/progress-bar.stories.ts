@@ -45,7 +45,7 @@ export const Base: Story = {
     },
     template: `
       <div class="tw-w-[552px]">
-        <bit-progress-bar ${formatArgsForCodeSnippet<ProgressBarComponent>(args)} aria-valuemin="0" aria-valuemax="100" aria-valuenow="${args.value}" aria-valuetext="${args.value}% complete" />
+        <bit-progress-bar ${formatArgsForCodeSnippet<ProgressBarComponent>(args)} />
       </div>
     `,
   }),
@@ -55,11 +55,11 @@ export const AllVariants: Story = {
   render: () => ({
     template: `
       <div class="tw-flex tw-flex-col tw-w-[552px] tw-gap-4">
-        <bit-progress-bar variant="primary" label="primary" [value]="20" [startText]="null" aria-valuemin="0" aria-valuemax="100" aria-valuenow="20" aria-valuetext="20% complete" />
-        <bit-progress-bar variant="subtle" label="subtle" [value]="40" [startText]="null" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" aria-valuetext="40% complete" />
-        <bit-progress-bar variant="success" label="success" [value]="60" [startText]="null" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60" aria-valuetext="60% complete" />
-        <bit-progress-bar variant="warning" label="warning" [value]="80" [startText]="null" aria-valuemin="0" aria-valuemax="100" aria-valuenow="80" aria-valuetext="80% complete" />
-        <bit-progress-bar variant="danger" label="danger" [value]="100" [startText]="null" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" aria-valuetext="100% complete" />
+        <bit-progress-bar variant="primary" label="primary" [value]="20" [startText]="null" />
+        <bit-progress-bar variant="subtle" label="subtle" [value]="40" [startText]="null" />
+        <bit-progress-bar variant="success" label="success" [value]="60" [startText]="null" />
+        <bit-progress-bar variant="warning" label="warning" [value]="80" [startText]="null" />
+        <bit-progress-bar variant="danger" label="danger" [value]="100" [startText]="null" />
       </div>
     `,
   }),
@@ -79,16 +79,16 @@ export const StartText: Story = {
   render: () => ({
     template: `
       <div class="tw-w-[552px] tw-mb-8">
-        <bit-progress-bar label="Default" [value]="10" aria-valuemin="0" aria-valuemax="100" aria-valuenow="10" aria-valuetext="10% complete" />
+        <bit-progress-bar label="Default" [value]="10" />
       </div>
       <div class="tw-w-[552px] tw-mb-8">
-        <bit-progress-bar label="Without Start Text" [value]="10" [startText]="null" aria-valuemin="0" aria-valuemax="100" aria-valuenow="10" aria-valuetext="10% complete" />
+        <bit-progress-bar label="Without Start Text" [value]="10" [startText]="null" />
       </div>
       <div class="tw-flex tw-flex-col tw-w-[552px] tw-gap-4">
-        <bit-progress-bar variant="danger" label="danger" [value]="25" startText="Weak" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25" aria-valuetext="25% strong" />
-        <bit-progress-bar variant="warning" label="warning" [value]="50" startText="Weak2" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="50% strong" />
-        <bit-progress-bar variant="primary" label="primary" [value]="75" startText="Good" aria-valuemin="0" aria-valuemax="100" aria-valuenow="75" aria-valuetext="75% strong" />
-        <bit-progress-bar variant="success" label="success" [value]="100" startText="Strong" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" aria-valuetext="100% strong" />
+        <bit-progress-bar variant="danger" label="danger" [value]="25" startText="Weak" />
+        <bit-progress-bar variant="warning" label="warning" [value]="50" startText="Weak2" />
+        <bit-progress-bar variant="primary" label="primary" [value]="75" startText="Good" />
+        <bit-progress-bar variant="success" label="success" [value]="100" startText="Strong" />
       </div>
     `,
   }),

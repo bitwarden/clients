@@ -15,6 +15,9 @@ const BackgroundClasses: Record<BackgroundType, string[]> = {
   danger: ["tw-bg-danger-600"],
 };
 
+// Increments for each instance of this component
+let nextId = 0;
+
 /**
  * The progress bar component represents a determinate progress state, visually indicating how much of an action or load has been completed and how much remains.
  * By showing measurable progress, it helps users understand timing and sets clear expectations for more static progress indications.
@@ -29,6 +32,8 @@ const BackgroundClasses: Record<BackgroundType, string[]> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProgressBarComponent {
+  private readonly id = nextId++;
+
   /* Determines the color of the progress bar */
   readonly variant = input<BackgroundType>("primary");
   /* The label displayed above the progress bar */
@@ -39,8 +44,15 @@ export class ProgressBarComponent {
   readonly startText = input<string | null>();
   /* The ending helper text displayed below the progress bar. If nothing is passed, no text is displayed in the end slot */
   readonly endText = input<string>();
+  /* The ARIA value text for the progress bar. Overrides default accessible text. */
+  readonly ariaValueText = input<string>();
+  /* The ID of the progress bar element, used for attaching `aria-describedby` attributes. */
+  readonly progressBarId = input<string>(`bit-progress-bar-${this.id}`);
 
   private readonly i18nService = inject(I18nService);
+
+  // Necessary for `aria-labelledby` to point to the label element
+  protected readonly labelId = `bit-progress-bar-label-${this.id}`;
 
   protected readonly startTextContent = computed(() => {
     if (this.startText() === null) {
