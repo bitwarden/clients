@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Favoriler"
   },
+  "unfavorite": {
+    "message": "Favorilerden kaldır"
+  },
   "types": {
     "message": "Türler"
   },
@@ -586,6 +589,12 @@
   "editedItem": {
     "message": "Kayıt kaydedildi"
   },
+  "itemAddedToFavorites": {
+    "message": "Kayıt favorilere eklendi"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Kayıt favorilerden silindi"
+  },
   "deleteItem": {
     "message": "Kaydı sil"
   },
@@ -1022,6 +1031,9 @@
   },
   "invalidVerificationCode": {
     "message": "Geçersiz doğrulama kodu"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "E-posta veya doğrulama kodu geçersiz"
   },
   "continue": {
     "message": "Devam Et"
@@ -1552,6 +1564,18 @@
   "unknown": {
     "message": "Bilinmiyor"
   },
+  "copyAddress": {
+    "message": "Adresi kopyala"
+  },
+  "copyPhone": {
+    "message": "Telefonu kopyala"
+  },
+  "copyNote": {
+    "message": "Notu kopyala"
+  },
+  "copyVerificationCode": {
+    "message": "Doğrulama kodunu kopyala"
+  },
   "copyUsername": {
     "message": "Kullanıcı adını kopyala"
   },
@@ -2079,6 +2103,24 @@
   "searchTrash": {
     "message": "Çöp kutusunda ara"
   },
+  "searchArchive": {
+    "message": "Arşivde ara"
+  },
+  "searchLogin": {
+    "message": "Hesaplarda ara"
+  },
+  "searchCard": {
+    "message": "Kartlarda ara"
+  },
+  "searchIdentity": {
+    "message": "Kimliklerde ara"
+  },
+  "searchSecureNote": {
+    "message": "Güvenli notlarda ara"
+  },
+  "searchSshKey": {
+    "message": "SSH anahtarlarında ara"
+  },
   "permanentlyDeleteItem": {
     "message": "Kaydı kalıcı olarak sil"
   },
@@ -2374,6 +2416,9 @@
   "editSend": {
     "message": "Send'i düzenle",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Ben"
   },
   "myVault": {
     "message": "Kasam"
@@ -4083,6 +4128,9 @@
   "missingWebsite": {
     "message": "Web sitesi eksik"
   },
+  "missingPermissions": {
+    "message": "Bu eylemi gerçekleştirmek için gereken izinlere sahip değilsiniz."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Yalnızca Görüntüleme izinlerine sahip koleksiyonları kaldıramazsınız: $COLLECTIONS$",
     "placeholders": {
@@ -4337,7 +4385,7 @@
     "message": "Kısayolu yazın"
   },
   "editAutotypeKeyboardModifiersDescription": {
-    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, and a letter."
+    "message": "Aşağıdaki değiştirici tuşlardan birini veya ikisini (Ctrl, Alt, Win) ve bir harf kullanın."
   },
   "invalidShortcut": {
     "message": "Geçersiz kısayol"
@@ -4387,10 +4435,10 @@
   "noItemsInArchiveDesc": {
     "message": "Arşivlenmiş kayıtlar burada görünecek ve genel arama sonuçları ile otomatik doldurma önerilerinden hariç tutulacaktır."
   },
-  "itemWasSentToArchive": {
-    "message": "Kayıt arşive gönderildi"
+  "itemArchiveToast": {
+    "message": "Kayıt arşivlendi"
   },
-  "itemWasUnarchived": {
+  "itemUnarchivedToast": {
     "message": "Kayıt arşivden çıkarıldı"
   },
   "archiveItem": {
@@ -4448,43 +4496,46 @@
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Giriş yaparak devam et"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Devam etme"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Alan Adı"
   },
   "keyConnectorDomainTooltip": {
     "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Giriş yapmak için kuruluşunuzu doğrulayın"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Kuruluş doğrulandı"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Alan adı doğrulandı"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Kuruluşunuzu doğrulamazsanız, kuruluşa erişiminiz iptal edilecektir."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Şimdi ayrıl"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Giriş yapmak için alan adınızı doğrulayın"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Giriş yaparak devam etmek için bu alan adını doğrulayın."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Giriş yaparak devam etmek için kuruluşu ve alan adını doğrulayın."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Zaman aşımı eylemi"
+  },
+  "errorCannotDecrypt": {
+    "message": "Hata: Deşifre edilemiyor"
   },
   "sessionTimeoutHeader": {
     "message": "Oturum zaman aşımı"
@@ -4584,8 +4635,71 @@
   "whyAmISeeingThis": {
     "message": "Bunu neden görüyorum?"
   },
+  "organizationIsSuspended": {
+    "message": "Kuruluş askıya alındı"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Askıya alınmış kuruluşlardaki kayıtlara erişilemez. Destek almak için kuruluş sahibinizle iletişime geçin."
+  },
+  "noItemsInTrash": {
+    "message": "Çöp kutusunda hiç kayıt yok"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Sildiğiniz kayıtlar burada görünecek ve 30 gün sonra kalıcı olarak silinecektir"
+  },
+  "noItemsInVault": {
+    "message": "Kasada hiç kayıt yok"
+  },
+  "emptyVaultDescription": {
+    "message": "Kasanız sadece parolalarınız için değil. Hesaplarınızı, kimliklerinizi, kredi kartlarınızı ve notlarınızı da güvenle burada depolayabilirsiniz."
+  },
+  "emptyFavorites": {
+    "message": "Henüz hiçbir kaydı favorilere eklemediniz"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Sık kullandığınız kayıtları hızlı erişim için favorilere ekleyin."
+  },
+  "noSearchResults": {
+    "message": "Hiçbir sonuç bulunamadı"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Filtreleri temizleyin veya başka bir arama yapmayı deneyin"
+  },
   "sendPasswordHelperText": {
     "message": "Bu Send'i görmek isteyen kişilerin parola girmesi gerekecektir",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "E-posta korumalı"
+  },
+  "emails": {
+    "message": "E-postalar"
+  },
+  "noAuth": {
+    "message": "Bağlantıya sahip olan herkes"
+  },
+  "anyOneWithPassword": {
+    "message": "Belirlediğiniz parolaya sahip olan herkes"
+  },
+  "whoCanView": {
+    "message": "Kim görebilir"
+  },
+  "specificPeople": {
+    "message": "Belirli kişiler"
+  },
+  "emailVerificationDesc": {
+    "message": "Bu Send bağlantısını paylaştığınızda kullanıcıların bu Send'i görüntülemeleri için e-posta adreslerini bir kodla doğrulamaları gerekecektir."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "E-posta adreslerini virgülle ayırarak yazın."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "E-posta doğrulaması için en az bir e-posta adresi gerekir. Tüm e-postaları silmek için yukarıdan erişim türünü değiştirin."
+  },
+  "emailPlaceholder": {
+    "message": "kullanici@bitwarden.com , kullanici@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Kullanıcı doğrulaması başarısız oldu."
   }
 }

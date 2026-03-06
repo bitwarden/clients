@@ -80,7 +80,7 @@
   @if (filter.type !== "trash") {
     <div class="tw-shrink-0">
       <vault-new-cipher-menu
-        [canCreateCipher]="true"
+        [canCreateCipher]="canCreateCipher"
         [canCreateFolder]="true"
         [canCreateSshKey]="true"
         [canCreateCollection]="canCreateCollections"

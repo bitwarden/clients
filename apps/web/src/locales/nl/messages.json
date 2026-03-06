@@ -15,7 +15,7 @@
     "message": "Geen kritische applicaties in gevaar"
   },
   "critical": {
-    "message": "Critical ($COUNT$)",
+    "message": "Kritiek ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -24,7 +24,7 @@
     }
   },
   "notCritical": {
-    "message": "Not critical ($COUNT$)",
+    "message": "Niet kritiek ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -32,8 +32,14 @@
       }
     }
   },
+  "criticalBadge": {
+    "message": "Kritiek"
+  },
   "accessIntelligence": {
     "message": "Toegangsintelligentie"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "Er zijn geen applicaties die met deze filters overeenkomen"
   },
   "passwordRisk": {
     "message": "Wachtwoordrisico"
@@ -41,8 +47,8 @@
   "noEditPermissions": {
     "message": "Je hebt geen toestemming om dit item te bewerken"
   },
-  "reviewAtRiskPasswords": {
-    "message": "Herzie risicovolle wachtwoorden (zwak, blootgelegd of herbruikt) tussen applicaties. Selecteer je meest belangrijke applicaties om prioriteit te geven aan beveiligingsacties voor je gebruikers om risicovolle wachtwoorden aan te pakken."
+  "reviewAccessIntelligence": {
+    "message": "Bekijk veiligheidsrapportages om risicovolle inloggegevens te vinden en verhelpen voordat ze uit de hand lopen."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Risicovolle logins bekijken"
@@ -262,6 +268,42 @@
       }
     }
   },
+  "numCriticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ applicaties als belangrijk gemarkeerd",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numApplicationsUnmarkedCriticalSuccess": {
+    "message": "$COUNT$ applicaties als niet-belangrijk gemarkeerd",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsCritical": {
+    "message": "$COUNT$ belangrijk markeren",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsNotCritical": {
+    "message": "$COUNT$ niet-belangrijk markeren",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Kon applicaties niet als kritiek markeren"
   },
@@ -269,7 +311,7 @@
     "message": "Applicatie"
   },
   "applications": {
-    "message": "Applications"
+    "message": "Applicaties"
   },
   "atRiskPasswords": {
     "message": "Wachtwoorden in gevaar"
@@ -383,10 +425,10 @@
     "message": "Nu beoordelen"
   },
   "allCaughtUp": {
-    "message": "All caught up!"
+    "message": "Alles bijgewerkt!"
   },
   "noNewApplicationsToReviewAtThisTime": {
-    "message": "No new applications to review at this time"
+    "message": "Geen nieuwe toepassingen om te beoordelen op dit moment"
   },
   "organizationHasItemsSavedForApplications": {
     "message": "Je organisatie heeft items opgeslagen voor $COUNT$ applicaties",
@@ -422,16 +464,16 @@
     "message": "Markeren als kritieke functionaliteit wordt geïmplementeerd in een toekomstige update"
   },
   "applicationReviewSaved": {
-    "message": "Application review saved"
+    "message": "Beoordeling opgeslagen"
   },
   "newApplicationsReviewed": {
-    "message": "New applications reviewed"
+    "message": "Nieuwe toepassingen beoordeeld"
   },
   "errorSavingReviewStatus": {
-    "message": "Error saving review status"
+    "message": "Fout bij opslaan beoordelingsstatus"
   },
   "pleaseTryAgain": {
-    "message": "Please try again"
+    "message": "Probeer opnieuw"
   },
   "unmarkAsCritical": {
     "message": "Markeren als belangrijk ongedaan maken"
@@ -608,7 +650,7 @@
     "message": "E-mailadres"
   },
   "emails": {
-    "message": "Emails"
+    "message": "E-mails"
   },
   "phone": {
     "message": "Telefoonnummer"
@@ -1241,6 +1283,9 @@
   "selectAll": {
     "message": "Alles selecteren"
   },
+  "deselectAll": {
+    "message": "Selectie ongedaan maken"
+  },
   "unselectAll": {
     "message": "Alles deselecteren"
   },
@@ -1390,10 +1435,10 @@
     "message": "Nee"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Iedereen met de link"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "Iedereen met een door jou ingesteld wachtwoord"
   },
   "location": {
     "message": "Locatie"
@@ -1432,7 +1477,7 @@
     "message": "Single sign-on gebruiken"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Je organisatie vereist single sign-on."
   },
   "welcomeBack": {
     "message": "Welkom terug"
@@ -3293,6 +3338,15 @@
   "reinstated": {
     "message": "Het abonnement is opnieuw geactiveerd."
   },
+  "resubscribe": {
+    "message": "Opnieuw abonneren"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Je abonnement is verlopen"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Je abonnement is geannuleerd"
+  },
   "cancelConfirmation": {
     "message": "Weet je zeker dat je wilt opzeggen? Je verliest toegang tot alle functionaliteiten van dit abonnement aan het einde van deze betalingscyclus."
   },
@@ -3802,6 +3856,9 @@
   "editCollection": {
     "message": "Verzameling bewerken"
   },
+  "viewCollection": {
+    "message": "Collectie weergeven"
+  },
   "collectionInfo": {
     "message": "Collectieinformatie"
   },
@@ -4280,6 +4337,15 @@
       }
     }
   },
+  "automaticallyConfirmedUserId": {
+    "message": "Automatisch bevestigde gebruiker $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "editedUserId": {
     "message": "Gebruiker gewijzigd $ID$.",
     "placeholders": {
@@ -4539,29 +4605,26 @@
   "generatingYourAccessIntelligence": {
     "message": "Je toegangsinlichtingen genereren..."
   },
-  "fetchingMemberData": {
-    "message": "Ledengegevens ophalen..."
-  },
-  "analyzingPasswordHealth": {
-    "message": "Wachtwoordgezondheid analyseren..."
-  },
-  "calculatingRiskScores": {
-    "message": "Risicoscores berekenen..."
-  },
-  "generatingReportData": {
-    "message": "Rapportgegevens genereren..."
-  },
-  "savingReport": {
-    "message": "Rapport opslaan..."
-  },
-  "compilingInsights": {
-    "message": "Inzichten compileren..."
-  },
   "loadingProgress": {
     "message": "Voortgang laden"
   },
-  "thisMightTakeFewMinutes": {
-    "message": "Dit kan een paar minuten duren."
+  "reviewingMemberData": {
+    "message": "Ledengegevens controleren..."
+  },
+  "analyzingPasswords": {
+    "message": "Wachtwoorden analyseren..."
+  },
+  "calculatingRisks": {
+    "message": "Risicoscores berekenen..."
+  },
+  "generatingReports": {
+    "message": "Rapporteren genereren..."
+  },
+  "compilingInsightsProgress": {
+    "message": "Inzichten compileren..."
+  },
+  "reportGenerationDone": {
+    "message": "Klaar!"
   },
   "riskInsightsRunReport": {
     "message": "Rapport uitvoeren"
@@ -5383,7 +5446,7 @@
     "message": "Minimum aantal woorden"
   },
   "overridePasswordTypePolicy": {
-    "message": "Type wachtwoord",
+    "message": "Wachtwoordtype",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -5639,10 +5702,6 @@
   "sendTypeText": {
     "message": "Tekst"
   },
-  "sendPasswordDescV3": {
-    "message": "Voeg een optioneel wachtwoord toe voor ontvangers om toegang te krijgen tot deze Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Nieuwe Send aanmaken",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5656,7 +5715,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendCreatedSuccessfully": {
-    "message": "Send created successfully!",
+    "message": "Send succesvol aangemaakt!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendCreatedDescriptionV2": {
@@ -5669,8 +5728,28 @@
       }
     }
   },
+  "sendCreatedDescriptionPassword": {
+    "message": "Kopieer en deel deze Send-link. De Send is beschikbaar voor iedereen met de link en het ingestelde wachtwoord voor de volgende $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Kopieer en deel deze Send-link. Het kan worden bekeken door de mensen die je hebt opgegeven voor de volgende $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "durationTimeHours": {
-    "message": "$HOURS$ hours",
+    "message": "$HOURS$ uur",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -5679,11 +5758,11 @@
     }
   },
   "newTextSend": {
-    "message": "New Text Send",
+    "message": "Nieuwe Send (tekst)",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newFileSend": {
-    "message": "New File Send",
+    "message": "Nieuwe Send (bestand)",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
@@ -5774,10 +5853,6 @@
   },
   "sendProtectedPasswordDontKnow": {
     "message": "Weet je het wachtwoord niet? Vraag de afzender om het wachtwoord om toegang te krijgen tot deze Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendHiddenByDefault": {
-    "message": "Deze Send is standaard verborgen. Je kunt de zichtbaarheid ervan in- en uitschakelen met de knop hieronder.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "downloadAttachments": {
@@ -5979,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Meer informatie over de overstap"
   },
+  "promptUsersToMoveItems": {
+    "message": "Vraag gebruikers om individuele kluisitems naar de organisatie te verplaatsen"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Leden worden gevraagd om hun items over te dragen naar de organisatie of te vertrekken. Als ze vertrekken, wordt hun toegang ingetrokken maar kan deze op elk moment worden hersteld."
+  },
   "organizationDataOwnership": {
     "message": "Gegevenseigendom van organisatie afdwingen"
   },
@@ -6016,8 +6097,8 @@
   "availableNow": {
     "message": "Nu beschikbaar"
   },
-  "autoConfirm": {
-    "message": "Automatische bevestiging van nieuwe gebruikers"
+  "automaticUserConfirmation": {
+    "message": "Automatische gebruikersbevestiging"
   },
   "autoConfirmDescription": {
     "message": "Nieuwe uitgenodigde gebruikers in de organisatie worden automatisch bevestigd wanneer het apparaat van een beheerder is ontgrendeld.",
@@ -6071,6 +6152,21 @@
   },
   "autoConfirmCheckBoxLabel": {
     "message": "Ik accepteer deze risico's en beleidsupdates"
+  },
+  "autoConfirmEnabledByAdmin": {
+    "message": "Automatisch gebruikersbevestigingsinstelling ingeschakeld"
+  },
+  "autoConfirmDisabledByAdmin": {
+    "message": "Automatisch gebruikersbevestigingsinstelling uitgeschakeld"
+  },
+  "autoConfirmEnabledByPortal": {
+    "message": "Automatisch gebruikersbevestigingsbeleid toegevoegd"
+  },
+  "autoConfirmDisabledByPortal": {
+    "message": "Automatisch gebruikersbevestigingsbeleid verwijderd"
+  },
+  "system": {
+    "message": "Systeem"
   },
   "personalOwnership": {
     "message": "Persoonlijk eigendom"
@@ -6365,6 +6461,10 @@
     "message": "Send weergeven",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Verifieer je e-mailadres om deze Send te bekijken",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "De Bitwarden-gebruiker die deze Send heeft gemaakt heeft ervoor gekozen het e-mailadres te verbergen. Je moet je ervan verzekeren dat je de bron van deze link vertrouwt voordat je de inhoud gebruikt of downloadt.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6609,6 +6709,18 @@
       }
     }
   },
+  "reinviteSuccessToast": {
+    "message": "1 uitnodiging verzonden"
+  },
+  "bulkReinviteSentToast": {
+    "message": "$COUNT$ uitnodigingen verzonden",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
   "bulkReinviteLimitedSuccessToast": {
     "message": "$LIMIT$ van $SELECTEDCOUNT$ gebruikers opnieuw uitgenodigd. $EXCLUDEDCOUNT$ werden niet uitgenodigd vanwege de $LIMIT$ uitnodigingslimiet.",
     "placeholders": {
@@ -6625,6 +6737,50 @@
         "example": "5"
       }
     }
+  },
+  "bulkReinviteProgressTitle": {
+    "message": "$COUNT$ van $TOTAL$ uitnodigingen verzonden...",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkReinviteProgressSubtitle": {
+    "message": "Houd deze pagina open totdat alles is verstuurd."
+  },
+  "bulkReinviteFailuresTitle": {
+    "message": "$COUNT$ uitnodigingen niet verzonden",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      }
+    }
+  },
+  "bulkReinviteFailureTitle": {
+    "message": "$COUNT$ uitnodiging niet verzonden"
+  },
+  "bulkReinviteFailureDescription": {
+    "message": "Er is een fout opgetreden tijdens het verzenden van uitnodigingen naar $COUNT$ van $TOTAL$ leden. Probeer het opnieuw te verzenden en als het probleem aanhoudt,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkResendInvitations": {
+    "message": "Probeer opnieuw te verzenden"
   },
   "bulkRemovedMessage": {
     "message": "Succesvol verwijderd"
@@ -6959,16 +7115,16 @@
     "message": "Organisatiebeleid voorkomt dat je je persoonlijke kluis exporteert."
   },
   "activateAutofillPolicy": {
-    "message": "Activate autofill"
+    "message": "Automatisch invullen activeren"
   },
   "activateAutofillPolicyDescription": {
     "message": "Activeer de \"automatisch invullen wanneer de pagina geladen is\"-instelling in de browserextensie voor alle bestaande en nieuwe gebruikers."
   },
   "autofillOnPageLoadExploitWarning": {
-    "message": "Compromised or untrusted websites can exploit autofill on page load."
+    "message": "Gehackte of onbetrouwbare websites kunnen automatisch invullen tijdens het laden van de pagina misbruiken."
   },
   "learnMoreAboutAutofillPolicy": {
-    "message": "Learn more about autofill"
+    "message": "Lees meer over automatisch invullen"
   },
   "selectType": {
     "message": "Selecteer Type"
@@ -7267,6 +7423,9 @@
   "invalidVerificationCode": {
     "message": "Ongeldige verificatiecode"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Ongeldig e-mailadres verificatiecode"
+  },
   "keyConnectorDomain": {
     "message": "Key Connector-domein"
   },
@@ -7325,7 +7484,7 @@
     "message": "SSO ingeschakeld"
   },
   "ssoTurnedOff": {
-    "message": "SSO turned off"
+    "message": "SSO uitgeschakeld"
   },
   "emailMustLoginWithSso": {
     "message": "$EMAIL$ moet met Single Sign-on inloggen",
@@ -9616,7 +9775,7 @@
     "message": "SSO login is vereist"
   },
   "emailRequiredForSsoLogin": {
-    "message": "Email is required for SSO"
+    "message": "E-mail is vereist voor SSO"
   },
   "selectedRegionFlag": {
     "message": "Geselecteerde regionale vlag"
@@ -10064,6 +10223,9 @@
   "assignTasks": {
     "message": "Taken toewijzen"
   },
+  "allTasksAssigned": {
+    "message": "Alle taken zijn toegewezen"
+  },
   "assignSecurityTasksToMembers": {
     "message": "Meldingen verzenden om wachtwoorden te wijzigen"
   },
@@ -10468,8 +10630,20 @@
   "huntressEventIntegrationDesc": {
     "message": "Stuur eventgegevens naar je Huntress SIEM-instantie"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ succesvol verbonden.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Opslaan van integratie mislukt. Probeer het later opnieuw."
+  },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "Je moet de eigenaar van de organisatie of beheerder zijn om deze actie uit te voeren."
   },
   "mustBeOrgOwnerToPerformAction": {
     "message": "Je moet de eigenaar van de organisatie zijn om deze actie uit te voeren."
@@ -10817,6 +10991,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Uit"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Het laden van het toegangsrapport van leden is mislukt. Dit kan worden veroorzaakt door de grootte van de organisatie of een netwerkprobleem. Probeer het opnieuw of neem contact op met ondersteuning als het probleem zich blijft voordoen."
   },
   "kdfIterationRecommends": {
     "message": "We adviseren 600.000 of meer"
@@ -11742,7 +11919,7 @@
     "message": "Gratis organisaties kunnen maximaal twee collecties hebben. Upgrade naar een betaald abonnement voor het toevoegen van meer collecties."
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Archief doorzoeken"
   },
   "archiveNoun": {
     "message": "Archief",
@@ -11765,22 +11942,16 @@
     "message": "Items in archief"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Geen items in archief"
   },
   "noItemsInArchiveDesc": {
     "message": "Gearchiveerde items verschijnen hier en worden uitgesloten van algemene zoekresultaten en automatisch invulsuggesties."
   },
-  "itemWasSentToArchive": {
-    "message": "Item naar archief verzonden"
+  "itemArchiveToast": {
+    "message": "Item gearchiveerd"
   },
-  "itemsWereSentToArchive": {
-    "message": "Item naar archief verzonden"
-  },
-  "itemWasUnarchived": {
-    "message": "Item uit het archief gehaald"
-  },
-  "itemUnarchived": {
-    "message": "Item uit het archief gehaald"
+  "itemUnarchivedToast": {
+    "message": "Item gedearchiveerd"
   },
   "bulkArchiveItems": {
     "message": "Items gearchiveerd"
@@ -12459,8 +12630,11 @@
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Weet je zeker dat je wilt doorgaan?"
   },
+  "errorCannotDecrypt": {
+    "message": "Fout: Kan niet ontsleutelen"
+  },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "Gebruikersverificatie is mislukt."
   },
   "resizeSideNavigation": {
     "message": "Formaat zijnavigatie wijzigen"
@@ -12552,16 +12726,16 @@
     "message": "Stel een ontgrendelingsmethode in om je kluis time-out actie te wijzigen"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "Are you sure you want to leave?"
+    "message": "Weet je zeker dat je wilt verlaten?"
   },
   "leaveConfirmationDialogContentOne": {
-    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+    "message": "Door te weigeren, blijven je persoonlijke items in je account, maar verlies je toegang tot gedeelde items en organisatiefunctionaliteit."
   },
   "leaveConfirmationDialogContentTwo": {
-    "message": "Contact your admin to regain access."
+    "message": "Neem contact op met je beheerder om weer toegang te krijgen."
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "$ORGANIZATION$ verlaten",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12570,10 +12744,10 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "Hoe beheer ik mijn kluis?"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "Items overdragen aan $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12582,7 +12756,7 @@
     }
   },
   "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "message": "$ORGANIZATION$ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en naleving. Klik op accepteren voor het overdragen van eigendom van je items.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12591,13 +12765,13 @@
     }
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "Overdacht accepteren"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
+    "message": "Weigeren en verlaten"
   },
   "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+    "message": "Waarom zie ik dit?"
   },
   "youHaveBitwardenPremium": {
     "message": "Je hebt Bitwarden Premium"
@@ -12648,16 +12822,16 @@
     "message": "Online beveiliging voltooien"
   },
   "updatePayment": {
-    "message": "Update payment"
+    "message": "Betalingswijze bijwerken"
   },
   "weCouldNotProcessYourPayment": {
-    "message": "We could not process your payment. Please update your payment method or contact the support team for assistance."
+    "message": "We konden je betaling niet verwerken. Werk je betalingsmethode bij of neem contact op met het ondersteuningsteam voor assistentie."
   },
   "yourSubscriptionHasExpired": {
-    "message": "Your subscription has expired. Please contact the support team for assistance."
+    "message": "Je abonnement is verlopen. Neem voor hulp contact op met het supportteam."
   },
   "yourSubscriptionIsScheduledToCancel": {
-    "message": "Your subscription is scheduled to cancel on $DATE$. You can reinstate it anytime before then.",
+    "message": "Je abonnement verloopt op $DATE$. Je kunt het op elk gewenst moment hervatten.",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -12666,10 +12840,10 @@
     }
   },
   "premiumShareEvenMore": {
-    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise."
+    "message": "Deel nog meer met Families, of krijg krachtige, betrouwbare wachtwoordbeveiliging met Teams of Enterprise."
   },
   "youHaveAGracePeriod": {
-    "message": "You have a grace period of $DAYS$ days from your subscription expiration date. Please resolve the past due invoices by $DATE$.",
+    "message": "Je hebt een periode van $DAYS$ dagen tot de vervaldatum van je abonnement. Probeer de achterstallige facturen vóór $DATE$ op te lossen.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -12682,31 +12856,31 @@
     }
   },
   "manageInvoices": {
-    "message": "Manage invoices"
+    "message": "Facturen beheren"
   },
   "yourNextChargeIsFor": {
-    "message": "Your next charge is for"
+    "message": "Je volgende betaling is voor"
   },
   "dueOn": {
-    "message": "due on"
+    "message": "verschuldigd op"
   },
   "yourSubscriptionWillBeSuspendedOn": {
-    "message": "Your subscription will be suspended on"
+    "message": "Je abonnement zal worden opgeschort op"
   },
   "yourSubscriptionWasSuspendedOn": {
-    "message": "Your subscription was suspended on"
+    "message": "Je abonnement is opgeschort op"
   },
   "yourSubscriptionWillBeCanceledOn": {
-    "message": "Your subscription will be canceled on"
+    "message": "Je abonnement zal worden geannuleerd op"
   },
   "yourSubscriptionWasCanceledOn": {
-    "message": "Your subscription was canceled on"
+    "message": "Je abonnement is geannuleerd op"
   },
   "storageFull": {
-    "message": "Storage full"
+    "message": "Opslag is vol"
   },
   "storageUsedDescription": {
-    "message": "You have used $USED$ out of $AVAILABLE$ GB of your encrypted file storage.",
+    "message": "Je hebt $USED$ gebruikt van de $AVAILABLE$ GB versleutelde bestandsopslag.",
     "placeholders": {
       "used": {
         "content": "$1",
@@ -12719,25 +12893,52 @@
     }
   },
   "storageFullDescription": {
-    "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
+    "message": "Je hebt alle $GB$ GB aan versleutelde opslag gebruikt. Voeg meer opslagruimte toe om door te gaan met het opslaan van bestanden."
+  },
+  "extensionPromptHeading": {
+    "message": "Gebruik de extensie voor eenvoudige toegang tot je kluis"
+  },
+  "extensionPromptBody": {
+    "message": "Met de browserextensie kun je Bitwarden overal online gebruiken. Het invullen van wachtwoorden, zodat je met één klik op je accounts kunt inloggen."
+  },
+  "extensionPromptImageAlt": {
+    "message": "Een webbrowser die de Bitwarden-extensie toont met automatisch invullen voor de huidige webpagina."
+  },
+  "skip": {
+    "message": "Overslaan"
+  },
+  "downloadExtension": {
+    "message": "Extensie downloaden"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Wie kan weergeven"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Specifieke mensen"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "Na het delen van deze Send-link moeten individuen hun e-mailadres met een code verifiëren om deze Send te kunnen bekijken."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "Voer meerdere e-mailadressen in door te scheiden met een komma."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "E-mailverificatie vereist ten minste één e-mailadres. Om alle e-mailadressen te verwijderen, moet je het toegangstype hierboven wijzigen."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
   "whenYouRemoveStorage": {
     "message": "Wanneer je opslag verwijdert, krijg je op je volgende rekening automatisch pro-rata rekeningkrediet."
+  },
+  "ownerBadgeA11yDescription": {
+    "message": "Eigenaar, $OWNER$, toon alle items in eigendom van $OWNER$",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "youHavePremium": {
     "message": "Je hebt Premium"
@@ -12746,6 +12947,92 @@
     "message": "E-mail beveiligd"
   },
   "invalidSendPassword": {
-    "message": "Invalid Send password"
+    "message": "Ongeldig Send-wachtwoord"
+  },
+  "vaultWelcomeDialogTitle": {
+    "message": "Je bent erbij! Welkom bij Bitwarden"
+  },
+  "vaultWelcomeDialogDescription": {
+    "message": "Sla al je wachtwoorden en persoonlijke informatie op in je Bitwarden-kluis. We laten je zien hoe het werkt."
+  },
+  "vaultWelcomeDialogPrimaryCta": {
+    "message": "Rondleiding starten"
+  },
+  "vaultWelcomeDialogDismissCta": {
+    "message": "Overslaan"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuen moeten het wachtwoord invoeren om deze Send te bekijken",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "per gebruiker"
+  },
+  "upgradeToTeams": {
+    "message": "Upgrade naar Teams"
+  },
+  "upgradeToEnterprise": {
+    "message": "Upgraden naar Enterprise"
+  },
+  "upgradeShareEvenMore": {
+    "message": "Deel nog meer met Families, of krijg krachtige, betrouwbare wachtwoordbeveiliging met Teams of Enterprise"
+  },
+  "organizationUpgradeTaxInformationMessage": {
+    "message": "Prijzen exclusief btw en worden jaarlijks gefactureerd."
+  },
+  "invoicePreviewErrorMessage": {
+    "message": "Fout opgetreden bij het genereren van de voorbeeldfactuur."
+  },
+  "planProratedMembershipInMonths": {
+    "message": "Verrekening lidmaatschap $PLAN$ ($NUMOFMONTHS$)",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      },
+      "numofmonths": {
+        "content": "$2",
+        "example": "6 Months"
+      }
+    }
+  },
+  "premiumSubscriptionCredit": {
+    "message": "Krediet Premium-abonnement"
+  },
+  "enterpriseMembership": {
+    "message": "Enterprise-lidmaatschap"
+  },
+  "teamsMembership": {
+    "message": "Teams-lidmaatschap"
+  },
+  "plansUpdated": {
+    "message": "Je hebt opgewaardeerd naar $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      }
+    }
+  },
+  "paymentMethodUpdateError": {
+    "message": "Er is een fout opgetreden bij het bijwerken van je betaalmethode."
+  },
+  "sendPasswordInvalidAskOwner": {
+    "message": "Onjuist wachtwoord. Vraag de afzender om het wachtwoord om toegang te krijgen tot deze Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresOn": {
+    "message": "Deze Send verloopt om $TIME$ op $DATE$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:00 AM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jan 1, 1970"
+      }
+    }
   }
 }

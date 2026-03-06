@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import {
   Component,
   ElementRef,
@@ -17,12 +18,12 @@ import {
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
 import { compareValues } from "@bitwarden/common/platform/misc/compare-values";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 import { MenuComponent, MenuItemComponent, MenuModule, MenuTriggerForDirective } from "../menu";
 import { Option } from "../select/option";
-import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
 
 /** An option that will be showed in the overlay menu of `ChipSelectComponent` */
@@ -37,7 +38,7 @@ export type ChipSelectOption<T> = Option<T> & {
 @Component({
   selector: "bit-chip-select",
   templateUrl: "chip-select.component.html",
-  imports: [SharedModule, ButtonModule, IconButtonModule, MenuModule, TypographyModule],
+  imports: [CommonModule, I18nPipe, ButtonModule, IconButtonModule, MenuModule, TypographyModule],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -106,7 +107,18 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
   constructor() {
     // Initialize the root tree whenever options change
     effect(() => {
+      const currentSelection = this.selectedOption;
+
+      // when the options change, clear the childParentMap
+      this.childParentMap.clear();
+
       this.initializeRootTree(this.options());
+
+      // when the options change, we need to change our selectedOption
+      // to reflect the changed options.
+      if (currentSelection?.value != null) {
+        this.selectedOption = this.findOption(this.rootTree, currentSelection.value);
+      }
 
       // If there's a pending value, apply it now that options are available
       if (this.pendingValue !== undefined) {

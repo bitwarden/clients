@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Favoriter"
   },
+  "unfavorite": {
+    "message": "Ta bort favorit"
+  },
   "types": {
     "message": "Typer"
   },
@@ -586,6 +589,12 @@
   "editedItem": {
     "message": "Objekt sparat"
   },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
+  },
   "deleteItem": {
     "message": "Radera objekt"
   },
@@ -1022,6 +1031,9 @@
   },
   "invalidVerificationCode": {
     "message": "Ogiltig verifieringskod"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Ogiltig e-postadress eller verifieringskod"
   },
   "continue": {
     "message": "Fortsätt"
@@ -1552,6 +1564,18 @@
   "unknown": {
     "message": "Okänd"
   },
+  "copyAddress": {
+    "message": "Kopiera adress"
+  },
+  "copyPhone": {
+    "message": "Kopiera telefon"
+  },
+  "copyNote": {
+    "message": "Kopiera anteckning"
+  },
+  "copyVerificationCode": {
+    "message": "Kopiera verifieringskod"
+  },
   "copyUsername": {
     "message": "Kopiera användarnamn"
   },
@@ -2079,6 +2103,24 @@
   "searchTrash": {
     "message": "Sök i papperskorgen"
   },
+  "searchArchive": {
+    "message": "Sök i arkiv"
+  },
+  "searchLogin": {
+    "message": "Sök inloggning"
+  },
+  "searchCard": {
+    "message": "Sök kort"
+  },
+  "searchIdentity": {
+    "message": "Sök identitet"
+  },
+  "searchSecureNote": {
+    "message": "Sök säker anteckning"
+  },
+  "searchSshKey": {
+    "message": "Sök SSH-nyckel"
+  },
   "permanentlyDeleteItem": {
     "message": "Radera objekt permanent"
   },
@@ -2374,6 +2416,9 @@
   "editSend": {
     "message": "Redigera Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Jag"
   },
   "myVault": {
     "message": "Mitt valv"
@@ -4083,6 +4128,9 @@
   "missingWebsite": {
     "message": "Saknar webbplats"
   },
+  "missingPermissions": {
+    "message": "You lack the necessary permissions to perform this action."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Du kan inte ta bort samlingar med behörigheten Visa endast: $COLLECTIONS$",
     "placeholders": {
@@ -4387,11 +4435,11 @@
   "noItemsInArchiveDesc": {
     "message": "Arkiverade objekt kommer att visas här och kommer att uteslutas från allmänna sökresultat och förslag för autofyll."
   },
-  "itemWasSentToArchive": {
-    "message": "Objektet skickades till arkivet"
+  "itemArchiveToast": {
+    "message": "Objekt arkiverat"
   },
-  "itemWasUnarchived": {
-    "message": "Objektet har avarkiverats"
+  "itemUnarchivedToast": {
+    "message": "Objekt avarkiverat"
   },
   "archiveItem": {
     "message": "Arkivera objekt"
@@ -4485,6 +4533,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Tidsgränsåtgärd"
+  },
+  "errorCannotDecrypt": {
+    "message": "Fel: Kan inte dekryptera"
   },
   "sessionTimeoutHeader": {
     "message": "Sessionstidsgräns"
@@ -4584,8 +4635,71 @@
   "whyAmISeeingThis": {
     "message": "Varför ser jag det här?"
   },
+  "organizationIsSuspended": {
+    "message": "Organisationen är avstängd"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
+  "noItemsInTrash": {
+    "message": "Inga objekt i papperskorgen"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "Inga objekt i valvet"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "Inga sökresultat returnerades"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Töm filter eller försök med en annan sökterm"
+  },
   "sendPasswordHelperText": {
     "message": "Individer måste ange lösenordet för att visa denna Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "emails": {
+    "message": "E-post"
+  },
+  "noAuth": {
+    "message": "Vem som helst med länken"
+  },
+  "anyOneWithPassword": {
+    "message": "Alla som har ett lösenord inställt av dig"
+  },
+  "whoCanView": {
+    "message": "Vem kan se"
+  },
+  "specificPeople": {
+    "message": "Specifika personer"
+  },
+  "emailVerificationDesc": {
+    "message": "Efter att ha delat denna Send-länk kommer individer att behöva verifiera sin e-post med en kod för att visa denna Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Ange flera e-postadresser genom att separera dem med kommatecken."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "E-postverifiering kräver minst en e-postadress. För att ta bort alla e-postadresser, ändra åtkomsttypen ovan."
+  },
+  "emailPlaceholder": {
+    "message": "användare@bitwarden.com , användare@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Verifiering av användare misslyckades."
   }
 }
