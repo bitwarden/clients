@@ -1,6 +1,6 @@
 import { inject, Injectable, NgZone } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { NavigationEnd, Router } from "@angular/router";
+import { NavigationEnd, NavigationStart, Router } from "@angular/router";
 import { skip, filter, combineLatestWith, tap, map, firstValueFrom } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -15,12 +15,19 @@ export class RouterFocusManagerService {
 
   private configService = inject(ConfigService);
 
+  private currentFocusAfterNav: boolean | string | undefined;
+
   /**
    * See associated router-focus-manager.mdx page for documentation on what this pipeline does and
    * how to customize focus behavior.
    */
   start$ = this.router.events.pipe(
     takeUntilDestroyed(),
+    tap((event) => {
+      if (event instanceof NavigationStart) {
+        this.currentFocusAfterNav = this.router.currentNavigation()?.extras?.state?.focusAfterNav;
+      }
+    }),
     filter((navEvent) => navEvent instanceof NavigationEnd),
     /**
      * On first page load, we do not want to skip the user over the navigation content,
@@ -30,9 +37,8 @@ export class RouterFocusManagerService {
     combineLatestWith(this.configService.getFeatureFlag$(FeatureFlag.RouterFocusManagement)),
     filter(([_navEvent, flagEnabled]) => flagEnabled),
     map(() => {
-      const currentNavExtras = this.router.currentNavigation()?.extras;
-
-      const focusAfterNav: boolean | string | undefined = currentNavExtras?.state?.focusAfterNav;
+      const focusAfterNav = this.currentFocusAfterNav;
+      this.currentFocusAfterNav = undefined;
 
       return focusAfterNav;
     }),
