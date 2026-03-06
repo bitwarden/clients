@@ -237,7 +237,7 @@
   --color-fg-heading: var(--color-gray-900);
   --color-fg-body: var(--color-gray-600);
   --color-fg-body-subtle: var(--color-gray-500);
-  --color-fg-disabled: var(--color-gray-400);
+  --color-fg-inactive: var(--color-gray-400);
 
   /* Brand Foreground */
   --color-fg-brand-soft: var(--color-brand-200);
@@ -279,7 +279,7 @@
   --color-bg-quaternary: var(--color-gray-200);
   --color-bg-gray: var(--color-gray-300);
   --color-bg-gray-strong: var(--color-gray-500);
-  --color-bg-disabled: var(--color-gray-100);
+  --color-bg-inactive: var(--color-gray-100);
 
   /* Brand Background */
   --color-bg-brand-softer: var(--color-brand-050);
@@ -443,7 +443,7 @@
   --color-fg-heading: var(--color-gray-050);
   --color-fg-body: var(--color-gray-200);
   --color-fg-body-subtle: var(--color-gray-400);
-  --color-fg-disabled: var(--color-gray-600);
+  --color-fg-inactive: var(--color-gray-600);
 
   /* Brand Foreground */
   --color-fg-brand-soft: var(--color-brand-500);
@@ -483,7 +483,7 @@
   --color-bg-quaternary: var(--color-gray-700);
   --color-bg-gray: var(--color-gray-600);
   --color-bg-gray-strong: var(--color-gray-400);
-  --color-bg-disabled: var(--color-gray-950);
+  --color-bg-inactive: var(--color-gray-950);
 
   /* Brand Background */
   --color-bg-brand-softer: var(--color-brand-950);
