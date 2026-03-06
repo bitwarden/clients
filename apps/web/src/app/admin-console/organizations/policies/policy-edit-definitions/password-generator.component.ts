@@ -47,7 +47,7 @@ export class PasswordGeneratorPolicyComponent extends BasePolicyEditComponent {
   protected readonly minNumberWordsMax =
     BuiltIn.passphrase.profiles[Profile.account].constraints.default.numWords.max;
 
-  readonly data = this.formBuilder.group({
+  data = this.formBuilder.group({
     overridePasswordType: [null],
     minLength: [null, [Validators.min(this.minLengthMin), Validators.max(this.minLengthMax)]],
     useUpper: [null],
@@ -68,8 +68,8 @@ export class PasswordGeneratorPolicyComponent extends BasePolicyEditComponent {
 
   // These subjects cache visibility of the sub-options for passwords
   // and passphrases; without them policy controls don't show up at all.
-  private readonly showPasswordPolicies = new BehaviorSubject<boolean>(true);
-  private readonly showPassphrasePolicies = new BehaviorSubject<boolean>(true);
+  private showPasswordPolicies = new BehaviorSubject<boolean>(true);
+  private showPassphrasePolicies = new BehaviorSubject<boolean>(true);
 
   /** Emits `true` when the password policy options should be displayed */
   get showPasswordPolicies$() {
@@ -82,7 +82,7 @@ export class PasswordGeneratorPolicyComponent extends BasePolicyEditComponent {
   }
 
   constructor(
-    private readonly formBuilder: UntypedFormBuilder,
+    private formBuilder: UntypedFormBuilder,
     i18nService: I18nService,
   ) {
     super();

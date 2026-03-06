@@ -35,10 +35,10 @@ export class MasterPasswordPolicy extends BasePolicyEditDefinition {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MasterPasswordPolicyComponent extends BasePolicyEditComponent implements OnInit {
-  readonly MinPasswordLength = Utils.minimumPasswordLength;
-  readonly MaxPasswordLength = Utils.maximumPasswordLength;
+  MinPasswordLength = Utils.minimumPasswordLength;
+  MaxPasswordLength = Utils.maximumPasswordLength;
 
-  readonly data: FormGroup<ControlsOf<MasterPasswordPolicyOptions>> = this.formBuilder.group({
+  data: FormGroup<ControlsOf<MasterPasswordPolicyOptions>> = this.formBuilder.group({
     minComplexity: [null],
     minLength: [
       this.MinPasswordLength,
@@ -55,10 +55,10 @@ export class MasterPasswordPolicyComponent extends BasePolicyEditComponent imple
   showKeyConnectorInfo = false;
 
   constructor(
-    private readonly formBuilder: FormBuilder,
+    private formBuilder: FormBuilder,
     i18nService: I18nService,
-    private readonly organizationService: OrganizationService,
-    private readonly accountService: AccountService,
+    private organizationService: OrganizationService,
+    private accountService: AccountService,
   ) {
     super();
 

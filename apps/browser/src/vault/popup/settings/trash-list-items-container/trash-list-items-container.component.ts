@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 import { Router } from "@angular/router";
@@ -63,14 +65,14 @@ export class TrashListItemsContainerComponent {
   headerText: string;
 
   constructor(
-    private readonly cipherService: CipherService,
-    private readonly logService: LogService,
-    private readonly toastService: ToastService,
-    private readonly i18nService: I18nService,
-    private readonly dialogService: DialogService,
-    private readonly passwordRepromptService: PasswordRepromptService,
-    private readonly accountService: AccountService,
-    private readonly router: Router,
+    private cipherService: CipherService,
+    private logService: LogService,
+    private toastService: ToastService,
+    private i18nService: I18nService,
+    private dialogService: DialogService,
+    private passwordRepromptService: PasswordRepromptService,
+    private accountService: AccountService,
+    private router: Router,
   ) {}
 
   /**

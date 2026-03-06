@@ -55,35 +55,35 @@ const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
   imports: [SharedModule, HeaderModule],
 })
 export class EventsComponent extends BaseEventsComponent implements OnInit, OnDestroy {
-  readonly exportFileName = "org-events";
+  exportFileName = "org-events";
   organizationId: string;
   organization: Organization;
   organizationSubscription: OrganizationSubscriptionResponse;
 
-  readonly placeholderEvents = placeholderEvents as EventView[];
+  placeholderEvents = placeholderEvents as EventView[];
 
-  private readonly orgUsersUserIdMap = new Map<string, any>();
+  private orgUsersUserIdMap = new Map<string, any>();
   readonly ProductTierType = ProductTierType;
 
   constructor(
-    private readonly apiService: ApiService,
-    private readonly route: ActivatedRoute,
+    private apiService: ApiService,
+    private route: ActivatedRoute,
     eventService: EventService,
     i18nService: I18nService,
     exportService: EventExportService,
     platformUtilsService: PlatformUtilsService,
     logService: LogService,
-    private readonly userNamePipe: UserNamePipe,
-    protected readonly organizationService: OrganizationService,
-    private readonly organizationUserApiService: OrganizationUserApiService,
-    private readonly organizationApiService: OrganizationApiServiceAbstraction,
-    private readonly providerService: ProviderService,
+    private userNamePipe: UserNamePipe,
+    protected organizationService: OrganizationService,
+    private organizationUserApiService: OrganizationUserApiService,
+    private organizationApiService: OrganizationApiServiceAbstraction,
+    private providerService: ProviderService,
     fileDownloadService: FileDownloadService,
     toastService: ToastService,
-    protected readonly accountService: AccountService,
-    private readonly dialogService: DialogService,
-    private readonly configService: ConfigService,
-    protected readonly activeRoute: ActivatedRoute,
+    protected accountService: AccountService,
+    private dialogService: DialogService,
+    private configService: ConfigService,
+    protected activeRoute: ActivatedRoute,
   ) {
     super(
       eventService,

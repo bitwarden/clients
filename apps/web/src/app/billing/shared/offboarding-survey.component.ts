@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, Inject } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
@@ -55,24 +57,24 @@ export const openOffboardingSurvey = (
   standalone: false,
 })
 export class OffboardingSurveyComponent {
-  protected readonly ResultType = OffboardingSurveyDialogResultType;
+  protected ResultType = OffboardingSurveyDialogResultType;
   protected readonly MaxFeedbackLength = 400;
 
   protected readonly reasons: Reason[] = [];
 
-  protected readonly formGroup = this.formBuilder.group({
+  protected formGroup = this.formBuilder.group({
     reason: [null, [Validators.required]],
     feedback: ["", [Validators.maxLength(this.MaxFeedbackLength)]],
   });
 
   constructor(
-    @Inject(DIALOG_DATA) private readonly dialogParams: OffboardingSurveyDialogParams,
-    private readonly dialogRef: DialogRef<OffboardingSurveyDialogResultType>,
-    private readonly formBuilder: FormBuilder,
-    private readonly billingApiService: BillingApiService,
-    private readonly i18nService: I18nService,
-    private readonly platformUtilsService: PlatformUtilsService,
-    private readonly toastService: ToastService,
+    @Inject(DIALOG_DATA) private dialogParams: OffboardingSurveyDialogParams,
+    private dialogRef: DialogRef<OffboardingSurveyDialogResultType>,
+    private formBuilder: FormBuilder,
+    private billingApiService: BillingApiService,
+    private i18nService: I18nService,
+    private platformUtilsService: PlatformUtilsService,
+    private toastService: ToastService,
   ) {
     this.reasons = [
       {
@@ -103,7 +105,7 @@ export class OffboardingSurveyComponent {
     ];
   }
 
-  readonly submit = async () => {
+  submit = async () => {
     this.formGroup.markAllAsTouched();
 
     if (this.formGroup.invalid) {

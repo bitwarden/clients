@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import {
   ChangeDetectionStrategy,
   Component,
@@ -22,8 +24,8 @@ import { SharedModule } from "../../../shared";
 export class SendAccessEmailComponent implements OnInit, OnDestroy {
   protected readonly formGroup = input.required<FormGroup>();
   protected readonly enterOtp = input.required<boolean>();
-  protected readonly email: FormControl;
-  protected readonly otp: FormControl;
+  protected email: FormControl;
+  protected otp: FormControl;
 
   readonly loading = input.required<boolean>();
   readonly backToEmail = output<void>();

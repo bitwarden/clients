@@ -66,10 +66,10 @@ import {
 })
 export class Fido2VaultComponent implements OnInit, OnDestroy {
   session?: DesktopFido2UserInterfaceSession = null;
-  private readonly destroy$ = new Subject<void>();
-  private readonly ciphersSubject = new BehaviorSubject<CipherView[]>([]);
-  readonly ciphers$: Observable<CipherView[]> = this.ciphersSubject.asObservable();
-  readonly cipherIds$: Observable<string[]> | undefined;
+  private destroy$ = new Subject<void>();
+  private ciphersSubject = new BehaviorSubject<CipherView[]>([]);
+  ciphers$: Observable<CipherView[]> = this.ciphersSubject.asObservable();
+  cipherIds$: Observable<string[]> | undefined;
   readonly Icons = { BitwardenShield };
 
   constructor(

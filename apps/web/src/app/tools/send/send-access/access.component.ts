@@ -37,8 +37,8 @@ export class AccessComponent implements OnInit {
   sendAccessRequest: SendAccessRequest = new SendAccessRequest();
 
   constructor(
-    private readonly route: ActivatedRoute,
-    private readonly destroyRef: DestroyRef,
+    private route: ActivatedRoute,
+    private destroyRef: DestroyRef,
   ) {}
 
   ngOnInit() {

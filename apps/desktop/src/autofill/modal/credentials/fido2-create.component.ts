@@ -60,8 +60,8 @@ import {
 })
 export class Fido2CreateComponent implements OnInit, OnDestroy {
   session?: DesktopFido2UserInterfaceSession = null;
-  readonly ciphers$: Observable<CipherView[]>;
-  private readonly destroy$ = new Subject<void>();
+  ciphers$: Observable<CipherView[]>;
+  private destroy$ = new Subject<void>();
   readonly Icons = { BitwardenShield, NoResults };
 
   private get DIALOG_MESSAGES() {
