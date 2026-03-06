@@ -67,17 +67,6 @@ export class ProgressBarComponent {
   }
 
   get innerBarStyles() {
-    return [
-      "tw-flex",
-      "tw-justify-center",
-      "tw-items-center",
-      "tw-whitespace-nowrap",
-      "tw-text-xs",
-      "tw-font-medium",
-      "tw-text-contrast",
-      "tw-transition-all",
-      "tw-h-2",
-      "tw-rounded",
-    ].concat(BackgroundClasses[this.variant()]);
+    return ["tw-transition-all", "tw-h-2", "tw-rounded"].concat(BackgroundClasses[this.variant()]);
   }
 }

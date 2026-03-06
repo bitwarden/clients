@@ -1,18 +1,20 @@
-<div [id]="labelId" class="!tw-mb-0" bitTypography="h5">{{ label() }}</div>
-<div [class]="outerBarStyles">
-  <div
-    [id]="progressBarId()"
-    [class]="innerBarStyles"
-    role="progressbar"
-    aria-valuemin="0"
-    aria-valuemax="100"
-    [attr.aria-valuenow]="value()"
-    [attr.aria-valuetext]="ariaValueText()"
-    [attr.aria-labelledby]="labelId"
-    [style]="{ width: value() + '%' }"
-  ></div>
-</div>
-<div class="tw-flex tw-text-fg-body" bitTypography="body2">
-  <span class="tw-me-auto">{{ startTextContent() }}</span>
-  <span class="tw-ms-auto">{{ endText() }}</span>
+<div class="tw-flex tw-flex-col">
+  <div [id]="labelId" class="!tw-mb-1" bitTypography="h5">{{ label() }}</div>
+  <div [class]="outerBarStyles">
+    <div
+      [id]="progressBarId()"
+      [class]="innerBarStyles"
+      role="progressbar"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      [attr.aria-valuenow]="value()"
+      [attr.aria-valuetext]="ariaValueText()"
+      [attr.aria-labelledby]="labelId"
+      [style]="{ width: value() + '%' }"
+    ></div>
+  </div>
+  <div class="tw-flex tw-text-fg-body" bitTypography="body2">
+    <span class="tw-me-auto">{{ startTextContent() }}</span>
+    <span class="tw-ms-auto">{{ endText() }}</span>
+  </div>
 </div>
