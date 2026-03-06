@@ -5,9 +5,11 @@ import {
   ServerCommunicationConfigPlatformApi,
 } from "@bitwarden/sdk-internal";
 
+import { ApiService } from "../../../abstractions/api.service";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { ServerCommunicationConfigService } from "../../abstractions/server-communication-config/server-communication-config.service";
+import { Utils } from "../../misc/utils";
 
 import { ServerCommunicationConfigRepository } from "./server-communication-config.repository";
 
@@ -37,6 +39,7 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
     protected repository: ServerCommunicationConfigRepository,
     protected platformApi: ServerCommunicationConfigPlatformApi,
     private configService: ConfigService,
+    private apiService: ApiService,
   ) {}
 
   async init() {
@@ -47,6 +50,16 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
     // Forward each server communication config update to the SDK client
     this.configService.serverCommunicationConfig$.subscribe(({ hostname, config }) => {
       void this.client.setCommunicationType(hostname, config);
+    });
+
+    this.apiService.addMiddleware(async (request: Request) => {
+      const domain = Utils.getDomain(request.url);
+      const cookies: [string, string][] = await this.client.cookies(domain);
+
+      if (cookies.length > 0) {
+        const cookieHeader = cookies.map(([name, value]) => `${name}=${value}`).join("; ");
+        request.headers.set("Cookie", cookieHeader);
+      }
     });
   }
 

@@ -1319,6 +1319,12 @@ export class ApiService implements ApiServiceAbstraction {
     return accessToken;
   }
 
+  middlewares: Array<(request: Request) => Promise<void>> = [];
+
+  addMiddleware(middleware: (request: Request) => Promise<void>): void {
+    this.middlewares.push(middleware);
+  }
+
   async fetch(request: Request): Promise<Response> {
     if (!request.url.startsWith("https://") && !this.platformUtilsService.isDev()) {
       throw new InsecureUrlNotAllowedError();
@@ -1338,6 +1344,13 @@ export class ApiService implements ApiServiceAbstraction {
     if (packageType != null) {
       request.headers.set("Bitwarden-Package-Type", packageType);
     }
+
+    await Promise.all(
+      this.middlewares.map((middleware) => {
+        return middleware(request);
+      }),
+    );
+
     return this.nativeFetch(request);
   }
 

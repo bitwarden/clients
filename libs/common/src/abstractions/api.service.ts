@@ -99,6 +99,8 @@ import { OptionalCipherResponse } from "../vault/models/response/optional-cipher
  * of this decision please read https://contributing.bitwarden.com/architecture/adr/refactor-api-service.
  */
 export abstract class ApiService {
+  abstract addMiddleware(middleware: (request: Request) => Promise<void>): void;
+
   /** @deprecated Use the overload accepting the user you want the request authenticated for. */
   abstract send(
     method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
