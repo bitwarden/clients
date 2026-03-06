@@ -11,7 +11,10 @@
 
 - [x] SMS
 - [x] TOTP
-- [x] Duo - [x] Push - [x] Passcode - [x] SMS - [x] Voice
+- [x] Duo/Push
+- [x] Duo/Passcode
+- [x] Duo/SMS
+- [x] Duo/Voice
 - [-] WebAuthn
 - [ ] Keeper DNA
 - [ ] RSA?
