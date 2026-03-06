@@ -1,7 +1,6 @@
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
-import { PolicyAppliesToActiveUserPipe } from "@bitwarden/angular/admin-console/pipes/policy-applies-to-active-user.pipe";
 import { CheckboxModule } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared/shared.module";
@@ -13,14 +12,7 @@ import { EnableEncryptionDialogComponent } from "./enable-encryption-dialog/enab
 import { WebauthnLoginSettingsComponent } from "./webauthn-login-settings.component";
 
 @NgModule({
-  imports: [
-    SharedModule,
-    FormsModule,
-    ReactiveFormsModule,
-    UserVerificationModule,
-    CheckboxModule,
-    PolicyAppliesToActiveUserPipe,
-  ],
+  imports: [SharedModule, FormsModule, ReactiveFormsModule, UserVerificationModule, CheckboxModule],
   declarations: [
     WebauthnLoginSettingsComponent,
     CreateCredentialDialogComponent,
