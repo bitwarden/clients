@@ -9,4 +9,5 @@ export type MemberAccessReportView = {
   itemsCount: number;
   userGuid: Guid;
   usesKeyConnector: boolean;
+  userIdFromOrgUser: string | null; // maybe null and used for avatar
 };

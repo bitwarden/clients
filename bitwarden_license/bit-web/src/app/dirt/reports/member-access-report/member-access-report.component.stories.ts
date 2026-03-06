@@ -65,6 +65,7 @@ function createMockMember(index: number): MemberAccessReportView {
     groupsCount: ((index * 2) % 5) + 1, // Deterministic: 1-5
     itemsCount: ((index * 17) % 200) + 1, // Deterministic: 1-200
     usesKeyConnector: index % 2 === 0, // Deterministic: alternating true/false
+    userIdFromOrgUser: `userIdFromOrgUser${index}`,
   };
 }
 
