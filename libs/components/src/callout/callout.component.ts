@@ -1,8 +1,8 @@
+import { CommonModule } from "@angular/common";
 import { Component, computed, input } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
 
 export type CalloutTypes = "success" | "info" | "warning" | "danger" | "default";
@@ -33,7 +33,7 @@ let nextId = 0;
 @Component({
   selector: "bit-callout",
   templateUrl: "callout.component.html",
-  imports: [SharedModule, TypographyModule],
+  imports: [CommonModule, TypographyModule],
 })
 export class CalloutComponent {
   readonly type = input<CalloutTypes>("info");

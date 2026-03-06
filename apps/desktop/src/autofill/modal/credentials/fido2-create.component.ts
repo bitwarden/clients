@@ -1,9 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
 import { combineLatest, map, Observable, Subject, switchMap } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { BitwardenShield, NoResults } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -24,6 +26,7 @@ import {
   BitIconButtonComponent,
   SimpleDialogOptions,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { DesktopAutofillService } from "../../../autofill/services/desktop-autofill.service";
@@ -41,13 +44,14 @@ import {
     SectionHeaderComponent,
     BitIconButtonComponent,
     TableModule,
-    JslibModule,
+    I18nPipe,
     SvgModule,
     ButtonModule,
     DialogModule,
     SectionComponent,
     ItemModule,
     BadgeModule,
+    IconComponent,
   ],
   templateUrl: "fido2-create.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -163,9 +167,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const userHandle = Fido2Utils.bufferToString(
-      new Uint8Array(lastRegistrationRequest.userHandle),
-    );
+    const userHandle = Fido2Utils.arrayToString(new Uint8Array(lastRegistrationRequest.userHandle));
 
     this.ciphers$ = combineLatest([
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),

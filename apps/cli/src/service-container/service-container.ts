@@ -664,7 +664,7 @@ export class ServiceContainer {
       this.accountService,
       this.kdfConfigService,
       this.keyService,
-      this.securityStateService,
+      this.accountCryptographicStateService,
       this.apiService,
       this.stateProvider,
       this.configService,
@@ -703,6 +703,7 @@ export class ServiceContainer {
       this.registerSdkService,
       this.securityStateService,
       this.accountCryptographicStateService,
+      this.userDecryptionOptionsService,
     );
 
     this.twoFactorService = new DefaultTwoFactorService(
@@ -737,8 +738,6 @@ export class ServiceContainer {
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
       this.stateProvider,
-      this.platformUtilsService,
-      this.apiService,
     );
 
     this.taskSchedulerService = new DefaultTaskSchedulerService(this.logService);
@@ -863,6 +862,7 @@ export class ServiceContainer {
       this.pinService,
       this.kdfConfigService,
       new CliBiometricsService(),
+      this.masterPasswordUnlockService,
     );
 
     const biometricService = new CliBiometricsService();
