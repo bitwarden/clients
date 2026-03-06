@@ -238,7 +238,6 @@ import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwar
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { ServerCommunicationConfigService } from "@bitwarden/common/platform/abstractions/server-communication-config/server-communication-config.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
@@ -276,11 +275,6 @@ import { MigrationBuilderService } from "@bitwarden/common/platform/services/mig
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
 import { DefaultRegisterSdkService } from "@bitwarden/common/platform/services/sdk/register-sdk.service";
-import {
-  DefaultServerCommunicationConfigService,
-  ServerCommunicationConfigPlatformApiService,
-  ServerCommunicationConfigRepository,
-} from "@bitwarden/common/platform/services/server-communication-config";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { ValidationService } from "@bitwarden/common/platform/services/validation.service";
@@ -1311,25 +1305,6 @@ const safeProviders: SafeProvider[] = [
     provide: AccountBillingApiServiceAbstraction,
     useClass: AccountBillingApiService,
     deps: [ApiServiceAbstraction],
-  }),
-  safeProvider({
-    provide: ServerCommunicationConfigRepository,
-    useClass: ServerCommunicationConfigRepository,
-    deps: [StateProvider],
-  }),
-  safeProvider({
-    provide: ServerCommunicationConfigPlatformApiService,
-    useClass: ServerCommunicationConfigPlatformApiService,
-    deps: [PlatformUtilsServiceAbstraction, MessageListener, LogService],
-  }),
-  safeProvider({
-    provide: ServerCommunicationConfigService,
-    useClass: DefaultServerCommunicationConfigService,
-    deps: [
-      ServerCommunicationConfigRepository,
-      ServerCommunicationConfigPlatformApiService,
-      ConfigService,
-    ],
   }),
   safeProvider({
     provide: DefaultConfigService,
