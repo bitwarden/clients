@@ -55,6 +55,7 @@ import {
 import {
   AttachmentDialogCloseResult,
   AttachmentDialogResult,
+  AttachmentsDialogParams,
   AttachmentsV2Component,
   ChangeLoginPasswordService,
   CipherFormComponent,
@@ -525,16 +526,17 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const dialogRef = this.dialogService.open<
-      AttachmentDialogCloseResult,
-      { cipherId: CipherId; organizationId?: OrganizationId; canEditCipher?: boolean }
-    >(AttachmentsV2Component, {
-      data: {
-        cipherId: this.formConfig.originalCipher?.id as CipherId,
-        organizationId: this.formConfig.originalCipher?.organizationId as OrganizationId,
-        canEditCipher: this.formConfig.originalCipher?.edit,
+    const dialogRef = this.dialogService.open<AttachmentDialogCloseResult, AttachmentsDialogParams>(
+      AttachmentsV2Component,
+      {
+        data: {
+          cipherId: this.formConfig.originalCipher?.id as CipherId,
+          organizationId: this.formConfig.originalCipher?.organizationId as OrganizationId,
+          canEditCipher: this.formConfig.originalCipher?.edit,
+          admin: this.formConfig.admin,
+        },
       },
-    });
+    );
 
     const result = await firstValueFrom(dialogRef.closed);
 
