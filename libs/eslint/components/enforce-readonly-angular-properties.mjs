@@ -108,7 +108,6 @@ export default {
         if (node.abstract) return;
 
         if (hasLegacyDecorator(node.decorators)) {
-          context.report({ node, messageId: "nonReadonly" });
           return;
         }
 

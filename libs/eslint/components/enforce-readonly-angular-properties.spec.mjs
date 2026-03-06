@@ -88,6 +88,62 @@ ruleTester.run("enforce-readonly-angular-properties", rule.default, {
         }
       `,
     },
+    {
+      name: "legacy @Input() is not flagged (covered by prefer-signals)",
+      code: `
+        class MyComponent {
+          @Input() title: string;
+        }
+      `,
+    },
+    {
+      name: "legacy @Input decorator without call is not flagged",
+      code: `
+        class MyComponent {
+          @Input title: string;
+        }
+      `,
+    },
+    {
+      name: "legacy @Output() is not flagged (covered by prefer-output-emitter-ref)",
+      code: `
+        class MyComponent {
+          @Output() clicked = new EventEmitter<void>();
+        }
+      `,
+    },
+    {
+      name: "legacy @ViewChild() is not flagged (covered by prefer-signals)",
+      code: `
+        class MyComponent {
+          @ViewChild('ref') el: ElementRef;
+        }
+      `,
+    },
+    {
+      name: "legacy @ViewChildren() is not flagged (covered by prefer-signals)",
+      code: `
+        class MyComponent {
+          @ViewChildren('ref') items: QueryList<ElementRef>;
+        }
+      `,
+    },
+    {
+      name: "legacy @ContentChild() is not flagged (covered by prefer-signals)",
+      code: `
+        class MyComponent {
+          @ContentChild('ref') template: TemplateRef<unknown>;
+        }
+      `,
+    },
+    {
+      name: "legacy @ContentChildren() is not flagged (covered by prefer-signals)",
+      code: `
+        class MyComponent {
+          @ContentChildren('ref') items: QueryList<TemplateRef<unknown>>;
+        }
+      `,
+    },
   ],
   invalid: [
     {
@@ -133,60 +189,6 @@ ruleTester.run("enforce-readonly-angular-properties", rule.default, {
       errors: [{ messageId: "nonReadonly" }],
     },
     {
-      name: "legacy @Input() should be migrated to input()",
-      code: `
-        class MyComponent {
-          @Input() title: string;
-        }
-      `,
-      errors: [{ messageId: "nonReadonly" }],
-    },
-    {
-      name: "legacy @Input decorator without call should be migrated to input()",
-      code: `
-        class MyComponent {
-          @Input title: string;
-        }
-      `,
-      errors: [{ messageId: "nonReadonly" }],
-    },
-    {
-      name: "legacy @ViewChild() should be migrated to viewChild()",
-      code: `
-        class MyComponent {
-          @ViewChild('ref') el: ElementRef;
-        }
-      `,
-      errors: [{ messageId: "nonReadonly" }],
-    },
-    {
-      name: "legacy @ViewChildren() should be migrated to viewChildren()",
-      code: `
-        class MyComponent {
-          @ViewChildren('ref') items: QueryList<ElementRef>;
-        }
-      `,
-      errors: [{ messageId: "nonReadonly" }],
-    },
-    {
-      name: "legacy @ContentChild() should be migrated to contentChild()",
-      code: `
-        class MyComponent {
-          @ContentChild('ref') template: TemplateRef<unknown>;
-        }
-      `,
-      errors: [{ messageId: "nonReadonly" }],
-    },
-    {
-      name: "legacy @ContentChildren() should be migrated to contentChildren()",
-      code: `
-        class MyComponent {
-          @ContentChildren('ref') items: QueryList<TemplateRef<unknown>>;
-        }
-      `,
-      errors: [{ messageId: "nonReadonly" }],
-    },
-    {
       name: "non-readonly @HostBinding property",
       code: `
         class MyComponent {
@@ -196,15 +198,6 @@ ruleTester.run("enforce-readonly-angular-properties", rule.default, {
       output: `
         class MyComponent {
           @HostBinding('class.is-open') readonly isOpen = false;
-        }
-      `,
-      errors: [{ messageId: "nonReadonly" }],
-    },
-    {
-      name: "legacy @Output() should be migrated to output()",
-      code: `
-        class MyComponent {
-          @Output() clicked = new EventEmitter<void>();
         }
       `,
       errors: [{ messageId: "nonReadonly" }],
@@ -312,17 +305,6 @@ ruleTester.run("enforce-readonly-angular-properties (onlyOnPush)", rule.default,
         @Component({ changeDetection: ChangeDetectionStrategy.OnPush })
         class MyComponent {
           readonly isLoading = false;
-        }
-      `,
-      errors: [{ messageId: "nonReadonly" }],
-    },
-    {
-      name: "legacy @Input() on OnPush component is flagged",
-      options: [{ onlyOnPush: true }],
-      code: `
-        @Component({ changeDetection: ChangeDetectionStrategy.OnPush })
-        class MyComponent {
-          @Input() title: string;
         }
       `,
       errors: [{ messageId: "nonReadonly" }],
