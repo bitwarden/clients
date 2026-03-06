@@ -17,9 +17,9 @@ describe("MigratePopupWidthOptions", () => {
       });
     });
 
-    it("migrates 'extraWide' to 'wide'", async () => {
+    it("migrates 'extra-wide' to 'wide'", async () => {
       const output = await runMigrator(sut, {
-        "global_popupStyle_popup-width": "extraWide",
+        "global_popupStyle_popup-width": "extra-wide",
       });
 
       expect(output).toEqual({

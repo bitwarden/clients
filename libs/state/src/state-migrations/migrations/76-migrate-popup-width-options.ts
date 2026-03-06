@@ -4,7 +4,7 @@ import { IRREVERSIBLE, Migrator } from "../migrator";
 /** Maps old popup width option keys to their new equivalents. */
 const OLD_TO_NEW_WIDTH_MAP: Record<string, string> = {
   wide: "default",
-  extraWide: "wide",
+  "extra-wide": "wide",
 };
 
 export const POPUP_WIDTH_KEY: KeyDefinitionLike = {
