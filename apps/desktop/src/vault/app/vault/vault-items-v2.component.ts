@@ -1,12 +1,13 @@
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { Component, input } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Component, input, output } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { distinctUntilChanged, debounceTime } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultItemsComponent as BaseVaultItemsComponent } from "@bitwarden/angular/vault/components/vault-items.component";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -31,6 +32,12 @@ import { SearchBarService } from "../../../app/layout/search/search-bar.service"
 })
 export class VaultItemsV2Component<C extends CipherViewLike> extends BaseVaultItemsComponent<C> {
   readonly showPremiumCallout = input<boolean>(false);
+
+  readonly onAddFolder = output<void>();
+
+  protected readonly desktopMigrationMilestone1 = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone1),
+  );
 
   protected CipherViewLikeUtils = CipherViewLikeUtils;
 

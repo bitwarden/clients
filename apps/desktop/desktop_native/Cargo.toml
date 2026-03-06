@@ -9,6 +9,7 @@ members = [
     "napi",
     "process_isolation",
     "proxy",
+    "ssh_agent",
     "windows_plugin_authenticator",
 ]
 
@@ -43,6 +44,7 @@ itertools = "=0.14.0"
 libc = "=0.2.178"
 linux-keyutils = "=0.2.4"
 memsec = "=0.7.0"
+mockall = "=0.14.0"
 napi = "=3.3.0"
 napi-build = "=2.2.3"
 napi-derive = "=3.2.5"

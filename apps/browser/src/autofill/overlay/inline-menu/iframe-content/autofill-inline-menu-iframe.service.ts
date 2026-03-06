@@ -45,6 +45,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   private defaultIframeAttributes: Record<string, string> = {
     src: "",
     title: "",
+    credentialless: "",
     allowtransparency: "true",
     tabIndex: "-1",
     scrolling: "no",
@@ -554,5 +555,27 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     }
 
     return false;
+  }
+
+  /**
+   * Cleans up all event listeners, timeouts, and observers to prevent memory leaks.
+   */
+  destroy() {
+    this.iframe?.removeEventListener(EVENTS.LOAD, this.setupPortMessageListener);
+    this.clearAriaAlert();
+    this.clearFadeInTimeout();
+    if (this.delayedCloseTimeout) {
+      clearTimeout(this.delayedCloseTimeout);
+      this.delayedCloseTimeout = null;
+    }
+    if (this.mutationObserverIterationsResetTimeout) {
+      clearTimeout(this.mutationObserverIterationsResetTimeout);
+      this.mutationObserverIterationsResetTimeout = null;
+    }
+    this.unobserveIframe();
+    this.port?.onMessage.removeListener(this.handlePortMessage);
+    this.port?.onDisconnect.removeListener(this.handlePortDisconnect);
+    this.port?.disconnect();
+    this.port = null;
   }
 }

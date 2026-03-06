@@ -417,6 +417,200 @@ describe("Utils Service", () => {
     // });
   });
 
+  describe("fromArrayToHex(...)", () => {
+    const originalIsNode = Utils.isNode;
+
+    afterEach(() => {
+      Utils.isNode = originalIsNode;
+    });
+
+    runInBothEnvironments("should convert a Uint8Array to a hex string", () => {
+      const arr = new Uint8Array([0x00, 0x01, 0x02, 0x0a, 0xff]);
+      const hexString = Utils.fromArrayToHex(arr);
+      expect(hexString).toBe("0001020aff");
+    });
+
+    runInBothEnvironments("should return null for null input", () => {
+      const hexString = Utils.fromArrayToHex(null);
+      expect(hexString).toBeNull();
+    });
+
+    runInBothEnvironments("should return empty string for an empty Uint8Array", () => {
+      const arr = new Uint8Array([]);
+      const hexString = Utils.fromArrayToHex(arr);
+      expect(hexString).toBe("");
+    });
+  });
+
+  describe("fromArrayToB64(...)", () => {
+    const originalIsNode = Utils.isNode;
+
+    afterEach(() => {
+      Utils.isNode = originalIsNode;
+    });
+
+    runInBothEnvironments("should convert a Uint8Array to a b64 string", () => {
+      const arr = new Uint8Array(asciiHelloWorldArray);
+      const b64String = Utils.fromArrayToB64(arr);
+      expect(b64String).toBe(b64HelloWorldString);
+    });
+
+    runInBothEnvironments("should return null for null input", () => {
+      const b64String = Utils.fromArrayToB64(null);
+      expect(b64String).toBeNull();
+    });
+
+    runInBothEnvironments("should return empty string for an empty Uint8Array", () => {
+      const arr = new Uint8Array([]);
+      const b64String = Utils.fromArrayToB64(arr);
+      expect(b64String).toBe("");
+    });
+  });
+
+  describe("fromArrayToUrlB64(...)", () => {
+    const originalIsNode = Utils.isNode;
+
+    afterEach(() => {
+      Utils.isNode = originalIsNode;
+    });
+
+    runInBothEnvironments("should convert a Uint8Array to a URL-safe b64 string", () => {
+      // Input that produces +, /, and = in standard base64
+      const arr = new Uint8Array([251, 255, 254]);
+      const urlB64String = Utils.fromArrayToUrlB64(arr);
+      // Standard b64 would be "+//+" with padding, URL-safe removes padding and replaces chars
+      expect(urlB64String).not.toContain("+");
+      expect(urlB64String).not.toContain("/");
+      expect(urlB64String).not.toContain("=");
+    });
+
+    runInBothEnvironments("should return null for null input", () => {
+      const urlB64String = Utils.fromArrayToUrlB64(null);
+      expect(urlB64String).toBeNull();
+    });
+
+    runInBothEnvironments("should return empty string for an empty Uint8Array", () => {
+      const arr = new Uint8Array([]);
+      const urlB64String = Utils.fromArrayToUrlB64(arr);
+      expect(urlB64String).toBe("");
+    });
+  });
+
+  describe("fromBufferToUrlB64(...) - SSO PKCE scenario", () => {
+    // Simulates a SHA-256 digest that produces padding in standard base64.
+    // The PKCE code_challenge (RFC 7636 4.2) MUST be unpadded URL-safe base64.
+    const sha256DigestBytes = new Uint8Array([
+      0xbb, 0xff, 0xbb, 0xf1, 0xfe, 0xef, 0x9b, 0xf1, 0xbe, 0xef, 0x9b, 0xf1, 0xbe, 0xef, 0x9b,
+      0xf1, 0xbe, 0xef, 0xdb, 0xf1, 0xba, 0xef, 0x9b, 0xf1, 0xfe, 0xef, 0x9b, 0xf1, 0xfe, 0xef,
+      0x9b, 0xf1,
+    ]);
+
+    const TEST_VECTOR_URL_BASE64 = "u_-78f7vm_G-75vxvu-b8b7v2_G675vx_u-b8f7vm_E";
+    it("should output the correct value for the test value", () => {
+      const result = Utils.fromBufferToUrlB64(sha256DigestBytes.buffer);
+      expect(result).toBe(TEST_VECTOR_URL_BASE64);
+    });
+  });
+
+  describe("fromArrayToUrlB64(...) - SSO PKCE scenario", () => {
+    const sha256DigestBytes = new Uint8Array([
+      0xbb, 0xff, 0xbb, 0xf1, 0xfe, 0xef, 0x9b, 0xf1, 0xbe, 0xef, 0x9b, 0xf1, 0xbe, 0xef, 0x9b,
+      0xf1, 0xbe, 0xef, 0xdb, 0xf1, 0xba, 0xef, 0x9b, 0xf1, 0xfe, 0xef, 0x9b, 0xf1, 0xfe, 0xef,
+      0x9b, 0xf1,
+    ]);
+
+    const TEST_VECTOR_URL_BASE64 = "u_-78f7vm_G-75vxvu-b8b7v2_G675vx_u-b8f7vm_E";
+    it("should output the correct value for the test value", () => {
+      const result = Utils.fromArrayToUrlB64(sha256DigestBytes);
+      expect(result).toBe(TEST_VECTOR_URL_BASE64);
+    });
+  });
+
+  describe("fromBufferToUrlB64 and fromArrayToUrlB64 parity", () => {
+    const testCases = [
+      {
+        name: "SHA-256 digest (produces padding)",
+        bytes: new Uint8Array([
+          0xbb, 0xff, 0xbb, 0xf1, 0xfe, 0xef, 0x9b, 0xf1, 0xbe, 0xef, 0x9b, 0xf1, 0xbe, 0xef, 0x9b,
+          0xf1, 0xbe, 0xef, 0xdb, 0xf1, 0xba, 0xef, 0x9b, 0xf1, 0xfe, 0xef, 0x9b, 0xf1, 0xfe, 0xef,
+          0x9b, 0xf1,
+        ]),
+      },
+      {
+        name: "3 bytes (produces + and / in standard base64)",
+        bytes: new Uint8Array([251, 255, 254]),
+      },
+      { name: "empty input", bytes: new Uint8Array([]) },
+      { name: "single byte", bytes: new Uint8Array([0xff]) },
+      { name: "two bytes (produces 1 padding char)", bytes: new Uint8Array([0xab, 0xcd]) },
+    ];
+
+    testCases.forEach(({ name, bytes }) => {
+      it(`should produce identical output for: ${name}`, () => {
+        const fromBuffer = Utils.fromBufferToUrlB64(bytes.buffer);
+        const fromArray = Utils.fromArrayToUrlB64(bytes);
+        expect(fromArray).toBe(fromBuffer);
+      });
+    });
+  });
+
+  describe("fromArrayToByteString(...)", () => {
+    const originalIsNode = Utils.isNode;
+
+    afterEach(() => {
+      Utils.isNode = originalIsNode;
+    });
+
+    runInBothEnvironments("should convert a Uint8Array to a byte string", () => {
+      const arr = new Uint8Array(asciiHelloWorldArray);
+      const byteString = Utils.fromArrayToByteString(arr);
+      expect(byteString).toBe(asciiHelloWorld);
+    });
+
+    runInBothEnvironments("should return null for null input", () => {
+      const byteString = Utils.fromArrayToByteString(null);
+      expect(byteString).toBeNull();
+    });
+
+    runInBothEnvironments("should return empty string for an empty Uint8Array", () => {
+      const arr = new Uint8Array([]);
+      const byteString = Utils.fromArrayToByteString(arr);
+      expect(byteString).toBe("");
+    });
+  });
+
+  describe("fromArrayToUtf8(...)", () => {
+    const originalIsNode = Utils.isNode;
+
+    afterEach(() => {
+      Utils.isNode = originalIsNode;
+    });
+
+    runInBothEnvironments("should convert a Uint8Array to a UTF-8 string", () => {
+      const arr = new Uint8Array(asciiHelloWorldArray);
+      const utf8String = Utils.fromArrayToUtf8(arr);
+      expect(utf8String).toBe(asciiHelloWorld);
+    });
+
+    runInBothEnvironments("should return null for null input", () => {
+      const utf8String = Utils.fromArrayToUtf8(null);
+      expect(utf8String).toBeNull();
+    });
+
+    runInBothEnvironments("should return empty string for an empty Uint8Array", () => {
+      const arr = new Uint8Array([]);
+      const utf8String = Utils.fromArrayToUtf8(arr);
+      expect(utf8String).toBe("");
+    });
+
+    runInBothEnvironments("should handle multi-byte UTF-8 characters", () => {
+      // "日本" in UTF-8 bytes
+      const arr = new Uint8Array([0xe6, 0x97, 0xa5, 0xe6, 0x9c, 0xac]);
+      const utf8String = Utils.fromArrayToUtf8(arr);
+      expect(utf8String).toBe("日本");
+    });
+  });
+
   describe("Base64 and ArrayBuffer round trip conversions", () => {
     const originalIsNode = Utils.isNode;
 
@@ -447,10 +641,10 @@ describe("Utils Service", () => {
       "should correctly round trip convert from base64 to ArrayBuffer and back",
       () => {
         // Convert known base64 string to ArrayBuffer
-        const bufferFromB64 = Utils.fromB64ToArray(b64HelloWorldString).buffer;
+        const bufferFromB64 = Utils.fromB64ToArray(b64HelloWorldString);
 
         // Convert the ArrayBuffer back to a base64 string
-        const roundTrippedB64String = Utils.fromBufferToB64(bufferFromB64);
+        const roundTrippedB64String = Utils.fromArrayToB64(bufferFromB64);
 
         // Compare the original base64 string with the round-tripped base64 string
         expect(roundTrippedB64String).toBe(b64HelloWorldString);

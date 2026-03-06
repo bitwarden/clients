@@ -128,11 +128,7 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   }
 
   protected get hasFooterAction() {
-    return (
-      this.showArchiveButton ||
-      this.showUnarchiveButton ||
-      (this.cipher.permissions?.delete && (this.action === "edit" || this.action === "view"))
-    );
+    return this.showArchiveButton || this.showUnarchiveButton || this.canDelete;
   }
 
   protected get showCloneOption() {
@@ -143,6 +139,10 @@ export class ItemFooterComponent implements OnInit, OnChanges {
       this.action === "view" &&
       (!this.cipher.isArchived || this.userCanArchive)
     );
+  }
+
+  protected get canDelete() {
+    return this.cipher.permissions?.delete && (this.action === "edit" || this.action === "view");
   }
 
   cancel() {
@@ -229,12 +229,20 @@ export class ItemFooterComponent implements OnInit, OnChanges {
   }
 
   protected async archive() {
-    await this.archiveCipherUtilitiesService.archiveCipher(this.cipher);
+    /**
+     * When the Archive Button is used in the footer we can skip the reprompt since
+     * the user will have already passed the reprompt when they opened the item.
+     */
+    await this.archiveCipherUtilitiesService.archiveCipher(this.cipher, true);
     this.onArchiveToggle.emit();
   }
 
   protected async unarchive() {
-    await this.archiveCipherUtilitiesService.unarchiveCipher(this.cipher);
+    /**
+     * When the Unarchive Button is used in the footer we can skip the reprompt since
+     * the user will have already passed the reprompt when they opened the item.
+     */
+    await this.archiveCipherUtilitiesService.unarchiveCipher(this.cipher, true);
     this.onArchiveToggle.emit();
   }
 
@@ -255,15 +263,12 @@ export class ItemFooterComponent implements OnInit, OnChanges {
     this.userCanArchive = userCanArchive;
 
     this.showArchiveButton =
-      cipherCanBeArchived &&
-      userCanArchive &&
-      (this.action === "view" || this.action === "edit") &&
-      !this.cipher.isArchived;
+      cipherCanBeArchived && userCanArchive && this.action === "view" && !this.cipher.isArchived;
 
     // A user should always be able to unarchive an archived item
     this.showUnarchiveButton =
       hasArchiveFlagEnabled &&
-      (this.action === "view" || this.action === "edit") &&
+      this.action === "view" &&
       this.cipher.isArchived &&
       !this.cipher.isDeleted;
   }
