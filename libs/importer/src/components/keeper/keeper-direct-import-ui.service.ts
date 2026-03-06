@@ -15,6 +15,7 @@ import {
 import { KeeperApprovalMethodSelectComponent } from "./dialog/keeper-approval-method-select.component";
 import { KeeperDeviceApprovalPromptComponent } from "./dialog/keeper-device-approval-prompt.component";
 import { KeeperDuoMethodSelectComponent } from "./dialog/keeper-duo-method-select.component";
+import { KeeperDuoPushPromptComponent } from "./dialog/keeper-duo-push-prompt.component";
 import { KeeperMultifactorPromptComponent } from "./dialog/keeper-multifactor-prompt.component";
 import { KeeperTwoFactorMethodSelectComponent } from "./dialog/keeper-two-factor-method-select.component";
 
@@ -98,6 +99,7 @@ export class KeeperDirectImportUIService implements Ui {
     const needsCodeInput =
       method === TwoFactorMethod.Totp ||
       method === TwoFactorMethod.Sms ||
+      method === TwoFactorMethod.Duo ||
       method === TwoFactorMethod.Backup ||
       method === TwoFactorMethod.Rsa;
 
@@ -140,5 +142,18 @@ export class KeeperDirectImportUIService implements Ui {
 
     const result = await firstValueFrom(this.dialogRef.closed);
     return result === undefined ? Cancel : (result as DuoMethod);
+  }
+
+  async waitForDuoPush(method: DuoMethod): Promise<typeof Cancel | void> {
+    this.dialogRef = KeeperDuoPushPromptComponent.open(this.dialogService, { method });
+
+    const result = await firstValueFrom(this.dialogRef.closed);
+    if (result === "cancel" || result === undefined) {
+      return Cancel;
+    }
+  }
+
+  closeDuoPushDialog(): void {
+    this.dialogRef?.close();
   }
 }
