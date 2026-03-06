@@ -63,10 +63,7 @@ export class PhishingDetectionService {
         return { tabId: details.tabId, url, ignored: this._ignoredHostnames.has(url.hostname) };
       }),
       distinctUntilChanged(
-        (prev, curr) =>
-          prev.url.toString() === curr.url.toString() &&
-          prev.tabId === curr.tabId &&
-          prev.ignored === curr.ignored,
+        (prev, curr) => prev.url.toString() === curr.url.toString() && prev.tabId === curr.tabId,
       ),
       tap((event) => logService.debug(`[PhishingDetectionService] processing event:`, event)),
       // Use switchMap to cancel any in-progress check when navigating to a new URL
