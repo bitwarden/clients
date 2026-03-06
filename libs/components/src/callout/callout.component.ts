@@ -48,6 +48,8 @@ export class CalloutComponent {
   // Whether the component can be dismissed. If true, the component will not show a close button. Defaults to true.
   readonly persistent = input(true, { transform: booleanAttribute });
 
+  readonly closeLabel = this.i18nService.t("close");
+
   readonly onDismiss = output<void>();
 
   readonly iconComputed = computed(() => {
