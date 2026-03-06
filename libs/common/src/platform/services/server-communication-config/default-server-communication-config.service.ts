@@ -45,8 +45,8 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
     // Initialize SDK client with repository and platform API
     this.client = new ServerCommunicationConfigClient(this.repository, this.platformApi);
     // Forward each server communication config update to the SDK client
-    this.configService.serverCommunicationConfig$.subscribe(({ hostname, config }) => {
-      void this.client.setCommunicationType(hostname, config);
+    this.configService.serverCommunicationConfig$.subscribe((config) => {
+      void this.client.setCommunicationType("toBeRemoved", config);
     });
   }
 
