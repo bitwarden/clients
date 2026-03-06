@@ -32,6 +32,7 @@ export class AccountMenu implements IMenubarMenu {
   private readonly _window: BrowserWindow;
   private readonly _isLocked: boolean;
   private readonly _hasMasterPassword: boolean;
+  // TODO: PM-32419 - remove once multi client password management is fully rolled out
   private readonly _multiClientPasswordManagement: boolean;
 
   constructor(
@@ -49,6 +50,7 @@ export class AccountMenu implements IMenubarMenu {
     this._window = window;
     this._isLocked = isLocked;
     this._hasMasterPassword = hasMasterPassword;
+    // TODO: PM-32419 - remove once multi client password management is fully rolled out
     this._multiClientPasswordManagement = multiClientPasswordManagement;
   }
 
@@ -66,7 +68,8 @@ export class AccountMenu implements IMenubarMenu {
     // TODO: PM-32419 - remove feature flag check once fully rolled out
     if (this._multiClientPasswordManagement) {
       return {
-        label: this.localize("changeMasterPass"),
+        // TODO: PM-32419 - remove "changeMasterPass" translation since we now use changeMasterPassword
+        label: this.localize("changeMasterPassword"),
         id: "changeMasterPass",
         click: () => this.sendMessage("openChangePasswordDialog"),
         enabled: !this._isLocked,

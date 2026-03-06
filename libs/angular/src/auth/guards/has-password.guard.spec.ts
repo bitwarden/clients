@@ -1,9 +1,9 @@
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { EmptyComponent } from "@bitwarden/angular/platform/guard/feature-flag.guard.spec";
 // eslint-disable-next-line no-restricted-imports
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -11,6 +11,9 @@ import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { hasPasswordGuard } from "./has-password.guard";
+
+@Component({ template: "", standalone: false, changeDetection: ChangeDetectionStrategy.OnPush })
+export class EmptyComponent {}
 
 describe("hasPasswordGuard", () => {
   const activeUser: Account = {
