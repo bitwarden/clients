@@ -28,6 +28,11 @@ export default {
       ],
     }),
   ],
+  argTypes: {
+    persistent: {
+      control: "boolean",
+    },
+  },
   parameters: {
     design: {
       type: "figma",
@@ -45,12 +50,13 @@ export const Base: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <bit-callout [type]="type" [icon]="icon" [title]="title">${calloutContent}</bit-callout>
+      <bit-callout [type]="type" [icon]="icon" [title]="title" [persistent]="persistent">${calloutContent}</bit-callout>
     `,
   }),
   args: {
     title: calloutTitle,
     type: "info",
+    persistent: true,
   },
 };
 
