@@ -670,12 +670,12 @@ describe("DefaultCipherSdkService", () => {
         }),
         orgId,
         [collectionId1, collectionId2],
-        null,
+        undefined,
       );
-      expect(result).toBeInstanceOf(Cipher);
+      expect(result).toBeInstanceOf(CipherView);
     });
 
-    it("should pass null for original cipher when originalCipherView is provided", async () => {
+    it("should pass originalCipherView to SDK when provided", async () => {
       const cipherView = new CipherView();
       cipherView.id = cipherId;
       cipherView.type = CipherType.Login;
@@ -696,12 +696,11 @@ describe("DefaultCipherSdkService", () => {
         originalCipherView,
       );
 
-      // SDK handles history internally, so we always pass null for original_cipher
       expect(mockCiphersSdk.share_cipher).toHaveBeenCalledWith(
         expect.anything(),
         orgId,
         [collectionId1],
-        null,
+        expect.objectContaining({ name: "Original Cipher" }),
       );
     });
 
@@ -800,8 +799,8 @@ describe("DefaultCipherSdkService", () => {
         [collectionId1],
       );
       expect(result).toHaveLength(2);
-      expect(result[0]).toBeInstanceOf(Cipher);
-      expect(result[1]).toBeInstanceOf(Cipher);
+      expect(result[0]).toBeInstanceOf(CipherView);
+      expect(result[1]).toBeInstanceOf(CipherView);
     });
 
     it("should throw error and log when SDK client is not available", async () => {

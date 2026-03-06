@@ -1262,7 +1262,12 @@ export class CipherService implements CipherServiceAbstraction {
       originalCipherView,
     );
 
-    return result;
+    if (result == null) {
+      throw new Error("Failed to share cipher: no result returned from SDK");
+    }
+
+    const encryptResult = await this.cipherEncryptionService.encrypt(result, userId);
+    return encryptResult.cipher;
   }
 
   private async shareManyWithServerUsingSdk(
