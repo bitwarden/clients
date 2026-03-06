@@ -1,17 +1,23 @@
 import { Meta, Primary, Controls, Canvas, Title, Description } from "@storybook/addon-docs/blocks";
 
-import * as stories from "./chip-select.stories";
+import * as stories from "./chip-filter.stories";
 
 <Meta of={stories} />
 
 ```ts
-import { ChipSelectComponent } from "@bitwarden/components";
+import { ChipFilterComponent } from "@bitwarden/components";
 ```
 
 <Title />
+
+## Overview
+
 <Description />
 
 <Canvas of={stories.Default} />
+
+For general information about chips, their types, and usage guidelines, see the
+[Chip overview](?path=/docs/component-library-chips--docs).
 
 ## Options
 
@@ -19,8 +25,13 @@ Options are passed to the select via an `options` input.
 
 ```ts
 @Component({
-  selector: `
-    <bit-chip-select options=[options]></bit-chip-select>
+  selector: "your-component",
+  template: `
+    <bit-chip-filter
+      [options]="options"
+      placeholderText="Folder"
+      placeholderIcon="bwi-folder"
+    ></bit-chip-filter>
   `,
 })
 class MyComponent {
@@ -33,7 +44,8 @@ class MyComponent {
     {
       label: "Bar",
       value: "bar",
-      icon: "bwi-exclamation-triangle tw-text-danger",
+      icon: "bwi-exclamation-triangle",
+      iconClass: "tw-text-danger",
     },
     {
       label: "Baz",
@@ -44,7 +56,7 @@ class MyComponent {
 }
 ```
 
-### Option Trees
+### Nested Options
 
 Nested trees of options are also supported by passing an array of options to `children`.
 
@@ -90,19 +102,19 @@ const options = [
 
 <Canvas of={stories.NestedOptions} />
 
-## Placeholder Content
+## Placeholder
 
 Placeholder content is shown when no item is selected.
 
 ```html
-<bit-chip-select placeholderText="Foo" placeholderIcon="bwi-key"> </bit-chip-select>
+<bit-chip-filter placeholderText="Foo" placeholderIcon="bwi-key"> </bit-chip-filter>
 ```
 
-## Reading the current value
+## Reading the Current Value
 
-The component implements `ControlValueAccessor`, so the current selected value can be read via
-`ngModel` or `[formControlName]`.
+The component implements `ControlValueAccessor`, so the selected value can be accessed via `ngModel`
+or `[formControlName]`.
 
 ```html
-<bit-chip-select [(ngModel)]="..."></bit-chip-select>
+<bit-chip-filter [(ngModel)]="..."></bit-chip-filter>
 ```

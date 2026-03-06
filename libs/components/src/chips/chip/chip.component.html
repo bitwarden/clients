@@ -1,0 +1,13 @@
+<bit-chip-content [startIcon]="startIcon()" [size]="baseChip.size()">
+  {{ label() }}
+  <!-- Dismiss button -->
+  <button
+    bit-chip-dismiss-button
+    slot="end"
+    type="button"
+    [attr.aria-label]="'removeItem' | i18n: label()"
+    [disabled]="baseChip.disabled()"
+    (click)="handleDismiss($event)"
+    [size]="baseChip.size()"
+  ></button>
+</bit-chip-content>

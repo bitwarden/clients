@@ -6,9 +6,9 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { MenuTriggerForDirective } from "../menu";
+import { MenuTriggerForDirective } from "../../menu";
 
-import { ChipSelectComponent, ChipSelectOption } from "./chip-select.component";
+import { ChipFilterComponent, ChipFilterOption } from "./chip-filter.component";
 
 const mockI18nService = {
   t: (key: string, ...args: string[]) => {
@@ -25,11 +25,11 @@ const mockI18nService = {
   },
 };
 
-describe("ChipSelectComponent", () => {
-  let component: ChipSelectComponent<string>;
+describe("ChipFilterComponent", () => {
+  let component: ChipFilterComponent<string>;
   let fixture: ComponentFixture<TestAppComponent>;
 
-  const testOptions: ChipSelectOption<string>[] = [
+  const testOptions: ChipFilterOption<string>[] = [
     { label: "Option 1", value: "opt1", icon: "bwi-folder" },
     { label: "Option 2", value: "opt2" },
     {
@@ -50,7 +50,8 @@ describe("ChipSelectComponent", () => {
   const getBitMenuPanel = () => document.querySelector(".bit-menu-panel");
 
   const getChipButton = () =>
-    fixture.debugElement.query(By.css("[data-fvw-target]"))?.nativeElement as HTMLButtonElement;
+    fixture.debugElement.query(By.directive(MenuTriggerForDirective))
+      ?.nativeElement as HTMLButtonElement;
 
   const getClearButton = () =>
     fixture.debugElement.query(By.css('button[aria-label^="Remove"]'))
@@ -65,7 +66,7 @@ describe("ChipSelectComponent", () => {
     fixture = TestBed.createComponent(TestAppComponent);
     fixture.detectChanges();
 
-    component = fixture.debugElement.query(By.directive(ChipSelectComponent)).componentInstance;
+    component = fixture.debugElement.query(By.directive(ChipFilterComponent)).componentInstance;
 
     fixture.detectChanges();
   });
@@ -76,8 +77,10 @@ describe("ChipSelectComponent", () => {
     });
 
     it("should display placeholder icon when no option is selected", () => {
-      const icon = fixture.debugElement.query(By.css('i[aria-hidden="true"]'));
-      expect(icon).toBeTruthy();
+      const icons = fixture.debugElement.queryAll(By.css("bit-icon"));
+      const startIcon = icons[0]; // Start icon is rendered first
+
+      expect(startIcon).toBeTruthy();
     });
 
     it("should disable chip button when disabled", () => {
@@ -93,11 +96,11 @@ describe("ChipSelectComponent", () => {
       testApp.fullWidth.set(true);
       fixture.detectChanges();
 
-      expect(component.fullWidth()).toBe(true);
+      expect(component.baseChip.fullWidth()).toBe(true);
     });
 
     it("should update available options when they change", () => {
-      const newOptions: ChipSelectOption<string>[] = [
+      const newOptions: ChipFilterOption<string>[] = [
         { label: "New Option 1", value: "new1" },
         { label: "New Option 2", value: "new2" },
       ];
@@ -170,7 +173,7 @@ describe("ChipSelectComponent", () => {
     it("should integrate with Angular reactive forms", () => {
       const formControl = new FormControl<string>("opt1");
       component.registerOnChange((value) => formControl.setValue(value));
-      component.writeValue(formControl.value);
+      component.writeValue(formControl.value!);
       fixture.detectChanges();
 
       expect(component["selectedOption"]?.value).toBe("opt1");
@@ -307,8 +310,9 @@ describe("ChipSelectComponent", () => {
       component.writeValue("opt1");
       fixture.detectChanges();
 
-      const icon = fixture.debugElement.query(By.css('i[aria-hidden="true"]'));
-      expect(icon).toBeTruthy();
+      const icons = fixture.debugElement.queryAll(By.css("bit-icon"));
+      const startIcon = icons[0]; // Start icon is rendered first
+      expect(startIcon).toBeTruthy();
     });
   });
 
@@ -391,28 +395,7 @@ describe("ChipSelectComponent", () => {
       fixture.detectChanges();
 
       const clearButton = getClearButton();
-      expect(clearButton.disabled).toBe(true);
-    });
-  });
-
-  describe("Focus Management", () => {
-    it("should track focus-visible-within state", () => {
-      const chipButton = getChipButton();
-
-      chipButton.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
-      fixture.detectChanges();
-
-      expect(component["focusVisibleWithin"]()).toBe(false);
-    });
-
-    it("should clear focus-visible-within on focusout", () => {
-      component["focusVisibleWithin"].set(true);
-
-      const chipButton = getChipButton();
-      chipButton.dispatchEvent(new FocusEvent("focusout", { bubbles: true }));
-      fixture.detectChanges();
-
-      expect(component["focusVisibleWithin"]()).toBe(false);
+      expect(clearButton.getAttribute("aria-disabled")).toBe("true");
     });
   });
 
@@ -475,19 +458,19 @@ describe("ChipSelectComponent", () => {
 @Component({
   selector: "test-app",
   template: `
-    <bit-chip-select
+    <bit-chip-filter
       placeholderText="Select an option"
-      placeholderIcon="bwi-grid"
+      placeholderIcon="bwi-filter"
       [options]="options()"
       [disabled]="disabled()"
       [fullWidth]="fullWidth()"
     />
   `,
-  imports: [ChipSelectComponent],
+  imports: [ChipFilterComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class TestAppComponent {
-  readonly options = signal<ChipSelectOption<string>[]>([
+  readonly options = signal<ChipFilterOption<string>[]>([
     { label: "Option 1", value: "opt1", icon: "bwi-folder" },
     { label: "Option 2", value: "opt2" },
     {
@@ -499,16 +482,18 @@ class TestAppComponent {
       ],
     },
   ]);
+
   readonly disabled = signal(false);
   readonly fullWidth = signal(false);
 }
 
-describe("ChipSelectComponentWithDynamicOptions", () => {
-  let component: ChipSelectComponent<string>;
+describe("ChipFilterComponentWithDynamicOptions", () => {
+  let component: ChipFilterComponent<string>;
   let fixture: ComponentFixture<TestAppWithDynamicOptionsComponent>;
 
   const getChipButton = () =>
-    fixture.debugElement.query(By.css("[data-fvw-target]"))?.nativeElement as HTMLButtonElement;
+    fixture.debugElement.query(By.directive(MenuTriggerForDirective))
+      ?.nativeElement as HTMLButtonElement;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -519,7 +504,7 @@ describe("ChipSelectComponentWithDynamicOptions", () => {
     fixture = TestBed.createComponent(TestAppWithDynamicOptionsComponent);
     fixture.detectChanges();
 
-    component = fixture.debugElement.query(By.directive(ChipSelectComponent)).componentInstance;
+    component = fixture.debugElement.query(By.directive(ChipFilterComponent)).componentInstance;
 
     fixture.componentInstance.firstCounter.set(0);
     fixture.componentInstance.secondCounter.set(0);
@@ -618,11 +603,11 @@ describe("ChipSelectComponentWithDynamicOptions", () => {
       expect(getChipButton().textContent).toContain("Select an option");
     });
   });
-}); /* end of ChipSelectComponentWithDynamicOptions tests */
+}); /* end of ChipFilterComponentWithDynamicOptions tests */
 @Component({
   selector: "test-app-with-dynamic-options",
   template: `
-    <bit-chip-select
+    <bit-chip-filter
       placeholderText="Select an option"
       placeholderIcon="bwi-filter"
       [options]="options()"
@@ -630,7 +615,7 @@ describe("ChipSelectComponentWithDynamicOptions", () => {
       [fullWidth]="fullWidth()"
     />
   `,
-  imports: [ChipSelectComponent],
+  imports: [ChipFilterComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class TestAppWithDynamicOptionsComponent {
