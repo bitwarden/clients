@@ -29,6 +29,7 @@ impl<K> EncryptedMemoryStore<K>
 where
     K: std::cmp::Ord + std::fmt::Display + std::clone::Clone,
 {
+    /// Creates a new encrypted memory store with a fresh encryption key.
     #[must_use]
     pub fn new() -> Self {
         EncryptedMemoryStore {

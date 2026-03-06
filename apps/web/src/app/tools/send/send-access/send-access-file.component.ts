@@ -78,7 +78,7 @@ export class SendAccessFileComponent {
       const decBuf = await this.encryptService.decryptFileData(encBuf, this.decKey());
       this.fileDownloadService.download({
         fileName: this.send().file.fileName,
-        blobData: decBuf,
+        blobData: decBuf as BlobPart,
         downloadMethod: "save",
       });
       // FIXME: Remove when updating file. Eslint update

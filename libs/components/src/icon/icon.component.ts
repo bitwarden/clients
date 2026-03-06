@@ -10,7 +10,6 @@ import { BitwardenIcon } from "../shared/icon";
 
 @Component({
   selector: "bit-icon",
-  standalone: true,
   host: {
     "[class]": "classList()",
     "[attr.aria-hidden]": "ariaLabel() ? null : true",
