@@ -215,7 +215,7 @@
 			attributes = {
 				LastSwiftUpdateCheck = 1220;
 				LastUpgradeCheck = 1220;
-				ORGANIZATIONNAME = "8bit Solutions LLC";
+				ORGANIZATIONNAME = "Bitwarden Inc";
 				TargetAttributes = {
 					55E037472577FA6B00979016 = {
 						CreatedOnToolsVersion = 12.2;

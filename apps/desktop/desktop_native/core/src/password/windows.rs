@@ -15,6 +15,7 @@ use crate::password::PASSWORD_NOT_FOUND;
 
 const CRED_FLAGS_NONE: u32 = 0;
 
+/// Retrieves a password from the Windows Credential Manager.
 #[allow(clippy::unused_async)]
 pub async fn get_password(service: &str, account: &str) -> Result<String> {
     let target_name = U16CString::from_str(target_name(service, account))?;
@@ -48,6 +49,7 @@ pub async fn get_password(service: &str, account: &str) -> Result<String> {
     Ok(password)
 }
 
+/// Stores a password in the Windows Credential Manager.
 #[allow(clippy::unused_async)]
 pub async fn set_password(service: &str, account: &str, password: &str) -> Result<()> {
     let mut target_name = U16CString::from_str(target_name(service, account))?;
@@ -80,6 +82,7 @@ pub async fn set_password(service: &str, account: &str, password: &str) -> Resul
     Ok(())
 }
 
+/// Deletes a password from the Windows Credential Manager.
 #[allow(clippy::unused_async)]
 pub async fn delete_password(service: &str, account: &str) -> Result<()> {
     let target_name = U16CString::from_str(target_name(service, account))?;
@@ -91,6 +94,7 @@ pub async fn delete_password(service: &str, account: &str) -> Result<()> {
     Ok(())
 }
 
+/// Checks if the Windows Credential Manager is available. Always returns true on Windows.
 #[allow(clippy::unused_async)]
 pub async fn is_available() -> Result<bool> {
     Ok(true)
