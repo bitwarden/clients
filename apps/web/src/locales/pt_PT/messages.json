@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Saiba mais sobre a transferência"
   },
+  "promptUsersToMoveItems": {
+    "message": "Solicitar aos utilizadores que movam itens do cofre individual para a organização"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Os membros serão convidados a transferir os seus itens para a organização ou a sair. Se optarem por sair, o respetivo acesso será revogado, podendo ser restaurado a qualquer momento."
+  },
   "organizationDataOwnership": {
     "message": "Reforçar a propriedade dos dados da organização"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Já disponível"
   },
-  "autoConfirm": {
-    "message": "Confirmação automática de novos utilizadores"
+  "automaticUserConfirmation": {
+    "message": "Confirmação automática do utilizador"
   },
   "autoConfirmDescription": {
     "message": "Os novos utilizadores convidados para a organização serão automaticamente confirmados quando o dispositivo de um administrador for desbloqueado.",
@@ -6279,7 +6285,7 @@
     "message": "Aceder aos relatórios"
   },
   "missingPermissions": {
-    "message": "Não tem as permissões necessárias para executar esta ação."
+    "message": "Não tem as permissões necessárias para realizar esta ação."
   },
   "manageAllCollections": {
     "message": "Gerir todas as coleções"

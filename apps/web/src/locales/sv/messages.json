@@ -287,7 +287,7 @@
     }
   },
   "markAppCountAsCritical": {
-    "message": "Mark $COUNT$ as critical",
+    "message": "Markera $COUNT$ som kritiska",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -296,7 +296,7 @@
     }
   },
   "markAppCountAsNotCritical": {
-    "message": "Mark $COUNT$ as not critical",
+    "message": "Markera $COUNT$ som inte kritiska",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Läs mer om överföringen"
   },
+  "promptUsersToMoveItems": {
+    "message": "Prompt users to move individual vault items to the organization"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
   "organizationDataOwnership": {
     "message": "Genomför äganderätt till organisationsdata"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Tillgänglig nu"
   },
-  "autoConfirm": {
-    "message": "Automatisk bekräftelse av nya användare"
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
   },
   "autoConfirmDescription": {
     "message": "Nya användare som bjuds in till organisationen kommer automatiskt att bekräftas när en administratörs enhet är upplåst.",

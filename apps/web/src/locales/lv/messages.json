@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Learn more about the transfer"
   },
+  "promptUsersToMoveItems": {
+    "message": "Prompt users to move individual vault items to the organization"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
   "organizationDataOwnership": {
     "message": "Uzspiest apvienības datu īpašumtiesības"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Pieejams tagad"
   },
-  "autoConfirm": {
-    "message": "Automātiska jaunu lietotāju apstiprināšana"
+  "automaticUserConfirmation": {
+    "message": "Automātiska lietotāju apstiprināšana"
   },
   "autoConfirmDescription": {
     "message": "Jauni apvienībā uzaicinātie lietotāji tiks automātiski apstiprināti, kad pārvaldītāja ierīce tiks atslēgta.",

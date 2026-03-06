@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Transfer hakkında daha fazla bilgi edinin"
   },
+  "promptUsersToMoveItems": {
+    "message": "Prompt users to move individual vault items to the organization"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
   "organizationDataOwnership": {
     "message": "Kuruluş veri sahipliğini zorunlu kılın"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Şimdi kullanılabilir"
   },
-  "autoConfirm": {
-    "message": "Yeni kullanıcıların otomatik onayı"
+  "automaticUserConfirmation": {
+    "message": "Otomatik kullanıcı onayı"
   },
   "autoConfirmDescription": {
     "message": "Kuruluşa davet edilen yeni kullanıcılar, bir yöneticinin cihazı kilitli değilken otomatik olarak onaylanacaktır.",

@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "進一步了解轉移流程"
   },
+  "promptUsersToMoveItems": {
+    "message": "Prompt users to move individual vault items to the organization"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
   "organizationDataOwnership": {
     "message": "強制組織資料所有權"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "立即可用"
   },
-  "autoConfirm": {
-    "message": "新使用者自動確認"
+  "automaticUserConfirmation": {
+    "message": "自動使用者確認"
   },
   "autoConfirmDescription": {
     "message": "當管理員的裝置已解鎖時，邀請至該組織的新使用者會自動完成確認。",
