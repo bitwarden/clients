@@ -1,9 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, Inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
-import { firstValueFrom, Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
+import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
@@ -29,8 +29,8 @@ export interface EnableEncryptionDialogParams {
   templateUrl: "enable-encryption-dialog.component.html",
   standalone: false,
 })
-export class EnableEncryptionDialogComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class EnableEncryptionDialogComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
 
   protected invalidSecret = false;
   protected formGroup = this.formBuilder.group({
@@ -55,7 +55,7 @@ export class EnableEncryptionDialogComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.webauthnService
       .getCredential$(this.params.credentialId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((credential: any) => (this.credential = credential));
   }
 
@@ -83,11 +83,6 @@ export class EnableEncryptionDialogComponent implements OnInit, OnDestroy {
 
     this.dialogRef.close();
   };
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 }
 
 /**

@@ -1,5 +1,6 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
-import { firstValueFrom, lastValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { firstValueFrom, lastValueFrom, map, Observable } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -30,8 +31,8 @@ import { SetAccountVerifyDevicesDialogComponent } from "./set-account-verify-dev
     DangerZoneComponent,
   ],
 })
-export class AccountComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class AccountComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
 
   showChangeEmail$: Observable<boolean> = new Observable();
   showPurgeVault$: Observable<boolean> = new Observable();
@@ -67,7 +68,7 @@ export class AccountComponent implements OnInit, OnDestroy {
     );
 
     this.accountService.accountVerifyNewDeviceLogin$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((verifyDevices) => {
         this.verifyNewDeviceLogin = verifyDevices;
       });
@@ -92,9 +93,4 @@ export class AccountComponent implements OnInit, OnDestroy {
     const dialogRef = SetAccountVerifyDevicesDialogComponent.open(this.dialogService);
     await lastValueFrom(dialogRef.closed);
   };
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 }

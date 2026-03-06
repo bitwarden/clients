@@ -1,10 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
+import { Component, DestroyRef, EventEmitter, inject, OnInit, Output } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { RegistrationCheckEmailIcon, RegistrationUserAddIcon } from "@bitwarden/assets/svg";
@@ -58,7 +58,7 @@ const DEFAULT_MARKETING_EMAILS_PREF_BY_REGION: Record<Region, boolean> = {
     RegistrationEnvSelectorComponent,
   ],
 })
-export class RegistrationStartComponent implements OnInit, OnDestroy {
+export class RegistrationStartComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() registrationStartStateChange = new EventEmitter<RegistrationStartState>();
@@ -90,7 +90,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
 
   showErrorSummary = false;
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private formBuilder: FormBuilder,
@@ -113,15 +113,17 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     /**
      * If the user has a login email, set the email field to the login email.
      */
-    this.loginEmailService.loginEmail$.pipe(takeUntil(this.destroy$)).subscribe((email) => {
-      if (email) {
-        this.formGroup.patchValue({ email });
-      }
-    });
+    this.loginEmailService.loginEmail$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((email) => {
+        if (email) {
+          this.formGroup.patchValue({ email });
+        }
+      });
   }
 
   private listenForQueryParamChanges() {
-    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((qParams) => {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((qParams) => {
       if (qParams.email != null && qParams.email.indexOf("@") > -1) {
         this.email?.setValue(qParams.email);
         this.emailReadonly = qParams.emailReadonly === "true";
@@ -206,10 +208,5 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
       },
     });
     this.registrationStartStateChange.emit(this.state);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

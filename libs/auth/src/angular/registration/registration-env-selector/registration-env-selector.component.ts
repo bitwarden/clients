@@ -1,9 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
+import { Component, DestroyRef, EventEmitter, inject, OnInit, Output } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { Subject, from, map, of, pairwise, startWith, switchMap, takeUntil, tap } from "rxjs";
+import { from, map, of, pairwise, startWith, switchMap, tap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ClientType } from "@bitwarden/common/enums";
@@ -32,7 +33,7 @@ import { SelfHostedEnvConfigDialogComponent } from "../../self-hosted-env-config
   templateUrl: "registration-env-selector.component.html",
   imports: [CommonModule, JslibModule, ReactiveFormsModule, FormFieldModule, SelectModule],
 })
-export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
+export class RegistrationEnvSelectorComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() selectedRegionChange = new EventEmitter<RegionConfig | Region.SelfHosted | null>();
@@ -54,7 +55,7 @@ export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
   hideEnvSelector = false;
   isDesktopOrBrowserExtension = false;
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private formBuilder: FormBuilder,
@@ -111,7 +112,7 @@ export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
           // Emit the initial value
           this.selectedRegionChange.emit(selectedRegionFromEnv);
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }
@@ -142,7 +143,7 @@ export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
             return of(null);
           },
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }
@@ -185,10 +186,5 @@ export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
       const result = await SelfHostedEnvConfigDialogComponent.open(this.dialogService);
       return this.handleSelfHostedEnvConfigDialogResult(result, this.selectedRegion.value);
     }
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

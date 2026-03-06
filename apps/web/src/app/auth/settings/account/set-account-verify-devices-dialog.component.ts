@@ -1,7 +1,8 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { firstValueFrom, Subject, takeUntil } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
@@ -46,9 +47,7 @@ import {
     UserVerificationFormInputComponent,
   ],
 })
-export class SetAccountVerifyDevicesDialogComponent implements OnInit, OnDestroy {
-  // use this subject for all subscriptions to ensure all subscripts are completed
-  private destroy$ = new Subject<void>();
+export class SetAccountVerifyDevicesDialogComponent implements OnInit {
   // the default for new device verification is true
   verifyNewDeviceLogin: boolean = true;
   has2faConfigured: boolean = false;
@@ -69,7 +68,7 @@ export class SetAccountVerifyDevicesDialogComponent implements OnInit, OnDestroy
     private twoFactorService: TwoFactorService,
   ) {
     this.accountService.accountVerifyNewDeviceLogin$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed())
       .subscribe((verifyDevices: boolean) => {
         this.verifyNewDeviceLogin = verifyDevices;
       });
@@ -82,9 +81,7 @@ export class SetAccountVerifyDevicesDialogComponent implements OnInit, OnDestroy
 
   submit = async () => {
     try {
-      const activeAccount = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(takeUntil(this.destroy$)),
-      );
+      const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
       const verification: Verification = this.setVerifyDevicesForm.value.verification!;
       const request: SetVerifyDevicesRequest = await this.userVerificationService.buildRequest(
         verification,
@@ -113,11 +110,5 @@ export class SetAccountVerifyDevicesDialogComponent implements OnInit, OnDestroy
 
   static open(dialogService: DialogService) {
     return dialogService.open(SetAccountVerifyDevicesDialogComponent);
-  }
-
-  // closes subscription leaks
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }
