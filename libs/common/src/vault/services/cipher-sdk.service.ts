@@ -286,7 +286,6 @@ export class DefaultCipherSdkService implements CipherSdkService {
 
           const sdkCipherView = cipherView.toSdkCipherView();
 
-          // SDK handles cipher history adjustment internally, so we pass null for original_cipher
           const result = await ref.value
             .vault()
             .ciphers()
