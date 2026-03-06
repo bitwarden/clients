@@ -1,8 +1,15 @@
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
 import { By } from "@angular/platform-browser";
 
+import { FormControlModule } from "../form-control/form-control.module";
 import { BitLabelComponent } from "../form-control/label.component";
 
 import { SwitchComponent } from "./switch.component";
@@ -16,12 +23,13 @@ describe("SwitchComponent", () => {
   // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
   @Component({
     selector: "test-host",
-    imports: [FormsModule, BitLabelComponent, ReactiveFormsModule, SwitchComponent],
+    imports: [FormsModule, ReactiveFormsModule, FormControlModule, SwitchComponent],
     template: `
       <form [formGroup]="formObj">
-        <bit-switch formControlName="switch">
+        <bit-form-control>
+          <bit-switch formControlName="switch"> </bit-switch>
           <bit-label>Element</bit-label>
-        </bit-switch>
+        </bit-form-control>
       </form>
     `,
   })
@@ -75,8 +83,13 @@ describe("SwitchComponent", () => {
     // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
     @Component({
       selector: "test-selected-host",
-      template: `<bit-switch [selected]="checked"><bit-label>Element</bit-label></bit-switch>`,
-      imports: [SwitchComponent, BitLabelComponent],
+      template: `
+        <bit-form-control>
+          <bit-switch [selected]="checked"></bit-switch>
+          <bit-label>Element</bit-label>
+        </bit-form-control>
+      `,
+      imports: [SwitchComponent, BitLabelComponent, FormControlModule],
     })
     class TestSelectedHostComponent {
       checked = false;
@@ -96,5 +109,41 @@ describe("SwitchComponent", () => {
     hostFixture.componentInstance.checked = false;
     hostFixture.detectChanges();
     expect(input.checked).toBe(false);
+  });
+
+  describe("BitFormControlAbstraction", () => {
+    it("should report disabled from ngControl", () => {
+      fixture.componentInstance.formObj.get("switch")!.disable();
+      fixture.detectChanges();
+      expect(switchComponent.disabled).toBe(true);
+
+      fixture.componentInstance.formObj.get("switch")!.enable();
+      fixture.detectChanges();
+      expect(switchComponent.disabled).toBe(false);
+    });
+
+    it("should report required when Validators.requiredTrue is set", () => {
+      expect(switchComponent.required).toBe(false);
+
+      fixture.componentInstance.formObj.get("switch")!.setValidators(Validators.requiredTrue);
+      fixture.componentInstance.formObj.get("switch")!.updateValueAndValidity();
+      fixture.detectChanges();
+      expect(switchComponent.required).toBe(true);
+    });
+
+    it("should report hasError when control is invalid and touched", () => {
+      fixture.componentInstance.formObj.get("switch")!.setValidators(Validators.requiredTrue);
+      fixture.componentInstance.formObj.get("switch")!.updateValueAndValidity();
+      fixture.componentInstance.formObj.get("switch")!.markAsTouched();
+      fixture.detectChanges();
+      expect(switchComponent.hasError).toBe(true);
+    });
+
+    it("should not report hasError when control is invalid but untouched", () => {
+      fixture.componentInstance.formObj.get("switch")!.setValidators(Validators.requiredTrue);
+      fixture.componentInstance.formObj.get("switch")!.updateValueAndValidity();
+      fixture.detectChanges();
+      expect(switchComponent.hasError).toBe(false);
+    });
   });
 });
