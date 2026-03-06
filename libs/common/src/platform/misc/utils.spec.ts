@@ -505,17 +505,10 @@ describe("Utils Service", () => {
       0x9b, 0xf1,
     ]);
 
-    it("should produce unpadded URL-safe base64 (no '=', '+', or '/')", () => {
+    const TEST_VECTOR_URL_BASE64 = "u_-78f7vm_G-75vxvu-b8b7v2_G675vx_u-b8f7vm_E";
+    it("should output the correct value for the test value", () => {
       const result = Utils.fromBufferToUrlB64(sha256DigestBytes.buffer);
-      expect(result).not.toContain("=");
-      expect(result).not.toContain("+");
-      expect(result).not.toContain("/");
-    });
-
-    it("should contain URL-safe replacement characters", () => {
-      const result = Utils.fromBufferToUrlB64(sha256DigestBytes.buffer);
-      // The input bytes are chosen to produce '-' and '_' in URL-safe encoding
-      expect(result).toMatch(/^[A-Za-z0-9_-]+$/);
+      expect(result).toBe(TEST_VECTOR_URL_BASE64);
     });
   });
 
@@ -526,19 +519,10 @@ describe("Utils Service", () => {
       0x9b, 0xf1,
     ]);
 
-    runInBothEnvironments(
-      "should produce unpadded URL-safe base64 for a SHA-256 sized input (no '=', '+', or '/')",
-      () => {
-        const result = Utils.fromArrayToUrlB64(sha256DigestBytes);
-        expect(result).not.toContain("=");
-        expect(result).not.toContain("+");
-        expect(result).not.toContain("/");
-      },
-    );
-
-    runInBothEnvironments("should only contain URL-safe base64 characters", () => {
+    const TEST_VECTOR_URL_BASE64 = "u_-78f7vm_G-75vxvu-b8b7v2_G675vx_u-b8f7vm_E";
+    it("should output the correct value for the test value", () => {
       const result = Utils.fromArrayToUrlB64(sha256DigestBytes);
-      expect(result).toMatch(/^[A-Za-z0-9_-]+$/);
+      expect(result).toBe(TEST_VECTOR_URL_BASE64);
     });
   });
 

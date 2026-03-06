@@ -164,9 +164,7 @@ export class Utils {
   }
 
   /**
-   * Converts a Uint8Array to a URL-safe Base64 encoded string. This means we are
-   * stripping the padding off so that the padding characters '=' don't affect the
-   * url negatively.
+   * Converts a Uint8Array to a URL-safe Base64 encoded string, while stripping padding.
    * @param arr - The Uint8Array to convert.
    * @returns The URL-safe Base64 encoded string, or null if the input is null.
    */
