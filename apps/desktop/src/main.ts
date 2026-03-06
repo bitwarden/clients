@@ -307,6 +307,7 @@ export class Main {
     );
 
     app.on("will-quit", () => {
+      this.storageService.dispose();
       this.mainDesktopAutotypeService.dispose();
     });
   }
