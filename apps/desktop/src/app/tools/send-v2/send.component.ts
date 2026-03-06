@@ -27,7 +27,6 @@ import {
   DefaultSendFormConfigService,
   SendItemDialogResult,
 } from "@bitwarden/send-ui";
-import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { DesktopHeaderComponent } from "../../layout/header";
@@ -35,14 +34,8 @@ import { DesktopHeaderComponent } from "../../layout/header";
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "app-send-v2",
-  imports: [
-    I18nPipe,
-    ButtonModule,
-    SendListComponent,
-    NewSendDropdownV2Component,
-    DesktopHeaderComponent,
-  ],
+  selector: "app-send",
+  imports: [ButtonModule, SendListComponent, NewSendDropdownV2Component, DesktopHeaderComponent],
   providers: [
     DefaultSendFormConfigService,
     {
@@ -50,9 +43,9 @@ import { DesktopHeaderComponent } from "../../layout/header";
       useClass: DesktopPremiumUpgradePromptService,
     },
   ],
-  templateUrl: "./send-v2.component.html",
+  templateUrl: "./send.component.html",
 })
-export class SendV2Component {
+export class SendComponent {
   private sendFormConfigService = inject(DefaultSendFormConfigService);
   private sendItemsService = inject(SendItemsService);
   private policyService = inject(PolicyService);
