@@ -23,9 +23,11 @@ jobs:
   check-event-source:
     name: Check event and source
     runs-on: ubuntu-24.04
-    # Only run this job if the event is workflow_call or the PR is from the same repository (not a fork)
-    # This avoids running it twice for forks that are already running the pull_request_target workflow
-    if: github.event_name == 'workflow_call' || github.event.pull_request.head.repo.full_name == github.repository
+    # Only run on events other than pull_request, and if it is a pull_request event, only run if
+    # the PR comes from an internal contributor
+    # This check avoids running the workflow twice for external/forked PRs that are already running
+    # the pull_request_target workflow
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - name: Check PR event and source
         run: echo "This PR is from the same repository (Not a fork) or called via workflow_call."
