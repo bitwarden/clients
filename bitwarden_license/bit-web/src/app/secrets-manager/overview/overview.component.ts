@@ -229,6 +229,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.dialogService.closeDrawer();
   }
 
   private getRecentItems<T extends { revisionDate: string }[]>(items: T, length: number): T {

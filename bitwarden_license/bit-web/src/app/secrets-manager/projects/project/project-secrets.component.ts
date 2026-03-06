@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
@@ -49,7 +49,7 @@ import { ProjectService } from "../project.service";
   templateUrl: "./project-secrets.component.html",
   standalone: false,
 })
-export class ProjectSecretsComponent implements OnInit {
+export class ProjectSecretsComponent implements OnInit, OnDestroy {
   secrets$: Observable<SecretListView[]>;
 
   private organizationId: string;
@@ -68,6 +68,10 @@ export class ProjectSecretsComponent implements OnInit {
     private accountService: AccountService,
     private logService: LogService,
   ) {}
+
+  ngOnDestroy(): void {
+    this.dialogService.closeDrawer();
+  }
 
   ngOnInit() {
     const currentProjectEdited = this.projectService.project$.pipe(

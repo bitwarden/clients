@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatestWith, firstValueFrom, Observable, startWith, switchMap } from "rxjs";
 
@@ -47,7 +47,7 @@ import { SecretService } from "./secret.service";
   templateUrl: "./secrets.component.html",
   standalone: false,
 })
-export class SecretsComponent implements OnInit {
+export class SecretsComponent implements OnInit, OnDestroy {
   protected secrets$: Observable<SecretListView[]>;
   protected search: string;
 
@@ -66,6 +66,10 @@ export class SecretsComponent implements OnInit {
     private toastService: ToastService,
     private router: Router,
   ) {}
+
+  ngOnDestroy(): void {
+    this.dialogService.closeDrawer();
+  }
 
   ngOnInit() {
     this.secrets$ = this.secretService.secret$.pipe(

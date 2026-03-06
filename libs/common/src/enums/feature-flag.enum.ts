@@ -93,7 +93,7 @@ export enum FeatureFlag {
   RouterFocusManagement = "router-focus-management",
 
   /* Secrets Manager */
-  SecretVersioning = "sm-secret-versioning",
+  SecretVersioning = "sm-1587-secrets-versioning",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
