@@ -177,24 +177,21 @@ export const InteractionStates: Story = {
     return {
       props: args,
       template: /*html*/ `
-        <div class="tw-grid tw-grid-cols-[auto_repeat(4,minmax(0,1fr))] tw-gap-x-4 tw-gap-y-4 tw-items-center tw-max-w-[700px]">
+        <div class="tw-grid tw-grid-cols-[auto_repeat(3,minmax(0,1fr))] tw-gap-x-4 tw-gap-y-4 tw-items-center tw-max-w-[700px]">
           <span></span>
           <span class="tw-text-center">Avatar</span>
           <span class="tw-text-center">Hover</span>
           <span class="tw-text-center">Focus-visible</span>
-          <span class="tw-text-center">Focus-visible and hover</span>
 
           <span class="tw-font-bold">Default Color</span>
           <button bit-avatar [color]="'brand'" [text]="'Walt Walterson'" class="tw-justify-self-center"></button>
           <button bit-avatar [color]="'brand'" [text]="'Walt Walterson'" class="tw-test-hover tw-justify-self-center"></button>
           <button bit-avatar [color]="'brand'" [text]="'Walt Walterson'" class="tw-test-focus-visible tw-justify-self-center"></button>
-          <button bit-avatar [color]="'brand'" [text]="'Walt Walterson'" class="tw-test-hover tw-test-focus-visible tw-justify-self-center"></button>
 
           <span class="tw-font-bold">Custom Color</span>
           <button bit-avatar [color]="'#fbd9fe'" [text]="'Walt Walterson'" class="tw-justify-self-center"></button>
           <button bit-avatar [color]="'#fbd9fe'" [text]="'Walt Walterson'" class="tw-test-hover tw-justify-self-center"></button>
           <button bit-avatar [color]="'#fbd9fe'" [text]="'Walt Walterson'" class="tw-test-focus-visible tw-justify-self-center"></button>
-          <button bit-avatar [color]="'#fbd9fe'" [text]="'Walt Walterson'" class="tw-test-hover tw-test-focus-visible tw-justify-self-center"></button>
         </div>
       `,
     };
