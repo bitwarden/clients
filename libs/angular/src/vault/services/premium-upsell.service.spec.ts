@@ -6,8 +6,9 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { UserId } from "@bitwarden/common/types/guid";
+import { UserId, CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 
 import { mockAccountServiceWith } from "../../../../../libs/common/spec";
 
@@ -20,8 +21,8 @@ describe("PremiumUpsellService", () => {
   let cipherService: MockProxy<CipherService>;
 
   let hasPremiumSubject: BehaviorSubject<boolean>;
-  let featureFlagSubject: BehaviorSubject<number>;
-  let ciphersSubject: BehaviorSubject<Record<string, unknown>>;
+  let accountAgeThresholdSubject: BehaviorSubject<number>;
+  let ciphersSubject: BehaviorSubject<Record<CipherId, CipherData>>;
 
   const userId = "user-id" as UserId;
   // Jan 1 creation date; tests run with system time set to Feb 15 = 45 days old
@@ -29,10 +30,10 @@ describe("PremiumUpsellService", () => {
   const currentDate = new Date("2024-02-15T00:00:00.000Z");
   const accountAgeInDays = 45;
 
-  const makeCiphers = (count: number): Record<string, unknown> => {
-    const ciphers: Record<string, unknown> = {};
+  const makeCiphers = (count: number): Record<CipherId, CipherData> => {
+    const ciphers = {} as Record<CipherId, CipherData>;
     for (let i = 0; i < count; i++) {
-      ciphers[`cipher-${i}`] = {};
+      ciphers[`cipher-${i}` as CipherId] = {} as CipherData;
     }
     return ciphers;
   };
@@ -60,15 +61,15 @@ describe("PremiumUpsellService", () => {
     jest.setSystemTime(currentDate);
 
     hasPremiumSubject = new BehaviorSubject<boolean>(false);
-    featureFlagSubject = new BehaviorSubject<number>(30);
-    ciphersSubject = new BehaviorSubject<Record<string, unknown>>(makeCiphers(5));
+    accountAgeThresholdSubject = new BehaviorSubject<number>(30);
+    ciphersSubject = new BehaviorSubject<Record<CipherId, CipherData>>(makeCiphers(5));
 
     billingAccountService = mock<BillingAccountProfileStateService>();
     configService = mock<ConfigService>();
     cipherService = mock<CipherService>();
 
     billingAccountService.hasPremiumFromAnySource$.mockReturnValue(hasPremiumSubject);
-    configService.getFeatureFlag$.mockReturnValue(featureFlagSubject);
+    configService.getFeatureFlag$.mockReturnValue(accountAgeThresholdSubject);
     cipherService.ciphers$.mockReturnValue(ciphersSubject);
 
     service = createService();
@@ -104,24 +105,24 @@ describe("PremiumUpsellService", () => {
     });
 
     it("returns false when account age is less than the feature flag threshold", () => {
-      featureFlagSubject.next(accountAgeInDays + 1);
+      accountAgeThresholdSubject.next(accountAgeInDays + 1);
       expect(service.showUpsell()).toBe(false);
     });
 
     it("returns true when account age equals the feature flag threshold", () => {
-      featureFlagSubject.next(accountAgeInDays);
+      accountAgeThresholdSubject.next(accountAgeInDays);
       expect(service.showUpsell()).toBe(true);
     });
 
     it("returns true when account age exceeds the feature flag threshold", () => {
-      featureFlagSubject.next(accountAgeInDays - 1);
+      accountAgeThresholdSubject.next(accountAgeInDays - 1);
       expect(service.showUpsell()).toBe(true);
     });
 
     it("returns false when all conditions fail", () => {
       hasPremiumSubject.next(true);
       ciphersSubject.next(makeCiphers(4));
-      featureFlagSubject.next(accountAgeInDays + 1);
+      accountAgeThresholdSubject.next(accountAgeInDays + 1);
 
       expect(service.showUpsell()).toBe(false);
     });
@@ -132,12 +133,11 @@ describe("PremiumUpsellService", () => {
       });
 
       it("treats account age as 0 and returns false when feature flag threshold is greater than 0", () => {
-        // featureFlagSubject defaults to 30, so 0 >= 30 is false
         expect(service.showUpsell()).toBe(false);
       });
 
       it("returns true when feature flag threshold is 0", () => {
-        featureFlagSubject.next(0);
+        accountAgeThresholdSubject.next(0);
         expect(service.showUpsell()).toBe(true);
       });
     });
