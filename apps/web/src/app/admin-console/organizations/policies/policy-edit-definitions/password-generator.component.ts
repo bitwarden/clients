@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { UntypedFormBuilder, Validators } from "@angular/forms";
@@ -62,7 +64,7 @@ export class PasswordGeneratorPolicyComponent extends BasePolicyEditComponent {
     includeNumber: [null],
   });
 
-  readonly overridePasswordTypeOptions: { name: string; value: string }[];
+  overridePasswordTypeOptions: { name: string; value: string }[];
 
   // These subjects cache visibility of the sub-options for passwords
   // and passphrases; without them policy controls don't show up at all.
