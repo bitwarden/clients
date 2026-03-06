@@ -12,7 +12,7 @@ export interface Ui {
     method: DeviceApprovalChannel,
     info?: string,
   ): Promise<string | Cancel | Resend>;
-  closeApprovalDialog?: () => void;
+  closeApprovalDialog(): void;
 
   // 2FA flow
   selectTwoFactorMethod(channels: TwoFactorMethod[]): Promise<TwoFactorMethod | Cancel>;
@@ -20,4 +20,6 @@ export interface Ui {
 
   // DUO specific actions
   selectDuoMethod(methods: DuoMethod[], phoneNumber: string): Promise<DuoMethod | Cancel>;
+  waitForDuoPush(method: DuoMethod): Promise<typeof Cancel | void>;
+  closeDuoPushDialog(): void;
 }

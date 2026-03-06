@@ -3932,6 +3932,18 @@
   "keeperDuoUnknown": {
     "message": "Unknown method"
   },
+  "keeperDuoApprovalRequired": {
+    "message": "Duo verification"
+  },
+  "keeperDuoPushWaiting": {
+    "message": "Approve the Duo push notification on your device."
+  },
+  "keeperDuoSmsWaiting": {
+    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+  },
+  "keeperDuoVoiceWaiting": {
+    "message": "Answer the phone call from Duo and follow the instructions."
+  },
   "noKeeperDataFound": {
     "message": "No Keeper data found"
   },
