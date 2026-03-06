@@ -130,7 +130,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EventManagementForHuntress]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
   [FeatureFlag.Milestone11AppPageImprovements]: FALSE,
-  [FeatureFlag.AccessIntelligenceNewArchitecture]: true,
+  [FeatureFlag.AccessIntelligenceNewArchitecture]: FALSE,
 
   /* Vault */
   [FeatureFlag.CipherKeyEncryption]: FALSE,
