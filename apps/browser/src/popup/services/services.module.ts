@@ -4,6 +4,14 @@ import { APP_INITIALIZER, NgModule, NgZone } from "@angular/core";
 import { merge, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import {
+  LoginComponentService,
+  TwoFactorAuthComponentService,
+  TwoFactorAuthDuoComponentService,
+  TwoFactorAuthWebAuthnComponentService,
+  SsoComponentService,
+  NewDeviceVerificationComponentService,
+} from "@bitwarden/angular/auth";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { AngularThemingService } from "@bitwarden/angular/platform/services/theming/angular-theming.service";
@@ -29,21 +37,6 @@ import {
   AutoConfirmNudgeService,
 } from "@bitwarden/angular/vault";
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
-import {
-  LoginComponentService,
-  TwoFactorAuthComponentService,
-  TwoFactorAuthDuoComponentService,
-  TwoFactorAuthWebAuthnComponentService,
-  SsoComponentService,
-  NewDeviceVerificationComponentService,
-} from "@bitwarden/auth/angular";
-import {
-  LockService,
-  LoginEmailService,
-  SsoUrlService,
-  LogoutService,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ExtensionAuthRequestAnsweringService } from "@bitwarden/browser/auth/services/auth-request-answering/extension-auth-request-answering.service";
 import { ExtensionNewDeviceVerificationComponentService } from "@bitwarden/browser/auth/services/new-device-verification/extension-new-device-verification-component.service";
@@ -52,6 +45,13 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import {
+  LockService,
+  LoginEmailService,
+  SsoUrlService,
+  LogoutService,
+  UserDecryptionOptionsServiceAbstraction,
+} from "@bitwarden/common/auth";
 import {
   AccountService,
   AccountService as AccountServiceAbstraction,

@@ -6,7 +6,7 @@ import {
   LoginStrategyServiceAbstraction,
   LoginSuccessHandlerService,
   PasswordLoginCredentials,
-} from "@bitwarden/auth/common";
+} from "@bitwarden/common/auth";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";

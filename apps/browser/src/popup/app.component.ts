@@ -26,12 +26,12 @@ import {
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval/login-approval-dialog.component";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
+import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
 import {
   AuthRequestServiceAbstraction,
   LogoutReason,
   UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
-import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
+} from "@bitwarden/common/auth";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";

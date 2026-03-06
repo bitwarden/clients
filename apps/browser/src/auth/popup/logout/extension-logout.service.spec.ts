@@ -1,6 +1,6 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
-import { LogoutReason, LogoutService } from "@bitwarden/auth/common";
+import { LogoutReason, LogoutService } from "@bitwarden/common/auth";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";

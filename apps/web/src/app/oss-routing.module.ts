@@ -3,6 +3,22 @@ import { Route, RouterModule, Routes } from "@angular/router";
 import { map } from "rxjs";
 
 import { organizationPolicyGuard } from "@bitwarden/angular/admin-console/guards";
+import {
+  PasswordHintComponent,
+  RegistrationFinishComponent,
+  RegistrationStartComponent,
+  RegistrationStartSecondaryComponent,
+  RegistrationStartSecondaryComponentData,
+  RegistrationLinkExpiredComponent,
+  LoginComponent,
+  LoginSecondaryContentComponent,
+  LoginViaAuthRequestComponent,
+  SsoComponent,
+  LoginDecryptionOptionsComponent,
+  TwoFactorAuthComponent,
+  TwoFactorAuthGuard,
+  NewDeviceVerificationComponent,
+} from "@bitwarden/angular/auth";
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
 import { AuthRoute } from "@bitwarden/angular/auth/constants";
 import {
@@ -34,22 +50,6 @@ import {
   BusinessWelcome,
   DomainIcon,
 } from "@bitwarden/assets/svg";
-import {
-  PasswordHintComponent,
-  RegistrationFinishComponent,
-  RegistrationStartComponent,
-  RegistrationStartSecondaryComponent,
-  RegistrationStartSecondaryComponentData,
-  RegistrationLinkExpiredComponent,
-  LoginComponent,
-  LoginSecondaryContentComponent,
-  LoginViaAuthRequestComponent,
-  SsoComponent,
-  LoginDecryptionOptionsComponent,
-  TwoFactorAuthComponent,
-  TwoFactorAuthGuard,
-  NewDeviceVerificationComponent,
-} from "@bitwarden/auth/angular";
 import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";

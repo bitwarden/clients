@@ -3,7 +3,7 @@
 import { Component } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 
-import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
+import { UserVerificationFormInputComponent } from "@bitwarden/angular/auth";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";

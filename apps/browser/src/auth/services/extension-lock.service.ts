@@ -1,5 +1,5 @@
-import { DefaultLockService, LogoutService } from "@bitwarden/auth/common";
 import MainBackground from "@bitwarden/browser/background/main.background";
+import { DefaultLockService, LogoutService } from "@bitwarden/common/auth";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";

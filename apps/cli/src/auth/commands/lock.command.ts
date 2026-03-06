@@ -1,6 +1,6 @@
 import { firstValueFrom } from "rxjs";
 
-import { LockService } from "@bitwarden/auth/common";
+import { LockService } from "@bitwarden/common/auth";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 

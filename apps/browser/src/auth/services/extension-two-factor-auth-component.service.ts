@@ -2,7 +2,7 @@ import {
   DefaultTwoFactorAuthComponentService,
   DuoLaunchAction,
   TwoFactorAuthComponentService,
-} from "@bitwarden/auth/angular";
+} from "@bitwarden/angular/auth";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 
 import { BrowserApi } from "../../platform/browser/browser-api";

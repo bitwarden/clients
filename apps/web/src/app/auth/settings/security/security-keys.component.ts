@@ -1,8 +1,8 @@
 import { Component, OnInit } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
-import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/common/auth";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DialogService } from "@bitwarden/components";

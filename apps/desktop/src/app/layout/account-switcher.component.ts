@@ -6,7 +6,7 @@ import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
-import { LoginEmailServiceAbstraction } from "@bitwarden/auth/common";
+import { LoginEmailServiceAbstraction } from "@bitwarden/common/auth";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";

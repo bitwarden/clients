@@ -1,6 +1,21 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
+import {
+  LoginComponent,
+  LoginSecondaryContentComponent,
+  LoginViaAuthRequestComponent,
+  PasswordHintComponent,
+  RegistrationFinishComponent,
+  RegistrationStartComponent,
+  RegistrationStartSecondaryComponent,
+  RegistrationStartSecondaryComponentData,
+  LoginDecryptionOptionsComponent,
+  SsoComponent,
+  TwoFactorAuthComponent,
+  TwoFactorAuthGuard,
+  NewDeviceVerificationComponent,
+} from "@bitwarden/angular/auth";
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
 import { AuthRoute } from "@bitwarden/angular/auth/constants";
 import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/environment-selector/environment-selector.component";
@@ -25,21 +40,6 @@ import {
   LockIcon,
   DomainIcon,
 } from "@bitwarden/assets/svg";
-import {
-  LoginComponent,
-  LoginSecondaryContentComponent,
-  LoginViaAuthRequestComponent,
-  PasswordHintComponent,
-  RegistrationFinishComponent,
-  RegistrationStartComponent,
-  RegistrationStartSecondaryComponent,
-  RegistrationStartSecondaryComponentData,
-  LoginDecryptionOptionsComponent,
-  SsoComponent,
-  TwoFactorAuthComponent,
-  TwoFactorAuthGuard,
-  NewDeviceVerificationComponent,
-} from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import {

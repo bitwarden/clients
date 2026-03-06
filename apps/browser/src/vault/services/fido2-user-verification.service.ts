@@ -2,8 +2,8 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
-import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
-import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { UserVerificationDialogComponent } from "@bitwarden/angular/auth";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/common/auth";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";

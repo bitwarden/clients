@@ -1,6 +1,6 @@
 import { firstValueFrom, map, Observable } from "rxjs";
 
-import { TwoFactorAuthDuoComponentService, Duo2faResult } from "@bitwarden/auth/angular";
+import { TwoFactorAuthDuoComponentService, Duo2faResult } from "@bitwarden/angular/auth";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";

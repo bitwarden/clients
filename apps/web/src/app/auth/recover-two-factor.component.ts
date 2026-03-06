@@ -8,7 +8,7 @@ import {
   LoginStrategyServiceAbstraction,
   PasswordLoginCredentials,
   LoginSuccessHandlerService,
-} from "@bitwarden/auth/common";
+} from "@bitwarden/common/auth";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";

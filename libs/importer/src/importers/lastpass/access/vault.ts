@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import * as papa from "papaparse";
 
-import { decodeJwtTokenToJson } from "@bitwarden/auth/common";
+import { decodeJwtTokenToJson } from "@bitwarden/common/auth";
 import { HttpStatusCode } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";

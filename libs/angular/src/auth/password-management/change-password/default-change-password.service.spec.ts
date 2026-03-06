@@ -1,8 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { PasswordInputResult } from "@bitwarden/auth/angular";
+import { PasswordInputResult } from "@bitwarden/angular/auth";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";

@@ -2,7 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/common/auth";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsStatus } from "@bitwarden/key-management";
 import { WebAuthnPrfUnlockService } from "@bitwarden/key-management-ui";

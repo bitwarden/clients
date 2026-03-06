@@ -1,7 +1,7 @@
 import {
   DefaultTwoFactorAuthWebAuthnComponentService,
   TwoFactorAuthWebAuthnComponentService,
-} from "@bitwarden/auth/angular";
+} from "@bitwarden/angular/auth";
 
 export class ExtensionTwoFactorAuthWebAuthnComponentService
   extends DefaultTwoFactorAuthWebAuthnComponentService

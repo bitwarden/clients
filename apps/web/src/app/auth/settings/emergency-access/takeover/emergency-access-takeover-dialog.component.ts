@@ -6,7 +6,7 @@ import {
   InputPasswordComponent,
   InputPasswordFlow,
   PasswordInputResult,
-} from "@bitwarden/auth/angular";
+} from "@bitwarden/angular/auth";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";

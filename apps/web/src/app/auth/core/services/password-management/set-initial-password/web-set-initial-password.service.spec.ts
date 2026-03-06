@@ -8,12 +8,12 @@ import {
   SetInitialPasswordService,
   SetInitialPasswordUserType,
 } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   FakeUserDecryptionOptions as UserDecryptionOptions,
   InternalUserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+} from "@bitwarden/common/auth";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";

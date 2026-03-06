@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 
-import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
+import { UserVerificationFormInputComponent } from "@bitwarden/angular/auth";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { Verification } from "@bitwarden/common/auth/types/verification";

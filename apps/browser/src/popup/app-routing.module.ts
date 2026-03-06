@@ -1,6 +1,21 @@
 import { Injectable, NgModule } from "@angular/core";
 import { ActivatedRouteSnapshot, RouteReuseStrategy, RouterModule, Routes } from "@angular/router";
 
+import {
+  LoginComponent,
+  LoginDecryptionOptionsComponent,
+  LoginSecondaryContentComponent,
+  LoginViaAuthRequestComponent,
+  NewDeviceVerificationComponent,
+  PasswordHintComponent,
+  RegistrationFinishComponent,
+  RegistrationStartComponent,
+  RegistrationStartSecondaryComponent,
+  RegistrationStartSecondaryComponentData,
+  SsoComponent,
+  TwoFactorAuthComponent,
+  TwoFactorAuthGuard,
+} from "@bitwarden/angular/auth";
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
 import { AuthRoute } from "@bitwarden/angular/auth/constants";
 import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/environment-selector/environment-selector.component";
@@ -27,21 +42,6 @@ import {
   DomainIcon,
   TwoFactorAuthSecurityKeyIcon,
 } from "@bitwarden/assets/svg";
-import {
-  LoginComponent,
-  LoginDecryptionOptionsComponent,
-  LoginSecondaryContentComponent,
-  LoginViaAuthRequestComponent,
-  NewDeviceVerificationComponent,
-  PasswordHintComponent,
-  RegistrationFinishComponent,
-  RegistrationStartComponent,
-  RegistrationStartSecondaryComponent,
-  RegistrationStartSecondaryComponentData,
-  SsoComponent,
-  TwoFactorAuthComponent,
-  TwoFactorAuthGuard,
-} from "@bitwarden/auth/angular";
 import { canAccessAutoConfirmSettings } from "@bitwarden/auto-confirm/angular";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import {

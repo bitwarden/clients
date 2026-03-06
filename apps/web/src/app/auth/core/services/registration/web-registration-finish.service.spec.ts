@@ -3,7 +3,7 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { PasswordInputResult } from "@bitwarden/auth/angular";
+import { PasswordInputResult } from "@bitwarden/angular/auth";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";

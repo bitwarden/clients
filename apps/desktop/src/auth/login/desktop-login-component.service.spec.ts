@@ -2,8 +2,8 @@ import { TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
-import { SsoUrlService } from "@bitwarden/auth/common";
+import { DefaultLoginComponentService } from "@bitwarden/angular/auth";
+import { SsoUrlService } from "@bitwarden/common/auth";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";

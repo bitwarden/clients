@@ -1,10 +1,9 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, bufferCount, firstValueFrom, Subject, ObservedValueOf } from "rxjs";
 
-// eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { LogoutReason } from "@bitwarden/common/auth";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 
 import { mockAccountInfoWith } from "../../../../spec";

@@ -1,7 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 import { BehaviorSubject } from "rxjs";
 
-import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
+import { AuthRequestServiceAbstraction } from "@bitwarden/common/auth";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";

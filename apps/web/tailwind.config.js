@@ -6,7 +6,6 @@ config.content = [
   path.resolve(__dirname, "./src/**/*.{html,ts}"),
   path.resolve(__dirname, "../../libs/components/src/**/*.{html,ts}"),
   path.resolve(__dirname, "../../libs/assets/src/**/*.{html,ts}"),
-  path.resolve(__dirname, "../../libs/auth/src/**/*.{html,ts}"),
   path.resolve(__dirname, "../../libs/key-management-ui/src/**/*.{html,ts}"),
   path.resolve(__dirname, "../../libs/vault/src/**/*.{html,ts}"),
   path.resolve(__dirname, "../../libs/angular/src/**/*.{html,ts}"),

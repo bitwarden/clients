@@ -4,7 +4,7 @@ import {
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
   WebAuthnPrfUserDecryptionOption,
-} from "@bitwarden/auth/common";
+} from "@bitwarden/common/auth";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";

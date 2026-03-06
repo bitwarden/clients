@@ -5,7 +5,7 @@ import * as http from "http";
 import { ipcMain } from "electron";
 import { firstValueFrom } from "rxjs";
 
-import { SsoUrlService } from "@bitwarden/auth/common";
+import { SsoUrlService } from "@bitwarden/common/auth";
 import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";

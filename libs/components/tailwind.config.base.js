@@ -13,7 +13,7 @@ module.exports = {
     "../../libs/assets/src/**/*.{html,ts}",
     "../../libs/components/src/**/*.{html,ts,mdx}",
     "../../libs/key-management-ui/src/**/*.{html,ts}",
-    "../../libs/auth/src/**/*.{html,ts}",
+    "../../libs/angular/src/auth/**/*.{html,ts}",
   ],
   safelist: [],
   corePlugins: { preflight: false },

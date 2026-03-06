@@ -1,6 +1,6 @@
 import { fromEvent, map, Observable, share } from "rxjs";
 
-import { TwoFactorAuthDuoComponentService, Duo2faResult } from "@bitwarden/auth/angular";
+import { TwoFactorAuthDuoComponentService, Duo2faResult } from "@bitwarden/angular/auth";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 export class WebTwoFactorAuthDuoComponentService implements TwoFactorAuthDuoComponentService {

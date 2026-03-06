@@ -15,9 +15,7 @@ import {
   concatMap,
 } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/common/auth";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { BiometricStateService, KeyService } from "@bitwarden/key-management";

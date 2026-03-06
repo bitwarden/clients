@@ -12,6 +12,13 @@ import {
   OrganizationUserApiService,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
+import {
+  LoginComponentService,
+  LoginDecryptionOptionsService,
+  RegistrationFinishService as RegistrationFinishServiceAbstraction,
+  SsoComponentService,
+  TwoFactorAuthDuoComponentService,
+} from "@bitwarden/angular/auth";
 import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth/device-management/default-device-management-component.service";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
@@ -33,17 +40,6 @@ import {
   WINDOW,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
-import {
-  LoginComponentService,
-  LoginDecryptionOptionsService,
-  RegistrationFinishService as RegistrationFinishServiceAbstraction,
-  SsoComponentService,
-  TwoFactorAuthDuoComponentService,
-} from "@bitwarden/auth/angular";
-import {
-  InternalUserDecryptionOptionsServiceAbstraction,
-  LoginEmailService,
-} from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -52,6 +48,10 @@ import {
   InternalPolicyService,
   PolicyService,
 } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import {
+  InternalUserDecryptionOptionsServiceAbstraction,
+  LoginEmailService,
+} from "@bitwarden/common/auth";
 import { AccountApiService as AccountApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";

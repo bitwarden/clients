@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
-import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
+import { AuthRequestServiceAbstraction } from "@bitwarden/common/auth";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";

@@ -5,6 +5,12 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, merge } from "rxjs";
 
 import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import {
+  LoginComponentService,
+  SsoComponentService,
+  DefaultSsoComponentService,
+  TwoFactorAuthDuoComponentService,
+} from "@bitwarden/angular/auth";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
@@ -23,18 +29,6 @@ import {
   CLIENT_TYPE,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
-import {
-  LoginComponentService,
-  SsoComponentService,
-  DefaultSsoComponentService,
-  TwoFactorAuthDuoComponentService,
-} from "@bitwarden/auth/angular";
-import {
-  InternalUserDecryptionOptionsServiceAbstraction,
-  LoginEmailService,
-  SsoUrlService,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -42,6 +36,12 @@ import {
   PolicyService as PolicyServiceAbstraction,
   InternalPolicyService,
 } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import {
+  InternalUserDecryptionOptionsServiceAbstraction,
+  LoginEmailService,
+  SsoUrlService,
+  UserDecryptionOptionsServiceAbstraction,
+} from "@bitwarden/common/auth";
 import {
   AccountService,
   AccountService as AccountServiceAbstraction,

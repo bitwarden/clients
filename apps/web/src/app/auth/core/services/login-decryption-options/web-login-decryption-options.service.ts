@@ -3,7 +3,7 @@
 import {
   LoginDecryptionOptionsService,
   DefaultLoginDecryptionOptionsService,
-} from "@bitwarden/auth/angular";
+} from "@bitwarden/angular/auth";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 

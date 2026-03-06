@@ -3,8 +3,8 @@
 import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { DefaultLoginComponentService, LoginComponentService } from "@bitwarden/auth/angular";
-import { DESKTOP_SSO_CALLBACK, SsoUrlService } from "@bitwarden/auth/common";
+import { DefaultLoginComponentService, LoginComponentService } from "@bitwarden/angular/auth";
+import { DESKTOP_SSO_CALLBACK, SsoUrlService } from "@bitwarden/common/auth";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";

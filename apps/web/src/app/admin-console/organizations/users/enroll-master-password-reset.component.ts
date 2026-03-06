@@ -6,7 +6,7 @@ import {
   OrganizationUserApiService,
   OrganizationUserResetPasswordEnrollmentRequest,
 } from "@bitwarden/admin-console/common";
-import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
+import { UserVerificationDialogComponent } from "@bitwarden/angular/auth";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";

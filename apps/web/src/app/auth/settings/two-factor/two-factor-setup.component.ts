@@ -11,9 +11,9 @@ import {
   switchMap,
 } from "rxjs";
 
+import { UserVerificationDialogComponent } from "@bitwarden/angular/auth";
 import { TwoFactorIconComponent } from "@bitwarden/angular/auth/components/two-factor-icon.component";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
-import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";

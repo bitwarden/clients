@@ -2,9 +2,7 @@ import { inject } from "@angular/core";
 import { CanActivateFn, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
+import { LoginStrategyServiceAbstraction } from "@bitwarden/common/auth";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 /**

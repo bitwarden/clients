@@ -2,9 +2,7 @@
 // @ts-strict-ignore
 import { Observable, Subject } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "@bitwarden/auth/common";
+import { LogoutReason } from "@bitwarden/common/auth";
 import { ClientType } from "@bitwarden/common/enums";
 import { VaultTimeout } from "@bitwarden/common/key-management/vault-timeout";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";

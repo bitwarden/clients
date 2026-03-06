@@ -1,7 +1,7 @@
 import {
   DefaultNewDeviceVerificationComponentService,
   NewDeviceVerificationComponentService,
-} from "@bitwarden/auth/angular";
+} from "@bitwarden/angular/auth";
 
 export class ExtensionNewDeviceVerificationComponentService
   extends DefaultNewDeviceVerificationComponentService

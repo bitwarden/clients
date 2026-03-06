@@ -23,18 +23,6 @@ import {
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import {
-  AuthRequestApiServiceAbstraction,
-  AuthRequestService,
-  AuthRequestServiceAbstraction,
-  DefaultAuthRequestApiService,
-  DefaultLogoutService,
-  InternalUserDecryptionOptionsServiceAbstraction,
-  LockService,
-  LoginEmailServiceAbstraction,
-  LogoutReason,
-  UserDecryptionOptionsService,
-} from "@bitwarden/auth/common";
-import {
   AutomaticUserConfirmationService,
   DefaultAutomaticUserConfirmationService,
 } from "@bitwarden/auto-confirm";
@@ -50,6 +38,18 @@ import { DefaultOrganizationService } from "@bitwarden/common/admin-console/serv
 import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
 import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
+import {
+  AuthRequestApiServiceAbstraction,
+  AuthRequestService,
+  AuthRequestServiceAbstraction,
+  DefaultAuthRequestApiService,
+  DefaultLogoutService,
+  InternalUserDecryptionOptionsServiceAbstraction,
+  LockService,
+  LoginEmailServiceAbstraction,
+  LogoutReason,
+  UserDecryptionOptionsService,
+} from "@bitwarden/common/auth";
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";

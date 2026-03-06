@@ -9,6 +9,12 @@ import {
   CollectionData,
   CollectionDetailsResponse,
 } from "@bitwarden/common/admin-console/models/collections";
+import {
+  InternalUserDecryptionOptionsServiceAbstraction,
+  LogoutReason,
+  UserDecryptionOptions,
+  WebAuthnPrfUserDecryptionOption,
+} from "@bitwarden/common/auth";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -16,16 +22,6 @@ import { SecurityStateService } from "@bitwarden/common/key-management/security-
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { EncString as SdkEncString } from "@bitwarden/sdk-internal";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import {
-  InternalUserDecryptionOptionsServiceAbstraction,
-  UserDecryptionOptions,
-  WebAuthnPrfUserDecryptionOption,
-} from "../../../../auth/src/common";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "../../../../auth/src/common/types";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";

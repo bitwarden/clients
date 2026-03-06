@@ -367,7 +367,6 @@ export default tseslint.config(
         // Common is at the base level - should not import from other libs except shared
         "@bitwarden/admin-console",
         "@bitwarden/angular",
-        "@bitwarden/auth",
         "@bitwarden/billing",
         "@bitwarden/components",
         "@bitwarden/importer",
@@ -388,7 +387,6 @@ export default tseslint.config(
         // Shared shouldnt have deps
         "@bitwarden/admin-console",
         "@bitwarden/angular",
-        "@bitwarden/auth",
         "@bitwarden/billing",
         "@bitwarden/common",
         "@bitwarden/components",
@@ -404,27 +402,10 @@ export default tseslint.config(
     },
   },
   {
-    files: ["libs/auth/src/**/*.ts"],
-    rules: {
-      "no-restricted-imports": buildNoRestrictedImports([
-        // Auth can only depend on common, shared, angular, node, platform, eslint
-        "@bitwarden/admin-console",
-        "@bitwarden/billing",
-        "@bitwarden/components",
-        "@bitwarden/importer",
-        "@bitwarden/key-management-ui",
-        "@bitwarden/tools",
-        "@bitwarden/ui",
-        "@bitwarden/vault",
-      ]),
-    },
-  },
-  {
     files: ["libs/key-management/src/**/*.ts"],
     rules: {
       "no-restricted-imports": buildNoRestrictedImports([
         // Key management can depend on common, node, angular, components, eslint, platform, ui
-        "@bitwarden/auth",
         "@bitwarden/admin-console",
         "@bitwarden/billing",
         "@bitwarden/importer",
@@ -453,7 +434,6 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports([
         // Components can depend on common, shared
         "@bitwarden/admin-console",
-        "@bitwarden/auth",
         "@bitwarden/billing",
         "@bitwarden/eslint",
         "@bitwarden/importer",
@@ -501,7 +481,6 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports([
         // Angular can depend on common, shared, components, ui
         "@bitwarden/admin-console",
-        "@bitwarden/auth",
         "@bitwarden/billing",
         "@bitwarden/importer",
         "@bitwarden/key-management-ui",
@@ -546,7 +525,6 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports([
         // Platform cant depend on most libs
         "@bitwarden/admin-console",
-        "@bitwarden/auth",
         "@bitwarden/billing",
         "@bitwarden/importer",
         "@bitwarden/key-management",
@@ -573,7 +551,6 @@ export default tseslint.config(
         // ESLint should not depend on app code
         "@bitwarden/admin-console",
         "@bitwarden/angular",
-        "@bitwarden/auth",
         "@bitwarden/billing",
         "@bitwarden/components",
         "@bitwarden/importer",

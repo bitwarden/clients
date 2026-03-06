@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { firstValueFrom, map, mergeMap } from "rxjs";
 
-import { LockService } from "@bitwarden/auth/common";
+import { LockService } from "@bitwarden/common/auth";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";

@@ -1,7 +1,7 @@
 import { inject } from "@angular/core";
 import { combineLatest, defer, map, Observable } from "rxjs";
 
-import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/common/auth";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsStatus } from "@bitwarden/key-management";
 import {

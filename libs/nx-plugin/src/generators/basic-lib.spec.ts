@@ -90,7 +90,7 @@ it("should update jest.config.js with new library", async () => {
   projects: [
     "<rootDir>/apps/browser/jest.config.js",
     "<rootDir>/libs/admin-console/jest.config.js",
-    "<rootDir>/libs/auth/jest.config.js",
+    "<rootDir>/libs/billing/jest.config.js",
     "<rootDir>/libs/vault/jest.config.js",
   ],
 };`;
@@ -105,15 +105,15 @@ it("should update jest.config.js with new library", async () => {
   // Should contain the new library in alphabetical order
   expect(jestConfig).toContain('"<rootDir>/libs/test/jest.config.js",');
 
-  // Should be in the right alphabetical position (after auth, before vault)
-  const authIndex = jestConfig?.indexOf('"<rootDir>/libs/auth/jest.config.js"');
+  // Should be in the right alphabetical position (after billing, before vault)
+  const billingIndex = jestConfig?.indexOf('"<rootDir>/libs/billing/jest.config.js"');
   const testIndex = jestConfig?.indexOf('"<rootDir>/libs/test/jest.config.js"');
   const vaultIndex = jestConfig?.indexOf('"<rootDir>/libs/vault/jest.config.js"');
 
-  expect(authIndex).toBeDefined();
+  expect(billingIndex).toBeDefined();
   expect(testIndex).toBeDefined();
   expect(vaultIndex).toBeDefined();
-  expect(authIndex! < testIndex!).toBeTruthy();
+  expect(billingIndex! < testIndex!).toBeTruthy();
   expect(testIndex! < vaultIndex!).toBeTruthy();
 });
 

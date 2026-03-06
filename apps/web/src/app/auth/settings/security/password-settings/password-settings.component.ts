@@ -2,9 +2,9 @@ import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+import { InputPasswordFlow } from "@bitwarden/angular/auth";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
-import { InputPasswordFlow } from "@bitwarden/auth/angular";
-import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/common/auth";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CalloutModule } from "@bitwarden/components";

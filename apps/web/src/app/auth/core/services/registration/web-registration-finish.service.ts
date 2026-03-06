@@ -6,7 +6,7 @@ import {
   DefaultRegistrationFinishService,
   PasswordInputResult,
   RegistrationFinishService,
-} from "@bitwarden/auth/angular";
+} from "@bitwarden/angular/auth";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";

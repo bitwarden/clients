@@ -3,8 +3,8 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
+import { UserVerificationFormInputComponent } from "@bitwarden/angular/auth";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";

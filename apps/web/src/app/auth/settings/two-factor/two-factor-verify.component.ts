@@ -1,7 +1,7 @@
 import { Component, Inject } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 
-import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
+import { UserVerificationFormInputComponent } from "@bitwarden/angular/auth";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";

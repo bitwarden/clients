@@ -2,7 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { OrganizationUserResetPasswordWithIdRequest } from "@bitwarden/admin-console/common";
-import { LogoutService } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/common/auth";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { WebauthnRotateCredentialRequest } from "@bitwarden/common/auth/models/request/webauthn-rotate-credential.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";

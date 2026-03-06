@@ -7,7 +7,7 @@ import {
   DefaultLoginComponentService,
   LoginComponentService,
   PasswordPolicies,
-} from "@bitwarden/auth/angular";
+} from "@bitwarden/angular/auth";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";

@@ -15,12 +15,6 @@ import {
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import {
-  ChangePasswordService,
-  DefaultChangePasswordService,
-} from "@bitwarden/angular/auth/password-management/change-password";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import {
   DefaultLoginComponentService,
   DefaultLoginDecryptionOptionsService,
   DefaultNewDeviceVerificationComponentService,
@@ -33,29 +27,11 @@ import {
   RegistrationFinishService as RegistrationFinishServiceAbstraction,
   TwoFactorAuthComponentService,
   TwoFactorAuthWebAuthnComponentService,
-} from "@bitwarden/auth/angular";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
+} from "@bitwarden/angular/auth";
 import {
-  AuthRequestApiServiceAbstraction,
-  AuthRequestService,
-  AuthRequestServiceAbstraction,
-  DefaultAuthRequestApiService,
-  DefaultLockService,
-  DefaultLoginSuccessHandlerService,
-  DefaultLogoutService,
-  InternalUserDecryptionOptionsServiceAbstraction,
-  LockService,
-  LoginEmailService,
-  LoginEmailServiceAbstraction,
-  LoginStrategyService,
-  LoginStrategyServiceAbstraction,
-  LoginSuccessHandlerService,
-  LogoutReason,
-  LogoutService,
-  UserDecryptionOptionsService,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
+  ChangePasswordService,
+  DefaultChangePasswordService,
+} from "@bitwarden/angular/auth/password-management/change-password";
 import {
   AutomaticUserConfirmationService,
   DefaultAutomaticUserConfirmationService,
@@ -91,6 +67,26 @@ import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/p
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
 import { ProviderApiService } from "@bitwarden/common/admin-console/services/provider/provider-api.service";
 import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
+import {
+  AuthRequestApiServiceAbstraction,
+  AuthRequestService,
+  AuthRequestServiceAbstraction,
+  DefaultAuthRequestApiService,
+  DefaultLockService,
+  DefaultLoginSuccessHandlerService,
+  DefaultLogoutService,
+  InternalUserDecryptionOptionsServiceAbstraction,
+  LockService,
+  LoginEmailService,
+  LoginEmailServiceAbstraction,
+  LoginStrategyService,
+  LoginStrategyServiceAbstraction,
+  LoginSuccessHandlerService,
+  LogoutReason,
+  LogoutService,
+  UserDecryptionOptionsService,
+  UserDecryptionOptionsServiceAbstraction,
+} from "@bitwarden/common/auth";
 import { AccountApiService as AccountApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/account-api.service";
 import {
   AccountService,

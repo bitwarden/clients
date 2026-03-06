@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
-import { LockService } from "@bitwarden/auth/common";
+import { LockService } from "@bitwarden/common/auth";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";

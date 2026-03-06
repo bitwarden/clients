@@ -6,8 +6,8 @@ import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 
 const config: StorybookConfig = {
   stories: [
-    "../libs/auth/src/**/*.mdx",
-    "../libs/auth/src/**/*.stories.@(js|jsx|ts|tsx)",
+    "../libs/angular/src/auth/**/*.mdx",
+    "../libs/angular/src/auth/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/dirt/card/src/**/*.mdx",
     "../libs/dirt/card/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/pricing/src/**/*.mdx",

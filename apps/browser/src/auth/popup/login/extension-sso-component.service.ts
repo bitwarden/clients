@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 
-import { DefaultSsoComponentService, SsoComponentService } from "@bitwarden/auth/angular";
+import { DefaultSsoComponentService, SsoComponentService } from "@bitwarden/angular/auth";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";

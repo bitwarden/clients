@@ -4,7 +4,7 @@ const config = require("./libs/components/tailwind.config.base");
 config.content = [
   "./libs/components/src/**/*.{html,ts,mdx}",
   "./libs/admin-console/src/**/*.{html,ts,mdx}",
-  "./libs/auth/src/**/*.{html,ts,mdx}",
+  "./libs/angular/src/auth/**/*.{html,ts,mdx}",
   "./libs/billing/src/**/*.{html,ts,mdx}",
   "./libs/assets/src/**/*.{html,ts}",
   "./libs/platform/src/**/*.{html,ts,mdx}",

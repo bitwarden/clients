@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { firstValueFrom, Observable } from "rxjs";
 
-import { LogoutService } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/common/auth";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";

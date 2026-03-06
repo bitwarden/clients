@@ -5,7 +5,7 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, switchMap, takeUntil } from "rxjs";
 
-import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
+import { UserVerificationDialogComponent } from "@bitwarden/angular/auth";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { ProviderUpdateRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-update.request";

@@ -1,6 +1,6 @@
 import { combineLatest, defer, firstValueFrom, map, Observable } from "rxjs";
 
-import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/common/auth";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
 import {

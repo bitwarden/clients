@@ -1,6 +1,6 @@
 import { filter, firstValueFrom } from "rxjs";
 
-import { LockService } from "@bitwarden/auth/common";
+import { LockService } from "@bitwarden/common/auth";
 import {
   CommandDefinition,
   MessageListener,

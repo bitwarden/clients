@@ -1,6 +1,6 @@
 import { firstValueFrom } from "rxjs";
 
-import { LockService, LogoutService } from "@bitwarden/auth/common";
+import { LockService, LogoutService } from "@bitwarden/common/auth";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   VaultTimeoutAction,

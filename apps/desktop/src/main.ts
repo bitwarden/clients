@@ -7,7 +7,7 @@ import * as path from "path";
 import { app } from "electron";
 import { Subject, firstValueFrom } from "rxjs";
 
-import { SsoUrlService } from "@bitwarden/auth/common";
+import { SsoUrlService } from "@bitwarden/common/auth";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { ClientType } from "@bitwarden/common/enums";

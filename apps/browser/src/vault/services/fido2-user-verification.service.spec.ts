@@ -1,8 +1,8 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
-import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { UserVerificationDialogComponent } from "@bitwarden/angular/auth";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/common/auth";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -17,7 +17,7 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 import { SetPinComponent } from "./../../auth/popup/components/set-pin.component";
 import { Fido2UserVerificationService } from "./fido2-user-verification.service";
 
-jest.mock("@bitwarden/auth/angular", () => ({
+jest.mock("@bitwarden/angular/auth", () => ({
   UserVerificationDialogComponent: {
     open: jest.fn().mockResolvedValue({ userAction: "confirm", verificationSuccess: true }),
   },

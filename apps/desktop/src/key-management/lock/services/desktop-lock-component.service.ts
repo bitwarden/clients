@@ -1,7 +1,7 @@
 import { inject } from "@angular/core";
 import { combineLatest, defer, map, Observable } from "rxjs";
 
-import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/common/auth";
 import { DeviceType } from "@bitwarden/common/enums";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";

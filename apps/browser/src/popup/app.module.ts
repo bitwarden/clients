@@ -9,8 +9,8 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
+import { UserVerificationDialogComponent } from "@bitwarden/angular/auth";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import {
   DialogModule,
   AvatarModule,

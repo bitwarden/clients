@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject, ViewChild } from "@angular/core";
 import { switchMap } from "rxjs";
 
-import { InputPasswordComponent, InputPasswordFlow } from "@bitwarden/auth/angular";
+import { InputPasswordComponent, InputPasswordFlow } from "@bitwarden/angular/auth";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";

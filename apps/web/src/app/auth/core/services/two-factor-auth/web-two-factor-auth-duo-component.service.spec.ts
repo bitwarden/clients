@@ -1,6 +1,6 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
-import { Duo2faResult } from "@bitwarden/auth/angular";
+import { Duo2faResult } from "@bitwarden/angular/auth";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { WebTwoFactorAuthDuoComponentService } from "./web-two-factor-auth-duo-component.service";

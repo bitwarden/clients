@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 
-import { PasswordCalloutComponent } from "@bitwarden/auth/angular";
+import { PasswordCalloutComponent } from "@bitwarden/angular/auth";
 
 import { UserKeyRotationModule } from "../../key-management/key-rotation/user-key-rotation.module";
 import { SharedModule } from "../../shared";

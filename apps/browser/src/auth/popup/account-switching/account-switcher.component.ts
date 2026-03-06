@@ -4,7 +4,7 @@ import { Router } from "@angular/router";
 import { Observable, Subject, firstValueFrom, map, of, startWith, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { LockService, LogoutService } from "@bitwarden/auth/common";
+import { LockService, LogoutService } from "@bitwarden/common/auth";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";

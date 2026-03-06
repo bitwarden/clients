@@ -11,6 +11,17 @@ import {
   DefaultOrganizationUserApiService,
   DefaultCollectionService,
 } from "@bitwarden/admin-console/common";
+import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
+import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
+import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
+import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
+import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
+import { ProviderApiService } from "@bitwarden/common/admin-console/services/provider/provider-api.service";
+import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
   AuthRequestService,
@@ -23,18 +34,7 @@ import {
   DefaultLockService,
   DefaultLogoutService,
   LockService,
-} from "@bitwarden/auth/common";
-import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
-import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
-import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
-import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
-import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
-import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
-import { ProviderApiService } from "@bitwarden/common/admin-console/services/provider/provider-api.service";
-import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
+} from "@bitwarden/common/auth";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";

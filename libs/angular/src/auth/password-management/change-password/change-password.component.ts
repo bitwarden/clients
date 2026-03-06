@@ -2,14 +2,12 @@ import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { LockIcon } from "@bitwarden/assets/svg";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
 import {
   InputPasswordComponent,
   InputPasswordFlow,
   PasswordInputResult,
-} from "@bitwarden/auth/angular";
+} from "@bitwarden/angular/auth";
+import { LockIcon } from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";

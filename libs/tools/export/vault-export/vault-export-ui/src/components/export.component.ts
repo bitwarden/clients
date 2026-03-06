@@ -31,8 +31,8 @@ import {
 } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { UserVerificationDialogComponent } from "@bitwarden/angular/auth";
 import { PasswordStrengthV2Component } from "@bitwarden/angular/tools/password-strength/password-strength-v2.component";
-import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";

@@ -2,7 +2,7 @@ import { CdkStepperModule } from "@angular/cdk/stepper";
 import { TitleCasePipe } from "@angular/common";
 import { NgModule } from "@angular/core";
 
-import { InputPasswordComponent } from "@bitwarden/auth/angular";
+import { InputPasswordComponent } from "@bitwarden/angular/auth";
 import { FormFieldModule } from "@bitwarden/components";
 
 import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";

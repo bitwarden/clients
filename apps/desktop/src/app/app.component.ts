@@ -23,21 +23,21 @@ import {
   timeout,
 } from "rxjs";
 
+import { FingerprintDialogComponent } from "@bitwarden/angular/auth";
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
+import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   AuthRequestServiceAbstraction,
   DESKTOP_SSO_CALLBACK,
   LockService,
   LogoutReason,
   UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
-import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+} from "@bitwarden/common/auth";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
