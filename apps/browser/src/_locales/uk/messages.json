@@ -896,6 +896,9 @@
   "invalidVerificationCode": {
     "message": "Недійсний код підтвердження"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Недійсна е-пошта або код підтвердження"
+  },
   "valueCopied": {
     "message": "$VALUE$ скопійовано",
     "description": "Value has been copied to the clipboard.",
@@ -1141,7 +1144,7 @@
     "message": "Натисніть на запис у режимі перегляду сховища для автозаповнення"
   },
   "clickToAutofill": {
-    "message": "Натисніть запис у пропозиціях для автозаповнення"
+    "message": "Натиснути запис у пропозиціях для автозаповнення"
   },
   "clearClipboard": {
     "message": "Очистити буфер обміну",
@@ -2052,7 +2055,7 @@
     "message": "Е-пошта"
   },
   "emails": {
-    "message": "Е-пошти"
+    "message": "Адреси е-пошти"
   },
   "phone": {
     "message": "Телефон"
@@ -2857,6 +2860,9 @@
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Ілюстрація списку ризикованих записів."
   },
+  "welcomeDialogGraphicAlt": {
+    "message": "Ілюстрація макету сторінки сховища Bitwarden."
+  },
   "generatePasswordSlideDesc": {
     "message": "Швидко згенеруйте надійний, унікальний пароль через меню автозаповнення Bitwarden на сайті з ризикованим паролем.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
@@ -3077,6 +3083,45 @@
       "days": {
         "content": "$1",
         "example": "5"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ годин",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Скопіюйте посилання на це відправлення і поділіться ним. Відправлення буде доступне за посиланням усім протягом $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Скопіюйте посилання на це відправлення і поділіться ним. Відправлення буде доступне за посиланням і встановленим вами паролем усім протягом $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Скопіюйте посилання на це відправлення і поділіться ним. Його зможуть переглядати зазначені вами користувачі протягом $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
       }
     }
   },
@@ -3353,7 +3398,7 @@
     "message": "Не вдалося розблокувати за допомогою ключа доступу. Повторіть спробу або скористайтеся іншим способом розблокування."
   },
   "noPrfCredentialsAvailable": {
-    "message": "Немає ключів доступу з підтримкою PRF, доступних для розблокування. Спочатку увійдіть з ключем доступу."
+    "message": "Немає ключів доступу з підтримкою PRF, доступних для розблокування. Спочатку ввійдіть з ключем доступу."
   },
   "decryptionError": {
     "message": "Помилка розшифрування"
@@ -4689,7 +4734,7 @@
     "message": "Запропоновані записи"
   },
   "autofillSuggestionsTip": {
-    "message": "Зберегти дані входу цього сайту для автозаповнення"
+    "message": "Збережіть дані входу цього сайту для автозаповнення"
   },
   "yourVaultIsEmpty": {
     "message": "Ваше сховище порожнє"
@@ -4731,7 +4776,7 @@
     }
   },
   "moreOptionsLabelNoPlaceholder": {
-    "message": "Більше опцій"
+    "message": "Інші варіанти"
   },
   "moreOptionsTitle": {
     "message": "Інші можливості – $ITEMNAME$",
@@ -4819,6 +4864,9 @@
   },
   "copyAddress": {
     "message": "Копіювати адресу"
+  },
+  "myItems": {
+    "message": "My Items"
   },
   "adminConsole": {
     "message": "консолі адміністратора,"
@@ -5665,7 +5713,7 @@
     "message": "Дуже широке"
   },
   "narrow": {
-    "message": "Вузький"
+    "message": "Вузьке"
   },
   "sshKeyWrongPassword": {
     "message": "Ви ввели неправильний пароль."
@@ -6106,6 +6154,15 @@
   "searchResults": {
     "message": "Результати пошуку"
   },
+  "simplifiedAutofill": {
+    "message": "Спрощене автозаповнення"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "Під час натискання запропонованого елемента відбувається автоматичне заповнення, а не відкриття подробиць запису. Ви можете переглядати ці елементи з меню \"Більше\"."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Відкрити меню спрощеного автозаповнення"
+  },
   "resizeSideNavigation": {
     "message": "Змінити розмір бічної панелі"
   },
@@ -6113,13 +6170,16 @@
     "message": "Хто може переглядати"
   },
   "specificPeople": {
-    "message": "Певні люди"
+    "message": "Певні користувачі"
   },
   "emailVerificationDesc": {
-    "message": "Після того, як ви поділитеся цим посиланням на відправлення, особам необхідно буде підтвердити свої е-пошти за допомогою коду, щоб переглянути це відправлення."
+    "message": "Після того, як ви поділитеся посиланням на це відправлення, користувачі мають підтвердити свою е-пошту за допомогою коду, щоб переглянути його."
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Введіть декілька адрес е-пошти, розділяючи їх комою."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "Для підтвердження адреси електронної пошти потрібна щонайменше одна адреса. Щоб вилучити всі адреси електронної пошти, змініть тип доступу вище."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
@@ -6131,7 +6191,10 @@
     "message": "Е-пошту захищено"
   },
   "sendPasswordHelperText": {
-    "message": "Особам необхідно ввести пароль для перегляду цього відправлення",
+    "message": "Користувачі мають ввести пароль для перегляду цього відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "Не вдалося перевірити користувача."
   }
 }

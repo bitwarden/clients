@@ -6,12 +6,18 @@ import { CommonModule, DatePipe } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { IconModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { AvatarComponent } from "../components/avatar.component";
 import { ServicesModule } from "../services/services.module";
 
+/**
+ * @deprecated Please directly import the relevant directive/pipe/component.
+ *
+ * This module is overly large and adds many unrelated modules to your dependency tree.
+ * https://angular.dev/guide/ngmodules/overview recommends not using `NgModule`s for new code.
+ */
 @NgModule({
   imports: [
     CommonModule,
@@ -19,7 +25,7 @@ import { ServicesModule } from "../services/services.module";
     DragDropModule,
     FormsModule,
     IconModule,
-    JslibModule,
+    I18nPipe,
     OverlayModule,
     ReactiveFormsModule,
     ScrollingModule,
@@ -33,7 +39,7 @@ import { ServicesModule } from "../services/services.module";
     DragDropModule,
     FormsModule,
     IconModule,
-    JslibModule,
+    I18nPipe,
     OverlayModule,
     ReactiveFormsModule,
     ScrollingModule,
