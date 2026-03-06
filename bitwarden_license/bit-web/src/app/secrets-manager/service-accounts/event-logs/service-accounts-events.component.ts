@@ -27,21 +27,21 @@ export class ServiceAccountEventsComponent
   extends BaseEventsComponent
   implements OnInit, OnDestroy
 {
-  exportFileName = "machine-account-events";
-  private serviceAccountId: string;
+  readonly exportFileName = "machine-account-events";
+  private readonly serviceAccountId: string;
 
   constructor(
     eventService: EventService,
-    private serviceAccountEventsApiService: ServiceAccountEventLogApiService,
-    private route: ActivatedRoute,
+    private readonly serviceAccountEventsApiService: ServiceAccountEventLogApiService,
+    private readonly route: ActivatedRoute,
     i18nService: I18nService,
     exportService: EventExportService,
     platformUtilsService: PlatformUtilsService,
     logService: LogService,
     fileDownloadService: FileDownloadService,
     toastService: ToastService,
-    protected organizationService: OrganizationService,
-    protected accountService: AccountService,
+    protected readonly organizationService: OrganizationService,
+    protected readonly accountService: AccountService,
   ) {
     super(
       eventService,
