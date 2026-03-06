@@ -17,7 +17,9 @@ import { I18nPipe } from "@bitwarden/ui-common";
   imports: [DialogModule, ButtonModule, I18nPipe, ChangePasswordComponent],
 })
 export class ChangePasswordDialogComponent {
-  protected inputPasswordFlow = InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation;
+  // We cannot use ChangePasswordWithOptionalUserKeyRotation as the UserKeyRotation service + several service deps it has
+  // are only available in the web currently. We would need to migrate those services to common to be able to use the flow here.
+  protected inputPasswordFlow = InputPasswordFlow.ChangePassword;
 
   constructor(private dialogRef: DialogRef) {}
 

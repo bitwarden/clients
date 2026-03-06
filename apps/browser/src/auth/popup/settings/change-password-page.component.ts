@@ -23,8 +23,9 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
   ],
 })
 export class ChangePasswordPageComponent {
-  protected readonly inputPasswordFlow =
-    InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation;
+  // We cannot use ChangePasswordWithOptionalUserKeyRotation as the UserKeyRotation service + several service deps it has
+  // are only available in the web currently. We would need to migrate those services to common to be able to use the flow here.
+  protected readonly inputPasswordFlow = InputPasswordFlow.ChangePassword;
 
   constructor() {}
 }
