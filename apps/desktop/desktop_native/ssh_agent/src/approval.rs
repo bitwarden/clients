@@ -4,6 +4,15 @@
 
 use crate::server::SignRequest;
 
+/// Bundles a sign request with the vault cipher context needed to approve it.
+#[derive(Debug, Clone)]
+pub struct SignApprovalRequest {
+    /// The sign request, provides context about the request that the server received
+    pub sign_request: SignRequest,
+    /// The cipher ID from the vault, if the key was found
+    pub cipher_id: Option<String>,
+}
+
 /// Handler that processes approval requests for signing operations.
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
@@ -24,8 +33,7 @@ pub trait ApprovalRequester: Send + Sync {
     ///
     /// # Arguments
     ///
-    /// * `sign_request` - The sign request with context (public key, process name, etc.)
-    /// * `cipher_id` - The cipher ID from the vault
+    /// * `request` - The sign request bundled with its vault cipher context
     ///
     /// # Returns
     ///
@@ -35,9 +43,5 @@ pub trait ApprovalRequester: Send + Sync {
     /// # Errors
     ///
     /// If the handler failed to process the request
-    async fn request_sign_approval(
-        &self,
-        sign_request: SignRequest,
-        cipher_id: Option<String>,
-    ) -> anyhow::Result<bool>;
+    async fn request_sign_approval(&self, request: SignApprovalRequest) -> anyhow::Result<bool>;
 }

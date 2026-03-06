@@ -9,7 +9,7 @@ use thiserror::Error;
 use tracing::{debug, error};
 
 use crate::{
-    approval::ApprovalRequester,
+    approval::{ApprovalRequester, SignApprovalRequest},
     crypto::QueryableKeyData,
     server::{AuthPolicy, AuthRequest},
     storage::keystore::KeyStore,
@@ -125,7 +125,10 @@ where
                 debug!(?sign_request, ?cipher_id, "Requesting sign approval.");
 
                 self.approval_handler
-                    .request_sign_approval(sign_request.clone(), cipher_id)
+                    .request_sign_approval(SignApprovalRequest {
+                        sign_request: sign_request.clone(),
+                        cipher_id,
+                    })
                     .await
                     .map_err(|error| {
                         error!(%error, "Approval handler failed.");
@@ -349,9 +352,9 @@ mod tests {
 
         approval_handler
             .expect_request_sign_approval()
-            .withf(|_sign_request, cipher_id| cipher_id.as_ref() == Some(&"cipher-123".to_string()))
+            .withf(|req| req.cipher_id.as_deref() == Some("cipher-123"))
             .times(1)
-            .returning(|_, _| Ok(true));
+            .returning(|_| Ok(true));
 
         let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
 
@@ -376,7 +379,7 @@ mod tests {
         approval_handler
             .expect_request_sign_approval()
             .times(1)
-            .returning(|_, _| Ok(false));
+            .returning(|_| Ok(false));
 
         let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
 
@@ -401,7 +404,7 @@ mod tests {
         approval_handler
             .expect_request_sign_approval()
             .times(1)
-            .returning(|_, _| Err(anyhow!("Handler failed")));
+            .returning(|_| Err(anyhow!("Handler failed")));
 
         let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
 
@@ -425,9 +428,9 @@ mod tests {
 
         approval_handler
             .expect_request_sign_approval()
-            .withf(|_sign_request, cipher_id| cipher_id.as_ref() == Some(&"cipher-123".to_string()))
+            .withf(|req| req.cipher_id.as_deref() == Some("cipher-123"))
             .times(1)
-            .returning(|_, _| Ok(true));
+            .returning(|_| Ok(true));
 
         let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
         // Unlock the vault - Sign should still require approval
@@ -459,13 +462,13 @@ mod tests {
 
         approval_handler
             .expect_request_sign_approval()
-            .withf(|sign_request, _cipher_id| {
-                sign_request.process_name == Some("test-process".to_string())
-                    && sign_request.is_forwarding
-                    && sign_request.namespace == Some(SignRequestNamespace::Unsupported)
+            .withf(|req| {
+                req.sign_request.process_name == Some("test-process".to_string())
+                    && req.sign_request.is_forwarding
+                    && req.sign_request.namespace == Some(SignRequestNamespace::Unsupported)
             })
             .times(1)
-            .returning(|_, _| Ok(true));
+            .returning(|_| Ok(true));
 
         let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
 

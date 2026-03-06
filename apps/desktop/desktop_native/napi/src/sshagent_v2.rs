@@ -12,7 +12,8 @@ pub mod sshagent_v2 {
     use napi::threadsafe_function::ThreadsafeFunction;
     use ssh_agent::{
         ApprovalRequester, BitwardenSSHAgent, InMemoryEncryptedKeyStore,
-        SignRequest as SSHSignRequest, SignRequestNamespace as SSHSignRequestNamespace,
+        SignApprovalRequest as SSHSignApprovalRequest,
+        SignRequestNamespace as SSHSignRequestNamespace,
     };
     use tracing::{debug, error};
 
@@ -52,28 +53,43 @@ pub mod sshagent_v2 {
         }
     }
 
-    /// Data for a sign request
+    /// SSH sign request fields.
     #[napi(object)]
     #[derive(Debug)]
-    pub struct SignRequestData {
+    pub struct SignRequest {
         pub public_key: PublicKey,
-        pub cipher_id: Option<String>,
         pub process_name: Option<String>,
         pub is_forwarding: bool,
         pub namespace: Option<SignRequestNamespace>,
     }
 
-    impl From<(SSHSignRequest, Option<String>)> for SignRequestData {
-        fn from((sign_request, cipher_id): (SSHSignRequest, Option<String>)) -> Self {
+    impl From<ssh_agent::SignRequest> for SignRequest {
+        fn from(r: ssh_agent::SignRequest) -> Self {
             Self {
                 public_key: PublicKey {
-                    alg: sign_request.public_key.alg,
-                    blob: sign_request.public_key.blob,
+                    alg: r.public_key.alg,
+                    blob: r.public_key.blob,
                 },
-                cipher_id,
-                process_name: sign_request.process_name,
-                is_forwarding: sign_request.is_forwarding,
-                namespace: sign_request.namespace.map(Into::into),
+                process_name: r.process_name,
+                is_forwarding: r.is_forwarding,
+                namespace: r.namespace.map(Into::into),
+            }
+        }
+    }
+
+    /// Data for a sign request, including vault cipher context.
+    #[napi(object)]
+    #[derive(Debug)]
+    pub struct SignRequestData {
+        pub sign_request: SignRequest,
+        pub cipher_id: Option<String>,
+    }
+
+    impl From<SSHSignApprovalRequest> for SignRequestData {
+        fn from(request: SSHSignApprovalRequest) -> Self {
+            Self {
+                sign_request: request.sign_request.into(),
+                cipher_id: request.cipher_id,
             }
         }
     }
@@ -108,10 +124,9 @@ pub mod sshagent_v2 {
 
         async fn request_sign_approval(
             &self,
-            sign_request: SSHSignRequest,
-            cipher_id: Option<String>,
+            request: SSHSignApprovalRequest,
         ) -> anyhow::Result<bool> {
-            let request = SignRequestData::from((sign_request, cipher_id));
+            let request = SignRequestData::from(request);
 
             debug!(?request, "Sending sign approval request to Electron.");
             let is_approved = self

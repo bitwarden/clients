@@ -302,13 +302,17 @@ export declare namespace sshagent_v2 {
     alg: string
     blob: Array<number>
   }
-  /** Data for a sign request */
-  export interface SignRequestData {
+  /** SSH sign request fields. */
+  export interface SignRequest {
     publicKey: PublicKey
-    cipherId?: string
     processName?: string
     isForwarding: boolean
     namespace?: SignRequestNamespace
+  }
+  /** Data for a sign request, including vault cipher context. */
+  export interface SignRequestData {
+    signRequest: SignRequest
+    cipherId?: string
   }
   /** Namespace of a sign request. */
   export const enum SignRequestNamespace {
