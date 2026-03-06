@@ -200,7 +200,7 @@ export const Required: Story = {
   }),
 };
 
-export const Disabled: Story = {
+export const Inactive: Story = {
   render: () => ({
     props: {
       formObj: new FormGroup({
