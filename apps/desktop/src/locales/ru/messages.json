@@ -12,7 +12,7 @@
     "message": "Избранные"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Удалить из избранного"
   },
   "types": {
     "message": "Типы элементов"
@@ -134,7 +134,7 @@
     "description": "Displayed under the limit views field on Send"
   },
   "privateNote": {
-    "message": "Личная заметка"
+    "message": "Приватная заметка"
   },
   "sendDetails": {
     "message": "Информация о Send",
@@ -160,7 +160,7 @@
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Вы действительно хотите безвозвратно удалить эту Send?",
+    "message": "Вы уверены, что хотите безвозвратно удалить эту Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "new": {
@@ -590,10 +590,10 @@
     "message": "Элемент сохранен"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Элемент добавлен в избранное"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Элемент удален из избранного"
   },
   "deleteItem": {
     "message": "Удалить элемент"
@@ -1565,16 +1565,16 @@
     "message": "Неизвестно"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Скопировать адрес"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Скопировать телефон"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Скопировать заметку"
   },
   "copyVerificationCode": {
-    "message": "Copy verification code"
+    "message": "Скопировать код подтверждения"
   },
   "copyUsername": {
     "message": "Скопировать имя пользователя"
@@ -2104,22 +2104,22 @@
     "message": "Поиск в корзине"
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Поиск в архиве"
   },
   "searchLogin": {
-    "message": "Search login"
+    "message": "Поиск логина"
   },
   "searchCard": {
-    "message": "Search card"
+    "message": "Поиск карты"
   },
   "searchIdentity": {
-    "message": "Search identity"
+    "message": "Поиск личной информации"
   },
   "searchSecureNote": {
-    "message": "Search secure note"
+    "message": "Поиск заметки"
   },
   "searchSshKey": {
-    "message": "Search SSH key"
+    "message": "Поиск ключа SSH"
   },
   "permanentlyDeleteItem": {
     "message": "Окончательно удалить элемент"
@@ -2418,7 +2418,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "me": {
-    "message": "Me"
+    "message": "Мое"
   },
   "myVault": {
     "message": "Хранилище"
@@ -4129,7 +4129,7 @@
     "message": "Отсутствует сайт"
   },
   "missingPermissions": {
-    "message": "You lack the necessary permissions to perform this action."
+    "message": "У вас нет необходимых разрешений для выполнения этого действия."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Вы не можете удалить коллекции с правами только на просмотр: $COLLECTIONS$",
@@ -4636,34 +4636,34 @@
     "message": "Почему я это вижу?"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "Организация приостановлена"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "Доступ к элементам в отключенных организациях невозможен. Обратитесь за помощью к владельцу организации."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "Нет элементов в корзине"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Элементы, которые вы удаляете, появятся здесь и будут удалены навсегда через 30 дней"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "В хранилище нет элементов"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "Хранилище защищает не только ваши пароли. Логины, идентификаторы, карты и заметки в нем надежно защищены."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "В избранном нет элементов"
   },
   "emptyFavoritesDesc": {
-    "message": "Add frequently used items to favorites for quick access."
+    "message": "Добавляйте часто используемые элементы в избранное для быстрого доступа."
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "Поиск не дал результатов"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Очистите фильтры или попробуйте другой поисковый запрос"
   },
   "sendPasswordHelperText": {
     "message": "Пользователям необходимо будет ввести пароль для просмотра этой Send",
