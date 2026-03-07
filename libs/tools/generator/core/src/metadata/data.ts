@@ -52,4 +52,4 @@ export const AlgorithmsByType = deepFreeze({
     Algorithm.plusAddress,
     Algorithm.catchall,
   ] as const,
-});
+} as const);
