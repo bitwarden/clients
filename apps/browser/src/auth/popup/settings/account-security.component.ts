@@ -3,7 +3,7 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { RouterModule } from "@angular/router";
+import { Router, RouterModule } from "@angular/router";
 import {
   BehaviorSubject,
   combineLatest,
@@ -84,6 +84,7 @@ import { PopOutComponent } from "../../../platform/popup/components/pop-out.comp
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { SetPinComponent } from "../components/set-pin.component";
+import { AuthExtensionRoute } from "../constants/auth-extension-route.constant";
 
 import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
 
@@ -148,6 +149,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
   protected readonly consolidatedSessionTimeoutComponent$: Observable<boolean>;
   protected readonly phishingDetectionAvailable$: Observable<boolean>;
+  protected readonly multiClientPasswordManagement$: Observable<boolean>;
 
   protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
@@ -156,6 +158,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   constructor(
     private accountService: AccountService,
     private configService: ConfigService,
+    private router: Router,
     private pinService: PinServiceAbstraction,
     private policyService: PolicyService,
     private formBuilder: FormBuilder,
@@ -179,6 +182,10 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   ) {
     this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
       FeatureFlag.ConsolidatedSessionTimeoutComponent,
+    );
+
+    this.multiClientPasswordManagement$ = this.configService.getFeatureFlag$(
+      FeatureFlag.PM32413_MultiClientPasswordManagement,
     );
 
     // Check if user phishing detection available
@@ -692,6 +699,15 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   }
 
   async changePassword() {
+    const multiClientPasswordManagementFlagEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM32413_MultiClientPasswordManagement,
+    );
+
+    if (multiClientPasswordManagementFlagEnabled) {
+      await this.router.navigate(["/" + AuthExtensionRoute.ChangePassword]);
+      return;
+    }
+
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "continueToWebApp" },
       content: { key: "changeMasterPasswordOnWebConfirmation" },

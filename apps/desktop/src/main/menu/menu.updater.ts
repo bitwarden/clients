@@ -14,4 +14,6 @@ export class MenuAccount {
   userId: string;
   email: string;
   hasMasterPassword: boolean;
+  // TODO: PM-32419 - remove feature flag check once fully rolled out
+  multiClientPasswordManagement: boolean;
 }
