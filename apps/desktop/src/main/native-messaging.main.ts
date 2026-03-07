@@ -167,9 +167,9 @@ export class NativeMessagingMain {
       }
       case "darwin": {
         const nmhs = this.getDarwinNMHS();
-        for (const [key, value] of Object.entries(nmhs)) {
-          if (existsSync(value)) {
-            const p = path.join(value, "NativeMessagingHosts", "com.8bit.bitwarden.json");
+        for (const [key, { detectPaths, manifestDir }] of Object.entries(nmhs)) {
+          if (detectPaths.some((p) => existsSync(p))) {
+            const p = path.join(manifestDir, "NativeMessagingHosts", "com.8bit.bitwarden.json");
 
             let manifest: any = chromeJson;
             if (key === "Firefox" || key === "Zen") {
@@ -246,9 +246,9 @@ export class NativeMessagingMain {
       }
       case "darwin": {
         const nmhs = this.getDarwinNMHS();
-        for (const [, value] of Object.entries(nmhs)) {
+        for (const [, { manifestDir }] of Object.entries(nmhs)) {
           await this.removeIfExists(
-            path.join(value, "NativeMessagingHosts", "com.8bit.bitwarden.json"),
+            path.join(manifestDir, "NativeMessagingHosts", "com.8bit.bitwarden.json"),
           );
         }
         break;
@@ -301,20 +301,32 @@ export class NativeMessagingMain {
 
   private getDarwinNMHS() {
     /* eslint-disable no-useless-escape */
+    const appSupport = `${this.homedir()}/Library/Application\ Support`;
+
+    const browser = (dir: string) => ({
+      detectPaths: [`${appSupport}/${dir}/`],
+      manifestDir: `${appSupport}/${dir}/`,
+    });
+
     return {
-      Firefox: `${this.homedir()}/Library/Application\ Support/Mozilla/`,
-      Chrome: `${this.homedir()}/Library/Application\ Support/Google/Chrome/`,
-      "Chrome Beta": `${this.homedir()}/Library/Application\ Support/Google/Chrome\ Beta/`,
-      "Chrome Dev": `${this.homedir()}/Library/Application\ Support/Google/Chrome\ Dev/`,
-      "Chrome Canary": `${this.homedir()}/Library/Application\ Support/Google/Chrome\ Canary/`,
-      Chromium: `${this.homedir()}/Library/Application\ Support/Chromium/`,
-      "Microsoft Edge": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge/`,
-      "Microsoft Edge Beta": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Beta/`,
-      "Microsoft Edge Dev": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Dev/`,
-      "Microsoft Edge Canary": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Canary/`,
-      Vivaldi: `${this.homedir()}/Library/Application\ Support/Vivaldi/`,
-      Zen: `${this.homedir()}/Library/Application\ Support/Zen/`,
-      Helium: `${this.homedir()}/Library/Application\ Support/net.imput.helium/`,
+      // Firefox stores data in ~/Library/Application Support/Firefox/ but reads
+      // native messaging manifests from ~/Library/Application Support/Mozilla/.
+      Firefox: {
+        detectPaths: [`${appSupport}/Mozilla/`, `${appSupport}/Firefox/`],
+        manifestDir: `${appSupport}/Mozilla/`,
+      },
+      Chrome: browser("Google/Chrome"),
+      "Chrome Beta": browser("Google/Chrome\ Beta"),
+      "Chrome Dev": browser("Google/Chrome\ Dev"),
+      "Chrome Canary": browser("Google/Chrome\ Canary"),
+      Chromium: browser("Chromium"),
+      "Microsoft Edge": browser("Microsoft\ Edge"),
+      "Microsoft Edge Beta": browser("Microsoft\ Edge\ Beta"),
+      "Microsoft Edge Dev": browser("Microsoft\ Edge\ Dev"),
+      "Microsoft Edge Canary": browser("Microsoft\ Edge\ Canary"),
+      Vivaldi: browser("Vivaldi"),
+      Zen: browser("Zen"),
+      Helium: browser("net.imput.helium"),
     };
     /* eslint-enable no-useless-escape */
   }
@@ -332,7 +344,7 @@ export class NativeMessagingMain {
     this.logService.debug(`Writing manifest: ${destination}`);
 
     if (!existsSync(path.dirname(destination))) {
-      await fs.mkdir(path.dirname(destination));
+      await fs.mkdir(path.dirname(destination), { recursive: true });
     }
 
     await fs.writeFile(destination, JSON.stringify(manifest, null, 2));
@@ -361,7 +373,7 @@ export class NativeMessagingMain {
       case "darwin": {
         chromePaths = Object.entries(this.getDarwinNMHS())
           .filter(([key]) => key !== "Firefox")
-          .map(([, value]) => value);
+          .map(([, { manifestDir }]) => manifestDir);
         break;
       }
       case "linux": {
