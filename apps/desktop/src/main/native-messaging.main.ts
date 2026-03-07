@@ -24,6 +24,12 @@ export class NativeMessagingMain {
     private exePath: string,
     private appPath: string,
   ) {
+    // SECURITY: Validate paths before any usage to prevent Unicode homoglyph attacks (VULN-425)
+    // ADR-070: Constructor-level validation provides fail-fast protection for all downstream usage
+    this.validatePath(appPath, "appPath");
+    this.validatePath(exePath, "exePath");
+    this.validatePath(userPath, "userPath");
+
     ipcMain.handle(
       "nativeMessaging.manifests",
       async (_event: any, options: { create: boolean }) => {
@@ -71,6 +77,32 @@ export class NativeMessagingMain {
         return null;
       },
     );
+  }
+
+  /**
+   * Validates that a filesystem path contains only printable ASCII characters.
+   *
+   * This validation prevents Unicode homoglyph attacks (VULN-425) where visually-similar
+   * Unicode characters (e.g., Greek Rho ρ, Cyrillic А/С/Е/О) could redirect native
+   * messaging binaries to attacker-controlled executables.
+   *
+   * @param pathValue - The filesystem path to validate
+   * @param pathName - Identifier for error messages (e.g., 'appPath', 'exePath')
+   * @throws {Error} If path is empty or contains non-ASCII characters
+   * @private
+   * @see ADR-068 for ASCII-only enforcement decision
+   * @see ADR-069 for homoglyph detection via ASCII subsumption
+   */
+  private validatePath(pathValue: string, pathName: string): void {
+    const ASCII_ONLY_REGEX = /^[ -~]*$/;
+
+    if (!pathValue || !ASCII_ONLY_REGEX.test(pathValue)) {
+      throw new Error(
+        `Invalid path for ${pathName}: Path must contain only ASCII characters. ` +
+        `Non-ASCII characters (including Unicode homoglyphs) are not permitted in ` +
+        `native messaging paths for security reasons. Received path: ${pathValue}`
+      );
+    }
   }
 
   async listen() {
