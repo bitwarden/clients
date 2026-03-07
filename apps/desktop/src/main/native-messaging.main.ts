@@ -99,8 +99,8 @@ export class NativeMessagingMain {
     if (!pathValue || !ASCII_ONLY_REGEX.test(pathValue)) {
       throw new Error(
         `Invalid path for ${pathName}: Path must contain only ASCII characters. ` +
-        `Non-ASCII characters (including Unicode homoglyphs) are not permitted in ` +
-        `native messaging paths for security reasons. Received path: ${pathValue}`
+          `Non-ASCII characters (including Unicode homoglyphs) are not permitted in ` +
+          `native messaging paths for security reasons. Received path: ${pathValue}`,
       );
     }
   }

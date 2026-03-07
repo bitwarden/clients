@@ -29,7 +29,7 @@ describe("NativeMessagingMain Path Validation", () => {
           mockWindowMain,
           validAsciiPaths.userPath,
           validAsciiPaths.exePath,
-          validAsciiPaths.appPath
+          validAsciiPaths.appPath,
         );
       }).not.toThrow();
     });
@@ -45,7 +45,7 @@ describe("NativeMessagingMain Path Validation", () => {
           mockWindowMain,
           validAsciiPaths.userPath,
           validAsciiPaths.exePath,
-          invalidPath // appPath with homoglyph
+          invalidPath, // appPath with homoglyph
         );
       }).toThrow(/Invalid path for appPath.*ASCII characters/);
     });
@@ -61,7 +61,7 @@ describe("NativeMessagingMain Path Validation", () => {
           mockWindowMain,
           validAsciiPaths.userPath,
           invalidPath, // exePath with homoglyph
-          validAsciiPaths.appPath
+          validAsciiPaths.appPath,
         );
       }).toThrow(/Invalid path for exePath.*ASCII characters/);
     });
@@ -77,7 +77,7 @@ describe("NativeMessagingMain Path Validation", () => {
           mockWindowMain,
           invalidPath, // userPath with homoglyph
           validAsciiPaths.exePath,
-          validAsciiPaths.appPath
+          validAsciiPaths.appPath,
         );
       }).toThrow(/Invalid path for userPath.*ASCII characters/);
     });
@@ -91,7 +91,7 @@ describe("NativeMessagingMain Path Validation", () => {
           mockWindowMain,
           "", // empty userPath
           validAsciiPaths.exePath,
-          validAsciiPaths.appPath
+          validAsciiPaths.appPath,
         );
       }).toThrow(/Invalid path for userPath/);
     });
@@ -107,7 +107,7 @@ describe("NativeMessagingMain Path Validation", () => {
           mockWindowMain,
           validAsciiPaths.userPath,
           validAsciiPaths.exePath,
-          invalidPath // appPath with control character
+          invalidPath, // appPath with control character
         );
       }).toThrow(/Invalid path for appPath.*ASCII characters/);
     });
@@ -123,7 +123,7 @@ describe("NativeMessagingMain Path Validation", () => {
           mockWindowMain,
           invalidPath,
           validAsciiPaths.exePath,
-          validAsciiPaths.appPath
+          validAsciiPaths.appPath,
         );
         fail("Expected constructor to throw");
       } catch (error) {
