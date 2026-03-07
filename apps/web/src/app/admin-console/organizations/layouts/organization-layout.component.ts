@@ -5,6 +5,7 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { combineLatest, filter, map, Observable, switchMap, withLatestFrom } from "rxjs";
 
+import { PolicyAppliesToActiveUserPipe } from "@bitwarden/angular/admin-console/pipes/policy-applies-to-active-user.pipe";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AdminConsoleLogo } from "@bitwarden/assets/svg";
 import {
@@ -18,9 +19,8 @@ import {
   canAccessVaultTab,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { PolicyType, ProviderStatusType } from "@bitwarden/common/admin-console/enums";
+import { ProviderStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -49,6 +49,7 @@ import { WebLayoutModule } from "../../../layouts/web-layout.module";
     WebLayoutModule,
     SvgModule,
     OrgSwitcherComponent,
+    PolicyAppliesToActiveUserPipe,
     BannerModule,
     TaxIdWarningComponent,
     TaxIdWarningComponent,
@@ -65,7 +66,6 @@ export class OrganizationLayoutComponent implements OnInit {
   organization$: Observable<Organization>;
   canAccessExport$: Observable<boolean>;
   showPaymentAndHistory$: Observable<boolean>;
-  hideNewOrgButton$: Observable<boolean>;
   organizationIsUnmanaged$: Observable<boolean>;
 
   protected showSponsoredFamiliesDropdown$: Observable<boolean>;
@@ -77,7 +77,6 @@ export class OrganizationLayoutComponent implements OnInit {
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
     private platformUtilsService: PlatformUtilsService,
-    private policyService: PolicyService,
     private providerService: ProviderService,
     private accountService: AccountService,
     private freeFamiliesPolicyService: FreeFamiliesPolicyService,
@@ -107,11 +106,6 @@ export class OrganizationLayoutComponent implements OnInit {
           org.canViewBillingHistory &&
           org.canEditPaymentMethods,
       ),
-    );
-
-    this.hideNewOrgButton$ = this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId)),
     );
 
     const provider$ = combineLatest([
