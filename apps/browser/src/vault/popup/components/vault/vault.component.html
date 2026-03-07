@@ -32,14 +32,13 @@
     </vault-fade-in-out>
   }
 
-  <blocked-injection-banner
-    *ngIf="vaultState !== VaultStateEnum.Empty"
-    slot="full-width-notice"
-  ></blocked-injection-banner>
+  @if (vaultState !== VaultStateEnum.Empty) {
+    <blocked-injection-banner slot="full-width-notice"></blocked-injection-banner>
+  }
 
   <!-- Show search & filters outside of the scroll area of the page -->
   <ng-container slot="above-scroll-area">
-    <ng-container *ngIf="showPremiumSpotlight$ | async">
+    @if (showPremiumSpotlight$ | async) {
       <bit-spotlight
         [title]="'unlockAdvancedSecurity' | i18n"
         [subtitle]="'unlockAdvancedSecurityDesc' | i18n"
@@ -47,8 +46,8 @@
         (onButtonClick)="showPremiumDialog()"
         (onDismiss)="dismissVaultNudgeSpotlight(NudgeType.PremiumUpgrade)"
       ></bit-spotlight>
-    </ng-container>
-    <ng-container *ngIf="vaultState === VaultStateEnum.Empty && showEmptyVaultSpotlight$ | async">
+    }
+    @if (vaultState === VaultStateEnum.Empty && showEmptyVaultSpotlight$ | async) {
       <bit-spotlight
         [title]="'emptyVaultNudgeTitle' | i18n"
         [subtitle]="'emptyVaultNudgeBody' | i18n"
@@ -57,51 +56,51 @@
         (onDismiss)="dismissVaultNudgeSpotlight(NudgeType.EmptyVaultNudge)"
       >
       </bit-spotlight>
-    </ng-container>
-    <ng-container *ngIf="vaultState !== VaultStateEnum.Empty">
+    }
+    @if (vaultState !== VaultStateEnum.Empty) {
       <!-- At-Risk callout displays as a banner and should always remain visually above all other callouts -->
       <vault-at-risk-password-callout></vault-at-risk-password-callout>
 
-      <div class="tw-mb-4" *ngIf="showHasItemsVaultSpotlight$ | async">
-        <bit-spotlight
-          [title]="'hasItemsVaultNudgeTitle' | i18n"
-          (onDismiss)="dismissVaultNudgeSpotlight(NudgeType.HasVaultItems)"
-        >
-          <ul class="tw-pl-4 tw-text-main tw-mb-0" bitTypography="body2">
-            <li>{{ "hasItemsVaultNudgeBodyOne" | i18n }}</li>
-            <li>{{ "hasItemsVaultNudgeBodyTwo" | i18n }}</li>
-            <li>{{ "hasItemsVaultNudgeBodyThree" | i18n }}</li>
-          </ul>
-        </bit-spotlight>
-      </div>
+      @if (showHasItemsVaultSpotlight$ | async) {
+        <div class="tw-mb-4">
+          <bit-spotlight
+            [title]="'hasItemsVaultNudgeTitle' | i18n"
+            (onDismiss)="dismissVaultNudgeSpotlight(NudgeType.HasVaultItems)"
+          >
+            <ul class="tw-pl-4 tw-text-main tw-mb-0" bitTypography="body2">
+              <li>{{ "hasItemsVaultNudgeBodyOne" | i18n }}</li>
+              <li>{{ "hasItemsVaultNudgeBodyTwo" | i18n }}</li>
+              <li>{{ "hasItemsVaultNudgeBodyThree" | i18n }}</li>
+            </ul>
+          </bit-spotlight>
+        </div>
+      }
       <app-vault-header></app-vault-header>
-    </ng-container>
+    }
   </ng-container>
 
-  <ng-container *ngIf="vaultState !== VaultStateEnum.Empty">
-    <div
-      *ngIf="vaultState === VaultStateEnum.NoResults"
-      class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12"
-    >
-      <bit-no-items [icon]="noResultsIcon">
-        <ng-container slot="title">{{ "noItemsMatchSearch" | i18n }}</ng-container>
-        <ng-container slot="description">{{ "clearFiltersOrTryAnother" | i18n }}</ng-container>
-      </bit-no-items>
-    </div>
-
-    <!-- For better consistency with screen readers, the role/aria needs to be on an element that isn't dynamic by *ngIf -->
-    <div role="status" aria-live="polite">
-      <div
-        *ngIf="vaultState === VaultStateEnum.DeactivatedOrg"
-        class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12"
-      >
-        <bit-no-items [icon]="deactivatedIcon">
-          <ng-container slot="title">
-            {{ "organizationIsDeactivated" | i18n }}
-          </ng-container>
-          <ng-container slot="description">{{ "contactYourOrgAdmin" | i18n }}</ng-container>
+  @if (vaultState !== VaultStateEnum.Empty) {
+    @if (vaultState === VaultStateEnum.NoResults) {
+      <div class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12">
+        <bit-no-items [icon]="noResultsIcon">
+          <ng-container slot="title">{{ "noItemsMatchSearch" | i18n }}</ng-container>
+          <ng-container slot="description">{{ "clearFiltersOrTryAnother" | i18n }}</ng-container>
         </bit-no-items>
       </div>
+    }
+
+    <!-- For better consistency with screen readers, the role/aria needs to be on an element that isn't dynamic by @if -->
+    <div role="status" aria-live="polite">
+      @if (vaultState === VaultStateEnum.DeactivatedOrg) {
+        <div class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12">
+          <bit-no-items [icon]="deactivatedIcon">
+            <ng-container slot="title">
+              {{ "organizationIsDeactivated" | i18n }}
+            </ng-container>
+            <ng-container slot="description">{{ "contactYourOrgAdmin" | i18n }}</ng-container>
+          </bit-no-items>
+        </div>
+      }
     </div>
 
     @if (vaultState === null) {
@@ -136,7 +135,7 @@
         }
       </vault-fade-in-out>
     }
-  </ng-container>
+  }
 
   @if (showSkeletonsLoaders$ | async) {
     <vault-fade-in-out-skeleton>
