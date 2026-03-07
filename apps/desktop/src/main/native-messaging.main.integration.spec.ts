@@ -2,8 +2,15 @@
 // Tests validate constructor validation protects downstream path usage (binaryPath, homedir)
 // Per ADR-070: Constructor validation provides comprehensive coverage for all 21 path usage sites
 
-import { NativeMessagingMain } from "./native-messaging.main";
+jest.mock("fs");
+jest.mock("os");
+jest.mock("path");
+jest.mock("electron");
+jest.mock("@bitwarden/desktop-napi");
+
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+
+import { NativeMessagingMain } from "./native-messaging.main";
 import { WindowMain } from "./window.main";
 
 describe("NativeMessagingMain Integration Tests", () => {

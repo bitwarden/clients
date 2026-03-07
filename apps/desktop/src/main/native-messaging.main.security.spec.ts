@@ -2,8 +2,15 @@
 // These tests provide explicit audit trail linking PM-32025 implementation to vulnerability specification
 // Per ADR-071: Security regression tests required for audit compliance and future regression prevention
 
-import { NativeMessagingMain } from "./native-messaging.main";
+jest.mock("fs");
+jest.mock("os");
+jest.mock("path");
+jest.mock("electron");
+jest.mock("@bitwarden/desktop-napi");
+
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+
+import { NativeMessagingMain } from "./native-messaging.main";
 import { WindowMain } from "./window.main";
 
 /**
