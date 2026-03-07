@@ -134,7 +134,6 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
         state: StateProvider,
         i18n: I18nService,
         api: ApiService,
-        accountService: AccountService,
       ) => {
         const userStateDeps = {
           encryptor,
@@ -163,7 +162,6 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
           i18nService: i18n,
           sdk: sdkService,
           now: Date.now,
-          accountService,
         };
 
         const userState: UserStateSubjectDependencyProvider = {
@@ -187,7 +185,6 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
         StateProvider,
         I18nService,
         ApiService,
-        AccountService,
       ],
     }),
     safeProvider({

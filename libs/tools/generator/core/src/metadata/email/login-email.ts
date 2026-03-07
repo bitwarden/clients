@@ -1,43 +1,51 @@
 import { GENERATOR_DISK } from "@bitwarden/common/platform/state";
 import { PublicClassifier } from "@bitwarden/common/tools/public-classifier";
 import { deepFreeze } from "@bitwarden/common/tools/util";
-import { IdentityConstraint } from "@bitwarden/common/tools/state/identity-state-constraint";
-import { firstValueFrom } from "rxjs";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Constraints, StateConstraints } from "@bitwarden/common/tools/types";
 
+import { GeneratorDependencyProvider } from "../../providers";
 import {
   CredentialGenerator,
   GenerateRequest,
   GeneratedCredential,
+  LoginEmailGenerationOptions,
 } from "../../types";
 import { Algorithm, Type, Profile } from "../data";
 import { GeneratorMetadata } from "../generator-metadata";
 
-import { GeneratorDependencyProvider } from "../../providers";
+/** Constraint that seeds the email from the active account's verified email address */
+class LoginEmailConstraints implements StateConstraints<LoginEmailGenerationOptions> {
+  constructor(readonly email: string) {}
 
-class LoginEmailEngine implements CredentialGenerator<object> {
-  constructor(private accountService?: AccountService) {}
+  constraints: Readonly<Constraints<LoginEmailGenerationOptions>> = {};
 
-  async generate(request: GenerateRequest, settings: object): Promise<GeneratedCredential> {
-    const account = this.accountService
-      ? await firstValueFrom(this.accountService.activeAccount$)
-      : null;
-
-    if (!account?.email) {
-      throw new Error("Cannot generate login email without an active account.");
+  adjust(state: LoginEmailGenerationOptions): LoginEmailGenerationOptions {
+    if ((state.email ?? "").trim() !== "") {
+      return state;
     }
+    return { ...state, email: this.email };
+  }
 
-    return new GeneratedCredential(
-      account.email,
-      Type.email,
-      new Date(),
-      request.source,
-      request.website,
-    );
+  fix(state: LoginEmailGenerationOptions): LoginEmailGenerationOptions {
+    return state;
   }
 }
 
-const loginEmail: GeneratorMetadata<object> = deepFreeze({
+/** Engine that generates a credential from the stored login email setting */
+class LoginEmailEngine implements CredentialGenerator<LoginEmailGenerationOptions> {
+  async generate(
+    request: GenerateRequest,
+    settings: LoginEmailGenerationOptions,
+  ): Promise<GeneratedCredential> {
+    const email = (settings.email ?? "").trim();
+    if (!email) {
+      throw new Error("Cannot generate login email without a verified account email.");
+    }
+    return new GeneratedCredential(email, Type.email, new Date(), request.source, request.website);
+  }
+}
+
+const loginEmail: GeneratorMetadata<LoginEmailGenerationOptions> = deepFreeze({
   id: Algorithm.loginEmail,
   type: Type.email,
   weight: 220,
@@ -55,8 +63,8 @@ const loginEmail: GeneratorMetadata<object> = deepFreeze({
     fields: [],
   },
   engine: {
-    create(dependencies: GeneratorDependencyProvider): CredentialGenerator<object> {
-      return new LoginEmailEngine(dependencies.accountService);
+    create(_dependencies: GeneratorDependencyProvider): CredentialGenerator<LoginEmailGenerationOptions> {
+      return new LoginEmailEngine();
     },
   },
   profiles: {
@@ -66,18 +74,18 @@ const loginEmail: GeneratorMetadata<object> = deepFreeze({
         key: "loginEmailGeneratorSettings",
         target: "object",
         format: "plain",
-        classifier: new PublicClassifier<object>([]),
+        classifier: new PublicClassifier<LoginEmailGenerationOptions>(["email"]),
         state: GENERATOR_DISK,
-        initial: {},
+        initial: { email: "" },
         options: {
           deserializer: (value) => value,
           clearOn: ["logout"],
         },
       },
       constraints: {
-        default: {} as any,
-        create(_policies, _context) {
-          return new IdentityConstraint<object>();
+        default: {},
+        create(_policies, context) {
+          return new LoginEmailConstraints(context.email ?? "");
         },
       },
     },

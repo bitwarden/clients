@@ -1,71 +1,73 @@
-import { of, EMPTY } from "rxjs";
-import { Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { mock } from "jest-mock-extended";
 
-import { GenerateRequest } from "../../types";
-import { Algorithm, Type } from "../data";
+import { GeneratorDependencyProvider } from "../../providers";
+import { LoginEmailGenerationOptions } from "../../types";
+import { Profile } from "../data";
+import { CoreProfileMetadata } from "../profile-metadata";
+import { isCoreProfile } from "../util";
+
 import loginEmail from "./login-email";
 
-describe("LoginEmail Generator Strategy and Engine", () => {
-  it("should have correct metadata", () => {
-    expect(loginEmail.id).toEqual(Algorithm.loginEmail);
-    expect(loginEmail.type).toEqual(Type.email);
-    expect(loginEmail.capabilities.autogenerate).toBe(true);
-  });
+const dependencyProvider = mock<GeneratorDependencyProvider>();
 
-  describe("engine", () => {
-    it("should throw an error if no account service is provided", async () => {
-      const engine = loginEmail.engine.create({} as any);
+describe("email - login email generator metadata", () => {
+  describe("engine.create", () => {
+    it("returns an engine", () => {
+      expect(loginEmail.engine.create(dependencyProvider)).toBeDefined();
+    });
 
-      const request: GenerateRequest = {
-        algorithm: Algorithm.loginEmail,
-      };
+    it("throws when settings.email is empty", async () => {
+      const engine = loginEmail.engine.create(dependencyProvider);
+      const request = { algorithm: loginEmail.id };
 
-      await expect(engine.generate(request, {})).rejects.toThrow(
-        "Cannot generate login email without an active account.",
+      await expect(engine.generate(request as any, { email: "" })).rejects.toThrow(
+        "Cannot generate login email without a verified account email.",
       );
     });
 
-    it("should throw an error if no active account is found", async () => {
-      const mockAccountService = {
-        activeAccount$: of(null),
-      };
+    it("returns the stored email when populated", async () => {
+      const engine = loginEmail.engine.create(dependencyProvider);
+      const request = { algorithm: loginEmail.id };
 
-      const engine = loginEmail.engine.create({
-        accountService: mockAccountService as any,
-      } as any);
-
-      const request: GenerateRequest = {
-        algorithm: Algorithm.loginEmail,
-      };
-
-      await expect(engine.generate(request, {})).rejects.toThrow(
-        "Cannot generate login email without an active account.",
-      );
-    });
-
-    it("should return the account email when provided via the service", async () => {
-      const mockAccountService = {
-        activeAccount$: of({
-          id: "fake-id",
-          email: "test@example.com",
-          emailVerified: true,
-          name: "Test User",
-          creationDate: new Date(),
-        } as Account),
-      };
-
-      const engine = loginEmail.engine.create({
-        accountService: mockAccountService as any,
-      } as any);
-
-      const request: GenerateRequest = {
-        algorithm: Algorithm.loginEmail,
-      };
-
-      const result = await engine.generate(request, {});
+      const result = await engine.generate(request as any, { email: "test@example.com" });
 
       expect(result.credential).toEqual("test@example.com");
-      expect(result.category).toEqual(Type.email);
+    });
+  });
+
+  describe("profiles[account]", () => {
+    let accountProfile: CoreProfileMetadata<LoginEmailGenerationOptions> = null!;
+    beforeEach(() => {
+      const profile = loginEmail.profiles[Profile.account];
+      if (isCoreProfile(profile!)) {
+        accountProfile = profile;
+      } else {
+        throw new Error("this branch should never run");
+      }
+    });
+
+    describe("storage.options.deserializer", () => {
+      it("returns its input", () => {
+        const value: LoginEmailGenerationOptions = { email: "foo@example.com" };
+        const result = accountProfile.storage.options.deserializer(value);
+        expect(result).toBe(value);
+      });
+    });
+
+    describe("constraints.create", () => {
+      it("seeds email from context.email when settings.email is empty", () => {
+        const context = { email: "context@example.com", defaultConstraints: {} };
+        const constraints = accountProfile.constraints.create([], context);
+        const adjusted = (constraints as any).adjust({ email: "" });
+        expect(adjusted.email).toEqual("context@example.com");
+      });
+
+      it("does not override settings.email when already populated", () => {
+        const context = { email: "context@example.com", defaultConstraints: {} };
+        const constraints = accountProfile.constraints.create([], context);
+        const adjusted = (constraints as any).adjust({ email: "existing@example.com" });
+        expect(adjusted.email).toEqual("existing@example.com");
+      });
     });
   });
 });
