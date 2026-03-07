@@ -140,6 +140,13 @@ export default {
   isAppImage: isAppImage(),
   allowBrowserintegrationOverride: allowBrowserintegrationOverride(),
   reloadProcess: () => ipcRenderer.send("reload-process"),
+  registerUpdateRestartHandler: (provide: (resolve: (canRestart: boolean) => void) => void) => {
+    const resolve = (canRestart: boolean) => ipcRenderer.send("confirmUpdateRestart", canRestart);
+
+    ipcRenderer.on("confirmUpdateRestart", () => {
+      provide(resolve);
+    });
+  },
   focusWindow: () => ipcRenderer.send("window-focus"),
   hideWindow: () => ipcRenderer.send("window-hide"),
   log: (level: LogLevelType, message?: any, ...optionalParams: any[]) =>

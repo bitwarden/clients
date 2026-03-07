@@ -1,6 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { dialog, shell, Notification } from "electron";
+import { dialog, IpcMainEvent, ipcMain, shell, Notification } from "electron";
 import log from "electron-log";
 import { autoUpdater, UpdateDownloadedEvent, VerifyUpdateSupport } from "electron-updater";
 
@@ -218,10 +216,39 @@ export class UpdaterMain {
     });
 
     if (result.response === 0) {
+      if (!(await this.confirmUpdateRestart())) {
+        return;
+      }
+
       // Quit and install have a different window logic, setting `isQuitting` just to be safe.
       this.windowMain.isQuitting = true;
       autoUpdater.quitAndInstall(true, true);
     }
+  }
+
+  /**
+   * Asks the renderer to check for unsaved changes and prompt the user if needed.
+   * Returns true if safe to restart, false if the user chose to stay.
+   */
+  private confirmUpdateRestart(): Promise<boolean> {
+    if (this.windowMain.win == null) {
+      return Promise.resolve(true);
+    }
+
+    return new Promise<boolean>((resolve) => {
+      const timer = setTimeout(() => {
+        ipcMain.removeListener("confirmUpdateRestart", handler);
+        resolve(true);
+      }, 30_000);
+
+      const handler = (_: IpcMainEvent, canRestart: boolean) => {
+        clearTimeout(timer);
+        resolve(canRestart);
+      };
+
+      ipcMain.once("confirmUpdateRestart", handler);
+      this.windowMain.win.webContents.send("confirmUpdateRestart");
+    });
   }
 
   private userDisabledUpdates(): boolean {
