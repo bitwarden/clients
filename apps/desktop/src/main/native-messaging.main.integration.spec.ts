@@ -30,7 +30,7 @@ describe("NativeMessagingMain Integration Tests", () => {
           mockWindowMain,
           validPaths.userPath,
           validPaths.exePath,
-          validPaths.appPath
+          validPaths.appPath,
         );
       }).not.toThrow();
 
@@ -54,7 +54,7 @@ describe("NativeMessagingMain Integration Tests", () => {
           mockWindowMain,
           invalidPaths.userPath,
           invalidPaths.exePath,
-          invalidPaths.appPath
+          invalidPaths.appPath,
         );
       }).toThrow(/Invalid path for appPath/);
     });
@@ -73,7 +73,7 @@ describe("NativeMessagingMain Integration Tests", () => {
         mockWindowMain,
         validPaths.userPath,
         validPaths.exePath,
-        validPaths.appPath
+        validPaths.appPath,
       );
 
       // binaryPath() method uses this.exePath and this.appPath internally
@@ -98,7 +98,7 @@ describe("NativeMessagingMain Integration Tests", () => {
         mockWindowMain,
         validPaths.userPath,
         validPaths.exePath,
-        validPaths.appPath
+        validPaths.appPath,
       );
 
       // homedir() method uses this.userPath internally (line 445 in implementation)
@@ -128,7 +128,7 @@ describe("NativeMessagingMain Integration Tests", () => {
         mockWindowMain,
         validPaths.userPath,
         validPaths.exePath,
-        validPaths.appPath
+        validPaths.appPath,
       );
 
       // Instance construction succeeds = all downstream usage automatically protected

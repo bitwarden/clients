@@ -48,7 +48,7 @@ describe("VULN-425 Security Regression Tests", () => {
           mockWindowMain,
           validPaths.userPath,
           validPaths.exePath,
-          attackPath // appPath with Greek Rho
+          attackPath, // appPath with Greek Rho
         );
       }).toThrow(/Invalid path for appPath.*ASCII characters/);
     });
@@ -66,7 +66,7 @@ describe("VULN-425 Security Regression Tests", () => {
           mockWindowMain,
           validPaths.userPath,
           attackPath, // exePath with Cyrillic А
-          validPaths.appPath
+          validPaths.appPath,
         );
       }).toThrow(/Invalid path for exePath.*ASCII characters/);
     });
@@ -84,7 +84,7 @@ describe("VULN-425 Security Regression Tests", () => {
           mockWindowMain,
           attackPath, // userPath with Cyrillic С
           validPaths.exePath,
-          validPaths.appPath
+          validPaths.appPath,
         );
       }).toThrow(/Invalid path for userPath.*ASCII characters/);
     });
@@ -102,7 +102,7 @@ describe("VULN-425 Security Regression Tests", () => {
           mockWindowMain,
           attackPath, // userPath with Cyrillic Е
           validPaths.exePath,
-          validPaths.appPath
+          validPaths.appPath,
         );
       }).toThrow(/Invalid path for userPath.*ASCII characters/);
     });
@@ -120,7 +120,7 @@ describe("VULN-425 Security Regression Tests", () => {
           mockWindowMain,
           validPaths.userPath,
           validPaths.exePath,
-          attackPath // appPath with Cyrillic О
+          attackPath, // appPath with Cyrillic О
         );
       }).toThrow(/Invalid path for appPath.*ASCII characters/);
     });
