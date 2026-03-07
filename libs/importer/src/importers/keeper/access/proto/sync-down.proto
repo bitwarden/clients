@@ -1,0 +1,336 @@
+syntax = "proto3";
+
+package Vault;
+
+import "record.proto";
+import "breachwatch.proto";
+import "api-request.proto";
+import "enterprise.proto";
+import "notification-center.proto";
+
+enum CacheStatus {
+  KEEP = 0;
+  CLEAR = 1;
+}
+
+enum RecordRotationStatus {
+  RRST_NOT_ROTATED = 0;
+  RRST_IN_PROGRESS = 1;
+  RRST_SUCCESS = 2;
+  RRST_FAILURE = 3;
+}
+
+message SyncDownRequest {
+  bytes continuationToken = 1;
+  int32 dataVersion = 2;
+}
+
+message SyncDownResponse {
+  bytes continuationToken = 1;
+  bool hasMore = 2;
+  CacheStatus cacheStatus = 3;
+  repeated UserFolder userFolders = 4;
+  repeated SharedFolder sharedFolders = 5;
+  repeated UserFolderSharedFolder userFolderSharedFolders = 6;
+  repeated SharedFolderFolder sharedFolderFolders = 7;
+  repeated Record records = 8;
+  repeated RecordMetaData recordMetaData = 9;
+  repeated NonSharedData nonSharedData = 10;
+  repeated RecordLink recordLinks = 11;
+  repeated UserFolderRecord userFolderRecords = 12;
+  repeated SharedFolderRecord sharedFolderRecords = 13;
+  repeated SharedFolderFolderRecord sharedFolderFolderRecords = 14;
+  repeated SharedFolderUser sharedFolderUsers = 15;
+  repeated SharedFolderTeam sharedFolderTeams = 16;
+  repeated bytes recordAddAuditData = 17;
+  repeated Team teams = 18;
+  repeated SharingChange sharingChanges = 19;
+  Profile profile = 20;
+  ProfilePic profilePic = 21;
+  repeated PendingTeamMember pendingTeamMembers = 22;
+  repeated BreachWatchRecord breachWatchRecords = 23;
+  repeated UserAuth userAuths = 24;
+  repeated BreachWatchSecurityData breachWatchSecurityData = 25;
+  ReusedPasswords reusedPasswords = 26;
+  repeated bytes removedUserFolders = 27;
+  repeated bytes removedSharedFolders = 28;
+  repeated UserFolderSharedFolder removedUserFolderSharedFolders = 29;
+  repeated SharedFolderFolder removedSharedFolderFolders = 30;
+  repeated bytes removedRecords = 31;
+  repeated RecordLink removedRecordLinks = 32;
+  repeated UserFolderRecord removedUserFolderRecords = 33;
+  repeated SharedFolderRecord removedSharedFolderRecords = 34;
+  repeated SharedFolderFolderRecord removedSharedFolderFolderRecords = 35;
+  repeated SharedFolderUser removedSharedFolderUsers = 36;
+  repeated SharedFolderTeam removedSharedFolderTeams = 37;
+  repeated bytes removedTeams = 38;
+  repeated KsmChange ksmAppShares = 39;
+  repeated KsmChange ksmAppClients = 40;
+  repeated ShareInvitation shareInvitations = 41;
+  SyncDiagnostics diagnostics = 42;
+  repeated RecordRotation recordRotations = 43;
+  repeated User users = 44;
+  repeated bytes removedUsers = 45;
+  repeated SecurityScoreData securityScoreData = 46;
+  repeated NotificationCenter.NotificationWrapper notificationSync = 47;
+}
+
+message UserFolder {
+  bytes folderUid = 1;
+  bytes parentUid = 2;
+  bytes userFolderKey = 3;
+  Records.RecordKeyType keyType = 4;
+  int64 revision = 5;
+  bytes data = 6;
+}
+
+message SharedFolder {
+  bytes sharedFolderUid = 1;
+  int64 revision = 2;
+  bytes sharedFolderKey = 3;
+  Records.RecordKeyType keyType = 4;
+  bytes data = 5;
+  bool defaultManageRecords = 6;
+  bool defaultManageUsers = 7;
+  bool defaultCanEdit = 8;
+  bool defaultCanReshare = 9;
+  CacheStatus cacheStatus = 10;
+  string owner = 11;
+  bytes ownerAccountUid = 12;
+  bytes name = 13;
+}
+
+message UserFolderSharedFolder {
+  bytes folderUid = 1;
+  bytes sharedFolderUid = 2;
+  int64 revision = 3;
+}
+
+message SharedFolderFolder {
+  bytes sharedFolderUid = 1;
+  bytes folderUid = 2;
+  bytes parentUid = 3;
+  bytes sharedFolderFolderKey = 4;
+  Records.RecordKeyType keyType = 5;
+  int64 revision = 6;
+  bytes data = 7;
+}
+
+message SharedFolderKey {
+  bytes sharedFolderUid = 1;
+  bytes sharedFolderKey = 2;
+  Records.RecordKeyType keyType = 3;
+}
+
+message Team {
+  bytes teamUid = 1;
+  string name = 2;
+  bytes teamKey = 3;
+  Records.RecordKeyType teamKeyType = 4;
+  bytes teamPrivateKey = 5;
+  bool restrictEdit = 6;
+  bool restrictShare = 7;
+  bool restrictView = 8;
+  repeated bytes removedSharedFolders = 9;
+  repeated SharedFolderKey sharedFolderKeys = 10;
+  bytes teamEccPrivateKey = 11;
+  bytes teamEccPublicKey = 12;
+}
+
+message Record {
+  bytes recordUid = 1;
+  int64 revision = 2;
+  int32 version = 3;
+  bool shared = 4;
+  int64 clientModifiedTime = 5;
+  bytes data = 6;
+  bytes extra = 7;
+  string udata = 8;
+  int64 fileSize = 9;
+  int64 thumbnailSize = 10;
+}
+
+message RecordLink {
+  bytes parentRecordUid = 1;
+  bytes childRecordUid = 2;
+  bytes recordKey = 3;
+  int64 revision = 4;
+}
+
+message UserFolderRecord {
+  bytes folderUid = 1;
+  bytes recordUid = 2;
+  int64 revision = 3;
+}
+
+message SharedFolderFolderRecord {
+  bytes sharedFolderUid = 1;
+  bytes folderUid = 2;
+  bytes recordUid = 3;
+  int64 revision = 4;
+}
+
+message NonSharedData {
+  bytes recordUid = 1;
+  bytes data = 2;
+}
+
+message RecordMetaData {
+  bytes recordUid = 1;
+  bool owner = 2;
+  bytes recordKey = 3;
+  Records.RecordKeyType recordKeyType = 4;
+  bool canShare = 5;
+  bool canEdit = 6;
+  bytes ownerAccountUid = 7;
+  int64 expiration = 8;
+  Records.TimerNotificationType expirationNotificationType = 9;
+  string ownerUsername = 10;
+}
+
+message SharingChange {
+  bytes recordUid = 1;
+  bool shared = 2;
+}
+
+message Profile {
+  bytes data = 1;
+  string profileName = 2;
+  int64 revision = 3;
+}
+
+message ProfilePic {
+  string url = 1;
+  int64 revision = 2;
+}
+
+message PendingTeamMember {
+  int64 enterpriseUserId = 1;
+  bytes userPublicKey = 2;
+  repeated bytes teamUids = 3;
+  bytes userEccPublicKey = 4;
+}
+
+message BreachWatchRecord {
+  bytes recordUid = 1;
+  bytes data = 2;
+  BreachWatch.BreachWatchInfoType type = 3;
+  string scannedBy = 4;
+  int64 revision = 5;
+  bytes scannedByAccountUid = 6;
+}
+
+message UserAuth {
+  bytes uid = 1;
+  Authentication.LoginType loginType = 2;
+  bool deleted = 3;
+  int32 iterations = 4;
+  bytes salt = 5;
+  bytes encryptedClientKey = 6;
+  int64 revision = 7;
+  string name = 8;
+}
+
+message BreachWatchSecurityData {
+  bytes recordUid = 1;
+  int64 revision = 2;
+}
+
+message ReusedPasswords {
+  int32 count = 1;
+  int64 revision = 2;
+}
+
+message SharedFolderRecord {
+  bytes sharedFolderUid = 1;
+  bytes recordUid = 2;
+  bytes recordKey = 3;
+  bool canShare = 4;
+  bool canEdit = 5;
+  bytes ownerAccountUid = 6;
+  int64 expiration = 7;
+  bool owner = 8;
+  Records.TimerNotificationType expirationNotificationType = 9;
+  string ownerUsername = 10;
+  bool rotateOnExpiration = 11;
+}
+
+message SharedFolderUser {
+  bytes sharedFolderUid = 1;
+  string username = 2;
+  bool manageRecords = 3;
+  bool manageUsers = 4;
+  bytes accountUid = 5;
+  int64 expiration = 6;
+  Records.TimerNotificationType expirationNotificationType = 7;
+  bool rotateOnExpiration = 8;
+}
+
+message SharedFolderTeam {
+  bytes sharedFolderUid = 1;
+  bytes teamUid = 2;
+  string name = 3;
+  bool manageRecords = 4;
+  bool manageUsers = 5;
+  int64 expiration = 6;
+  Records.TimerNotificationType expirationNotificationType = 7;
+  bool rotateOnExpiration = 8;
+}
+
+message KsmChange {
+  bytes appRecordUid = 1;
+  bytes detailId = 2;
+  bool removed = 3;
+  Enterprise.AppClientType appClientType = 4;
+  int64 expiration = 5;
+}
+
+message ShareInvitation {
+  string username = 1;
+}
+
+message User {
+  bytes accountUid = 1;
+  string username = 2;
+}
+
+message SyncDiagnostics {
+  bytes continuationToken = 1;
+  int32 userId = 2;
+  int64 enterpriseUserId = 3;
+  int64 syncedTo = 4;
+  int64 syncingTo = 5;
+}
+
+message RecordRotation {
+  bytes recordUid = 1;
+  int64 revision = 2;
+  bytes configurationUid = 3;
+  string schedule = 4;
+  bytes pwdComplexity = 5;
+  bool disabled = 6;
+  bytes resourceUid = 7;
+  int64 lastRotation = 8;
+  RecordRotationStatus lastRotationStatus = 9;
+}
+
+message SecurityScoreData {
+  bytes recordUid = 1;
+  bytes data = 2;
+  int64 revision = 3;
+}
+
+message BreachWatchGetSyncDataRequest {
+  repeated bytes recordUids = 1;
+}
+
+message BreachWatchGetSyncDataResponse {
+  repeated BreachWatchRecord breachWatchRecords = 1;
+  repeated BreachWatchSecurityData breachWatchSecurityData = 2;
+  repeated User users = 3;
+}
+
+message GetAccountUidMapResponse {
+  repeated User users = 1;
+}
+

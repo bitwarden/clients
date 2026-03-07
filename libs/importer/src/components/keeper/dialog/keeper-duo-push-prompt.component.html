@@ -1,0 +1,15 @@
+<bit-dialog>
+  <span bitDialogTitle>
+    {{ "keeperDuoApprovalRequired" | i18n }}
+  </span>
+
+  <div bitDialogContent>
+    <p>{{ descriptionI18nKey | i18n }}</p>
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button bitButton bitDialogClose="cancel" buttonType="secondary" type="button">
+      <span>{{ "cancel" | i18n }}</span>
+    </button>
+  </ng-container>
+</bit-dialog>

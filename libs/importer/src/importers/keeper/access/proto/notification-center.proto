@@ -1,0 +1,124 @@
+syntax = "proto3";
+
+package NotificationCenter;
+
+import "graph-sync.proto";
+
+enum NotificationCategory {
+  NC_UNSPECIFIED = 0;
+  NC_ACCOUNT = 1;
+  NC_SHARING = 2;
+  NC_ENTERPRISE = 3;
+  NC_SECURITY = 4;
+  NC_REQUEST = 5;
+  NC_SYSTEM = 6;
+  NC_PROMOTION = 7;
+}
+
+enum NotificationType {
+  NT_UNSPECIFIED = 0;
+  NT_ALERT = 1;
+  NT_DEVICE_APPROVAL = 2;
+  NT_MASTER_PASS_UPDATED = 3;
+  NT_SHARE_APPROVAL = 4;
+  NT_SHARE_APPROVAL_APPROVED = 5;
+  NT_SHARED = 6;
+  NT_TRANSFERRED = 7;
+  NT_LICENSE_LIMIT_REACHED = 8;
+  NT_APPROVAL_REQUEST = 9;
+  NT_APPROVED_RESPONSE = 10;
+  NT_DENIED_RESPONSE = 11;
+  NT_2FA_CONFIGURED = 12;
+  NT_SHARE_APPROVAL_DENIED = 13;
+}
+
+enum NotificationReadStatus {
+  NRS_UNSPECIFIED = 0;
+  NRS_LAST = 1;
+  NRS_READ = 2;
+  NRS_UNREAD = 3;
+}
+
+enum NotificationApprovalStatus {
+  NAS_UNSPECIFIED = 0;
+  NAS_APPROVED = 1;
+  NAS_DENIED = 2;
+  NAS_LOST_APPROVAL_RIGHTS = 3;
+  NAS_LOST_ACCESS = 4;
+}
+
+message EncryptedData {
+  int32 version = 1;
+  bytes data = 2;
+}
+
+message Notification {
+  NotificationType type = 1;
+  NotificationCategory category = 2;
+  GraphSync.GraphSyncRef sender = 3;
+  string senderFullName = 4;
+  EncryptedData encryptedData = 5;
+  repeated GraphSync.GraphSyncRef refs = 6;
+  repeated NotificationCategory categories = 7;
+}
+
+message NotificationReadMark {
+  bytes uid = 1;
+  int64 notification_edge_id = 2;
+  int64 mark_edge_id = 3;
+  NotificationReadStatus readStatus = 4;
+}
+
+message NotificationContent {
+  oneof type {
+    Notification notification = 1;
+    NotificationReadStatus readStatus = 2;
+    NotificationApprovalStatus approvalStatus = 3;
+    bool trimmingPoint = 4;
+  }
+
+  repeated int32 clientTypeIDs = 5;
+  repeated int64 deviceIDs = 6;
+}
+
+message NotificationWrapper {
+  bytes uid = 1;
+  NotificationContent content = 2;
+  int64 timestamp = 3;
+}
+
+message NotificationSync {
+  repeated NotificationWrapper data = 1;
+  int64 syncPoint = 2;
+  bool hasMore = 3;
+}
+
+message ReadStatusUpdate {
+  bytes notificationUid = 1;
+  NotificationReadStatus status = 2;
+}
+
+message ApprovalStatusUpdate {
+  bytes notificationUid = 1;
+  NotificationApprovalStatus status = 2;
+}
+
+message ProcessMarkReadEventsRequest {
+  repeated ReadStatusUpdate readStatusUpdate = 1;
+}
+
+message NotificationSendRequest {
+  repeated GraphSync.GraphSyncRef recipients = 1;
+  Notification notification = 2;
+  repeated int32 clientTypeIDs = 3;
+  repeated int64 deviceIDs = 4;
+}
+
+message NotificationsSendRequest {
+  repeated NotificationSendRequest notifications = 1;
+}
+
+message NotificationSyncRequest {
+  int64 syncPoint = 1;
+}
+
