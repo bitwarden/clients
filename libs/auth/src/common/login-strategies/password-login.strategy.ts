@@ -13,6 +13,8 @@ import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/model
 import { IdentitySsoRequiredResponse } from "@bitwarden/common/auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
@@ -66,6 +68,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private policyService: PolicyService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
+    private masterPasswordUnlockService: MasterPasswordUnlockService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
     super(...sharedDeps);
@@ -120,6 +123,10 @@ export class PasswordLoginStrategy extends LoginStrategy {
   }
 
   protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
+    if (await this.shouldUseUnlockServiceForPasswordLogin()) {
+      return;
+    }
+
     const { masterKey, localMasterKeyHash } = this.cache.value;
     await this.masterPasswordService.setMasterKey(masterKey, userId);
     await this.masterPasswordService.setMasterKeyHash(localMasterKeyHash, userId);
@@ -136,6 +143,15 @@ export class PasswordLoginStrategy extends LoginStrategy {
 
     if (response.key) {
       await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
+    }
+
+    if (await this.shouldUseUnlockServiceForPasswordLogin()) {
+      const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
+        this.cache.value.masterPassword,
+        userId,
+      );
+      await this.keyService.setUserKey(userKey, userId);
+      return;
     }
 
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
@@ -247,6 +263,10 @@ export class PasswordLoginStrategy extends LoginStrategy {
     )?.score;
 
     return this.policyService.evaluateMasterPassword(passwordStrength, masterPassword, options);
+  }
+
+  private async shouldUseUnlockServiceForPasswordLogin(): Promise<boolean> {
+    return await this.configService.getFeatureFlag(FeatureFlag.UseUnlockServiceForPasswordLogin);
   }
 
   exportCache(): CacheData {
