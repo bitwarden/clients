@@ -42,7 +42,6 @@ describe("DefaultChangePasswordService", () => {
     newPasswordHint: "newPasswordHint",
     newMasterKey: new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
     newServerMasterKeyHash: "newServerMasterKeyHash",
-    newLocalMasterKeyHash: "newLocalMasterKeyHash",
 
     kdfConfig: new PBKDF2KdfConfig(),
   };
