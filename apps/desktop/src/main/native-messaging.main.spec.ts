@@ -9,7 +9,17 @@ jest.mock("electron", () => ({
     handle: jest.fn(),
   },
 }));
-jest.mock("@bitwarden/desktop-napi");
+jest.mock("@bitwarden/desktop-napi", () => ({
+  ipc: {
+    NativeIpcServer: {
+      listen: jest.fn(),
+    },
+  },
+  windows_registry: {
+    createKey: jest.fn(),
+    deleteKey: jest.fn(),
+  },
+}));
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
