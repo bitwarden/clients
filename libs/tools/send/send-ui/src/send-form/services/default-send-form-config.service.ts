@@ -31,22 +31,35 @@ export class DefaultSendFormConfigService implements SendFormConfigService {
     sendId?: SendId,
     sendType?: SendType,
   ): Promise<SendFormConfig> {
-    const [areSendsAllowed, send] = await firstValueFrom(
-      combineLatest([this.areSendsEnabled$, this.getSend(sendId)]),
+    const [policyConfig, send] = await firstValueFrom(
+      combineLatest([this.sendPolicyConfig$, this.getSend(sendId)]),
     );
 
     return {
       mode,
       sendType: send?.type ?? sendType ?? SendType.Text,
-      areSendsAllowed,
+      ...policyConfig,
       originalSend: send,
     };
   }
 
-  private areSendsEnabled$ = this.accountService.activeAccount$.pipe(
+  private sendPolicyConfig$ = this.accountService.activeAccount$.pipe(
     getUserId,
-    switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId)),
-    map((p) => !p),
+    switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
+    map((policies) => {
+      const disableNoAuthSends = policies?.some((p) => p.data.disableNoAuthSends) ?? false;
+      const disablePasswordSends = policies?.some((p) => p.data.disablePasswordSends) ?? false;
+      const disableEmailVerifiedSends =
+        policies?.some((p) => p.data.disableEmailVerifiedSends) ?? false;
+      return {
+        areSendsAllowed:
+          !policies?.some((p) => p.data.disableSend) &&
+          !(disableNoAuthSends && disablePasswordSends && disableEmailVerifiedSends),
+        disableNoAuthSends,
+        disablePasswordSends,
+        disableEmailVerifiedSends,
+      };
+    }),
   );
 
   private getSend(id?: SendId) {

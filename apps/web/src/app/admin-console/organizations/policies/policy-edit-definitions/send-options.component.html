@@ -10,7 +10,38 @@
 <div [formGroup]="data">
   <h3 bitTypography="h3" class="tw-mt-4">{{ "options" | i18n }}</h3>
   <bit-form-control>
+    <input type="checkbox" bitCheckbox formControlName="disableSend" id="disableSend" />
+    <bit-label>{{ "disableSendPolicyDesc" | i18n }}</bit-label>
+  </bit-form-control>
+  <bit-form-control>
     <input type="checkbox" bitCheckbox formControlName="disableHideEmail" id="disableHideEmail" />
     <bit-label>{{ "disableHideEmail" | i18n }}</bit-label>
+  </bit-form-control>
+  <bit-form-control>
+    <input
+      type="checkbox"
+      bitCheckbox
+      formControlName="disableNoAuthSends"
+      id="disableNoAuthSends"
+    />
+    <bit-label>{{ "disableNoAuthSends" | i18n }}</bit-label>
+  </bit-form-control>
+  <bit-form-control>
+    <input
+      type="checkbox"
+      bitCheckbox
+      formControlName="disablePasswordSends"
+      id="disablePasswordSends"
+    />
+    <bit-label>{{ "disablePasswordSends" | i18n }}</bit-label>
+  </bit-form-control>
+  <bit-form-control>
+    <input
+      type="checkbox"
+      bitCheckbox
+      formControlName="disableEmailVerifiedSends"
+      id="disableEmailVerifiedSends"
+    />
+    <bit-label>{{ "disableEmailVerifiedSends" | i18n }}</bit-label>
   </bit-form-control>
 </div>

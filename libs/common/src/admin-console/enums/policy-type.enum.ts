@@ -7,8 +7,9 @@ export enum PolicyType {
   SingleOrg = 3, // Allows users to only be apart of one organization
   RequireSso = 4, // Requires users to authenticate with SSO
   OrganizationDataOwnership = 5, // Enforces organization ownership items added/cloned to the default collection
-  DisableSend = 6, // Disables the ability to create and edit Bitwarden Sends
-  SendOptions = 7, // Sets restrictions or defaults for Bitwarden Sends
+  /** @deprecated Consolidated into SendOptions (type 7). Use SendOptions policy with data.disableSend. */
+  DisableSend = 6,
+  SendOptions = 7, // Unified Send policy: controls disableSend, disableHideEmail, and future Send related policies
   ResetPassword = 8, // Allows orgs to use reset password : also can enable auto-enrollment during invite flow
   MaximumVaultTimeout = 9, // Sets the maximum allowed vault timeout
   DisablePersonalVaultExport = 10, // Disable personal vault export

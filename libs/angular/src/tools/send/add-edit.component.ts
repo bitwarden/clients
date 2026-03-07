@@ -165,9 +165,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
     this.accountService.activeAccount$
       .pipe(
         getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
-        ),
+        switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
+        map((policies) => policies?.some((p) => p.data.disableSend) ?? false),
         takeUntil(this.destroy$),
       )
       .subscribe((policyAppliesToActiveUser) => {

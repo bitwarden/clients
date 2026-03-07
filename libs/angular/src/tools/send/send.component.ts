@@ -4,12 +4,13 @@ import { Directive, NgZone, OnDestroy, OnInit } from "@angular/core";
 import {
   BehaviorSubject,
   Subject,
+  combineLatest,
   firstValueFrom,
-  mergeMap,
   from,
+  map,
+  mergeMap,
   switchMap,
   takeUntil,
-  combineLatest,
 } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -89,9 +90,8 @@ export class SendComponent implements OnInit, OnDestroy {
     this.accountService.activeAccount$
       .pipe(
         getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
-        ),
+        switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
+        map((policies) => policies?.some((p) => p.data.disableSend) ?? false),
         takeUntil(this.destroy$),
       )
       .subscribe((policyAppliesToUser) => {

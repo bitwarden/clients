@@ -11,7 +11,15 @@ import {
   ValidatorFn,
   ValidationErrors,
 } from "@angular/forms";
-import { firstValueFrom, BehaviorSubject, combineLatest, map, switchMap, tap } from "rxjs";
+import {
+  firstValueFrom,
+  BehaviorSubject,
+  combineLatest,
+  map,
+  Observable,
+  switchMap,
+  tap,
+} from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -148,14 +156,7 @@ export class SendDetailsComponent implements OnInit {
     { name: this.i18nService.t("anyOneWithPassword"), value: AuthType.Password },
   ];
 
-  availableAuthTypes$ = combineLatest([this.emailVerificationFeatureFlag$, this.hasPremium$]).pipe(
-    map(([enabled, hasPremium]) => {
-      if (!enabled || !hasPremium) {
-        return this.authTypes.filter((t) => t.value !== AuthType.Email);
-      }
-      return this.authTypes;
-    }),
-  );
+  availableAuthTypes$: Observable<{ name: string; value: AuthType }[]>;
 
   sendDetailsForm = this.formBuilder.group({
     name: new FormControl("", Validators.required),
@@ -242,6 +243,35 @@ export class SendDetailsComponent implements OnInit {
   }
 
   async ngOnInit() {
+    this.availableAuthTypes$ = combineLatest([
+      this.emailVerificationFeatureFlag$,
+      this.hasPremium$,
+    ]).pipe(
+      map(([enabled, hasPremium]) =>
+        this.authTypes.filter((t) => {
+          if (t.value === AuthType.Email && (!enabled || !hasPremium)) {
+            return false;
+          }
+          if (t.value === AuthType.None && this.config.disableNoAuthSends) {
+            return false;
+          }
+          if (t.value === AuthType.Password && this.config.disablePasswordSends) {
+            return false;
+          }
+          if (t.value === AuthType.Email && this.config.disableEmailVerifiedSends) {
+            return false;
+          }
+          return true;
+        }),
+      ),
+      tap((available) => {
+        const current = this.sendDetailsForm.get("authType").value;
+        if (available.length > 0 && !available.some((t) => t.value === current)) {
+          this.sendDetailsForm.patchValue({ authType: available[0].value });
+        }
+      }),
+    );
+
     this.setupDeletionDatePresets();
 
     if (this.originalSendView) {

@@ -64,7 +64,7 @@ describe("SendV2Component", () => {
     });
 
     policyService = mock<PolicyService>();
-    policyService.policyAppliesToUser$.mockReturnValue(of(true)); // Return `true` by default
+    policyService.policiesByType$.mockReturnValue(of([{ data: { disableSend: true } }] as any)); // Sends disabled by default
 
     sendListFiltersService = new SendListFiltersService(mock(), new FormBuilder());
 

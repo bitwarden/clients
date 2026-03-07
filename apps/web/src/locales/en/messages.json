@@ -6209,6 +6209,10 @@
     "message": "Send options",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControls": {
+    "message": "Send controls",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendOptionsPolicyDesc": {
     "message": "Set options for creating and editing Sends.",
     "description": "'Sends' is a plural noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6218,7 +6222,19 @@
   },
   "disableHideEmail": {
     "message": "Always show member’s email address with recipients when creating or editing a Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+    "description": "’Send’ is a noun and the name of a feature called ‘Bitwarden Send’. It should not be translated."
+  },
+  "disableNoAuthSends": {
+    "message": "Do not allow members to create or edit Sends accessible to anyone with the link.",
+    "description": "’Send’ is a noun and the name of a feature called ‘Bitwarden Send’. It should not be translated."
+  },
+  "disablePasswordSends": {
+    "message": "Do not allow members to create or edit password-protected Sends.",
+    "description": "’Send’ is a noun and the name of a feature called ‘Bitwarden Send’. It should not be translated."
+  },
+  "disableEmailVerifiedSends": {
+    "message": "Do not allow members to create or edit Sends requiring email verification.",
+    "description": "’Send’ is a noun and the name of a feature called ‘Bitwarden Send’. It should not be translated."
   },
   "uriMatchDetectionPolicy": {
     "message": "Default URI match detection"

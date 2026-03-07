@@ -34,7 +34,14 @@ describe("SendOptionsComponent", () => {
     }).compileComponents();
     fixture = TestBed.createComponent(SendOptionsComponent);
     component = fixture.componentInstance;
-    component.config = { areSendsAllowed: true, mode: "add", sendType: SendType.Text };
+    component.config = {
+      areSendsAllowed: true,
+      mode: "add",
+      sendType: SendType.Text,
+      disableNoAuthSends: false,
+      disablePasswordSends: false,
+      disableEmailVerifiedSends: false,
+    };
     fixture.detectChanges();
   });
 

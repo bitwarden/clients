@@ -92,7 +92,14 @@ describe("SendDetailsComponent", () => {
 
     fixture = TestBed.createComponent(SendDetailsComponent);
     component = fixture.componentInstance;
-    component.config = { areSendsAllowed: true, mode: "add", sendType: SendType.Text };
+    component.config = {
+      areSendsAllowed: true,
+      mode: "add",
+      sendType: SendType.Text,
+      disableNoAuthSends: false,
+      disablePasswordSends: false,
+      disableEmailVerifiedSends: false,
+    };
     fixture.detectChanges();
   });
 
