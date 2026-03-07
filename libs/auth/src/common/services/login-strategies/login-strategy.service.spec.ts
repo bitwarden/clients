@@ -46,6 +46,7 @@ import {
   KeyService,
   PBKDF2KdfConfig,
 } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import {
   AuthRequestServiceAbstraction,
@@ -70,6 +71,7 @@ describe("LoginStrategyService", () => {
   let messagingService: MockProxy<MessagingService>;
   let logService: MockProxy<LogService>;
   let keyConnectorService: MockProxy<KeyConnectorService>;
+  let unlockService: MockProxy<UnlockService>;
   let environmentService: MockProxy<EnvironmentService>;
   let stateService: MockProxy<StateService>;
   let twoFactorService: MockProxy<TwoFactorService>;
@@ -103,6 +105,7 @@ describe("LoginStrategyService", () => {
     messagingService = mock<MessagingService>();
     logService = mock<LogService>();
     keyConnectorService = mock<KeyConnectorService>();
+    unlockService = mock<UnlockService>();
     environmentService = mock<EnvironmentService>();
     stateService = mock<StateService>();
     twoFactorService = mock<TwoFactorService>();
@@ -132,6 +135,7 @@ describe("LoginStrategyService", () => {
       messagingService,
       logService,
       keyConnectorService,
+      unlockService,
       environmentService,
       stateService,
       twoFactorService,

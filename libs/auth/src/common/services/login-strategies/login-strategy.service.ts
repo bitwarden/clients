@@ -47,6 +47,7 @@ import {
   PBKDF2KdfConfig,
   KdfConfigService,
 } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
@@ -145,6 +146,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     protected messagingService: MessagingService,
     protected logService: LogService,
     protected keyConnectorService: KeyConnectorService,
+    protected unlockService: UnlockService,
     protected environmentService: EnvironmentService,
     protected stateService: StateService,
     protected twoFactorService: TwoFactorService,
@@ -532,6 +534,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
             return new SsoLoginStrategy(
               data?.sso ?? new SsoLoginStrategyData(),
               this.keyConnectorService,
+              this.unlockService,
               this.deviceTrustService,
               this.authRequestService,
               this.i18nService,
@@ -541,6 +544,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
             return new UserApiLoginStrategy(
               data?.userApiKey ?? new UserApiLoginStrategyData(),
               this.keyConnectorService,
+              this.unlockService,
               ...sharedDeps,
             );
           case AuthenticationType.AuthRequest:
