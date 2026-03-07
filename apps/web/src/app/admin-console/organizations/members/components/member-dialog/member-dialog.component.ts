@@ -62,7 +62,11 @@ import { DeleteManagedMemberWarningService } from "../../services/delete-managed
 
 import { commaSeparatedEmails } from "./validators/comma-separated-emails.validator";
 import { inputEmailLimitValidator } from "./validators/input-email-limit.validator";
-import { orgSeatLimitReachedValidator } from "./validators/org-seat-limit-reached.validator";
+import {
+  getEmailBatchLimit,
+  isDynamicSeatPlan,
+  orgSeatLimitReachedValidator,
+} from "./validators/org-seat-limit-reached.validator";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
@@ -122,6 +126,13 @@ export class MemberDialogComponent implements OnDestroy {
   showNoMasterPasswordWarning = false;
   isOnSecretsManagerStandalone: boolean;
   remainingSeats$: Observable<number>;
+  /**
+   * The maximum number of unique emails an admin may submit in a single invite operation,
+   * derived from the organization's plan type and available seats. See {@link getEmailBatchLimit}
+   * for the full business rules.
+   */
+  emailBatchLimit$: Observable<number>;
+  isDynamicSeatPlan$: Observable<boolean>;
   editParams$: Observable<EditMemberDialogParams>;
 
   protected organization$: Observable<Organization>;
@@ -290,15 +301,37 @@ export class MemberDialogComponent implements OnDestroy {
       ),
     );
 
+    this.remainingSeats$ = this.organization$.pipe(
+      map((organization) =>
+        this.isEditDialogParams(this.params)
+          ? 0
+          : organization.seats - this.params.occupiedSeatCount,
+      ),
+    );
+
+    this.emailBatchLimit$ = this.organization$.pipe(
+      map((organization) => {
+        const occupiedSeatCount = this.isEditDialogParams(this.params)
+          ? 0
+          : this.params.occupiedSeatCount;
+        return getEmailBatchLimit(organization, occupiedSeatCount);
+      }),
+    );
+
+    this.isDynamicSeatPlan$ = this.organization$.pipe(
+      map((organization) => isDynamicSeatPlan(organization.productTierType)),
+    );
+
     combineLatest({
       organization: this.organization$,
       collections,
       userDetails: userDetails$,
       groups: groups$,
+      emailBatchLimit: this.emailBatchLimit$,
     })
       .pipe(takeUntil(this.destroy$))
-      .subscribe(({ organization, collections, userDetails, groups }) => {
-        this.setFormValidators(organization);
+      .subscribe(({ organization, collections, userDetails, groups, emailBatchLimit }) => {
+        this.setFormValidators(organization, emailBatchLimit);
 
         // Groups tab: populate available groups
         this.groupAccessItems = [].concat(
@@ -328,19 +361,9 @@ export class MemberDialogComponent implements OnDestroy {
 
         this.loading = false;
       });
-
-    this.remainingSeats$ = this.organization$.pipe(
-      map((organization) => {
-        if (!this.isEditDialogParams(this.params)) {
-          return organization.seats - this.params.occupiedSeatCount;
-        }
-
-        return organization.seats;
-      }),
-    );
   }
 
-  private setFormValidators(organization: Organization) {
+  private setFormValidators(organization: Organization, emailBatchLimit: number) {
     if (this.isEditDialogParams(this.params)) {
       return;
     }
@@ -348,7 +371,7 @@ export class MemberDialogComponent implements OnDestroy {
     const emailsControlValidators = [
       Validators.required,
       commaSeparatedEmails,
-      inputEmailLimitValidator(organization, (maxEmailsCount: number) =>
+      inputEmailLimitValidator(emailBatchLimit, (maxEmailsCount: number) =>
         this.i18nService.t("tooManyEmails", maxEmailsCount),
       ),
       orgSeatLimitReachedValidator(

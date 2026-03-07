@@ -5,9 +5,10 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 
 import {
-  orgSeatLimitReachedValidator,
-  isFixedSeatPlan,
+  getEmailBatchLimit,
   isDynamicSeatPlan,
+  isFixedSeatPlan,
+  orgSeatLimitReachedValidator,
 } from "./org-seat-limit-reached.validator";
 
 const orgFactory = (props: Partial<Organization> = {}) =>
@@ -167,6 +168,72 @@ describe("orgSeatLimitReachedValidator", () => {
 
       expect(result).toBeNull();
     });
+  });
+});
+
+describe("getEmailBatchLimit", () => {
+  describe("dynamic-seat plans", () => {
+    test.each([ProductTierType.Teams, ProductTierType.Enterprise])(
+      "returns 20 for %s regardless of occupied seats",
+      (plan) => {
+        const organization = orgFactory({ productTierType: plan, seats: 100 });
+
+        expect(getEmailBatchLimit(organization, 0)).toBe(20);
+        expect(getEmailBatchLimit(organization, 99)).toBe(20);
+        expect(getEmailBatchLimit(organization, 150)).toBe(20);
+      },
+    );
+  });
+
+  describe("TeamsStarter (fixed, 10-seat cap)", () => {
+    it("returns remaining seats when below the 10-seat cap", () => {
+      const organization = orgFactory({ productTierType: ProductTierType.TeamsStarter, seats: 10 });
+
+      expect(getEmailBatchLimit(organization, 3)).toBe(7);
+    });
+
+    it("returns 10 when no seats are occupied", () => {
+      const organization = orgFactory({ productTierType: ProductTierType.TeamsStarter, seats: 10 });
+
+      expect(getEmailBatchLimit(organization, 0)).toBe(10);
+    });
+
+    it("returns 0 when the org is at capacity (oversubscribed)", () => {
+      const organization = orgFactory({ productTierType: ProductTierType.TeamsStarter, seats: 10 });
+
+      expect(getEmailBatchLimit(organization, 10)).toBe(0);
+      expect(getEmailBatchLimit(organization, 12)).toBe(0);
+    });
+  });
+
+  describe("Free / Families (fixed, 20-seat cap)", () => {
+    test.each([ProductTierType.Free, ProductTierType.Families])(
+      "returns remaining seats when below the 20-seat cap for %s",
+      (plan) => {
+        const organization = orgFactory({ productTierType: plan, seats: 6 });
+
+        expect(getEmailBatchLimit(organization, 1)).toBe(5);
+      },
+    );
+
+    test.each([ProductTierType.Free, ProductTierType.Families])(
+      "caps at 20 when plenty of seats are available for %s",
+      (plan) => {
+        const organization = orgFactory({ productTierType: plan, seats: 100 });
+
+        expect(getEmailBatchLimit(organization, 0)).toBe(20);
+      },
+    );
+
+    test.each([ProductTierType.Free, ProductTierType.Families])(
+      "returns 0 when the org is oversubscribed for %s",
+      (plan) => {
+        const organization = orgFactory({ productTierType: plan, seats: 6 });
+
+        expect(getEmailBatchLimit(organization, 6)).toBe(0);
+        expect(getEmailBatchLimit(organization, 8)).toBe(0);
+      },
+    );
   });
 });
 

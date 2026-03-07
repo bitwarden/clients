@@ -1,21 +1,6 @@
 import { AbstractControl, FormControl } from "@angular/forms";
 
-import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { ProductTierType } from "@bitwarden/common/billing/enums";
-
 import { inputEmailLimitValidator } from "./input-email-limit.validator";
-
-const orgFactory = (props: Partial<Organization> = {}) =>
-  Object.assign(
-    new Organization(),
-    {
-      id: "myOrgId",
-      enabled: true,
-      type: OrganizationUserType.Admin,
-    },
-    props,
-  );
 
 describe("inputEmailLimitValidator", () => {
   const getErrorMessage = (max: number) => `You can only add up to ${max} unique emails.`;
@@ -32,21 +17,14 @@ describe("inputEmailLimitValidator", () => {
       .map(() => `email@example.com`)
       .join(", ");
 
-  describe("TeamsStarter limit validation", () => {
-    let teamsStarterOrganization: Organization;
-
-    beforeEach(() => {
-      teamsStarterOrganization = orgFactory({
-        productTierType: ProductTierType.TeamsStarter,
-        seats: 10,
-      });
-    });
+  describe("10 email limit validation", () => {
+    const emailLimit = 10;
 
     it("should return null if unique email count is within the limit", () => {
       // Arrange
       const control = new FormControl(createUniqueEmailString(3));
 
-      const validatorFn = inputEmailLimitValidator(teamsStarterOrganization, getErrorMessage);
+      const validatorFn = inputEmailLimitValidator(emailLimit, getErrorMessage);
 
       // Act
       const result = validatorFn(control);
@@ -59,7 +37,7 @@ describe("inputEmailLimitValidator", () => {
       // Arrange
       const control = new FormControl(createUniqueEmailString(10));
 
-      const validatorFn = inputEmailLimitValidator(teamsStarterOrganization, getErrorMessage);
+      const validatorFn = inputEmailLimitValidator(emailLimit, getErrorMessage);
 
       // Act
       const result = validatorFn(control);
@@ -72,7 +50,7 @@ describe("inputEmailLimitValidator", () => {
       // Arrange
       const control = new FormControl(createUniqueEmailString(11));
 
-      const validatorFn = inputEmailLimitValidator(teamsStarterOrganization, getErrorMessage);
+      const validatorFn = inputEmailLimitValidator(emailLimit, getErrorMessage);
 
       // Act
       const result = validatorFn(control);
@@ -84,21 +62,14 @@ describe("inputEmailLimitValidator", () => {
     });
   });
 
-  describe("Non-TeamsStarter limit validation", () => {
-    let nonTeamsStarterOrganization: Organization;
-
-    beforeEach(() => {
-      nonTeamsStarterOrganization = orgFactory({
-        productTierType: ProductTierType.Enterprise,
-        seats: 100,
-      });
-    });
+  describe("20 email limit validation", () => {
+    const emailLimit = 20;
 
     it("should return null if unique email count is within the limit", () => {
       // Arrange
       const control = new FormControl(createUniqueEmailString(3));
 
-      const validatorFn = inputEmailLimitValidator(nonTeamsStarterOrganization, getErrorMessage);
+      const validatorFn = inputEmailLimitValidator(emailLimit, getErrorMessage);
 
       // Act
       const result = validatorFn(control);
@@ -109,9 +80,9 @@ describe("inputEmailLimitValidator", () => {
 
     it("should return null if unique email count is equal the limit", () => {
       // Arrange
-      const control = new FormControl(createUniqueEmailString(10));
+      const control = new FormControl(createUniqueEmailString(20));
 
-      const validatorFn = inputEmailLimitValidator(nonTeamsStarterOrganization, getErrorMessage);
+      const validatorFn = inputEmailLimitValidator(emailLimit, getErrorMessage);
 
       // Act
       const result = validatorFn(control);
@@ -125,7 +96,7 @@ describe("inputEmailLimitValidator", () => {
 
       const control = new FormControl(createUniqueEmailString(21));
 
-      const validatorFn = inputEmailLimitValidator(nonTeamsStarterOrganization, getErrorMessage);
+      const validatorFn = inputEmailLimitValidator(emailLimit, getErrorMessage);
 
       // Act
       const result = validatorFn(control);
@@ -138,14 +109,7 @@ describe("inputEmailLimitValidator", () => {
   });
 
   describe("input email validation", () => {
-    let organization: Organization;
-
-    beforeEach(() => {
-      organization = orgFactory({
-        productTierType: ProductTierType.Enterprise,
-        seats: 100,
-      });
-    });
+    const emailLimit = 20;
 
     it("should ignore duplicate emails and validate only unique ones", () => {
       // Arrange
@@ -153,7 +117,7 @@ describe("inputEmailLimitValidator", () => {
       const sixDuplicateEmails = createIdenticalEmailString(6);
 
       const control = new FormControl(sixUniqueEmails + sixDuplicateEmails);
-      const validatorFn = inputEmailLimitValidator(organization, getErrorMessage);
+      const validatorFn = inputEmailLimitValidator(emailLimit, getErrorMessage);
 
       // Act
       const result = validatorFn(control);
@@ -166,7 +130,7 @@ describe("inputEmailLimitValidator", () => {
       // Arrange
       const control: AbstractControl = new FormControl(null);
 
-      const validatorFn = inputEmailLimitValidator(organization, getErrorMessage);
+      const validatorFn = inputEmailLimitValidator(emailLimit, getErrorMessage);
 
       // Act
       const result = validatorFn(control);
@@ -179,7 +143,7 @@ describe("inputEmailLimitValidator", () => {
       // Arrange
       const control: AbstractControl = new FormControl("");
 
-      const validatorFn = inputEmailLimitValidator(organization, getErrorMessage);
+      const validatorFn = inputEmailLimitValidator(emailLimit, getErrorMessage);
 
       // Act
       const result = validatorFn(control);

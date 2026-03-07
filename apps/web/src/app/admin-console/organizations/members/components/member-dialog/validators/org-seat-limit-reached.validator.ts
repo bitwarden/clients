@@ -4,6 +4,31 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 
 /**
+ * Returns the maximum number of unique emails an admin may submit in a single invite operation.
+ *
+ * Business rules:
+ * - Dynamic-seat plans (Teams, Enterprise, etc.) can auto-purchase seats on demand, so remaining
+ *   seat count is irrelevant. These plans always allow up to 20 emails per batch.
+ * - Fixed-seat plans (Free, Families, TeamsStarter) have a hard seat cap. The limit is clamped to
+ *   how many seats are still available so the admin cannot queue more invites than the plan allows:
+ *   - TeamsStarter caps at 10 (matching its overall 10-seat plan maximum).
+ *   - Free and Families cap at 20.
+ * - For any fixed-seat plan the limit floors at 0 when the org is already oversubscribed
+ *   (occupiedSeatCount > seats). In that state orgSeatLimitReachedValidator will also reject any
+ *   submission, so 0 is the correct signal to surface to the user.
+ */
+export function getEmailBatchLimit(organization: Organization, occupiedSeatCount: number): number {
+  const standardLimit = organization.productTierType === ProductTierType.TeamsStarter ? 10 : 20;
+
+  if (isDynamicSeatPlan(organization.productTierType)) {
+    return standardLimit;
+  }
+
+  const remainingSeats = organization.seats - occupiedSeatCount;
+  return Math.min(standardLimit, Math.max(0, remainingSeats));
+}
+
+/**
  * If the organization doesn't allow additional seat options, this checks if the seat limit has been reached when adding
  * new users
  * @param organization An object representing the organization
