@@ -135,7 +135,8 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       throw new Error("PolicyComponent not initialized.");
     }
 
-    if ((await this.policyComponent.confirm()) == false) {
+    const confirmable = this.policyComponent as { confirm?: () => Promise<boolean> | boolean };
+    if (typeof confirmable.confirm === "function" && (await confirmable.confirm()) == false) {
       this.dialogRef.close();
       return;
     }

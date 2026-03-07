@@ -8,7 +8,7 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { CalloutModule, DialogModule } from "@bitwarden/components";
+import { CalloutModule, DialogModule, SpinnerComponent } from "@bitwarden/components";
 import { AssignCollectionsComponent } from "@bitwarden/vault";
 
 import { DeleteAccountComponent } from "../auth/delete-account.component";
@@ -37,6 +37,7 @@ import { SharedModule } from "./shared/shared.module";
     LoginModule,
     DialogModule,
     CalloutModule,
+    SpinnerComponent,
     DeleteAccountComponent,
     UserVerificationComponent,
     NavComponent,

@@ -1,0 +1,55 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog [loading]="loading">
+    <ng-container bitDialogTitle>
+      @let titleTemplate = policySteps[currentStep()]?.titleContent?.();
+      @if (titleTemplate) {
+        <ng-container [ngTemplateOutlet]="titleTemplate"></ng-container>
+      } @else {
+        {{ "editPolicy" | i18n }}
+      }
+    </ng-container>
+
+    @if (!policySteps[currentStep()]?.titleContent) {
+      <span bitDialogSubtitle>{{ policy.name | i18n }}</span>
+    }
+
+    <ng-container bitDialogContent>
+      @if (loading) {
+        <div>
+          <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+        </div>
+      } @else {
+        @if (policy.showDescription) {
+          <p bitTypography="body1">{{ policy.description | i18n }}</p>
+        }
+
+        @let bodyTemplate = policySteps[currentStep()]?.bodyContent?.();
+        @if (bodyTemplate) {
+          <ng-container [ngTemplateOutlet]="bodyTemplate"></ng-container>
+        } @else {
+          <ng-template #policyForm></ng-template>
+        }
+      }
+    </ng-container>
+
+    <ng-container bitDialogFooter>
+      @let footerTemplate = policySteps[currentStep()]?.footerContent?.();
+      @if (footerTemplate) {
+        <ng-container [ngTemplateOutlet]="footerTemplate"></ng-container>
+      } @else {
+        <button
+          bitButton
+          buttonType="primary"
+          [disabled]="loading || (saveDisabled$ | async)"
+          bitFormButton
+          type="submit"
+        >
+          {{ (currentStep() === policySteps.length - 1 ? "save" : "next") | i18n }}
+        </button>
+        <button bitButton buttonType="secondary" bitDialogClose type="button">
+          {{ "cancel" | i18n }}
+        </button>
+      }
+    </ng-container>
+  </bit-dialog>
+</form>
