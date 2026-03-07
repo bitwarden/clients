@@ -3,8 +3,6 @@ import { mock } from "jest-mock-extended";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "../../../platform/misc/utils";
-import { EcbDecryptParameters } from "../../../platform/models/domain/decrypt-parameters";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 
 import { WebCryptoFunctionService } from "./web-crypto-function.service";
 
@@ -40,12 +38,6 @@ const RsaPrivateKey =
   "Z18y6/KIjpSMpqC92Nnk/EBM9EYe6Cf4eA9ApAoGAeqEUg46UTlJySkBKURGpIs3v1kkf5I0X8DnOhwb+HPxNaiEdmO7ckm8" +
   "+tPVgppLcG0+tMdLjigFQiDUQk2y3WjyxP5ZvXu7U96jaJRI8PFMoE06WeVYcdIzrID2HvqH+w0UQJFrLJ/0Mn4stFAEzXKZ" +
   "BokBGnjFnTnKcs7nv/O8=";
-
-const Sha1Mac = "4d4c223f95dc577b665ec4ccbcb680b80a397038";
-const Sha256Mac = "6be3caa84922e12aaaaa2f16c40d44433bb081ef323db584eb616333ab4e874f";
-const Sha512Mac =
-  "21910e341fa12106ca35758a2285374509326c9fbe0bd64e7b99c898f841dc948c58ce66d3504d8883c" +
-  "5ea7817a0b7c5d4d9b00364ccd214669131fc17fe4aca";
 
 describe("WebCrypto Function Service", () => {
   beforeAll(async () => {
@@ -160,107 +152,6 @@ describe("WebCrypto Function Service", () => {
     testHash("md5", regularMd5, utf8Md5, unicodeMd5);
   });
 
-  describe("hmac", () => {
-    testHmac("sha1", Sha1Mac);
-    testHmac("sha256", Sha256Mac);
-    testHmac("sha512", Sha512Mac);
-  });
-
-  describe("compareFast", () => {
-    it("should successfully compare two of the same values", async () => {
-      const cryptoFunctionService = getWebCryptoFunctionService();
-      const a = new Uint8Array(2);
-      a[0] = 1;
-      a[1] = 2;
-      const aByteString = Utils.fromBufferToByteString(a);
-      const equal = await cryptoFunctionService.compareFast(aByteString, aByteString);
-      expect(equal).toBe(true);
-    });
-
-    it("should successfully compare two different values of the same length", async () => {
-      const cryptoFunctionService = getWebCryptoFunctionService();
-      const a = new Uint8Array(2);
-      a[0] = 1;
-      a[1] = 2;
-      const aByteString = Utils.fromBufferToByteString(a);
-      const b = new Uint8Array(2);
-      b[0] = 3;
-      b[1] = 4;
-      const bByteString = Utils.fromBufferToByteString(b);
-      const equal = await cryptoFunctionService.compareFast(aByteString, bByteString);
-      expect(equal).toBe(false);
-    });
-
-    it("should successfully compare two different values of different lengths", async () => {
-      const cryptoFunctionService = getWebCryptoFunctionService();
-      const a = new Uint8Array(2);
-      a[0] = 1;
-      a[1] = 2;
-      const aByteString = Utils.fromBufferToByteString(a);
-      const b = new Uint8Array(2);
-      b[0] = 3;
-      const bByteString = Utils.fromBufferToByteString(b);
-      const equal = await cryptoFunctionService.compareFast(aByteString, bByteString);
-      expect(equal).toBe(false);
-    });
-  });
-
-  describe("aesDecryptFast CBC mode", () => {
-    it("should successfully decrypt data", async () => {
-      const cryptoFunctionService = getWebCryptoFunctionService();
-      const iv = Utils.fromBufferToB64(makeStaticByteArray(16));
-      const symKey = new SymmetricCryptoKey(makeStaticByteArray(32));
-      const data = "ByUF8vhyX4ddU9gcooznwA==";
-      const parameters = cryptoFunctionService.aesDecryptFastParameters(data, iv, null, symKey);
-      const decValue = await cryptoFunctionService.aesDecryptFast({ mode: "cbc", parameters });
-      expect(decValue).toBe("EncryptMe!");
-    });
-  });
-
-  describe("aesDecryptFast ECB mode", () => {
-    it("should successfully decrypt data", async () => {
-      const cryptoFunctionService = getWebCryptoFunctionService();
-      const key = makeStaticByteArray(32);
-      const data = Utils.fromB64ToArray("z5q2XSxYCdQFdI+qK2yLlw==");
-      const parameters: EcbDecryptParameters<string> = {
-        encKey: Utils.fromBufferToByteString(key),
-        data: Utils.fromBufferToByteString(data),
-      };
-      const decValue = await cryptoFunctionService.aesDecryptFast({ mode: "ecb", parameters });
-      expect(decValue).toBe("EncryptMe!");
-    });
-  });
-
-  describe("aesDecrypt CBC mode", () => {
-    it("should successfully decrypt data", async () => {
-      const cryptoFunctionService = getWebCryptoFunctionService();
-      const iv = makeStaticByteArray(16);
-      const key = makeStaticByteArray(32);
-      const data = Utils.fromB64ToArray("ByUF8vhyX4ddU9gcooznwA==");
-      const decValue = await cryptoFunctionService.aesDecrypt(data, iv, key, "cbc");
-      expect(Utils.fromBufferToUtf8(decValue)).toBe("EncryptMe!");
-    });
-
-    it("throws if iv is not provided", async () => {
-      const cryptoFunctionService = getWebCryptoFunctionService();
-      const key = makeStaticByteArray(32);
-      const data = Utils.fromB64ToArray("ByUF8vhyX4ddU9gcooznwA==");
-      await expect(() => cryptoFunctionService.aesDecrypt(data, null, key, "cbc")).rejects.toThrow(
-        "IV is required for CBC mode",
-      );
-    });
-  });
-
-  describe("aesDecrypt ECB mode", () => {
-    it("should successfully decrypt data", async () => {
-      const cryptoFunctionService = getWebCryptoFunctionService();
-      const key = makeStaticByteArray(32);
-      const data = Utils.fromB64ToArray("z5q2XSxYCdQFdI+qK2yLlw==");
-      const decValue = await cryptoFunctionService.aesDecrypt(data, null, key, "ecb");
-      expect(Utils.fromBufferToUtf8(decValue)).toBe("EncryptMe!");
-    });
-  });
-
   describe("rsaEncrypt", () => {
     it("should successfully encrypt and then decrypt data", async () => {
       const cryptoFunctionService = getWebCryptoFunctionService();
@@ -270,7 +161,7 @@ describe("WebCrypto Function Service", () => {
       const data = Utils.fromUtf8ToArray(value);
       const encValue = new Uint8Array(await cryptoFunctionService.rsaEncrypt(data, pubKey, "sha1"));
       const decValue = await cryptoFunctionService.rsaDecrypt(encValue, privKey, "sha1");
-      expect(Utils.fromBufferToUtf8(decValue)).toBe(value);
+      expect(Utils.fromArrayToUtf8(decValue)).toBe(value);
     });
   });
 
@@ -285,7 +176,7 @@ describe("WebCrypto Function Service", () => {
           "/5jcercUtK2o+XrzNrL4UQ7yLZcFz6Bfwb/j6ICYvqd/YJwXNE6dwlL57OfwJyCdw2rRYf0/qI00t9u8Iitw==",
       );
       const decValue = await cryptoFunctionService.rsaDecrypt(data, privKey, "sha1");
-      expect(Utils.fromBufferToUtf8(decValue)).toBe("EncryptMe!");
+      expect(Utils.fromArrayToUtf8(decValue)).toBe("EncryptMe!");
     });
   });
 
@@ -460,37 +351,25 @@ function testHash(
   it("should create valid " + algorithm + " hash from regular input", async () => {
     const cryptoFunctionService = getWebCryptoFunctionService();
     const hash = await cryptoFunctionService.hash(regularValue, algorithm);
-    expect(Utils.fromBufferToHex(hash)).toBe(regularHash);
+    expect(Utils.fromArrayToHex(hash)).toBe(regularHash);
   });
 
   it("should create valid " + algorithm + " hash from utf8 input", async () => {
     const cryptoFunctionService = getWebCryptoFunctionService();
     const hash = await cryptoFunctionService.hash(utf8Value, algorithm);
-    expect(Utils.fromBufferToHex(hash)).toBe(utf8Hash);
+    expect(Utils.fromArrayToHex(hash)).toBe(utf8Hash);
   });
 
   it("should create valid " + algorithm + " hash from unicode input", async () => {
     const cryptoFunctionService = getWebCryptoFunctionService();
     const hash = await cryptoFunctionService.hash(unicodeValue, algorithm);
-    expect(Utils.fromBufferToHex(hash)).toBe(unicodeHash);
+    expect(Utils.fromArrayToHex(hash)).toBe(unicodeHash);
   });
 
   it("should create valid " + algorithm + " hash from array buffer input", async () => {
     const cryptoFunctionService = getWebCryptoFunctionService();
     const hash = await cryptoFunctionService.hash(Utils.fromUtf8ToArray(regularValue), algorithm);
-    expect(Utils.fromBufferToHex(hash)).toBe(regularHash);
-  });
-}
-
-function testHmac(algorithm: "sha1" | "sha256" | "sha512", mac: string) {
-  it("should create valid " + algorithm + " hmac", async () => {
-    const cryptoFunctionService = getWebCryptoFunctionService();
-    const computedMac = await cryptoFunctionService.hmac(
-      Utils.fromUtf8ToArray("SignMe!!"),
-      Utils.fromUtf8ToArray("secretkey"),
-      algorithm,
-    );
-    expect(Utils.fromBufferToHex(computedMac)).toBe(mac);
+    expect(Utils.fromArrayToHex(hash)).toBe(regularHash);
   });
 }
 
@@ -515,12 +394,4 @@ function getWebCryptoFunctionService() {
   platformUtilsMock.isEdge.mockImplementation(() => navigator.userAgent.indexOf(" Edg/") !== -1);
 
   return new WebCryptoFunctionService(window);
-}
-
-function makeStaticByteArray(length: number) {
-  const arr = new Uint8Array(length);
-  for (let i = 0; i < length; i++) {
-    arr[i] = i;
-  }
-  return arr;
 }
