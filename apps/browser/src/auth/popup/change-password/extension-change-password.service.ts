@@ -37,4 +37,14 @@ export class ExtensionChangePasswordService
       BrowserApi.closePopup(this.win);
     }
   }
+
+  /**
+   * In the extension, the user can popout the extension view and if we don't have a root navigation call, then
+   * the user is left on the change-password page after changing their password.
+   *
+   * @returns true
+   */
+  shouldNavigateToRoot(): boolean {
+    return true;
+  }
 }

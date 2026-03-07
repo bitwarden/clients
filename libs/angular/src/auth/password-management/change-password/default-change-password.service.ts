@@ -305,4 +305,19 @@ export class DefaultChangePasswordService implements ChangePasswordService {
 
     return { newAuthenticationData, newUnlockData };
   }
+
+  /**
+   * Don't navigate for most clients.
+   *
+   * For example, on web, routing to root would break org invite email acceptance flows for the change password
+   * flow where a user is subject to MP policy requirements (i.e. has ForceSetPasswordReason.WeakMasterPassword).
+   * This is because routing to root would call the redirectGuard, which routes to /vault (as the user is still
+   * unlocked), which would clear the deepLinkRedirectUrl prematurely via deepLinkGuard. [Note: LogoutService
+   * behavior and routing will be investigated in https://bitwarden.atlassian.net/browse/PM-32660]
+   *
+   * @returns false
+   */
+  shouldNavigateToRoot(): boolean {
+    return false;
+  }
 }

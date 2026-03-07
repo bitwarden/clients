@@ -107,4 +107,9 @@ export abstract class ChangePasswordService {
    * If not in a popout, does nothing.
    */
   abstract closeBrowserExtensionPopout?(): void;
+
+  /**
+   * Optional method that indicates if we should navigate to the root page of the app after a password change.
+   */
+  abstract shouldNavigateToRoot(): boolean;
 }

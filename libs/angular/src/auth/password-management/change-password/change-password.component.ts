@@ -206,8 +206,12 @@ export class ChangePasswordComponent implements OnInit {
         if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
           // TODO: investigate refactoring logout and follow-up routing in https://bitwarden.atlassian.net/browse/PM-32660
           await this.logoutService.logout(this.userId);
-          // navigate to root so redirect guard can properly route next active user or null user to correct page
-          await this.router.navigate(["/"]);
+
+          const shouldNavigateToRoot = this.changePasswordService.shouldNavigateToRoot();
+          if (shouldNavigateToRoot) {
+            // navigate to root so redirect guard can properly route next active user (account switching) or null user to correct page
+            await this.router.navigate(["/"]);
+          }
         } else {
           // TODO: PM-23515 eventually use the logout service instead of messaging service once it is available without circular dependencies
           this.messagingService.send("logout");
