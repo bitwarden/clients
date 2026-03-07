@@ -27,7 +27,7 @@
   </ng-container>
   <bit-callout type="warning" *ngIf="!organizationId">
     <p>{{ recoveryCodeWarningMessage }}</p>
-    <button type="button" bitButton buttonType="secondary" (click)="recoveryCode()">
+    <button type="button" bitButton buttonType="unstyled" (click)="recoveryCode()">
       {{ "viewRecoveryCode" | i18n }}
     </button>
   </bit-callout>

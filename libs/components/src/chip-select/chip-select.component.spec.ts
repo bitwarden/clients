@@ -477,7 +477,7 @@ describe("ChipSelectComponent", () => {
   template: `
     <bit-chip-select
       placeholderText="Select an option"
-      placeholderIcon="bwi-filter"
+      placeholderIcon="bwi-grid"
       [options]="options()"
       [disabled]="disabled()"
       [fullWidth]="fullWidth()"

@@ -43,7 +43,7 @@ export const DisclosureOpen: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <button type="button" label="Settings" bitIconButton="bwi-sliders" buttonType="muted" [bitDisclosureTriggerFor]="disclosureRef">
+      <button type="button" label="Settings" bitIconButton="bwi-sliders" buttonType="primaryGhost" [bitDisclosureTriggerFor]="disclosureRef">
       </button>
       <bit-disclosure #disclosureRef class="tw-text-main tw-block" [(open)]="open">click button to hide this content</bit-disclosure>
     `,
@@ -57,7 +57,7 @@ export const DisclosureClosed: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <button type="button" label="Settings" bitIconButton="bwi-sliders" buttonType="muted" [bitDisclosureTriggerFor]="disclosureRef">
+      <button type="button" label="Settings" bitIconButton="bwi-sliders" buttonType="primaryGhost" [bitDisclosureTriggerFor]="disclosureRef">
       </button>
       <bit-disclosure #disclosureRef class="tw-text-main tw-block" [(open)]="open">click button to hide this content</bit-disclosure>
     `,
