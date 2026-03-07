@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, Observable, of, switchMap, first, map, shareReplay } from "rxjs";
+import { combineLatest, defer, Observable, of, switchMap, first, map, shareReplay } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -21,14 +21,13 @@ import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, PolicyDialogComponent } from "./base-policy-edit.component";
-import { PolicyOrderPipe } from "./pipes/policy-order.pipe";
 import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
-import { PolicyListService } from "./policy-list.service";
+import { PolicyListService, PolicySection } from "./policy-list.service";
 import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
 @Component({
   templateUrl: "policies.component.html",
-  imports: [SharedModule, HeaderModule, PolicyOrderPipe],
+  imports: [SharedModule, HeaderModule],
   providers: [
     safeProvider({
       provide: PolicyListService,
@@ -44,7 +43,7 @@ export class PoliciesComponent {
     map((params) => params.organizationId),
   );
 
-  protected organization$: Observable<Organization> = combineLatest([
+  private organization$: Observable<Organization> = combineLatest([
     this.userId$,
     this.organizationId$,
   ]).pipe(
@@ -61,10 +60,6 @@ export class PoliciesComponent {
     ),
   );
 
-  protected policies$: Observable<readonly BasePolicyEditDefinition[]> = of(
-    this.policyListService.getPolicies(),
-  );
-
   private orgPolicies$: Observable<PolicyResponse[]> = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) => this.policyService.policies$(userId)),
@@ -76,12 +71,41 @@ export class PoliciesComponent {
 
   protected policiesEnabledMap$: Observable<Map<PolicyType, boolean>> = this.orgPolicies$.pipe(
     map((orgPolicies) => {
-      const policiesEnabledMap: Map<PolicyType, boolean> = new Map<PolicyType, boolean>();
-      orgPolicies.forEach((op) => {
-        policiesEnabledMap.set(op.type, op.enabled);
-      });
-      return policiesEnabledMap;
+      const map = new Map<PolicyType, boolean>();
+      orgPolicies.forEach((op) => map.set(op.type, op.enabled));
+      return map;
     }),
+  );
+
+  protected policies$: Observable<readonly BasePolicyEditDefinition[]> = defer(() =>
+    of(this.policyListService.getPolicies()),
+  );
+
+  protected policySections$: Observable<PolicySection[]> = this.organization$.pipe(
+    switchMap((organization) =>
+      combineLatest(
+        this.policyListService.sections.map((section) => {
+          const displayChecks =
+            section.policies.length > 0
+              ? combineLatest(
+                  section.policies.map((p) =>
+                    p
+                      .display$(organization, this.configService)
+                      .pipe(map((visible) => (visible ? p : null))),
+                  ),
+                )
+              : of([] as (BasePolicyEditDefinition | null)[]);
+
+          return displayChecks.pipe(
+            map((results) => ({
+              category: section.category,
+              labelKey: section.labelKey,
+              policies: results.filter((p): p is BasePolicyEditDefinition => p !== null),
+            })),
+          );
+        }),
+      ).pipe(map((sections) => sections.filter((s) => s.policies.length > 0))),
+    ),
   );
 
   constructor(
@@ -92,7 +116,7 @@ export class PoliciesComponent {
     private policyListService: PolicyListService,
     private dialogService: DialogService,
     private policyService: PolicyService,
-    protected configService: ConfigService,
+    private configService: ConfigService,
     private destroyRef: DestroyRef,
   ) {
     this.handleLaunchEvent();
@@ -100,21 +124,17 @@ export class PoliciesComponent {
 
   // Handle policies component launch from Event message
   private handleLaunchEvent() {
-    combineLatest([
-      this.route.queryParams.pipe(first()),
-      this.policies$,
-      this.organizationId$,
-      this.orgPolicies$,
-    ])
+    combineLatest([this.route.queryParams.pipe(first()), this.organizationId$, this.orgPolicies$])
       .pipe(
-        map(([qParams, policies, organizationId, orgPolicies]) => {
+        map(([qParams, organizationId, orgPolicies]) => {
           if (qParams.policyId != null) {
             const policyIdFromEvents: string = qParams.policyId;
+            const policies = this.policyListService.getPolicies();
             for (const orgPolicy of orgPolicies) {
               if (orgPolicy.id === policyIdFromEvents) {
-                for (let i = 0; i < policies.length; i++) {
-                  if (policies[i].type === orgPolicy.type) {
-                    this.edit(policies[i], organizationId);
+                for (const policy of policies) {
+                  if (policy.type === orgPolicy.type) {
+                    this.edit(policy, organizationId);
                     break;
                   }
                 }
