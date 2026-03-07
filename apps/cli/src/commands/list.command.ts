@@ -1,6 +1,10 @@
 import { firstValueFrom, map } from "rxjs";
 
-import { OrganizationUserApiService, CollectionService } from "@bitwarden/admin-console/common";
+import {
+  OrganizationUserApiService,
+  CollectionService,
+  GroupApiService,
+} from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -23,6 +27,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { KeyService } from "@bitwarden/key-management";
 
 import { CollectionResponse } from "../admin-console/models/response/collection.response";
+import { OrganizationGroupResponse } from "../admin-console/models/response/organization-group.response";
 import { OrganizationUserResponse } from "../admin-console/models/response/organization-user.response";
 import { OrganizationResponse } from "../admin-console/models/response/organization.response";
 import { Response } from "../models/response";
@@ -40,6 +45,7 @@ export class ListCommand {
     private organizationService: OrganizationService,
     private searchService: SearchService,
     private organizationUserApiService: OrganizationUserApiService,
+    private groupApiService: GroupApiService,
     private apiService: ApiService,
     private eventCollectionService: EventCollectionService,
     private accountService: AccountService,
@@ -59,6 +65,8 @@ export class ListCommand {
         return await this.listCollections(normalizedOptions);
       case "org-collections":
         return await this.listOrganizationCollections(normalizedOptions);
+      case "org-groups":
+        return await this.listOrganizationGroups(normalizedOptions);
       case "org-members":
         return await this.listOrganizationMembers(normalizedOptions);
       case "organizations":
@@ -211,7 +219,7 @@ export class ListCommand {
     const organization = await firstValueFrom(
       this.organizationService
         .organizations$(userId)
-        .pipe(map((organizatons) => organizatons.find((o) => o.id == options.organizationId))),
+        .pipe(map((organizations) => organizations.find((o) => o.id == options.organizationId))),
     );
     if (organization == null) {
       return Response.error("Organization not found.");
@@ -261,7 +269,7 @@ export class ListCommand {
     const organization = await firstValueFrom(
       this.organizationService
         .organizations$(userId)
-        .pipe(map((organizatons) => organizatons.find((o) => o.id == options.organizationId))),
+        .pipe(map((organizations) => organizations.find((o) => o.id == options.organizationId))),
     );
     if (organization == null) {
       return Response.error("Organization not found.");
@@ -281,6 +289,42 @@ export class ListCommand {
           return u;
         }),
       );
+      return Response.success(res);
+    } catch (e) {
+      return Response.error(e);
+    }
+  }
+
+  private async listOrganizationGroups(options: Options) {
+    if (options.organizationId == null || options.organizationId === "") {
+      return Response.badRequest("`organizationid` option is required.");
+    }
+    if (!Utils.isGuid(options.organizationId)) {
+      return Response.badRequest("`" + options.organizationId + "` is not a GUID.");
+    }
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
+    if (!userId) {
+      return Response.badRequest("No user found.");
+    }
+    const organization = await firstValueFrom(
+      this.organizationService
+        .organizations$(userId)
+        .pipe(map((organizations) => organizations.find((o) => o.id == options.organizationId))),
+    );
+    if (organization == null) {
+      return Response.error("Organization not found.");
+    }
+
+    try {
+      const response = await this.groupApiService.getAll(options.organizationId);
+      let groups = response.data.map((g) => new OrganizationGroupResponse(g));
+
+      if (options.search != null && options.search.trim() !== "") {
+        groups = CliUtils.searchGroups(groups, options.search);
+      }
+
+      const res = new ListResponse(groups);
       return Response.success(res);
     } catch (e) {
       return Response.error(e);

@@ -68,6 +68,7 @@ export class VaultProgram extends BaseProgram {
       "folders",
       "collections",
       "org-collections",
+      "org-groups",
       "org-members",
       "organizations",
     ];
@@ -109,6 +110,10 @@ export class VaultProgram extends BaseProgram {
           writeLn("    bw list items --archived");
         }
         writeLn("    bw list folders --search email");
+        writeLn("    bw list org-groups --organizationid 60556c31-e649-4b5d-8daf-fc1c391a1bf2");
+        writeLn(
+          "    bw list org-groups --organizationid 60556c31-e649-4b5d-8daf-fc1c391a1bf2 --search admin",
+        );
         writeLn("    bw list org-members --organizationid 60556c31-e649-4b5d-8daf-fc1c391a1bf2");
         writeLn("", true);
       })
@@ -125,6 +130,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.organizationService,
           this.serviceContainer.searchService,
           this.serviceContainer.organizationUserApiService,
+          this.serviceContainer.groupApiService,
           this.serviceContainer.apiService,
           this.serviceContainer.eventCollectionService,
           this.serviceContainer.accountService,

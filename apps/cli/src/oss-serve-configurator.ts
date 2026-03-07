@@ -80,6 +80,7 @@ export class OssServeConfigurator {
       this.serviceContainer.organizationService,
       this.serviceContainer.searchService,
       this.serviceContainer.organizationUserApiService,
+      this.serviceContainer.groupApiService,
       this.serviceContainer.apiService,
       this.serviceContainer.eventCollectionService,
       this.serviceContainer.accountService,
