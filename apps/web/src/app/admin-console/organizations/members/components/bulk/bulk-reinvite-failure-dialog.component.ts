@@ -1,9 +1,9 @@
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
+import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { ChangeDetectionStrategy, Component, Inject, signal, WritableSignal } from "@angular/core";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogConfig, DialogService } from "@bitwarden/components";
 import { MembersTableDataSource } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 
 import { OrganizationUserView } from "../../../core";
@@ -49,11 +49,11 @@ export class BulkReinviteFailureDialogComponent {
 
   async resendInvitations() {
     await this.memberActionsService.bulkReinvite(this.organization, this.dataSource().data);
-    this.dialogRef.close();
+    await this.dialogRef.close();
   }
 
   async cancel() {
-    this.dialogRef.close();
+    await this.dialogRef.close();
   }
 
   static open(dialogService: DialogService, config: DialogConfig<BulkReinviteFailureDialogParams>) {

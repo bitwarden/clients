@@ -15,7 +15,9 @@ import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorService } from "@bitwarden/generator-core";
+import { LogService } from "@bitwarden/logging";
 
+import { SendFormService } from "../../abstractions/send-form.service";
 import { SendFormContainer } from "../../send-form-container";
 
 import {
@@ -62,6 +64,7 @@ describe("SendDetailsComponent", () => {
   const mockGeneratorService = mock<CredentialGeneratorService>();
   const mockSendApiService = mock<SendApiService>();
   const mockEnvironmentService = mock<EnvironmentService>();
+  const mockSendFormService = mock<SendFormService>();
 
   beforeEach(async () => {
     mockEnvironmentService.environment$ = of({
@@ -87,12 +90,18 @@ describe("SendDetailsComponent", () => {
         { provide: PolicyService, useValue: mock<PolicyService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: SendFormService, useValue: mockSendFormService },
+        { provide: LogService, useValue: mock<LogService>() },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SendDetailsComponent);
     component = fixture.componentInstance;
-    component.config = { areSendsAllowed: true, mode: "add", sendType: SendType.Text };
+    mockSendFormService.sendFormConfig = {
+      areSendsAllowed: true,
+      mode: "add",
+      sendType: SendType.Text,
+    };
     fixture.detectChanges();
   });
 

@@ -12,7 +12,8 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { SendAddEditDialogComponent } from "@bitwarden/send-ui";
+import { LogService } from "@bitwarden/logging";
+import { SendAddEditDialogComponent, SendFormService } from "@bitwarden/send-ui";
 
 import { NewSendDropdownComponent } from "./new-send-dropdown.component";
 
@@ -53,6 +54,8 @@ describe("NewSendDropdownComponent", () => {
         { provide: SendService, useValue: mockSendService },
         { provide: PremiumUpgradePromptService, useValue: mockPremiumUpgradePromptService },
         { provide: SendApiService, useValue: mockSendApiService },
+        { provide: LogService, useValue: mock<LogService>() },
+        { provide: SendFormService, useValue: mock<SendFormService>() },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(NewSendDropdownComponent);

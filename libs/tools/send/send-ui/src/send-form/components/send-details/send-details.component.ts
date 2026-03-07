@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule, DatePipe } from "@angular/common";
-import { Component, OnInit, Input } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   FormBuilder,
@@ -42,8 +42,7 @@ import {
 } from "@bitwarden/components";
 import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/generator-core";
 
-import { SendFormConfig } from "../../abstractions/send-form-config.service";
-import { SendFormContainer } from "../../send-form-container";
+import { SendFormService } from "../../abstractions/send-form.service";
 import { SendOptionsComponent } from "../options/send-options.component";
 
 import { SendFileDetailsComponent } from "./send-file-details.component";
@@ -120,15 +119,7 @@ export function asDatePreset(value: unknown): DatePreset | undefined {
   ],
 })
 export class SendDetailsComponent implements OnInit {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() config: SendFormConfig;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() originalSendView?: SendView;
-
-  FileSendType = SendType.File;
-  TextSendType = SendType.Text;
+  readonly SendType = SendType;
   readonly AuthType = AuthType;
   sendLink: string | null = null;
   customDeletionDateOption: DatePresetSelectOption | null = null;
@@ -166,11 +157,10 @@ export class SendDetailsComponent implements OnInit {
   });
 
   get hasPassword(): boolean {
-    return this.originalSendView?.password != null;
+    return this.sendFormService.originalSendView?.password != null;
   }
 
   constructor(
-    protected sendFormContainer: SendFormContainer,
     protected formBuilder: FormBuilder,
     protected i18nService: I18nService,
     protected datePipe: DatePipe,
@@ -182,6 +172,7 @@ export class SendDetailsComponent implements OnInit {
     private sendApiService: SendApiService,
     private dialogService: DialogService,
     private toastService: ToastService,
+    protected sendFormService: SendFormService,
   ) {
     this.sendDetailsForm.valueChanges
       .pipe(
@@ -193,7 +184,7 @@ export class SendDetailsComponent implements OnInit {
         takeUntilDestroyed(),
       )
       .subscribe((value) => {
-        this.sendFormContainer.patchSend((send) => {
+        this.sendFormService.patchSend((send) => {
           return Object.assign(send, {
             name: value.name,
             deletionDate: new Date(this.formattedDeletionDate),
@@ -205,7 +196,7 @@ export class SendDetailsComponent implements OnInit {
                   .split(",")
                   .map((e) => e.trim())
                   .filter((e) => e.length > 0)
-              : null,
+              : [],
           } as unknown as SendView);
         });
       });
@@ -238,39 +229,45 @@ export class SendDetailsComponent implements OnInit {
         passwordControl.updateValueAndValidity();
       });
 
-    this.sendFormContainer.registerChildForm("sendDetailsForm", this.sendDetailsForm);
+    this.sendFormService.registerChildForm("sendDetailsForm", this.sendDetailsForm);
   }
 
   async ngOnInit() {
     this.setupDeletionDatePresets();
 
-    if (this.originalSendView) {
+    if (this.sendFormService.originalSendView) {
       this.sendDetailsForm.patchValue({
-        name: this.originalSendView.name,
-        selectedDeletionDatePreset: this.originalSendView.deletionDate.toString(),
+        name: this.sendFormService.originalSendView.name,
+        selectedDeletionDatePreset: this.sendFormService.originalSendView.deletionDate.toString(),
         password: this.hasPassword ? "************" : null,
-        authType: this.originalSendView.authType,
-        emails: this.originalSendView.emails?.join(", ") ?? null,
+        authType: this.sendFormService.originalSendView.authType,
+        emails: this.sendFormService.originalSendView.emails?.join(", ") ?? null,
       });
 
       if (this.hasPassword) {
         this.sendDetailsForm.get("password")?.disable();
       }
 
-      if (this.originalSendView.deletionDate) {
+      if (this.sendFormService.originalSendView.deletionDate) {
         this.customDeletionDateOption = {
-          name: this.datePipe.transform(this.originalSendView.deletionDate, "short"),
-          value: this.originalSendView.deletionDate.toString(),
+          name: this.datePipe.transform(
+            this.sendFormService.originalSendView.deletionDate,
+            "short",
+          ),
+          value: this.sendFormService.originalSendView.deletionDate.toString(),
         };
         this.datePresetOptions.unshift(this.customDeletionDateOption);
       }
 
       const env = await firstValueFrom(this.environmentService.environment$);
       this.sendLink =
-        env.getSendUrl() + this.originalSendView.accessId + "/" + this.originalSendView.urlB64Key;
+        env.getSendUrl() +
+        this.sendFormService.originalSendView.accessId +
+        "/" +
+        this.sendFormService.originalSendView.urlB64Key;
     }
 
-    if (!this.config.areSendsAllowed) {
+    if (!this.sendFormService.sendFormConfig.areSendsAllowed) {
       this.sendDetailsForm.disable();
     }
   }
@@ -352,7 +349,7 @@ export class SendDetailsComponent implements OnInit {
   };
 
   removePassword = async () => {
-    if (!this.originalSendView?.password) {
+    if (!this.hasPassword) {
       return;
     }
     const confirmed = await this.dialogService.openSimpleDialog({
@@ -367,7 +364,7 @@ export class SendDetailsComponent implements OnInit {
 
     this.passwordRemoved = true;
 
-    await this.sendApiService.removePassword(this.originalSendView.id);
+    await this.sendApiService.removePassword(this.sendFormService.originalSendView.id);
 
     this.toastService.showToast({
       variant: "success",
@@ -375,7 +372,7 @@ export class SendDetailsComponent implements OnInit {
       message: this.i18nService.t("removedPassword"),
     });
 
-    this.originalSendView.password = null;
+    this.sendFormService.originalSendView.password = null;
     this.sendDetailsForm.patchValue({
       password: null,
     });

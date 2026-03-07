@@ -2,16 +2,13 @@
   <ng-container slot="title-suffix">
     <small #actionSpinner [appApiAction]="actionPromise">
       <ng-container *ngIf="$any(actionSpinner).loading">
-        <i
-          class="bwi bwi-spinner bwi-spin tw-text-muted"
-          title="{{ 'loading' | i18n }}"
-          aria-hidden="true"
-        ></i>
-        <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+        <bit-spinner class="tw-text-muted"></bit-spinner>
       </ng-container>
     </small>
   </ng-container>
-  <tools-new-send-dropdown *ngIf="!disableSend"></tools-new-send-dropdown>
+  @if (!disableSend) {
+    <tools-new-send-dropdown></tools-new-send-dropdown>
+  }
 </app-header>
 
 <bit-callout type="warning" title="{{ 'sendDisabled' | i18n }}" *ngIf="disableSend">
@@ -49,15 +46,9 @@
       />
 
       <div *ngIf="filteredSends && !filteredSends.length">
-        <ng-container *ngIf="!loaded">
-          <i
-            class="bwi bwi-spinner bwi-spin tw-text-muted"
-            title="{{ 'loading' | i18n }}"
-            aria-hidden="true"
-          ></i>
-          <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-        </ng-container>
-        <ng-container *ngIf="loaded">
+        @if (!loaded) {
+          <bit-spinner class="tw-text-muted"></bit-spinner>
+        } @else {
           <bit-no-items [icon]="noItemIcon" class="tw-text-main">
             <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
             <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
@@ -67,7 +58,7 @@
               slot="button"
             ></tools-new-send-dropdown>
           </bit-no-items>
-        </ng-container>
+        }
       </div>
     </div>
   </div>
@@ -98,7 +89,7 @@
               <li class="filter-option" [ngClass]="{ active: selectedAll }">
                 <span class="filter-buttons">
                   <button type="button" class="filter-button" appStopClick (click)="selectAll()">
-                    <i class="bwi bwi-fw bwi-filter"></i>{{ "allSends" | i18n }}
+                    <bit-icon name="bwi-filter" fixedWidth></bit-icon>{{ "allSends" | i18n }}
                   </button>
                 </span>
               </li>
@@ -117,7 +108,7 @@
                     appStopClick
                     (click)="selectType(sendType.Text)"
                   >
-                    <i class="bwi bwi-fw bwi-file-text"></i>{{ "sendTypeText" | i18n }}
+                    <bit-icon name="bwi-file-text" fixedWidth></bit-icon>{{ "sendTypeText" | i18n }}
                   </button>
                 </span>
               </li>
@@ -129,7 +120,7 @@
                     appStopClick
                     (click)="selectType(sendType.File)"
                   >
-                    <i class="bwi bwi-fw bwi-file"></i>{{ "sendTypeFile" | i18n }}
+                    <bit-icon name="bwi-file" fixedWidth></bit-icon>{{ "sendTypeFile" | i18n }}
                   </button>
                 </span>
               </li>
@@ -139,6 +130,7 @@
       </div>
     </div>
     <div class="tw-col-span-9 tw-@container/send-table">
+      )
       <!--Listing Table-->
       <tools-send-table
         *ngIf="filteredSends && filteredSends.length"
@@ -150,15 +142,9 @@
         (deleteSend)="delete($event)"
       />
       <div *ngIf="filteredSends && !filteredSends.length">
-        <ng-container *ngIf="!loaded">
-          <i
-            class="bwi bwi-spinner bwi-spin tw-text-muted"
-            title="{{ 'loading' | i18n }}"
-            aria-hidden="true"
-          ></i>
-          <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-        </ng-container>
-        <ng-container *ngIf="loaded">
+        @if (!loaded) {
+          <bit-spinner class="tw-text-muted"></bit-spinner>
+        } @else {
           <bit-no-items [icon]="noItemIcon" class="tw-text-main">
             <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
             <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
@@ -168,7 +154,7 @@
               slot="button"
             ></tools-new-send-dropdown>
           </bit-no-items>
-        </ng-container>
+        }
       </div>
     </div>
   </div>
