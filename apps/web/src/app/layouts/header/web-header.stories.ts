@@ -59,7 +59,7 @@ class MockProductSwitcherComponent {}
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "dynamic-avatar",
-  template: `<bit-avatar [text]="name$ | async"></bit-avatar>`,
+  template: `<bit-avatar [text]="name$ | async" size="lg"></bit-avatar>`,
   imports: [CommonModule, AvatarModule],
 })
 class MockDynamicAvatarComponent implements Partial<DynamicAvatarComponent> {
