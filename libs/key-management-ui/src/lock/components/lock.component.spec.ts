@@ -360,6 +360,65 @@ describe("LockComponent", () => {
     });
   });
 
+  describe("swapUnlockOption", () => {
+    it("switches to biometrics and immediately attempts biometric unlock", async () => {
+      const unlockViaBiometricsSpy = jest
+        .spyOn(component, "unlockViaBiometrics")
+        .mockResolvedValue();
+
+      await component.swapUnlockOption(UnlockOption.Biometrics);
+
+      expect(component.activeUnlockOption).toBe(UnlockOption.Biometrics);
+      expect(unlockViaBiometricsSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("switches to non-biometric options without triggering biometric unlock", async () => {
+      const unlockViaBiometricsSpy = jest
+        .spyOn(component, "unlockViaBiometrics")
+        .mockResolvedValue();
+
+      await component.swapUnlockOption(UnlockOption.Pin);
+
+      expect(component.activeUnlockOption).toBe(UnlockOption.Pin);
+      expect(unlockViaBiometricsSpy).not.toHaveBeenCalled();
+    });
+
+    it("switches to master password without triggering biometric unlock", async () => {
+      const unlockViaBiometricsSpy = jest
+        .spyOn(component, "unlockViaBiometrics")
+        .mockResolvedValue();
+
+      await component.swapUnlockOption(UnlockOption.MasterPassword);
+
+      expect(component.activeUnlockOption).toBe(UnlockOption.MasterPassword);
+      expect(unlockViaBiometricsSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("unlockViaBiometrics", () => {
+    it("ignores concurrent unlock attempts while one biometric unlock is in progress", async () => {
+      let resolvePendingUnlock: ((value: UserKey | undefined) => void) | undefined;
+      const pendingUnlock = new Promise<UserKey | undefined>((resolve) => {
+        resolvePendingUnlock = resolve;
+      });
+      component.activeAccount = await firstValueFrom(mockAccountService.activeAccount$);
+      component.unlockOptions = {
+        biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+        pin: { enabled: false },
+        masterPassword: { enabled: true },
+        prf: { enabled: false },
+      };
+      mockBiometricService.unlockWithBiometricsForUser.mockReturnValue(pendingUnlock);
+
+      const firstAttempt = component.unlockViaBiometrics();
+      await component.unlockViaBiometrics();
+      resolvePendingUnlock?.(undefined);
+      await firstAttempt;
+
+      expect(mockBiometricService.unlockWithBiometricsForUser).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe("setDefaultActiveUnlockOption", () => {
     it.each([
       [

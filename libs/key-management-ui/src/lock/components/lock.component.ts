@@ -382,6 +382,14 @@ export class LockComponent implements OnInit, OnDestroy {
     }
   };
 
+  async swapUnlockOption(unlockOption: UnlockOptionValue): Promise<void> {
+    this.activeUnlockOption = unlockOption;
+
+    if (unlockOption === UnlockOption.Biometrics) {
+      await this.unlockViaBiometrics();
+    }
+  }
+
   async logOut() {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "logOut" },
@@ -398,18 +406,21 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   async unlockViaBiometrics(): Promise<void> {
-    this.unlockingViaBiometrics = true;
-
-    if (
-      this.unlockOptions == null ||
-      !this.unlockOptions.biometrics.enabled ||
-      this.activeAccount == null
-    ) {
-      this.unlockingViaBiometrics = false;
+    if (this.unlockingViaBiometrics) {
       return;
     }
 
+    this.unlockingViaBiometrics = true;
+
     try {
+      if (
+        this.unlockOptions == null ||
+        !this.unlockOptions.biometrics.enabled ||
+        this.activeAccount == null
+      ) {
+        return;
+      }
+
       await this.biometricStateService.setUserPromptCancelled();
       const userKey = await this.biometricService.unlockWithBiometricsForUser(
         this.activeAccount.id,
@@ -419,12 +430,9 @@ export class LockComponent implements OnInit, OnDestroy {
       if (userKey) {
         await this.setUserKeyAndContinue(userKey);
       }
-
-      this.unlockingViaBiometrics = false;
     } catch (e) {
       // Cancelling is a valid action.
       if (e instanceof Error && e.message === "canceled") {
-        this.unlockingViaBiometrics = false;
         return;
       }
 
@@ -454,9 +462,11 @@ export class LockComponent implements OnInit, OnDestroy {
 
       if (confirmed) {
         // try again
+        this.unlockingViaBiometrics = false;
         await this.unlockViaBiometrics();
+        return;
       }
-
+    } finally {
       this.unlockingViaBiometrics = false;
     }
   }

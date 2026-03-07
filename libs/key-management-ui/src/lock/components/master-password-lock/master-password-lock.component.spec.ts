@@ -423,6 +423,13 @@ describe("MasterPasswordLockComponent", () => {
           expect(secondaryButton.nativeElement.textContent?.trim()).toBe(expectedText);
 
           if (shouldEnable) {
+            // Mimic parent handling for PIN swap: child emits swapToPin, parent updates activeUnlockOption.
+            if (expectedUnlockOption === UnlockOption.Pin) {
+              component.swapToPin.subscribe(() => {
+                component.activeUnlockOption.set(UnlockOption.Pin);
+              });
+            }
+
             secondaryButton.nativeElement.click();
             expect(component.activeUnlockOption()).toBe(expectedUnlockOption);
           } else {
@@ -433,6 +440,42 @@ describe("MasterPasswordLockComponent", () => {
         }
       },
     );
+
+    it("emits swapToBiometrics when biometrics swap button is clicked", () => {
+      const { secondaryButton } = setupComponent(
+        {
+          pin: { enabled: false },
+          biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+        },
+        "swapBiometrics",
+      );
+      let emitted = false;
+      component.swapToBiometrics.subscribe(() => {
+        emitted = true;
+      });
+
+      secondaryButton.nativeElement.click();
+
+      expect(emitted).toBe(true);
+    });
+
+    it("emits swapToPin when PIN swap button is clicked", () => {
+      const { secondaryButton } = setupComponent({
+        pin: { enabled: true },
+        biometrics: {
+          enabled: false,
+          biometricsStatus: BiometricsStatus.PlatformUnsupported,
+        },
+      });
+      let emitted = false;
+      component.swapToPin.subscribe(() => {
+        emitted = true;
+      });
+
+      secondaryButton.nativeElement.click();
+
+      expect(emitted).toBe(true);
+    });
   });
 
   describe("submit", () => {
