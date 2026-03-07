@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { firstValueFrom, Subscription } from "rxjs";
 
+import { ClearClipboardDelay } from "../../autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "../../autofill/services/autofill-settings.service";
 import { PlatformUtilsService } from "../abstractions/platform-utils.service";
 import { SystemService as SystemServiceAbstraction } from "../abstractions/system.service";
@@ -33,10 +34,10 @@ export class SystemService implements SystemServiceAbstraction {
 
     let taskTimeoutInMs = timeoutMs;
     if (!taskTimeoutInMs) {
-      const clearClipboardDelayInSeconds = await firstValueFrom(
+      const clearClipboardDelaySetting = await firstValueFrom(
         this.autofillSettingsService.clearClipboardDelay$,
       );
-      taskTimeoutInMs = clearClipboardDelayInSeconds ? clearClipboardDelayInSeconds * 1000 : null;
+      taskTimeoutInMs = this.convertClearClipboardDelayToMs(clearClipboardDelaySetting);
     }
 
     if (!taskTimeoutInMs) {
@@ -54,6 +55,27 @@ export class SystemService implements SystemServiceAbstraction {
       ScheduledTaskNames.systemClearClipboardTimeout,
       taskTimeoutInMs,
     );
+  }
+
+  private convertClearClipboardDelayToMs(setting: string): number | null {
+    switch (setting) {
+      case ClearClipboardDelay.Never:
+        return null;
+      case ClearClipboardDelay.TenSeconds:
+        return 10 * 1000;
+      case ClearClipboardDelay.TwentySeconds:
+        return 20 * 1000;
+      case ClearClipboardDelay.ThirtySeconds:
+        return 30 * 1000;
+      case ClearClipboardDelay.OneMinute:
+        return 60 * 1000;
+      case ClearClipboardDelay.TwoMinutes:
+        return 120 * 1000;
+      case ClearClipboardDelay.FiveMinutes:
+        return 300 * 1000;
+      default:
+        return 300 * 1000; // Default to 5 minutes
+    }
   }
 
   async clearPendingClipboard() {
