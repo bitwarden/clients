@@ -7,7 +7,7 @@ import { StateClient, Repository } from "@bitwarden/sdk-internal";
 import { UserKeyRecordMapper } from "../../../key-management/user-key-mapper";
 import { StateProvider, UserKeyDefinition } from "../../state";
 
-export async function initializeState(
+export async function initializeClientManagedState(
   userId: UserId,
   stateClient: StateClient,
   stateProvider: StateProvider,

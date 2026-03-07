@@ -50,7 +50,8 @@ import { compareValues } from "../../misc/compare-values";
 import { Rc } from "../../misc/reference-counting/rc";
 import { StateProvider } from "../../state";
 
-import { initializeState } from "./client-managed-state";
+import { initializeClientManagedState } from "./client-managed-state";
+import { initializeSdkManagedState } from "./sdk-managed-state";
 
 // A symbol that represents an overridden client that is explicitly set to undefined,
 // blocking the creation of an internal client for that user.
@@ -250,6 +251,12 @@ export class DefaultSdkService implements SdkService {
     accountCryptographicState: WrappedAccountCryptographicState,
     orgKeys: Record<OrganizationId, EncString>,
   ) {
+    // Initialize the SDK managed database and the client managed repositories.
+    await initializeSdkManagedState(client.platform().state());
+    await initializeClientManagedState(userId, client.platform().state(), this.stateProvider);
+
+    await this.loadFeatureFlags(client);
+
     await client.crypto().initialize_user_crypto({
       userId: asUuid(userId),
       email: account.email,
@@ -274,11 +281,6 @@ export class DefaultSdkService implements SdkService {
         Object.entries(orgKeys).map(([k, v]) => [asUuid(k), v.toJSON() as UnsignedSharedKey]),
       ),
     });
-
-    // Initialize the SDK managed database and the client managed repositories.
-    await initializeState(userId, client.platform().state(), this.stateProvider);
-
-    await this.loadFeatureFlags(client);
   }
 
   private async loadFeatureFlags(client: PasswordManagerClient) {
