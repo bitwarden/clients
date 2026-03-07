@@ -156,6 +156,11 @@ describe("Utils Service", () => {
       expect(Utils.getHostname('https://bit!:"_&ward.com')).toBeNull();
     });
 
+    it("should not treat '!' in query string as an invalid url", () => {
+      expect(Utils.getHostname("http://localhost:8080?a=!")).toBe("localhost");
+      expect(Utils.getHostname("https://bitwarden.com?q=!")).toBe("bitwarden.com");
+    });
+
     it("should fail for data urls", () => {
       expect(Utils.getHostname("data:image/jpeg;base64,AAA")).toBeNull();
     });
