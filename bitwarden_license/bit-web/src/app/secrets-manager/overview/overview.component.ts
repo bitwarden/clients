@@ -49,6 +49,7 @@ import {
   SecretDialogComponent,
   SecretOperation,
 } from "../secrets/dialog/secret-dialog.component";
+import { openSecretVersionDialog } from "../secrets/dialog/secret-version.component";
 import {
   SecretViewDialogComponent,
   SecretViewDialogParams,
@@ -228,6 +229,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.dialogService.closeDrawer();
   }
 
   private getRecentItems<T extends { revisionDate: string }[]>(items: T, length: number): T {
@@ -371,6 +373,19 @@ export class OverviewComponent implements OnInit, OnDestroy {
 
   copySecretUuid(id: string) {
     SecretsListComponent.copySecretUuid(id, this.platformUtilsService, this.i18nService);
+  }
+
+  async openVersionHistory(secretId: string) {
+    const secret = await this.secretService.getBySecretId(secretId);
+    openSecretVersionDialog(this.dialogService, {
+      data: {
+        organizationId: this.organizationId,
+        secretId: secretId,
+        name: secret?.name,
+        currentValue: secret?.value,
+        revisionDate: secret?.revisionDate,
+      },
+    });
   }
 
   protected async hideOnboarding() {

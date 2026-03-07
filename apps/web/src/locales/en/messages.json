@@ -2621,6 +2621,9 @@
   "restoreAccess": {
     "message": "Restore access"
   },
+  "restoreValue": {
+    "message": "Restore value"
+  },
   "premium": {
     "message": "Premium",
     "description": "Premium membership"
@@ -4490,7 +4493,7 @@
   },
   "checkYourEmail": {
     "message": "Check your email"
-  },
+  },                                  
   "followTheLinkInTheEmailSentTo": {
     "message": "Follow the link in the email sent to"
   },
@@ -8418,6 +8421,70 @@
   },
   "hardDeleteSecrets": {
     "message": "Permanently delete secrets"
+  },
+  "secretVersionHistory": {
+    "message": "Secret version history",
+    "description": "The title of the dialog that displays the version history of a secret."
+  },
+  "secretVersionHistoryInfo": {
+    "message": "You can view and restore up to 10 secret versions.",
+    "description": "Informational message displayed in the secret version history dialog."
+  },
+  "currentVersion": {
+    "message": "Current version",
+    "description": "Label for the current version section in the secret version history."
+  },
+  "modifiedBy": {
+    "message": "Modified by",
+    "description": "Label indicating the user who modified a version."
+  },
+  "previousVersionsTooltip": {
+    "message": "You can view and restore up to 10 secret versions",
+    "description": "Tooltip text explaining the previous versions feature."
+  },
+  "noVersionsInList": {
+    "message": "There are no versions to list.",
+    "description": "Message displayed when there are no secret versions available to display."
+  },
+  "createdBy": {
+    "message": "Created by",
+    "description": "Label indicating the user who created a version."
+  },
+  "restoreVersion": {
+    "message": "Restore version",
+    "description": "Action to restore a secret to a previous version."
+  },
+  "actions": {
+    "message": "Actions",
+    "description": "Label for a column or section containing available actions."
+  },
+  "secretValueCopied": {
+    "message": "Secret value copied",
+    "description": "Message displayed when a secret value has been copied to the clipboard."
+  },
+  "secretVersionRestored": {
+    "message": "Secret restored to selected version",
+    "description": "Message displayed when a secret has been restored to a previous version."
+  },
+  "restoreVersionConfirmTitle": {
+    "message": "Restore secret version",
+    "description": "Title for the confirmation dialog when restoring a secret to a previous version."
+  },
+  "restoreVersionConfirmMessage": {
+    "message": "Are you sure you want to restore this secret to the selected version? The current value will be replaced.",
+    "description": "Message displayed in the confirmation dialog when restoring a secret to a previous version."
+  },
+  "previousVersions": {
+    "message": "Previous versions",
+    "description": "Section header for previous versions of a secret in the version history."
+  },
+  "versionHistory": {
+    "message": "Version history",
+    "description": "Menu option to view the version history of a secret."
+  },
+  "featureNotImplemented": {
+    "message": "This feature is not yet implemented",
+    "description": "Message displayed when a feature is not yet available."
   },
   "secretProjectAssociationDescription": {
     "message": "Select projects that the secret will be associated with. Only organization users with access to these projects will be able to see the secret.",

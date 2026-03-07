@@ -104,6 +104,7 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   private currentPeopleAccessPolicies: ApItemViewType[];
+  private originalSecretValue: string;
 
   constructor(
     public dialogRef: DialogRef,
@@ -237,6 +238,7 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
 
   private async loadEditDialog() {
     const secret = await this.secretService.getBySecretId(this.data.secretId);
+    this.originalSecretValue = secret.value;
     await this.loadProjects(secret.projects);
 
     const currentAccessPolicies = await this.getCurrentAccessPolicies(
@@ -372,7 +374,13 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
     secretView: SecretView,
     secretAccessPoliciesView: SecretAccessPoliciesView,
   ) {
-    await this.secretService.update(this.data.organizationId, secretView, secretAccessPoliciesView);
+    const valueChanged = secretView.value !== this.originalSecretValue;
+    await this.secretService.update(
+      this.data.organizationId,
+      secretView,
+      secretAccessPoliciesView,
+      valueChanged,
+    );
     this.toastService.showToast({
       variant: "success",
       title: null,

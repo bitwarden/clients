@@ -11,6 +11,8 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -83,12 +85,16 @@ export class SecretsListComponent implements OnDestroy, OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() restoreSecretsEvent = new EventEmitter();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
+  @Output() viewVersionHistoryEvent = new EventEmitter<string>();
 
   private destroy$: Subject<void> = new Subject<void>();
 
   selection = new SelectionModel<string>(true, []);
   protected viewEventsAllowed$: Observable<boolean>;
   protected isAdmin$: Observable<boolean>;
+  protected secretVersioningEnabled$: Observable<boolean>;
 
   constructor(
     private i18nService: I18nService,
@@ -98,6 +104,7 @@ export class SecretsListComponent implements OnDestroy, OnInit {
     private activatedRoute: ActivatedRoute,
     private accountService: AccountService,
     private logService: LogService,
+    private configService: ConfigService,
   ) {
     this.selection.changed
       .pipe(takeUntil(this.destroy$))
@@ -129,6 +136,10 @@ export class SecretsListComponent implements OnDestroy, OnInit {
         return of(false);
       }),
       takeUntil(this.destroy$),
+    );
+
+    this.secretVersioningEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.SecretVersioning,
     );
   }
 
