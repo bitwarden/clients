@@ -1,5 +1,6 @@
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { RestClient } from "@bitwarden/common/tools/integration/rpc";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BitwardenClient } from "@bitwarden/sdk-internal";
 
 import { Randomizer } from "../abstractions";
@@ -12,4 +13,5 @@ export type GeneratorDependencyProvider = {
   i18nService: I18nService;
   sdk?: BitwardenClient;
   now: () => number;
+  accountService?: AccountService;
 };

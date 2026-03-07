@@ -5,6 +5,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { SafeInjectionToken } from "@bitwarden/angular/services/injection-tokens";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -133,6 +134,7 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
         state: StateProvider,
         i18n: I18nService,
         api: ApiService,
+        accountService: AccountService,
       ) => {
         const userStateDeps = {
           encryptor,
@@ -161,6 +163,7 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
           i18nService: i18n,
           sdk: sdkService,
           now: Date.now,
+          accountService,
         };
 
         const userState: UserStateSubjectDependencyProvider = {
@@ -184,6 +187,7 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
         StateProvider,
         I18nService,
         ApiService,
+        AccountService,
       ],
     }),
     safeProvider({

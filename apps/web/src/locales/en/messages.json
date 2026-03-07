@@ -506,6 +506,12 @@
   "username": {
     "message": "Username"
   },
+  "loginEmail": {
+    "message": "Login Email"
+  },
+  "loginEmailDesc": {
+    "message": "Generates an email matching your Bitwarden login email."
+  },
   "password": {
     "message": "Password"
   },
