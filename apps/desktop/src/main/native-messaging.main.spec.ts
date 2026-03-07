@@ -4,7 +4,11 @@
 jest.mock("fs");
 jest.mock("os");
 jest.mock("path");
-jest.mock("electron");
+jest.mock("electron", () => ({
+  ipcMain: {
+    handle: jest.fn(),
+  },
+}));
 jest.mock("@bitwarden/desktop-napi");
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
