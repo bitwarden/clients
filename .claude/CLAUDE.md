@@ -1,111 +1,317 @@
-# Bitwarden Clients - Claude Code Configuration
+# Clients Monorepo
 
-## Project Context Files
+## Overview
 
-**Read these files before reviewing to ensure that you fully understand the project and contributing guidelines**
+Bitwarden Clients is a monorepo containing all Bitwarden client applications:
 
-1. @README.md
-2. @CONTRIBUTING.md
-3. @.github/PULL_REQUEST_TEMPLATE.md
+- **Web Vault** - Angular SPA for browser-based password management
+- **Browser Extension** - Extensions for Chrome, Firefox, Safari, Edge, Opera
+- **Desktop App** - Electron-based desktop application (Windows, macOS, Linux)
+- **CLI** - Command-line interface for automation and scripting
 
-## Critical Rules
+All clients share core libraries in `/libs` for business logic, cryptography, and UI components.
 
-- **NEVER** use code regions: If complexity suggests regions, refactor for better readability
+### Key Concepts
 
-- **CRITICAL**: new encryption logic should not be added to this repo.
+| Term             | Definition                                                            |
+| ---------------- | --------------------------------------------------------------------- |
+| **Cipher**       | An encrypted vault item (login, card, identity, secure note, SSH key) |
+| **CipherView**   | Decrypted representation of a Cipher for display                      |
+| **EncString**    | Encrypted string wrapper with encryption type metadata                |
+| **Vault**        | User's encrypted collection of Ciphers                                |
+| **Organization** | Shared vault for team/enterprise password sharing                     |
+| **Collection**   | Grouping mechanism for organizing Ciphers within Organizations        |
 
-- **NEVER** send unencrypted vault data to API services
+### Tech stack
 
-- **NEVER** commit secrets, credentials, or sensitive information.
+- Angular
+- RxJS
+- Tailwind (with `tw-` prefix)
+- The Bitwarden SDK (wasm rust crate)
 
-- **CRITICAL**: Tailwind CSS classes MUST use the `tw-` prefix (e.g., `tw-flex`, `tw-p-4`).
-  - Missing prefix breaks styling completely.
+## Build and Development Commands
 
-- **NEVER** log decrypted data, encryption keys, or PII
-  - No vault data in error messages or console logs
+**Install dependencies** (from repo root):
 
-- **ALWAYS** Respect configuration files at the root and within each app/library (e.g., `eslint.config.mjs`, `jest.config.js`, `tsconfig.json`).
-
-## Mono-Repo Architecture
-
-This repository is organized as a **monorepo** containing multiple applications and libraries. The
-main directories are:
-
-- `apps/` – Contains all application projects (e.g., browser, cli, desktop, web). Each app is
-  self-contained with its own configuration, source code, and tests.
-- `libs/` – Contains shared libraries and modules used across multiple apps. Libraries are organized
-  by team name, domain, functionality (e.g., common, ui, platform, key-management).
-
-**Strict boundaries** must be maintained between apps and libraries. Do not introduce
-cross-dependencies that violate the intended modular structure. Always consult and respect the
-dependency rules defined in `eslint.config.mjs`, `nx.json`, and other configuration files.
-
-## Angular Architecture Patterns
-
-**Observable Data Services (ADR-0003):**
-
-- Services expose RxJS Observable streams for state management
-- Components subscribe using `async` pipe (NOT explicit subscriptions in most cases)
-  Pattern:
-
-```typescript
-// Service
-private _folders = new BehaviorSubject<Folder[]>([]);
-readonly folders$ = this._folders.asObservable();
-
-// Component
-folders$ = this.folderService.folders$;
-// Template: <div *ngFor="let folder of folders$ | async">
+```bash
+npm ci
 ```
 
-For explicit subscriptions, MUST use `takeUntilDestroyed()`:
+**Run apps in development** (from each app directory):
 
-```typescript
-constructor() {
-  this.observable$.pipe(takeUntilDestroyed()).subscribe(...);
-}
+```bash
+# Web vault (apps/web) -- also used for proxying the API calls if you're running a local server
+npm run build:bit:dev:watch     # Bitwarden licensed version at http://localhost:8080
+npm run build:oss:watch         # OSS version
+
+# Browser extension (apps/browser)
+npm run build:watch:chrome      # Chrome/Chromium
+npm run build:watch:firefox     # Firefox
+npm run build:watch:safari      # Safari
+
+# Desktop (apps/desktop)
+npm run build:main:watch        # Build main process
+npm run build:renderer:watch    # Build renderer (Angular)
+npm run electron                # Start Electron after building
+
+# CLI (apps/cli)
+npm run build:oss:watch
+node ./build/bw.js              # Run CLI after building
 ```
 
-**Angular Signals (ADR-0027):**
+**Linting and formatting**:
 
-Encourage the use of Signals **only** in Angular components and presentational services.
+```bash
+npm run lint                    # Run ESLint + Prettier check
+npm run lint:fix                # Auto-fix ESLint issues
+npm run prettier                # Auto-format with Prettier
+```
 
-Use **RxJS** for:
+**Testing**:
 
-- Services used across Angular and non-Angular clients
-- Complex reactive workflows
-- Interop with existing Observable-based code
+```bash
+npm test                        # Run all tests across projects
+npm test -- --testPathPattern="path/to/test"   # Run specific test file
+npm test -- --selectProjects=@bitwarden/common # Run tests for specific project
 
-**NO TypeScript Enums (ADR-0025):**
+x # In app directories (apps/web, apps/browser, etc.):
+x npm test                        # Run tests for that app
+x npm run test:watch              # Watch mode
+```
 
-- Use const objects with type aliases instead
-- Legacy enums exist but don't add new ones
+**NX commands** (monorepo task runner):
+Faster but only works XXX
 
-Pattern:
+```bash
+npx nx test @bitwarden/common   # Test specific library
+npx nx lint @bitwarden/vault    # Lint specific library
+npx nx run-many -t test --all   # Run all tests
+npx nx affected -t test         # Test only affected projects
+```
+
+## Monorepo Architecture
+
+```
+apps/
+├── browser/     # Browser extension (Chrome, Firefox, Safari, Edge, Opera)
+├── cli/         # Command-line interface
+├── desktop/     # Electron desktop app
+└── web/         # Web vault (Angular SPA)
+
+libs/
+├── common/      # Core business logic, models, services (shared by all clients)
+├── angular/     # Angular-specific abstractions and services
+├── components/  # Reusable Angular UI components (CL - Component Library)
+├── platform/    # Platform abstractions (crypto, storage, messaging)
+├── state/       # State management infrastructure
+├── auth/        # Authentication logic
+├── vault/       # Vault-specific UI and services
+├── key-management/    # Key derivation, rotation, biometrics
+├── billing/     # Subscription and payment logic
+├── admin-console/     # Organization admin features
+├── tools/       # Generator, export, send functionality
+└── [team-libs]/ # Team-owned domain libraries
+
+bitwarden_license/     # Licensed features (enterprise, premium)
+├── bit-web/
+├── bit-browser/
+├── bit-cli/
+└── bit-common/
+```
+
+**Import paths**: Use `@bitwarden/common/*`, `@bitwarden/components`, etc. (defined in `tsconfig.base.json`).
+
+**Dependency boundaries**: Libraries cannot import from apps. Apps import from libs. Licensed code extends OSS code.
+
+## Data Models
+
+The codebase uses a layered model pattern:
+
+```
+Response (API) → Data (Storage) → Domain (Encrypted) → View (Decrypted)
+```
+
+- `<Domain>`: Encrypted representation of the object
+- `<Domain>View`: Decrypted representations
+- `<Domain>Data`: Serializeable representation for storage
+- `<Domain>Response`: Response from API
+- `<Domain>Export`: Export representation for exporting/importing
+- `<Domain><Modifier>Request`: Requests to create/update the object
+
+| Layer        | Purpose                       | Example                                |
+| ------------ | ----------------------------- | -------------------------------------- |
+| **Response** | API response DTOs             | `CipherResponse`                       |
+| **Data**     | JSON-serializable for storage | `CipherData`                           |
+| **Domain**   | Encrypted business objects    | `Cipher` (contains `EncString` fields) |
+| **View**     | Decrypted for UI display      | `CipherView` (contains plain strings)  |
+
+### Typed IDs
+
+All IDs in the codebase use branded types for type safety. Most are located in `libs/common/src/types/guid.ts`.
 
 ```typescript
-// ✅ DO
+type UserId = Opaque<string, "UserId">;
+type CipherId = Opaque<string, "CipherId">;
+type OrganizationId = Opaque<string, "OrganizationId">;
+type CollectionId = Opaque<string, "CollectionId">;
+...
+```
+
+## State Management
+
+State is managed through `StateProvider` in [`libs/state`](libs/state/README.md) with typed `KeyDefinition`s:
+
+```typescript
+// Use in service
+this.state$ = this.stateProvider.getGlobal(MY_STATE).state$;
+```
+
+User-scoped state uses `UserKeyDefinition` and requires a `UserId`.
+
+## Feature Flags
+
+Feature flags are defined in `libs/common/src/enums/feature-flag.enum.ts`. Use `ConfigService` to check flags:
+
+```typescript
+const enabled = await this.configService.getFeatureFlag(FeatureFlag.MyFlag);
+```
+
+## Testing
+
+### Test Structure
+
+### Test Utilities
+
+| Utility                 | Location                                   | Purpose                          |
+| ----------------------- | ------------------------------------------ | -------------------------------- |
+| `mockEnc()`             | `libs/common/spec/utils.ts`                | Create mock EncString            |
+| `makeStaticByteArray()` | `libs/common/spec/utils.ts`                | Create deterministic byte arrays |
+| `FakeStateProvider`     | `libs/common/spec/fake-state-provider.ts`  | Mock state management            |
+| `FakeAccountService`    | `libs/common/spec/fake-account-service.ts` | Mock account service             |
+| `trackEmissions()`      | `@bitwarden/core-test-utils`               | Track Observable emissions       |
+
+### Unit Test Template
+
+```typescript
+import { mock, MockProxy } from "jest-mock-extended";
+
+describe("MyService", () => {
+  let sut: MyService;
+  let dependency: MockProxy<DependencyService>;
+
+  beforeEach(() => {
+    dependency = mock<DependencyService>();
+    sut = new MyService(dependency);
+  });
+
+  it("should do something", () => {
+    dependency.method.mockReturnValue(expected);
+    const result = sut.doSomething();
+    expect(result).toEqual(expected);
+  });
+});
+```
+
+### Component Test Template
+
+```typescript
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+
+describe("MyComponent", () => {
+  let fixture: ComponentFixture<MyComponent>;
+  let component: MyComponent;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [MyComponent],
+      providers: [{ provide: MyService, useValue: mock<MyService>() }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(MyComponent);
+    component = fixture.componentInstance;
+  });
+
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
+});
+```
+
+## Code Style & Standards
+
+### General Practices
+
+- Use the Bitwarden SDK for all cryptographic operations
+- Use branded types (`UserId`, `CipherId`) for IDs
+- Use `takeUntilDestroyed()` for subscription cleanup
+- Use `OnPush` change detection in components
+- Use `async` pipe in templates
+- Use the View layer for displaying decrypted data
+- Write unit tests for services
+- Use dependency injection
+
+### Formatting
+
+- **Prettier** for code formatting (run `npm run prettier`)
+- **ESLint** for linting (run `npm run lint:fix`)
+- Pre-commit hooks enforce formatting
+
+### Naming Conventions
+
+| Type                | Convention                 | Example             |
+| ------------------- | -------------------------- | ------------------- |
+| Files               | kebab-case                 | `cipher.service.ts` |
+| Classes             | PascalCase                 | `CipherService`     |
+| Interfaces          | PascalCase (no `I` prefix) | `CipherService`     |
+| Variables/Functions | camelCase                  | `getCipher()`       |
+| Constants           | SCREAMING_SNAKE_CASE       | `MAX_RETRY_COUNT`   |
+| Observables         | camelCase with `$` suffix  | `ciphers$`          |
+
+### No TypeScript Enums (ADR-0025):
+
+```typescript
+// ✅ Correct
 export const CipherType = Object.freeze({
   Login: 1,
   SecureNote: 2,
 } as const);
 export type CipherType = (typeof CipherType)[keyof typeof CipherType];
 
-// ❌ DON'T
+// ❌ Wrong - don't add new enums
 enum CipherType {
   Login = 1,
-  SecureNote = 2,
 }
 ```
 
-Example: `/libs/common/src/vault/enums/cipher-type.ts`
+## Anti-Patterns
+
+- **NEVER** add new encryption logic to this repo—use the SDK
+- **NEVER** send unencrypted vault data to API services
+- **NEVER** log decrypted data, encryption keys, or PII
+- **NEVER** use code regions—refactor for readability
+- Don't create manual subscriptions without cleanup
+- Don't import from apps in libraries
+- Don't use `any` type without justification
+
+## Troubleshooting
+
+### Common Issues
+
+| Issue                          | Solution                                    |
+| ------------------------------ | ------------------------------------------- |
+| Build fails with module errors | Run `npm ci` to reinstall dependencies      |
+| Tailwind styles not applying   | Ensure `tw-` prefix on all Tailwind classes |
 
 ## References
 
-- [Web Clients Architecture](https://contributing.bitwarden.com/architecture/clients)
+### Official Documentation
+
+- [Clients Architecture](https://contributing.bitwarden.com/architecture/clients)
 - [Architectural Decision Records (ADRs)](https://contributing.bitwarden.com/architecture/adr/)
 - [Contributing Guide](https://contributing.bitwarden.com/)
-- [Web Clients Setup Guide](https://contributing.bitwarden.com/getting-started/clients/)
 - [Code Style](https://contributing.bitwarden.com/contributing/code-style/)
-- [Security Whitepaper](https://bitwarden.com/help/bitwarden-security-white-paper/)
+
+### Internal Documentation
+
 - [Security Definitions](https://contributing.bitwarden.com/architecture/security/definitions)
+- [Getting Started](https://contributing.bitwarden.com/getting-started/clients/)
