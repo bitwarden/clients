@@ -2,7 +2,13 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { MenuModule, TableDataSource, TableModule, TooltipDirective } from "@bitwarden/components";
+import {
+  IconComponent,
+  MenuModule,
+  TableDataSource,
+  TableModule,
+  TooltipDirective,
+} from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
@@ -22,6 +28,7 @@ import { ApplicationTableDataSource } from "./app-table-row-scrollable.component
     PipesModule,
     MenuModule,
     TooltipDirective,
+    IconComponent,
   ],
   templateUrl: "./app-table-row-scrollable-m11.component.html",
 })
