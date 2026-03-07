@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Component, computed, DestroyRef, inject, signal, viewChild } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, map, switchMap, lastValueFrom } from "rxjs";
+import { combineLatest, lastValueFrom, map } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -28,6 +28,7 @@ import {
   SendAddEditDialogComponent,
   DefaultSendFormConfigService,
   SendItemDialogResult,
+  SendPolicyService,
 } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -75,8 +76,7 @@ export class SendV2Component {
 
   private sendFormConfigService = inject(DefaultSendFormConfigService);
   private sendItemsService = inject(SendItemsService);
-  private policyService = inject(PolicyService);
-  private accountService = inject(AccountService);
+  private sendPolicyService = inject(SendPolicyService);
   private configService = inject(ConfigService);
   private i18nService = inject(I18nService);
   private platformUtilsService = inject(PlatformUtilsService);
@@ -104,15 +104,9 @@ export class SendV2Component {
     initialValue: "",
   });
 
-  protected readonly disableSend = toSignal(
-    this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) =>
-        this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
-      ),
-    ),
-    { initialValue: false },
-  );
+  protected readonly disableSend = toSignal(this.sendPolicyService.disableSend$, {
+    initialValue: false,
+  });
 
   protected readonly listState = toSignal(
     combineLatest([

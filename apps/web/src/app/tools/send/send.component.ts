@@ -1,13 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, NgZone, OnInit, OnDestroy } from "@angular/core";
+import { Component, inject, NgZone, OnInit, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { lastValueFrom, Observable, switchMap, EMPTY } from "rxjs";
 
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
 import { NoSendsIcon } from "@bitwarden/assets/svg";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -66,6 +65,7 @@ const BroadcasterSubscriptionId = "SendComponent";
 })
 export class SendComponent extends BaseSendComponent implements OnInit, OnDestroy {
   private sendItemDialogRef?: DialogRef<SendItemDialogResult> | undefined;
+  private configService = inject(ConfigService);
   noItemIcon = NoSendsIcon;
   selectedToggleValue?: SendFilterType;
   SendUIRefresh$: Observable<boolean>;
@@ -88,7 +88,6 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     environmentService: EnvironmentService,
     ngZone: NgZone,
     searchService: SearchService,
-    policyService: PolicyService,
     private broadcasterService: BroadcasterService,
     logService: LogService,
     sendApiService: SendApiService,
@@ -98,7 +97,6 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     accountService: AccountService,
     private route: ActivatedRoute,
     private router: Router,
-    private configService: ConfigService,
   ) {
     super(
       sendService,
@@ -107,7 +105,6 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
       environmentService,
       ngZone,
       searchService,
-      policyService,
       logService,
       sendApiService,
       dialogService,

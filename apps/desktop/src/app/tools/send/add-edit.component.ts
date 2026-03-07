@@ -7,7 +7,6 @@ import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/tools/send/add-edit.component";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -46,7 +45,6 @@ export class AddEditComponent extends BaseAddEditComponent {
     sendService: SendService,
     stateService: StateService,
     messagingService: MessagingService,
-    policyService: PolicyService,
     logService: LogService,
     sendApiService: SendApiService,
     dialogService: DialogService,
@@ -63,7 +61,6 @@ export class AddEditComponent extends BaseAddEditComponent {
       datePipe,
       sendService,
       messagingService,
-      policyService,
       logService,
       stateService,
       sendApiService,

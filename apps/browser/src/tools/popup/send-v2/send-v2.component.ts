@@ -1,16 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy } from "@angular/core";
+import { Component, inject, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { combineLatest, distinctUntilChanged, map, shareReplay, switchMap } from "rxjs";
+import { combineLatest, distinctUntilChanged, map, shareReplay } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NoResults, NoSendsIcon } from "@bitwarden/assets/svg";
 import { VaultLoadingSkeletonComponent } from "@bitwarden/browser/vault/popup/components/vault-loading-skeleton/vault-loading-skeleton.component";
 import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/vault/popup/services/browser-premium-upgrade-prompt.service";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
@@ -27,6 +23,7 @@ import {
   SendListFiltersComponent,
   SendListFiltersService,
   SendListItemsContainerComponent,
+  SendPolicyService,
   SendSearchComponent,
 } from "@bitwarden/send-ui";
 
@@ -102,6 +99,7 @@ export class SendV2Component implements OnDestroy {
   protected noResultsIcon = NoResults;
 
   protected sendsDisabled = false;
+  private sendPolicyService = inject(SendPolicyService);
 
   private readonly sendTypeTitles: Record<SendType, string> = {
     [SendType.File]: "fileSends",
@@ -111,8 +109,6 @@ export class SendV2Component implements OnDestroy {
   constructor(
     protected sendItemsService: SendItemsService,
     protected sendListFiltersService: SendListFiltersService,
-    private policyService: PolicyService,
-    private accountService: AccountService,
     private searchService: SearchService,
   ) {
     combineLatest([
@@ -141,17 +137,9 @@ export class SendV2Component implements OnDestroy {
         this.listState = null;
       });
 
-    this.accountService.activeAccount$
-      .pipe(
-        getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
-        ),
-        takeUntilDestroyed(),
-      )
-      .subscribe((sendsDisabled) => {
-        this.sendsDisabled = sendsDisabled;
-      });
+    this.sendPolicyService.disableSend$.pipe(takeUntilDestroyed()).subscribe((sendsDisabled) => {
+      this.sendsDisabled = sendsDisabled;
+    });
   }
 
   ngOnDestroy(): void {}
