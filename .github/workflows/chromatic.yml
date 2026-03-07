@@ -135,7 +135,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Publish to Chromatic for CL
-        uses: chromaui/action@ac86f2ff0a458ffbce7b40698abd44c0fa34d4b6 # v13.3.3
+        uses: chromaui/action@5ec258af08deb3e8c36653bd618cb7fe52090031 # v15.2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ steps.get-kv-secrets.outputs.CHROMATIC-PROJECT-TOKEN }}
@@ -150,7 +150,7 @@ jobs:
           skip: ${{ steps.get-changed-files.outputs.storyFiles == 'false' }}
 
       - name: Publish to Chromatic for Autofill
-        uses: chromaui/action@ac86f2ff0a458ffbce7b40698abd44c0fa34d4b6 # v13.3.3
+        uses: chromaui/action@5ec258af08deb3e8c36653bd618cb7fe52090031 # v15.2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ steps.get-kv-secrets.outputs.CHROMATIC-PROJECT-TOKEN-AUTOFILL }}
