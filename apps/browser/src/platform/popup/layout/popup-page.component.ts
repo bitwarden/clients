@@ -3,7 +3,6 @@ import {
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   ElementRef,
   inject,
   input,
@@ -27,8 +26,6 @@ import { IconModule, ScrollLayoutHostDirective, ScrollLayoutService } from "@bit
 export class PopupPageComponent {
   protected i18nService = inject(I18nService);
   private scrollLayout = inject(ScrollLayoutService);
-  private destroyRef = inject(DestroyRef);
-
   readonly loading = input<boolean>(false);
 
   readonly disablePadding = input(false, { transform: booleanAttribute });
@@ -49,7 +46,7 @@ export class PopupPageComponent {
             map(() => ref.nativeElement.scrollTop !== 0),
           ),
         ),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(),
       )
       .subscribe((isScrolled) => this.scrolled.set(isScrolled));
   }
