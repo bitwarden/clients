@@ -1,8 +1,8 @@
 import { GENERATOR_DISK } from "@bitwarden/common/platform/state";
 import { PublicClassifier } from "@bitwarden/common/tools/public-classifier";
 import { deepFreeze } from "@bitwarden/common/tools/util";
-import { Constraints, StateConstraints } from "@bitwarden/common/tools/types";
 
+import { LoginEmailConstraints } from "../../policies/login-email-constraints";
 import { GeneratorDependencyProvider } from "../../providers";
 import {
   CredentialGenerator,
@@ -13,23 +13,6 @@ import {
 import { Algorithm, Type, Profile } from "../data";
 import { GeneratorMetadata } from "../generator-metadata";
 
-/** Constraint that seeds the email from the active account's verified email address */
-class LoginEmailConstraints implements StateConstraints<LoginEmailGenerationOptions> {
-  constructor(readonly email: string) {}
-
-  constraints: Readonly<Constraints<LoginEmailGenerationOptions>> = {};
-
-  adjust(state: LoginEmailGenerationOptions): LoginEmailGenerationOptions {
-    if ((state.email ?? "").trim() !== "") {
-      return state;
-    }
-    return { ...state, email: this.email };
-  }
-
-  fix(state: LoginEmailGenerationOptions): LoginEmailGenerationOptions {
-    return state;
-  }
-}
 
 /** Engine that generates a credential from the stored login email setting */
 class LoginEmailEngine implements CredentialGenerator<LoginEmailGenerationOptions> {

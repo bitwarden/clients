@@ -1,5 +1,6 @@
 import { mock } from "jest-mock-extended";
 
+import { LoginEmailConstraints } from "../../policies/login-email-constraints";
 import { GeneratorDependencyProvider } from "../../providers";
 import { LoginEmailGenerationOptions } from "../../types";
 import { Profile } from "../data";
@@ -55,17 +56,29 @@ describe("email - login email generator metadata", () => {
     });
 
     describe("constraints.create", () => {
+      it("creates a login email constraints", () => {
+        const context = { defaultConstraints: {} };
+        const constraints = accountProfile.constraints.create([], context);
+        expect(constraints).toBeInstanceOf(LoginEmailConstraints);
+      });
+
+      it("sets the constraint email to context.email", () => {
+        const context = { email: "context@example.com", defaultConstraints: {} };
+        const constraints = accountProfile.constraints.create([], context) as LoginEmailConstraints;
+        expect(constraints.email).toEqual("context@example.com");
+      });
+
       it("seeds email from context.email when settings.email is empty", () => {
         const context = { email: "context@example.com", defaultConstraints: {} };
-        const constraints = accountProfile.constraints.create([], context);
-        const adjusted = (constraints as any).adjust({ email: "" });
+        const constraints = accountProfile.constraints.create([], context) as LoginEmailConstraints;
+        const adjusted = constraints.adjust({ email: "" });
         expect(adjusted.email).toEqual("context@example.com");
       });
 
       it("does not override settings.email when already populated", () => {
         const context = { email: "context@example.com", defaultConstraints: {} };
-        const constraints = accountProfile.constraints.create([], context);
-        const adjusted = (constraints as any).adjust({ email: "existing@example.com" });
+        const constraints = accountProfile.constraints.create([], context) as LoginEmailConstraints;
+        const adjusted = constraints.adjust({ email: "existing@example.com" });
         expect(adjusted.email).toEqual("existing@example.com");
       });
     });
