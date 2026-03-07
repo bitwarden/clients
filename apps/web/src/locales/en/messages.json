@@ -8581,6 +8581,14 @@
     "message": "New project",
     "description": "Title for creating a new project."
   },
+  "clickToRenameProject": {
+    "message": "Click to rename this project",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "Cannot decrypt project name - click project to rename",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
+  },
   "softDeleteSecretWarning": {
     "message": "Deleting secrets can affect existing integrations.",
     "description": "Warns that deleting secrets can have consequences on integrations"
