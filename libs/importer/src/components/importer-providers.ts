@@ -14,6 +14,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/key-service-legacy-encryptor-provider";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { LegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/legacy-encryptor-provider";
 import { ExtensionRegistry } from "@bitwarden/common/tools/extension/extension-registry.abstraction";
 import { buildExtensionRegistry } from "@bitwarden/common/tools/extension/factory";
@@ -51,7 +52,7 @@ export const ImporterProviders: SafeProvider[] = [
   safeProvider({
     provide: LegacyEncryptorProvider,
     useClass: KeyServiceLegacyEncryptorProvider,
-    deps: [EncryptService, KeyService],
+    deps: [EncryptService, KeyService, SdkService],
   }),
   safeProvider({
     provide: ExtensionRegistry,

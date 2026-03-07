@@ -8,6 +8,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -62,7 +63,7 @@ export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvi
     safeProvider({
       provide: LegacyEncryptorProvider,
       useClass: KeyServiceLegacyEncryptorProvider,
-      deps: [EncryptService, KeyService],
+      deps: [EncryptService, KeyService, SdkService],
     }),
     safeProvider({
       provide: ExtensionRegistry,
