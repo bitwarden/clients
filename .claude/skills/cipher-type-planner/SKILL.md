@@ -1,14 +1,11 @@
 ---
 name: cipher-type-planner
-description: Plans the creation or modification of a cipher type (vault item type) across the Bitwarden clients monorepo. Use this skill when a user wants to add a new cipher type (e.g., BankAccount, Passport), modify an existing cipher type, or asks about what is needed to implement a cipher type. DO NOT invoke for general vault or cipher questions unrelated to adding or changing a cipher type.
+description: Plans the creation or modification of a cipher type (vault item type) across the Bitwarden clients monorepo. Use this skill when a user wants to add a new cipher type, modify an existing cipher type, or asks about what is needed to implement a cipher type. DO NOT invoke for general vault or cipher questions unrelated to adding or changing a cipher type.
 user-invokable: true
-argument-hint: "<cipher-type-name> - e.g., BankAccount, Passport"
+argument-hint: "<cipher-type-name>"
 ---
 
 # Cipher Type Planner
-
-Plans the full implementation of a new or modified cipher type across all layers of the Bitwarden
-clients monorepo, the server repository, and the SDK repository.
 
 ## Workflow
 
@@ -19,32 +16,28 @@ the user has already provided.
 
 **Required questions:**
 
-1. **Type name and value** - What is the cipher type name (e.g., `BankAccount`) and integer value
-   (next available after 5 for SshKey)? If the user hasn't specified a value, suggest the next
-   available integer.
-2. **Fields** - What fields/properties does this cipher type have? List each field with:
-   - Field name (e.g., `routingNumber`)
-   - Data type (string, number, boolean)
-   - Whether it is encrypted (most vault data fields should be)
-   - Whether it is required
-3. **Autofill** - Should this type participate in browser autofill? (Currently only Login, Card,
-   and Identity support autofill.)
-4. **Linked fields** - Should this type support linked custom fields? If yes, which properties
-   should be linkable?
-5. **Import/Export** - Should this type support import and export? Yes/No.
-6. **Feature flag** - What is the feature flag name? (e.g., `vault-bank-account`.)
-7. **Cross-repo status** - Has the server and/or SDK work already been completed, or does it need
-   to be planned as well?
+1.  **Type name and value** - What is the cipher type name and integer value? If the user hasn't specified a value, determine the next available integer by reading the `CipherType` enum definition.
+2.  **Fields** - What are the cipher's properties? Each property must contain:
+    - Field name
+    - Data type (string, number, boolean)
+    - Encryption required?
+    - Required
+3.  **Autofill** - Should this type participate in browser autofill? (Currently only Login, Card,
+    and Identity support autofill.)
+4.  **Linked fields** - Should this type support linked custom fields? If yes, which properties
+    should be linkable?
+5.  **Feature flag** - What is the feature flag name?
+6.  **Cross-repo status** - Has the server and/or SDK work already been completed, or does it need
+    to be planned as well?
 
-**Optional questions (ask if relevant):**
+**Additional questions:**
 
-- **UI details** - Any specific UI requirements for the form or view sections? (e.g., dropdowns,
-  masked fields, copy buttons)
-- **Subtitle** - What should the `subTitle` getter on the view model return? (This appears in
-  vault list items.)
-- **Icon** - What icon should represent this type in the vault? (Bitwarden uses `bwi-` icon
-  classes.)
-- **Organization policy** - Should this type appear in the restricted item types policy UI?
+Ask each of the following. If the engineer does not have an answer, accept "N/A" or "not yet decided" and note it as a gap in the plan.
+
+- **UI details** - Are there specific UI requirements for the form or view sections (e.g., dropdowns, masked fields, copy buttons)?
+- **Subtitle** - What value should the `subTitle` getter on the view model return? This appears in vault list items.
+- **Icon** - What icon represents this type in the vault? Bitwarden uses `bwi-` icon classes.
+- **Organization policy** - Does this type appear in the restricted item types policy UI?
 
 ### Step 2: Enter Plan Mode
 
@@ -74,22 +67,21 @@ Write a comprehensive plan to the plan file. The plan MUST include all sections 
 
 ### 1. Overview
 
-- **Cipher type name:** (e.g., `BankAccount`)
-- **Integer value:** (e.g., `6`)
-- **Feature flag:** (e.g., `pm-32009-new-item-types`)
-- **Minimum client version:** (e.g., `2026.3.0`)
+- **Cipher type name:**
+- **Integer value:**
+- **Feature flag:**
+- **Minimum client version:**
 - **Fields:** Table of all fields with name, type, encrypted (yes/no), required (yes/no)
 - **Supports autofill:** Yes/No
 - **Supports linked fields:** Yes/No
-- **Supports import/export:** Yes/No
 
 ### 2. Cross-Repository Prerequisites
 
 #### SDK (`bitwarden/sdk-internal`)
 
 - [ ] Rust enum variant in `CipherType`
-- [ ] Type-specific encrypted struct (e.g., `BankAccount`)
-- [ ] Type-specific decrypted struct (e.g., `BankAccountView`)
+- [ ] Type-specific encrypted struct
+- [ ] Type-specific decrypted struct
 - [ ] `Encryptable`/`Decryptable` trait implementations
 - [ ] Serde (de)serialization
 - [ ] WASM bindings for TypeScript type generation
@@ -121,7 +113,6 @@ layer:
 - `libs/common/src/vault/models/domain/<type>.ts` - Encrypted business object
 - `libs/common/src/vault/models/domain/<type>.spec.ts` - Domain model tests
 - `libs/common/src/vault/models/view/<type>.view.ts` - Decrypted view for UI
-- `libs/common/src/models/export/<type>.export.ts` - Import/export serialization
 
 **UI components:**
 
@@ -195,8 +186,8 @@ change needed.
 
 List all i18n keys that need to be added. At minimum:
 
-- Type label (e.g., `typeBankAccount`)
-- Field labels for each type-specific field (e.g., `bankAccountRoutingNumber`)
+- Type label
+- Field labels for each type-specific field
 
 ### 6. Tests
 
@@ -228,28 +219,12 @@ Recommended implementation order, customized for this specific type:
 8. Shared UI (icon, filters)
 9. Per-app UI (form section, view section)
 10. Context menu / copy actions (see Section 10)
-11. Import/Export and importer migration
-12. CLI
-13. Autofill (if applicable)
-14. Tests
-15. Feature flag gating
+11. CLI
+12. Autofill (if applicable)
+13. Tests
+14. Feature flag gating
 
-### 8. Importer Migration
-
-Check whether any existing importers map external data into a different cipher type that should now
-use the new type. For example, the 1Password 1PUX importer
-(`libs/importer/src/importers/onepassword/onepassword-1pux-importer.ts`) maps `Category.BankAccount`
-to `CipherType.Card`. If a dedicated BankAccount cipher type is added, this mapping should be updated.
-
-List all importer files that need changes, with the current mapping and the new mapping.
-
-Key importer files to check:
-
-- `libs/importer/src/importers/onepassword/onepassword-1pux-importer.ts`
-- `libs/importer/src/importers/base-importer.ts`
-- `libs/importer/src/services/import.service.ts`
-
-### 9. Risks and Considerations
+### 8. Risks and Considerations
 
 - Cross-repo coordination requirements
 - Feature flag rollout strategy
@@ -260,7 +235,7 @@ Key importer files to check:
   desired display value. If an existing key has the same message text, reuse it instead of creating
   a duplicate. Only create new keys when no existing key matches.
 
-### 10. Context Menu / Copy Actions
+### 9. Context Menu / Copy Actions
 
 Each cipher type can expose copiable fields in the vault list item context menus (right-click / more
 menu). This requires changes across **7 files** spanning core infrastructure and all 3 clients.
@@ -270,7 +245,7 @@ menu). This requires changes across **7 files** spanning core infrastructure and
 | File                                                    | What to add                                                                                                                                                                                                                                     |
 | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `libs/vault/src/services/copy-cipher-field.service.ts`  | Add field names to the `CopyAction` type union. Add entries to the `CopyActions` record with `typeI18nKey` (i18n key for the toast message), `protected` (whether it requires password re-prompt), and optional `event` (for event collection). |
-| `libs/common/src/vault/utils/cipher-view-like-utils.ts` | Add cases to `hasCopyableValue()` that check whether the cipher has a non-empty value for each copiable field (e.g., `case "accountNumber": return !!cipher.bankAccount?.accountNumber;`).                                                      |
+| `libs/common/src/vault/utils/cipher-view-like-utils.ts` | Add cases to `hasCopyableValue()` that check whether the cipher has a non-empty value for each copiable field.                                                                                                                                  |
 
 #### Browser (2 files)
 
@@ -297,16 +272,3 @@ menu). This requires changes across **7 files** spanning core infrastructure and
 - **CLI has no copy menu UI** — do not add copy-related i18n keys to the CLI locale.
 - **Only expose fields that should be copiable** — not every cipher field needs a copy action. Check
   with product requirements for which fields get copy buttons.
-
----
-
-## Key Rules
-
-- **No new encryption logic** in the clients repo (CLAUDE.md critical rule)
-- **No TypeScript enums** - use const objects with type aliases (ADR-0025)
-- **No code regions** - refactor for readability instead
-- **Tailwind `tw-` prefix** required for all CSS classes
-- **Never log or expose decrypted vault data**
-- Follow the SshKey implementation as the canonical template
-- Use `@linkedFieldOption` decorators if linked fields are supported
-- View models must extend `ItemView` and implement the `subTitle` getter
