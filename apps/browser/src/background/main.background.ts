@@ -912,11 +912,10 @@ export default class MainBackground {
     this.passwordStrengthService = new PasswordStrengthService();
 
     this.passwordGenerationService = legacyPasswordGenerationServiceFactory(
-      this.encryptService,
-      this.keyService,
       this.policyService,
       this.accountService,
       this.stateProvider,
+      this.sdkService,
     );
 
     this.devicesApiService = new DevicesApiServiceImplementation(this.apiService);
@@ -1147,7 +1146,11 @@ export default class MainBackground {
 
     this.importMetadataService = new DefaultImportMetadataService(
       createSystemServiceProvider(
-        new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+        new KeyServiceLegacyEncryptorProvider(
+          this.encryptService,
+          this.keyService,
+          this.sdkService,
+        ),
         this.stateProvider,
         this.policyService,
         buildExtensionRegistry(),
@@ -1481,7 +1484,7 @@ export default class MainBackground {
       this.apiService,
       this.i18nService,
       this.keyService,
-      this.encryptService,
+      this.sdkService,
       this.policyService,
       this.accountService,
       this.stateProvider,
