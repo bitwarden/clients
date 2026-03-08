@@ -64,7 +64,11 @@ export default {
           useFactory: () => {
             return new I18nMockService({
               close: "Close",
+              error: "Error",
+              info: "Info",
               search: "Search",
+              success: "Success",
+              warning: "Warning",
               selectPlaceholder: "-- Select --",
               skipToContent: "Skip to content",
               submenu: "submenu",
