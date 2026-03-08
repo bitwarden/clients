@@ -33,7 +33,6 @@ import { SelectModule } from "../../select";
 import { SvgModule } from "../../svg";
 import { TableModule } from "../../table";
 import { TabsModule } from "../../tabs";
-import { ToastModule } from "../../toast";
 import { ToggleGroupModule } from "../../toggle-group";
 import { TypographyModule } from "../../typography";
 
@@ -73,7 +72,6 @@ import { TypographyModule } from "../../typography";
     SelectModule,
     TableModule,
     TabsModule,
-    ToastModule,
     ToggleGroupModule,
     TypographyModule,
   ],
@@ -112,7 +110,6 @@ import { TypographyModule } from "../../typography";
     SelectModule,
     TableModule,
     TabsModule,
-    ToastModule,
     ToggleGroupModule,
     TypographyModule,
   ],

@@ -9,8 +9,8 @@ import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for
 import { ButtonModule } from "../button";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
+import { ToastContainerComponent } from "./toast-container.component";
 import { ToastComponent } from "./toast.component";
-import { ToastModule } from "./toast.module";
 import { defaultToastConfig, ToastOptions, ToastService } from "./toast.service";
 
 const docsSourceTemplate = `
@@ -39,7 +39,12 @@ export default {
 
   decorators: [
     moduleMetadata({
-      imports: [BrowserAnimationsModule, ButtonModule, ToastModule, ToastServiceExampleComponent],
+      imports: [
+        BrowserAnimationsModule,
+        ButtonModule,
+        ToastContainerComponent,
+        ToastServiceExampleComponent,
+      ],
     }),
     applicationConfig({
       providers: [

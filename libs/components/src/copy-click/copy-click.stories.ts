@@ -7,7 +7,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { FormFieldModule } from "../form-field";
 import { IconButtonModule } from "../icon-button";
 import { InputModule } from "../input";
-import { ToastModule } from "../toast";
+import { ToastContainerComponent } from "../toast";
 import { I18nMockService } from "../utils";
 
 import { CopyClickDirective } from "./copy-click.directive";
@@ -17,7 +17,7 @@ export default {
   component: CopyClickDirective,
   decorators: [
     moduleMetadata({
-      imports: [ToastModule, FormFieldModule, InputModule, IconButtonModule],
+      imports: [ToastContainerComponent, FormFieldModule, InputModule, IconButtonModule],
     }),
     applicationConfig({
       providers: [

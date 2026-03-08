@@ -20,7 +20,6 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
       </bit-side-nav>
       <router-outlet></router-outlet>
     </bit-layout>
-    <bit-toast-container></bit-toast-container>
   `,
 })
 export class KitchenSinkAppComponent {

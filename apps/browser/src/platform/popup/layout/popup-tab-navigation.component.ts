@@ -5,7 +5,12 @@ import { RouterModule } from "@angular/router";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BitSvg } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SvgModule, LinkModule, BerryComponent } from "@bitwarden/components";
+import {
+  SvgModule,
+  LinkModule,
+  BerryComponent,
+  ToastContainerComponent,
+} from "@bitwarden/components";
 
 export type NavButton = {
   label: string;
@@ -20,7 +25,15 @@ export type NavButton = {
 @Component({
   selector: "popup-tab-navigation",
   templateUrl: "popup-tab-navigation.component.html",
-  imports: [CommonModule, LinkModule, RouterModule, JslibModule, SvgModule, BerryComponent],
+  imports: [
+    CommonModule,
+    LinkModule,
+    RouterModule,
+    JslibModule,
+    SvgModule,
+    BerryComponent,
+    ToastContainerComponent,
+  ],
   host: {
     class: "tw-block tw-size-full tw-flex tw-flex-col",
   },

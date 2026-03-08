@@ -22,6 +22,7 @@ import { DrawerService } from "../dialog/drawer.service";
 import { LinkComponent, LinkModule } from "../link";
 import { SideNavService } from "../navigation/side-nav.service";
 import { getRootFontSizePx } from "../shared";
+import { ToastContainerComponent } from "../toast/toast-container.component";
 
 import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
 
@@ -46,6 +47,7 @@ const SIDERAIL_WIDTH_REM = 4;
     A11yModule,
     CdkTrapFocus,
     ScrollLayoutHostDirective,
+    ToastContainerComponent,
   ],
   host: {
     "(document:keydown.tab)": "handleKeydown($event)",

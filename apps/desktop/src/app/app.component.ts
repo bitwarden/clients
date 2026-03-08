@@ -116,8 +116,6 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
       </div>
       <router-outlet *ngIf="!loading"></router-outlet>
     </div>
-
-    <bit-toast-container></bit-toast-container>
   `,
   standalone: false,
 })

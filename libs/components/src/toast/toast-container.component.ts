@@ -6,7 +6,9 @@ import { defaultToastConfig, ToastPosition, ToastService } from "./toast.service
 
 /**
  * Renders the toast stack and manages its position, enter/leave animations, and hover-pause
- * behaviour. Place once in the app root template: `<bit-toast-container></bit-toast-container>`.
+ * behaviour. Typically placed inside a layout component (`bit-layout`, `bit-landing-layout`,
+ * `popup-tab-navigation`) so the layout can control positioning relative to its own chrome
+ * (drawers, tab bars, etc.).
  */
 @Component({
   selector: "bit-toast-container",
