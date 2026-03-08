@@ -2,19 +2,39 @@ import { tv } from "tailwind-variants";
 
 export default tv({
   slots: {
-    root: "tw-mb-1 tw-min-w-[19rem] tw-text-main tw-flex tw-flex-col tw-justify-between tw-rounded-md tw-pointer-events-auto tw-cursor-default tw-overflow-hidden tw-shadow-lg",
-    body: "tw-flex tw-items-center tw-gap-4 tw-px-2 tw-pb-1 tw-pt-2",
-    icon: "bwi tw-text-xl tw-py-1.5 tw-px-2.5",
-    title: "tw-font-medium tw-mb-0",
+    root: "tw-w-[25rem] tw-rounded-xl tw-border tw-border-solid tw-overflow-hidden tw-shadow-lg tw-pointer-events-auto tw-cursor-default",
+    body: "tw-flex tw-items-center tw-gap-3 tw-p-4",
+    icon: "bwi tw-text-2xl tw-shrink-0",
+    closeButton: "tw-ms-auto tw-shrink-0",
+    title: "tw-font-semibold tw-mb-0",
     message: "tw-mb-2 last:tw-mb-0",
-    closeButton: "tw-ms-auto hover:tw-border-text-main focus-visible:before:tw-ring-text-main",
   },
   variants: {
     variant: {
-      success: { root: "tw-bg-success-100", icon: "bwi-check-circle" },
-      error: { root: "tw-bg-danger-100", icon: "bwi-error" },
-      info: { root: "tw-bg-info-100", icon: "bwi-info-circle" },
-      warning: { root: "tw-bg-warning-100", icon: "bwi-exclamation-triangle" },
+      success: {
+        root: "tw-bg-bg-success-medium tw-border-border-success-soft",
+        icon: "bwi-check-circle tw-text-fg-success-strong",
+        title: "tw-text-fg-success-strong",
+        message: "tw-text-fg-success-strong",
+      },
+      error: {
+        root: "tw-bg-bg-danger-medium tw-border-border-danger-soft",
+        icon: "bwi-error tw-text-fg-danger-strong",
+        title: "tw-text-fg-danger-strong",
+        message: "tw-text-fg-danger-strong",
+      },
+      info: {
+        root: "tw-bg-bg-brand-soft tw-border-border-brand-soft",
+        icon: "bwi-info-circle tw-text-fg-brand-strong",
+        title: "tw-text-fg-brand-strong",
+        message: "tw-text-fg-brand-strong",
+      },
+      warning: {
+        root: "tw-bg-bg-warning-medium tw-border-border-warning-soft",
+        icon: "bwi-exclamation-triangle tw-text-fg-warning-strong",
+        title: "tw-text-fg-warning-strong",
+        message: "tw-text-fg-warning-strong",
+      },
     },
   },
 });

@@ -12,11 +12,10 @@
         </p>
       }
     </div>
-    <!-- Overriding hover and focus-visible colors for a11y against colored background -->
     <button
       [class]="styles().closeButton()"
       bitIconButton="bwi-close"
-      buttonType="primaryGhost"
+      [buttonType]="closeButtonType()"
       type="button"
       size="small"
       (click)="onClose.emit()"
