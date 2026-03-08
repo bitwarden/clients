@@ -225,6 +225,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
         ];
       case CipherType.SecureNote:
         return [{ field: "secureNote", title: "copyNote" }];
+      case CipherType.BankAccount:
+        return [
+          { field: "accountNumber", title: "copyAccountNumber" },
+          { field: "routingNumber", title: "copyRoutingNumber" },
+        ];
       default:
         return [];
     }

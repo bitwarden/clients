@@ -21,4 +21,5 @@ export const CIPHER_MENU_ITEMS = Object.freeze([
   { type: CipherType.Identity, icon: "bwi-id-card", labelKey: "typeIdentity" },
   { type: CipherType.SecureNote, icon: "bwi-sticky-note", labelKey: "typeNote" },
   { type: CipherType.SshKey, icon: "bwi-key", labelKey: "typeSshKey" },
+  { type: CipherType.BankAccount, icon: "bwi-bank", labelKey: "bankAccount" },
 ] as const) satisfies readonly CipherMenuItem[];

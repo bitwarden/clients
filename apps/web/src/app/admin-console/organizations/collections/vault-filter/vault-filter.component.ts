@@ -7,11 +7,14 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -20,6 +23,7 @@ import {
   VaultFilterList,
   VaultFilterSection,
   VaultFilterType,
+  CipherStatus,
   CollectionFilter,
 } from "@bitwarden/vault";
 
@@ -61,6 +65,7 @@ export class VaultFilterComponent
     protected cipherService: CipherService,
     protected cipherArchiveService: CipherArchiveService,
     premiumUpgradePromptService: PremiumUpgradePromptService,
+    configService: ConfigService,
   ) {
     super(
       vaultFilterService,
@@ -75,6 +80,7 @@ export class VaultFilterComponent
       cipherService,
       cipherArchiveService,
       premiumUpgradePromptService,
+      configService,
     );
   }
 
@@ -140,8 +146,17 @@ export class VaultFilterComponent
   }
 
   async buildAllFilters(): Promise<VaultFilterList> {
+    const showBankAccount = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.PM32009_NewItemTypes),
+    );
+
+    const excludeTypes: CipherStatus[] = ["favorites"];
+    if (!showBankAccount) {
+      excludeTypes.push(CipherType.BankAccount);
+    }
+
     const builderFilter = {} as VaultFilterList;
-    builderFilter.typeFilter = await this.addTypeFilter(["favorites"], this._organization?.id);
+    builderFilter.typeFilter = await this.addTypeFilter(excludeTypes, this._organization?.id);
     builderFilter.collectionFilter = await this.addCollectionFilter();
     builderFilter.trashFilter = await this.addTrashFilter();
     return builderFilter;

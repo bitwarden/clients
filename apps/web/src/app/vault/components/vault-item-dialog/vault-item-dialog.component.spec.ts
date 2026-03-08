@@ -48,6 +48,7 @@ class TestVaultItemDialogComponent extends VaultItemDialogComponent {
         uris: [],
       },
       card: {},
+      bankAccount: {},
     };
   }
   setTestFormConfig(formConfig: any) {

@@ -54,15 +54,20 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
   organization: Organization;
   CipherType = CipherType;
 
-  protected itemTypes$ = this.restrictedItemTypesService.restricted$.pipe(
-    map((restrictedItemTypes) =>
-      // Filter out restricted item types
-      CIPHER_MENU_ITEMS.filter(
-        (itemType) =>
-          !restrictedItemTypes.some(
-            (restrictedType) => restrictedType.cipherType === itemType.type,
-          ),
-      ),
+  protected itemTypes$ = combineLatest([
+    this.restrictedItemTypesService.restricted$,
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009_NewItemTypes),
+  ]).pipe(
+    map(([restrictedItemTypes, canCreateBankAccount]) =>
+      // Filter out restricted and feature-flagged item types
+      CIPHER_MENU_ITEMS.filter((itemType) => {
+        if (!canCreateBankAccount && itemType.type === CipherType.BankAccount) {
+          return false;
+        }
+        return !restrictedItemTypes.some(
+          (restrictedType) => restrictedType.cipherType === itemType.type,
+        );
+      }),
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );

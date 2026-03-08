@@ -100,6 +100,9 @@ export function buildCipherIcon(
     case CipherType.SshKey:
       icon = "bwi-key";
       break;
+    case CipherType.BankAccount:
+      icon = "bwi-bank";
+      break;
     default:
       break;
   }

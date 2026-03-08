@@ -9,6 +9,7 @@ export const BITWARDEN_ICONS = [
   "bwi-angle-right",
   "bwi-angle-up",
   "bwi-archive",
+  "bwi-bank",
   "bwi-bell",
   "bwi-billing",
   "bwi-bitcoin",

@@ -6,6 +6,7 @@ import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 import { CipherResponse } from "../response/cipher.response";
 
 import { AttachmentData } from "./attachment.data";
+import { BankAccountData } from "./bank-account.data";
 import { CardData } from "./card.data";
 import { FieldData } from "./field.data";
 import { IdentityData } from "./identity.data";
@@ -32,6 +33,7 @@ export class CipherData {
   card?: CardData;
   identity?: IdentityData;
   sshKey?: SshKeyData;
+  bankAccount?: BankAccountData;
   fields?: FieldData[];
   attachments?: AttachmentData[];
   passwordHistory?: PasswordHistoryData[];
@@ -82,6 +84,9 @@ export class CipherData {
         break;
       case CipherType.SshKey:
         this.sshKey = new SshKeyData(response.sshKey);
+        break;
+      case CipherType.BankAccount:
+        this.bankAccount = new BankAccountData(response.bankAccount);
         break;
       default:
         break;

@@ -79,6 +79,7 @@
       [canCreateCipher]="canCreateCipher"
       [canCreateFolder]="true"
       [canCreateSshKey]="true"
+      [canCreateBankAccount]="canCreateBankAccount$ | async"
       [canCreateCollection]="canCreateCollections"
       (cipherAdded)="addCipher($event)"
       (folderAdded)="addFolder()"
