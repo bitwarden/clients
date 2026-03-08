@@ -346,7 +346,6 @@ export class VaultComponent implements OnInit, OnDestroy {
           (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted),
         );
 
-        await this.searchService.indexCiphers(userId, ciphers, organization.id);
         return ciphers;
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
