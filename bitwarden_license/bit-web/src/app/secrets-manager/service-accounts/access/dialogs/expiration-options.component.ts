@@ -1,7 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { DatePipe } from "@angular/common";
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, Input, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
   ControlValueAccessor,
@@ -14,7 +15,6 @@ import {
   ValidatorFn,
   Validators,
 } from "@angular/forms";
-import { Subject, takeUntil } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -37,10 +37,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
   ],
   standalone: false,
 })
-export class ExpirationOptionsComponent
-  implements ControlValueAccessor, Validator, OnInit, OnDestroy
-{
-  private destroy$ = new Subject<void>();
+export class ExpirationOptionsComponent implements ControlValueAccessor, Validator, OnInit {
+  private readonly destroyRef = inject(DestroyRef);
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -67,14 +65,9 @@ export class ExpirationOptionsComponent
   ) {}
 
   async ngOnInit() {
-    this.form.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+    this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this._onChange(this.getExpiresDate());
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private _onChange = (_value: Date | null): void => undefined;

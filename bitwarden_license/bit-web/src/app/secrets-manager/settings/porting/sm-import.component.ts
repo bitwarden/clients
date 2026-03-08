@@ -1,9 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
 
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -25,8 +25,8 @@ import { SecretsManagerPortingApiService } from "../services/sm-porting-api.serv
   templateUrl: "./sm-import.component.html",
   standalone: false,
 })
-export class SecretsManagerImportComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class SecretsManagerImportComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   protected orgId: string = null;
   protected selectedFile: File;
   protected formGroup = new FormGroup({
@@ -44,14 +44,9 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       this.orgId = params.organizationId;
     });
-  }
-
-  async ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   submit = async () => {

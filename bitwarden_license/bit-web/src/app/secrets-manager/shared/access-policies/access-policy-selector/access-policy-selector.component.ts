@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, forwardRef, Input, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, forwardRef, inject, Input, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   ControlValueAccessor,
   FormBuilder,
@@ -8,7 +9,6 @@ import {
   FormGroup,
   NG_VALUE_ACCESSOR,
 } from "@angular/forms";
-import { Subject, takeUntil } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { FormSelectionList } from "@bitwarden/angular/utils/form-selection-list";
@@ -34,8 +34,8 @@ import { ApPermissionEnum } from "./models/enums/ap-permission.enum";
   ],
   standalone: false,
 })
-export class AccessPolicySelectorComponent implements ControlValueAccessor, OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class AccessPolicySelectorComponent implements ControlValueAccessor, OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private notifyOnChange: (v: unknown) => void;
   private notifyOnTouch: () => void;
   private pauseChangeNotification: boolean;
@@ -236,24 +236,21 @@ export class AccessPolicySelectorComponent implements ControlValueAccessor, OnIn
 
   ngOnInit() {
     // Watch the internal formArray for changes and propagate them
-    this.selectionList.formArray.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((v) => {
-      if (!this.notifyOnChange || this.pauseChangeNotification) {
-        return;
-      }
+    this.selectionList.formArray.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((v) => {
+        if (!this.notifyOnChange || this.pauseChangeNotification) {
+          return;
+        }
 
-      // Disabled form arrays emit values for disabled controls, we override this to emit an empty array to avoid
-      // emitting values for disabled controls that are "readonly" in the table
-      if (this.selectionList.formArray.disabled) {
-        this.notifyOnChange([]);
-        return;
-      }
-      this.notifyOnChange(v);
-    });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+        // Disabled form arrays emit values for disabled controls, we override this to emit an empty array to avoid
+        // emitting values for disabled controls that are "readonly" in the table
+        if (this.selectionList.formArray.disabled) {
+          this.notifyOnChange([]);
+          return;
+        }
+        this.notifyOnChange(v);
+      });
   }
 
   protected handleBlur() {

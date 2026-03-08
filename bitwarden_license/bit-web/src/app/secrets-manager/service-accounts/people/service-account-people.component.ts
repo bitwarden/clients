@@ -1,9 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, Subject, switchMap, takeUntil } from "rxjs";
+import { combineLatest, switchMap } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -32,9 +33,9 @@ import { AccessPolicyService } from "../../shared/access-policies/access-policy.
   templateUrl: "./service-account-people.component.html",
   standalone: false,
 })
-export class ServiceAccountPeopleComponent implements OnInit, OnDestroy {
+export class ServiceAccountPeopleComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private currentAccessPolicies: ApItemViewType[];
-  private destroy$ = new Subject<void>();
   private organizationId: string;
   private serviceAccountId: string;
 
@@ -80,22 +81,17 @@ export class ServiceAccountPeopleComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       this.organizationId = params.organizationId;
       this.serviceAccountId = params.serviceAccountId;
     });
 
     combineLatest([this.potentialGrantees$, this.currentAccessPolicies$])
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(([potentialGrantees, currentAccessPolicies]) => {
         this.potentialGrantees = potentialGrantees;
         this.setSelected(currentAccessPolicies);
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   submit = async () => {

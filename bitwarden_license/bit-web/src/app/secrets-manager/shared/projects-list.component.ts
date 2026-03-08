@@ -1,9 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
-import { Component, EventEmitter, Input, Output, OnInit } from "@angular/core";
+import { Component, DestroyRef, EventEmitter, inject, Input, Output, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { catchError, concatMap, map, Observable, of, Subject, switchMap, takeUntil } from "rxjs";
+import { catchError, concatMap, map, Observable, of, switchMap } from "rxjs";
 
 import {
   getOrganizationById,
@@ -40,9 +41,9 @@ export class ProjectsListComponent implements OnInit {
     this.dataSource.data = projects;
   }
   private _projects: ProjectListView[];
+  private readonly destroyRef = inject(DestroyRef);
   protected viewEventsAllowed$: Observable<boolean>;
   protected isAdmin$: Observable<boolean>;
-  private destroy$: Subject<void> = new Subject<void>();
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -110,7 +111,7 @@ export class ProjectsListComponent implements OnInit {
         }
         return of(false);
       }),
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(this.destroyRef),
     );
   }
 

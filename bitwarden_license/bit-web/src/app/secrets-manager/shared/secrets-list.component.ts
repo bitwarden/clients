@@ -1,9 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
-import { Component, EventEmitter, Input, OnDestroy, Output, OnInit } from "@angular/core";
+import { Component, DestroyRef, EventEmitter, inject, Input, Output, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { catchError, concatMap, map, Observable, of, Subject, switchMap, takeUntil } from "rxjs";
+import { catchError, concatMap, map, Observable, of, switchMap } from "rxjs";
 
 import {
   getOrganizationById,
@@ -28,7 +29,8 @@ import { SecretService } from "../secrets/secret.service";
   templateUrl: "./secrets-list.component.html",
   standalone: false,
 })
-export class SecretsListComponent implements OnDestroy, OnInit {
+export class SecretsListComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   protected dataSource = new TableDataSource<SecretListView>();
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -84,8 +86,6 @@ export class SecretsListComponent implements OnDestroy, OnInit {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() restoreSecretsEvent = new EventEmitter();
 
-  private destroy$: Subject<void> = new Subject<void>();
-
   selection = new SelectionModel<string>(true, []);
   protected viewEventsAllowed$: Observable<boolean>;
   protected isAdmin$: Observable<boolean>;
@@ -100,7 +100,7 @@ export class SecretsListComponent implements OnDestroy, OnInit {
     private logService: LogService,
   ) {
     this.selection.changed
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed())
       .subscribe((_) => this.onSecretCheckedEvent.emit(this.selection.selected));
   }
 
@@ -128,13 +128,8 @@ export class SecretsListComponent implements OnDestroy, OnInit {
         }
         return of(false);
       }),
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(this.destroyRef),
     );
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   isAllSelected() {

@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { Subject, takeUntil, concatMap, firstValueFrom } from "rxjs";
+import { concatMap, firstValueFrom } from "rxjs";
 
 import {
   getOrganizationById,
@@ -33,10 +34,10 @@ import {
   templateUrl: "./new-menu.component.html",
   standalone: false,
 })
-export class NewMenuComponent implements OnInit, OnDestroy {
+export class NewMenuComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private organizationId: string;
   private organizationEnabled: boolean;
-  private destroy$: Subject<void> = new Subject<void>();
   constructor(
     private route: ActivatedRoute,
     private dialogService: DialogService,
@@ -55,17 +56,12 @@ export class NewMenuComponent implements OnInit, OnDestroy {
               .pipe(getOrganizationById(params.organizationId)),
           );
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((org) => {
         this.organizationId = org.id;
         this.organizationEnabled = org.enabled;
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   openSecretDialog() {
