@@ -17,6 +17,7 @@ import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-t
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { HashPurpose, KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -63,6 +64,7 @@ describe("keyService", () => {
   const stateService = mock<StateService>();
   const kdfConfigService = mock<KdfConfigService>();
   const accountCryptographicStateService = mock<AccountCryptographicStateService>();
+  const sdkService = mock<SdkService>();
   let stateProvider: FakeStateProvider;
 
   const mockUserId = Utils.newGuid() as UserId;
@@ -76,6 +78,8 @@ describe("keyService", () => {
 
     await stateProvider.setUserState(VAULT_TIMEOUT, VaultTimeoutStringType.Never, mockUserId);
 
+    sdkService.userClient$.mockReturnValue(of(null));
+
     keyService = new DefaultKeyService(
       masterPasswordService,
       keyGenerationService,
@@ -88,6 +92,7 @@ describe("keyService", () => {
       stateProvider,
       kdfConfigService,
       accountCryptographicStateService,
+      sdkService,
     );
   });
 

@@ -733,6 +733,7 @@ export default class MainBackground {
       this.stateProvider,
       this.kdfConfigService,
       this.accountCryptographicStateService,
+      this.sdkService,
     );
 
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
