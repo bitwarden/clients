@@ -1,19 +1,38 @@
-import { Component, OnInit, viewChild } from "@angular/core";
-import { ToastContainerDirective, ToastrService } from "ngx-toastr";
+import { ChangeDetectionStrategy, Component, effect, inject, input } from "@angular/core";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+import { ToastComponent } from "./toast.component";
+import { defaultToastConfig, ToastPosition, ToastService } from "./toast.service";
+
+/**
+ * Renders the toast stack and manages its position, enter/leave animations, and hover-pause
+ * behaviour. Place once in the app root template: `<bit-toast-container></bit-toast-container>`.
+ */
 @Component({
   selector: "bit-toast-container",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [ToastComponent],
   templateUrl: "toast-container.component.html",
-  imports: [ToastContainerDirective],
 })
-export class ToastContainerComponent implements OnInit {
-  readonly toastContainer = viewChild(ToastContainerDirective);
+export class ToastContainerComponent {
+  protected readonly service = inject(ToastService);
 
-  constructor(private toastrService: ToastrService) {}
+  /** @see ToastConfig.maxOpened */
+  readonly maxOpened = input(defaultToastConfig.maxOpened);
+  /** @see ToastConfig.autoDismiss */
+  readonly autoDismiss = input(defaultToastConfig.autoDismiss);
+  /** @see ToastConfig.timeout */
+  readonly timeout = input(defaultToastConfig.timeout);
+  /** @see ToastConfig.position */
+  readonly position = input<ToastPosition>(defaultToastConfig.position);
 
-  ngOnInit(): void {
-    this.toastrService.overlayContainer = this.toastContainer();
+  constructor() {
+    effect(() => {
+      this.service.configure({
+        maxOpened: this.maxOpened(),
+        autoDismiss: this.autoDismiss(),
+        timeout: this.timeout(),
+        position: this.position(),
+      });
+    });
   }
 }

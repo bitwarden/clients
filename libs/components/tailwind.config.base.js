@@ -333,10 +333,20 @@ module.exports = {
           "0%": { opacity: "0", transform: "translateY(-50px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        "toast-in": {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+        "toast-out": {
+          "0%": { opacity: "1" },
+          "100%": { opacity: "0" },
+        },
       },
       animation: {
         "slide-up": "slideUp 0.3s ease-out",
         "slide-down": "slideDown 0.3s ease-out",
+        "toast-in": "toast-in 300ms ease-in",
+        "toast-out": "toast-out 300ms ease-in forwards",
       },
     },
   },

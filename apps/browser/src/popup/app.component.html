@@ -18,6 +18,6 @@
     <div [@routerTransition]="getRouteElevation(outlet)" class="tw-size-full">
       <router-outlet #outlet="outlet"></router-outlet>
     </div>
-    <bit-toast-container></bit-toast-container>
+    <bit-toast-container position="top-full-width" [maxOpened]="2"></bit-toast-container>
   </div>
 }

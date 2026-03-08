@@ -1,66 +1,138 @@
-import {
-  Meta,
-  Canvas,
-  Source,
-  Primary,
-  Controls,
-  Title,
-  Description,
-} from "@storybook/addon-docs/blocks";
+import { Meta, Canvas, Controls, Primary } from "@storybook/addon-docs/blocks";
 
 import * as stories from "./toast.stories";
 
 <Meta of={stories} />
 
+# Toast
+
+Toasts are brief, non-blocking notifications that communicate the result of an action. They appear
+at the edge of the screen, auto-dismiss after a short delay, and require no user interaction to
+close.
+
+Use toasts for:
+
+- Confirming a completed action ("Item saved", "Copied to clipboard")
+- Surfacing a recoverable error that doesn't block the user
+- Communicating background progress or status changes
+
+**Avoid** using toasts for critical errors that require acknowledgment, multi-step flows, or content
+that needs to persist.
+
+---
+
+## Variants
+
+Four variants communicate severity and tone.
+
+<Canvas of={stories.Variants} />
+
+| Variant   | When to use                                       |
+| --------- | ------------------------------------------------- |
+| `success` | Action completed successfully                     |
+| `error`   | Something went wrong; user may need to act        |
+| `warning` | Potentially unintended outcome; proceed with care |
+| `info`    | Neutral status update or background information   |
+
+---
+
+## Long content
+
+Keep toast messages short. When a longer explanation is unavoidable, pass an array of strings to
+render multiple paragraphs. The timeout auto-extends based on word count so the user has time to
+read.
+
+<Canvas of={stories.LongContent} />
+
+---
+
+## Usage
+
+Toasts are triggered programmatically via `ToastService`. Inject it anywhere in an Angular component
+or service.
+
 ```ts
 import { ToastService } from "@bitwarden/components";
 ```
 
-<Title />
+```ts
+constructor(private toastService: ToastService) {}
 
-<Primary />
-<Controls />
-
-### Variants
-
-<Canvas of={stories.Variants} />
-
-### Long content
-
-<Canvas of={stories.LongContent} />
-
-## Displaying a toast
-
-Toasts are triggered via the `ToastService`, which must be called from a frontend Angular context.
-
-```
-toastService.showToast({
-  variant: 'success',
-  message: 'Hi I'm a toast,
+this.toastService.showToast({
+  variant: "success",
+  title: "Vault saved",
+  message: "Your changes have been encrypted and saved.",
 });
 ```
 
-The following options are accepted:
-
-| Option    | Description                                   |
-| --------- | --------------------------------------------- |
-| `variant` | `"success" \| "error" \| "info" \| "warning"` |
-| `title`   | Optional title `string`                       |
-| `message` | Main toast content. Required `string`         |
-
 <Canvas of={stories.Service} />
 
-### Toast container
+### `showToast` options
 
-`bit-toast-container` should be added to the app root of consuming clients to ensure toasts are
-properly announced to screenreaders.
+| Option    | Type                                          | Required | Description                                              |
+| --------- | --------------------------------------------- | -------- | -------------------------------------------------------- |
+| `message` | `string \| string[]`                          | Yes      | Toast body. Pass an array to render multiple paragraphs. |
+| `variant` | `"success" \| "error" \| "info" \| "warning"` | No       | Visual style. Defaults to `"info"`.                      |
+| `title`   | `string`                                      | No       | Optional heading shown above the message.                |
+| `timeout` | `number`                                      | No       | Override the auto-dismiss delay in milliseconds.         |
 
-```
-<other app file html here>
+---
+
+## Setup
+
+Place `<bit-toast-container>` once in each app's root template. This is where toasts are rendered
+and where the ARIA live region is anchored.
+
+```html
+<!-- app.component.html -->
+<router-outlet></router-outlet>
 <bit-toast-container></bit-toast-container>
 ```
 
-### Accessibility
+### Container inputs
 
-In addition to the accessibility provided by the `bit-toast-container` component, the toast itself
-will apply `aria-alert="true"` if the toast is of type `error`.
+The container accepts inputs to configure behaviour per app. All inputs are optional and fall back
+to sensible defaults.
+
+| Input         | Type            | Default          | Description                                                           |
+| ------------- | --------------- | ---------------- | --------------------------------------------------------------------- |
+| `position`    | `ToastPosition` | `"bottom-right"` | Screen position. `"top-full-width"` is used in the browser extension. |
+| `maxOpened`   | `number`        | `5`              | Maximum number of toasts shown simultaneously.                        |
+| `autoDismiss` | `boolean`       | `true`           | When `maxOpened` is exceeded, dismiss the oldest toast to make room.  |
+| `timeout`     | `number`        | `5000`           | Default auto-dismiss delay in milliseconds.                           |
+
+```html
+<!-- Browser extension: toasts appear full-width at the top -->
+<bit-toast-container position="top-full-width" [maxOpened]="2"></bit-toast-container>
+```
+
+---
+
+## Behavior
+
+### Auto-dismiss
+
+Toasts dismiss automatically after `timeout` milliseconds. The timeout is calculated per toast — if
+no explicit `timeout` is passed to `showToast`, the duration extends slightly for longer messages
+(+1 second per 120 words beyond the baseline).
+
+### Hover to pause
+
+Moving the cursor over the toast area pauses all active timers. Timers resume from where they left
+off when the cursor leaves.
+
+### Overflow
+
+When the number of visible toasts exceeds `maxOpened`, the oldest toast is removed immediately if
+`autoDismiss` is `true`. If `autoDismiss` is `false`, new toasts are silently dropped.
+
+---
+
+## Accessibility
+
+- The container renders with `role="status"` and `aria-live="polite"`, so new toasts are announced
+  by screen readers without interrupting the user.
+- Error toasts additionally carry `role="alert"`, which triggers an assertive announcement and is
+  appropriate for time-sensitive failures.
+- The close button is always visible and keyboard-focusable.
+- Toasts do not trap focus — they are supplementary and non-blocking.
