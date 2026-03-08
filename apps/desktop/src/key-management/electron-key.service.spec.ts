@@ -7,6 +7,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -38,6 +39,7 @@ describe("ElectronKeyService", () => {
   const biometricStateService = mock<BiometricStateService>();
   const biometricService = mock<DesktopBiometricsService>();
   const accountCryptographicStateService = mock<AccountCryptographicStateService>();
+  const sdkService = mock<SdkService>();
   let stateProvider: FakeStateProvider;
 
   const mockUserId = Utils.newGuid() as UserId;
@@ -65,6 +67,7 @@ describe("ElectronKeyService", () => {
       kdfConfigService,
       biometricService,
       accountCryptographicStateService,
+      sdkService,
     );
   });
 

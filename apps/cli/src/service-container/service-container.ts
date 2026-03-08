@@ -508,6 +508,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.kdfConfigService,
       this.accountCryptographicStateService,
+      this.sdkService,
     );
 
     const pinStateService = new PinStateService(this.stateProvider);
