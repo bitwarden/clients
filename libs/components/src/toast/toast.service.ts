@@ -1,5 +1,4 @@
-import { DOCUMENT } from "@angular/common";
-import { inject, Injectable, signal } from "@angular/core";
+import { Injectable, signal } from "@angular/core";
 
 import type { ToastVariant } from "./toast.component";
 import { calculateToastTimeout, PausableTimer } from "./utils";
@@ -34,21 +33,12 @@ const defaultTimeout = 5000;
  **/
 @Injectable({ providedIn: "root" })
 export class ToastService {
-  private readonly document = inject(DOCUMENT);
-
   private readonly _toasts = signal<ToastData[]>([]);
   /** Read-only signal of currently active toasts. */
   readonly toasts = this._toasts.asReadonly();
   private readonly timers = new Map<string, PausableTimer>();
   private paused = false;
-
-  /**
-   * Maximum toasts shown at once. Scales with viewport height: tall screens show more,
-   * short screens (e.g. browser extension popup) show fewer.
-   */
-  private get maxOpened(): number {
-    return this.document.defaultView?.matchMedia("(min-height: 700px)").matches ? 5 : 2;
-  }
+  private maxOpened = 5;
 
   /** Show a toast notification. */
   showToast(options: ToastOptions): void;
@@ -102,6 +92,11 @@ export class ToastService {
     }
     this.paused = false;
     this.timers.forEach((timer) => timer.resume());
+  }
+
+  /** Sets the maximum number of toasts shown at once. Called by `ToastContainerComponent`. */
+  setMaxOpened(max: number): void {
+    this.maxOpened = max;
   }
 
   /** Dismisses a toast immediately, cancelling its timer. */
