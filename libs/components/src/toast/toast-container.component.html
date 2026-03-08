@@ -1,1 +1,25 @@
-<div role="status" aria-live="polite" aria-atomic="true" toastContainer></div>
+<div
+  role="status"
+  aria-live="polite"
+  aria-atomic="false"
+  [class]="styles().root()"
+  [style.top]="position() === 'top-full-width' ? '4.3rem' : null"
+>
+  @for (toast of service.toasts(); track toast.id) {
+    <div
+      animate.enter="tw-animate-toast-in"
+      animate.leave="tw-animate-toast-out"
+      [class]="styles().item()"
+      style="-webkit-app-region: no-drag"
+      (mouseenter)="service.pause()"
+      (mouseleave)="service.resume()"
+    >
+      <bit-toast
+        [message]="toast.message"
+        [variant]="toast.variant"
+        [title]="toast.title"
+        (onClose)="service.remove(toast.id)"
+      ></bit-toast>
+    </div>
+  }
+</div>

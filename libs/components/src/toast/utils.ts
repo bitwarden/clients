@@ -1,3 +1,49 @@
+/** A one-shot timer that supports pausing and resuming while preserving remaining time. */
+export class PausableTimer {
+  private timeoutId: ReturnType<typeof setTimeout> | null = null;
+  private remaining: number;
+  private startedAt = 0;
+
+  constructor(
+    private readonly callback: () => void,
+    duration: number,
+  ) {
+    this.remaining = duration;
+    this.start();
+  }
+
+  /** Pauses the timer, preserving the remaining duration. No-op if already paused. */
+  pause(): void {
+    if (this.timeoutId === null) {
+      return;
+    }
+    clearTimeout(this.timeoutId);
+    this.timeoutId = null;
+    this.remaining = Math.max(0, this.remaining - (Date.now() - this.startedAt));
+  }
+
+  /** Resumes the timer from where it was paused. No-op if already running. */
+  resume(): void {
+    if (this.timeoutId !== null) {
+      return;
+    }
+    this.start();
+  }
+
+  /** Cancels the timer permanently. The callback will not fire. */
+  cancel(): void {
+    if (this.timeoutId !== null) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
+  }
+
+  private start(): void {
+    this.startedAt = Date.now();
+    this.timeoutId = setTimeout(this.callback, this.remaining);
+  }
+}
+
 /**
  * Given a toast message, calculate the ideal timeout length following:
  * a minimum of 5 seconds + 1 extra second per 120 additional words

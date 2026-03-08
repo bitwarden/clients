@@ -21,7 +21,6 @@ export default {
     }),
     applicationConfig({
       providers: [
-        ToastModule.forRoot().providers!,
         {
           provide: PlatformUtilsService,
           useValue: {
