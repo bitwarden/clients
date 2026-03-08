@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from "@angular/core";
 
+import containerStyles from "./toast-container.component.styles";
 import { ToastComponent } from "./toast.component";
 import { defaultToastConfig, ToastPosition, ToastService } from "./toast.service";
 
@@ -24,6 +25,8 @@ export class ToastContainerComponent {
   readonly timeout = input(defaultToastConfig.timeout);
   /** @see ToastConfig.position */
   readonly position = input<ToastPosition>(defaultToastConfig.position);
+
+  protected readonly styles = computed(() => containerStyles({ position: this.position() }));
 
   constructor() {
     effect(() => {

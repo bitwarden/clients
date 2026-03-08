@@ -1,25 +1,20 @@
-<div
-  class="tw-mb-1 tw-min-w-[19rem] tw-text-main tw-flex tw-flex-col tw-justify-between tw-rounded-md tw-pointer-events-auto tw-cursor-default tw-overflow-hidden tw-shadow-lg {{
-    bgColor()
-  }}"
-  [attr.role]="variant() === 'error' ? 'alert' : null"
->
-  <div class="tw-flex tw-items-center tw-gap-4 tw-px-2 tw-pb-1 tw-pt-2">
-    <i aria-hidden="true" class="bwi tw-text-xl tw-py-1.5 tw-px-2.5 {{ iconClass() }}"></i>
+<div [class]="styles().root()" [attr.role]="variant() === 'error' ? 'alert' : null">
+  <div [class]="styles().body()">
+    <i aria-hidden="true" [class]="styles().icon()"></i>
     <div>
       <span class="tw-sr-only">{{ variant() | i18n }}</span>
       @if (title(); as title) {
-        <p data-testid="toast-title" class="tw-font-medium tw-mb-0">{{ title }}</p>
+        <p data-testid="toast-title" [class]="styles().title()">{{ title }}</p>
       }
       @for (m of messageArray(); track m) {
-        <p bitTypography="body2" data-testid="toast-message" class="tw-mb-2 last:tw-mb-0">
+        <p bitTypography="body2" data-testid="toast-message" [class]="styles().message()">
           {{ m }}
         </p>
       }
     </div>
     <!-- Overriding hover and focus-visible colors for a11y against colored background -->
     <button
-      class="tw-ms-auto hover:tw-border-text-main focus-visible:before:tw-ring-text-main"
+      [class]="styles().closeButton()"
       bitIconButton="bwi-close"
       buttonType="primaryGhost"
       type="button"

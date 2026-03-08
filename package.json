@@ -209,6 +209,8 @@
     "rxjs": "7.8.1",
     "semver": "7.7.3",
     "tabbable": "6.3.0",
+    "tailwind-merge": "3.5.0",
+    "tailwind-variants": "3.2.2",
     "tldts": "7.0.22",
     "ts-node": "10.9.2",
     "utf-8-validate": "6.0.5",
