@@ -1,4 +1,5 @@
-import { Injectable, signal } from "@angular/core";
+import { DOCUMENT } from "@angular/common";
+import { inject, Injectable, signal } from "@angular/core";
 
 import type { ToastVariant } from "./toast.component";
 import { calculateToastTimeout, PausableTimer } from "./utils";
@@ -19,25 +20,6 @@ type DeprecatedToastOptions = {
   title?: string;
 };
 
-/** Screen position for the toast stack. */
-export type ToastPosition = "bottom-right" | "top-full-width" | "bottom-full-width";
-
-/** Configuration for the toast system, set via inputs on `<bit-toast-container>`. */
-export type ToastConfig = {
-  /** Maximum number of toasts shown at once. */
-  maxOpened: number;
-  /** Default auto-dismiss duration in milliseconds. */
-  timeout: number;
-  /** Where toasts are anchored on screen. */
-  position: ToastPosition;
-};
-
-export const defaultToastConfig: ToastConfig = {
-  maxOpened: 5,
-  timeout: 5000,
-  position: "bottom-right",
-};
-
 /** Internal state for a single active toast. */
 export type ToastData = {
   id: string;
@@ -45,21 +27,27 @@ export type ToastData = {
   variant: ToastVariant;
 };
 
+const defaultTimeout = 5000;
+
 /**
  * Presents toast notifications
  **/
 @Injectable({ providedIn: "root" })
 export class ToastService {
-  private config: ToastConfig = { ...defaultToastConfig };
+  private readonly document = inject(DOCUMENT);
+
   private readonly _toasts = signal<ToastData[]>([]);
   /** Read-only signal of currently active toasts. */
   readonly toasts = this._toasts.asReadonly();
   private readonly timers = new Map<string, PausableTimer>();
   private paused = false;
 
-  /** Overrides default config. Typically called once by `ToastContainerComponent` on init. */
-  configure(config: Partial<ToastConfig>): void {
-    this.config = { ...defaultToastConfig, ...config };
+  /**
+   * Maximum toasts shown at once. Scales with viewport height: tall screens show more,
+   * short screens (e.g. browser extension popup) show fewer.
+   */
+  private get maxOpened(): number {
+    return this.document.defaultView?.matchMedia("(min-height: 700px)").matches ? 5 : 2;
   }
 
   /** Show a toast notification. */
@@ -74,7 +62,7 @@ export class ToastService {
     const resolvedTimeout =
       options.timeout != null && options.timeout > 0
         ? options.timeout
-        : calculateToastTimeout(options.message, this.config.timeout);
+        : calculateToastTimeout(options.message, defaultTimeout);
 
     const toast: ToastData = {
       id,
@@ -83,8 +71,8 @@ export class ToastService {
     };
 
     this._toasts.update((toasts) => {
-      if (toasts.length >= this.config.maxOpened) {
-        const toRemove = toasts.slice(0, toasts.length - this.config.maxOpened + 1);
+      if (toasts.length >= this.maxOpened) {
+        const toRemove = toasts.slice(0, toasts.length - this.maxOpened + 1);
         toRemove.forEach((t) => this.cancelTimer(t.id));
         return [...toasts.slice(toRemove.length), toast];
       }

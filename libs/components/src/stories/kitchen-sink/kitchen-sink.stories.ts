@@ -242,6 +242,17 @@ export const ToastVisible: Story = {
   },
 };
 
+export const DrawerOpenWithToast: Story = {
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    await navigateTo("/bitwarden");
+
+    // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
+    await fireEvent.click(getByRole(canvas, "button", { name: "Open Drawer" }));
+    await fireEvent.click(getByRole(canvas, "button", { name: "Show Toast" }));
+  },
+};
+
 export const ResponsiveSidebar: Story = {
   parameters: {
     chromatic: {

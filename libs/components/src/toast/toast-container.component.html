@@ -2,14 +2,15 @@
   role="status"
   aria-live="polite"
   aria-atomic="false"
-  [class]="styles().root()"
-  [style.top]="position() === 'top-full-width' ? '4.3rem' : null"
+  [class]="styles.root()"
+  [style.--bit-toast-bottom]="bottomOffset() ?? '1rem'"
+  [style.--bit-toast-end]="endOffset() ?? '1rem'"
 >
   @for (toast of service.toasts(); track toast.id) {
     <div
       animate.enter="tw-animate-toast-in"
       animate.leave="tw-animate-toast-out"
-      [class]="styles().item()"
+      [class]="styles.item()"
       style="-webkit-app-region: no-drag"
       (mouseenter)="service.pause()"
       (mouseleave)="service.resume()"

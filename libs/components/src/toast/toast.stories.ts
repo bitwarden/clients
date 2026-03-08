@@ -11,7 +11,7 @@ import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { ToastContainerComponent } from "./toast-container.component";
 import { ToastComponent } from "./toast.component";
-import { defaultToastConfig, ToastOptions, ToastService } from "./toast.service";
+import { ToastOptions, ToastService } from "./toast.service";
 
 const docsSourceTemplate = `
   <button bitButton type="button" (click)="toastService.showToast(toastOptions)">Show Toast</button>
@@ -134,7 +134,7 @@ export const Service: Story = {
     title: "",
     message: "Hello Bitwarden!",
     variant: "error",
-    timeout: defaultToastConfig.timeout,
+    timeout: 5000,
   } as ToastOptions,
   parameters: {
     chromatic: { disableSnapshot: true },

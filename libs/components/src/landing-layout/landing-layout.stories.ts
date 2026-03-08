@@ -1,11 +1,30 @@
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { userEvent, getByRole } from "storybook/test";
 
 import { ClientType } from "@bitwarden/common/enums";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { ButtonModule } from "../button";
+import { ToastService } from "../toast/toast.service";
+import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { LandingLayoutComponent } from "./landing-layout.component";
+
+@Component({
+  selector: "show-toast-button",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: ` <button bitButton type="button" (click)="showToast()">Show Toast</button> `,
+  imports: [ButtonModule],
+})
+class ShowToastButtonComponent {
+  private toastService = inject(ToastService);
+
+  showToast() {
+    this.toastService.showToast({ message: "Item saved.", variant: "success" });
+  }
+}
 
 class MockPlatformUtilsService implements Partial<PlatformUtilsService> {
   getClientType = () => ClientType.Web;
@@ -22,11 +41,22 @@ export default {
   component: LandingLayoutComponent,
   decorators: [
     moduleMetadata({
-      imports: [ButtonModule],
+      imports: [ButtonModule, ShowToastButtonComponent],
       providers: [
         {
           provide: PlatformUtilsService,
           useClass: MockPlatformUtilsService,
+        },
+        {
+          provide: I18nService,
+          useFactory: () =>
+            new I18nMockService({
+              close: "Close",
+              error: "Error",
+              info: "Info",
+              success: "Success",
+              warning: "Warning",
+            }),
         },
       ],
     }),
@@ -158,5 +188,22 @@ export const MinimalState: Story = {
     hideBackgroundIllustration: true,
     includeHeader: false,
     includeFooter: false,
+  },
+};
+
+export const ToastVisible: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-landing-layout>
+        <div class="tw-p-8">
+          <show-toast-button></show-toast-button>
+        </div>
+      </bit-landing-layout>
+    `,
+  }),
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    await userEvent.click(getByRole(canvas, "button", { name: "Show Toast" }));
   },
 };

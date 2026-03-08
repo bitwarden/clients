@@ -59,6 +59,14 @@ export class LayoutComponent {
   private readonly drawerService = inject(DrawerService);
   protected drawerPortal = this.drawerService.portal;
 
+  /** Shifts the toast right edge to avoid overlapping the drawer when it's in push mode. */
+  protected readonly toastRightOffset = computed(() => {
+    if (!this.drawerService.portal() || !this.drawerService.isPushMode()) {
+      return null;
+    }
+    return `calc(${this.drawerService.pushWidthPx()}px + 1rem)`;
+  });
+
   /** Rendered only when nothing is projected into the side-nav slot (ng-content fallback). */
   private readonly sideNavSlotFallback = viewChild<ElementRef>("sideNavSlotFallback");
   protected readonly hasSideNav = computed(() => this.sideNavSlotFallback() == null);

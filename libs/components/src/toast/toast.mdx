@@ -78,30 +78,22 @@ this.toastService.showToast({
 
 ## Setup
 
-Place `<bit-toast-container>` once in each app's root template. This is where toasts are rendered
-and where the ARIA live region is anchored.
+`<bit-toast-container>` is already included in the layout components (`bit-layout`,
+`bit-landing-layout`, `popup-tab-navigation`). No manual placement is needed in most apps.
 
-```html
-<!-- app.component.html -->
-<router-outlet></router-outlet>
-<bit-toast-container></bit-toast-container>
-```
+### Positioning
+
+The container is responsive: on narrow screens toasts appear full-width at the bottom; on wider
+screens (≥ `sm` breakpoint) they anchor to the bottom-right corner.
 
 ### Container inputs
 
-The container accepts inputs to configure behaviour per app. All inputs are optional and fall back
-to sensible defaults.
+All inputs are optional and fall back to sensible defaults.
 
-| Input       | Type            | Default          | Description                                                           |
-| ----------- | --------------- | ---------------- | --------------------------------------------------------------------- |
-| `position`  | `ToastPosition` | `"bottom-right"` | Screen position. `"top-full-width"` is used in the browser extension. |
-| `maxOpened` | `number`        | `5`              | Maximum number of toasts shown simultaneously.                        |
-| `timeout`   | `number`        | `5000`           | Default auto-dismiss delay in milliseconds.                           |
-
-```html
-<!-- Browser extension: toasts appear full-width at the top -->
-<bit-toast-container position="top-full-width" [maxOpened]="2"></bit-toast-container>
-```
+| Input          | Type     | Default | Description                                                                                     |
+| -------------- | -------- | ------- | ----------------------------------------------------------------------------------------------- |
+| `bottomOffset` | `string` | `1rem`  | Bottom offset. Use to clear fixed bottom chrome (e.g. a tab bar). Accepts any CSS length.       |
+| `endOffset`    | `string` | `1rem`  | Inline-end offset on wide screens. Use to clear a side panel or drawer. Accepts any CSS length. |
 
 ---
 
