@@ -92,6 +92,10 @@ export class ToastService {
     });
 
     this.startTimer(id, resolvedTimeout);
+
+    if (this.paused) {
+      this.timers.get(id)?.pause();
+    }
   }
 
   /** Pauses auto-dismiss for all active toasts. Called when the user hovers the container. */

@@ -101,6 +101,18 @@ describe("PausableTimer", () => {
       jest.advanceTimersByTime(10000);
       expect(cb).not.toHaveBeenCalled();
     });
+
+    it("prevents the callback from firing even when cancelled while paused", () => {
+      const cb = jest.fn();
+      const timer = new PausableTimer(cb, 1000);
+
+      timer.pause();
+      timer.cancel();
+      timer.resume(); // should not restart the timer
+
+      jest.advanceTimersByTime(10000);
+      expect(cb).not.toHaveBeenCalled();
+    });
   });
 });
 

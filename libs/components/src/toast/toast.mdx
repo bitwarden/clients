@@ -60,7 +60,6 @@ constructor(private toastService: ToastService) {}
 
 this.toastService.showToast({
   variant: "success",
-  title: "Vault saved",
   message: "Your changes have been encrypted and saved.",
 });
 ```
@@ -69,12 +68,11 @@ this.toastService.showToast({
 
 ### `showToast` options
 
-| Option    | Type                                          | Required | Description                                              |
-| --------- | --------------------------------------------- | -------- | -------------------------------------------------------- |
-| `message` | `string \| string[]`                          | Yes      | Toast body. Pass an array to render multiple paragraphs. |
-| `variant` | `"success" \| "error" \| "info" \| "warning"` | No       | Visual style. Defaults to `"info"`.                      |
-| `title`   | `string`                                      | No       | Optional heading shown above the message.                |
-| `timeout` | `number`                                      | No       | Override the auto-dismiss delay in milliseconds.         |
+| Option    | Type                                          | Required | Description                                      |
+| --------- | --------------------------------------------- | -------- | ------------------------------------------------ |
+| `message` | `string`                                      | Yes      | Toast body.                                      |
+| `variant` | `"success" \| "error" \| "info" \| "warning"` | No       | Visual style. Defaults to `"info"`.              |
+| `timeout` | `number`                                      | No       | Override the auto-dismiss delay in milliseconds. |
 
 ---
 

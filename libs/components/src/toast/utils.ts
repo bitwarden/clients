@@ -3,6 +3,7 @@ export class PausableTimer {
   private timeoutId: ReturnType<typeof setTimeout> | null = null;
   private remaining: number;
   private startedAt = 0;
+  private cancelled = false;
 
   constructor(
     private readonly callback: () => void,
@@ -22,9 +23,9 @@ export class PausableTimer {
     this.remaining = Math.max(0, this.remaining - (Date.now() - this.startedAt));
   }
 
-  /** Resumes the timer from where it was paused. No-op if already running. */
+  /** Resumes the timer from where it was paused. No-op if already running or cancelled. */
   resume(): void {
-    if (this.timeoutId !== null) {
+    if (this.cancelled || this.timeoutId !== null) {
       return;
     }
     this.start();
@@ -32,6 +33,7 @@ export class PausableTimer {
 
   /** Cancels the timer permanently. The callback will not fire. */
   cancel(): void {
+    this.cancelled = true;
     if (this.timeoutId !== null) {
       clearTimeout(this.timeoutId);
       this.timeoutId = null;
