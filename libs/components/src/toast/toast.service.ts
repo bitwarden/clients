@@ -69,6 +69,9 @@ export class ToastService {
       return [...toasts, toast];
     });
 
+    // Pause all existing timers — the new toast is on top; others are hidden
+    this.timers.forEach((timer) => timer.pause());
+
     this.startTimer(id, resolvedTimeout);
 
     if (this.paused) {
@@ -103,6 +106,14 @@ export class ToastService {
   remove(id: string): void {
     this.cancelTimer(id);
     this._toasts.update((toasts) => toasts.filter((t) => t.id !== id));
+
+    // Resume the new top toast's timer if not hover-paused
+    if (!this.paused) {
+      const toasts = this._toasts();
+      if (toasts.length > 0) {
+        this.timers.get(toasts[toasts.length - 1].id)?.resume();
+      }
+    }
   }
 
   private startTimer(id: string, timeout: number): void {

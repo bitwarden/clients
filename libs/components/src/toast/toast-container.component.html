@@ -6,22 +6,25 @@
   [style.--bit-toast-bottom]="bottomOffset() ?? '1rem'"
   [style.--bit-toast-end]="endOffset() ?? '1rem'"
 >
-  @for (toast of service.toasts(); track toast.id) {
+  @for (toast of service.toasts(); track toast.id; let i = $index) {
+    @let depth = service.toasts().length - 1 - i;
     <div
       animate.enter="tw-animate-toast-in"
       animate.leave="tw-animate-toast-out"
       [class]="styles.item()"
+      [style.z-index]="i + 1"
+      [style.transform]="depth > 0 ? 'scale(' + (1 - depth * 0.03) + ')' : null"
+      [style.opacity]="depth > 1 ? '0' : depth === 1 ? '0.7' : null"
+      [style.pointer-events]="depth === 0 ? 'auto' : 'none'"
       style="-webkit-app-region: no-drag"
       (mouseenter)="service.pause()"
       (mouseleave)="service.resume()"
     >
-      <div [class]="styles.itemInner()">
-        <bit-toast
-          [message]="toast.message"
-          [variant]="toast.variant"
-          (onClose)="service.remove(toast.id)"
-        ></bit-toast>
-      </div>
+      <bit-toast
+        [message]="toast.message"
+        [variant]="toast.variant"
+        (onClose)="service.remove(toast.id)"
+      ></bit-toast>
     </div>
   }
 </div>
