@@ -8,8 +8,8 @@ import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
-  EncString,
   EncryptedString,
+  EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { UnsignedPublicKey } from "@bitwarden/common/key-management/types";
@@ -31,22 +31,22 @@ import {
 import { UserKeyDefinition } from "@bitwarden/common/platform/state";
 import {
   awaitAsync,
+  FakeAccountService,
+  FakeSingleUserState,
+  FakeStateProvider,
   makeEncString,
   makeStaticByteArray,
   makeSymmetricCryptoKey,
-  FakeAccountService,
   mockAccountServiceWith,
-  FakeStateProvider,
-  FakeSingleUserState,
 } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
-  UserKey,
   MasterKey,
-  UserPublicKey,
   OrgKey,
   ProviderKey,
+  UserKey,
+  UserPublicKey,
 } from "@bitwarden/common/types/key";
 
 import { KdfConfigService } from "./abstractions/kdf-config.service";
@@ -72,6 +72,8 @@ describe("keyService", () => {
   let masterPasswordService: FakeMasterPasswordService;
 
   beforeEach(async () => {
+    (Symbol as any).dispose = Symbol("dispose");
+
     accountService = mockAccountServiceWith(mockUserId);
     masterPasswordService = new FakeMasterPasswordService();
     stateProvider = new FakeStateProvider(accountService);
@@ -345,6 +347,18 @@ describe("keyService", () => {
   });
 
   describe("clearKeys", () => {
+    const mockClearKeysFromState = jest.fn().mockResolvedValue(undefined);
+    const mockSdkClient = {
+      take: () => ({
+        value: { crypto: () => ({ clear_keys_from_state_on_logout: mockClearKeysFromState }) },
+        [Symbol.dispose]: jest.fn(),
+      }),
+    };
+
+    afterEach(() => {
+      mockClearKeysFromState.mockClear();
+    });
+
     test.each([null as unknown as UserId, undefined as unknown as UserId])(
       "throws when the provided userId is %s",
       async (userId) => {
@@ -365,6 +379,14 @@ describe("keyService", () => {
         });
       },
     );
+
+    it("calls clear_keys_from_state_on_logout on the SDK crypto client", async () => {
+      sdkService.userClient$.mockReturnValue(new BehaviorSubject(mockSdkClient as any));
+
+      await keyService.clearKeys("someUser" as UserId);
+
+      expect(mockClearKeysFromState).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("userPrivateKey$", () => {
