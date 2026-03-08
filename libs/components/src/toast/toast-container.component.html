@@ -15,11 +15,13 @@
       (mouseenter)="service.pause()"
       (mouseleave)="service.resume()"
     >
-      <bit-toast
-        [message]="toast.message"
-        [variant]="toast.variant"
-        (onClose)="service.remove(toast.id)"
-      ></bit-toast>
+      <div [class]="styles.itemInner()">
+        <bit-toast
+          [message]="toast.message"
+          [variant]="toast.variant"
+          (onClose)="service.remove(toast.id)"
+        ></bit-toast>
+      </div>
     </div>
   }
 </div>

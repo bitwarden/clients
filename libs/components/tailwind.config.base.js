@@ -334,22 +334,12 @@ module.exports = {
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
         "toast-in": {
-          "0%": { opacity: "0", transform: "translateX(1rem)", maxHeight: "0", overflow: "hidden" },
-          "100%": {
-            opacity: "1",
-            transform: "translateX(0)",
-            maxHeight: "8rem",
-            overflow: "hidden",
-          },
+          "0%": { opacity: "0", transform: "translateX(1rem)", gridTemplateRows: "0fr" },
+          "100%": { opacity: "1", transform: "translateX(0)", gridTemplateRows: "1fr" },
         },
         "toast-out": {
-          "0%": { opacity: "1", transform: "translateX(0)", maxHeight: "8rem", overflow: "hidden" },
-          "100%": {
-            opacity: "0",
-            transform: "translateX(1rem)",
-            maxHeight: "0",
-            overflow: "hidden",
-          },
+          "0%": { opacity: "1", transform: "translateX(0)", gridTemplateRows: "1fr" },
+          "100%": { opacity: "0", transform: "translateX(1rem)", gridTemplateRows: "0fr" },
         },
       },
       animation: {

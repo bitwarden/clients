@@ -10,6 +10,7 @@ export default tv({
       // Wide screens: anchored to the inline-end
       "sm:tw-left-auto sm:[right:var(--bit-toast-end)] sm:tw-items-end",
     ],
-    item: "tw-pointer-events-auto",
+    item: "tw-pointer-events-auto tw-grid",
+    itemInner: "tw-overflow-hidden tw-min-h-0",
   },
 });
