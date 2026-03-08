@@ -7,6 +7,7 @@ import { Subject, filter, firstValueFrom, map, timeout } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
+import { DebugFeatureFlagDialogService } from "@bitwarden/angular/platform/dev-settings";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { LockService } from "@bitwarden/auth/common";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
@@ -77,6 +78,7 @@ export class AppComponent implements OnDestroy, OnInit {
     private readonly documentLangSetter: DocumentLangSetter,
     private readonly tokenService: TokenService,
     private readonly routerFocusManager: RouterFocusManagerService,
+    private readonly debugFeatureFlagDialogService: DebugFeatureFlagDialogService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
