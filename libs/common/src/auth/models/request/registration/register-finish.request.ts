@@ -1,6 +1,10 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfType } from "@bitwarden/key-management";
+import {
+  MasterPasswordAuthenticationData,
+  MasterPasswordUnlockData,
+} from "@bitwarden/sdk-internal";
 
 import { EncryptedString } from "../../../../key-management/crypto/models/enc-string";
 import { KeysRequest } from "../../../../models/request/keys.request";
@@ -15,10 +19,15 @@ export class RegisterFinishRequest {
     public userSymmetricKey: EncryptedString,
     public userAsymmetricKeys: KeysRequest,
 
-    public kdf: KdfType,
-    public kdfIterations: number,
+    public masterPasswordUnlock?: MasterPasswordUnlockData,
+    public masterPasswordAuthenticationData?: MasterPasswordAuthenticationData,
+
+    public kdf?: KdfType,
+    public kdfIterations?: number,
     public kdfMemory?: number,
     public kdfParallelism?: number,
+
+    public salt?: string,
 
     public emailVerificationToken?: string,
     public orgSponsoredFreeFamilyPlanToken?: string,
