@@ -19,8 +19,6 @@ export class ToastContainerComponent {
 
   /** @see ToastConfig.maxOpened */
   readonly maxOpened = input(defaultToastConfig.maxOpened);
-  /** @see ToastConfig.autoDismiss */
-  readonly autoDismiss = input(defaultToastConfig.autoDismiss);
   /** @see ToastConfig.timeout */
   readonly timeout = input(defaultToastConfig.timeout);
   /** @see ToastConfig.position */
@@ -32,7 +30,6 @@ export class ToastContainerComponent {
     effect(() => {
       this.service.configure({
         maxOpened: this.maxOpened(),
-        autoDismiss: this.autoDismiss(),
         timeout: this.timeout(),
         position: this.position(),
       });

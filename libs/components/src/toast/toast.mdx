@@ -94,12 +94,11 @@ and where the ARIA live region is anchored.
 The container accepts inputs to configure behaviour per app. All inputs are optional and fall back
 to sensible defaults.
 
-| Input         | Type            | Default          | Description                                                           |
-| ------------- | --------------- | ---------------- | --------------------------------------------------------------------- |
-| `position`    | `ToastPosition` | `"bottom-right"` | Screen position. `"top-full-width"` is used in the browser extension. |
-| `maxOpened`   | `number`        | `5`              | Maximum number of toasts shown simultaneously.                        |
-| `autoDismiss` | `boolean`       | `true`           | When `maxOpened` is exceeded, dismiss the oldest toast to make room.  |
-| `timeout`     | `number`        | `5000`           | Default auto-dismiss delay in milliseconds.                           |
+| Input       | Type            | Default          | Description                                                           |
+| ----------- | --------------- | ---------------- | --------------------------------------------------------------------- |
+| `position`  | `ToastPosition` | `"bottom-right"` | Screen position. `"top-full-width"` is used in the browser extension. |
+| `maxOpened` | `number`        | `5`              | Maximum number of toasts shown simultaneously.                        |
+| `timeout`   | `number`        | `5000`           | Default auto-dismiss delay in milliseconds.                           |
 
 ```html
 <!-- Browser extension: toasts appear full-width at the top -->
@@ -123,8 +122,8 @@ off when the cursor leaves.
 
 ### Overflow
 
-When the number of visible toasts exceeds `maxOpened`, the oldest toast is removed immediately if
-`autoDismiss` is `true`. If `autoDismiss` is `false`, new toasts are silently dropped.
+When the number of visible toasts exceeds `maxOpened`, the oldest toast is removed immediately to
+make room for the new one.
 
 ---
 

@@ -26,8 +26,6 @@ export type ToastPosition = "bottom-right" | "top-full-width" | "bottom-full-wid
 export type ToastConfig = {
   /** Maximum number of toasts shown at once. */
   maxOpened: number;
-  /** When `maxOpened` is exceeded, remove the oldest toast to make room. */
-  autoDismiss: boolean;
   /** Default auto-dismiss duration in milliseconds. */
   timeout: number;
   /** Where toasts are anchored on screen. */
@@ -36,7 +34,6 @@ export type ToastConfig = {
 
 export const defaultToastConfig: ToastConfig = {
   maxOpened: 5,
-  autoDismiss: true,
   timeout: 5000,
   position: "bottom-right",
 };
@@ -77,7 +74,7 @@ export class ToastService {
     const resolvedTimeout =
       options.timeout != null && options.timeout > 0
         ? options.timeout
-        : calculateToastTimeout(options.message);
+        : calculateToastTimeout(options.message, this.config.timeout);
 
     const toast: ToastData = {
       id,
@@ -86,15 +83,12 @@ export class ToastService {
     };
 
     this._toasts.update((toasts) => {
-      let updated = [...toasts, toast];
-      if (updated.length > this.config.maxOpened) {
-        if (this.config.autoDismiss) {
-          const toRemove = updated.slice(0, updated.length - this.config.maxOpened);
-          toRemove.forEach((t) => this.cancelTimer(t.id));
-        }
-        updated = updated.slice(updated.length - this.config.maxOpened);
+      if (toasts.length >= this.config.maxOpened) {
+        const toRemove = toasts.slice(0, toasts.length - this.config.maxOpened + 1);
+        toRemove.forEach((t) => this.cancelTimer(t.id));
+        return [...toasts.slice(toRemove.length), toast];
       }
-      return updated;
+      return [...toasts, toast];
     });
 
     this.startTimer(id, resolvedTimeout);
