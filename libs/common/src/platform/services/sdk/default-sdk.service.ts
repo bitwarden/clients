@@ -18,6 +18,7 @@ import {
   firstValueFrom,
 } from "rxjs";
 
+import { ClientType } from "@bitwarden/client-type";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserKey } from "@bitwarden/common/types/key";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -252,7 +253,9 @@ export class DefaultSdkService implements SdkService {
     orgKeys: Record<OrganizationId, EncString>,
   ) {
     // Initialize the SDK managed database and the client managed repositories.
-    await initializeSdkManagedState(client.platform().state());
+    if (this.platformUtilsService.getClientType() !== ClientType.Cli) {
+      await initializeSdkManagedState(client.platform().state());
+    }
     await initializeClientManagedState(userId, client.platform().state(), this.stateProvider);
 
     await this.loadFeatureFlags(client);

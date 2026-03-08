@@ -14,6 +14,7 @@ import {
   firstValueFrom,
 } from "rxjs";
 
+import { ClientType } from "@bitwarden/client-type";
 import { PasswordManagerClient, ClientSettings, TokenProvider } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
@@ -145,7 +146,9 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
             );
 
             // Initialize the SDK managed database and the client managed repositories.
-            await initializeSdkManagedState(client.platform().state());
+            if (this.platformUtilsService.getClientType() !== ClientType.Cli) {
+              await initializeSdkManagedState(client.platform().state());
+            }
             await initializeClientManagedState(
               userId,
               client.platform().state(),
