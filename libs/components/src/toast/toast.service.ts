@@ -12,7 +12,7 @@ export type ToastOptions = {
 };
 
 /** Options we used to support (used in method overload) */
-export type DeprecatedToastOptions = {
+type DeprecatedToastOptions = {
   message: string | string[];
   variant?: ToastVariant;
   timeout?: number;
