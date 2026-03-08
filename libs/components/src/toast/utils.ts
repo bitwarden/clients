@@ -46,15 +46,16 @@ export class PausableTimer {
 
 /**
  * Given a toast message, calculate the ideal timeout length following:
- * a minimum of 5 seconds + 1 extra second per 120 additional words
+ * a minimum of `baseTimeout` + 1 extra second per 120 additional words
  *
  * @param message the toast message to be displayed
+ * @param baseTimeout the base timeout in milliseconds (defaults to 5000)
  * @returns the timeout length in milliseconds
  */
-export const calculateToastTimeout = (message: string | string[]): number => {
+export const calculateToastTimeout = (message: string | string[], baseTimeout = 5000): number => {
   const paragraphs = Array.isArray(message) ? message : [message];
   const numWords = paragraphs
     .map((paragraph) => paragraph.split(/\s+/).filter((word) => word !== ""))
     .flat().length;
-  return 5000 + Math.floor(numWords / 120) * 1000;
+  return baseTimeout + Math.floor(numWords / 120) * 1000;
 };
