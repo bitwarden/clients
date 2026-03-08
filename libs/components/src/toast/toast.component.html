@@ -1,6 +1,6 @@
 <div [class]="styles().root()" [attr.role]="variant() === 'error' ? 'alert' : null">
   <div [class]="styles().body()">
-    <i aria-hidden="true" [class]="styles().icon()"></i>
+    <bit-icon [name]="iconName()" [class]="styles().icon()"></bit-icon>
     <div>
       <span class="tw-sr-only">{{ variant() | i18n }}</span>
       @for (m of messageArray(); track m) {
