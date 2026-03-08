@@ -97,11 +97,10 @@ export class VaultSettingsComponent implements OnInit, OnDestroy {
       await this.setLastSync();
       toastConfig = {
         variant: "success",
-        title: "",
         message: this.i18nService.t("syncingComplete"),
       };
     } else {
-      toastConfig = { variant: "error", title: "", message: this.i18nService.t("syncingFailed") };
+      toastConfig = { variant: "error", message: this.i18nService.t("syncingFailed") };
     }
     this.toastService.showToast(toastConfig);
   }
