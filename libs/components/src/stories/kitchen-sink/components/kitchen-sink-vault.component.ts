@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 
 import { DialogService } from "../../../dialog";
+import { ToastService } from "../../../toast";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
 import { KitchenSinkFormComponent } from "./kitchen-sink-form.component";
@@ -25,6 +26,7 @@ import { KitchenSinkToggleListComponent } from "./kitchen-sink-toggle-list.compo
 
       <button type="button" bitButton (click)="openDialog()">Open Dialog</button>
       <button type="button" bitButton (click)="openDrawer()">Open Drawer</button>
+      <button type="button" bitButton (click)="showToast()">Show Toast</button>
     </bit-section>
     <bit-section>
       <h2 bitTypography="h2" class="tw-mb-6">Companies using Bitwarden</h2>
@@ -37,7 +39,10 @@ import { KitchenSinkToggleListComponent } from "./kitchen-sink-toggle-list.compo
   `,
 })
 export class KitchenSinkVaultComponent {
-  constructor(public dialogService: DialogService) {}
+  constructor(
+    public dialogService: DialogService,
+    private toastService: ToastService,
+  ) {}
 
   openDialog() {
     this.dialogService.open(KitchenSinkDialogComponent);
@@ -45,5 +50,9 @@ export class KitchenSinkVaultComponent {
 
   openDrawer() {
     this.dialogService.openDrawer(KitchenSinkDialogComponent);
+  }
+
+  showToast() {
+    this.toastService.showToast({ variant: "success", message: "Action completed successfully." });
   }
 }

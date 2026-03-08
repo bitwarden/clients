@@ -233,6 +233,15 @@ export const DrawerOpenBeforeSideNavOpen: Story = {
   },
 };
 
+export const ToastVisible: Story = {
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    await navigateTo("/bitwarden");
+    const toastButton = getByRole(canvas, "button", { name: "Show Toast" });
+    await userEvent.click(toastButton);
+  },
+};
+
 export const ResponsiveSidebar: Story = {
   parameters: {
     chromatic: {
