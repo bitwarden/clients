@@ -25,9 +25,9 @@ export class ToastComponent {
   readonly variant = input<ToastVariant>("info");
 
   /**
-   * The message to display
+   * The message to display.
    *
-   * Pass an array to render multiple paragraphs.
+   * @deprecated Passing an array to render multiple paragraphs is deprecated. Use a single string.
    **/
   readonly message = input.required<string | string[]>();
 

@@ -3,19 +3,26 @@ import { Injectable, signal } from "@angular/core";
 import type { ToastVariant } from "./toast.component";
 import { calculateToastTimeout, PausableTimer } from "./utils";
 
+/** Options passed to {@link ToastService.showToast}. */
 export type ToastOptions = {
-  /**
-   * The duration the toast will persist in milliseconds
-   **/
+  message: string;
+  variant?: ToastVariant;
+  /** The duration the toast will persist in milliseconds. */
   timeout?: number;
+};
+
+/** Options we used to support (used in method overload) */
+export type DeprecatedToastOptions = {
   message: string | string[];
   variant?: ToastVariant;
-  /** @deprecated No longer displayed. */
+  timeout?: number;
   title?: string;
 };
 
+/** Screen position for the toast stack. */
 export type ToastPosition = "bottom-right" | "top-full-width" | "bottom-full-width";
 
+/** Configuration for the toast system, set via inputs on `<bit-toast-container>`. */
 export type ToastConfig = {
   /** Maximum number of toasts shown at once. */
   maxOpened: number;
@@ -34,12 +41,11 @@ export const defaultToastConfig: ToastConfig = {
   position: "bottom-right",
 };
 
+/** Internal state for a single active toast. */
 export type ToastData = {
   id: string;
   message: string | string[];
   variant: ToastVariant;
-  /** @deprecated No longer displayed. */
-  title?: string;
 };
 
 /**
@@ -60,12 +66,13 @@ export class ToastService {
   }
 
   /** Show a toast notification. */
-  showToast(options: Omit<ToastOptions, "title">): void;
-  /**
-   * @deprecated `title` has no effect. Remove the `title` field from the options object.
-   */
   showToast(options: ToastOptions): void;
-  showToast(options: ToastOptions): void {
+  /** @deprecated The following properties are deprecated:
+   * - `title: string` (will not render)
+   * - `message: string[]` (to be removed; use single string instead)
+   **/
+  showToast(options: DeprecatedToastOptions): void;
+  showToast(options: ToastOptions | DeprecatedToastOptions): void {
     const id = Math.random().toString(36).slice(2);
     const resolvedTimeout =
       options.timeout != null && options.timeout > 0
