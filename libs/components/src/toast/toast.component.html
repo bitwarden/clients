@@ -3,9 +3,6 @@
     <i aria-hidden="true" [class]="styles().icon()"></i>
     <div>
       <span class="tw-sr-only">{{ variant() | i18n }}</span>
-      @if (title(); as title) {
-        <p data-testid="toast-title" [class]="styles().title()">{{ title }}</p>
-      }
       @for (m of messageArray(); track m) {
         <p bitTypography="body2" data-testid="toast-message" [class]="styles().message()">
           {{ m }}

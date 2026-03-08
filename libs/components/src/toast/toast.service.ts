@@ -10,6 +10,7 @@ export type ToastOptions = {
   timeout?: number;
   message: string | string[];
   variant?: ToastVariant;
+  /** @deprecated No longer displayed. */
   title?: string;
 };
 
@@ -37,6 +38,7 @@ export type ToastData = {
   id: string;
   message: string | string[];
   variant: ToastVariant;
+  /** @deprecated No longer displayed. */
   title?: string;
 };
 
@@ -57,9 +59,15 @@ export class ToastService {
     this.config = { ...defaultToastConfig, ...config };
   }
 
+  /** Show a toast notification. */
+  showToast(options: Omit<ToastOptions, "title">): void;
+  /**
+   * @deprecated `title` has no effect. Remove the `title` field from the options object.
+   */
+  showToast(options: ToastOptions): void;
   showToast(options: ToastOptions): void {
     const id = Math.random().toString(36).slice(2);
-    const timeout =
+    const resolvedTimeout =
       options.timeout != null && options.timeout > 0
         ? options.timeout
         : calculateToastTimeout(options.message);
@@ -68,7 +76,6 @@ export class ToastService {
       id,
       message: options.message,
       variant: options.variant ?? "info",
-      title: options.title,
     };
 
     this._toasts.update((toasts) => {
@@ -83,7 +90,7 @@ export class ToastService {
       return updated;
     });
 
-    this.startTimer(id, timeout);
+    this.startTimer(id, resolvedTimeout);
   }
 
   /** Pauses auto-dismiss for all active toasts. Called when the user hovers the container. */

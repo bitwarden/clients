@@ -31,7 +31,7 @@ export class ToastComponent {
    **/
   readonly message = input.required<string | string[]>();
 
-  /** An optional title to display over the message. */
+  /** @deprecated No longer displayed. */
   readonly title = input<string>();
 
   /** Emits when the user presses the close button */
