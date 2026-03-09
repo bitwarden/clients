@@ -51,7 +51,7 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
       }
 
       // FIXME The requirement on a hostname will be removed in the sdk, but the bindings need to be updated. Andreas is working on this.
-      void this.client.setCommunicationType(config.bootstrap.cookieDomain, config);
+      void this.client.setCommunicationType(config.bootstrap.cookieDomain!, config);
     });
   }
 
