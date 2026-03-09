@@ -11,7 +11,7 @@ export class RemoveUnlockWithPinPolicy extends BasePolicyEditDefinition {
   description = "removeUnlockWithPinPolicyDesc";
   type = PolicyType.RemoveUnlockWithPin;
   category = PolicyCategory.Authentication;
-  priority = 8;
+  priority = 80;
   component = RemoveUnlockWithPinPolicyComponent;
 }
 

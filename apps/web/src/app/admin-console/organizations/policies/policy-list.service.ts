@@ -15,8 +15,18 @@ const SECTION_DEFS: readonly { category: PolicyCategory; labelKey: string }[] = 
 
 export class PolicyListService {
   private readonly allPolicies: readonly BasePolicyEditDefinition[];
+
+  /**
+   * All policies grouped by category and sorted by priority within each category.
+   * Sections with no registered policies are included but will have an empty policies array.
+   */
   readonly sections: readonly PolicySection[];
 
+  /**
+   * @param policies The full list of registered policy definitions to manage.
+   *   Policies are sorted by {@link BasePolicyEditDefinition.priority} ascending,
+   *   with registration order used as a tiebreaker.
+   */
   constructor(policies: BasePolicyEditDefinition[]) {
     const sorted = [...policies].sort((a, b) =>
       a.priority !== b.priority
@@ -31,6 +41,9 @@ export class PolicyListService {
     }));
   }
 
+  /**
+   * Returns all registered policy definitions sorted by priority ascending.
+   */
   getPolicies(): readonly BasePolicyEditDefinition[] {
     return this.allPolicies;
   }

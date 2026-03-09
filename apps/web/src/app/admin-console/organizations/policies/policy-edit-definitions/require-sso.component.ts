@@ -14,7 +14,7 @@ export class RequireSsoPolicy extends BasePolicyEditDefinition {
   description = "requireSsoPolicyDesc";
   type = PolicyType.RequireSso;
   category = PolicyCategory.Authentication;
-  priority = 3;
+  priority = 30;
   component = RequireSsoPolicyComponent;
 
   display$(organization: Organization, configService: ConfigService) {

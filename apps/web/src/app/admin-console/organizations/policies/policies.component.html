@@ -40,15 +40,9 @@
                     </div>
                     <div class="tw-shrink-0">
                       @if (policiesEnabledMap.get(p.type)) {
-                        <span bitBadge variant="success" aria-hidden="true">
-                          {{ "on" | i18n }}
-                        </span>
-                        <span class="tw-sr-only">{{ "on" | i18n }}</span>
+                        <span bitBadge variant="success">{{ "on" | i18n }}</span>
                       } @else {
-                        <span bitBadge variant="secondary" aria-hidden="true">
-                          {{ "off" | i18n }}
-                        </span>
-                        <span class="tw-sr-only">{{ "off" | i18n }}</span>
+                        <span bitBadge variant="secondary">{{ "off" | i18n }}</span>
                       }
                     </div>
                   </div>

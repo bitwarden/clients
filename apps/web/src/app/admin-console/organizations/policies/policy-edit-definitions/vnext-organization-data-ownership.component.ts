@@ -34,7 +34,7 @@ export class vNextOrganizationDataOwnershipPolicy extends BasePolicyEditDefiniti
   description = "centralizeDataOwnershipDesc";
   type = PolicyType.OrganizationDataOwnership;
   category = PolicyCategory.DataControl;
-  priority = 2;
+  priority = 20;
   component = vNextOrganizationDataOwnershipPolicyComponent;
   showDescription = false;
 

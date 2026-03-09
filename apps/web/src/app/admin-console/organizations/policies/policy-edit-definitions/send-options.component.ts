@@ -12,7 +12,7 @@ export class SendOptionsPolicy extends BasePolicyEditDefinition {
   description = "sendOptionsPolicyDesc";
   type = PolicyType.SendOptions;
   category = PolicyCategory.DataControl;
-  priority = 3;
+  priority = 30;
   component = SendOptionsPolicyComponent;
 }
 

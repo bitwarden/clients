@@ -18,7 +18,7 @@ export class UriMatchDefaultPolicy extends BasePolicyEditDefinition {
   description = "uriMatchDetectionPolicyDesc";
   type = PolicyType.UriMatchDefaults;
   category = PolicyCategory.VaultManagement;
-  priority = 2;
+  priority = 20;
   component = UriMatchDefaultPolicyComponent;
 }
 @Component({

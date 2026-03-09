@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, defer, Observable, of, switchMap, first, map, shareReplay } from "rxjs";
+import { combineLatest, Observable, of, switchMap, first, map, shareReplay } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -77,36 +77,36 @@ export class PoliciesComponent {
     }),
   );
 
-  protected policies$: Observable<readonly BasePolicyEditDefinition[]> = defer(() =>
-    of(this.policyListService.getPolicies()),
-  );
-
   protected policySections$: Observable<PolicySection[]> = this.organization$.pipe(
     switchMap((organization) =>
       combineLatest(
-        this.policyListService.sections.map((section) => {
-          const displayChecks =
-            section.policies.length > 0
-              ? combineLatest(
-                  section.policies.map((p) =>
-                    p
-                      .display$(organization, this.configService)
-                      .pipe(map((visible) => (visible ? p : null))),
-                  ),
-                )
-              : of([] as (BasePolicyEditDefinition | null)[]);
-
-          return displayChecks.pipe(
-            map((results) => ({
-              category: section.category,
-              labelKey: section.labelKey,
-              policies: results.filter((p): p is BasePolicyEditDefinition => p !== null),
-            })),
-          );
-        }),
-      ).pipe(map((sections) => sections.filter((s) => s.policies.length > 0))),
+        this.policyListService.sections.map((section) =>
+          this.visiblePoliciesInSection$(section, organization),
+        ),
+      ),
     ),
+    map((sections) => sections.filter((s) => s.policies.length > 0)),
   );
+
+  private visiblePoliciesInSection$(
+    section: PolicySection,
+    organization: Organization,
+  ): Observable<PolicySection> {
+    if (section.policies.length === 0) {
+      return of({ ...section, policies: [] });
+    }
+
+    return combineLatest(
+      section.policies.map((p) =>
+        p.display$(organization, this.configService).pipe(map((visible) => (visible ? p : null))),
+      ),
+    ).pipe(
+      map((results) => ({
+        ...section,
+        policies: results.filter((p): p is BasePolicyEditDefinition => p !== null),
+      })),
+    );
+  }
 
   constructor(
     private route: ActivatedRoute,

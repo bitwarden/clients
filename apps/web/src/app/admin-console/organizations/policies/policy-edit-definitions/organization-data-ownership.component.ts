@@ -25,7 +25,7 @@ export class OrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
   description = "organizationDataOwnershipDesc";
   type = PolicyType.OrganizationDataOwnership;
   category = PolicyCategory.DataControl;
-  priority = 2;
+  priority = 20;
   component = OrganizationDataOwnershipPolicyComponent;
   showDescription = false;
 

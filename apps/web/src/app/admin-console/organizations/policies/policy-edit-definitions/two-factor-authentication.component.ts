@@ -11,7 +11,7 @@ export class TwoFactorAuthenticationPolicy extends BasePolicyEditDefinition {
   description = "twoStepLoginPolicyDesc";
   type = PolicyType.TwoFactorAuthentication;
   category = PolicyCategory.Authentication;
-  priority = 4;
+  priority = 40;
   component = TwoFactorAuthenticationPolicyComponent;
 }
 

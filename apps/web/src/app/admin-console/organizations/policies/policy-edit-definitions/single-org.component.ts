@@ -11,7 +11,7 @@ export class SingleOrgPolicy extends BasePolicyEditDefinition {
   description = "singleOrgPolicyDesc";
   type = PolicyType.SingleOrg;
   category = PolicyCategory.DataControl;
-  priority = 1;
+  priority = 10;
   component = SingleOrgPolicyComponent;
 }
 

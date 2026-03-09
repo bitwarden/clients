@@ -25,7 +25,7 @@ export class MasterPasswordPolicy extends BasePolicyEditDefinition {
   description = "masterPassPolicyDesc";
   type = PolicyType.MasterPassword;
   category = PolicyCategory.Authentication;
-  priority = 1;
+  priority = 10;
   component = MasterPasswordPolicyComponent;
 }
 

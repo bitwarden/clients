@@ -18,7 +18,7 @@ export class PasswordGeneratorPolicy extends BasePolicyEditDefinition {
   description = "passwordGeneratorPolicyDesc";
   type = PolicyType.PasswordGenerator;
   category = PolicyCategory.VaultManagement;
-  priority = 1;
+  priority = 10;
   component = PasswordGeneratorPolicyComponent;
 }
 

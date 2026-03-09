@@ -11,7 +11,7 @@ export class RestrictedItemTypesPolicy extends BasePolicyEditDefinition {
   description = "restrictedItemTypePolicyDesc";
   type = PolicyType.RestrictedItemTypes;
   category = PolicyCategory.VaultManagement;
-  priority = 5;
+  priority = 50;
   component = RestrictedItemTypesPolicyComponent;
 }
 

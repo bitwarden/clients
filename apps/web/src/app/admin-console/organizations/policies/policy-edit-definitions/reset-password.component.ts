@@ -21,7 +21,7 @@ export class ResetPasswordPolicy extends BasePolicyEditDefinition {
   description = "accountRecoveryPolicyDesc";
   type = PolicyType.ResetPassword;
   category = PolicyCategory.Authentication;
-  priority = 2;
+  priority = 20;
   component = ResetPasswordPolicyComponent;
 
   display$(organization: Organization, configService: ConfigService) {

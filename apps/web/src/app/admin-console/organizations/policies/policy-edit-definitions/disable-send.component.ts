@@ -11,7 +11,7 @@ export class DisableSendPolicy extends BasePolicyEditDefinition {
   description = "disableSendPolicyDesc";
   type = PolicyType.DisableSend;
   category = PolicyCategory.DataControl;
-  priority = 4;
+  priority = 40;
   component = DisableSendPolicyComponent;
 }
 
