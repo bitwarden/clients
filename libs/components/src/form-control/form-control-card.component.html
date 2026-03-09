@@ -8,7 +8,8 @@
 
   <div class="tw-flex tw-items-center tw-gap-4">
     @if (icon()) {
-      <bit-icon-tile [icon]="icon()"></bit-icon-tile>
+      <!-- this positioning style to account for tile staying top aligned when text wraps -->
+      <bit-icon-tile class="tw-self-start tw-relative tw-top-[1px]" [icon]="icon()"></bit-icon-tile>
     }
 
     <span

@@ -176,27 +176,3 @@ export const FormControlCard: Story = {
     `,
   }),
 };
-
-export const RTLSupport: Story = {
-  render: () => ({
-    props: {
-      formObj: new FormGroup({
-        switch: new FormControl(false),
-      }),
-    },
-    template: /* HTML */ `
-      <form dir="rtl" [formGroup]="formObj">
-        <bit-form-control-card icon="bwi-clock">
-          <bit-switch size="large" formControlName="switch-card"></bit-switch>
-          <bit-label>Enable feature</bit-label>
-          <bit-hint>This feature does some pretty cool stuff</bit-hint>
-        </bit-form-control-card>
-        <bit-form-control>
-          <bit-switch formControlName="switch"></bit-switch>
-          <bit-label>Example switch</bit-label>
-          <bit-hint>This is a hint for the switch</bit-hint>
-        </bit-form-control>
-      </form>
-    `,
-  }),
-};
