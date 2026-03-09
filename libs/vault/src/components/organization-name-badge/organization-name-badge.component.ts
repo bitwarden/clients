@@ -10,7 +10,7 @@ import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.servic
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { BadgeModule } from "@bitwarden/components";
+import { ChipActionComponent } from "@bitwarden/components";
 import { OrganizationId } from "@bitwarden/sdk-internal";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -18,7 +18,7 @@ import { OrganizationId } from "@bitwarden/sdk-internal";
 @Component({
   selector: "app-org-badge",
   templateUrl: "organization-name-badge.component.html",
-  imports: [RouterModule, JslibModule, BadgeModule],
+  imports: [RouterModule, JslibModule, ChipActionComponent],
 })
 export class OrganizationNameBadgeComponent implements OnChanges {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

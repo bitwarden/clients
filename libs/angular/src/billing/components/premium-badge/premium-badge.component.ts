@@ -18,9 +18,8 @@ import { NotPremiumDirective } from "../../directives/not-premium.directive";
       startIcon="bwi-premium"
       [variant]="'accent-primary'"
       (click)="promptForPremium($event)"
-    >
-      {{ "upgrade" | i18n }}
-    </button>
+      [label]="'upgrade' | i18n"
+    ></button>
   `,
   imports: [I18nPipe, ChipActionComponent, NotPremiumDirective],
 })
