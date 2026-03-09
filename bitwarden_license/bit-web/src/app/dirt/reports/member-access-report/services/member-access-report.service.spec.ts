@@ -529,14 +529,20 @@ describe("MemberAccessReportService", () => {
 
       // Mock ciphers
       mockCipherService.getAllFromApiForOrganization.mockResolvedValue([
-        createMockCipher("cipher-1", [collectionId1]),
+        createMockCipher("cipher-1", []),
       ] as CipherView[]);
 
       const result =
         await memberAccessReportService.generateMemberAccessReportViewV2(mockOrganizationId);
 
-      // User has no access, so shouldn't appear in report
-      expect(result).toHaveLength(0);
+      // User has no access, but will show with counts of 0 rather than being filtered out
+      expect(result).toHaveLength(1);
+      expect(result[0]).toMatchObject({
+        email: "user1@test.com",
+        collectionsCount: 0,
+        groupsCount: 0,
+        itemsCount: 0,
+      });
     });
 
     it("should use email as name fallback when name is not available", async () => {
