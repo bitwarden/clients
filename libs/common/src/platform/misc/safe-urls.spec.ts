@@ -18,4 +18,9 @@ describe("SafeUrls service", () => {
     expect(SafeUrls.canLaunch("\\\\network.share\\abc", UrlType.CipherUri)).toBe(false);
     expect(SafeUrls.canLaunch("smb://smb.server", UrlType.CipherUri)).toBe(false);
   });
+
+  it("should only allow https for WebUrl", () => {
+    expect(SafeUrls.canLaunch("https://bitwarden.com", UrlType.WebUrl)).toBe(true);
+    expect(SafeUrls.canLaunch("http://bitwarden.com", UrlType.WebUrl)).toBe(false);
+  });
 });

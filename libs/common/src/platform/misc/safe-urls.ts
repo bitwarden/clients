@@ -18,7 +18,7 @@ export const UrlType = Object.freeze({
     "androidapp://",
   ],
   /** URI schemes for web pages opened in an external browser */
-  WebUrl: ["https://", "http://"],
+  WebUrl: ["https://"],
 } as const);
 export type UrlType = (typeof UrlType)[keyof typeof UrlType];
 
