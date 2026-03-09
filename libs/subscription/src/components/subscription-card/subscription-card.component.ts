@@ -58,8 +58,8 @@ type Callout = Maybe<{
   ],
 })
 export class SubscriptionCardComponent {
-  private datePipe = inject(DatePipe);
-  private i18nService = inject(I18nService);
+  private readonly datePipe = inject(DatePipe);
+  private readonly i18nService = inject(I18nService);
 
   protected readonly dateFormat = "MMM. d, y";
 
