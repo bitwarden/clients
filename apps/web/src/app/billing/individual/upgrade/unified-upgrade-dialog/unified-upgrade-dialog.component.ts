@@ -92,10 +92,10 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
   protected readonly PlanSelectionStep = UnifiedUpgradeDialogStep.PlanSelection;
 
   constructor(
-    private dialogRef: DialogRef<UnifiedUpgradeDialogResult>,
-    @Inject(DIALOG_DATA) private params: UnifiedUpgradeDialogParams,
-    private router: Router,
-    private premiumInterestStateService: PremiumInterestStateService,
+    private readonly dialogRef: DialogRef<UnifiedUpgradeDialogResult>,
+    @Inject(DIALOG_DATA) private readonly params: UnifiedUpgradeDialogParams,
+    private readonly router: Router,
+    private readonly premiumInterestStateService: PremiumInterestStateService,
   ) {}
 
   async ngOnInit(): Promise<void> {

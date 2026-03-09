@@ -5445,7 +5445,7 @@
   "minimumNumberOfWords": {
     "message": "Szavak minimális száma"
   },
-  "passwordTypePolicyOverride": {
+  "overridePasswordTypePolicy": {
     "message": "Jelszótípus",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "További információ az átvitelről"
   },
+  "promptUsersToMoveItems": {
+    "message": "Kérjük meg a felhasználókat, hogy helyezzék át az egyes széf elemeket a szervezetbe."
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "A tagokat arra kérik, hogy vagy vigyék át az elemeiket a szervezetnek vagy távozzanak. Ha távoznak, a hozzáférésük visszavonásra kerül, de az bármikor visszaállítható."
+  },
   "organizationDataOwnership": {
     "message": "A szervezet adat tulajdonjogának érvényesítése"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Elérhető most"
   },
-  "autoConfirm": {
-    "message": "Új felhasználók automatikus megerősítése"
+  "automaticUserConfirmation": {
+    "message": "Automatikus felhasználói megerősítés"
   },
   "autoConfirmDescription": {
     "message": "A szervezetbe meghívott új felhasználók automatikusan megerősítést kapnak, ha egy adminisztrátor eszköz feloldásra kerül.",
@@ -10624,6 +10630,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Eseményadatok küldése a Huntress SIEM éldánynak"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ sikeresen kapcsolódásra került.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Nem sikerült menteni az integrációt. Próbáljuk újra később."
   },
@@ -10976,6 +10991,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Ki"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Nem sikerült betölteni a tag hozzáférési jelentését. Ennek oka lehet egy nagy szervezet méret vagy hálózati probléma. Próbáljuk újra vagy lépjünk kapcsolatba az ügyfélszolgálattal, ha a probléma továbbra is fennáll."
   },
   "kdfIterationRecommends": {
     "message": "Célszerű 600 000 vagy nagyobb lépésben"
