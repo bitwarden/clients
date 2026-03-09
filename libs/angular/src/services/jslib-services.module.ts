@@ -1822,7 +1822,6 @@ const safeProviders: SafeProvider[] = [
       MasterPasswordApiServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
       MasterPasswordUnlockService,
-      SyncService,
     ],
   }),
   safeProvider({

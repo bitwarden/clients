@@ -38,7 +38,7 @@ export abstract class ChangePasswordService {
    * @param newPasswordHint the new password hint
    * @throws if called from a non-Web client
    */
-  abstract rotateUserKeyMasterPasswordAndEncryptedDataOld(
+  abstract rotateUserKeyMasterPasswordAndEncryptedData(
     currentPassword: string,
     newPassword: string,
     user: Account,

@@ -17,7 +17,6 @@ import {
   MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { KdfConfig, KeyService } from "@bitwarden/key-management";
@@ -33,46 +32,16 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected masterPasswordUnlockService: MasterPasswordUnlockService,
-    protected syncService: SyncService,
   ) {}
 
   async changePasswordAndRotateUserKey(
     passwordInputResult: PasswordInputResult,
     user: Account,
   ): Promise<void> {
-    const context = "Could not change password and rotate user key.";
-    assertTruthy(passwordInputResult.currentPassword, "currentPassword", context);
-    assertTruthy(passwordInputResult.newPassword, "newPassword", context);
-    assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", context); // can have an empty string as a meaningful value, so check non-nullish
-
-    const currentPasswordVerified = await this.masterPasswordUnlockService.proofOfDecryption(
-      passwordInputResult.currentPassword,
-      user.id,
-    );
-    if (!currentPasswordVerified) {
-      throw new InvalidCurrentPasswordError();
-    }
-
-    await this.syncService.fullSync(true);
-
-    await this.rotateUserKeyMasterPasswordAndEncryptedData(
-      passwordInputResult.currentPassword,
-      passwordInputResult.newPassword,
-      user,
-      passwordInputResult.newPasswordHint,
-    );
+    throw new Error("changePasswordAndRotateUserKey() is only implemented in Web");
   }
 
-  protected async rotateUserKeyMasterPasswordAndEncryptedData(
-    currentPassword: string,
-    newPassword: string,
-    user: Account,
-    newPasswordHint: string,
-  ) {
-    throw new Error("rotateUserKeyMasterPasswordAndEncryptedData() is only implemented in Web");
-  }
-
-  async rotateUserKeyMasterPasswordAndEncryptedDataOld(
+  async rotateUserKeyMasterPasswordAndEncryptedData(
     currentPassword: string,
     newPassword: string,
     user: Account,
