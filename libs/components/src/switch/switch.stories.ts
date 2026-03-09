@@ -49,6 +49,9 @@ export default {
       control: "boolean",
       description: "Model signal for selected state binding when used outside of a form",
     },
+    size: {
+      options: ["base", "large"],
+    },
   },
   parameters: {
     design: {
@@ -62,7 +65,9 @@ export default {
   },
 } as Meta<SwitchComponent>;
 
-type Story = StoryObj<SwitchComponent & { disabled?: boolean; selected?: boolean }>;
+type Story = StoryObj<
+  SwitchComponent & { disabled?: boolean; selected?: boolean; size: "base" | "large" }
+>;
 
 export const Default: Story = {
   render: (args) => ({
@@ -78,6 +83,19 @@ export const Default: Story = {
   args: {
     disabled: false,
     selected: true,
+  },
+};
+
+export const Large: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <bit-switch ${formatArgsForCodeSnippet<SwitchComponent>(args)}></bit-switch>
+    `,
+  }),
+  args: {
+    selected: true,
+    size: "large",
   },
 };
 
@@ -123,7 +141,7 @@ export const WithForm: Story = {
   }),
 };
 
-export const Disabled: Story = {
+export const Inactive: Story = {
   render: (args) => ({
     props: args,
     template: /* HTML */ `
@@ -136,7 +154,7 @@ export const Disabled: Story = {
   }),
   args: {
     disabled: true,
-    selected: true,
+    selected: false,
   },
 };
 
@@ -150,10 +168,34 @@ export const FormControlCard: Story = {
     template: /* HTML */ `
       <form [formGroup]="formObj">
         <bit-form-control-card icon="bwi-clock">
-          <bit-switch formControlName="switch"></bit-switch>
+          <bit-switch size="large" formControlName="switch"></bit-switch>
           <bit-label>Enable feature</bit-label>
           <bit-hint>This feature does some pretty cool stuff</bit-hint>
         </bit-form-control-card>
+      </form>
+    `,
+  }),
+};
+
+export const RTLSupport: Story = {
+  render: () => ({
+    props: {
+      formObj: new FormGroup({
+        switch: new FormControl(false),
+      }),
+    },
+    template: /* HTML */ `
+      <form dir="rtl" [formGroup]="formObj">
+        <bit-form-control-card icon="bwi-clock">
+          <bit-switch size="large" formControlName="switch-card"></bit-switch>
+          <bit-label>Enable feature</bit-label>
+          <bit-hint>This feature does some pretty cool stuff</bit-hint>
+        </bit-form-control-card>
+        <bit-form-control>
+          <bit-switch formControlName="switch"></bit-switch>
+          <bit-label>Example switch</bit-label>
+          <bit-hint>This is a hint for the switch</bit-hint>
+        </bit-form-control>
       </form>
     `,
   }),
