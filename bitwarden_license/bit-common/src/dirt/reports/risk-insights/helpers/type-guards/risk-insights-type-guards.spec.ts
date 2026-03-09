@@ -567,9 +567,23 @@ describe("Risk Insights Type Guards", () => {
       expect(isMemberRegistryEntryData(invalidData)).toBe(false);
     });
 
-    it("should return false for empty userName", () => {
+    it("should return false for empty userName (empty string is not a valid non-empty string)", () => {
       const invalidData = { id: "u1", userName: "", email: "alice@example.com" };
       expect(isMemberRegistryEntryData(invalidData)).toBe(false);
+    });
+
+    it("should return true when userName is absent (userName is optional)", () => {
+      const dataWithoutUserName = { id: "u1", email: "alice@example.com" };
+      expect(isMemberRegistryEntryData(dataWithoutUserName)).toBe(true);
+    });
+
+    it("should return true when userName is undefined (userName is optional)", () => {
+      const dataWithUndefinedUserName = {
+        id: "u1",
+        userName: undefined,
+        email: "alice@example.com",
+      };
+      expect(isMemberRegistryEntryData(dataWithUndefinedUserName)).toBe(true);
     });
 
     it("should return false for empty email", () => {
@@ -659,7 +673,7 @@ describe("Risk Insights Type Guards", () => {
     it("should throw for missing memberRegistry", () => {
       const noRegistry: unknown = { version: 2, reports: [] };
       expect(() => validateAccessReportPayload(noRegistry)).toThrow(
-        /memberRegistry is not an object/,
+        /memberRegistry failed validation/,
       );
     });
 
@@ -671,8 +685,20 @@ describe("Risk Insights Type Guards", () => {
         },
       };
       expect(() => validateAccessReportPayload(invalidEntry)).toThrow(
-        /invalid memberRegistry entry for key "u1"/,
+        /memberRegistry failed validation/,
       );
+    });
+
+    it("should normalize empty userName to undefined for backwards compatibility", () => {
+      const dataWithEmptyUserName = {
+        version: 2,
+        reports: [],
+        memberRegistry: {
+          u1: { id: "u1", userName: "", email: "alice@example.com" },
+        },
+      };
+      const result = validateAccessReportPayload(dataWithEmptyUserName);
+      expect(result.memberRegistry["u1"].userName).toBeUndefined();
     });
   });
 

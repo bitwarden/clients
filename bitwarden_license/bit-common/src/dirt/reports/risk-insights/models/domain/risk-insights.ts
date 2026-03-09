@@ -2,7 +2,7 @@ import { Observable, map, throwError } from "rxjs";
 
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import Domain from "@bitwarden/common/platform/models/domain/domain-base";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, OrganizationReportId, UserId } from "@bitwarden/common/types/guid";
 import { conditionalEncString } from "@bitwarden/common/vault/utils/domain-utils";
 
 import {
@@ -10,8 +10,10 @@ import {
   DecryptedAccessReportData,
   AccessReportEncryptionService,
 } from "../../services/abstractions/access-report-encryption.service";
-import { MemberRegistryEntryData, RiskInsightsReportData } from "../data/risk-insights-report.data";
+import { MemberRegistryEntryData } from "../data/member-details.data";
+import { RiskInsightsReportData } from "../data/risk-insights-report.data";
 import { RiskInsightsData } from "../data/risk-insights.data";
+import { MemberRegistryEntryView } from "../view/member-details.view";
 import { RiskInsightsApplicationView } from "../view/risk-insights-application.view";
 import { RiskInsightsReportView } from "../view/risk-insights-report.view";
 import { RiskInsightsSummaryView } from "../view/risk-insights-summary.view";
@@ -39,16 +41,6 @@ export class RiskInsights extends Domain {
     this.summary = conditionalEncString(obj.summary) ?? new EncString("");
     this.creationDate = new Date(obj.creationDate);
     this.contentEncryptionKey = conditionalEncString(obj.contentEncryptionKey);
-
-    // Example usage when individual keys are encrypted instead of the entire object
-    // this.summary = new RiskInsightsSummary(obj.summary);
-
-    // if (obj.reports != null) {
-    //   this.reports = obj.reports.map((r) => new RiskInsightsReport(r));
-    // }
-    // if (obj.applications != null) {
-    //   this.applications = obj.applications.map((a) => new RiskInsightsApplication(a));
-    // }
   }
 
   /**
@@ -78,22 +70,23 @@ export class RiskInsights extends Domain {
       .pipe(
         map((decryptedData) => {
           const view = new RiskInsightsView();
-          view.id = this.id as any;
-          view.organizationId = this.organizationId as any;
+          view.id = this.id as OrganizationReportId;
+          view.organizationId = this.organizationId as OrganizationId;
           view.creationDate = this.creationDate;
           view.contentEncryptionKey = this.contentEncryptionKey;
 
           view.reports = decryptedData.reportData.reports.map(RiskInsightsReportView.fromData);
-          view.memberRegistry = decryptedData.reportData.memberRegistry;
+          view.memberRegistry = Object.fromEntries(
+            Object.entries(decryptedData.reportData.memberRegistry).map(([id, data]) => [
+              id,
+              MemberRegistryEntryView.fromData(data),
+            ]),
+          );
 
-          view.applications = decryptedData.applicationData.map((app) => {
-            const appView = new RiskInsightsApplicationView();
-            appView.applicationName = app.applicationName;
-            appView.isCritical = app.isCritical;
-            appView.reviewedDate = app.reviewedDate ? new Date(app.reviewedDate) : undefined;
-            return appView;
-          });
-          view.summary = this.convertToSummaryView(decryptedData.summaryData);
+          view.applications = decryptedData.applicationData.map(
+            RiskInsightsApplicationView.fromData,
+          );
+          view.summary = RiskInsightsSummaryView.fromData(decryptedData.summaryData);
 
           return view;
         }),
@@ -144,10 +137,13 @@ export class RiskInsights extends Domain {
         return data;
       }),
       memberRegistry: Object.fromEntries(
-        Object.entries(view.memberRegistry).map(([id, e]) => [
-          id,
-          { id: e.id, userName: e.userName, email: e.email } satisfies MemberRegistryEntryData,
-        ]),
+        Object.entries(view.memberRegistry).map(([id, e]) => {
+          const data = new MemberRegistryEntryData();
+          data.id = e.id;
+          data.userName = e.userName;
+          data.email = e.email;
+          return [id, data];
+        }),
       ),
     };
 
@@ -184,19 +180,6 @@ export class RiskInsights extends Domain {
         return domain;
       }),
     );
-  }
-
-  private convertToSummaryView(summaryData: any): RiskInsightsSummaryView {
-    const view = new RiskInsightsSummaryView();
-    view.totalMemberCount = summaryData.totalMemberCount;
-    view.totalAtRiskMemberCount = summaryData.totalAtRiskMemberCount;
-    view.totalApplicationCount = summaryData.totalApplicationCount;
-    view.totalAtRiskApplicationCount = summaryData.totalAtRiskApplicationCount;
-    view.totalCriticalMemberCount = summaryData.totalCriticalMemberCount;
-    view.totalCriticalAtRiskMemberCount = summaryData.totalCriticalAtRiskMemberCount;
-    view.totalCriticalApplicationCount = summaryData.totalCriticalApplicationCount;
-    view.totalCriticalAtRiskApplicationCount = summaryData.totalCriticalAtRiskApplicationCount;
-    return view;
   }
 
   // [TODO] SDK Mapping

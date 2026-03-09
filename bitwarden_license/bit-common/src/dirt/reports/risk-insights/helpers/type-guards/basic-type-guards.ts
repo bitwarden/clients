@@ -271,14 +271,88 @@ export function createValidator<T>(validators: {
     for (const key of keys) {
       const value = key in tempObj ? tempObj[key] : undefined;
       if (!validators[key](value)) {
-        failures.push(
-          `field '${String(key)}': guard ${validators[key].name || "(anonymous)"} failed — got ${describeType(value)}`,
-        );
+        const nestedExplain = (validators[key] as EnhancedGuard<unknown>).explain;
+        if (typeof nestedExplain === "function") {
+          const nested = nestedExplain(value);
+          failures.push(...nested.map((e) => `field '${String(key)}': ${e}`));
+        } else {
+          failures.push(
+            `field '${String(key)}': guard ${validators[key].name || "(anonymous)"} failed — got ${describeType(value)}`,
+          );
+        }
       }
     }
 
     return failures;
   };
 
+  return guard;
+}
+
+/**
+ * A higher-order function that takes an EnhancedGuard for T and returns an
+ * EnhancedGuard for T[], with element-level diagnostics in `.explain()`.
+ * Use this instead of createBoundedArrayGuard when you need recursive diagnostics.
+ */
+export function createEnhancedBoundedArrayGuard<T>(isType: EnhancedGuard<T>): EnhancedGuard<T[]> {
+  const guard = function (value: unknown): value is T[] {
+    return Array.isArray(value) && value.length <= BOUNDED_ARRAY_MAX_LENGTH && value.every(isType);
+  };
+  guard.explain = function (value: unknown): string[] {
+    if (!Array.isArray(value)) {
+      return [`expected array, got ${describeType(value)}`];
+    }
+    if (value.length > BOUNDED_ARRAY_MAX_LENGTH) {
+      return [`array length ${value.length} exceeds max ${BOUNDED_ARRAY_MAX_LENGTH}`];
+    }
+    const errors: string[] = [];
+    value.forEach((item, index) => {
+      if (!isType(item)) {
+        const fieldErrors = isType.explain(item);
+        errors.push(...fieldErrors.map((e) => `[${index}]: ${e}`));
+      }
+    });
+    return errors;
+  };
+  return guard;
+}
+
+/**
+ * A higher-order function that takes an EnhancedGuard for T and returns an
+ * EnhancedGuard for Record<string, T>, with entry-level diagnostics in `.explain()`.
+ * Use this for dynamic-key dictionaries (e.g. member registries keyed by user GUID).
+ */
+export function createBoundedRecordGuard<T>(
+  isValue: EnhancedGuard<T>,
+): EnhancedGuard<Record<string, T>> {
+  const guard = function (value: unknown): value is Record<string, T> {
+    if (value == null || typeof value !== "object" || Array.isArray(value)) {
+      return false;
+    }
+    const entries = Object.entries(value as object);
+    if (entries.length > BOUNDED_ARRAY_MAX_LENGTH) {
+      return false;
+    }
+    return entries.every(([k, v]) => isBoundedString(k) && isValue(v));
+  };
+  guard.explain = function (value: unknown): string[] {
+    if (value == null || typeof value !== "object" || Array.isArray(value)) {
+      return [`expected plain object, got ${describeType(value)}`];
+    }
+    const entries = Object.entries(value as object);
+    if (entries.length > BOUNDED_ARRAY_MAX_LENGTH) {
+      return [`record length ${entries.length} exceeds max ${BOUNDED_ARRAY_MAX_LENGTH}`];
+    }
+    const errors: string[] = [];
+    for (const [k, v] of entries) {
+      if (!isBoundedString(k)) {
+        errors.push(`key: invalid — got ${describeType(k)}`);
+      } else if (!isValue(v)) {
+        const fieldErrors = isValue.explain(v);
+        errors.push(...fieldErrors.map((e) => `["${k}"]: ${e}`));
+      }
+    }
+    return errors;
+  };
   return guard;
 }

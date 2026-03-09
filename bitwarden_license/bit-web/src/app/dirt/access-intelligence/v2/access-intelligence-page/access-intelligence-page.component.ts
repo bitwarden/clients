@@ -22,11 +22,9 @@ import {
   DrawerType,
   ReportProgress,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { MemberRegistryEntryView } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/member-details.view";
 import { RiskInsightsReportView } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/risk-insights-report.view";
-import {
-  MemberRegistryEntry,
-  RiskInsightsView,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/risk-insights.view";
+import { RiskInsightsView } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/risk-insights.view";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -319,13 +317,11 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
 
   /**
    * Derives organization-wide at-risk applications drawer content.
-   * Filters reports that have at-risk ciphers.
    */
   private getOrgAtRiskAppsContent(report: RiskInsightsView): OrgAtRiskAppsData {
-    const atRiskApps = report.reports.filter((app) => app.isAtRisk());
     return {
       type: DrawerType.OrgAtRiskApps,
-      applications: atRiskApps.map((app) => ({
+      applications: report.getAtRiskApplications().map((app) => ({
         applicationName: app.applicationName,
         atRiskPasswordCount: app.atRiskPasswordCount,
       })),
@@ -334,40 +330,21 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
 
   /**
    * Derives critical applications' at-risk members drawer content.
-   * Uses view model's getCriticalApplications() method.
    */
   private getCriticalAtRiskMembersContent(report: RiskInsightsView): CriticalAtRiskMembersData {
-    const criticalApps = report.getCriticalApplications();
-    const criticalMemberIds = new Set<string>();
-
-    // Collect unique member IDs from all critical apps
-    criticalApps.forEach((app) => {
-      Object.entries(app.memberRefs)
-        .filter(([_, isAtRisk]) => isAtRisk)
-        .forEach(([memberId]) => criticalMemberIds.add(memberId));
-    });
-
-    const members = Array.from(criticalMemberIds)
-      .map((id) => report.memberRegistry[id])
-      .filter((entry): entry is MemberRegistryEntry => entry !== undefined);
-
     return {
       type: DrawerType.CriticalAtRiskMembers,
-      members: this.mapMembersToDrawerData(members, report),
+      members: this.mapMembersToDrawerData(report.getCriticalAtRiskMembers(), report),
     };
   }
 
   /**
    * Derives critical applications' at-risk apps drawer content.
-   * Filters critical apps that have at-risk ciphers.
    */
   private getCriticalAtRiskAppsContent(report: RiskInsightsView): CriticalAtRiskAppsData {
-    const criticalApps = report.getCriticalApplications();
-    const atRiskCriticalApps = criticalApps.filter((app) => app.isAtRisk());
-
     return {
       type: DrawerType.CriticalAtRiskApps,
-      applications: atRiskCriticalApps.map((app) => ({
+      applications: report.getCriticalAtRiskApplications().map((app) => ({
         applicationName: app.applicationName,
         atRiskPasswordCount: app.atRiskPasswordCount,
       })),
@@ -379,13 +356,13 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
    * Uses view model's getAtRiskPasswordCountForMember() method.
    */
   private mapMembersToDrawerData(
-    members: MemberRegistryEntry[],
+    members: MemberRegistryEntryView[],
     report: RiskInsightsView,
     app?: RiskInsightsReportView,
   ): DrawerMemberData[] {
     return members.map((member) => ({
       email: member.email,
-      userName: member.userName,
+      userName: member.userName ?? "",
       userGuid: member.id,
       atRiskPasswordCount: report.getAtRiskPasswordCountForMember(member.id, app?.applicationName),
     }));

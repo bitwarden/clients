@@ -6,16 +6,16 @@ import {
   OrganizationReportApplication,
   OrganizationReportSummary,
 } from "../../models";
+import { MemberRegistryEntryData } from "../../models/data/member-details.data";
 import { RiskInsightsApplicationData } from "../../models/data/risk-insights-application.data";
-import {
-  MemberRegistryEntryData,
-  RiskInsightsReportData,
-} from "../../models/data/risk-insights-report.data";
+import { RiskInsightsReportData } from "../../models/data/risk-insights-report.data";
 import { RiskInsightsSummaryData } from "../../models/data/risk-insights-summary.data";
 import { AccessReportPayload } from "../../services/abstractions/access-report-encryption.service";
 
 import {
   createBoundedArrayGuard,
+  createBoundedRecordGuard,
+  createEnhancedBoundedArrayGuard,
   createValidator,
   isBoolean,
   isBooleanRecord,
@@ -40,9 +40,9 @@ export const isMemberDetails = createValidator<MemberDetails>({
   userGuid: isBoundedString,
   userName: isBoundedStringOrNull,
   email: isBoundedString,
-  cipherId: isBoundedString,
+  cipherId: isBoundedString, // TODO is isBoundedStringOrNull for backwards compatibility
 });
-export const isMemberDetailsArray = createBoundedArrayGuard(isMemberDetails);
+export const isMemberDetailsArray = createEnhancedBoundedArrayGuard(isMemberDetails);
 
 /**
  * Type guard to validate MemberRegistryEntryData structure
@@ -51,9 +51,10 @@ export const isMemberDetailsArray = createBoundedArrayGuard(isMemberDetails);
  */
 export const isMemberRegistryEntryData = createValidator<MemberRegistryEntryData>({
   id: isBoundedString,
-  userName: isBoundedString,
+  userName: isBoundedStringOrUndefined,
   email: isBoundedString,
 });
+const isMemberRegistry = createBoundedRecordGuard(isMemberRegistryEntryData);
 
 export function isCipherId(value: unknown): value is CipherId {
   return value == null || isBoundedString(value);
@@ -331,28 +332,24 @@ export function validateAccessReportPayload(data: unknown): AccessReportPayload 
     throw new Error("Invalid V2 report data: reports array failed validation");
   }
 
-  if (
-    obj["memberRegistry"] == null ||
-    typeof obj["memberRegistry"] !== "object" ||
-    Array.isArray(obj["memberRegistry"])
-  ) {
-    throw new Error("Invalid V2 report data: memberRegistry is not an object");
+  // Pre-normalize "" → undefined before validation for backwards compatibility with
+  // blobs that stored empty string. The guard uses isBoundedStringOrUndefined which
+  // rejects "", so normalization must happen before the guard runs.
+  if (typeof obj["memberRegistry"] === "object" && obj["memberRegistry"] !== null) {
+    for (const entry of Object.values(obj["memberRegistry"] as Record<string, unknown>)) {
+      if (
+        typeof entry === "object" &&
+        entry !== null &&
+        (entry as Record<string, unknown>)["userName"] === ""
+      ) {
+        (entry as Record<string, unknown>)["userName"] = undefined;
+      }
+    }
   }
 
-  const registry = obj["memberRegistry"] as Record<string, unknown>;
-  const registryEntries = Object.entries(registry);
-  if (registryEntries.length > BOUNDED_ARRAY_MAX_LENGTH) {
-    throw new Error(
-      `Invalid V2 report data: memberRegistry length ${registryEntries.length} exceeds maximum`,
-    );
-  }
-  for (const [key, entry] of registryEntries) {
-    if (!isBoundedString(key) || !isMemberRegistryEntryData(entry)) {
-      const fieldErrors = isMemberRegistryEntryData.explain(entry).join("; ");
-      throw new Error(
-        `Invalid V2 report data: invalid memberRegistry entry for key "${key}": ${fieldErrors}`,
-      );
-    }
+  if (!isMemberRegistry(obj["memberRegistry"])) {
+    const errors = isMemberRegistry.explain(obj["memberRegistry"]).join("; ");
+    throw new Error(`Invalid V2 report data: memberRegistry failed validation: ${errors}`);
   }
 
   return data as AccessReportPayload;

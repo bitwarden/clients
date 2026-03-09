@@ -11,6 +11,7 @@ import {
   OrganizationReportApplication,
   OrganizationReportSummary,
 } from "../../models/report-models";
+import { MemberRegistryEntryView } from "../../models/view/member-details.view";
 import { RiskInsightsApplicationView } from "../../models/view/risk-insights-application.view";
 import { RiskInsightsReportView } from "../../models/view/risk-insights-report.view";
 import { RiskInsightsSummaryView } from "../../models/view/risk-insights-summary.view";
@@ -138,11 +139,11 @@ export class DefaultLegacyReportMigrationService extends LegacyReportMigrationSe
     v1ReportData.forEach((app) => {
       app.memberDetails.forEach((member: MemberDetails) => {
         if (!memberRegistry[member.userGuid]) {
-          memberRegistry[member.userGuid] = {
+          memberRegistry[member.userGuid] = MemberRegistryEntryView.fromData({
             id: member.userGuid,
-            userName: member.userName ?? "",
+            userName: member.userName ?? undefined,
             email: member.email,
-          };
+          });
         }
       });
     });

@@ -45,6 +45,8 @@ export type CipherHealthReport = {
  * All applications report summary. The total members,
  * total at risk members, application, and at risk application
  * counts. Aggregated from all calculated applications
+ *
+ * @deprecated Use {@link RiskInsightsSummaryView} instead. Will be removed when V1 code is deleted.
  */
 export type OrganizationReportSummary = {
   totalMemberCount: number;
@@ -60,6 +62,8 @@ export type OrganizationReportSummary = {
 /**
  * An entry for an organization application and if it is
  * marked as critical
+ *
+ * @deprecated Use {@link RiskInsightsApplicationView} instead. Will be removed when V1 code is deleted.
  */
 export type OrganizationReportApplication = {
   applicationName: string;
@@ -74,6 +78,8 @@ export type OrganizationReportApplication = {
 /**
  * Report details for an application
  * uri. Has the at risk, password, and member information
+ *
+ * @deprecated Use {@link RiskInsightsReportView} instead. Will be removed when V1 code is deleted.
  */
 export type ApplicationHealthReportDetail = {
   applicationName: string;
@@ -118,6 +124,9 @@ export const ReportProgress = Object.freeze({
 
 export type ReportProgress = (typeof ReportProgress)[keyof typeof ReportProgress];
 
+/**
+ * @deprecated Use {@link RiskInsightsView} instead. Will be removed when V1 code is deleted.
+ */
 export interface RiskInsightsData {
   id: OrganizationReportId;
   creationDate: Date;

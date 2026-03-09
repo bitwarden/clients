@@ -12,10 +12,8 @@ import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
 import { EncryptedReportData, DecryptedReportData } from "../../models";
-import {
-  MemberRegistryEntryData,
-  RiskInsightsReportData,
-} from "../../models/data/risk-insights-report.data";
+import { MemberRegistryEntryData } from "../../models/data/member-details.data";
+import { RiskInsightsReportData } from "../../models/data/risk-insights-report.data";
 import { mockApplicationData, mockReportData, mockSummaryData } from "../../models/mocks/mock-data";
 
 import { LegacyRiskInsightsEncryptionService } from "./legacy-risk-insights-encryption.service";

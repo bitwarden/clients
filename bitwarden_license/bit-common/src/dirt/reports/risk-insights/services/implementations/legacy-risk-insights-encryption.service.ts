@@ -24,10 +24,8 @@ import {
   OrganizationReportApplication,
   OrganizationReportSummary,
 } from "../../models";
-import {
-  MemberRegistryEntryData,
-  RiskInsightsReportData,
-} from "../../models/data/risk-insights-report.data";
+import { MemberRegistryEntryData } from "../../models/data/member-details.data";
+import { RiskInsightsReportData } from "../../models/data/risk-insights-report.data";
 
 /**
  * @deprecated V1 encryption service. Used only by the V1 orchestrator, V1 report service,
@@ -312,7 +310,7 @@ export class LegacyRiskInsightsEncryptionService {
         }
         return {
           userGuid: entry.id,
-          userName: entry.userName,
+          userName: entry.userName ?? null, // V1 uses null; V2 uses undefined
           email: entry.email,
           cipherId: this._nilCipherId,
         };

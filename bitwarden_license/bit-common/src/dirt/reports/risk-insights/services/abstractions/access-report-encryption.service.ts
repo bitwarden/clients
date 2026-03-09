@@ -4,11 +4,9 @@ import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-st
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
 import { EncryptedDataWithKey, EncryptedReportData } from "../../models";
+import { MemberRegistryEntryData } from "../../models/data/member-details.data";
 import { RiskInsightsApplicationData } from "../../models/data/risk-insights-application.data";
-import {
-  MemberRegistryEntryData,
-  RiskInsightsReportData,
-} from "../../models/data/risk-insights-report.data";
+import { RiskInsightsReportData } from "../../models/data/risk-insights-report.data";
 import { RiskInsightsSummaryData } from "../../models/data/risk-insights-summary.data";
 
 /**

@@ -53,10 +53,3 @@ export class RiskInsightsReportData {
     this.atRiskMemberCount = data.atRiskMemberCount;
   }
 }
-
-/** Member entry in the deduplicated member registry */
-export interface MemberRegistryEntryData {
-  id: string;
-  userName: string;
-  email: string;
-}

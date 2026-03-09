@@ -5,21 +5,18 @@ import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/gu
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RiskInsightsApi } from "../api/risk-insights.api";
-import { MemberRegistryEntryData } from "../data/risk-insights-report.data";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RiskInsightsData } from "../data/risk-insights.data";
 import { RiskInsights } from "../domain/risk-insights";
 import { RiskInsightsMetrics } from "../domain/risk-insights-metrics";
 
+import { MemberRegistryEntryView } from "./member-details.view";
 import { RiskInsightsApplicationView } from "./risk-insights-application.view";
 import { RiskInsightsReportView } from "./risk-insights-report.view";
 import { RiskInsightsSummaryView } from "./risk-insights-summary.view";
 
-/** Member entry in the deduplicated member registry */
-export type MemberRegistryEntry = MemberRegistryEntryData;
-
 /** Deduplicated member lookup table keyed by organization user ID */
-export type MemberRegistry = Record<string, MemberRegistryEntry>;
+export type MemberRegistry = Record<string, MemberRegistryEntryView>;
 
 /**
  * View model for Risk Insights containing decrypted properties
@@ -62,7 +59,7 @@ export class RiskInsightsView implements View {
    *
    * @returns Array of unique at-risk member registry entries
    */
-  getAtRiskMembers(): MemberRegistryEntry[] {
+  getAtRiskMembers(): MemberRegistryEntryView[] {
     const atRiskMemberIds = new Set<string>();
 
     this.reports.forEach((report) => {
@@ -73,7 +70,16 @@ export class RiskInsightsView implements View {
 
     return Array.from(atRiskMemberIds)
       .map((id) => this.memberRegistry[id])
-      .filter((entry): entry is MemberRegistryEntry => entry !== undefined);
+      .filter((entry): entry is MemberRegistryEntryView => entry !== undefined);
+  }
+
+  /**
+   * Get all application reports with at least one at-risk cipher
+   *
+   * @returns Array of application reports where at least one cipher is at-risk
+   */
+  getAtRiskApplications(): RiskInsightsReportView[] {
+    return this.reports.filter((r) => r.isAtRisk());
   }
 
   /**
@@ -86,6 +92,36 @@ export class RiskInsightsView implements View {
       this.applications.filter((a) => a.isCritical).map((a) => a.applicationName),
     );
     return this.reports.filter((r) => criticalNames.has(r.applicationName));
+  }
+
+  /**
+   * Get critical applications that have at least one at-risk cipher
+   *
+   * @returns Array of critical application reports where at least one cipher is at-risk
+   */
+  getCriticalAtRiskApplications(): RiskInsightsReportView[] {
+    return this.getCriticalApplications().filter((r) => r.isAtRisk());
+  }
+
+  /**
+   * Get at-risk members across all critical applications
+   *
+   * Deduplicates members - a member appearing in multiple critical applications is counted once.
+   *
+   * @returns Array of unique at-risk member registry entries from critical applications
+   */
+  getCriticalAtRiskMembers(): MemberRegistryEntryView[] {
+    const criticalAtRiskMemberIds = new Set<string>();
+
+    this.getCriticalApplications().forEach((report) => {
+      Object.entries(report.memberRefs)
+        .filter(([_, isAtRisk]) => isAtRisk)
+        .forEach(([memberId]) => criticalAtRiskMemberIds.add(memberId));
+    });
+
+    return Array.from(criticalAtRiskMemberIds)
+      .map((id) => this.memberRegistry[id])
+      .filter((entry): entry is MemberRegistryEntryView => entry !== undefined);
   }
 
   /**
@@ -335,7 +371,14 @@ export class RiskInsightsView implements View {
     view.reports = obj.reports?.map((report) => RiskInsightsReportView.fromJSON(report)) ?? [];
     view.applications = obj.applications?.map((a) => RiskInsightsApplicationView.fromJSON(a)) ?? [];
     view.summary = RiskInsightsSummaryView.fromJSON(obj.summary ?? {});
-    view.memberRegistry = obj.memberRegistry ?? {};
+    view.memberRegistry = obj.memberRegistry
+      ? Object.fromEntries(
+          Object.entries(obj.memberRegistry).map(([k, v]) => [
+            k,
+            MemberRegistryEntryView.fromJSON(v ?? undefined),
+          ]),
+        )
+      : {};
 
     return view;
   }

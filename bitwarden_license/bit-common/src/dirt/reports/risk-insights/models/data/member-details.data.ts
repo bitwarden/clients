@@ -1,30 +1,18 @@
-import { MemberDetailsApi } from "../api/member-details.api";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { MemberDetails } from "../domain/member-details";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { MemberDetailsView } from "../view/member-details.view";
+import { MemberRegistryEntryView } from "../view/member-details.view";
 
 /**
- * Serializable data model for member details in risk insights report
+ * Serializable data model for a member registry entry
  *
- * - See {@link MemberDetails} for domain model
- * - See {@link MemberDetailsApi} for API model
- * - See {@link MemberDetailsView} from View Model
+ * Replaces the `MemberRegistryEntryData` interface in `risk-insights-report.data.ts`.
+ * The `userName` field is optional: the Bitwarden API may return `""` for members with
+ * no display name set — normalization to `undefined` is done at the call site when
+ * constructing from external sources.
+ *
+ * - See {@link MemberRegistryEntryView} for View Model
  */
-export class MemberDetailsData {
-  userGuid: string = "";
-  userName: string = "";
+export class MemberRegistryEntryData {
+  id: string = "";
+  userName?: string;
   email: string = "";
-  cipherId: string = "";
-
-  constructor(data?: MemberDetailsApi) {
-    if (data == null) {
-      return;
-    }
-
-    this.userGuid = data.userGuid;
-    this.userName = data.userName;
-    this.email = data.email;
-    this.cipherId = data.cipherId;
-  }
 }

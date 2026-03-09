@@ -6,7 +6,8 @@ import { RiskInsightsReportApi } from "../api/risk-insights-report.api";
 import { RiskInsightsReportData } from "../data/risk-insights-report.data";
 import { RiskInsightsReport } from "../domain/risk-insights-report";
 
-import { MemberRegistry, MemberRegistryEntry } from "./risk-insights.view";
+import { MemberRegistryEntryView } from "./member-details.view";
+import { MemberRegistry } from "./risk-insights.view";
 
 /**
  * View model for Risk Insights Report containing decrypted application health data
@@ -70,10 +71,10 @@ export class RiskInsightsReportView implements View {
    * @param registry - The member registry containing full member details
    * @returns Array of member entries
    */
-  getAllMembers(registry: MemberRegistry): MemberRegistryEntry[] {
+  getAllMembers(registry: MemberRegistry): MemberRegistryEntryView[] {
     return Object.keys(this.memberRefs)
       .map((id) => registry[id])
-      .filter((entry): entry is MemberRegistryEntry => entry !== undefined);
+      .filter((entry): entry is MemberRegistryEntryView => entry !== undefined);
   }
 
   /**
@@ -82,11 +83,11 @@ export class RiskInsightsReportView implements View {
    * @param registry - The member registry containing full member details
    * @returns Array of at-risk member entries
    */
-  getAtRiskMembers(registry: MemberRegistry): MemberRegistryEntry[] {
+  getAtRiskMembers(registry: MemberRegistry): MemberRegistryEntryView[] {
     return Object.entries(this.memberRefs)
       .filter(([_, isAtRisk]) => isAtRisk)
       .map(([id]) => registry[id])
-      .filter((entry): entry is MemberRegistryEntry => entry !== undefined);
+      .filter((entry): entry is MemberRegistryEntryView => entry !== undefined);
   }
 
   /**

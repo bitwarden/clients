@@ -2,6 +2,7 @@ import { Observable, of } from "rxjs";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import { MemberRegistryEntryView } from "../../models/view/member-details.view";
 import { MemberRegistry } from "../../models/view/risk-insights.view";
 import {
   CollectionAccessDetails,
@@ -56,11 +57,11 @@ export class DefaultMemberCipherMappingService extends MemberCipherMappingServic
     allMemberIds.forEach((id) => {
       const member = memberMap.get(id);
       if (member) {
-        registry[id] = {
+        registry[id] = MemberRegistryEntryView.fromData({
           id: member.id,
-          userName: member.name ?? "",
+          userName: member.name || undefined,
           email: member.email,
-        };
+        });
       }
     });
 
@@ -80,11 +81,11 @@ export class DefaultMemberCipherMappingService extends MemberCipherMappingServic
     const registry: MemberRegistry = {};
 
     members.forEach((member) => {
-      registry[member.id] = {
+      registry[member.id] = MemberRegistryEntryView.fromData({
         id: member.id,
-        userName: member.name ?? "",
+        userName: member.name || undefined,
         email: member.email,
-      };
+      });
     });
 
     return of(registry);

@@ -3,7 +3,6 @@ import { DeepJsonify } from "@bitwarden/common/types/deep-jsonify";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RiskInsightsSummaryApi } from "../api/risk-insights-summary.api";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RiskInsightsSummaryData } from "../data/risk-insights-summary.data";
 import { RiskInsightsSummary } from "../domain/risk-insights-summary";
 
@@ -41,6 +40,19 @@ export class RiskInsightsSummaryView implements View {
 
   toJSON() {
     return this;
+  }
+
+  static fromData(data: RiskInsightsSummaryData): RiskInsightsSummaryView {
+    const view = new RiskInsightsSummaryView();
+    view.totalMemberCount = data.totalMemberCount;
+    view.totalApplicationCount = data.totalApplicationCount;
+    view.totalAtRiskMemberCount = data.totalAtRiskMemberCount;
+    view.totalAtRiskApplicationCount = data.totalAtRiskApplicationCount;
+    view.totalCriticalApplicationCount = data.totalCriticalApplicationCount;
+    view.totalCriticalMemberCount = data.totalCriticalMemberCount;
+    view.totalCriticalAtRiskMemberCount = data.totalCriticalAtRiskMemberCount;
+    view.totalCriticalAtRiskApplicationCount = data.totalCriticalAtRiskApplicationCount;
+    return view;
   }
 
   static fromJSON(obj: Partial<DeepJsonify<RiskInsightsSummaryView>>): RiskInsightsSummaryView {

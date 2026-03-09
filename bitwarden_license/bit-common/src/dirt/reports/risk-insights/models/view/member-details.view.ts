@@ -1,43 +1,49 @@
-import { Jsonify } from "type-fest";
-
 import { View } from "@bitwarden/common/models/view/view";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { MemberDetailsApi } from "../api/member-details.api";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { MemberDetailsData } from "../data/member-details.data";
-import { MemberDetails } from "../domain/member-details";
+import { MemberRegistryEntryData } from "../data/member-details.data";
 
 /**
- * View model for Member Details in Risk Insights containing decrypted properties
+ * View model for a member registry entry containing decrypted properties
  *
- * - See {@link MemberDetails} for domain model
- * - See {@link MemberDetailsData} for data model
- * - See {@link MemberDetailsApi} for API model
+ * Constructed directly from {@link MemberRegistryEntryData} (the registry payload is decrypted
+ * as a unit by the `RiskInsights` domain model, not field-by-field). Provides a `displayName`
+ * computed property for UI display.
+ *
+ * - See {@link MemberRegistryEntryData} for data model
  */
-export class MemberDetailsView implements View {
-  userGuid: string = "";
-  userName: string = "";
+export class MemberRegistryEntryView implements View {
+  id: string = "";
+  userName?: string;
   email: string = "";
-  cipherId: string = "";
 
-  constructor(m?: MemberDetails) {
-    if (m == null) {
+  constructor(data?: MemberRegistryEntryData) {
+    if (data == null) {
       return;
     }
+
+    this.id = data.id;
+    this.userName = data.userName;
+    this.email = data.email;
+  }
+
+  /** Display name: userName when set, falls back to email */
+  get displayName(): string {
+    return this.userName ?? this.email;
   }
 
   toJSON() {
     return this;
   }
 
-  static fromJSON(
-    obj: Partial<Jsonify<MemberDetailsView>> | undefined,
-  ): MemberDetailsView | undefined {
-    return Object.assign(new MemberDetailsView(), obj);
+  static fromData(data: MemberRegistryEntryData): MemberRegistryEntryView {
+    const view = new MemberRegistryEntryView();
+    view.id = data.id;
+    view.userName = data.userName;
+    view.email = data.email;
+    return view;
   }
 
-  // [TODO] SDK Mapping
-  // toSdkMemberDetailsView(): SdkMemberDetailsView {}
-  // static fromMemberDetailsView(obj?: SdkMemberDetailsView): MemberDetailsView | undefined {}
+  static fromJSON(obj: Partial<MemberRegistryEntryData> | undefined): MemberRegistryEntryView {
+    return Object.assign(new MemberRegistryEntryView(), obj);
+  }
 }
