@@ -5,7 +5,6 @@ import BrowserPopupUtils from "@bitwarden/browser/platform/browser/browser-popup
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { SyncService } from "@bitwarden/common/platform/sync";
 import { KeyService } from "@bitwarden/key-management";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -17,31 +16,28 @@ describe("ExtensionChangePasswordService", () => {
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let masterPasswordUnlockService: MockProxy<MasterPasswordUnlockService>;
-  let syncService: MockProxy<SyncService>;
   let window: MockProxy<Window>;
 
-  let changePasswordService: ChangePasswordService;
+  let sut: ChangePasswordService;
 
   beforeEach(() => {
     keyService = mock<KeyService>();
     masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     masterPasswordUnlockService = mock<MasterPasswordUnlockService>();
-    syncService = mock<SyncService>();
     window = mock<Window>();
 
-    changePasswordService = new ExtensionChangePasswordService(
+    sut = new ExtensionChangePasswordService(
       keyService,
       masterPasswordApiService,
       masterPasswordService,
       masterPasswordUnlockService,
-      syncService,
       window,
     );
   });
 
   it("should instantiate the service", () => {
-    expect(changePasswordService).toBeDefined();
+    expect(sut).toBeDefined();
   });
 
   it("should close the browser extension popout", () => {
@@ -50,9 +46,19 @@ describe("ExtensionChangePasswordService", () => {
       .spyOn(BrowserPopupUtils, "inPopout")
       .mockReturnValue(true);
 
-    changePasswordService.closeBrowserExtensionPopout?.();
+    sut.closeBrowserExtensionPopout?.();
 
     expect(closePopupSpy).toHaveBeenCalledWith(window);
     expect(browserPopupUtilsInPopupSpy).toHaveBeenCalledWith(window);
+  });
+
+  describe("shouldNavigateToRoot()", () => {
+    it("should return true", () => {
+      // Act
+      const shouldNavigateToRoot = sut.shouldNavigateToRoot();
+
+      // Assert
+      expect(shouldNavigateToRoot).toBe(true);
+    });
   });
 });
