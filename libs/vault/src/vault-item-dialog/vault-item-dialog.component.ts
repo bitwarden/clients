@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, inject, OnDestroy, OnInit, viewChild } from "@angular/core";
+import { Component, ElementRef, Inject, inject, OnDestroy, OnInit, viewChild } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
@@ -37,7 +37,7 @@ import {
   ButtonModule,
   COPY_CLICK_LISTENER,
   CopyClickListener,
-  // DIALOG_DATA,
+  DIALOG_DATA,
   DialogComponent,
   DialogModule,
   DialogRef,
@@ -330,7 +330,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   protected confirmedPremiumUpgrade = false;
 
   constructor(
-    protected params: VaultItemDialogParams,
+    @Inject(DIALOG_DATA) protected params: VaultItemDialogParams,
     private dialogRef: DialogRef<VaultItemDialogResult>,
     private dialogService: DialogService,
     private i18nService: I18nService,

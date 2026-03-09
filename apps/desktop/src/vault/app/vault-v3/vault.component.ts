@@ -51,7 +51,6 @@ import {
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { EventType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -89,8 +88,11 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   AttachmentsV2Component,
+  CipherFormConfig,
+  CipherFormConfigService,
   CollectionAssignmentResult,
   DecryptionFailureDialogComponent,
+  DefaultCipherFormConfigService,
   DefaultVaultItemsTransferService,
   PasswordRepromptService,
   ArchiveCipherUtilitiesService,
@@ -98,6 +100,9 @@ import {
   VaultFilterServiceAbstraction as VaultFilterService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
+  VaultItemDialogComponent,
+  VaultItemDialogMode,
+  VaultItemDialogResult,
   createFilterFunction,
   All,
   VaultItemsTransferService,
@@ -108,11 +113,6 @@ import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-heade
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
 
-import {
-  VaultItemDrawerComponent,
-  VaultItemDrawerParams,
-  VaultItemDrawerResult,
-} from "./vault-items/vault-item-drawer.component";
 import { VaultItemEvent } from "./vault-items/vault-item-event";
 import { VaultListComponent } from "./vault-list.component";
 
@@ -148,7 +148,10 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     FormsModule,
     NoItemsModule,
   ],
-  providers: [{ provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService }],
+  providers: [
+    { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
+    { provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService },
+  ],
 })
 export class VaultComponent<C extends CipherViewLike>
   implements OnInit, OnDestroy, CopyClickListener
@@ -184,7 +187,8 @@ export class VaultComponent<C extends CipherViewLike>
   private searchBarService = inject(SearchBarService);
 
   private destroyRef = inject(DestroyRef);
-  private activeDrawerRef?: DialogRef<VaultItemDrawerResult>;
+  private cipherFormConfigService = inject(CipherFormConfigService);
+  private activeDrawerRef?: DialogRef<VaultItemDialogResult>;
 
   protected activeFilter: VaultFilter = new VaultFilter();
   protected cipherRepromptId: string | null = null;
@@ -592,17 +596,12 @@ export class VaultComponent<C extends CipherViewLike>
     if (await this.shouldReprompt(cipher)) {
       return;
     }
-    this.openDrawer({
-      mode: "view",
-      cipherId: cipher.id as CipherId,
-      allCollections: this.allCollections,
-    });
-    await this.eventCollectionService.collect(
-      EventType.Cipher_ClientViewed,
-      cipher.id,
-      false,
-      cipher.organizationId,
+    const formConfig = await this.cipherFormConfigService.buildConfig(
+      cipher.edit ? "edit" : "partial-edit",
+      cipher.id as CipherId,
+      cipher.type,
     );
+    this.openDialog("view", formConfig);
   }
 
   async openAttachmentsDialog(cipherId: CipherId, canEditCipher: boolean) {
@@ -620,22 +619,24 @@ export class VaultComponent<C extends CipherViewLike>
     if (await this.shouldReprompt(cipher)) {
       return;
     }
-    this.openDrawer({
-      mode: "edit",
-      cipherId: cipher.id as CipherId,
-      allCollections: this.allCollections,
-    });
+    const formConfig = await this.cipherFormConfigService.buildConfig(
+      "edit",
+      cipher.id as CipherId,
+      cipher.type,
+    );
+    this.openDialog("form", formConfig);
   }
 
   async cloneCipher(cipher: CipherView) {
     if (await this.shouldReprompt(cipher)) {
       return;
     }
-    this.openDrawer({
-      mode: "clone",
-      cipherId: cipher.id as CipherId,
-      allCollections: this.allCollections,
-    });
+    const formConfig = await this.cipherFormConfigService.buildConfig(
+      "clone",
+      cipher.id as CipherId,
+      cipher.type,
+    );
+    this.openDialog("form", formConfig);
   }
 
   async shareCipher(cipher: CipherView) {
@@ -689,12 +690,13 @@ export class VaultComponent<C extends CipherViewLike>
       folderId = this.activeFilter.folderId;
     }
 
-    this.openDrawer({
-      mode: "add",
-      cipherType,
-      allCollections: this.allCollections,
-      initialValues: { folderId, organizationId: organizationId ?? undefined, collectionIds },
-    });
+    const formConfig = await this.cipherFormConfigService.buildConfig("add", undefined, cipherType);
+    formConfig.initialValues = {
+      folderId,
+      organizationId: organizationId ?? undefined,
+      collectionIds,
+    };
+    this.openDialog("form", formConfig);
 
     if (type === CipherType.SshKey) {
       this.toastService.showToast({
@@ -859,8 +861,11 @@ export class VaultComponent<C extends CipherViewLike>
     this.refresh$.next();
   }
 
-  private openDrawer(params: VaultItemDrawerParams) {
-    this.activeDrawerRef = VaultItemDrawerComponent.openDrawer(this.dialogService, params);
+  private openDialog(mode: VaultItemDialogMode, formConfig: CipherFormConfig) {
+    this.activeDrawerRef = VaultItemDialogComponent.openDrawer(this.dialogService, {
+      mode,
+      formConfig,
+    });
     this.activeDrawerRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       this.activeDrawerRef = undefined;
       void this.router.navigate([], {
@@ -868,7 +873,7 @@ export class VaultComponent<C extends CipherViewLike>
         queryParamsHandling: "merge",
         replaceUrl: true,
       });
-      if (result === VaultItemDrawerResult.Saved || result === VaultItemDrawerResult.Deleted) {
+      if (result === VaultItemDialogResult.Saved || result === VaultItemDialogResult.Deleted) {
         this.refresh();
       }
     });
