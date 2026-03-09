@@ -27,14 +27,15 @@
 
     <form [formGroup]="adminForm">
       <bit-card>
-        <bit-switch formControlName="autoConfirm">
+        <bit-form-control>
+          <bit-switch formControlName="autoConfirm"></bit-switch>
           <bit-label>
             <span class="tw-text-sm">
               {{ "automaticUserConfirmation" | i18n }}
             </span>
           </bit-label>
           <bit-hint class="tw-max-w-[18rem]">{{ "automaticUserConfirmationHint" | i18n }}</bit-hint>
-        </bit-switch>
+        </bit-form-control>
       </bit-card>
     </form>
   </div>
