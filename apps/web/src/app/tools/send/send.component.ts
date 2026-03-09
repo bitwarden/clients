@@ -158,7 +158,7 @@ export class SendComponent implements OnDestroy {
   }
 
   async addSend() {
-    if (this.disableSend) {
+    if (this.disableSend()) {
       return;
     }
 
@@ -246,6 +246,7 @@ export class SendComponent implements OnDestroy {
       });
     } catch (e) {
       this.logService.error(e);
+      return false;
     }
     return true;
   }
