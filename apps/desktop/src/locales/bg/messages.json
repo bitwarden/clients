@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Любими"
   },
+  "unfavorite": {
+    "message": "Премахване от любимите"
+  },
   "types": {
     "message": "Видове"
   },
@@ -585,6 +588,12 @@
   },
   "editedItem": {
     "message": "Елементът е редактиран"
+  },
+  "itemAddedToFavorites": {
+    "message": "Елементът е добавен към любимите"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Елементът е премахнат от любимите"
   },
   "deleteItem": {
     "message": "Изтриване на елемента"
@@ -1555,6 +1564,18 @@
   "unknown": {
     "message": "Неизвестно"
   },
+  "copyAddress": {
+    "message": "Копиране на адреса"
+  },
+  "copyPhone": {
+    "message": "Копиране на телефона"
+  },
+  "copyNote": {
+    "message": "Копиране на бележката"
+  },
+  "copyVerificationCode": {
+    "message": "Копиране на кода за потвърждаване"
+  },
   "copyUsername": {
     "message": "Копиране на потребителското име"
   },
@@ -2082,6 +2103,24 @@
   "searchTrash": {
     "message": "Търсене в кошчето"
   },
+  "searchArchive": {
+    "message": "Търсене в архива"
+  },
+  "searchLogin": {
+    "message": "Търсене на запис"
+  },
+  "searchCard": {
+    "message": "Търсене на карта"
+  },
+  "searchIdentity": {
+    "message": "Търсене на идентификатор"
+  },
+  "searchSecureNote": {
+    "message": "Търсене на защитена бележка"
+  },
+  "searchSshKey": {
+    "message": "Търсене на SSH ключ"
+  },
   "permanentlyDeleteItem": {
     "message": "Окончателно изтриване на запис"
   },
@@ -2377,6 +2416,9 @@
   "editSend": {
     "message": "Редактиране на изпращане",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Аз"
   },
   "myVault": {
     "message": "Моят трезор"
@@ -4086,6 +4128,9 @@
   "missingWebsite": {
     "message": "Липсващ уеб сайт"
   },
+  "missingPermissions": {
+    "message": "Нямате нужните правомощия да извършите това действие."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Не можете да премахвате колекции с права „Само за преглед“: $COLLECTIONS$",
     "placeholders": {
@@ -4589,6 +4634,36 @@
   },
   "whyAmISeeingThis": {
     "message": "Защо виждам това?"
+  },
+  "organizationIsSuspended": {
+    "message": "Организацията е с преустановен достъп"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Записите в организации с преустановен достъп не са достъпни. Свържете се със собственика на организацията си за помощ."
+  },
+  "noItemsInTrash": {
+    "message": "Няма елементи в кошчето"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Елементите, които изтривате, ще бъдат премествани тук и изтривани окончателно след 30 дни"
+  },
+  "noItemsInVault": {
+    "message": "Няма елементи в трезора"
+  },
+  "emptyVaultDescription": {
+    "message": "Трезорът може да пази не само паролите Ви. Тум можете да съхранявате сигурно данни за вписване, идентификационни данни, карти и бележки."
+  },
+  "emptyFavorites": {
+    "message": "Все още нямате любими неща"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Добавете често ползваните неща в любимите си, за бърз достъп."
+  },
+  "noSearchResults": {
+    "message": "Няма резултати от търсенето"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Изчистете филтрите или опитайте да търсите нещо друго"
   },
   "sendPasswordHelperText": {
     "message": "Хората ще трябва да въведат паролата, за да видят това Изпращане",
