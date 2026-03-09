@@ -83,8 +83,8 @@ export function NotificationButtonRow({
           {
             icon: Folder,
             text: name,
-            value: id === null ? defaultNoneSelectValue : id,
-            default: id === null,
+            value: !id ? defaultNoneSelectValue : id,
+            default: !id,
           },
         ],
         [],
