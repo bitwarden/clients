@@ -5445,7 +5445,7 @@
   "minimumNumberOfWords": {
     "message": "Minimální počet slov"
   },
-  "passwordTypePolicyOverride": {
+  "overridePasswordTypePolicy": {
     "message": "Typ hesla",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Více informací o převodu"
   },
+  "promptUsersToMoveItems": {
+    "message": "Vyzvat uživatele k přesunutí jednotlivých položek trezoru do organizace"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Členové budou vyzváni, aby buď převedli své položky do organizace nebo aby odešli. Pokud odejdou, jejich přístup je odvolán, ale může být kdykoliv obnoven."
+  },
   "organizationDataOwnership": {
     "message": "Vynutit vlastnictví dat organizace"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Nyní k dispozici"
   },
-  "autoConfirm": {
-    "message": "Automatické potvrzení nových uživatelů"
+  "automaticUserConfirmation": {
+    "message": "Automatické potvrzení uživatele"
   },
   "autoConfirmDescription": {
     "message": "Noví uživatelé pozvaní do organizace budou automaticky potvrzeni při odemknutí zařízení správce.",
@@ -10624,6 +10630,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Odešle data události do Vaší instanci SIEM Huntress"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ - úspěšně připojeno.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Nepodařilo se uložit integraci. Opakujte akci později."
   },
@@ -10976,6 +10991,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Vypnuto"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Nepodařilo se načíst zprávu o přístupu člena. Může to být způsobeno velikostí organizace nebo problémy se sítí. Zkuste to znovu nebo kontaktujte podporu, pokud problém přetrvává."
   },
   "kdfIterationRecommends": {
     "message": "Doporučujeme 600 000 nebo více"
