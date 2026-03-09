@@ -11,6 +11,9 @@ import {
 } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ToastService } from "@bitwarden/components";
+
 import { SharedModule } from "../../../shared";
 
 @Component({
@@ -30,7 +33,10 @@ export class SendAccessEmailComponent implements OnInit, OnDestroy {
   readonly loading = input.required<boolean>();
   readonly backToEmail = output<void>();
 
-  constructor() {}
+  constructor(
+    private toastService: ToastService,
+    private i18nService: I18nService,
+  ) {}
 
   ngOnInit() {
     this.email = new FormControl("", Validators.required);
@@ -38,37 +44,39 @@ export class SendAccessEmailComponent implements OnInit, OnDestroy {
     this.formGroup().addControl("email", this.email);
     this.formGroup().addControl("otp", this.otp);
 
-    // Update validators when enterOtp changes
     effect(() => {
       const isOtpMode = this.enterOtp();
       if (isOtpMode) {
-        // In OTP mode: email is not required (already entered), otp is required
         this.email.clearValidators();
-        this.otp.setValidators([Validators.required]);
       } else {
-        // In email mode: email is required, otp is not required
         this.email.setValidators([Validators.required]);
-        this.otp.clearValidators();
       }
       this.email.updateValueAndValidity();
-      this.otp.updateValueAndValidity();
     });
   }
+
   ngOnDestroy() {
     this.formGroup().removeControl("email");
     this.formGroup().removeControl("otp");
   }
 
-  onResendCode(event: Event) {
-    event.preventDefault();
-    event.stopPropagation();
+  onOtpBlur() {
+    if (!this.otp?.value || this.otp.value.trim() === "") {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("verificationCodeRequired"),
+      });
+    }
+  }
+
+  onResendCode() {
     this.resendCode.emit();
   }
 
   onBackClick() {
     this.backToEmail.emit();
     if (this.otp) {
-      this.otp.clearValidators();
       this.otp.setValue("");
       this.otp.setErrors(null);
       this.otp.markAsUntouched();

@@ -252,7 +252,12 @@ export class SendAuthComponent implements OnInit {
       sendAccessCreds = { kind: "email", email };
     } else {
       const otp = this.sendAccessForm.value.otp as SendOtp;
-      if (otp == null) {
+      if (otp == null || otp.trim() === "") {
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("invalidVerificationCode"),
+        });
         return;
       }
       sendAccessCreds = { kind: "email_otp", email, otp };

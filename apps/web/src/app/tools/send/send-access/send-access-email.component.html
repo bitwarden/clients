@@ -18,14 +18,18 @@
 } @else {
   <bit-form-field>
     <bit-label>{{ "verificationCode" | i18n }}</bit-label>
-    <input bitInput type="text" [formControl]="otp" required appInputVerbatim appAutofocus />
-    <bit-hint>
-      {{ "didNotReceiveCodeContactSenderOr" | i18n }}
-      <button type="button" bitLink (click)="onResendCode($event)">
-        {{ "resendCode" | i18n | lowercase }}
-      </button>
-    </bit-hint>
+    <input
+      bitInput
+      type="text"
+      [formControl]="otp"
+      appInputVerbatim
+      appAutofocus
+      (blur)="onOtpBlur()"
+    />
   </bit-form-field>
+  <a bitLink type="button" (click)="onResendCode()" class="tw-mb-3 tw-inline-block">
+    {{ "resendCode" | i18n }}
+  </a>
   <button
     bitButton
     bitFormButton
