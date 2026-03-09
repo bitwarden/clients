@@ -8,12 +8,14 @@ import { NavigationModule } from "@bitwarden/components";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-toggle-width",
-  template: `<bit-nav-item
-    text="Toggle Width"
-    icon="bwi-bug"
-    *ngIf="isDev"
-    (click)="toggleWidth()"
-  ></bit-nav-item>`,
+  template: `
+    <bit-nav-item
+      text="Toggle Width"
+      icon="bwi-bug"
+      *ngIf="isDev"
+      (click)="toggleWidth()"
+    ></bit-nav-item>
+  `,
   imports: [CommonModule, NavigationModule],
 })
 export class ToggleWidthComponent {

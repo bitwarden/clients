@@ -46,21 +46,23 @@ export function NotificationFooter({
 
   return html`
     <div class=${notificationFooterStyles({ isChangeNotification })}>
-      ${!isChangeNotification
-        ? NotificationButtonRow({
-            collections,
-            folders,
-            organizations,
-            i18n,
-            primaryButton: {
-              handlePrimaryButtonClick: handleSaveAction,
-              isLoading,
-              text: primaryButtonText,
-            },
-            personalVaultIsAllowed,
-            theme,
-          })
-        : nothing}
+      ${
+        !isChangeNotification
+          ? NotificationButtonRow({
+              collections,
+              folders,
+              organizations,
+              i18n,
+              primaryButton: {
+                handlePrimaryButtonClick: handleSaveAction,
+                isLoading,
+                text: primaryButtonText,
+              },
+              personalVaultIsAllowed,
+              theme,
+            })
+          : nothing
+      }
     </div>
   `;
 }

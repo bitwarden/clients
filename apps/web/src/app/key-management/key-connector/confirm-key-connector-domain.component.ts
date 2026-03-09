@@ -7,7 +7,9 @@ import { RouterService } from "@bitwarden/web-vault/app/core";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-confirm-key-connector-domain",
-  template: ` <confirm-key-connector-domain [onBeforeNavigation]="onBeforeNavigation" /> `,
+  template: `
+    <confirm-key-connector-domain [onBeforeNavigation]="onBeforeNavigation" />
+  `,
   standalone: true,
   imports: [BaseConfirmKeyConnectorDomainComponent],
 })

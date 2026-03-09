@@ -9,7 +9,9 @@ let nextId = 0;
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-error",
-  template: `<i class="bwi bwi-error"></i> {{ displayError }}`,
+  template: `
+    <i class="bwi bwi-error"></i> {{ displayError }}
+  `,
   host: {
     class: "tw-block tw-mt-1 tw-text-danger tw-text-xs",
     "aria-live": "assertive",

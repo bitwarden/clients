@@ -46,13 +46,15 @@ export function AtRiskNotification({
         theme,
         riskMessage,
       })}
-      ${passwordChangeUri
-        ? AtRiskNotificationFooter({
-            i18n,
-            theme,
-            passwordChangeUri: params?.passwordChangeUri,
-          })
-        : nothing}
+      ${
+        passwordChangeUri
+          ? AtRiskNotificationFooter({
+              i18n,
+              theme,
+              passwordChangeUri: params?.passwordChangeUri,
+            })
+          : nothing
+      }
     </div>
   `;
 }

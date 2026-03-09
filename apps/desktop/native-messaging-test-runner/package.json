@@ -2,6 +2,8 @@
   "name": "native-messaging-test-runner",
   "version": "1.0.0",
   "description": "Test runner for Desktop native messaging",
+  "license": "GPL-3.0",
+  "author": "Bitwarden Inc. <hello@bitwarden.com> (https://bitwarden.com)",
   "main": "dist/bw-handshake.ts",
   "scripts": {
     "handshake": "tsc && node dist/apps/desktop/native-messaging-test-runner/src/commands/bw-handshake.js",
@@ -11,13 +13,11 @@
     "update": "tsc && node dist/apps/desktop/native-messaging-test-runner/src/commands/bw-credential-update.js",
     "generate": "tsc && node dist/apps/desktop/native-messaging-test-runner/src/commands/bw-generate-password.js"
   },
-  "author": "Bitwarden Inc. <hello@bitwarden.com> (https://bitwarden.com)",
-  "license": "GPL-3.0",
   "dependencies": {
     "@bitwarden/common": "file:../../../libs/common",
+    "@bitwarden/logging": "dist/libs/logging/src",
     "@bitwarden/node": "file:../../../libs/node",
     "@bitwarden/storage-core": "file:../../../libs/storage-core",
-    "@bitwarden/logging": "dist/libs/logging/src",
     "module-alias": "2.2.3",
     "ts-node": "10.9.2",
     "uuid": "9.0.1",

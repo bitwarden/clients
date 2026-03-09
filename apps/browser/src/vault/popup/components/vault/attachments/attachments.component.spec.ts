@@ -27,7 +27,9 @@ import { AttachmentsComponent } from "./attachments.component";
 
 @Component({
   selector: "popup-header",
-  template: `<ng-content></ng-content>`,
+  template: `
+    <ng-content></ng-content>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockPopupHeaderComponent {
@@ -37,7 +39,9 @@ class MockPopupHeaderComponent {
 
 @Component({
   selector: "popup-footer",
-  template: `<ng-content></ng-content>`,
+  template: `
+    <ng-content></ng-content>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockPopupFooterComponent {

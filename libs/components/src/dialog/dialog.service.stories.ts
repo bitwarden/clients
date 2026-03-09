@@ -95,9 +95,7 @@ class StoryDialogComponent {
         Animal: {{ animal }}
       </span>
       <ng-container bitDialogFooter>
-        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">
-          Save
-        </button>
+        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">Save</button>
         <button type="button" bitButton buttonType="secondary" bitDialogClose>Cancel</button>
       </ng-container>
     </bit-dialog>
@@ -126,9 +124,7 @@ class StoryDialogContentComponent {
         Animal: {{ animal }}
       </span>
       <ng-container bitDialogFooter>
-        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">
-          Save
-        </button>
+        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">Save</button>
       </ng-container>
     </bit-dialog>
   `,
@@ -154,9 +150,7 @@ class NonDismissableContentComponent {
         Animal: {{ animal }}
       </span>
       <ng-container bitDialogFooter>
-        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">
-          Save
-        </button>
+        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">Save</button>
         <button type="button" bitButton buttonType="secondary" bitDialogClose>Cancel</button>
       </ng-container>
     </bit-dialog>
@@ -183,9 +177,7 @@ class SmallDrawerContentComponent {
         Animal: {{ animal }}
       </span>
       <ng-container bitDialogFooter>
-        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">
-          Save
-        </button>
+        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">Save</button>
         <button type="button" bitButton buttonType="secondary" bitDialogClose>Cancel</button>
       </ng-container>
     </bit-dialog>

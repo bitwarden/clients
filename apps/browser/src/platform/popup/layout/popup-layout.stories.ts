@@ -141,7 +141,9 @@ class MockCurrentAccountComponent {}
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-search",
-  template: ` <bit-search placeholder="Search"> </bit-search> `,
+  template: `
+    <bit-search placeholder="Search"> </bit-search>
+  `,
   imports: [SearchModule],
 })
 class MockSearchComponent {}

@@ -16,7 +16,9 @@ import { TooltipDirective, TOOLTIP_DELAY_MS } from "./tooltip.directive";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   imports: [TooltipDirective],
-  template: ` <button [bitTooltip]="tooltipText" type="button">Hover or focus me</button> `,
+  template: `
+    <button [bitTooltip]="tooltipText" type="button">Hover or focus me</button>
+  `,
 })
 class TooltipHostComponent {
   tooltipText = "Hello Tooltip";

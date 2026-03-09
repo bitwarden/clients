@@ -71,12 +71,13 @@ const actionButtonStyles = ({
   text-overflow: ellipsis;
   font-weight: 500;
 
-  ${disabled || isLoading
-    ? `
+  ${
+    disabled || isLoading
+      ? `
     background-color: ${themes[theme].secondary["300"]};
     color: ${themes[theme].text.muted};
   `
-    : `
+      : `
     background-color: ${themes[theme].primary["600"]};
     cursor: pointer;
     color: ${themes[theme].text.contrast};
@@ -90,7 +91,8 @@ const actionButtonStyles = ({
       outline: 2px solid ${themes[theme].primary["600"]};
       outline-offset: 1px;
     }
-  `}
+  `
+  }
 
   svg {
     padding: 2px 0; /* Match line-height of button body2 typography */

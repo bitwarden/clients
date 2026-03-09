@@ -1,11 +1,11 @@
 {
   "name": "@bitwarden/unlock",
   "version": "0.0.1",
-  "description": "Unlock the account of a user",
   "private": true,
+  "description": "Unlock the account of a user",
+  "license": "GPL-3.0",
+  "author": "key-management",
   "type": "commonjs",
   "main": "index.js",
-  "types": "index.d.ts",
-  "license": "GPL-3.0",
-  "author": "key-management"
+  "types": "index.d.ts"
 }

@@ -24,9 +24,7 @@ const testStringFeatureValue = "test-value";
       <div data-testid="string-content">Hidden behind feature flag</div>
     </div>
     <div *appIfFeature="missingFlag">
-      <div data-testid="missing-flag-content">
-        Hidden behind missing flag. Should not be visible.
-      </div>
+      <div data-testid="missing-flag-content">Hidden behind missing flag. Should not be visible.</div>
     </div>
   `,
   standalone: false,

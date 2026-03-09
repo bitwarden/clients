@@ -88,13 +88,15 @@ export function NotificationConfirmationContainer({
         theme,
         handleOpenVault,
       })}
-      ${!error && remainingTasksCount
-        ? NotificationConfirmationFooter({
-            i18n,
-            theme,
-            handleButtonClick: handleOpenTasks,
-          })
-        : nothing}
+      ${
+        !error && remainingTasksCount
+          ? NotificationConfirmationFooter({
+              i18n,
+              theme,
+              handleButtonClick: handleOpenTasks,
+            })
+          : nothing
+      }
     </div>
   `;
 }

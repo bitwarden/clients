@@ -134,12 +134,7 @@ type Scenario =
           <div class="tw-col-span-12">
             <bit-form-field [disableMargin]="true">
               <bit-label>{{ "taxIdNumber" | i18n }}</bit-label>
-              <input
-                bitInput
-                type="text"
-                [formControl]="group.controls.taxId"
-                data-testid="tax-id"
-              />
+              <input bitInput type="text" [formControl]="group.controls.taxId" data-testid="tax-id" />
               @let hint = taxIdWarningHint;
               @if (hint) {
                 <bit-hint

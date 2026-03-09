@@ -1,6 +1,7 @@
 {
   "name": "@bitwarden/components",
   "version": "0.0.0",
+  "private": true,
   "sideEffects": false,
   "scripts": {
     "ng": "ng",
@@ -13,6 +14,5 @@
     "storybook": "npm run docs:json && start-storybook -p 6006",
     "build-storybook": "npm run docs:json && build-storybook",
     "chromatic": "chromatic --exit-zero-on-changes"
-  },
-  "private": true
+  }
 }

@@ -9,26 +9,28 @@ import { AvatarModule } from "@bitwarden/components";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "selectable-avatar",
-  template: `<span
-    [title]="title"
-    (click)="onFire()"
-    (keyup.enter)="onFire()"
-    tabindex="0"
-    [ngClass]="classList"
-  >
-    <bit-avatar
-      appStopClick
-      [text]="text"
-      size="xlarge"
-      [text]="text"
-      [color]="color"
-      [border]="false"
-      [id]="id"
-      [border]="border"
+  template: `
+    <span
       [title]="title"
+      (click)="onFire()"
+      (keyup.enter)="onFire()"
+      tabindex="0"
+      [ngClass]="classList"
     >
-    </bit-avatar>
-  </span>`,
+      <bit-avatar
+        appStopClick
+        [text]="text"
+        size="xlarge"
+        [text]="text"
+        [color]="color"
+        [border]="false"
+        [id]="id"
+        [border]="border"
+        [title]="title"
+      >
+      </bit-avatar>
+    </span>
+  `,
   imports: [NgClass, AvatarModule],
 })
 export class SelectableAvatarComponent {

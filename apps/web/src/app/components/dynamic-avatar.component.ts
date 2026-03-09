@@ -13,18 +13,20 @@ type SizeTypes = "xlarge" | "large" | "default" | "small" | "xsmall";
 @Component({
   selector: "dynamic-avatar",
   imports: [SharedModule],
-  template: `<span [title]="title">
-    <bit-avatar
-      appStopClick
-      [text]="text"
-      [size]="size"
-      [color]="color$ | async"
-      [border]="border"
-      [id]="id"
-      [title]="title"
-    >
-    </bit-avatar>
-  </span>`,
+  template: `
+    <span [title]="title">
+      <bit-avatar
+        appStopClick
+        [text]="text"
+        [size]="size"
+        [color]="color$ | async"
+        [border]="border"
+        [id]="id"
+        [title]="title"
+      >
+      </bit-avatar>
+    </span>
+  `,
 })
 export class DynamicAvatarComponent implements OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

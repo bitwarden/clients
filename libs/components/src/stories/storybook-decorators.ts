@@ -10,8 +10,7 @@ export const positionFixedWrapperDecorator = (wrapper?: (story: string) => strin
      * Applying a CSS transform makes a `position: fixed` element act like it is `position: relative`
      * https://github.com/storybookjs/storybook/issues/8011#issue-490251969
      */
-    (story) =>
-      /* HTML */ `<div
+    (story) => /* HTML */ `<div
         class="tw-scale-100 tw-h-screen tw-border-2 tw-border-solid tw-border-secondary-300 tw-overflow-auto tw-box-content"
       >
         ${wrapper ? wrapper(story) : story}

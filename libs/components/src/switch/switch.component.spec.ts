@@ -75,7 +75,9 @@ describe("SwitchComponent", () => {
     // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
     @Component({
       selector: "test-selected-host",
-      template: `<bit-switch [selected]="checked"><bit-label>Element</bit-label></bit-switch>`,
+      template: `
+        <bit-switch [selected]="checked"><bit-label>Element</bit-label></bit-switch>
+      `,
       imports: [SwitchComponent, BitLabelComponent],
     })
     class TestSelectedHostComponent {

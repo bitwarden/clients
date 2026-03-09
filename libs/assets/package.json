@@ -1,15 +1,15 @@
 {
   "name": "@bitwarden/assets",
   "version": "0.0.1",
-  "description": "Assets used in Bitwarden clients",
   "private": true,
-  "type": "commonjs",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "description": "Assets used in Bitwarden clients",
   "license": "GPL-3.0",
   "author": "ui-foundation",
+  "type": "commonjs",
+  "sideEffects": false,
+  "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "jest"
-  },
-  "sideEffects": false
+  }
 }
