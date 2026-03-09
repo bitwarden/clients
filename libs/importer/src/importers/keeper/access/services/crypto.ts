@@ -18,6 +18,9 @@ export function generateEncryptionKey(): Uint8Array {
   return getRandomBytes(32);
 }
 
+/**
+ * Decrypt an aes-v1 packet. Keeper aes-v1 is AES-CBC without any authentication (MAC).
+ */
 export async function decryptAesV1(data: Uint8Array, key: Uint8Array): Promise<Uint8Array> {
   const iv = data.subarray(0, AES_BLOCK_SIZE);
   const encrypted = data.subarray(AES_BLOCK_SIZE);
@@ -28,6 +31,11 @@ export async function decryptAesV1(data: Uint8Array, key: Uint8Array): Promise<U
   return new Uint8Array(decrypted);
 }
 
+/**
+ * Encrypt a packet with aes-v2. Keeper aes-v2 is AES-GCM. Optionally accepts an external nonce,
+ * if not provided the nonce will be generated automatically.
+ * WARNING: DO NOT REUSE THE NONCE. THIS WILL LEAD TO CATASTROPHIC CRYPTOGRAPHIC FAILURE.
+ */
 export async function encryptAesV2(
   data: Uint8Array,
   key: Uint8Array,
@@ -46,6 +54,10 @@ export async function encryptAesV2(
   return concatUint8Arrays(nonceBuffer, new Uint8Array(encrypted));
 }
 
+/**
+ * Decrypt a packet with aes-v2. Keeper aes-v2 is AES-GCM. The packet has the format:
+ * Nonce|Plaintext|Tag where Plaintext|Tag are the output of AES-GCM.
+ */
 export async function decryptAesV2(
   data: Uint8Array,
   key: Uint8Array,
@@ -133,6 +145,9 @@ async function deriveEcdhKey(publicKey: CryptoKey, privateKey: CryptoKey): Promi
   return new Uint8Array(hash);
 }
 
+/**
+ * Encrypts an ECC-encrypted packet. Keeper ECC encryption works by deriving a shared key content-encrytpion-key using ECDH, then encrypting the content with under the content-encryption-key with AES-GCM
+ */
 export async function encryptEc(data: Uint8Array, publicKey: CryptoKey): Promise<Uint8Array> {
   const { privateKey: ephemeralPrivate, publicKey: ephemeralPublic } = await generateEcKey();
   const encryptionKey = await deriveEcdhKey(publicKey, ephemeralPrivate);
@@ -141,6 +156,9 @@ export async function encryptEc(data: Uint8Array, publicKey: CryptoKey): Promise
   return concatUint8Arrays(ephemeralPublicBytes, encryptedData);
 }
 
+/**
+ * Decrypts an ECC-encrypted-packet. Keeper ECC encryption works by deriving an ephemeral content-encryption-key, then encrypting the payload using AES-GCM. The packet concatinates the ECC ephemeral public key, and the AES-GCM encrypted packet.
+ */
 export async function decryptEc(data: Uint8Array, privateKey: CryptoKey): Promise<Uint8Array> {
   const ephemeralPublicBytes = data.subarray(0, 65);
   const ephemeralPublic = await loadEcPublicKey(ephemeralPublicBytes);
@@ -149,6 +167,9 @@ export async function decryptEc(data: Uint8Array, privateKey: CryptoKey): Promis
   return await decryptAesV2(encryptedData, encryptionKey);
 }
 
+/**
+ * Derives a keeper master-key using a password, salt and a number of iterations.
+ */
 export async function deriveKeyV1(
   password: string,
   salt: Uint8Array,
@@ -184,6 +205,14 @@ export async function deriveV1KeyHash(
   return new Uint8Array(hash);
 }
 
+/**
+ * Derives a key from the encryption parameters. The encryption parameters is a binary blob that
+ * contains the data needed to derive the key. It is structured as follows.
+ * CORRUPTED[1]|Iterations[3]|Salt[16]|IV[16]|Data
+ * The iterations, salt, key are used to derive a content-encryption-key. The IV and cek are used
+ * to decrypt the data, which consists of two 32-byte blocks. These two blocks need to match.
+ * They are decrypted with AES-CBC, using no pkcs7 padding.
+ */
 export async function decryptEncryptionParams(
   password: string,
   encryptionParams: Uint8Array,
@@ -201,10 +230,10 @@ export async function decryptEncryptionParams(
   const iterations = (encryptionParams[1] << 16) + (encryptionParams[2] << 8) + encryptionParams[3];
   const salt = encryptionParams.subarray(4, 20);
   const key = await deriveKeyV1(password, salt, iterations);
-  const iv = encryptionParams.subarray(20, 36);
 
   // Decrypt data with no padding
   // We need to manually handle this since Web Crypto always expects PKCS7 padding
+  const iv = encryptionParams.subarray(20, 36);
   const encryptedData = encryptionParams.subarray(36);
   const decrypted = await decryptAesNoPadding(encryptedData, key, iv);
 
@@ -223,7 +252,13 @@ async function decryptAesNoPadding(
   iv: Uint8Array,
 ): Promise<Uint8Array> {
   // Web Crypto doesn't support no-padding mode, so we need a workaround.
-  // We encrypt a PKCS7 padding block and append it to get valid padded ciphertext.
+  // AES-CBC chains individual aes encryption operation blocks using the previous ciphertext
+  // as the IV of the next block. In PKCS7, the last block needs to be valid padding. In the
+  // case that the full block is padding and contains no data, the entire block should contain
+  // 0x10. Because of this, a non-padded AES-CBC block can be converted to a correctly padded
+  // block, in the case that the plaintext length is a multiple of the block size. This is done
+  // by using the last ciphertext block as the IV to encrypt the padding block containing only
+  // 0x10. Appending this at the end, then results in a valid PKCS7-padded block.
   const cryptoKey = await crypto.subtle.importKey("raw", key, { name: "AES-CBC" }, false, [
     "encrypt",
     "decrypt",
