@@ -3,9 +3,10 @@
 
 use crate::{authorization::AuthError, crypto::PublicKey};
 
-/// Namespace of signature requests.
+/// Represents the parsed SSHSIG namespace.
+// <https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.sshsig>
 #[derive(Debug, Clone, PartialEq)]
-pub enum SignRequestNamespace {
+pub enum SIGNamespace {
     Git,
     File,
     Unsupported,
@@ -21,8 +22,9 @@ pub struct SignRequest {
     pub process_name: Option<String>,
     /// Whether this is an agent forwarding request
     pub is_forwarding: bool,
-    /// If available, the parsed representation of the sign request's namespace.
-    pub namespace: Option<SignRequestNamespace>,
+    /// The parsed representation of the sign request's SIG namespace. For authentications to a
+    /// server, this is `None`.
+    pub namespace: Option<SIGNamespace>,
 }
 
 /// Authorization request for SSH agent operations.

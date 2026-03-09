@@ -147,7 +147,7 @@ mod tests {
     use super::*;
     use crate::{
         approval::MockApprovalRequester,
-        server::SignRequestNamespace,
+        server::SIGNamespace,
         storage::{keydata::MockQueryableKeyData, keystore::MockKeyStore},
     };
 
@@ -162,7 +162,7 @@ mod tests {
         public_key: crate::crypto::PublicKey,
         process_name: Option<&str>,
         is_forwarding: bool,
-        namespace: Option<SignRequestNamespace>,
+        namespace: Option<SIGNamespace>,
     ) -> AuthRequest {
         AuthRequest::Sign(crate::server::SignRequest {
             public_key,
@@ -465,7 +465,7 @@ mod tests {
             .withf(|req| {
                 req.sign_request.process_name == Some("test-process".to_string())
                     && req.sign_request.is_forwarding
-                    && req.sign_request.namespace == Some(SignRequestNamespace::Unsupported)
+                    && req.sign_request.namespace == Some(SIGNamespace::Unsupported)
             })
             .times(1)
             .returning(|_| Ok(true));
@@ -476,7 +476,7 @@ mod tests {
             test_pub_key,
             Some("test-process"),
             true,
-            Some(SignRequestNamespace::Unsupported),
+            Some(SIGNamespace::Unsupported),
         );
         let result = policy.authorize(&request).await;
 

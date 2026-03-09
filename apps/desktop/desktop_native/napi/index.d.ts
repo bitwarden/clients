@@ -302,23 +302,23 @@ export declare namespace sshagent_v2 {
     alg: string
     blob: Array<number>
   }
+  /** A sign request's SIG namespace */
+  export const enum SIGNamespace {
+    Git = 'Git',
+    File = 'File',
+    Unsupported = 'Unsupported'
+  }
   /** SSH sign request fields. */
   export interface SignRequest {
     publicKey: PublicKey
     processName?: string
     isForwarding: boolean
-    namespace?: SignRequestNamespace
+    namespace?: SIGNamespace
   }
   /** Data for a sign request, including vault cipher context. */
   export interface SignRequestData {
     signRequest: SignRequest
     cipherId?: string
-  }
-  /** Namespace of a sign request. */
-  export const enum SignRequestNamespace {
-    Git = 'Git',
-    File = 'File',
-    Unsupported = 'Unsupported'
   }
   /** SSH key data, sent from Electron. */
   export interface SshKeyData {

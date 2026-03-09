@@ -12,8 +12,7 @@ pub mod sshagent_v2 {
     use napi::threadsafe_function::ThreadsafeFunction;
     use ssh_agent::{
         ApprovalRequester, BitwardenSSHAgent, InMemoryEncryptedKeyStore,
-        SignApprovalRequest as SSHSignApprovalRequest,
-        SignRequestNamespace as SSHSignRequestNamespace,
+        SIGNamespace as SSHSIGNamespace, SignApprovalRequest as SSHSignApprovalRequest,
     };
     use tokio::time::timeout;
     use tracing::{debug, error};
@@ -38,21 +37,21 @@ pub mod sshagent_v2 {
         pub blob: Vec<u8>,
     }
 
-    /// Namespace of a sign request.
+    /// A sign request's SIG namespace
     #[napi(string_enum)]
     #[derive(Debug)]
-    pub enum SignRequestNamespace {
+    pub enum SIGNamespace {
         Git,
         File,
         Unsupported,
     }
 
-    impl From<SSHSignRequestNamespace> for SignRequestNamespace {
-        fn from(ns: SSHSignRequestNamespace) -> Self {
+    impl From<SSHSIGNamespace> for SIGNamespace {
+        fn from(ns: SSHSIGNamespace) -> Self {
             match ns {
-                SSHSignRequestNamespace::Git => Self::Git,
-                SSHSignRequestNamespace::File => Self::File,
-                SSHSignRequestNamespace::Unsupported => Self::Unsupported,
+                SSHSIGNamespace::Git => Self::Git,
+                SSHSIGNamespace::File => Self::File,
+                SSHSIGNamespace::Unsupported => Self::Unsupported,
             }
         }
     }
@@ -64,7 +63,7 @@ pub mod sshagent_v2 {
         pub public_key: PublicKey,
         pub process_name: Option<String>,
         pub is_forwarding: bool,
-        pub namespace: Option<SignRequestNamespace>,
+        pub namespace: Option<SIGNamespace>,
     }
 
     impl From<ssh_agent::SignRequest> for SignRequest {
