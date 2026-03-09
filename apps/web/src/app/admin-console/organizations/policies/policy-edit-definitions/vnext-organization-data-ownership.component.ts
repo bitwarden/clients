@@ -76,7 +76,7 @@ export class vNextOrganizationDataOwnershipPolicyComponent
   private readonly step0Title: Signal<TemplateRef<unknown>> = viewChild.required("step0Title");
   private readonly step0Footer: Signal<TemplateRef<unknown>> = viewChild.required("step0Footer");
 
-  protected centralizeDataOwnershipEnabled$: Observable<boolean> = defer(() =>
+  protected readonly centralizeDataOwnershipEnabled$: Observable<boolean> = defer(() =>
     from(
       this.policyApiService.getPolicy(
         this.organizationId ?? "",
@@ -88,12 +88,12 @@ export class vNextOrganizationDataOwnershipPolicyComponent
     ),
   );
 
-  protected saveDisabled$: Observable<boolean> = combineLatest([
+  protected readonly saveDisabled$: Observable<boolean> = combineLatest([
     this.centralizeDataOwnershipEnabled$,
     this.enabled.valueChanges.pipe(startWith(this.enabled.value)),
   ]).pipe(map(([policyEnabled, value]) => !policyEnabled && !value));
 
-  policySteps: PolicyStep[] = [
+  readonly policySteps: PolicyStep[] = [
     {
       titleContent: this.step0Title,
       footerContent: this.step0Footer,
@@ -121,12 +121,12 @@ export class vNextOrganizationDataOwnershipPolicyComponent
   ];
 
   constructor(
-    private i18nService: I18nService,
-    private encryptService: EncryptService,
-    private formBuilder: FormBuilder,
-    private policyApiService: PolicyApiServiceAbstraction,
-    private accountService: AccountService,
-    private keyService: KeyService,
+    private readonly i18nService: I18nService,
+    private readonly encryptService: EncryptService,
+    private readonly formBuilder: FormBuilder,
+    private readonly policyApiService: PolicyApiServiceAbstraction,
+    private readonly accountService: AccountService,
+    private readonly keyService: KeyService,
   ) {
     super();
 
@@ -140,7 +140,7 @@ export class vNextOrganizationDataOwnershipPolicyComponent
     });
   }
 
-  data = this.formBuilder.group({
+  readonly data = this.formBuilder.group({
     enableIndividualItemsTransfer: [{ value: false, disabled: true }],
   });
 
