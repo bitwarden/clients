@@ -63,7 +63,7 @@ export class ClearClipboardDelayToStringMigrator extends Migrator<75, 76> {
     }
 
     // Only set flag for users who had null (old "Never") before migration.
-    // These users will be migrated to "never" but the new default is "fiveMinutes",
+    // These users will be migrated to "fiveMinutes" (the new default),
     // so they should see a notification that the default has changed.
     if (oldValue === null) {
       await helper.setToUser(userId, HAD_PRE_MIGRATION_CLIPBOARD_VALUE_KEY, true);
@@ -74,7 +74,7 @@ export class ClearClipboardDelayToStringMigrator extends Migrator<75, 76> {
     // Convert old integer/null values to new string values
     switch (oldValue) {
       case null:
-        newValue = NEW_CLEAR_CLIPBOARD_DELAY_VALUES.NEVER;
+        newValue = NEW_CLEAR_CLIPBOARD_DELAY_VALUES.FIVE_MINUTES;
         break;
       case 10:
         newValue = NEW_CLEAR_CLIPBOARD_DELAY_VALUES.TEN_SECONDS;
