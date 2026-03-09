@@ -1,5 +1,3 @@
-import { firstValueFrom } from "rxjs";
-
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { PasswordInputResult } from "@bitwarden/auth/angular";
@@ -17,6 +15,7 @@ import {
   MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
+import { firstValueFromOrThrow } from "@bitwarden/common/key-management/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { KdfConfig, KeyService } from "@bitwarden/key-management";
@@ -106,11 +105,20 @@ export class DefaultChangePasswordService implements ChangePasswordService {
       assertTruthy(passwordInputResult.salt, "salt", context);
       assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", context); // can have an empty string as a meaningful value, so check non-nullish
 
-      const userKey = await this.verifyCurrentPasswordAndGetUserKey(
+      // Verify that the current password is correct
+      const currentPasswordVerified = await this.masterPasswordUnlockService.proofOfDecryption(
         passwordInputResult.currentPassword,
         userId,
       );
 
+      if (!currentPasswordVerified) {
+        throw new InvalidCurrentPasswordError();
+      }
+
+      // Current password has been verified, so get the user key from state
+      const userKey = await firstValueFromOrThrow(this.keyService.userKey$(userId), "userKey");
+
+      // Use current password to make current auth data so we can send the current auth hash to the server
       const currentAuthenticationData =
         await this.masterPasswordService.makeMasterPasswordAuthenticationData(
           passwordInputResult.currentPassword,
@@ -118,6 +126,7 @@ export class DefaultChangePasswordService implements ChangePasswordService {
           passwordInputResult.salt,
         );
 
+      // Use new password to make new auth and unlock data that we can send to the server
       const { newAuthenticationData, newUnlockData } = await this.makeNewAuthAndUnlockData(
         passwordInputResult.newPassword,
         passwordInputResult.kdfConfig,
@@ -167,11 +176,20 @@ export class DefaultChangePasswordService implements ChangePasswordService {
       assertTruthy(passwordInputResult.salt, "salt", context);
       assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", context); // can have an empty string as a meaningful value, so check non-nullish
 
-      const userKey = await this.verifyCurrentPasswordAndGetUserKey(
+      // Verify that the current password is correct
+      const currentPasswordVerified = await this.masterPasswordUnlockService.proofOfDecryption(
         passwordInputResult.currentPassword,
         userId,
       );
 
+      if (!currentPasswordVerified) {
+        throw new InvalidCurrentPasswordError();
+      }
+
+      // Current password has been verified, so get the user key from state
+      const userKey = await firstValueFromOrThrow(this.keyService.userKey$(userId), "userKey");
+
+      // Use new password to make new auth and unlock data that we can send to the server
       const { newAuthenticationData, newUnlockData } = await this.makeNewAuthAndUnlockData(
         passwordInputResult.newPassword,
         passwordInputResult.kdfConfig,
@@ -220,33 +238,6 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     } catch {
       throw new Error("Could not change password");
     }
-  }
-
-  /**
-   * Verifies that the current password is correct via `proofOfDecryption` and then
-   * returns the user key from state.
-   *
-   * @param currentPassword the entered current password
-   * @param userId the active user's `userId`
-   * @throws an `InvalidCurrentPasswordError` if `proofOfDecryption` fails (i.e. if the current password is incorrect)
-   * @throws if the user key could not be retrieved from state
-   * @returns the user key from state
-   */
-  private async verifyCurrentPasswordAndGetUserKey(currentPassword: string, userId: UserId) {
-    const currentPasswordVerified = await this.masterPasswordUnlockService.proofOfDecryption(
-      currentPassword,
-      userId,
-    );
-    if (!currentPasswordVerified) {
-      throw new InvalidCurrentPasswordError();
-    }
-
-    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-    if (!userKey) {
-      throw new Error("userKey not found. Could not change password.");
-    }
-
-    return userKey;
   }
 
   private async makeNewAuthAndUnlockData(

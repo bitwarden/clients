@@ -51,6 +51,7 @@ export abstract class ChangePasswordService {
    * @param passwordInputResult credentials object received from the `InputPasswordComponent`
    * @param userId the active user's `userId`
    * @throws if required values are not found on the `PasswordInputResult`
+   * @throws an `InvalidCurrentPasswordError` if `proofOfDecryption` fails (i.e. if the current password is incorrect)
    * @throws if there is an error during the API call
    *
    * OLD DESCRIPTION FOR UNFLAGGED LOGIC: (the rest of this JSDoc below can be removed in PM-28143)
@@ -78,6 +79,7 @@ export abstract class ChangePasswordService {
    * @param passwordInputResult credentials object received from the `InputPasswordComponent`
    * @param userId the active user's `userId`
    * @throws if required values are not found on the `PasswordInputResult`
+   * @throws an `InvalidCurrentPasswordError` if `proofOfDecryption` fails (i.e. if the current password is incorrect)
    * @throws if there is an error during the API call
    *
    * OLD DESCRIPTION FOR UNFLAGGED LOGIC: (the rest of this JSDoc below can be removed in PM-28143)
