@@ -27,7 +27,7 @@ import {
   RiskInsightsDataService,
   RiskInsightsReportService,
   SecurityTasksApiService,
-  RiskInsightsEncryptionService,
+  LegacyRiskInsightsEncryptionService,
   AccessReportEncryptionService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/services";
 import { RiskInsightsOrchestratorService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/domain/risk-insights-orchestrator.service";
@@ -102,7 +102,7 @@ import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.
     safeProvider({
       provide: RiskInsightsReportService,
       useClass: RiskInsightsReportService,
-      deps: [RiskInsightsApiService, RiskInsightsEncryptionService],
+      deps: [RiskInsightsApiService, LegacyRiskInsightsEncryptionService],
     }),
     safeProvider({
       provide: RiskInsightsOrchestratorService,
@@ -116,7 +116,7 @@ import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.
         PasswordHealthService,
         RiskInsightsApiService,
         RiskInsightsReportService,
-        RiskInsightsEncryptionService,
+        LegacyRiskInsightsEncryptionService,
       ],
     }),
     safeProvider({
@@ -124,7 +124,7 @@ import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.
       deps: [RiskInsightsOrchestratorService],
     }),
     safeProvider({
-      provide: RiskInsightsEncryptionService,
+      provide: LegacyRiskInsightsEncryptionService,
       deps: [KeyService, EncryptService, KeyGenerationService, LogService],
     }),
     safeProvider({
@@ -148,7 +148,7 @@ import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.
       useClass: DefaultLegacyReportMigrationService,
       deps: [
         RiskInsightsApiService,
-        RiskInsightsEncryptionService,
+        LegacyRiskInsightsEncryptionService,
         AccountServiceAbstraction,
         LogService,
       ],

@@ -46,6 +46,39 @@ function isMyModel(value: unknown): value is MyModel {
 - Absent keys pass `undefined` to the guard — required guards reject it naturally;
   optional guards (e.g. `isBoundedStringOrUndefined`) accept it
 
+#### `.explain()` — Diagnostic Mode
+
+Every validator returned by `createValidator` exposes an `.explain(value)` method.
+It returns `string[]` — empty if validation passes, otherwise one message per failing field.
+
+Use `.explain()` only in error messages and logging. Never use it in hot data paths —
+it iterates all fields even after the boolean guard has already returned `false`.
+
+```typescript
+const errors = isMyModel.explain(suspectValue);
+if (errors.length > 0) {
+  throw new Error(`Validation failed:\n  ${errors.join("\n  ")}`);
+}
+```
+
+**Error message format:**
+
+| Situation                    | Example message                                                        |
+| ---------------------------- | ---------------------------------------------------------------------- |
+| Not a plain object           | `"expected plain object, got Array(3)"`                                |
+| Class instance or null-proto | `"rejected: non-plain object (class instance or Object.create(null))"` |
+| Prototype pollution attempt  | `"rejected: prototype pollution attempt via key \"__proto__\""`        |
+| Field fails its guard        | `"field 'email': guard isBoundedString failed — got null"`             |
+| Required field absent        | `"field 'id': guard isBoundedString failed — got undefined"`           |
+
+**Security note:** Messages describe types only (`"null"`, `"string"`, `"Array(3)"`) —
+never actual values. Safe for production logs (no PII or vault data exposed).
+
+**Constraint:** `.explain()` reports top-level field failures only. It does not recurse into
+why a nested guard (e.g. `isMemberDetailsArray`) failed element-by-element.
+
+---
+
 ### `createBoundedArrayGuard<T>(isType)`
 
 Creates a type guard for an array of `T`, bounded to `BOUNDED_ARRAY_MAX_LENGTH` (50 000 items).
@@ -122,9 +155,12 @@ export function validateMyModelArray(data: unknown): MyModel[] {
     .map((item, index) => ({ item, index }))
     .filter(({ item }) => !isMyModel(item));
   if (invalidItems.length > 0) {
-    const indices = invalidItems.map(({ index }) => index).join(", ");
+    const elementMessages = invalidItems.map(({ item, index }) => {
+      const fieldErrors = isMyModel.explain(item).join("; ");
+      return `  element[${index}]: ${fieldErrors}`;
+    });
     throw new Error(
-      `Invalid data: ${invalidItems.length} invalid element(s) at indices: ${indices}`,
+      `Invalid data: ${invalidItems.length} invalid element(s)\n` + elementMessages.join("\n"),
     );
   }
   if (!isMyModelArray(data)) {
@@ -158,6 +194,6 @@ export function validateMyModelArray(data: unknown): MyModel[] {
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2026-03-04
+**Document Version:** 1.1
+**Last Updated:** 2026-03-06
 **Maintainer:** DIRT Team

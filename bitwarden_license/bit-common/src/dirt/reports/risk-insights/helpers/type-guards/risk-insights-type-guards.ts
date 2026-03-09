@@ -159,9 +159,13 @@ export function validateApplicationHealthReportDetailArray(
     .filter(({ item }) => !isApplicationHealthReportDetail(item));
 
   if (invalidItems.length > 0) {
-    const invalidIndices = invalidItems.map(({ index }) => index).join(", ");
+    const elementMessages = invalidItems.map(({ item, index }) => {
+      const fieldErrors = isApplicationHealthReportDetail.explain(item).join("; ");
+      return `  element[${index}]: ${fieldErrors}`;
+    });
     throw new Error(
-      `Invalid report data: array contains ${invalidItems.length} invalid ApplicationHealthReportDetail element(s) at indices: ${invalidIndices}`,
+      `Invalid report data: array contains ${invalidItems.length} invalid ApplicationHealthReportDetail element(s)\n` +
+        elementMessages.join("\n"),
     );
   }
 
@@ -221,9 +225,13 @@ export function validateOrganizationReportApplicationArray(
     .filter(({ item }) => !isOrganizationReportApplication(item));
 
   if (invalidItems.length > 0) {
-    const invalidIndices = invalidItems.map(({ index }) => index).join(", ");
+    const elementMessages = invalidItems.map(({ item, index }) => {
+      const fieldErrors = isOrganizationReportApplication.explain(item).join("; ");
+      return `  element[${index}]: ${fieldErrors}`;
+    });
     throw new Error(
-      `Invalid application data: array contains ${invalidItems.length} invalid OrganizationReportApplication element(s) at indices: ${invalidIndices}`,
+      `Invalid application data: array contains ${invalidItems.length} invalid OrganizationReportApplication element(s)\n` +
+        elementMessages.join("\n"),
     );
   }
 
@@ -283,9 +291,13 @@ export function validateRiskInsightsApplicationDataArray(
     .filter(({ item }) => !isRiskInsightsApplicationData(item));
 
   if (invalidItems.length > 0) {
-    const invalidIndices = invalidItems.map(({ index }) => index).join(", ");
+    const elementMessages = invalidItems.map(({ item, index }) => {
+      const fieldErrors = isRiskInsightsApplicationData.explain(item).join("; ");
+      return `  element[${index}]: ${fieldErrors}`;
+    });
     throw new Error(
-      `Invalid application data: array contains ${invalidItems.length} invalid RiskInsightsApplicationData element(s) at indices: ${invalidIndices}`,
+      `Invalid application data: array contains ${invalidItems.length} invalid RiskInsightsApplicationData element(s)\n` +
+        elementMessages.join("\n"),
     );
   }
 
@@ -336,7 +348,10 @@ export function validateAccessReportPayload(data: unknown): AccessReportPayload 
   }
   for (const [key, entry] of registryEntries) {
     if (!isBoundedString(key) || !isMemberRegistryEntryData(entry)) {
-      throw new Error(`Invalid V2 report data: invalid memberRegistry entry for key "${key}"`);
+      const fieldErrors = isMemberRegistryEntryData.explain(entry).join("; ");
+      throw new Error(
+        `Invalid V2 report data: invalid memberRegistry entry for key "${key}": ${fieldErrors}`,
+      );
     }
   }
 

@@ -142,6 +142,61 @@ export function createBoundedArrayGuard<T>(isType: (item: unknown) => item is T)
 type TempObject = Record<PropertyKey, unknown>;
 
 /**
+ * Describes the type/shape of a value without exposing actual content.
+ * Safe to include in logs — never reveals PII or vault data.
+ */
+function describeType(value: unknown): string {
+  if (value === null) {
+    return "null";
+  }
+  if (value === undefined) {
+    return "undefined";
+  }
+  if (Array.isArray(value)) {
+    return `Array(${value.length})`;
+  }
+  if (typeof value === "object") {
+    return "object";
+  }
+  return typeof value; // "string", "number", "boolean"
+}
+
+/**
+ * Checks that obj is a plain JSON-parsed object (not null, not a class instance,
+ * not a prototype-polluted object).
+ * Returns null if the structure is valid, or a diagnostic string if not.
+ */
+function checkStructure(obj: unknown): string | null {
+  if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+    return `expected plain object, got ${describeType(obj)}`;
+  }
+
+  if (Object.getPrototypeOf(obj) !== Object.prototype) {
+    return "rejected: non-plain object (class instance or Object.create(null))";
+  }
+
+  // Prevent dangerous properties that could be used for prototype pollution
+  const dangerousKeys = ["__proto__", "constructor", "prototype"];
+  for (const key of dangerousKeys) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      return `rejected: prototype pollution attempt via key "${key}"`;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * A type guard function with an attached `.explain()` method.
+ * The guard itself behaves identically to a standard type predicate.
+ * `.explain()` returns an array of diagnostic messages describing which fields
+ * failed validation — safe to include in logs (never exposes actual values, only types).
+ */
+export type EnhancedGuard<T> = ((obj: unknown) => obj is T) & {
+  explain: (obj: unknown) => string[];
+};
+
+/**
  * Factory that creates a type-safe object validator from a map of per-field guards.
  *
  * Pass a `{ fieldName: typeGuardFn }` map and receive a single function that validates
@@ -152,6 +207,9 @@ type TempObject = Record<PropertyKey, unknown>;
  *   `undefined` to the guard — required fields fail naturally (e.g. `isBoundedString(undefined)
  *   → false`), optional fields pass if their guard accepts `undefined`
  *   (e.g. `isDateStringOrUndefined(undefined) → true`)
+ *
+ * The returned `EnhancedGuard<T>` also exposes an `.explain(value)` method that returns
+ * field-level diagnostic messages (which fields failed and what type was received).
  *
  * @example
  * ```typescript
@@ -172,25 +230,12 @@ type TempObject = Record<PropertyKey, unknown>;
  */
 export function createValidator<T>(validators: {
   [K in keyof T]: (value: unknown) => value is T[K];
-}): (obj: unknown) => obj is T {
+}): EnhancedGuard<T> {
   const keys = Object.keys(validators) as (keyof T)[];
 
-  return function (obj: unknown): obj is T {
-    if (typeof obj !== "object" || obj === null) {
+  const guard = function (obj: unknown): obj is T {
+    if (checkStructure(obj) !== null) {
       return false;
-    }
-
-    if (Object.getPrototypeOf(obj) !== Object.prototype) {
-      return false;
-    }
-
-    // Prevent dangerous properties that could be used for prototype pollution
-    // Check for __proto__, constructor, and prototype as own properties
-    const dangerousKeys = ["__proto__", "constructor", "prototype"];
-    for (const key of dangerousKeys) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        return false;
-      }
     }
 
     // Type cast to TempObject for key checks
@@ -213,4 +258,27 @@ export function createValidator<T>(validators: {
       return validators[key](value);
     });
   };
+
+  guard.explain = function (obj: unknown): string[] {
+    const structuralError = checkStructure(obj);
+    if (structuralError !== null) {
+      return [structuralError];
+    }
+
+    const tempObj = obj as TempObject;
+    const failures: string[] = [];
+
+    for (const key of keys) {
+      const value = key in tempObj ? tempObj[key] : undefined;
+      if (!validators[key](value)) {
+        failures.push(
+          `field '${String(key)}': guard ${validators[key].name || "(anonymous)"} failed — got ${describeType(value)}`,
+        );
+      }
+    }
+
+    return failures;
+  };
+
+  return guard;
 }

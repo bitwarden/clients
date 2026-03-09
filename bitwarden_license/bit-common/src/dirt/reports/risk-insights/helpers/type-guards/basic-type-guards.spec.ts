@@ -226,4 +226,112 @@ describe("basic-type-guards", () => {
       expect(isTestModel(obj)).toBe(false);
     });
   });
+
+  describe("createValidator — EnhancedGuard (.explain())", () => {
+    interface TestModel {
+      id: string;
+      label: string | null;
+      tag?: string;
+    }
+
+    const isTestModel = createValidator<TestModel>({
+      id: isBoundedString,
+      label: isBoundedStringOrNull,
+      tag: isBoundedStringOrUndefined,
+    });
+
+    describe("structural failures", () => {
+      it("should return a structural error for null", () => {
+        const result = isTestModel.explain(null);
+        expect(result).toHaveLength(1);
+        expect(result[0]).toContain("expected plain object");
+        expect(result[0]).toContain("null");
+      });
+
+      it("should return a structural error for an array", () => {
+        const result = isTestModel.explain([]);
+        expect(result).toHaveLength(1);
+        expect(result[0]).toContain("expected plain object");
+        expect(result[0]).toContain("Array(0)");
+      });
+
+      it("should return a structural error for a string", () => {
+        const result = isTestModel.explain("hello");
+        expect(result).toHaveLength(1);
+        expect(result[0]).toContain("expected plain object");
+        expect(result[0]).toContain("string");
+      });
+
+      it("should return a prototype pollution error for a class instance", () => {
+        class Foo {
+          id = "abc";
+          label = "name";
+        }
+        const result = isTestModel.explain(new Foo());
+        expect(result).toHaveLength(1);
+        expect(result[0]).toContain("non-plain object");
+      });
+
+      it("should return a prototype pollution error for Object.create(null)", () => {
+        const obj = Object.create(null) as Record<string, unknown>;
+        obj["id"] = "abc";
+        obj["label"] = "name";
+        const result = isTestModel.explain(obj);
+        expect(result).toHaveLength(1);
+        expect(result[0]).toContain("non-plain object");
+      });
+
+      it("should return a prototype pollution error for __proto__ key", () => {
+        const obj = JSON.parse(
+          '{"id":"abc","label":"name","__proto__":{"polluted":true}}',
+        ) as unknown;
+        const result = isTestModel.explain(obj);
+        expect(result).toHaveLength(1);
+        expect(result[0]).toContain("prototype pollution");
+      });
+    });
+
+    describe("field-level failures", () => {
+      it("should return empty array for a valid object", () => {
+        expect(isTestModel.explain({ id: "abc", label: "name", tag: "opt" })).toHaveLength(0);
+      });
+
+      it("should return empty array when optional field is absent", () => {
+        expect(isTestModel.explain({ id: "abc", label: null })).toHaveLength(0);
+      });
+
+      it("should identify a single failing required field", () => {
+        const result = isTestModel.explain({ id: "", label: "name" });
+        expect(result).toHaveLength(1);
+        expect(result[0]).toContain("field 'id'");
+        expect(result[0]).toContain("isBoundedString");
+      });
+
+      it("should identify multiple failing fields", () => {
+        const result = isTestModel.explain({ id: "", label: 42 });
+        expect(result).toHaveLength(2);
+        expect(result.some((m) => m.includes("field 'id'"))).toBe(true);
+        expect(result.some((m) => m.includes("field 'label'"))).toBe(true);
+      });
+
+      it("should report undefined for a missing required field", () => {
+        const result = isTestModel.explain({ label: "name" });
+        expect(result).toHaveLength(1);
+        expect(result[0]).toContain("field 'id'");
+        expect(result[0]).toContain("undefined");
+      });
+
+      it("should include the guard function name in the message", () => {
+        const result = isTestModel.explain({ id: null, label: "name" });
+        expect(result[0]).toContain("isBoundedString");
+      });
+
+      it("should describe the received type, not the actual value", () => {
+        const result = isTestModel.explain({ id: 42, label: "name" });
+        expect(result[0]).toContain("number");
+        // Should NOT include the actual numeric value as a data point
+        expect(result[0]).not.toContain("42");
+      });
+    });
+  });
 });

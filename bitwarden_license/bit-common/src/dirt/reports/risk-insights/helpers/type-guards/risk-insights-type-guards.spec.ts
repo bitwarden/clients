@@ -64,7 +64,7 @@ describe("Risk Insights Type Guards", () => {
       ];
 
       expect(() => validateApplicationHealthReportDetailArray(invalidData)).toThrow(
-        /Invalid report data: array contains 1 invalid ApplicationHealthReportDetail element\(s\) at indices: 0/,
+        /Invalid report data: array contains 1 invalid ApplicationHealthReportDetail element\(s\)/,
       );
     });
 
@@ -86,7 +86,7 @@ describe("Risk Insights Type Guards", () => {
       ];
 
       expect(() => validateApplicationHealthReportDetailArray(invalidData)).toThrow(
-        /Invalid report data: array contains 2 invalid ApplicationHealthReportDetail element\(s\) at indices: 0, 2/,
+        /Invalid report data: array contains 2 invalid ApplicationHealthReportDetail element\(s\)/,
       );
     });
 
@@ -231,7 +231,7 @@ describe("Risk Insights Type Guards", () => {
       ];
 
       expect(() => validateOrganizationReportApplicationArray(invalidData)).toThrow(
-        "Invalid application data: array contains 1 invalid OrganizationReportApplication element(s) at indices: 0",
+        /Invalid application data: array contains 1 invalid OrganizationReportApplication element\(s\)/,
       );
     });
 
@@ -251,7 +251,7 @@ describe("Risk Insights Type Guards", () => {
       ];
 
       expect(() => validateOrganizationReportApplicationArray(invalidData)).toThrow(
-        /Invalid application data: array contains 1 invalid OrganizationReportApplication element\(s\) at indices: 0/,
+        /Invalid application data: array contains 1 invalid OrganizationReportApplication element\(s\)/,
       );
     });
 
@@ -735,12 +735,14 @@ describe("Risk Insights Type Guards", () => {
     it("should throw for array with invalid elements", () => {
       const invalidData = [{ applicationName: "app.com" }]; // missing isCritical
       expect(() => validateRiskInsightsApplicationDataArray(invalidData)).toThrow(
-        /Invalid application data: array contains 1 invalid RiskInsightsApplicationData element\(s\) at indices: 0/,
+        /Invalid application data: array contains 1 invalid RiskInsightsApplicationData element\(s\)/,
       );
     });
 
     it("should throw for null reviewedDate", () => {
-      const invalidData: unknown = [{ applicationName: "app.com", isCritical: true, reviewedDate: null }];
+      const invalidData: unknown = [
+        { applicationName: "app.com", isCritical: true, reviewedDate: null },
+      ];
       expect(() => validateRiskInsightsApplicationDataArray(invalidData)).toThrow(
         /Invalid application data/,
       );
@@ -753,6 +755,105 @@ describe("Risk Insights Type Guards", () => {
       expect(() => validateRiskInsightsApplicationDataArray(invalidData)).toThrow(
         /Invalid application data/,
       );
+    });
+  });
+
+  describe("field-level diagnostics", () => {
+    describe("validateApplicationHealthReportDetailArray", () => {
+      it("should include element index and field name in error message", () => {
+        const invalidData = [{ applicationName: "Test App" }]; // missing many required fields
+
+        let caught: Error | null = null;
+        try {
+          validateApplicationHealthReportDetailArray(invalidData);
+        } catch (e) {
+          caught = e as Error;
+        }
+
+        expect(caught).not.toBeNull();
+        expect(caught!.message).toMatch(/element\[0\]/);
+        expect(caught!.message).toMatch(/field '/);
+      });
+
+      it("should identify memberDetails field failure when memberDetails has wrong shape", () => {
+        const invalidData = [
+          {
+            applicationName: "Test App",
+            passwordCount: 10,
+            atRiskPasswordCount: 2,
+            atRiskCipherIds: ["cipher-1"],
+            memberCount: 5,
+            atRiskMemberCount: 1,
+            memberDetails: [{ userGuid: "user-1" }] as any, // missing required fields
+            atRiskMemberDetails: [] as MemberDetails[],
+            cipherIds: ["cipher-1"],
+          },
+        ];
+
+        let caught: Error | null = null;
+        try {
+          validateApplicationHealthReportDetailArray(invalidData);
+        } catch (e) {
+          caught = e as Error;
+        }
+
+        expect(caught).not.toBeNull();
+        expect(caught!.message).toContain("element[0]");
+        expect(caught!.message).toContain("memberDetails");
+      });
+
+      it("should list each failing element by index, skipping valid ones", () => {
+        const invalidData = [
+          { applicationName: "App 1" }, // invalid
+          {
+            applicationName: "App 2",
+            passwordCount: 10,
+            atRiskPasswordCount: 2,
+            atRiskCipherIds: ["cipher-1"],
+            memberCount: 5,
+            atRiskMemberCount: 1,
+            memberDetails: [] as MemberDetails[],
+            atRiskMemberDetails: [] as MemberDetails[],
+            cipherIds: ["cipher-1"],
+          }, // valid
+          { applicationName: "App 3" }, // invalid
+        ];
+
+        let caught: Error | null = null;
+        try {
+          validateApplicationHealthReportDetailArray(invalidData);
+        } catch (e) {
+          caught = e as Error;
+        }
+
+        expect(caught).not.toBeNull();
+        expect(caught!.message).toContain("element[0]");
+        expect(caught!.message).toContain("element[2]");
+        expect(caught!.message).not.toContain("element[1]");
+      });
+    });
+
+    describe("validateAccessReportPayload — memberRegistry diagnostics", () => {
+      it("should include the registry key and failing field name when a registry entry is invalid", () => {
+        const invalidPayload = {
+          version: 2,
+          reports: [] as unknown[],
+          memberRegistry: {
+            u1: { id: "u1", userName: "Alice" }, // missing email
+          },
+        };
+
+        let caught: Error | null = null;
+        try {
+          validateAccessReportPayload(invalidPayload);
+        } catch (e) {
+          caught = e as Error;
+        }
+
+        expect(caught).not.toBeNull();
+        expect(caught!.message).toContain('"u1"');
+        expect(caught!.message).toContain("email");
+      });
     });
   });
 });

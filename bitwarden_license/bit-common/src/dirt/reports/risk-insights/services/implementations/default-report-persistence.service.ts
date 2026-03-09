@@ -15,7 +15,7 @@ import { RiskInsightsApiService } from "../api/risk-insights-api.service";
 /**
  * Default implementation of ReportPersistenceService using current DB backend.
  *
- * Delegates encryption/decryption to domain model (following Cipher pattern).
+ * Delegates encryption/decryption to domain model.
  * Orchestrates API calls for persistence operations.
  */
 export class DefaultReportPersistenceService extends ReportPersistenceService {
