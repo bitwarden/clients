@@ -111,14 +111,14 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   >();
   protected readonly account = input.required<Account>();
 
-  protected goBack = output<void>();
-  protected complete = output<PremiumOrgUpgradePaymentResult>();
+  protected readonly goBack = output<void>();
+  protected readonly complete = output<PremiumOrgUpgradePaymentResult>();
 
   readonly cartSummaryComponent = viewChild.required<CartSummaryComponent>("cartSummaryComponent");
   readonly paymentMethodComponent =
     viewChild.required<DisplayPaymentMethodInlineComponent>("paymentMethodComponent");
 
-  protected formGroup = new FormGroup({
+  protected readonly formGroup = new FormGroup({
     organizationName: new FormControl<string>("", [Validators.required]),
     paymentMethodForm: EnterPaymentMethodComponent.getFormGroup(),
     billingAddress: EnterBillingAddressComponent.getFormGroup(),
@@ -141,7 +141,7 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   });
 
   // Use defer to lazily create the observable when subscribed to
-  protected estimatedInvoice$ = defer(() =>
+  protected readonly estimatedInvoice$ = defer(() =>
     combineLatest([this.formGroup.controls.billingAddress.valueChanges]).pipe(
       startWith(this.formGroup.controls.billingAddress.value),
       debounceTime(1000),
@@ -268,7 +268,7 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
     cartSummaryComponent.isExpanded.set(false);
   }
 
-  protected submit = async (): Promise<void> => {
+  protected readonly submit = async (): Promise<void> => {
     if (!this.isFormValid()) {
       this.formGroup.markAllAsTouched();
       return;
