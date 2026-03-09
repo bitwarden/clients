@@ -13,11 +13,13 @@ use sha2::{Digest, Sha256};
 
 use crate::crypto::{self, CipherString};
 
+#[cfg_attr(feature = "napi", napi_derive::napi(object, namespace = "biometrics"))]
 pub struct KeyMaterial {
     pub os_key_part_b64: String,
     pub client_key_part_b64: Option<String>,
 }
 
+#[cfg_attr(feature = "napi", napi_derive::napi(object, namespace = "biometrics"))]
 pub struct OsDerivedKey {
     pub key_b64: String,
     pub iv_b64: String,

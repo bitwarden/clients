@@ -17,6 +17,23 @@ use tracing::{error, info};
 
 use super::MESSAGE_CHANNEL_BUFFER;
 
+#[cfg_attr(
+    feature = "napi",
+    napi_derive::napi(namespace = "ipc", js_name = "IpcMessageType")
+)]
+/// Type of IPC message.
+#[derive(Debug)]
+#[allow(missing_docs)]
+pub enum MessageType {
+    Connected,
+    Disconnected,
+    Message,
+}
+
+#[cfg_attr(
+    feature = "napi",
+    napi_derive::napi(object, namespace = "ipc", js_name = "IpcMessage")
+)]
 /// Message received from or sent to an IPC client.
 #[derive(Debug)]
 pub struct Message {
@@ -26,15 +43,6 @@ pub struct Message {
     pub kind: MessageType,
     /// Message payload (Some for MessageType::Message, None otherwise).
     pub message: Option<String>,
-}
-
-/// Type of IPC message.
-#[derive(Debug)]
-#[allow(missing_docs)]
-pub enum MessageType {
-    Connected,
-    Disconnected,
-    Message,
 }
 
 /// IPC server that listens for client connections.

@@ -16,8 +16,8 @@ manual_test = []
 [dependencies]
 anyhow = { workspace = true }
 autotype = { path = "../autotype" }
-chromium_importer = { path = "../chromium_importer" }
-desktop_core = { path = "../core" }
+chromium_importer = { path = "../chromium_importer", features = ["napi"] }
+desktop_core = { path = "../core", features = ["napi"] }
 napi = { workspace = true, features = ["async"] }
 napi-derive = { workspace = true }
 serde = { workspace = true, features = ["derive"] }

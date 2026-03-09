@@ -5,12 +5,18 @@ license = { workspace = true }
 version = { workspace = true }
 publish = { workspace = true }
 
+[features]
+default = []
+napi = ["dep:napi", "dep:napi-derive"]
+
 [dependencies]
 aes = { workspace = true }
 anyhow = { workspace = true }
 async-trait = "=0.1.89"
 dirs = { workspace = true }
 hex = { workspace = true }
+napi = { workspace = true, optional = true }
+napi-derive = { workspace = true, optional = true }
 rand = { workspace = true }
 rusqlite = { version = "=0.38.0", features = ["bundled"] }
 serde = { workspace = true, features = ["derive"] }
