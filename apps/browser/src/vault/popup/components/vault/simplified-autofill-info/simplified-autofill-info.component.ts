@@ -35,27 +35,27 @@ const VAULT_AUTOFILL_SIMPLIFIED_ICON_KEY = new UserKeyDefinition<{
   imports: [JslibModule, PopoverModule, IconModule, ButtonModule, SvgModule, AsyncPipe],
 })
 export class SimplifiedAutofillInfoComponent {
-  private configService = inject(ConfigService);
-  private stateProvider = inject(StateProvider);
-  private accountService = inject(AccountService);
+  private readonly configService = inject(ConfigService);
+  private readonly stateProvider = inject(StateProvider);
+  private readonly accountService = inject(AccountService);
 
   readonly pingElement = viewChild<ElementRef<HTMLSpanElement>>("pingElement");
   protected readonly InfoFilledIcon = InfoFilledIcon;
 
-  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
+  private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
-  private vaultAutofillSimplifiedIconState$ = this.userId$.pipe(
+  private readonly vaultAutofillSimplifiedIconState$ = this.userId$.pipe(
     switchMap((userId) =>
       this.stateProvider.getUserState$(VAULT_AUTOFILL_SIMPLIFIED_ICON_KEY, userId),
     ),
   );
 
-  protected shouldShowPingAnimation$ = this.vaultAutofillSimplifiedIconState$.pipe(
+  protected readonly shouldShowPingAnimation$ = this.vaultAutofillSimplifiedIconState$.pipe(
     map((state) => !state?.hasSeen),
   );
 
   /** Emits true when the icon should be shown to the user */
-  protected shouldShowIcon$ = combineLatest([
+  protected readonly shouldShowIcon$ = combineLatest([
     this.configService.getFeatureFlag$(FeatureFlag.PM31039ItemActionInExtension),
     this.vaultAutofillSimplifiedIconState$,
   ]).pipe(

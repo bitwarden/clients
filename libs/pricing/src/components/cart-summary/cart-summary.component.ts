@@ -29,7 +29,7 @@ import { DiscountTypes, getLabel } from "../../types/discount";
   imports: [TypographyModule, IconButtonModule, CurrencyPipe, I18nPipe, NgTemplateOutlet],
 })
 export class CartSummaryComponent {
-  private i18nService = inject(I18nService);
+  private readonly i18nService = inject(I18nService);
 
   // Required inputs
   readonly cart = input.required<Cart>();

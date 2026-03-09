@@ -24,10 +24,10 @@ import { UpdateLicenseDialogResult } from "../../shared/update-license-types";
   imports: [BadgeModule, BaseCardComponent, ButtonModule, DatePipe, I18nPipe, TypographyModule],
 })
 export class SelfHostedAccountSubscriptionComponent {
-  private accountService = inject(AccountService);
-  private apiService = inject(ApiService);
-  private dialogService = inject(DialogService);
-  private environmentService = inject(EnvironmentService);
+  private readonly accountService = inject(AccountService);
+  private readonly apiService = inject(ApiService);
+  private readonly dialogService = inject(DialogService);
+  private readonly environmentService = inject(EnvironmentService);
 
   private readonly account = toSignal(this.accountService.activeAccount$);
 

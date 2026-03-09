@@ -1,3 +1,5 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { Component, ChangeDetectionStrategy, Inject } from "@angular/core";
 
 import { DrawerDetails, DrawerType } from "@bitwarden/bit-common/dirt/reports/risk-insights";

@@ -173,6 +173,12 @@ export default tseslint.config(
     },
   },
   {
+    files: ["**/*.component.ts", "**/*.directive.ts", "**/*.service.ts"],
+    rules: {
+      "@bitwarden/components/enforce-readonly-angular-properties": ["error", { onlyOnPush: true }],
+    },
+  },
+  {
     // Everything in this config object targets our HTML files (external templates,
     // and inline templates as long as we have the `processor` set on our TypeScript config above)
     files: ["**/*.html"],

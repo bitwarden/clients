@@ -19,18 +19,18 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 export class SendSuccessDrawerDialogComponent {
   readonly AuthType = AuthType;
   readonly sendLink = signal<string>("");
-  activeSendIcon = ActiveSendIcon;
+  readonly activeSendIcon = ActiveSendIcon;
 
   get dialogTitle(): string {
     return this.send.type === SendType.Text ? "newTextSend" : "newFileSend";
   }
 
   constructor(
-    @Inject(DIALOG_DATA) public send: SendView,
-    private environmentService: EnvironmentService,
-    private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
-    private toastService: ToastService,
+    @Inject(DIALOG_DATA) readonly send: SendView,
+    private readonly environmentService: EnvironmentService,
+    private readonly i18nService: I18nService,
+    private readonly platformUtilsService: PlatformUtilsService,
+    private readonly toastService: ToastService,
   ) {
     void this.initLink();
   }

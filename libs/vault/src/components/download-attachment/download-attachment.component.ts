@@ -37,18 +37,18 @@ export class DownloadAttachmentComponent {
   readonly admin = input<boolean>(false);
 
   constructor(
-    private i18nService: I18nService,
-    private apiService: ApiService,
-    private fileDownloadService: FileDownloadService,
-    private toastService: ToastService,
-    private stateProvider: StateProvider,
-    private cipherService: CipherService,
+    private readonly i18nService: I18nService,
+    private readonly apiService: ApiService,
+    private readonly fileDownloadService: FileDownloadService,
+    private readonly toastService: ToastService,
+    private readonly stateProvider: StateProvider,
+    private readonly cipherService: CipherService,
   ) {}
 
   protected readonly isDecryptionFailure = computed(() => this.attachment().hasDecryptionError);
 
   /** Download the attachment */
-  download = async () => {
+  readonly download = async () => {
     const attachment = this.attachment();
     const cipher = this.cipher();
     let url: string | undefined;

@@ -25,7 +25,7 @@ export class NewSendDropdownV2Component {
 
   readonly addSend = output<SendType>();
 
-  protected sendType = SendType;
+  protected readonly sendType = SendType;
 
   private readonly billingAccountProfileStateService = inject(BillingAccountProfileStateService);
   private readonly accountService = inject(AccountService);

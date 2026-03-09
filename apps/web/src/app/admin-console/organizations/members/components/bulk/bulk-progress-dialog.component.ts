@@ -22,7 +22,7 @@ export interface BulkProgressDialogParams {
   standalone: false,
 })
 export class BulkProgressDialogComponent {
-  protected allCount: string;
+  protected readonly allCount: string;
   protected readonly progressCount: Signal<string>;
   protected readonly progressPercentage: Signal<number>;
   private readonly progressEffect = effect(() => {
@@ -32,7 +32,7 @@ export class BulkProgressDialogComponent {
   });
 
   constructor(
-    public dialogRef: DialogRef,
+    readonly dialogRef: DialogRef,
     @Inject(DIALOG_DATA) data: BulkProgressDialogParams,
   ) {
     this.progressCount = computed(() => data.progress().toLocaleString());

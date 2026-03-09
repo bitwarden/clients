@@ -47,10 +47,10 @@ import { PipesModule } from "../pipes/pipes.module";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VaultHeaderComponent {
-  protected Unassigned = Unassigned;
-  protected All = All;
-  protected CollectionDialogTabType = CollectionDialogTabType;
-  protected CipherType = CipherType;
+  protected readonly Unassigned = Unassigned;
+  protected readonly All = All;
+  protected readonly CollectionDialogTabType = CollectionDialogTabType;
+  protected readonly CipherType = CipherType;
 
   /**
    * Boolean to determine the loading state of the header.
@@ -106,12 +106,12 @@ export class VaultHeaderComponent {
   @Output() onDeleteCollection = new EventEmitter<void>();
 
   constructor(
-    private i18nService: I18nService,
-    private collectionAdminService: CollectionAdminService,
-    private dialogService: DialogService,
-    private router: Router,
-    private configService: ConfigService,
-    private accountService: AccountService,
+    private readonly i18nService: I18nService,
+    private readonly collectionAdminService: CollectionAdminService,
+    private readonly dialogService: DialogService,
+    private readonly router: Router,
+    private readonly configService: ConfigService,
+    private readonly accountService: AccountService,
   ) {}
 
   /**
