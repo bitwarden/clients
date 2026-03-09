@@ -287,7 +287,7 @@
     }
   },
   "markAppCountAsCritical": {
-    "message": "Mark $COUNT$ as critical",
+    "message": "Markera $COUNT$ som kritiska",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -296,7 +296,7 @@
     }
   },
   "markAppCountAsNotCritical": {
-    "message": "Mark $COUNT$ as not critical",
+    "message": "Markera $COUNT$ som inte kritiska",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4609,22 +4609,22 @@
     "message": "Inläsningsförlopp"
   },
   "reviewingMemberData": {
-    "message": "Reviewing member data..."
+    "message": "Granskar medlemsdata..."
   },
   "analyzingPasswords": {
-    "message": "Analyzing passwords..."
+    "message": "Analyserar lösenord..."
   },
   "calculatingRisks": {
-    "message": "Calculating risks..."
+    "message": "Beräknar risker..."
   },
   "generatingReports": {
-    "message": "Generating reports..."
+    "message": "Genererar rapporter..."
   },
   "compilingInsightsProgress": {
-    "message": "Compiling insights..."
+    "message": "Sammanställer insikter..."
   },
   "reportGenerationDone": {
-    "message": "Done!"
+    "message": "Klart!"
   },
   "riskInsightsRunReport": {
     "message": "Kör rapport"
@@ -5445,7 +5445,7 @@
   "minimumNumberOfWords": {
     "message": "Minsta antal ord"
   },
-  "passwordTypePolicyOverride": {
+  "overridePasswordTypePolicy": {
     "message": "Lösenordstyp",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Läs mer om överföringen"
   },
+  "promptUsersToMoveItems": {
+    "message": "Prompt users to move individual vault items to the organization"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
   "organizationDataOwnership": {
     "message": "Genomför äganderätt till organisationsdata"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Tillgänglig nu"
   },
-  "autoConfirm": {
-    "message": "Automatisk bekräftelse av nya användare"
+  "automaticUserConfirmation": {
+    "message": "Automatisk bekräftelse av användare"
   },
   "autoConfirmDescription": {
     "message": "Nya användare som bjuds in till organisationen kommer automatiskt att bekräftas när en administratörs enhet är upplåst.",
@@ -6456,7 +6462,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "verifyYourEmailToViewThisSend": {
-    "message": "Verify your email to view this Send",
+    "message": "Verifiera din e-post för att visa detta Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -6704,10 +6710,10 @@
     }
   },
   "reinviteSuccessToast": {
-    "message": "1 invitation sent"
+    "message": "1 inbjudan skickad"
   },
   "bulkReinviteSentToast": {
-    "message": "$COUNT$ invitations sent",
+    "message": "$COUNT$ inbjudningar skickade",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6733,7 +6739,7 @@
     }
   },
   "bulkReinviteProgressTitle": {
-    "message": "$COUNT$ of $TOTAL$ invitations sent...",
+    "message": "$COUNT$ av $TOTAL$ inbjudningar skickade...",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6774,7 +6780,7 @@
     }
   },
   "bulkResendInvitations": {
-    "message": "Try sending again"
+    "message": "Försök skicka igen"
   },
   "bulkRemovedMessage": {
     "message": "Tog bort"
@@ -10624,6 +10630,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Skicka händelsedata till din Huntress SIEM-instans"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ connected successfully.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Misslyckades med att spara integration. Försök igen senare."
   },
@@ -10976,6 +10991,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Av"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Det gick inte att läsa in rapporten om medlemsåtkomst. Detta kan bero på att organisationen är stor eller på ett nätverksproblem. Försök igen eller kontakta supporten om problemet kvarstår."
   },
   "kdfIterationRecommends": {
     "message": "Vi rekommenderar 600.000 eller mer"
@@ -11930,10 +11948,10 @@
     "message": "Arkiverade objekt visas här och undantas från allmänna sökresultat och autofyllförslag."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "Objekt arkiverat"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "Objekt avarkiverat"
   },
   "bulkArchiveItems": {
     "message": "Objekt arkiverade"
@@ -12613,7 +12631,7 @@
     "message": "Är du säker på att du vill fortsätta?"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Fel: Kan inte dekryptera"
   },
   "userVerificationFailed": {
     "message": "Verifiering av användare misslyckades."
@@ -12932,16 +12950,16 @@
     "message": "Ogiltigt Send-lösenord"
   },
   "vaultWelcomeDialogTitle": {
-    "message": "You're in! Welcome to Bitwarden"
+    "message": "Du är klar! Välkommen till Bitwarden"
   },
   "vaultWelcomeDialogDescription": {
     "message": "Store all your passwords and personal info in your Bitwarden vault. We'll show you around."
   },
   "vaultWelcomeDialogPrimaryCta": {
-    "message": "Start tour"
+    "message": "Starta rundtur"
   },
   "vaultWelcomeDialogDismissCta": {
-    "message": "Skip"
+    "message": "Hoppa över"
   },
   "sendPasswordHelperText": {
     "message": "Individer måste ange lösenordet för att visa denna Send",
