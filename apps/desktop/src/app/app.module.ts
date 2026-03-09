@@ -6,6 +6,7 @@ import "../platform/app/locales";
 import { NgModule } from "@angular/core";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CalloutModule, DialogModule } from "@bitwarden/components";
 import { AssignCollectionsComponent } from "@bitwarden/vault";
 
@@ -39,6 +40,7 @@ import { SharedModule } from "./shared/shared.module";
     NavComponent,
     AssignCollectionsComponent,
     VaultV2Component,
+    JslibModule,
   ],
   declarations: [
     AccountSwitcherComponent,
