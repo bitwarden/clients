@@ -11,6 +11,7 @@ import { ControlValueAccessor, NgControl, NG_VALUE_ACCESSOR, Validators } from "
 
 import { AriaDisableDirective } from "../a11y";
 import { BitFormControlAbstraction } from "../form-control";
+import { IconComponent } from "../icon";
 
 let nextId = 0;
 
@@ -35,6 +36,7 @@ let nextId = 0;
     "[attr.aria-disabled]": "this.disabled",
   },
   hostDirectives: [AriaDisableDirective],
+  imports: [IconComponent],
 })
 export class SwitchComponent implements ControlValueAccessor, BitFormControlAbstraction {
   private readonly injector = inject(Injector);
@@ -42,7 +44,7 @@ export class SwitchComponent implements ControlValueAccessor, BitFormControlAbst
     return this.injector.get(NgControl, null, { self: true, optional: true });
   }
 
-  protected readonly size = input<"base" | "lg">("base");
+  protected readonly size = input<"base" | "large">("base");
 
   /**
    * Model signal for selected state binding when used outside of a form
@@ -51,54 +53,79 @@ export class SwitchComponent implements ControlValueAccessor, BitFormControlAbst
 
   readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
 
+  protected readonly checkIndicatorClasses = computed(() =>
+    [
+      "tw-transition-opacity",
+      ...(this.selected() ? ["tw-opacity-100"] : ["tw-opacity-0"]),
+      ...(this.size() === "large" ? ["tw-text-sm"] : ["tw-text-xs"]),
+    ].join(" "),
+  );
+
   protected readonly trackClasses = computed(() =>
     [
       "tw-flex",
       "tw-relative",
-      "!tw-w-8",
       "tw-shrink-0",
-      "tw-h-[1.125rem]",
       "tw-rounded-full",
+      "tw-text-fg-brand",
       "after:tw-transition-[background-color]",
       "after:tw-absolute",
       "after:tw-inset-0",
       "after:tw-rounded-full",
       "after:tw-size-full",
+      ...(this.size() === "large" ? ["!tw-w-11", "!tw-h-6"] : ["!tw-w-8", "tw-h-[1.125rem]"]),
       ...(this.disabled
-        ? ["tw-bg-secondary-100"]
+        ? // design calls for using a bg color as a text color which the config does not allow
+          ["tw-bg-bg-inactive", "tw-text-[var(--color-bg-inactive)]"]
         : this.selected()
           ? [
-              "tw-bg-primary-600",
-              "[&:has(input:focus-visible)]:after:tw-bg-primary-700",
-              "group-hover/switch-label:after:tw-bg-primary-700",
+              "tw-bg-bg-brand",
+              "[&:has(input:focus-visible)]:after:tw-bg-bg-brand-strong",
+              "[&:has(input:focus-visible)]:tw-text-fg-brand-strong",
+              "[label:hover_&]:after:tw-bg-bg-brand-strong",
+              "[label:hover_&]:tw-text-fg-brand-strong",
             ]
           : [
-              "tw-bg-secondary-300",
-              "[&:has(input:focus-visible)]:after:tw-bg-hover-default",
-              "group-hover/switch-label:after:tw-bg-hover-default",
+              "tw-bg-bg-gray",
+              "[&:has(input:focus-visible)]:after:tw-bg-bg-gray-strong",
+              "[label:hover_&]:after:tw-bg-bg-gray-strong",
             ]),
     ].join(" "),
   );
 
   protected readonly thumbClasses = computed(() =>
     [
+      "tw-flex",
+      "tw-items-center",
+      "tw-justify-center",
       "tw-absolute",
       "tw-z-10",
       "tw-block",
-      "tw-size-3.5",
-      "tw-top-[2px]",
-      "tw-start-[2px]",
       "tw-bg-text-alt2",
       "tw-rounded-full",
       "tw-shadow-md",
       "tw-transform",
       "tw-transition-transform",
-      ...(this.selected()
+      ...(this.size() === "large"
+        ? ["tw-size-[1.125rem]", "tw-top-[3px]", "tw-start-[3px]"]
+        : ["tw-size-3.5", "tw-top-[2px]", "tw-start-[2px]"]),
+
+      ...(this.size() === "large" && this.selected()
         ? [
-            "tw-translate-x-[calc(theme(spacing.9)_-_(1.125rem_+_4px))]",
-            "rtl:-tw-translate-x-[calc(theme(spacing.9)_-_(1.125rem_+_4px))]",
+            "tw-translate-x-[calc(theme(spacing.11)_-_(1.125rem_+_6px))]",
+            "rtl:-tw-translate-x-[calc(theme(spacing.11)_-_(1.125rem_+_6px))]",
           ]
         : []),
+
+      ...(this.size() === "base" && this.selected()
+        ? [
+            "tw-translate-x-[calc(theme(spacing.8)_-_(.875rem_+_4px))]",
+            "rtl:-tw-translate-x-[calc(theme(spacing.8)_-_(.875rem_+_4px))]",
+          ]
+        : []),
+
+      // design calls for using a fg color as a bg color which the config does not allow
+      ...(this.disabled && this.selected() ? ["tw-bg-[var(--color-fg-inactive)]"] : []),
     ].join(" "),
   );
 

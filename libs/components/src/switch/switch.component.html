@@ -1,14 +1,16 @@
 <div class="tw-p-[3px] tw-relative">
-  <input
-    type="checkbox"
-    role="switch"
-    [id]="inputId"
-    [checked]="selected()"
-    [attr.aria-disabled]="disabled"
-    (change)="onInputChange($event)"
-    class="tw-sr-only tw-absolute tw-size-full"
-  />
   <span [class]="trackClasses()">
-    <span [class]="thumbClasses()"></span>
+    <input
+      type="checkbox"
+      role="switch"
+      [id]="inputId"
+      [checked]="selected()"
+      [attr.aria-disabled]="disabled"
+      (change)="onInputChange($event)"
+      class="tw-sr-only tw-absolute tw-size-full"
+    />
+    <span [class]="thumbClasses()">
+      <bit-icon [class]="checkIndicatorClasses()" name="bwi-check"></bit-icon>
+    </span>
   </span>
 </div>
