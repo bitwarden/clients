@@ -22,6 +22,10 @@ import { RadioInputComponent } from "./radio-input.component";
 export class RadioButtonComponent {
   protected base = inject(RadioButtonBaseDirective);
 
+  get selected() {
+    return this.base.selected;
+  }
+
   @HostBinding("class") get classList() {
     return [this.base.block ? "tw-block" : "tw-inline-block", "tw-mb-1", "[&_bit-hint]:tw-mt-0"];
   }
