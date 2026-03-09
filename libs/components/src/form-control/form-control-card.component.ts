@@ -1,11 +1,21 @@
-import { ChangeDetectionStrategy, Component, contentChild, effect, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  contentChild,
+  effect,
+  inject,
+  input,
+} from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { IconTileComponent } from "../icon-tile";
+import { BitwardenIcon } from "../shared/icon";
 import { TypographyDirective } from "../typography/typography.directive";
 
 import { FormControlBaseDirective } from "./form-control-base.directive";
 import { BitHintDirective } from "./hint.directive";
+
 @Component({
   selector: "bit-form-control-card",
   templateUrl: "form-control-card.component.html",
@@ -16,9 +26,10 @@ import { BitHintDirective } from "./hint.directive";
       inputs: ["label", "inline", "disableMargin"],
     },
   ],
-  imports: [TypographyDirective, I18nPipe],
+  imports: [TypographyDirective, I18nPipe, IconTileComponent],
 })
 export class FormControlCardComponent {
+  protected readonly icon = input<BitwardenIcon>();
   protected base = inject(FormControlBaseDirective);
 
   readonly labelId = `${this.base.id}-label`;
