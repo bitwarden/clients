@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule, DatePipe } from "@angular/common";
-import { Component, DestroyRef, inject } from "@angular/core";
+import { Component } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
@@ -20,12 +20,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import {
-  CalloutModule,
-  DialogService,
-  DirtyFormService,
-  ToastService,
-} from "@bitwarden/components";
+import { CalloutModule, DialogService, ToastService } from "@bitwarden/components";
 
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 
@@ -43,9 +38,6 @@ import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-pr
   ],
 })
 export class AddEditComponent extends BaseAddEditComponent {
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly dirtyFormService = inject(DirtyFormService);
-
   constructor(
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
@@ -82,11 +74,6 @@ export class AddEditComponent extends BaseAddEditComponent {
       toastService,
       premiumUpgradePromptService,
     );
-
-    this.dirtyFormService.registerFormGroup(this.formGroup);
-    this.destroyRef.onDestroy(() => {
-      this.dirtyFormService.deregisterFormGroup(this.formGroup);
-    });
   }
 
   async refresh() {
