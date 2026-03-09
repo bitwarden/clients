@@ -27,9 +27,9 @@ import {
   isWindows,
 } from "../utils";
 
+// customFileOrigin = `${customFileScheme}://${customFileHost}`
 const customFileScheme = "bw-desktop-file";
 const customFileHost = "bundle";
-const customFileOrigin = `${customFileScheme}://${customFileHost}`;
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -53,7 +53,6 @@ export class WindowMain {
   private windowStates: { [key: string]: WindowState } = {};
   private enableAlwaysOnTop = false;
   private enableRendererProcessForceCrashReload = true;
-  private preflightRequests = new Map<number, { headers: string; method: string }>();
   session: Electron.Session;
 
   readonly defaultWidth = 950;
