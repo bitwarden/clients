@@ -242,7 +242,7 @@
   /* Brand Foreground */
   --color-fg-brand-soft: var(--color-brand-200);
   --color-fg-brand: var(--color-brand-700);
-  --color-fg-brand-strong: var(--color-brand-900);
+  --color-fg-brand-strong: var(--color-brand-800);
 
   /* Status Foreground */
   --color-fg-success: var(--color-green-700);
