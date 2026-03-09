@@ -26,6 +26,9 @@ import { BitHintDirective } from "./hint.directive";
       inputs: ["label", "inline", "disableMargin"],
     },
   ],
+  host: {
+    class: "[&_bit-hint]:tw-leading-4 [&_bit-hint]:tw-mt-0",
+  },
   imports: [TypographyDirective, I18nPipe, IconTileComponent],
 })
 export class FormControlCardComponent {

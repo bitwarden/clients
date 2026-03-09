@@ -149,9 +149,10 @@ export const FormControlCard: Story = {
     },
     template: /* HTML */ `
       <form [formGroup]="formObj">
-        <bit-form-control-card>
+        <bit-form-control-card icon="bwi-clock">
           <bit-switch formControlName="switch"></bit-switch>
           <bit-label>Enable feature</bit-label>
+          <bit-hint>This feature does some pretty cool stuff</bit-hint>
         </bit-form-control-card>
       </form>
     `,
