@@ -359,7 +359,7 @@ describe("VaultPopupListFiltersService", () => {
         service.organizations$.subscribe((organizations) => {
           expect(organizations.map((o) => o.icon)).toEqual([
             "bwi-user",
-            "bwi-exclamation-triangle tw-text-danger",
+            "bwi-exclamation-triangle",
           ]);
           done();
         });

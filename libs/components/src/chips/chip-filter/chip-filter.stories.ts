@@ -4,14 +4,15 @@ import { getAllByRole, userEvent } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { MenuModule } from "../menu";
-import { I18nMockService } from "../utils/i18n-mock.service";
+import { MenuModule } from "../../menu";
+import { I18nMockService } from "../../utils/i18n-mock.service";
+import { fullWidthArgType, sharedArgTypes } from "../shared/shared-story-arg-types";
 
-import { ChipSelectComponent } from "./chip-select.component";
+import { ChipFilterComponent } from "./chip-filter.component";
 
 export default {
-  title: "Component Library/Chip Select",
-  component: ChipSelectComponent,
+  title: "Component Library/Chips/Chip Filter",
+  component: ChipFilterComponent,
   decorators: [
     moduleMetadata({
       imports: [MenuModule, FormsModule],
@@ -30,6 +31,10 @@ export default {
       ],
     }),
   ],
+  argTypes: {
+    ...sharedArgTypes,
+    ...fullWidthArgType,
+  },
   parameters: {
     design: {
       type: "figma",
@@ -38,7 +43,7 @@ export default {
   },
 } as Meta;
 
-type Story = StoryObj<ChipSelectComponent & { value: any }>;
+type Story = StoryObj<ChipFilterComponent & { value: any }>;
 
 export const Default: Story = {
   render: (args) => ({
@@ -46,17 +51,19 @@ export const Default: Story = {
       ...args,
     },
     template: /* html */ `
-      <bit-chip-select
+      <bit-chip-filter
         placeholderText="Folder"
         placeholderIcon="bwi-folder"
         [options]="options"
-      ></bit-chip-select>
-      <bit-chip-select
+        [disabled]="disabled"
+      ></bit-chip-filter>
+      <bit-chip-filter
         placeholderText="Folder"
         placeholderIcon="bwi-folder"
         [options]="options"
         [ngModel]="value"
-      ></bit-chip-select>
+        [disabled]="disabled"
+      ></bit-chip-filter>
     `,
   }),
   args: {
@@ -69,7 +76,8 @@ export const Default: Story = {
       {
         label: "Bar",
         value: "bar",
-        icon: "bwi-exclamation-triangle tw-text-danger",
+        icon: "bwi-exclamation-triangle",
+        iconClass: "tw-text-danger",
       },
       {
         label: "Baz",
@@ -87,12 +95,12 @@ export const MenuOpen: Story = {
       ...args,
     },
     template: /* html */ `
-      <bit-chip-select
+      <bit-chip-filter
         placeholderText="Folder"
         placeholderIcon="bwi-folder"
         [options]="options"
         [ngModel]="value"
-      ></bit-chip-select>
+      ></bit-chip-filter>
     `,
   }),
   args: {
@@ -105,7 +113,8 @@ export const MenuOpen: Story = {
       {
         label: "Bar",
         value: "bar",
-        icon: "bwi-exclamation-triangle tw-text-danger",
+        icon: "bwi-exclamation-triangle",
+        iconClass: "tw-text-danger",
       },
       {
         label: "Baz",
@@ -127,15 +136,13 @@ export const FullWidth: Story = {
       ...args,
     },
     template: /* html */ `
-    <div class="tw-w-40">
-      <bit-chip-select
+      <bit-chip-filter
         placeholderText="Folder"
         placeholderIcon="bwi-folder"
         [options]="options"
         [ngModel]="value"
         fullWidth
-      ></bit-chip-select>
-    </div>
+      ></bit-chip-filter>
     `,
   }),
   args: {
@@ -148,7 +155,8 @@ export const FullWidth: Story = {
       {
         label: "Bar",
         value: "bar",
-        icon: "bwi-exclamation-triangle tw-text-danger",
+        icon: "bwi-exclamation-triangle",
+        iconClass: "tw-text-danger",
       },
       {
         label: "Baz",
@@ -216,25 +224,25 @@ export const TextOverflow: Story = {
   },
 };
 
-export const Disabled: Story = {
+export const Inactive: Story = {
   render: (args) => ({
     props: {
       ...args,
     },
     template: /* html */ `
-      <bit-chip-select
+      <bit-chip-filter
         placeholderText="Folder"
         placeholderIcon="bwi-folder"
         [options]="options"
         disabled
-      ></bit-chip-select>
-      <bit-chip-select
+      ></bit-chip-filter>
+      <bit-chip-filter
         placeholderText="Folder"
         placeholderIcon="bwi-folder"
         [options]="options"
         [ngModel]="value"
         disabled
-      ></bit-chip-select>
+      ></bit-chip-filter>
     `,
   }),
   args: {

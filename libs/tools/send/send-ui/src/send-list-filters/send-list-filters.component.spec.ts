@@ -10,7 +10,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { ChipSelectComponent } from "@bitwarden/components";
+import { ChipFilterComponent } from "@bitwarden/components";
 
 import { SendListFiltersService } from "../services/send-list-filters.service";
 
@@ -44,7 +44,7 @@ describe("SendListFiltersComponent", () => {
       imports: [
         CommonModule,
         JslibModule,
-        ChipSelectComponent,
+        ChipFilterComponent,
         ReactiveFormsModule,
         SendListFiltersComponent,
       ],
