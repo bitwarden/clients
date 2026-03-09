@@ -29,6 +29,10 @@ pub struct ProfileInfo {
     pub account_email: Option<String>,
 }
 
+#[cfg_attr(
+    feature = "napi",
+    napi_derive::napi(object, namespace = "chromium_importer")
+)]
 #[derive(Debug)]
 pub struct Login {
     pub url: String,
@@ -37,6 +41,10 @@ pub struct Login {
     pub note: String,
 }
 
+#[cfg_attr(
+    feature = "napi",
+    napi_derive::napi(object, namespace = "chromium_importer")
+)]
 #[derive(Debug)]
 pub struct LoginImportFailure {
     pub url: String,

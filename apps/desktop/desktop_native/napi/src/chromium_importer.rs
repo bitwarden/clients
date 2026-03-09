@@ -4,10 +4,10 @@ pub mod chromium_importer {
 
     use chromium_importer::{
         chromium::{
-            DefaultInstalledBrowserRetriever, LoginImportResult as _LoginImportResult,
-            ProfileInfo as _ProfileInfo,
+            DefaultInstalledBrowserRetriever, Login, LoginImportFailure,
+            LoginImportResult as _LoginImportResult, ProfileInfo as _ProfileInfo,
         },
-        metadata::NativeImporterMetadata as _NativeImporterMetadata,
+        metadata::NativeImporterMetadata,
     };
 
     #[napi(object)]
@@ -17,52 +17,21 @@ pub mod chromium_importer {
     }
 
     #[napi(object)]
-    pub struct Login {
-        pub url: String,
-        pub username: String,
-        pub password: String,
-        pub note: String,
-    }
-
-    #[napi(object)]
-    pub struct LoginImportFailure {
-        pub url: String,
-        pub username: String,
-        pub error: String,
-    }
-
-    #[napi(object)]
     pub struct LoginImportResult {
         pub login: Option<Login>,
         pub failure: Option<LoginImportFailure>,
-    }
-
-    #[napi(object)]
-    pub struct NativeImporterMetadata {
-        pub id: String,
-        pub loaders: Vec<String>,
-        pub instructions: String,
     }
 
     impl From<_LoginImportResult> for LoginImportResult {
         fn from(l: _LoginImportResult) -> Self {
             match l {
                 _LoginImportResult::Success(l) => LoginImportResult {
-                    login: Some(Login {
-                        url: l.url,
-                        username: l.username,
-                        password: l.password,
-                        note: l.note,
-                    }),
+                    login: Some(l),
                     failure: None,
                 },
                 _LoginImportResult::Failure(l) => LoginImportResult {
                     login: None,
-                    failure: Some(LoginImportFailure {
-                        url: l.url,
-                        username: l.username,
-                        error: l.error,
-                    }),
+                    failure: Some(l),
                 },
             }
         }
@@ -77,23 +46,10 @@ pub mod chromium_importer {
         }
     }
 
-    impl From<_NativeImporterMetadata> for NativeImporterMetadata {
-        fn from(m: _NativeImporterMetadata) -> Self {
-            NativeImporterMetadata {
-                id: m.id,
-                loaders: m.loaders,
-                instructions: m.instructions,
-            }
-        }
-    }
-
     #[napi]
     /// Returns OS aware metadata describing supported Chromium based importers as a JSON string.
     pub fn get_metadata() -> HashMap<String, NativeImporterMetadata> {
         chromium_importer::metadata::get_supported_importers::<DefaultInstalledBrowserRetriever>()
-            .into_iter()
-            .map(|(browser, metadata)| (browser, NativeImporterMetadata::from(metadata)))
-            .collect()
     }
 
     #[napi]

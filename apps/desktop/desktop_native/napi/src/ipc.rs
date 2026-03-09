@@ -1,41 +1,7 @@
 #[napi]
 pub mod ipc {
-    use desktop_core::ipc::server::{Message, MessageType};
+    use desktop_core::ipc::server::Message;
     use napi::threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode};
-
-    #[napi(object)]
-    pub struct IpcMessage {
-        pub client_id: u32,
-        pub kind: IpcMessageType,
-        pub message: Option<String>,
-    }
-
-    impl From<Message> for IpcMessage {
-        fn from(message: Message) -> Self {
-            IpcMessage {
-                client_id: message.client_id,
-                kind: message.kind.into(),
-                message: message.message,
-            }
-        }
-    }
-
-    #[napi]
-    pub enum IpcMessageType {
-        Connected,
-        Disconnected,
-        Message,
-    }
-
-    impl From<MessageType> for IpcMessageType {
-        fn from(message_type: MessageType) -> Self {
-            match message_type {
-                MessageType::Connected => IpcMessageType::Connected,
-                MessageType::Disconnected => IpcMessageType::Disconnected,
-                MessageType::Message => IpcMessageType::Message,
-            }
-        }
-    }
 
     #[napi]
     pub struct NativeIpcServer {
@@ -54,12 +20,12 @@ pub mod ipc {
         pub async fn listen(
             name: String,
             #[napi(ts_arg_type = "(error: null | Error, message: IpcMessage) => void")]
-            callback: ThreadsafeFunction<IpcMessage>,
+            callback: ThreadsafeFunction<Message>,
         ) -> napi::Result<Self> {
             let (send, mut recv) = tokio::sync::mpsc::channel::<Message>(32);
             tokio::spawn(async move {
                 while let Some(message) = recv.recv().await {
-                    callback.call(Ok(message.into()), ThreadsafeFunctionCallMode::NonBlocking);
+                    callback.call(Ok(message), ThreadsafeFunctionCallMode::NonBlocking);
                 }
             });
 

@@ -1,6 +1,6 @@
 #[napi]
 pub mod biometrics {
-    use desktop_core::biometric::{Biometric, BiometricTrait};
+    use desktop_core::biometric::{Biometric, BiometricTrait, KeyMaterial, OsDerivedKey};
 
     // Prompt for biometric confirmation
     #[napi]
@@ -28,15 +28,9 @@ pub mod biometrics {
         key_material: Option<KeyMaterial>,
         iv_b64: String,
     ) -> napi::Result<String> {
-        Biometric::set_biometric_secret(
-            &service,
-            &account,
-            &secret,
-            key_material.map(|m| m.into()),
-            &iv_b64,
-        )
-        .await
-        .map_err(|e| napi::Error::from_reason(e.to_string()))
+        Biometric::set_biometric_secret(&service, &account, &secret, key_material, &iv_b64)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
     /// Retrieves the biometric secret for the given service and account.
@@ -47,7 +41,7 @@ pub mod biometrics {
         account: String,
         key_material: Option<KeyMaterial>,
     ) -> napi::Result<String> {
-        Biometric::get_biometric_secret(&service, &account, key_material.map(|m| m.into()))
+        Biometric::get_biometric_secret(&service, &account, key_material)
             .await
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
@@ -64,37 +58,6 @@ pub mod biometrics {
     #[napi]
     pub async fn derive_key_material(iv: Option<String>) -> napi::Result<OsDerivedKey> {
         Biometric::derive_key_material(iv.as_deref())
-            .map(|k| k.into())
             .map_err(|e| napi::Error::from_reason(e.to_string()))
-    }
-
-    #[napi(object)]
-    pub struct KeyMaterial {
-        pub os_key_part_b64: String,
-        pub client_key_part_b64: Option<String>,
-    }
-
-    impl From<KeyMaterial> for desktop_core::biometric::KeyMaterial {
-        fn from(km: KeyMaterial) -> Self {
-            desktop_core::biometric::KeyMaterial {
-                os_key_part_b64: km.os_key_part_b64,
-                client_key_part_b64: km.client_key_part_b64,
-            }
-        }
-    }
-
-    #[napi(object)]
-    pub struct OsDerivedKey {
-        pub key_b64: String,
-        pub iv_b64: String,
-    }
-
-    impl From<desktop_core::biometric::OsDerivedKey> for OsDerivedKey {
-        fn from(km: desktop_core::biometric::OsDerivedKey) -> Self {
-            OsDerivedKey {
-                key_b64: km.key_b64,
-                iv_b64: km.iv_b64,
-            }
-        }
     }
 }

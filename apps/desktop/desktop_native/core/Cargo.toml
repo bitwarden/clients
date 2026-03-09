@@ -16,6 +16,7 @@ default = [
     "dep:zbus_polkit",
 ]
 manual_test = []
+napi = ["dep:napi", "dep:napi-derive"]
 
 [dependencies]
 aes = { workspace = true }
@@ -30,6 +31,8 @@ dirs = { workspace = true }
 futures = { workspace = true }
 interprocess = { workspace = true, features = ["tokio"] }
 memsec = { workspace = true, features = ["alloc_ext"] }
+napi = { workspace = true, optional = true }
+napi-derive = { workspace = true, optional = true }
 rand = { workspace = true }
 rsa = "=0.9.6"
 sha2 = { workspace = true }
