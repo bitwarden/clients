@@ -26,7 +26,6 @@ import {
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -87,7 +86,6 @@ export abstract class LoginStrategy {
     protected vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     protected KdfConfigService: KdfConfigService,
     protected environmentService: EnvironmentService,
-    protected configService: ConfigService,
     protected accountCryptographicStateService: AccountCryptographicStateService,
   ) {}
 

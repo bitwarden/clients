@@ -786,7 +786,6 @@ export class ServiceContainer {
       this.vaultTimeoutSettingsService,
       this.kdfConfigService,
       this.taskSchedulerService,
-      this.configService,
       this.accountCryptographicStateService,
     );
 

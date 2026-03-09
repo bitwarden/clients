@@ -578,7 +578,6 @@ const safeProviders: SafeProvider[] = [
       VaultTimeoutSettingsService,
       KdfConfigService,
       TaskSchedulerService,
-      ConfigService,
       AccountCryptographicStateService,
     ],
   }),

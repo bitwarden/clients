@@ -14,7 +14,6 @@ import {
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
   EnvironmentService,
@@ -58,7 +57,6 @@ describe("UserApiLoginStrategy", () => {
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
-  let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
 
   let apiLogInStrategy: UserApiLoginStrategy;
@@ -92,7 +90,6 @@ describe("UserApiLoginStrategy", () => {
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
-    configService = mock<ConfigService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
 
     appIdService.getAppId.mockResolvedValue(deviceId);
@@ -121,7 +118,6 @@ describe("UserApiLoginStrategy", () => {
       vaultTimeoutSettingsService,
       kdfConfigService,
       environmentService,
-      configService,
       accountCryptographicStateService,
     );
 

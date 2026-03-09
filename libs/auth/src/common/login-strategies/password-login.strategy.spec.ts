@@ -20,7 +20,6 @@ import {
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -85,7 +84,6 @@ describe("PasswordLoginStrategy", () => {
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let environmentService: MockProxy<EnvironmentService>;
-  let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
 
   let passwordLoginStrategy: PasswordLoginStrategy;
@@ -114,7 +112,6 @@ describe("PasswordLoginStrategy", () => {
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
     environmentService = mock<EnvironmentService>();
-    configService = mock<ConfigService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
 
     appIdService.getAppId.mockResolvedValue(deviceId);
@@ -155,7 +152,6 @@ describe("PasswordLoginStrategy", () => {
       vaultTimeoutSettingsService,
       kdfConfigService,
       environmentService,
-      configService,
       accountCryptographicStateService,
     );
     credentials = new PasswordLoginCredentials(email, masterPassword);
