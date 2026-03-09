@@ -1508,7 +1508,7 @@ describe("CollectAutofillContentService", () => {
       document.body.innerHTML = `
         <div>
           <input type="text" name="username" id="username-id">
-          <div>Enter Country Code <input type="text" name="country-code" /></div>
+          <div>Enter Country Code <select><option>US</option></select></div>
         </div>
       `;
       const element = document.querySelector("#username-id") as FillableFormFieldElement;
@@ -1518,7 +1518,7 @@ describe("CollectAutofillContentService", () => {
       expect(labelTag).toEqual("");
     });
 
-    it("collects text from a sibling div that does not contain form fields", () => {
+    it("does not stop traversal at a sibling div that has no form field descendant", () => {
       document.body.innerHTML = `
         <div>
           <input type="text" name="username" id="username-id">
@@ -1549,7 +1549,7 @@ describe("CollectAutofillContentService", () => {
       expect(labelTag).toEqual("Text ContentUsername");
     });
 
-    it("does not collect text from a sibling that contains a form field", () => {
+    it("does not collect text from a direct sibling that contains a form field", () => {
       document.body.innerHTML = `
         <div>
           <div>Enter Country Code <select><option>US</option></select></div>
@@ -1563,7 +1563,26 @@ describe("CollectAutofillContentService", () => {
       expect(labelTag).toEqual("");
     });
 
-    it("still collects text from a sibling div without form fields", () => {
+    it("does not collect text from a parent sibling that contains a form field", () => {
+      // Exercises the parent-walk code path: the input has no direct previous
+      // siblings, so the traversal walks up to the parent and checks its previous
+      // sibling — which should be blocked because it contains a form field.
+      document.body.innerHTML = `
+        <div>
+          <div>Enter Country Code <select><option>US</option></select></div>
+          <div>
+            <input type="text" name="username" id="username-id">
+          </div>
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
+
+      expect(labelTag).toEqual("");
+    });
+
+    it("does not stop traversal at a sibling div that has no form field descendant", () => {
       document.body.innerHTML = `
         <div>
           <div>Helpful label</div>
