@@ -31,7 +31,7 @@ export class FlightRecorder {
    */
   async read(): Promise<FlightRecorderLogData[]> {
     const client = await this.ensureClient();
-    return client.drain();
+    return client.read();
   }
 
   /**
