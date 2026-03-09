@@ -32,7 +32,7 @@ export class SessionTimeoutPolicy extends BasePolicyEditDefinition {
   description = "sessionTimeoutPolicyDescription";
   type = PolicyType.MaximumVaultTimeout;
   category = PolicyCategory.Authentication;
-  priority = 7;
+  priority = 70;
   component = SessionTimeoutPolicyComponent;
 }
 

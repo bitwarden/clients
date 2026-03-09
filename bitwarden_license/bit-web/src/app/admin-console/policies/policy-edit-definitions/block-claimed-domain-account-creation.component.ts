@@ -13,7 +13,7 @@ export class BlockClaimedDomainAccountCreationPolicy extends BasePolicyEditDefin
   description = "blockClaimedDomainAccountCreationDesc";
   type = PolicyType.BlockClaimedDomainAccountCreation;
   category = PolicyCategory.Authentication;
-  priority = 6;
+  priority = 60;
   component = BlockClaimedDomainAccountCreationPolicyComponent;
 }
 

@@ -13,7 +13,7 @@ export class DisablePersonalVaultExportPolicy extends BasePolicyEditDefinition {
   description = "disablePersonalVaultExportDescription";
   type = PolicyType.DisablePersonalVaultExport;
   category = PolicyCategory.DataControl;
-  priority = 5;
+  priority = 50;
   component = DisablePersonalVaultExportPolicyComponent;
 }
 
