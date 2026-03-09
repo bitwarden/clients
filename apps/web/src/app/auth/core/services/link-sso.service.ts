@@ -51,7 +51,7 @@ export class LinkSsoService {
 
     const codeVerifier = await this.passwordGenerationService.generatePassword(passwordOptions);
     const codeVerifierHash = await this.cryptoFunctionService.hash(codeVerifier, "sha256");
-    const codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
+    const codeChallenge = Utils.fromArrayToUrlB64(codeVerifierHash);
     await this.ssoLoginService.setCodeVerifier(codeVerifier);
 
     let state = await this.passwordGenerationService.generatePassword(passwordOptions);

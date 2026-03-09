@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Copia indirizzo"
   },
+  "myItems": {
+    "message": "I miei elementi"
+  },
   "adminConsole": {
     "message": "Console di amministrazione"
   },
@@ -6150,6 +6153,15 @@
   },
   "searchResults": {
     "message": "Risultati di ricerca"
+  },
+  "simplifiedAutofill": {
+    "message": "Riempimento automatico semplificato"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "Al clic su una voce di riempimento automatico, questa viene inserita nel campo corrispondente. Puoi comunque accedere ai dettagli dal menu 'Altro'."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Apri il pannello del riempimento automatico semplificato"
   },
   "resizeSideNavigation": {
     "message": "Ridimensiona la navigazione laterale"
