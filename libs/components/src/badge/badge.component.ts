@@ -133,7 +133,7 @@ export class BadgeComponent {
    */
   readonly maxWidthClass = input<`tw-max-w-${string}`>("tw-max-w-40");
 
-  readonly startIcon = input<BitwardenIcon | null>(undefined);
+  readonly startIcon = input<BitwardenIcon | null | undefined>(undefined);
 
   protected readonly computedIcon = computed(() => {
     if (this.startIcon() === null) {
