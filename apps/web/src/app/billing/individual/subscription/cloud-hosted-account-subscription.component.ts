@@ -62,17 +62,17 @@ import {
   ],
 })
 export class CloudHostedAccountSubscriptionComponent {
-  private accountService = inject(AccountService);
-  private activatedRoute = inject(ActivatedRoute);
-  private accountBillingClient = inject(AccountBillingClient);
-  private billingAccountProfileStateService = inject(BillingAccountProfileStateService);
-  private configService = inject(ConfigService);
-  private dialogService = inject(DialogService);
-  private fileDownloadService = inject(FileDownloadService);
-  private i18nService = inject(I18nService);
-  private router = inject(Router);
-  private subscriptionPricingService = inject(SubscriptionPricingServiceAbstraction);
-  private toastService = inject(ToastService);
+  private readonly accountService = inject(AccountService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly accountBillingClient = inject(AccountBillingClient);
+  private readonly billingAccountProfileStateService = inject(BillingAccountProfileStateService);
+  private readonly configService = inject(ConfigService);
+  private readonly dialogService = inject(DialogService);
+  private readonly fileDownloadService = inject(FileDownloadService);
+  private readonly i18nService = inject(I18nService);
+  private readonly router = inject(Router);
+  private readonly subscriptionPricingService = inject(SubscriptionPricingServiceAbstraction);
+  private readonly toastService = inject(ToastService);
 
   readonly account = toSignal(this.accountService.activeAccount$);
 
@@ -221,7 +221,7 @@ export class CloudHostedAccountSubscriptionComponent {
     return hasPremiumPersonally && upgradeEnabled;
   });
 
-  onSubscriptionCardAction = async (action: SubscriptionCardAction) => {
+  readonly onSubscriptionCardAction = async (action: SubscriptionCardAction) => {
     switch (action) {
       case SubscriptionCardActions.ContactSupport:
         window.open("https://bitwarden.com/contact/", "_blank");
@@ -279,7 +279,7 @@ export class CloudHostedAccountSubscriptionComponent {
     }
   };
 
-  onStorageCardAction = async (action: StorageCardAction) => {
+  readonly onStorageCardAction = async (action: StorageCardAction) => {
     const data = this.getAdjustStorageDialogParams(action);
     const dialogReference = AdjustAccountSubscriptionStorageDialogComponent.open(
       this.dialogService,
@@ -293,7 +293,7 @@ export class CloudHostedAccountSubscriptionComponent {
     }
   };
 
-  onAdditionalOptionsCardAction = async (action: AdditionalOptionsCardAction) => {
+  readonly onAdditionalOptionsCardAction = async (action: AdditionalOptionsCardAction) => {
     switch (action) {
       case AdditionalOptionsCardActions.DownloadLicense: {
         const license = await this.accountBillingClient.getLicense();
@@ -322,7 +322,7 @@ export class CloudHostedAccountSubscriptionComponent {
     }
   };
 
-  getAdjustStorageDialogParams = (
+  readonly getAdjustStorageDialogParams = (
     action: StorageCardAction,
   ): Maybe<AdjustAccountSubscriptionStorageDialogParams> => {
     const purchasedStorage = this.purchasedStorage();
@@ -354,7 +354,7 @@ export class CloudHostedAccountSubscriptionComponent {
     }
   };
 
-  openUpgradeDialog = async (): Promise<void> => {
+  readonly openUpgradeDialog = async (): Promise<void> => {
     const account = this.account();
     if (!account) {
       return;
