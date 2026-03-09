@@ -1,6 +1,26 @@
 import { AbstractControl, FormControl } from "@angular/forms";
 
-import { inputEmailLimitValidator } from "./input-email-limit.validator";
+import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
+
+import {
+  getEmailBatchLimit,
+  inputEmailLimitValidator,
+  isDynamicSeatPlan,
+  isFixedSeatPlan,
+} from "./input-email-limit.validator";
+
+const orgFactory = (props: Partial<Organization> = {}) =>
+  Object.assign(
+    new Organization(),
+    {
+      id: "myOrgId",
+      enabled: true,
+      type: OrganizationUserType.Admin,
+    },
+    props,
+  );
 
 describe("inputEmailLimitValidator", () => {
   const getErrorMessage = (max: number) => `You can only add up to ${max} unique emails.`;
@@ -108,6 +128,51 @@ describe("inputEmailLimitValidator", () => {
     });
   });
 
+  describe("existingEmails exclusion", () => {
+    it("should not count existing member emails toward the limit", () => {
+      // Arrange — limit is 0 (org at full capacity), but the input email is already a member
+      const existingEmail = "existing@example.com";
+      const control = new FormControl(existingEmail);
+      const validatorFn = inputEmailLimitValidator(0, getErrorMessage, [existingEmail]);
+
+      // Act
+      const result = validatorFn(control);
+
+      // Assert — re-inviting an existing member should be allowed even when limit is 0
+      expect(result).toBeNull();
+    });
+
+    it("should count non-member emails toward the limit", () => {
+      // Arrange — limit is 1, input contains 1 existing member + 1 new address
+      const existingEmail = "existing@example.com";
+      const control = new FormControl(`${existingEmail}, new1@example.com, new2@example.com`);
+      const validatorFn = inputEmailLimitValidator(1, getErrorMessage, [existingEmail]);
+
+      // Act
+      const result = validatorFn(control);
+
+      // Assert — 2 new emails exceed limit of 1
+      expect(result).toEqual({
+        tooManyEmails: { message: "You can only add up to 1 unique emails." },
+      });
+    });
+
+    it("should pass when only new emails are within the limit", () => {
+      // Arrange — limit is 2, input has 3 emails but 2 are existing members
+      const existingEmails = ["existing1@example.com", "existing2@example.com"];
+      const control = new FormControl(
+        `${existingEmails[0]}, ${existingEmails[1]}, new@example.com`,
+      );
+      const validatorFn = inputEmailLimitValidator(2, getErrorMessage, existingEmails);
+
+      // Act
+      const result = validatorFn(control);
+
+      // Assert — only 1 new email, within limit of 2
+      expect(result).toBeNull();
+    });
+  });
+
   describe("input email validation", () => {
     const emailLimit = 20;
 
@@ -151,5 +216,94 @@ describe("inputEmailLimitValidator", () => {
       // Assert
       expect(result).toBeNull();
     });
+  });
+});
+
+describe("getEmailBatchLimit", () => {
+  describe("dynamic-seat plans", () => {
+    test.each([ProductTierType.Teams, ProductTierType.Enterprise])(
+      "returns 20 for %s regardless of occupied seats",
+      (plan) => {
+        const organization = orgFactory({ productTierType: plan, seats: 100 });
+
+        expect(getEmailBatchLimit(organization, 0)).toBe(20);
+        expect(getEmailBatchLimit(organization, 99)).toBe(20);
+        expect(getEmailBatchLimit(organization, 150)).toBe(20);
+      },
+    );
+  });
+
+  describe("TeamsStarter (fixed, 10-seat cap)", () => {
+    it("returns remaining seats when below the 10-seat cap", () => {
+      const organization = orgFactory({ productTierType: ProductTierType.TeamsStarter, seats: 10 });
+
+      expect(getEmailBatchLimit(organization, 3)).toBe(7);
+    });
+
+    it("returns 10 when no seats are occupied", () => {
+      const organization = orgFactory({ productTierType: ProductTierType.TeamsStarter, seats: 10 });
+
+      expect(getEmailBatchLimit(organization, 0)).toBe(10);
+    });
+
+    it("returns 0 when the org is at capacity (oversubscribed)", () => {
+      const organization = orgFactory({ productTierType: ProductTierType.TeamsStarter, seats: 10 });
+
+      expect(getEmailBatchLimit(organization, 10)).toBe(0);
+      expect(getEmailBatchLimit(organization, 12)).toBe(0);
+    });
+  });
+
+  describe("Free / Families (fixed-seat plans)", () => {
+    test.each([ProductTierType.Free, ProductTierType.Families])(
+      "returns remaining seats when below the batch limit for %s",
+      (plan) => {
+        const organization = orgFactory({ productTierType: plan, seats: 6 });
+
+        expect(getEmailBatchLimit(organization, 1)).toBe(5);
+      },
+    );
+
+    test.each([ProductTierType.Free, ProductTierType.Families])(
+      "caps at 20 when plenty of seats are available for %s",
+      (plan) => {
+        const organization = orgFactory({ productTierType: plan, seats: 100 });
+
+        expect(getEmailBatchLimit(organization, 0)).toBe(20);
+      },
+    );
+
+    test.each([ProductTierType.Free, ProductTierType.Families])(
+      "returns 0 when the org is oversubscribed for %s",
+      (plan) => {
+        const organization = orgFactory({ productTierType: plan, seats: 6 });
+
+        expect(getEmailBatchLimit(organization, 6)).toBe(0);
+        expect(getEmailBatchLimit(organization, 8)).toBe(0);
+      },
+    );
+  });
+});
+
+describe("isFixedSeatPlan", () => {
+  test.each([
+    [true, ProductTierType.Free],
+    [true, ProductTierType.Families],
+    [true, ProductTierType.TeamsStarter],
+    [false, ProductTierType.Enterprise],
+  ])("should return %s for %s", (expected, input) => {
+    expect(isFixedSeatPlan(input)).toBe(expected);
+  });
+});
+
+describe("isDynamicSeatPlan", () => {
+  test.each([
+    [true, ProductTierType.Enterprise],
+    [true, ProductTierType.Teams],
+    [false, ProductTierType.Free],
+    [false, ProductTierType.Families],
+    [false, ProductTierType.TeamsStarter],
+  ])("should return %s for %s", (expected, input) => {
+    expect(isDynamicSeatPlan(input)).toBe(expected);
   });
 });

@@ -61,12 +61,7 @@ import {
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 
 import { commaSeparatedEmails } from "./validators/comma-separated-emails.validator";
-import { inputEmailLimitValidator } from "./validators/input-email-limit.validator";
-import {
-  getEmailBatchLimit,
-  isDynamicSeatPlan,
-  orgSeatLimitReachedValidator,
-} from "./validators/org-seat-limit-reached.validator";
+import { inputEmailLimitValidator , getEmailBatchLimit, isDynamicSeatPlan } from "./validators/input-email-limit.validator";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
@@ -371,14 +366,10 @@ export class MemberDialogComponent implements OnDestroy {
     const emailsControlValidators = [
       Validators.required,
       commaSeparatedEmails,
-      inputEmailLimitValidator(emailBatchLimit, (maxEmailsCount: number) =>
-        this.i18nService.t("tooManyEmails", maxEmailsCount),
-      ),
-      orgSeatLimitReachedValidator(
-        organization,
+      inputEmailLimitValidator(
+        emailBatchLimit,
+        (maxEmailsCount: number) => this.i18nService.t("tooManyEmails", maxEmailsCount),
         this.params.allOrganizationUserEmails,
-        this.i18nService.t("subscriptionUpgrade", organization.seats),
-        this.params.occupiedSeatCount,
       ),
     ];
 
