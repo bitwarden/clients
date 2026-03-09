@@ -15,10 +15,8 @@ import {
   DialogService,
 } from "@bitwarden/components";
 
-import { AccountBillingClient, PreviewInvoiceClient } from "../../../clients";
 import { BillingServicesModule } from "../../../services";
 import { UpgradeAccountComponent } from "../upgrade-account/upgrade-account.component";
-import { UpgradePaymentService } from "../upgrade-payment/services/upgrade-payment.service";
 import {
   UpgradePaymentComponent,
   UpgradePaymentResult,
@@ -74,7 +72,6 @@ export type UnifiedUpgradeDialogParams = {
     UpgradePaymentComponent,
     BillingServicesModule,
   ],
-  providers: [UpgradePaymentService, AccountBillingClient, PreviewInvoiceClient],
   templateUrl: "./unified-upgrade-dialog.component.html",
 })
 export class UnifiedUpgradeDialogComponent implements OnInit {

@@ -60,7 +60,6 @@ import {
     SubscriptionCardComponent,
     TypographyModule,
   ],
-  providers: [AccountBillingClient],
 })
 export class CloudHostedAccountSubscriptionComponent {
   private accountService = inject(AccountService);
