@@ -17,7 +17,6 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { SvgModule } from "@bitwarden/components";
-import { AccountBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
@@ -37,7 +36,7 @@ import { WebLayoutModule } from "./web-layout.module";
     SvgModule,
     BillingFreeFamiliesNavItemComponent,
   ],
-  providers: [AccountBillingClient, PremiumSubscriptionRoutingService],
+  providers: [PremiumSubscriptionRoutingService],
 })
 export class UserLayoutComponent implements OnInit {
   protected readonly logo = PasswordManagerLogo;
