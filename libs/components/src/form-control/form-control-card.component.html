@@ -7,6 +7,10 @@
   ></label>
 
   <div class="tw-flex tw-items-center tw-gap-4">
+    @if (icon()) {
+      <bit-icon-tile [icon]="icon()"></bit-icon-tile>
+    }
+
     <span
       class="tw-inline-flex tw-flex-col"
       [class.tw-text-muted]="base.formControl().disabled"

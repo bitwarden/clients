@@ -291,7 +291,7 @@ export const FormControlCard: Story = {
       },
       template: /*html*/ `
         <form [formGroup]="formObj">
-          <bit-form-control-card>
+          <bit-form-control-card icon="bwi-clock">
             <input type="checkbox" bitCheckbox formControlName="checkbox" />
             <bit-label>Enable feature</bit-label>
             <bit-hint>Enabling this feature will allow you to do cool things.</bit-hint>
