@@ -9,10 +9,14 @@ import {
 } from "@ovrlab/pqp-network";
 import type { IdentityProvider } from "@ovrlab/pqp-network";
 
+import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
+
+import { PasswordLoginCredentials } from "../../models/domain/login-credentials";
+
 export interface PqpAuthState {
   networkLoggedIn: boolean;
   userEmail: string | null;
-  derivedPassword: string | null;
+  hasDerivedPassword: boolean;
   isReady: boolean;
 }
 
@@ -35,8 +39,8 @@ export class PqpAuthService {
     return this._userEmail;
   }
 
-  get derivedPassword(): string | null {
-    return this._derivedPassword;
+  get hasDerivedPassword(): boolean {
+    return this._derivedPassword != null;
   }
 
   get isReady(): boolean {
@@ -47,9 +51,30 @@ export class PqpAuthService {
     return {
       networkLoggedIn: this._networkLoggedIn,
       userEmail: this._userEmail,
-      derivedPassword: this._derivedPassword,
+      hasDerivedPassword: this._derivedPassword != null,
       isReady: this.isReady,
     };
+  }
+
+  /**
+   * Build PasswordLoginCredentials using the internally-held derived password.
+   * The derived password never leaves this service — callers receive an opaque credentials object.
+   *
+   * @throws Error if the derived password is not available.
+   */
+  buildPqpLoginCredentials(
+    email: string,
+    orgMasterPasswordPolicyOptions?: MasterPasswordPolicyOptions,
+  ): PasswordLoginCredentials {
+    if (!this._derivedPassword) {
+      throw new Error("PQP derived password is not available. Cannot build login credentials.");
+    }
+    return new PasswordLoginCredentials(
+      email,
+      this._derivedPassword,
+      undefined,
+      orgMasterPasswordPolicyOptions,
+    );
   }
 
   /**
@@ -169,7 +194,7 @@ export class PqpAuthService {
    * Derive the master password from the PqP private key using SHA-256.
    * Clears any stale password if the private key is unavailable or on error.
    */
-  async derivePassword(): Promise<string | null> {
+  async derivePassword(): Promise<void> {
     try {
       const privateKey = await localStateRepository.getPrivateKey();
       if (privateKey) {
@@ -182,7 +207,6 @@ export class PqpAuthService {
       // Clear stale password on error to prevent using outdated credentials
       this._derivedPassword = null;
     }
-    return this._derivedPassword;
   }
 
   /**
