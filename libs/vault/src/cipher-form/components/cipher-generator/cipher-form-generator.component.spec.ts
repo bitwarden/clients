@@ -10,7 +10,9 @@ import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-password-generator",
-  template: ` <ng-content></ng-content> `,
+  template: `
+    <ng-content></ng-content>
+  `,
 })
 class MockPasswordGeneratorComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -22,7 +24,9 @@ class MockPasswordGeneratorComponent {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-username-generator",
-  template: ` <ng-content></ng-content> `,
+  template: `
+    <ng-content></ng-content>
+  `,
 })
 class MockUsernameGeneratorComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

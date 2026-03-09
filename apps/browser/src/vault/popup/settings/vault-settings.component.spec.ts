@@ -23,7 +23,9 @@ import { VaultSettingsComponent } from "./vault-settings.component";
 
 @Component({
   selector: "popup-header",
-  template: ` <ng-content></ng-content> `,
+  template: `
+    <ng-content></ng-content>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockPopupHeaderComponent {
@@ -33,7 +35,9 @@ class MockPopupHeaderComponent {
 
 @Component({
   selector: "popup-page",
-  template: ` <ng-content></ng-content> `,
+  template: `
+    <ng-content></ng-content>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockPopupPageComponent {}

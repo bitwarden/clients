@@ -10,7 +10,9 @@ import { VaultCarouselSlideComponent } from "./carousel-slide.component";
 @Component({
   selector: "app-test-carousel-slide",
   imports: [VaultCarouselSlideComponent],
-  template: ` <vault-carousel-slide><p>Carousel Slide Content!</p></vault-carousel-slide> `,
+  template: `
+    <vault-carousel-slide><p>Carousel Slide Content!</p></vault-carousel-slide>
+  `,
 })
 class TestCarouselSlideComponent {
   // Test template content by creating a wrapping component.

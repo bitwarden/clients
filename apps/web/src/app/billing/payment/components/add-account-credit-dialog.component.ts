@@ -113,11 +113,7 @@ const positiveNumberValidator =
       <input type="hidden" name="return" value="{{ redirectUrl }}" />
       <input type="hidden" name="cancel_return" value="{{ redirectUrl }}" />
       <input type="hidden" name="currency_code" value="USD" />
-      <input
-        type="hidden"
-        name="image_url"
-        value="https://bitwarden.com/images/paypal-banner.png"
-      />
+      <input type="hidden" name="image_url" value="https://bitwarden.com/images/paypal-banner.png" />
       <input type="hidden" name="bn" value="PP-BuyNowBF:btn_buynow_LG.gif:NonHosted" />
       <input type="hidden" name="amount" value="{{ amount }}" />
       <input type="hidden" name="custom" value="{{ payPalCustom$ | async }}" />

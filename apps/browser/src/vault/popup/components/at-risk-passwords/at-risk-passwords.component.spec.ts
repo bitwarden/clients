@@ -39,7 +39,9 @@ import { AtRiskPasswordsComponent } from "./at-risk-passwords.component";
 
 @Component({
   selector: "popup-header",
-  template: ` <ng-content></ng-content> `,
+  template: `
+    <ng-content></ng-content>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockPopupHeaderComponent {
@@ -49,7 +51,9 @@ class MockPopupHeaderComponent {
 
 @Component({
   selector: "popup-page",
-  template: ` <ng-content></ng-content> `,
+  template: `
+    <ng-content></ng-content>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockPopupPageComponent {
@@ -58,7 +62,9 @@ class MockPopupPageComponent {
 
 @Component({
   selector: "app-vault-icon",
-  template: ` <ng-content></ng-content> `,
+  template: `
+    <ng-content></ng-content>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 // FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix

@@ -28,9 +28,7 @@ import { CollectionDialogTabType } from "../shared/components/collection-dialog"
         *ngIf="!canEditCollection && canViewCollectionInfo"
         slot="button"
         bitButton
-        (click)="
-          viewCollectionClicked.emit({ readonly: true, tab: collectionDialogTabType.Access })
-        "
+        (click)="viewCollectionClicked.emit({ readonly: true, tab: collectionDialogTabType.Access })"
         buttonType="secondary"
         type="button"
       >

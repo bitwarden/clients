@@ -5,7 +5,9 @@ import { Component } from "@angular/core";
 @Component({
   selector: "bit-item-action",
   imports: [],
-  template: ` <ng-content></ng-content> `,
+  template: `
+    <ng-content></ng-content>
+  `,
   host: {
     class:
       /**

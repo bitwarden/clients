@@ -6,7 +6,9 @@ import { MappedOptionComponent } from "./option";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-option",
-  template: ` <ng-template><ng-content></ng-content></ng-template> `,
+  template: `
+    <ng-template><ng-content></ng-content></ng-template>
+  `,
 })
 export class OptionComponent<T = unknown> implements MappedOptionComponent<T> {
   readonly icon = input<string>();

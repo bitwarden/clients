@@ -108,7 +108,9 @@ class MockConfigService implements Partial<ConfigService> {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "story-layout",
-  template: ` <ng-content></ng-content> `,
+  template: `
+    <ng-content></ng-content>
+  `,
   standalone: false,
 })
 class StoryLayoutComponent {}

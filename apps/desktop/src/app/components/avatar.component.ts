@@ -9,7 +9,9 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-avatar",
-  template: ` <img *ngIf="src" [src]="src" [ngClass]="{ 'rounded-circle': circle }" /> `,
+  template: `
+    <img *ngIf="src" [src]="src" [ngClass]="{ 'rounded-circle': circle }" />
+  `,
   standalone: false,
 })
 export class AvatarComponent implements OnChanges, OnInit {

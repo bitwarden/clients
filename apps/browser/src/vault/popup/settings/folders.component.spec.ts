@@ -25,7 +25,9 @@ import { FoldersComponent } from "./folders.component";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "popup-header",
-  template: ` <ng-content></ng-content> `,
+  template: `
+    <ng-content></ng-content>
+  `,
 })
 class MockPopupHeaderComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -40,7 +42,9 @@ class MockPopupHeaderComponent {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "popup-footer",
-  template: ` <ng-content></ng-content> `,
+  template: `
+    <ng-content></ng-content>
+  `,
 })
 class MockPopupFooterComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
