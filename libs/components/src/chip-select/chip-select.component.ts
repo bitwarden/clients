@@ -1,3 +1,6 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
+import { CommonModule } from "@angular/common";
 import {
   Component,
   ElementRef,
@@ -17,12 +20,12 @@ import {
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
 import { compareValues } from "@bitwarden/common/platform/misc/compare-values";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 import { MenuComponent, MenuItemComponent, MenuModule, MenuTriggerForDirective } from "../menu";
 import { Option } from "../select/option";
-import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
 
 /** An option that will be showed in the overlay menu of `ChipSelectComponent` */
@@ -37,7 +40,7 @@ export type ChipSelectOption<T> = Option<T> & {
 @Component({
   selector: "bit-chip-select",
   templateUrl: "chip-select.component.html",
-  imports: [SharedModule, ButtonModule, IconButtonModule, MenuModule, TypographyModule],
+  imports: [CommonModule, I18nPipe, ButtonModule, IconButtonModule, MenuModule, TypographyModule],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

@@ -5445,7 +5445,7 @@
   "minimumNumberOfWords": {
     "message": "Минимален брой думи"
   },
-  "passwordTypePolicyOverride": {
+  "overridePasswordTypePolicy": {
     "message": "Тип парола",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Научете повече относно прехвърлянето"
   },
+  "promptUsersToMoveItems": {
+    "message": "Подканяне на потребителите да прехвърлят данните от личните си трезори към организацията"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "От членовете ще бъде изискано да прехвърлят данните си в организацията, или да напуснат. Ако напуснат, достъпът им ще бъде отнет, но и може да бъде възстановен по всяко време."
+  },
   "organizationDataOwnership": {
     "message": "Задължителна собственост на организационните данни"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Налично сега"
   },
-  "autoConfirm": {
-    "message": "Автоматично потвърждение на новите потребители"
+  "automaticUserConfirmation": {
+    "message": "Автоматично потвърждение на потребителите"
   },
   "autoConfirmDescription": {
     "message": "Новите потребители, поканени в организацията, ще бъдат потвърждавани автоматично, когато се отключи устройство на администратор.",
@@ -10624,6 +10630,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Изпращане на данни за събитията до Вашата инстанция на Huntress SIEM"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "Свързването с $INTEGRATION$ е успешно.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Интеграцията не беше запазена. Опитайте отново по-късно."
   },
@@ -10976,6 +10991,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Изключено"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Докладът за достъпа на членовете не може да бъде зареден. Това може да се случи, ако организацията е с голям размер или ако има проблем с мрежата. Моля, опитайте отново. Ако това продължи да се случва, свържете се с поддръжката."
   },
   "kdfIterationRecommends": {
     "message": "Препоръчваме 600 000 или повече"
