@@ -2446,8 +2446,7 @@ describe("AutofillService", () => {
         it("classifies a field matching AmbiguousTotpFieldNames as username when it also matches username signals", async () => {
           options.allowTotpAutofill = true;
           // Simulates a username field whose label-left was contaminated with an
-          // ambiguous TOTP keyword (e.g. Yahoo's country-code container leaking
-          // "Enter Country Code" → "code" → AmbiguousTotpFieldNames match).
+          // ambiguous TOTP keyword.
           const ambiguousField = createAutofillFieldMock({
             opid: "ambiguous-totp",
             type: "text",
