@@ -26,7 +26,6 @@ import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
@@ -90,6 +89,10 @@ describe("WebSetInitialPasswordService", () => {
     expect(sut).not.toBeFalsy();
   });
 
+  /**
+   * @deprecated To be removed in PM-28143. When you remove this, check also if there are any imports/properties
+   * in the test setup above that are now un-used and can also be removed.
+   */
   describe("setInitialPassword(...)", () => {
     // Mock function parameters
     let credentials: SetInitialPasswordCredentials;
@@ -111,7 +114,7 @@ describe("WebSetInitialPasswordService", () => {
     beforeEach(() => {
       // Mock function parameters
       credentials = {
-        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32).buffer as CsprngArray) as MasterKey,
+        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
         newServerMasterKeyHash: "newServerMasterKeyHash",
         newLocalMasterKeyHash: "newLocalMasterKeyHash",
         newPasswordHint: "newPasswordHint",
@@ -119,12 +122,14 @@ describe("WebSetInitialPasswordService", () => {
         orgSsoIdentifier: "orgSsoIdentifier",
         orgId: "orgId",
         resetPasswordAutoEnroll: false,
+        newPassword: "Test@Password123!",
+        salt: "user@example.com" as MasterPasswordSalt,
       };
       userId = "userId" as UserId;
       userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;
 
       // Mock other function data
-      userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
+      userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
       userKeyEncString = new EncString("masterKeyEncryptedUserKey");
       masterKeyEncryptedUserKey = [userKey, userKeyEncString];
 

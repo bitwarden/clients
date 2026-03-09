@@ -1,18 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import {
-  ChangeDetectorRef,
-  Component,
-  computed,
-  effect,
-  inject,
-  signal,
-  viewChild,
-} from "@angular/core";
+import { Component, computed, DestroyRef, inject, signal, viewChild } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, map, switchMap, lastValueFrom } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -28,7 +19,7 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { ButtonModule, DialogService, ToastService } from "@bitwarden/components";
+import { ButtonModule, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
   NewSendDropdownV2Component,
   SendItemsService,
@@ -36,7 +27,9 @@ import {
   SendListState,
   SendAddEditDialogComponent,
   DefaultSendFormConfigService,
+  SendItemDialogResult,
 } from "@bitwarden/send-ui";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { DesktopHeaderComponent } from "../../layout/header";
@@ -58,7 +51,7 @@ type Action = (typeof Action)[keyof typeof Action];
 @Component({
   selector: "app-send-v2",
   imports: [
-    JslibModule,
+    I18nPipe,
     ButtonModule,
     AddEditComponent,
     SendListComponent,
@@ -92,7 +85,9 @@ export class SendV2Component {
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
   private logService = inject(LogService);
-  private cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
+
+  private activeDrawerRef?: DialogRef<SendItemDialogResult>;
 
   protected readonly useDrawerEditMode = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone2),
@@ -138,13 +133,8 @@ export class SendV2Component {
   );
 
   constructor() {
-    // WORKAROUND: Force change detection when data updates
-    // This is needed because SendSearchComponent (shared lib) hasn't migrated to OnPush yet
-    // and doesn't trigger CD properly when search/add operations complete
-    // TODO: Remove this once SendSearchComponent migrates to OnPush (tracked in CL-764)
-    effect(() => {
-      this.filteredSends();
-      this.cdr.markForCheck();
+    this.destroyRef.onDestroy(() => {
+      this.activeDrawerRef?.close();
     });
   }
 
@@ -163,16 +153,15 @@ export class SendV2Component {
     if (this.useDrawerEditMode()) {
       const formConfig = await this.sendFormConfigService.buildConfig("add", undefined, type);
 
-      const dialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+      this.activeDrawerRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
         formConfig,
       });
 
-      await lastValueFrom(dialogRef.closed);
+      await lastValueFrom(this.activeDrawerRef.closed);
+      this.activeDrawerRef = null;
     } else {
       this.action.set(Action.Add);
       this.sendId.set(null);
-
-      this.cdr.detectChanges();
       void this.addEditComponent()?.resetAndLoad();
     }
   }
@@ -195,11 +184,12 @@ export class SendV2Component {
     if (this.useDrawerEditMode()) {
       const formConfig = await this.sendFormConfigService.buildConfig("edit", sendId as SendId);
 
-      const dialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+      this.activeDrawerRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
         formConfig,
       });
 
-      await lastValueFrom(dialogRef.closed);
+      await lastValueFrom(this.activeDrawerRef.closed);
+      this.activeDrawerRef = null;
     } else {
       if (sendId === this.sendId() && this.action() === Action.Edit) {
         return;

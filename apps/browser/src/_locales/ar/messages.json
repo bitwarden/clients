@@ -35,7 +35,7 @@
     "message": "استخدام تسجيل الدخول الأحادي"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "يتطلب مؤسستك تسجيل دخول واحد."
   },
   "welcomeBack": {
     "message": "مرحبًا بعودتك"
@@ -129,7 +129,7 @@
     "message": "الأدوات"
   },
   "settings": {
-    "message": "الإعدادات"
+    "message": "الإعداداتالإعدادات"
   },
   "currentTab": {
     "message": "علامة التبويب الحالية"
@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "Item was unarchived"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Archive item"
@@ -898,6 +895,9 @@
   },
   "invalidVerificationCode": {
     "message": "رمز التحقق غير صالح"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
   },
   "valueCopied": {
     "message": "تم نسخ $VALUE$",
@@ -2747,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden لن يطلب حفظ تفاصيل تسجيل الدخول لهذه النطاقات. يجب عليك تحديث الصفحة حتى تصبح التغييرات سارية المفعول."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden لن يطلب حفظ تفاصيل تسجيل الدخول لهذه النطافات لجميع الحسابات مسجلة الدخول. يجب عليك تحديث الصفحة لكي تصبح التغييرات نافذة المفعول."
-  },
   "blockedDomainsDesc": {
     "message": "لن يتم توفير الملء التلقائي والمميزات الأخرى ذات الصلة لهذه المواقع. يجب عليك تحديث الصفحة لكي تصبح التغييرات نافذة المفعول."
   },
@@ -2862,6 +2859,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Illustration of a list of logins that are at-risk."
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
   },
   "generatePasswordSlideDesc": {
     "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
@@ -3035,10 +3035,6 @@
   "custom": {
     "message": "مُخصّص"
   },
-  "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "New Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3090,6 +3086,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "إرسال رابط منسوخ",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3133,8 @@
     "message": "إرسال محفوظ",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "تمديد مستخرج؟",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "لإنشاء إرسال ملف، تحتاج إلى تثبيت الملحق إلى نافذة جديدة.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "من أجل اختيار ملف، قم بفتح الملحق في الشريط الجانبي (إن أمكن) أو الإنتقال إلى نافذة جديدة بالنقر على هذا الشعار."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "من أجل اختيار ملف باستخدام فايرفوكس، افتح الملحق في الشريط الجانبي أو اخرج إلى نافذة جديدة من خلال النقر على هذا الشعار."
-  },
-  "sendSafariFileWarning": {
-    "message": "من أجل اختيار ملف باستخدام سافاري، انتقل إلى نافذة جديدة بالنقر على هذا الشعار."
-  },
   "popOut": {
     "message": "انبثق"
-  },
-  "sendFileCalloutHeader": {
-    "message": "قبل أن تبدأ"
   },
   "expirationDateIsInvalid": {
     "message": "صلاحية تاريخ الانتهاء المقدّم غير صحيح."
@@ -4850,6 +4865,9 @@
   "copyAddress": {
     "message": "Copy address"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "adminConsole": {
     "message": "Admin Console"
   },
@@ -5990,6 +6008,9 @@
   "cardNumberLabel": {
     "message": "Card number"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
@@ -6127,6 +6148,21 @@
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
+  "simplifiedAutofill": {
+    "message": "Simplified autofill"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open simplified autofill popover"
+  },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
   },
@@ -6142,7 +6178,23 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }

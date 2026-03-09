@@ -7,9 +7,11 @@ import { I18nPipe } from "@bitwarden/ui-common";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-error-summary",
-  template: ` @if (errorCount > 0) {
-    <i class="bwi bwi-error"></i> {{ "fieldsNeedAttention" | i18n: errorString }}
-  }`,
+  template: `
+    @if (errorCount > 0) {
+      <i class="bwi bwi-error"></i> {{ "fieldsNeedAttention" | i18n: errorString }}
+    }
+  `,
   host: {
     class: "tw-block tw-text-danger tw-mt-2",
     "aria-live": "assertive",

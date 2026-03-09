@@ -100,7 +100,7 @@ class MockBillingAccountProfileStateService implements Partial<BillingAccountPro
 
 class MockConfigService implements Partial<ConfigService> {
   getFeatureFlag$<Flag extends FeatureFlag>(key: Flag): Observable<FeatureFlagValueType<Flag>> {
-    return of(false);
+    return of(false as FeatureFlagValueType<Flag>);
   }
 }
 
@@ -108,7 +108,7 @@ class MockConfigService implements Partial<ConfigService> {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "story-layout",
-  template: `<ng-content></ng-content>`,
+  template: ` <ng-content></ng-content> `,
   standalone: false,
 })
 class StoryLayoutComponent {}

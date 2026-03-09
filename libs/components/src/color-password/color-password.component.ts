@@ -22,14 +22,16 @@ type CharacterType = "letter" | "emoji" | "special" | "number";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-color-password",
-  template: `@for (character of passwordCharArray(); track $index; let i = $index) {
-    <span [class]="getCharacterClass(character)" class="tw-font-mono" data-password-character>
-      <span>{{ character }}</span>
-      @if (showCount()) {
-        <span class="tw-whitespace-nowrap tw-text-xs tw-leading-5 tw-text-main">{{ i + 1 }}</span>
-      }
-    </span>
-  }`,
+  template: `
+    @for (character of passwordCharArray(); track $index; let i = $index) {
+      <span [class]="getCharacterClass(character)" class="tw-font-mono" data-password-character>
+        <span>{{ character }}</span>
+        @if (showCount()) {
+          <span class="tw-whitespace-nowrap tw-text-xs tw-leading-5 tw-text-main">{{ i + 1 }}</span>
+        }
+      </span>
+    }
+  `,
 })
 export class ColorPasswordComponent {
   readonly password = input<string>("");

@@ -28,7 +28,7 @@ let nextId = 0;
  */
 @Component({
   selector: "bit-disclosure",
-  template: `<ng-content></ng-content>`,
+  template: ` <ng-content></ng-content> `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     "[class]": "classList()",

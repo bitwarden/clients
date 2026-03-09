@@ -4,6 +4,7 @@ import { property, state } from "lit/decorators.js";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
+import { EventSecurity } from "../../../utils/event-security";
 import { OptionSelectionButton } from "../buttons/option-selection-button";
 import { Option } from "../common-types";
 
@@ -54,7 +55,7 @@ export class OptionSelection extends LitElement {
   private static currentOpenInstance: OptionSelection | null = null;
 
   private handleButtonClick = async (event: Event) => {
-    if (!this.disabled) {
+    if (EventSecurity.isEventTrusted(event) && !this.disabled) {
       const isOpening = !this.showMenu;
 
       if (isOpening) {
@@ -139,18 +140,16 @@ export class OptionSelection extends LitElement {
           toggledOn: this.showMenu,
           handleButtonClick: this.handleButtonClick,
         })}
-        ${
-          this.showMenu
-            ? OptionItems({
-                id: this.id,
-                label: this.label,
-                options: this.options,
-                theme: this.theme,
-                topOffset: this.menuTopOffset,
-                handleOptionSelection: this.handleOptionSelection,
-              })
-            : nothing
-        }
+        ${this.showMenu
+          ? OptionItems({
+              id: this.id,
+              label: this.label,
+              options: this.options,
+              theme: this.theme,
+              topOffset: this.menuTopOffset,
+              handleOptionSelection: this.handleOptionSelection,
+            })
+          : nothing}
       </div>
     `;
   }

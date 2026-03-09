@@ -10,7 +10,7 @@ import { BaseCardDirective } from "./base-card.directive";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-base-card",
-  template: `<ng-content></ng-content>`,
+  template: ` <ng-content></ng-content> `,
   hostDirectives: [BaseCardDirective],
 })
 export class BaseCardComponent {}

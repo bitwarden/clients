@@ -25,9 +25,8 @@ import { CipherIcon } from "../../shared/app-table-row-scrollable.component";
   ],
 })
 export class ReviewApplicationsViewComponent {
-  readonly applications = input.required<
-    Array<ApplicationHealthReportDetail & { iconCipher: CipherIcon }>
-  >();
+  readonly applications =
+    input.required<Array<ApplicationHealthReportDetail & { iconCipher: CipherIcon }>>();
   readonly selectedApplications = input.required<Set<string>>();
 
   protected readonly searchText = signal<string>("");

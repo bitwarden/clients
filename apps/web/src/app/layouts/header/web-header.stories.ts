@@ -50,7 +50,7 @@ class MockStateService {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "product-switcher",
-  template: `<button type="button" bitIconButton="bwi-filter" label="Switch products"></button>`,
+  template: ` <button type="button" bitIconButton="bwi-filter" label="Switch products"></button> `,
   standalone: false,
 })
 class MockProductSwitcherComponent {}
@@ -59,7 +59,7 @@ class MockProductSwitcherComponent {}
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "dynamic-avatar",
-  template: `<bit-avatar [text]="name$ | async"></bit-avatar>`,
+  template: ` <bit-avatar [text]="name$ | async"></bit-avatar> `,
   imports: [CommonModule, AvatarModule],
 })
 class MockDynamicAvatarComponent implements Partial<DynamicAvatarComponent> {

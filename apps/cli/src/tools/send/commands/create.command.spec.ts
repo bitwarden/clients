@@ -62,7 +62,7 @@ describe("SendCreateCommand", () => {
         };
 
         const cmdOptions = {
-          email: ["test@example.com"],
+          emails: ["test@example.com"],
         };
 
         sendService.encrypt.mockResolvedValue([
@@ -155,7 +155,7 @@ describe("SendCreateCommand", () => {
         };
 
         const cmdOptions = {
-          email: ["test@example.com"],
+          emails: ["test@example.com"],
           password: "testPassword123",
         };
 
@@ -246,7 +246,7 @@ describe("SendCreateCommand", () => {
         };
 
         const cmdOptions = {
-          email: ["cli@example.com"],
+          emails: ["cli@example.com"],
         };
 
         const response = await command.run(requestJson, cmdOptions);
@@ -282,7 +282,7 @@ describe("SendCreateCommand", () => {
         };
 
         const cmdOptions = {
-          email: ["cli@example.com"],
+          emails: ["cli@example.com"],
         };
 
         sendService.encrypt.mockResolvedValue([

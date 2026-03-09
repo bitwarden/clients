@@ -7,6 +7,8 @@ import { of } from "rxjs";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { AutoConfirmState, AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
+import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -20,7 +22,7 @@ import { AdminSettingsComponent } from "./admin-settings.component";
 
 @Component({
   selector: "popup-header",
-  template: `<ng-content></ng-content>`,
+  template: ` <ng-content></ng-content> `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockPopupHeaderComponent {
@@ -30,7 +32,7 @@ class MockPopupHeaderComponent {
 
 @Component({
   selector: "popup-page",
-  template: `<ng-content></ng-content>`,
+  template: ` <ng-content></ng-content> `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockPopupPageComponent {
@@ -52,6 +54,8 @@ describe("AdminSettingsComponent", () => {
   let autoConfirmService: MockProxy<AutomaticUserConfirmationService>;
   let nudgesService: MockProxy<NudgesService>;
   let mockDialogService: MockProxy<DialogService>;
+  let eventCollectionService: MockProxy<EventCollectionService>;
+  let organizationService: MockProxy<InternalOrganizationServiceAbstraction>;
 
   const userId = "test-user-id" as UserId;
   const mockAutoConfirmState: AutoConfirmState = {
@@ -64,10 +68,14 @@ describe("AdminSettingsComponent", () => {
     autoConfirmService = mock<AutomaticUserConfirmationService>();
     nudgesService = mock<NudgesService>();
     mockDialogService = mock<DialogService>();
+    eventCollectionService = mock<EventCollectionService>();
+    organizationService = mock<InternalOrganizationServiceAbstraction>();
 
     autoConfirmService.configuration$.mockReturnValue(of(mockAutoConfirmState));
     autoConfirmService.upsert.mockResolvedValue(undefined);
     nudgesService.showNudgeSpotlight$.mockReturnValue(of(false));
+    eventCollectionService.collect.mockResolvedValue(undefined);
+    organizationService.organizations$.mockReturnValue(of([]));
 
     await TestBed.configureTestingModule({
       imports: [AdminSettingsComponent],
@@ -77,6 +85,11 @@ describe("AdminSettingsComponent", () => {
         { provide: AutomaticUserConfirmationService, useValue: autoConfirmService },
         { provide: DialogService, useValue: mockDialogService },
         { provide: NudgesService, useValue: nudgesService },
+        { provide: EventCollectionService, useValue: eventCollectionService },
+        {
+          provide: InternalOrganizationServiceAbstraction,
+          useValue: organizationService,
+        },
         { provide: I18nService, useValue: { t: (key: string) => key } },
       ],
     })

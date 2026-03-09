@@ -58,13 +58,9 @@ const notificationHeaderStyles = ({
   padding: 12px 16px 8px 16px;
   white-space: nowrap;
 
-  ${
-    standalone
-      ? css`
-          
-        `
-      : css`
+  ${standalone
+    ? css``
+    : css`
         border-bottom: 0.5px solid ${themes[theme].secondary["300"]};
-      `
-  }
+      `}
 `;

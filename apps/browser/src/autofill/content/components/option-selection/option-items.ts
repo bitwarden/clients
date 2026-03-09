@@ -3,6 +3,7 @@ import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
+import { EventSecurity } from "../../../utils/event-security";
 import { Option } from "../common-types";
 import { themes, typography, scrollbarStyles, spacing } from "../constants/styles";
 
@@ -57,6 +58,10 @@ export function OptionItems({
 }
 
 function handleMenuKeyUp(event: KeyboardEvent) {
+  if (!EventSecurity.isEventTrusted(event)) {
+    return;
+  }
+
   const items = [
     ...(event.currentTarget as HTMLElement).querySelectorAll<HTMLElement>('[tabindex="0"]'),
   ];
@@ -113,9 +118,7 @@ const optionsWrapper = ({ isSafari, theme }: { isSafari: boolean; theme: Theme }
     }
   }
 
-  ${
-    isSafari
-      ? scrollbarStyles(theme, { track: "transparent" }).safari
-      : scrollbarStyles(theme, { track: "transparent" }).default
-  }
+  ${isSafari
+    ? scrollbarStyles(theme, { track: "transparent" }).safari
+    : scrollbarStyles(theme, { track: "transparent" }).default}
 `;

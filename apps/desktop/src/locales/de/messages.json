@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Favoriten"
   },
+  "unfavorite": {
+    "message": "Aus Favoriten entfernen"
+  },
   "types": {
     "message": "Typen"
   },
@@ -135,10 +138,6 @@
   },
   "sendDetails": {
     "message": "Send-Details",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDescV3": {
-    "message": "Füge ein optionales Passwort hinzu, mit dem Empfänger auf dieses Send zugreifen können.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
@@ -590,6 +589,12 @@
   "editedItem": {
     "message": "Eintrag gespeichert"
   },
+  "itemAddedToFavorites": {
+    "message": "Eintrag zu Favoriten hinzugefügt"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Eintrag aus Favoriten entfernt"
+  },
   "deleteItem": {
     "message": "Eintrag löschen"
   },
@@ -1026,6 +1031,9 @@
   },
   "invalidVerificationCode": {
     "message": "Ungültiger Verifizierungscode"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Ungültige E-Mail-Adresse oder Verifizierungscode"
   },
   "continue": {
     "message": "Weiter"
@@ -1556,6 +1564,18 @@
   "unknown": {
     "message": "Unbekannt"
   },
+  "copyAddress": {
+    "message": "Adresse kopieren"
+  },
+  "copyPhone": {
+    "message": "Telefonnummer kopieren"
+  },
+  "copyNote": {
+    "message": "Notiz kopieren"
+  },
+  "copyVerificationCode": {
+    "message": "Verifizierungscode kopieren"
+  },
   "copyUsername": {
     "message": "Benutzername kopieren"
   },
@@ -2083,6 +2103,24 @@
   "searchTrash": {
     "message": "Papierkorb durchsuchen"
   },
+  "searchArchive": {
+    "message": "Archiv durchsuchen"
+  },
+  "searchLogin": {
+    "message": "Zugangsdaten suchen"
+  },
+  "searchCard": {
+    "message": "Karte suchen"
+  },
+  "searchIdentity": {
+    "message": "Identität suchen"
+  },
+  "searchSecureNote": {
+    "message": "Sichere Notiz suchen"
+  },
+  "searchSshKey": {
+    "message": "SSH-Schlüssel suchen"
+  },
   "permanentlyDeleteItem": {
     "message": "Eintrag dauerhaft löschen"
   },
@@ -2378,6 +2416,9 @@
   "editSend": {
     "message": "Send bearbeiten",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Ich"
   },
   "myVault": {
     "message": "Mein Tresor"
@@ -2699,7 +2740,7 @@
     }
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "Minimale benutzerdefinierte Timeout-Zeit beträgt 1 Minute."
+    "message": "Minimales benutzerdefiniertes Timeout beträgt 1 Minute."
   },
   "inviteAccepted": {
     "message": "Einladung angenommen"
@@ -4087,6 +4128,9 @@
   "missingWebsite": {
     "message": "Fehlende Website"
   },
+  "missingPermissions": {
+    "message": "Dir fehlen die erforderlichen Berechtigungen, um diese Aktion auszuführen."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Du kannst Sammlungen mit Leseberechtigung nicht entfernen: $COLLECTIONS$",
     "placeholders": {
@@ -4391,11 +4435,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Auto-Ausfüllen-Vorschlägen ausgeschlossen."
   },
-  "itemWasSentToArchive": {
-    "message": "Eintrag wurde archiviert"
+  "itemArchiveToast": {
+    "message": "Eintrag archiviert"
   },
-  "itemWasUnarchived": {
-    "message": "Eintrag wird nicht mehr archiviert"
+  "itemUnarchivedToast": {
+    "message": "Eintrag nicht mehr archiviert"
   },
   "archiveItem": {
     "message": "Eintrag archivieren"
@@ -4489,6 +4533,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Timeout-Aktion"
+  },
+  "errorCannotDecrypt": {
+    "message": "Fehler: Entschlüsselung nicht möglich"
   },
   "sessionTimeoutHeader": {
     "message": "Sitzungs-Timeout"
@@ -4587,5 +4634,72 @@
   },
   "whyAmISeeingThis": {
     "message": "Warum wird mir das angezeigt?"
+  },
+  "organizationIsSuspended": {
+    "message": "Organisation ist deaktiviert"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Auf Einträge in deaktivierten Organisationen kann nicht zugegriffen werden. Kontaktiere den Besitzer deiner Organisation, um Unterstützung zu erhalten."
+  },
+  "noItemsInTrash": {
+    "message": "Keine Einträge im Papierkorb"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Einträge, die du löschst, erscheinen hier und werden nach 30 Tagen dauerhaft gelöscht"
+  },
+  "noItemsInVault": {
+    "message": "Keine Einträge im Tresor"
+  },
+  "emptyVaultDescription": {
+    "message": "Der Tresor schützt mehr als nur deine Passwörter. Speicher hier sichere Zugangsdaten, Identitäten, Karten und Notizen."
+  },
+  "emptyFavorites": {
+    "message": "Du hast keine Einträge zu den Favoriten hinzugefügt"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Füge häufig verwendete Einträge zu den Favoriten hinzu, um schnell darauf zuzugreifen."
+  },
+  "noSearchResults": {
+    "message": "Keine Suchergebnisse gefunden"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Lösche Filter oder versuche es mit einem anderen Suchbegriff"
+  },
+  "sendPasswordHelperText": {
+    "message": "Personen müssen das Passwort eingeben, um dieses Send anzusehen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "E-Mail-Adresse geschützt"
+  },
+  "emails": {
+    "message": "E-Mails"
+  },
+  "noAuth": {
+    "message": "Alle mit dem Link"
+  },
+  "anyOneWithPassword": {
+    "message": "Alle mit einem von dir festgelegtem Passwort"
+  },
+  "whoCanView": {
+    "message": "Wer kann das sehen"
+  },
+  "specificPeople": {
+    "message": "Bestimmte Personen"
+  },
+  "emailVerificationDesc": {
+    "message": "Nach dem Teilen dieses Send-Links müssen Personen ihre E-Mail-Adresse mit einem Code verifizieren, um dieses Send anzuzeigen."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Gib mehrere E-Mail-Adressen ein, indem du sie mit einem Komma trennst."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "Die E-Mail-Verifizierung erfordert mindestens eine E-Mail-Adresse. Ändere den Zugriffstyp oben, um alle E-Mails zu entfernen."
+  },
+  "emailPlaceholder": {
+    "message": "benutzer@bitwarden.com, benutzer@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Benutzerverifizierung fehlgeschlagen."
   }
 }
