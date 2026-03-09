@@ -88,7 +88,9 @@ export class DefaultPolicyService implements PolicyService {
     userId: UserId,
     policies?: Policy[],
   ): Observable<MasterPasswordPolicyOptions | undefined> {
-    const policies$ = policies ? of(policies) : this.policies$(userId);
+    const policies$ = policies
+      ? of(policies)
+      : this.policiesByType$(PolicyType.MasterPassword, userId);
     return policies$.pipe(
       map((obsPolicies) => {
         // TODO ([PM-23777]): replace with this.combinePoliciesIntoMasterPasswordPolicyOptions(obsPolicies))
