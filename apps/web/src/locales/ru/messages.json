@@ -1088,7 +1088,7 @@
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Изменить тестовую Send",
+    "message": "Изменить текстовую Send",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
@@ -5445,7 +5445,7 @@
   "minimumNumberOfWords": {
     "message": "Минимальное количество слов"
   },
-  "passwordTypePolicyOverride": {
+  "overridePasswordTypePolicy": {
     "message": "Тип пароля",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Узнайте больше о передаче"
   },
+  "promptUsersToMoveItems": {
+    "message": "Предложить пользователям переместить отдельные элементы хранилища в организацию"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Пользователям будет предложено либо передать свои предметы организации, либо покинуть ее. После выхода из организации их доступ будет аннулирован, но может быть восстановлен в любое время."
+  },
   "organizationDataOwnership": {
     "message": "Принудительное соблюдение прав собственности на данные организации"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Уже доступно"
   },
-  "autoConfirm": {
-    "message": "Автоматическое подтверждение новых пользователей"
+  "automaticUserConfirmation": {
+    "message": "Автоматическое подтверждение пользователя"
   },
   "autoConfirmDescription": {
     "message": "Новые пользователи, приглашенные в организацию, будут автоматически подтверждены, когда устройство администратора будет разблокировано.",
@@ -6704,10 +6710,10 @@
     }
   },
   "reinviteSuccessToast": {
-    "message": "1 invitation sent"
+    "message": "Отправлено 1 приглашение"
   },
   "bulkReinviteSentToast": {
-    "message": "$COUNT$ invitations sent",
+    "message": "Отправлено $COUNT$ приглашений",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6733,7 +6739,7 @@
     }
   },
   "bulkReinviteProgressTitle": {
-    "message": "$COUNT$ of $TOTAL$ invitations sent...",
+    "message": "Отправлено $COUNT$ приглашений из $TOTAL$...",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6746,10 +6752,10 @@
     }
   },
   "bulkReinviteProgressSubtitle": {
-    "message": "Keep this page open until all are sent."
+    "message": "Не закрывайте эту страницу, пока они не будут отправлены."
   },
   "bulkReinviteFailuresTitle": {
-    "message": "$COUNT$ invitations didn't send",
+    "message": "Не отправлено $COUNT$ приглашений",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6758,10 +6764,10 @@
     }
   },
   "bulkReinviteFailureTitle": {
-    "message": "1 invitation didn't send"
+    "message": "Не отправлено 1 приглашение"
   },
   "bulkReinviteFailureDescription": {
-    "message": "An error occurred while sending invitations to $COUNT$ of $TOTAL$ members. Try sending again, and if the problem continues,",
+    "message": "Произошла ошибка при отправке $COUNT$ приглашений из $TOTAL$ участников. Попробуйте отправить еще раз, и если проблема не исчезнет,",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6774,7 +6780,7 @@
     }
   },
   "bulkResendInvitations": {
-    "message": "Try sending again"
+    "message": "Попробуйте отправить еще раз"
   },
   "bulkRemovedMessage": {
     "message": "Удален(-о) успешно"
@@ -10624,6 +10630,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Отправлять данные о событиях в ваш инстанс Huntress SIEM"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ подключен успешно.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Не удалось сохранить интеграцию. Пожалуйста, повторите попытку позже."
   },
@@ -10976,6 +10991,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Выкл"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Не удалось загрузить отчет о доступе участников. Это может быть связано с большим размером организации или проблемами с сетью. Повторите попытку или обратитесь в службу поддержки, если проблема не устраняется."
   },
   "kdfIterationRecommends": {
     "message": "Мы рекомендуем 600000 или более"
@@ -12664,7 +12682,7 @@
     "message": "Запустить диагностику"
   },
   "repairIssues": {
-    "message": "Решить проблемы"
+    "message": "Проблемы с исправлением"
   },
   "saveDiagnosticLogs": {
     "message": "Сохранить журналы диагностики"
@@ -12966,7 +12984,7 @@
     "message": "Обнаружена ошибка при создании предварительного просмотра счета."
   },
   "planProratedMembershipInMonths": {
-    "message": "Prorated $PLAN$ membership ($NUMOFMONTHS$)",
+    "message": "Пропорциональное членство в $$PLAN$$ ($NUMOFMONTHS$)",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -13004,7 +13022,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresOn": {
-    "message": "This Send expires at $TIME$ on $DATE$",
+    "message": "Эта Send истекает в $TIME$ $DATE$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
