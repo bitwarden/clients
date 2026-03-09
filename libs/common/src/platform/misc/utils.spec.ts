@@ -496,6 +496,64 @@ describe("Utils Service", () => {
     });
   });
 
+  describe("fromBufferToUrlB64(...) - SSO PKCE scenario", () => {
+    // Simulates a SHA-256 digest that produces padding in standard base64.
+    // The PKCE code_challenge (RFC 7636 4.2) MUST be unpadded URL-safe base64.
+    const sha256DigestBytes = new Uint8Array([
+      0xbb, 0xff, 0xbb, 0xf1, 0xfe, 0xef, 0x9b, 0xf1, 0xbe, 0xef, 0x9b, 0xf1, 0xbe, 0xef, 0x9b,
+      0xf1, 0xbe, 0xef, 0xdb, 0xf1, 0xba, 0xef, 0x9b, 0xf1, 0xfe, 0xef, 0x9b, 0xf1, 0xfe, 0xef,
+      0x9b, 0xf1,
+    ]);
+
+    const TEST_VECTOR_URL_BASE64 = "u_-78f7vm_G-75vxvu-b8b7v2_G675vx_u-b8f7vm_E";
+    it("should output the correct value for the test value", () => {
+      const result = Utils.fromBufferToUrlB64(sha256DigestBytes.buffer);
+      expect(result).toBe(TEST_VECTOR_URL_BASE64);
+    });
+  });
+
+  describe("fromArrayToUrlB64(...) - SSO PKCE scenario", () => {
+    const sha256DigestBytes = new Uint8Array([
+      0xbb, 0xff, 0xbb, 0xf1, 0xfe, 0xef, 0x9b, 0xf1, 0xbe, 0xef, 0x9b, 0xf1, 0xbe, 0xef, 0x9b,
+      0xf1, 0xbe, 0xef, 0xdb, 0xf1, 0xba, 0xef, 0x9b, 0xf1, 0xfe, 0xef, 0x9b, 0xf1, 0xfe, 0xef,
+      0x9b, 0xf1,
+    ]);
+
+    const TEST_VECTOR_URL_BASE64 = "u_-78f7vm_G-75vxvu-b8b7v2_G675vx_u-b8f7vm_E";
+    it("should output the correct value for the test value", () => {
+      const result = Utils.fromArrayToUrlB64(sha256DigestBytes);
+      expect(result).toBe(TEST_VECTOR_URL_BASE64);
+    });
+  });
+
+  describe("fromBufferToUrlB64 and fromArrayToUrlB64 parity", () => {
+    const testCases = [
+      {
+        name: "SHA-256 digest (produces padding)",
+        bytes: new Uint8Array([
+          0xbb, 0xff, 0xbb, 0xf1, 0xfe, 0xef, 0x9b, 0xf1, 0xbe, 0xef, 0x9b, 0xf1, 0xbe, 0xef, 0x9b,
+          0xf1, 0xbe, 0xef, 0xdb, 0xf1, 0xba, 0xef, 0x9b, 0xf1, 0xfe, 0xef, 0x9b, 0xf1, 0xfe, 0xef,
+          0x9b, 0xf1,
+        ]),
+      },
+      {
+        name: "3 bytes (produces + and / in standard base64)",
+        bytes: new Uint8Array([251, 255, 254]),
+      },
+      { name: "empty input", bytes: new Uint8Array([]) },
+      { name: "single byte", bytes: new Uint8Array([0xff]) },
+      { name: "two bytes (produces 1 padding char)", bytes: new Uint8Array([0xab, 0xcd]) },
+    ];
+
+    testCases.forEach(({ name, bytes }) => {
+      it(`should produce identical output for: ${name}`, () => {
+        const fromBuffer = Utils.fromBufferToUrlB64(bytes.buffer);
+        const fromArray = Utils.fromArrayToUrlB64(bytes);
+        expect(fromArray).toBe(fromBuffer);
+      });
+    });
+  });
+
   describe("fromArrayToByteString(...)", () => {
     const originalIsNode = Utils.isNode;
 
