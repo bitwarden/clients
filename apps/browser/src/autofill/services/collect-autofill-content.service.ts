@@ -629,6 +629,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         break;
       }
 
+      if (this.containsChildFormElement(currentElement)) {
+        break;
+      }
+
       const textContent = this.getTextContentFromElement(currentElement);
       if (textContent) {
         labelTextContent.push(textContent);
@@ -687,6 +691,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @returns {boolean}
    * @private
    */
+  /**
+   * Checks whether an element contains child form fields (input, select, textarea).
+   * Used to prevent label collection from absorbing text from sibling DOM
+   * containers that hold their own form fields.
+   */
+  private containsChildFormElement(element: Node): boolean {
+    return nodeIsElement(element) && !!element.querySelector("input, select, textarea");
+  }
+
   private isNewSectionElement(currentElement: HTMLElement | Node): boolean {
     if (!currentElement) {
       return true;
@@ -761,6 +774,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         return textContentItems;
       }
 
+      if (this.containsChildFormElement(currentElement)) {
+        return textContentItems;
+      }
+
       const textContent = this.getTextContentFromElement(currentElement);
       if (textContent) {
         textContentItems.push(textContent);
@@ -780,11 +797,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     let siblingElement = nodeIsElement(currentElement)
       ? currentElement.previousElementSibling
       : currentElement.previousSibling;
-    while (siblingElement?.lastChild && !this.isNewSectionElement(siblingElement)) {
+    while (
+      siblingElement?.lastChild &&
+      !this.isNewSectionElement(siblingElement) &&
+      !this.containsChildFormElement(siblingElement)
+    ) {
       siblingElement = siblingElement.lastChild;
     }
 
-    if (this.isNewSectionElement(siblingElement)) {
+    if (this.isNewSectionElement(siblingElement) || this.containsChildFormElement(siblingElement)) {
       return textContentItems;
     }
 

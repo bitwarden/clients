@@ -1503,6 +1503,34 @@ describe("CollectAutofillContentService", () => {
 
       expect(labelTag).toEqual("Username");
     });
+
+    it("does not collect text from a sibling that contains a form field", () => {
+      document.body.innerHTML = `
+        <div>
+          <input type="text" name="username" id="username-id">
+          <div>Enter Country Code <input type="text" name="country-code" /></div>
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldRightLabel"](element);
+
+      expect(labelTag).toEqual("");
+    });
+
+    it("collects text from a sibling div that does not contain form fields", () => {
+      document.body.innerHTML = `
+        <div>
+          <input type="text" name="username" id="username-id">
+          <div>Helper text</div>
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldRightLabel"](element);
+
+      expect(labelTag).toEqual("Helper text");
+    });
   });
 
   describe("createAutofillFieldLeftLabel", () => {
@@ -1519,6 +1547,34 @@ describe("CollectAutofillContentService", () => {
       const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
 
       expect(labelTag).toEqual("Text ContentUsername");
+    });
+
+    it("does not collect text from a sibling that contains a form field", () => {
+      document.body.innerHTML = `
+        <div>
+          <div>Enter Country Code <select><option>US</option></select></div>
+          <input type="text" name="username" id="username-id">
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
+
+      expect(labelTag).toEqual("");
+    });
+
+    it("still collects text from a sibling div without form fields", () => {
+      document.body.innerHTML = `
+        <div>
+          <div>Helpful label</div>
+          <input type="text" name="username" id="username-id">
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
+
+      expect(labelTag).toEqual("Helpful label");
     });
   });
 
