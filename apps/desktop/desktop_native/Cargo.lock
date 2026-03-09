@@ -2041,6 +2041,7 @@ version = "3.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f1b74e3dce5230795bb4d2821b941706dee733c7308752507254b0497f39cad7"
 dependencies = [
+ "anyhow",
  "bitflags",
  "ctor",
  "napi-build",
