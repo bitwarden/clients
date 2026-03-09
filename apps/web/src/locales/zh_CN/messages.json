@@ -2039,7 +2039,7 @@
     "message": "此导出包含未加密格式的密码库数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。使用完后请立即将其删除。"
   },
   "exportSecretsWarningDesc": {
-    "message": "本次导出包含未加密格式的机密数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。用完后请立即将其删除。"
+    "message": "此导出包含未加密格式的机密数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。使用完后请立即将其删除。"
   },
   "encExportKeyWarningDesc": {
     "message": "此导出使用您账户的加密密钥来加密您的数据。如果您曾经轮换过账户的加密密钥，您应将其重新导出，否则您将无法解密导出的文件。"
@@ -9615,7 +9615,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
-    "message": "总计 $TOTAL$",
+    "message": "满分 $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -12546,7 +12546,7 @@
     "message": "阻止使用已声明的域名创建账户"
   },
   "blockClaimedDomainAccountCreationDesc": {
-    "message": "禁止用户使用已声明域名的电子邮件地址在组织外部创建账户。"
+    "message": "禁止用户使用已声明域名的电子邮箱地址在组织外部创建账户。"
   },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "必须先声明域名，然后才能激活此策略。"
@@ -12859,7 +12859,7 @@
     "message": "管理账单"
   },
   "yourNextChargeIsFor": {
-    "message": "您的下一次收费是用于"
+    "message": "您的下一笔费用为"
   },
   "dueOn": {
     "message": "到期日期为"
@@ -12953,7 +12953,7 @@
     "message": "您已成功加入！欢迎使用 Bitwarden"
   },
   "vaultWelcomeDialogDescription": {
-    "message": "将您的所有密码和个人信息存储在你的 Bitwarden 密码库中。我们将带您熟悉一下。"
+    "message": "将您的所有密码和个人信息存储在您的 Bitwarden 密码库中。我们将带您熟悉一下。"
   },
   "vaultWelcomeDialogPrimaryCta": {
     "message": "开始导览"

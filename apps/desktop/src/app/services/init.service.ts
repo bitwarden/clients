@@ -11,6 +11,7 @@ import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vau
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { ServerCommunicationConfigService } from "@bitwarden/common/platform/abstractions/server-communication-config/server-communication-config.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
@@ -55,6 +56,7 @@ export class InitService {
     private biometricMessageHandlerService: BiometricMessageHandlerService,
     @Inject(DOCUMENT) private document: Document,
     private readonly migrationRunner: MigrationRunner,
+    private serverCommunicationConfigService: ServerCommunicationConfigService,
   ) {}
 
   init() {
@@ -76,6 +78,7 @@ export class InitService {
       }
       await Promise.all(setUserKeyInMemoryPromises);
 
+      await this.serverCommunicationConfigService.init();
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.syncService.fullSync(true);
