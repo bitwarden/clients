@@ -44,8 +44,8 @@
         <div class="tw-flex tw-items-center">
           <bit-avatar
             size="small"
-            [text]="row.name"
-            [id]="row.userGuid"
+            [text]="row.name ? row.name : row.email"
+            [id]="row.userIdFromOrgUser"
             [color]="row.avatarColor"
             class="tw-mr-3"
           ></bit-avatar>
