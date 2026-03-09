@@ -1,5 +1,5 @@
 <div
-  class="tw-flex tw-relative tw-p-4 tw-border tw-border-border-base tw-rounded-xl tw-justify-between tw-gap-4 [&:has(label:hover)]:tw-border-border-brand-soft"
+  class="tw-flex tw-items-center tw-relative tw-p-4 tw-border tw-border-border-base tw-rounded-xl tw-justify-between tw-gap-4 [&:has(label:hover)]:tw-border-border-brand-soft [&:has(input:focus-visible)]:tw-ring-2 [&:has(input:focus-visible)]:tw-ring-border-focus [&:has(input:focus-visible)]:tw-border-transparent [&:has(input:checked)]:tw-bg-bg-brand-soft"
 >
   <label
     [for]="base.inputId()"
@@ -18,6 +18,7 @@
           <span class="tw-text-xs tw-font-normal"> ({{ "required" | i18n }})</span>
         }
       </span>
+      <ng-content select="bit-hint"></ng-content>
     </span>
   </div>
   <ng-content></ng-content>

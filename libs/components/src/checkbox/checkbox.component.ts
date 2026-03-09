@@ -57,9 +57,9 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "after:tw-box-border",
 
     // if it exists, the parent form control handles focus
-    "[&:not(bit-form-control_*)]:focus-visible:before:tw-ring-2",
-    "[&:not(bit-form-control_*)]:focus-visible:before:tw-ring-offset-2",
-    "[&:not(bit-form-control_*)]:focus-visible:before:tw-ring-border-focus",
+    "[&:not(bit-form-control_*, bit-form-control-card)]:focus-visible:before:tw-ring-2",
+    "[&:not(bit-form-control_*, bit-form-control-card)]:focus-visible:before:tw-ring-offset-2",
+    "[&:not(bit-form-control_*, bit-form-control-card)]:focus-visible:before:tw-ring-border-focus",
 
     "disabled:hover:tw-bg-transparent",
     "disabled:before:tw-cursor-default",

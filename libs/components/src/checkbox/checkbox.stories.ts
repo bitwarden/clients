@@ -294,6 +294,7 @@ export const FormControlCard: Story = {
           <bit-form-control-card>
             <input type="checkbox" bitCheckbox formControlName="checkbox" />
             <bit-label>Enable feature</bit-label>
+            <bit-hint>Enabling this feature will allow you to do cool things.</bit-hint>
           </bit-form-control-card>
         </form>
       `,
