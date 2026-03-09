@@ -116,8 +116,6 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
       </div>
       <router-outlet *ngIf="!loading"></router-outlet>
     </div>
-
-    <bit-toast-container></bit-toast-container>
   `,
   standalone: false,
 })
@@ -631,7 +629,6 @@ export class AppComponent implements OnInit, OnDestroy {
       case "sessionExpired": {
         toastOptions = {
           variant: "warning",
-          title: this.i18nService.t("loggedOut"),
           message: this.i18nService.t("loginExpired"),
         };
         break;

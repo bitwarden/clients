@@ -22,6 +22,7 @@ import { DrawerService } from "../dialog/drawer.service";
 import { LinkComponent, LinkModule } from "../link";
 import { SideNavService } from "../navigation/side-nav.service";
 import { getRootFontSizePx } from "../shared";
+import { ToastContainerComponent } from "../toast/toast-container.component";
 
 import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
 
@@ -46,6 +47,7 @@ const SIDERAIL_WIDTH_REM = 4;
     A11yModule,
     CdkTrapFocus,
     ScrollLayoutHostDirective,
+    ToastContainerComponent,
   ],
   host: {
     "(document:keydown.tab)": "handleKeydown($event)",
@@ -56,6 +58,14 @@ export class LayoutComponent {
   protected sideNavService = inject(SideNavService);
   private readonly drawerService = inject(DrawerService);
   protected drawerPortal = this.drawerService.portal;
+
+  /** Shifts the toast right edge to avoid overlapping the drawer when it's in push mode. */
+  protected readonly toastRightOffset = computed(() => {
+    if (!this.drawerService.portal() || !this.drawerService.isPushMode()) {
+      return null;
+    }
+    return `calc(${this.drawerService.pushWidthPx()}px + 1rem)`;
+  });
 
   /** Rendered only when nothing is projected into the side-nav slot (ng-content fallback). */
   private readonly sideNavSlotFallback = viewChild<ElementRef>("sideNavSlotFallback");

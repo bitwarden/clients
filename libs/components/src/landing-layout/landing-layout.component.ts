@@ -4,6 +4,7 @@ import { BackgroundLeftIllustration, BackgroundRightIllustration } from "@bitwar
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { SvgModule } from "../svg";
+import { ToastContainerComponent } from "../toast/toast-container.component";
 
 /**
  * Root layout component for landing pages providing a full-screen container with optional decorative background illustrations.
@@ -27,7 +28,7 @@ import { SvgModule } from "../svg";
   selector: "bit-landing-layout",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./landing-layout.component.html",
-  imports: [SvgModule],
+  imports: [SvgModule, ToastContainerComponent],
 })
 export class LandingLayoutComponent {
   readonly hideBackgroundIllustration = input<boolean>(false);
