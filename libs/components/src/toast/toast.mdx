@@ -38,9 +38,11 @@ Four variants communicate severity and tone.
 
 ## Long content
 
-Keep toast messages short. When a longer explanation is unavoidable, pass an array of strings to
-render multiple paragraphs. The timeout auto-extends based on word count so the user has time to
-read.
+Keep toast messages short and prefer a single `string`. The timeout auto-extends based on word count
+so the user has time to read.
+
+Passing an array of strings to render multiple paragraphs is **deprecated** and will be removed in a
+future release. Use a single string instead.
 
 <Canvas of={stories.LongContent} />
 
@@ -110,10 +112,11 @@ no explicit `timeout` is passed to `showToast`, the duration extends slightly fo
 Moving the cursor over the toast area pauses all active timers. Timers resume from where they left
 off when the cursor leaves.
 
-### Overflow
+### Stacking
 
-When the number of visible toasts exceeds `maxOpened`, the oldest toast is removed immediately to
-make room for the new one.
+When multiple toasts are active, they stack on top of each other — only the topmost toast is fully
+visible. Each toast's timer only runs while it is on top; earlier toasts resume counting down once
+they reach the top.
 
 ---
 

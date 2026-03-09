@@ -1,12 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  ElementRef,
-  afterNextRender,
-  inject,
-  input,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 
 import containerStyles from "./toast-container.component.styles";
 import { ToastComponent } from "./toast.component";
@@ -19,7 +11,7 @@ import { ToastService } from "./toast.service";
  * (drawers, tab bars, etc.).
  *
  * Position is responsive: full-width at the bottom on narrow screens, bottom-right on wider
- * screens (≥ `sm` breakpoint). Max visible toasts scales with container height automatically.
+ * screens (≥ `sm` breakpoint).
  */
 @Component({
   selector: "bit-toast-container",
@@ -45,23 +37,4 @@ export class ToastContainerComponent {
   readonly bottomOffset = input<string | null>(null);
 
   protected readonly styles = containerStyles();
-
-  constructor() {
-    const el = inject(ElementRef<HTMLElement>);
-    const destroyRef = inject(DestroyRef);
-
-    afterNextRender(() => {
-      const parent = el.nativeElement.parentElement;
-      if (!parent) {
-        return;
-      }
-
-      const observer = new ResizeObserver(([entry]) => {
-        this.service.setMaxOpened(entry.contentRect.height >= 700 ? 5 : 2);
-      });
-
-      observer.observe(parent);
-      destroyRef.onDestroy(() => observer.disconnect());
-    });
-  }
 }

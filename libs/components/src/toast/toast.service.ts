@@ -33,12 +33,12 @@ const defaultTimeout = 5000;
  **/
 @Injectable({ providedIn: "root" })
 export class ToastService {
+  private nextId = 0;
   private readonly _toasts = signal<ToastData[]>([]);
   /** Read-only signal of currently active toasts. */
   readonly toasts = this._toasts.asReadonly();
   private readonly timers = new Map<string, PausableTimer>();
   private paused = false;
-  private maxOpened = 5;
 
   /** Show a toast notification. */
   showToast(options: ToastOptions): void;
@@ -48,7 +48,7 @@ export class ToastService {
    **/
   showToast(options: DeprecatedToastOptions): void;
   showToast(options: ToastOptions | DeprecatedToastOptions): void {
-    const id = Math.random().toString(36).slice(2);
+    const id = String(this.nextId++);
     const resolvedTimeout =
       options.timeout != null && options.timeout > 0
         ? options.timeout
@@ -60,14 +60,7 @@ export class ToastService {
       variant: options.variant ?? "info",
     };
 
-    this._toasts.update((toasts) => {
-      if (toasts.length >= this.maxOpened) {
-        const toRemove = toasts.slice(0, toasts.length - this.maxOpened + 1);
-        toRemove.forEach((t) => this.cancelTimer(t.id));
-        return [...toasts.slice(toRemove.length), toast];
-      }
-      return [...toasts, toast];
-    });
+    this._toasts.update((toasts) => [...toasts, toast]);
 
     // Pause all existing timers — the new toast is on top; others are hidden
     this.timers.forEach((timer) => timer.pause());
@@ -88,18 +81,17 @@ export class ToastService {
     this.timers.forEach((timer) => timer.pause());
   }
 
-  /** Resumes auto-dismiss for all active toasts. Called when the user stops hovering. */
+  /** Resumes auto-dismiss for the top toast. Called when the user stops hovering. */
   resume(): void {
     if (!this.paused) {
       return;
     }
     this.paused = false;
-    this.timers.forEach((timer) => timer.resume());
-  }
-
-  /** Sets the maximum number of toasts shown at once. Called by `ToastContainerComponent`. */
-  setMaxOpened(max: number): void {
-    this.maxOpened = max;
+    // Only resume the top toast's timer — others remain paused until they reach the top.
+    const toasts = this._toasts();
+    if (toasts.length > 0) {
+      this.timers.get(toasts[toasts.length - 1].id)?.resume();
+    }
   }
 
   /** Dismisses a toast immediately, cancelling its timer. */
