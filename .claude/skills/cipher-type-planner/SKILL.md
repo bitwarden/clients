@@ -34,6 +34,7 @@ the user has already provided.
 
 Ask each of the following. If the engineer does not have an answer, accept "N/A" or "not yet decided" and note it as a gap in the plan.
 
+- **Import/export** - Should import/export support be included in this plan?
 - **UI details** - Are there specific UI requirements for the form or view sections (e.g., dropdowns, masked fields, copy buttons)?
 - **Subtitle** - What value should the `subTitle` getter on the view model return? This appears in vault list items.
 - **Icon** - What icon represents this type in the vault? Bitwarden uses `bwi-` icon classes.
@@ -114,6 +115,10 @@ layer:
 - `libs/common/src/vault/models/domain/<type>.spec.ts` - Domain model tests
 - `libs/common/src/vault/models/view/<type>.view.ts` - Decrypted view for UI
 
+**Export (if import/export is included):**
+
+- `libs/common/src/models/export/<type>.export.ts` - Export model
+
 **UI components:**
 
 - `libs/vault/src/cipher-form/components/<type>-section/` - Form section component (TS, HTML, spec)
@@ -138,8 +143,11 @@ change needed.
   `fromSdkCipherView()`, `getSdkCipherViewType()`, `toSdkCipherView()`
 - `libs/common/src/vault/models/request/cipher.request.ts` - Constructor
 - `libs/common/src/vault/models/response/cipher.response.ts` - Constructor
-- `libs/common/src/models/export/cipher.export.ts` - `toView()`, `toDomain()`, `build()`
 - `libs/common/src/vault/services/cipher.service.ts` - `encryptCipherData()`
+
+**Export (if import/export is included):**
+
+- `libs/common/src/models/export/cipher.export.ts` - `toView()`, `toDomain()`, `build()`
 
 **SDK integration:**
 
@@ -154,13 +162,28 @@ change needed.
 - `libs/vault/src/cipher-view/cipher-view.component.html` - Add section template
 - `libs/common/src/vault/icon/build-cipher-icon.ts` - Add icon case
 
-**Vault filters:**
+**Vault filters (CRITICAL — without these, ciphers won't appear in the vault list):**
 
-- `libs/vault/src/models/vault-filter.model.ts`
-- `libs/vault/src/models/filter-function.ts`
-- `apps/web/src/app/vault/individual-vault/vault-filter/` (type filter)
-- `apps/desktop/src/vault/app/vault/vault-filter/filters/type-filter.component.ts`
-- `libs/angular/src/vault/vault-filter/components/type-filter.component.ts`
+All vault filter files must be feature-flag-gated so the new type only appears when the flag is
+enabled. Use `ConfigService.getFeatureFlag$()` with `combineLatest` to filter the type out of
+arrays when the flag is off.
+
+- `libs/vault/src/services/vault-filter.service.ts` - **CRITICAL**: Add type to `buildCipherTypeTree()` `allTypeFilters` array. Without this, ciphers of the new type will not appear in the vault sidebar or list.
+- `libs/vault/src/models/filter-function.ts` - Add filter case for the new type
+- `apps/web/src/app/vault/individual-vault/vault-filter/components/vault-filter.component.ts` - Add to `allTypeFilters`, `searchPlaceholder`, and feature-flag-gate in `buildAllFilters()`
+- `apps/web/src/app/admin-console/organizations/collections/vault-filter/vault-filter.component.ts` - Feature-flag-gate in `buildAllFilters()`
+- `apps/desktop/src/vault/app/vault-v3/vault-filter/filters/type-filter.component.ts` - Add `ConfigService`, `combineLatest` with feature flag
+- `apps/desktop/src/vault/app/vault/vault-filter/filters/type-filter.component.ts` - Same pattern
+- `apps/browser/src/vault/popup/services/vault-popup-list-filters.service.ts` - Add `ConfigService`, feature-flag-gate `cipherTypes`
+- `libs/angular/src/vault/components/vault-items.component.ts` - Feature-flag-gate empty state type buttons
+
+**New item menus (feature-flag-gated):**
+
+- `libs/common/src/vault/types/cipher-menu-items.ts` - Add menu item entry for new type
+- `libs/vault/src/components/new-cipher-menu/new-cipher-menu.component.ts` - Add `canCreate<Type> = input(false)` signal, gate in `cipherMenuItems` observable
+- `apps/web/src/app/vault/individual-vault/vault-header/vault-header.component.ts` - Add `canCreate<Type>$` observable from feature flag
+- `apps/web/src/app/vault/individual-vault/vault-header/vault-header.component.html` - Bind `[canCreate<Type>]` to `<vault-new-cipher-menu>`
+- `apps/browser/src/vault/popup/components/vault/new-item-dropdown/new-item-dropdown.component.ts` - Add `ConfigService`, `combineLatest` with feature flag
 
 **Localization (add i18n keys):**
 
@@ -212,17 +235,19 @@ Recommended implementation order, customized for this specific type:
 1. Server prerequisites (enum, models, DTOs, feature flag, version gate)
 2. SDK prerequisites (Rust types, WASM bindings)
 3. Core enum addition
-4. Model stack (5 layers)
-5. Container switch updates (7 files)
-6. SDK bindings (`toSdk*`/`fromSdk*`)
-7. Localization keys
-8. Shared UI (icon, filters)
-9. Per-app UI (form section, view section)
-10. Context menu / copy actions (see Section 10)
-11. CLI
-12. Autofill (if applicable)
-13. Tests
-14. Feature flag gating
+4. Feature flag registration
+5. Model stack (API, Data, Domain, View, Export if applicable)
+6. Container switch updates (7 files)
+7. SDK bindings (`toSdk*`/`fromSdk*`)
+8. Localization keys
+9. Shared UI (icon, menu items)
+10. Vault filters with feature flag gating (CRITICAL for ciphers to appear)
+11. New item menus with feature flag gating
+12. Per-app UI (form section, view section)
+13. Context menu / copy actions (see Section 10)
+14. CLI
+15. Autofill (if applicable)
+16. Tests
 
 ### 8. Risks and Considerations
 
