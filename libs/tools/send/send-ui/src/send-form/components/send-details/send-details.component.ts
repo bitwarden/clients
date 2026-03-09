@@ -40,9 +40,8 @@ import {
   DialogService,
 } from "@bitwarden/components";
 import { CredentialGeneratorService } from "@bitwarden/generator-core";
+import { SendFormConfig, SendFormGenerationService } from "@bitwarden/send-ui";
 
-import { SendFormConfig } from "../../abstractions/send-form-config.service";
-import { SendFormGenerationService } from "../../abstractions/send-form-generation.service";
 import { SendFormContainer } from "../../send-form-container";
 import { SendOptionsComponent } from "../options/send-options.component";
 
