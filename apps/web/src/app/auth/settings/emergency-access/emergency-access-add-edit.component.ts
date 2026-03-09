@@ -6,7 +6,6 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import {
   DialogConfig,
   DialogRef,
@@ -64,7 +63,6 @@ export class EmergencyAccessAddEditComponent implements OnInit {
     private logService: LogService,
     private dialogRef: DialogRef<EmergencyAccessAddEditDialogResult>,
     private toastService: ToastService,
-    private validationService: ValidationService,
   ) {}
   async ngOnInit() {
     this.editMode = this.loading = this.params.emergencyAccessId != null;
