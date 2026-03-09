@@ -252,6 +252,27 @@ export class WindowMain {
     }
   }
 
+  private getWindowUrl(partial: Partial<url.UrlObject> = {}): string {
+    // The custom file scheme only works on servers that support it for CORS (>=2026.3.0)
+    // We have it disabled by default until self-hosted users are updated to maintain compatibility.
+    if (process.env.BITWARDEN_USE_CUSTOM_FILE_SCHEME !== "true") {
+      return url.format({
+        protocol: "file:",
+        pathname: path.join(__dirname, "/index.html"),
+        slashes: true,
+        ...partial,
+      });
+    }
+
+    return url.format({
+      protocol: customFileScheme,
+      host: customFileHost,
+      pathname: "index.html",
+      slashes: true,
+      ...partial,
+    });
+  }
+
   // TODO: REMOVE ONCE WE CAN STOP USING FAKE POP UP BTN FROM TRAY
   // Only used for development
   async loadUrl(targetPath: string, modal: boolean = false) {
@@ -262,16 +283,7 @@ export class WindowMain {
 
     await this.desktopSettingsService.setModalMode(modal);
     await this.win.loadURL(
-      url.format({
-        protocol: customFileScheme,
-        host: customFileHost,
-        pathname: "index.html",
-        slashes: true,
-        hash: targetPath,
-        query: {
-          redirectUrl: targetPath,
-        },
-      }),
+      this.getWindowUrl({ hash: targetPath, query: { redirectUrl: targetPath } }),
       {
         userAgent: cleanUserAgent(this.win.webContents.userAgent),
       },
@@ -442,25 +454,13 @@ export class WindowMain {
     if (template === "full-app") {
       // and load the index.html of the app.
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      void this.win.loadURL(
-        url.format({
-          protocol: customFileScheme,
-          host: customFileHost,
-          pathname: "index.html",
-          slashes: true,
-        }),
-        {
-          userAgent: cleanUserAgent(this.win.webContents.userAgent),
-        },
-      );
+      void this.win.loadURL(this.getWindowUrl(), {
+        userAgent: cleanUserAgent(this.win.webContents.userAgent),
+      });
     } else {
       // we're in modal mode - load the passkeys page
       await this.win.loadURL(
-        url.format({
-          protocol: customFileScheme,
-          host: customFileHost,
-          pathname: "index.html",
-          slashes: true,
+        this.getWindowUrl({
           hash: "/passkeys",
           query: {
             redirectUrl: "/passkeys",
