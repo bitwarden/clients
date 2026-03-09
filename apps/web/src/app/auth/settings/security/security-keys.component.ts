@@ -8,15 +8,15 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DialogService } from "@bitwarden/components";
 
 import { ChangeKdfModule } from "../../../key-management/change-kdf/change-kdf.module";
+import { RotateAccountUserKeyComponent } from "../../../key-management/key-rotation/components/rotate-account-user-key.component";
 import { SharedModule } from "../../../shared";
 
 import { ApiKeyComponent } from "./api-key.component";
-
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "security-keys.component.html",
-  imports: [SharedModule, ChangeKdfModule],
+  imports: [SharedModule, ChangeKdfModule, RotateAccountUserKeyComponent],
 })
 export class SecurityKeysComponent implements OnInit {
   showChangeKdf = true;

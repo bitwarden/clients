@@ -1,4 +1,10 @@
-<app-change-kdf *ngIf="showChangeKdf"></app-change-kdf>
+@if (showChangeKdf) {
+  <app-change-kdf *ngIf="showChangeKdf"></app-change-kdf>
+  <div class="tw-mt-16">
+    <app-rotate-account-user-key> </app-rotate-account-user-key>
+  </div>
+}
+
 <div
   [ngClass]="{ 'tw-mt-6': !showChangeKdf, 'tw-mt-16': showChangeKdf }"
   class="tw-border-0 tw-mb-0 tw-pb-2.5"

@@ -13017,6 +13017,18 @@
   "paymentMethodUpdateError": {
     "message": "There was an error updating your payment method."
   },
+  "rotateAccountEncryptionKey": {
+    "message": "Rotate account encryption key"
+  },
+  "rotateAccountEncryptionKeyDescription": {
+    "message": "Rotating your account's encryption key generates a new encryption key that is used to re-encrypt all vault data. You should consider rotating your encryption key if your account has been compromised."
+  },
+  "rotateAccountEncryptionKeyWarning": {
+    "message": "Rotating your account's encryption key will re-encrypt all vault data. Do not close this browser window until the process is complete."
+  },
+  "accountEncryptionKeyRotated": {
+    "message": "Account encryption key rotated"
+  },
   "sendPasswordInvalidAskOwner": {
     "message": "Invalid password. Ask the sender for the password needed to access this Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
