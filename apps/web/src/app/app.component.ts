@@ -29,6 +29,7 @@ import { InternalFolderService } from "@bitwarden/common/vault/abstractions/fold
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, RouterFocusManagerService, ToastService } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+import { FlightRecorderService } from "@bitwarden/logging";
 
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
@@ -77,6 +78,7 @@ export class AppComponent implements OnDestroy, OnInit {
     private readonly documentLangSetter: DocumentLangSetter,
     private readonly tokenService: TokenService,
     private readonly routerFocusManager: RouterFocusManagerService,
+    private flightRecorderService: FlightRecorderService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -87,6 +89,21 @@ export class AppComponent implements OnDestroy, OnInit {
     this.destroy.onDestroy(() => {
       langSubscription.unsubscribe();
     });
+
+    // TEMPORARY: Expose FlightRecorderService for manual testing
+    (window as any).flightRecorderRead = async () => await this.flightRecorderService.read();
+    (window as any).flightRecorderCount = async () => await this.flightRecorderService.count();
+    (window as any).flightRecorderExportJson = async () =>
+      await this.flightRecorderService.exportAsJson();
+    (window as any).flightRecorderExportText = async () =>
+      await this.flightRecorderService.exportAsPlainText();
+    /* eslint-disable no-console */
+    console.log("Flight Recorder test helpers installed:");
+    console.log("  - await window.flightRecorderRead() - read and return all logs");
+    console.log("  - await window.flightRecorderCount() - get current log count");
+    console.log("  - await window.flightRecorderExportJson() - export logs as JSON");
+    console.log("  - await window.flightRecorderExportText() - export logs as plain text");
+    /* eslint-enable no-console */
   }
 
   ngOnInit() {
