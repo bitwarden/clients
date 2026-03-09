@@ -13,76 +13,14 @@
 use std::fmt;
 
 use anyhow::anyhow;
+use rkyv::{Archive, Deserialize, Serialize};
 use ssh_key::private::{Ed25519Keypair, RsaKeypair};
 
-/// Represents an SSH key and its associated metadata.
-#[derive(Clone)]
-pub(crate) struct SSHKeyData {
-    /// Private key of the key pair
-    private_key: PrivateKey,
-    /// Public key of the key pair
-    public_key: PublicKey,
-    /// Human-readable name
-    name: String,
-    /// Vault cipher ID associated with the key pair
-    cipher_id: String,
-}
-
-impl SSHKeyData {
-    /// Creates a new `SSHKeyData` instance.
-    ///
-    /// # Arguments
-    ///
-    /// * `private_key` - The private key component
-    /// * `public_key` - The public key component
-    /// * `name` - A human-readable name for the key
-    /// * `cipher_id` - The vault cipher identifier associated with this key
-    pub(crate) fn new(
-        private_key: PrivateKey,
-        public_key: PublicKey,
-        name: String,
-        cipher_id: String,
-    ) -> Self {
-        Self {
-            private_key,
-            public_key,
-            name,
-            cipher_id,
-        }
-    }
-
-    /// # Returns
-    ///
-    /// A reference to the [`PublicKey`].
-    pub(crate) fn public_key(&self) -> &PublicKey {
-        &self.public_key
-    }
-
-    /// # Returns
-    ///
-    /// A reference to the [`PrivateKey`].
-    pub(crate) fn private_key(&self) -> &PrivateKey {
-        &self.private_key
-    }
-
-    /// # Returns
-    ///
-    /// A reference to the human-readable name for this key.
-    pub(crate) fn name(&self) -> &String {
-        &self.name
-    }
-
-    /// # Returns
-    ///
-    /// A reference to the cipher ID that links this key to a vault entry.
-    pub(crate) fn cipher_id(&self) -> &String {
-        &self.cipher_id
-    }
-}
+pub use crate::storage::keydata::{QueryableKeyData, SSHKeyData};
 
 /// Represents an SSH private key.
 #[derive(Clone, PartialEq, Debug)]
-pub(crate) enum PrivateKey {
+pub enum PrivateKey {
     Ed25519(Ed25519Keypair),
     Rsa(RsaKeypair),
 }
@@ -113,18 +51,18 @@ impl TryFrom<ssh_key::private::PrivateKey> for PrivateKey {
 ///
 /// Contains the algorithm identifier (e.g., "ssh-ed25519", "ssh-rsa")
 /// and the binary blob of the public key data.
-#[derive(Clone, Ord, Eq, PartialOrd, PartialEq)]
-pub(crate) struct PublicKey {
+#[derive(Clone, Ord, Eq, PartialOrd, PartialEq, Archive, Serialize, Deserialize)]
+pub struct PublicKey {
     pub alg: String,
     pub blob: Vec<u8>,
 }
 
 impl PublicKey {
-    pub(crate) fn alg(&self) -> &str {
+    pub fn alg(&self) -> &str {
         &self.alg
     }
 
-    pub(crate) fn blob(&self) -> &[u8] {
+    pub fn blob(&self) -> &[u8] {
         &self.blob
     }
 }
