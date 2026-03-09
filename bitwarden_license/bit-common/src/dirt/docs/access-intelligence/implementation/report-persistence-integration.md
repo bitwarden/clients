@@ -318,7 +318,7 @@ import { safeProvider } from "@bitwarden/ui-common";
 import { ReportPersistenceService } from "../abstractions/report-persistence.service";
 import { DefaultReportPersistenceService } from "../implementations/default-report-persistence.service";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
-import { RiskInsightsEncryptionService } from "../domain/risk-insights-encryption.service";
+import { LegacyRiskInsightsEncryptionService } from "../implementations/legacy-risk-insights-encryption.service";
 import { LogService } from "@bitwarden/logging";
 
 export const ACCESS_INTELLIGENCE_PROVIDERS = [
