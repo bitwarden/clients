@@ -15,8 +15,8 @@ jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk-load.service", () => 
 import * as lib from "./index";
 
 describe("flight-recorder", () => {
-  it("should export FlightRecorderService", () => {
-    expect(lib.FlightRecorderService).toBeDefined();
+  it("should export FlightRecorder", () => {
+    expect(lib.FlightRecorder).toBeDefined();
   });
 
   it("should export FlightRecorderLogData type", () => {

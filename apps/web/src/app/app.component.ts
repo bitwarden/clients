@@ -29,7 +29,7 @@ import { InternalFolderService } from "@bitwarden/common/vault/abstractions/fold
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, RouterFocusManagerService, ToastService } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
-import { FlightRecorderService } from "@bitwarden/logging";
+import { FlightRecorderService } from "@bitwarden/logging-angular";
 
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes

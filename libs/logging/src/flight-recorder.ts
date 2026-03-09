@@ -1,5 +1,3 @@
-import { Injectable } from "@angular/core";
-
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { FlightRecorderClient, FlightRecorderEvent } from "@bitwarden/sdk-internal";
 
@@ -10,11 +8,10 @@ import { FlightRecorderClient, FlightRecorderEvent } from "@bitwarden/sdk-intern
 export type FlightRecorderLogData = FlightRecorderEvent;
 
 /**
- * Service for exporting Flight Recorder logs.
- * Wraps the WASM FlightRecorderClient for Angular DI.
+ * Framework-agnostic Flight Recorder implementation.
+ * Wraps the WASM FlightRecorderClient for reading and exporting logs.
  */
-@Injectable({ providedIn: "root" })
-export class FlightRecorderService {
+export class FlightRecorder {
   private clientPromise: Promise<FlightRecorderClient> | null = null;
 
   constructor() {
