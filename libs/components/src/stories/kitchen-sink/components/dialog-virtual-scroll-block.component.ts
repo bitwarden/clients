@@ -19,7 +19,7 @@ import { TableDataSource, TableModule } from "../../../table";
     ScrollingModule,
     ScrollLayoutDirective,
   ],
-  template: /*html*/ `<bit-section>
+  template: `<bit-section>
     <cdk-virtual-scroll-viewport bitScrollLayout itemSize="49.5">
       <bit-table [dataSource]="dataSource">
         <ng-container header>
