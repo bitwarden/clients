@@ -5445,8 +5445,8 @@
   "minimumNumberOfWords": {
     "message": "Minimálny počet slov"
   },
-  "passwordTypePolicyOverride": {
-    "message": "Password type",
+  "overridePasswordTypePolicy": {
+    "message": "Password Type",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Learn more about the transfer"
   },
+  "promptUsersToMoveItems": {
+    "message": "Prompt users to move individual vault items to the organization"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
   "organizationDataOwnership": {
     "message": "Požadovanie vlastníctva údajov organizácie"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Dostupné teraz"
   },
-  "autoConfirm": {
-    "message": "Automatické potvrdzovanie nových členov"
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
   },
   "autoConfirmDescription": {
     "message": "Noví používatelia pozvaní do organizácie budú automaticky potvrdení ak je zariadene správcu odomknuté.",
@@ -10624,6 +10630,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Send event data to your Huntress SIEM instance"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ connected successfully.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Nepodarilo sa uložiť integráciu. Prosím skúste to neskôr."
   },
@@ -10976,6 +10991,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Vypnuté"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Failed to load the member access report. This may be due to a large organization size or network issue. Please try again or contact support if the problem persists."
   },
   "kdfIterationRecommends": {
     "message": "Odporúčame aspoň 600 000"

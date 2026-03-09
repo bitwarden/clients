@@ -5445,7 +5445,7 @@
   "minimumNumberOfWords": {
     "message": "Nombre minimum de mots"
   },
-  "passwordTypePolicyOverride": {
+  "overridePasswordTypePolicy": {
     "message": "Type de mot de passe",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "En savoir plus sur le transfert"
   },
+  "promptUsersToMoveItems": {
+    "message": "Demander aux utilisateurs de déplacer les éléments individuels du coffre vers l'organisation"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Les membres seront invités à transférer leurs éléments à l'organisation ou à partir. S'ils quittent, leur accès est révoqué mais peut être restauré à tout moment."
+  },
   "organizationDataOwnership": {
     "message": "Forcer la propriété des données de l'organisation"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Disponible maintenant"
   },
-  "autoConfirm": {
-    "message": "Confirmation automatique des nouveaux utilisateurs"
+  "automaticUserConfirmation": {
+    "message": "Confirmation d'utilisateur automatique"
   },
   "autoConfirmDescription": {
     "message": "Les nouveaux utilisateurs invités à rejoindre l'organisation seront automatiquement confirmés lorsque l'appareil d'un administrateur est déverrouillé.",
@@ -10624,6 +10630,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Envoyer les données de l'événement à votre instance de Huntress SIEM"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ connecté avec succès.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Impossible d'enregistrer l'intégration. Veuillez réessayer plus tard."
   },
@@ -10976,6 +10991,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Désactivé"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Échec du chargement du rapport d'accès des membres. Cela peut être dû à un problème de grande taille de l'organisation ou de problèmes du réseau. Veuillez réessayer ou contacter le support si le problème persiste."
   },
   "kdfIterationRecommends": {
     "message": "Nous vous recommandons 600 000 ou plus"

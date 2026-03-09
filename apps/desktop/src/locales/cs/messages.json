@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Oblíbené"
   },
+  "unfavorite": {
+    "message": "Odebrat z oblíbených"
+  },
   "types": {
     "message": "Typy"
   },
@@ -585,6 +588,12 @@
   },
   "editedItem": {
     "message": "Položka byla uložena"
+  },
+  "itemAddedToFavorites": {
+    "message": "Položka byla přidána do oblíbených"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Položka byla odebrána z oblíbených"
   },
   "deleteItem": {
     "message": "Smazat položku"
@@ -1555,6 +1564,18 @@
   "unknown": {
     "message": "Neznámá"
   },
+  "copyAddress": {
+    "message": "Kopírovat adresu"
+  },
+  "copyPhone": {
+    "message": "Kopírovat telefon"
+  },
+  "copyNote": {
+    "message": "Kopírovat poznámku"
+  },
+  "copyVerificationCode": {
+    "message": "Kopírovat ověřovací kód"
+  },
   "copyUsername": {
     "message": "Kopírovat uživatelské jméno"
   },
@@ -2082,6 +2103,24 @@
   "searchTrash": {
     "message": "Prohledat koš"
   },
+  "searchArchive": {
+    "message": "Hledat v archivu"
+  },
+  "searchLogin": {
+    "message": "Prohledat přihlášení"
+  },
+  "searchCard": {
+    "message": "Prohledat karty"
+  },
+  "searchIdentity": {
+    "message": "Prohledat identity"
+  },
+  "searchSecureNote": {
+    "message": "Prohledat zabezpečené poznámky"
+  },
+  "searchSshKey": {
+    "message": "Prohledat SSH klíče"
+  },
   "permanentlyDeleteItem": {
     "message": "Trvale smazat položku"
   },
@@ -2377,6 +2416,9 @@
   "editSend": {
     "message": "Upravit Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Já"
   },
   "myVault": {
     "message": "Můj trezor"
@@ -4086,6 +4128,9 @@
   "missingWebsite": {
     "message": "Chybějící webová stránka"
   },
+  "missingPermissions": {
+    "message": "K provedení této akce nemáte potřebná oprávnění."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nemůžete odebrat sbírky s oprávněními jen pro zobrazení: $COLLECTIONS$",
     "placeholders": {
@@ -4589,6 +4634,36 @@
   },
   "whyAmISeeingThis": {
     "message": "Proč se mi toto zobrazuje?"
+  },
+  "organizationIsSuspended": {
+    "message": "Organizace je deaktivována"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "K položkám v deaktivované organizaci nemáte přístup. Požádejte o pomoc vlastníka organizace."
+  },
+  "noItemsInTrash": {
+    "message": "Žádné položky v koši"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Položky, které smažete, se zde zobrazí a budou trvale smazány po 30 dnech"
+  },
+  "noItemsInVault": {
+    "message": "Žádné položky v trezoru"
+  },
+  "emptyVaultDescription": {
+    "message": "Trezor chrání více než jen Vaše hesla. Bezpečně zde uložte zabezpečená přihlášení, ID, karty a poznámky."
+  },
+  "emptyFavorites": {
+    "message": "Nemáte oblíbené žádné položky"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Přidejte často používané položky do oblíbených pro rychlý přístup."
+  },
+  "noSearchResults": {
+    "message": "Nebyly vráceny žádné výsledky hledání"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Vymažte filtry nebo zkuste jiný hledaný výraz"
   },
   "sendPasswordHelperText": {
     "message": "Pro zobrazení tohoto Send budou muset jednotlivci zadat heslo",
