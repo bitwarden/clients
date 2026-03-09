@@ -68,35 +68,7 @@ Both forms must be fixed the same way.
 
 **Rule:** `@angular-eslint/prefer-on-push-component-change-detection`
 
-Add `changeDetection: ChangeDetectionStrategy.OnPush` to `@Component`. Add `ChangeDetectionStrategy` to the `@angular/core` import. Remove the FIXME + eslint-disable lines.
-
-If `ChangeDetectorRef` was only used for `detectChanges()`, remove it. If used for `markForCheck()` or embedded views, keep it.
-
-```typescript
-// Before
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
-@Component({ templateUrl: "x.html", imports: [SharedModule] })
-export class MyComponent {
-  private cdr = inject(ChangeDetectorRef);
-  async load() {
-    await doWork();
-    this.cdr.detectChanges();
-  }
-}
-
-// After
-@Component({
-  templateUrl: "x.html",
-  imports: [SharedModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class MyComponent {
-  async load() {
-    await doWork();
-  }
-}
-```
+Follow the OnPush guidance in the `angular-modernization` skill (add `changeDetection: ChangeDetectionStrategy.OnPush`, remove `ChangeDetectorRef` if only used for `detectChanges()`). Then remove the FIXME + `eslint-disable-next-line` lines.
 
 > `@Directive` does not support `changeDetection` — skip OnPush for pure directives.
 
@@ -108,68 +80,9 @@ export class MyComponent {
 
 Applies to `@Input()`, `@Output()`, `@ViewChild`, `@ContentChild`.
 
-### Use Angular CLI migrations first (preferred)
+Follow the Signal Inputs, Outputs, and Queries guidance in the `angular-modernization` skill (prefer CLI schematics, then manual conversion). After each migration, **manually remove** the FIXME and `eslint-disable-next-line` lines, and any `// TODO: Skipped for signal migration because:` comment blocks.
 
-```bash
-npx ng generate @angular/core:signal-input-migration --path=<directory>
-npx ng generate @angular/core:output-migration --path=<directory>
-npx ng generate @angular/core:signal-queries-migration --path=<directory>
-```
-
-After each CLI run, **manually remove** the FIXME and `eslint-disable-next-line` lines for each resolved instance. The CLI also leaves `// TODO: Skipped for signal migration because:` blocks on cases it cannot handle — fix those manually (see below), then remove the whole comment block.
-
-### Manual conversions
-
-**`@Input()` → `input()`:**
-
-```typescript
-// Before
-@Input() activeFilter: VaultFilter = new VaultFilter();
-
-// After
-activeFilter = input<VaultFilter>(new VaultFilter());
-// required input:
-name = input.required<string>();
-```
-
-**`@Output()` → `output()`:**
-
-```typescript
-// Before
-@Output() saved = new EventEmitter<Folder>();
-
-// After
-saved = output<Folder>();
-// Usage stays the same: this.saved.emit(folder)
-```
-
-**`@ViewChild`/`@ContentChild` → `viewChild()`/`contentChild()`:**
-
-```typescript
-// Before
-@ViewChild("policyForm", { read: ViewContainerRef, static: true })
-policyFormRef: ViewContainerRef | undefined;
-
-// After
-policyFormRef = viewChild<ViewContainerRef>("policyForm", { read: ViewContainerRef });
-// Read: this.policyFormRef()
-```
-
-### Update call sites
-
-Signal inputs and queries are functions — update every in-class read:
-
-```typescript
-// Before: this.activeFilter
-// After:  this.activeFilter()
-```
-
-### Import cleanup
-
-Remove unused: `Input`, `Output`, `ViewChild`, `ContentChild`, `EventEmitter`.  
-Add: `input`, `output`, `viewChild`, `contentChild` from `@angular/core`.
-
-> Do NOT convert service observables to signals. Only component-local state and decorator bindings (ADR-0027).
+> Do NOT convert service observables to signals — only component-local state and decorator bindings (ADR-0027).
 
 ---
 
@@ -409,4 +322,4 @@ Fix any errors that remain. Run `npm run test` if behaviour-critical code was ch
 - Both FIXME-paired and standalone suppressions are the same migration debt.
 - For Angular migration rules, prefer CLI schematics over manual edits.
 - Do NOT convert service observables to signals (ADR-0027).
-- Refer to the `angular-modernization` skill for broader Bitwarden patterns.
+- For OnPush and signals patterns, the `angular-modernization` skill is the authoritative source — this skill only owns the ESLint suppression mechanics.
