@@ -684,14 +684,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
-   * Check if the element's tag indicates that a transition to a new section of the
-   * page is occurring. If so, we should not use the element or its children in order
-   * to get autofill context for the previous element.
-   * @param {HTMLElement} currentElement
-   * @returns {boolean}
-   * @private
-   */
-  /**
    * Checks whether an element contains child form fields (input, select, textarea).
    * Used to prevent label collection from absorbing text from sibling DOM
    * containers that hold their own form fields.
@@ -700,6 +692,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     return nodeIsElement(element) && !!element.querySelector("input, select, textarea");
   }
 
+  /**
+   * Check if the element's tag indicates that a transition to a new section of the
+   * page is occurring. If so, we should not use the element or its children in order
+   * to get autofill context for the previous element.
+   * @param {HTMLElement} currentElement
+   * @returns {boolean}
+   * @private
+   */
   private isNewSectionElement(currentElement: HTMLElement | Node): boolean {
     if (!currentElement) {
       return true;

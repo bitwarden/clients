@@ -1728,6 +1728,42 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
+  describe("containsChildFormElement", () => {
+    it("returns true when the element contains an input descendant", () => {
+      const div = document.createElement("div");
+      div.innerHTML = `<span>Enter Country Code</span><input type="text" />`;
+
+      expect(collectAutofillContentService["containsChildFormElement"](div)).toBe(true);
+    });
+
+    it("returns true when the element contains a select descendant", () => {
+      const div = document.createElement("div");
+      div.innerHTML = `<select><option>US</option></select>`;
+
+      expect(collectAutofillContentService["containsChildFormElement"](div)).toBe(true);
+    });
+
+    it("returns true when the element contains a textarea descendant", () => {
+      const div = document.createElement("div");
+      div.innerHTML = `<textarea></textarea>`;
+
+      expect(collectAutofillContentService["containsChildFormElement"](div)).toBe(true);
+    });
+
+    it("returns false when the element contains no form field descendants", () => {
+      const div = document.createElement("div");
+      div.innerHTML = `<span>Helper text</span>`;
+
+      expect(collectAutofillContentService["containsChildFormElement"](div)).toBe(false);
+    });
+
+    it("returns false when the node is a text node", () => {
+      const textNode = document.createTextNode("Enter Country Code");
+
+      expect(collectAutofillContentService["containsChildFormElement"](textNode)).toBe(false);
+    });
+  });
+
   describe("isNewSectionElement", () => {
     const validElementTags = [
       "html",
