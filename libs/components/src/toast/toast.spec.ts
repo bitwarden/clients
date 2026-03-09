@@ -169,20 +169,20 @@ describe("ToastService", () => {
       expect(a.id).not.toBe(b.id);
     });
 
-    it("pauses existing timers when a new toast is added", () => {
+    it("resets the timer for the new top toast when a second toast is added", () => {
       service.showToast({ message: "First", timeout: 5000 });
 
       // Advance partway through the first toast's timer
       jest.advanceTimersByTime(4000);
       expect(service.toasts()).toHaveLength(1);
 
-      // Second toast pauses the first's timer
+      // Second toast resets the timer — first would have fired in 1000ms but won't
       service.showToast({ message: "Second", timeout: 5000 });
       expect(service.toasts()).toHaveLength(2);
 
-      // Advance well past when the first toast would have fired — it should not dismiss
+      // Advance well past when first would have fired — only second dismisses
       jest.advanceTimersByTime(5000);
-      expect(service.toasts()).toHaveLength(1); // only second dismissed itself
+      expect(service.toasts()).toHaveLength(1);
       expect(service.toasts()[0].message).toBe("First");
     });
 
@@ -214,16 +214,14 @@ describe("ToastService", () => {
       expect(service.toasts()).toHaveLength(0);
     });
 
-    it("resumes the new top toast's timer after removal", () => {
+    it("starts a fresh timer for the new top toast after removal", () => {
       service.showToast({ message: "First", timeout: 3000 });
-      // Second toast pauses first's timer
       service.showToast({ message: "Second", timeout: 5000 });
 
-      // Remove the top (second) toast — first's timer should resume
+      // Remove the top (second) toast — first gets a fresh 3000ms timer
       service.remove(service.toasts()[1].id);
       expect(service.toasts()).toHaveLength(1);
 
-      // First had 3000ms total; its timer was paused at ~0ms elapsed, so ~3000ms remaining
       jest.advanceTimersByTime(2999);
       expect(service.toasts()).toHaveLength(1);
       jest.advanceTimersByTime(1);
@@ -260,18 +258,20 @@ describe("ToastService", () => {
       expect(service.toasts()).toHaveLength(0);
     });
 
-    it("resume() only restarts the top toast, not hidden ones", () => {
+    it("resume() starts a fresh timer for the top toast if it was removed while hover-paused", () => {
       service.showToast({ message: "First", timeout: 3000 });
       service.showToast({ message: "Second", timeout: 5000 });
-
-      // Hover and un-hover
       service.pause();
-      service.resume();
 
-      // First's timer should still be paused — only second is counting down
-      jest.advanceTimersByTime(5000);
+      // Remove second while hover-paused — timer is cancelled, no active timer
+      service.remove(service.toasts()[1].id);
+
+      // Un-hover: first should get a fresh 3000ms timer
+      service.resume();
+      jest.advanceTimersByTime(2999);
       expect(service.toasts()).toHaveLength(1);
-      expect(service.toasts()[0].message).toBe("First");
+      jest.advanceTimersByTime(1);
+      expect(service.toasts()).toHaveLength(0);
     });
 
     it("pause() is a no-op when already paused", () => {

@@ -24,6 +24,8 @@ export type ToastData = {
   id: string;
   message: string | string[];
   variant: ToastVariant;
+  /** Resolved auto-dismiss duration, used to (re)start the timer when this toast reaches the top. */
+  timeout: number;
 };
 
 const defaultTimeout = 5000;
@@ -37,7 +39,8 @@ export class ToastService {
   private readonly _toasts = signal<ToastData[]>([]);
   /** Read-only signal of currently active toasts. */
   readonly toasts = this._toasts.asReadonly();
-  private readonly timers = new Map<string, PausableTimer>();
+  /** Single timer tracking the current top toast. Paused while the user hovers. */
+  private timer: PausableTimer | null = null;
   private paused = false;
 
   /** Show a toast notification. */
@@ -58,63 +61,62 @@ export class ToastService {
       id,
       message: options.message,
       variant: options.variant ?? "info",
+      timeout: resolvedTimeout,
     };
 
     this._toasts.update((toasts) => [...toasts, toast]);
 
-    // Pause all existing timers — the new toast is on top; others are hidden
-    this.timers.forEach((timer) => timer.pause());
-
-    this.startTimer(id, resolvedTimeout);
+    // Restart the single timer for the new top toast.
+    this.timer?.cancel();
+    this.timer = new PausableTimer(() => this.remove(id), resolvedTimeout);
 
     if (this.paused) {
-      this.timers.get(id)?.pause();
+      this.timer.pause();
     }
   }
 
-  /** Pauses auto-dismiss for all active toasts. Called when the user hovers the container. */
+  /** Pauses auto-dismiss. Called when the user hovers the container. */
   pause(): void {
     if (this.paused) {
       return;
     }
     this.paused = true;
-    this.timers.forEach((timer) => timer.pause());
+    this.timer?.pause();
   }
 
-  /** Resumes auto-dismiss for the top toast. Called when the user stops hovering. */
+  /** Resumes auto-dismiss. Called when the user stops hovering. */
   resume(): void {
     if (!this.paused) {
       return;
     }
     this.paused = false;
-    // Only resume the top toast's timer — others remain paused until they reach the top.
-    const toasts = this._toasts();
-    if (toasts.length > 0) {
-      this.timers.get(toasts[toasts.length - 1].id)?.resume();
-    }
-  }
-
-  /** Dismisses a toast immediately, cancelling its timer. */
-  remove(id: string): void {
-    this.cancelTimer(id);
-    this._toasts.update((toasts) => toasts.filter((t) => t.id !== id));
-
-    // Resume the new top toast's timer if not hover-paused
-    if (!this.paused) {
+    if (this.timer) {
+      // Top toast was hover-paused — resume from where it left off.
+      this.timer.resume();
+    } else {
+      // Top toast was removed while hover-paused — start a fresh timer for the new top.
       const toasts = this._toasts();
       if (toasts.length > 0) {
-        this.timers.get(toasts[toasts.length - 1].id)?.resume();
+        const top = toasts[toasts.length - 1];
+        this.timer = new PausableTimer(() => this.remove(top.id), top.timeout);
       }
     }
   }
 
-  private startTimer(id: string, timeout: number): void {
-    this.timers.set(id, new PausableTimer(() => this.remove(id), timeout));
-  }
+  /** Dismisses a toast immediately. */
+  remove(id: string): void {
+    this.timer?.cancel();
+    this.timer = null;
+    this._toasts.update((toasts) => toasts.filter((t) => t.id !== id));
 
-  private cancelTimer(id: string): void {
-    this.timers.get(id)?.cancel();
-    this.timers.delete(id);
+    // Start a fresh timer for the new top toast if not hover-paused.
+    if (!this.paused) {
+      const toasts = this._toasts();
+      if (toasts.length > 0) {
+        const top = toasts[toasts.length - 1];
+        this.timer = new PausableTimer(() => this.remove(top.id), top.timeout);
+      }
+    }
   }
 
   /**

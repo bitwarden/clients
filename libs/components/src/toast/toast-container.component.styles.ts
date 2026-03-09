@@ -11,7 +11,7 @@ export default tv({
       "sm:tw-left-auto sm:[right:var(--bit-toast-end)] sm:tw-justify-items-end",
     ],
     // All items occupy the same grid cell so they stack on top of each other.
-    // Depth-based transform/opacity are applied via inline styles in the template.
-    item: "tw-row-start-1 tw-col-start-1 [transition:transform_200ms_ease-out,opacity_200ms_ease-out]",
+    // Only the last (top) item is visible; others are hidden via inline visibility style.
+    item: "tw-row-start-1 tw-col-start-1",
   },
 });
