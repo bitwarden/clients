@@ -178,7 +178,6 @@ export class WindowMain {
         app.on("ready", async () => {
           this.session = session.fromPartition("persist:bitwarden", { cache: false });
           this.setupAppProtocol();
-          this.setupCorsBypass();
 
           if (!isDev()) {
             // This currently breaks the file portal for snap https://github.com/flatpak/xdg-desktop-portal/issues/785
@@ -253,8 +252,9 @@ export class WindowMain {
   }
 
   private getWindowUrl(partial: Partial<url.UrlObject> = {}): string {
-    // The custom file scheme only works on servers that support it for CORS (>=2026.3.0)
+    // TODO(PM-33211): The custom file scheme only works on servers that support it for CORS (>=2026.3.0).
     // We have it disabled by default until self-hosted users are updated to maintain compatibility.
+    // When removing this, remember to disable the [FuseV1Options.GrantFileProtocolExtraPrivileges] fuse in after-pack.js.
     if (process.env.BITWARDEN_USE_CUSTOM_FILE_SCHEME !== "true") {
       return url.format({
         protocol: "file:",
@@ -337,54 +337,6 @@ export class WindowMain {
         headers: { "content-type": "text/html" },
       });
     });
-  }
-
-  /**
-   * Bypass CORS restrictions for API requests made from the custom app:// protocol.
-   * Ideally, this is only needed until the server supports CORS from the custom protocol.
-   */
-  private setupCorsBypass() {
-    // Rewrite outgoing Origin from app://desktopbundle to file:// so the server returns CORS headers.
-    // For OPTIONS preflights, also capture the requested headers/method so we can echo them back
-    // if the server doesn't return proper preflight response headers.
-    this.session.webRequest.onBeforeSendHeaders(
-      { urls: ["http://*/*", "https://*/*"] },
-      (details, callback) => {
-        details.requestHeaders["Origin"] = "file://";
-
-        if (details.method === "OPTIONS") {
-          this.preflightRequests.set(details.id, {
-            headers: details.requestHeaders["Access-Control-Request-Headers"] ?? "",
-            method: details.requestHeaders["Access-Control-Request-Method"] ?? "",
-          });
-        }
-
-        callback({ requestHeaders: details.requestHeaders });
-      },
-    );
-
-    // Rewrite the response's Access-Control-Allow-Origin from file:// back to app://desktopbundle.
-    // For preflight responses missing CORS headers, fill them in from the captured request.
-    this.session.webRequest.onHeadersReceived(
-      { urls: ["http://*/*", "https://*/*"] },
-      (details, callback) => {
-        details.responseHeaders["access-control-allow-origin"] = [customFileOrigin];
-
-        const preflight = this.preflightRequests.get(details.id);
-        if (preflight) {
-          this.preflightRequests.delete(details.id);
-
-          if (!details.responseHeaders["access-control-allow-headers"] && preflight.headers) {
-            details.responseHeaders["access-control-allow-headers"] = [preflight.headers];
-          }
-          if (!details.responseHeaders["access-control-allow-methods"] && preflight.method) {
-            details.responseHeaders["access-control-allow-methods"] = [preflight.method];
-          }
-        }
-
-        callback({ responseHeaders: details.responseHeaders });
-      },
-    );
   }
 
   /**
