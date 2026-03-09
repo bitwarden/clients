@@ -9,11 +9,8 @@ import {
 } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-
 import { FormControlModule } from "../form-control/form-control.module";
 import { BitLabelComponent } from "../form-control/label.component";
-import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { SwitchComponent } from "./switch.component";
 
@@ -45,12 +42,6 @@ describe("SwitchComponent", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TestHostComponent],
-      providers: [
-        {
-          provide: I18nService,
-          useValue: new I18nMockService({ required: "required", inputRequired: "required" }),
-        },
-      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestHostComponent);
