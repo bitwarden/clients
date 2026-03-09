@@ -5,7 +5,7 @@
 
 #[napi]
 pub mod sshagent_v2 {
-    use std::sync::Arc;
+    use std::{sync::Arc, time::Duration};
 
     use anyhow::Context;
     use async_trait::async_trait;
@@ -15,7 +15,11 @@ pub mod sshagent_v2 {
         SignApprovalRequest as SSHSignApprovalRequest,
         SignRequestNamespace as SSHSignRequestNamespace,
     };
+    use tokio::time::timeout;
     use tracing::{debug, error};
+
+    /// Timeout for Electron approval callbacks
+    const APPROVAL_CALLBACK_TIMEOUT: Duration = Duration::from_secs(60);
 
     /// SSH key data, sent from Electron.
     // NOTE: the public key is derived from the private key.
@@ -112,11 +116,16 @@ pub mod sshagent_v2 {
     impl ApprovalRequester for ElectronApprovalRequester {
         async fn request_unlock(&self) -> anyhow::Result<bool> {
             debug!("Sending unlock request to Electron.");
-            let is_approved = self
-                .unlock_callback
-                .call_async(Ok(()))
-                .await
-                .context("Electron unlock callback failed")?;
+
+            let is_approved = timeout(APPROVAL_CALLBACK_TIMEOUT, async {
+                self.unlock_callback
+                    .call_async(Ok(()))
+                    .await
+                    .context("Electron unlock callback failed")
+            })
+            .await
+            .context("Electron unlock callback timed out")
+            .flatten()?;
 
             debug!(%is_approved, "Unlock response from Electron.");
             Ok(is_approved)
@@ -129,11 +138,16 @@ pub mod sshagent_v2 {
             let request = SignRequestData::from(request);
 
             debug!(?request, "Sending sign approval request to Electron.");
-            let is_approved = self
-                .sign_callback
-                .call_async(Ok(request))
-                .await
-                .context("Electron sign callback failed")?;
+
+            let is_approved = timeout(APPROVAL_CALLBACK_TIMEOUT, async {
+                self.sign_callback
+                    .call_async(Ok(request))
+                    .await
+                    .context("Electron sign callback failed")
+            })
+            .await
+            .context("Electron sign callback timed out")
+            .flatten()?;
 
             debug!(%is_approved, "Sign approval response from Electron.");
             Ok(is_approved)
