@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Arkiverade objekt kommer att visas här och kommer att uteslutas från allmänna sökresultat och förslag för autofyll."
   },
-  "itemWasSentToArchive": {
-    "message": "Objektet skickades till arkivet"
+  "itemArchiveToast": {
+    "message": "Objekt arkiverat"
   },
-  "itemWasUnarchived": {
-    "message": "Objektet har avarkiverats"
-  },
-  "itemUnarchived": {
-    "message": "Objektet har avarkiverats"
+  "itemUnarchivedToast": {
+    "message": "Objekt avarkiverat"
   },
   "archiveItem": {
     "message": "Arkivera objekt"
@@ -898,6 +895,9 @@
   },
   "invalidVerificationCode": {
     "message": "Ogiltig verifieringskod"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Ogiltig e-postadress eller verifieringskod"
   },
   "valueCopied": {
     "message": "$VALUE$ har kopierats",
@@ -2747,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden kommer inte att fråga om att få spara inloggningsuppgifter för dessa domäner. Du måste uppdatera sidan för att ändringarna ska träda i kraft."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden kommer inte att be om att få spara inloggningsuppgifter för dessa domäner för alla inloggade konton. Du måste uppdatera sidan för att ändringarna ska träda i kraft."
-  },
   "blockedDomainsDesc": {
     "message": "Autofyll och andra relaterade funktioner kommer inte att erbjudas för dessa webbplatser. Du måste uppdatera sidan för att ändringarna ska träda i kraft."
   },
@@ -2862,6 +2859,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Illustration av en lista över inloggningar som är i riskzonen."
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
   },
   "generatePasswordSlideDesc": {
     "message": "Skapa snabbt ett starkt, unikt lösenord med Bitwardens autofyllmeny på riskwebbplatsen.",
@@ -3035,10 +3035,6 @@
   "custom": {
     "message": "Anpassad"
   },
-  "sendPasswordDescV3": {
-    "message": "Lägg till ett valfritt lösenord för att mottagarna ska få åtkomst till detta meddelande.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Ny Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3090,6 +3086,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ timmar",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Kopiera och dela denna Send-länk. Denna Send kommer att vara tillgänglig för alla med länken för nästa $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Kopiera och dela denna Send-länk. Denna Send kommer att vara tillgänglig för alla med den länk och lösenord du angav för nästa $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Kopiera och dela denna Send-länk. Den kan visas av personer som du har angivet nästa $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "Skicka länk kopierad",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3098,28 +3133,8 @@
     "message": "Send har sparats",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Pop out-förlängning?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "För att skapa en fil Skicka, måste du popa ut förlängningen till ett nytt fönster.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "För att välja en fil, öppna tillägget i sidofältet (om möjligt) eller skapa ett nytt fönster genom att klicka på denna banner."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "För att välja en fil med Firefox, öppna tillägget i sidofältet eller öppna ett nytt fönster genom att klicka på denna banner."
-  },
-  "sendSafariFileWarning": {
-    "message": "För att välja en fil med Safari, öppna ett nytt fönster genom att klicka på denna banner."
-  },
   "popOut": {
     "message": "Popa ut"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Innan du börjar"
   },
   "expirationDateIsInvalid": {
     "message": "Det angivna utgångsdatumet är inte giltigt."
@@ -4850,6 +4865,9 @@
   "copyAddress": {
     "message": "Kopiera adress"
   },
+  "myItems": {
+    "message": "Mina objekt"
+  },
   "adminConsole": {
     "message": "Adminkonsol"
   },
@@ -5990,6 +6008,9 @@
   "cardNumberLabel": {
     "message": "Kortnummer"
   },
+  "errorCannotDecrypt": {
+    "message": "Fel: Kan inte dekryptera"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Din organisation använder inte längre huvudlösenord för att logga in på Bitwarden. För att fortsätta, verifiera organisationen och domänen."
   },
@@ -6127,6 +6148,21 @@
   "whyAmISeeingThis": {
     "message": "Varför ser jag det här?"
   },
+  "items": {
+    "message": "Objekt"
+  },
+  "searchResults": {
+    "message": "Sökresultat"
+  },
+  "simplifiedAutofill": {
+    "message": "Simplified autofill"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open simplified autofill popover"
+  },
   "resizeSideNavigation": {
     "message": "Ändra storlek på sidnavigering"
   },
@@ -6142,7 +6178,23 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Ange flera e-postadresser genom att separera dem med kommatecken."
   },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
   "emailPlaceholder": {
     "message": "användare@bitwarden.com , användare@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Ladda ner Bitwardens appar"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individer måste ange lösenordet för att visa denna Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "Verifiering av användare misslyckades."
   }
 }

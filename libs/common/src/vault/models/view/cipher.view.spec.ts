@@ -3,6 +3,7 @@ import { Jsonify } from "type-fest";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { CipherPermissionsApi } from "@bitwarden/common/vault/models/api/cipher-permissions.api";
 import {
+  CiphersClient,
   CipherView as SdkCipherView,
   CipherType as SdkCipherType,
   CipherRepromptType as SdkCipherRepromptType,
@@ -34,6 +35,8 @@ jest.mock("../../models/view/field.view");
 jest.mock("../../models/view/password-history.view");
 
 describe("CipherView", () => {
+  const mockCiphersClient = {} as CiphersClient;
+
   beforeEach(() => {
     (LoginView as any).mockClear();
     (AttachmentView as any).mockClear();
@@ -351,6 +354,9 @@ describe("CipherView", () => {
         passwordHistory: [],
         fields: [],
       });
+
+      // FIDO2 credentials are not set when no SDK client is provided
+      expect(sdkCipherView.login?.fido2Credentials).toBeUndefined();
     });
   });
 
@@ -382,7 +388,7 @@ describe("CipherView", () => {
       cipherView.login.username = "testuser";
       cipherView.login.password = "testpass";
 
-      const result = cipherView.toSdkCreateCipherRequest();
+      const result = cipherView.toSdkCreateCipherRequest(mockCiphersClient);
 
       expect(result.organizationId).toEqual(asUuid("000f2a6e-da5e-4726-87ed-1c5c77322c3c"));
       expect(result.folderId).toEqual(asUuid("41b22db4-8e2a-4ed2-b568-f1186c72922f"));
@@ -412,7 +418,7 @@ describe("CipherView", () => {
       cipherView.type = CipherType.SecureNote;
       cipherView.secureNote = new RealSecureNoteView();
 
-      const result = cipherView.toSdkCreateCipherRequest();
+      const result = cipherView.toSdkCreateCipherRequest(mockCiphersClient);
 
       expect(result.organizationId).toBeUndefined();
       expect(result.folderId).toBeUndefined();
@@ -428,7 +434,7 @@ describe("CipherView", () => {
       cipherView.type = CipherType.Login;
       cipherView.login = new RealLoginView();
 
-      const result = cipherView.toSdkCreateCipherRequest();
+      const result = cipherView.toSdkCreateCipherRequest(mockCiphersClient);
 
       expect(result.collectionIds).toEqual([]);
     });
@@ -442,7 +448,7 @@ describe("CipherView", () => {
       cipherView.type = CipherType.Login;
       cipherView.login = new RealLoginView();
 
-      const result = cipherView.toSdkCreateCipherRequest();
+      const result = cipherView.toSdkCreateCipherRequest(mockCiphersClient);
 
       expect(result.favorite).toBe(false);
     });
@@ -456,7 +462,7 @@ describe("CipherView", () => {
       cipherView.type = CipherType.Login;
       cipherView.login = new RealLoginView();
 
-      const result = cipherView.toSdkCreateCipherRequest();
+      const result = cipherView.toSdkCreateCipherRequest(mockCiphersClient);
 
       expect(result.reprompt).toBe(CipherRepromptType.None);
     });
@@ -481,7 +487,7 @@ describe("CipherView", () => {
         const viewPropertyName = typeName.charAt(0).toLowerCase() + typeName.slice(1);
         (cipherView as any)[viewPropertyName] = new ViewClass();
 
-        const result = cipherView.toSdkCreateCipherRequest();
+        const result = cipherView.toSdkCreateCipherRequest(mockCiphersClient);
 
         const typeKey = typeName.charAt(0).toLowerCase() + typeName.slice(1);
         expect(result.type).toHaveProperty(typeKey);
@@ -515,7 +521,7 @@ describe("CipherView", () => {
       cipherView.login = new RealLoginView();
       cipherView.login.username = "testuser";
 
-      const result = cipherView.toSdkUpdateCipherRequest();
+      const result = cipherView.toSdkUpdateCipherRequest(mockCiphersClient);
 
       expect(result.id).toEqual(asUuid("0a54d80c-14aa-4ef8-8c3a-7ea99ce5b602"));
       expect(result.organizationId).toEqual(asUuid("000f2a6e-da5e-4726-87ed-1c5c77322c3c"));
@@ -536,6 +542,9 @@ describe("CipherView", () => {
         username: "testuser",
       });
       expect(result.key).toBeDefined();
+
+      // FIDO2 credentials are not included when no FIDO2 credentials are present
+      expect((result.type as any).login.fido2Credentials).toBeUndefined();
     });
 
     it("handles undefined optional properties", () => {
@@ -548,7 +557,7 @@ describe("CipherView", () => {
       cipherView.secureNote = new RealSecureNoteView();
       cipherView.revisionDate = new Date("2022-01-02T12:00:00.000Z");
 
-      const result = cipherView.toSdkUpdateCipherRequest();
+      const result = cipherView.toSdkUpdateCipherRequest(mockCiphersClient);
 
       expect(result.organizationId).toBeUndefined();
       expect(result.folderId).toBeUndefined();
@@ -567,7 +576,7 @@ describe("CipherView", () => {
       cipherView.revisionDate = new Date("2022-05-15T10:30:00.000Z");
       cipherView.archivedDate = new Date("2022-06-20T14:45:00.000Z");
 
-      const result = cipherView.toSdkUpdateCipherRequest();
+      const result = cipherView.toSdkUpdateCipherRequest(mockCiphersClient);
 
       expect(result.revisionDate).toBe("2022-05-15T10:30:00.000Z");
       expect(result.archivedDate).toBe("2022-06-20T14:45:00.000Z");
@@ -593,7 +602,7 @@ describe("CipherView", () => {
 
       cipherView.attachments = [attachment1, attachment2];
 
-      const result = cipherView.toSdkUpdateCipherRequest();
+      const result = cipherView.toSdkUpdateCipherRequest(mockCiphersClient);
 
       expect(result.attachments).toHaveLength(2);
     });
@@ -619,7 +628,7 @@ describe("CipherView", () => {
         const viewPropertyName = typeName.charAt(0).toLowerCase() + typeName.slice(1);
         (cipherView as any)[viewPropertyName] = new ViewClass();
 
-        const result = cipherView.toSdkUpdateCipherRequest();
+        const result = cipherView.toSdkUpdateCipherRequest(mockCiphersClient);
 
         const typeKey = typeName.charAt(0).toLowerCase() + typeName.slice(1);
         expect(result.type).toHaveProperty(typeKey);

@@ -63,6 +63,11 @@ jobs:
       node_version: ${{ steps.retrieve-node-version.outputs.node_version }}
       has_secrets: ${{ steps.check-secrets.outputs.has_secrets }}
     steps:
+      - name: Log inputs to job summary
+        uses: bitwarden/ios/.github/actions/log-inputs@main
+        with:
+          inputs: "${{ toJson(inputs) }}"
+
       - name: Check out repo
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
@@ -180,6 +185,32 @@ jobs:
           repository: bitwarden/server
           ref: ${{ steps.set-server-ref.outputs.server_ref }}
           persist-credentials: false
+
+      - name: Download SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: sdk-internal
+          repo: bitwarden/sdk-internal
+          path: sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: commercial-sdk-internal
+          if_no_artifact_found: fail
 
       - name: Check Branch to Publish
         env:
@@ -334,7 +365,7 @@ jobs:
       - name: Scan Docker image
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         id: container-scan
-        uses: anchore/scan-action@62b74fb7bb810d2c45b1865f47a77655621862a5 # v7.2.3
+        uses: anchore/scan-action@0d444ed77d83ee2ba7f5ced0d90d640a1281d762 # v7.3.0
         with:
           image: ${{ steps.image-name.outputs.name }}
           fail-build: false
@@ -390,7 +421,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Upload Sources
-        uses: crowdin/github-action@60debf382ee245b21794321190ad0501db89d8c1 # v2.13.0
+        uses: crowdin/github-action@b4b468cffefb50bdd99dd83e5d2eaeb63c880380 # v2.14.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}
