@@ -339,7 +339,9 @@ export class MemberAccessReportService {
     orgData: MemberAccessDataV2,
   ): Map<string, { access: MemberCipherAccess; cipherIds: Set<string> }> {
     const accessMap = new Map<string, { access: MemberCipherAccess; cipherIds: Set<string> }>();
+    const processedCollections = new Set<string>();
 
+    // Iterate through ciphers and map access for each collection relationship
     for (const cipher of ciphers) {
       // Skip ciphers without collections or with placeholder/invalid IDs (matches V1 behavior)
       if (
@@ -356,6 +358,9 @@ export class MemberAccessReportService {
         if (!collection) {
           continue;
         }
+
+        // Track that this collection has been processed
+        processedCollections.add(collectionId);
 
         // Process direct user access
         for (const userAccess of collection.users) {
@@ -418,6 +423,68 @@ export class MemberAccessReportService {
               entry.cipherIds.add(cipher.id);
             }
           }
+        }
+      }
+    }
+
+    // Process collections that have no ciphers but have user/group access assigned
+    for (const [collectionId, collection] of orgData.collectionMap.entries()) {
+      // Skip collections that already have ciphers
+      if (processedCollections.has(collectionId)) {
+        continue;
+      }
+
+      // Skip collections with no access assigned (truly unused collections)
+      if (collection.users.length === 0 && collection.groups.length === 0) {
+        continue;
+      }
+
+      // Process direct user access for empty collections
+      for (const userAccess of collection.users) {
+        const key = `${userAccess.id}|${collection.id}|direct`;
+        // Create entry with empty cipherIds Set
+        accessMap.set(key, {
+          access: {
+            userId: userAccess.id,
+            cipherId: "", // Empty collection - no representative cipher
+            collectionId: collection.id,
+            collectionName: collection.name,
+            accessType: "direct",
+            readOnly: userAccess.readOnly,
+            hidePasswords: userAccess.hidePasswords,
+            manage: userAccess.manage,
+          },
+          cipherIds: new Set<string>(),
+        });
+      }
+
+      // Process group access for empty collections
+      for (const groupAccess of collection.groups) {
+        // a group that does not have members should not create entries in the report,
+        // even if it has access to a collection
+        const groupData = orgData.groupMemberMap.get(groupAccess.id);
+        if (!groupData) {
+          continue;
+        }
+
+        for (const userId of groupData.memberIds) {
+          const key = `${userId}|${collection.id}|${groupAccess.id}`;
+          // Create entry with empty cipherIds Set
+          accessMap.set(key, {
+            access: {
+              userId,
+              cipherId: "", // Empty collection - no representative cipher
+              collectionId: collection.id,
+              collectionName: collection.name,
+              groupId: groupAccess.id,
+              groupName: groupData.groupName,
+              accessType: "group",
+              readOnly: groupAccess.readOnly,
+              hidePasswords: groupAccess.hidePasswords,
+              manage: groupAccess.manage,
+            },
+            cipherIds: new Set<string>(),
+          });
         }
       }
     }
@@ -492,6 +559,19 @@ export class MemberAccessReportService {
         items: Set<string>;
       }
     >();
+
+    // map app users regardless of what they have access to
+    // this way we account for all users in the report,
+    // including those without collection/cipher/group access
+    for (const userId of orgData.organizationUserDataMap.keys()) {
+      if (!userAccessMap.has(userId)) {
+        userAccessMap.set(userId, {
+          collections: new Set(),
+          groups: new Set(),
+          items: new Set(),
+        });
+      }
+    }
 
     for (const { access, cipherIds } of accessMap.values()) {
       let userData = userAccessMap.get(access.userId);
