@@ -8,9 +8,10 @@
       class="tw-col-span-1 md:tw-col-span-1 lg:tw-col-span-1"
       [ngClass]="{ 'md:tw-col-span-2 lg:tw-col-span-2': extendPasswordChangeWidget() }"
     >
-      <dirt-password-change-metric
+      <dirt-password-change-metric-v2
         [organizationId]="organizationId()"
-      ></dirt-password-change-metric>
+        (extendWidget)="setExtendPasswordWidget($event)"
+      ></dirt-password-change-metric-v2>
     </li>
 
     <li class="tw-col-span-1">

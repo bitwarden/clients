@@ -12,9 +12,9 @@ import { DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { ActivityCardComponent } from "../../activity/activity-card.component";
-import { PasswordChangeMetricComponent } from "../../activity/activity-cards/password-change-metric.component";
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
 import { NewApplicationsDialogV2Component } from "../new-applications-dialog-v2/new-applications-dialog-v2.component";
+import { PasswordChangeMetricV2Component } from "../password-change-metric-v2/password-change-metric-v2.component";
 
 /**
  * AllActivityV2Component - Activity dashboard for Access Intelligence V2 architecture
@@ -39,7 +39,7 @@ import { NewApplicationsDialogV2Component } from "../new-applications-dialog-v2/
     ReportLoadingComponent,
     SharedModule,
     ActivityCardComponent,
-    PasswordChangeMetricComponent,
+    PasswordChangeMetricV2Component,
   ],
 })
 export class AllActivityV2Component {
@@ -167,7 +167,7 @@ export class AllActivityV2Component {
   };
 
   /**
-   * Callback for PasswordChangeMetricComponent to control layout.
+   * Callback for PasswordChangeMetricV2Component to control layout.
    * When the password widget has a progress bar, it should span 2 columns.
    */
   setExtendPasswordWidget = (hasProgressBar: boolean) => {
