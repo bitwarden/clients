@@ -34,6 +34,7 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "!-tw-mb-[1px]",
     "!-tw-ms-[1px]",
     "hover:tw-bg-bg-hover",
+    "focus-visible:tw-bg-bg-hover",
 
     "before:tw-content-['']",
     "before:tw-block",
