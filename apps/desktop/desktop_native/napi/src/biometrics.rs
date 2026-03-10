@@ -8,16 +8,12 @@ pub mod biometrics {
         hwnd: napi::bindgen_prelude::Buffer,
         message: String,
     ) -> napi::Result<bool> {
-        Biometric::prompt(hwnd.into(), message)
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+        Ok(Biometric::prompt(hwnd.into(), message).await?)
     }
 
     #[napi]
     pub async fn available() -> napi::Result<bool> {
-        Biometric::available()
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+        Ok(Biometric::available().await?)
     }
 
     #[napi]
@@ -28,15 +24,14 @@ pub mod biometrics {
         key_material: Option<KeyMaterial>,
         iv_b64: String,
     ) -> napi::Result<String> {
-        Biometric::set_biometric_secret(
+        Ok(Biometric::set_biometric_secret(
             &service,
             &account,
             &secret,
             key_material.map(|m| m.into()),
             &iv_b64,
         )
-        .await
-        .map_err(|e| napi::Error::from_reason(e.to_string()))
+        .await?)
     }
 
     /// Retrieves the biometric secret for the given service and account.
@@ -47,9 +42,10 @@ pub mod biometrics {
         account: String,
         key_material: Option<KeyMaterial>,
     ) -> napi::Result<String> {
-        Biometric::get_biometric_secret(&service, &account, key_material.map(|m| m.into()))
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+        Ok(
+            Biometric::get_biometric_secret(&service, &account, key_material.map(|m| m.into()))
+                .await?,
+        )
     }
 
     /// Derives key material from biometric data. Returns a string encoded with a
@@ -63,9 +59,7 @@ pub mod biometrics {
     #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
     pub async fn derive_key_material(iv: Option<String>) -> napi::Result<OsDerivedKey> {
-        Biometric::derive_key_material(iv.as_deref())
-            .map(|k| k.into())
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+        Ok(Biometric::derive_key_material(iv.as_deref())?.into())
     }
 
     #[napi(object)]

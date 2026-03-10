@@ -18,17 +18,19 @@ import {
   firstValueFrom,
 } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserKey } from "@bitwarden/common/types/key";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KeyService, KdfConfigService, KdfConfig, KdfType } from "@bitwarden/key-management";
+import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 import {
   PasswordManagerClient,
   ClientSettings,
   TokenProvider,
   UnsignedSharedKey,
   WrappedAccountCryptographicState,
+  Kdf,
 } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
@@ -207,7 +209,7 @@ export class DefaultSdkService implements SdkService {
               userId,
               client,
               account,
-              kdfParams,
+              kdfParams.toSdkConfig(),
               userKey,
               accountCryptographicState,
               orgKeys,
@@ -245,32 +247,36 @@ export class DefaultSdkService implements SdkService {
     userId: UserId,
     client: PasswordManagerClient,
     account: AccountInfo,
-    kdfParams: KdfConfig,
+    kdf: Kdf,
     userKey: UserKey,
     accountCryptographicState: WrappedAccountCryptographicState,
     orgKeys: Record<OrganizationId, EncString>,
   ) {
     // Initialize the client managed repositories.
     await initializeClientManagedState(userId, client.platform().state(), this.stateProvider);
-
     await this.loadFeatureFlags(client);
 
-    await client.crypto().initialize_user_crypto({
-      userId: asUuid(userId),
-      email: account.email,
-      method: { decryptedKey: { decrypted_user_key: userKey.keyB64 } },
-      kdfParams:
-        kdfParams.kdfType === KdfType.PBKDF2_SHA256
-          ? { pBKDF2: { iterations: kdfParams.iterations } }
-          : {
-              argon2id: {
-                iterations: kdfParams.iterations,
-                memory: kdfParams.memory,
-                parallelism: kdfParams.parallelism,
-              },
-            },
-      accountCryptographicState: accountCryptographicState,
-    });
+    if (await this.configService.getFeatureFlag(FeatureFlag.UnlockViaSDK)) {
+      await client.crypto().initialize_user_crypto({
+        userId: asUuid(userId),
+        email: account.email,
+        method: { clientManagedState: {} },
+        kdfParams: kdf,
+        accountCryptographicState: accountCryptographicState,
+      });
+    } else {
+      await client.crypto().initialize_user_crypto({
+        userId: asUuid(userId),
+        email: account.email,
+        method: {
+          decryptedKey: {
+            decrypted_user_key: userKey.toBase64(),
+          },
+        },
+        kdfParams: kdf,
+        accountCryptographicState: accountCryptographicState,
+      });
+    }
 
     // We initialize the org crypto even if the org_keys are
     // null to make sure any existing org keys are cleared.
