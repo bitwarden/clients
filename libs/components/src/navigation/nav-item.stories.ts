@@ -106,7 +106,7 @@ export const WithChildButtons: Story = {
           class="tw-ms-auto"
           bitIconButton="bwi-pencil-square"
           buttonType="side-nav"
-          size="small"
+          size="xsmall"
           label="Edit"
         ></button>
         <button
@@ -115,7 +115,7 @@ export const WithChildButtons: Story = {
           class="tw-ms-auto"
           bitIconButton="bwi-check"
           buttonType="side-nav"
-          size="small"
+          size="xsmall"
           label="Confirm"
         ></button>
       </bit-nav-item>

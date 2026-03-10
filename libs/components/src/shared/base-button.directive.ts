@@ -2,7 +2,7 @@ import { booleanAttribute, computed, Directive, input, model } from "@angular/co
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
-import { ButtonSize, ButtonType } from "./button-like.abstraction";
+import { ButtonType } from "./button-like.abstraction";
 
 export const focusRing = [
   "focus-visible:tw-ring-2",
@@ -11,42 +11,6 @@ export const focusRing = [
   "!focus-visible:tw-border-[transparent]",
   "focus-visible:tw-z-10",
 ];
-
-export const getIconButtonSizeStyles = (size: ButtonSize): string[] => {
-  const iconButtonSizes: Record<string, string[]> = {
-    small: ["tw-text-xl", "tw-size-8"],
-    default: ["tw-text-2xl", "tw-size-10"],
-    large: ["tw-text-[2rem]", "tw-size-11"],
-  };
-  return iconButtonSizes[size] || iconButtonSizes.default;
-};
-
-export const getButtonSizeStyles = (size: ButtonSize): string[] => {
-  const buttonSizeStyles: Record<ButtonSize, string[]> = {
-    // 1px to account for 1px border. This ensures the overall size of the button remains consistent with icon buttons
-    small: [
-      "tw-pt-[calc(theme(spacing.2)_-_1px)]",
-      "tw-pb-[calc(theme(spacing.2)_-_1px)]",
-      "tw-px-3",
-      "tw-text-xs/4",
-    ],
-    // 625rem = spacing2.5. I could not use the value directly in the calc
-    default: [
-      "tw-pt-[calc(0.625rem_-_1px)]",
-      "tw-pb-[calc(0.625rem_-_1px)]",
-      "tw-px-4",
-      "tw-text-sm/5",
-    ],
-    large: [
-      "tw-pt-[calc(theme(spacing.3)_-_1px)]",
-      "tw-pb-[calc(theme(spacing.3)_-_1px)]",
-      "tw-px-4",
-      "tw-text-base/6",
-    ],
-  };
-
-  return buttonSizeStyles[size] || buttonSizeStyles.default;
-};
 
 export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
   const normalizedType = (buttonType || "secondary").toLowerCase();
@@ -209,7 +173,6 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
     "tw-font-medium",
     "tw-outline-none",
     "tw-tracking-wide",
-    "tw-rounded-xl",
     "tw-transition",
     "tw-border",
     "tw-border-solid",
@@ -278,8 +241,6 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
 })
 export class BaseButtonDirective {
   readonly buttonType = input<ButtonType>("secondary");
-
-  readonly size = model<ButtonSize>("default");
 
   readonly block = input(false, { transform: booleanAttribute });
 
