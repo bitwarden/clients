@@ -267,16 +267,14 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
 
     // Observable that determines if notification should be shown
     // Shows notification if:
-    // 1. User went through migration (hadPreMigrationValue is true)
-    // 2. Their current value is "never" (they had null before migration)
-    // 3. Notification hasn't been dismissed
+    // 1. User went through migration with null/Never value (hadPreMigrationValue is true)
+    // 2. Notification hasn't been dismissed
     this.showClipboardSettingUpdateNotification$ = combineLatest([
       this.hadPreMigrationClipboardValue$,
-      this.clearClipboardDelay$,
       this.clipboardSettingUpdatedNotificationDismissed$,
     ]).pipe(
-      map(([hadPreMigrationValue, currentValue, dismissed]) => {
-        return hadPreMigrationValue && currentValue === ClearClipboardDelay.Never && !dismissed;
+      map(([hadPreMigrationValue, dismissed]) => {
+        return hadPreMigrationValue && !dismissed;
       }),
     );
   }
