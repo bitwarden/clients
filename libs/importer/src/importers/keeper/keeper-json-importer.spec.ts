@@ -443,7 +443,9 @@ describe("Keeper Json Importer", () => {
       expect(passport.identity.lastName).toEqual("Williams");
 
       // Fields
-      expect(passport.fields.length).toEqual(3);
+      expect(passport.fields.length).toEqual(4);
+      expect(getField(passport, "Password")?.value).toEqual("Passport2023!Secure");
+      expect(getField(passport, "Password")?.type).toEqual(FieldType.Hidden);
       expect(getField(passport, "birthDate")?.value).toEqual("7/21/1990, 10:00:00 PM");
       expect(getField(passport, "expirationDate")?.value).toEqual("7/21/2033, 10:00:00 PM");
       expect(getField(passport, "dateIssued")?.value).toEqual("8/14/2023, 10:00:00 PM");

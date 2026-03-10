@@ -73,6 +73,9 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
         case "driverLicense":
           this.importDriverLicense(record, cipher);
           break;
+        case "passport":
+          this.importPassport(record, cipher);
+          break;
         case "sshKeys":
           // In Bitwarden the ssh key is supposed to be valid.
           // So we only set the type if we can actually import a key.
@@ -225,11 +228,20 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
       "$accountNumber:dlNumber",
     );
     this.importIdentityName(record, cipher);
-
     this.copyLoginPropertiesAsCustomFields(cipher);
-
-    // This should not be imported as custom fields since they are mapped to card properties
     this.deleteTopLevelCustomField(record.custom_fields, "$accountNumber:dlNumber");
+  }
+
+  private importPassport(record: Record, cipher: CipherView) {
+    cipher.type = CipherType.Identity;
+    cipher.identity = new IdentityView();
+    cipher.identity.passportNumber = this.findCustomField(
+      record.custom_fields,
+      "$accountNumber:passportNumber",
+    );
+    this.importIdentityName(record, cipher);
+    this.copyLoginPropertiesAsCustomFields(cipher);
+    this.deleteTopLevelCustomField(record.custom_fields, "$accountNumber:passportNumber");
   }
 
   private importIdentityName(record: Record, cipher: CipherView) {
