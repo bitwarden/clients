@@ -131,51 +131,53 @@ export abstract class AccessIntelligenceDataService {
   abstract refreshReport$(orgId: OrganizationId): Observable<void>;
 
   /**
-   * Mark an application as critical
+   * Mark one or more applications as critical in a single save operation
    *
-   * Updates the view model, recomputes summary, persists changes, and emits.
-   * Uses view model's smart method for business logic.
+   * Mutates all view models at once, recomputes the summary once, and persists
+   * once to avoid multiple round-trips.
+   * Also marks each application as reviewed if not already reviewed.
    *
-   * @param appName - Application name to mark as critical
+   * @param appNames - Application names to mark as critical
    * @returns Observable that completes when save finishes
    *
    * @example
    * ```typescript
-   * this.dataService.markApplicationAsCritical$('github.com').subscribe();
+   * this.dataService.markApplicationsAsCritical$(['github.com', 'gitlab.com']).subscribe();
    * ```
    */
-  abstract markApplicationAsCritical$(appName: string): Observable<void>;
+  abstract markApplicationsAsCritical$(appNames: string[]): Observable<void>;
 
   /**
-   * Unmark an application as critical
+   * Unmark one or more applications as critical in a single save operation
    *
-   * Updates the view model, recomputes summary, persists changes, and emits.
-   * Uses view model's smart method for business logic.
+   * Mutates all view models at once, recomputes the summary once, and persists
+   * once to avoid multiple round-trips.
    *
-   * @param appName - Application name to unmark as critical
+   * @param appNames - Application names to unmark as critical
    * @returns Observable that completes when save finishes
    *
    * @example
    * ```typescript
-   * this.dataService.unmarkApplicationAsCritical$('github.com').subscribe();
+   * this.dataService.unmarkApplicationsAsCritical$(['github.com', 'gitlab.com']).subscribe();
    * ```
    */
-  abstract unmarkApplicationAsCritical$(appName: string): Observable<void>;
+  abstract unmarkApplicationsAsCritical$(appNames: string[]): Observable<void>;
 
   /**
-   * Mark an application as reviewed
+   * Mark one or more applications as reviewed in a single save operation
    *
-   * Updates the view model with review date, persists changes, and emits.
+   * Mutates all view models at once and persists once to avoid multiple
+   * round-trips.
    * Does NOT recompute summary (review status is not part of summary).
    *
-   * @param appName - Application name to mark as reviewed
+   * @param appNames - Application names to mark as reviewed
    * @param date - Review date (defaults to current date)
    * @returns Observable that completes when save finishes
    *
    * @example
    * ```typescript
-   * this.dataService.markApplicationAsReviewed$('github.com').subscribe();
+   * this.dataService.markApplicationsAsReviewed$(['github.com', 'gitlab.com']).subscribe();
    * ```
    */
-  abstract markApplicationAsReviewed$(appName: string, date?: Date): Observable<void>;
+  abstract markApplicationsAsReviewed$(appNames: string[], date?: Date): Observable<void>;
 }

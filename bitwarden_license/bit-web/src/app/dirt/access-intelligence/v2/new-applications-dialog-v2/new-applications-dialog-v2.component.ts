@@ -8,7 +8,7 @@ import {
   computed,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { forkJoin, EMPTY, catchError, switchMap, Observable } from "rxjs";
+import { EMPTY, catchError, switchMap } from "rxjs";
 
 import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { RiskInsightsReportView } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/risk-insights-report.view";
@@ -261,30 +261,19 @@ export class NewApplicationsDialogV2Component {
     this.saving.set(true);
 
     const reviewedDate = new Date();
-    const markRequests$: Observable<void>[] = [];
+    const allAppNames = this.dialogParams.newApplications.map((app) => app.applicationName);
+    const criticalAppNames = this.dialogParams.newApplications
+      .filter((app) => this.selectedApplications().has(app.applicationName))
+      .map((app) => app.applicationName);
 
-    // Mark selected applications as critical and reviewed
-    this.dialogParams.newApplications.forEach((app) => {
-      const isCritical = this.selectedApplications().has(app.applicationName);
-
-      if (isCritical) {
-        // Mark as critical
-        markRequests$.push(
-          this.accessIntelligenceService.markApplicationAsCritical$(app.applicationName),
-        );
-      }
-
-      // Mark as reviewed (all apps, regardless of critical status)
-      markRequests$.push(
-        this.accessIntelligenceService.markApplicationAsReviewed$(
-          app.applicationName,
-          reviewedDate,
+    // Mark all apps as reviewed, then mark selected as critical (also reviewed via view model)
+    this.accessIntelligenceService
+      .markApplicationsAsReviewed$(allAppNames, reviewedDate)
+      .pipe(
+        switchMap(() =>
+          this.accessIntelligenceService.markApplicationsAsCritical$(criticalAppNames),
         ),
-      );
-    });
-
-    // Execute all marking requests in parallel, then assign security tasks
-    forkJoin(markRequests$)
+      )
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         switchMap(() => {

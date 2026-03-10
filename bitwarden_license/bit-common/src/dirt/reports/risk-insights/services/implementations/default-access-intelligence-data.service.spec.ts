@@ -306,39 +306,39 @@ describe("DefaultAccessIntelligenceDataService", () => {
           { applicationName: "github.com", isCritical: false, reviewedDate: undefined } as any,
         ],
       });
-      mockReport.markApplicationAsCritical = jest.fn();
-      mockReport.unmarkApplicationAsCritical = jest.fn();
+      mockReport.markApplicationsAsCritical = jest.fn();
+      mockReport.unmarkApplicationsAsCritical = jest.fn();
       mockReport.markApplicationAsReviewed = jest.fn();
 
       reportPersistenceService.loadReport$.mockReturnValue(of(mockReport));
       reportPersistenceService.saveApplicationMetadata$.mockReturnValue(of(undefined as void));
     });
 
-    it("should mark application as critical and persist", async () => {
+    it("should mark applications as critical and persist", async () => {
       await firstValueFrom(service.initializeForOrganization$(orgId));
-      await firstValueFrom(service.markApplicationAsCritical$("github.com"));
+      await firstValueFrom(service.markApplicationsAsCritical$(["github.com"]));
 
-      expect(mockReport.markApplicationAsCritical).toHaveBeenCalledWith("github.com");
+      expect(mockReport.markApplicationsAsCritical).toHaveBeenCalledWith(["github.com"]);
       expect(reportPersistenceService.saveApplicationMetadata$).toHaveBeenCalledWith(mockReport);
 
       const report = await firstValueFrom(service.report$);
       expect(report?.applications).toBe(mockReport.applications);
     });
 
-    it("should unmark application as critical and persist", async () => {
+    it("should unmark applications as critical and persist", async () => {
       mockReport.applications[0].isCritical = true;
 
       await firstValueFrom(service.initializeForOrganization$(orgId));
-      await firstValueFrom(service.unmarkApplicationAsCritical$("github.com"));
+      await firstValueFrom(service.unmarkApplicationsAsCritical$(["github.com"]));
 
-      expect(mockReport.unmarkApplicationAsCritical).toHaveBeenCalledWith("github.com");
+      expect(mockReport.unmarkApplicationsAsCritical).toHaveBeenCalledWith(["github.com"]);
       expect(reportPersistenceService.saveApplicationMetadata$).toHaveBeenCalledWith(mockReport);
     });
 
-    it("should mark application as reviewed and persist", async () => {
+    it("should mark applications as reviewed and persist", async () => {
       await firstValueFrom(service.initializeForOrganization$(orgId));
       const reviewDate = new Date();
-      await firstValueFrom(service.markApplicationAsReviewed$("github.com", reviewDate));
+      await firstValueFrom(service.markApplicationsAsReviewed$(["github.com"], reviewDate));
 
       expect(mockReport.markApplicationAsReviewed).toHaveBeenCalledWith("github.com", reviewDate);
       expect(reportPersistenceService.saveApplicationMetadata$).toHaveBeenCalledWith(mockReport);
@@ -349,11 +349,13 @@ describe("DefaultAccessIntelligenceDataService", () => {
       await firstValueFrom(service.initializeForOrganization$(orgId));
 
       await expect(
-        firstValueFrom(service.markApplicationAsCritical$("github.com")),
+        firstValueFrom(service.markApplicationsAsCritical$(["github.com"])),
       ).rejects.toThrow("No report loaded");
     });
 
     it("should rollback mutation on save failure (mark critical)", async () => {
+      mockReport.applications[0].isCritical = false;
+
       await firstValueFrom(service.initializeForOrganization$(orgId));
 
       reportPersistenceService.saveApplicationMetadata$.mockReturnValue(
@@ -361,11 +363,11 @@ describe("DefaultAccessIntelligenceDataService", () => {
       );
 
       await expect(
-        firstValueFrom(service.markApplicationAsCritical$("github.com")),
+        firstValueFrom(service.markApplicationsAsCritical$(["github.com"])),
       ).rejects.toThrow("Save failed");
 
-      // Should have attempted rollback
-      expect(mockReport.unmarkApplicationAsCritical).toHaveBeenCalledWith("github.com");
+      // Rollback restores isCritical to its original value via direct property assignment
+      expect(mockReport.applications[0].isCritical).toBe(false);
     });
 
     it("should emit updated report after mutation", async () => {
@@ -374,7 +376,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       let emitCount = 0;
       service.report$.subscribe(() => emitCount++);
 
-      await firstValueFrom(service.markApplicationAsCritical$("github.com"));
+      await firstValueFrom(service.markApplicationsAsCritical$(["github.com"]));
 
       expect(emitCount).toBeGreaterThan(1); // Initial + mutation emit
     });
@@ -392,7 +394,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       reportGenerationService.generateReport.mockReturnValue(of(testReport));
 
       await firstValueFrom(service.generateNewReport$(orgId));
-      await firstValueFrom(service.markApplicationAsCritical$("test-app.com"));
+      await firstValueFrom(service.markApplicationsAsCritical$(["test-app.com"]));
 
       expect(reportPersistenceService.saveApplicationMetadata$).toHaveBeenCalledWith(
         expect.objectContaining({ organizationId: orgId }),
@@ -409,10 +411,11 @@ describe("DefaultAccessIntelligenceDataService", () => {
       );
 
       await expect(
-        firstValueFrom(service.unmarkApplicationAsCritical$("github.com")),
+        firstValueFrom(service.unmarkApplicationsAsCritical$(["github.com"])),
       ).rejects.toThrow("Save failed");
 
-      expect(mockReport.markApplicationAsCritical).toHaveBeenCalledWith("github.com");
+      // Rollback restores isCritical to its original value via direct property assignment
+      expect(mockReport.applications[0].isCritical).toBe(true);
     });
 
     it("should rollback mutation on save failure (mark reviewed)", async () => {
@@ -431,7 +434,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       const newDate = new Date("2025-06-01");
       await expect(
-        firstValueFrom(service.markApplicationAsReviewed$("github.com", newDate)),
+        firstValueFrom(service.markApplicationsAsReviewed$(["github.com"], newDate)),
       ).rejects.toThrow("Save failed");
 
       expect(mockReport.applications[0].reviewedDate).toBe(originalDate);

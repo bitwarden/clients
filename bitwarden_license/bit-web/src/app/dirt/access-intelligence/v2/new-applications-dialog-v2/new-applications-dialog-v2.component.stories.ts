@@ -28,8 +28,8 @@ class MockAccessIntelligenceDataService {
   private _ciphers = new BehaviorSubject<CipherView[]>([]);
   readonly ciphers$ = this._ciphers.asObservable();
 
-  markApplicationAsCritical$ = jest.fn().mockReturnValue(new BehaviorSubject(undefined));
-  markApplicationAsReviewed$ = jest.fn().mockReturnValue(new BehaviorSubject(undefined));
+  markApplicationsAsCritical$ = jest.fn().mockReturnValue(new BehaviorSubject(undefined));
+  markApplicationsAsReviewed$ = jest.fn().mockReturnValue(new BehaviorSubject(undefined));
 }
 
 // Mock services

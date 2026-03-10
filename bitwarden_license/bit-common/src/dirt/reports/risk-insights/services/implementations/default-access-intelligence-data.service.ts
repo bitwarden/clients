@@ -272,141 +272,174 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     return this.generateNewReport$(orgId);
   }
 
-  markApplicationAsCritical$(appName: string): Observable<void> {
+  markApplicationsAsCritical$(appNames: string[]): Observable<void> {
     const report = this._report.value;
     if (!report) {
       return throwError(() => new Error("No report loaded"));
     }
 
+    if (appNames.length === 0) {
+      return of(undefined as void);
+    }
+
     this.logService.debug(
-      "[DefaultAccessIntelligenceDataService] Marking application as critical",
-      appName,
+      "[DefaultAccessIntelligenceDataService] Marking applications as critical",
+      appNames,
     );
 
-    // Save current state for rollback
-    const previousIsCritical =
-      report.applications.find((a) => a.applicationName === appName)?.isCritical ?? false;
+    // Save previous states for rollback
+    const previousStates = appNames.map((appName) => {
+      const existingApp = report.applications.find((a) => a.applicationName === appName);
+      return {
+        appName,
+        isCritical: existingApp?.isCritical ?? false,
+        reviewedDate: existingApp?.reviewedDate,
+      };
+    });
 
-    // Mutate view model (smart model pattern)
-    report.markApplicationAsCritical(appName);
+    // Mutate all apps at once (single recomputeSummary call)
+    report.markApplicationsAsCritical(appNames);
 
-    // Persist changes
+    // Persist once
     return this.reportPersistenceService.saveApplicationMetadata$(report).pipe(
       tap(() => {
         this._report.next(Object.assign(new RiskInsightsView(), report));
         this.logService.debug(
-          "[DefaultAccessIntelligenceDataService] Application marked as critical",
-          appName,
+          "[DefaultAccessIntelligenceDataService] Applications marked as critical",
+          appNames,
         );
       }),
       map(() => undefined as void),
       catchError((error: unknown) => {
         this.logService.error(
-          "[DefaultAccessIntelligenceDataService] Failed to mark application as critical",
+          "[DefaultAccessIntelligenceDataService] Failed to mark applications as critical",
           error,
         );
 
-        // Rollback mutation
-        if (!previousIsCritical) {
-          report.unmarkApplicationAsCritical(appName);
-        }
+        // Rollback all mutations then recompute summary once
+        previousStates.forEach(({ appName, isCritical, reviewedDate }) => {
+          const app = report.applications.find((a) => a.applicationName === appName);
+          if (app) {
+            app.isCritical = isCritical;
+            app.reviewedDate = reviewedDate;
+          }
+        });
+        report.recomputeSummary();
         this._report.next(Object.assign(new RiskInsightsView(), report));
 
-        this._error.next("Failed to mark application as critical");
+        this._error.next("Failed to mark applications as critical");
         return throwError(() => error);
       }),
     );
   }
 
-  unmarkApplicationAsCritical$(appName: string): Observable<void> {
+  unmarkApplicationsAsCritical$(appNames: string[]): Observable<void> {
     const report = this._report.value;
     if (!report) {
       return throwError(() => new Error("No report loaded"));
     }
 
+    if (appNames.length === 0) {
+      return of(undefined as void);
+    }
+
     this.logService.debug(
-      "[DefaultAccessIntelligenceDataService] Unmarking application as critical",
-      appName,
+      "[DefaultAccessIntelligenceDataService] Unmarking applications as critical",
+      appNames,
     );
 
-    // Save current state for rollback
-    const previousIsCritical =
-      report.applications.find((a) => a.applicationName === appName)?.isCritical ?? false;
+    // Save previous states for rollback
+    const previousStates = appNames.map((appName) => ({
+      appName,
+      isCritical:
+        report.applications.find((a) => a.applicationName === appName)?.isCritical ?? false,
+    }));
 
-    // Mutate view model (smart model pattern)
-    report.unmarkApplicationAsCritical(appName);
+    // Mutate all apps at once (single recomputeSummary call)
+    report.unmarkApplicationsAsCritical(appNames);
 
-    // Persist changes
+    // Persist once
     return this.reportPersistenceService.saveApplicationMetadata$(report).pipe(
       tap(() => {
         this._report.next(Object.assign(new RiskInsightsView(), report));
         this.logService.debug(
-          "[DefaultAccessIntelligenceDataService] Application unmarked as critical",
-          appName,
+          "[DefaultAccessIntelligenceDataService] Applications unmarked as critical",
+          appNames,
         );
       }),
       map(() => undefined as void),
       catchError((error: unknown) => {
         this.logService.error(
-          "[DefaultAccessIntelligenceDataService] Failed to unmark application as critical",
+          "[DefaultAccessIntelligenceDataService] Failed to unmark applications as critical",
           error,
         );
 
-        // Rollback mutation
-        if (previousIsCritical) {
-          report.markApplicationAsCritical(appName);
-        }
+        // Rollback all mutations then recompute summary once
+        previousStates.forEach(({ appName, isCritical }) => {
+          const app = report.applications.find((a) => a.applicationName === appName);
+          if (app) {
+            app.isCritical = isCritical;
+          }
+        });
+        report.recomputeSummary();
         this._report.next(Object.assign(new RiskInsightsView(), report));
 
-        this._error.next("Failed to unmark application as critical");
+        this._error.next("Failed to unmark applications as critical");
         return throwError(() => error);
       }),
     );
   }
 
-  markApplicationAsReviewed$(appName: string, date?: Date): Observable<void> {
+  markApplicationsAsReviewed$(appNames: string[], date?: Date): Observable<void> {
     const report = this._report.value;
     if (!report) {
       return throwError(() => new Error("No report loaded"));
     }
 
+    if (appNames.length === 0) {
+      return of(undefined as void);
+    }
+
     this.logService.debug(
-      "[DefaultAccessIntelligenceDataService] Marking application as reviewed",
-      appName,
+      "[DefaultAccessIntelligenceDataService] Marking applications as reviewed",
+      appNames,
     );
 
-    // Save current state for rollback
-    const previousReviewedDate = report.applications.find(
-      (a) => a.applicationName === appName,
-    )?.reviewedDate;
+    // Save previous states for rollback
+    const previousStates = appNames.map((appName) => ({
+      appName,
+      reviewedDate: report.applications.find((a) => a.applicationName === appName)?.reviewedDate,
+    }));
 
-    // Mutate view model (smart model pattern)
-    report.markApplicationAsReviewed(appName, date);
+    // Mutate all apps at once
+    appNames.forEach((name) => report.markApplicationAsReviewed(name, date));
 
-    // Persist changes
+    // Persist once
     return this.reportPersistenceService.saveApplicationMetadata$(report).pipe(
       tap(() => {
         this._report.next(Object.assign(new RiskInsightsView(), report));
         this.logService.debug(
-          "[DefaultAccessIntelligenceDataService] Application marked as reviewed",
-          appName,
+          "[DefaultAccessIntelligenceDataService] Applications marked as reviewed",
+          appNames,
         );
       }),
       map(() => undefined as void),
       catchError((error: unknown) => {
         this.logService.error(
-          "[DefaultAccessIntelligenceDataService] Failed to mark application as reviewed",
+          "[DefaultAccessIntelligenceDataService] Failed to mark applications as reviewed",
           error,
         );
 
-        // Rollback mutation
-        const app = report.applications.find((a) => a.applicationName === appName);
-        if (app) {
-          app.reviewedDate = previousReviewedDate;
-        }
+        // Rollback all mutations
+        previousStates.forEach(({ appName, reviewedDate }) => {
+          const app = report.applications.find((a) => a.applicationName === appName);
+          if (app) {
+            app.reviewedDate = reviewedDate;
+          }
+        });
         this._report.next(Object.assign(new RiskInsightsView(), report));
 
-        this._error.next("Failed to mark application as reviewed");
+        this._error.next("Failed to mark applications as reviewed");
         return throwError(() => error);
       }),
     );

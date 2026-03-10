@@ -32,8 +32,8 @@ type MockAccessIntelligenceDataService = {
   report$: BehaviorSubject<RiskInsightsView | null>;
   loading$: BehaviorSubject<boolean>;
   ciphers$: BehaviorSubject<CipherView[]>;
-  markApplicationAsCritical$: jest.Mock;
-  unmarkApplicationAsCritical$: jest.Mock;
+  markApplicationsAsCritical$: jest.Mock;
+  unmarkApplicationsAsCritical$: jest.Mock;
 };
 
 /**
@@ -67,8 +67,8 @@ describe("ApplicationsV2Component", () => {
       report$: new BehaviorSubject<RiskInsightsView | null>(null),
       loading$: new BehaviorSubject<boolean>(false),
       ciphers$: new BehaviorSubject<CipherView[]>([]),
-      markApplicationAsCritical$: jest.fn().mockReturnValue(of(undefined)),
-      unmarkApplicationAsCritical$: jest.fn().mockReturnValue(of(undefined)),
+      markApplicationsAsCritical$: jest.fn().mockReturnValue(of(undefined)),
+      unmarkApplicationsAsCritical$: jest.fn().mockReturnValue(of(undefined)),
     };
 
     mockDrawerStateService = {
@@ -242,14 +242,15 @@ describe("ApplicationsV2Component", () => {
   // ==================== markAppsAsCritical ====================
 
   describe("markAppsAsCritical()", () => {
-    it("should call markApplicationAsCritical$ for each selected URL", async () => {
+    it("should call markApplicationsAsCritical$ once with all selected URLs", async () => {
       testAccess(component).selectedUrls.set(new Set(["github.com", "gitlab.com"]));
 
       await component.markAppsAsCritical();
 
-      expect(mockDataService.markApplicationAsCritical$).toHaveBeenCalledTimes(2);
-      expect(mockDataService.markApplicationAsCritical$).toHaveBeenCalledWith("github.com");
-      expect(mockDataService.markApplicationAsCritical$).toHaveBeenCalledWith("gitlab.com");
+      expect(mockDataService.markApplicationsAsCritical$).toHaveBeenCalledTimes(1);
+      expect(mockDataService.markApplicationsAsCritical$).toHaveBeenCalledWith(
+        expect.arrayContaining(["github.com", "gitlab.com"]),
+      );
     });
 
     it("should show success toast on completion", async () => {
@@ -272,7 +273,7 @@ describe("ApplicationsV2Component", () => {
 
     it("should show error toast when service call fails", async () => {
       testAccess(component).selectedUrls.set(new Set(["github.com"]));
-      mockDataService.markApplicationAsCritical$.mockReturnValue(
+      mockDataService.markApplicationsAsCritical$.mockReturnValue(
         throwError(() => new Error("fail")),
       );
 
@@ -287,14 +288,15 @@ describe("ApplicationsV2Component", () => {
   // ==================== unmarkAppsAsCritical ====================
 
   describe("unmarkAppsAsCritical()", () => {
-    it("should call unmarkApplicationAsCritical$ for each selected URL", async () => {
+    it("should call unmarkApplicationsAsCritical$ once with all selected URLs", async () => {
       testAccess(component).selectedUrls.set(new Set(["github.com", "gitlab.com"]));
 
       await component.unmarkAppsAsCritical();
 
-      expect(mockDataService.unmarkApplicationAsCritical$).toHaveBeenCalledTimes(2);
-      expect(mockDataService.unmarkApplicationAsCritical$).toHaveBeenCalledWith("github.com");
-      expect(mockDataService.unmarkApplicationAsCritical$).toHaveBeenCalledWith("gitlab.com");
+      expect(mockDataService.unmarkApplicationsAsCritical$).toHaveBeenCalledTimes(1);
+      expect(mockDataService.unmarkApplicationsAsCritical$).toHaveBeenCalledWith(
+        expect.arrayContaining(["github.com", "gitlab.com"]),
+      );
     });
 
     it("should show success toast on completion", async () => {

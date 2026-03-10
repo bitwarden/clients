@@ -78,8 +78,8 @@ describe("NewApplicationsDialogV2Component", () => {
 
     // Create mock services
     mockAccessIntelligenceService = {
-      markApplicationAsCritical$: jest.fn().mockReturnValue(of(undefined)),
-      markApplicationAsReviewed$: jest.fn().mockReturnValue(of(undefined)),
+      markApplicationsAsCritical$: jest.fn().mockReturnValue(of(undefined)),
+      markApplicationsAsReviewed$: jest.fn().mockReturnValue(of(undefined)),
       ciphers$: of([
         createMockCipher("GitHub Login", "c1"),
         createMockCipher("GitLab", "c3"),
@@ -358,7 +358,7 @@ describe("NewApplicationsDialogV2Component", () => {
       });
 
       // Should not proceed with saving since user declined
-      expect(mockAccessIntelligenceService.markApplicationAsReviewed$).not.toHaveBeenCalled();
+      expect(mockAccessIntelligenceService.markApplicationsAsReviewed$).not.toHaveBeenCalled();
     }); // 10 second timeout
 
     it("should handle handleMarkAsCritical - skips assign view if no unassigned ciphers", async () => {
@@ -383,15 +383,12 @@ describe("NewApplicationsDialogV2Component", () => {
 
       // Wait for async operations
       setTimeout(() => {
-        expect(mockAccessIntelligenceService.markApplicationAsCritical$).toHaveBeenCalledWith(
-          "github.com",
-        );
-        expect(mockAccessIntelligenceService.markApplicationAsCritical$).toHaveBeenCalledWith(
-          "gitlab.com",
+        expect(mockAccessIntelligenceService.markApplicationsAsCritical$).toHaveBeenCalledWith(
+          expect.arrayContaining(["github.com", "gitlab.com"]),
         );
 
-        // All apps should be marked as reviewed
-        expect(mockAccessIntelligenceService.markApplicationAsReviewed$).toHaveBeenCalledTimes(3);
+        // All apps should be marked as reviewed in a single bulk call
+        expect(mockAccessIntelligenceService.markApplicationsAsReviewed$).toHaveBeenCalledTimes(1);
 
         // Security tasks should be assigned
         expect(
@@ -422,27 +419,27 @@ describe("NewApplicationsDialogV2Component", () => {
   // ==================== Service Integration ====================
 
   describe("Service Integration", () => {
-    it("should call markApplicationAsCritical$ for selected apps", (done) => {
+    it("should call markApplicationsAsCritical$ for selected apps", (done) => {
       testAccess(component).toggleSelection("github.com");
 
       testAccess(component).handleAssignTasks();
 
       setTimeout(() => {
-        expect(mockAccessIntelligenceService.markApplicationAsCritical$).toHaveBeenCalledWith(
-          "github.com",
+        expect(mockAccessIntelligenceService.markApplicationsAsCritical$).toHaveBeenCalledWith(
+          expect.arrayContaining(["github.com"]),
         );
         done();
       }, 100);
     });
 
-    it("should call markApplicationAsReviewed$ for all apps", (done) => {
+    it("should call markApplicationsAsReviewed$ once with all apps", (done) => {
       testAccess(component).toggleSelection("github.com"); // Select only one
 
       testAccess(component).handleAssignTasks();
 
       setTimeout(() => {
-        // All 3 apps should be marked as reviewed (regardless of selection)
-        expect(mockAccessIntelligenceService.markApplicationAsReviewed$).toHaveBeenCalledTimes(3);
+        // All apps should be marked as reviewed in a single bulk call
+        expect(mockAccessIntelligenceService.markApplicationsAsReviewed$).toHaveBeenCalledTimes(1);
         done();
       }, 100);
     });
@@ -467,7 +464,7 @@ describe("NewApplicationsDialogV2Component", () => {
     it("should handle 404 error (permissions)", (done) => {
       const errorResponse = new ErrorResponse(null, 404);
 
-      mockAccessIntelligenceService.markApplicationAsCritical$.mockReturnValue(
+      mockAccessIntelligenceService.markApplicationsAsCritical$.mockReturnValue(
         throwError(() => errorResponse),
       );
 
@@ -491,7 +488,7 @@ describe("NewApplicationsDialogV2Component", () => {
     it("should handle generic errors", (done) => {
       const genericError = new Error("Network error");
 
-      mockAccessIntelligenceService.markApplicationAsCritical$.mockReturnValue(
+      mockAccessIntelligenceService.markApplicationsAsCritical$.mockReturnValue(
         throwError(() => genericError),
       );
 
@@ -591,7 +588,7 @@ describe("NewApplicationsDialogV2Component", () => {
       testAccess(component).handleAssignTasks();
 
       // Should return early and not call service
-      expect(mockAccessIntelligenceService.markApplicationAsCritical$).not.toHaveBeenCalled();
+      expect(mockAccessIntelligenceService.markApplicationsAsReviewed$).not.toHaveBeenCalled();
     });
 
     it("should handle onBack navigation", () => {

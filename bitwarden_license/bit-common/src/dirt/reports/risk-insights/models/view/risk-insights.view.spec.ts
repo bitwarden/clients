@@ -1,51 +1,19 @@
-import { DeepJsonify } from "@bitwarden/common/types/deep-jsonify";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
+import {
+  createApplication,
+  createMemberRegistry,
+  createReport,
+  createRiskInsights,
+  createRiskInsightsSummary,
+} from "../../testing/test-helpers";
+
+import { MemberRegistryEntryView } from "./member-details.view";
 import { RiskInsightsApplicationView } from "./risk-insights-application.view";
 import { RiskInsightsReportView } from "./risk-insights-report.view";
-import { MemberRegistry, RiskInsightsView } from "./risk-insights.view";
+import { RiskInsightsView } from "./risk-insights.view";
 
 describe("RiskInsightsView", () => {
-  // ==================== Test Helpers ====================
-
-  const createMemberRegistry = (
-    members: Array<{ id: string; name: string; email: string }>,
-  ): MemberRegistry => {
-    const registry: MemberRegistry = {};
-    members.forEach((m) => {
-      registry[m.id] = { id: m.id, userName: m.name, email: m.email };
-    });
-    return registry;
-  };
-
-  const createReport = (
-    applicationName: string,
-    memberRefs: Record<string, boolean>,
-    cipherRefs: Record<string, boolean>,
-  ): RiskInsightsReportView => {
-    const report = new RiskInsightsReportView();
-    report.applicationName = applicationName;
-    report.memberRefs = memberRefs;
-    report.cipherRefs = cipherRefs;
-    report.passwordCount = Object.keys(cipherRefs).length;
-    report.atRiskPasswordCount = Object.values(cipherRefs).filter((v) => v).length;
-    report.memberCount = Object.keys(memberRefs).length;
-    report.atRiskMemberCount = Object.values(memberRefs).filter((v) => v).length;
-    return report;
-  };
-
-  const createApplication = (
-    name: string,
-    isCritical: boolean,
-    reviewedDate?: Date,
-  ): RiskInsightsApplicationView => {
-    const app = new RiskInsightsApplicationView();
-    app.applicationName = name;
-    app.isCritical = isCritical;
-    app.reviewedDate = reviewedDate;
-    return app;
-  };
-
   // ==================== Constructor Tests ====================
 
   describe("constructor", () => {
@@ -347,13 +315,13 @@ describe("RiskInsightsView", () => {
 
   // ==================== Update Methods ====================
 
-  describe("markApplicationAsCritical", () => {
+  describe("markApplicationsAsCritical", () => {
     it("should mark existing application as critical", () => {
       const view = new RiskInsightsView();
       view.applications = [createApplication("github.com", false)];
       view.reports = [createReport("github.com", {}, {})];
 
-      view.markApplicationAsCritical("github.com");
+      view.markApplicationsAsCritical(["github.com"]);
 
       const app = view.applications.find((a) => a.applicationName === "github.com");
       expect(app?.isCritical).toBe(true);
@@ -363,37 +331,61 @@ describe("RiskInsightsView", () => {
       const view = new RiskInsightsView();
       view.applications = [];
 
-      view.markApplicationAsCritical("github.com");
+      view.markApplicationsAsCritical(["github.com"]);
 
       expect(view.applications).toHaveLength(1);
       expect(view.applications[0].applicationName).toBe("github.com");
       expect(view.applications[0].isCritical).toBe(true);
     });
 
-    it("should trigger summary recomputation", () => {
+    it("should trigger summary recomputation once for multiple apps", () => {
       const view = new RiskInsightsView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
       ]);
-      view.reports = [createReport("github.com", { u1: true }, { c1: true })];
-      view.applications = [createApplication("github.com", false)];
+      view.reports = [
+        createReport("github.com", { u1: true }, { c1: true }),
+        createReport("gitlab.com", { u1: true }, { c2: true }),
+      ];
+      view.applications = [
+        createApplication("github.com", false),
+        createApplication("gitlab.com", false),
+      ];
 
-      view.markApplicationAsCritical("github.com");
+      view.markApplicationsAsCritical(["github.com", "gitlab.com"]);
 
-      expect(view.summary.totalCriticalApplicationCount).toBe(1);
+      expect(view.summary.totalCriticalApplicationCount).toBe(2);
     });
   });
 
-  describe("unmarkApplicationAsCritical", () => {
+  describe("unmarkApplicationsAsCritical", () => {
     it("should unmark existing application as critical", () => {
       const view = new RiskInsightsView();
       view.applications = [createApplication("github.com", true)];
       view.reports = [createReport("github.com", {}, {})];
 
-      view.unmarkApplicationAsCritical("github.com");
+      view.unmarkApplicationsAsCritical(["github.com"]);
 
       const app = view.applications.find((a) => a.applicationName === "github.com");
       expect(app?.isCritical).toBe(false);
+    });
+
+    it("should unmark multiple applications in a single operation", () => {
+      const view = new RiskInsightsView();
+      view.applications = [
+        createApplication("github.com", true),
+        createApplication("gitlab.com", true),
+      ];
+      view.reports = [createReport("github.com", {}, {}), createReport("gitlab.com", {}, {})];
+
+      view.unmarkApplicationsAsCritical(["github.com", "gitlab.com"]);
+
+      expect(view.applications.find((a) => a.applicationName === "github.com")?.isCritical).toBe(
+        false,
+      );
+      expect(view.applications.find((a) => a.applicationName === "gitlab.com")?.isCritical).toBe(
+        false,
+      );
     });
 
     it("should trigger summary recomputation when application exists", () => {
@@ -404,7 +396,7 @@ describe("RiskInsightsView", () => {
       view.reports = [createReport("github.com", { u1: true }, { c1: true })];
       view.applications = [createApplication("github.com", true)];
 
-      view.unmarkApplicationAsCritical("github.com");
+      view.unmarkApplicationsAsCritical(["github.com"]);
 
       expect(view.summary.totalCriticalApplicationCount).toBe(0);
     });
@@ -413,7 +405,7 @@ describe("RiskInsightsView", () => {
       const view = new RiskInsightsView();
       view.applications = [];
 
-      view.unmarkApplicationAsCritical("github.com");
+      view.unmarkApplicationsAsCritical(["github.com"]);
 
       expect(view.applications).toHaveLength(0);
     });
@@ -697,27 +689,15 @@ describe("RiskInsightsView", () => {
 
   describe("fromJSON", () => {
     it("should initialize nested objects", () => {
-      const json: Partial<DeepJsonify<RiskInsightsView>> = {
+      const input = createRiskInsights({
         id: "report-123" as OrganizationReportId,
         organizationId: "org-456" as OrganizationId,
-        reports: [
-          {
-            applicationName: "github.com",
-            memberRefs: { u1: true },
-            cipherRefs: { c1: true },
-            passwordCount: 1,
-            atRiskPasswordCount: 1,
-            memberCount: 1,
-            atRiskMemberCount: 1,
-          },
-        ],
-        applications: [
-          {
-            applicationName: "github.com",
-            isCritical: true,
-          },
-        ],
-        summary: {
+        reports: [createReport("github.com", { u1: true }, { c1: true })],
+        applications: [createApplication("github.com", true)],
+        memberRegistry: createMemberRegistry([
+          { id: "u1", name: "Alice", email: "alice@example.com" },
+        ]),
+        summary: createRiskInsightsSummary({
           totalMemberCount: 1,
           totalApplicationCount: 1,
           totalAtRiskMemberCount: 1,
@@ -726,13 +706,10 @@ describe("RiskInsightsView", () => {
           totalCriticalMemberCount: 1,
           totalCriticalAtRiskMemberCount: 1,
           totalCriticalAtRiskApplicationCount: 1,
-        },
-        memberRegistry: {
-          u1: { id: "u1", userName: "Alice", email: "alice@example.com" },
-        },
-      };
+        }),
+      });
 
-      const view = RiskInsightsView.fromJSON(json);
+      const view = RiskInsightsView.fromJSON(JSON.parse(JSON.stringify(input)));
 
       expect(view.id).toBe("report-123");
       expect(view.organizationId).toBe("org-456");
@@ -740,9 +717,10 @@ describe("RiskInsightsView", () => {
       expect(view.reports[0]).toBeInstanceOf(RiskInsightsReportView);
       expect(view.applications).toHaveLength(1);
       expect(view.applications[0]).toBeInstanceOf(RiskInsightsApplicationView);
-      expect(view.memberRegistry).toEqual({
-        u1: { id: "u1", userName: "Alice", email: "alice@example.com" },
-      });
+      expect(view.memberRegistry["u1"]).toBeInstanceOf(MemberRegistryEntryView);
+      expect(view.memberRegistry["u1"].id).toBe("u1");
+      expect(view.memberRegistry["u1"].userName).toBe("Alice");
+      expect(view.memberRegistry["u1"].email).toBe("alice@example.com");
     });
 
     it("should handle null input", () => {

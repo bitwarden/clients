@@ -9,7 +9,7 @@ import {
 } from "@angular/core";
 import { toSignal, toObservable, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
-import { combineLatest, debounceTime, finalize, forkJoin, startWith, take } from "rxjs";
+import { combineLatest, debounceTime, finalize, startWith, take } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
@@ -264,17 +264,16 @@ export class ApplicationsV2Component {
   }
 
   /**
-   * Marks selected applications as critical.
-   * Uses view model's markApplicationAsCritical() method for each app.
+   * Marks selected applications as critical in a single save operation.
+   * Uses markApplicationsAsCritical$() to avoid multiple saves and UI flashing.
    */
   markAppsAsCritical(): void {
     this.updatingCriticalApps.set(true);
     const count = this.selectedUrls().size;
     const appNames = Array.from(this.selectedUrls());
 
-    forkJoin(
-      appNames.map((name) => this.accessIntelligenceService.markApplicationAsCritical$(name)),
-    )
+    this.accessIntelligenceService
+      .markApplicationsAsCritical$(appNames)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.updatingCriticalApps.set(false)),
@@ -299,17 +298,16 @@ export class ApplicationsV2Component {
   }
 
   /**
-   * Unmarks selected applications as critical.
-   * Uses view model's unmarkApplicationAsCritical() method for each app.
+   * Unmarks selected applications as critical in a single save operation.
+   * Uses unmarkApplicationsAsCritical$() to avoid multiple saves and UI flashing.
    */
   unmarkAppsAsCritical(): void {
     this.updatingCriticalApps.set(true);
     const appsToUnmark = this.selectedUrls();
     const appNames = Array.from(appsToUnmark);
 
-    forkJoin(
-      appNames.map((name) => this.accessIntelligenceService.unmarkApplicationAsCritical$(name)),
-    )
+    this.accessIntelligenceService
+      .unmarkApplicationsAsCritical$(appNames)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.updatingCriticalApps.set(false)),

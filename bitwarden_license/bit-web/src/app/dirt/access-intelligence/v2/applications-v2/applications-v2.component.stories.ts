@@ -47,8 +47,8 @@ class MockAccessIntelligenceDataService {
     this._loading.next(isLoading);
   }
 
-  markApplicationAsCritical$ = action("markApplicationAsCritical$");
-  unmarkApplicationAsCritical$ = action("unmarkApplicationAsCritical$");
+  markApplicationsAsCritical$ = action("markApplicationsAsCritical$");
+  unmarkApplicationsAsCritical$ = action("unmarkApplicationsAsCritical$");
 }
 
 /**

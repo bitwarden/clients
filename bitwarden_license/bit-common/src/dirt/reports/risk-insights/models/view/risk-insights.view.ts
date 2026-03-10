@@ -190,43 +190,50 @@ export class RiskInsightsView implements View {
   // === Update Methods ===
 
   /**
-   * Mark an application as critical
+   * Mark multiple applications as critical in a single operation
    *
-   * Updates the applications array and automatically recomputes the summary.
-   * If the application doesn't exist in applications[], it will be added.
+   * Mutates all application entries first, then recomputes the summary once.
+   * Prefer this over calling markApplicationAsCritical() in a loop.
    *
-   * @param applicationName - Name of the application to mark as critical
+   * @param applicationNames - Names of the applications to mark as critical
    */
-  markApplicationAsCritical(applicationName: string): void {
-    const app = this.applications.find((a) => a.applicationName === applicationName);
+  markApplicationsAsCritical(applicationNames: string[]): void {
+    for (const applicationName of applicationNames) {
+      const app = this.applications.find((a) => a.applicationName === applicationName);
 
-    if (app) {
-      app.isCritical = true;
-    } else {
-      // Application not in list, add it
-      const newApp = new RiskInsightsApplicationView();
-      newApp.applicationName = applicationName;
-      newApp.isCritical = true;
-      this.applications.push(newApp);
+      if (app) {
+        app.isCritical = true;
+        if (!app.reviewedDate) {
+          app.reviewedDate = new Date();
+        }
+      } else {
+        // Application not in list, add it
+        const newApp = new RiskInsightsApplicationView();
+        newApp.applicationName = applicationName;
+        newApp.isCritical = true;
+        newApp.reviewedDate = new Date();
+        this.applications.push(newApp);
+      }
     }
 
     this.recomputeSummary();
   }
 
   /**
-   * Unmark an application as critical
+   * Unmark multiple applications as critical in a single operation
    *
-   * Updates the applications array and automatically recomputes the summary.
+   * Mutates all application entries first, then recomputes the summary once.
    *
-   * @param applicationName - Name of the application to unmark as critical
+   * @param applicationNames - Names of the applications to unmark as critical
    */
-  unmarkApplicationAsCritical(applicationName: string): void {
-    const app = this.applications.find((a) => a.applicationName === applicationName);
-
-    if (app) {
-      app.isCritical = false;
-      this.recomputeSummary();
+  unmarkApplicationsAsCritical(applicationNames: string[]): void {
+    for (const applicationName of applicationNames) {
+      const app = this.applications.find((a) => a.applicationName === applicationName);
+      if (app) {
+        app.isCritical = false;
+      }
     }
+    this.recomputeSummary();
   }
 
   /**
