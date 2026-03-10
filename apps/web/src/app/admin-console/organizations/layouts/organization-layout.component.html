@@ -1,7 +1,10 @@
 <app-layout>
   <app-side-nav variant="secondary" *ngIf="organization$ | async as organization">
     <bit-nav-logo [openIcon]="logo" route="." [label]="'adminConsole' | i18n"></bit-nav-logo>
-    <org-switcher [filter]="orgFilter" [hideNewButton]="hideNewOrgButton$ | async"></org-switcher>
+    <org-switcher
+      [filter]="orgFilter"
+      [hideNewButton]="'SingleOrg' | policyAppliesToActiveUser$ | async"
+    ></org-switcher>
 
     @if (canShowAccessIntelligenceTab(organization)) {
       <bit-nav-item
