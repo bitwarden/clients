@@ -8,7 +8,7 @@ import {
   computed,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { forkJoin, from, EMPTY, catchError, switchMap, Observable } from "rxjs";
+import { forkJoin, EMPTY, catchError, switchMap, Observable } from "rxjs";
 
 import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { RiskInsightsReportView } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/risk-insights-report.view";
@@ -28,7 +28,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { AssignTasksViewComponent } from "../../activity/application-review-dialog/assign-tasks-view.component";
-import { AccessIntelligenceSecurityTasksService } from "../../shared/security-tasks.service";
+import { SecurityTasksService } from "../services/abstractions/security-tasks.service";
 import { ReviewApplicationsViewV2Component } from "../shared/review-applications-view-v2/review-applications-view-v2.component";
 
 /**
@@ -100,7 +100,7 @@ export class NewApplicationsDialogV2Component {
   private dialogService = inject(DialogService);
   private i18nService = inject(I18nService);
   private logService = inject(LogService);
-  private securityTasksService = inject(AccessIntelligenceSecurityTasksService);
+  private securityTasksService = inject(SecurityTasksService);
   private toastService = inject(ToastService);
 
   protected dialogParams = inject<NewApplicationsDialogV2Data>(DIALOG_DATA);
@@ -289,11 +289,9 @@ export class NewApplicationsDialogV2Component {
         takeUntilDestroyed(this.destroyRef),
         switchMap(() => {
           // Assign password change tasks for unassigned at-risk ciphers
-          return from(
-            this.securityTasksService.requestPasswordChangeForCriticalApplications(
-              this.dialogParams.organizationId,
-              this.newUnassignedAtRiskCipherIds(),
-            ),
+          return this.securityTasksService.requestPasswordChangeForCriticalApplications$(
+            this.dialogParams.organizationId,
+            this.newUnassignedAtRiskCipherIds(),
           );
         }),
         catchError((error: unknown) => {

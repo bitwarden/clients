@@ -16,7 +16,7 @@ import {
   I18nMockService,
 } from "@bitwarden/components";
 
-import { AccessIntelligenceSecurityTasksService } from "../../shared/security-tasks.service";
+import { SecurityTasksService } from "../services/abstractions/security-tasks.service";
 
 import {
   NewApplicationsDialogV2Component,
@@ -49,7 +49,9 @@ const mockLogService = {
 };
 
 const mockSecurityTasksService = {
-  requestPasswordChangeForCriticalApplications: jest.fn().mockResolvedValue(undefined),
+  requestPasswordChangeForCriticalApplications$: action(
+    "requestPasswordChangeForCriticalApplications$",
+  ),
 };
 
 const mockToastService = {
@@ -93,7 +95,7 @@ export default {
           },
         },
         { provide: LogService, useValue: mockLogService },
-        { provide: AccessIntelligenceSecurityTasksService, useValue: mockSecurityTasksService },
+        { provide: SecurityTasksService, useValue: mockSecurityTasksService },
         { provide: ToastService, useValue: mockToastService },
       ],
     }),

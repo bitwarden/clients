@@ -14,7 +14,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogRef, DialogService, DIALOG_DATA, ToastService } from "@bitwarden/components";
 
-import { AccessIntelligenceSecurityTasksService } from "../../shared/security-tasks.service";
+import { SecurityTasksService } from "../services/abstractions/security-tasks.service";
 
 import {
   DialogView,
@@ -31,7 +31,7 @@ describe("NewApplicationsDialogV2Component", () => {
   let mockDialogService: jest.Mocked<DialogService>;
   let mockI18nService: jest.Mocked<I18nService>;
   let mockLogService: jest.Mocked<LogService>;
-  let mockSecurityTasksService: jest.Mocked<AccessIntelligenceSecurityTasksService>;
+  let mockSecurityTasksService: jest.Mocked<SecurityTasksService>;
   let mockToastService: jest.Mocked<ToastService>;
   let mockEnvironmentService: jest.Mocked<EnvironmentService>;
   let mockDomainSettingsService: jest.Mocked<DomainSettingsService>;
@@ -107,7 +107,7 @@ describe("NewApplicationsDialogV2Component", () => {
     } as any;
 
     mockSecurityTasksService = {
-      requestPasswordChangeForCriticalApplications: jest.fn().mockResolvedValue(undefined),
+      requestPasswordChangeForCriticalApplications$: jest.fn().mockReturnValue(of(undefined)),
     } as any;
 
     mockToastService = {
@@ -139,7 +139,7 @@ describe("NewApplicationsDialogV2Component", () => {
         { provide: I18nService, useValue: mockI18nService },
         { provide: LogService, useValue: mockLogService },
         {
-          provide: AccessIntelligenceSecurityTasksService,
+          provide: SecurityTasksService,
           useValue: mockSecurityTasksService,
         },
         { provide: ToastService, useValue: mockToastService },
@@ -395,7 +395,7 @@ describe("NewApplicationsDialogV2Component", () => {
 
         // Security tasks should be assigned
         expect(
-          mockSecurityTasksService.requestPasswordChangeForCriticalApplications,
+          mockSecurityTasksService.requestPasswordChangeForCriticalApplications$,
         ).toHaveBeenCalledWith(orgId, expect.any(Array));
 
         // Success toast
@@ -454,7 +454,7 @@ describe("NewApplicationsDialogV2Component", () => {
 
       setTimeout(() => {
         expect(
-          mockSecurityTasksService.requestPasswordChangeForCriticalApplications,
+          mockSecurityTasksService.requestPasswordChangeForCriticalApplications$,
         ).toHaveBeenCalledWith(orgId, expect.arrayContaining(["c1"]));
         done();
       }, 100);
@@ -538,7 +538,7 @@ describe("NewApplicationsDialogV2Component", () => {
           { provide: I18nService, useValue: mockI18nService },
           { provide: LogService, useValue: mockLogService },
           {
-            provide: AccessIntelligenceSecurityTasksService,
+            provide: SecurityTasksService,
             useValue: mockSecurityTasksService,
           },
           { provide: ToastService, useValue: mockToastService },
@@ -570,7 +570,7 @@ describe("NewApplicationsDialogV2Component", () => {
           { provide: I18nService, useValue: mockI18nService },
           { provide: LogService, useValue: mockLogService },
           {
-            provide: AccessIntelligenceSecurityTasksService,
+            provide: SecurityTasksService,
             useValue: mockSecurityTasksService,
           },
           { provide: ToastService, useValue: mockToastService },

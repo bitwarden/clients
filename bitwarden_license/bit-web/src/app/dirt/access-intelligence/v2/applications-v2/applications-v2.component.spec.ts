@@ -21,7 +21,7 @@ import { OrganizationId, CipherId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
 
-import { AccessIntelligenceSecurityTasksService } from "../../shared/security-tasks.service";
+import { SecurityTasksService } from "../services/abstractions/security-tasks.service";
 
 import { ApplicationsV2Component } from "./applications-v2.component";
 
@@ -41,7 +41,7 @@ type MockAccessIntelligenceDataService = {
  */
 type MockSecurityTasksService = {
   unassignedCriticalCipherIds$: BehaviorSubject<CipherId[]>;
-  requestPasswordChangeForCriticalApplications: jest.Mock;
+  requestPasswordChangeForCriticalApplications$: jest.Mock;
 };
 
 describe("ApplicationsV2Component", () => {
@@ -79,7 +79,7 @@ describe("ApplicationsV2Component", () => {
 
     mockSecurityTasksService = {
       unassignedCriticalCipherIds$: new BehaviorSubject<CipherId[]>([]),
-      requestPasswordChangeForCriticalApplications: jest.fn().mockResolvedValue(undefined),
+      requestPasswordChangeForCriticalApplications$: jest.fn().mockReturnValue(of(undefined)),
     };
 
     mockFileDownloadService = {
@@ -103,7 +103,7 @@ describe("ApplicationsV2Component", () => {
       providers: [
         { provide: AccessIntelligenceDataService, useValue: mockDataService },
         { provide: DrawerStateService, useValue: mockDrawerStateService },
-        { provide: AccessIntelligenceSecurityTasksService, useValue: mockSecurityTasksService },
+        { provide: SecurityTasksService, useValue: mockSecurityTasksService },
         { provide: FileDownloadService, useValue: mockFileDownloadService },
         { provide: I18nService, useValue: mockI18nService },
         { provide: ToastService, useValue: mockToastService },
@@ -325,7 +325,7 @@ describe("ApplicationsV2Component", () => {
       await component.requestPasswordChange();
 
       expect(
-        mockSecurityTasksService.requestPasswordChangeForCriticalApplications,
+        mockSecurityTasksService.requestPasswordChangeForCriticalApplications$,
       ).toHaveBeenCalledWith(orgId, expect.arrayContaining(["cipher-1"]));
     });
 

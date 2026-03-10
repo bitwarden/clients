@@ -10,7 +10,7 @@ import {
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, debounceTime, EMPTY, map, startWith, switchMap } from "rxjs";
+import { combineLatest, debounceTime, EMPTY, map, startWith, switchMap, take } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import { RiskInsightsDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
@@ -45,7 +45,7 @@ import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pip
 import { AppTableRowScrollableM11Component } from "../shared/app-table-row-scrollable-m11.component";
 import { ApplicationTableDataSource } from "../shared/app-table-row-scrollable.component";
 import { ReportLoadingComponent } from "../shared/report-loading.component";
-import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks.service";
+import { SecurityTasksService } from "../v2/services/abstractions/security-tasks.service";
 
 export const ApplicationFilterOption = {
   All: "all",
@@ -165,7 +165,7 @@ export class ApplicationsComponent implements OnInit {
     protected activatedRoute: ActivatedRoute,
     protected toastService: ToastService,
     protected dataService: RiskInsightsDataService,
-    protected securityTasksService: AccessIntelligenceSecurityTasksService,
+    protected securityTasksService: SecurityTasksService,
   ) {}
 
   async ngOnInit() {
@@ -271,7 +271,7 @@ export class ApplicationsComponent implements OnInit {
 
     this.dataService
       .removeCriticalApplications(appsToUnmark)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           this.toastService.showToast({
@@ -297,7 +297,7 @@ export class ApplicationsComponent implements OnInit {
       });
   }
 
-  async requestPasswordChange() {
+  requestPasswordChange(): void {
     const orgId = this.organizationId();
     if (!orgId) {
       this.toastService.showToast({
@@ -308,23 +308,25 @@ export class ApplicationsComponent implements OnInit {
       return;
     }
 
-    try {
-      await this.securityTasksService.requestPasswordChangeForCriticalApplications(
-        orgId,
-        this.unassignedCipherIds(),
-      );
-      this.toastService.showToast({
-        message: this.i18nService.t("notifiedMembers"),
-        variant: "success",
-        title: this.i18nService.t("success"),
+    this.securityTasksService
+      .requestPasswordChangeForCriticalApplications$(orgId, this.unassignedCipherIds())
+      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toastService.showToast({
+            message: this.i18nService.t("notifiedMembers"),
+            variant: "success",
+            title: this.i18nService.t("success"),
+          });
+        },
+        error: () => {
+          this.toastService.showToast({
+            message: this.i18nService.t("unexpectedError"),
+            variant: "error",
+            title: this.i18nService.t("error"),
+          });
+        },
       });
-    } catch {
-      this.toastService.showToast({
-        message: this.i18nService.t("unexpectedError"),
-        variant: "error",
-        title: this.i18nService.t("error"),
-      });
-    }
   }
 
   async showAppAtRiskMembers(applicationName: string) {

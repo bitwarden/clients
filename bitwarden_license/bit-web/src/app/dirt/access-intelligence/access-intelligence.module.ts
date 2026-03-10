@@ -47,7 +47,7 @@ import { DefaultAdminTaskService } from "../../vault/services/default-admin-task
 import { AccessIntelligenceRoutingModule } from "./access-intelligence-routing.module";
 import { NewApplicationsDialogComponent } from "./activity/application-review-dialog/new-applications-dialog.component";
 import { RiskInsightsComponent } from "./risk-insights.component";
-import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.service";
+import { LegacySecurityTasksService } from "./v2/services/implementations/legacy-security-tasks.service";
 // AccessIntelligencePageComponent loaded via routing - no import needed
 
 @NgModule({
@@ -90,8 +90,8 @@ import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.
     }),
     safeProvider(DefaultAdminTaskService),
     safeProvider({
-      provide: AccessIntelligenceSecurityTasksService,
-      useClass: AccessIntelligenceSecurityTasksService,
+      provide: LegacySecurityTasksService,
+      useClass: LegacySecurityTasksService,
       deps: [DefaultAdminTaskService, SecurityTasksApiService, RiskInsightsDataService],
     }),
     safeProvider({

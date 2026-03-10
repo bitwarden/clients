@@ -22,7 +22,7 @@ import { OrganizationId, CipherId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { I18nMockService, ToastService } from "@bitwarden/components";
 
-import { AccessIntelligenceSecurityTasksService } from "../../shared/security-tasks.service";
+import { SecurityTasksService } from "../services/abstractions/security-tasks.service";
 
 import { ApplicationsV2Component } from "./applications-v2.component";
 
@@ -67,8 +67,8 @@ class MockSecurityTasksService {
   private _cipherIds = new BehaviorSubject<CipherId[]>([]);
   readonly unassignedCriticalCipherIds$ = this._cipherIds.asObservable();
 
-  requestPasswordChangeForCriticalApplications = action(
-    "requestPasswordChangeForCriticalApplications",
+  requestPasswordChangeForCriticalApplications$ = action(
+    "requestPasswordChangeForCriticalApplications$",
   );
 
   constructor(cipherIds: CipherId[] = []) {
@@ -187,7 +187,7 @@ export const Default: Story = {
             useValue: new MockAccessIntelligenceDataService(report),
           },
           { provide: DrawerStateService, useClass: MockDrawerStateService },
-          { provide: AccessIntelligenceSecurityTasksService, useClass: MockSecurityTasksService },
+          { provide: SecurityTasksService, useClass: MockSecurityTasksService },
           { provide: FileDownloadService, useClass: MockFileDownloadService },
           { provide: LogService, useClass: MockLogService },
           { provide: ToastService, useClass: MockToastService },
@@ -210,7 +210,7 @@ export const Loading: Story = {
           useValue: new MockAccessIntelligenceDataService(null, true),
         },
         { provide: DrawerStateService, useClass: MockDrawerStateService },
-        { provide: AccessIntelligenceSecurityTasksService, useClass: MockSecurityTasksService },
+        { provide: SecurityTasksService, useClass: MockSecurityTasksService },
         { provide: FileDownloadService, useClass: MockFileDownloadService },
         { provide: LogService, useClass: MockLogService },
         { provide: ToastService, useClass: MockToastService },
@@ -240,7 +240,7 @@ export const Empty: Story = {
             useValue: new MockAccessIntelligenceDataService(emptyReport),
           },
           { provide: DrawerStateService, useClass: MockDrawerStateService },
-          { provide: AccessIntelligenceSecurityTasksService, useClass: MockSecurityTasksService },
+          { provide: SecurityTasksService, useClass: MockSecurityTasksService },
           { provide: FileDownloadService, useClass: MockFileDownloadService },
           { provide: LogService, useClass: MockLogService },
           { provide: ToastService, useClass: MockToastService },
@@ -291,7 +291,7 @@ export const AllCritical: Story = {
             useValue: new MockAccessIntelligenceDataService(report),
           },
           { provide: DrawerStateService, useClass: MockDrawerStateService },
-          { provide: AccessIntelligenceSecurityTasksService, useClass: MockSecurityTasksService },
+          { provide: SecurityTasksService, useClass: MockSecurityTasksService },
           { provide: FileDownloadService, useClass: MockFileDownloadService },
           { provide: LogService, useClass: MockLogService },
           { provide: ToastService, useClass: MockToastService },
@@ -339,7 +339,7 @@ export const WithUnassignedTasks: Story = {
             useValue: new MockAccessIntelligenceDataService(report),
           },
           { provide: DrawerStateService, useClass: MockDrawerStateService },
-          { provide: AccessIntelligenceSecurityTasksService, useValue: securityTasksService },
+          { provide: SecurityTasksService, useValue: securityTasksService },
           { provide: FileDownloadService, useClass: MockFileDownloadService },
           { provide: LogService, useClass: MockLogService },
           { provide: ToastService, useClass: MockToastService },
@@ -403,7 +403,7 @@ export const LargeDataset: Story = {
             useValue: new MockAccessIntelligenceDataService(report),
           },
           { provide: DrawerStateService, useClass: MockDrawerStateService },
-          { provide: AccessIntelligenceSecurityTasksService, useClass: MockSecurityTasksService },
+          { provide: SecurityTasksService, useClass: MockSecurityTasksService },
           { provide: FileDownloadService, useClass: MockFileDownloadService },
           { provide: LogService, useClass: MockLogService },
           { provide: ToastService, useClass: MockToastService },
@@ -449,7 +449,7 @@ export const NoCriticalApps: Story = {
             useValue: new MockAccessIntelligenceDataService(report),
           },
           { provide: DrawerStateService, useClass: MockDrawerStateService },
-          { provide: AccessIntelligenceSecurityTasksService, useClass: MockSecurityTasksService },
+          { provide: SecurityTasksService, useClass: MockSecurityTasksService },
           { provide: FileDownloadService, useClass: MockFileDownloadService },
           { provide: LogService, useClass: MockLogService },
           { provide: ToastService, useClass: MockToastService },

@@ -21,7 +21,7 @@ import { CipherId } from "@bitwarden/common/types/guid";
 import { TableDataSource, ToastService } from "@bitwarden/components";
 
 import { ApplicationTableDataSource } from "../shared/app-table-row-scrollable.component";
-import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks.service";
+import { SecurityTasksService } from "../v2/services/abstractions/security-tasks.service";
 
 import { ApplicationsComponent } from "./applications.component";
 
@@ -47,7 +47,7 @@ describe("ApplicationsComponent", () => {
   let mockLogService: MockProxy<LogService>;
   let mockToastService: MockProxy<ToastService>;
   let mockDataService: MockProxy<RiskInsightsDataService>;
-  let mockSecurityTasksService: MockProxy<AccessIntelligenceSecurityTasksService>;
+  let mockSecurityTasksService: MockProxy<SecurityTasksService>;
 
   const reportStatus$ = new BehaviorSubject<ReportStatus>(ReportStatus.Complete);
   const enrichedReportData$ = new BehaviorSubject<RiskInsightsEnrichedData | null>(null);
@@ -68,7 +68,7 @@ describe("ApplicationsComponent", () => {
     mockLogService = mock<LogService>();
     mockToastService = mock<ToastService>();
     mockDataService = mock<RiskInsightsDataService>();
-    mockSecurityTasksService = mock<AccessIntelligenceSecurityTasksService>();
+    mockSecurityTasksService = mock<SecurityTasksService>();
 
     mockI18nService.t.mockImplementation((key: string) => key);
 
@@ -99,7 +99,7 @@ describe("ApplicationsComponent", () => {
             snapshot: { paramMap: convertToParamMap({}) },
           },
         },
-        { provide: AccessIntelligenceSecurityTasksService, useValue: mockSecurityTasksService },
+        { provide: SecurityTasksService, useValue: mockSecurityTasksService },
       ],
     }).compileComponents();
 

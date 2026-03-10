@@ -9,7 +9,7 @@ import {
 } from "@angular/core";
 import { toSignal, toObservable, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
-import { combineLatest, debounceTime, finalize, forkJoin, startWith } from "rxjs";
+import { combineLatest, debounceTime, finalize, forkJoin, startWith, take } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
@@ -39,7 +39,7 @@ import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils"
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
-import { AccessIntelligenceSecurityTasksService } from "../../shared/security-tasks.service";
+import { SecurityTasksService } from "../services/abstractions/security-tasks.service";
 import {
   ApplicationsTableV2Component,
   ApplicationTableRowV2,
@@ -93,7 +93,7 @@ export class ApplicationsV2Component {
   private logService = inject(LogService);
   private accessIntelligenceService = inject(AccessIntelligenceDataService);
   private drawerStateService = inject(DrawerStateService);
-  private securityTasksService = inject(AccessIntelligenceSecurityTasksService);
+  private securityTasksService = inject(SecurityTasksService);
   private i18nService = inject(I18nService);
   private toastService = inject(ToastService);
 
@@ -335,7 +335,7 @@ export class ApplicationsV2Component {
       });
   }
 
-  async requestPasswordChange() {
+  requestPasswordChange(): void {
     const orgId = this.organizationId();
     if (!orgId) {
       this.toastService.showToast({
@@ -346,23 +346,25 @@ export class ApplicationsV2Component {
       return;
     }
 
-    try {
-      await this.securityTasksService.requestPasswordChangeForCriticalApplications(
-        orgId,
-        this.unassignedCipherIds(),
-      );
-      this.toastService.showToast({
-        message: this.i18nService.t("notifiedMembers"),
-        variant: "success",
-        title: this.i18nService.t("success"),
+    this.securityTasksService
+      .requestPasswordChangeForCriticalApplications$(orgId, this.unassignedCipherIds())
+      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toastService.showToast({
+            message: this.i18nService.t("notifiedMembers"),
+            variant: "success",
+            title: this.i18nService.t("success"),
+          });
+        },
+        error: () => {
+          this.toastService.showToast({
+            message: this.i18nService.t("unexpectedError"),
+            variant: "error",
+            title: this.i18nService.t("error"),
+          });
+        },
       });
-    } catch {
-      this.toastService.showToast({
-        message: this.i18nService.t("unexpectedError"),
-        variant: "error",
-        title: this.i18nService.t("error"),
-      });
-    }
   }
 
   /**

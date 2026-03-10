@@ -1,5 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
+import { firstValueFrom } from "rxjs";
 
 import {
   RiskInsightsDataService,
@@ -8,19 +9,19 @@ import {
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { SecurityTaskType } from "@bitwarden/common/vault/tasks";
 
-import { DefaultAdminTaskService } from "../../../vault/services/default-admin-task.service";
+import { DefaultAdminTaskService } from "../../../../../vault/services/default-admin-task.service";
 
-import { AccessIntelligenceSecurityTasksService } from "./security-tasks.service";
+import { LegacySecurityTasksService } from "./legacy-security-tasks.service";
 
-describe("AccessIntelligenceSecurityTasksService", () => {
-  let service: AccessIntelligenceSecurityTasksService;
+describe("LegacySecurityTasksService", () => {
+  let service: LegacySecurityTasksService;
   const defaultAdminTaskServiceMock = mock<DefaultAdminTaskService>();
   const securityTasksApiServiceMock = mock<SecurityTasksApiService>();
   const riskInsightsDataServiceMock = mock<RiskInsightsDataService>();
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = new AccessIntelligenceSecurityTasksService(
+    service = new LegacySecurityTasksService(
       defaultAdminTaskServiceMock,
       securityTasksApiServiceMock,
       riskInsightsDataServiceMock,
@@ -32,30 +33,37 @@ describe("AccessIntelligenceSecurityTasksService", () => {
   });
 
   describe("assignTasks", () => {
-    it("should call requestPasswordChangeForCriticalApplications and setTaskCreatedCount", async () => {
+    it("should call requestPasswordChangeForCriticalApplications$ and setTaskCreatedCount", async () => {
       // Set up test data
       const organizationId = "org-1" as OrganizationId;
       const mockCipherIds = ["cid1" as CipherId, "cid2" as CipherId];
-      const spy = jest.spyOn(service, "requestPasswordChangeForCriticalApplications");
+      defaultAdminTaskServiceMock.bulkCreateTasks.mockResolvedValue(undefined);
+      securityTasksApiServiceMock.getAllTasks.mockResolvedValue([]);
+      const spy = jest.spyOn(service, "requestPasswordChangeForCriticalApplications$");
 
       // Call the method
-      await service.requestPasswordChangeForCriticalApplications(organizationId, mockCipherIds);
+      await firstValueFrom(
+        service.requestPasswordChangeForCriticalApplications$(organizationId, mockCipherIds),
+      );
 
       // Verify that the method was called with correct parameters
       expect(spy).toHaveBeenCalledWith(organizationId, mockCipherIds);
     });
   });
 
-  describe("requestPasswordChangeForCriticalApplications", () => {
+  describe("requestPasswordChangeForCriticalApplications$", () => {
     it("should create tasks for distinct cipher ids and show success toast", async () => {
       // Set up test data
       const organizationId = "org-2" as OrganizationId;
       const mockCipherIds = ["cid1" as CipherId, "cid2" as CipherId];
       defaultAdminTaskServiceMock.bulkCreateTasks.mockResolvedValue(undefined);
-      const spy = jest.spyOn(service, "requestPasswordChangeForCriticalApplications");
+      securityTasksApiServiceMock.getAllTasks.mockResolvedValue([]);
+      const spy = jest.spyOn(service, "requestPasswordChangeForCriticalApplications$");
 
       // Call the method
-      await service.requestPasswordChangeForCriticalApplications(organizationId, mockCipherIds);
+      await firstValueFrom(
+        service.requestPasswordChangeForCriticalApplications$(organizationId, mockCipherIds),
+      );
 
       // Verify that bulkCreateTasks was called with distinct cipher ids
       expect(defaultAdminTaskServiceMock.bulkCreateTasks).toHaveBeenCalledWith(organizationId, [
@@ -72,7 +80,9 @@ describe("AccessIntelligenceSecurityTasksService", () => {
       defaultAdminTaskServiceMock.bulkCreateTasks.mockRejectedValue(new Error("API fail error"));
 
       await expect(
-        service.requestPasswordChangeForCriticalApplications(organizationId, mockCipherIds),
+        firstValueFrom(
+          service.requestPasswordChangeForCriticalApplications$(organizationId, mockCipherIds),
+        ),
       ).rejects.toThrow("API fail error");
     });
   });
