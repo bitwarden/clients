@@ -489,9 +489,7 @@ describe("SsoLoginStrategy", () => {
     });
 
     it("gets and sets the master key if Key Connector is enabled and the user doesn't have a master password", async () => {
-      const masterKey = new SymmetricCryptoKey(
-        new Uint8Array(64),
-      ) as MasterKey;
+      const masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
 
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
       masterPasswordService.masterKeySubject.next(masterKey);
@@ -521,9 +519,7 @@ describe("SsoLoginStrategy", () => {
 
     it("decrypts and sets the user key if Key Connector is enabled and the user doesn't have a master password", async () => {
       const userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-      const masterKey = new SymmetricCryptoKey(
-        new Uint8Array(64),
-      ) as MasterKey;
+      const masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
 
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
       masterPasswordService.masterKeySubject.next(masterKey);
