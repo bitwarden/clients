@@ -56,7 +56,7 @@ describe("DefaultRegistrationFinishService", () => {
     beforeEach(() => {
       email = "test@email.com";
       emailVerificationToken = "emailVerificationToken";
-      masterKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey;
+      masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
       passwordInputResult = {
         newMasterKey: masterKey,
         newServerMasterKeyHash: "newServerMasterKeyHash",
@@ -66,7 +66,7 @@ describe("DefaultRegistrationFinishService", () => {
         newPassword: "newPassword",
       };
 
-      userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
+      userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
       userKeyEncString = new EncString("userKeyEncrypted");
 
       userKeyPair = ["publicKey", new EncString("privateKey")];
