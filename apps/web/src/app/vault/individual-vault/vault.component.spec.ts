@@ -13,7 +13,7 @@ import {
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
-import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
+import { AuthRequestServiceAbstraction, LockService, LogoutService } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -167,6 +167,8 @@ describe("VaultComponent", () => {
         { provide: CollectionAdminService, useValue: mock<CollectionAdminService>() },
         { provide: CipherAuthorizationService, useValue: mock<CipherAuthorizationService>() },
         { provide: ProviderService, useValue: mock<ProviderService>() },
+        { provide: LogoutService, useValue: mock<LogoutService>() },
+        { provide: LockService, useValue: mock<LockService>() },
         {
           provide: AvatarService,
           useValue: { ...mock<AvatarService>(), avatarColor$: of(null) },
