@@ -7,7 +7,13 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
-import { ButtonModule, MenuModule, PopoverComponent, PopoverModule } from "@bitwarden/components";
+import {
+  ButtonModule,
+  MenuModule,
+  PopoverComponent,
+  PopoverModule,
+  PositionIdentifier,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -32,11 +38,11 @@ export class NewCipherMenuComponent {
   canCreateSshKey = input(false);
 
   /** Optional popover to anchor to the "New" button for coachmark tours */
-  readonly coachmarkPopover = input<PopoverComponent | null>(null);
+  readonly coachmarkPopover = input<PopoverComponent>();
   /** Whether the coachmark popover is open */
   readonly coachmarkPopoverOpen = input(false);
   /** Popover position */
-  readonly coachmarkPosition = input<string | undefined>(undefined);
+  readonly coachmarkPosition = input<PositionIdentifier>();
 
   folderAdded = output();
   collectionAdded = output();

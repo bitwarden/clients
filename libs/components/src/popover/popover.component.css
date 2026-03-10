@@ -54,5 +54,5 @@
 }
 
 .bit-popover-backdrop {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--color-bg-overlay);
 }

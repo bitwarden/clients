@@ -1,3 +1,5 @@
+import { PositionIdentifier } from "@bitwarden/components";
+
 /** Identifies a specific step in the coachmark tour */
 export type CoachmarkStepId = "importData" | "addItem" | "shareWithCollections" | "monitorSecurity";
 
@@ -13,7 +15,7 @@ export interface CoachmarkStep {
   descriptionKey: string;
 
   /** Position of the popover relative to the anchor */
-  position: "above-center" | "below-center" | "left-center" | "right-center";
+  position: PositionIdentifier;
 
   /** Optional URL for "Learn more" link */
   learnMoreUrl?: string;

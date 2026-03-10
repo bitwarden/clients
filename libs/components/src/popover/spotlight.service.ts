@@ -43,8 +43,6 @@ export class SpotlightService {
       box-shadow: 0 0 0 9999px var(--color-bg-overlay);
       width: 100%;
       height: 100%;
-      position: fixed;
-      z-index: 1001;
       pointer-events: none;
       display: none;
     `;

@@ -6,7 +6,7 @@
   <div
     *ngIf="headerInfo.showHeader"
     class="filter-heading"
-    [bitPopoverAnchor]="isCollectionFilter ? collectionsCoachmark.popover() : null"
+    [bitPopoverAnchorFor]="isCollectionFilter ? collectionsCoachmark.popover() : null"
     [popoverOpen]="isCollectionFilter ? collectionsCoachmarkOpen() : false"
     [spotlight]="isCollectionFilter"
     [spotlightPadding]="5"

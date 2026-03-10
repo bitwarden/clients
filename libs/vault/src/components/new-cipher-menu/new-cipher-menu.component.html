@@ -8,7 +8,7 @@
       (click)="handleButtonClick()"
       id="newItemDropdown"
       [appA11yTitle]="getButtonLabel() | i18n"
-      [bitPopoverAnchor]="coachmarkPopover()"
+      [bitPopoverAnchorFor]="coachmarkPopover()"
       [popoverOpen]="coachmarkPopoverOpen()"
       [position]="coachmarkPosition()"
       [spotlight]="!!coachmarkPopover()"

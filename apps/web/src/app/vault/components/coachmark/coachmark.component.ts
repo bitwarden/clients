@@ -15,11 +15,11 @@ import { CoachmarkService } from "./coachmark.service";
 
 /**
  * Self-contained coachmark tour step.
- * Wraps a `<bit-popover>` internally — use `coachmark.popover()` with `[bitPopoverAnchor]`.
+ * Wraps a `<bit-popover>` internally — use `coachmark.popover()` with `[bitPopoverAnchorFor]`.
  *
  * @example
  * ```html
- * <div [bitPopoverAnchor]="myCoachmark.popover()" [popoverOpen]="isOpen()">
+ * <div [bitPopoverAnchorFor]="myCoachmark.popover()" [popoverOpen]="isOpen()">
  *   Highlighted element
  * </div>
  * <app-coachmark #myCoachmark stepId="importData" />
@@ -37,7 +37,7 @@ export class CoachmarkComponent {
   /** Which coachmark step this instance represents */
   readonly stepId = input.required<CoachmarkStepId>();
 
-  /** Exposed so parent templates can bind `[bitPopoverAnchor]="ref.popover()"` */
+  /** Exposed so parent templates can bind `[bitPopoverAnchorFor]="ref.popover()"` */
   readonly popover = viewChild.required(PopoverComponent);
 
   protected readonly service = inject(CoachmarkService);
