@@ -1,5 +1,2 @@
-import { UserId } from "../../types/guid";
-
-export abstract class EventUploadService {
-  abstract uploadEvents(userId?: UserId): Promise<void>;
-}
+// Re-export from new location for backward compatibility
+export * from "../../dirt/event-logs/abstractions/event-upload.service";
