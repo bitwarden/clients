@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { combineLatest, map, Observable } from "rxjs";
+import { combineLatest, map, Observable, switchMap } from "rxjs";
 
 import { Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
@@ -38,25 +38,37 @@ export class RoutedVaultFilterBridgeService {
     private routedVaultFilterService: RoutedVaultFilterService,
     legacyVaultFilterService: VaultFilterService,
   ) {
-    this.activeFilter$ = combineLatest([
-      routedVaultFilterService.filter$,
-      legacyVaultFilterService.collectionTree$,
-      legacyVaultFilterService.folderTree$,
-      legacyVaultFilterService.organizationTree$,
-      legacyVaultFilterService.cipherTypeTree$,
-    ]).pipe(
-      map(([filter, collectionTree, folderTree, organizationTree, cipherTypeTree]) => {
-        const legacyFilter = isAdminConsole(filter)
-          ? createLegacyFilterForAdminConsole(filter, collectionTree, cipherTypeTree)
-          : createLegacyFilterForEndUser(
-              filter,
-              collectionTree,
-              folderTree,
-              organizationTree,
-              cipherTypeTree,
+    this.activeFilter$ = routedVaultFilterService.filter$.pipe(
+      switchMap((filter) => {
+        const legacyFilter$: Observable<VaultFilter> = isAdminConsole(filter)
+          ? combineLatest([
+              legacyVaultFilterService.collectionTree$,
+              legacyVaultFilterService.cipherTypeTree$,
+            ]).pipe(
+              map(([collectionTree, cipherTypeTree]) =>
+                createLegacyFilterForAdminConsole(filter, collectionTree, cipherTypeTree),
+              ),
+            )
+          : combineLatest([
+              legacyVaultFilterService.collectionTree$,
+              legacyVaultFilterService.folderTree$,
+              legacyVaultFilterService.organizationTree$,
+              legacyVaultFilterService.cipherTypeTree$,
+            ]).pipe(
+              map(([collectionTree, folderTree, organizationTree, cipherTypeTree]) =>
+                createLegacyFilterForEndUser(
+                  filter,
+                  collectionTree,
+                  folderTree,
+                  organizationTree,
+                  cipherTypeTree,
+                ),
+              ),
             );
 
-        return new RoutedVaultFilterBridge(filter, legacyFilter, this);
+        return legacyFilter$.pipe(
+          map((legacyFilter) => new RoutedVaultFilterBridge(filter, legacyFilter, this)),
+        );
       }),
     );
   }

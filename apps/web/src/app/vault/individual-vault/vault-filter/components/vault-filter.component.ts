@@ -5,6 +5,7 @@ import {
   firstValueFrom,
   map,
   merge,
+  Observable,
   shareReplay,
   Subject,
   switchMap,
@@ -27,7 +28,10 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
   VaultFilterServiceAbstraction as VaultFilterService,
@@ -321,7 +325,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
 
     const data$ = combineLatest([
       this.restrictedItemTypesService.restricted$,
-      this.cipherService.cipherListViews$(userId),
+      this.getCiphers$(userId),
     ]).pipe(
       map(([restrictedTypes, ciphers]) => {
         const restrictedForUser = restrictedTypes
@@ -365,6 +369,10 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       action: this.applyTypeFilter as (filterNode: TreeNode<VaultFilterType>) => Promise<void>,
     };
     return typeFilterSection;
+  }
+
+  protected getCiphers$(userId: UserId): Observable<CipherViewLike[] | null> {
+    return this.cipherService.cipherListViews$(userId) as Observable<CipherViewLike[] | null>;
   }
 
   protected async addFolderFilter(): Promise<VaultFilterSection> {

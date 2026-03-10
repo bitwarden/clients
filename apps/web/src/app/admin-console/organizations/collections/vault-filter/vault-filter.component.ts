@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from "@angular/core";
-import { firstValueFrom, Subject } from "rxjs";
+import { firstValueFrom, Observable, Subject } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -9,11 +9,14 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
   VaultFilterServiceAbstraction,
@@ -47,6 +50,10 @@ export class VaultFilterComponent
   }
   _organization: Organization;
   protected destroy$: Subject<void>;
+
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() orgCiphers$?: Observable<CipherView[]>;
 
   constructor(
     protected vaultFilterService: VaultFilterServiceAbstraction,
@@ -149,5 +156,9 @@ export class VaultFilterComponent
 
   async getDefaultFilter(): Promise<TreeNode<VaultFilterType>> {
     return await firstValueFrom(this.filters?.collectionFilter.data$);
+  }
+
+  protected override getCiphers$(userId: UserId): Observable<CipherViewLike[] | null> {
+    return this.orgCiphers$ ?? super.getCiphers$(userId);
   }
 }

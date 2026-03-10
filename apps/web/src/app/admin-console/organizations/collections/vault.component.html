@@ -37,6 +37,7 @@
         <app-organization-vault-filter
           [organization]="organization"
           [activeFilter]="activeFilter"
+          [orgCiphers$]="allCiphers$"
           [searchText]="currentSearchText$ | async"
           (searchTextChanged)="filterSearchText($event)"
         ></app-organization-vault-filter>

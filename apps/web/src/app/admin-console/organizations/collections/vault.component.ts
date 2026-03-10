@@ -317,7 +317,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.organization$,
       this.userId$,
       this.restrictedItemTypesService.restricted$,
-      this.refreshingSubject$,
+      this.refreshingSubject$.pipe(filter((refreshing) => refreshing)),
     ]).pipe(
       switchMap(async ([organization, userId, restricted]) => {
         // If user swaps organization reset the addAccessToggle
