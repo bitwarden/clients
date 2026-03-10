@@ -85,8 +85,6 @@ export enum FeatureFlag {
   PM19148_InnovationArchive = "pm-19148-innovation-archive",
 
   /* Desktop */
-  DesktopUiMigrationMilestone1 = "desktop-ui-migration-milestone-1",
-  DesktopUiMigrationMilestone2 = "desktop-ui-migration-milestone-2",
   DesktopUiMigrationMilestone3 = "desktop-ui-migration-milestone-3",
   DesktopUiMigrationMilestone4 = "desktop-ui-migration-milestone-4",
 
@@ -183,8 +181,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM19148_InnovationArchive]: FALSE,
 
   /* Desktop */
-  [FeatureFlag.DesktopUiMigrationMilestone1]: FALSE,
-  [FeatureFlag.DesktopUiMigrationMilestone2]: FALSE,
   [FeatureFlag.DesktopUiMigrationMilestone3]: FALSE,
   [FeatureFlag.DesktopUiMigrationMilestone4]: FALSE,
 

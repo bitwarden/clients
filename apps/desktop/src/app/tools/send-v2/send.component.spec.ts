@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ChangeDetectorRef } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
@@ -31,11 +31,20 @@ import {
   SendFormConfig,
 } from "@bitwarden/send-ui";
 
-import { SendV2Component } from "./send-v2.component";
+import { DesktopHeaderComponent } from "../../layout/header";
 
-describe("SendV2Component", () => {
-  let component: SendV2Component;
-  let fixture: ComponentFixture<SendV2Component>;
+import { SendComponent } from "./send.component";
+
+@Component({
+  selector: "app-header",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockDesktopHeaderComponent {}
+
+describe("SendComponent", () => {
+  let component: SendComponent;
+  let fixture: ComponentFixture<SendComponent>;
   let sendService: MockProxy<SendService>;
   let accountService: MockProxy<AccountService>;
   let policyService: MockProxy<PolicyService>;
@@ -99,7 +108,7 @@ describe("SendV2Component", () => {
     mockSearchService.isSearchable.mockResolvedValue(false);
 
     await TestBed.configureTestingModule({
-      imports: [SendV2Component],
+      imports: [SendComponent],
       providers: [
         provideNoopAnimations(),
         { provide: SendService, useValue: sendService },
@@ -131,8 +140,10 @@ describe("SendV2Component", () => {
         },
       ],
     })
-      .overrideComponent(SendV2Component, {
-        set: {
+      .overrideComponent(SendComponent, {
+        remove: { imports: [DesktopHeaderComponent] },
+        add: {
+          imports: [MockDesktopHeaderComponent],
           providers: [
             { provide: DefaultSendFormConfigService, useValue: sendFormConfigService },
             { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
@@ -141,7 +152,7 @@ describe("SendV2Component", () => {
       })
       .compileComponents();
 
-    fixture = TestBed.createComponent(SendV2Component);
+    fixture = TestBed.createComponent(SendComponent);
     component = fixture.componentInstance;
   });
 
