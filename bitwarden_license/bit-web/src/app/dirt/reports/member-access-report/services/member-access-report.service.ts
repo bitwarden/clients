@@ -675,6 +675,25 @@ export class MemberAccessReportService {
       });
     }
 
+    // include users who have no access to any collections/ciphers/groups to ensure they appear in the report with 0 counts
+    const exportedUserIds = new Set(Array.from(accessMap.values()).map((a) => a.access.userId));
+    for (const [userId, metadata] of orgData.organizationUserDataMap.entries()) {
+      if (!exportedUserIds.has(userId)) {
+        exportItems.push({
+          email: metadata.email,
+          name: metadata.name,
+          twoStepLogin: metadata.twoFactorEnabled ? twoFactorEnabledTrue : twoFactorEnabledFalse,
+          accountRecovery: metadata.resetPasswordEnrolled
+            ? accountRecoveryEnabledTrue
+            : accountRecoveryEnabledFalse,
+          group: noGroup,
+          collection: noCollection,
+          collectionPermission: noCollectionPermission,
+          totalItems: "0",
+        });
+      }
+    }
+
     return exportItems;
   }
 }
