@@ -5,6 +5,7 @@ import { FieldType } from "@bitwarden/common/vault/enums/field-type.enum";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
+import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { import_ssh_key, SshKeyView } from "@bitwarden/sdk-internal";
 
 import { ImportResult } from "../../models/import-result";
@@ -68,6 +69,9 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
       switch (record.$type) {
         case "bankCard":
           this.importBankCard(record, cipher);
+          break;
+        case "driverLicense":
+          this.importDriverLicense(record, cipher);
           break;
         case "sshKeys":
           // In Bitwarden the ssh key is supposed to be valid.
@@ -213,6 +217,28 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     return true;
   }
 
+  private importDriverLicense(record: Record, cipher: CipherView) {
+    cipher.type = CipherType.Identity;
+    cipher.identity = new IdentityView();
+    cipher.identity.licenseNumber = this.findCustomField(
+      record.custom_fields,
+      "$accountNumber:dlNumber",
+    );
+    this.importIdentityName(record, cipher);
+
+    this.copyLoginPropertiesAsCustomFields(cipher);
+
+    // This should not be imported as custom fields since they are mapped to card properties
+    this.deleteTopLevelCustomField(record.custom_fields, "$accountNumber:dlNumber");
+  }
+
+  private importIdentityName(record: Record, cipher: CipherView) {
+    cipher.identity.firstName = this.findCustomField(record.custom_fields, "$name/first");
+    cipher.identity.middleName = this.findCustomField(record.custom_fields, "$name/middle");
+    cipher.identity.lastName = this.findCustomField(record.custom_fields, "$name/last");
+    this.deleteTopLevelCustomField(record.custom_fields, "$name");
+  }
+
   private copyLoginPropertiesAsCustomFields(cipher: CipherView) {
     if (!this.isNullOrWhitespace(cipher.login.username)) {
       this.addField(cipher, "Username", cipher.login.username!);
@@ -232,6 +258,9 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     }
   }
 
+  // Matches by the full key with only the trailing `:digit` suffix stripped.
+  // Supports nested path lookups via `/` (e.g. "$paymentCard/cardNumber").
+  // Used for keys like "$paymentCard::1" where the full prefix is known.
   private findCustomField(customFields: CustomFields, path: string): string {
     if (customFields == null) {
       return "";
