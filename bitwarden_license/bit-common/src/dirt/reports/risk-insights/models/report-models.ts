@@ -141,13 +141,3 @@ export interface ReportState {
   error: string | null;
   data: RiskInsightsData | null;
 }
-
-// TODO Make Versioned models for structure changes
-// export type VersionedRiskInsightsData = RiskInsightsDataV1 | RiskInsightsDataV2;
-// export interface RiskInsightsDataV1 {
-//   version: 1;
-//   creationDate: Date;
-//   reportData: ApplicationHealthReportDetail[];
-//   summaryData: OrganizationReportSummary;
-//   applicationData: OrganizationReportApplication[];
-// }
