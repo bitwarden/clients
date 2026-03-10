@@ -12,7 +12,6 @@ import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstra
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { SvgModule } from "@bitwarden/components";
@@ -44,7 +43,6 @@ export class UserLayoutComponent implements OnInit {
   protected readonly sendEnabled$: Observable<boolean> = this.sendPolicyService.disableSend$.pipe(
     map((disableSend) => !disableSend),
   );
-  protected consolidatedSessionTimeoutComponent$: Observable<boolean>;
   protected subscriptionRoute$: Observable<string | null>;
 
   constructor(
@@ -62,10 +60,6 @@ export class UserLayoutComponent implements OnInit {
           canAccessEmergencyAccess(userId, this.configService, this.policyService),
         ),
       ),
-    );
-
-    this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
-      FeatureFlag.ConsolidatedSessionTimeoutComponent,
     );
 
     this.subscriptionRoute$ = this.premiumSubscriptionRoutingService.getSubscriptionRoute$();
