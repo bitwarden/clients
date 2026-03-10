@@ -27,8 +27,9 @@
         @if (bodyTemplate) {
           <ng-container [ngTemplateOutlet]="bodyTemplate"></ng-container>
         }
-        <ng-template #policyForm></ng-template>
       }
+      <!-- Always rendered so viewChild resolves before ngAfterViewInit runs. -->
+      <ng-template #policyForm></ng-template>
     </ng-container>
 
     <ng-container bitDialogFooter>
