@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnInit, inject, DestroyRef } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup } from "@angular/forms";
-import { firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, map, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -30,14 +31,13 @@ import { ChangeAvatarDialogComponent } from "./change-avatar-dialog.component";
   templateUrl: "profile.component.html",
   imports: [SharedModule, DynamicAvatarComponent, AccountFingerprintComponent],
 })
-export class ProfileComponent implements OnInit, OnDestroy {
+export class ProfileComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   loading = true;
   profile: ProfileResponse;
   fingerprintMaterial: string;
   userPublicKey: UserPublicKey;
   managingOrganization$: Observable<Organization>;
-  private destroy$ = new Subject<void>();
-
   protected formGroup = new FormGroup({
     name: new FormControl(null),
     email: new FormControl(null),
@@ -82,7 +82,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
     this.formGroup
       .get("name")
-      .valueChanges.pipe(takeUntil(this.destroy$))
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((name) => {
         this.profile.name = name;
       });
@@ -95,12 +95,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       data: { profile: this.profile },
     });
   };
-
-  async ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   submit = async () => {
     const request = new UpdateProfileRequest(this.formGroup.get("name").value);
     await this.apiService.putProfile(request);

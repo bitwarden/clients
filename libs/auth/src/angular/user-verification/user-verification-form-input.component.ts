@@ -2,7 +2,8 @@
 // @ts-strict-ignore
 import { animate, style, transition, trigger } from "@angular/animations";
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   ControlValueAccessor,
   FormControl,
@@ -10,7 +11,7 @@ import {
   NG_VALUE_ACCESSOR,
   ReactiveFormsModule,
 } from "@angular/forms";
-import { BehaviorSubject, Subject, takeUntil } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationBiometricsIcon } from "@bitwarden/assets/svg";
@@ -72,7 +73,7 @@ import { ActiveClientVerificationOption } from "./active-client-verification-opt
     CalloutModule,
   ],
 })
-export class UserVerificationFormInputComponent implements ControlValueAccessor, OnInit, OnDestroy {
+export class UserVerificationFormInputComponent implements ControlValueAccessor, OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() verificationType: "server" | "client" = "server"; // server represents original behavior
@@ -188,8 +189,9 @@ export class UserVerificationFormInputComponent implements ControlValueAccessor,
     }
   }
 
+  private readonly destroyRef = inject(DestroyRef);
+
   private onChange: (value: VerificationWithSecret) => void;
-  private destroy$ = new Subject<void>();
 
   constructor(
     private userVerificationService: UserVerificationService,
@@ -218,7 +220,7 @@ export class UserVerificationFormInputComponent implements ControlValueAccessor,
     }
 
     this.secret.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((secret: string) => this.processSecretChanges(secret));
   }
 
@@ -237,7 +239,7 @@ export class UserVerificationFormInputComponent implements ControlValueAccessor,
 
   private setupClientVerificationOptionChangeHandler(): void {
     this.activeClientVerificationOption$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((activeClientVerificationOption: ActiveClientVerificationOption) => {
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -352,10 +354,5 @@ export class UserVerificationFormInputComponent implements ControlValueAccessor,
         ? VerificationType.MasterPassword
         : VerificationType.PIN;
     }
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

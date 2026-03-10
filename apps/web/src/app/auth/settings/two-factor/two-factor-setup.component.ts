@@ -1,15 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import {
-  first,
-  lastValueFrom,
-  Observable,
-  Subject,
-  Subscription,
-  takeUntil,
-  switchMap,
-} from "rxjs";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { first, lastValueFrom, Observable, Subscription, switchMap } from "rxjs";
 
 import { TwoFactorIconComponent } from "@bitwarden/angular/auth/components/two-factor-icon.component";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
@@ -54,7 +47,7 @@ import { TwoFactorVerifyComponent } from "./two-factor-verify.component";
   templateUrl: "two-factor-setup.component.html",
   imports: [ItemModule, HeaderModule, PremiumBadgeComponent, TwoFactorIconComponent, SharedModule],
 })
-export class TwoFactorSetupComponent implements OnInit, OnDestroy {
+export class TwoFactorSetupComponent implements OnInit {
   organizationId: string;
   organization: Organization;
   providers: any[] = [];
@@ -65,7 +58,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
 
   tabbedHeader = true;
 
-  protected destroy$ = new Subject<void>();
+  protected readonly destroyRef = inject(DestroyRef);
   private twoFactorAuthPolicyAppliesToActiveUser: boolean;
   protected twoFactorSetupSubscription: Subscription;
 
@@ -120,17 +113,12 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         switchMap((userId) =>
           this.policyService.policyAppliesToUser$(PolicyType.TwoFactorAuthentication, userId),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((policyAppliesToActiveUser) => {
         this.twoFactorAuthPolicyAppliesToActiveUser = policyAppliesToActiveUser;
       });
     await this.load();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   async load() {
@@ -214,7 +202,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
           { data: result },
         );
         this.twoFactorSetupSubscription = authComp.componentInstance.onChangeStatus
-          .pipe(first(), takeUntil(this.destroy$))
+          .pipe(first(), takeUntilDestroyed(this.destroyRef))
           .subscribe((enabled: boolean) => {
             authComp.close();
             this.updateStatus(enabled, TwoFactorProviderType.Authenticator);
@@ -232,7 +220,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
           { data: result },
         );
         yubiComp.componentInstance.onUpdated
-          .pipe(takeUntil(this.destroy$))
+          .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe((enabled: boolean) => {
             this.updateStatus(enabled, TwoFactorProviderType.Yubikey);
           });
@@ -253,7 +241,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
           },
         );
         this.twoFactorSetupSubscription = duoComp.componentInstance.onChangeStatus
-          .pipe(first(), takeUntil(this.destroy$))
+          .pipe(first(), takeUntilDestroyed(this.destroyRef))
           .subscribe((enabled: boolean) => {
             duoComp.close();
             this.updateStatus(enabled, TwoFactorProviderType.Duo);
@@ -273,7 +261,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
           },
         );
         this.twoFactorSetupSubscription = emailComp.componentInstance.onChangeStatus
-          .pipe(first(), takeUntil(this.destroy$))
+          .pipe(first(), takeUntilDestroyed(this.destroyRef))
           .subscribe((enabled: boolean) => {
             emailComp.close();
             this.updateStatus(enabled, TwoFactorProviderType.Email);
@@ -291,7 +279,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
           { data: result },
         );
         this.twoFactorSetupSubscription = webAuthnComp.componentInstance.onUpdated
-          .pipe(first(), takeUntil(this.destroy$))
+          .pipe(first(), takeUntilDestroyed(this.destroyRef))
           .subscribe((enabled: boolean) => {
             webAuthnComp.close();
             this.updateStatus(enabled, TwoFactorProviderType.WebAuthn);

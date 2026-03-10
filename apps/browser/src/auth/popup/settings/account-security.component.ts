@@ -1,7 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import {
@@ -15,9 +16,7 @@ import {
   of,
   pairwise,
   startWith,
-  Subject,
   switchMap,
-  takeUntil,
   timer,
 } from "rxjs";
 
@@ -117,7 +116,7 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     SwitchComponent,
   ],
 })
-export class AccountSecurityComponent implements OnInit, OnDestroy {
+export class AccountSecurityComponent implements OnInit {
   protected readonly VaultTimeoutAction = VaultTimeoutAction;
 
   showMasterPasswordOnClientRestartOption = true;
@@ -149,8 +148,9 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   protected readonly consolidatedSessionTimeoutComponent$: Observable<boolean>;
   protected readonly phishingDetectionAvailable$: Observable<boolean>;
 
+  private readonly destroyRef = inject(DestroyRef);
+
   protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
-  private destroy$ = new Subject<void>();
   private readonly BIOMETRICS_POLLING_INTERVAL = 2000;
 
   constructor(
@@ -309,7 +309,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
             this.biometricUnavailabilityReason = "";
           }
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -322,7 +322,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         concatMap(async ([previousValue, newValue]) => {
           await this.saveVaultTimeout(previousValue, newValue);
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -331,7 +331,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         map(async (value) => {
           await this.saveVaultTimeoutAction(value);
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -341,7 +341,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
           await this.updatePin(value);
           this.refreshTimeoutSettings$.next();
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -353,7 +353,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
           await this.pinService.setPin(pin, value ? "EPHEMERAL" : "PERSISTENT", userId);
           this.refreshTimeoutSettings$.next();
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -369,7 +369,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
           }
           this.refreshTimeoutSettings$.next();
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -378,7 +378,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         concatMap(async (enabled) => {
           await this.biometricStateService.setPromptAutomatically(enabled);
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -388,7 +388,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
           const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
           await this.phishingDetectionSettingsService.setEnabled(userId, enabled);
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -400,7 +400,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
             this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(activeAccount.id),
           ]),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([availableActions, action]) => {
         this.availableVaultTimeoutActions = availableActions;
@@ -420,7 +420,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
             maximumVaultTimeoutPolicy,
           ]),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([availableActions, policy]) => {
         if (policy?.data?.action || availableActions.length <= 1) {
@@ -756,10 +756,5 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     if (confirmed) {
       this.messagingService.send("logout", { userId: userId });
     }
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

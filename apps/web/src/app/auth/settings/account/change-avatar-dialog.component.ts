@@ -4,12 +4,14 @@ import {
   Component,
   ElementRef,
   Inject,
-  OnDestroy,
   OnInit,
   ViewChild,
   ViewEncapsulation,
+  inject,
+  DestroyRef,
 } from "@angular/core";
-import { BehaviorSubject, debounceTime, firstValueFrom, Subject, takeUntil } from "rxjs";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { BehaviorSubject, debounceTime, firstValueFrom } from "rxjs";
 
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { ProfileResponse } from "@bitwarden/common/models/response/profile.response";
@@ -39,7 +41,8 @@ type ChangeAvatarDialogData = {
   encapsulation: ViewEncapsulation.None,
   imports: [SharedModule, SelectableAvatarComponent],
 })
-export class ChangeAvatarDialogComponent implements OnInit, OnDestroy {
+export class ChangeAvatarDialogComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   profile: ProfileResponse;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -63,7 +66,6 @@ export class ChangeAvatarDialogComponent implements OnInit, OnDestroy {
 
   protected customColor$ = new BehaviorSubject<string | null>(null);
   protected customTextColor$ = new BehaviorSubject<string>("#000000");
-  private destroy$ = new Subject<void>();
 
   constructor(
     @Inject(DIALOG_DATA) protected data: ChangeAvatarDialogData,
@@ -81,7 +83,7 @@ export class ChangeAvatarDialogComponent implements OnInit, OnDestroy {
     this.defaultColorPalette.forEach((c) => (c.name = this.i18nService.t(c.name)));
 
     this.customColor$
-      .pipe(debounceTime(200), takeUntil(this.destroy$))
+      .pipe(debounceTime(200), takeUntilDestroyed(this.destroyRef))
       .subscribe((color: string | null) => {
         if (color == null) {
           return;
@@ -123,11 +125,6 @@ export class ChangeAvatarDialogComponent implements OnInit, OnDestroy {
       });
     }
   };
-
-  async ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
   async setSelection(color: string | null) {
     this.defaultColorPalette.filter((x) => x.selected).forEach((c) => (c.selected = false));

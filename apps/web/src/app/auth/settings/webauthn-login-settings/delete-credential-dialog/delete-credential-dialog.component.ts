@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, Inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { Subject, takeUntil } from "rxjs";
 
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -30,8 +30,8 @@ export interface DeleteCredentialDialogParams {
   templateUrl: "delete-credential-dialog.component.html",
   standalone: false,
 })
-export class DeleteCredentialDialogComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class DeleteCredentialDialogComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
 
   protected invalidSecret = false;
   protected formGroup = this.formBuilder.group({
@@ -54,7 +54,7 @@ export class DeleteCredentialDialogComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.webauthnService
       .getCredential$(this.params.credentialId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((credential) => (this.credential = credential));
   }
 
@@ -89,11 +89,6 @@ export class DeleteCredentialDialogComponent implements OnInit, OnDestroy {
 
     this.dialogRef.close();
   };
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 }
 
 /**

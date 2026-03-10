@@ -1,8 +1,9 @@
 import { CommonModule, Location } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { firstValueFrom, Subject, takeUntil } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LoginSuccessHandlerService } from "@bitwarden/auth/common";
@@ -46,7 +47,7 @@ import { NewDeviceVerificationComponentService } from "./new-device-verification
     LinkModule,
   ],
 })
-export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
+export class NewDeviceVerificationComponent implements OnInit {
   formGroup = this.formBuilder.group({
     code: [
       "",
@@ -58,7 +59,7 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
   });
 
   protected disableRequestOTP = false;
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   protected authenticationSessionTimeoutRoute = "/authentication-timeout";
   protected showBackButton = true;
 
@@ -81,7 +82,7 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
 
     // Redirect to timeout route if session expires
     this.loginStrategyService.authenticationSessionTimeout$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((expired) => {
         if (!expired) {
           return;
@@ -96,11 +97,6 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
           );
         }
       });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   /**
