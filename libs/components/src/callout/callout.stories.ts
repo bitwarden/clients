@@ -112,11 +112,18 @@ export const WithInlineLink: Story = {
 export const WithFooterButtons: Story = {
   render: () => ({
     template: `
-      <bit-callout title="${calloutTitle}">
-        ${calloutContent}
-        <button slot="end" type="button" bitButton buttonType="primary">Button text</button>
-        <button slot="end" type="button" bitButton buttonType="primaryOutline">Button text</button>
-      </bit-callout>
+      <div class="tw-flex tw-flex-col tw-gap-4">
+        <bit-callout title="${calloutTitle}">
+          ${calloutContent}
+          <button slot="end" type="button" bitButton buttonType="primary">Button text</button>
+          <button slot="end" type="button" bitButton buttonType="primaryOutline">Button text</button>
+        </bit-callout>
+        <bit-callout type="warning">
+          ${calloutContent}
+          <button slot="end" type="button" bitButton buttonType="warning">Button text</button>
+          <button slot="end" type="button" bitButton buttonType="warningOutline">Button text</button>
+        </bit-callout>
+      </div>
     `,
   }),
 };

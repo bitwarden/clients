@@ -28,7 +28,11 @@ button, use the primary variant.
 ### With Footer Buttons
 
 Interactive Buttons can be added to the Callout footer by adding `slot="end"` to each button
-element.
+element. Ensure that `buttonType` of each Button matches the Callout `type`.
+
+_Examples_:<br/> Callouts with type "primary" - first button should use `buttonType="primary"` and
+second button should use `buttonType="primaryOutline"`<br/> Callouts with type "warning" - first
+button should use `buttonType="warning"` and second button should use `buttonType="warningOutline"`
 
 <Canvas of={stories.WithFooterButtons} />
 
