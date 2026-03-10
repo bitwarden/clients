@@ -697,6 +697,68 @@ export class Utils {
     return path.normalize(decodeURIComponent(denormalizedPath)).replace(/^(\.\.(\/|\\|$))+/, "");
   }
 
+  /**
+   * Checks whether a URL string contains common path traversal indicators.
+   *
+   * This is a **supplementary heuristic**, not a security boundary.
+   *
+   * Primary defense against untrusted input in URL paths is
+   * validation at the input boundary (component level).
+   * Companion sanitizer: {@link normalizePath}.
+   *
+   * Known limitations:
+   * - This is a denylist, not a substitute for boundary validation.
+   * - WHATWG URL normalization may alter byte sequences in ways this check does not
+   *   anticipate.
+   *
+   * @param url - The full URL string to inspect (path + optional query string).
+   * @returns `true` if traversal indicators are found; `false` otherwise.
+   */
+  static containsTraversalIndicators(url: string): boolean {
+    const pathTraversalPatterns = ["..", "%2e", "\\", "%5c"];
+
+    let decodedUrl: string;
+    try {
+      decodedUrl = decodeURIComponent(url.toLowerCase());
+    } catch {
+      // Malformed URI sequences (e.g., overlong UTF-8) are treated as suspicious.
+      return true;
+    }
+
+    if (pathTraversalPatterns.some((p) => decodedUrl.includes(p))) {
+      return true;
+    }
+
+    if (decodedUrl.includes("?")) {
+      return this.containsDangerousQueryPatterns(decodedUrl);
+    }
+
+    return false;
+  }
+
+  /**
+   * Checks whether query parameters contain characters that could indicate
+   * path injection within a query string context.
+   *
+   * Note: When called from {@link containsTraversalIndicators}, the URL has
+   * already been decoded via `decodeURIComponent`. The encoded forms (`%2f`,
+   * `%23`) in the pattern list are therefore redundant in that context — the
+   * literal `/` and `#` entries handle matching. The encoded forms are retained
+   * for clarity and in case this method is called on non-decoded input.
+   *
+   * @param url - A URL string containing a query string (after `?`).
+   * @returns `true` if dangerous patterns are found in the query string; `false` otherwise.
+   */
+  private static containsDangerousQueryPatterns(url: string): boolean {
+    const queryString = url.split("?")[1];
+    if (!queryString) {
+      return false;
+    }
+
+    const queryDangerousPatterns = ["/", "%2f", "#", "%23"];
+    return queryDangerousPatterns.some((p) => queryString.includes(p));
+  }
+
   private static isMobile(win: Window) {
     let mobile = false;
     ((a) => {

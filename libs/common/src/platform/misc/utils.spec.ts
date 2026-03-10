@@ -825,6 +825,137 @@ describe("Utils Service", () => {
     });
   });
 
+  describe("containsTraversalIndicators", () => {
+    describe("detects common path traversal patterns", () => {
+      it.each([
+        ["double-dot segment", "https://example.com/api/../secret"],
+        ["double-dot at root", "https://example.com/../etc/passwd"],
+        ["double-dot only in path", "../secret"],
+        ["percent-encoded double dot (%2e%2e)", "https://example.com/api/%2e%2e/secret"],
+        ["backslash segment", "https://example.com/api/..\\secret"],
+        ["backslash only in path", "..\\secret"],
+        ["percent-encoded backslash (%5c)", "https://example.com/api/%5c..%5c"],
+      ])("returns true for %s", (_label: string, url: string) => {
+        expect(Utils.containsTraversalIndicators(url)).toBe(true);
+      });
+    });
+
+    describe("detects dangerous characters in query parameters", () => {
+      it.each([
+        ["literal slash in query value", "https://example.com/api?next=/admin"],
+        ["percent-encoded slash in query value", "https://example.com/api?next=%2fadmin"],
+        ["literal hash in query value", "https://example.com/api?ref=foo#bar"],
+        ["percent-encoded hash in query value", "https://example.com/api?ref=foo%23bar"],
+        [
+          "double-dot in query param value (decoded by full-URL decode pass)",
+          "https://example.com/api?path=../secret",
+        ],
+      ])("returns true for %s", (_label: string, url: string) => {
+        expect(Utils.containsTraversalIndicators(url)).toBe(true);
+      });
+    });
+
+    describe("returns false for safe URLs", () => {
+      it.each([
+        ["simple API path", "https://example.com/api/ciphers"],
+        [
+          "path with a GUID segment",
+          "https://example.com/api/ciphers/3bfbde77-4e49-4a6b-bc24-b18800e20c50",
+        ],
+        ["path with a safe query parameter", "https://example.com/api/ciphers?includeShared=true"],
+        ["root path only", "https://example.com/"],
+        ["API base with no path", "https://example.com"],
+      ])("returns false for %s", (_label: string, url: string) => {
+        expect(Utils.containsTraversalIndicators(url)).toBe(false);
+      });
+    });
+
+    describe("known limitations", () => {
+      it("returns false for a parameter-substitution URL with no traversal characters", () => {
+        // A caller-controlled segment that is a non-GUID string but contains no
+        // pattern-list characters is not caught here. This is expected: the primary
+        // defense is isId() validation at the input boundary. This heuristic is
+        // supplementary and cannot replace structural validation.
+        expect(
+          Utils.containsTraversalIndicators("https://example.com/api/ciphers/arbitrary-id"),
+        ).toBe(false);
+      });
+
+      it("returns false for fullwidth Unicode dots (U+FF0E)", () => {
+        // Fullwidth full stop (U+FF0E) looks like a dot visually but is not in the
+        // pattern list (".." checks ASCII 0x2E only). decodeURIComponent does not
+        // normalize Unicode lookalikes. Detection of such characters is outside
+        // this function's scope.
+        const fullwidthDot = "\uFF0E\uFF0E";
+        expect(
+          Utils.containsTraversalIndicators(`https://example.com/api/${fullwidthDot}/secret`),
+        ).toBe(false);
+      });
+
+      it("returns false for valid percent-encoding that decodes to characters outside the pattern list", () => {
+        // The pattern list is finite. Valid UTF-8 percent-encoded sequences that
+        // decode to characters not in the checked set are not detected. For example,
+        // %c2%a0 decodes to U+00A0 (non-breaking space) — syntactically valid,
+        // not in any pattern list entry, and not flagged. By definition a denylist
+        // cannot enumerate every possible input. Structural input validation (e.g.,
+        // isId()) is the primary defense for unknown encodings.
+        expect(
+          Utils.containsTraversalIndicators("https://example.com/api/%c2%a0segment/secret"),
+        ).toBe(false);
+      });
+
+      it("returns false when a dangerous character appears after a second ? in the query string", () => {
+        // split("?")[1] captures only the segment between the first and second '?'.
+        // Content after the second '?' (index [2]) is not inspected. A slash in that
+        // position is not detected. This is a known structural limitation of using
+        // split("?")[1] rather than joining all query segments.
+        expect(Utils.containsTraversalIndicators("https://example.com/api?a=1?b=/x")).toBe(false);
+      });
+    });
+
+    describe("handles malformed URI input", () => {
+      it("returns true for a percent sequence that is not valid UTF-8 (overlong encoding)", () => {
+        // %c0%ae is an overlong UTF-8 encoding of '.'. decodeURIComponent throws a
+        // URIError for invalid byte sequences. The function treats a decode failure
+        // as suspicious and returns true (conservative fail-closed behavior).
+        expect(
+          Utils.containsTraversalIndicators("https://example.com/api/%c0%ae%c0%ae/secret"),
+        ).toBe(true);
+      });
+    });
+
+    describe("case insensitive matching", () => {
+      it.each([
+        ["uppercase %2E%2E", "https://example.com/api/%2E%2E/secret"],
+        ["uppercase %5C", "https://example.com/api/%5C"],
+        ["uppercase %2F in query", "https://example.com/api?next=%2Fadmin"],
+        ["mixed case %2e%2E", "https://example.com/api/%2e%2E/secret"],
+      ])("returns true for %s", (_label: string, url: string) => {
+        expect(Utils.containsTraversalIndicators(url)).toBe(true);
+      });
+    });
+
+    describe("edge cases", () => {
+      it("returns false for an empty string", () => {
+        expect(Utils.containsTraversalIndicators("")).toBe(false);
+      });
+
+      it("returns false for a URL with a trailing ? and no query value", () => {
+        // containsDangerousQueryPatterns returns false when the query string
+        // segment after split("?")[1] is empty or falsy.
+        expect(Utils.containsTraversalIndicators("https://example.com/api?")).toBe(false);
+      });
+
+      it("returns true for a path-only URL with no host", () => {
+        expect(Utils.containsTraversalIndicators("../secret")).toBe(true);
+      });
+
+      it("returns true for a string that is only a traversal indicator", () => {
+        expect(Utils.containsTraversalIndicators("..")).toBe(true);
+      });
+    });
+  });
+
   describe("getUrl", () => {
     it("assumes a http protocol if no protocol is specified", () => {
       const urlString = "www.exampleapp.com.au:4000";
