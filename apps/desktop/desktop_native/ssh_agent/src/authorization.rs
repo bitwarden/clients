@@ -6,10 +6,10 @@ use std::sync::{
 };
 
 use thiserror::Error;
-use tracing::{debug, error};
+use tracing::debug;
 
 use crate::{
-    approval::{ApprovalRequester, SignApprovalRequest},
+    approval::{ApprovalError, ApprovalRequester, SignApprovalRequest},
     crypto::QueryableKeyData,
     server::{AuthPolicy, AuthRequest},
     storage::keystore::KeyStore,
@@ -18,9 +18,9 @@ use crate::{
 /// Errors that can occur during authorization of SSH agent operations.
 #[derive(Debug, Error)]
 pub enum AuthError {
-    /// The approval handler failed to process the request.
-    #[error("Approval handler failed: {0}")]
-    HandlerFailed(#[source] anyhow::Error),
+    /// The approval handler did not receive an approved/denied response.
+    #[error(transparent)]
+    ApprovalUnresolved(#[from] ApprovalError),
 
     /// The requested public key was not found in the keystore.
     #[error("Public key not found in keystore")]
@@ -95,14 +95,7 @@ where
 
                 // otherwise request unlock from approval handler
                 debug!("Locked, requesting unlock approval.");
-                let unlock_approved =
-                    self.approval_handler
-                        .request_unlock()
-                        .await
-                        .map_err(|error| {
-                            error!(%error, "Unlock request failed.");
-                            AuthError::HandlerFailed(error)
-                        })?;
+                let unlock_approved = self.approval_handler.request_unlock().await?;
 
                 debug!(unlock_approved, "Unlock response received.");
 
@@ -130,10 +123,7 @@ where
                         cipher_id,
                     })
                     .await
-                    .map_err(|error| {
-                        error!(%error, "Approval handler failed.");
-                        AuthError::HandlerFailed(error)
-                    })
+                    .map_err(Into::into)
             }
         }
     }
@@ -146,7 +136,7 @@ mod tests {
 
     use super::*;
     use crate::{
-        approval::MockApprovalRequester,
+        approval::{ApprovalError, MockApprovalRequester},
         server::SIGNamespace,
         storage::{keydata::MockQueryableKeyData, keystore::MockKeyStore},
     };
@@ -280,7 +270,7 @@ mod tests {
         approval_handler
             .expect_request_unlock()
             .times(1)
-            .returning(|| Err(anyhow!("Handler failed")));
+            .returning(|| Err(ApprovalError::HandlerFailed(anyhow!("Handler failed"))));
 
         let policy = BitwardenAuthPolicy::new(keystore, approval_handler);
 
@@ -288,8 +278,13 @@ mod tests {
         let result = policy.authorize(&request).await;
 
         assert!(
-            matches!(result, Err(AuthError::HandlerFailed(_))),
-            "Should return HandlerFailed error when unlock handler fails"
+            matches!(
+                result,
+                Err(AuthError::ApprovalUnresolved(ApprovalError::HandlerFailed(
+                    _
+                )))
+            ),
+            "Should return ApprovalUnresolved error when unlock handler fails"
         );
     }
 
@@ -404,7 +399,7 @@ mod tests {
         approval_handler
             .expect_request_sign_approval()
             .times(1)
-            .returning(|_| Err(anyhow!("Handler failed")));
+            .returning(|_| Err(ApprovalError::HandlerFailed(anyhow!("Handler failed"))));
 
         let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
 
@@ -412,8 +407,13 @@ mod tests {
         let result = policy.authorize(&request).await;
 
         assert!(
-            matches!(result, Err(AuthError::HandlerFailed(_))),
-            "Should return HandlerFailed error"
+            matches!(
+                result,
+                Err(AuthError::ApprovalUnresolved(ApprovalError::HandlerFailed(
+                    _
+                )))
+            ),
+            "Should return ApprovalUnresolved error"
         );
     }
 

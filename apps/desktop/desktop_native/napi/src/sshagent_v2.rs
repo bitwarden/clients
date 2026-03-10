@@ -7,11 +7,10 @@
 pub mod sshagent_v2 {
     use std::{sync::Arc, time::Duration};
 
-    use anyhow::Context;
     use async_trait::async_trait;
     use napi::threadsafe_function::ThreadsafeFunction;
     use ssh_agent::{
-        ApprovalRequester, BitwardenSSHAgent, InMemoryEncryptedKeyStore,
+        ApprovalError, ApprovalRequester, BitwardenSSHAgent, InMemoryEncryptedKeyStore,
         SIGNamespace as SSHSIGNamespace, SignApprovalRequest as SSHSignApprovalRequest,
     };
     use tokio::time::timeout;
@@ -113,17 +112,17 @@ pub mod sshagent_v2 {
 
     #[async_trait]
     impl ApprovalRequester for ElectronApprovalRequester {
-        async fn request_unlock(&self) -> anyhow::Result<bool> {
+        async fn request_unlock(&self) -> Result<bool, ApprovalError> {
             debug!("Sending unlock request to Electron.");
 
             let is_approved = timeout(APPROVAL_CALLBACK_TIMEOUT, async {
                 self.unlock_callback
                     .call_async(Ok(()))
                     .await
-                    .context("Electron unlock callback failed")
+                    .map_err(|e| ApprovalError::HandlerFailed(e.into()))
             })
             .await
-            .context("Electron unlock callback timed out")
+            .map_err(|_| ApprovalError::Timeout)
             .flatten()?;
 
             debug!(%is_approved, "Unlock response from Electron.");
@@ -133,7 +132,7 @@ pub mod sshagent_v2 {
         async fn request_sign_approval(
             &self,
             request: SSHSignApprovalRequest,
-        ) -> anyhow::Result<bool> {
+        ) -> Result<bool, ApprovalError> {
             let request = SignRequestData::from(request);
 
             debug!(?request, "Sending sign approval request to Electron.");
@@ -142,10 +141,10 @@ pub mod sshagent_v2 {
                 self.sign_callback
                     .call_async(Ok(request))
                     .await
-                    .context("Electron sign callback failed")
+                    .map_err(|e| ApprovalError::HandlerFailed(e.into()))
             })
             .await
-            .context("Electron sign callback timed out")
+            .map_err(|_| ApprovalError::Timeout)
             .flatten()?;
 
             debug!(%is_approved, "Sign approval response from Electron.");
