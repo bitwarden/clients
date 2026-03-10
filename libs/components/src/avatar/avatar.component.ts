@@ -85,7 +85,7 @@ export function isAvatarColor(color: string | undefined): color is AvatarColor {
   hostDirectives: [AriaDisableDirective],
 })
 export class AvatarComponent {
-  private el = inject(ElementRef);
+  private readonly el = inject(ElementRef);
 
   /**
    * Background color for the avatar. Provide one of the AvatarColors, or a custom hex code.
