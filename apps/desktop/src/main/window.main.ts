@@ -27,6 +27,8 @@ import {
   isWindows,
 } from "../utils";
 
+import { resolveProtocolPath } from "./protocol";
+
 // customFileOrigin = `${customFileScheme}://${customFileHost}`
 const customFileScheme = "bw-desktop-file";
 const customFileHost = "bundle";
@@ -293,8 +295,8 @@ export class WindowMain {
   }
 
   /**
-   * Register a custom app:// protocol handler to serve the renderer's bundled files following Electron's
-   * guidance to use custom schemes for loading local content. Requests to app://desktopbundle/<path> are
+   * Register a custom bw-desktop-file:// protocol handler to serve the renderer's bundled files following Electron's
+   * guidance to use custom schemes for loading local content. Requests to bw-desktop-file://bundle/<path> are
    * resolved against __dirname (the built output directory) and validated to prevent directory traversal.
    *
    * References:
@@ -303,42 +305,17 @@ export class WindowMain {
    */
   private setupAppProtocol() {
     this.session.protocol.handle(customFileScheme, (req) => {
-      const url = new URL(req.url);
-      let pathname = url.pathname;
-
-      // Trim the starting slash if it exists to prevent issues with path resolution
-      if (pathname.startsWith("/")) {
-        pathname = pathname.slice(1);
-      }
-
-      // Default to index.html if no pathname is provided
-      if (pathname === "") {
-        pathname = "index.html";
-      }
-
-      // Only serve files when the host matches our expected bundle host
-      if (url.host === customFileHost) {
-        const pathToServe = path.resolve(__dirname, pathname);
-        const relativePath = path.relative(__dirname, pathToServe);
-
-        // Ensure the resolved path stays within __dirname (the app bundle directory).
-        // - `relativePath` must be non-empty (not __dirname itself)
-        // - must not start with ".." (directory traversal)
-        // - must not be absolute (e.g. a Windows drive path like C:\)
-        const isSafe =
-          relativePath && !relativePath.startsWith("..") && !path.isAbsolute(relativePath);
-
-        if (isSafe) {
-          return net.fetch(pathToFileURL(path.join(__dirname, relativePath)).toString());
+      try {
+        const safePath = resolveProtocolPath(req.url, customFileHost, __dirname);
+        if (safePath !== null) {
+          return net.fetch(pathToFileURL(safePath).toString());
         }
+      } catch (e) {
+        this.logService.error(`Error handling protocol request for ${req.url}`, e);
       }
 
       this.logService.error(`Invalid app protocol request: ${req.url}`);
-
-      return new Response("bad", {
-        status: 400,
-        headers: { "content-type": "text/html" },
-      });
+      return new Response("bad", { status: 400, headers: { "content-type": "text/html" } });
     });
   }
 
