@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Cím másolása"
   },
+  "myItems": {
+    "message": "Saját elemek"
+  },
   "adminConsole": {
     "message": "Adminisztrátori konzol"
   },
@@ -6150,6 +6153,15 @@
   },
   "searchResults": {
     "message": "Keresési eredmények"
+  },
+  "simplifiedAutofill": {
+    "message": "Egyszerűsített automatikus kitöltés"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "Amikor rákattintunk egy javasolt automatikus kitöltési elemre, az kitölti, nem pedig a részleteket mutatja. Ezeket az elemek továbbra is megtekinthetők a Továbbiak menüből."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Egyszerűsített automatikus kitöltés felugró megnyitása"
   },
   "resizeSideNavigation": {
     "message": "Oldalnavigáció átméretezés"

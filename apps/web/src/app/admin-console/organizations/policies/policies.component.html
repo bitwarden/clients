@@ -19,14 +19,12 @@
           @if (p.display$(organization, configService) | async) {
             <tr bitRow>
               <td bitCell ngPreserveWhitespaces>
-                <div class="tw-flex tw-items-center tw-gap-2">
-                  <button type="button" bitLink (click)="edit(p, organizationId)">
-                    {{ p.name | i18n }}
-                  </button>
-                  @if (policiesEnabledMap.get(p.type)) {
-                    <span bitBadge variant="success">{{ "on" | i18n }}</span>
-                  }
-                </div>
+                <button type="button" bitLink (click)="edit(p, organizationId)">
+                  {{ p.name | i18n }}
+                </button>
+                @if (policiesEnabledMap.get(p.type)) {
+                  <span bitBadge variant="success">{{ "on" | i18n }}</span>
+                }
                 <small class="tw-text-muted tw-block">{{ p.description | i18n }}</small>
               </td>
             </tr>
