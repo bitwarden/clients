@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, signal } from "@angular/core";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import {
@@ -65,6 +65,7 @@ import {
   TypographyModule,
   ToastService,
   SwitchComponent,
+  SpinnerComponent,
 } from "@bitwarden/components";
 import {
   KeyService,
@@ -115,6 +116,7 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     TypographyModule,
     SessionTimeoutInputLegacyComponent,
     SwitchComponent,
+    SpinnerComponent,
   ],
 })
 export class AccountSecurityComponent implements OnInit, OnDestroy {
@@ -127,6 +129,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   biometricUnavailabilityReason: string;
   showChangeMasterPass = true;
   pinEnabled$: Observable<boolean> = of(true);
+  protected readonly loading = signal(true);
 
   form = this.formBuilder.group({
     vaultTimeout: [null as VaultTimeout | null],
@@ -266,6 +269,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       enablePhishingDetection: await firstValueFrom(this.phishingDetectionSettingsService.enabled$),
     };
     this.form.patchValue(initialValues, { emitEvent: false });
+    this.loading.set(false);
 
     timer(0, this.BIOMETRICS_POLLING_INTERVAL)
       .pipe(
