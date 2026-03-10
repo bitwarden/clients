@@ -3,7 +3,7 @@
 import { inject, Injectable, signal } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, lastValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -18,6 +18,10 @@ import { LogService } from "@bitwarden/logging";
 import { SendItemDialogResult } from "../../add-edit/send-add-edit-dialog.component";
 import { SendFormConfig } from "../abstractions/send-form-config.service";
 import { SendFormService } from "../abstractions/send-form.service";
+import {
+  UnsavedEditsDialogComponent,
+  UnsavedEditsDialogResult,
+} from "../components/unsaved-edits-dialog/unsaved-edits-dialog.component";
 import { SendForm } from "../send-form-container";
 
 @Injectable()
@@ -129,29 +133,20 @@ export class DefaultSendFormService implements SendFormService {
   /**
    * This function is used as a closePredicate for the Send dialog/drawer.
    */
-  async saveSendEdits(result?: SendItemDialogResult): Promise<boolean> {
+  async promptForUnsavedEdits(result?: SendItemDialogResult): Promise<boolean> {
     // We only have a result if we have successfully saved/deleted the Send already
     if (result?.result) {
       return true;
     }
     if (this.sendFormHasEdits()) {
-      const keepEdits = await this.dialogService.openSimpleDialog({
-        title: this.i18nService.t("unsavedEdits"),
-        content: "",
-        type: "warning",
-        acceptButtonText: this.i18nService.t("save"),
-        cancelButtonText: this.i18nService.t("discard"),
-      });
-      if (keepEdits) {
-        const submitResult = await this.submitSendForm();
-        // Form was not submitted
-        if (!submitResult) {
-          return false;
-        }
-        this.toastService.showToast({
-          variant: "success",
-          message: this.i18nService.t("editedItem"),
-        });
+      const dialogRef = this.dialogService.open<UnsavedEditsDialogResult>(
+        UnsavedEditsDialogComponent,
+      );
+      const result = await lastValueFrom(dialogRef.closed);
+      if (result.result === UnsavedEditsDialogResult.Discard) {
+        return true;
+      } else {
+        return false;
       }
     }
     return true;

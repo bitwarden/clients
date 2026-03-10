@@ -288,7 +288,7 @@ export class DialogService {
     config?: DialogConfig<D, DialogRef<R, C>>,
   ): DialogRef<R, C> {
     // We need to split out our async closePredicate here because the CDK's closePredicate is sync
-    const { closePredicate, ...otherConfig } = config;
+    const { closePredicate, ...otherConfig } = config ?? {};
 
     /**
      * This is a bit circular in nature:

@@ -66,9 +66,9 @@ export abstract class SendFormService {
   /** Sets the file to attach to the Send */
   abstract setFile(file: File): void;
 
-  /** A function that triggers a "Save Edits?" dialog if there are any Send
+  /** A function that triggers a "Discard Edits?" dialog if there are any Send
    * edits that have not yet been saved. Returns `true` if the user does
-   * not want to save the edits or the edits have been successfully saved.
+   * not want to save the edits or there are no edits to save.
    */
-  abstract saveSendEdits(): Promise<boolean>;
+  abstract promptForUnsavedEdits(): Promise<boolean>;
 }

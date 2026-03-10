@@ -13035,11 +13035,14 @@
       }
     }
   },
-  "unsavedEdits": {
-    "message": "Unsaved Edits"
+  "discardEdits": {
+    "message": "Discard edits"
   },
-  "discard": {
-    "message": "Discard"
+  "discardEditsMessage": {
+    "message": "If you close this view, your unsaved edits will be discarded"
+  },
+  "backToEditing": {
+    "message": "Back to editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",

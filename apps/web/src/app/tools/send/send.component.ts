@@ -85,7 +85,7 @@ const BroadcasterSubscriptionId = "SendComponent";
 export class SendComponent extends BaseSendComponent implements OnInit, OnDestroy {
   /**
    * Prevent browser tab from closing/refreshing if the Send form has unsaved edits.
-   * Shows a confirmation dialog if user tries to leave during an active upload.
+   * Shows a confirmation dialog if user tries to leave.
    * This provides additional protection beyond dialogRef.disableClose.
    * Using arrow function to preserve 'this' context when used as event listener.
    */
@@ -233,12 +233,12 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     if (useRefresh) {
       this.sendItemDialogRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
         formConfig,
-        closePredicate: this.sendFormService.saveSendEdits.bind(this.sendFormService),
+        closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
       });
     } else {
       this.sendItemDialogRef = SendAddEditDialogComponent.open(this.dialogService, {
         formConfig,
-        closePredicate: this.sendFormService.saveSendEdits.bind(this.sendFormService),
+        closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
       });
     }
 

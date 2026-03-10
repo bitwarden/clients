@@ -73,7 +73,7 @@ export class NewSendDropdownComponent {
     if (useRefresh) {
       const dialogRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
         formConfig,
-        closePredicate: this.sendFormService.saveSendEdits.bind(this.sendFormService),
+        closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
       });
       if (dialogRef) {
         const result = await lastValueFrom(dialogRef.closed);
@@ -86,7 +86,7 @@ export class NewSendDropdownComponent {
     } else {
       SendAddEditDialogComponent.open(this.dialogService, {
         formConfig,
-        closePredicate: this.sendFormService.saveSendEdits.bind(this.sendFormService),
+        closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
       });
     }
   }
