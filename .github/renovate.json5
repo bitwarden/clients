@@ -9,7 +9,6 @@
       groupName: "Minor github-actions updates",
       matchManagers: ["github-actions"],
       matchUpdateTypes: ["minor"],
-      addLabels: ["hold"],
     },
     {
       // Enable support for Rust toolchain updates.
