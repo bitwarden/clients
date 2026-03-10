@@ -252,8 +252,20 @@ describe("WebRegistrationFinishService", () => {
 
         expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
         expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
-        const registerCall = accountApiService.registerFinish.mock.calls[0][0];
+
+        const registerCall = accountApiService.registerFinish.mock
+          .calls[0][0] as RegisterFinishRequest;
         expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
+
+        // Old API sends flat KDF and master password hash fields
+        expect(registerCall.kdf).toBeDefined();
+        expect(registerCall.kdfIterations).toBeDefined();
+        expect(registerCall.masterPasswordHash).toBeDefined();
+        expect(registerCall.userSymmetricKey).toBeDefined();
+
+        // Unique to this flow: emailVerificationToken is populated
+        expect(registerCall.emailVerificationToken).toEqual(emailVerificationToken);
+
         expect(registerCall).toMatchSnapshot();
       });
 
@@ -265,8 +277,14 @@ describe("WebRegistrationFinishService", () => {
 
         await service.finishRegistration(email, passwordInputResult);
 
-        const registerCall = accountApiService.registerFinish.mock.calls[0][0];
+        const registerCall = accountApiService.registerFinish.mock
+          .calls[0][0] as RegisterFinishRequest;
         expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
+
+        // Unique to this flow: org invite fields are populated
+        expect(registerCall.orgInviteToken).toEqual(orgInvite.token);
+        expect(registerCall.organizationUserId).toEqual(orgInvite.organizationUserId);
+
         expect(registerCall).toMatchSnapshot();
       });
 
@@ -283,8 +301,15 @@ describe("WebRegistrationFinishService", () => {
           orgSponsoredFreeFamilyPlanToken,
         );
 
-        const registerCall = accountApiService.registerFinish.mock.calls[0][0];
+        const registerCall = accountApiService.registerFinish.mock
+          .calls[0][0] as RegisterFinishRequest;
         expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
+
+        // Unique to this flow: org sponsored free family plan token is populated
+        expect(registerCall.orgSponsoredFreeFamilyPlanToken).toEqual(
+          orgSponsoredFreeFamilyPlanToken,
+        );
+
         expect(registerCall).toMatchSnapshot();
       });
 
@@ -306,8 +331,16 @@ describe("WebRegistrationFinishService", () => {
         expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
         expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
 
-        const registerCall = accountApiService.registerFinish.mock.calls[0][0];
+        const registerCall = accountApiService.registerFinish.mock
+          .calls[0][0] as RegisterFinishRequest;
         expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
+
+        // Unique to this flow: emergency access fields are populated
+        expect(registerCall.acceptEmergencyAccessInviteToken).toEqual(
+          acceptEmergencyAccessInviteToken,
+        );
+        expect(registerCall.acceptEmergencyAccessId).toEqual(emergencyAccessId);
+
         expect(registerCall).toMatchSnapshot();
       });
 
@@ -331,8 +364,14 @@ describe("WebRegistrationFinishService", () => {
         expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
         expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
 
-        const registerCall = accountApiService.registerFinish.mock.calls[0][0];
+        const registerCall = accountApiService.registerFinish.mock
+          .calls[0][0] as RegisterFinishRequest;
         expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
+
+        // Unique to this flow: provider invite fields are populated
+        expect(registerCall.providerInviteToken).toEqual(providerInviteToken);
+        expect(registerCall.providerUserId).toEqual(providerUserId);
+
         expect(registerCall).toMatchSnapshot();
       });
     });
@@ -374,11 +413,24 @@ describe("WebRegistrationFinishService", () => {
         );
         expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
         expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
+
         const registerCall = accountApiService.registerFinish.mock
           .calls[0][0] as RegisterFinishRequestWithAuthUnlockDataTypes;
         expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
+
+        // New API sends structured authentication and unlock data
         expect(registerCall.masterPasswordAuthentication).toBeDefined();
         expect(registerCall.masterPasswordUnlock).toBeDefined();
+
+        // Old API flat fields must NOT be present
+        expect((registerCall as any).masterPasswordHash).toBeUndefined();
+        expect((registerCall as any).userSymmetricKey).toBeUndefined();
+        expect((registerCall as any).kdf).toBeUndefined();
+        expect((registerCall as any).kdfIterations).toBeUndefined();
+
+        // Unique to this flow: emailVerificationToken is populated
+        expect(registerCall.emailVerificationToken).toEqual(emailVerificationToken);
+
         expect(registerCall).toMatchSnapshot();
       });
 
@@ -392,11 +444,17 @@ describe("WebRegistrationFinishService", () => {
 
         expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
         expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
+
         const registerCall = accountApiService.registerFinish.mock
           .calls[0][0] as RegisterFinishRequestWithAuthUnlockDataTypes;
         expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
         expect(registerCall.masterPasswordAuthentication).toBeDefined();
         expect(registerCall.masterPasswordUnlock).toBeDefined();
+
+        // Unique to this flow: org invite fields are populated
+        expect(registerCall.orgInviteToken).toEqual(orgInvite.token);
+        expect(registerCall.organizationUserId).toEqual(orgInvite.organizationUserId);
+
         expect(registerCall).toMatchSnapshot();
       });
 
@@ -415,11 +473,18 @@ describe("WebRegistrationFinishService", () => {
 
         expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
         expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
+
         const registerCall = accountApiService.registerFinish.mock
           .calls[0][0] as RegisterFinishRequestWithAuthUnlockDataTypes;
         expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
         expect(registerCall.masterPasswordAuthentication).toBeDefined();
         expect(registerCall.masterPasswordUnlock).toBeDefined();
+
+        // Unique to this flow: org sponsored free family plan token is populated
+        expect(registerCall.orgSponsoredFreeFamilyPlanToken).toEqual(
+          orgSponsoredFreeFamilyPlanToken,
+        );
+
         expect(registerCall).toMatchSnapshot();
       });
 
@@ -440,11 +505,19 @@ describe("WebRegistrationFinishService", () => {
 
         expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
         expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
+
         const registerCall = accountApiService.registerFinish.mock
           .calls[0][0] as RegisterFinishRequestWithAuthUnlockDataTypes;
         expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
         expect(registerCall.masterPasswordAuthentication).toBeDefined();
         expect(registerCall.masterPasswordUnlock).toBeDefined();
+
+        // Unique to this flow: emergency access fields are populated
+        expect(registerCall.acceptEmergencyAccessInviteToken).toEqual(
+          acceptEmergencyAccessInviteToken,
+        );
+        expect(registerCall.acceptEmergencyAccessId).toEqual(emergencyAccessId);
+
         expect(registerCall).toMatchSnapshot();
       });
 
@@ -467,11 +540,17 @@ describe("WebRegistrationFinishService", () => {
 
         expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
         expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
+
         const registerCall = accountApiService.registerFinish.mock
           .calls[0][0] as RegisterFinishRequestWithAuthUnlockDataTypes;
         expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
         expect(registerCall.masterPasswordAuthentication).toBeDefined();
         expect(registerCall.masterPasswordUnlock).toBeDefined();
+
+        // Unique to this flow: provider invite fields are populated
+        expect(registerCall.providerInviteToken).toEqual(providerInviteToken);
+        expect(registerCall.providerUserId).toEqual(providerUserId);
+
         expect(registerCall).toMatchSnapshot();
       });
     });
