@@ -19,7 +19,7 @@
           @if (p.display$(organization, configService) | async) {
             <tr bitRow>
               <td bitCell ngPreserveWhitespaces>
-                <button type="button" bitLink (click)="edit(p, organizationId)">
+                <button type="button" bitLink (click)="edit(p, organizationId, organization)">
                   {{ p.name | i18n }}
                 </button>
                 @if (policiesEnabledMap.get(p.type)) {

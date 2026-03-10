@@ -1,16 +1,18 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   Inject,
-  ViewChild,
   ViewContainerRef,
+  viewChild,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { Observable, map, firstValueFrom, switchMap, filter, of } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { VNextSavePolicyRequest } from "@bitwarden/common/admin-console/models/request/v-next-save-policy.request";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -40,41 +42,42 @@ export type PolicyEditDialogData = {
    * The organization ID for the policy.
    */
   organizationId: string;
+  /**
+   * The organization object, used to determine which policy options are available
+   * based on the org's feature entitlements.
+   */
+  organization?: Organization;
 };
 
 export type PolicyEditDialogResult = "saved";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "policy-edit-dialog.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PolicyEditDialogComponent implements AfterViewInit {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("policyForm", { read: ViewContainerRef, static: true })
-  policyFormRef: ViewContainerRef | undefined;
+  private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
 
-  policyType = PolicyType;
-  loading = true;
-  enabled = false;
-  saveDisabled$: Observable<boolean> = of(false);
-  policyComponent: BasePolicyEditComponent | undefined;
+  readonly policyType = PolicyType;
+  readonly loading = true;
+  readonly enabled = false;
+  readonly saveDisabled$: Observable<boolean> = of(false);
+  readonly policyComponent: BasePolicyEditComponent | undefined;
 
-  formGroup = this.formBuilder.group({
+  readonly formGroup = this.formBuilder.group({
     enabled: [this.enabled],
   });
   constructor(
-    @Inject(DIALOG_DATA) protected data: PolicyEditDialogData,
-    protected accountService: AccountService,
-    protected policyApiService: PolicyApiServiceAbstraction,
-    protected i18nService: I18nService,
-    private cdr: ChangeDetectorRef,
-    private formBuilder: FormBuilder,
-    protected dialogRef: DialogRef<PolicyEditDialogResult>,
-    protected toastService: ToastService,
-    protected keyService: KeyService,
+    @Inject(DIALOG_DATA) protected readonly data: PolicyEditDialogData,
+    protected readonly accountService: AccountService,
+    protected readonly policyApiService: PolicyApiServiceAbstraction,
+    protected readonly i18nService: I18nService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly formBuilder: FormBuilder,
+    protected readonly dialogRef: DialogRef<PolicyEditDialogResult>,
+    protected readonly toastService: ToastService,
+    protected readonly keyService: KeyService,
   ) {}
 
   get policy(): BasePolicyEditDefinition {
@@ -99,13 +102,15 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     const policyResponse = await this.load();
     this.loading = false;
 
-    if (!this.policyFormRef) {
+    const policyFormRef = this.policyFormRef();
+    if (!policyFormRef) {
       throw new Error("Template not initialized.");
     }
 
-    this.policyComponent = this.policyFormRef.createComponent(this.data.policy.component).instance;
+    this.policyComponent = policyFormRef.createComponent(this.data.policy.component).instance;
     this.policyComponent.policy = this.data.policy;
     this.policyComponent.policyResponse = policyResponse;
+    this.policyComponent.organization = this.data.organization;
 
     if (this.policyComponent.data) {
       // If the policy has additional configuration, disable the save button if the form state is invalid
@@ -130,7 +135,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
   }
 
-  submit = async () => {
+  readonly submit = async () => {
     if (!this.policyComponent) {
       throw new Error("PolicyComponent not initialized.");
     }
@@ -178,7 +183,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       request,
     );
   }
-  static open = (dialogService: DialogService, config: DialogConfig<PolicyEditDialogData>) => {
+  static readonly open = (dialogService: DialogService, config: DialogConfig<PolicyEditDialogData>) => {
     return dialogService.open<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
   };
 }

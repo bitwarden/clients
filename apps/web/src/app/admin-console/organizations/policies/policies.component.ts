@@ -107,16 +107,17 @@ export class PoliciesComponent {
       this.policies$,
       this.organizationId$,
       this.orgPolicies$,
+      this.organization$,
     ])
       .pipe(
-        map(([qParams, policies, organizationId, orgPolicies]) => {
+        map(([qParams, policies, organizationId, orgPolicies, organization]) => {
           if (qParams.policyId != null) {
             const policyIdFromEvents: string = qParams.policyId;
             for (const orgPolicy of orgPolicies) {
               if (orgPolicy.id === policyIdFromEvents) {
                 for (let i = 0; i < policies.length; i++) {
                   if (policies[i].type === orgPolicy.type) {
-                    this.edit(policies[i], organizationId);
+                    this.edit(policies[i], organizationId, organization);
                     break;
                   }
                 }
@@ -130,13 +131,18 @@ export class PoliciesComponent {
       .subscribe();
   }
 
-  edit(policy: BasePolicyEditDefinition, organizationId: OrganizationId) {
+  edit(
+    policy: BasePolicyEditDefinition,
+    organizationId: OrganizationId,
+    organization: Organization,
+  ) {
     const dialogComponent: PolicyDialogComponent =
       policy.editDialogComponent ?? PolicyEditDialogComponent;
     dialogComponent.open(this.dialogService, {
       data: {
         policy: policy,
         organizationId: organizationId,
+        organization: organization,
       },
     });
   }

@@ -57,7 +57,7 @@ export class vNextOrganizationDataOwnershipPolicyComponent
     super();
 
     this.enabled.valueChanges.pipe(takeUntilDestroyed()).subscribe((enabled) => {
-      if (enabled) {
+      if (enabled && this.organization?.useMyItems) {
         this.data.controls.enableIndividualItemsTransfer.enable();
       } else {
         this.data.controls.enableIndividualItemsTransfer.disable();
@@ -78,7 +78,7 @@ export class vNextOrganizationDataOwnershipPolicyComponent
   override ngOnInit(): void {
     super.ngOnInit();
 
-    if (this.enabled.value) {
+    if (this.enabled.value && this.organization?.useMyItems) {
       this.data.controls.enableIndividualItemsTransfer.enable();
     }
   }
@@ -97,7 +97,8 @@ export class vNextOrganizationDataOwnershipPolicyComponent
   protected override buildRequestData(): OrganizationDataOwnershipPolicyData {
     const raw = this.data.getRawValue();
     return {
-      enableIndividualItemsTransfer: raw.enableIndividualItemsTransfer ?? false,
+      enableIndividualItemsTransfer:
+        (this.organization?.useMyItems && raw.enableIndividualItemsTransfer) ?? false,
     };
   }
 
