@@ -34,7 +34,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
   private abortManager = new AbortManager();
   private fido2ContentScriptPortsSet = new Set<chrome.runtime.Port>();
   private activeCredentialRequests = new Set<number>();
-private registeredContentScripts: browser.contentScripts.RegisteredContentScript | undefined =
+  private registeredContentScripts: browser.contentScripts.RegisteredContentScript | undefined =
     undefined;
   private readonly sharedInjectionDetails: SharedFido2ScriptInjectionDetails = {
     runAt: "document_start",
@@ -339,7 +339,7 @@ private registeredContentScripts: browser.contentScripts.RegisteredContentScript
       data: AssertCredentialParams | CreateCredentialParams,
       tab: chrome.tabs.Tab,
       abortController: AbortController,
-        ) => Promise<CredentialResult>,
+    ) => Promise<CredentialResult>,
   ): Promise<CredentialResult> => {
     const { requestId, data } = message;
     const tabId = tab.id;
