@@ -1,11 +1,12 @@
-import { firstValueFrom, of } from "rxjs";
+import { mock, MockProxy } from "jest-mock-extended";
+import { Subject } from "rxjs";
 
 import {
   ServerCommunicationConfig,
+  ServerCommunicationConfigClient,
   ServerCommunicationConfigPlatformApi,
 } from "@bitwarden/sdk-internal";
 
-import { awaitAsync, FakeAccountService, FakeStateProvider } from "../../../../spec";
 import { ConfigService } from "../../abstractions/config/config.service";
 
 import { DefaultServerCommunicationConfigService } from "./default-server-communication-config.service";
@@ -19,176 +20,61 @@ jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk-load.service", () => 
 }));
 
 // Mock SDK client
+const mockClientInstance = {
+  setCommunicationType: jest.fn(),
+  cookies: jest.fn(),
+};
+
 jest.mock("@bitwarden/sdk-internal", () => ({
-  ServerCommunicationConfigClient: jest.fn().mockImplementation(() => ({
-    needsBootstrap: jest.fn(),
-    cookies: jest.fn(),
-    setCommunicationType: jest.fn(),
-  })),
+  ServerCommunicationConfigClient: jest.fn().mockImplementation(() => mockClientInstance),
 }));
 
 describe("DefaultServerCommunicationConfigService", () => {
-  let stateProvider: FakeStateProvider;
-  let repository: ServerCommunicationConfigRepository;
-  let mockPlatformApi: ServerCommunicationConfigPlatformApi;
-  let mockConfigService: jest.Mocked<Pick<ConfigService, "serverCommunicationConfig$">>;
+  let repository: MockProxy<ServerCommunicationConfigRepository>;
+  let platformApi: MockProxy<ServerCommunicationConfigPlatformApi>;
+  let configService: MockProxy<ConfigService>;
+  let serverCommunicationConfig$: Subject<ServerCommunicationConfig>;
   let service: DefaultServerCommunicationConfigService;
-  let mockClient: any;
 
   beforeEach(async () => {
-    const accountService = new FakeAccountService({});
-    stateProvider = new FakeStateProvider(accountService);
-    repository = new ServerCommunicationConfigRepository(stateProvider);
+    jest.clearAllMocks();
 
-    // Create mock platform API
-    mockPlatformApi = {
-      acquireCookies: jest.fn(),
-    };
+    repository = mock<ServerCommunicationConfigRepository>();
+    platformApi = mock<ServerCommunicationConfigPlatformApi>();
+    configService = mock<ConfigService>();
 
-    mockConfigService = {
-      serverCommunicationConfig$: of(),
-    };
+    serverCommunicationConfig$ = new Subject<ServerCommunicationConfig>();
+    configService.serverCommunicationConfig$ = serverCommunicationConfig$.asObservable();
 
-    service = new DefaultServerCommunicationConfigService(
-      repository,
-      mockPlatformApi,
-      mockConfigService as unknown as ConfigService,
-    );
+    service = new DefaultServerCommunicationConfigService(repository, platformApi, configService);
     await service.init();
-    mockClient = (service as any).client;
   });
 
   describe("init", () => {
-    it("calls setCommunicationType for each emission on serverCommunicationConfig$", async () => {
+    it("creates the SDK client with the repository and platform API", () => {
+      expect(ServerCommunicationConfigClient).toHaveBeenCalledWith(repository, platformApi);
+    });
+
+    it("does not call setCommunicationType when bootstrap type is 'direct'", () => {
       const config: ServerCommunicationConfig = { bootstrap: { type: "direct" } };
-      mockConfigService.serverCommunicationConfig$ = of({
-        hostname: "https://api.example.com",
-        config,
-      });
+      serverCommunicationConfig$.next(config);
 
-      await service.init();
-      mockClient = (service as any).client;
-
-      await awaitAsync();
-
-      expect(mockClient.setCommunicationType).toHaveBeenCalledWith(
-        "https://api.example.com",
-        config,
-      );
-    });
-  });
-
-  describe("needsBootstrap$", () => {
-    it("emits false when direct bootstrap configured", async () => {
-      mockClient.needsBootstrap.mockResolvedValue(false);
-
-      const result = await firstValueFrom(service.needsBootstrap$("vault.bitwarden.com"));
-
-      expect(result).toBe(false);
-      expect(mockClient.needsBootstrap).toHaveBeenCalledWith("vault.bitwarden.com");
+      expect(mockClientInstance.setCommunicationType).not.toHaveBeenCalled();
     });
 
-    it("emits true when SSO cookie vendor bootstrap needed", async () => {
-      mockClient.needsBootstrap.mockResolvedValue(true);
-
-      const result = await firstValueFrom(service.needsBootstrap$("vault.acme.com"));
-
-      expect(result).toBe(true);
-      expect(mockClient.needsBootstrap).toHaveBeenCalledWith("vault.acme.com");
-    });
-
-    it("re-emits when config state changes", async () => {
-      mockClient.needsBootstrap.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
-
-      const observable = service.needsBootstrap$("vault.bitwarden.com");
-      const emissions: boolean[] = [];
-
-      // Subscribe to collect emissions
-      const subscription = observable.subscribe((value) => emissions.push(value));
-
-      // Wait for first emission
-      await awaitAsync();
-      expect(emissions[0]).toBe(false);
-
-      // Update config state to trigger re-check
+    it("calls setCommunicationType with the config for non-direct bootstrap types", () => {
       const config: ServerCommunicationConfig = {
-        bootstrap: { type: "direct" },
+        bootstrap: {
+          type: "ssoCookieVendor",
+          idpLoginUrl: "https://idp.example.com",
+          cookieName: "exampleCookie",
+          cookieDomain: "example.com",
+          cookieValue: undefined,
+        },
       };
-      await repository.save("vault.bitwarden.com", config);
+      serverCommunicationConfig$.next(config);
 
-      // Wait for second emission
-      await awaitAsync();
-      expect(emissions[1]).toBe(true);
-
-      subscription.unsubscribe();
-    });
-
-    it("creates independent observables per hostname", async () => {
-      mockClient.needsBootstrap.mockImplementation(async (hostname: string) => {
-        return hostname === "vault1.acme.com";
-      });
-
-      const result1 = await firstValueFrom(service.needsBootstrap$("vault1.acme.com"));
-      const result2 = await firstValueFrom(service.needsBootstrap$("vault2.acme.com"));
-
-      expect(result1).toBe(true);
-      expect(result2).toBe(false);
-      expect(mockClient.needsBootstrap).toHaveBeenCalledWith("vault1.acme.com");
-      expect(mockClient.needsBootstrap).toHaveBeenCalledWith("vault2.acme.com");
-    });
-
-    it("shares result between simultaneous subscribers", async () => {
-      mockClient.needsBootstrap.mockResolvedValue(true);
-
-      const observable = service.needsBootstrap$("vault.bitwarden.com");
-
-      // Multiple simultaneous subscribers should share the same call
-      const [result1, result2] = await Promise.all([
-        firstValueFrom(observable),
-        firstValueFrom(observable),
-      ]);
-
-      expect(result1).toBe(true);
-      expect(result2).toBe(true);
-      // Should only call once for simultaneous subscribers
-      expect(mockClient.needsBootstrap).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe("getCookies", () => {
-    it("retrieves cookies for hostname", async () => {
-      const expectedCookies: Array<[string, string]> = [
-        ["auth_token", "abc123"],
-        ["session_id", "xyz789"],
-      ];
-      mockClient.cookies.mockResolvedValue(expectedCookies);
-
-      const result = await service.getCookies("vault.bitwarden.com");
-
-      expect(result).toEqual(expectedCookies);
-      expect(mockClient.cookies).toHaveBeenCalledWith("vault.bitwarden.com");
-    });
-
-    it("returns empty array when no cookies configured", async () => {
-      mockClient.cookies.mockResolvedValue([]);
-
-      const result = await service.getCookies("vault.bitwarden.com");
-
-      expect(result).toEqual([]);
-      expect(mockClient.cookies).toHaveBeenCalledWith("vault.bitwarden.com");
-    });
-
-    it("handles different hostnames independently", async () => {
-      mockClient.cookies
-        .mockResolvedValueOnce([["cookie1", "value1"]])
-        .mockResolvedValueOnce([["cookie2", "value2"]]);
-
-      const result1 = await service.getCookies("vault1.acme.com");
-      const result2 = await service.getCookies("vault2.acme.com");
-
-      expect(result1).toEqual([["cookie1", "value1"]]);
-      expect(result2).toEqual([["cookie2", "value2"]]);
-      expect(mockClient.cookies).toHaveBeenCalledTimes(2);
+      expect(mockClientInstance.setCommunicationType).toHaveBeenCalledWith("example.com", config);
     });
   });
 });

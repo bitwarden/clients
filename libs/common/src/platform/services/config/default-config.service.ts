@@ -61,10 +61,7 @@ const environmentComparer = (previous: Environment, current: Environment) => {
 // FIXME: currently we are limited to api requests for active users. Update to accept a UserId and APIUrl once ApiService supports it.
 export class DefaultConfigService implements ConfigService {
   private failedFetchFallbackSubject = new Subject<ServerConfig | null>();
-  private serverCommunicationConfigSubject = new ReplaySubject<{
-    hostname: string;
-    config: ServerCommunicationConfig;
-  }>(1);
+  private serverCommunicationConfigSubject = new ReplaySubject<ServerCommunicationConfig>(1);
 
   serverConfig$: Observable<ServerConfig | null>;
   serverCommunicationConfig$ = this.serverCommunicationConfigSubject.asObservable();
@@ -214,7 +211,7 @@ export class DefaultConfigService implements ConfigService {
       clearTimeout(handle);
       const newConfig = new ServerConfig(new ServerConfigData(response));
 
-      this.parseBoostrapConfig(environment.getApiUrl(), response);
+      this.parseBoostrapConfig(response);
 
       // Update the environment region
       if (
@@ -252,7 +249,7 @@ export class DefaultConfigService implements ConfigService {
     return this.stateProvider.getUser(userId, USER_SERVER_CONFIG).state$;
   }
 
-  private parseBoostrapConfig(hostname: string, response: ServerConfigResponse) {
+  private parseBoostrapConfig(response: ServerConfigResponse) {
     const bootstrap = response.communication?.bootstrap ?? null;
 
     // Emit communication config so subscribers (e.g. ServerCommunicationConfigService) can persist it
@@ -268,9 +265,6 @@ export class DefaultConfigService implements ConfigService {
             },
           }
         : { bootstrap: { type: "direct" } };
-    this.serverCommunicationConfigSubject.next({
-      hostname,
-      config: communicationConfig,
-    });
+    this.serverCommunicationConfigSubject.next(communicationConfig);
   }
 }
