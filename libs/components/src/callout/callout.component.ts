@@ -1,5 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, input, output, booleanAttribute } from "@angular/core";
+import {
+  Component,
+  computed,
+  input,
+  output,
+  booleanAttribute,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -32,12 +39,11 @@ let nextId = 0;
  * within other components / in the more standard flow of information. It’s meant to interrupt the user
  * whereas the banner is not meant to interrupt.
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-callout",
   templateUrl: "callout.component.html",
   imports: [CommonModule, TypographyModule, IconButtonModule, IconModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CalloutComponent {
   // The variant type of the callout. Defaults to "info".
