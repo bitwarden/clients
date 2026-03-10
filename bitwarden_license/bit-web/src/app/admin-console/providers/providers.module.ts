@@ -22,6 +22,7 @@ import { SetupBusinessUnitComponent } from "../../billing/providers/setup/setup-
 import { ProviderSubscriptionStatusComponent } from "../../billing/providers/subscription/provider-subscription-status.component";
 import { ProviderSubscriptionComponent } from "../../billing/providers/subscription/provider-subscription.component";
 import { ProviderWarningsModule } from "../../billing/providers/warnings/provider-warnings.module";
+import { EventsComponent } from "../../dirt/provider-events/events.component";
 
 import { AddExistingOrganizationDialogComponent } from "./clients/add-existing-organization-dialog.component";
 import { CreateClientDialogComponent } from "./clients/create-client-dialog.component";
@@ -31,7 +32,6 @@ import { AcceptProviderComponent } from "./manage/accept-provider.component";
 import { AddEditMemberDialogComponent } from "./manage/dialogs/add-edit-member-dialog.component";
 import { BulkConfirmDialogComponent } from "./manage/dialogs/bulk-confirm-dialog.component";
 import { BulkRemoveDialogComponent } from "./manage/dialogs/bulk-remove-dialog.component";
-import { EventsComponent } from "./manage/events.component";
 import { MembersComponent } from "./manage/members.component";
 import { ProviderActionsService } from "./manage/services/provider-actions/provider-actions.service";
 import { ProvidersLayoutComponent } from "./providers-layout.component";
