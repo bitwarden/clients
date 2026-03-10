@@ -46,7 +46,7 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     user: Account,
     hint: string,
   ): Promise<void> {
-    throw new Error("rotateUserKeyMasterPasswordAndEncryptedDataOld() is only implemented in Web");
+    throw new Error("rotateUserKeyMasterPasswordAndEncryptedData() is only implemented in Web");
   }
 
   /**

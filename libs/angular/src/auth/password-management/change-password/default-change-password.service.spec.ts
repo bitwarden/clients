@@ -561,7 +561,7 @@ describe("DefaultChangePasswordService", () => {
 
       // Assert
       await expect(promise).rejects.toThrow(
-        "rotateUserKeyMasterPasswordAndEncryptedDataOld() is only implemented in Web",
+        "rotateUserKeyMasterPasswordAndEncryptedData() is only implemented in Web",
       );
     });
   });

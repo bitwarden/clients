@@ -17,6 +17,8 @@ export abstract class ChangePasswordService {
    *
    * @param passwordInputResult credentials object received from the `InputPasswordComponent`
    * @param user the user account
+   * @throws if called from a non-Web client
+   * @throws if required values are not found on the `PasswordInputResult`
    * @throws `InvalidCurrentPasswordError` if `proofOfDecryption` fails (i.e. the current
    *          password is incorrect)
    */
