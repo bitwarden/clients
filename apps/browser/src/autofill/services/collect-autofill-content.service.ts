@@ -52,6 +52,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private mutationObserver: MutationObserver;
   private mutationsQueue: MutationRecord[][] = [];
   private updateAfterMutationIdleCallback: NodeJS.Timeout | number;
+  private pendingOverlaySetup: Map<Element, NodeJS.Timeout | number> = new Map();
+  private readonly overlaySetupDelayMs = 100;
   private shadowDomCheckTimeout: NodeJS.Timeout | number | null = null;
   private pendingShadowDomCheck = false;
   private ownedExperienceTagNames: string[] = [];
@@ -1334,6 +1336,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         this.autofillFieldsByOpid.delete(autofillFieldData.opid);
       }
     }
+
+    // Clear pending overlay setup timeout to prevent memory leak
+    const pendingTimeout = this.pendingOverlaySetup.get(element);
+    if (pendingTimeout) {
+      globalThis.clearTimeout(pendingTimeout);
+      this.pendingOverlaySetup.delete(element);
+    }
   }
 
   /**
@@ -1603,6 +1612,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   /**
    * Sets up the inline menu listener on the passed field element.
+   * Debounced per-element to prevent excessive setup/teardown during rapid DOM changes.
    *
    * @param formFieldElement - The form field element to set up the inline menu listener on
    * @param autofillField - The metadata for the form field
@@ -1613,20 +1623,66 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     autofillField: AutofillField,
     pageDetails?: AutofillPageDetails,
   ) {
-    if (this.autofillOverlayContentService) {
-      const autofillPageDetails =
-        pageDetails ||
-        this.getFormattedPageDetails(
-          this.getFormattedAutofillFormsData(),
-          this.getFormattedAutofillFieldsData(),
-        );
-
-      void this.autofillOverlayContentService.setupOverlayListeners(
-        formFieldElement,
-        autofillField,
-        autofillPageDetails,
-      );
+    if (!this.autofillOverlayContentService) {
+      return;
     }
+
+    // Check if there's already a pending debounce for this element
+    const existingTimeout = this.pendingOverlaySetup.get(formFieldElement);
+    const shouldExecuteImmediately = !existingTimeout;
+
+    // Cancel any pending setup for this element
+    if (existingTimeout) {
+      globalThis.clearTimeout(existingTimeout);
+    }
+
+    // Execute immediately on first call (leading edge), then debounce subsequent calls
+    if (shouldExecuteImmediately) {
+      this.executeOverlaySetup(formFieldElement, autofillField, pageDetails);
+    }
+
+    // Set up debounce timeout that clears the tracking after the delay
+    // This allows the next call after the delay to execute immediately again
+    const timeoutId = globalThis.setTimeout(() => {
+      this.pendingOverlaySetup.delete(formFieldElement);
+    }, this.overlaySetupDelayMs);
+
+    this.pendingOverlaySetup.set(formFieldElement, timeoutId);
+  }
+
+  /**
+   * Executes the overlay setup for a form field element.
+   *
+   * @param formFieldElement - The form field element to set up the inline menu listener on
+   * @param autofillField - The metadata for the form field
+   * @param pageDetails - The page details to use for the inline menu listeners
+   */
+  private executeOverlaySetup(
+    formFieldElement: ElementWithOpId<FormFieldElement>,
+    autofillField: AutofillField,
+    pageDetails?: AutofillPageDetails,
+  ) {
+    // Verify the field is still in the DOM and cached before setup
+    if (
+      !formFieldElement.isConnected ||
+      !this.autofillFieldElements.has(formFieldElement) ||
+      !this.autofillOverlayContentService
+    ) {
+      return;
+    }
+
+    const autofillPageDetails =
+      pageDetails ||
+      this.getFormattedPageDetails(
+        this.getFormattedAutofillFormsData(),
+        this.getFormattedAutofillFieldsData(),
+      );
+
+    void this.autofillOverlayContentService.setupOverlayListeners(
+      formFieldElement,
+      autofillField,
+      autofillPageDetails,
+    );
   }
 
   /**
@@ -1653,6 +1709,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     if (this.shadowDomCheckTimeout) {
       clearTimeout(this.shadowDomCheckTimeout);
     }
+    this.pendingOverlaySetup.forEach((timeout) => globalThis.clearTimeout(timeout));
+    this.pendingOverlaySetup.clear();
     this.mutationObserver?.disconnect();
     this.intersectionObserver?.disconnect();
   }
