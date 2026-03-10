@@ -55,7 +55,7 @@ export class ProgressBarComponent {
   protected readonly labelId = `bit-progress-bar-label-${this.id}`;
 
   protected readonly startTextContent = computed(() => {
-    if (this.startText() === null) {
+    if (this.startText() === null || this.value() === 0) {
       return undefined;
     }
 
