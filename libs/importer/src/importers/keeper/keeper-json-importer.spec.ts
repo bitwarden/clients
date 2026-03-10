@@ -230,15 +230,17 @@ describe("Keeper Json Importer", () => {
       // Cipher
       const driverLicense = getCipher(result, "Oregon Driver's License");
       expect(driverLicense).toBeDefined();
-      expect(driverLicense.type).toEqual(CipherType.SecureNote);
+      expect(driverLicense.type).toEqual(CipherType.Identity);
 
       // Properties
       expect(driverLicense.notes).toEqual("Valid Oregon driver's license - Class C");
+      expect(driverLicense.identity.licenseNumber).toEqual("DL-7482693");
+      expect(driverLicense.identity.firstName).toEqual("Robert");
+      expect(driverLicense.identity.middleName).toEqual("William");
+      expect(driverLicense.identity.lastName).toEqual("Anderson");
 
       // Fields
-      expect(driverLicense.fields.length).toEqual(4);
-      expect(getField(driverLicense, "dlNumber")?.value).toEqual("DL-7482693");
-      expect(getField(driverLicense, "name")?.value).toEqual("Robert William Anderson");
+      expect(driverLicense.fields.length).toEqual(2);
       expect(getField(driverLicense, "birthDate")?.value).toEqual("3/14/1985, 11:00:00 PM");
       expect(getField(driverLicense, "expirationDate")?.value).toEqual("3/14/2028, 11:00:00 PM");
     });
@@ -431,15 +433,17 @@ describe("Keeper Json Importer", () => {
       // Cipher
       const passport = getCipher(result, "US Passport");
       expect(passport).toBeDefined();
-      expect(passport.type).toEqual(CipherType.Login);
+      expect(passport.type).toEqual(CipherType.Identity);
 
       // Properties
       expect(passport.notes).toEqual("Valid US passport for international travel");
+      expect(passport.identity.passportNumber).toEqual("543826194");
+      expect(passport.identity.firstName).toEqual("Jennifer");
+      expect(passport.identity.middleName).toEqual("Lynn");
+      expect(passport.identity.lastName).toEqual("Williams");
 
       // Fields
-      expect(passport.fields.length).toEqual(5);
-      expect(getField(passport, "passportNumber")?.value).toEqual("543826194");
-      expect(getField(passport, "name")?.value).toEqual("Jennifer Lynn Williams");
+      expect(passport.fields.length).toEqual(3);
       expect(getField(passport, "birthDate")?.value).toEqual("7/21/1990, 10:00:00 PM");
       expect(getField(passport, "expirationDate")?.value).toEqual("7/21/2033, 10:00:00 PM");
       expect(getField(passport, "dateIssued")?.value).toEqual("8/14/2023, 10:00:00 PM");
@@ -565,15 +569,17 @@ describe("Keeper Json Importer", () => {
       // Cipher
       const ssnCard = getCipher(result, "National Identity Card");
       expect(ssnCard).toBeDefined();
-      expect(ssnCard.type).toEqual(CipherType.SecureNote);
+      expect(ssnCard.type).toEqual(CipherType.Identity);
 
       // Properties
       expect(ssnCard.notes).toEqual("National identification card - Valid through 2028");
+      expect(ssnCard.identity.ssn).toEqual("ID-7849521");
+      expect(ssnCard.identity.firstName).toEqual("Sarah");
+      expect(ssnCard.identity.middleName).toEqual("Elizabeth");
+      expect(ssnCard.identity.lastName).toEqual("Johnson");
 
       // Fields
-      expect(ssnCard.fields.length).toEqual(2);
-      expect(getField(ssnCard, "identityNumber")?.value).toEqual("ID-7849521");
-      expect(getField(ssnCard, "name")?.value).toEqual("Sarah Elizabeth Johnson");
+      expect(ssnCard.fields.length).toEqual(0);
     });
   });
 
