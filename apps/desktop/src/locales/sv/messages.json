@@ -590,10 +590,10 @@
     "message": "Objekt sparat"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Objekt tillagt i favoriter"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Objekt borttaget från favoriter"
   },
   "deleteItem": {
     "message": "Radera objekt"
@@ -4654,7 +4654,7 @@
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "Du har inga favoritobjekt"
   },
   "emptyFavoritesDesc": {
     "message": "Add frequently used items to favorites for quick access."
