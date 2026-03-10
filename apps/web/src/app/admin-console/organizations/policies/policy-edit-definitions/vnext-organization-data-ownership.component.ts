@@ -98,25 +98,7 @@ export class vNextOrganizationDataOwnershipPolicyComponent
       titleContent: this.step0Title,
       footerContent: this.step0Footer,
       disableSave: this.saveDisabled$,
-      sideEffect: async () => {
-        const orgKeys = await firstValueFrom(
-          this.accountService.activeAccount$.pipe(
-            getUserId,
-            switchMap((userId) => this.keyService.orgKeys$(userId)),
-          ),
-        );
-
-        assertNonNullish(orgKeys, "Org keys not provided");
-
-        const orgKey = orgKeys[this.organizationId as OrganizationId];
-        const request = await this.buildVNextRequest(orgKey);
-
-        await this.policyApiService.putPolicyVNext(
-          this.organizationId ?? "",
-          this.policy?.type ?? PolicyType.OrganizationDataOwnership,
-          request,
-        );
-      },
+      sideEffect: this.savePolicy.bind(this),
     },
   ];
 
@@ -195,6 +177,26 @@ export class vNextOrganizationDataOwnershipPolicyComponent
     };
 
     return request;
+  }
+
+  private async savePolicy(): Promise<void> {
+    const orgKeys = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.keyService.orgKeys$(userId)),
+      ),
+    );
+
+    assertNonNullish(orgKeys, "Org keys not provided");
+
+    const orgKey = orgKeys[this.organizationId as OrganizationId];
+    const request = await this.buildVNextRequest(orgKey);
+
+    await this.policyApiService.putPolicyVNext(
+      this.organizationId ?? "",
+      this.policy?.type ?? PolicyType.OrganizationDataOwnership,
+      request,
+    );
   }
 
   private async getEncryptedDefaultUserCollectionName(orgKey: OrgKey): Promise<EncString> {

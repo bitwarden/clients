@@ -1,17 +1,11 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  Signal,
-  TemplateRef,
-  viewChild,
-} from "@angular/core";
-import { BehaviorSubject, combineLatest, map, Observable, startWith, switchMap } from "rxjs";
+import { ChangeDetectionStrategy, Component, Signal, TemplateRef, viewChild } from "@angular/core";
+import { Router } from "@angular/router";
+import { combineLatest, defer, firstValueFrom, map, Observable, startWith, switchMap } from "rxjs";
 
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { AutoConfirmSvg } from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -23,7 +17,11 @@ import { getById } from "@bitwarden/common/platform/misc";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
-import { MultiStepPolicyEditDialogComponent, PolicyStep } from "../policy-edit-dialogs";
+import {
+  MultiStepPolicyEditDialogComponent,
+  PolicyStep,
+  PolicyStepResult,
+} from "../policy-edit-dialogs";
 
 export class AutoConfirmPolicy extends BasePolicyEditDefinition {
   name = "automaticUserConfirmation";
@@ -32,6 +30,10 @@ export class AutoConfirmPolicy extends BasePolicyEditDefinition {
   component = AutoConfirmPolicyEditComponent;
   showDescription = false;
   editDialogComponent = MultiStepPolicyEditDialogComponent;
+
+  constructor(public readonly firstTimeDialog: boolean = false) {
+    super();
+  }
 
   override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return configService
@@ -46,11 +48,16 @@ export class AutoConfirmPolicy extends BasePolicyEditDefinition {
   imports: [SharedModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent implements OnInit {
+export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
+  override readonly policy: AutoConfirmPolicy | undefined;
+
   constructor(
-    private accountService: AccountService,
-    private organizationService: OrganizationService,
-    private policyService: PolicyService,
+    private readonly accountService: AccountService,
+    private readonly organizationService: OrganizationService,
+    private readonly policyService: PolicyService,
+    private readonly policyApiService: PolicyApiServiceAbstraction,
+    private readonly autoConfirmService: AutomaticUserConfirmationService,
+    private readonly router: Router,
   ) {
     super();
   }
@@ -65,49 +72,104 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent impl
   private readonly step1Content: Signal<TemplateRef<unknown>> = viewChild.required("step1Content");
   private readonly step1Footer: Signal<TemplateRef<unknown>> = viewChild.required("step1Footer");
 
-  protected autoConfirmEnabled$: Observable<boolean> = this.accountService.activeAccount$.pipe(
-    getUserId,
-    switchMap((userId) => this.policyService.policies$(userId)),
-    map((policies) => policies.find((p) => p.type === PolicyType.AutoConfirm)?.enabled ?? false),
+  protected readonly autoConfirmEnabled$: Observable<boolean> =
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.policyService.policies$(userId)),
+      map((policies) => policies.find((p) => p.type === PolicyType.AutoConfirm)?.enabled ?? false),
+    );
+
+  protected readonly singleOrgEnabled$: Observable<boolean> =
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.policyService.policies$(userId)),
+      map((policies) => policies.find((p) => p.type === PolicyType.SingleOrg)?.enabled ?? false),
+    );
+
+  // defer() ensures this.organizationId (an @Input set via setInput()) is read at subscription
+  // time rather than at class-field initialization time, where it would still be undefined.
+  protected readonly managePoliciesOnly$: Observable<boolean> = defer(() =>
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.organizationService.organizations$(userId)),
+      getById(this.organizationId),
+      map((organization) => (!organization?.isAdmin && organization?.canManagePolicies) ?? false),
+    ),
   );
 
-  // fix this later
-  firstTimeDialog = false;
-
-  protected managePoliciesOnly$: Observable<boolean> = this.accountService.activeAccount$.pipe(
-    getUserId,
-    switchMap((userId) => this.organizationService.organizations$(userId)),
-    getById(this.policyResponse?.organizationId),
-    map((organization) => (!organization?.isAdmin && organization?.canManagePolicies) ?? false),
-  );
-
-  protected saveDisabled$ = combineLatest([
+  protected readonly saveDisabled$ = combineLatest([
     this.autoConfirmEnabled$,
     this.enabled.valueChanges.pipe(startWith(this.enabled.value)),
   ]).pipe(map(([policyEnabled, value]) => !policyEnabled && !value));
 
-  protected step: number = 0;
-
-  policySteps: PolicyStep[] = [
+  readonly policySteps: PolicyStep[] = [
     {
       titleContent: this.step0Title,
       bodyContent: this.step0Content,
       footerContent: this.step0Footer,
+      disableSave: this.saveDisabled$,
+      sideEffect: async () => {
+        const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+        const organizations = await firstValueFrom(this.organizationService.organizations$(userId));
+        const organization = organizations.find((o) => o.id === this.organizationId) ?? null;
+        const managePoliciesOnly =
+          (!organization?.isAdmin && organization?.canManagePolicies) ?? false;
+
+        const policies = await firstValueFrom(this.policyService.policies$(userId));
+        const singleOrgAlreadyEnabled =
+          policies.find((p) => p.type === PolicyType.SingleOrg)?.enabled ?? false;
+        const enabledSingleOrgDuringAction = !singleOrgAlreadyEnabled;
+
+        // AutoConfirm requires SingleOrg; enable it as a prerequisite if not already on.
+        if (enabledSingleOrgDuringAction) {
+          await this.policyApiService.putPolicyVNext(
+            this.organizationId ?? "",
+            PolicyType.SingleOrg,
+            { policy: { enabled: true, data: null }, metadata: null },
+          );
+        }
+
+        try {
+          const request = await this.buildRequest();
+          await this.policyApiService.putPolicyVNext(
+            this.organizationId ?? "",
+            PolicyType.AutoConfirm,
+            { policy: request, metadata: null },
+          );
+        } catch (error) {
+          // Roll back the SingleOrg enablement if AutoConfirm save fails.
+          if (enabledSingleOrgDuringAction) {
+            await this.policyApiService.putPolicyVNext(
+              this.organizationId ?? "",
+              PolicyType.SingleOrg,
+              { policy: { enabled: false, data: null }, metadata: null },
+            );
+          }
+          throw error;
+        }
+
+        // Dismiss the first-time setup dialog prompt now that the admin has configured the policy.
+        const currentState = await firstValueFrom(this.autoConfirmService.configuration$(userId));
+        await this.autoConfirmService.upsert(userId, { ...currentState, showSetupDialog: false });
+
+        // Close immediately when disabling (no extension step needed) or when the user only has
+        // manage-policies permission and cannot configure the client-side extension setting.
+        if (!this.enabled.value || managePoliciesOnly) {
+          return { closeDialog: true };
+        }
+      },
     },
     {
       titleContent: this.step1Title,
       bodyContent: this.step1Content,
       footerContent: this.step1Footer,
+      sideEffect: async (): Promise<PolicyStepResult> => {
+        await this.router.navigate(["/browser-extension-prompt"], {
+          queryParams: { url: "AutoConfirm" },
+        });
+        return undefined;
+      },
     },
   ];
-
-  protected singleOrgEnabled$: BehaviorSubject<boolean> = new BehaviorSubject(false);
-
-  setSingleOrgEnabled(enabled: boolean) {
-    this.singleOrgEnabled$.next(enabled);
-  }
-
-  setStep(step: number) {
-    this.step = step;
-  }
 }

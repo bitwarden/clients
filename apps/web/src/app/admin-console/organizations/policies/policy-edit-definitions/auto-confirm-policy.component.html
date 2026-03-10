@@ -1,6 +1,6 @@
 <ng-template #step0Title>
   <div class="tw-flex tw-flex-col">
-    @let showBadge = firstTimeDialog;
+    @let showBadge = policy?.firstTimeDialog ?? false;
     @if (showBadge) {
       <span bitBadge variant="info" class="tw-w-[99px] tw-my-2"> {{ "availableNow" | i18n }}</span>
     }
