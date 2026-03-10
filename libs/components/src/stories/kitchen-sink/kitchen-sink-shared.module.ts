@@ -15,6 +15,8 @@ import { ColorPasswordModule } from "../../color-password";
 import { DialogModule } from "../../dialog";
 import { FormControlModule } from "../../form-control";
 import { FormFieldModule } from "../../form-field";
+import { HeaderComponent } from "../../header";
+import { IconComponent } from "../../icon";
 import { IconButtonModule } from "../../icon-button";
 import { InputModule } from "../../input";
 import { LayoutComponent } from "../../layout";
@@ -50,7 +52,9 @@ import { TypographyModule } from "../../typography";
     FormControlModule,
     FormFieldModule,
     FormsModule,
+    HeaderComponent,
     IconButtonModule,
+    IconComponent,
     SvgModule,
     InputModule,
     LayoutComponent,
@@ -86,7 +90,9 @@ import { TypographyModule } from "../../typography";
     FormControlModule,
     FormFieldModule,
     FormsModule,
+    HeaderComponent,
     IconButtonModule,
+    IconComponent,
     SvgModule,
     InputModule,
     LayoutComponent,
