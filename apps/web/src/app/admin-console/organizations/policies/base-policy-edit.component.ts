@@ -117,6 +117,13 @@ export abstract class BasePolicyEditComponent implements OnInit {
     }
   }
 
+  /**
+   * An optional guard called before submission in {@link PolicyEditDialogComponent}.
+   * Return `false` to abort the save (e.g. when the user cancels a warning dialog).
+   * Components that need a confirmation step before saving should override this method.
+   */
+  confirm?(): Promise<boolean>;
+
   async buildVNextRequest(orgKey: OrgKey): Promise<VNextSavePolicyRequest> {
     if (!this.policy) {
       throw new Error("Policy was not found");
