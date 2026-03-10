@@ -32,12 +32,15 @@ export class RadioInputComponent implements BitFormControlAbstraction {
     "tw-rounded-full",
     "tw-flex-none", // Flexbox fix for bit-form-control
     "hover:tw-bg-bg-hover",
+    "focus-visible:tw-bg-bg-hover",
     "[&>label:hover]:tw-bg-bg-hover",
     "disabled:hover:tw-bg-bg-inactive",
     "disabled:[&>label:hover]:tw-bg-bg-inactive",
 
     "hover:before:tw-border-2",
     "[&>label:hover]:before:tw-border-2",
+    "focus-visible:before:tw-border-2",
+    "[&>label:focus-visible]:before:tw-border-2",
 
     // if it exists, the parent form control handles focus
     "[&:not(bit-form-control_*, bit-form-control-card)]:focus-visible:before:tw-ring-2",
@@ -72,6 +75,7 @@ export class RadioInputComponent implements BitFormControlAbstraction {
     "disabled:before:tw-border-border-base",
 
     "checked:hover:tw-bg-transparent",
+    "checked:focus-visible:tw-bg-transparent",
 
     "checked:after:tw-bg-bg-brand",
 
