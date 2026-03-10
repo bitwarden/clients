@@ -424,8 +424,11 @@ describe("DefaultChangePasswordService", () => {
         expect(masterPasswordApiService.putUpdateTempPassword).toHaveBeenCalledWith(request);
       });
 
-      it("should set the forceSetPasswordReason to None", async () => {
-        // act
+      it("should set the forceSetPasswordReason to None when shouldNavigateToRoot returns true", async () => {
+        // Arrange
+        jest.spyOn(sut, "shouldNavigateToRoot").mockReturnValue(true);
+
+        // Act
         await sut.changePasswordForAccountRecovery(passwordInputResult, userId);
 
         // Assert
@@ -433,6 +436,17 @@ describe("DefaultChangePasswordService", () => {
           ForceSetPasswordReason.None,
           userId,
         );
+      });
+
+      it("should not set the forceSetPasswordReason to None when shouldNavigateToRoot returns false", async () => {
+        // Arrange
+        jest.spyOn(sut, "shouldNavigateToRoot").mockReturnValue(false);
+
+        // Act
+        await sut.changePasswordForAccountRecovery(passwordInputResult, userId);
+
+        // Assert
+        expect(masterPasswordService.setForceSetPasswordReason).not.toHaveBeenCalled();
       });
     });
   });

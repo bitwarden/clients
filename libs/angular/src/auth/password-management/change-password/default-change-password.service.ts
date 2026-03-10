@@ -213,11 +213,14 @@ export class DefaultChangePasswordService implements ChangePasswordService {
       }
 
       // TODO: investigate removing this call to clear forceSetPasswordReason in https://bitwarden.atlassian.net/browse/PM-32660
-      // Clear force set password reason to allow navigation back to vault.
-      await this.masterPasswordService.setForceSetPasswordReason(
-        ForceSetPasswordReason.None,
-        userId,
-      );
+      const shouldNavigateToRoot = this.shouldNavigateToRoot();
+      if (shouldNavigateToRoot) {
+        // Clear force set password reason to allow navigation back to vault.
+        await this.masterPasswordService.setForceSetPasswordReason(
+          ForceSetPasswordReason.None,
+          userId,
+        );
+      }
 
       return; // EARLY RETURN for flagged logic
     }
