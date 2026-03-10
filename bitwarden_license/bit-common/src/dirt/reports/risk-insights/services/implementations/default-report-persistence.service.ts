@@ -2,6 +2,7 @@ import { firstValueFrom, forkJoin, from, map, Observable, of, switchMap, throwEr
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
 
@@ -31,7 +32,7 @@ export class DefaultReportPersistenceService extends ReportPersistenceService {
   saveReport$(
     view: RiskInsightsView,
     organizationId: OrganizationId,
-  ): Observable<OrganizationReportId> {
+  ): Observable<{ id: OrganizationReportId; contentEncryptionKey: EncString }> {
     this.logService.debug("[DefaultReportPersistenceService] Saving report", {
       organizationId,
     });
@@ -72,7 +73,12 @@ export class DefaultReportPersistenceService extends ReportPersistenceService {
 
             return this.riskInsightsApiService
               .saveRiskInsightsReport$(requestPayload, organizationId)
-              .pipe(map((response) => response.id));
+              .pipe(
+                map((response) => ({
+                  id: response.id,
+                  contentEncryptionKey: domain.contentEncryptionKey!,
+                })),
+              );
           }),
         );
       }),

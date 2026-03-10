@@ -94,8 +94,9 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
                 );
               }
               return this.reportPersistenceService.saveReport$(legacyReport, orgId).pipe(
-                tap((reportId) => {
-                  legacyReport.id = reportId;
+                tap(({ id, contentEncryptionKey }) => {
+                  legacyReport.id = id;
+                  legacyReport.contentEncryptionKey = contentEncryptionKey;
                   this.logService.info(
                     "[DefaultAccessIntelligenceDataService] V1 report saved as V2",
                   );
@@ -200,9 +201,10 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
               // Emit Saving before persistence call
               this._reportProgress.next(ReportProgress.Saving);
               return this.reportPersistenceService.saveReport$(generatedReport, orgId).pipe(
-                map((reportId) => {
-                  generatedReport.id = reportId;
+                map(({ id, contentEncryptionKey }) => {
+                  generatedReport.id = id;
                   generatedReport.organizationId = orgId;
+                  generatedReport.contentEncryptionKey = contentEncryptionKey;
                   return generatedReport;
                 }),
               );

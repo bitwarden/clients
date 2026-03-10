@@ -23,6 +23,7 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
 import { RiskInsightsMetrics } from "../models/domain/risk-insights-metrics";
 import { CipherHealthView } from "../models/view/cipher-health.view";
+import { MemberRegistryEntryView } from "../models/view/member-details.view";
 import { RiskInsightsApplicationView } from "../models/view/risk-insights-application.view";
 import { RiskInsightsReportView } from "../models/view/risk-insights-report.view";
 import { RiskInsightsSummaryView } from "../models/view/risk-insights-summary.view";
@@ -73,7 +74,11 @@ export function createMemberRegistry(
 ): MemberRegistry {
   const registry: MemberRegistry = {};
   members.forEach((m) => {
-    registry[m.id] = { id: m.id, userName: m.name, email: m.email };
+    registry[m.id] = MemberRegistryEntryView.fromData({
+      id: m.id,
+      userName: m.name,
+      email: m.email,
+    });
   });
   return registry;
 }

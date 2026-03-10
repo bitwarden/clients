@@ -1,5 +1,6 @@
 import { Observable } from "rxjs";
 
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
 import { RiskInsightsView } from "../../models/view/risk-insights.view";
@@ -34,7 +35,7 @@ export abstract class ReportPersistenceService {
   abstract saveReport$(
     view: RiskInsightsView,
     organizationId: OrganizationId,
-  ): Observable<OrganizationReportId>;
+  ): Observable<{ id: OrganizationReportId; contentEncryptionKey: EncString }>;
 
   /**
    * Update application metadata (critical flags, review dates) and summary
