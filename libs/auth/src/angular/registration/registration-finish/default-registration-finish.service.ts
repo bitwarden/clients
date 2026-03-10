@@ -81,7 +81,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       const ctx = "Could not finish registration.";
       assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
       assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
-      assertNonNullish(passwordInputResult.salt, "salt", ctx);
+      assertTruthy(passwordInputResult.salt, "salt", ctx);
 
       const newMasterKey = await this.keyService.makeMasterKey(
         passwordInputResult.newPassword,
@@ -170,10 +170,6 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       return registerFinishRequest;
     } else {
       // Old API path - use original request with KDF fields
-      const userAsymmetricKeysRequest = new KeysRequest(
-        userAsymmetricKeys[0],
-        userAsymmetricKeys[1].encryptedString,
-      );
 
       const registerFinishRequest = new RegisterFinishRequest(
         email,

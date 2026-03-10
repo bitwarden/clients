@@ -18,12 +18,15 @@ import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-manageme
 import {
   MasterPasswordUnlockData,
   MasterPasswordSalt,
+  MasterPasswordAuthenticationData,
+  MasterPasswordAuthenticationHash,
+  MasterKeyWrappedUserKey,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { DEFAULT_KDF_CONFIG, KeyService, KdfType } from "@bitwarden/key-management";
+import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
 
 import { WebRegistrationFinishService } from "./web-registration-finish.service";
 
@@ -186,7 +189,7 @@ describe("WebRegistrationFinishService", () => {
     let providerUserId: string;
 
     let salt: MasterPasswordSalt;
-    let masterPasswordAuthentication: any;
+    let masterPasswordAuthentication: MasterPasswordAuthenticationData;
     let masterPasswordUnlock: MasterPasswordUnlockData;
 
     beforeEach(() => {
@@ -221,12 +224,12 @@ describe("WebRegistrationFinishService", () => {
       masterPasswordAuthentication = {
         salt,
         kdf: DEFAULT_KDF_CONFIG,
-        masterPasswordAuthenticationHash: "authHash" as string,
+        masterPasswordAuthenticationHash: "authHash" as MasterPasswordAuthenticationHash,
       };
       masterPasswordUnlock = new MasterPasswordUnlockData(
         salt,
         DEFAULT_KDF_CONFIG,
-        new EncString("wrapped") as any,
+        "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
       );
     });
 
@@ -249,27 +252,9 @@ describe("WebRegistrationFinishService", () => {
 
         expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
         expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
-        expect(accountApiService.registerFinish).toHaveBeenCalledWith(
-          expect.objectContaining({
-            email,
-            emailVerificationToken: emailVerificationToken,
-            masterPasswordHash: passwordInputResult.newServerMasterKeyHash,
-            masterPasswordHint: passwordInputResult.newPasswordHint,
-            userSymmetricKey: userKeyEncString.encryptedString,
-            userAsymmetricKeys: {
-              publicKey: userKeyPair[0],
-              encryptedPrivateKey: userKeyPair[1].encryptedString,
-            },
-            kdf: KdfType.PBKDF2_SHA256,
-            kdfIterations: DEFAULT_KDF_CONFIG.iterations,
-          }),
-        );
-
-        // Verify old API fields are present
         const registerCall = accountApiService.registerFinish.mock.calls[0][0];
         expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
-        expect((registerCall as RegisterFinishRequest).kdf).toBeDefined();
-        expect((registerCall as RegisterFinishRequest).kdfIterations).toBeDefined();
+        expect(registerCall).toMatchSnapshot();
       });
 
       it("it registers the user with org invite when given an org invite", async () => {
@@ -280,15 +265,9 @@ describe("WebRegistrationFinishService", () => {
 
         await service.finishRegistration(email, passwordInputResult);
 
-        expect(accountApiService.registerFinish).toHaveBeenCalledWith(
-          expect.objectContaining({
-            email,
-            orgInviteToken: orgInvite.token,
-            organizationUserId: orgInvite.organizationUserId,
-            kdf: KdfType.PBKDF2_SHA256,
-            kdfIterations: DEFAULT_KDF_CONFIG.iterations,
-          }),
-        );
+        const registerCall = accountApiService.registerFinish.mock.calls[0][0];
+        expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
+        expect(registerCall).toMatchSnapshot();
       });
 
       it("registers the user when given an org sponsored free family plan token", async () => {
@@ -304,12 +283,9 @@ describe("WebRegistrationFinishService", () => {
           orgSponsoredFreeFamilyPlanToken,
         );
 
-        expect(accountApiService.registerFinish).toHaveBeenCalledWith(
-          expect.objectContaining({
-            email,
-            orgSponsoredFreeFamilyPlanToken: orgSponsoredFreeFamilyPlanToken,
-          }),
-        );
+        const registerCall = accountApiService.registerFinish.mock.calls[0][0];
+        expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
+        expect(registerCall).toMatchSnapshot();
       });
 
       it("registers the user when given an emergency access invite token", async () => {
@@ -327,13 +303,12 @@ describe("WebRegistrationFinishService", () => {
           emergencyAccessId,
         );
 
-        expect(accountApiService.registerFinish).toHaveBeenCalledWith(
-          expect.objectContaining({
-            email,
-            acceptEmergencyAccessInviteToken: acceptEmergencyAccessInviteToken,
-            acceptEmergencyAccessId: emergencyAccessId,
-          }),
-        );
+        expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
+        expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
+
+        const registerCall = accountApiService.registerFinish.mock.calls[0][0];
+        expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
+        expect(registerCall).toMatchSnapshot();
       });
 
       it("registers the user when given a provider invite token", async () => {
@@ -353,13 +328,12 @@ describe("WebRegistrationFinishService", () => {
           providerUserId,
         );
 
-        expect(accountApiService.registerFinish).toHaveBeenCalledWith(
-          expect.objectContaining({
-            email,
-            providerInviteToken: providerInviteToken,
-            providerUserId: providerUserId,
-          }),
-        );
+        expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
+        expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
+
+        const registerCall = accountApiService.registerFinish.mock.calls[0][0];
+        expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
+        expect(registerCall).toMatchSnapshot();
       });
     });
 
@@ -378,7 +352,6 @@ describe("WebRegistrationFinishService", () => {
         // The service derives the master key internally when the Auth flag is ON
         keyService.makeMasterKey.mockResolvedValue(masterKey);
 
-        masterPasswordService.emailToSalt.mockReturnValue(salt);
         masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
           masterPasswordAuthentication,
         );
@@ -401,35 +374,12 @@ describe("WebRegistrationFinishService", () => {
         );
         expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
         expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
-        expect(accountApiService.registerFinish).toHaveBeenCalledWith(
-          expect.objectContaining({
-            email,
-            emailVerificationToken: emailVerificationToken,
-            masterPasswordHint: passwordInputResult.newPasswordHint,
-            userAsymmetricKeys: {
-              publicKey: userKeyPair[0],
-              encryptedPrivateKey: userKeyPair[1].encryptedString,
-            },
-            masterPasswordAuthentication: masterPasswordAuthentication,
-            masterPasswordUnlock: masterPasswordUnlock,
-          }),
-        );
-
-        // Verify new API fields are present
-        const registerCall = accountApiService.registerFinish.mock.calls[0][0];
+        const registerCall = accountApiService.registerFinish.mock
+          .calls[0][0] as RegisterFinishRequestWithAuthUnlockDataTypes;
         expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
-        expect(
-          (registerCall as RegisterFinishRequestWithAuthUnlockDataTypes)
-            .masterPasswordAuthentication,
-        ).toBeDefined();
-        expect(
-          (registerCall as RegisterFinishRequestWithAuthUnlockDataTypes).masterPasswordUnlock,
-        ).toBeDefined();
-
-        // Verify old API fields are NOT present (including masterPasswordHash which is in masterPasswordAuthentication)
-        expect((registerCall as any).masterPasswordHash).toBeUndefined();
-        expect((registerCall as any).kdf).toBeUndefined();
-        expect((registerCall as any).kdfIterations).toBeUndefined();
+        expect(registerCall.masterPasswordAuthentication).toBeDefined();
+        expect(registerCall.masterPasswordUnlock).toBeDefined();
+        expect(registerCall).toMatchSnapshot();
       });
 
       it("it registers the user with org invite when given an org invite", async () => {
@@ -440,19 +390,14 @@ describe("WebRegistrationFinishService", () => {
 
         await service.finishRegistration(email, passwordInputResult);
 
-        expect(accountApiService.registerFinish).toHaveBeenCalledWith(
-          expect.objectContaining({
-            email,
-            orgInviteToken: orgInvite.token,
-            organizationUserId: orgInvite.organizationUserId,
-            masterPasswordAuthentication: masterPasswordAuthentication,
-            masterPasswordUnlock: masterPasswordUnlock,
-          }),
-        );
-
-        // Verify new API fields are present
-        const registerCall = accountApiService.registerFinish.mock.calls[0][0];
+        expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
+        expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
+        const registerCall = accountApiService.registerFinish.mock
+          .calls[0][0] as RegisterFinishRequestWithAuthUnlockDataTypes;
         expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
+        expect(registerCall.masterPasswordAuthentication).toBeDefined();
+        expect(registerCall.masterPasswordUnlock).toBeDefined();
+        expect(registerCall).toMatchSnapshot();
       });
 
       it("registers the user when given an org sponsored free family plan token", async () => {
@@ -468,14 +413,14 @@ describe("WebRegistrationFinishService", () => {
           orgSponsoredFreeFamilyPlanToken,
         );
 
-        expect(accountApiService.registerFinish).toHaveBeenCalledWith(
-          expect.objectContaining({
-            email,
-            orgSponsoredFreeFamilyPlanToken: orgSponsoredFreeFamilyPlanToken,
-            masterPasswordAuthentication: masterPasswordAuthentication,
-            masterPasswordUnlock: masterPasswordUnlock,
-          }),
-        );
+        expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
+        expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
+        const registerCall = accountApiService.registerFinish.mock
+          .calls[0][0] as RegisterFinishRequestWithAuthUnlockDataTypes;
+        expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
+        expect(registerCall.masterPasswordAuthentication).toBeDefined();
+        expect(registerCall.masterPasswordUnlock).toBeDefined();
+        expect(registerCall).toMatchSnapshot();
       });
 
       it("registers the user when given an emergency access invite token", async () => {
@@ -493,15 +438,14 @@ describe("WebRegistrationFinishService", () => {
           emergencyAccessId,
         );
 
-        expect(accountApiService.registerFinish).toHaveBeenCalledWith(
-          expect.objectContaining({
-            email,
-            acceptEmergencyAccessInviteToken: acceptEmergencyAccessInviteToken,
-            acceptEmergencyAccessId: emergencyAccessId,
-            masterPasswordAuthentication: masterPasswordAuthentication,
-            masterPasswordUnlock: masterPasswordUnlock,
-          }),
-        );
+        expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
+        expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
+        const registerCall = accountApiService.registerFinish.mock
+          .calls[0][0] as RegisterFinishRequestWithAuthUnlockDataTypes;
+        expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
+        expect(registerCall.masterPasswordAuthentication).toBeDefined();
+        expect(registerCall.masterPasswordUnlock).toBeDefined();
+        expect(registerCall).toMatchSnapshot();
       });
 
       it("registers the user when given a provider invite token", async () => {
@@ -521,15 +465,14 @@ describe("WebRegistrationFinishService", () => {
           providerUserId,
         );
 
-        expect(accountApiService.registerFinish).toHaveBeenCalledWith(
-          expect.objectContaining({
-            email,
-            providerInviteToken: providerInviteToken,
-            providerUserId: providerUserId,
-            masterPasswordAuthentication: masterPasswordAuthentication,
-            masterPasswordUnlock: masterPasswordUnlock,
-          }),
-        );
+        expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
+        expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
+        const registerCall = accountApiService.registerFinish.mock
+          .calls[0][0] as RegisterFinishRequestWithAuthUnlockDataTypes;
+        expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
+        expect(registerCall.masterPasswordAuthentication).toBeDefined();
+        expect(registerCall.masterPasswordUnlock).toBeDefined();
+        expect(registerCall).toMatchSnapshot();
       });
     });
   });

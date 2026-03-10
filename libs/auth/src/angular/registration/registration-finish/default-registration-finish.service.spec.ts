@@ -174,7 +174,6 @@ describe("DefaultRegistrationFinishService", () => {
           DEFAULT_KDF_CONFIG,
           "wrappedUserKey" as MasterKeyWrappedUserKey,
         );
-        masterPasswordService.emailToSalt.mockReturnValue(salt);
         masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
           masterPasswordAuthentication,
         );
@@ -223,6 +222,7 @@ describe("DefaultRegistrationFinishService", () => {
 
         // Verify old API fields are NOT present (including masterPasswordHash which is in masterPasswordAuthentication)
         expect((registerCall as any).masterPasswordHash).toBeUndefined();
+        expect((registerCall as any).userSymmetricKey).toBeUndefined();
         expect((registerCall as any).kdf).toBeUndefined();
         expect((registerCall as any).kdfIterations).toBeUndefined();
       });
