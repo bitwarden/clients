@@ -59,7 +59,7 @@ export type PolicyEditDialogResult = "saved";
 export class PolicyEditDialogComponent implements AfterViewInit {
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
 
-  readonly policyType = PolicyType;
+  protected readonly policyType = PolicyType;
   readonly loading = true;
   readonly enabled = false;
   readonly saveDisabled$: Observable<boolean> = of(false);
@@ -183,7 +183,10 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       request,
     );
   }
-  static readonly open = (dialogService: DialogService, config: DialogConfig<PolicyEditDialogData>) => {
+  static readonly open = (
+    dialogService: DialogService,
+    config: DialogConfig<PolicyEditDialogData>,
+  ) => {
     return dialogService.open<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
   };
 }
