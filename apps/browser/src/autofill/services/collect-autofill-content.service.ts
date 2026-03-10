@@ -36,6 +36,7 @@ import {
 } from "./abstractions/collect-autofill-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
+import { AutoFillConstants } from "./autofill-constants";
 
 export class CollectAutofillContentService implements CollectAutofillContentServiceInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
@@ -660,7 +661,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         break;
       }
 
-      if (this.containsChildFormElement(currentElement)) {
+      if (this.containsChildField(currentElement)) {
         break;
       }
 
@@ -715,12 +716,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
-   * Checks whether an element contains child form fields (input, select, textarea).
-   * Used to prevent label collection from absorbing text from sibling DOM
-   * containers that hold their own form fields.
+   * Checks whether an element's descendants contains form fields.
    */
-  private containsChildFormElement(element: Node): boolean {
-    return nodeIsElement(element) && !!element.querySelector("input, select, textarea");
+  private containsChildField(element: Node): boolean {
+    if (nodeIsElement(element)) {
+      const fields = AutoFillConstants.FieldTypes.join(", ");
+      return !!element.querySelector(fields);
+    } else {
+      return false;
+    }
   }
 
   /**
@@ -805,7 +809,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         return textContentItems;
       }
 
-      if (this.containsChildFormElement(currentElement)) {
+      if (this.containsChildField(currentElement)) {
         return textContentItems;
       }
 
@@ -831,12 +835,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     while (
       siblingElement?.lastChild &&
       !this.isNewSectionElement(siblingElement) &&
-      !this.containsChildFormElement(siblingElement)
+      !this.containsChildField(siblingElement)
     ) {
       siblingElement = siblingElement.lastChild;
     }
 
-    if (this.isNewSectionElement(siblingElement) || this.containsChildFormElement(siblingElement)) {
+    if (this.isNewSectionElement(siblingElement) || this.containsChildField(siblingElement)) {
       return textContentItems;
     }
 
