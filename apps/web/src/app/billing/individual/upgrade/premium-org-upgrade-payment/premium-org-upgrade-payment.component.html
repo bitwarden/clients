@@ -25,7 +25,7 @@
           <h5 bitTypography="h5" class="tw-pt-4 tw-pb-2">{{ "billingAddress" | i18n }}</h5>
           <app-enter-billing-address
             [group]="formGroup.controls.billingAddress"
-            [scenario]="{ type: 'checkout', supportsTaxId: false }"
+            [scenario]="{ type: 'checkout', supportsTaxId: showTaxIdField() }"
           >
           </app-enter-billing-address>
         </div>

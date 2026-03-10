@@ -28,12 +28,12 @@ export class SendControlsPolicy extends BasePolicyEditDefinition {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendControlsPolicyComponent extends BasePolicyEditComponent {
-  data = this.formBuilder.group({
+  readonly data = this.formBuilder.group({
     disableSend: false,
     disableHideEmail: false,
   });
 
-  constructor(private formBuilder: UntypedFormBuilder) {
+  constructor(private readonly formBuilder: UntypedFormBuilder) {
     super();
   }
 }

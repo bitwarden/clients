@@ -29,5 +29,5 @@ export class GroupNameBadgeComponent {
       .sort(this.i18nService.collator.compare);
   });
 
-  constructor(private i18nService: I18nService) {}
+  constructor(private readonly i18nService: I18nService) {}
 }
