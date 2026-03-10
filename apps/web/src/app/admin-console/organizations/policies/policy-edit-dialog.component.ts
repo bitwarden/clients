@@ -60,10 +60,10 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
 
   protected readonly policyType = PolicyType;
-  readonly loading = true;
+  loading = true;
   readonly enabled = false;
-  readonly saveDisabled$: Observable<boolean> = of(false);
-  readonly policyComponent: BasePolicyEditComponent | undefined;
+  saveDisabled$: Observable<boolean> = of(false);
+  policyComponent: BasePolicyEditComponent | undefined;
 
   readonly formGroup = this.formBuilder.group({
     enabled: [this.enabled],
