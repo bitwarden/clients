@@ -15,7 +15,7 @@ export class ClipboardNotificationBadgeUpdaterService {
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
   ) {}
 
-  init() {
+  async init(): Promise<void> {
     this.badgeService.setState(StateName, () => {
       return combineLatest({
         account: this.accountService.activeAccount$,
