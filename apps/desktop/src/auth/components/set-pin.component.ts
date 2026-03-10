@@ -3,7 +3,6 @@ import { Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 
 import { SetPinComponent as BaseSetPinComponent } from "@bitwarden/angular/auth/components/set-pin.component";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -12,6 +11,7 @@ import {
   FormFieldModule,
   IconButtonModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -19,7 +19,7 @@ import {
   imports: [
     DialogModule,
     CommonModule,
-    JslibModule,
+    I18nPipe,
     ButtonModule,
     IconButtonModule,
     ReactiveFormsModule,

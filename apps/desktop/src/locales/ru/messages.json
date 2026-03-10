@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Избранные"
   },
+  "unfavorite": {
+    "message": "Удалить из избранного"
+  },
   "types": {
     "message": "Типы элементов"
   },
@@ -131,7 +134,7 @@
     "description": "Displayed under the limit views field on Send"
   },
   "privateNote": {
-    "message": "Личная заметка"
+    "message": "Приватная заметка"
   },
   "sendDetails": {
     "message": "Информация о Send",
@@ -157,7 +160,7 @@
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Вы действительно хотите безвозвратно удалить эту Send?",
+    "message": "Вы уверены, что хотите безвозвратно удалить эту Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "new": {
@@ -585,6 +588,12 @@
   },
   "editedItem": {
     "message": "Элемент сохранен"
+  },
+  "itemAddedToFavorites": {
+    "message": "Элемент добавлен в избранное"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Элемент удален из избранного"
   },
   "deleteItem": {
     "message": "Удалить элемент"
@@ -1555,6 +1564,18 @@
   "unknown": {
     "message": "Неизвестно"
   },
+  "copyAddress": {
+    "message": "Скопировать адрес"
+  },
+  "copyPhone": {
+    "message": "Скопировать телефон"
+  },
+  "copyNote": {
+    "message": "Скопировать заметку"
+  },
+  "copyVerificationCode": {
+    "message": "Скопировать код подтверждения"
+  },
   "copyUsername": {
     "message": "Скопировать имя пользователя"
   },
@@ -2082,6 +2103,24 @@
   "searchTrash": {
     "message": "Поиск в корзине"
   },
+  "searchArchive": {
+    "message": "Поиск в архиве"
+  },
+  "searchLogin": {
+    "message": "Поиск логина"
+  },
+  "searchCard": {
+    "message": "Поиск карты"
+  },
+  "searchIdentity": {
+    "message": "Поиск личной информации"
+  },
+  "searchSecureNote": {
+    "message": "Поиск заметки"
+  },
+  "searchSshKey": {
+    "message": "Поиск ключа SSH"
+  },
   "permanentlyDeleteItem": {
     "message": "Окончательно удалить элемент"
   },
@@ -2377,6 +2416,9 @@
   "editSend": {
     "message": "Изменить Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Мое"
   },
   "myVault": {
     "message": "Хранилище"
@@ -4086,6 +4128,9 @@
   "missingWebsite": {
     "message": "Отсутствует сайт"
   },
+  "missingPermissions": {
+    "message": "У вас нет необходимых разрешений для выполнения этого действия."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Вы не можете удалить коллекции с правами только на просмотр: $COLLECTIONS$",
     "placeholders": {
@@ -4589,6 +4634,36 @@
   },
   "whyAmISeeingThis": {
     "message": "Почему я это вижу?"
+  },
+  "organizationIsSuspended": {
+    "message": "Организация приостановлена"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Доступ к элементам в отключенных организациях невозможен. Обратитесь за помощью к владельцу организации."
+  },
+  "noItemsInTrash": {
+    "message": "Нет элементов в корзине"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Элементы, которые вы удаляете, появятся здесь и будут удалены навсегда через 30 дней"
+  },
+  "noItemsInVault": {
+    "message": "В хранилище нет элементов"
+  },
+  "emptyVaultDescription": {
+    "message": "Хранилище защищает не только ваши пароли. Логины, идентификаторы, карты и заметки в нем надежно защищены."
+  },
+  "emptyFavorites": {
+    "message": "В избранном нет элементов"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Добавляйте часто используемые элементы в избранное для быстрого доступа."
+  },
+  "noSearchResults": {
+    "message": "Поиск не дал результатов"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Очистите фильтры или попробуйте другой поисковый запрос"
   },
   "sendPasswordHelperText": {
     "message": "Пользователям необходимо будет ввести пароль для просмотра этой Send",

@@ -12,7 +12,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
-  DefaultUserCollectionRestore = "pm-30883-my-items-restored-users",
   BulkReinviteUI = "pm-28416-bulk-reinvite-ux-improvements",
 
   /* Auth */
@@ -47,10 +46,10 @@ export enum FeatureFlag {
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
   PasskeyUnlock = "pm-2035-passkey-unlock",
   DataRecoveryTool = "pm-28813-data-recovery-tool",
-  ConsolidatedSessionTimeoutComponent = "pm-26056-consolidated-session-timeout-component",
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
+  UnlockViaSDK = "unlock-via-sdk",
 
   /* Tools */
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
@@ -85,8 +84,8 @@ export enum FeatureFlag {
   PM19148_InnovationArchive = "pm-19148-innovation-archive",
 
   /* Desktop */
-  DesktopUiMigrationMilestone1 = "desktop-ui-migration-milestone-1",
-  DesktopUiMigrationMilestone2 = "desktop-ui-migration-milestone-2",
+  DesktopUiMigrationMilestone3 = "desktop-ui-migration-milestone-3",
+  DesktopUiMigrationMilestone4 = "desktop-ui-migration-milestone-4",
 
   /* UIF */
   RouterFocusManagement = "router-focus-management",
@@ -108,7 +107,6 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.AutoConfirm]: FALSE,
-  [FeatureFlag.DefaultUserCollectionRestore]: FALSE,
   [FeatureFlag.BulkReinviteUI]: FALSE,
 
   /* Autofill */
@@ -168,10 +166,10 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
   [FeatureFlag.PasskeyUnlock]: FALSE,
   [FeatureFlag.DataRecoveryTool]: FALSE,
-  [FeatureFlag.ConsolidatedSessionTimeoutComponent]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
+  [FeatureFlag.UnlockViaSDK]: FALSE,
 
   /* Platform */
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
@@ -181,8 +179,8 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM19148_InnovationArchive]: FALSE,
 
   /* Desktop */
-  [FeatureFlag.DesktopUiMigrationMilestone1]: FALSE,
-  [FeatureFlag.DesktopUiMigrationMilestone2]: FALSE,
+  [FeatureFlag.DesktopUiMigrationMilestone3]: FALSE,
+  [FeatureFlag.DesktopUiMigrationMilestone4]: FALSE,
 
   /* UIF */
   [FeatureFlag.RouterFocusManagement]: FALSE,

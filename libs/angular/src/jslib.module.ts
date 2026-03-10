@@ -23,8 +23,8 @@ import {
   A11yTitleDirective,
   NoItemsModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-import { TwoFactorIconComponent } from "./auth/components/two-factor-icon.component";
 import { NotPremiumDirective } from "./billing/directives/not-premium.directive";
 import { ApiActionDirective } from "./directives/api-action.directive";
 import { BoxRowDirective } from "./directives/box-row.directive";
@@ -35,13 +35,11 @@ import { LaunchClickDirective } from "./directives/launch-click.directive";
 import { StopClickDirective } from "./directives/stop-click.directive";
 import { StopPropDirective } from "./directives/stop-prop.directive";
 import { TextDragDirective } from "./directives/text-drag.directive";
-import { CreditCardNumberPipe } from "./pipes/credit-card-number.pipe";
 import { PluralizePipe } from "./pipes/pluralize.pipe";
 import { SearchPipe } from "./pipes/search.pipe";
 import { UserNamePipe } from "./pipes/user-name.pipe";
 import { UserTypePipe } from "./pipes/user-type.pipe";
 import { EllipsisPipe } from "./platform/pipes/ellipsis.pipe";
-import { I18nPipe } from "./platform/pipes/i18n.pipe";
 import { IconComponent } from "./vault/components/icon.component";
 
 /**
@@ -82,33 +80,26 @@ import { IconComponent } from "./vault/components/icon.component";
     CopyClickDirective,
     A11yTitleDirective,
     AutofocusDirective,
-  ],
-  declarations: [
-    ApiActionDirective,
-    BoxRowDirective,
-    CreditCardNumberPipe,
+
     EllipsisPipe,
     I18nPipe,
     IconComponent,
+    IfFeatureDirective,
     InputStripSpacesDirective,
     InputVerbatimDirective,
-    NotPremiumDirective,
-    SearchPipe,
+    LaunchClickDirective,
     StopClickDirective,
     StopPropDirective,
-    LaunchClickDirective,
     UserNamePipe,
     UserTypePipe,
-    IfFeatureDirective,
-    TwoFactorIconComponent,
   ],
+  declarations: [ApiActionDirective, BoxRowDirective, NotPremiumDirective, SearchPipe],
   exports: [
     A11yTitleDirective,
     ApiActionDirective,
     AutofocusDirective,
     ToastModule,
     BoxRowDirective,
-    CreditCardNumberPipe,
     EllipsisPipe,
     I18nPipe,
     IconComponent,
@@ -123,17 +114,8 @@ import { IconComponent } from "./vault/components/icon.component";
     UserNamePipe,
     UserTypePipe,
     IfFeatureDirective,
-    TwoFactorIconComponent,
     TextDragDirective,
   ],
-  providers: [
-    CreditCardNumberPipe,
-    DatePipe,
-    I18nPipe,
-    SearchPipe,
-    UserNamePipe,
-    UserTypePipe,
-    PluralizePipe,
-  ],
+  providers: [DatePipe, I18nPipe, SearchPipe, UserNamePipe, UserTypePipe, PluralizePipe],
 })
 export class JslibModule {}
