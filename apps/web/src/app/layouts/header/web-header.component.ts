@@ -22,7 +22,7 @@ import { AccountMenuComponent } from "./account-menu.component";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WebHeaderComponent {
-  private route = inject(ActivatedRoute);
+  private readonly route = inject(ActivatedRoute);
 
   /**
    * Custom title that overrides the route data `titleId`
@@ -34,7 +34,7 @@ export class WebHeaderComponent {
    */
   readonly icon = input<string>();
 
-  protected routeData$: Observable<{ titleId: string }> = this.route.data.pipe(
+  protected readonly routeData$: Observable<{ titleId: string }> = this.route.data.pipe(
     map((params) => {
       return {
         titleId: params.titleId,
