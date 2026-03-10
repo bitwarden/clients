@@ -57,7 +57,7 @@ export class SwitchComponent implements ControlValueAccessor, BitFormControlAbst
     [
       "tw-transition-opacity",
       ...(this.selected() ? ["tw-opacity-100"] : ["tw-opacity-0"]),
-      ...(this.size() === "large" ? ["tw-text-sm"] : ["tw-text-xs"]),
+      ...(this.size() === "large" ? ["tw-text-[.625rem]"] : ["tw-text-[.5rem]"]),
     ].join(" "),
   );
 
