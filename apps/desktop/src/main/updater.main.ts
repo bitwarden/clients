@@ -155,7 +155,9 @@ export class UpdaterMain {
   private reset() {
     autoUpdater.autoDownload = true;
     // Reset the rollout check to the default behavior
-    autoUpdater.isUserWithinRollout = this.originalRolloutFunction;
+    if (this.originalRolloutFunction != null) {
+      autoUpdater.isUserWithinRollout = this.originalRolloutFunction;
+    }
     this.doingUpdateCheck = false;
     this.updateDownloaded = null;
   }
