@@ -22,7 +22,7 @@ export type UpgradePremiumToOrganizationRequest = {
   encryptedPrivateKey: string;
   planTier: ProductTierType;
   cadence: SubscriptionCadence;
-  billingAddress: Pick<BillingAddress, "country" | "postalCode">;
+  billingAddress: Pick<BillingAddress, "country" | "postalCode" | "taxId">;
 };
 
 @Injectable()
