@@ -14,7 +14,6 @@ import {
   firstValueFrom,
 } from "rxjs";
 
-import { ClientType } from "@bitwarden/client-type";
 import { PasswordManagerClient, ClientSettings, TokenProvider } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
@@ -31,7 +30,6 @@ import { Rc } from "../../misc/reference-counting/rc";
 import { StateProvider } from "../../state";
 
 import { initializeClientManagedState } from "./client-managed-state";
-import { initializeSdkManagedState } from "./sdk-managed-state";
 
 // A symbol that represents an overridden client that is explicitly set to undefined,
 // blocking the creation of an internal client for that user.
@@ -145,10 +143,7 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
               settings,
             );
 
-            // Initialize the SDK managed database and the client managed repositories.
-            if (this.platformUtilsService.getClientType() !== ClientType.Cli) {
-              await initializeSdkManagedState(client.platform().state());
-            }
+            // Initialize the client managed repositories.
             await initializeClientManagedState(
               userId,
               client.platform().state(),
