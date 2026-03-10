@@ -49,6 +49,7 @@ on:
 
 env:
   _AZ_REGISTRY: bitwardenprod.azurecr.io
+  _GHCR_REGISTRY: ghcr.io/bitwarden
   _GITHUB_PR_REPO_NAME: ${{ github.event.pull_request.head.repo.full_name }}
 
 permissions:
@@ -98,6 +99,7 @@ jobs:
     permissions:
       security-events: write
       id-token: write
+      packages: write
     needs: setup
     strategy:
       fail-fast: false
@@ -264,6 +266,14 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: az acr login -n "${_AZ_REGISTRY%.azurecr.io}"
 
+      - name: Log in to GHCR
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       ########## Generate image tag and build Docker image ##########
       - name: Generate container image tag
         id: tag
@@ -300,7 +310,12 @@ jobs:
         env:
           IMAGE_TAG: ${{ steps.tag.outputs.image_tag }}
           PROJECT_NAME: ${{ matrix.image_name }}
-        run: echo "name=$_AZ_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+        run: |
+          ACR_NAME="$_AZ_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}"
+          GHCR_NAME="$_GHCR_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}"
+          echo "name=$ACR_NAME" >> "$GITHUB_OUTPUT"
+          echo "ghcr_name=$GHCR_NAME" >> "$GITHUB_OUTPUT"
+          echo "tags=$ACR_NAME,$GHCR_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Build Docker image
         id: build-container
@@ -326,6 +341,15 @@ jobs:
           IMAGE_NAME: ${{ steps.image-name.outputs.name }}
         run: docker push "$IMAGE_NAME"
 
+      - name: Push GHCR image
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        env:
+          ACR_IMAGE: ${{ steps.image-name.outputs.name }}
+          GHCR_IMAGE: ${{ steps.image-name.outputs.ghcr_name }}
+        run: |
+          docker tag "$ACR_IMAGE" "$GHCR_IMAGE"
+          docker push "$GHCR_IMAGE"
+
       - name: Zip project
         working-directory: apps/web
         env:
@@ -345,14 +369,14 @@ jobs:
           if-no-files-found: error
 
       - name: Install Cosign
-        if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
+        if: github.event_name != 'pull_request_target' && env.is_publish_branch == 'true'
         uses: sigstore/cosign-installer@faadad0cce49287aee09b3a48701e75088a2c6ad # v4.0.0
 
       - name: Sign image with Cosign
-        if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
+        if: github.event_name != 'pull_request_target' && env.is_publish_branch == 'true'
         env:
           DIGEST: ${{ steps.build-container.outputs.digest }}
-          TAGS: ${{ steps.image-name.outputs.name }}
+          TAGS: ${{ steps.image-name.outputs.tags }}
         run: |
           IFS=',' read -r -a tags_array <<< "${TAGS}"
           images=()
@@ -380,7 +404,9 @@ jobs:
           ref: ${{ contains(github.event_name, 'pull_request') && format('refs/pull/{0}/head', github.event.pull_request.number) || github.ref }}
 
       - name: Log out of Docker
-        run: docker logout "$_AZ_REGISTRY"
+        run: |
+          docker logout "$_AZ_REGISTRY"
+          docker logout ghcr.io
 
       - name: Log out from Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
