@@ -62,12 +62,12 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
     return this.client.cookies(hostname);
   }
 
-  async acquireCookie(hostname: string): Promise<void> {
+  async acquireCookie(url: string): Promise<void> {
     // SDK client handles:
-    // 1. Calling platform API (this.platformApi.acquireCookies(hostname))
+    // 1. Calling platform API (this.platformApi.acquireCookies(url))
     // 2. Validating cookie names match config
     // 3. Saving validated cookies to repository
     // 4. Throwing appropriate AcquireCookieError on failure
-    await this.client.acquireCookie(hostname);
+    await this.client.acquireCookie(url);
   }
 }

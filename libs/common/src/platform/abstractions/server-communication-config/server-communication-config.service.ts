@@ -34,9 +34,9 @@ export abstract class ServerCommunicationConfigService {
    * Initiates cookie acquisition flow for the specified hostname.
    * Opens browser for user authentication, then captures and validates cookies.
    *
-   * @param hostname - The server hostname requiring cookies
+   * @param url - The server url requiring cookies
    * @returns Promise that resolves when cookies acquired and saved, or rejects on error/cancellation
    * @throws AcquireCookieError on validation failure or cancellation
    */
-  abstract acquireCookie(hostname: string): Promise<void>;
+  abstract acquireCookie(url: string): Promise<void>;
 }
