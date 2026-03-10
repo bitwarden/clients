@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Копіювати адресу"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "adminConsole": {
     "message": "консолі адміністратора,"
   },
@@ -6150,6 +6153,15 @@
   },
   "searchResults": {
     "message": "Результати пошуку"
+  },
+  "simplifiedAutofill": {
+    "message": "Спрощене автозаповнення"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "Під час натискання запропонованого елемента відбувається автоматичне заповнення, а не відкриття подробиць запису. Ви можете переглядати ці елементи з меню \"Більше\"."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Відкрити меню спрощеного автозаповнення"
   },
   "resizeSideNavigation": {
     "message": "Змінити розмір бічної панелі"
