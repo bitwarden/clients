@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { booleanAttribute, Component, Input } from "@angular/core";
+import { booleanAttribute, Component, input, Input } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
 import { BehaviorSubject, combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
 import { filter } from "rxjs/operators";
@@ -76,22 +76,17 @@ export class ItemMoreOptionsComponent {
   }
 
   /**
-   * Flag to show view item menu option. Used when something else is
-   * assigned as the primary action for the item, such as autofill.
+   * Flag to show the autofill menu option.
+   * When true, the "Autofill" option appears in the menu.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ transform: booleanAttribute })
-  showViewOption = false;
+  readonly showAutofill = input(false, { transform: booleanAttribute });
 
   /**
-   * Flag to hide the autofill menu options. Used for items that are
-   * already in the autofill list suggestion.
+   * Flag to show the view menu option.
+   * When true, the "View" option appears in the menu.
+   * Used when the primary action is autofill (so users can view without autofilling).
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ transform: booleanAttribute })
-  hideAutofillOptions = false;
+  readonly showViewOption = input(false, { transform: booleanAttribute });
 
   protected autofillAllowed$ = this.vaultPopupAutofillService.autofillAllowed$;
 
@@ -223,6 +218,8 @@ export class ItemMoreOptionsComponent {
       return;
     }
 
+    //this tab checking should be moved into the vault-popup-autofill service in case the current tab is changed
+    //ticket: https://bitwarden.atlassian.net/browse/PM-32467
     const currentTab = await firstValueFrom(this.vaultPopupAutofillService.currentAutofillTab$);
 
     if (!currentTab?.url) {
@@ -388,7 +385,7 @@ export class ItemMoreOptionsComponent {
     await this.cipherArchiveService.archiveWithServer(this.cipher.id as CipherId, activeUserId);
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("itemWasSentToArchive"),
+      message: this.i18nService.t("itemArchiveToast"),
     });
   }
 }

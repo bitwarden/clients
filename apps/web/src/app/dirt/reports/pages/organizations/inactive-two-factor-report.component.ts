@@ -1,3 +1,5 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, takeUntil, tap } from "rxjs";
@@ -106,6 +108,9 @@ export class InactiveTwoFactorReportComponent
 
   protected canManageCipher(c: CipherView): boolean {
     if (c.collectionIds.length === 0) {
+      return true;
+    }
+    if (this.organization?.allowAdminAccessToAllCollectionItems) {
       return true;
     }
     return this.manageableCiphers.some((x) => x.id === c.id);

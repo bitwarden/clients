@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 import { SendAccessToken } from "@bitwarden/common/auth/send-access";
@@ -76,7 +78,7 @@ export class SendAccessFileComponent {
       const decBuf = await this.encryptService.decryptFileData(encBuf, this.decKey());
       this.fileDownloadService.download({
         fileName: this.send().file.fileName,
-        blobData: decBuf,
+        blobData: decBuf as BlobPart,
         downloadMethod: "save",
       });
       // FIXME: Remove when updating file. Eslint update

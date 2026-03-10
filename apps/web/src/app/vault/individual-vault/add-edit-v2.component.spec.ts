@@ -87,7 +87,6 @@ describe("AddEditComponentV2", () => {
         { provide: DIALOG_DATA, useValue: mockParams },
         { provide: DialogRef, useValue: dialogRef },
         { provide: I18nService, useValue: { t: jest.fn().mockReturnValue("login") } },
-        { provide: DialogService, useValue: dialogService },
         { provide: CipherService, useValue: cipherService },
         { provide: MessagingService, useValue: messagingService },
         { provide: OrganizationService, useValue: organizationService },
@@ -105,7 +104,9 @@ describe("AddEditComponentV2", () => {
         },
         { provide: AccountService, useValue: accountService },
       ],
-    }).compileComponents();
+    })
+      .overrideProvider(DialogService, { useValue: dialogService })
+      .compileComponents();
 
     fixture = TestBed.createComponent(AddEditComponentV2);
     component = fixture.componentInstance;

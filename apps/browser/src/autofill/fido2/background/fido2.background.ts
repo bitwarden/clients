@@ -33,7 +33,8 @@ export class Fido2Background implements Fido2BackgroundInterface {
   private currentAuthStatus$: Subscription = Subscription.EMPTY;
   private abortManager = new AbortManager();
   private fido2ContentScriptPortsSet = new Set<chrome.runtime.Port>();
-  private registeredContentScripts: browser.contentScripts.RegisteredContentScript | undefined =
+  private activeCredentialRequests = new Set<number>();
+private registeredContentScripts: browser.contentScripts.RegisteredContentScript | undefined =
     undefined;
   private readonly sharedInjectionDetails: SharedFido2ScriptInjectionDetails = {
     runAt: "document_start",
@@ -59,6 +60,16 @@ export class Fido2Background implements Fido2BackgroundInterface {
     private scriptInjectorService: ScriptInjectorService,
     private authService: AuthService,
   ) {}
+
+  /**
+   * Checks if a FIDO2 credential request (registration or assertion)
+   * is currently in progress for the given tab.
+   *
+   * @param tabId - The tab id to check.
+   */
+  isCredentialRequestInProgress(tabId: number): boolean {
+    return this.activeCredentialRequests.has(tabId);
+  }
 
   /**
    * Initializes the FIDO2 background service. Sets up the extension message
@@ -328,27 +339,37 @@ export class Fido2Background implements Fido2BackgroundInterface {
       data: AssertCredentialParams | CreateCredentialParams,
       tab: chrome.tabs.Tab,
       abortController: AbortController,
-    ) => Promise<CredentialResult>,
+        ) => Promise<CredentialResult>,
   ): Promise<CredentialResult> => {
     const { requestId, data } = message;
-    return await this.abortManager.runWithAbortController(requestId!, async (abortController) => {
-      try {
-        return await callback(data!, tab, abortController);
-      } finally {
-        if (tab.id != null) {
-          await BrowserApi.focusTab(tab.id);
+    const tabId = tab.id;
+    if (tabId != null) {
+      this.activeCredentialRequests.add(tabId);
+    }
+    try {
+      return await this.abortManager.runWithAbortController(requestId!, async (abortController) => {
+        try {
+          return await callback(data!, tab, abortController);
+        } finally {
+          if (tab.id != null) {
+            await BrowserApi.focusTab(tab.id);
+          }
+          if (tab.windowId != null) {
+            await BrowserApi.focusWindow(tab.windowId);
+          }
         }
-        if (tab.windowId != null) {
-          await BrowserApi.focusWindow(tab.windowId);
-        }
+      });
+    } finally {
+      if (tabId != null) {
+        this.activeCredentialRequests.delete(tabId);
       }
-    });
+    }
   };
 
   /**
    * Checks if the enablePasskeys setting is enabled.
    */
-  private async isPasskeySettingEnabled() {
+  async isPasskeySettingEnabled() {
     return await firstValueFrom(this.vaultSettingsService.enablePasskeys$);
   }
 
