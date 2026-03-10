@@ -18,8 +18,8 @@ export class UpdaterMain {
   private doingUpdateCheck = false;
   private doingUpdateCheckWithFeedback = false;
   private canUpdate = false;
-  private updateDownloaded: UpdateDownloadedEvent = null;
-  private originalRolloutFunction: VerifyUpdateSupport = null;
+  private updateDownloaded: UpdateDownloadedEvent | null = null;
+  private originalRolloutFunction: VerifyUpdateSupport | null = null;
 
   // This needs to be tracked to avoid the Notification being garbage collected,
   // which would break the click handler.
