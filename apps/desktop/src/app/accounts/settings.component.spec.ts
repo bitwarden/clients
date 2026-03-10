@@ -1,4 +1,4 @@
-import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
@@ -14,12 +14,7 @@ import { DomainSettingsService } from "@bitwarden/common/autofill/services/domai
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { DeviceType } from "@bitwarden/common/enums";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
-import {
-  VaultTimeoutSettingsService,
-  VaultTimeoutStringType,
-  VaultTimeoutAction,
-  VaultTimeout,
-} from "@bitwarden/common/key-management/vault-timeout";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -36,6 +31,7 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { BiometricStateService, BiometricsStatus, KeyService } from "@bitwarden/key-management";
+import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
@@ -46,6 +42,16 @@ import { DesktopSettingsService } from "../../platform/services/desktop-settings
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
 
 import { SettingsComponent } from "./settings.component";
+
+@Component({
+  selector: "bit-session-timeout-settings",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockSessionTimeoutSettingsComponent {
+  readonly refreshTimeoutActionSettings = input<any>();
+}
 
 describe("SettingsComponent", () => {
   let component: SettingsComponent;
@@ -142,6 +148,7 @@ describe("SettingsComponent", () => {
 
     TestBed.overrideComponent(SettingsComponent, {
       add: {
+        imports: [MockSessionTimeoutSettingsComponent],
         providers: [
           {
             provide: DialogService,
@@ -150,6 +157,7 @@ describe("SettingsComponent", () => {
         ],
       },
       remove: {
+        imports: [SessionTimeoutSettingsComponent],
         providers: [DialogService],
       },
     });
@@ -159,12 +167,6 @@ describe("SettingsComponent", () => {
     fixture.detectChanges();
 
     desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
-    vaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockReturnValue(
-      of(VaultTimeoutStringType.OnLocked),
-    );
-    vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockReturnValue(
-      of(VaultTimeoutAction.Lock),
-    );
     vaultTimeoutSettingsService.isBiometricLockSet.mockResolvedValue(false);
     biometricStateService.promptAutomatically$ = of(false);
     autofillSettingsServiceAbstraction.clearClipboardDelay$ = of(null);
@@ -848,94 +850,6 @@ describe("SettingsComponent", () => {
         );
         expect(component.form.controls.requireMasterPasswordOnAppRestart.value).toBe(false);
       });
-    });
-  });
-
-  describe("saveVaultTimeout", () => {
-    const DEFAULT_VAULT_TIMEOUT: VaultTimeout = 123;
-    const DEFAULT_VAULT_TIMEOUT_ACTION = VaultTimeoutAction.Lock;
-
-    beforeEach(() => {
-      component["form"].controls.vaultTimeout.setValue(DEFAULT_VAULT_TIMEOUT, { emitEvent: false });
-      component["form"].controls.vaultTimeoutAction.setValue(DEFAULT_VAULT_TIMEOUT_ACTION, {
-        emitEvent: false,
-      });
-    });
-
-    it.each([
-      null,
-      [VaultTimeoutStringType.Never],
-      [VaultTimeoutStringType.OnRestart],
-      [VaultTimeoutStringType.OnLocked],
-      [VaultTimeoutStringType.OnSleep],
-      [VaultTimeoutStringType.OnIdle],
-      [42],
-    ])("should save vault timeout", async (vaultTimeout: VaultTimeout) => {
-      dialogService.openSimpleDialog.mockResolvedValue(true);
-
-      await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT, vaultTimeout);
-
-      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).toHaveBeenCalledWith(
-        mockUserId,
-        vaultTimeout,
-        DEFAULT_VAULT_TIMEOUT_ACTION,
-      );
-    });
-
-    it("should save vault timeout when vault timeout action is disabled", async () => {
-      component["form"].controls.vaultTimeoutAction.setValue(VaultTimeoutAction.LogOut, {
-        emitEvent: false,
-      });
-      component["form"].controls.vaultTimeoutAction.disable({ emitEvent: false });
-
-      await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT, DEFAULT_VAULT_TIMEOUT);
-
-      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).toHaveBeenCalledWith(
-        mockUserId,
-        DEFAULT_VAULT_TIMEOUT,
-        VaultTimeoutAction.LogOut,
-      );
-    });
-
-    it("should not save vault timeout when vault timeout is 'never' and dialog is cancelled", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(false);
-
-      await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT, VaultTimeoutStringType.Never);
-
-      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalledWith(
-        mockUserId,
-        VaultTimeoutStringType.Never,
-        DEFAULT_VAULT_TIMEOUT_ACTION,
-      );
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
-        title: { key: "warning" },
-        content: { key: "neverLockWarning" },
-        type: "warning",
-      });
-    });
-
-    it("should not save vault timeout when vault timeout is 0", async () => {
-      component["form"].controls.vaultTimeout.setValue(0, { emitEvent: false });
-      await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT, 0);
-
-      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalledWith(
-        mockUserId,
-        0,
-        DEFAULT_VAULT_TIMEOUT_ACTION,
-      );
-      expect(component["form"].getRawValue().vaultTimeout).toEqual(0);
-    });
-
-    it("should not save vault timeout when vault timeout is invalid", async () => {
-      component["form"].controls.vaultTimeout.setErrors({}, { emitEvent: false });
-      await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT, 999_999_999);
-
-      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalledWith(
-        mockUserId,
-        999_999_999,
-        DEFAULT_VAULT_TIMEOUT_ACTION,
-      );
-      expect(component["form"].getRawValue().vaultTimeout).toEqual(DEFAULT_VAULT_TIMEOUT);
     });
   });
 
