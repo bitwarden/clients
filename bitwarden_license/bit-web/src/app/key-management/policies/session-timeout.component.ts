@@ -1,13 +1,7 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, Validators } from "@angular/forms";
-import {
-  BehaviorSubject,
-  concatMap,
-  firstValueFrom,
-  Subject,
-  takeUntil,
-  withLatestFrom,
-} from "rxjs";
+import { BehaviorSubject, concatMap, firstValueFrom, withLatestFrom } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import {
@@ -42,10 +36,7 @@ const DEFAULT_MINUTES = 0;
   templateUrl: "session-timeout.component.html",
   imports: [SharedModule],
 })
-export class SessionTimeoutPolicyComponent
-  extends BasePolicyEditComponent
-  implements OnInit, OnDestroy
-{
+export class SessionTimeoutPolicyComponent extends BasePolicyEditComponent implements OnInit {
   actionOptions: { name: string; value: SessionTimeoutAction }[];
   typeOptions: { name: string; value: SessionTimeoutType }[];
   data = this.formBuilder.group({
@@ -67,7 +58,7 @@ export class SessionTimeoutPolicyComponent
     action: new FormControl<SessionTimeoutAction>(null),
   });
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   private lastConfirmedType$ = new BehaviorSubject<SessionTimeoutType>(null);
 
   constructor(
@@ -108,14 +99,9 @@ export class SessionTimeoutPolicyComponent
             typeControl.setValue(lastConfirmedType, { emitEvent: false });
           }
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   protected override loadData() {
