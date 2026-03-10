@@ -56,6 +56,7 @@ import {
   DialogService,
   FormFieldModule,
   IconButtonModule,
+  IconModule,
   ItemModule,
   LinkModule,
   SectionComponent,
@@ -98,6 +99,7 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     FormsModule,
     ReactiveFormsModule,
     IconButtonModule,
+    IconModule,
     ItemModule,
     JslibModule,
     LinkModule,
@@ -257,7 +259,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       pin: await this.pinService.isPinSet(activeAccount.id),
       pinLockWithMasterPassword:
         (await this.pinService.getPinLockType(activeAccount.id)) == "EPHEMERAL",
-      biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(),
+      biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(activeAccount.id),
       enableAutoBiometricsPrompt: await firstValueFrom(
         this.biometricStateService.promptAutomatically$,
       ),

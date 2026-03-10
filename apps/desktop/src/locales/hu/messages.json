@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Kedvencek"
   },
+  "unfavorite": {
+    "message": "Nem kedvenc"
+  },
   "types": {
     "message": "Típusok"
   },
@@ -99,6 +102,66 @@
         "example": "2"
       }
     }
+  },
+  "deletionDateDescV2": {
+    "message": "A Send véglegesen törölve lesz ebben az időpontban.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "Megosztandó fájl"
+  },
+  "hideTextByDefault": {
+    "message": "Szöveg elrejtése alapértelmezetten"
+  },
+  "hideYourEmail": {
+    "message": "Saját email cím elrejtése a megtekintések elől."
+  },
+  "limitSendViews": {
+    "message": "Megtekintések korlátozása"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ megtekintés maradt.",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "Senki sem tudja megtekinteni ezt a Send elemet a korlát elérése után.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Személyes jegyzet"
+  },
+  "sendDetails": {
+    "message": "Send részletek",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Megosztandó szöveg"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Új szöveges Send elem",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Új fájl Send elem",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Send szöveg szerkesztése",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Send fájl szerkesztése",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "Biztosan véglegesen törlésre kerüljön ez a Send elem?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "new": {
     "message": "Új",
@@ -525,6 +588,12 @@
   },
   "editedItem": {
     "message": "Az elem szerkesztésre került."
+  },
+  "itemAddedToFavorites": {
+    "message": "Az elem bekerült a kedvencekhez.."
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Az elem kikerült a kedvencekből."
   },
   "deleteItem": {
     "message": "Elem törlése"
@@ -962,6 +1031,9 @@
   },
   "invalidVerificationCode": {
     "message": "Érvénytelen ellenőrző kód"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Az email cím vagy az ellenőrző kód érvénytelen."
   },
   "continue": {
     "message": "Folytatás"
@@ -1492,6 +1564,18 @@
   "unknown": {
     "message": "Ismeretlen"
   },
+  "copyAddress": {
+    "message": "Postai cím másolása"
+  },
+  "copyPhone": {
+    "message": "Telefonszám másolása"
+  },
+  "copyNote": {
+    "message": "Jegyzet másolása"
+  },
+  "copyVerificationCode": {
+    "message": "Ellenőrző kód másolása"
+  },
   "copyUsername": {
     "message": "Felhasználónév másolása"
   },
@@ -2019,6 +2103,24 @@
   "searchTrash": {
     "message": "Keresés a lomtárban"
   },
+  "searchArchive": {
+    "message": "Archívum keresés"
+  },
+  "searchLogin": {
+    "message": "Bejelentkezés keresése"
+  },
+  "searchCard": {
+    "message": "Kártya keresése"
+  },
+  "searchIdentity": {
+    "message": "Azonosítás keresése"
+  },
+  "searchSecureNote": {
+    "message": "Biztonságos jegyzet keresése"
+  },
+  "searchSshKey": {
+    "message": "SSH kulcs keresése"
+  },
   "permanentlyDeleteItem": {
     "message": "Az elem végleges törlése"
   },
@@ -2027,6 +2129,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Elem végleges törlése"
+  },
+  "archivedItemRestored": {
+    "message": "Az archivált elem visszaállításra került."
   },
   "restoredItem": {
     "message": "Visszaállított elem"
@@ -2311,6 +2416,9 @@
   "editSend": {
     "message": "Küldés szerkesztése",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Én"
   },
   "myVault": {
     "message": "Saját széf"
@@ -4011,8 +4119,17 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Ez a bejelentkezés veszélyben van és hiányzik egy webhely. Adjunk hozzá egy webhelyet és módosítsuk a jelszót az erősebb biztonság érdekében."
   },
+  "vulnerablePassword": {
+    "message": "A jelszó sérülékeny."
+  },
+  "changeNow": {
+    "message": "Módosítás most"
+  },
   "missingWebsite": {
     "message": "Hiányzó webhely"
+  },
+  "missingPermissions": {
+    "message": "Nincs megfelelő jogosultság a művelet végrehajtásához."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nem távolíthatók el a csak megtekintési engedéllyel bíró gyűjtemények: $COLLECTIONS$",
@@ -4318,17 +4435,17 @@
   "noItemsInArchiveDesc": {
     "message": "Az archivált elemek itt jelennek meg és kizárásra kerülnek az általános keresési eredményekből és az automatikus kitöltési javaslatokból."
   },
-  "itemWasSentToArchive": {
-    "message": "Az elem az archivumba került."
+  "itemArchiveToast": {
+    "message": "Az elem archiválásra került."
   },
-  "itemWasUnarchived": {
-    "message": "Az elem visszavéelre került az archivumból."
+  "itemUnarchivedToast": {
+    "message": "Az elem visszavételre került az archivumból."
   },
   "archiveItem": {
     "message": "Elem archiválása"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Az archivált elemek ki vannak zárva az általános keresési eredményekből és az automatikus kitöltési javaslatokból. Biztosan archiválni szeretnénk ezt az elemet?"
+  "archiveItemDialogContent": {
+    "message": "Az archiválás után ez az elem kizárásra kerül a keresési eredményekből és az automatikus kitöltési javaslatokból."
   },
   "unArchiveAndSave": {
     "message": "Archiválás visszavonása és mentés"
@@ -4416,6 +4533,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Időkifutási művelet"
+  },
+  "errorCannotDecrypt": {
+    "message": "Hiba: nem fejthető vissza."
   },
   "sessionTimeoutHeader": {
     "message": "Munkamenet időkifutás"
@@ -4514,5 +4634,72 @@
   },
   "whyAmISeeingThis": {
     "message": "Miért látható ez?"
+  },
+  "organizationIsSuspended": {
+    "message": "A szervezet felfüggesztésre került."
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "A felfüggesztett szervezetek elemei nem érhetők el. Vegyük fel a kapcsolatot a szervezet tulajdonosával segítségért."
+  },
+  "noItemsInTrash": {
+    "message": "Nincs elem a lomtárban."
+  },
+  "noItemsInTrashDesc": {
+    "message": "A törölt elemek itt jelennek meg és 30 nap elteltével véglegesen törlődnek."
+  },
+  "noItemsInVault": {
+    "message": "Nincsenek elemek a széfben."
+  },
+  "emptyVaultDescription": {
+    "message": "A széf nemcsak a jelszavakat védi. Itt biztonságosan tárolhatjuk a bejelentkezési adatokat, egyéb azonosítókat, kártyákat és jegyzeteket."
+  },
+  "emptyFavorites": {
+    "message": "Nem lett kedvencnek minősítve egyetlen elem sem."
+  },
+  "emptyFavoritesDesc": {
+    "message": "Gyakran használt elemek hozzáadása a kedvencekhez a gyors hozzáférés érdekében."
+  },
+  "noSearchResults": {
+    "message": "Nincsenek visszakapott keresési eredmények."
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Töröljük a szűrőket vagy próbálkozzunk másik keresési kifejezéssel."
+  },
+  "sendPasswordHelperText": {
+    "message": "A személyeknek meg kell adniuk a jelszót a Send elem megtekintéséhez.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "Védett email cím"
+  },
+  "emails": {
+    "message": "Email címek"
+  },
+  "noAuth": {
+    "message": "Bárki ezzel a hivatkozással"
+  },
+  "anyOneWithPassword": {
+    "message": "Bárki az általam beállított jelszóval"
+  },
+  "whoCanView": {
+    "message": "Ki láthatja"
+  },
+  "specificPeople": {
+    "message": "Adott személyek"
+  },
+  "emailVerificationDesc": {
+    "message": "A Send hivatkozás megosztása után a személyeknek ellenőrizniük kell email címüket egy kóddal a Send megtekintéséhez."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Írjunk be több email címet vesszővel elválasztva."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "Az email cím ellenőrzéshez legalább egy email cím szükséges. Az összes email cím eltávolításához módosítsuk a fenti hozzáférési típust."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "A felhasználó ellenőrzése sikertelen volt."
   }
 }

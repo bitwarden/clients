@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "பாஸ்கீயுடன் உள்நுழையவும்"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "ஒற்றை உள்நுழைவைப் பயன்படுத்தவும்"
   },
@@ -570,20 +573,23 @@
   "noItemsInArchiveDesc": {
     "message": "காப்பகப்படுத்தப்பட்ட உருப்படிகள் இங்கே தோன்றும், மேலும் அவை பொதுவான தேடல் முடிவுகள் மற்றும் தானியங்குநிரப்பு பரிந்துரைகளிலிருந்து விலக்கப்படும்."
   },
-  "itemWasSentToArchive": {
-    "message": "ஆவணம் காப்பகத்திற்கு அனுப்பப்பட்டது"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
-  },
-  "itemUnarchived": {
-    "message": "காப்பகம் மீட்டெடுக்கப்பட்டது"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "உருப்படியைக் காப்பகப்படுத்து"
   },
-  "archiveItemConfirmDesc": {
-    "message": "காப்பகப்படுத்தப்பட்ட உருப்படிகள் பொதுவான தேடல் முடிவுகள் மற்றும் தானியங்குநிரப்பு பரிந்துரைகளிலிருந்து விலக்கப்பட்டுள்ளன. இந்த உருப்படியை காப்பகப்படுத்த விரும்புகிறீர்களா?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+  },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
   },
   "upgradeToUseArchive": {
     "message": "காப்பகத்தைப் பயன்படுத்த பிரீமியம் உறுப்பினர் தேவை."
@@ -890,6 +896,9 @@
   "invalidVerificationCode": {
     "message": "தவறான சரிபார்ப்புக் குறியீடு"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
+  },
   "valueCopied": {
     "message": "$VALUE$ நகலெடுக்கப்பட்டது",
     "description": "Value has been copied to the clipboard.",
@@ -980,6 +989,12 @@
   },
   "no": {
     "message": "இல்லை"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "இருப்பிடம்"
@@ -1539,6 +1554,15 @@
   "premiumSignUpTwoStepOptions": {
     "message": "YubiKey மற்றும் Duo போன்ற பிரத்யேக டூ-ஸ்டெப் உள்நுழைவு விருப்பங்கள்."
   },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
+  },
   "ppremiumSignUpReports": {
     "message": "உங்கள் வால்ட்டைப் பாதுகாப்பாக வைத்திருக்க கடவுச்சொல் சுகாதாரம், கணக்கின் ஆரோக்கியம் மற்றும் டேட்டா மீறல் அறிக்கைகள்."
   },
@@ -2030,6 +2054,9 @@
   "email": {
     "message": "மின்னஞ்சல்"
   },
+  "emails": {
+    "message": "Emails"
+  },
   "phone": {
     "message": "தொலைபேசி"
   },
@@ -2458,6 +2485,9 @@
   "permanentlyDeletedItem": {
     "message": "பொருள் நிரந்தரமாக நீக்கப்பட்டது"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
   "restoreItem": {
     "message": "பொருளை மீட்டமை"
   },
@@ -2717,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "இந்த டொமைன்களுக்கான உள்நுழைவு விவரங்களைச் சேமிக்க Bitwarden கேட்காது. மாற்றங்கள் நடைமுறைக்கு வர பக்கத்தை மீண்டும் மீட்டமைக்க வேண்டும்."
   },
-  "excludedDomainsDescAlt": {
-    "message": "உள்நுழைந்த அனைத்து கணக்குகளுக்கும் இந்த டொமைன்களுக்கான உள்நுழைவு விவரங்களைச் சேமிக்க Bitwarden கேட்காது. மாற்றங்கள் நடைமுறைக்கு வர பக்கத்தை மீண்டும் மீட்டமைக்க வேண்டும்."
-  },
   "blockedDomainsDesc": {
     "message": "இந்த இணையதளங்களுக்கு தானாக நிரப்புதல் மற்றும் பிற தொடர்புடைய அம்சங்கள் வழங்கப்படாது. மாற்றங்கள் நடைமுறைக்கு வர பக்கத்தை மீண்டும் மீட்டமைக்க வேண்டும்."
   },
@@ -2832,6 +2859,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "ஆபத்தில் உள்ள உள்நுழைவுகளின் பட்டியலின் விளக்கம்."
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
   },
   "generatePasswordSlideDesc": {
     "message": "ஆபத்தில் உள்ள தளத்தில் உள்ள Bitwarden தானாக நிரப்பு மெனுவுடன் ஒரு வலுவான, தனிப்பட்ட கடவுச்சொல்லை விரைவாக உருவாக்குங்கள்.",
@@ -3005,10 +3035,6 @@
   "custom": {
     "message": "தனிப்பயன்"
   },
-  "sendPasswordDescV3": {
-    "message": "பெறுநர்கள் இந்த அனுப்புதலை அணுக ஒரு விருப்ப கடவுச்சொல்லைச் சேர்க்கவும்.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "புதிய அனுப்பு",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3060,6 +3086,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "அனுப்பு இணைப்பு நகலெடுக்கப்பட்டது",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3068,28 +3133,8 @@
     "message": "அனுப்பு சேமிக்கப்பட்டது",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "நீட்டிப்பை வெளியேற்றவா?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "ஒரு கோப்பு அனுப்புதலை உருவாக்க, நீங்கள் நீட்டிப்பை ஒரு புதிய சாளரத்திற்கு வெளியேற்ற வேண்டும்.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "ஒரு கோப்பைத் தேர்வு செய்ய, நீட்டிப்பை பக்கவாட்டில் (முடிந்தால்) திறக்கவும் அல்லது இந்த பதாகையைக் கிளிக் செய்வதன் மூலம் புதிய சாளரத்திற்கு வெளியேற்றவும்."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Firefox ஐப் பயன்படுத்தி ஒரு கோப்பைத் தேர்வு செய்ய, நீட்டிப்பை பக்கவாட்டில் திறக்கவும் அல்லது இந்த பதாகையைக் கிளிக் செய்வதன் மூலம் புதிய சாளரத்திற்கு வெளியேற்றவும்."
-  },
-  "sendSafariFileWarning": {
-    "message": "Safari ஐப் பயன்படுத்தி ஒரு கோப்பைத் தேர்வு செய்ய, இந்த பதாகையைக் கிளிக் செய்வதன் மூலம் புதிய சாளரத்திற்கு வெளியேற்றவும்."
-  },
   "popOut": {
     "message": "வெளியேற்றவும்"
-  },
-  "sendFileCalloutHeader": {
-    "message": "நீங்கள் தொடங்குவதற்கு முன்"
   },
   "expirationDateIsInvalid": {
     "message": "வழங்கப்பட்ட காலாவதி தேதி செல்லாது."
@@ -3348,6 +3393,12 @@
   },
   "error": {
     "message": "பிழை"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "குறியாக்கம் நீக்கப் பிழை"
@@ -4724,6 +4775,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "More options"
+  },
   "moreOptionsTitle": {
     "message": "மேலும் விருப்பத்தேர்வுகள் - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4810,6 +4864,9 @@
   },
   "copyAddress": {
     "message": "முகவரியை நகலெடு"
+  },
+  "myItems": {
+    "message": "My Items"
   },
   "adminConsole": {
     "message": "நிர்வாகக் கன்சோல்"
@@ -4971,6 +5028,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Download Attachment"
+  },
   "downloadBitwarden": {
     "message": "Bitwarden-ஐப் பதிவிறக்கு"
   },
@@ -5110,14 +5170,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "பொருத்தமான கண்டறிதலை மறை $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "பக்கத்தை ஏற்றும்போது தானாக நிரப்ப வேண்டுமா?"
@@ -5655,6 +5712,9 @@
   "extraWide": {
     "message": "அதிக அகலமானது"
   },
+  "narrow": {
+    "message": "Narrow"
+  },
   "sshKeyWrongPassword": {
     "message": "நீங்கள் உள்ளிடப்பட்ட கடவுச்சொல் தவறானது."
   },
@@ -5948,6 +6008,9 @@
   "cardNumberLabel": {
     "message": "அட்டை எண்"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
@@ -6085,7 +6148,53 @@
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
   },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
+  "simplifiedAutofill": {
+    "message": "Simplified autofill"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open simplified autofill popover"
+  },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }

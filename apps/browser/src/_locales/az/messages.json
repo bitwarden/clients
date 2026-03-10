@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Keçid açarı ilə giriş et"
   },
+  "unlockWithPasskey": {
+    "message": "Kilidi keçid açarı ilə aç"
+  },
   "useSingleSignOn": {
     "message": "Vahid daxil olma üsulunu istifadə et"
   },
@@ -570,20 +573,23 @@
   "noItemsInArchiveDesc": {
     "message": "Arxivlənmiş elementlər burada görünəcək, ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
   },
-  "itemWasSentToArchive": {
-    "message": "Element arxivə göndərildi"
+  "itemArchiveToast": {
+    "message": "Element arxivləndi"
   },
-  "itemWasUnarchived": {
-    "message": "Element arxivdən çıxarıldı"
-  },
-  "itemUnarchived": {
+  "itemUnarchivedToast": {
     "message": "Element arxivdən çıxarıldı"
   },
   "archiveItem": {
     "message": "Elementi arxivlə"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arxivlənmiş elementlər ümumi axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək. Bu elementi arxivləmək istədiyinizə əminsiniz?"
+  "archiveItemDialogContent": {
+    "message": "Arxivləndikdən sonra, bu element axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
+  },
+  "archived": {
+    "message": "Arxivləndi"
+  },
+  "unarchiveAndSave": {
+    "message": "Arxivdən çıxart və saxla"
   },
   "upgradeToUseArchive": {
     "message": "Arxivi istifadə etmək üçün premium üzvlük tələb olunur."
@@ -890,6 +896,9 @@
   "invalidVerificationCode": {
     "message": "Yararsız doğrulama kodu"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
+  },
   "valueCopied": {
     "message": "$VALUE$ kopyalandı",
     "description": "Value has been copied to the clipboard.",
@@ -980,6 +989,12 @@
   },
   "no": {
     "message": "Xeyr"
+  },
+  "noAuth": {
+    "message": "Keçidə sahib olan hər kəs"
+  },
+  "anyOneWithPassword": {
+    "message": "Sizin təyin etdiyiniz parola sahib hər kəs"
   },
   "location": {
     "message": "Yerləşmə"
@@ -1539,6 +1554,15 @@
   "premiumSignUpTwoStepOptions": {
     "message": "YubiKey və Duo kimi mülkiyyətçi iki addımlı giriş seçimləri."
   },
+  "premiumSubscriptionEnded": {
+    "message": "Premium abunəliyiniz bitdi"
+  },
+  "archivePremiumRestart": {
+    "message": "Arxivinizə təkrar erişmək üçün Premium abunəliyinizi yenidən başladın. Təkrar başlatmazdan əvvəl arxivlənmiş elementin detallarına düzəliş etsəniz, həmin element seyfinizə daşınacaq."
+  },
+  "restartPremium": {
+    "message": "\"Premium\"u yenidən başlat"
+  },
   "ppremiumSignUpReports": {
     "message": "Seyfinizi güvəndə saxlamaq üçün parol gigiyenası, hesab sağlamlığı və veri pozuntusu hesabatları."
   },
@@ -2030,6 +2054,9 @@
   "email": {
     "message": "E-poçt"
   },
+  "emails": {
+    "message": "E-poçtlar"
+  },
   "phone": {
     "message": "Telefon"
   },
@@ -2458,6 +2485,9 @@
   "permanentlyDeletedItem": {
     "message": "Element birdəfəlik silindi"
   },
+  "archivedItemRestored": {
+    "message": "Arxivlənmiş element bərpa edildi"
+  },
   "restoreItem": {
     "message": "Elementi bərpa et"
   },
@@ -2717,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden, bu domenlər üçün giriş detallarını saxlamağı soruşmayacaq. Dəyişikliklərin qüvvəyə minməsi üçün səhifəni təzələməlisiniz."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden, giriş etmiş bütün hesablar üçün bu domenlərin giriş detallarını saxlamağı soruşmayacaq. Dəyişikliklərin qüvvəyə minməsi üçün səhifəni təzələməlisiniz."
-  },
   "blockedDomainsDesc": {
     "message": "Bu veb saytlar üçün avto-doldurma və digər əlaqəli özəlliklər təklif olunmayacaq. Dəyişikliklərin qüvvəyə minməsi üçün səhifəni təzələməlisiniz."
   },
@@ -2832,6 +2859,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Risk altındakı girişlərin olduğu siyahının təsviri."
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
   },
   "generatePasswordSlideDesc": {
     "message": "Risk altında olan saytda Bitwarden avto-doldurma menyusu ilə güclü, unikal parolları cəld yaradın.",
@@ -3005,10 +3035,6 @@
   "custom": {
     "message": "Özəl"
   },
-  "sendPasswordDescV3": {
-    "message": "Alıcıların bu \"Send\"ə erişməsi üçün ixtiyari bir parol əlavə edin.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Yeni \"Send\"",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3060,6 +3086,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ saat",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Bu Send keçidini kopyala və paylaş. Send, keçidə sahib olan hər kəs üçün növbəti $TIME$ ərzində əlçatan olacaq.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Bu Send keçidini kopyala və paylaş. Send, keçidə və ayarladığınız parola sahib olan hər kəs üçün növbəti $TIME$ ərzində əlçatan olacaq.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Bu Send keçidini kopyala və paylaş. Qeyd etdiyiniz şəxslər buna növbəti $TIME$ ərzində baxa bilər.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "Send keçidi kopyalandı",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3068,28 +3133,8 @@
     "message": "\"Send\" saxlanıldı",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Uzantı yeni pəncərədə açılsın?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Bir fayl \"Send\"i yaratmaq üçün uzantını yeni bir pəncərədə açmalısınız.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Bir fayl seçmək üçün (mümkünsə) yan çubuqdakı uzantını açın və ya bu bannerə klikləyərək yeni bir pəncərədə açın."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Firefox istifadə edərək bir fayl seçmək üçün yan çubuqdakı uzantını açın və ya bu bannerə klikləyərək yeni bir pəncərədə açın."
-  },
-  "sendSafariFileWarning": {
-    "message": "Safari istifadə edərək bir fayl seçmək üçün bu bannerə klikləyərək yeni bir pəncərədə açın."
-  },
   "popOut": {
     "message": "Pəncərədə aç"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Başlamazdan əvvəl"
   },
   "expirationDateIsInvalid": {
     "message": "Göstərilən son istifadə tarixi yararsızdır."
@@ -3348,6 +3393,12 @@
   },
   "error": {
     "message": "Xəta"
+  },
+  "prfUnlockFailed": {
+    "message": "Kilid keçid açarı ilə açılmadı. Lütfən yenidən sınayın, ya da başqa kilid açma üsulunu sınayın."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Kilidi açmaq üçün PRF dəstəkli keçid açarı yoxdur. Lütfən əvvəlcə keçid açarı ilə giriş edin."
   },
   "decryptionError": {
     "message": "Şifrə açma xətası"
@@ -4724,6 +4775,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Daha çox seçim"
+  },
   "moreOptionsTitle": {
     "message": "Daha çox seçim - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4810,6 +4864,9 @@
   },
   "copyAddress": {
     "message": "Ünvanı kopyala"
+  },
+  "myItems": {
+    "message": "My Items"
   },
   "adminConsole": {
     "message": "Admin Konsolu"
@@ -4971,6 +5028,9 @@
       }
     }
   },
+  "downloadAttachmentLabel": {
+    "message": "Qoşmanı endir"
+  },
   "downloadBitwarden": {
     "message": "Bitwarden-i endir"
   },
@@ -5110,14 +5170,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "$WEBSITE$ ilə uyuşma aşkarlamasını gizlət",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Uyuşma aşkarlamasını göstər"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Uyuşma aşkarlamasını gizlət"
   },
   "autoFillOnPageLoad": {
     "message": "Səhifə yüklənəndə avto-doldurulsun?"
@@ -5655,6 +5712,9 @@
   "extraWide": {
     "message": "Ekstra enli"
   },
+  "narrow": {
+    "message": "Dar"
+  },
   "sshKeyWrongPassword": {
     "message": "Daxil etdiyiniz parol yanlışdır."
   },
@@ -5948,6 +6008,9 @@
   "cardNumberLabel": {
     "message": "Kart nömrəsi"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Təşkilatınız, artıq Bitwarden-ə giriş etmək üçün ana parol istifadə etmir. Davam etmək üçün təşkilatı və domeni doğrulayın."
   },
@@ -6085,7 +6148,53 @@
   "whyAmISeeingThis": {
     "message": "Bunu niyə görürəm?"
   },
+  "items": {
+    "message": "Elementlər"
+  },
+  "searchResults": {
+    "message": "Axtarış nəticələri"
+  },
+  "simplifiedAutofill": {
+    "message": "Sadələşdirilmiş avto-doldurma"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "Təklif edilən avto-doldurma elementinə kliklədiyiniz zaman, sizi detallara aparmaq əvəzinə avtomatik dolduracaq. Bu elementlərə Daha çox menyusunda baxa bilərsiniz."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Sadələşdirilmiş avto-doldurma pəncərəsini aç"
+  },
   "resizeSideNavigation": {
     "message": "Yan naviqasiyanı yeni. ölçüləndir"
+  },
+  "whoCanView": {
+    "message": "Kimlər baxa bilər"
+  },
+  "specificPeople": {
+    "message": "Xüsusi insanlar"
+  },
+  "emailVerificationDesc": {
+    "message": "Bu Send keçidini paylaşdıqdan sonra, bu \"Send\"ə baxması üçün insanlar e-poçtlarını bir kodla doğrulamalıdırlar."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Birdən çox e-poçtu daxil edərkən vergül istifadə edin."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
+  },
+  "emailProtected": {
+    "message": "E-poçt qorunur"
+  },
+  "sendPasswordHelperText": {
+    "message": "Şəxslər, Send-ə baxması üçün parolu daxil etməli olacaqlar",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }

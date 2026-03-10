@@ -39,6 +39,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { MasterPasswordApiService as MasterPasswordApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { SendTokenService, DefaultSendTokenService } from "@bitwarden/common/auth/send-access";
 import {
   AccountServiceImplementation,
   getUserId,
@@ -91,6 +92,8 @@ import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
+import { SendPasswordService } from "@bitwarden/common/key-management/sends/abstractions/send-password.service";
+import { DefaultSendPasswordService } from "@bitwarden/common/key-management/sends/services/default-send-password.service";
 import {
   DefaultVaultTimeoutService,
   DefaultVaultTimeoutSettingsService,
@@ -147,11 +150,13 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service"
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
+import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import {
   CipherAuthorizationService,
   DefaultCipherAuthorizationService,
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { DefaultCipherSdkService } from "@bitwarden/common/vault/services/cipher-sdk.service";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { DefaultCipherArchiveService } from "@bitwarden/common/vault/services/default-cipher-archive.service";
 import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
@@ -201,6 +206,7 @@ import {
   DefaultStateService,
 } from "@bitwarden/state-internal";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
+import { DefaultUnlockService, UnlockService } from "@bitwarden/unlock";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -254,6 +260,7 @@ export class ServiceContainer {
   twoFactorApiService: TwoFactorApiService;
   hibpApiService: HibpApiService;
   environmentService: EnvironmentService;
+  cipherSdkService: CipherSdkService;
   cipherService: CipherService;
   folderService: InternalFolderService;
   organizationUserApiService: OrganizationUserApiService;
@@ -303,6 +310,8 @@ export class ServiceContainer {
   userVerificationApiService: UserVerificationApiService;
   organizationApiService: OrganizationApiServiceAbstraction;
   sendApiService: SendApiService;
+  sendTokenService: SendTokenService;
+  sendPasswordService: SendPasswordService;
   devicesApiService: DevicesApiServiceAbstraction;
   deviceTrustService: DeviceTrustServiceAbstraction;
   authRequestService: AuthRequestService;
@@ -338,6 +347,7 @@ export class ServiceContainer {
   masterPasswordUnlockService: MasterPasswordUnlockService;
   cipherArchiveService: CipherArchiveService;
   lockService: LockService;
+  unlockService: UnlockService;
   private accountCryptographicStateService: DefaultAccountCryptographicStateService;
 
   constructor() {
@@ -439,7 +449,13 @@ export class ServiceContainer {
       this.derivedStateProvider,
     );
 
-    this.securityStateService = new DefaultSecurityStateService(this.stateProvider);
+    this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
+      this.stateProvider,
+    );
+
+    this.securityStateService = new DefaultSecurityStateService(
+      this.accountCryptographicStateService,
+    );
 
     this.environmentService = new DefaultEnvironmentService(
       this.stateProvider,
@@ -493,6 +509,7 @@ export class ServiceContainer {
       this.accountService,
       this.stateProvider,
       this.kdfConfigService,
+      this.accountCryptographicStateService,
     );
 
     const pinStateService = new PinStateService(this.stateProvider);
@@ -605,6 +622,7 @@ export class ServiceContainer {
       this.keyGenerationService,
       this.sendStateProvider,
       this.encryptService,
+      this.configService,
     );
 
     this.cipherFileUploadService = new CipherFileUploadService(
@@ -617,6 +635,8 @@ export class ServiceContainer {
       this.fileUploadService,
       this.sendService,
     );
+
+    this.sendPasswordService = new DefaultSendPasswordService(this.cryptoFunctionService);
 
     this.searchService = new SearchService(this.logService, this.i18nService, this.stateProvider);
 
@@ -635,10 +655,6 @@ export class ServiceContainer {
       this.accountService,
     );
 
-    this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
-      this.stateProvider,
-    );
-
     const sdkClientFactory = flagEnabled("sdk")
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
@@ -650,7 +666,7 @@ export class ServiceContainer {
       this.accountService,
       this.kdfConfigService,
       this.keyService,
-      this.securityStateService,
+      this.accountCryptographicStateService,
       this.apiService,
       this.stateProvider,
       this.configService,
@@ -668,6 +684,25 @@ export class ServiceContainer {
       customUserAgent,
     );
 
+    this.unlockService = new DefaultUnlockService(
+      this.registerSdkService,
+      this.accountCryptographicStateService,
+      pinStateService,
+      this.kdfConfigService,
+      this.accountService,
+      this.masterPasswordService,
+      this.cryptoFunctionService,
+      this.stateProvider,
+      this.logService,
+      new CliBiometricsService(),
+    );
+
+    this.sendTokenService = new DefaultSendTokenService(
+      this.globalStateProvider,
+      this.sdkService,
+      this.sendPasswordService,
+    );
+
     this.keyConnectorService = new KeyConnectorService(
       this.accountService,
       this.masterPasswordService,
@@ -683,6 +718,7 @@ export class ServiceContainer {
       this.registerSdkService,
       this.securityStateService,
       this.accountCryptographicStateService,
+      this.userDecryptionOptionsService,
     );
 
     this.twoFactorService = new DefaultTwoFactorService(
@@ -717,8 +753,6 @@ export class ServiceContainer {
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
       this.stateProvider,
-      this.platformUtilsService,
-      this.apiService,
     );
 
     this.taskSchedulerService = new DefaultTaskSchedulerService(this.logService);
@@ -794,6 +828,8 @@ export class ServiceContainer {
       this.logService,
     );
 
+    this.cipherSdkService = new DefaultCipherSdkService(this.sdkService, this.logService);
+
     this.cipherService = new CipherService(
       this.keyService,
       this.domainSettingsService,
@@ -809,6 +845,7 @@ export class ServiceContainer {
       this.logService,
       this.cipherEncryptionService,
       this.messagingService,
+      this.cipherSdkService,
     );
 
     this.cipherArchiveService = new DefaultCipherArchiveService(
@@ -840,6 +877,7 @@ export class ServiceContainer {
       this.pinService,
       this.kdfConfigService,
       new CliBiometricsService(),
+      this.masterPasswordUnlockService,
     );
 
     const biometricService = new CliBiometricsService();
@@ -1058,7 +1096,6 @@ export class ServiceContainer {
     this.containerService.attachToGlobal(global);
     await this.i18nService.init();
     this.twoFactorService.init();
-    this.encryptService.init(this.configService);
 
     // If a user has a BW_SESSION key stored in their env (not process.env.BW_SESSION),
     // this should set the user key to unlock the vault on init.

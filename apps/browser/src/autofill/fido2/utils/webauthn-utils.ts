@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   CreateCredentialResult,
   AssertCredentialResult,
@@ -29,9 +27,11 @@ export class WebauthnUtils {
         residentKey: keyOptions.authenticatorSelection?.residentKey,
         userVerification: keyOptions.authenticatorSelection?.userVerification,
       },
-      challenge: Fido2Utils.bufferToString(keyOptions.challenge),
+      challenge: Fido2Utils.arrayToString(
+        Fido2Utils.bufferSourceToUint8Array(keyOptions.challenge),
+      ),
       excludeCredentials: keyOptions.excludeCredentials?.map((credential) => ({
-        id: Fido2Utils.bufferToString(credential.id),
+        id: Fido2Utils.arrayToString(Fido2Utils.bufferSourceToUint8Array(credential.id)),
         transports: credential.transports,
         type: credential.type,
       })),
@@ -50,7 +50,7 @@ export class WebauthnUtils {
         name: keyOptions.rp.name,
       },
       user: {
-        id: Fido2Utils.bufferToString(keyOptions.user.id),
+        id: Fido2Utils.arrayToString(Fido2Utils.bufferSourceToUint8Array(keyOptions.user.id)),
         displayName: keyOptions.user.displayName,
         name: keyOptions.user.name,
       },
@@ -62,19 +62,19 @@ export class WebauthnUtils {
   static mapCredentialRegistrationResult(result: CreateCredentialResult): PublicKeyCredential {
     const credential = {
       id: result.credentialId,
-      rawId: Fido2Utils.stringToBuffer(result.credentialId),
+      rawId: Fido2Utils.stringToArray(result.credentialId).buffer,
       type: "public-key",
       authenticatorAttachment: "platform",
       response: {
-        clientDataJSON: Fido2Utils.stringToBuffer(result.clientDataJSON),
-        attestationObject: Fido2Utils.stringToBuffer(result.attestationObject),
+        clientDataJSON: Fido2Utils.stringToArray(result.clientDataJSON).buffer,
+        attestationObject: Fido2Utils.stringToArray(result.attestationObject).buffer,
 
         getAuthenticatorData(): ArrayBuffer {
-          return Fido2Utils.stringToBuffer(result.authData);
+          return Fido2Utils.stringToArray(result.authData).buffer;
         },
 
         getPublicKey(): ArrayBuffer {
-          return Fido2Utils.stringToBuffer(result.publicKey);
+          return Fido2Utils.stringToArray(result.publicKey).buffer;
         },
 
         getPublicKeyAlgorithm(): number {
@@ -112,8 +112,12 @@ export class WebauthnUtils {
 
     return {
       allowedCredentialIds:
-        keyOptions.allowCredentials?.map((c) => Fido2Utils.bufferToString(c.id)) ?? [],
-      challenge: Fido2Utils.bufferToString(keyOptions.challenge),
+        keyOptions.allowCredentials?.map((c) =>
+          Fido2Utils.arrayToString(Fido2Utils.bufferSourceToUint8Array(c.id)),
+        ) ?? [],
+      challenge: Fido2Utils.arrayToString(
+        Fido2Utils.bufferSourceToUint8Array(keyOptions.challenge),
+      ),
       rpId: keyOptions.rpId,
       userVerification: keyOptions.userVerification,
       timeout: keyOptions.timeout,
@@ -125,13 +129,13 @@ export class WebauthnUtils {
   static mapCredentialAssertResult(result: AssertCredentialResult): PublicKeyCredential {
     const credential = {
       id: result.credentialId,
-      rawId: Fido2Utils.stringToBuffer(result.credentialId),
+      rawId: Fido2Utils.stringToArray(result.credentialId).buffer,
       type: "public-key",
       response: {
-        authenticatorData: Fido2Utils.stringToBuffer(result.authenticatorData),
-        clientDataJSON: Fido2Utils.stringToBuffer(result.clientDataJSON),
-        signature: Fido2Utils.stringToBuffer(result.signature),
-        userHandle: Fido2Utils.stringToBuffer(result.userHandle),
+        authenticatorData: Fido2Utils.stringToArray(result.authenticatorData).buffer,
+        clientDataJSON: Fido2Utils.stringToArray(result.clientDataJSON).buffer,
+        signature: Fido2Utils.stringToArray(result.signature).buffer,
+        userHandle: Fido2Utils.stringToArray(result.userHandle).buffer,
       } as AuthenticatorAssertionResponse,
       getClientExtensionResults: () => ({}),
       authenticatorAttachment: "platform",

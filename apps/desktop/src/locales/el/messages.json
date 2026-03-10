@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Αγαπημένα"
   },
+  "unfavorite": {
+    "message": "Unfavorite"
+  },
   "types": {
     "message": "Τύποι"
   },
@@ -100,8 +103,68 @@
       }
     }
   },
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "File to share"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
+  },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
+  },
+  "limitSendViews": {
+    "message": "Περιορισμός προβολών"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Ιδιωτική σημείωση"
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "Θέλετε σίγουρα να διαγράψετε οριστικά αυτό το Send;",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "new": {
-    "message": "New",
+    "message": "Νέο",
     "description": "for adding new items"
   },
   "newUri": {
@@ -526,6 +589,12 @@
   "editedItem": {
     "message": "Το αντικείμενο αποθηκεύτηκε"
   },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
+  },
   "deleteItem": {
     "message": "Διαγραφή στοιχείου"
   },
@@ -716,7 +785,7 @@
     "message": "Items transferred"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "Διόρθωση κρυπτογράφησης"
   },
   "fixEncryptionTooltip": {
     "message": "This file is using an outdated encryption method."
@@ -925,7 +994,7 @@
     "message": "Παρουσιάστηκε ένα μη αναμενόμενο σφάλμα."
   },
   "unexpectedErrorShort": {
-    "message": "Unexpected error"
+    "message": "Απρόσμενο σφάλμα"
   },
   "closeThisBitwardenWindow": {
     "message": "Close this Bitwarden window and try again."
@@ -962,6 +1031,9 @@
   },
   "invalidVerificationCode": {
     "message": "Μη έγκυρος κωδικός επαλήθευσης"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
   },
   "continue": {
     "message": "Συνέχεια"
@@ -1492,6 +1564,18 @@
   "unknown": {
     "message": "Άγνωστο"
   },
+  "copyAddress": {
+    "message": "Copy address"
+  },
+  "copyPhone": {
+    "message": "Copy phone"
+  },
+  "copyNote": {
+    "message": "Copy note"
+  },
+  "copyVerificationCode": {
+    "message": "Copy verification code"
+  },
   "copyUsername": {
     "message": "Αντιγραφή ονόματος χρήστη"
   },
@@ -1507,7 +1591,7 @@
     "description": "Copy credit card security code (CVV)"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "αριθμός κάρτας"
   },
   "premiumMembership": {
     "message": "Συνδρομή Premium"
@@ -1780,19 +1864,19 @@
     "message": "Εξαγωγή από"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Εξαγωγή",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Εξαγωγή",
     "description": "The verb form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Εισαγωγή",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Εισαγωγή",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -2019,6 +2103,24 @@
   "searchTrash": {
     "message": "Αναζήτηση κάδου απορριμμάτων"
   },
+  "searchArchive": {
+    "message": "Search archive"
+  },
+  "searchLogin": {
+    "message": "Search login"
+  },
+  "searchCard": {
+    "message": "Search card"
+  },
+  "searchIdentity": {
+    "message": "Search identity"
+  },
+  "searchSecureNote": {
+    "message": "Search secure note"
+  },
+  "searchSshKey": {
+    "message": "Search SSH key"
+  },
   "permanentlyDeleteItem": {
     "message": "Μόνιμη διαγραφή αντικειμένου"
   },
@@ -2027,6 +2129,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Το αντικείμενο διαγράφηκε οριστικά"
+  },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
   },
   "restoredItem": {
     "message": "Το αντικείμενο επαναφέρθηκε"
@@ -2311,6 +2416,9 @@
   "editSend": {
     "message": "Επεξεργασία Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Me"
   },
   "myVault": {
     "message": "Η κρύπτη μου"
@@ -2659,7 +2767,7 @@
     "message": "Ο κύριος κωδικός αφαιρέθηκε"
   },
   "organizationName": {
-    "message": "Organization name"
+    "message": "Όνομα οργανισμού"
   },
   "keyConnectorDomain": {
     "message": "Key Connector domain"
@@ -3737,7 +3845,7 @@
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "Σύνθετες επιλογές",
     "description": "Advanced option placeholder for uri option component"
   },
   "warningCapitalized": {
@@ -3970,7 +4078,7 @@
     "message": "No matching logins for this site"
   },
   "overwritePasskey": {
-    "message": "Overwrite passkey?"
+    "message": "Αντικατάσταση κλειδιού πρόσβασης;"
   },
   "unableToSavePasskey": {
     "message": "Unable to save passkey"
@@ -4011,8 +4119,17 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
   },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
+  },
   "missingWebsite": {
     "message": "Missing website"
+  },
+  "missingPermissions": {
+    "message": "You lack the necessary permissions to perform this action."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
@@ -4318,17 +4435,17 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Archive item"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "unArchiveAndSave": {
     "message": "Unarchive and save"
@@ -4416,6 +4533,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Timeout action"
+  },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
   },
   "sessionTimeoutHeader": {
     "message": "Session timeout"
@@ -4514,5 +4634,72 @@
   },
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
+  },
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "emails": {
+    "message": "Emails"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }

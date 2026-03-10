@@ -11,36 +11,23 @@ import {
 import { RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import {
-  BackgroundLeftIllustration,
-  BackgroundRightIllustration,
-  BitwardenLogo,
-  Icon,
-} from "@bitwarden/assets/svg";
+import { BitwardenLogo, BitSvg } from "@bitwarden/assets/svg";
 import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-import { BaseCardComponent } from "../card";
-import { IconModule } from "../icon";
-import { SharedModule } from "../shared";
+import { LandingContentMaxWidthType } from "../landing-layout";
+import { LandingLayoutModule } from "../landing-layout/landing-layout.module";
+import { SvgModule } from "../svg";
 import { TypographyModule } from "../typography";
-
-export type AnonLayoutMaxWidth = "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "auth-anon-layout",
   templateUrl: "./anon-layout.component.html",
-  imports: [
-    IconModule,
-    CommonModule,
-    TypographyModule,
-    SharedModule,
-    RouterModule,
-    BaseCardComponent,
-  ],
+  imports: [CommonModule, I18nPipe, SvgModule, TypographyModule, RouterModule, LandingLayoutModule],
 })
 export class AnonLayoutComponent implements OnInit, OnChanges {
   @HostBinding("class")
@@ -49,12 +36,9 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
     return ["tw-h-full"];
   }
 
-  readonly leftIllustration = BackgroundLeftIllustration;
-  readonly rightIllustration = BackgroundRightIllustration;
-
   readonly title = input<string>();
   readonly subtitle = input<string>();
-  readonly icon = model.required<Icon | null>();
+  readonly icon = model.required<BitSvg | null>();
   readonly showReadonlyHostname = input<boolean>(false);
   readonly hideLogo = input<boolean>(false);
   readonly hideFooter = input<boolean>(false);
@@ -66,7 +50,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
    *
    * @default 'md'
    */
-  readonly maxWidth = model<AnonLayoutMaxWidth>("md");
+  readonly maxWidth = model<LandingContentMaxWidthType>("md");
 
   protected logo = BitwardenLogo;
   protected year: string;
@@ -75,24 +59,6 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   protected version?: string;
 
   protected hideYearAndVersion = false;
-
-  get maxWidthClass(): string {
-    const maxWidth = this.maxWidth();
-    switch (maxWidth) {
-      case "md":
-        return "tw-max-w-md";
-      case "lg":
-        return "tw-max-w-lg";
-      case "xl":
-        return "tw-max-w-xl";
-      case "2xl":
-        return "tw-max-w-2xl";
-      case "3xl":
-        return "tw-max-w-3xl";
-      case "4xl":
-        return "tw-max-w-4xl";
-    }
-  }
 
   constructor(
     private environmentService: EnvironmentService,

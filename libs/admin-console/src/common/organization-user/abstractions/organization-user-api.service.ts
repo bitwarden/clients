@@ -10,6 +10,8 @@ import {
   OrganizationUserResetPasswordRequest,
   OrganizationUserUpdateRequest,
 } from "../models/requests";
+import { OrganizationUserBulkRestoreRequest } from "../models/requests/organization-user-bulk-restore.request";
+import { OrganizationUserRestoreRequest } from "../models/requests/organization-user-restore.request";
 import {
   OrganizationUserBulkPublicKeyResponse,
   OrganizationUserBulkResponse,
@@ -265,21 +267,33 @@ export abstract class OrganizationUserApiService {
   ): Promise<ListResponse<OrganizationUserBulkResponse>>;
 
   /**
+   * Revoke the current user's access to the organization
+   * if they decline an item transfer under the Organization Data Ownership policy.
+   * @param organizationId - Identifier for the organization the user belongs to
+   */
+  abstract revokeSelf(organizationId: string): Promise<void>;
+
+  /**
    * Restore an organization user's access to the organization
    * @param organizationId - Identifier for the organization the user belongs to
    * @param id - Organization user identifier
+   * @param request - Restore request containing default user collection name
    */
-  abstract restoreOrganizationUser(organizationId: string, id: string): Promise<void>;
+  abstract restoreOrganizationUser(
+    organizationId: string,
+    id: string,
+    request: OrganizationUserRestoreRequest,
+  ): Promise<void>;
 
   /**
    * Restore many organization users' access to the organization
    * @param organizationId - Identifier for the organization the users belongs to
-   * @param ids - List of organization user identifiers to restore
+   * @param request - Restore request containing default user collection name
    * @return List of user ids, including both those that were successfully restored and those that had an error
    */
   abstract restoreManyOrganizationUsers(
     organizationId: string,
-    ids: string[],
+    request: OrganizationUserBulkRestoreRequest,
   ): Promise<ListResponse<OrganizationUserBulkResponse>>;
 
   /**

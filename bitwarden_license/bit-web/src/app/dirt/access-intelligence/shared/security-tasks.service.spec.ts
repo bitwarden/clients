@@ -1,7 +1,10 @@
 import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 
-import { SecurityTasksApiService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import {
+  RiskInsightsDataService,
+  SecurityTasksApiService,
+} from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { SecurityTaskType } from "@bitwarden/common/vault/tasks";
 
@@ -13,12 +16,14 @@ describe("AccessIntelligenceSecurityTasksService", () => {
   let service: AccessIntelligenceSecurityTasksService;
   const defaultAdminTaskServiceMock = mock<DefaultAdminTaskService>();
   const securityTasksApiServiceMock = mock<SecurityTasksApiService>();
+  const riskInsightsDataServiceMock = mock<RiskInsightsDataService>();
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
     service = new AccessIntelligenceSecurityTasksService(
       defaultAdminTaskServiceMock,
       securityTasksApiServiceMock,
+      riskInsightsDataServiceMock,
     );
   });
 

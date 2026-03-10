@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Oblíbené"
   },
+  "unfavorite": {
+    "message": "Odebrat z oblíbených"
+  },
   "types": {
     "message": "Typy"
   },
@@ -99,6 +102,66 @@
         "example": "2"
       }
     }
+  },
+  "deletionDateDescV2": {
+    "message": "Tento Send bude trvale smazán v určené datum.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "Soubor ke sdílení"
+  },
+  "hideTextByDefault": {
+    "message": "Ve výchozím nastavení skrýt text"
+  },
+  "hideYourEmail": {
+    "message": "Skryje Vaši e-mailovou adresu před zobrazením."
+  },
+  "limitSendViews": {
+    "message": "Omezit zobrazení"
+  },
+  "limitSendViewsCount": {
+    "message": "Zbývá $ACCESSCOUNT$ zobrazení",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "Po dosažení limitu nebude nikdo moci zobrazit tento Send.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Soukromá poznámka"
+  },
+  "sendDetails": {
+    "message": "Podrobnosti Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text ke sdílení"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Nový textový Send",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Nový Send se soubory",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Upravit textový Send",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Upravit Send se soubory",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "Opravdu chcete tento Send trvale smazat?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "new": {
     "message": "Nová",
@@ -525,6 +588,12 @@
   },
   "editedItem": {
     "message": "Položka byla uložena"
+  },
+  "itemAddedToFavorites": {
+    "message": "Položka byla přidána do oblíbených"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Položka byla odebrána z oblíbených"
   },
   "deleteItem": {
     "message": "Smazat položku"
@@ -963,6 +1032,9 @@
   "invalidVerificationCode": {
     "message": "Neplatný ověřovací kód"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Neplatný e-mail nebo ověřovací kód"
+  },
   "continue": {
     "message": "Pokračovat"
   },
@@ -995,7 +1067,7 @@
     "message": "Ověřovací aplikace"
   },
   "authenticatorAppDescV2": {
-    "message": "Zadejte kód vygenerovaný ověřovací aplikací, jako je Autentikátor Bitwarden.",
+    "message": "Zadejte kód vygenerovaný ověřovací aplikací, jako je Bitwarden Authenticator.",
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
@@ -1491,6 +1563,18 @@
   },
   "unknown": {
     "message": "Neznámá"
+  },
+  "copyAddress": {
+    "message": "Kopírovat adresu"
+  },
+  "copyPhone": {
+    "message": "Kopírovat telefon"
+  },
+  "copyNote": {
+    "message": "Kopírovat poznámku"
+  },
+  "copyVerificationCode": {
+    "message": "Kopírovat ověřovací kód"
   },
   "copyUsername": {
     "message": "Kopírovat uživatelské jméno"
@@ -2019,6 +2103,24 @@
   "searchTrash": {
     "message": "Prohledat koš"
   },
+  "searchArchive": {
+    "message": "Hledat v archivu"
+  },
+  "searchLogin": {
+    "message": "Prohledat přihlášení"
+  },
+  "searchCard": {
+    "message": "Prohledat karty"
+  },
+  "searchIdentity": {
+    "message": "Prohledat identity"
+  },
+  "searchSecureNote": {
+    "message": "Prohledat zabezpečené poznámky"
+  },
+  "searchSshKey": {
+    "message": "Prohledat SSH klíče"
+  },
   "permanentlyDeleteItem": {
     "message": "Trvale smazat položku"
   },
@@ -2027,6 +2129,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Položka byla trvale smazána"
+  },
+  "archivedItemRestored": {
+    "message": "Archivovaná položka byla obnovena"
   },
   "restoredItem": {
     "message": "Položka byla obnovena"
@@ -2311,6 +2416,9 @@
   "editSend": {
     "message": "Upravit Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Já"
   },
   "myVault": {
     "message": "Můj trezor"
@@ -4011,8 +4119,17 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
   },
+  "vulnerablePassword": {
+    "message": "Zranitelné heslo."
+  },
+  "changeNow": {
+    "message": "Změnit nyní"
+  },
   "missingWebsite": {
     "message": "Chybějící webová stránka"
+  },
+  "missingPermissions": {
+    "message": "K provedení této akce nemáte potřebná oprávnění."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nemůžete odebrat sbírky s oprávněními jen pro zobrazení: $COLLECTIONS$",
@@ -4318,17 +4435,17 @@
   "noItemsInArchiveDesc": {
     "message": "Zde se zobrazí archivované položky a budou vyloučeny z obecných výsledků vyhledávání a návrhů automatického vyplňování."
   },
-  "itemWasSentToArchive": {
-    "message": "Položka byla přesunuta do archivu"
+  "itemArchiveToast": {
+    "message": "Položka archivována"
   },
-  "itemWasUnarchived": {
+  "itemUnarchivedToast": {
     "message": "Položka byla odebrána z archivu"
   },
   "archiveItem": {
     "message": "Archivovat položku"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archivované položky jsou vyloučeny z obecných výsledků vyhledávání a z návrhů automatického vyplňování. Jste si jisti, že chcete tuto položku archivovat?"
+  "archiveItemDialogContent": {
+    "message": "Jakmile bude tato položka archivována, bude vyloučena z výsledků vyhledávání a z návrhů automatického vyplňování."
   },
   "unArchiveAndSave": {
     "message": "Odebrat z archivu a uložit"
@@ -4416,6 +4533,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Akce vypršení časového limitu"
+  },
+  "errorCannotDecrypt": {
+    "message": "Chyba: Nelze dešifrovat"
   },
   "sessionTimeoutHeader": {
     "message": "Časový limit relace"
@@ -4514,5 +4634,72 @@
   },
   "whyAmISeeingThis": {
     "message": "Proč se mi toto zobrazuje?"
+  },
+  "organizationIsSuspended": {
+    "message": "Organizace je deaktivována"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "K položkám v deaktivované organizaci nemáte přístup. Požádejte o pomoc vlastníka organizace."
+  },
+  "noItemsInTrash": {
+    "message": "Žádné položky v koši"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Položky, které smažete, se zde zobrazí a budou trvale smazány po 30 dnech"
+  },
+  "noItemsInVault": {
+    "message": "Žádné položky v trezoru"
+  },
+  "emptyVaultDescription": {
+    "message": "Trezor chrání více než jen Vaše hesla. Bezpečně zde uložte zabezpečená přihlášení, ID, karty a poznámky."
+  },
+  "emptyFavorites": {
+    "message": "Nemáte oblíbené žádné položky"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Přidejte často používané položky do oblíbených pro rychlý přístup."
+  },
+  "noSearchResults": {
+    "message": "Nebyly vráceny žádné výsledky hledání"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Vymažte filtry nebo zkuste jiný hledaný výraz"
+  },
+  "sendPasswordHelperText": {
+    "message": "Pro zobrazení tohoto Send budou muset jednotlivci zadat heslo",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "E-mail je chráněný"
+  },
+  "emails": {
+    "message": "E-maily"
+  },
+  "noAuth": {
+    "message": "Kdokoli s odkazem"
+  },
+  "anyOneWithPassword": {
+    "message": "Kdokoli s heslem od Vás"
+  },
+  "whoCanView": {
+    "message": "Kdo může zobrazit"
+  },
+  "specificPeople": {
+    "message": "Vybraní lidé"
+  },
+  "emailVerificationDesc": {
+    "message": "Po sdílení tohoto odkazu Send budou muset jednotlivci ověřit svůj e-mail pomocí kódu pro zobrazení tohoto Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Zadejte více e-mailů oddělených čárkou."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "Ověření e-mailu vyžaduje alespoň jednu e-mailovou adresu. Chcete-li odebrat všechny emaily, změňte výše uvedený typ přístupu."
+  },
+  "emailPlaceholder": {
+    "message": "uživatel@bitwarden.com, uživatel@společnost.cz"
+  },
+  "userVerificationFailed": {
+    "message": "Ověření uživatele se nezdařilo."
   }
 }

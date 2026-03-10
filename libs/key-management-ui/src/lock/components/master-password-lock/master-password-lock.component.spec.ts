@@ -9,8 +9,8 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ClientType } from "@bitwarden/client-type";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
@@ -18,15 +18,19 @@ import { UserKey } from "@bitwarden/common/types/key";
 import {
   AsyncActionsModule,
   ButtonModule,
+  DialogService,
   FormFieldModule,
   IconButtonModule,
   ToastService,
 } from "@bitwarden/components";
-import { BiometricsStatus } from "@bitwarden/key-management";
+import { BiometricsStatus, KeyService } from "@bitwarden/key-management";
+import { LogService } from "@bitwarden/logging";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
+import { UnlockService } from "@bitwarden/unlock";
 import { UserId } from "@bitwarden/user-core";
 
 import { UnlockOption, UnlockOptions } from "../../services/lock-component.service";
+import { WebAuthnPrfUnlockService } from "../../services/webauthn-prf-unlock.service";
 
 import { MasterPasswordLockComponent } from "./master-password-lock.component";
 
@@ -41,6 +45,11 @@ describe("MasterPasswordLockComponent", () => {
   const logService = mock<LogService>();
   const platformUtilsService = mock<PlatformUtilsService>();
   const messageListener = mock<MessageListener>();
+  const webAuthnPrfUnlockService = mock<WebAuthnPrfUnlockService>();
+  const dialogService = mock<DialogService>();
+  const unlockService = mock<UnlockService>();
+  const keyService = mock<KeyService>();
+  const configService = mock<ConfigService>();
 
   const mockMasterPassword = "testExample";
   const activeAccount: Account = {
@@ -64,6 +73,7 @@ describe("MasterPasswordLockComponent", () => {
         enabled: false,
         biometricsStatus: BiometricsStatus.NotEnabledLocally,
       },
+      prf: { enabled: false },
     };
 
     accountService.activeAccount$ = of(account);
@@ -90,6 +100,7 @@ describe("MasterPasswordLockComponent", () => {
     jest.clearAllMocks();
 
     i18nService.t.mockImplementation((key: string) => key);
+    configService.getFeatureFlag.mockResolvedValue(false);
 
     await TestBed.configureTestingModule({
       imports: [
@@ -110,6 +121,11 @@ describe("MasterPasswordLockComponent", () => {
         { provide: LogService, useValue: logService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: MessageListener, useValue: messageListener },
+        { provide: WebAuthnPrfUnlockService, useValue: webAuthnPrfUnlockService },
+        { provide: DialogService, useValue: dialogService },
+        { provide: UnlockService, useValue: unlockService },
+        { provide: KeyService, useValue: keyService },
+        { provide: ConfigService, useValue: configService },
       ],
     }).compileComponents();
 

@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Preferiti"
   },
+  "unfavorite": {
+    "message": "Rimuovi dai preferiti"
+  },
   "types": {
     "message": "Tipi"
   },
@@ -99,6 +102,66 @@
         "example": "2"
       }
     }
+  },
+  "deletionDateDescV2": {
+    "message": "Il Send sarà eliminato definitivamente in questa data.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "File da condividere"
+  },
+  "hideTextByDefault": {
+    "message": "Nascondi il testo per impostazione predefinita"
+  },
+  "hideYourEmail": {
+    "message": "Nascondi il tuo indirizzo email ai visualizzatori."
+  },
+  "limitSendViews": {
+    "message": "Limita le visualizzazioni"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ visualizzazioni rimaste",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "Nessuno potrà visualizzare il Send dopo il raggiungimento del limite.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Nota privata"
+  },
+  "sendDetails": {
+    "message": "Dettagli del Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Testo da condividere"
+  },
+  "newItemHeaderTextSend": {
+    "message": "Nuovo Send (testo)",
+    "description": "Header for new text send"
+  },
+  "newItemHeaderFileSend": {
+    "message": "Nuovo Send (file)",
+    "description": "Header for new file send"
+  },
+  "editItemHeaderTextSend": {
+    "message": "Modifica Send testuale",
+    "description": "Header for edit text send"
+  },
+  "editItemHeaderFileSend": {
+    "message": "Modifica Send con file",
+    "description": "Header for edit file send"
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "Vuoi davvero eliminare questo Send? L'azione è irreversibile.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "new": {
     "message": "Nuovo",
@@ -525,6 +588,12 @@
   },
   "editedItem": {
     "message": "Elemento salvato"
+  },
+  "itemAddedToFavorites": {
+    "message": "Elemento aggiunto ai preferiti"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Elemento rimosso dai preferiti"
   },
   "deleteItem": {
     "message": "Elimina elemento"
@@ -961,6 +1030,9 @@
     "message": "Apri in una nuova scheda"
   },
   "invalidVerificationCode": {
+    "message": "Codice di verifica non valido"
+  },
+  "invalidEmailOrVerificationCode": {
     "message": "Codice di verifica non valido"
   },
   "continue": {
@@ -1492,6 +1564,18 @@
   "unknown": {
     "message": "Sconosciuto"
   },
+  "copyAddress": {
+    "message": "Copia indirizzo"
+  },
+  "copyPhone": {
+    "message": "Copia numero di telefono"
+  },
+  "copyNote": {
+    "message": "Copia nota"
+  },
+  "copyVerificationCode": {
+    "message": "Copia codice di verifica"
+  },
   "copyUsername": {
     "message": "Copia nome utente"
   },
@@ -2019,6 +2103,24 @@
   "searchTrash": {
     "message": "Cerca nel cestino"
   },
+  "searchArchive": {
+    "message": "Cerca nell'archivio"
+  },
+  "searchLogin": {
+    "message": "Cerca (login)"
+  },
+  "searchCard": {
+    "message": "Cerca (carta)"
+  },
+  "searchIdentity": {
+    "message": "Cerca (identità)"
+  },
+  "searchSecureNote": {
+    "message": "Cerca (nota sicura)"
+  },
+  "searchSshKey": {
+    "message": "Cerca (chiave SSH)"
+  },
   "permanentlyDeleteItem": {
     "message": "Elimina definitivamente elemento"
   },
@@ -2027,6 +2129,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Elemento eliminato definitivamente"
+  },
+  "archivedItemRestored": {
+    "message": "Elemento estratto dall'archivio"
   },
   "restoredItem": {
     "message": "Elemento ripristinato"
@@ -2311,6 +2416,9 @@
   "editSend": {
     "message": "Modifica Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Io"
   },
   "myVault": {
     "message": "La mia cassaforte"
@@ -4011,8 +4119,17 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Questo login è a rischio e non contiene un sito web. Aggiungi un sito web e cambia la password per maggiore sicurezza."
   },
+  "vulnerablePassword": {
+    "message": "Password vulnerabile."
+  },
+  "changeNow": {
+    "message": "Cambiala subito"
+  },
   "missingWebsite": {
     "message": "Sito Web mancante"
+  },
+  "missingPermissions": {
+    "message": "Non hai i permessi necessari per eseguire questa azione."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Non puoi rimuovere raccolte con i soli permessi di visualizzazione: $COLLECTIONS$",
@@ -4304,7 +4421,7 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Rimuovi dall'Archivio"
+    "message": "Togli dall'archivio"
   },
   "archived": {
     "message": "Archiviato"
@@ -4316,19 +4433,19 @@
     "message": "Nessun elemento nell'archivio"
   },
   "noItemsInArchiveDesc": {
-    "message": "Gli elementi archiviati appariranno qui e saranno esclusi dai risultati di ricerca e dall'auto-riempimento."
+    "message": "Gli elementi archiviati appariranno qui e saranno esclusi dai risultati di ricerca e dal riempimento automatico."
   },
-  "itemWasSentToArchive": {
+  "itemArchiveToast": {
     "message": "Elemento archiviato"
   },
-  "itemWasUnarchived": {
-    "message": "Elemento rimosso dall'archivio"
+  "itemUnarchivedToast": {
+    "message": "Elemento estratto dall'archivio"
   },
   "archiveItem": {
     "message": "Archivia elemento"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Gli elementi archiviati sono esclusi dai risultati di ricerca e dall'auto-riempimento. Vuoi davvero archiviare questo elemento?"
+  "archiveItemDialogContent": {
+    "message": "Una volta archiviato, questo elemento sarà escluso dai risultati di ricerca e dai suggerimenti del completamento automatico."
   },
   "unArchiveAndSave": {
     "message": "Togli dall'archivio e salva"
@@ -4416,6 +4533,9 @@
   },
   "sessionTimeoutSettingsAction": {
     "message": "Azione al timeout"
+  },
+  "errorCannotDecrypt": {
+    "message": "Errore: impossibile decrittare"
   },
   "sessionTimeoutHeader": {
     "message": "Timeout della sessione"
@@ -4514,5 +4634,72 @@
   },
   "whyAmISeeingThis": {
     "message": "Perché vedo questo avviso?"
+  },
+  "organizationIsSuspended": {
+    "message": "Organizzazione sospesa"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Non è possibile accedere agli elementi delle organizzazioni sospese. Contatta il proprietario dell'organizzazione per ricevere assistenza."
+  },
+  "noItemsInTrash": {
+    "message": "Non ci sono elementi nel cestino"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Gli elementi cancellati appariranno qui e saranno eliminati definitivamente dopo 30 giorni"
+  },
+  "noItemsInVault": {
+    "message": "La cassaforte è vuota"
+  },
+  "emptyVaultDescription": {
+    "message": "La cassaforte protegge non solo le password: archivia in modo sicuro anche passkey, identità, carte di pagamento e note."
+  },
+  "emptyFavorites": {
+    "message": "La lista dei preferiti è vuota"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Aggiungi ai preferiti gli elementi che usi più spesso per un accesso rapido."
+  },
+  "noSearchResults": {
+    "message": "Nessun risultato"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Azzera i filtri o cerca qualcos'altro"
+  },
+  "sendPasswordHelperText": {
+    "message": "I destinatari dovranno inserire la password per visualizzare questo Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "emailProtected": {
+    "message": "Email protetta"
+  },
+  "emails": {
+    "message": "Indirizzi email"
+  },
+  "noAuth": {
+    "message": "Chiunque abbia il link"
+  },
+  "anyOneWithPassword": {
+    "message": "Chiunque abbia una password impostata da te"
+  },
+  "whoCanView": {
+    "message": "Chi può visualizzare"
+  },
+  "specificPeople": {
+    "message": "Persone specifiche"
+  },
+  "emailVerificationDesc": {
+    "message": "I destinatari dovranno verificare il loro indirizzo email con un codice per poter visualizzare il Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Inserisci più indirizzi email separandoli con virgole."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "La verifica via email richiede almeno un indirizzo email. Per rimuovere tutte le email, modifica il tipo di accesso qui sopra."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Verifica dell'utente non riuscita."
   }
 }

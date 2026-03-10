@@ -3,13 +3,13 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
 import { Router } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
 
+import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   Unassigned,
   CollectionView,
-  CollectionAdminService,
   CollectionTypes,
-} from "@bitwarden/admin-console/common";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -24,16 +24,12 @@ import {
   MenuModule,
   SimpleDialogOptions,
 } from "@bitwarden/components";
-import { NewCipherMenuComponent } from "@bitwarden/vault";
+import { NewCipherMenuComponent, All, RoutedVaultFilterModel } from "@bitwarden/vault";
 
 import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
 import { PipesModule } from "../pipes/pipes.module";
-import {
-  All,
-  RoutedVaultFilterModel,
-} from "../vault-filter/shared/models/routed-vault-filter.model";
 
 @Component({
   selector: "app-vault-header",
@@ -51,10 +47,10 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VaultHeaderComponent {
-  protected Unassigned = Unassigned;
-  protected All = All;
-  protected CollectionDialogTabType = CollectionDialogTabType;
-  protected CipherType = CipherType;
+  protected readonly Unassigned = Unassigned;
+  protected readonly All = All;
+  protected readonly CollectionDialogTabType = CollectionDialogTabType;
+  protected readonly CipherType = CipherType;
 
   /**
    * Boolean to determine the loading state of the header.
@@ -110,12 +106,12 @@ export class VaultHeaderComponent {
   @Output() onDeleteCollection = new EventEmitter<void>();
 
   constructor(
-    private i18nService: I18nService,
-    private collectionAdminService: CollectionAdminService,
-    private dialogService: DialogService,
-    private router: Router,
-    private configService: ConfigService,
-    private accountService: AccountService,
+    private readonly i18nService: I18nService,
+    private readonly collectionAdminService: CollectionAdminService,
+    private readonly dialogService: DialogService,
+    private readonly router: Router,
+    private readonly configService: ConfigService,
+    private readonly accountService: AccountService,
   ) {}
 
   /**
@@ -230,6 +226,10 @@ export class VaultHeaderComponent {
     );
 
     return this.collection.node.canDelete(organization);
+  }
+
+  get canCreateCipher(): boolean {
+    return !this.activeOrganization?.isProviderUser || this.activeOrganization?.isMember;
   }
 
   deleteCollection() {

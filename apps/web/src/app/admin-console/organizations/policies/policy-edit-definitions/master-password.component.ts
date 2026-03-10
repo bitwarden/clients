@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
@@ -34,10 +36,14 @@ export class MasterPasswordPolicy extends BasePolicyEditDefinition {
 })
 export class MasterPasswordPolicyComponent extends BasePolicyEditComponent implements OnInit {
   MinPasswordLength = Utils.minimumPasswordLength;
+  MaxPasswordLength = Utils.maximumPasswordLength;
 
   data: FormGroup<ControlsOf<MasterPasswordPolicyOptions>> = this.formBuilder.group({
     minComplexity: [null],
-    minLength: [this.MinPasswordLength, [Validators.min(Utils.minimumPasswordLength)]],
+    minLength: [
+      this.MinPasswordLength,
+      [Validators.min(Utils.minimumPasswordLength), Validators.max(this.MaxPasswordLength)],
+    ],
     requireUpper: [false],
     requireLower: [false],
     requireNumbers: [false],

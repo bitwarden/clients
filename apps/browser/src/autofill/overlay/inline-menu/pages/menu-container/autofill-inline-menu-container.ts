@@ -62,6 +62,7 @@ export class AutofillInlineMenuContainer {
     src: "",
     title: "",
     sandbox: "allow-scripts",
+    credentialless: "",
     allowtransparency: "true",
     tabIndex: "-1",
   };

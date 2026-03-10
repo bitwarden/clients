@@ -13,10 +13,10 @@ import { CalloutModule } from "../../callout";
 import { CheckboxModule } from "../../checkbox";
 import { ColorPasswordModule } from "../../color-password";
 import { DialogModule } from "../../dialog";
-import { DrawerModule } from "../../drawer";
 import { FormControlModule } from "../../form-control";
 import { FormFieldModule } from "../../form-field";
-import { IconModule } from "../../icon";
+import { HeaderComponent } from "../../header";
+import { IconComponent } from "../../icon";
 import { IconButtonModule } from "../../icon-button";
 import { InputModule } from "../../input";
 import { LayoutComponent } from "../../layout";
@@ -30,7 +30,7 @@ import { RadioButtonModule } from "../../radio-button";
 import { SearchModule } from "../../search";
 import { SectionComponent } from "../../section";
 import { SelectModule } from "../../select";
-import { SharedModule } from "../../shared";
+import { SvgModule } from "../../svg";
 import { TableModule } from "../../table";
 import { TabsModule } from "../../tabs";
 import { ToggleGroupModule } from "../../toggle-group";
@@ -49,12 +49,13 @@ import { TypographyModule } from "../../typography";
     ColorPasswordModule,
     CommonModule,
     DialogModule,
-    DrawerModule,
     FormControlModule,
     FormFieldModule,
     FormsModule,
+    HeaderComponent,
     IconButtonModule,
-    IconModule,
+    IconComponent,
+    SvgModule,
     InputModule,
     LayoutComponent,
     LinkModule,
@@ -69,7 +70,6 @@ import { TypographyModule } from "../../typography";
     SearchModule,
     SectionComponent,
     SelectModule,
-    SharedModule,
     TableModule,
     TabsModule,
     ToggleGroupModule,
@@ -87,12 +87,13 @@ import { TypographyModule } from "../../typography";
     ColorPasswordModule,
     CommonModule,
     DialogModule,
-    DrawerModule,
     FormControlModule,
     FormFieldModule,
     FormsModule,
+    HeaderComponent,
     IconButtonModule,
-    IconModule,
+    IconComponent,
+    SvgModule,
     InputModule,
     LayoutComponent,
     LinkModule,
@@ -107,7 +108,6 @@ import { TypographyModule } from "../../typography";
     SearchModule,
     SectionComponent,
     SelectModule,
-    SharedModule,
     TableModule,
     TabsModule,
     ToggleGroupModule,
