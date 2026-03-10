@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, Signal, TemplateRef, viewChild } fr
 import { Router } from "@angular/router";
 import { combineLatest, defer, firstValueFrom, map, Observable, startWith, switchMap } from "rxjs";
 
-import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { AutoConfirmSvg } from "@bitwarden/assets/svg";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -31,7 +31,7 @@ export class AutoConfirmPolicy extends BasePolicyEditDefinition {
   showDescription = false;
   editDialogComponent = MultiStepPolicyEditDialogComponent;
 
-  constructor(public readonly firstTimeDialog: boolean = false) {
+  constructor(readonly firstTimeDialog: boolean = false) {
     super();
   }
 
