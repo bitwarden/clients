@@ -91,10 +91,8 @@ export class PopoverAnchorForDirective implements OnDestroy {
   get defaultPopoverConfig(): OverlayConfig {
     return {
       hasBackdrop: !this.spotlight(), // Spotlight manages its own backdrop
-      backdropClass: this.spotlight() ? "cdk-overlay-transparent-backdrop" : "bit-popover-backdrop",
-      scrollStrategy: this.spotlight()
-        ? this.overlay.scrollStrategies.block()
-        : this.overlay.scrollStrategies.reposition(),
+      backdropClass: "cdk-overlay-transparent-backdrop",
+      scrollStrategy: this.overlay.scrollStrategies.reposition(),
       positionStrategy: this.overlay
         .position()
         .flexibleConnectedTo(

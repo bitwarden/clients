@@ -37,7 +37,6 @@ export class SpotlightService {
 
     // Create border element — attached to a CDK overlay pane when spotlight is active.
     // Must be appended to the DOM so DomPortal has a parent node to detach it from.
-    // box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.2);
     this.borderElement = document.createElement("div");
     this.borderElement.style.cssText = `
       box-shadow: 0 0 0 9999px var(--color-bg-overlay);
