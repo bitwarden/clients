@@ -291,7 +291,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     // Persist changes
     return this.reportPersistenceService.saveApplicationMetadata$(report).pipe(
       tap(() => {
-        this._report.next(report); // Emit same reference
+        this._report.next(Object.assign(new RiskInsightsView(), report));
         this.logService.debug(
           "[DefaultAccessIntelligenceDataService] Application marked as critical",
           appName,
@@ -308,7 +308,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
         if (!previousIsCritical) {
           report.unmarkApplicationAsCritical(appName);
         }
-        this._report.next(report); // Re-emit to trigger UI update
+        this._report.next(Object.assign(new RiskInsightsView(), report));
 
         this._error.next("Failed to mark application as critical");
         return throwError(() => error);
@@ -337,7 +337,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     // Persist changes
     return this.reportPersistenceService.saveApplicationMetadata$(report).pipe(
       tap(() => {
-        this._report.next(report); // Emit same reference
+        this._report.next(Object.assign(new RiskInsightsView(), report));
         this.logService.debug(
           "[DefaultAccessIntelligenceDataService] Application unmarked as critical",
           appName,
@@ -354,7 +354,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
         if (previousIsCritical) {
           report.markApplicationAsCritical(appName);
         }
-        this._report.next(report); // Re-emit to trigger UI update
+        this._report.next(Object.assign(new RiskInsightsView(), report));
 
         this._error.next("Failed to unmark application as critical");
         return throwError(() => error);
@@ -384,7 +384,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     // Persist changes
     return this.reportPersistenceService.saveApplicationMetadata$(report).pipe(
       tap(() => {
-        this._report.next(report); // Emit same reference
+        this._report.next(Object.assign(new RiskInsightsView(), report));
         this.logService.debug(
           "[DefaultAccessIntelligenceDataService] Application marked as reviewed",
           appName,
@@ -402,7 +402,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
         if (app) {
           app.reviewedDate = previousReviewedDate;
         }
-        this._report.next(report); // Re-emit to trigger UI update
+        this._report.next(Object.assign(new RiskInsightsView(), report));
 
         this._error.next("Failed to mark application as reviewed");
         return throwError(() => error);
