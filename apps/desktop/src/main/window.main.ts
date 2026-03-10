@@ -316,16 +316,20 @@ export class WindowMain {
         pathname = "index.html";
       }
 
+      // Only serve files when the host matches our expected bundle host
       if (url.host === customFileHost) {
-        // Resolve the path to an absolute path and ensure it's within the app directory to prevent directory traversal attacks
         const pathToServe = path.resolve(__dirname, pathname);
         const relativePath = path.relative(__dirname, pathToServe);
 
+        // Ensure the resolved path stays within __dirname (the app bundle directory).
+        // - `relativePath` must be non-empty (not __dirname itself)
+        // - must not start with ".." (directory traversal)
+        // - must not be absolute (e.g. a Windows drive path like C:\)
         const isSafe =
           relativePath && !relativePath.startsWith("..") && !path.isAbsolute(relativePath);
 
         if (isSafe) {
-          return net.fetch(pathToFileURL(pathToServe).toString());
+          return net.fetch(pathToFileURL(path.join(__dirname, relativePath)).toString());
         }
       }
 
