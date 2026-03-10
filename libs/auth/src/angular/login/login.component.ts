@@ -113,9 +113,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   get pqpUserEmail(): string | null {
     return this.pqpAuthService.userEmail;
   }
-  get pqpDerivedPassword(): string | null {
-    return this.pqpAuthService.derivedPassword;
-  }
   get pqpReady(): boolean {
     return this.pqpAuthService.isReady;
   }
@@ -123,7 +120,12 @@ export class LoginComponent implements OnInit, OnDestroy {
   get shouldAutoFillPqpPassword(): boolean {
     const formEmail = this.formGroup.controls.email.value?.toLowerCase();
     const pqpEmail = this.pqpUserEmail?.toLowerCase();
-    return !!(this.pqpDerivedPassword && formEmail && pqpEmail && formEmail === pqpEmail);
+    return !!(
+      this.pqpAuthService.hasDerivedPassword &&
+      formEmail &&
+      pqpEmail &&
+      formEmail === pqpEmail
+    );
   }
 
   formGroup = this.formBuilder.group(
@@ -635,9 +637,8 @@ export class LoginComponent implements OnInit, OnDestroy {
    */
   private async performPqpAutoLogin(): Promise<void> {
     const email = this.pqpAuthService.userEmail;
-    const derivedPassword = this.pqpAuthService.derivedPassword;
 
-    if (!email || !derivedPassword) {
+    if (!email || !this.pqpAuthService.hasDerivedPassword) {
       this.toastService.showToast({
         variant: "error",
         title: "PqP Network",
@@ -650,9 +651,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.pqpAutoLoginInProgress = true;
 
     try {
-      // Fill form with PQP credentials
+      // Set email in form for UI display only — password never touches the form
       this.formGroup.controls.email.setValue(email);
-      this.formGroup.controls.masterPassword.setValue(derivedPassword);
 
       // Fetch org-invite policies (same as submit path — orgPoliciesFromInvite
       // is only populated in submit(), which PQP auto-login bypasses)
@@ -662,10 +662,10 @@ export class LoginComponent implements OnInit, OnDestroy {
 
       const orgMasterPasswordPolicyOptions =
         this.orgPoliciesFromInvite?.enforcedPasswordPolicyOptions;
-      const credentials = new PasswordLoginCredentials(
+
+      // Delegate credential building to the service — derived password stays internal
+      const credentials = this.pqpAuthService.buildPqpLoginCredentials(
         email,
-        derivedPassword,
-        undefined,
         orgMasterPasswordPolicyOptions,
       );
 
@@ -712,11 +712,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     if (isEmailValid) {
       await this.makePasswordPreloginCall();
-
-      // Auto-fill derived password if PqP is ready and email matches the PqP account
-      if (this.shouldAutoFillPqpPassword) {
-        this.formGroup.controls.masterPassword.setValue(this.pqpDerivedPassword);
-      }
 
       await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY);
     }

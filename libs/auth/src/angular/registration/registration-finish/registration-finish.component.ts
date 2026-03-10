@@ -89,8 +89,16 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   }
   get pqpDerivedPassword(): string | null {
     const pqpEmail = this.pqpAuthService.userEmail;
-    if (this.email && pqpEmail && this.email.toLowerCase() === pqpEmail.toLowerCase()) {
-      return this.pqpAuthService.derivedPassword;
+    if (
+      this.email &&
+      pqpEmail &&
+      this.email.toLowerCase() === pqpEmail.toLowerCase() &&
+      this.pqpAuthService.hasDerivedPassword
+    ) {
+      // Registration legitimately needs the raw password to set as the initial master password.
+      // Extract it from the opaque credentials object.
+      const credentials = this.pqpAuthService.buildPqpLoginCredentials(this.email);
+      return credentials.masterPassword;
     }
     return null;
   }

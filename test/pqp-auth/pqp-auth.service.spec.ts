@@ -47,7 +47,7 @@ describe("PqpAuthService", () => {
     it("should have all properties set to false/null initially", () => {
       expect(service.networkLoggedIn).toBe(false);
       expect(service.userEmail).toBeNull();
-      expect(service.derivedPassword).toBeNull();
+      expect(service.hasDerivedPassword).toBe(false);
       expect(service.isReady).toBe(false);
     });
   });
@@ -59,7 +59,7 @@ describe("PqpAuthService", () => {
       expect(state).toEqual({
         networkLoggedIn: false,
         userEmail: null,
-        derivedPassword: null,
+        hasDerivedPassword: false,
         isReady: false,
       } as PqpAuthState);
     });
@@ -115,7 +115,7 @@ describe("PqpAuthService", () => {
       expect(state.isReady).toBe(true);
       expect(mockGetPrivateKey).toHaveBeenCalled();
       expect(mockSha256).toHaveBeenCalledWith("mock-private-key");
-      expect(state.derivedPassword).toBe("derived-password-hash");
+      expect(state.hasDerivedPassword).toBe(true);
     });
 
     it("should clear stale data when logged out", async () => {
@@ -132,7 +132,7 @@ describe("PqpAuthService", () => {
       const state = await service.checkStatus();
 
       expect(state.userEmail).toBeNull();
-      expect(state.derivedPassword).toBeNull();
+      expect(state.hasDerivedPassword).toBe(false);
     });
 
     it("should handle errors gracefully", async () => {
@@ -143,7 +143,7 @@ describe("PqpAuthService", () => {
       // Should not throw, resets state
       expect(state.networkLoggedIn).toBe(false);
       expect(state.userEmail).toBeNull();
-      expect(state.derivedPassword).toBeNull();
+      expect(state.hasDerivedPassword).toBe(false);
     });
   });
 
@@ -152,28 +152,27 @@ describe("PqpAuthService", () => {
       mockGetPrivateKey.mockResolvedValue("my-private-key");
       mockSha256.mockResolvedValue("hashed-password");
 
-      const result = await service.derivePassword();
+      await service.derivePassword();
 
       expect(mockGetPrivateKey).toHaveBeenCalled();
       expect(mockSha256).toHaveBeenCalledWith("my-private-key");
-      expect(result).toBe("hashed-password");
-      expect(service.derivedPassword).toBe("hashed-password");
+      expect(service.hasDerivedPassword).toBe(true);
     });
 
-    it("should return null if no private key", async () => {
+    it("should set hasDerivedPassword to false if no private key", async () => {
       mockGetPrivateKey.mockResolvedValue(null);
 
-      const result = await service.derivePassword();
+      await service.derivePassword();
 
-      expect(result).toBeNull();
+      expect(service.hasDerivedPassword).toBe(false);
     });
 
     it("should handle errors gracefully", async () => {
       mockGetPrivateKey.mockRejectedValue(new Error("Storage error"));
 
-      const result = await service.derivePassword();
+      await service.derivePassword();
 
-      expect(result).toBeNull();
+      expect(service.hasDerivedPassword).toBe(false);
     });
   });
 
@@ -195,8 +194,27 @@ describe("PqpAuthService", () => {
 
       expect(service.networkLoggedIn).toBe(false);
       expect(service.userEmail).toBeNull();
-      expect(service.derivedPassword).toBeNull();
+      expect(service.hasDerivedPassword).toBe(false);
       expect(service.isReady).toBe(false);
+    });
+  });
+
+  describe("buildPqpLoginCredentials", () => {
+    it("should build credentials when derived password is available", async () => {
+      mockGetPrivateKey.mockResolvedValue("my-private-key");
+      mockSha256.mockResolvedValue("hashed-password");
+      await service.derivePassword();
+
+      const credentials = service.buildPqpLoginCredentials("test@example.com");
+
+      expect(credentials.email).toBe("test@example.com");
+      expect(credentials.masterPassword).toBe("hashed-password");
+    });
+
+    it("should throw when derived password is not available", () => {
+      expect(() => service.buildPqpLoginCredentials("test@example.com")).toThrow(
+        "PQP derived password is not available",
+      );
     });
   });
 
