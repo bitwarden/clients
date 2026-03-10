@@ -4,6 +4,7 @@ import { firstValueFrom, Subscription } from "rxjs";
 
 import { ClearClipboardDelay } from "../../autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "../../autofill/services/autofill-settings.service";
+import { ClearClipboardDelaySetting } from "../../autofill/types";
 import { PlatformUtilsService } from "../abstractions/platform-utils.service";
 import { SystemService as SystemServiceAbstraction } from "../abstractions/system.service";
 import { Utils } from "../misc/utils";
@@ -57,7 +58,7 @@ export class SystemService implements SystemServiceAbstraction {
     );
   }
 
-  private convertClearClipboardDelayToMs(setting: string): number | null {
+  private convertClearClipboardDelayToMs(setting: ClearClipboardDelaySetting): number | null {
     switch (setting) {
       case ClearClipboardDelay.Never:
         return null;
