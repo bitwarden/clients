@@ -58,7 +58,7 @@
 </ng-template>
 
 <ng-template #step0Footer>
-  <button bitButton buttonType="primary" [disabled]="false" bitFormButton type="submit">
+  <button bitButton buttonType="primary" [disabled]="saveDisabled$ | async" bitFormButton type="submit">
     @let autoConfirmEnabled = autoConfirmEnabled$ | async;
     @let managePoliciesOnly = managePoliciesOnly$ | async;
     @if (autoConfirmEnabled || managePoliciesOnly) {
