@@ -55,12 +55,10 @@ export class UserLayoutComponent implements OnInit {
 
   protected readonly coachmarkService = inject(CoachmarkService);
 
-  /** Computed signal for import coachmark open state */
   protected readonly importCoachmarkOpen = computed(
     () => this.coachmarkService.activeStepId() === "importData",
   );
 
-  /** Computed signal for reports coachmark open state */
   protected readonly reportsCoachmarkOpen = computed(
     () => this.coachmarkService.activeStepId() === "monitorSecurity",
   );
