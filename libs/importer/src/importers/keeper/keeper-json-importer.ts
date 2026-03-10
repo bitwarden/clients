@@ -73,6 +73,9 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
         case "driverLicense":
           this.importDriverLicense(record, cipher);
           break;
+        case "ssnCard":
+          this.importSsnCard(record, cipher);
+          break;
         case "passport":
           this.importPassport(record, cipher);
           break;
@@ -230,6 +233,18 @@ export class KeeperJsonImporter extends BaseImporter implements Importer {
     this.importIdentityName(record, cipher);
     this.copyLoginPropertiesAsCustomFields(cipher);
     this.deleteTopLevelCustomField(record.custom_fields, "$accountNumber:dlNumber");
+  }
+
+  private importSsnCard(record: Record, cipher: CipherView) {
+    cipher.type = CipherType.Identity;
+    cipher.identity = new IdentityView();
+    cipher.identity.ssn = this.findCustomField(
+      record.custom_fields,
+      "$accountNumber:identityNumber",
+    );
+    this.importIdentityName(record, cipher);
+    this.copyLoginPropertiesAsCustomFields(cipher);
+    this.deleteTopLevelCustomField(record.custom_fields, "$accountNumber:identityNumber");
   }
 
   private importPassport(record: Record, cipher: CipherView) {
