@@ -8,7 +8,7 @@
     [style.width.rem]="open ? (sideNavService.width$ | async) : undefined"
     [style]="
       variant() === 'secondary'
-        ? '--color-sidenav-text: var(--color-admin-sidenav-text); --color-sidenav-background: var(--color-admin-sidenav-background); --color-sidenav-active-item: var(--color-admin-sidenav-active-item); --color-sidenav-item-hover: var(--color-admin-sidenav-item-hover); --color-sidenav-active-item-hover: var(--color-admin-sidenav-active-item-hover); --color-sidenav-arrow-hover: var(--color-admin-sidenav-arrow-hover); --color-sidenav-active-arrow-hover: var(--color-admin-sidenav-active-arrow-hover); --color-sidenav-focus: var(--color-admin-sidenav-focus);'
+        ? '--color-sidenav-text: var(--color-sidenav-secondary-text); --color-sidenav-background: var(--color-sidenav-secondary-background); --color-sidenav-active-item: var(--color-sidenav-secondary-active-item); --color-sidenav-item-hover: var(--color-sidenav-secondary-item-hover); --color-sidenav-active-item-hover: var(--color-sidenav-secondary-active-item-hover); --color-sidenav-arrow-hover: var(--color-sidenav-secondary-arrow-hover); --color-sidenav-active-arrow-hover: var(--color-sidenav-secondary-active-arrow-hover); --color-sidenav-focus: var(--color-sidenav-secondary-focus);'
         : ''
     "
     [cdkTrapFocus]="isOverlay"

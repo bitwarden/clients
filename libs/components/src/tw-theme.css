@@ -320,8 +320,8 @@
   --color-bg-hover: rgba(var(--color-gray-950-rgb), 0.05);
   --color-bg-sidenav-hover: rgba(var(--color-black-rgb), 0.2);
   --color-bg-sidenav-hover-strong: rgba(var(--color-black-rgb), 0.45);
-  --color-bg-admin-sidenav-hover: rgba(var(--color-brand-950-rgb), 0.1);
-  --color-bg-admin-sidenav-hover-strong: rgba(var(--color-brand-950-rgb), 0.25);
+  --color-bg-sidenav-secondary-hover: rgba(var(--color-brand-950-rgb), 0.1);
+  --color-bg-sidenav-secondary-hover-strong: rgba(var(--color-brand-950-rgb), 0.25);
   --color-bg-hover-contrast: rgba(var(--color-white-rgb), 0.05);
   --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.3);
 
@@ -376,14 +376,14 @@
   --color-sidenav-active-arrow-hover: var(--color-bg-sidenav-hover-strong);
   --color-sidenav-focus: var(--color-white);
 
-  --color-admin-sidenav-background: var(--color-gray-100);
-  --color-admin-sidenav-text: var(--color-gray-900);
-  --color-admin-sidenav-active-item: var(--color-gray-300);
-  --color-admin-sidenav-item-hover: var(--color-bg-admin-sidenav-hover);
-  --color-admin-sidenav-active-item-hover: var(--color-bg-admin-sidenav-hover-strong);
-  --color-admin-sidenav-arrow-hover: var(--color-bg-admin-sidenav-hover);
-  --color-admin-sidenav-active-arrow-hover: var(--color-bg-admin-sidenav-hover-strong);
-  --color-admin-sidenav-focus: var(--color-black);
+  --color-sidenav-secondary-background: var(--color-gray-100);
+  --color-sidenav-secondary-text: var(--color-gray-900);
+  --color-sidenav-secondary-active-item: var(--color-gray-300);
+  --color-sidenav-secondary-item-hover: var(--color-bg-sidenav-secondary-hover);
+  --color-sidenav-secondary-active-item-hover: var(--color-bg-sidenav-secondary-hover-strong);
+  --color-sidenav-secondary-arrow-hover: var(--color-bg-sidenav-secondary-hover);
+  --color-sidenav-secondary-active-arrow-hover: var(--color-bg-sidenav-secondary-hover-strong);
+  --color-sidenav-secondary-focus: var(--color-black);
 }
 
 .theme_light {
@@ -591,14 +591,14 @@
   --color-sidenav-active-arrow-hover: var(--color-bg-sidenav-hover-strong);
   --color-sidenav-focus: var(--color-white);
 
-  --color-admin-sidenav-background: var(--color-gray-800);
-  --color-admin-sidenav-text: var(--color-white);
-  --color-admin-sidenav-active-item: var(--color-gray-600);
-  --color-admin-sidenav-item-hover: var(--color-bg-sidenav-hover);
-  --color-admin-sidenav-active-item-hover: var(--color-bg-sidenav-hover-strong);
-  --color-admin-sidenav-arrow-hover: var(--color-bg-sidenav-hover);
-  --color-admin-sidenav-active-arrow-hover: var(--color-bg-sidenav-hover-strong);
-  --color-admin-sidenav-focus: var(--color-white);
+  --color-sidenav-secondary-background: var(--color-gray-800);
+  --color-sidenav-secondary-text: var(--color-white);
+  --color-sidenav-secondary-active-item: var(--color-gray-600);
+  --color-sidenav-secondary-item-hover: var(--color-bg-sidenav-hover);
+  --color-sidenav-secondary-active-item-hover: var(--color-bg-sidenav-hover-strong);
+  --color-sidenav-secondary-arrow-hover: var(--color-bg-sidenav-hover);
+  --color-sidenav-secondary-active-arrow-hover: var(--color-bg-sidenav-hover-strong);
+  --color-sidenav-secondary-focus: var(--color-white);
 }
 
 @layer components {
