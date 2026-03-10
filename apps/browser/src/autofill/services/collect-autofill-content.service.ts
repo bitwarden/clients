@@ -718,11 +718,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
-   * Checks whether an element's descendants contains form fields.
+   * Checks whether any of an element's descendants are form fields.
    */
   private containsChildField(element: Node): boolean {
     if (nodeIsElement(element)) {
-      const fields = AutoFillConstants.FieldTypes.join(", ");
+      const fields = AutoFillConstants.FieldElements.join(", ");
       return !!element.querySelector(fields);
     } else {
       return false;

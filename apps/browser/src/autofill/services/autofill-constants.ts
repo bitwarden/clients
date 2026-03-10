@@ -98,7 +98,8 @@ export class AutoFillConstants {
     ...AutoFillConstants.ExcludedAutofillTypes,
   ];
 
-  static readonly FieldTypes: string[] = ["input", "select", "textarea"];
+  /** HTML elements for form fields */
+  static readonly FieldElements: string[] = ["input", "select", "textarea"];
 
   static readonly ExcludedIdentityAutocompleteTypes: Set<string> = new Set([
     "current-password",
