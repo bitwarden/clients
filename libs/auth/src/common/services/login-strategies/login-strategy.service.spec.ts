@@ -13,6 +13,7 @@ import { PreloginResponse } from "@bitwarden/common/auth/models/response/prelogi
 import { UserDecryptionOptionsResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
@@ -171,9 +172,13 @@ describe("LoginStrategyService", () => {
 
   describe("PM23801_PrefetchPasswordPrelogin", () => {
     describe("Flag On", () => {
-      it("prefetches and caches KDF, then makePrePasswordLoginMasterKey uses cached", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
+      beforeEach(() => {
+        configService.getFeatureFlag
+          .calledWith(FeatureFlag.PM23801_PrefetchPasswordPrelogin)
+          .mockResolvedValue(true);
+      });
 
+      it("prefetches and caches KDF, then makePrePasswordLoginMasterKey uses cached", async () => {
         const email = "a@a.com";
         apiService.postPrelogin.mockResolvedValue(
           new PreloginResponse({
@@ -198,8 +203,6 @@ describe("LoginStrategyService", () => {
       });
 
       it("awaits in-flight prelogin promise in makePrePasswordLoginMasterKey", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
-
         const email = "a@a.com";
         let resolveFn: (v: any) => void;
         const deferred = new Promise<PreloginResponse>((resolve) => (resolveFn = resolve));
@@ -229,8 +232,6 @@ describe("LoginStrategyService", () => {
       });
 
       it("no cache and no in-flight request", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
-
         const email = "a@a.com";
         apiService.postPrelogin.mockResolvedValue(
           new PreloginResponse({
@@ -251,8 +252,6 @@ describe("LoginStrategyService", () => {
       });
 
       it("falls back to API call when prefetched email differs", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
-
         const emailPrefetched = "a@a.com";
         const emailUsed = "b@b.com";
 
@@ -284,8 +283,6 @@ describe("LoginStrategyService", () => {
       });
 
       it("ignores stale prelogin resolution for older email (versioning)", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
-
         const emailA = "a@a.com";
         const emailB = "b@b.com";
 
@@ -328,8 +325,6 @@ describe("LoginStrategyService", () => {
       });
 
       it("handles concurrent getPasswordPrelogin calls for same email; uses latest result", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
-
         const email = "a@a.com";
         let resolve1!: (v: any) => void;
         let resolve2!: (v: any) => void;
@@ -367,8 +362,6 @@ describe("LoginStrategyService", () => {
       });
 
       it("does not throw when prefetch network error occurs; fallback works in makePrePasswordLoginMasterKey", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
-
         const email = "a@a.com";
 
         // Prefetch throws non-404 error
@@ -395,8 +388,6 @@ describe("LoginStrategyService", () => {
       });
 
       it("treats 404 as null prefetch and falls back in makePrePasswordLoginMasterKey", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
-
         const email = "a@a.com";
 
         const notFound: any = new Error("not found");
@@ -424,8 +415,6 @@ describe("LoginStrategyService", () => {
       });
 
       it("awaits rejected current prelogin promise and then falls back in makePrePasswordLoginMasterKey", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
-
         const email = "a@a.com";
         const err: any = new Error("network");
         err.statusCode = 500;
@@ -453,13 +442,68 @@ describe("LoginStrategyService", () => {
         const calls = keyService.makeMasterKey.mock.calls as any[];
         expect(calls[0][2]).toBeInstanceOf(PBKDF2KdfConfig);
       });
+
+      it("uses prefetched cache when logIn is called; does not call prelogin a second time", async () => {
+        const email = "test@example.com";
+        const credentials = new PasswordLoginCredentials(email, "MASTER_PASSWORD");
+
+        apiService.postPrelogin.mockResolvedValue(
+          new PreloginResponse({
+            Kdf: KdfType.PBKDF2_SHA256,
+            KdfIterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN,
+          }),
+        );
+        keyService.makeMasterKey.mockResolvedValue({} as any);
+        apiService.postIdentityToken.mockResolvedValue(
+          new IdentityTokenResponse({
+            ForcePasswordReset: false,
+            Kdf: KdfType.PBKDF2_SHA256,
+            KdfIterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN,
+            Key: "KEY",
+            PrivateKey: "PRIVATE_KEY",
+            AccountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "PRIVATE_KEY",
+                publicKey: "PUBLIC_KEY",
+              },
+            },
+            access_token: "ACCESS_TOKEN",
+            expires_in: 3600,
+            refresh_token: "REFRESH_TOKEN",
+            scope: "api offline_access",
+            token_type: "Bearer",
+            userDecryptionOptions: new UserDecryptionOptionsResponse({ HasMasterPassword: true }),
+          }),
+        );
+        tokenService.decodeAccessToken.calledWith("ACCESS_TOKEN").mockResolvedValue({
+          sub: userId,
+          name: "NAME",
+          email: email,
+          premium: false,
+        });
+
+        // Simulate the login component's prefetch fire-and-forget call
+        await sut.getPasswordPrelogin(email);
+
+        // Full logIn flow: internally calls clearCache() before makePasswordPreLoginMasterKey().
+        // With the bug, clearCache() wipes the passwordPrelogin state, so
+        // makePasswordPreLoginMasterKey() falls back to a second postPrelogin call.
+        await sut.logIn(credentials);
+
+        // Should be exactly 1 — the prefetch. logIn() must use the cached result.
+        expect(apiService.postPrelogin).toHaveBeenCalledTimes(1);
+      });
     });
 
     describe("Flag Off", () => {
       // remove when pm-23801 feature flag comes out
-      it("uses legacy API path", async () => {
-        configService.getFeatureFlag.mockResolvedValue(false);
+      beforeEach(() => {
+        configService.getFeatureFlag
+          .calledWith(FeatureFlag.PM23801_PrefetchPasswordPrelogin)
+          .mockResolvedValue(false);
+      });
 
+      it("uses legacy API path", async () => {
         const email = "a@a.com";
         // prefetch shouldn't affect behavior when flag off
         apiService.postPrelogin.mockResolvedValue(
