@@ -1,3 +1,5 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CdkVirtualScrollViewport, ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import {
@@ -302,8 +304,9 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     if (this.currentUriIsBlocked()) {
       return false;
     }
-    return this.isAutofillList()
-      ? this.simplifiedItemActionEnabled()
+
+    return this.simplifiedItemActionEnabled()
+      ? this.isAutofillList()
       : this.primaryActionAutofill();
   });
 
