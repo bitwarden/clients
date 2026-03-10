@@ -17,6 +17,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendFilterType } from "@bitwarden/common/tools/send/types/send-filter-type";
@@ -132,6 +133,7 @@ export class SendComponent implements OnDestroy {
     private configService: ConfigService,
     private sendItemsService: SendItemsService,
     private sendItemsFiltersService: SendListFiltersService,
+    private validationService: ValidationService,
   ) {
     this.SendUIRefresh$ = this.configService.getFeatureFlag$(FeatureFlag.SendUIRefresh);
 
@@ -245,6 +247,7 @@ export class SendComponent implements OnDestroy {
         message: this.i18nService.t("deletedSend"),
       });
     } catch (e) {
+      this.validationService.showError(e);
       this.logService.error(e);
       return false;
     }
@@ -274,6 +277,7 @@ export class SendComponent implements OnDestroy {
         message: this.i18nService.t("removedPassword"),
       });
     } catch (e) {
+      this.validationService.showError(e);
       this.logService.error(e);
     }
   }
