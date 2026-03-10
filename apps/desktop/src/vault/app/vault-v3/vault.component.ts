@@ -88,6 +88,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   AttachmentsV2Component,
+  AttachmentDialogResult,
   CipherFormConfig,
   CipherFormConfigService,
   CollectionAssignmentResult,
@@ -601,14 +602,21 @@ export class VaultComponent<C extends CipherViewLike>
       cipher.id as CipherId,
       cipher.type,
     );
-    this.openDialog("view", formConfig);
+    await this.openDialog("view", formConfig);
   }
 
   async openAttachmentsDialog(cipherId: CipherId, canEditCipher: boolean) {
     if (!this.userHasPremium()) {
       return;
     }
-    AttachmentsV2Component.open(this.dialogService, { cipherId, canEditCipher });
+    const dialogRef = AttachmentsV2Component.open(this.dialogService, { cipherId, canEditCipher });
+    const result = await firstValueFrom(dialogRef.closed);
+    if (
+      result?.action === AttachmentDialogResult.Removed ||
+      result?.action === AttachmentDialogResult.Uploaded
+    ) {
+      this.refresh();
+    }
   }
 
   async shouldReprompt(cipher: CipherView): Promise<boolean> {
@@ -624,7 +632,7 @@ export class VaultComponent<C extends CipherViewLike>
       cipher.id as CipherId,
       cipher.type,
     );
-    this.openDialog("form", formConfig);
+    await this.openDialog("form", formConfig);
   }
 
   async cloneCipher(cipher: CipherView) {
@@ -636,7 +644,7 @@ export class VaultComponent<C extends CipherViewLike>
       cipher.id as CipherId,
       cipher.type,
     );
-    this.openDialog("form", formConfig);
+    await this.openDialog("form", formConfig);
   }
 
   async shareCipher(cipher: CipherView) {
@@ -696,7 +704,7 @@ export class VaultComponent<C extends CipherViewLike>
       organizationId: organizationId ?? undefined,
       collectionIds,
     };
-    this.openDialog("form", formConfig);
+    await this.openDialog("form", formConfig);
 
     if (type === CipherType.SshKey) {
       this.toastService.showToast({
@@ -861,7 +869,27 @@ export class VaultComponent<C extends CipherViewLike>
     this.refresh$.next();
   }
 
-  private openDialog(mode: VaultItemDialogMode, formConfig: CipherFormConfig) {
+  private dirtyInput(): boolean {
+    return document.querySelectorAll("vault-cipher-form .ng-dirty").length > 0;
+  }
+
+  private async wantsToSaveChanges(): Promise<boolean> {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "unsavedChangesTitle" },
+      content: { key: "unsavedChangesConfirmation" },
+      type: "warning",
+    });
+    return !confirmed;
+  }
+
+  private async openDialog(mode: VaultItemDialogMode, formConfig: CipherFormConfig) {
+    if (this.activeDrawerRef != null && this.dirtyInput()) {
+      const keepChanges = await this.wantsToSaveChanges();
+      if (keepChanges) {
+        return;
+      }
+      this.activeDrawerRef.close();
+    }
     this.activeDrawerRef = VaultItemDialogComponent.openDrawer(this.dialogService, {
       mode,
       formConfig,

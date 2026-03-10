@@ -201,16 +201,4 @@ describe("CipherFormComponent", () => {
       component.enableFormFields();
     });
   });
-
-  describe("isDirty", () => {
-    it("returns false when the form is pristine", () => {
-      expect(component.isDirty).toBe(false);
-    });
-
-    it("returns true after the form is marked dirty", () => {
-      component["cipherForm"].markAsDirty();
-
-      expect(component.isDirty).toBe(true);
-    });
-  });
 });

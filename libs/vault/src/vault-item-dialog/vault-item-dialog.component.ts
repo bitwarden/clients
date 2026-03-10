@@ -1,4 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
+// FIXME(https://bitwarden.atlassian.net/browse/PM-XXXXX): Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, Inject, inject, OnDestroy, OnInit, viewChild } from "@angular/core";
@@ -42,18 +42,14 @@ import {
   DialogModule,
   DialogRef,
   DialogService,
+  IconButtonModule,
   ItemModule,
   ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ChangeLoginPasswordService } from "../abstractions/change-login-password.service";
-import {
-  CipherFormComponent,
-  CipherFormConfig,
-  // CipherFormGenerationService,
-  CipherFormModule,
-} from "../cipher-form";
+import { CipherFormComponent, CipherFormConfig, CipherFormModule } from "../cipher-form";
 import {
   AttachmentDialogCloseResult,
   AttachmentDialogResult,
@@ -127,6 +123,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
   templateUrl: "vault-item-dialog.component.html",
   imports: [
     ButtonModule,
+    IconButtonModule,
     CipherViewComponent,
     DialogModule,
     CommonModule,
