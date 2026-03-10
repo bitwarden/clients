@@ -1,11 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, DestroyRef, inject, OnDestroy, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { BehaviorSubject, Observable, Subject, combineLatest, firstValueFrom, of } from "rxjs";
-import { concatMap, map, pairwise, startWith, switchMap, takeUntil, timeout } from "rxjs/operators";
+import { BehaviorSubject, Observable, combineLatest, firstValueFrom, of } from "rxjs";
+import { concatMap, map, pairwise, startWith, switchMap, timeout } from "rxjs/operators";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -106,6 +107,8 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
   ],
 })
 export class SettingsComponent implements OnInit, OnDestroy {
+  private readonly destroyRef = inject(DestroyRef);
+
   // For use in template
   protected readonly VaultTimeoutAction = VaultTimeoutAction;
 
@@ -192,7 +195,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   });
 
   protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
-  private destroy$ = new Subject<void>();
 
   constructor(
     private accountService: AccountService,
@@ -305,7 +307,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (isWindows) {
       this.configService
         .getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((enabled) => {
           this.showEnableAutotype = enabled;
         });
@@ -335,7 +337,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
             this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(activeAccount.id),
           ]),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([availableActions, action]) => {
         this.availableVaultTimeoutActions = availableActions;
@@ -355,7 +357,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
             maximumVaultTimeoutPolicy,
           ]),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([availableActions, policy]) => {
         if (policy?.data?.action || availableActions.length <= 1) {
@@ -440,7 +442,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         switchMap(() =>
           this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(activeAccount.id),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((action) => {
         this.form.controls.vaultTimeoutAction.setValue(action, { emitEvent: false });
@@ -449,7 +451,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (isWindows) {
       this.billingAccountProfileStateService
         .hasPremiumFromAnySource$(activeAccount.id)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((hasPremium) => {
           if (hasPremium) {
             this.form.controls.enableAutotype.enable();
@@ -465,7 +467,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         concatMap(async ([previousValue, newValue]) => {
           await this.saveVaultTimeout(previousValue, newValue);
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -474,7 +476,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         concatMap(async (action) => {
           await this.saveVaultTimeoutAction(action);
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -484,7 +486,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
           await this.updatePinHandler(value);
           this.refreshTimeoutSettings$.next();
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -494,7 +496,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
           await this.updateBiometricHandler(enabled);
           this.refreshTimeoutSettings$.next();
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
@@ -503,12 +505,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
         concatMap(async (value) => {
           await this.updateRequireMasterPasswordOnAppRestartHandler(value, activeAccount.id);
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
     this.form.controls.enableBrowserIntegration.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((enabled) => {
         if (enabled) {
           this.form.controls.enableBrowserIntegrationFingerprint.enable();
@@ -1024,8 +1026,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
     clearInterval(this.timerId);
   }
 
