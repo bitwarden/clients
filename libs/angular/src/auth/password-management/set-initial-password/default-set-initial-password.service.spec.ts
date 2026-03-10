@@ -105,7 +105,7 @@ describe("DefaultSetInitialPasswordService", () => {
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
 
     userId = "userId" as UserId;
-    userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
+    userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
     userKeyEncString = new EncString("masterKeyEncryptedUserKey");
     masterKeyEncryptedUserKey = [userKey, userKeyEncString];
 
@@ -158,7 +158,7 @@ describe("DefaultSetInitialPasswordService", () => {
     beforeEach(() => {
       // Mock function parameters
       credentials = {
-        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32).buffer as CsprngArray) as MasterKey,
+        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
         newServerMasterKeyHash: "newServerMasterKeyHash",
         newLocalMasterKeyHash: "newLocalMasterKeyHash",
         newPasswordHint: "newPasswordHint",
@@ -915,7 +915,7 @@ describe("DefaultSetInitialPasswordService", () => {
     beforeEach(() => {
       // Mock function parameters
       credentials = {
-        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32).buffer as CsprngArray) as MasterKey,
+        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
         newServerMasterKeyHash: "newServerMasterKeyHash",
         newPasswordHint: "newPasswordHint",
       };
