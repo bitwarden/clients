@@ -20,11 +20,11 @@ export class SendOptionsPolicy extends BasePolicyEditDefinition {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendOptionsPolicyComponent extends BasePolicyEditComponent {
-  data = this.formBuilder.group({
+  readonly data = this.formBuilder.group({
     disableHideEmail: false,
   });
 
-  constructor(private formBuilder: UntypedFormBuilder) {
+  constructor(private readonly formBuilder: UntypedFormBuilder) {
     super();
   }
 }
