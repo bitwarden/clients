@@ -4,7 +4,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrganizationWarningsResponse } from "@bitwarden/web-vault/app/billing/organizations/warnings/types";
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class OrganizationBillingClient {
   constructor(private apiService: ApiService) {}
 
