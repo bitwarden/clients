@@ -21,12 +21,18 @@ import { I18nService } from "../abstractions/i18n.service";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const nodeURL = typeof self === "undefined" ? require("url") : null;
 const pathTraversalPatterns = [
-  "..", "%2e", // Double-dot traversal (single-encoded resolves to ".." via decodeURIComponent)
-  "\\", "%5c", // Backslash (some parsers normalize to forward slash)
-  "\t", "%09", // TAB (stripped by WHATWG URL parser during normalization)
-  "\n", "%0a", // Line feed (stripped by WHATWG URL parser during normalization)
-  "\r", "%0d", // Carriage return (stripped by WHATWG URL parser during normalization)
-  "\0", "%00", // Null byte (can truncate strings in some parsers)
+  "..",
+  "%2e", // Double-dot traversal (single-encoded resolves to ".." via decodeURIComponent)
+  "\\",
+  "%5c", // Backslash (some parsers normalize to forward slash)
+  "\t",
+  "%09", // TAB (stripped by WHATWG URL parser during normalization)
+  "\n",
+  "%0a", // Line feed (stripped by WHATWG URL parser during normalization)
+  "\r",
+  "%0d", // Carriage return (stripped by WHATWG URL parser during normalization)
+  "\0",
+  "%00", // Null byte (can truncate strings in some parsers)
 ];
 const queryDangerousPatterns = ["/", "%2f", "#", "%23"];
 
@@ -723,7 +729,6 @@ export class Utils {
    * @returns `true` if traversal indicators are found; `false` otherwise.
    */
   static containsTraversalIndicators(url: string): boolean {
-
     let decodedUrl: string;
     try {
       decodedUrl = decodeURIComponent(url.toLowerCase());
