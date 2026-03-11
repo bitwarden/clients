@@ -786,6 +786,7 @@ export class ServiceContainer {
       this.messagingService,
       this.logService,
       this.keyConnectorService,
+      this.unlockService,
       this.environmentService,
       this.stateService,
       this.twoFactorService,
