@@ -29,11 +29,11 @@ import {
   AutoConfirmState,
   AutomaticUserConfirmationService,
 } from "@bitwarden/auto-confirm/angular";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";

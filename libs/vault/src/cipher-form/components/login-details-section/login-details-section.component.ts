@@ -8,7 +8,7 @@ import { map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";

@@ -1,6 +1,5 @@
 import { firstValueFrom } from "rxjs";
 
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -21,6 +20,7 @@ import {
   GENERATE_PASSWORD_ID,
   NOOP_COMMAND_SUFFIX,
 } from "@bitwarden/common/autofill/constants";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { EventType } from "@bitwarden/common/enums";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";

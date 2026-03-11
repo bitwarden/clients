@@ -21,7 +21,7 @@ import { FormArray, FormBuilder, FormsModule, ReactiveFormsModule } from "@angul
 import { Subject, zip } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType, FieldType, LinkedIdType } from "@bitwarden/common/vault/enums";
