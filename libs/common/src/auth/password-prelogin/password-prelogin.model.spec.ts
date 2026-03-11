@@ -40,28 +40,34 @@ describe("PasswordPreloginData", () => {
     it.each([
       {
         description: "PBKDF2 iterations below minimum",
-        response: { Kdf: 0, KdfIterations: 4999 },
-        expectedError: /PBKDF2 iterations must be at least 5000/,
+        response: { Kdf: 0, KdfIterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1 },
+        expectedError: new RegExp(
+          `PBKDF2 iterations must be at least ${PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN}`,
+        ),
       },
       {
         description: "Argon2 iterations below minimum",
         response: {
           Kdf: 1,
-          KdfIterations: 1,
+          KdfIterations: Argon2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1,
           KdfMemory: Argon2KdfConfig.MEMORY.defaultValue,
           KdfParallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
         },
-        expectedError: /Argon2 iterations must be at least 2/,
+        expectedError: new RegExp(
+          `Argon2 iterations must be at least ${Argon2KdfConfig.PRELOGIN_ITERATIONS_MIN}`,
+        ),
       },
       {
         description: "Argon2 memory below minimum",
         response: {
           Kdf: 1,
           KdfIterations: Argon2KdfConfig.ITERATIONS.defaultValue,
-          KdfMemory: 15,
+          KdfMemory: Argon2KdfConfig.PRELOGIN_MEMORY_MIN - 1,
           KdfParallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
         },
-        expectedError: /Argon2 memory must be at least 16 MiB/,
+        expectedError: new RegExp(
+          `Argon2 memory must be at least ${Argon2KdfConfig.PRELOGIN_MEMORY_MIN} MiB`,
+        ),
       },
       {
         description: "Argon2 parallelism below minimum",
@@ -69,9 +75,11 @@ describe("PasswordPreloginData", () => {
           Kdf: 1,
           KdfIterations: Argon2KdfConfig.ITERATIONS.defaultValue,
           KdfMemory: Argon2KdfConfig.MEMORY.defaultValue,
-          KdfParallelism: 0,
+          KdfParallelism: Argon2KdfConfig.PRELOGIN_PARALLELISM_MIN - 1,
         },
-        expectedError: /Argon2 parallelism must be at least 1/,
+        expectedError: new RegExp(
+          `Argon2 parallelism must be at least ${Argon2KdfConfig.PRELOGIN_PARALLELISM_MIN}`,
+        ),
       },
     ])("throws for $description", ({ response, expectedError }) => {
       expect(() =>
