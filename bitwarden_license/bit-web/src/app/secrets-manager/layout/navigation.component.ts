@@ -4,7 +4,6 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
-  concatMap,
   distinctUntilChanged,
   filter,
   map,
@@ -59,7 +58,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const org$ = this.route.params.pipe(
-      concatMap((params) =>
+      switchMap((params) =>
         getUserId(this.accountService.activeAccount$).pipe(
           switchMap((userId) =>
             this.organizationService
@@ -68,7 +67,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
           ),
         ),
       ),
-      distinctUntilChanged(),
+      distinctUntilChanged((prev, curr) => prev?.id === curr?.id),
       takeUntil(this.destroy$),
     );
 
