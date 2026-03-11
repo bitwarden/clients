@@ -3,14 +3,14 @@
   <div [class]="outerBarStyles">
     <div
       [id]="progressBarId()"
-      [class]="innerBarStyles"
+      [class]="innerBarStyles()"
       role="progressbar"
       aria-valuemin="0"
       aria-valuemax="100"
       [attr.aria-valuenow]="value()"
       [attr.aria-valuetext]="ariaValueText()"
       [attr.aria-labelledby]="labelId"
-      [style]="{ width: value() + '%' }"
+      [style.width]="value() + '%'"
     ></div>
   </div>
   <div class="tw-flex tw-text-fg-body" bitTypography="body2">

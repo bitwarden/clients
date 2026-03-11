@@ -5,9 +5,9 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { TypographyModule } from "../typography";
 
-export type BackgroundType = "primary" | "subtle" | "success" | "warning" | "danger";
+export type ProgressBarVariant = "primary" | "subtle" | "success" | "warning" | "danger";
 
-const BackgroundClasses: Record<BackgroundType, string[]> = {
+const VariantClasses: Record<ProgressBarVariant, string[]> = {
   primary: ["tw-bg-primary-600"],
   subtle: ["tw-bg-bg-contrast"],
   success: ["tw-bg-success-600"],
@@ -35,7 +35,7 @@ export class ProgressBarComponent {
   private readonly id = nextId++;
 
   /* Determines the color of the progress bar */
-  readonly variant = input<BackgroundType>("primary");
+  readonly variant = input<ProgressBarVariant>("primary");
   /* The label displayed above the progress bar */
   readonly label = input<string>();
   /* The progress amount, represented as a percentage of the progress bar that is filled */
@@ -62,11 +62,15 @@ export class ProgressBarComponent {
     return this.startText() || this.i18nService.t("percentageCompleted", this.value().toString());
   });
 
-  get outerBarStyles() {
-    return ["tw-overflow-hidden", "tw-rounded", "tw-bg-secondary-100", "tw-h-2", "tw-my-1"];
-  }
+  protected readonly outerBarStyles = [
+    "tw-overflow-hidden",
+    "tw-rounded",
+    "tw-bg-secondary-100",
+    "tw-h-2",
+    "tw-my-1",
+  ];
 
-  get innerBarStyles() {
-    return ["tw-transition-all", "tw-h-2", "tw-rounded"].concat(BackgroundClasses[this.variant()]);
-  }
+  protected readonly innerBarStyles = computed(() => {
+    return ["tw-transition-all", "tw-h-2", "tw-rounded"].concat(VariantClasses[this.variant()]);
+  });
 }
