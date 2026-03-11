@@ -27,8 +27,8 @@ the user has already provided.
 4.  **Linked fields** - Should this type support linked custom fields? If yes, which properties
     should be linkable?
 5.  **Feature flag** - What is the feature flag name?
-6.  **Cross-repo status** - Has the server and/or SDK work already been completed, or does it need
-    to be planned as well?
+6.  **Prerequisites** - Have all server and SDK prerequisites been completed? **Do not proceed
+    with the plan until the user confirms these are done.**
 
 **Additional questions:**
 
@@ -76,33 +76,7 @@ Write a comprehensive plan to the plan file. The plan MUST include all sections 
 - **Supports autofill:** Yes/No
 - **Supports linked fields:** Yes/No
 
-### 2. Cross-Repository Prerequisites
-
-#### SDK (`bitwarden/sdk-internal`)
-
-- [ ] Rust enum variant in `CipherType`
-- [ ] Type-specific encrypted struct
-- [ ] Type-specific decrypted struct
-- [ ] `Encryptable`/`Decryptable` trait implementations
-- [ ] Serde (de)serialization
-- [ ] WASM bindings for TypeScript type generation
-- [ ] Version bump
-
-#### Server (`bitwarden/server`)
-
-- [ ] Enum value in `src/Core/Vault/Enums/CipherType.cs`
-- [ ] `Cipher<Type>Data.cs` core data model
-- [ ] `Cipher<Type>Model.cs` API model with `[EncryptedString]` validation
-- [ ] Request model update (`CipherRequestModel.cs`) with `[Obsolete]` typed property
-- [ ] Response model update (`CipherResponseModel.cs`) with `[Obsolete]` typed property
-- [ ] `CipherService.cs` serialize/deserialize cases
-- [ ] `Constants.cs` - minimum version constant and feature flag key
-- [ ] `SyncController.cs` - `FilterUnsupportedCipherTypes()` dual gate
-- [ ] Seeder factory and DTOs
-- [ ] Unit tests for API model and sync controller
-- [ ] Database migration (if schema changes are needed)
-
-### 3. Clients - New Files to Create
+### 2. Clients - New Files to Create
 
 List every file that needs to be created, with the full path and a brief description. Organize by
 layer:
@@ -124,7 +98,7 @@ layer:
 - `libs/vault/src/cipher-form/components/<type>-section/` - Form section component (TS, HTML, spec)
 - `libs/vault/src/cipher-view/<type>-sections/` - View section component (TS, HTML)
 
-### 4. Clients - Existing Files to Modify
+### 3. Clients - Existing Files to Modify
 
 List every file that needs modification, organized by concern. For each file, describe the specific
 change needed.
@@ -205,14 +179,14 @@ arrays when the flag is off.
 - `apps/web/src/app/admin-console/organizations/policies/policy-edit-definitions/restricted-item-types.component.ts`
 - `apps/web/src/app/admin-console/organizations/policies/policy-edit-definitions/restricted-item-types.component.html`
 
-### 5. Localization Keys
+### 4. Localization Keys
 
 List all i18n keys that need to be added. At minimum:
 
 - Type label
 - Field labels for each type-specific field
 
-### 6. Tests
+### 5. Tests
 
 List all test files that need to be created or updated:
 
@@ -228,28 +202,26 @@ List all test files that need to be created or updated:
 - `libs/vault/src/cipher-view/cipher-view.component.spec.ts`
 - Form section component spec (new)
 
-### 7. Recommended Implementation Order
+### 6. Recommended Implementation Order
 
 Recommended implementation order, customized for this specific type:
 
-1. Server prerequisites (enum, models, DTOs, feature flag, version gate)
-2. SDK prerequisites (Rust types, WASM bindings)
-3. Core enum addition
-4. Feature flag registration
-5. Model stack (API, Data, Domain, View, Export if applicable)
-6. Container switch updates (7 files)
-7. SDK bindings (`toSdk*`/`fromSdk*`)
-8. Localization keys
-9. Shared UI (icon, menu items)
-10. Vault filters with feature flag gating (CRITICAL for ciphers to appear)
-11. New item menus with feature flag gating
-12. Per-app UI (form section, view section)
-13. Context menu / copy actions (see Section 10)
-14. CLI
-15. Autofill (if applicable)
-16. Tests
+1. Core enum addition
+2. Feature flag registration
+3. Model stack (API, Data, Domain, View, Export if applicable)
+4. Container switch updates (7 files)
+5. SDK bindings (`toSdk*`/`fromSdk*`)
+6. Localization keys
+7. Shared UI (icon, menu items)
+8. Vault filters with feature flag gating (CRITICAL for ciphers to appear)
+9. New item menus with feature flag gating
+10. Per-app UI (form section, view section)
+11. Context menu / copy actions (see Section 8)
+12. CLI
+13. Autofill (if applicable)
+14. Tests
 
-### 8. Risks and Considerations
+### 7. Risks and Considerations
 
 - Cross-repo coordination requirements
 - Feature flag rollout strategy
@@ -260,7 +232,7 @@ Recommended implementation order, customized for this specific type:
   desired display value. If an existing key has the same message text, reuse it instead of creating
   a duplicate. Only create new keys when no existing key matches.
 
-### 9. Context Menu / Copy Actions
+### 8. Context Menu / Copy Actions
 
 Each cipher type can expose copiable fields in the vault list item context menus (right-click / more
 menu). This requires changes across **7 files** spanning core infrastructure and all 3 clients.
