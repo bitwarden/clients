@@ -13062,9 +13062,6 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
   },
-  "coachmarkLearnMore": {
-    "message": "Learn more"
-  },
   "coachmarkStepIndicator": {
     "message": "Step $CURRENT$ of $TOTAL$",
     "placeholders": {

@@ -20,7 +20,7 @@
   <!-- Footer with navigation -->
   <div class="tw-flex tw-items-center tw-justify-between tw-pt-2">
     <span bitTypography="body2" class="tw-text-muted">
-      {{ service.currentStepNumber() }} {{ "of" | i18n }} {{ service.totalSteps() }}
+      {{ "coachmarkStepIndicator" | i18n: service.currentStepNumber() : service.totalSteps() }}
     </span>
 
     <div class="tw-flex tw-gap-2">

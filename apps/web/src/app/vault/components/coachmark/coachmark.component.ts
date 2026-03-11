@@ -1,7 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject, input, viewChild } from "@angular/core";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   ButtonModule,
   LinkModule,
@@ -9,6 +8,7 @@ import {
   PopoverModule,
   TypographyModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { CoachmarkStepId } from "./coachmark-step";
 import { CoachmarkService } from "./coachmark.service";
@@ -28,7 +28,7 @@ import { CoachmarkService } from "./coachmark.service";
 @Component({
   selector: "app-coachmark",
   standalone: true,
-  imports: [CommonModule, JslibModule, ButtonModule, LinkModule, PopoverModule, TypographyModule],
+  imports: [CommonModule, ButtonModule, I18nPipe, LinkModule, PopoverModule, TypographyModule],
   templateUrl: "coachmark.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   exportAs: "coachmark",
