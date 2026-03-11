@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, Inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Inject, signal } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
@@ -33,8 +33,8 @@ export type SendGeneratorDialogAction = UnionOfValues<typeof SendGeneratorDialog
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendGeneratorDialogComponent {
-  protected titleKey = this.isPassword ? "passwordGenerator" : "usernameGenerator";
-  protected buttonLabel: string | undefined;
+  protected readonly titleKey = this.isPassword ? "passwordGenerator" : "usernameGenerator";
+  protected readonly buttonLabel = signal<string | undefined>(undefined);
 
   /**
    * Whether the dialog is generating a password/passphrase. If false, it is generating a username.
@@ -48,39 +48,39 @@ export class SendGeneratorDialogComponent {
    * The currently generated value.
    * @protected
    */
-  protected generatedValue: string = "";
+  protected readonly generatedValue = signal<string>("");
 
-  protected uri: string | undefined;
+  protected readonly uri: string | undefined;
 
   constructor(
-    @Inject(DIALOG_DATA) protected params: SendGeneratorDialogParams,
-    private dialogRef: DialogRef<SendGeneratorDialogResult>,
-    private i18nService: I18nService,
+    @Inject(DIALOG_DATA) protected readonly params: SendGeneratorDialogParams,
+    private readonly dialogRef: DialogRef<SendGeneratorDialogResult>,
+    private readonly i18nService: I18nService,
   ) {
     this.uri = params.uri;
   }
 
-  protected close = () => {
+  protected readonly close = () => {
     this.dialogRef.close({ action: SendGeneratorDialogAction.Canceled });
   };
 
-  protected selectValue = () => {
+  protected readonly selectValue = () => {
     this.dialogRef.close({
       action: SendGeneratorDialogAction.Selected,
-      generatedValue: this.generatedValue,
+      generatedValue: this.generatedValue(),
     });
   };
 
   onValueGenerated(value: string) {
-    this.generatedValue = value;
+    this.generatedValue.set(value);
   }
 
-  onAlgorithmSelected = (selected?: AlgorithmInfo) => {
+  readonly onAlgorithmSelected = (selected?: AlgorithmInfo) => {
     if (selected) {
-      this.buttonLabel = selected.useGeneratedValue;
+      this.buttonLabel.set(selected.useGeneratedValue);
     } else {
-      this.buttonLabel = this.i18nService.t("useThisEmail");
+      this.buttonLabel.set(this.i18nService.t("useThisEmail"));
     }
-    this.generatedValue = "";
+    this.generatedValue.set("");
   };
 }

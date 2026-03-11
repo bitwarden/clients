@@ -18,9 +18,9 @@
       buttonType="primary"
       (click)="selectValue()"
       data-testid="select-button"
-      [disabled]="!(buttonLabel && generatedValue)"
+      [disabled]="!(buttonLabel() && generatedValue())"
     >
-      {{ buttonLabel }}
+      {{ buttonLabel() }}
     </button>
   </ng-container>
 </bit-dialog>
