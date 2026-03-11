@@ -13,9 +13,6 @@ import {
 } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ToastService } from "@bitwarden/components";
-
 import { SharedModule } from "../../../shared";
 
 @Component({
@@ -34,11 +31,6 @@ export class SendAccessEmailComponent implements OnInit, OnDestroy {
 
   readonly loading = input.required<boolean>();
   readonly backToEmail = output<void>();
-
-  constructor(
-    private toastService: ToastService,
-    private i18nService: I18nService,
-  ) {}
 
   ngOnInit() {
     this.email = new FormControl("", Validators.required);
@@ -60,16 +52,6 @@ export class SendAccessEmailComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.formGroup().removeControl("email");
     this.formGroup().removeControl("otp");
-  }
-
-  onOtpBlur() {
-    if (!this.otp?.value || this.otp.value.trim() === "") {
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("verificationCodeRequired"),
-      });
-    }
   }
 
   onResendCode() {

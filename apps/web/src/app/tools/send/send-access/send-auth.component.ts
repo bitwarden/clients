@@ -201,7 +201,7 @@ export class SendAuthComponent implements OnInit {
             this.toastService.showToast({
               variant: "error",
               title: this.i18nService.t("errorOccurred"),
-              message: this.i18nService.t("invalidEmailOrVerificationCode"),
+              message: this.i18nService.t("invalidVerificationCode"),
             });
           }
           this.otpSubmitted = true;
@@ -212,7 +212,7 @@ export class SendAuthComponent implements OnInit {
         this.toastService.showToast({
           variant: "error",
           title: this.i18nService.t("errorOccurred"),
-          message: this.i18nService.t("invalidEmailOrVerificationCode"),
+          message: this.i18nService.t("invalidVerificationCode"),
         });
       } else if (passwordHashB64Required(response.error)) {
         this.sendAuthType.set(AuthType.Password);
@@ -280,20 +280,16 @@ export class SendAuthComponent implements OnInit {
   }
 
   async onResendCode() {
-    this.loading.set(true);
     this.unavailable.set(false);
     this.error.set(false);
 
     const email = this.sendAccessForm.value.email;
     if (email == null) {
-      this.loading.set(false);
       return;
     }
 
     const sendAccessCreds: SendAccessDomainCredentials = { kind: "email", email };
     await this.getTokenWithRetry(sendAccessCreds);
-
-    this.loading.set(false);
   }
 
   private async getPasswordHashB64(password: string, key: string) {
