@@ -10,7 +10,6 @@ import {
   SendAccessToken,
   emailRequired,
   emailAndOtpRequired,
-  otpInvalid,
   passwordHashB64Required,
   passwordHashB64Invalid,
   sendIdInvalid,
@@ -331,18 +330,6 @@ export class SendReceiveCommand extends DownloadCommand {
 
         if (otpResponse.kind === "expected_server") {
           const error = otpResponse.error;
-
-          if (otpInvalid(error)) {
-            return Response.badRequest("Invalid email or verification code");
-          }
-
-          /*
-            If the following evaluates to true, it means that the email address provided was not
-            configured to be used for email OTP for this Send.
-
-            To avoid leaking information that would allow email enumeration, instead return an
-            error indicating that some component of the email OTP challenge was invalid.
-           */
           if (emailAndOtpRequired(error)) {
             return Response.badRequest("Invalid email or verification code");
           }
