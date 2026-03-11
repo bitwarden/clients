@@ -215,7 +215,10 @@ describe("UserApiLoginStrategy", () => {
   });
 
   it("uses unlock service when SDK key connector feature flag is enabled", async () => {
-    const tokenResponse = identityTokenResponseFactory();
+    const tokenResponse = identityTokenResponseFactory(undefined, {
+      HasMasterPassword: false,
+      KeyConnectorOption: { KeyConnectorUrl: keyConnectorUrl },
+    });
     tokenResponse.apiUseKeyConnector = true;
 
     const env = mock<Environment>();
@@ -230,9 +233,11 @@ describe("UserApiLoginStrategy", () => {
     await apiLogInStrategy.logIn(credentials);
 
     expect(unlockService.unlockWithKeyConnector).toHaveBeenCalledWith(
-      keyConnectorUrl,
-      tokenResponse.key!.toJSON(),
       userId,
+      {
+        url: keyConnectorUrl,
+        keyConnectorKeyWrappedUserKey: tokenResponse.key!.encryptedString!,
+      },
     );
     expect(keyConnectorService.setMasterKeyFromUrl).not.toHaveBeenCalled();
   });

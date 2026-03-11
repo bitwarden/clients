@@ -55,7 +55,7 @@ export class UserApiLoginStrategy extends LoginStrategy {
   }
 
   protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
-    if (response.canUnlockWithKeyConnector() && await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk)) {
+    if (response.canUnlockWithKeyConnector() && (!await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk))) {
       const env = await firstValueFrom(this.environmentService.environment$);
       const keyConnectorUrl = env.getKeyConnectorUrl();
       await this.keyConnectorService.setMasterKeyFromUrl(keyConnectorUrl, userId);

@@ -68,7 +68,6 @@ describe("SsoLoginStrategy", () => {
   let unlockService: MockProxy<UnlockService>;
   let deviceTrustService: MockProxy<DeviceTrustServiceAbstraction>;
   let authRequestService: MockProxy<AuthRequestServiceAbstraction>;
-  let i18nService: MockProxy<I18nService>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
@@ -108,7 +107,6 @@ describe("SsoLoginStrategy", () => {
     unlockService = mock<UnlockService>();
     deviceTrustService = mock<DeviceTrustServiceAbstraction>();
     authRequestService = mock<AuthRequestServiceAbstraction>();
-    i18nService = mock<I18nService>();
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
@@ -491,6 +489,7 @@ describe("SsoLoginStrategy", () => {
         HasMasterPassword: false,
         KeyConnectorOption: { KeyConnectorUrl: keyConnectorUrl },
       });
+      tokenResponse.apiUseKeyConnector = true;
     });
 
     it("gets and sets the master key if Key Connector is enabled and the user doesn't have a master password", async () => {
@@ -518,7 +517,7 @@ describe("SsoLoginStrategy", () => {
         userId,
         {
           url: keyConnectorUrl,
-          keyConnectorKeyWrappedUserKey: tokenResponse.key!.toJSON(),
+          keyConnectorKeyWrappedUserKey: tokenResponse.key!.encryptedString!,
         },
       );
       expect(keyConnectorService.setMasterKeyFromUrl).not.toHaveBeenCalled();
