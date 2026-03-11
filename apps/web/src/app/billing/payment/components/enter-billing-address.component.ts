@@ -10,8 +10,13 @@ import {
 } from "@bitwarden/web-vault/app/billing/warnings/types";
 
 import { SharedModule } from "../../../shared";
-import { BillingAddress, getTaxIdTypeForCountry, selectableCountries, taxIdTypes } from "../types";
-
+import {
+  BillingAddress,
+  getTaxIdTypeForCountry,
+  selectableCountries,
+  taxIdTypes,
+  isDirectlyTaxableCountry,
+} from "../types";
 export interface BillingAddressControls {
   country: string;
   postalCode: string;
@@ -194,7 +199,7 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
     this.supportsTaxId$ = this.group.controls.country.valueChanges.pipe(
       startWith(this.group.value.country ?? this.selectableCountries[0].value),
       map((country) => {
-        if (!this.scenario.supportsTaxId || country === "US") {
+        if (!this.scenario.supportsTaxId || isDirectlyTaxableCountry(country)) {
           return false;
         }
 
