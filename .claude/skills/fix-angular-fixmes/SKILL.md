@@ -1,22 +1,24 @@
 ---
 name: fix-angular-fixmes
-description: Resolves eslint-disable suppression comments throughout the Bitwarden clients codebase by fixing the underlying issue. Use when the user asks to "fix FIXMEs", "fix eslint suppressions", "clean up eslint-disable-next-line", "resolve CL-764", "resolve CL-903", "migrate to OnPush", "migrate to Signals", or reduce linting suppressions.
+description: Resolves eslint-disable suppression comments throughout the Bitwarden clients codebase by fixing the underlying issue. Use when the user asks to "fix FIXMEs", "fix eslint suppressions", "clean up eslint-disable-next-line", "resolve CL-764", "resolve CL-903", "fix OnPush eslint suppressions", "fix Signals eslint suppressions", or reduce linting suppressions.
 allowed-tools: Read, Write, StrReplace, Glob, Grep, Bash(npx ng generate:*), Bash(npm run lint:fix), Bash(npm run test)
 ---
 
-# Fix ESLint Suppressions
+## Key rules
 
-Resolves `eslint-disable-next-line` comments by fixing the underlying issue. Every suppression is technical debt — the goal is to fix the code and remove the comment, not just delete the suppression.
+- Fix the underlying issue — never just delete the suppression comment and leave broken code.
+- Remove the **complete comment block**: FIXME line (if any) + TODO: Skipped block (if any) + eslint-disable-next-line line.
+- Both FIXME-paired and standalone suppressions are the same migration debt.
+- For Angular migration rules, prefer CLI schematics over manual edits.
+- Do NOT convert service observables to signals (ADR-0027).
+- For OnPush and signals patterns, the `angular-modernization` skill is the authoritative source — this skill only owns the ESLint suppression mechanics.
 
 ## Step 1: Discover all suppressions
 
-```bash
-# All eslint suppressions in a path
-rg "eslint-disable" <path>
+Use the `Grep` tool to find suppressions in the target path:
 
-# Angular FIXME-tracked ones specifically
-rg "FIXME.*CL-" <path>
-```
+- Pattern `eslint-disable` — finds all eslint suppressions
+- Pattern `FIXME.*CL-` — finds Angular FIXME-tracked ones specifically
 
 Group results by rule name. Two forms appear in this codebase:
 
@@ -39,8 +41,6 @@ Group results by rule name. Two forms appear in this codebase:
 
 Both forms must be fixed the same way.
 
----
-
 ## Rule reference
 
 | Category         | Rule                                                        | Section below                                       |
@@ -62,8 +62,6 @@ Both forms must be fixed the same way.
 | General          | bare `// eslint-disable-next-line`                          | [bare disable](#bare-disable)                       |
 | Tailwind         | `tailwindcss/no-custom-classname`                           | [HTML rules](#html-rules)                           |
 
----
-
 ## OnPush
 
 **Rule:** `@angular-eslint/prefer-on-push-component-change-detection`
@@ -71,8 +69,6 @@ Both forms must be fixed the same way.
 Follow the OnPush guidance in the `angular-modernization` skill (add `changeDetection: ChangeDetectionStrategy.OnPush`, remove `ChangeDetectorRef` if only used for `detectChanges()`). Then remove the FIXME + `eslint-disable-next-line` lines.
 
 > `@Directive` does not support `changeDetection` — skip OnPush for pure directives.
-
----
 
 ## Signals
 
@@ -83,8 +79,6 @@ Applies to `@Input()`, `@Output()`, `@ViewChild`, `@ContentChild`.
 Follow the Signal Inputs, Outputs, and Queries guidance in the `angular-modernization` skill (prefer CLI schematics, then manual conversion). After each migration, **manually remove** the FIXME and `eslint-disable-next-line` lines, and any `// TODO: Skipped for signal migration because:` comment blocks.
 
 > Do NOT convert service observables to signals — only component-local state and decorator bindings (ADR-0027).
-
----
 
 ## no-floating-promises
 
@@ -105,8 +99,6 @@ this.router.navigate(["/login"]).catch((err) => this.logService.error(err));
 
 Use `void` for navigation or toast calls that genuinely don't need awaiting. Use `await` when the result matters or you're already in an async context.
 
----
-
 ## no-unused-vars
 
 **Rule:** `@typescript-eslint/no-unused-vars`
@@ -122,25 +114,25 @@ const [_first, second] = array;
 try { ... } catch { ... } // omit the variable entirely
 ```
 
----
-
 ## no-unsafe-function-type
 
 **Rule:** `@typescript-eslint/no-unsafe-function-type`
 
 Replace the generic `Function` type with a specific signature:
 
-```typescript
-// Before
-private callback: Function;
+**Before**
 
-// After — use the actual signature
+```typescript
+private callback: Function;
+```
+
+**After** — use the actual signature
+
+```typescript
 private callback: () => void;
 // or for unknown signatures:
 private callback: (...args: unknown[]) => unknown;
 ```
-
----
 
 ## RxJS rules
 
@@ -148,13 +140,17 @@ private callback: (...args: unknown[]) => unknown;
 
 **`rxjs/no-async-subscribe`** — async callback inside `.subscribe()` swallows errors:
 
+**Before**
+
 ```typescript
-// Before
 this.service.data$.subscribe(async (value) => {
   await this.process(value);
 });
+```
 
-// After — move async work into the pipe
+**After** — move async work into the pipe
+
+```typescript
 this.service.data$
   .pipe(
     switchMap((value) => this.process(value)),
@@ -165,11 +161,17 @@ this.service.data$
 
 **`rxjs-angular/prefer-takeuntil`** — subscription without cleanup:
 
-```typescript
-// Before
-this.service.data$.subscribe((value) => { this.data = value; });
+**Before**
 
-// After — add takeUntilDestroyed() (call in constructor or use destroyRef)
+```typescript
+this.service.data$.subscribe((value) => {
+  this.data = value;
+});
+```
+
+**After** — add `takeUntilDestroyed()` (call in constructor or use `destroyRef`)
+
+```typescript
 constructor() {
   this.service.data$
     .pipe(takeUntilDestroyed())
@@ -177,29 +179,29 @@ constructor() {
 }
 ```
 
----
-
 ## no-enums
 
 **Rule:** `@bitwarden/platform/no-enums`
 
 Convert TypeScript enums to const objects with type aliases (ADR-0025):
 
+**Before**
+
 ```typescript
-// Before
 enum CipherType {
   Login = 1,
   SecureNote = 2,
 }
+```
 
-// After
+**After**
+
+```typescript
 export const CipherType = Object.freeze({ Login: 1, SecureNote: 2 } as const);
 export type CipherType = (typeof CipherType)[keyof typeof CipherType];
 ```
 
 Update all import sites — the usage (`CipherType.Login`) stays the same.
-
----
 
 ## no-restricted-imports
 
@@ -212,8 +214,6 @@ The import is from a path that the ESLint config forbids. Steps:
 3. Replace the import with the allowed path and remove the suppression.
 
 Common cases: importing platform-internal modules directly instead of through the public API, or test-only helpers in non-test files.
-
----
 
 ## no-console
 
@@ -233,21 +233,24 @@ In test files (`*.spec.ts`), a `console.error` or `console.warn` spy may be inte
 jest.spyOn(console, "error").mockImplementation(() => {});
 ```
 
----
-
 ## no-empty
 
 **Rule:** `no-empty`
 
 Empty `catch` blocks silently swallow errors:
 
+**Before**
+
 ```typescript
-// Before
 try {
   await something();
-} catch {} // eslint-disable-next-line no-empty
+  // eslint-disable-next-line no-empty
+} catch {}
+```
 
-// After — handle or log the error
+**After** — handle or log the error
+
+```typescript
 try {
   await something();
 } catch (e) {
@@ -262,8 +265,6 @@ try {
 }
 ```
 
----
-
 ## Bare disable
 
 **Rule:** bare `// eslint-disable-next-line` (no rule specified)
@@ -274,17 +275,19 @@ This disables ALL rules for the next line, which is always wrong. Steps:
 2. Fix the underlying issue using the appropriate section above.
 3. If the violation truly cannot be fixed (rare), replace the bare disable with a specific named rule.
 
----
-
 ## HTML rules
 
 **`@angular-eslint/template/button-has-type`** — Add an explicit type to every `<button>`:
 
-```html
-<!-- Before -->
-<button (click)="save()">Save</button>
+**Before**
 
-<!-- After -->
+```html
+<button (click)="save()">Save</button>
+```
+
+**After**
+
+```html
 <button type="button" (click)="save()">Save</button>
 <!-- or type="submit" inside a <form> -->
 ```
@@ -292,8 +295,6 @@ This disables ALL rules for the next line, which is always wrong. Steps:
 **`@bitwarden/components/no-bwi-class-usage`** — Replace raw `bwi-*` icon classes with the `<bit-icon>` component or the appropriate icon token.
 
 **`tailwindcss/no-custom-classname`** — Use a Tailwind utility class with the `tw-` prefix, or register the class in the Tailwind safelist. Never use arbitrary custom class names.
-
----
 
 ## Step 2: Cleanup checklist per fixed instance
 
@@ -303,8 +304,6 @@ This disables ALL rules for the next line, which is always wrong. Steps:
 - [ ] Unused imports removed; new imports added as needed
 - [ ] All in-class usages updated (e.g. signal reads need `()`)
 
----
-
 ## Step 3: Validate
 
 ```bash
@@ -312,14 +311,3 @@ npm run lint:fix
 ```
 
 Fix any errors that remain. Run `npm run test` if behaviour-critical code was changed.
-
----
-
-## Key rules
-
-- Fix the underlying issue — never just delete the suppression comment and leave broken code.
-- Remove the **complete comment block**: FIXME line (if any) + TODO: Skipped block (if any) + eslint-disable-next-line line.
-- Both FIXME-paired and standalone suppressions are the same migration debt.
-- For Angular migration rules, prefer CLI schematics over manual edits.
-- Do NOT convert service observables to signals (ADR-0027).
-- For OnPush and signals patterns, the `angular-modernization` skill is the authoritative source — this skill only owns the ESLint suppression mechanics.
