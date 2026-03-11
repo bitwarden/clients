@@ -75,12 +75,10 @@ import { IconComponent } from "./vault/components/icon.component";
     IconButtonModule,
     SvgModule,
     LinkModule,
-    SvgModule,
     TextDragDirective,
     CopyClickDirective,
     A11yTitleDirective,
     AutofocusDirective,
-
     EllipsisPipe,
     I18nPipe,
     IconComponent,
