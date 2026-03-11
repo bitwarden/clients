@@ -40,5 +40,5 @@ export abstract class UnlockService {
    * @throws If the SDK is not available
    * @throws If key connector authentication fails
    */
-  abstract unlockWithKeyConnector(keyConnectorUnlockData: KeyConnectorUnlockData, userId: UserId): Promise<void>;
+  abstract unlockWithKeyConnector(userId: UserId, keyConnectorUnlockData: KeyConnectorUnlockData): Promise<void>;
 }

@@ -537,7 +537,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               this.unlockService,
               this.deviceTrustService,
               this.authRequestService,
-              this.i18nService,
               ...sharedDeps,
             );
           case AuthenticationType.UserApiKey:

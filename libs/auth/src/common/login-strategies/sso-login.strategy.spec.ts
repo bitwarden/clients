@@ -151,7 +151,6 @@ describe("SsoLoginStrategy", () => {
       unlockService,
       deviceTrustService,
       authRequestService,
-      i18nService,
       accountService,
       masterPasswordService,
       keyService,
@@ -516,9 +515,11 @@ describe("SsoLoginStrategy", () => {
       await ssoLoginStrategy.logIn(credentials);
 
       expect(unlockService.unlockWithKeyConnector).toHaveBeenCalledWith(
-        keyConnectorUrl,
-        tokenResponse.key!.toJSON(),
         userId,
+        {
+          url: keyConnectorUrl,
+          keyConnectorKeyWrappedUserKey: tokenResponse.key!.toJSON(),
+        },
       );
       expect(keyConnectorService.setMasterKeyFromUrl).not.toHaveBeenCalled();
     });

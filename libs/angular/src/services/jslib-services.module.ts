@@ -563,6 +563,7 @@ const safeProviders: SafeProvider[] = [
       MessagingServiceAbstraction,
       LogService,
       KeyConnectorServiceAbstraction,
+      UnlockService,
       EnvironmentService,
       StateServiceAbstraction,
       TwoFactorService,

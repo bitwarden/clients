@@ -19,6 +19,7 @@ import { MasterKey } from "@bitwarden/common/types/key";
 import { BiometricsService, KdfConfig, KdfConfigService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import {
+EncString,
   Kdf,
   MasterPasswordUnlockData,
   PasswordProtectedKeyEnvelope,
@@ -38,7 +39,7 @@ export type KeyConnectorUnlockData = {
   /**
    * The user-key wrapped by the key-connector-key
    */
-  keyConnectorKeyWrappedUserKey: string;
+  keyConnectorKeyWrappedUserKey: EncString;
 }
 
 export class DefaultUnlockService implements UnlockService {
@@ -152,7 +153,7 @@ export class DefaultUnlockService implements UnlockService {
     this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithBiometrics");
   }
 
-  async unlockWithKeyConnector(keyConnectorUnlockData: KeyConnectorUnlockData, userId: UserId): Promise<void> {
+  async unlockWithKeyConnector(userId: UserId, keyConnectorUnlockData: KeyConnectorUnlockData): Promise<void> {
     // Now that we have the decrypted user key from the key connector, we can initialize the SDK with it to complete the unlock process.
     const startTime = performance.now();
     await firstValueFrom(

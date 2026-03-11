@@ -69,8 +69,8 @@ export class UserApiLoginStrategy extends LoginStrategy {
     if (response.canUnlockWithKeyConnector() && await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk)) {
       await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
       await this.unlockService.unlockWithKeyConnector(
-          response.intoKeyConnectorUnlockData(),
           userId,
+          response.intoKeyConnectorUnlockData(),
         );
     } else if (response.canUnlockWithKeyConnector() && await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk)) {
       await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);

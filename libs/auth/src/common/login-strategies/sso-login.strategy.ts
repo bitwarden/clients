@@ -192,8 +192,8 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     if (tokenResponse.canUnlockWithKeyConnector() && await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk)) {
       await this.unlockService.unlockWithKeyConnector(
-        tokenResponse.intoKeyConnectorUnlockData(),
         userId,
+        tokenResponse.intoKeyConnectorUnlockData(),
       );
       return;
     }
