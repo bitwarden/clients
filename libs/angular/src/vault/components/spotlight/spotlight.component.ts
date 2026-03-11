@@ -1,7 +1,12 @@
 import { CommonModule } from "@angular/common";
 import { booleanAttribute, ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 
-import { ButtonModule, IconButtonModule, TypographyModule } from "@bitwarden/components";
+import {
+  BitwardenIcon,
+  ButtonModule,
+  IconButtonModule,
+  TypographyModule,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 @Component({
@@ -20,7 +25,7 @@ export class SpotlightComponent {
   // Whether the component can be dismissed, if true, the component will not show a close button
   readonly persistent = input(false, { transform: booleanAttribute });
   // Optional icon to display on the button
-  readonly buttonIcon = input<string>();
+  readonly buttonIcon = input<BitwardenIcon>();
   readonly onDismiss = output<void>();
   readonly onButtonClick = output<MouseEvent>();
 
