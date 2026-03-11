@@ -538,6 +538,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       const loginEligibleFieldsWithinForm = pageDetails.fields.filter(
         (pageDetailsField) =>
           pageDetailsField.form === field.form &&
+          pageDetailsField.type != null &&
           this.usernameFieldTypes.has(pageDetailsField.type),
       );
       if (loginEligibleFieldsWithinForm.length === 1) {
