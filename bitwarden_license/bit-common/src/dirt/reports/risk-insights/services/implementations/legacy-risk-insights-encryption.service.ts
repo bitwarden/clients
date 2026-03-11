@@ -10,6 +10,7 @@ import { LogService } from "@bitwarden/logging";
 
 import { createNewSummaryData } from "../../helpers";
 import {
+  isV2ApplicationBlobWrapper,
   validateAccessReportPayload,
   validateApplicationHealthReportDetailArray,
   validateOrganizationReportApplicationArray,
@@ -245,7 +246,14 @@ export class LegacyRiskInsightsEncryptionService {
       const decryptedData = await this.encryptService.decryptString(encryptedData, key);
       const parsedData = JSON.parse(decryptedData);
 
-      // Validate parsed data structure with runtime type guards
+      // Downgrade path: V2 summary blob has a `version` field; V1 does not.
+      // V1 and V2 summary fields are identical, so stripping `version` is sufficient.
+      if (typeof parsedData === "object" && parsedData !== null && "version" in parsedData) {
+        this.logService.warning(
+          "[LegacyRiskInsightsEncryptionService] Versioned summary detected in legacy path, extra fields ignored by validator",
+        );
+      }
+
       return validateOrganizationReportSummary(parsedData);
     } catch (error: unknown) {
       // Log detailed error for debugging
@@ -273,7 +281,24 @@ export class LegacyRiskInsightsEncryptionService {
       const decryptedData = await this.encryptService.decryptString(encryptedData, key);
       const parsedData = JSON.parse(decryptedData);
 
-      // Validate parsed data structure with runtime type guards
+      // Downgrade path: V2 application blob is `{ version: 2, items: [...] }`.
+      // Extract items and convert reviewedDate: string|undefined → Date|null for V1 consumers.
+      if (isV2ApplicationBlobWrapper(parsedData)) {
+        this.logService.warning(
+          "[LegacyRiskInsightsEncryptionService] V2 application format detected in V1 path, running downgrade transform",
+        );
+        return parsedData.items.map((item) => {
+          const app = item as Record<string, unknown>;
+          return {
+            applicationName: app["applicationName"] as string,
+            isCritical: app["isCritical"] as boolean,
+            reviewedDate:
+              typeof app["reviewedDate"] === "string" ? new Date(app["reviewedDate"]) : null,
+          };
+        });
+      }
+
+      // Normal V1 path: validate parsed data structure with runtime type guards
       return validateOrganizationReportApplicationArray(parsedData);
     } catch (error: unknown) {
       // Log detailed error for debugging

@@ -8,37 +8,20 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
-import {
-  validateRiskInsightsApplicationDataArray,
-  validateRiskInsightsSummaryData,
-  validateAccessReportPayload,
-} from "../../helpers/type-guards/risk-insights-type-guards";
 import { EncryptedDataWithKey, EncryptedReportData } from "../../models";
 import { RiskInsightsSummaryData } from "../../models/data/risk-insights-summary.data";
 import {
-  AccessReportPayload,
-  DecryptedAccessReportData,
   AccessReportEncryptionService,
-  UnsupportedReportFormatError,
+  DecryptedAccessReportData,
 } from "../abstractions/access-report-encryption.service";
+import { BlobVersioningService } from "../abstractions/blob-versioning.service";
 
 export class DefaultAccessReportEncryptionService extends AccessReportEncryptionService {
-  /** Payload format version written into every new report blob. Bump when the blob structure changes. */
-  private readonly CURRENT_REPORT_VERSION = 2;
-
-  /**
-   * Codec registry keyed by payload version number.
-   * Add a new entry here when a new payload format is introduced — no other changes needed.
-   */
-  private readonly reportCodecs = new Map<
-    number,
-    { decode: (json: unknown) => AccessReportPayload }
-  >([[2, { decode: (json: unknown) => validateAccessReportPayload(json) }]]);
-
   constructor(
     private keyService: KeyService,
     private encryptService: EncryptService,
     private keyGeneratorService: KeyGenerationService,
+    private blobVersioningService: BlobVersioningService,
     private logService: LogService,
   ) {
     super();
@@ -84,19 +67,19 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
             return forkJoin({
               encryptedReportData: from(
                 this.encryptService.encryptString(
-                  JSON.stringify({ version: this.CURRENT_REPORT_VERSION, ...reportData }),
+                  this.blobVersioningService.serializeReport(reportData),
                   contentEncryptionKey,
                 ),
               ),
               encryptedSummaryData: from(
                 this.encryptService.encryptString(
-                  JSON.stringify(summaryData),
+                  this.blobVersioningService.serializeSummary(summaryData),
                   contentEncryptionKey,
                 ),
               ),
               encryptedApplicationData: from(
                 this.encryptService.encryptString(
-                  JSON.stringify(applicationData),
+                  this.blobVersioningService.serializeApplication(applicationData),
                   contentEncryptionKey,
                 ),
               ),
@@ -170,21 +153,33 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
               encryptedData;
 
             return forkJoin({
-              reportData: from(this._decryptReportBlob(encryptedReportData, contentEncryptionKey)),
-              summaryData: from(
-                this._decryptSummaryBlob(encryptedSummaryData, contentEncryptionKey),
+              report: from(this._decryptBlob(encryptedReportData, contentEncryptionKey, "report")),
+              summary: from(
+                this._decryptBlob(encryptedSummaryData, contentEncryptionKey, "summary"),
               ),
-              applicationData: from(
-                this._decryptApplicationBlob(encryptedApplicationData, contentEncryptionKey),
+              application: from(
+                this._decryptBlob(encryptedApplicationData, contentEncryptionKey, "application"),
               ),
-            });
+            }).pipe(
+              map(({ report, summary, application }) => {
+                const reportResult = this.blobVersioningService.processReport(report);
+                const summaryResult = this.blobVersioningService.processSummary(summary);
+                const applicationResult =
+                  this.blobVersioningService.processApplication(application);
+
+                const hadLegacyBlobs =
+                  reportResult.wasV1 || summaryResult.wasV1 || applicationResult.wasV1;
+
+                return {
+                  version: 2 as const,
+                  reportData: reportResult.data,
+                  summaryData: summaryResult.data,
+                  applicationData: applicationResult.data,
+                  ...(hadLegacyBlobs ? { hadLegacyBlobs: true } : {}),
+                };
+              }),
+            );
           }),
-          map(({ reportData, summaryData, applicationData }) => ({
-            version: 2 as const,
-            reportData,
-            summaryData,
-            applicationData,
-          })),
         );
       }),
     );
@@ -218,76 +213,41 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
               throw new Error("Encryption key not found");
             }
 
-            return from(this._decryptSummaryBlob(encryptedSummary, contentEncryptionKey));
+            return from(this._decryptBlob(encryptedSummary, contentEncryptionKey, "summary")).pipe(
+              map((json) => this.blobVersioningService.processSummary(json).data),
+            );
           }),
         );
       }),
     );
   }
 
-  private async _decryptReportBlob(encryptedData: EncString | null, key: SymmetricCryptoKey) {
+  private async _decryptBlob(
+    encryptedData: EncString | null,
+    key: SymmetricCryptoKey,
+    blobType: "report" | "summary" | "application",
+  ): Promise<unknown> {
     if (encryptedData == null) {
-      throw new Error("Report data is missing. Run migration before loading this report.");
-    }
-
-    try {
-      const decrypted = await this.encryptService.decryptString(encryptedData, key);
-      const parsed = JSON.parse(decrypted);
-
-      const codec = this.reportCodecs.get(parsed?.version);
-      if (!codec) {
-        throw new UnsupportedReportFormatError(parsed?.version);
+      if (blobType === "report") {
+        throw new Error("Report data is missing. Run migration before loading this report.");
       }
-
-      return codec.decode(parsed);
-    } catch (error: unknown) {
-      this.logService.error(
-        "[DefaultAccessReportEncryptionService] Failed to decrypt report blob",
-        error,
-      );
-      if (error instanceof Error) {
-        throw error;
+      if (blobType === "summary") {
+        throw new Error("Summary data not found");
       }
-      throw new Error(
-        "Report data validation failed. This may indicate data corruption or tampering.",
-      );
-    }
-  }
-
-  private async _decryptSummaryBlob(encryptedData: EncString | null, key: SymmetricCryptoKey) {
-    if (encryptedData == null) {
-      throw new Error("Summary data not found");
-    }
-
-    try {
-      const decrypted = await this.encryptService.decryptString(encryptedData, key);
-      return validateRiskInsightsSummaryData(JSON.parse(decrypted));
-    } catch (error: unknown) {
-      this.logService.error(
-        "[DefaultAccessReportEncryptionService] Failed to decrypt summary blob",
-        error,
-      );
-      throw new Error(
-        "Summary data validation failed. This may indicate data corruption or tampering.",
-      );
-    }
-  }
-
-  private async _decryptApplicationBlob(encryptedData: EncString | null, key: SymmetricCryptoKey) {
-    if (encryptedData == null) {
+      // Application blob may be absent for new or migrating reports
       return [];
     }
 
     try {
       const decrypted = await this.encryptService.decryptString(encryptedData, key);
-      return validateRiskInsightsApplicationDataArray(JSON.parse(decrypted));
+      return JSON.parse(decrypted);
     } catch (error: unknown) {
       this.logService.error(
-        "[DefaultAccessReportEncryptionService] Failed to decrypt application blob",
+        `[DefaultAccessReportEncryptionService] Failed to decrypt ${blobType} blob`,
         error,
       );
       throw new Error(
-        "Application data validation failed. This may indicate data corruption or tampering.",
+        `${blobType.charAt(0).toUpperCase() + blobType.slice(1)} data decryption failed. This may indicate data corruption or tampering.`,
       );
     }
   }

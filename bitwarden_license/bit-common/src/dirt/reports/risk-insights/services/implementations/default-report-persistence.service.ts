@@ -141,7 +141,9 @@ export class DefaultReportPersistenceService extends ReportPersistenceService {
   }
 
   // TODO Rename to loadLastReport$
-  loadReport$(organizationId: OrganizationId): Observable<RiskInsightsView | null> {
+  loadReport$(
+    organizationId: OrganizationId,
+  ): Observable<{ report: RiskInsightsView; hadLegacyBlobs: boolean } | null> {
     this.logService.debug("[DefaultReportPersistenceService] Loading report", { organizationId });
 
     return from(firstValueFrom(getUserId(this.accountService.activeAccount$))).pipe(
@@ -179,7 +181,7 @@ export class DefaultReportPersistenceService extends ReportPersistenceService {
             // Domain handles its own decryption
             return from(
               domain.decrypt(this.riskInsightsEncryptionService, { organizationId, userId }),
-            );
+            ).pipe(map(({ view, hadLegacyBlobs }) => ({ report: view, hadLegacyBlobs })));
           }),
         );
       }),

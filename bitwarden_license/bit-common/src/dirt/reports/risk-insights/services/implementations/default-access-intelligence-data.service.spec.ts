@@ -11,8 +11,6 @@ import { LogService } from "@bitwarden/logging";
 
 import { ReportProgress } from "../../models/report-models";
 import { createCipher, createRiskInsights, createReport } from "../../testing/test-helpers";
-import { UnsupportedReportFormatError } from "../abstractions/access-report-encryption.service";
-import { LegacyReportMigrationService } from "../abstractions/legacy-report-migration.service";
 import { ReportGenerationService } from "../abstractions/report-generation.service";
 import { ReportPersistenceService } from "../abstractions/report-persistence.service";
 
@@ -24,7 +22,6 @@ describe("DefaultAccessIntelligenceDataService", () => {
   let organizationUserApiService: jest.Mocked<OrganizationUserApiService>;
   let reportGenerationService: jest.Mocked<ReportGenerationService>;
   let reportPersistenceService: jest.Mocked<ReportPersistenceService>;
-  let legacyReportMigrationService: jest.Mocked<LegacyReportMigrationService>;
   let logService: jest.Mocked<LogService>;
 
   const orgId = "org-123" as OrganizationId;
@@ -53,10 +50,6 @@ describe("DefaultAccessIntelligenceDataService", () => {
       saveApplicationMetadata$: jest.fn(),
     } as any;
 
-    legacyReportMigrationService = {
-      migrateV1Report$: jest.fn(),
-    } as any;
-
     logService = {
       debug: jest.fn(),
       error: jest.fn(),
@@ -68,14 +61,15 @@ describe("DefaultAccessIntelligenceDataService", () => {
       organizationUserApiService,
       reportGenerationService,
       reportPersistenceService,
-      legacyReportMigrationService,
       logService,
     );
   });
 
   describe("Initialization", () => {
     it("should load existing report and emit via report$", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(of(testReport));
+      reportPersistenceService.loadReport$.mockReturnValue(
+        of({ report: testReport, hadLegacyBlobs: false }),
+      );
 
       await firstValueFrom(service.initializeForOrganization$(orgId));
 
@@ -91,44 +85,28 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       const report = await firstValueFrom(service.report$);
       expect(report).toBeNull();
-      expect(legacyReportMigrationService.migrateV1Report$).not.toHaveBeenCalled();
     });
 
-    it("should migrate V1 report when legacy format is detected", async () => {
-      const v1Report = createRiskInsights({
+    it("should re-save report when V1 blobs are detected", async () => {
+      const legacyReport = createRiskInsights({
         reports: [createReport("v1-app.com")],
       });
+
+      const newId = "report-id-123" as OrganizationReportId;
+      const newKey = new EncString("new-key");
       reportPersistenceService.loadReport$.mockReturnValue(
-        throwError(() => new UnsupportedReportFormatError(undefined)),
+        of({ report: legacyReport, hadLegacyBlobs: true }),
       );
-      legacyReportMigrationService.migrateV1Report$.mockReturnValue(of(v1Report));
       reportPersistenceService.saveReport$.mockReturnValue(
-        of({
-          id: "report-id-123" as OrganizationReportId,
-          contentEncryptionKey: new EncString(""),
-        }),
+        of({ id: newId, contentEncryptionKey: newKey }),
       );
 
       await firstValueFrom(service.initializeForOrganization$(orgId));
 
+      expect(reportPersistenceService.saveReport$).toHaveBeenCalledWith(legacyReport, orgId);
       const report = await firstValueFrom(service.report$);
-      expect(report).toBe(v1Report);
-      expect(legacyReportMigrationService.migrateV1Report$).toHaveBeenCalledWith(orgId);
-      expect(reportPersistenceService.saveReport$).toHaveBeenCalledWith(v1Report, orgId);
-    });
-
-    it("should handle gracefully when legacy migration returns no report", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(
-        throwError(() => new UnsupportedReportFormatError(undefined)),
-      );
-      legacyReportMigrationService.migrateV1Report$.mockReturnValue(of(null));
-
-      await firstValueFrom(service.initializeForOrganization$(orgId));
-
-      const error = await firstValueFrom(service.error$);
-      expect(error).toBe("Failed to initialize");
-      const report = await firstValueFrom(service.report$);
-      expect(report).toBeNull();
+      expect(report).toBe(legacyReport);
+      expect(report?.id).toBe(newId);
     });
 
     it("should handle load errors gracefully", async () => {
@@ -161,7 +139,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
         ],
       } as any);
       reportGenerationService.generateReport.mockReturnValue(of(testReport));
-      reportPersistenceService.loadReport$.mockReturnValue(of(null)); // No previous report
+      reportPersistenceService.loadReport$.mockReturnValue(of(null));
       reportPersistenceService.saveReport$.mockReturnValue(
         of({
           id: "report-id-123" as OrganizationReportId,
@@ -194,7 +172,11 @@ describe("DefaultAccessIntelligenceDataService", () => {
         ],
       });
 
-      reportPersistenceService.loadReport$.mockReturnValue(of(previousReport));
+      // Prime in-memory report state via initialize so generateNewReport$ can read it
+      reportPersistenceService.loadReport$.mockReturnValue(
+        of({ report: previousReport, hadLegacyBlobs: false }),
+      );
+      await firstValueFrom(service.initializeForOrganization$(orgId));
 
       await firstValueFrom(service.generateNewReport$(orgId));
 
@@ -215,7 +197,9 @@ describe("DefaultAccessIntelligenceDataService", () => {
     });
 
     it("should handle generation errors and keep previous report", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(of(testReport));
+      reportPersistenceService.loadReport$.mockReturnValue(
+        of({ report: testReport, hadLegacyBlobs: false }),
+      );
       await firstValueFrom(service.initializeForOrganization$(orgId));
 
       reportGenerationService.generateReport.mockReturnValue(
@@ -279,7 +263,9 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
   describe("Load Existing Report", () => {
     it("should load and emit report", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(of(testReport));
+      reportPersistenceService.loadReport$.mockReturnValue(
+        of({ report: testReport, hadLegacyBlobs: false }),
+      );
 
       await firstValueFrom(service.loadExistingReport$(orgId));
 
@@ -310,7 +296,9 @@ describe("DefaultAccessIntelligenceDataService", () => {
       mockReport.unmarkApplicationsAsCritical = jest.fn();
       mockReport.markApplicationAsReviewed = jest.fn();
 
-      reportPersistenceService.loadReport$.mockReturnValue(of(mockReport));
+      reportPersistenceService.loadReport$.mockReturnValue(
+        of({ report: mockReport, hadLegacyBlobs: false }),
+      );
       reportPersistenceService.saveApplicationMetadata$.mockReturnValue(of(undefined as void));
     });
 
@@ -443,7 +431,9 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
   describe("Organization Switching", () => {
     it("should reset state when switching organizations", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(of(testReport));
+      reportPersistenceService.loadReport$.mockReturnValue(
+        of({ report: testReport, hadLegacyBlobs: false }),
+      );
 
       await firstValueFrom(service.initializeForOrganization$(orgId));
       const firstReport = await firstValueFrom(service.report$);
@@ -486,7 +476,9 @@ describe("DefaultAccessIntelligenceDataService", () => {
       expect(error).toBe("Failed to initialize");
 
       // Second operation succeeds
-      reportPersistenceService.loadReport$.mockReturnValue(of(testReport));
+      reportPersistenceService.loadReport$.mockReturnValue(
+        of({ report: testReport, hadLegacyBlobs: false }),
+      );
       await firstValueFrom(service.initializeForOrganization$(orgId));
 
       error = await firstValueFrom(service.error$);

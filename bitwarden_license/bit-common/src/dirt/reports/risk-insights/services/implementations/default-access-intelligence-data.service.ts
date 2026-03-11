@@ -7,6 +7,7 @@ import {
   Observable,
   of,
   switchMap,
+  take,
   tap,
   throwError,
 } from "rxjs";
@@ -24,8 +25,6 @@ import { LogService } from "@bitwarden/logging";
 import { ReportProgress } from "../../models/report-models";
 import { RiskInsightsView } from "../../models/view/risk-insights.view";
 import { AccessIntelligenceDataService } from "../abstractions/access-intelligence-data.service";
-import { UnsupportedReportFormatError } from "../abstractions/access-report-encryption.service";
-import { LegacyReportMigrationService } from "../abstractions/legacy-report-migration.service";
 import {
   CollectionAccessDetails,
   GroupMembershipDetails,
@@ -58,7 +57,6 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     private organizationUserApiService: OrganizationUserApiService,
     private reportGenerationService: ReportGenerationService,
     private reportPersistenceService: ReportPersistenceService,
-    private legacyMigrationService: LegacyReportMigrationService,
     private logService: LogService,
   ) {
     super();
@@ -81,32 +79,30 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     this._error.next(null);
 
     return this.reportPersistenceService.loadReport$(orgId).pipe(
-      catchError((error: unknown) => {
-        if (error instanceof UnsupportedReportFormatError && error.isLegacyFormat) {
+      switchMap((result) => {
+        if (!result) {
+          return of(null);
+        }
+
+        const { report, hadLegacyBlobs } = result;
+
+        if (hadLegacyBlobs) {
           this.logService.info(
-            "[DefaultAccessIntelligenceDataService] Legacy report detected, attempting migration",
+            "[DefaultAccessIntelligenceDataService] Legacy blobs detected, re-saving in current format",
           );
-          return this.legacyMigrationService.migrateV1Report$(orgId).pipe(
-            switchMap((legacyReport) => {
-              if (!legacyReport) {
-                throw new Error(
-                  "Migration returned no report despite legacy format being detected",
-                );
-              }
-              return this.reportPersistenceService.saveReport$(legacyReport, orgId).pipe(
-                tap(({ id, contentEncryptionKey }) => {
-                  legacyReport.id = id;
-                  legacyReport.contentEncryptionKey = contentEncryptionKey;
-                  this.logService.info(
-                    "[DefaultAccessIntelligenceDataService] V1 report saved as V2",
-                  );
-                }),
-                map(() => legacyReport),
+          return this.reportPersistenceService.saveReport$(report, orgId).pipe(
+            tap(({ id, contentEncryptionKey }) => {
+              report.id = id;
+              report.contentEncryptionKey = contentEncryptionKey;
+              this.logService.info(
+                "[DefaultAccessIntelligenceDataService] Legacy blobs re-saved in current format",
               );
             }),
+            map(() => report),
           );
         }
-        throw error;
+
+        return of(report);
       }),
       switchMap((report) => {
         if (report) {
@@ -141,27 +137,15 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     this._error.next(null);
     this._reportProgress.next(null); // Reset progress
 
-    // TODO No need to load the past report, just look at local state
-    // Load previous applications for metadata carry-over
-    const previousApps$ = this.reportPersistenceService.loadReport$(orgId).pipe(
-      map((prevReport) => prevReport?.applications ?? []),
-      catchError(() => {
-        this.logService.debug(
-          "[DefaultAccessIntelligenceDataService] No previous report found for metadata carry-over",
-        );
-        return of([]);
-      }),
-    );
-
     // Emit FetchingMembers before parallel data load begins
     this._reportProgress.next(ReportProgress.FetchingMembers);
 
-    // Load organization data in parallel
     return forkJoin({
-      previousApps: previousApps$,
+      previousReport: this._report.pipe(take(1)),
       orgData: this.loadOrganizationData$(orgId),
     }).pipe(
-      switchMap(({ previousApps, orgData }) => {
+      switchMap(({ previousReport, orgData }) => {
+        const previousApps = previousReport?.applications ?? [];
         // Transform API users to members, collection access, group memberships
         const { members, collectionAccess, groupMemberships } = this.transformOrganizationUserData(
           orgData.apiUsers.data,
@@ -244,12 +228,12 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     this._error.next(null);
 
     return this.reportPersistenceService.loadReport$(orgId).pipe(
-      tap((report) => {
-        this._report.next(report);
+      tap((result) => {
+        this._report.next(result?.report ?? null);
         this._loading.next(false);
         this.logService.debug(
           "[DefaultAccessIntelligenceDataService] Load complete",
-          report ? "Report loaded" : "No existing report",
+          result ? "Report loaded" : "No existing report",
         );
       }),
       map(() => undefined as void),

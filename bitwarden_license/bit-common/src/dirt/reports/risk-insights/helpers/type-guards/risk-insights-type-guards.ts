@@ -191,15 +191,26 @@ export function validateOrganizationReportSummary(data: unknown): OrganizationRe
   return data;
 }
 
+export const isRiskInsightsSummaryData = createValidator<RiskInsightsSummaryData>({
+  totalMemberCount: isBoundedPositiveNumber,
+  totalApplicationCount: isBoundedPositiveNumber,
+  totalAtRiskMemberCount: isBoundedPositiveNumber,
+  totalAtRiskApplicationCount: isBoundedPositiveNumber,
+  totalCriticalApplicationCount: isBoundedPositiveNumber,
+  totalCriticalMemberCount: isBoundedPositiveNumber,
+  totalCriticalAtRiskMemberCount: isBoundedPositiveNumber,
+  totalCriticalAtRiskApplicationCount: isBoundedPositiveNumber,
+});
+
 /**
  * Validates and returns RiskInsightsSummaryData
  * @throws Error if validation fails
  */
 export function validateRiskInsightsSummaryData(data: unknown): RiskInsightsSummaryData {
-  if (!isOrganizationReportSummary(data)) {
+  if (!isRiskInsightsSummaryData(data)) {
     throw new Error("Invalid report summary");
   }
-  return data as unknown as RiskInsightsSummaryData;
+  return data;
 }
 
 /**
@@ -266,7 +277,23 @@ const isRiskInsightsApplicationData = createValidator<RiskInsightsApplicationDat
   isCritical: isBoolean,
   reviewedDate: isDateStringOrUndefined,
 });
-const isRiskInsightsApplicationDataArray = createBoundedArrayGuard(isRiskInsightsApplicationData);
+export const isRiskInsightsApplicationDataArray = createBoundedArrayGuard(
+  isRiskInsightsApplicationData,
+);
+
+/**
+ * Type guard for the V2 application blob on-disk wrapper format: `{ version: number, items: unknown[] }`.
+ * Used by BlobVersioningService to detect V2 vs V1 (plain array) format.
+ */
+export function isV2ApplicationBlobWrapper(
+  value: unknown,
+): value is { version: number; items: unknown[] } {
+  if (value == null || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+  const obj = value as Record<string, unknown>;
+  return typeof obj["version"] === "number" && Array.isArray(obj["items"]);
+}
 
 /**
  * Validates and returns an array of RiskInsightsApplicationData

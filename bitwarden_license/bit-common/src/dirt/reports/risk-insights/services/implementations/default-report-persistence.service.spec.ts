@@ -82,7 +82,8 @@ describe("DefaultReportPersistenceService", () => {
 
       const result = await firstValueFrom(service.saveReport$(view, organizationId));
 
-      expect(result).toBe(reportId);
+      expect(result.id).toBe(reportId);
+      expect(result.contentEncryptionKey).toBeDefined();
       expect(RiskInsights.fromView).toHaveBeenCalledWith(view, mockEncryptionService, {
         organizationId,
         userId,
@@ -335,12 +336,12 @@ describe("DefaultReportPersistenceService", () => {
 
       const result = await firstValueFrom(service.loadReport$(organizationId));
 
-      expect(result).toBeInstanceOf(RiskInsightsView);
-      expect(result!.id).toBe(reportId);
-      expect(result!.organizationId).toBe(organizationId);
-      expect(result!.reports).toHaveLength(1);
-      expect(result!.applications).toHaveLength(1);
-      expect(result!.summary.totalApplicationCount).toBe(5);
+      expect(result!.report).toBeInstanceOf(RiskInsightsView);
+      expect(result!.report.id).toBe(reportId);
+      expect(result!.report.organizationId).toBe(organizationId);
+      expect(result!.report.reports).toHaveLength(1);
+      expect(result!.report.applications).toHaveLength(1);
+      expect(result!.report.summary.totalApplicationCount).toBe(5);
 
       expect(mockLogService.debug).toHaveBeenCalledWith(
         "[DefaultReportPersistenceService] Loading report",
@@ -458,25 +459,25 @@ describe("DefaultReportPersistenceService", () => {
 
       const result = await firstValueFrom(service.loadReport$(organizationId));
 
-      expect(result!.reports[0].applicationName).toBe("gitlab.com");
-      expect(result!.reports[0].passwordCount).toBe(3);
-      expect(result!.reports[0].atRiskPasswordCount).toBe(1);
-      expect(result!.reports[0].memberCount).toBe(2);
-      expect(result!.reports[0].atRiskMemberCount).toBe(1);
+      expect(result!.report.reports[0].applicationName).toBe("gitlab.com");
+      expect(result!.report.reports[0].passwordCount).toBe(3);
+      expect(result!.report.reports[0].atRiskPasswordCount).toBe(1);
+      expect(result!.report.reports[0].memberCount).toBe(2);
+      expect(result!.report.reports[0].atRiskMemberCount).toBe(1);
 
-      expect(result!.reports[0].cipherRefs["c1"]).toBe(false);
-      expect(result!.reports[0].cipherRefs["c2"]).toBe(true);
-      expect(result!.reports[0].cipherRefs["c3"]).toBe(false);
+      expect(result!.report.reports[0].cipherRefs["c1"]).toBe(false);
+      expect(result!.report.reports[0].cipherRefs["c2"]).toBe(true);
+      expect(result!.report.reports[0].cipherRefs["c3"]).toBe(false);
 
-      expect(result!.reports[0].memberRefs["m1"]).toBe(true);
-      expect(result!.reports[0].memberRefs["m2"]).toBe(false);
+      expect(result!.report.reports[0].memberRefs["m1"]).toBe(true);
+      expect(result!.report.reports[0].memberRefs["m2"]).toBe(false);
 
-      expect(result!.applications[0].applicationName).toBe("gitlab.com");
-      expect(result!.applications[0].isCritical).toBe(false);
-      expect(result!.applications[0].reviewedDate).toBeUndefined();
+      expect(result!.report.applications[0].applicationName).toBe("gitlab.com");
+      expect(result!.report.applications[0].isCritical).toBe(false);
+      expect(result!.report.applications[0].reviewedDate).toBeUndefined();
 
-      expect(result!.summary.totalMemberCount).toBe(20);
-      expect(result!.summary.totalAtRiskMemberCount).toBe(5);
+      expect(result!.report.summary.totalMemberCount).toBe(20);
+      expect(result!.report.summary.totalAtRiskMemberCount).toBe(5);
     });
   });
 });

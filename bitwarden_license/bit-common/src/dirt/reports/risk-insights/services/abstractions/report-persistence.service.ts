@@ -62,19 +62,25 @@ export abstract class ReportPersistenceService {
    * Fetches from storage backend, decrypts, decompresses, and assembles
    * into a complete RiskInsightsView. Returns null if no report exists.
    *
+   * The `hadLegacyBlobs` flag is `true` when the loaded report contained any V1-format
+   * blobs that were inline-converted to V2 during decryption. Callers should re-save the
+   * report when this flag is set so the stored blobs are upgraded to V2 format.
+   *
    * @param organizationId - Organization to load report for
-   * @returns Observable emitting the decrypted report view, or null if none exists
+   * @returns Observable emitting `{ report, hadLegacyBlobs }`, or null if none exists
    *
    * @example
    * ```typescript
-   * this.persistenceService.loadReport$(orgId).subscribe((report) => {
-   *   if (report) {
-   *     console.log('Loaded:', report.id);
+   * this.persistenceService.loadReport$(orgId).subscribe((result) => {
+   *   if (result) {
+   *     console.log('Loaded:', result.report.id, 'legacy blobs:', result.hadLegacyBlobs);
    *   } else {
    *     console.log('No report, generate new one');
    *   }
    * });
    * ```
    */
-  abstract loadReport$(organizationId: OrganizationId): Observable<RiskInsightsView | null>;
+  abstract loadReport$(
+    organizationId: OrganizationId,
+  ): Observable<{ report: RiskInsightsView; hadLegacyBlobs: boolean } | null>;
 }

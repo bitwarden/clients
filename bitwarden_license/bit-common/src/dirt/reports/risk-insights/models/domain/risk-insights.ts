@@ -48,11 +48,14 @@ export class RiskInsights extends Domain {
    *
    * @param encryptionService - Service to handle decryption operations.
    * @param context - The organization and user identifiers for key lookup.
+   * @returns Observable emitting the decrypted view and a `hadLegacyBlobs` flag that is `true`
+   *   when any blob was in the V1 format. The flag is a migration signal — callers that persist
+   *   reports should re-save when this is `true` to upgrade the blobs to V2 format.
    */
   decrypt(
     encryptionService: AccessReportEncryptionService,
     context: { organizationId: OrganizationId; userId: UserId },
-  ): Observable<RiskInsightsView> {
+  ): Observable<{ view: RiskInsightsView; hadLegacyBlobs: boolean }> {
     if (!this.contentEncryptionKey) {
       return throwError(() => new Error("Report encryption key not found"));
     }
@@ -88,7 +91,7 @@ export class RiskInsights extends Domain {
           );
           view.summary = RiskInsightsSummaryView.fromData(decryptedData.summaryData);
 
-          return view;
+          return { view, hadLegacyBlobs: decryptedData.hadLegacyBlobs === true };
         }),
       );
   }

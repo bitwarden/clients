@@ -15,9 +15,11 @@ import { EncryptedReportData } from "../../models";
 import { RiskInsightsApplicationData } from "../../models/data/risk-insights-application.data";
 import { mockSummaryData } from "../../models/mocks/mock-data";
 import {
-  DecryptedAccessReportData,
   AccessReportPayload,
+  DecryptedAccessReportData,
+  UnsupportedReportFormatError,
 } from "../abstractions/access-report-encryption.service";
+import { BlobVersioningService } from "../abstractions/blob-versioning.service";
 
 import { DefaultAccessReportEncryptionService } from "./default-access-report-encryption.service";
 
@@ -27,9 +29,14 @@ describe("DefaultAccessReportEncryptionService", () => {
   const mockEncryptService = mock<EncryptService>();
   const mockKeyGenerationService = mock<KeyGenerationService>();
   const mockLogService = mock<LogService>();
+  const mockBlobVersioningService = mock<BlobVersioningService>();
 
   const ENCRYPTED_TEXT = "This data has been encrypted";
   const ENCRYPTED_KEY = "Re-encrypted Cipher Key";
+  const SERIALIZED_REPORT = '{"version":2,"serialized":"report"}';
+  const SERIALIZED_SUMMARY = '{"version":2,"serialized":"summary"}';
+  const SERIALIZED_APPLICATION = '{"version":2,"serialized":"application"}';
+
   const orgId = "org-123" as OrganizationId;
   const userId = "user-123" as UserId;
   const orgKey = makeSymmetricCryptoKey<OrgKey>();
@@ -57,9 +64,6 @@ describe("DefaultAccessReportEncryptionService", () => {
     },
   };
 
-  // Report payload as stored in the encrypted blob — includes version discriminant
-  const mockV2ReportBlob = { version: 2 as const, ...mockV2ReportData };
-
   const mockV2ApplicationData: RiskInsightsApplicationData[] = [
     {
       applicationName: "application1.com",
@@ -84,6 +88,7 @@ describe("DefaultAccessReportEncryptionService", () => {
       mockKeyService,
       mockEncryptService,
       mockKeyGenerationService,
+      mockBlobVersioningService,
       mockLogService,
     );
 
@@ -94,6 +99,28 @@ describe("DefaultAccessReportEncryptionService", () => {
     mockEncryptService.encryptString.mockResolvedValue(new EncString(ENCRYPTED_TEXT));
     mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
     mockKeyService.orgKeys$.mockReturnValue(orgKey$);
+
+    // Default: decryptString returns parseable JSON (overridden per-test as needed)
+    mockEncryptService.decryptString.mockResolvedValue("{}");
+
+    // BlobVersioningService serialize mocks
+    mockBlobVersioningService.serializeReport.mockReturnValue(SERIALIZED_REPORT);
+    mockBlobVersioningService.serializeSummary.mockReturnValue(SERIALIZED_SUMMARY);
+    mockBlobVersioningService.serializeApplication.mockReturnValue(SERIALIZED_APPLICATION);
+
+    // BlobVersioningService process mocks — return valid V2 data by default
+    mockBlobVersioningService.processReport.mockReturnValue({
+      data: mockV2ReportData,
+      wasV1: false,
+    });
+    mockBlobVersioningService.processSummary.mockReturnValue({
+      data: mockSummaryData,
+      wasV1: false,
+    });
+    mockBlobVersioningService.processApplication.mockReturnValue({
+      data: mockV2ApplicationData,
+      wasV1: false,
+    });
 
     mockKey = new EncString("wrapped-key");
     mockEncryptedData = {
@@ -111,16 +138,25 @@ describe("DefaultAccessReportEncryptionService", () => {
 
       expect(mockKeyService.orgKeys$).toHaveBeenCalledWith(userId);
       expect(mockKeyGenerationService.createKey).toHaveBeenCalledWith(512);
+      expect(mockBlobVersioningService.serializeReport).toHaveBeenCalledWith(
+        mockV2Input.reportData,
+      );
+      expect(mockBlobVersioningService.serializeSummary).toHaveBeenCalledWith(
+        mockV2Input.summaryData,
+      );
+      expect(mockBlobVersioningService.serializeApplication).toHaveBeenCalledWith(
+        mockV2Input.applicationData,
+      );
       expect(mockEncryptService.encryptString).toHaveBeenCalledWith(
-        JSON.stringify(mockV2ReportBlob),
+        SERIALIZED_REPORT,
         contentEncryptionKey,
       );
       expect(mockEncryptService.encryptString).toHaveBeenCalledWith(
-        JSON.stringify(mockV2Input.summaryData),
+        SERIALIZED_SUMMARY,
         contentEncryptionKey,
       );
       expect(mockEncryptService.encryptString).toHaveBeenCalledWith(
-        JSON.stringify(mockV2Input.applicationData),
+        SERIALIZED_APPLICATION,
         contentEncryptionKey,
       );
       expect(mockEncryptService.wrapSymmetricKey).toHaveBeenCalledWith(
@@ -173,11 +209,6 @@ describe("DefaultAccessReportEncryptionService", () => {
 
   describe("decryptReport$", () => {
     it("should decrypt V2 data and return DecryptedAccessReportData", async () => {
-      mockEncryptService.decryptString
-        .mockResolvedValueOnce(JSON.stringify(mockV2ReportBlob))
-        .mockResolvedValueOnce(JSON.stringify(mockSummaryData))
-        .mockResolvedValueOnce(JSON.stringify(mockV2ApplicationData));
-
       const result = await firstValueFrom(
         service.decryptReport$({ organizationId: orgId, userId }, mockEncryptedData, mockKey),
       );
@@ -187,30 +218,32 @@ describe("DefaultAccessReportEncryptionService", () => {
       expect(result.reportData.reports[0].applicationName).toBe("app.com");
       expect(result.reportData.memberRegistry).toHaveProperty("user-1");
       expect(result.summaryData).toEqual(mockSummaryData);
+      expect(result.hadLegacyBlobs).toBeUndefined();
+    });
+
+    it("should set hadLegacyBlobs when any blob was V1", async () => {
+      mockBlobVersioningService.processReport.mockReturnValue({
+        data: mockV2ReportData,
+        wasV1: true,
+      });
+
+      const result = await firstValueFrom(
+        service.decryptReport$({ organizationId: orgId, userId }, mockEncryptedData, mockKey),
+      );
+
+      expect(result.hadLegacyBlobs).toBe(true);
     });
 
     it("should throw when report format is not recognized", async () => {
-      const v1ReportData = [
-        {
-          applicationName: "app.com",
-          passwordCount: 1,
-          atRiskPasswordCount: 0,
-          memberDetails: [] as unknown[],
-          atRiskMemberDetails: [] as unknown[],
-          cipherIds: [] as unknown[],
-          atRiskCipherIds: [] as unknown[],
-          memberCount: 0,
-          atRiskMemberCount: 0,
-        },
-      ];
-
-      mockEncryptService.decryptString.mockResolvedValueOnce(JSON.stringify(v1ReportData));
+      mockBlobVersioningService.processReport.mockImplementation(() => {
+        throw new UnsupportedReportFormatError(undefined);
+      });
 
       await expect(
         firstValueFrom(
           service.decryptReport$({ organizationId: orgId, userId }, mockEncryptedData, mockKey),
         ),
-      ).rejects.toThrow("Legacy report detected, migration required.");
+      ).rejects.toThrow(UnsupportedReportFormatError);
     });
 
     it("should throw when report blob is null", async () => {
@@ -254,10 +287,11 @@ describe("DefaultAccessReportEncryptionService", () => {
     });
 
     it("should throw when summary data validation fails", async () => {
-      mockEncryptService.decryptString.mockReset();
-      mockEncryptService.decryptString
-        .mockResolvedValueOnce(JSON.stringify(mockV2ReportBlob))
-        .mockResolvedValueOnce(JSON.stringify({ invalid: "summary" }));
+      mockBlobVersioningService.processSummary.mockImplementation(() => {
+        throw new Error(
+          "Summary data validation failed. This may indicate data corruption or tampering.",
+        );
+      });
 
       await expect(
         firstValueFrom(
@@ -269,11 +303,11 @@ describe("DefaultAccessReportEncryptionService", () => {
     });
 
     it("should throw when application data validation fails", async () => {
-      mockEncryptService.decryptString.mockReset();
-      mockEncryptService.decryptString
-        .mockResolvedValueOnce(JSON.stringify(mockV2ReportBlob))
-        .mockResolvedValueOnce(JSON.stringify(mockSummaryData))
-        .mockResolvedValueOnce(JSON.stringify([{ invalid: "app" }]));
+      mockBlobVersioningService.processApplication.mockImplementation(() => {
+        throw new Error(
+          "Application data validation failed. This may indicate data corruption or tampering.",
+        );
+      });
 
       await expect(
         firstValueFrom(
@@ -290,8 +324,6 @@ describe("DefaultAccessReportEncryptionService", () => {
         encryptedSummaryData: null as unknown as EncString,
         encryptedApplicationData: new EncString("encrypted-applications"),
       };
-
-      mockEncryptService.decryptString.mockResolvedValueOnce(JSON.stringify(mockV2ReportBlob));
 
       await expect(
         firstValueFrom(
@@ -311,9 +343,10 @@ describe("DefaultAccessReportEncryptionService", () => {
         encryptedApplicationData: null as unknown as EncString,
       };
 
-      mockEncryptService.decryptString
-        .mockResolvedValueOnce(JSON.stringify(mockV2ReportBlob))
-        .mockResolvedValueOnce(JSON.stringify(mockSummaryData));
+      mockBlobVersioningService.processApplication.mockReturnValue({
+        data: [],
+        wasV1: false,
+      });
 
       const result = await firstValueFrom(
         service.decryptReport$(
@@ -329,8 +362,6 @@ describe("DefaultAccessReportEncryptionService", () => {
 
   describe("decryptSummary$", () => {
     it("should decrypt summary data and return RiskInsightsSummaryData", async () => {
-      mockEncryptService.decryptString.mockResolvedValueOnce(JSON.stringify(mockSummaryData));
-
       const result = await firstValueFrom(
         service.decryptSummary$(
           { organizationId: orgId, userId },
@@ -341,6 +372,7 @@ describe("DefaultAccessReportEncryptionService", () => {
 
       expect(mockKeyService.orgKeys$).toHaveBeenCalledWith(userId);
       expect(mockEncryptService.unwrapSymmetricKey).toHaveBeenCalledWith(mockKey, orgKey);
+      expect(mockBlobVersioningService.processSummary).toHaveBeenCalled();
       expect(result).toEqual(mockSummaryData);
     });
 
@@ -387,9 +419,11 @@ describe("DefaultAccessReportEncryptionService", () => {
     });
 
     it("should throw when summary data validation fails", async () => {
-      mockEncryptService.decryptString.mockResolvedValueOnce(
-        JSON.stringify({ invalid: "summary" }),
-      );
+      mockBlobVersioningService.processSummary.mockImplementation(() => {
+        throw new Error(
+          "Summary data validation failed. This may indicate data corruption or tampering.",
+        );
+      });
 
       await expect(
         firstValueFrom(

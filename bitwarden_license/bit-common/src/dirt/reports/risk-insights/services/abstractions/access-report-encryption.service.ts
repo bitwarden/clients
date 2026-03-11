@@ -10,24 +10,20 @@ import { RiskInsightsReportData } from "../../models/data/risk-insights-report.d
 import { RiskInsightsSummaryData } from "../../models/data/risk-insights-summary.data";
 
 /**
- * Thrown when an encrypted report blob cannot be decoded by any registered codec.
+ * Thrown when an encrypted report blob carries an unknown future version number.
  *
- * - No version field in the blob → legacy format (V1), migration may be possible.
- * - Known version that has no registered codec → application needs to be updated.
+ * V1 (no version field) and V2 are handled inline by BlobVersioningService.
+ * This error is only thrown when a blob version is present but unrecognized —
+ * meaning the application needs to be updated.
  */
 export class UnsupportedReportFormatError extends Error {
   constructor(readonly foundVersion: number | undefined) {
     super(
       foundVersion === undefined
-        ? "Legacy report detected, migration required."
-        : "Report version not supported.",
+        ? "Report version not supported."
+        : `Report version ${foundVersion} is not supported. The application may need to be updated.`,
     );
     this.name = "UnsupportedReportFormatError";
-  }
-
-  /** True when the blob predates versioning (no version field — V1 format). */
-  get isLegacyFormat(): boolean {
-    return this.foundVersion === undefined;
   }
 }
 
@@ -52,12 +48,16 @@ export interface AccessReportPayload {
  * The three decrypted payloads that make up a complete AccessReport:
  * the report payload (ApplicationHealth entries + MemberRegistry), the summary aggregates,
  * and the per-app settings.
+ *
+ * `hadLegacyBlobs` is set to `true` when any of the three blobs was in V1 format at decrypt
+ * time. Callers should re-save the report so all blobs are written in V2 format.
  */
 export interface DecryptedAccessReportData {
   version: 2;
   reportData: AccessReportPayload;
   summaryData: RiskInsightsSummaryData;
   applicationData: RiskInsightsApplicationData[];
+  hadLegacyBlobs?: boolean;
 }
 
 /**
