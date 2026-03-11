@@ -83,7 +83,11 @@ export class OrganizationDataOwnershipPolicyDialogComponent
   private readonly policyForm = viewChild.required<TemplateRef<unknown>>("step0");
   private readonly policyFormTitle = viewChild.required<TemplateRef<unknown>>("step0Title");
 
-  override policyComponent: vNextOrganizationDataOwnershipPolicyComponent | undefined;
+  protected saveDisabled$: Observable<boolean> | undefined;
+
+  private get typedPolicyComponent(): vNextOrganizationDataOwnershipPolicyComponent | undefined {
+    return this.policyComponent() as vNextOrganizationDataOwnershipPolicyComponent | undefined;
+  }
 
   constructor(
     @Inject(DIALOG_DATA) protected data: PolicyEditDialogData,
@@ -112,12 +116,11 @@ export class OrganizationDataOwnershipPolicyDialogComponent
   async ngAfterViewInit() {
     await super.ngAfterViewInit();
 
-    if (this.policyComponent) {
+    const typedComponent = this.typedPolicyComponent;
+    if (typedComponent) {
       this.saveDisabled$ = combineLatest([
         this.centralizeDataOwnershipEnabled$,
-        this.policyComponent.enabled.valueChanges.pipe(
-          startWith(this.policyComponent.enabled.value),
-        ),
+        typedComponent.enabled.valueChanges.pipe(startWith(typedComponent.enabled.value)),
       ]).pipe(map(([policyEnabled, value]) => !policyEnabled && !value));
     }
 
@@ -135,7 +138,8 @@ export class OrganizationDataOwnershipPolicyDialogComponent
   }
 
   private async handleSubmit() {
-    if (!this.policyComponent) {
+    const typedComponent = this.typedPolicyComponent;
+    if (!typedComponent) {
       throw new Error("PolicyComponent not initialized.");
     }
 
@@ -148,7 +152,7 @@ export class OrganizationDataOwnershipPolicyDialogComponent
 
     assertNonNullish(orgKey, "Org key not provided");
 
-    const request = await this.policyComponent.buildVNextRequest(
+    const request = await typedComponent.buildVNextRequest(
       orgKey[this.data.organizationId as OrganizationId],
     );
 
@@ -163,17 +167,18 @@ export class OrganizationDataOwnershipPolicyDialogComponent
       message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
     });
 
-    if (!this.policyComponent.enabled.value) {
+    if (!typedComponent.enabled.value) {
       this.dialogRef.close("saved");
     }
   }
 
   submit = async () => {
-    if (!this.policyComponent) {
+    const typedComponent = this.typedPolicyComponent;
+    if (!typedComponent) {
       throw new Error("PolicyComponent not initialized.");
     }
 
-    if ((await this.policyComponent.confirm()) == false) {
+    if ((await typedComponent.confirm()) == false) {
       this.dialogRef.close();
       return;
     }
