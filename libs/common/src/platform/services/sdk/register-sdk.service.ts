@@ -29,7 +29,7 @@ import { toSdkDevice, UserNotLoggedInError } from "../../abstractions/sdk/sdk.se
 import { Rc } from "../../misc/reference-counting/rc";
 import { StateProvider } from "../../state";
 
-import { initializeState } from "./client-managed-state";
+import { initializeClientManagedState } from "./client-managed-state";
 
 // A symbol that represents an overridden client that is explicitly set to undefined,
 // blocking the creation of an internal client for that user.
@@ -143,8 +143,12 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
               settings,
             );
 
-            // Initialize the SDK managed database and the client managed repositories.
-            await initializeState(userId, client.platform().state(), this.stateProvider);
+            // Initialize the client managed repositories.
+            await initializeClientManagedState(
+              userId,
+              client.platform().state(),
+              this.stateProvider,
+            );
 
             await this.loadFeatureFlags(client);
 

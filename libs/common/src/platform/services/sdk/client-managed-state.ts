@@ -2,12 +2,13 @@ import { firstValueFrom, map } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherRecordMapper } from "@bitwarden/common/vault/models/domain/cipher-sdk-mapper";
-import { StateClient, Repository } from "@bitwarden/sdk-internal";
+import { Repository, StateClient } from "@bitwarden/sdk-internal";
 
+import { LocalUserDataKeyRecordMapper } from "../../../key-management/local-user-data-key-mapper";
 import { UserKeyRecordMapper } from "../../../key-management/user-key-mapper";
 import { StateProvider, UserKeyDefinition } from "../../state";
 
-export async function initializeState(
+export async function initializeClientManagedState(
   userId: UserId,
   stateClient: StateClient,
   stateProvider: StateProvider,
@@ -16,6 +17,11 @@ export async function initializeState(
     cipher: new RepositoryRecord(userId, stateProvider, new CipherRecordMapper()),
     folder: null,
     user_key_state: new RepositoryRecord(userId, stateProvider, new UserKeyRecordMapper()),
+    local_user_data_key_state: new RepositoryRecord(
+      userId,
+      stateProvider,
+      new LocalUserDataKeyRecordMapper(),
+    ),
   });
 }
 
@@ -31,14 +37,6 @@ export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType
     private stateProvider: StateProvider,
     private mapper: SdkRecordMapper<ClientType, SdkType>,
   ) {}
-
-  private getUserState() {
-    return this.stateProvider.getUser(this.userId, this.mapper.userKeyDefinition());
-  }
-
-  private async getRecord(): Promise<Record<string, ClientType>> {
-    return await firstValueFrom(this.getUserState().state$.pipe(map((state) => state ?? {})));
-  }
 
   async get(id: string): Promise<SdkType | null> {
     const record = await this.getRecord();
@@ -92,5 +90,13 @@ export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType
 
   async removeAll(): Promise<void> {
     await this.getUserState().update(() => ({}));
+  }
+
+  private getUserState() {
+    return this.stateProvider.getUser(this.userId, this.mapper.userKeyDefinition());
+  }
+
+  private async getRecord(): Promise<Record<string, ClientType>> {
+    return await firstValueFrom(this.getUserState().state$.pipe(map((state) => state ?? {})));
   }
 }
