@@ -8,7 +8,7 @@ export type PolicyStep = {
   // Return { closeDialog: true } to show the success toast and close the dialog immediately,
   // bypassing any remaining steps. Useful when a step conditionally ends the workflow early
   // (e.g. when disabling a policy or when the user lacks permission to see subsequent steps).
-  sideEffect?: () => Promise<PolicyStepResult>;
+  sideEffect?: () => Promise<PolicyStepResult | void>;
 
   // Optional: Custom title template. If undefined, uses default: "Edit policy" with policy name subtitle
   titleContent?: Signal<TemplateRef<unknown> | undefined>;

@@ -1,20 +1,3 @@
-<ng-template #step0Title>{{ policy?.name | i18n }}</ng-template>
-
-<ng-template #step0Footer>
-  <button
-    bitButton
-    buttonType="primary"
-    [disabled]="saveDisabled$ | async"
-    bitFormButton
-    type="submit"
-  >
-    {{ "save" | i18n }}
-  </button>
-  <button bitButton buttonType="secondary" bitDialogClose type="button">
-    {{ "cancel" | i18n }}
-  </button>
-</ng-template>
-
 <p>
   {{ "centralizeDataOwnershipDesc" | i18n }}
   <a

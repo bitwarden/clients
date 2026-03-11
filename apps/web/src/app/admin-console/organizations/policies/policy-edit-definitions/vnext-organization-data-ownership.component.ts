@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  Signal,
-  TemplateRef,
-  viewChild,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import {
@@ -73,9 +66,6 @@ export class vNextOrganizationDataOwnershipPolicyComponent
   extends BasePolicyEditComponent
   implements OnInit
 {
-  private readonly step0Title: Signal<TemplateRef<unknown>> = viewChild.required("step0Title");
-  private readonly step0Footer: Signal<TemplateRef<unknown>> = viewChild.required("step0Footer");
-
   protected readonly centralizeDataOwnershipEnabled$: Observable<boolean> = defer(() =>
     from(
       this.policyApiService.getPolicy(
@@ -95,8 +85,6 @@ export class vNextOrganizationDataOwnershipPolicyComponent
 
   readonly policySteps: PolicyStep[] = [
     {
-      titleContent: this.step0Title,
-      footerContent: this.step0Footer,
       disableSave: this.saveDisabled$,
       sideEffect: this.savePolicy.bind(this),
     },

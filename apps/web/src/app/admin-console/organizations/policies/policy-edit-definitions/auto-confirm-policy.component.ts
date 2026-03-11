@@ -108,68 +108,69 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
       bodyContent: this.step0Content,
       footerContent: this.step0Footer,
       disableSave: this.saveDisabled$,
-      sideEffect: async () => {
-        const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-
-        const organizations = await firstValueFrom(this.organizationService.organizations$(userId));
-        const organization = organizations.find((o) => o.id === this.organizationId) ?? null;
-        const managePoliciesOnly =
-          (!organization?.isAdmin && organization?.canManagePolicies) ?? false;
-
-        const policies = await firstValueFrom(this.policyService.policies$(userId));
-        const singleOrgAlreadyEnabled =
-          policies.find((p) => p.type === PolicyType.SingleOrg)?.enabled ?? false;
-        const enabledSingleOrgDuringAction = !singleOrgAlreadyEnabled;
-
-        // AutoConfirm requires SingleOrg; enable it as a prerequisite if not already on.
-        if (enabledSingleOrgDuringAction) {
-          await this.policyApiService.putPolicyVNext(
-            this.organizationId ?? "",
-            PolicyType.SingleOrg,
-            { policy: { enabled: true, data: null }, metadata: null },
-          );
-        }
-
-        try {
-          const request = await this.buildRequest();
-          await this.policyApiService.putPolicyVNext(
-            this.organizationId ?? "",
-            PolicyType.AutoConfirm,
-            { policy: request, metadata: null },
-          );
-        } catch (error) {
-          // Roll back the SingleOrg enablement if AutoConfirm save fails.
-          if (enabledSingleOrgDuringAction) {
-            await this.policyApiService.putPolicyVNext(
-              this.organizationId ?? "",
-              PolicyType.SingleOrg,
-              { policy: { enabled: false, data: null }, metadata: null },
-            );
-          }
-          throw error;
-        }
-
-        // Dismiss the first-time setup dialog prompt now that the admin has configured the policy.
-        const currentState = await firstValueFrom(this.autoConfirmService.configuration$(userId));
-        await this.autoConfirmService.upsert(userId, { ...currentState, showSetupDialog: false });
-
-        // Close immediately when disabling (no extension step needed) or when the user only has
-        // manage-policies permission and cannot configure the client-side extension setting.
-        if (!this.enabled.value || managePoliciesOnly) {
-          return { closeDialog: true };
-        }
-      },
+      sideEffect: () => this.savePolicyStep(),
     },
     {
       titleContent: this.step1Title,
       bodyContent: this.step1Content,
       footerContent: this.step1Footer,
-      sideEffect: async (): Promise<PolicyStepResult> => {
-        await this.router.navigate(["/browser-extension-prompt"], {
-          queryParams: { url: "AutoConfirm" },
-        });
-        return undefined;
-      },
+      sideEffect: () => this.navigateToExtensionPromptStep(),
     },
   ];
+
+  private async savePolicyStep(): Promise<PolicyStepResult> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const organizations = await firstValueFrom(this.organizationService.organizations$(userId));
+    const organization = organizations.find((o) => o.id === this.organizationId) ?? null;
+    const managePoliciesOnly = (!organization?.isAdmin && organization?.canManagePolicies) ?? false;
+
+    const policies = await firstValueFrom(this.policyService.policies$(userId));
+    const singleOrgAlreadyEnabled =
+      policies.find((p) => p.type === PolicyType.SingleOrg)?.enabled ?? false;
+    const enabledSingleOrgDuringAction = !singleOrgAlreadyEnabled;
+
+    // AutoConfirm requires SingleOrg; enable it as a prerequisite if not already on.
+    if (enabledSingleOrgDuringAction) {
+      await this.policyApiService.putPolicyVNext(this.organizationId ?? "", PolicyType.SingleOrg, {
+        policy: { enabled: true, data: null },
+        metadata: null,
+      });
+    }
+
+    try {
+      const request = await this.buildRequest();
+      await this.policyApiService.putPolicyVNext(
+        this.organizationId ?? "",
+        PolicyType.AutoConfirm,
+        { policy: request, metadata: null },
+      );
+    } catch (error) {
+      // Roll back the SingleOrg enablement if AutoConfirm save fails.
+      if (enabledSingleOrgDuringAction) {
+        await this.policyApiService.putPolicyVNext(
+          this.organizationId ?? "",
+          PolicyType.SingleOrg,
+          { policy: { enabled: false, data: null }, metadata: null },
+        );
+      }
+      throw error;
+    }
+
+    // Dismiss the first-time setup dialog prompt now that the admin has configured the policy.
+    const currentState = await firstValueFrom(this.autoConfirmService.configuration$(userId));
+    await this.autoConfirmService.upsert(userId, { ...currentState, showSetupDialog: false });
+
+    // Close immediately when disabling (no extension step needed) or when the user only has
+    // manage-policies permission and cannot configure the client-side extension setting.
+    if (!this.enabled.value || managePoliciesOnly) {
+      return { closeDialog: true };
+    }
+  }
+
+  private async navigateToExtensionPromptStep(): Promise<void> {
+    await this.router.navigate(["/browser-extension-prompt"], {
+      queryParams: { url: "AutoConfirm" },
+    });
+  }
 }

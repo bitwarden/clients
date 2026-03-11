@@ -7,11 +7,13 @@ import {
   Signal,
   ViewContainerRef,
   WritableSignal,
+  computed,
   signal,
   viewChild,
 } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { Observable, map, of, startWith } from "rxjs";
+import { map, of, startWith, switchMap } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -52,8 +54,25 @@ export class MultiStepPolicyEditDialogComponent
   protected readonly policySteps: WritableSignal<PolicyStep[]> = signal([]);
   readonly currentStep: WritableSignal<number> = signal(0);
 
-  // eslint-disable-next-line @bitwarden/components/enforce-readonly-angular-properties -- mutable override of base-class field; reassigned by updateSaveDisabled() on each step transition
-  override saveDisabled$: Observable<boolean> = of(false);
+  private readonly currentStepConfig = computed(() => this.policySteps()[this.currentStep()]);
+
+  protected readonly saveDisabled = toSignal(
+    toObservable(this.currentStepConfig).pipe(
+      switchMap((stepConfig) => {
+        if (stepConfig?.disableSave) {
+          return stepConfig.disableSave;
+        }
+        if (this.policyComponent?.data) {
+          return this.policyComponent.data.statusChanges.pipe(
+            startWith(this.policyComponent.data.status),
+            map((status) => status !== "VALID"),
+          );
+        }
+        return of(false);
+      }),
+    ),
+    { initialValue: false },
+  );
 
   constructor(
     @Inject(DIALOG_DATA) data: PolicyEditDialogData,
@@ -84,8 +103,6 @@ export class MultiStepPolicyEditDialogComponent
     const policyResponse = await this.load();
     this.loading = false;
 
-    // #policyForm is always rendered (outside any conditional) so policyFormViewRef is
-    // resolved by the time ngAfterViewInit fires — no manual detectChanges() needed.
     const policyFormRef = this.policyFormViewRef();
     if (!policyFormRef) {
       throw new Error("Template not initialized.");
@@ -102,30 +119,8 @@ export class MultiStepPolicyEditDialogComponent
     policyComponentRef.setInput("organizationId", this.data.organizationId);
 
     // Read step configuration from child component.
-    // The signal write schedules a re-render, which picks up both the updated policySteps
-    // and the loading=false change in the same cycle — no manual detectChanges() needed.
+    // Setting policySteps triggers currentStepConfig to recompute, which re-evaluates saveDisabled.
     this.policySteps.set(this.policyComponent.policySteps ?? []);
-
-    // Initialize save disabled state
-    this.updateSaveDisabled();
-  }
-
-  private updateSaveDisabled() {
-    const currentStepConfig = this.policySteps()[this.currentStep()];
-
-    if (currentStepConfig?.disableSave) {
-      // Use custom disable logic if provided
-      this.saveDisabled$ = currentStepConfig.disableSave;
-    } else if (this.policyComponent?.data) {
-      // Default: disable if form is invalid
-      this.saveDisabled$ = this.policyComponent.data.statusChanges.pipe(
-        startWith(this.policyComponent.data.status),
-        map((status) => status !== "VALID"),
-      );
-    } else {
-      // No validation needed
-      this.saveDisabled$ = of(false);
-    }
   }
 
   override readonly submit = async () => {
@@ -141,7 +136,7 @@ export class MultiStepPolicyEditDialogComponent
       // A sideEffect can return { closeDialog: true } to end the workflow early
       // (e.g. when disabling a policy or for users without permission to see later steps).
       const isLastStep = this.currentStep() === this.policySteps().length - 1;
-      if (isLastStep || (result != null && result.closeDialog)) {
+      if (isLastStep || (typeof result === "object" && result.closeDialog)) {
         this.toastService.showToast({
           variant: "success",
           message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
@@ -152,7 +147,6 @@ export class MultiStepPolicyEditDialogComponent
 
       // Not the last step - advance to next step
       this.currentStep.update((value) => value + 1);
-      this.updateSaveDisabled();
     } catch (error: any) {
       this.toastService.showToast({
         variant: "error",
