@@ -10,13 +10,26 @@ describe("PasswordPreloginData", () => {
     it.each([
       {
         description: "PBKDF2",
-        response: { Kdf: 0, KdfIterations: 600000 },
-        expected: new PasswordPreloginData(new PBKDF2KdfConfig(600000)),
+        response: { Kdf: 0, KdfIterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
+        expected: new PasswordPreloginData(
+          new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
+        ),
       },
       {
         description: "Argon2",
-        response: { Kdf: 1, KdfIterations: 3, KdfMemory: 64, KdfParallelism: 4 },
-        expected: new PasswordPreloginData(new Argon2KdfConfig(3, 64, 4)),
+        response: {
+          Kdf: 1,
+          KdfIterations: Argon2KdfConfig.ITERATIONS.defaultValue,
+          KdfMemory: Argon2KdfConfig.MEMORY.defaultValue,
+          KdfParallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
+        },
+        expected: new PasswordPreloginData(
+          new Argon2KdfConfig(
+            Argon2KdfConfig.ITERATIONS.defaultValue,
+            Argon2KdfConfig.MEMORY.defaultValue,
+            Argon2KdfConfig.PARALLELISM.defaultValue,
+          ),
+        ),
       },
     ])("maps a $description response to a PasswordPreloginData", ({ response, expected }) => {
       const result = PasswordPreloginData.fromResponse(new PasswordPreloginResponse(response));
@@ -32,17 +45,32 @@ describe("PasswordPreloginData", () => {
       },
       {
         description: "Argon2 iterations below minimum",
-        response: { Kdf: 1, KdfIterations: 1, KdfMemory: 64, KdfParallelism: 4 },
+        response: {
+          Kdf: 1,
+          KdfIterations: 1,
+          KdfMemory: Argon2KdfConfig.MEMORY.defaultValue,
+          KdfParallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
+        },
         expectedError: /Argon2 iterations must be at least 2/,
       },
       {
         description: "Argon2 memory below minimum",
-        response: { Kdf: 1, KdfIterations: 3, KdfMemory: 15, KdfParallelism: 4 },
+        response: {
+          Kdf: 1,
+          KdfIterations: Argon2KdfConfig.ITERATIONS.defaultValue,
+          KdfMemory: 15,
+          KdfParallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
+        },
         expectedError: /Argon2 memory must be at least 16 MiB/,
       },
       {
         description: "Argon2 parallelism below minimum",
-        response: { Kdf: 1, KdfIterations: 3, KdfMemory: 64, KdfParallelism: 0 },
+        response: {
+          Kdf: 1,
+          KdfIterations: Argon2KdfConfig.ITERATIONS.defaultValue,
+          KdfMemory: Argon2KdfConfig.MEMORY.defaultValue,
+          KdfParallelism: 0,
+        },
         expectedError: /Argon2 parallelism must be at least 1/,
       },
     ])("throws for $description", ({ response, expectedError }) => {

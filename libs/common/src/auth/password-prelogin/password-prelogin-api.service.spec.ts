@@ -1,6 +1,10 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { Argon2KdfConfig, PBKDF2KdfConfig } from "@bitwarden/key-management";
+
 import { ApiService } from "../../abstractions/api.service";
 import { Environment, EnvironmentService } from "../../platform/abstractions/environment.service";
 
@@ -49,7 +53,10 @@ describe("PasswordPreloginApiService", () => {
 
     it("returns a PreloginResponse", async () => {
       const request = new PasswordPreloginRequest("user@example.com");
-      apiService.send.mockResolvedValue({ Kdf: 0, KdfIterations: 600000 });
+      apiService.send.mockResolvedValue({
+        Kdf: 0,
+        KdfIterations: PBKDF2KdfConfig.ITERATIONS.defaultValue,
+      });
 
       const result = await sut.getPreloginData(request);
 
@@ -60,17 +67,17 @@ describe("PasswordPreloginApiService", () => {
       const request = new PasswordPreloginRequest("user@example.com");
       apiService.send.mockResolvedValue({
         Kdf: 1,
-        KdfIterations: 3,
-        KdfMemory: 64,
-        KdfParallelism: 4,
+        KdfIterations: Argon2KdfConfig.ITERATIONS.defaultValue,
+        KdfMemory: Argon2KdfConfig.MEMORY.defaultValue,
+        KdfParallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
       });
 
       const result = await sut.getPreloginData(request);
 
       expect(result.kdf).toBe(1);
-      expect(result.kdfIterations).toBe(3);
-      expect(result.kdfMemory).toBe(64);
-      expect(result.kdfParallelism).toBe(4);
+      expect(result.kdfIterations).toBe(Argon2KdfConfig.ITERATIONS.defaultValue);
+      expect(result.kdfMemory).toBe(Argon2KdfConfig.MEMORY.defaultValue);
+      expect(result.kdfParallelism).toBe(Argon2KdfConfig.PARALLELISM.defaultValue);
     });
 
     it("uses the identity url from the environment", async () => {

@@ -20,8 +20,13 @@ describe("DefaultPasswordPreloginService", () => {
   const emailB = "b@example.com";
 
   // PBKDF2 is used as a stand-in throughout; KDF type coverage is in password-prelogin.model.spec.ts.
-  const response = new PasswordPreloginResponse({ Kdf: 0, KdfIterations: 600000 });
-  const expectedData = new PasswordPreloginData(new PBKDF2KdfConfig(600000));
+  const response = new PasswordPreloginResponse({
+    Kdf: 0,
+    KdfIterations: PBKDF2KdfConfig.ITERATIONS.defaultValue,
+  });
+  const expectedData = new PasswordPreloginData(
+    new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
+  );
 
   beforeEach(() => {
     apiService = mock<PasswordPreloginApiService>();
