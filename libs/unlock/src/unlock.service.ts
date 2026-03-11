@@ -1,4 +1,5 @@
 import { UserId } from "@bitwarden/common/types/guid";
+
 import { KeyConnectorUnlockData } from "./default-unlock.service";
 
 /**
