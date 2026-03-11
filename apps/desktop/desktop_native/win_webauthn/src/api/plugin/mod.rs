@@ -1082,6 +1082,25 @@ impl From<NonNull<WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST>> for PluginCancelOpe
     }
 }
 
+impl WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST {
+    /// Extract the signature from the cancel operation request.
+    ///
+    /// The signature is made by the OS over the SHA-256 hash of the operation
+    /// request buffer using the signing key created during authenticator
+    /// registration and retrievable via
+    /// [webauthn_plugin_get_operation_signing_public_key](crate::plugin::crypto::webauthn_plugin_get_operation_signing_public_key).
+    ///
+    /// # Safety
+    /// The caller must ensure that `request.pbRequestSignature` points to a valid non-null byte
+    /// string of length `request.cbRequestSignature`.
+    pub(super) unsafe fn signature(&self) -> Signature<'_> {
+        // SAFETY: The caller must make sure that the encoded request is valid.
+        let signature =
+            std::slice::from_raw_parts(self.pbRequestSignature, self.cbRequestSignature as usize);
+        Signature::new(signature)
+    }
+}
+
 /// Methods needed to implement a Windows passkey plugin authenticator.
 pub trait PluginAuthenticator {
     /// Process a request to create a new credential.

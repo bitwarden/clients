@@ -6,7 +6,7 @@ use std::{
     alloc,
     mem::{size_of, ManuallyDrop, MaybeUninit},
     ptr::{self, NonNull},
-    sync::{Arc, OnceLock},
+    sync::{Arc, Mutex, OnceLock},
 };
 
 use windows::{
@@ -21,7 +21,7 @@ use windows_core::{IInspectable, Interface};
 use super::{PluginAuthenticator, PluginLockStatus};
 use crate::{
     api::{
-        plugin::get_operation_signing_public_key,
+        plugin::{crypto::OwnedRequestHash, get_operation_signing_public_key},
         sys::plugin::{
             WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST, WEBAUTHN_PLUGIN_OPERATION_REQUEST,
             WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
@@ -50,7 +50,12 @@ impl IClassFactory_Impl for Factory_Impl {
                 return Err(E_FAIL.into());
             }
         }.clone();
-        let unknown: IInspectable = PluginAuthenticatorComObject { clsid, handler }.into();
+        let unknown: IInspectable = PluginAuthenticatorComObject {
+            clsid,
+            handler,
+            in_flight_request: Mutex::new(None),
+        }
+        .into();
         unsafe { unknown.query(iid, object).ok() }
     }
 
@@ -81,6 +86,12 @@ pub unsafe trait IPluginAuthenticator: windows::core::IUnknown {
 struct PluginAuthenticatorComObject {
     clsid: GUID,
     handler: Arc<dyn PluginAuthenticator + Send + Sync>,
+    in_flight_request: Mutex<Option<RequestContext>>,
+}
+
+struct RequestContext {
+    transaction_id: GUID,
+    request_hash: OwnedRequestHash,
 }
 
 impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
@@ -109,10 +120,13 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
             }
         };
 
-        if let Err(err) = verify_operation_request(op_request_ptr.as_ref(), &self.clsid) {
-            tracing::error!("Failed to verify request signature: {err}");
-            return E_INVALIDARG;
-        }
+        let request_hash = match verify_operation_request(op_request_ptr.as_ref(), &self.clsid) {
+            Ok(hash) => hash,
+            Err(err) => {
+                tracing::error!("Failed to verify request signature: {err}");
+                return E_INVALIDARG;
+            }
+        };
 
         // SAFETY: we received the pointer from Windows, so we trust that the values are set
         // properly.
@@ -123,7 +137,20 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
                 return E_FAIL;
             }
         };
-        match self.handler.make_credential(registration_request) {
+
+        // Windows sends WebAuthn requests serially, so we just replace the request context without checking.
+        // The request context will be used for cancellation if necessary.
+        let existing = self
+            .in_flight_request
+            .lock()
+            .expect("not poisoned")
+            .replace(RequestContext {
+                transaction_id: registration_request.transaction_id,
+                request_hash,
+            });
+        debug_assert!(existing.is_none());
+
+        let result = match self.handler.make_credential(registration_request) {
             Ok(registration_response) => {
                 // SAFETY: response pointer was given to us by Windows, so we assume it's valid.
                 match write_operation_response(&registration_response, response) {
@@ -143,7 +170,11 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
                 tracing::error!("MakeCredential failed: {err}");
                 E_FAIL
             }
-        }
+        };
+
+        // clear the request context for the next request.
+        _ = self.in_flight_request.lock().expect("not poisoned").take();
+        result
     }
 
     unsafe fn GetAssertion(
@@ -171,10 +202,13 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
             }
         };
 
-        if let Err(err) = verify_operation_request(op_request_ptr.as_ref(), &self.clsid) {
-            tracing::error!("Failed to verify request signature: {err}");
-            return E_INVALIDARG;
-        }
+        let request_hash = match verify_operation_request(op_request_ptr.as_ref(), &self.clsid) {
+            Ok(hash) => hash,
+            Err(err) => {
+                tracing::error!("Failed to verify request signature: {err}");
+                return E_INVALIDARG;
+            }
+        };
 
         let assertion_request = match PluginGetAssertionRequest::try_from_ptr(op_request_ptr) {
             Ok(assertion_request) => assertion_request,
@@ -183,7 +217,20 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
                 return E_FAIL;
             }
         };
-        match self.handler.get_assertion(assertion_request) {
+
+        // Windows sends WebAuthn requests serially, so we just replace the request context without checking.
+        // The request context will be used for cancellation if necessary.
+        let existing = self
+            .in_flight_request
+            .lock()
+            .expect("not poisoned")
+            .replace(RequestContext {
+                transaction_id: assertion_request.transaction_id,
+                request_hash,
+            });
+        debug_assert!(existing.is_none());
+
+        let result = match self.handler.get_assertion(assertion_request) {
             Ok(assertion_response) => {
                 // SAFETY: response pointer was given to us by Windows, so we assume it's valid.
                 match write_operation_response(&assertion_response, response) {
@@ -201,7 +248,11 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
                 tracing::error!("GetAssertion failed: {err}");
                 E_FAIL
             }
-        }
+        };
+
+        // clear the request context for the next request.
+        _ = self.in_flight_request.lock().expect("not poisoned").take();
+        result
     }
 
     unsafe fn CancelOperation(
@@ -209,9 +260,36 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
         request: *const WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
     ) -> HRESULT {
         tracing::debug!("CancelOperation called");
-        // WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST has a signature, but the
-        // payload is undocumented and is not referenced in the sample, so we're not verifying it
-        // here.
+        let op_request_ptr = match NonNull::new(request.cast_mut()) {
+            Some(p) => p,
+            None => {
+                tracing::warn!(
+                    "CancelOperation called with null request pointer from Windows. Aborting request."
+                );
+                return E_INVALIDARG;
+            }
+        };
+
+        let Some(ctx) = self.in_flight_request.lock().expect("not poisoned").take() else {
+            tracing::warn!("Request cancelled, but no context was found");
+            return E_FAIL;
+        };
+        let signature = op_request_ptr.as_ref().signature();
+
+        tracing::debug!("Retrieving signing key");
+        let op_pub_key = match get_operation_signing_public_key(&self.clsid) {
+            Ok(key) => key,
+            Err(err) => {
+                tracing::error!(%err, "Failed to get signing key for operation");
+                return E_FAIL;
+            }
+        };
+        tracing::debug!("Verifying signature");
+        if let Err(err) = op_pub_key.verify_signature((&ctx.request_hash).into(), signature) {
+            tracing::error!("Failed to verify request signature: {err}");
+            return E_INVALIDARG;
+        }
+
         let request = match NonNull::new(request as *mut WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST) {
             Some(request) => request,
             None => {
@@ -472,9 +550,9 @@ impl<T: AsRef<[u8]>> From<T> for ComBuffer {
 unsafe fn verify_operation_request(
     request: &WEBAUTHN_PLUGIN_OPERATION_REQUEST,
     clsid: &GUID,
-) -> Result<(), WinWebAuthnError> {
+) -> Result<OwnedRequestHash, WinWebAuthnError> {
     tracing::debug!("Verifying request");
-    // SAFETY: WEBAUTHN_PLUGIN_OPERATION_REQUEST::request_hash() has the same safety requiremenst as
+    // SAFETY: WEBAUTHN_PLUGIN_OPERATION_REQUEST::request_hash() has the same safety requirements as
     // this function: the encoded request must be valid.
     let request_hash = unsafe { request.request_hash()? };
 
@@ -491,5 +569,6 @@ unsafe fn verify_operation_request(
         )
     })?;
     tracing::debug!("Verifying signature");
-    op_pub_key.verify_signature((&request_hash).into(), signature)
+    op_pub_key.verify_signature((&request_hash).into(), signature)?;
+    Ok(request_hash)
 }
