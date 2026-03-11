@@ -27,7 +27,9 @@ use crate::{
             WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
         },
     },
-    plugin::{Clsid, PluginGetAssertionRequest, PluginMakeCredentialRequest},
+    plugin::{
+        Clsid, PluginCancelOperationRequest, PluginGetAssertionRequest, PluginMakeCredentialRequest,
+    },
     ErrorKind, WinWebAuthnError,
 };
 
@@ -89,9 +91,160 @@ struct PluginAuthenticatorComObject {
     in_flight_request: Mutex<Option<RequestContext>>,
 }
 
+impl PluginAuthenticatorComObject {
+    fn cancel_operation(&self, request: PluginCancelOperationRequest) -> windows::core::Result<()> {
+        let mut guard = self.in_flight_request.lock().expect("not poisoned");
+
+        let Some(ctx) = guard.as_ref() else {
+            tracing::warn!("Received a request to cancel an operation, but no context was found");
+            return Err(E_FAIL.into());
+        };
+        let incoming_id = request.transaction_id();
+        if ctx.transaction_id != incoming_id {
+            tracing::warn!(
+                "Attempting to cancel operation with mismatched transaction ID. Expected {:?}, received {:?}",
+                ctx.transaction_id,
+                incoming_id
+            );
+            return Err(E_FAIL.into());
+        }
+        let signature = request.request_signature();
+
+        tracing::debug!("Retrieving signing key");
+        let op_pub_key = get_operation_signing_public_key(&self.clsid).map_err(|err| {
+            tracing::error!(%err, "Failed to get signing key for operation");
+            E_FAIL
+        })?;
+        tracing::debug!("Verifying signature");
+        op_pub_key
+            .verify_signature((&ctx.request_hash).into(), signature)
+            .map_err(|err| {
+                tracing::error!("Failed to verify request signature: {err}");
+                E_INVALIDARG
+            })?;
+        tracing::debug!("Signature verified");
+
+        // Clean up request context here; regardless of whether the handler
+        // succeeds or fails, we're ready for the next request.
+        _ = guard.take();
+
+        // Pass to handler
+        self.handler
+            .cancel_operation(request.into())
+            .map_err(|err| {
+                tracing::error!("CancelOperation failed: {err}");
+                E_FAIL
+            })?;
+
+        tracing::debug!("CancelOperation completed successfully");
+        Ok(())
+    }
+
+    /// Validates the incoming request and stores the context for completing the request with [Self::complete_request]. and Verify the signature on an operation request.
+    ///
+    /// - Checks that the request struct and response buffer is non-null.
+    /// - Verifies the signature request.
+    /// - Stores the response buffer.
+    ///
+    /// Returns the parsed request for processing.
+    ///
+    /// # Safety
+    /// The caller must ensure that:
+    /// - pbEncodedRequest points to a valid non-null byte string of length cbEncodedRequest.
+    /// - pbRequestSignature points to a valid non-null byte string of length cbRequestSignature.
+    unsafe fn initialize_request<T: OperationRequest>(
+        &self,
+        request: *const WEBAUTHN_PLUGIN_OPERATION_REQUEST,
+        response: *mut WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
+    ) -> Result<T, WinWebAuthnError> {
+        // Check that the request and response buffers are valid
+        let response = {
+            let inner = NonNull::new(response).ok_or(WinWebAuthnError::new(
+                ErrorKind::WindowsInternal,
+                "Method called with null response pointer from Windows. Aborting request.",
+            ))?;
+            OperationResponse { inner }
+        };
+
+        let op_request_ptr = NonNull::new(request.cast_mut()).ok_or(WinWebAuthnError::new(
+            ErrorKind::WindowsInternal,
+            "Method called with null request pointer from Windows. Aborting request.",
+        ))?;
+
+        // Verify that the request came from the OS.
+        tracing::debug!("Verifying request");
+        // SAFETY: WEBAUTHN_PLUGIN_OPERATION_REQUEST::request_hash() has the same safety requirements as
+        // this function: the encoded request must be valid.
+        let request_hash = unsafe { op_request_ptr.as_ref().request_hash()? };
+        // SAFETY: WEBAUTHN_PLUGIN_OPERATION_REQUEST::signature() has the same safety requirements as
+        // this function: the encoded request must be valid.
+        let signature = unsafe { op_request_ptr.as_ref().signature() };
+        tracing::debug!("Retrieving signing key");
+        let op_pub_key = get_operation_signing_public_key(&self.clsid).map_err(|err| {
+            WinWebAuthnError::with_cause(
+                ErrorKind::WindowsInternal,
+                "Failed to get signing key for operation",
+                err,
+            )
+        })?;
+        tracing::debug!("Verifying signature");
+        op_pub_key.verify_signature((&request_hash).into(), signature)?;
+        let request: T = OperationRequest::try_from_operation_request(op_request_ptr)?;
+
+        // Store the response buffer to complete later.
+        // Windows sends WebAuthn requests serially, so we just replace the
+        // request context without checking.
+        // The request context will be used for completing or cancelling the request.
+        let ctx = RequestContext {
+            transaction_id: request.transaction_id(),
+            request_hash,
+            response_buffer: response,
+        };
+        let existing = self
+            .in_flight_request
+            .lock()
+            .expect("not poisoned")
+            .replace(ctx);
+        debug_assert!(existing.is_none());
+
+        let transaction_id = request.transaction_id();
+        tracing::debug!(?transaction_id, "Successfully initialized request");
+
+        Ok(request)
+    }
+
+    unsafe fn complete_request(
+        &self,
+        request_transaction_id: GUID,
+        data: &[u8],
+    ) -> Result<(), WinWebAuthnError> {
+        let mut ctx = self
+            .in_flight_request
+            .lock()
+            .expect("not poisoned")
+            .take()
+            .ok_or(WinWebAuthnError::new(
+                ErrorKind::Other,
+                "Attempted to complete request, but no response buffer was found",
+            ))?;
+        // Verify that we're talking about the same request.
+        // If this is not true, then this is an internal library error.
+        if request_transaction_id != ctx.transaction_id {
+            WinWebAuthnError::new(
+                ErrorKind::InvalidArguments,
+                &format!("Request transaction ID {:?} does not match the transaction ID for the response {:?}.", request_transaction_id, ctx.transaction_id),
+            );
+        }
+        // SAFETY: response pointer was given to us by Windows, so we assume it's valid.
+        ctx.response_buffer.write(data)?;
+        Ok(())
+    }
+}
+
 struct RequestContext {
     transaction_id: GUID,
     request_hash: OwnedRequestHash,
+    response_buffer: OperationResponse,
 }
 
 impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
@@ -101,80 +254,34 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
         response: *mut WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
     ) -> HRESULT {
         tracing::debug!("MakeCredential called");
-        let response = match NonNull::new(response) {
-            Some(p) => p,
-            None => {
-                tracing::warn!(
-                    "MakeCredential called with null response pointer from Windows. Aborting request."
-                );
-                return E_INVALIDARG;
-            }
-        };
-        let op_request_ptr = match NonNull::new(request.cast_mut()) {
-            Some(p) => p,
-            None => {
-                tracing::warn!(
-                    "MakeCredential called with null request pointer from Windows. Aborting request."
-                );
-                return E_INVALIDARG;
-            }
-        };
 
-        let request_hash = match verify_operation_request(op_request_ptr.as_ref(), &self.clsid) {
-            Ok(hash) => hash,
-            Err(err) => {
-                tracing::error!("Failed to verify request signature: {err}");
-                return E_INVALIDARG;
-            }
-        };
-
-        // SAFETY: we received the pointer from Windows, so we trust that the values are set
-        // properly.
-        let registration_request = match PluginMakeCredentialRequest::try_from_ptr(op_request_ptr) {
-            Ok(r) => r,
-            Err(err) => {
-                tracing::error!("Could not deserialize MakeCredential request: {err}");
-                return E_FAIL;
-            }
-        };
-
-        // Windows sends WebAuthn requests serially, so we just replace the request context without checking.
-        // The request context will be used for cancellation if necessary.
-        let existing = self
-            .in_flight_request
-            .lock()
-            .expect("not poisoned")
-            .replace(RequestContext {
-                transaction_id: registration_request.transaction_id,
-                request_hash,
-            });
-        debug_assert!(existing.is_none());
-
-        let result = match self.handler.make_credential(registration_request) {
-            Ok(registration_response) => {
-                // SAFETY: response pointer was given to us by Windows, so we assume it's valid.
-                match write_operation_response(&registration_response, response) {
-                    Ok(()) => {
-                        tracing::debug!("MakeCredential completed successfully");
-                        S_OK
-                    }
-                    Err(err) => {
-                        tracing::error!(
-                            "Failed to write MakeCredential response to Windows: {err}"
-                        );
-                        E_FAIL
-                    }
+        let request: PluginMakeCredentialRequest<'_> =
+            match self.initialize_request(request, response) {
+                Ok(request) => request,
+                Err(err) => {
+                    tracing::error!(%err, "Invalid request passed to GetAssertion");
+                    return E_INVALIDARG;
                 }
-            }
+            };
+        let transaction_id = request.transaction_id;
+        match self.handler.make_credential(request) {
+            Ok(registration_response) => match self
+                .complete_request(transaction_id, &registration_response)
+            {
+                Ok(()) => {
+                    tracing::debug!("MakeCredential completed successfully");
+                    S_OK
+                }
+                Err(err) => {
+                    tracing::error!("Failed to write MakeCredential response to Windows: {err}");
+                    E_FAIL
+                }
+            },
             Err(err) => {
                 tracing::error!("MakeCredential failed: {err}");
                 E_FAIL
             }
-        };
-
-        // clear the request context for the next request.
-        _ = self.in_flight_request.lock().expect("not poisoned").take();
-        result
+        }
     }
 
     unsafe fn GetAssertion(
@@ -183,57 +290,20 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
         response: *mut WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
     ) -> HRESULT {
         tracing::debug!("GetAssertion called");
-        let response = match NonNull::new(response) {
-            Some(p) => p,
-            None => {
-                tracing::warn!(
-                    "GetAssertion called with null response pointer from Windows. Aborting request."
-                );
-                return E_INVALIDARG;
-            }
-        };
-        let op_request_ptr = match NonNull::new(request.cast_mut()) {
-            Some(p) => p,
-            None => {
-                tracing::warn!(
-                    "GetAssertion called with null request pointer from Windows. Aborting request."
-                );
-                return E_INVALIDARG;
-            }
-        };
-
-        let request_hash = match verify_operation_request(op_request_ptr.as_ref(), &self.clsid) {
-            Ok(hash) => hash,
+        let request: PluginGetAssertionRequest = match self.initialize_request(request, response) {
+            Ok(request) => request,
             Err(err) => {
-                tracing::error!("Failed to verify request signature: {err}");
+                tracing::error!(%err, "Invalid request passed to GetAssertion");
                 return E_INVALIDARG;
             }
         };
 
-        let assertion_request = match PluginGetAssertionRequest::try_from_ptr(op_request_ptr) {
-            Ok(assertion_request) => assertion_request,
-            Err(err) => {
-                tracing::error!("Could not deserialize GetAssertion request: {err}");
-                return E_FAIL;
-            }
-        };
+        let transaction_id = request.transaction_id;
 
-        // Windows sends WebAuthn requests serially, so we just replace the request context without checking.
-        // The request context will be used for cancellation if necessary.
-        let existing = self
-            .in_flight_request
-            .lock()
-            .expect("not poisoned")
-            .replace(RequestContext {
-                transaction_id: assertion_request.transaction_id,
-                request_hash,
-            });
-        debug_assert!(existing.is_none());
-
-        let result = match self.handler.get_assertion(assertion_request) {
+        match self.handler.get_assertion(request) {
             Ok(assertion_response) => {
                 // SAFETY: response pointer was given to us by Windows, so we assume it's valid.
-                match write_operation_response(&assertion_response, response) {
+                match self.complete_request(transaction_id, &assertion_response) {
                     Ok(()) => {
                         tracing::debug!("GetAssertion completed successfully");
                         S_OK
@@ -248,19 +318,17 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
                 tracing::error!("GetAssertion failed: {err}");
                 E_FAIL
             }
-        };
-
-        // clear the request context for the next request.
-        _ = self.in_flight_request.lock().expect("not poisoned").take();
-        result
+        }
     }
 
     unsafe fn CancelOperation(
         &self,
-        request: *const WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
+        request_ptr: *const WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
     ) -> HRESULT {
         tracing::debug!("CancelOperation called");
-        let op_request_ptr = match NonNull::new(request.cast_mut()) {
+
+        // Verify request
+        let op_request_ptr = match NonNull::new(request_ptr.cast_mut()) {
             Some(p) => p,
             None => {
                 tracing::warn!(
@@ -269,45 +337,7 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
                 return E_INVALIDARG;
             }
         };
-
-        let Some(ctx) = self.in_flight_request.lock().expect("not poisoned").take() else {
-            tracing::warn!("Request cancelled, but no context was found");
-            return E_FAIL;
-        };
-        let signature = op_request_ptr.as_ref().signature();
-
-        tracing::debug!("Retrieving signing key");
-        let op_pub_key = match get_operation_signing_public_key(&self.clsid) {
-            Ok(key) => key,
-            Err(err) => {
-                tracing::error!(%err, "Failed to get signing key for operation");
-                return E_FAIL;
-            }
-        };
-        tracing::debug!("Verifying signature");
-        if let Err(err) = op_pub_key.verify_signature((&ctx.request_hash).into(), signature) {
-            tracing::error!("Failed to verify request signature: {err}");
-            return E_INVALIDARG;
-        }
-
-        let request = match NonNull::new(request as *mut WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST) {
-            Some(request) => request,
-            None => {
-                tracing::warn!("Received null CancelOperation request");
-                return E_INVALIDARG;
-            }
-        };
-
-        match self.handler.cancel_operation(request.into()) {
-            Ok(()) => {
-                tracing::debug!("CancelOperation completed successfully");
-                S_OK
-            }
-            Err(err) => {
-                tracing::error!("CancelOperation failed: {err}");
-                E_FAIL
-            }
-        }
+        self.cancel_operation(op_request_ptr.into()).into()
     }
 
     unsafe fn GetLockStatus(&self, lock_status: *mut PluginLockStatus) -> HRESULT {
@@ -332,33 +362,6 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
             }
         }
     }
-}
-
-/// Copies data as COM-allocated buffer and writes to response pointer.
-///
-/// Safety constraints: [response] must point to a valid
-/// WEBAUTHN_PLUGIN_OPERATION_RESPONSE struct.
-unsafe fn write_operation_response(
-    data: &[u8],
-    response: NonNull<WEBAUTHN_PLUGIN_OPERATION_RESPONSE>,
-) -> Result<(), WinWebAuthnError> {
-    let len = match data.len().try_into() {
-        Ok(len) => len,
-        Err(err) => {
-            return Err(WinWebAuthnError::with_cause(
-                ErrorKind::Serialization,
-                "Response is too long to return to OS",
-                err,
-            ));
-        }
-    };
-    let buf = data.to_com_buffer();
-
-    response.write(WEBAUTHN_PLUGIN_OPERATION_RESPONSE {
-        cbEncodedResponse: len,
-        pbEncodedResponse: buf.into_raw(),
-    });
-    Ok(())
 }
 
 /// Registers the plugin authenticator COM library with Windows.
@@ -541,34 +544,72 @@ impl<T: AsRef<[u8]>> From<T> for ComBuffer {
     }
 }
 
-/// Verify the signature on an operation request.
-///
-/// # Safety
-/// The caller must ensure that:
-/// - pbEncodedRequest points to a valid non-null byte string of length cbEncodedRequest.
-/// - pbRequestSignature points to a valid non-null byte string of length cbRequestSignature.
-unsafe fn verify_operation_request(
-    request: &WEBAUTHN_PLUGIN_OPERATION_REQUEST,
-    clsid: &GUID,
-) -> Result<OwnedRequestHash, WinWebAuthnError> {
-    tracing::debug!("Verifying request");
-    // SAFETY: WEBAUTHN_PLUGIN_OPERATION_REQUEST::request_hash() has the same safety requirements as
-    // this function: the encoded request must be valid.
-    let request_hash = unsafe { request.request_hash()? };
+trait OperationRequest {
+    fn transaction_id(&self) -> GUID;
 
-    // SAFETY: WEBAUTHN_PLUGIN_OPERATION_REQUEST::signature() has the same safety requirements as
-    // this function: the encoded request must be valid.
-    let signature = unsafe { request.signature() };
+    unsafe fn try_from_operation_request(
+        request: NonNull<WEBAUTHN_PLUGIN_OPERATION_REQUEST>,
+    ) -> Result<Self, WinWebAuthnError>
+    where
+        Self: Sized;
+}
 
-    tracing::debug!("Retrieving signing key");
-    let op_pub_key = get_operation_signing_public_key(clsid).map_err(|err| {
-        WinWebAuthnError::with_cause(
-            ErrorKind::WindowsInternal,
-            "Failed to get signing key for operation",
-            err,
-        )
-    })?;
-    tracing::debug!("Verifying signature");
-    op_pub_key.verify_signature((&request_hash).into(), signature)?;
-    Ok(request_hash)
+struct OperationResponse {
+    inner: NonNull<WEBAUTHN_PLUGIN_OPERATION_RESPONSE>,
+}
+
+impl OperationResponse {
+    /// Copies data as COM-allocated buffer and writes to response pointer.
+    ///
+    /// Safety constraints: [response] must point to a valid
+    /// WEBAUTHN_PLUGIN_OPERATION_RESPONSE struct.
+    unsafe fn write(&mut self, data: &[u8]) -> Result<(), WinWebAuthnError> {
+        let len = match data.len().try_into() {
+            Ok(len) => len,
+            Err(err) => {
+                return Err(WinWebAuthnError::with_cause(
+                    ErrorKind::Serialization,
+                    "Response is too long to return to OS",
+                    err,
+                ));
+            }
+        };
+        let buf = data.to_com_buffer();
+
+        self.inner.write(WEBAUTHN_PLUGIN_OPERATION_RESPONSE {
+            cbEncodedResponse: len,
+            pbEncodedResponse: buf.into_raw(),
+        });
+        Ok(())
+    }
+}
+
+impl OperationRequest for PluginGetAssertionRequest {
+    fn transaction_id(&self) -> GUID {
+        self.transaction_id
+    }
+
+    unsafe fn try_from_operation_request(
+        request: NonNull<WEBAUTHN_PLUGIN_OPERATION_REQUEST>,
+    ) -> Result<Self, WinWebAuthnError>
+    where
+        Self: Sized,
+    {
+        Self::try_from_ptr(request)
+    }
+}
+
+impl OperationRequest for PluginMakeCredentialRequest<'_> {
+    fn transaction_id(&self) -> GUID {
+        self.transaction_id
+    }
+
+    unsafe fn try_from_operation_request(
+        request: NonNull<WEBAUTHN_PLUGIN_OPERATION_REQUEST>,
+    ) -> Result<Self, WinWebAuthnError>
+    where
+        Self: Sized,
+    {
+        Self::try_from_ptr(request)
+    }
 }

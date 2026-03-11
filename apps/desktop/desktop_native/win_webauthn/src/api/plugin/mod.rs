@@ -4,7 +4,7 @@
 mod com;
 pub(crate) mod crypto;
 
-use std::{error::Error, mem::MaybeUninit, ptr::NonNull};
+use std::{error::Error, marker::PhantomData, mem::MaybeUninit, ptr::NonNull};
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use com::ComBuffer;
@@ -1047,28 +1047,30 @@ impl Drop for PluginGetAssertionRequest {
 
 // Windows API function signatures for decoding get assertion requests
 // CancelOperation Types
-pub struct PluginCancelOperationRequest {
+pub struct PluginCancelOperationRequest<'a> {
     inner: NonNull<WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST>,
+    _phantom: PhantomData<&'a WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST>,
 }
 
-impl PluginCancelOperationRequest {
+impl PluginCancelOperationRequest<'_> {
     /// Request transaction ID
     pub fn transaction_id(&self) -> GUID {
         self.as_ref().transactionId
     }
 
     /// Request signature.
-    pub fn request_signature(&self) -> &[u8] {
-        unsafe {
+    pub(super) fn request_signature(&self) -> Signature {
+        let slice = unsafe {
             std::slice::from_raw_parts(
                 self.as_ref().pbRequestSignature,
                 self.as_ref().cbRequestSignature as usize,
             )
-        }
+        };
+        Signature::new(slice)
     }
 }
 
-impl AsRef<WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST> for PluginCancelOperationRequest {
+impl AsRef<WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST> for PluginCancelOperationRequest<'_> {
     fn as_ref(&self) -> &WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST {
         // SAFETY: Pointer is received from Windows so we assume it is correct.
         unsafe { self.inner.as_ref() }
@@ -1076,9 +1078,12 @@ impl AsRef<WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST> for PluginCancelOperationRe
 }
 
 #[doc(hidden)]
-impl From<NonNull<WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST>> for PluginCancelOperationRequest {
+impl From<NonNull<WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST>> for PluginCancelOperationRequest<'_> {
     fn from(value: NonNull<WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST>) -> Self {
-        Self { inner: value }
+        Self {
+            inner: value,
+            _phantom: PhantomData,
+        }
     }
 }
 
