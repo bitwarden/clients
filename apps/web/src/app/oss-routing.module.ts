@@ -88,7 +88,6 @@ import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-land
 import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm-landing.component";
 import { AppearanceComponent } from "./settings/appearance.component";
 import { DomainRulesComponent } from "./settings/domain-rules.component";
-import { PreferencesComponent } from "./settings/preferences.component";
 import { CredentialGeneratorComponent } from "./tools/credential-generator/credential-generator.component";
 import { unsavedSendEditsGuard } from "./tools/guards/unsaved-send-edits.guard";
 import { AccessComponent, SendAccessExplainerComponent } from "./tools/send/send-access";
@@ -680,28 +679,7 @@ const routes: Routes = [
           {
             path: "appearance",
             component: AppearanceComponent,
-            canActivate: [
-              canAccessFeature(
-                FeatureFlag.ConsolidatedSessionTimeoutComponent,
-                true,
-                "/settings/preferences",
-                false,
-              ),
-            ],
             data: { titleId: "appearance" } satisfies RouteDataProperties,
-          },
-          {
-            path: "preferences",
-            component: PreferencesComponent,
-            canActivate: [
-              canAccessFeature(
-                FeatureFlag.ConsolidatedSessionTimeoutComponent,
-                false,
-                "/settings/appearance",
-                false,
-              ),
-            ],
-            data: { titleId: "preferences" } satisfies RouteDataProperties,
           },
           {
             path: "security",

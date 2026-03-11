@@ -50,9 +50,9 @@ export class vNextOrganizationDataOwnershipPolicyComponent
   implements OnInit
 {
   constructor(
-    private i18nService: I18nService,
-    private encryptService: EncryptService,
-    private formBuilder: FormBuilder,
+    private readonly i18nService: I18nService,
+    private readonly encryptService: EncryptService,
+    private readonly formBuilder: FormBuilder,
   ) {
     super();
 
@@ -66,7 +66,7 @@ export class vNextOrganizationDataOwnershipPolicyComponent
     });
   }
 
-  data = this.formBuilder.group({
+  readonly data = this.formBuilder.group({
     enableIndividualItemsTransfer: [{ value: false, disabled: true }],
   });
 

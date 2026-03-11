@@ -243,7 +243,7 @@ export class DialogService {
   private authService = inject(AuthService, { optional: true });
   private logService = inject(LogService, { optional: true });
 
-  private backDropClasses = ["tw-fixed", "tw-bg-black", "tw-bg-opacity-30", "tw-inset-0"];
+  private backDropClasses = ["tw-fixed", "tw-bg-bg-overlay", "tw-inset-0"];
   private defaultScrollStrategy = new CustomBlockScrollStrategy();
   private activeDrawer: DrawerDialogRef<any, any> | null = null;
 

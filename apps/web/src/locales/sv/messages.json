@@ -6098,7 +6098,7 @@
     "message": "Tillgänglig nu"
   },
   "automaticUserConfirmation": {
-    "message": "Automatic user confirmation"
+    "message": "Automatisk bekräftelse av användare"
   },
   "autoConfirmDescription": {
     "message": "Nya användare som bjuds in till organisationen kommer automatiskt att bekräftas när en administratörs enhet är upplåst.",

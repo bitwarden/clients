@@ -17,6 +17,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorService } from "@bitwarden/generator-core";
 import { LogService } from "@bitwarden/logging";
 
+import { SendFormGenerationService } from "../../abstractions/send-form-generation.service";
 import { SendFormService } from "../../abstractions/send-form.service";
 import { SendFormContainer } from "../../send-form-container";
 
@@ -92,6 +93,7 @@ describe("SendDetailsComponent", () => {
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: SendFormService, useValue: mockSendFormService },
         { provide: LogService, useValue: mock<LogService>() },
+        { provide: SendFormGenerationService, useValue: mock<SendFormGenerationService>() },
       ],
     }).compileComponents();
 
