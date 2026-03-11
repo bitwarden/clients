@@ -73,7 +73,7 @@ const commonStyles = [
   "tw-cursor-default",
 ];
 
-const defaultIconMap: Record<BadgeVariant, BitwardenIcon> = {
+const defaultIconMap: Record<BadgeVariant, BitwardenIcon | null> = {
   info: "bwi-info-circle",
   subtle: "bwi-info-circle",
   secondary: "bwi-info-circle",
