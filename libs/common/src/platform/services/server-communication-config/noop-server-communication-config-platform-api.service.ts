@@ -8,7 +8,7 @@ import { AcquiredCookie, ServerCommunicationConfigPlatformApi } from "@bitwarden
 export class NoopServerCommunicationConfigPlatformApiService implements ServerCommunicationConfigPlatformApi {
   constructor() {}
 
-  async acquireCookies(hostname: string): Promise<AcquiredCookie[] | undefined> {
+  async acquireCookies(hostname: string, vaultUrl: string): Promise<AcquiredCookie[] | undefined> {
     return;
   }
 }

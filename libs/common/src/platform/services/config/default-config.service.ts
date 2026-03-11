@@ -261,6 +261,7 @@ export class DefaultConfigService implements ConfigService {
               idpLoginUrl: bootstrap.idpLoginUrl,
               cookieName: bootstrap.cookieName,
               cookieDomain: bootstrap.cookieDomain,
+              vaultUrl: response.environment?.vault,
               cookieValue: undefined,
             },
           }
