@@ -2668,6 +2668,10 @@
   "resendCode": {
     "message": "Resend code"
   },
+  "resendCodeLowercase": {
+    "message": "resend code",
+    "description": "Lowercase version of 'Resend code' for use mid-sentence, e.g. as a link inside a hint."
+  },
   "hours": {
     "message": "Hours"
   },
