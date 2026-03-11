@@ -14,6 +14,7 @@ import {
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
+import { LockService, LogoutService } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
@@ -181,6 +182,8 @@ export default {
           },
         },
         { provide: AvatarService, useValue: { avatarColor$: of("#175ddc") } },
+        { provide: LockService, useValue: { lock: () => Promise.resolve() } },
+        { provide: LogoutService, useValue: { logout: () => Promise.resolve() } },
         { provide: SyncService, useValue: { getLastSync: () => Promise.resolve(new Date()) } },
 
         // Router
