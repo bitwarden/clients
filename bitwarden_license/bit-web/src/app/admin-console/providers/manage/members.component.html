@@ -8,8 +8,13 @@
 <app-header>
   <bit-search class="tw-grow" [formControl]="searchControl" [placeholder]="'searchMembers' | i18n">
   </bit-search>
-  <button type="button" bitButton buttonType="primary" (click)="edit(providerId)">
-    <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+  <button
+    type="button"
+    bitButton
+    buttonType="primary"
+    (click)="edit(providerId)"
+    startIcon="bwi-plus"
+  >
     {{ "inviteMember" | i18n }}
   </button>
 </app-header>
