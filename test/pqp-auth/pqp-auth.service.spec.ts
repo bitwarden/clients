@@ -1,8 +1,7 @@
 import {
   isLoggedIn as isPqpLoggedIn,
   getUserInfo,
-  localStateRepository,
-  sha256,
+  authenticationService,
   ServiceLocator,
 } from "@ovrlab/pqp-network";
 
@@ -16,10 +15,9 @@ jest.mock("@ovrlab/pqp-network", () => ({
   isLoggedIn: jest.fn(),
   getUserInfo: jest.fn(),
   login: jest.fn(),
-  localStateRepository: {
-    getPrivateKey: jest.fn(),
+  authenticationService: {
+    derivePasswordForBitwarden: jest.fn(),
   },
-  sha256: jest.fn(),
   ServiceLocator: {
     getMessaging: jest.fn(),
   },
@@ -27,8 +25,7 @@ jest.mock("@ovrlab/pqp-network", () => ({
 
 const mockIsPqpLoggedIn = isPqpLoggedIn as jest.Mock;
 const mockGetUserInfo = getUserInfo as jest.Mock;
-const mockGetPrivateKey = localStateRepository.getPrivateKey as jest.Mock;
-const mockSha256 = sha256 as jest.Mock;
+const mockDerivePassword = authenticationService.derivePasswordForBitwarden as jest.Mock;
 const mockGetMessaging = ServiceLocator.getMessaging as jest.Mock;
 
 describe("PqpAuthService", () => {
@@ -47,7 +44,6 @@ describe("PqpAuthService", () => {
     it("should have all properties set to false/null initially", () => {
       expect(service.networkLoggedIn).toBe(false);
       expect(service.userEmail).toBeNull();
-      expect(service.hasDerivedPassword).toBe(false);
       expect(service.isReady).toBe(false);
     });
   });
@@ -59,7 +55,6 @@ describe("PqpAuthService", () => {
       expect(state).toEqual({
         networkLoggedIn: false,
         userEmail: null,
-        hasDerivedPassword: false,
         isReady: false,
       } as PqpAuthState);
     });
@@ -81,8 +76,6 @@ describe("PqpAuthService", () => {
       };
       mockGetMessaging.mockReturnValue(mockMessaging);
       mockGetUserInfo.mockResolvedValue({ email: "test@example.com" });
-      mockGetPrivateKey.mockResolvedValue("key");
-      mockSha256.mockResolvedValue("hash");
 
       const state = await service.checkStatus();
 
@@ -95,35 +88,18 @@ describe("PqpAuthService", () => {
       mockGetUserInfo.mockResolvedValue({
         email: "test@example.com",
       });
-      mockGetPrivateKey.mockResolvedValue("key");
-      mockSha256.mockResolvedValue("hash");
 
       const state = await service.checkStatus();
 
       expect(mockGetUserInfo).toHaveBeenCalled();
       expect(state.userEmail).toBe("test@example.com");
-    });
-
-    it("should derive password when logged in", async () => {
-      mockIsPqpLoggedIn.mockResolvedValue(true);
-      mockGetUserInfo.mockResolvedValue({ email: "test@example.com" });
-      mockGetPrivateKey.mockResolvedValue("mock-private-key");
-      mockSha256.mockResolvedValue("derived-password-hash");
-
-      const state = await service.checkStatus();
-
       expect(state.isReady).toBe(true);
-      expect(mockGetPrivateKey).toHaveBeenCalled();
-      expect(mockSha256).toHaveBeenCalledWith("mock-private-key");
-      expect(state.hasDerivedPassword).toBe(true);
     });
 
     it("should clear stale data when logged out", async () => {
       // First, log in
       mockIsPqpLoggedIn.mockResolvedValue(true);
       mockGetUserInfo.mockResolvedValue({ email: "test@example.com" });
-      mockGetPrivateKey.mockResolvedValue("key");
-      mockSha256.mockResolvedValue("password");
       await service.checkStatus();
       expect(service.userEmail).toBe("test@example.com");
 
@@ -132,7 +108,6 @@ describe("PqpAuthService", () => {
       const state = await service.checkStatus();
 
       expect(state.userEmail).toBeNull();
-      expect(state.hasDerivedPassword).toBe(false);
     });
 
     it("should handle errors gracefully", async () => {
@@ -143,36 +118,25 @@ describe("PqpAuthService", () => {
       // Should not throw, resets state
       expect(state.networkLoggedIn).toBe(false);
       expect(state.userEmail).toBeNull();
-      expect(state.hasDerivedPassword).toBe(false);
     });
   });
 
-  describe("derivePassword", () => {
-    it("should derive password from private key using SHA-256", async () => {
-      mockGetPrivateKey.mockResolvedValue("my-private-key");
-      mockSha256.mockResolvedValue("hashed-password");
+  describe("getDerivedPassword", () => {
+    it("should derive password on-demand using authenticationService", async () => {
+      mockDerivePassword.mockResolvedValue("hashed-password");
 
-      await service.derivePassword();
+      const password = await service.getDerivedPassword();
 
-      expect(mockGetPrivateKey).toHaveBeenCalled();
-      expect(mockSha256).toHaveBeenCalledWith("my-private-key");
-      expect(service.hasDerivedPassword).toBe(true);
+      expect(mockDerivePassword).toHaveBeenCalled();
+      expect(password).toBe("hashed-password");
     });
 
-    it("should set hasDerivedPassword to false if no private key", async () => {
-      mockGetPrivateKey.mockResolvedValue(null);
+    it("should return null if derivation fails", async () => {
+      mockDerivePassword.mockRejectedValue(new Error("Derivation error"));
 
-      await service.derivePassword();
+      const password = await service.getDerivedPassword();
 
-      expect(service.hasDerivedPassword).toBe(false);
-    });
-
-    it("should handle errors gracefully", async () => {
-      mockGetPrivateKey.mockRejectedValue(new Error("Storage error"));
-
-      await service.derivePassword();
-
-      expect(service.hasDerivedPassword).toBe(false);
+      expect(password).toBeNull();
     });
   });
 
@@ -183,8 +147,6 @@ describe("PqpAuthService", () => {
       mockGetUserInfo.mockResolvedValue({
         email: "test@example.com",
       });
-      mockGetPrivateKey.mockResolvedValue("key");
-      mockSha256.mockResolvedValue("password");
       await service.checkStatus();
 
       expect(service.isReady).toBe(true);
@@ -194,25 +156,25 @@ describe("PqpAuthService", () => {
 
       expect(service.networkLoggedIn).toBe(false);
       expect(service.userEmail).toBeNull();
-      expect(service.hasDerivedPassword).toBe(false);
       expect(service.isReady).toBe(false);
     });
   });
 
   describe("buildPqpLoginCredentials", () => {
     it("should build credentials when derived password is available", async () => {
-      mockGetPrivateKey.mockResolvedValue("my-private-key");
-      mockSha256.mockResolvedValue("hashed-password");
-      await service.derivePassword();
+      mockDerivePassword.mockResolvedValue("hashed-password");
 
-      const credentials = service.buildPqpLoginCredentials("test@example.com");
+      const credentials = await service.buildPqpLoginCredentials("test@example.com");
 
+      expect(mockDerivePassword).toHaveBeenCalled();
       expect(credentials.email).toBe("test@example.com");
       expect(credentials.masterPassword).toBe("hashed-password");
     });
 
-    it("should throw when derived password is not available", () => {
-      expect(() => service.buildPqpLoginCredentials("test@example.com")).toThrow(
+    it("should throw when derived password is not available", async () => {
+      mockDerivePassword.mockResolvedValue(null);
+
+      await expect(service.buildPqpLoginCredentials("test@example.com")).rejects.toThrow(
         "PQP derived password is not available",
       );
     });
@@ -224,8 +186,6 @@ describe("PqpAuthService", () => {
 
       mockIsPqpLoggedIn.mockResolvedValue(true);
       mockGetUserInfo.mockResolvedValue({ email: "test@example.com" });
-      mockGetPrivateKey.mockResolvedValue("key");
-      mockSha256.mockResolvedValue("pass");
       await service.checkStatus();
       expect(service.isReady).toBe(true);
     });

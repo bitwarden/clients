@@ -1,11 +1,10 @@
 import { Injectable } from "@angular/core";
 import {
+  authenticationService,
   getUserInfo,
   isLoggedIn as isPqpLoggedIn,
   login as pqpLogin,
-  localStateRepository,
   ServiceLocator,
-  sha256,
 } from "@ovrlab/pqp-network";
 import type { IdentityProvider } from "@ovrlab/pqp-network";
 
@@ -16,7 +15,6 @@ import { PasswordLoginCredentials } from "../../models/domain/login-credentials"
 export interface PqpAuthState {
   networkLoggedIn: boolean;
   userEmail: string | null;
-  hasDerivedPassword: boolean;
   isReady: boolean;
 }
 
@@ -29,7 +27,6 @@ export interface PqpAuthState {
 export class PqpAuthService {
   private _networkLoggedIn = false;
   private _userEmail: string | null = null;
-  private _derivedPassword: string | null = null;
 
   get networkLoggedIn(): boolean {
     return this._networkLoggedIn;
@@ -37,10 +34,6 @@ export class PqpAuthService {
 
   get userEmail(): string | null {
     return this._userEmail;
-  }
-
-  get hasDerivedPassword(): boolean {
-    return this._derivedPassword != null;
   }
 
   get isReady(): boolean {
@@ -51,27 +44,27 @@ export class PqpAuthService {
     return {
       networkLoggedIn: this._networkLoggedIn,
       userEmail: this._userEmail,
-      hasDerivedPassword: this._derivedPassword != null,
       isReady: this.isReady,
     };
   }
 
   /**
-   * Build PasswordLoginCredentials using the internally-held derived password.
-   * The derived password never leaves this service — callers receive an opaque credentials object.
+   * Build PasswordLoginCredentials using ephemeral just-in-time password derivation.
+   * Password is derived on-demand and passed directly to credentials without caching.
    *
-   * @throws Error if the derived password is not available.
+   * @throws Error if password derivation fails or user not logged in.
    */
-  buildPqpLoginCredentials(
+  async buildPqpLoginCredentials(
     email: string,
     orgMasterPasswordPolicyOptions?: MasterPasswordPolicyOptions,
-  ): PasswordLoginCredentials {
-    if (!this._derivedPassword) {
+  ): Promise<PasswordLoginCredentials> {
+    const derivedPassword = await this.getDerivedPassword();
+    if (!derivedPassword) {
       throw new Error("PQP derived password is not available. Cannot build login credentials.");
     }
     return new PasswordLoginCredentials(
       email,
-      this._derivedPassword,
+      derivedPassword,
       undefined,
       orgMasterPasswordPolicyOptions,
     );
@@ -97,7 +90,6 @@ export class PqpAuthService {
           // Use data from main process (renderer can't access main process storage)
           if (loggedIn) {
             this._userEmail = ipcResult?.email || null;
-            this._derivedPassword = ipcResult?.derivedPassword || null;
           }
         } else {
           loggedIn = await isPqpLoggedIn();
@@ -113,17 +105,15 @@ export class PqpAuthService {
         if (userInfo) {
           this._userEmail = userInfo.email || null;
         }
-        await this.derivePassword();
+        // Password now derived on-demand when needed (login time)
       } else if (!this._networkLoggedIn) {
         // Clear stale data when logged out
         this._userEmail = null;
-        this._derivedPassword = null;
       }
     } catch {
       // Reset all state on error to prevent stale data from being reused
       this._networkLoggedIn = false;
       this._userEmail = null;
-      this._derivedPassword = null;
     }
 
     return this.getState();
@@ -146,7 +136,6 @@ export class PqpAuthService {
         if (userInfo) {
           this._userEmail = userInfo.email || null;
         }
-        await this.derivePassword();
         return true;
       }
       return false;
@@ -163,7 +152,7 @@ export class PqpAuthService {
             return false;
           }
           // Match browser extension pattern: return true on login success.
-          // Credentials (email, derivedPassword) will be fetched later via checkStatus()
+          // Credentials (email) will be fetched later via checkStatus()
           // when the user clicks "Continue" — by then BOOTSTRAPPING is complete.
           this._networkLoggedIn = true;
           return true;
@@ -176,10 +165,9 @@ export class PqpAuthService {
         if (userInfo?.email) {
           this._userEmail = userInfo.email;
         }
-        await this.derivePassword();
 
         // Only mark as logged in if we actually have credentials
-        if (this._userEmail && this._derivedPassword) {
+        if (this._userEmail) {
           this._networkLoggedIn = true;
           return true;
         }
@@ -191,21 +179,14 @@ export class PqpAuthService {
   }
 
   /**
-   * Derive the master password from the PqP private key using SHA-256.
-   * Clears any stale password if the private key is unavailable or on error.
+   * Get derived password on-demand (does NOT cache).
+   * Password should be used immediately and discarded.
    */
-  async derivePassword(): Promise<void> {
+  async getDerivedPassword(): Promise<string | null> {
     try {
-      const privateKey = await localStateRepository.getPrivateKey();
-      if (privateKey) {
-        this._derivedPassword = await sha256(privateKey);
-      } else {
-        // Clear stale password when private key is no longer available
-        this._derivedPassword = null;
-      }
+      return await authenticationService.derivePasswordForBitwarden();
     } catch {
-      // Clear stale password on error to prevent using outdated credentials
-      this._derivedPassword = null;
+      return null;
     }
   }
 
@@ -215,6 +196,5 @@ export class PqpAuthService {
   reset(): void {
     this._networkLoggedIn = false;
     this._userEmail = null;
-    this._derivedPassword = null;
   }
 }

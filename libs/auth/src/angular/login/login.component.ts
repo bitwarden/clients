@@ -117,17 +117,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     return this.pqpAuthService.isReady;
   }
 
-  get shouldAutoFillPqpPassword(): boolean {
-    const formEmail = this.formGroup.controls.email.value?.toLowerCase();
-    const pqpEmail = this.pqpUserEmail?.toLowerCase();
-    return !!(
-      this.pqpAuthService.hasDerivedPassword &&
-      formEmail &&
-      pqpEmail &&
-      formEmail === pqpEmail
-    );
-  }
-
   formGroup = this.formBuilder.group(
     {
       email: ["", [Validators.required, Validators.email]],
@@ -638,24 +627,21 @@ export class LoginComponent implements OnInit, OnDestroy {
   private async performPqpAutoLogin(): Promise<void> {
     const email = this.pqpAuthService.userEmail;
 
-    if (!email || !this.pqpAuthService.hasDerivedPassword) {
+    if (!email) {
       this.toastService.showToast({
         variant: "error",
         title: "PqP Network",
-        message: "Credentials not initialized yet. Please reload the popup.",
+        message: "Email not initialized. Please reload.",
       });
-      this.pqpAuthService.reset();
       return;
     }
 
     this.pqpAutoLoginInProgress = true;
 
     try {
-      // Set email in form for UI display only — password never touches the form
+      // Set email in form for UI display
       this.formGroup.controls.email.setValue(email);
 
-      // Fetch org-invite policies (same as submit path — orgPoliciesFromInvite
-      // is only populated in submit(), which PQP auto-login bypasses)
       this.orgPoliciesFromInvite = this.loginComponentService.getOrgPoliciesFromOrgInvite
         ? await this.loginComponentService.getOrgPoliciesFromOrgInvite(email)
         : null;
@@ -663,8 +649,8 @@ export class LoginComponent implements OnInit, OnDestroy {
       const orgMasterPasswordPolicyOptions =
         this.orgPoliciesFromInvite?.enforcedPasswordPolicyOptions;
 
-      // Delegate credential building to the service — derived password stays internal
-      const credentials = this.pqpAuthService.buildPqpLoginCredentials(
+      // Use service builder with just-in-time password derivation (async)
+      const credentials = await this.pqpAuthService.buildPqpLoginCredentials(
         email,
         orgMasterPasswordPolicyOptions,
       );
@@ -672,17 +658,10 @@ export class LoginComponent implements OnInit, OnDestroy {
       const authResult = await this.loginStrategyService.logIn(credentials);
       await this.handleAuthResult(authResult);
     } catch (error) {
-      this.logService.error(error);
-      const errorMessage =
-        error instanceof ErrorResponse
-          ? error.message
-          : error instanceof Error
-            ? error.message
-            : "Unknown error";
       this.toastService.showToast({
         variant: "error",
-        title: "Auto-login failed",
-        message: `${errorMessage}. Please try logging in manually.`,
+        title: "PqP Network",
+        message: `Auto-login failed: ${error}`,
       });
     } finally {
       this.pqpAutoLoginInProgress = false;

@@ -4,7 +4,16 @@ import "core-js/proposals/explicit-resource-management";
 
 import * as path from "path";
 
-import { init as initPqp, initLogging, sendMessage, login, logout as pqpLogout, isLoggedIn, getUserInfo, localStateRepository, sha256 } from "@ovrlab/pqp-network";
+import {
+  init as initPqp,
+  initLogging,
+  sendMessage,
+  login,
+  logout as pqpLogout,
+  isLoggedIn,
+  getUserInfo,
+  authenticationService,
+} from "@ovrlab/pqp-network";
 import { app, BrowserWindow, ipcMain, session } from "electron";
 import { Subject, firstValueFrom } from "rxjs";
 
@@ -548,11 +557,19 @@ export class Main {
         const loggedIn = await isLoggedIn();
         if (loggedIn) {
           const userInfo = await getUserInfo();
-          const privateKey = await localStateRepository.getPrivateKey();
-          const derivedPassword = privateKey ? await sha256(privateKey) : null;
-          return { success: true, loggedIn, email: userInfo?.email || null, derivedPassword };
+          return { success: true, loggedIn, email: userInfo?.email || null };
         }
         return { success: true, loggedIn };
+      } catch (error) {
+        return { success: false, error: String(error) };
+      }
+    });
+
+    // Controlled password derivation endpoint
+    ipcMain.handle("PQP_DERIVE_PASSWORD", async () => {
+      try {
+        const password = await authenticationService.derivePasswordForBitwarden();
+        return { success: true, password };
       } catch (error) {
         return { success: false, error: String(error) };
       }
