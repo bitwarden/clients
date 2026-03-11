@@ -38,14 +38,14 @@ import {
   ],
 })
 export class PromptMigrationPasswordComponent {
-  private dialogRef = inject(DialogRef<string>);
-  private formBuilder = inject(FormBuilder);
-  private masterPasswordUnlockService = inject(MasterPasswordUnlockService);
-  private accountService = inject(AccountService);
-  private toastService = inject(ToastService);
-  private i18nService = inject(I18nService);
+  private readonly dialogRef = inject(DialogRef<string>);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly masterPasswordUnlockService = inject(MasterPasswordUnlockService);
+  private readonly accountService = inject(AccountService);
+  private readonly toastService = inject(ToastService);
+  private readonly i18nService = inject(I18nService);
 
-  migrationPasswordForm = this.formBuilder.group({
+  readonly migrationPasswordForm = this.formBuilder.group({
     masterPassword: ["", [Validators.required]],
   });
 
@@ -53,7 +53,7 @@ export class PromptMigrationPasswordComponent {
     return dialogService.open<string>(PromptMigrationPasswordComponent);
   }
 
-  submit = async () => {
+  readonly submit = async () => {
     const masterPasswordControl = this.migrationPasswordForm.controls.masterPassword;
 
     if (!masterPasswordControl.value || masterPasswordControl.invalid) {
