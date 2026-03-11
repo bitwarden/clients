@@ -188,6 +188,32 @@ describe("PolicyService", () => {
         enforceOnLogin: false,
       });
     });
+
+    it("returns undefined when org does not use policies", async () => {
+      // org3 has usePolicies=false (simulates a Teams org that was downgraded from Enterprise)
+      singleUserState.nextState(
+        arrayToRecord([
+          policyData("1", "org3", PolicyType.MasterPassword, true, { minLength: 10 }),
+        ]),
+      );
+
+      const result = await firstValueFrom(policyService.masterPasswordPolicyOptions$(userId));
+
+      expect(result).toBeUndefined();
+    });
+
+    it("returns undefined when user is an owner (exempt from policy)", async () => {
+      // org2 has OrganizationUserType.Owner; owners are exempt from MasterPassword policy
+      singleUserState.nextState(
+        arrayToRecord([
+          policyData("1", "org2", PolicyType.MasterPassword, true, { minLength: 10 }),
+        ]),
+      );
+
+      const result = await firstValueFrom(policyService.masterPasswordPolicyOptions$(userId));
+
+      expect(result).toBeUndefined();
+    });
   });
 
   describe("evaluateMasterPassword", () => {
