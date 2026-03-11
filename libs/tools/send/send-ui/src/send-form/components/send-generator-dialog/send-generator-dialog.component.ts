@@ -39,6 +39,11 @@ export class SendGeneratorDialogComponent {
   /**
    * Whether the dialog is generating a password/passphrase. If false, it is generating a username.
    * @protected
+  protected buttonLabel: string | undefined;
+
+  /**
+   * Whether the dialog is generating a password/passphrase. If false, it is generating a username.
+   * @protected
    */
   protected get isPassword() {
     return this.params.type === "password";
@@ -48,7 +53,7 @@ export class SendGeneratorDialogComponent {
    * The currently generated value.
    * @protected
    */
-  protected readonly generatedValue: string = "";
+  protected generatedValue: string = "";
 
   protected readonly uri: string | undefined;
 
