@@ -37,6 +37,7 @@ import {
   SendFormConfig,
   SendAddEditDialogComponent,
   SendItemDialogResult,
+  SendPolicyService,
   SendTableComponent,
 } from "@bitwarden/send-ui";
 
@@ -99,6 +100,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     private route: ActivatedRoute,
     private router: Router,
     private configService: ConfigService,
+    sendPolicyService: SendPolicyService,
   ) {
     super(
       sendService,
@@ -113,6 +115,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
       dialogService,
       toastService,
       accountService,
+      sendPolicyService,
     );
 
     this.SendUIRefresh$ = this.configService.getFeatureFlag$(FeatureFlag.SendUIRefresh);

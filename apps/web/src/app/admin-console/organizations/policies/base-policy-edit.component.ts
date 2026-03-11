@@ -70,6 +70,15 @@ export abstract class BasePolicyEditDefinition {
   display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return of(true);
   }
+
+  /**
+   * Returns true if this policy should show as enabled in the policy list badge.
+   * The default checks the policy's own {@link type}.
+   * Override this for policies that consolidate multiple server policy types.
+   */
+  isEnabled(policiesEnabledMap: Map<PolicyType, boolean>): boolean {
+    return policiesEnabledMap.get(this.type) ?? false;
+  }
 }
 
 /**

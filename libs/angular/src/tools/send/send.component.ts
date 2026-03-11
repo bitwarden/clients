@@ -13,7 +13,6 @@ import {
 } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -26,6 +25,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 
 @Directive()
 export class SendComponent implements OnInit, OnDestroy {
@@ -83,17 +83,12 @@ export class SendComponent implements OnInit, OnDestroy {
     protected dialogService: DialogService,
     protected toastService: ToastService,
     private accountService: AccountService,
+    protected sendPolicyService: SendPolicyService,
   ) {}
 
   async ngOnInit() {
-    this.accountService.activeAccount$
-      .pipe(
-        getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
-        ),
-        takeUntil(this.destroy$),
-      )
+    this.sendPolicyService.disableSend$
+      .pipe(takeUntil(this.destroy$))
       .subscribe((policyAppliesToUser) => {
         this.disableSend = policyAppliesToUser;
       });

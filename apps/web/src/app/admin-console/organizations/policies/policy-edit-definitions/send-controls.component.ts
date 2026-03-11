@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ReactiveFormsModule, UntypedFormBuilder } from "@angular/forms";
-import { map } from "rxjs";
 import type { Observable } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -16,21 +15,31 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { SendControlsPolicyDialogComponent } from "../policy-edit-dialogs/send-controls-policy-dialog.component";
 
-export class SendOptionsPolicy extends BasePolicyEditDefinition {
-  name = "sendOptions";
-  description = "sendOptionsPolicyDesc";
-  type = PolicyType.SendOptions;
-  component = SendOptionsPolicyComponent;
+export class SendControlsPolicy extends BasePolicyEditDefinition {
+  name = "sendControls";
+  description = "sendControlsPolicyDesc";
+  type = PolicyType.DisableSend;
+  component = SendControlsPolicyComponent;
+  editDialogComponent = SendControlsPolicyDialogComponent;
+  showDescription = false;
 
   override display$(_org: Organization, configService: ConfigService): Observable<boolean> {
-    return configService.getFeatureFlag$(FeatureFlag.SendControls).pipe(map((f) => !f));
+    return configService.getFeatureFlag$(FeatureFlag.SendControls);
+  }
+
+  override isEnabled(policiesEnabledMap: Map<PolicyType, boolean>): boolean {
+    return (
+      (policiesEnabledMap.get(PolicyType.DisableSend) ?? false) ||
+      (policiesEnabledMap.get(PolicyType.SendOptions) ?? false)
+    );
   }
 }
 
 @Component({
-  selector: "send-options-policy-edit",
-  templateUrl: "send-options.component.html",
+  selector: "send-controls-policy-edit",
+  templateUrl: "send-controls.component.html",
   imports: [
     CalloutModule,
     CheckboxModule,
@@ -41,9 +50,10 @@ export class SendOptionsPolicy extends BasePolicyEditDefinition {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SendOptionsPolicyComponent extends BasePolicyEditComponent {
+export class SendControlsPolicyComponent extends BasePolicyEditComponent {
   readonly data = this.formBuilder.group({
-    disableHideEmail: false,
+    disableSend: [false],
+    disableHideEmail: [false],
   });
 
   constructor(private readonly formBuilder: UntypedFormBuilder) {

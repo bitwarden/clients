@@ -22,7 +22,7 @@
                 <button type="button" bitLink (click)="edit(p, organizationId)">
                   {{ p.name | i18n }}
                 </button>
-                @if (policiesEnabledMap.get(p.type)) {
+                @if (p.isEnabled(policiesEnabledMap)) {
                   <span bitBadge variant="success">{{ "on" | i18n }}</span>
                 }
                 <small class="tw-text-muted tw-block">{{ p.description | i18n }}</small>

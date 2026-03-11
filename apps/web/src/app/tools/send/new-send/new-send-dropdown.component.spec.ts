@@ -33,7 +33,9 @@ describe("NewSendDropdownComponent", () => {
       of(true),
     );
     mockAccountService.activeAccount$ = of({ id: "myTestAccount" } as Account);
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(false as any));
     mockPolicyService.policyAppliesToUser$.mockImplementation(() => of(false));
+    mockPolicyService.policiesByType$.mockReturnValue(of([]));
     mockPremiumUpgradePromptService.promptForPremium.mockImplementation(async () => {});
   });
 

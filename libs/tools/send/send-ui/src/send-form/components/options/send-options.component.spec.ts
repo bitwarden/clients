@@ -4,6 +4,7 @@ import { of } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 
@@ -16,9 +17,11 @@ describe("SendOptionsComponent", () => {
   let fixture: ComponentFixture<SendOptionsComponent>;
   const mockSendFormContainer = mock<SendFormContainer>();
   const mockAccountService = mock<AccountService>();
+  const mockConfigService = mock<ConfigService>();
 
   beforeAll(() => {
     mockAccountService.activeAccount$ = of({ id: "myTestAccount" } as Account);
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(false as any));
   });
 
   beforeEach(async () => {
@@ -30,6 +33,7 @@ describe("SendOptionsComponent", () => {
         { provide: PolicyService, useValue: mock<PolicyService>() },
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: AccountService, useValue: mockAccountService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(SendOptionsComponent);

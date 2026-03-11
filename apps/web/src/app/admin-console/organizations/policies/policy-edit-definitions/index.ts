@@ -19,3 +19,4 @@ export {
   vNextOrganizationDataOwnershipPolicyComponent,
 } from "./vnext-organization-data-ownership.component";
 export { AutoConfirmPolicy } from "./auto-confirm-policy.component";
+export { SendControlsPolicy, SendControlsPolicyComponent } from "./send-controls.component";

@@ -21,11 +21,12 @@ const POLICY_ORDER_MAP = new Map<string, number>([
   ["passwordGenerator", 11],
   ["uriMatchDetectionPolicy", 12],
   ["activateAutofillPolicy", 13],
-  ["sendOptions", 14],
-  ["disableSend", 15],
-  ["restrictedItemTypePolicy", 16],
-  ["freeFamiliesSponsorship", 17],
-  ["disableExport", 18],
+  ["sendControls", 14],
+  ["sendOptions", 15],
+  ["disableSend", 16],
+  ["restrictedItemTypePolicy", 17],
+  ["freeFamiliesSponsorship", 18],
+  ["disableExport", 19],
 ]);
 
 /**

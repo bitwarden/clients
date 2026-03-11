@@ -1,16 +1,16 @@
 import { CommonModule } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { RouterTestingModule } from "@angular/router/testing";
+import { provideRouter } from "@angular/router";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of, BehaviorSubject } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -48,8 +48,11 @@ describe("SendV2Component", () => {
   let sendItemsServiceEmptyList$: BehaviorSubject<boolean>;
   let sendItemsServiceNoFilteredResults$: BehaviorSubject<boolean>;
   let policyService: MockProxy<PolicyService>;
+  let configService: MockProxy<ConfigService>;
 
   beforeEach(async () => {
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false as any));
     sendListFiltersServiceFilters$ = new BehaviorSubject({ sendType: null });
     sendItemsServiceEmptyList$ = new BehaviorSubject(false);
     sendItemsServiceNoFilteredResults$ = new BehaviorSubject(false);
@@ -75,8 +78,6 @@ describe("SendV2Component", () => {
     await TestBed.configureTestingModule({
       imports: [
         CommonModule,
-        RouterTestingModule,
-        JslibModule,
         ReactiveFormsModule,
         ButtonModule,
         NoItemsModule,
@@ -121,6 +122,8 @@ describe("SendV2Component", () => {
         { provide: SendListFiltersService, useValue: sendListFiltersService },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
         { provide: PolicyService, useValue: policyService },
+        { provide: ConfigService, useValue: configService },
+        provideRouter([]),
       ],
     }).compileComponents();
 

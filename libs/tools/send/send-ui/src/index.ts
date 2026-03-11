@@ -9,3 +9,4 @@ export { SendListFiltersComponent } from "./send-list-filters/send-list-filters.
 export { SendListFiltersService } from "./services/send-list-filters.service";
 export { SendTableComponent } from "./send-table/send-table.component";
 export { SendListComponent, SendListState } from "./send-list/send-list.component";
+export { SendPolicyService } from "./services/send-policy.service";

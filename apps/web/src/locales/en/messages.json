@@ -6216,6 +6216,14 @@
   "sendOptionsExemption": {
     "message": "Organization members that can manage the organization's policies are exempt from this policy's enforcement."
   },
+  "sendControls": {
+    "message": "Send controls",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
+    "description": "'Sends' is a plural noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "disableHideEmail": {
     "message": "Always show member’s email address with recipients when creating or editing a Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
