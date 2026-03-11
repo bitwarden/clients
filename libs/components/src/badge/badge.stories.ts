@@ -78,7 +78,7 @@ export const AllVariants: Story = {
         </div>
 
         <div>
-          <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Accent Primary</h3>
+          <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Accent Primary (Has no default icon)</h3>
           <span bitBadge variant="accent-primary">Accent Primary</span>
         </div>
       </div>

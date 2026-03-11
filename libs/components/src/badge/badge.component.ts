@@ -81,7 +81,7 @@ const defaultIconMap: Record<BadgeVariant, BitwardenIcon> = {
   success: "bwi-check-circle",
   warning: "bwi-exclamation-triangle",
   danger: "bwi-error",
-  "accent-primary": "bwi-clock",
+  "accent-primary": null,
 };
 
 const getDefaultIconForVariant = (variant: BadgeVariant) => defaultIconMap[variant];
