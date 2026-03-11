@@ -111,7 +111,7 @@ import { NoopSdkLoadService } from "@bitwarden/common/platform/services/sdk/noop
 import {
   DefaultServerCommunicationConfigService,
   ServerCommunicationConfigRepository,
-  NoopServerCommunicationConfigPlatformApiService,
+  ServerCommunicationConfigPlatformApiService,
 } from "@bitwarden/common/platform/services/server-communication-config";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
@@ -589,13 +589,29 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: ServerCommunicationConfigService,
-    useFactory: (stateProvider: StateProvider, configService: ConfigService) =>
+    useFactory: (
+      stateProvider: StateProvider,
+      platformUtilsService: PlatformUtilsServiceAbstraction,
+      messageListener: MessageListener,
+      logService: LogService,
+      configService: ConfigService,
+    ) =>
       new DefaultServerCommunicationConfigService(
         new ServerCommunicationConfigRepository(stateProvider),
-        new NoopServerCommunicationConfigPlatformApiService(),
+        new ServerCommunicationConfigPlatformApiService(
+          platformUtilsService,
+          messageListener,
+          logService,
+        ),
         configService,
       ),
-    deps: [StateProvider, ConfigService],
+    deps: [
+      StateProvider,
+      PlatformUtilsServiceAbstraction,
+      MessageListener,
+      LogService,
+      ConfigService,
+    ],
   }),
 ];
 

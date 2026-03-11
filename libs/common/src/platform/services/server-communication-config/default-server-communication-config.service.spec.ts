@@ -21,8 +21,10 @@ jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk-load.service", () => 
 
 // Mock SDK client
 const mockClientInstance = {
-  setCommunicationType: jest.fn(),
+  needsBootstrap: jest.fn(),
   cookies: jest.fn(),
+  setCommunicationType: jest.fn(),
+  acquireCookie: jest.fn(),
 };
 
 jest.mock("@bitwarden/sdk-internal", () => ({
