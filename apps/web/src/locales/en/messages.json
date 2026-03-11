@@ -3047,16 +3047,16 @@
   "breachDesc": {
     "message": "Breached accounts can expose your personal information. Secure breached accounts by enabling 2FA or creating a stronger password."
   },
-  "breachCheckUsernameEmail": {
-    "message": "Check any usernames or email addresses that you use."
+  "breachCheckEmail": {
+    "message": "Check any email addresses that you use."
   },
   "checkBreaches": {
     "message": "Check breaches"
   },
-  "breachUsernameNotFound": {
-    "message": "$USERNAME$ was not found in any known data breaches.",
+  "breachEmailNotFound": {
+    "message": "$EMAIL$ was not found in any known data breaches.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3066,10 @@
     "message": "Good news",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "$USERNAME$ was found in $COUNT$ different data breaches online.",
+  "breachEmailFound": {
+    "message": "$EMAIL$ was found in $COUNT$ different data breaches online.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
