@@ -10,7 +10,13 @@
       {{ "acceptTransfer" | i18n }}
     </button>
 
-    <button bitButton type="button" buttonType="secondary" (click)="decline()">
+    <button
+      bitLink
+      type="button"
+      linkType="primary"
+      (click)="decline()"
+      class="tw-mt-1 tw-self-center tw-text-sm"
+    >
       {{ "declineAndLeave" | i18n }}
     </button>
 
