@@ -3,6 +3,8 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { KeyConnectorUnlockData } from "@bitwarden/unlock";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { PrivateKeysResponseModel } from "../../../key-management/keys/response/private-keys.response";
@@ -10,7 +12,6 @@ import { BaseResponse } from "../../../models/response/base.response";
 
 import { MasterPasswordPolicyResponse } from "./master-password-policy.response";
 import { UserDecryptionOptionsResponse } from "./user-decryption-options/user-decryption-options.response";
-import { KeyConnectorUnlockData } from "../../../../../unlock/src/default-unlock.service";
 
 export class IdentityTokenResponse extends BaseResponse {
   // Authentication Information
