@@ -3,39 +3,39 @@ import { Observable } from "rxjs";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
-import { EncryptedDataWithKey, EncryptedReportData } from "../../models";
 import { MemberRegistryEntryData } from "../../models/data/member-details.data";
 import { RiskInsightsApplicationData } from "../../models/data/risk-insights-application.data";
 import { RiskInsightsReportData } from "../../models/data/risk-insights-report.data";
 import { RiskInsightsSummaryData } from "../../models/data/risk-insights-summary.data";
 
 /**
- * Thrown when an encrypted report blob carries an unknown future version number.
- *
- * V1 (no version field) and V2 are handled inline by BlobVersioningService.
- * This error is only thrown when a blob version is present but unrecognized —
- * meaning the application needs to be updated.
+ * The three encrypted payloads that make up a stored AccessReport.
+ * Passed to {@link AccessReportEncryptionService.decryptReport$} to obtain the decrypted data.
  */
-export class UnsupportedReportFormatError extends Error {
-  constructor(readonly foundVersion: number | undefined) {
-    super(
-      foundVersion === undefined
-        ? "Report version not supported."
-        : `Report version ${foundVersion} is not supported. The application may need to be updated.`,
-    );
-    this.name = "UnsupportedReportFormatError";
-  }
+export interface EncryptedReportData {
+  encryptedReportData: EncString;
+  encryptedSummaryData: EncString;
+  encryptedApplicationData: EncString;
 }
 
 /**
- * The decrypted report payload stored inside the encrypted reports blob.
+ * The result of encrypting an AccessReport: the three encrypted payloads plus
+ * the wrapped content key and the organization identifier.
+ * Returned by {@link AccessReportEncryptionService.encryptReport$}.
+ */
+export interface EncryptedDataWithKey {
+  organizationId: OrganizationId;
+  encryptedReportData: EncString;
+  encryptedSummaryData: EncString;
+  encryptedApplicationData: EncString;
+  contentEncryptionKey: EncString;
+}
+
+/**
+ * The decrypted report payload stored inside the encrypted report payload.
  *
  * Contains the full collection of ApplicationHealth entries and the deduplicated
  * MemberRegistry for the AccessReport.
- *
- * Note: `version` is part of the stored JSON and is validated before this type is
- * applied — see `validateAccessReportPayload()`. It is not carried as a TypeScript
- * discriminant here because callers receive a validated, already-version-checked value.
  *
  * @example { reports: [...], memberRegistry: { "user-id": { id, userName, email } } }
  */
@@ -49,11 +49,10 @@ export interface AccessReportPayload {
  * the report payload (ApplicationHealth entries + MemberRegistry), the summary aggregates,
  * and the per-app settings.
  *
- * `hadLegacyBlobs` is set to `true` when any of the three blobs was in V1 format at decrypt
- * time. Callers should re-save the report so all blobs are written in V2 format.
+ * `hadLegacyBlobs` is set to `true` when any of the three payloads was in V1 format at decrypt
+ * time. Callers should re-save the report so all payloads are written in the current format.
  */
 export interface DecryptedAccessReportData {
-  version: 2;
   reportData: AccessReportPayload;
   summaryData: RiskInsightsSummaryData;
   applicationData: RiskInsightsApplicationData[];
@@ -62,16 +61,16 @@ export interface DecryptedAccessReportData {
 
 /**
  * Encrypts and decrypts AccessReport payloads using a wrapped content key
- * stored alongside the encrypted blobs.
+ * stored alongside the encrypted payloads.
  */
 export abstract class AccessReportEncryptionService {
   /**
-   * Encrypts an AccessReport payload and emits the encrypted blobs with wrapped key.
+   * Encrypts an AccessReport payload and emits the encrypted payloads with wrapped key.
    *
    * @param context - The organization and user identifiers for key lookup.
    * @param data - The decrypted report, summary, and application data to encrypt.
    * @param wrappedKey - An existing wrapped content key to reuse; omit to generate a new key.
-   * @returns Observable emitting the encrypted blobs and wrapped content key.
+   * @returns Observable emitting the encrypted payloads and wrapped content key.
    */
   abstract encryptReport$(
     context: { organizationId: OrganizationId; userId: UserId },
@@ -84,7 +83,7 @@ export abstract class AccessReportEncryptionService {
    * and application data.
    *
    * @param context - The organization and user identifiers for key lookup.
-   * @param encryptedData - The three encrypted blobs to decrypt.
+   * @param encryptedData - The three encrypted payloads to decrypt.
    * @param wrappedKey - The wrapped content key stored alongside the report.
    * @returns Observable emitting the decrypted report, summary, and application data.
    */

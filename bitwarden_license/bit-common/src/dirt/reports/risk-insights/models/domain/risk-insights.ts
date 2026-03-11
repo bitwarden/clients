@@ -150,8 +150,7 @@ export class RiskInsights extends Domain {
       ),
     };
 
-    const v2Input: DecryptedAccessReportData = {
-      version: 2,
+    const payload: DecryptedAccessReportData = {
       reportData: reportPayload,
       summaryData: {
         totalMemberCount: view.summary.totalMemberCount,
@@ -170,7 +169,7 @@ export class RiskInsights extends Domain {
       })),
     };
 
-    return encryptionService.encryptReport$(context, v2Input, view.contentEncryptionKey).pipe(
+    return encryptionService.encryptReport$(context, payload, view.contentEncryptionKey).pipe(
       map((encryptedData) => {
         const domain = new RiskInsights();
         domain.id = view.id;

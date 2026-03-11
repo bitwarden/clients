@@ -6,7 +6,7 @@ import { makeEncString } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
-import { DecryptedReportData, EncryptedDataWithKey } from "../../models";
+import { DecryptedReportData } from "../../models";
 import {
   GetRiskInsightsReportResponse,
   SaveRiskInsightsReportResponse,
@@ -22,6 +22,7 @@ import {
   mockReportData,
   mockSummaryData,
 } from "../../models/mocks/mock-data";
+import { EncryptedDataWithKey } from "../abstractions/access-report-encryption.service";
 import { MemberCipherDetailsApiService } from "../api/member-cipher-details-api.service";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
 import { LegacyRiskInsightsEncryptionService } from "../implementations/legacy-risk-insights-encryption.service";

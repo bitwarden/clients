@@ -8,20 +8,26 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
-import { EncryptedDataWithKey, EncryptedReportData } from "../../models";
 import { RiskInsightsSummaryData } from "../../models/data/risk-insights-summary.data";
 import {
   AccessReportEncryptionService,
   DecryptedAccessReportData,
+  EncryptedDataWithKey,
+  EncryptedReportData,
 } from "../abstractions/access-report-encryption.service";
-import { BlobVersioningService } from "../abstractions/blob-versioning.service";
+
+import { ApplicationVersioningService } from "./versioning/application-versioning.service";
+import { ReportVersioningService } from "./versioning/report-versioning.service";
+import { SummaryVersioningService } from "./versioning/summary-versioning.service";
 
 export class DefaultAccessReportEncryptionService extends AccessReportEncryptionService {
   constructor(
     private keyService: KeyService,
     private encryptService: EncryptService,
     private keyGeneratorService: KeyGenerationService,
-    private blobVersioningService: BlobVersioningService,
+    private reportVersioningService: ReportVersioningService,
+    private applicationVersioningService: ApplicationVersioningService,
+    private summaryVersioningService: SummaryVersioningService,
     private logService: LogService,
   ) {
     super();
@@ -67,19 +73,19 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
             return forkJoin({
               encryptedReportData: from(
                 this.encryptService.encryptString(
-                  this.blobVersioningService.serializeReport(reportData),
+                  this.reportVersioningService.serialize(reportData),
                   contentEncryptionKey,
                 ),
               ),
               encryptedSummaryData: from(
                 this.encryptService.encryptString(
-                  this.blobVersioningService.serializeSummary(summaryData),
+                  this.summaryVersioningService.serialize(summaryData),
                   contentEncryptionKey,
                 ),
               ),
               encryptedApplicationData: from(
                 this.encryptService.encryptString(
-                  this.blobVersioningService.serializeApplication(applicationData),
+                  this.applicationVersioningService.serialize(applicationData),
                   contentEncryptionKey,
                 ),
               ),
@@ -162,16 +168,14 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
               ),
             }).pipe(
               map(({ report, summary, application }) => {
-                const reportResult = this.blobVersioningService.processReport(report);
-                const summaryResult = this.blobVersioningService.processSummary(summary);
-                const applicationResult =
-                  this.blobVersioningService.processApplication(application);
+                const reportResult = this.reportVersioningService.process(report);
+                const summaryResult = this.summaryVersioningService.process(summary);
+                const applicationResult = this.applicationVersioningService.process(application);
 
                 const hadLegacyBlobs =
-                  reportResult.wasV1 || summaryResult.wasV1 || applicationResult.wasV1;
+                  reportResult.wasLegacy || summaryResult.wasLegacy || applicationResult.wasLegacy;
 
                 return {
-                  version: 2 as const,
                   reportData: reportResult.data,
                   summaryData: summaryResult.data,
                   applicationData: applicationResult.data,
@@ -214,7 +218,7 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
             }
 
             return from(this._decryptBlob(encryptedSummary, contentEncryptionKey, "summary")).pipe(
-              map((json) => this.blobVersioningService.processSummary(json).data),
+              map((json) => this.summaryVersioningService.process(json).data),
             );
           }),
         );

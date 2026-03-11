@@ -282,20 +282,6 @@ export const isRiskInsightsApplicationDataArray = createBoundedArrayGuard(
 );
 
 /**
- * Type guard for the V2 application blob on-disk wrapper format: `{ version: number, items: unknown[] }`.
- * Used by BlobVersioningService to detect V2 vs V1 (plain array) format.
- */
-export function isV2ApplicationBlobWrapper(
-  value: unknown,
-): value is { version: number; items: unknown[] } {
-  if (value == null || typeof value !== "object" || Array.isArray(value)) {
-    return false;
-  }
-  const obj = value as Record<string, unknown>;
-  return typeof obj["version"] === "number" && Array.isArray(obj["items"]);
-}
-
-/**
  * Validates and returns an array of RiskInsightsApplicationData
  * @throws Error if validation fails
  */
@@ -344,19 +330,13 @@ export function validateRiskInsightsApplicationDataArray(
  */
 export function validateAccessReportPayload(data: unknown): AccessReportPayload {
   if (data == null || typeof data !== "object" || Array.isArray(data)) {
-    throw new Error("Invalid V2 report data: expected a versioned object, received non-object");
+    throw new Error("Invalid report payload: expected object, received non-object");
   }
 
   const obj = data as Record<string, unknown>;
 
-  if (obj["version"] !== 2) {
-    throw new Error(
-      `Invalid V2 report data: expected version 2, received version ${obj["version"]}`,
-    );
-  }
-
   if (!isRiskInsightsReportDataV2Array(obj["reports"])) {
-    throw new Error("Invalid V2 report data: reports array failed validation");
+    throw new Error("Invalid report payload: reports array failed validation");
   }
 
   // Pre-normalize "" → undefined before validation for backwards compatibility with
@@ -376,7 +356,7 @@ export function validateAccessReportPayload(data: unknown): AccessReportPayload 
 
   if (!isMemberRegistry(obj["memberRegistry"])) {
     const errors = isMemberRegistry.explain(obj["memberRegistry"]).join("; ");
-    throw new Error(`Invalid V2 report data: memberRegistry failed validation: ${errors}`);
+    throw new Error(`Invalid report payload: memberRegistry failed validation: ${errors}`);
   }
 
   return data as AccessReportPayload;

@@ -87,15 +87,16 @@ pipe(
     this.logService.error("Operation failed", error);
     return throwError(() => error);
   }),
-)
+);
 
 // ❌ WRONG - Implicit any fails pre-commit
 pipe(
-  catchError((error) => {  // ← Missing ': unknown' → pre-commit failure
+  catchError((error) => {
+    // ← Missing ': unknown' → pre-commit failure
     this.logService.error("Operation failed", error);
     return throwError(() => error);
   }),
-)
+);
 ```
 
 **Why:** TypeScript cannot know the type of a thrown error at compile time. `unknown` forces explicit narrowing before use and is the correct type annotation here. The `rxjs/no-implicit-any-catch` lint rule enforces this — it mirrors the TypeScript `useUnknownInCatchVariables` behavior for RxJS callbacks.

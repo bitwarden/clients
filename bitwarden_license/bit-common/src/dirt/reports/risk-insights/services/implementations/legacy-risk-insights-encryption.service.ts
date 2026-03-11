@@ -10,7 +10,6 @@ import { LogService } from "@bitwarden/logging";
 
 import { createNewSummaryData } from "../../helpers";
 import {
-  isV2ApplicationBlobWrapper,
   validateAccessReportPayload,
   validateApplicationHealthReportDetailArray,
   validateOrganizationReportApplicationArray,
@@ -19,14 +18,17 @@ import {
 import {
   ApplicationHealthReportDetail,
   DecryptedReportData,
-  EncryptedDataWithKey,
-  EncryptedReportData,
   MemberDetails,
   OrganizationReportApplication,
   OrganizationReportSummary,
 } from "../../models";
 import { MemberRegistryEntryData } from "../../models/data/member-details.data";
 import { RiskInsightsReportData } from "../../models/data/risk-insights-report.data";
+import {
+  EncryptedDataWithKey,
+  EncryptedReportData,
+} from "../abstractions/access-report-encryption.service";
+import { isVersionEnvelope } from "../abstractions/versioning.service";
 
 /**
  * @deprecated V1 encryption service. Used only by the V1 orchestrator, V1 report service,
@@ -210,11 +212,11 @@ export class LegacyRiskInsightsEncryptionService {
 
       // Downgrade path: V2 blob detected in V1 context (feature flag was reverted).
       // Validate and reconstruct V1 structure from V2 payload using the member registry.
-      if (typeof parsedData === "object" && parsedData !== null && "version" in parsedData) {
+      if (isVersionEnvelope(parsedData)) {
         this.logService.warning(
           "[LegacyRiskInsightsEncryptionService] V2 report detected in V1 path, running downgrade transform",
         );
-        const payload = validateAccessReportPayload(parsedData);
+        const payload = validateAccessReportPayload(parsedData.data);
         return this._convertV2ReportToV1(payload.reports, payload.memberRegistry);
       }
 
@@ -246,12 +248,13 @@ export class LegacyRiskInsightsEncryptionService {
       const decryptedData = await this.encryptService.decryptString(encryptedData, key);
       const parsedData = JSON.parse(decryptedData);
 
-      // Downgrade path: V2 summary blob has a `version` field; V1 does not.
-      // V1 and V2 summary fields are identical, so stripping `version` is sufficient.
-      if (typeof parsedData === "object" && parsedData !== null && "version" in parsedData) {
+      // Downgrade path: V2 summary blob is a VersionEnvelope wrapping the summary payload.
+      // Extract the inner data before validating.
+      if (isVersionEnvelope(parsedData)) {
         this.logService.warning(
-          "[LegacyRiskInsightsEncryptionService] Versioned summary detected in legacy path, extra fields ignored by validator",
+          "[LegacyRiskInsightsEncryptionService] Versioned summary detected in legacy path, extracting payload",
         );
+        return validateOrganizationReportSummary(parsedData.data);
       }
 
       return validateOrganizationReportSummary(parsedData);
@@ -281,21 +284,18 @@ export class LegacyRiskInsightsEncryptionService {
       const decryptedData = await this.encryptService.decryptString(encryptedData, key);
       const parsedData = JSON.parse(decryptedData);
 
-      // Downgrade path: V2 application blob is `{ version: 2, items: [...] }`.
-      // Extract items and convert reviewedDate: string|undefined → Date|null for V1 consumers.
-      if (isV2ApplicationBlobWrapper(parsedData)) {
+      // Downgrade path: V2 application blob is a VersionEnvelope wrapping an array.
+      // Extract the array and convert reviewedDate: string|undefined → Date|null for V1 consumers.
+      if (isVersionEnvelope(parsedData)) {
         this.logService.warning(
           "[LegacyRiskInsightsEncryptionService] V2 application format detected in V1 path, running downgrade transform",
         );
-        return parsedData.items.map((item) => {
-          const app = item as Record<string, unknown>;
-          return {
-            applicationName: app["applicationName"] as string,
-            isCritical: app["isCritical"] as boolean,
-            reviewedDate:
-              typeof app["reviewedDate"] === "string" ? new Date(app["reviewedDate"]) : null,
-          };
-        });
+        return (parsedData.data as Record<string, unknown>[]).map((app) => ({
+          applicationName: app["applicationName"] as string,
+          isCritical: app["isCritical"] as boolean,
+          reviewedDate:
+            typeof app["reviewedDate"] === "string" ? new Date(app["reviewedDate"]) : null,
+        }));
       }
 
       // Normal V1 path: validate parsed data structure with runtime type guards

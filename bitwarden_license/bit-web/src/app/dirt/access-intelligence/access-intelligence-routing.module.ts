@@ -9,12 +9,11 @@ import { CriticalAppsService } from "@bitwarden/bit-common/dirt/reports/risk-ins
 import {
   AccessIntelligenceDataService,
   AllActivitiesService,
-  BlobVersioningService,
+  ApplicationVersioningService,
   CipherHealthService,
   CriticalAppsApiService,
   DefaultAccessIntelligenceDataService,
   DefaultAccessReportEncryptionService,
-  DefaultBlobVersioningService,
   DefaultCipherHealthService,
   DefaultDrawerStateService,
   DefaultMemberCipherMappingService,
@@ -27,10 +26,12 @@ import {
   PasswordHealthService,
   ReportGenerationService,
   ReportPersistenceService,
+  ReportVersioningService,
   RiskInsightsApiService,
   RiskInsightsDataService,
   RiskInsightsReportService,
   SecurityTasksApiService,
+  SummaryVersioningService,
   AccessReportEncryptionService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/services";
 import { RiskInsightsOrchestratorService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/domain/risk-insights-orchestrator.service";
@@ -156,14 +157,29 @@ const v2Providers = [
     deps: [KeyService, EncryptService, KeyGenerationService, LogService],
   }),
   safeProvider({
-    provide: BlobVersioningService,
-    useClass: DefaultBlobVersioningService,
+    provide: ReportVersioningService,
+    deps: [LogService],
+  }),
+  safeProvider({
+    provide: ApplicationVersioningService,
+    deps: [LogService],
+  }),
+  safeProvider({
+    provide: SummaryVersioningService,
     deps: [LogService],
   }),
   safeProvider({
     provide: AccessReportEncryptionService,
     useClass: DefaultAccessReportEncryptionService,
-    deps: [KeyService, EncryptService, KeyGenerationService, BlobVersioningService, LogService],
+    deps: [
+      KeyService,
+      EncryptService,
+      KeyGenerationService,
+      ReportVersioningService,
+      ApplicationVersioningService,
+      SummaryVersioningService,
+      LogService,
+    ],
   }),
   safeProvider({
     provide: CipherHealthService,

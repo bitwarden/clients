@@ -11,10 +11,11 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
-import { EncryptedReportData, DecryptedReportData } from "../../models";
+import { DecryptedReportData } from "../../models";
 import { MemberRegistryEntryData } from "../../models/data/member-details.data";
 import { RiskInsightsReportData } from "../../models/data/risk-insights-report.data";
 import { mockApplicationData, mockReportData, mockSummaryData } from "../../models/mocks/mock-data";
+import { EncryptedReportData } from "../abstractions/access-report-encryption.service";
 
 import { LegacyRiskInsightsEncryptionService } from "./legacy-risk-insights-encryption.service";
 
@@ -320,7 +321,7 @@ describe("LegacyRiskInsightsEncryptionService", () => {
         memberRefs: { "member-1": true, "member-2": false },
         cipherRefs: { "cipher-a": true, "cipher-b": false, "cipher-c": false },
       });
-      const v2Blob = { version: 2, reports: [v2Report], memberRegistry: registry };
+      const v2Blob = { version: 1, data: { reports: [v2Report], memberRegistry: registry } };
 
       mockEncryptService.decryptString
         .mockResolvedValueOnce(JSON.stringify(v2Blob))
@@ -359,9 +360,11 @@ describe("LegacyRiskInsightsEncryptionService", () => {
       mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
 
       const v2Blob = {
-        version: 2,
-        reports: [] as RiskInsightsReportData[],
-        memberRegistry: {} as Record<string, MemberRegistryEntryData>,
+        version: 1,
+        data: {
+          reports: [] as RiskInsightsReportData[],
+          memberRegistry: {} as Record<string, MemberRegistryEntryData>,
+        },
       };
 
       mockEncryptService.decryptString
@@ -395,7 +398,7 @@ describe("LegacyRiskInsightsEncryptionService", () => {
         memberRefs: { "member-1": false, "member-2": false },
         cipherRefs: {},
       });
-      const v2Blob = { version: 2, reports: [v2Report], memberRegistry: registry };
+      const v2Blob = { version: 1, data: { reports: [v2Report], memberRegistry: registry } };
 
       mockEncryptService.decryptString
         .mockResolvedValueOnce(JSON.stringify(v2Blob))
