@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
 
 import AutofillField from "../models/autofill-field";
@@ -47,11 +45,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private autofillFieldElements: AutofillFieldElements = new Map();
   private autofillFieldsByOpid: Map<string, FormFieldElement> = new Map();
   private currentLocationHref = "";
-  private intersectionObserver: IntersectionObserver;
+  private intersectionObserver: IntersectionObserver | null = null;
   private elementInitializingIntersectionObserver: Set<Element> = new Set();
-  private mutationObserver: MutationObserver;
+  private mutationObserver: MutationObserver | null = null;
   private mutationsQueue: MutationRecord[][] = [];
-  private updateAfterMutationIdleCallback: NodeJS.Timeout | number;
+  private updateAfterMutationIdleCallback: number | NodeJS.Timeout | null = null;
   private pendingOverlaySetup: Map<Element, NodeJS.Timeout | number> = new Map();
   private readonly overlaySetupDelayMs = 100;
   private shadowDomCheckTimeout: NodeJS.Timeout | number | null = null;
@@ -114,11 +112,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.setupInitialTopLayerListeners();
     }
 
-    if (!this.mutationObserver) {
+    if (this.mutationObserver === null) {
       this.setupMutationObserver();
     }
 
-    if (!this.intersectionObserver) {
+    if (this.intersectionObserver === null) {
       this.setupIntersectionObserver();
     }
 
@@ -349,7 +347,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         globalThis.document.documentElement,
         this.formFieldQueryString,
         (node: Node) => this.isNodeFormFieldElement(node),
-        this.mutationObserver,
+        this.mutationObserver ?? undefined,
       );
     }
 
@@ -428,7 +426,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     if (!autofillFieldBase.viewable) {
       this.elementInitializingIntersectionObserver.add(element);
-      this.intersectionObserver?.observe(element);
+      if (this.intersectionObserver !== null) {
+        this.intersectionObserver.observe(element);
+      }
     }
 
     if (elementIsSpanElement(element)) {
@@ -926,7 +926,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
         return false;
       },
-      this.mutationObserver,
+      this.mutationObserver ?? undefined,
     );
 
     if (formElements.length || formFieldElements.length) {
@@ -997,13 +997,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private setupMutationObserver() {
     this.currentLocationHref = globalThis.location.href;
     this.mutationObserver = new MutationObserver(this.handleMutationObserverMutation);
-    this.mutationObserver.observe(document.documentElement, {
-      attributes: true,
-      /** Mutations to node attributes NOT on this list will not be observed! */
-      attributeFilter: Object.values(AUTOFILL_ATTRIBUTES),
-      childList: true,
-      subtree: true,
-    });
+    if (this.mutationObserver !== null) {
+      this.mutationObserver.observe(document.documentElement, {
+        attributes: true,
+        /** Mutations to node attributes NOT on this list will not be observed! */
+        attributeFilter: Object.values(AUTOFILL_ATTRIBUTES),
+        childList: true,
+        subtree: true,
+      });
+    }
   }
 
   /**
@@ -1250,7 +1252,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         `form, ${this.formFieldQueryString}`,
         (walkerNode: Node) =>
           nodeIsFormElement(walkerNode) || this.isNodeFormFieldElement(walkerNode),
-        this.mutationObserver,
+        this.mutationObserver ?? undefined,
         true,
       );
 
@@ -1352,8 +1354,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @private
    */
   private updateAutofillElementsAfterMutation() {
-    if (this.updateAfterMutationIdleCallback) {
+    if (this.updateAfterMutationIdleCallback !== null) {
       cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
+      this.updateAfterMutationIdleCallback = null;
     }
 
     const now = Date.now();
@@ -1581,7 +1584,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
       const cachedAutofillFieldElement = this.autofillFieldElements.get(formFieldElement);
       if (!cachedAutofillFieldElement) {
-        this.intersectionObserver.unobserve(entry.target);
+        if (this.intersectionObserver !== null) {
+          this.intersectionObserver.unobserve(entry.target);
+        }
         continue;
       }
 
@@ -1593,7 +1598,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       cachedAutofillFieldElement.viewable = true;
       this.setupOverlayOnField(formFieldElement, cachedAutofillFieldElement);
 
-      this.intersectionObserver?.unobserve(entry.target);
+      if (this.intersectionObserver !== null) {
+        this.intersectionObserver.unobserve(entry.target);
+      }
     }
   };
 
@@ -1703,15 +1710,22 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * timeouts and disconnects the mutation observer.
    */
   destroy() {
-    if (this.updateAfterMutationIdleCallback) {
+    if (this.updateAfterMutationIdleCallback !== null) {
       cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
+      this.updateAfterMutationIdleCallback = null;
     }
     if (this.shadowDomCheckTimeout) {
       clearTimeout(this.shadowDomCheckTimeout);
     }
     this.pendingOverlaySetup.forEach((timeout) => globalThis.clearTimeout(timeout));
     this.pendingOverlaySetup.clear();
-    this.mutationObserver?.disconnect();
-    this.intersectionObserver?.disconnect();
+    if (this.mutationObserver !== null) {
+      this.mutationObserver.disconnect();
+      this.mutationObserver = null;
+    }
+    if (this.intersectionObserver !== null) {
+      this.intersectionObserver.disconnect();
+      this.intersectionObserver = null;
+    }
   }
 }
