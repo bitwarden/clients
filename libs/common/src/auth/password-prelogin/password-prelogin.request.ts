@@ -1,4 +1,4 @@
-export class PreloginRequest {
+export class PasswordPreloginRequest {
   email: string;
 
   constructor(email: string) {

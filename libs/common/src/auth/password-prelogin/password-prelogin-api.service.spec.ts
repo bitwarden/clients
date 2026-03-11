@@ -1,13 +1,12 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-
 import { ApiService } from "../../abstractions/api.service";
-import { Environment , EnvironmentService } from "../../platform/abstractions/environment.service";
+import { Environment, EnvironmentService } from "../../platform/abstractions/environment.service";
 
 import { PasswordPreloginApiService } from "./password-prelogin-api.service";
-import { PreloginRequest } from "./prelogin.request";
-import { PreloginResponse } from "./prelogin.response";
+import { PasswordPreloginRequest } from "./password-prelogin.request";
+import { PasswordPreloginResponse } from "./password-prelogin.response";
 
 describe("PasswordPreloginApiService", () => {
   let apiService: MockProxy<ApiService>;
@@ -33,7 +32,7 @@ describe("PasswordPreloginApiService", () => {
 
   describe("getPreloginData", () => {
     it("calls apiService.send with correct parameters", async () => {
-      const request = new PreloginRequest("user@example.com");
+      const request = new PasswordPreloginRequest("user@example.com");
       apiService.send.mockResolvedValue({});
 
       await sut.getPreloginData(request);
@@ -49,16 +48,16 @@ describe("PasswordPreloginApiService", () => {
     });
 
     it("returns a PreloginResponse", async () => {
-      const request = new PreloginRequest("user@example.com");
+      const request = new PasswordPreloginRequest("user@example.com");
       apiService.send.mockResolvedValue({ Kdf: 0, KdfIterations: 600000 });
 
       const result = await sut.getPreloginData(request);
 
-      expect(result).toBeInstanceOf(PreloginResponse);
+      expect(result).toBeInstanceOf(PasswordPreloginResponse);
     });
 
     it("maps kdf fields from the api response", async () => {
-      const request = new PreloginRequest("user@example.com");
+      const request = new PasswordPreloginRequest("user@example.com");
       apiService.send.mockResolvedValue({
         Kdf: 1,
         KdfIterations: 3,
@@ -82,7 +81,7 @@ describe("PasswordPreloginApiService", () => {
 
       sut = new PasswordPreloginApiService(apiService, environmentService);
 
-      const request = new PreloginRequest("user@example.com");
+      const request = new PasswordPreloginRequest("user@example.com");
       apiService.send.mockResolvedValue({});
 
       await sut.getPreloginData(request);
@@ -98,7 +97,7 @@ describe("PasswordPreloginApiService", () => {
     });
 
     it("propagates api errors", async () => {
-      const request = new PreloginRequest("user@example.com");
+      const request = new PasswordPreloginRequest("user@example.com");
       apiService.send.mockRejectedValue(new Error("API Error"));
 
       await expect(sut.getPreloginData(request)).rejects.toThrow("API Error");

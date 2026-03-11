@@ -3,8 +3,8 @@ import { firstValueFrom } from "rxjs";
 import { ApiService } from "../../abstractions/api.service";
 import { EnvironmentService } from "../../platform/abstractions/environment.service";
 
-import { PreloginRequest } from "./prelogin.request";
-import { PreloginResponse } from "./prelogin.response";
+import { PasswordPreloginRequest } from "./password-prelogin.request";
+import { PasswordPreloginResponse } from "./password-prelogin.response";
 
 export class PasswordPreloginApiService {
   constructor(
@@ -12,7 +12,7 @@ export class PasswordPreloginApiService {
     private environmentService: EnvironmentService,
   ) {}
 
-  async getPreloginData(request: PreloginRequest): Promise<PreloginResponse> {
+  async getPreloginData(request: PasswordPreloginRequest): Promise<PasswordPreloginResponse> {
     const env = await firstValueFrom(this.environmentService.environment$);
     const r = await this.apiService.send(
       "POST",
@@ -22,6 +22,6 @@ export class PasswordPreloginApiService {
       true,
       env.getIdentityUrl(),
     );
-    return new PreloginResponse(r);
+    return new PasswordPreloginResponse(r);
   }
 }
