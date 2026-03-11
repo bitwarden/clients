@@ -43,10 +43,9 @@
           *ngIf="!product.marketingRoute.external"
           bitLink
           [routerLink]="product.marketingRoute.route"
+          [startIcon]="product.icon"
         >
-          <span class="tw-flex tw-items-center tw-font-normal">
-            <i class="bwi bwi-fw {{ product.icon }} tw-m-0 !tw-mr-3"></i>{{ product.name }}
-          </span>
+          {{ product.name }}
         </a>
         <!-- <a> for when the marketing route is external -->
         <a
@@ -55,10 +54,9 @@
           [href]="product.marketingRoute.route"
           target="_blank"
           rel="noreferrer"
+          [startIcon]="product.icon"
         >
-          <span class="tw-flex tw-items-center tw-font-normal">
-            <i class="bwi bwi-fw {{ product.icon }} tw-m-0 !tw-mr-3"></i>{{ product.name }}
-          </span>
+          {{ product.name }}
         </a>
       </span>
     </section>
