@@ -327,7 +327,7 @@ export class ApplicationsComponent implements OnInit {
     }
   }
 
-  showAppAtRiskMembers = async (applicationName: string) => {
+  readonly showAppAtRiskMembers = async (applicationName: string) => {
     await this.dataService.setDrawerForAppAtRiskMembers(applicationName);
   };
 
