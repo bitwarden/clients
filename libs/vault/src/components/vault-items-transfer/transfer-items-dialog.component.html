@@ -4,7 +4,13 @@
   <span bitDialogContent>
     <p>
       {{ "transferItemsToOrganizationDescription" | i18n: organizationName }}
-      <a bitLink href="#" (click)="openLearnMore($event)" endIcon="bwi-external-link">
+      <a
+        bitLink
+        href="#"
+        (click)="openLearnMore($event)"
+        endIcon="bwi-external-link"
+        [aria-label]="'openTransferItemsHelpArticle' | i18n"
+      >
         {{ "learnMore" | i18n }}
       </a>
     </p>
