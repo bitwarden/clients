@@ -32,6 +32,14 @@ on:
         required: true
         default: true
         type: boolean
+      snap_channel:
+        description: 'Snap Store channel to publish to'
+        required: false
+        default: 'stable'
+        type: choice
+        options:
+          - stable
+          - beta
       choco_publish:
         description: 'Publish to Chocolatey store'
         required: true
@@ -234,14 +242,17 @@ jobs:
 
       - name: Download artifacts
         working-directory: apps/desktop/dist
-        run: wget "https://github.com/bitwarden/clients/releases/download/${_RELEASE_TAG}/bitwarden_${_PKG_VERSION}_amd64.snap"
+        run: |
+          wget "https://github.com/bitwarden/clients/releases/download/${_RELEASE_TAG}/bitwarden_${_PKG_VERSION}_amd64.snap"
+          wget "https://github.com/bitwarden/clients/releases/download/${_RELEASE_TAG}/bitwarden_${_PKG_VERSION}_arm64.snap"
 
       - name: Deploy to Snap Store
         if: ${{ inputs.publish_type != 'Dry Run' }}
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ steps.retrieve-secrets.outputs.snapcraft-store-token }}
         run: |
-          snapcraft upload "bitwarden_${_PKG_VERSION}_amd64.snap" --release stable
+          snapcraft upload "bitwarden_${_PKG_VERSION}_amd64.snap" --release ${{ inputs.snap_channel }}
+          snapcraft upload "bitwarden_${_PKG_VERSION}_arm64.snap" --release ${{ inputs.snap_channel }}
           snapcraft logout
         working-directory: apps/desktop/dist
 
