@@ -189,7 +189,7 @@ describe("AutofillService", () => {
           sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
           tab,
         },
-        null,
+        undefined,
         true,
       );
     });
@@ -630,6 +630,25 @@ describe("AutofillService", () => {
           username: pageDetailsMock.fields[0],
         },
       ]);
+    });
+
+    it("includes forms with password but no detectable username field with username: null", () => {
+      const passwordInputField = createAutofillFieldMock({
+        opid: "password-field",
+        type: "password",
+        form: "validFormId",
+        elementNumber: 1,
+      });
+      pageDetailsMock.fields = [passwordInputField];
+      jest.spyOn(AutofillService, "loadPasswordFields").mockReturnValueOnce([passwordInputField]);
+
+      const formData = autofillService.getFormsWithPasswordFields(pageDetailsMock);
+
+      expect(formData).toHaveLength(1);
+      expect(formData[0].form).toBe(pageDetailsMock.forms.validFormId);
+      expect(formData[0].password).toBe(passwordInputField);
+      expect(formData[0].passwords).toEqual([passwordInputField]);
+      expect(formData[0].username).toBeNull();
     });
   });
 
