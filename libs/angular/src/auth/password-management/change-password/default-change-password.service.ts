@@ -3,7 +3,6 @@
 import { PasswordInputResult } from "@bitwarden/auth/angular";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
@@ -209,16 +208,6 @@ export class DefaultChangePasswordService implements ChangePasswordService {
       } catch {
         throw new Error(
           "Error during change password attempt. Could not change password for account recovery.",
-        );
-      }
-
-      // TODO: investigate removing this call to clear forceSetPasswordReason in https://bitwarden.atlassian.net/browse/PM-32660
-      const shouldNavigateToRoot = this.shouldNavigateToRoot();
-      if (shouldNavigateToRoot) {
-        // Clear force set password reason to allow navigation back to vault.
-        await this.masterPasswordService.setForceSetPasswordReason(
-          ForceSetPasswordReason.None,
-          userId,
         );
       }
 

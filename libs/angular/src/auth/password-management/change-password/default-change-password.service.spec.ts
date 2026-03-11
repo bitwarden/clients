@@ -6,7 +6,6 @@ import { of } from "rxjs";
 import { PasswordInputResult } from "@bitwarden/auth/angular";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -422,31 +421,6 @@ describe("DefaultChangePasswordService", () => {
         // Assert
         expect(masterPasswordApiService.putUpdateTempPassword).toHaveBeenCalledTimes(1);
         expect(masterPasswordApiService.putUpdateTempPassword).toHaveBeenCalledWith(request);
-      });
-
-      it("should set the forceSetPasswordReason to None when shouldNavigateToRoot returns true", async () => {
-        // Arrange
-        jest.spyOn(sut, "shouldNavigateToRoot").mockReturnValue(true);
-
-        // Act
-        await sut.changePasswordForAccountRecovery(passwordInputResult, userId);
-
-        // Assert
-        expect(masterPasswordService.setForceSetPasswordReason).toHaveBeenCalledWith(
-          ForceSetPasswordReason.None,
-          userId,
-        );
-      });
-
-      it("should not set the forceSetPasswordReason to None when shouldNavigateToRoot returns false", async () => {
-        // Arrange
-        jest.spyOn(sut, "shouldNavigateToRoot").mockReturnValue(false);
-
-        // Act
-        await sut.changePasswordForAccountRecovery(passwordInputResult, userId);
-
-        // Assert
-        expect(masterPasswordService.setForceSetPasswordReason).not.toHaveBeenCalled();
       });
     });
   });
