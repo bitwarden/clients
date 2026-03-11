@@ -30,7 +30,7 @@ export class CipherContextMenuHandler {
     await MainContextMenuHandler.removeAll();
     if (authStatus !== AuthenticationStatus.Unlocked) {
       // Should I pass in the auth status or even have two separate methods for this
-      // on MainContextMenuHandler
+      // on MainContextMenuHandler?
       await this.mainContextMenuHandler.noAccess();
       return;
     }
