@@ -14,7 +14,6 @@ export abstract class SearchService {
 
   /**
    * Checks if the query is long enough to be searchable.
-   * For short Lunr.js queries (starts with '>'), a valid search index must exist for the user.
    */
   abstract isSearchable(userId: UserId, query: string | null): Promise<boolean>;
   /**
