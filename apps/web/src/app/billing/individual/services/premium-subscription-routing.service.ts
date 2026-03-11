@@ -8,7 +8,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { UserId } from "@bitwarden/user-core";
 import { AccountBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class PremiumSubscriptionRoutingService {
   constructor(
     private accountService: AccountService,
