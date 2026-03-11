@@ -58,9 +58,8 @@
           rel="noreferrer"
           appA11yTitle="{{ 'learnMoreAboutLocalization' | i18n }}"
           slot="end"
-        >
-          <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-        </a>
+          startIcon="bwi-question-circle"
+        ></a>
       </bit-label>
       <bit-select formControlName="locale" id="locale">
         <bit-option *ngFor="let o of localeOptions" [value]="o.value" [label]="o.name"></bit-option>
