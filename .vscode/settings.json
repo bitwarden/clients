@@ -9,6 +9,5 @@
   "rust-analyzer.linkedProjects": ["apps/desktop/desktop_native/Cargo.toml"],
   "typescript.tsdk": "node_modules/typescript/lib",
   "eslint.useFlatConfig": true,
-  "tailwindCSS.experimental.classRegex": ["[\"'`]([^\"'`\\n]*tw-[^\"'`\\n]*)[\"'`]"],
-  "angular.enable-strict-mode-prompt": false
+  "tailwindCSS.experimental.classRegex": ["[\"'`]([^\"'`\\n]*tw-[^\"'`\\n]*)[\"'`]"]
 }
