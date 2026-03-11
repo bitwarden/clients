@@ -1,7 +1,7 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
-  <bit-dialog [loading]="loading" [title]="'editPolicy' | i18n" [subtitle]="policy.name | i18n">
+  <bit-dialog [loading]="loading()" [title]="'editPolicy' | i18n" [subtitle]="policy.name | i18n">
     <ng-container bitDialogContent>
-      <div *ngIf="loading">
+      <div *ngIf="loading()">
         <i
           class="bwi bwi-spinner bwi-spin tw-text-muted"
           title="{{ 'loading' | i18n }}"
@@ -9,7 +9,7 @@
         ></i>
         <span class="tw-sr-only">{{ "loading" | i18n }}</span>
       </div>
-      <div [hidden]="loading">
+      <div [hidden]="loading()">
         @if (policy.showDescription) {
           <p bitTypography="body1">{{ policy.description | i18n }}</p>
         }
@@ -20,7 +20,7 @@
       <button
         bitButton
         buttonType="primary"
-        [disabled]="saveDisabled$ | async"
+        [disabled]="saveDisabled()"
         bitFormButton
         type="submit"
       >

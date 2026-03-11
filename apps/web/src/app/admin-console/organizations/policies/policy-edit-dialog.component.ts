@@ -3,12 +3,16 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   Inject,
   ViewContainerRef,
+  inject,
+  signal,
   viewChild,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { Observable, map, firstValueFrom, switchMap, filter, of } from "rxjs";
+import { map, firstValueFrom, switchMap, filter } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -58,12 +62,13 @@ export type PolicyEditDialogResult = "saved";
 })
 export class PolicyEditDialogComponent implements AfterViewInit {
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly policyType = PolicyType;
-  loading = true;
-  readonly enabled = false;
-  saveDisabled$: Observable<boolean> = of(false);
-  policyComponent: BasePolicyEditComponent | undefined;
+  protected readonly loading = signal(true);
+  protected readonly enabled = false;
+  protected readonly saveDisabled = signal(false);
+  protected readonly policyComponent = signal<BasePolicyEditComponent | undefined>(undefined);
 
   readonly formGroup = this.formBuilder.group({
     enabled: [this.enabled],
@@ -100,23 +105,26 @@ export class PolicyEditDialogComponent implements AfterViewInit {
    */
   async ngAfterViewInit() {
     const policyResponse = await this.load();
-    this.loading = false;
+    this.loading.set(false);
 
     const policyFormRef = this.policyFormRef();
     if (!policyFormRef) {
       throw new Error("Template not initialized.");
     }
 
-    this.policyComponent = policyFormRef.createComponent(this.data.policy.component).instance;
-    this.policyComponent.policy = this.data.policy;
-    this.policyComponent.policyResponse = policyResponse;
-    this.policyComponent.organization = this.data.organization;
+    const component = policyFormRef.createComponent(this.data.policy.component).instance;
+    component.policy = this.data.policy;
+    component.policyResponse = policyResponse;
+    component.organization = this.data.organization;
+    this.policyComponent.set(component);
 
-    if (this.policyComponent.data) {
-      // If the policy has additional configuration, disable the save button if the form state is invalid
-      this.saveDisabled$ = this.policyComponent.data.statusChanges.pipe(
-        map((status) => status !== "VALID" || !policyResponse.canToggleState),
-      );
+    if (component.data) {
+      component.data.statusChanges
+        .pipe(
+          map((status) => status !== "VALID" || !policyResponse.canToggleState),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe((disabled) => this.saveDisabled.set(disabled));
     }
 
     this.cdr.detectChanges();
@@ -136,17 +144,18 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   }
 
   readonly submit = async () => {
-    if (!this.policyComponent) {
+    const policyComponent = this.policyComponent();
+    if (!policyComponent) {
       throw new Error("PolicyComponent not initialized.");
     }
 
-    if ((await this.policyComponent.confirm()) == false) {
+    if ((await policyComponent.confirm()) == false) {
       this.dialogRef.close();
       return;
     }
 
     try {
-      await this.handleVNextSubmission(this.policyComponent);
+      await this.handleVNextSubmission(policyComponent);
 
       this.toastService.showToast({
         variant: "success",
