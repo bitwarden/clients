@@ -24,7 +24,7 @@ export type UnsavedEditsDialogResult = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UnsavedEditsDialogComponent {
-  constructor(private dialogRef: DialogRef<UnsavedEditsDialogResult>) {}
+  constructor(private readonly dialogRef: DialogRef<UnsavedEditsDialogResult>) {}
 
   discardEdits() {
     void this.dialogRef.close({ result: UnsavedEditsDialogResult.Discard });
