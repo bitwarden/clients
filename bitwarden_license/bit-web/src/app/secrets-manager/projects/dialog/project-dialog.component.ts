@@ -48,7 +48,9 @@ export class ProjectDialogComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
     private toastService: ToastService,
-  ) {}
+  ) {
+    this.loading = data.operation === OperationType.Edit;
+  }
 
   async ngOnInit() {
     if (this.data.operation === OperationType.Edit && this.data.projectId) {
