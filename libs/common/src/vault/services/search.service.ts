@@ -234,6 +234,7 @@ export class SearchService implements SearchServiceAbstraction {
     query: string,
     filter: ((cipher: C) => boolean) | ((cipher: C) => boolean)[] = null,
     ciphers: C[],
+    indexedEntityId?: IndexedEntityId,
   ): Promise<C[]> {
     this._isCipherSearching$.next(true);
     const results: C[] = [];
@@ -270,12 +271,34 @@ export class SearchService implements SearchServiceAbstraction {
         }
       }
       let index = await this.getIndexForSearch(userId);
+
+      // If the caller specifies an entity ID that differs from the cached index's entity,
+      // clear the stale index so it will be rebuilt for the correct set of ciphers.
+      if (index != null) {
+        const currentEntityId = await firstValueFrom(this.indexedEntityId$(userId));
+        if ((indexedEntityId ?? null) !== (currentEntityId ?? null)) {
+          await this.clearIndex(userId);
+          index = null;
+        }
+      }
+
       // If there is no index, build an index
       if (index == null) {
         this.logService.info("Building lunr index for search...");
-        await this.indexCiphers(userId, ciphers);
+        await this.indexCiphers(userId, ciphers, indexedEntityId as unknown as string);
+        // indexCiphers will return early if another indexing operation is already in progress, so index may still be null here.
         index = await this.getIndexForSearch(userId);
         this.logService.info("Lunr index built for search.");
+      }
+
+      if (index == null) {
+        // Fallback in case a long-running index is in progress
+        this.logService.error("Lunr index is not available for search.");
+        const basicQuery = query.replace(">", "").trim();
+        const basicResults = this.searchCiphersBasic(ciphers, basicQuery);
+        this.logService.measure(searchStartTime, "Vault", "SearchService", "basic search complete");
+        this._isCipherSearching$.next(false);
+        return basicResults;
       }
 
       let searchResults: lunr.Index.Result[] = null;
