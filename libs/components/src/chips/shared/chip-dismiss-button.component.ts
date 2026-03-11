@@ -27,7 +27,7 @@ import { ariaDisableElement } from "../../utils/aria-disable-element";
 })
 export class ChipDismissButtonComponent {
   readonly disabled = input<boolean>(false);
-  private el = inject(ElementRef<HTMLButtonElement>);
+  private readonly el = inject(ElementRef<HTMLButtonElement>);
   protected readonly size = input<"small" | "large">("large");
 
   readonly classList = computed(() => {
