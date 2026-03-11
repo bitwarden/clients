@@ -44,6 +44,15 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
 
   async authedHandler(qParams: Params): Promise<void> {
     const invite = this.fromParams(qParams);
+    if (invite === null) {
+      this.toastService.showToast({
+        message: this.i18nService.t(this.failedMessage),
+        variant: "error",
+        timeout: 10000,
+      });
+      await this.router.navigate(["/"]);
+      return;
+    }
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const success = await this.acceptOrganizationInviteService.validateAndAcceptInvite(
       invite,
@@ -62,11 +71,22 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
       timeout: 10000,
     });
 
-    await this.router.navigate(["/vault"]);
+    await this.router.navigate(["/"]);
   }
 
   async unauthedHandler(qParams: Params): Promise<void> {
     const invite = this.fromParams(qParams);
+    if (invite === null) {
+      // If invite is null (fromParams failed to validate, etc.), we must handle that case here in full.
+      // The unauthedHandler does not account for error handling in the BaseAcceptComponent.
+      this.toastService.showToast({
+        message: this.i18nService.t(this.failedMessage),
+        variant: "error",
+        timeout: 10000,
+      });
+      await this.router.navigate(["/"]);
+      return;
+    }
 
     await this.organizationInviteService.setOrganizationInvitation(invite);
     await this.navigateInviteAcceptance(invite);
