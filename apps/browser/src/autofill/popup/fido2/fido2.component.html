@@ -8,8 +8,14 @@
       }}"
     >
       @if (showNewPasskeyButton) {
-        <button bitButton buttonType="primary" type="button" (click)="addCipher()" slot="end">
-          <i class="bwi bwi-plus" aria-hidden="true"></i>
+        <button
+          bitButton
+          buttonType="primary"
+          type="button"
+          (click)="addCipher()"
+          slot="end"
+          startIcon="bwi-plus"
+        >
           {{ "new" | i18n }}
         </button>
       }
