@@ -8,21 +8,11 @@
 <div [formGroup]="data">
   <h3 bitTypography="h3" class="tw-mt-4">{{ "options" | i18n }}</h3>
   <bit-form-control>
-    <input
-      type="checkbox"
-      bitCheckbox
-      formControlName="disableSend"
-      [attr.disabled]="!enabled.value ? true : null"
-    />
+    <input type="checkbox" bitCheckbox formControlName="disableSend" />
     <bit-label>{{ "disableSend" | i18n }}</bit-label>
   </bit-form-control>
   <bit-form-control>
-    <input
-      type="checkbox"
-      bitCheckbox
-      formControlName="disableHideEmail"
-      [attr.disabled]="!enabled.value ? true : null"
-    />
+    <input type="checkbox" bitCheckbox formControlName="disableHideEmail" />
     <bit-label>{{ "disableHideEmail" | i18n }}</bit-label>
   </bit-form-control>
 </div>

@@ -131,7 +131,7 @@ export class SendControlsPolicyDialogComponent
 
     try {
       const formEnabled = this.policyComponent.enabled.value ?? false;
-      const formData = this.policyComponent.data?.value ?? {};
+      const formData = this.policyComponent.data?.getRawValue() ?? {};
 
       const disableSendRequest: PolicyRequest = {
         enabled: formEnabled && (formData.disableSend ?? false),
@@ -144,13 +144,16 @@ export class SendControlsPolicyDialogComponent
         data: { disableHideEmail: disableHideEmailValue },
       };
 
-      await this.policyApiService.putPolicyVNext(this.data.organizationId, PolicyType.DisableSend, {
-        policy: disableSendRequest,
-      });
-
-      await this.policyApiService.putPolicyVNext(this.data.organizationId, PolicyType.SendOptions, {
-        policy: sendOptionsRequest,
-      });
+      // These two saves are not atomic. Run in parallel so that a failure in either
+      // surfaces immediately rather than leaving a partial save silently applied.
+      await Promise.all([
+        this.policyApiService.putPolicyVNext(this.data.organizationId, PolicyType.DisableSend, {
+          policy: disableSendRequest,
+        }),
+        this.policyApiService.putPolicyVNext(this.data.organizationId, PolicyType.SendOptions, {
+          policy: sendOptionsRequest,
+        }),
+      ]);
 
       this.toastService.showToast({
         variant: "success",

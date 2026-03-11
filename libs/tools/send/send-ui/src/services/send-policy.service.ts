@@ -31,6 +31,9 @@ export class SendPolicyService {
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
+  // Both flag branches read from PolicyType.SendOptions because the server does not have a
+  // PolicyType.SendControls type. The SendControls dialog always saves disableHideEmail to
+  // SendOptions, so enforcement always reads from there regardless of the flag state.
   readonly disableHideEmail$: Observable<boolean> = this.flagAndUser$.pipe(
     switchMap(([, userId]) =>
       this.policyService

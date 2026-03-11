@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule, UntypedFormBuilder } from "@angular/forms";
 import type { Observable } from "rxjs";
 
@@ -56,7 +57,25 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent {
     disableHideEmail: [false],
   });
 
+  private readonly destroyRef = inject(DestroyRef);
+
   constructor(private readonly formBuilder: UntypedFormBuilder) {
     super();
+    this.enabled.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((enabled) => {
+      this.toggleDataControls(enabled ?? false);
+    });
+  }
+
+  override ngOnInit() {
+    super.ngOnInit();
+    this.toggleDataControls(this.enabled.value ?? false);
+  }
+
+  private toggleDataControls(enabled: boolean) {
+    if (enabled) {
+      this.data.enable();
+    } else {
+      this.data.disable();
+    }
   }
 }
