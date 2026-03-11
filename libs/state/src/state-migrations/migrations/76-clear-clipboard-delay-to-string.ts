@@ -147,7 +147,10 @@ export class ClearClipboardDelayToStringMigrator extends Migrator<75, 76> {
         oldValue = OLD_CLEAR_CLIPBOARD_DELAY_VALUES.TWO_MINUTES;
         break;
       case "fiveMinutes":
-        oldValue = OLD_CLEAR_CLIPBOARD_DELAY_VALUES.FIVE_MINUTES; // potential loss of data -- might have been null or 300 before migration
+        // Potential data loss: both null (old "Never") and 300 (old "5 minutes") migrate to
+        // "fiveMinutes", so on rollback both become 300. Users who originally had null/"Never"
+        // will end up with 300/"5 minutes" instead — an acceptable trade-off for a rollback edge case.
+        oldValue = OLD_CLEAR_CLIPBOARD_DELAY_VALUES.FIVE_MINUTES;
         break;
       default:
         // Default fallback
