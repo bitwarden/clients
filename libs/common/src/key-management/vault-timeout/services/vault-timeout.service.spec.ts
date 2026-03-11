@@ -84,7 +84,7 @@ describe("VaultTimeoutService", () => {
     >,
     globalSetups?: {
       userId?: string;
-      isViewOpen?: boolean;
+      isViewFocused?: boolean;
     },
   ) => {
     // Both are available by default and the specific test can change this per test
@@ -137,7 +137,7 @@ describe("VaultTimeoutService", () => {
       ),
     );
 
-    platformUtilsService.isPopupOpen.mockResolvedValue(globalSetups?.isViewOpen ?? false);
+    platformUtilsService.isAnyViewFocused.mockResolvedValue(globalSetups?.isViewFocused ?? false);
 
     vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockImplementation((userId) => {
       return new BehaviorSubject<VaultTimeoutAction>(accounts[userId]?.timeoutAction);
@@ -171,7 +171,7 @@ describe("VaultTimeoutService", () => {
     it.each([AuthenticationStatus.Locked, AuthenticationStatus.LoggedOut])(
       "should not try to log out or lock any user that has authStatus === %s.",
       async (authStatus) => {
-        platformUtilsService.isPopupOpen.mockResolvedValue(false);
+        platformUtilsService.isAnyViewFocused.mockResolvedValue(false);
         setupAccounts({
           1: {
             authStatus: authStatus,
@@ -241,7 +241,7 @@ describe("VaultTimeoutService", () => {
           },
         },
         {
-          isViewOpen: false,
+          isViewFocused: false,
         },
       );
 
@@ -285,7 +285,7 @@ describe("VaultTimeoutService", () => {
             availableTimeoutActions: [VaultTimeoutAction.LogOut],
           },
         },
-        { userId: "2", isViewOpen: false }, // Treat user 2 as the active user
+        { userId: "2", isViewFocused: false }, // Treat user 2 as the active user
       );
 
       await vaultTimeoutService.checkVaultTimeout();
@@ -308,7 +308,7 @@ describe("VaultTimeoutService", () => {
             vaultTimeout: 1, // Vault timeout of 1 minute
           },
         },
-        { userId: "2", isViewOpen: true },
+        { userId: "2", isViewFocused: true },
       );
 
       await vaultTimeoutService.checkVaultTimeout();
@@ -326,7 +326,7 @@ describe("VaultTimeoutService", () => {
             vaultTimeout: 1, // Vault timeout of 1 minute
           },
         },
-        { userId: "1", isViewOpen: true }, // They are the currently active user
+        { userId: "1", isViewFocused: true }, // They are the currently active user
       );
 
       await vaultTimeoutService.checkVaultTimeout();
