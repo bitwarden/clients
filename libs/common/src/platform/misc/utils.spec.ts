@@ -898,6 +898,39 @@ describe("Utils Service", () => {
       });
     });
 
+    describe("detects control characters used to evade pattern matching", () => {
+      it.each([
+        // TAB (\t / %09)
+        // Single-encoded %09 decodes to \t, which is in pathTraversalPatterns.
+        ["TAB character in path (decoded from %09)", "https://example.com/api/.%09./secret"],
+        // Literal \t in the input string — matched directly against pathTraversalPatterns.
+        ["literal TAB between dots", "https://example.com/api/.\t./secret"],
+        // Double-encoded %2509: decodeURIComponent resolves %25 → '%', yielding literal
+        // '%09' in the decoded string. The '%09' entry in pathTraversalPatterns matches it.
+        ["double-encoded TAB (%2509)", "https://example.com/api/.%2509./secret"],
+
+        // LF (\n / %0a)
+        // Single-encoded %0a decodes to \n, matched by the '\n' entry.
+        ["LF character in path (decoded from %0a)", "https://example.com/api/.%0a./secret"],
+        // Double-encoded %250a: decodes once to '%0a' literal string, matched by '%0a' entry.
+        ["double-encoded LF (%250a)", "https://example.com/api/.%250a./secret"],
+
+        // CR (\r / %0d)
+        // Single-encoded %0d decodes to \r, matched by the '\r' entry.
+        ["CR character in path (decoded from %0d)", "https://example.com/api/.%0d./secret"],
+        // Double-encoded %250d: decodes once to '%0d' literal string, matched by '%0d' entry.
+        ["double-encoded CR (%250d)", "https://example.com/api/.%250d./secret"],
+
+        // Null byte (\0 / %00)
+        // Single-encoded %00 decodes to \0, matched by the '\0' entry.
+        ["null byte in path (decoded from %00)", "https://example.com/api/%00secret"],
+        // Double-encoded %2500: decodes once to '%00' literal string, matched by '%00' entry.
+        ["double-encoded null (%2500)", "https://example.com/api/%2500secret"],
+      ])("returns true for %s", (_label: string, url: string) => {
+        expect(Utils.containsTraversalIndicators(url)).toBe(true);
+      });
+    });
+
     describe("detects dangerous characters in query parameters", () => {
       it.each([
         ["literal slash in query value", "https://example.com/api?next=/admin"],
@@ -955,8 +988,8 @@ describe("Utils Service", () => {
         // decode to characters not in the checked set are not detected. For example,
         // %c2%a0 decodes to U+00A0 (non-breaking space) — syntactically valid,
         // not in any pattern list entry, and not flagged. By definition a denylist
-        // cannot enumerate every possible input. Structural input validation (e.g.,
-        // isId()) is the primary defense for unknown encodings.
+        // cannot enumerate every possible input. Structural input validation at the boundary
+        // is the primary defense for unknown encodings.
         expect(
           Utils.containsTraversalIndicators("https://example.com/api/%c2%a0segment/secret"),
         ).toBe(false);

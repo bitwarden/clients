@@ -20,6 +20,15 @@ import { I18nService } from "../abstractions/i18n.service";
 // FIXME: Remove when updating file. Eslint update
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const nodeURL = typeof self === "undefined" ? require("url") : null;
+const pathTraversalPatterns = [
+  "..", "%2e", // Double-dot traversal (single-encoded resolves to ".." via decodeURIComponent)
+  "\\", "%5c", // Backslash (some parsers normalize to forward slash)
+  "\t", "%09", // TAB (stripped by WHATWG URL parser during normalization)
+  "\n", "%0a", // Line feed (stripped by WHATWG URL parser during normalization)
+  "\r", "%0d", // Carriage return (stripped by WHATWG URL parser during normalization)
+  "\0", "%00", // Null byte (can truncate strings in some parsers)
+];
+const queryDangerousPatterns = ["/", "%2f", "#", "%23"];
 
 declare global {
   /* eslint-disable-next-line no-var */
@@ -707,15 +716,13 @@ export class Utils {
    * Companion sanitizer: {@link normalizePath}.
    *
    * Known limitations:
-   * - This is a denylist, not a substitute for boundary validation.
-   * - WHATWG URL normalization may alter byte sequences in ways this check does not
-   *   anticipate.
+   * - This is a denylist, NOT a substitute for boundary validation.
+   * - WHATWG URL normalization may alter byte sequences beyond the checked set.
    *
    * @param url - The full URL string to inspect (path + optional query string).
    * @returns `true` if traversal indicators are found; `false` otherwise.
    */
   static containsTraversalIndicators(url: string): boolean {
-    const pathTraversalPatterns = ["..", "%2e", "\\", "%5c"];
 
     let decodedUrl: string;
     try {
@@ -755,7 +762,6 @@ export class Utils {
       return false;
     }
 
-    const queryDangerousPatterns = ["/", "%2f", "#", "%23"];
     return queryDangerousPatterns.some((p) => queryString.includes(p));
   }
 
