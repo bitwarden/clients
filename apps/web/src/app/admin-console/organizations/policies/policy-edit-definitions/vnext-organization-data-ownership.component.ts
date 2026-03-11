@@ -190,6 +190,11 @@ export class vNextOrganizationDataOwnershipPolicyComponent
     assertNonNullish(orgKeys, "Org keys not provided");
 
     const orgKey = orgKeys[this.organizationId as OrganizationId];
+
+    if (orgKey == null) {
+      throw new Error("No encryption key for this organization.");
+    }
+
     const request = await this.buildVNextRequest(orgKey);
 
     await this.policyApiService.putPolicyVNext(
