@@ -327,9 +327,9 @@ export class ApplicationsComponent implements OnInit {
     }
   }
 
-  async showAppAtRiskMembers(applicationName: string) {
+  showAppAtRiskMembers = async (applicationName: string) => {
     await this.dataService.setDrawerForAppAtRiskMembers(applicationName);
-  }
+  };
 
   onCheckboxChange({ applicationName, checked }: { applicationName: string; checked: boolean }) {
     this.selectedUrls.update((selectedUrls) => {
