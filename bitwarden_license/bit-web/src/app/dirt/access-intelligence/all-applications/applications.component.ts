@@ -79,12 +79,12 @@ export type ApplicationFilterOption =
   ],
 })
 export class ApplicationsComponent implements OnInit {
-  destroyRef = inject(DestroyRef);
-  private fileDownloadService = inject(FileDownloadService);
-  private logService = inject(LogService);
+  readonly destroyRef = inject(DestroyRef);
+  private readonly fileDownloadService = inject(FileDownloadService);
+  private readonly logService = inject(LogService);
 
-  protected ReportStatusEnum = ReportStatus;
-  protected noItemsIcon = Security;
+  protected readonly ReportStatusEnum = ReportStatus;
+  protected readonly noItemsIcon = Security;
 
   // Standard properties
   protected readonly dataSource = new TableDataSource<ApplicationTableDataSource>();
@@ -106,7 +106,7 @@ export class ApplicationsComponent implements OnInit {
 
   // filter related properties
   protected readonly selectedFilter = signal<ApplicationFilterOption>(ApplicationFilterOption.All);
-  protected selectedFilterObservable = toObservable(this.selectedFilter);
+  protected readonly selectedFilterObservable = toObservable(this.selectedFilter);
   protected readonly ApplicationFilterOption = ApplicationFilterOption;
   protected readonly filterOptions = computed(() => [
     {
@@ -161,11 +161,11 @@ export class ApplicationsComponent implements OnInit {
   readonly enableRequestPasswordChange = computed(() => this.unassignedCipherIds().length > 0);
 
   constructor(
-    protected i18nService: I18nService,
-    protected activatedRoute: ActivatedRoute,
-    protected toastService: ToastService,
-    protected dataService: RiskInsightsDataService,
-    protected securityTasksService: AccessIntelligenceSecurityTasksService,
+    protected readonly i18nService: I18nService,
+    protected readonly activatedRoute: ActivatedRoute,
+    protected readonly toastService: ToastService,
+    protected readonly dataService: RiskInsightsDataService,
+    protected readonly securityTasksService: AccessIntelligenceSecurityTasksService,
   ) {}
 
   async ngOnInit() {

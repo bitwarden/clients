@@ -12,7 +12,7 @@
     "message": "我的最愛"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "取消最愛"
   },
   "types": {
     "message": "類型"
@@ -590,10 +590,10 @@
     "message": "項目已儲存"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "項目已加入到最愛"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "項目已從最愛中移除"
   },
   "deleteItem": {
     "message": "刪除項目"
@@ -1565,16 +1565,16 @@
     "message": "不詳"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "複製地址"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "複製電話"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "複製備註"
   },
   "copyVerificationCode": {
-    "message": "Copy verification code"
+    "message": "複製驗證碼"
   },
   "copyUsername": {
     "message": "複製使用者名稱"
@@ -2104,22 +2104,22 @@
     "message": "搜尋垃圾桶"
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "搜尋封存"
   },
   "searchLogin": {
-    "message": "Search login"
+    "message": "搜尋登入資料"
   },
   "searchCard": {
-    "message": "Search card"
+    "message": "搜尋卡片"
   },
   "searchIdentity": {
-    "message": "Search identity"
+    "message": "搜尋身分"
   },
   "searchSecureNote": {
-    "message": "Search secure note"
+    "message": "搜尋安全筆記"
   },
   "searchSshKey": {
-    "message": "Search SSH key"
+    "message": "搜尋 SSH 金鑰"
   },
   "permanentlyDeleteItem": {
     "message": "永久刪除項目"
@@ -2418,7 +2418,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "me": {
-    "message": "Me"
+    "message": "我"
   },
   "myVault": {
     "message": "我的密碼庫"
@@ -4129,7 +4129,7 @@
     "message": "缺少網站"
   },
   "missingPermissions": {
-    "message": "You lack the necessary permissions to perform this action."
+    "message": "您欠缺執行本動作必要的權限。"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "若您只有檢視權限，無法移除集合 $COLLECTIONS$。",
@@ -4636,34 +4636,34 @@
     "message": "為什麼我會看到此訊息？"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "組織已停用"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "無法存取已停用組織中的項目。請聯絡您組織的擁有者以獲取協助。"
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "垃圾桶中沒有項目"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "您刪除的項目會在此顯示，並會在 30 天之後永久刪除"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "密碼庫中沒有項目"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "除了密碼之外，您也可以儲存安全的登入資訊、身分資訊、支付卡及筆記在您的密碼庫。"
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "您尚未將任何項目設為收藏"
   },
   "emptyFavoritesDesc": {
-    "message": "Add frequently used items to favorites for quick access."
+    "message": "將常用項目加入收藏以快速存取。"
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "沒有搜尋結果"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "清除過濾器或更換另一個搜尋條件"
   },
   "sendPasswordHelperText": {
     "message": "對方必須輸入密碼才能檢視此 Send",

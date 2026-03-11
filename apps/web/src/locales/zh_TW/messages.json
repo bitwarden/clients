@@ -6055,10 +6055,10 @@
     "message": "進一步了解轉移流程"
   },
   "promptUsersToMoveItems": {
-    "message": "Prompt users to move individual vault items to the organization"
+    "message": "提示使用者將個人密碼庫項目移動至組織"
   },
   "promptUsersToMoveItemsCallout": {
-    "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+    "message": "系統將提示成員將其項目轉移至組織，或選擇離開。如果他們離開，其存取權將被撤銷，但可隨時恢復。"
   },
   "organizationDataOwnership": {
     "message": "強制組織資料所有權"
