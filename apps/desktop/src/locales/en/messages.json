@@ -1418,17 +1418,11 @@
   "twoStepLogin": {
     "message": "Two-step login"
   },
-  "vaultTimeoutHeader": {
-    "message": "Vault timeout"
-  },
   "vaultTimeout": {
     "message": "Vault timeout"
   },
   "vaultTimeout1": {
     "message": "Timeout"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "Choose when your vault will take the vault timeout action."
@@ -1718,6 +1712,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "month"
+  },
+  "monthly": {
+    "message": "Monthly"
+  },
+  "year": {
+    "message": "year"
+  },
+  "annually": {
+    "message": "Annually"
+  },
+  "annual": {
+    "message": "Annual"
   },
   "refreshComplete": {
     "message": "Refresh complete"
@@ -2148,9 +2157,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "Re-authentication is required to access your vault again."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Set up an unlock method to change your vault timeout action."
   },
   "lock": {
     "message": "Lock",
@@ -2769,9 +2775,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Your vault timeout exceeds the restrictions set by your organization."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",

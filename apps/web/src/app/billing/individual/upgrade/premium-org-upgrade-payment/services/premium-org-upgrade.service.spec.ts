@@ -3,7 +3,10 @@ import { of } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { BusinessSubscriptionPricingTierIds } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import {
+  BusinessSubscriptionPricingTierIds,
+  PersonalSubscriptionPricingTierIds,
+} from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -200,6 +203,124 @@ describe("PremiumOrgUpgradeService", () => {
           mockBillingAddress,
         ),
       ).rejects.toThrow("Sync failed");
+    });
+
+    it("should successfully upgrade with non-US billing address without tax ID", async () => {
+      const nonUSBillingAddress: BillingAddress = {
+        country: "CA",
+        postalCode: "12345",
+        line1: null,
+        line2: null,
+        city: null,
+        state: null,
+        taxId: null,
+      };
+
+      const result = await service.upgradeToOrganization(
+        mockAccount,
+        "Test Organization",
+        BusinessSubscriptionPricingTierIds.Teams,
+        nonUSBillingAddress,
+      );
+
+      expect(result).toBe("new-org-id");
+      expect(accountBillingClient.upgradePremiumToOrganization).toHaveBeenCalledWith({
+        organizationName: "Test Organization",
+        organizationKey: "org-key-encrypted",
+        collectionName: "collection-encrypted",
+        publicKey: "public-key",
+        encryptedPrivateKey: "private-key-encrypted",
+        planTier: ProductTierType.Teams,
+        cadence: "annually",
+        billingAddress: nonUSBillingAddress,
+      });
+    });
+
+    it("should successfully upgrade with non-US billing address when tax ID is provided", async () => {
+      const nonUSBillingAddressWithTaxId: BillingAddress = {
+        country: "CA",
+        postalCode: "12345",
+        line1: null,
+        line2: null,
+        city: null,
+        state: null,
+        taxId: {
+          code: "ca_bn",
+          value: "123456789",
+        },
+      };
+
+      const result = await service.upgradeToOrganization(
+        mockAccount,
+        "Test Organization",
+        BusinessSubscriptionPricingTierIds.Teams,
+        nonUSBillingAddressWithTaxId,
+      );
+
+      expect(result).toBe("new-org-id");
+      expect(accountBillingClient.upgradePremiumToOrganization).toHaveBeenCalledWith({
+        organizationName: "Test Organization",
+        organizationKey: "org-key-encrypted",
+        collectionName: "collection-encrypted",
+        publicKey: "public-key",
+        encryptedPrivateKey: "private-key-encrypted",
+        planTier: ProductTierType.Teams,
+        cadence: "annually",
+        billingAddress: nonUSBillingAddressWithTaxId,
+      });
+    });
+
+    it("should successfully upgrade Families tier with non-US billing address", async () => {
+      const nonUSBillingAddress: BillingAddress = {
+        country: "CA",
+        postalCode: "12345",
+        line1: null,
+        line2: null,
+        city: null,
+        state: null,
+        taxId: null,
+      };
+
+      const result = await service.upgradeToOrganization(
+        mockAccount,
+        "Test Organization",
+        PersonalSubscriptionPricingTierIds.Families,
+        nonUSBillingAddress,
+      );
+
+      expect(result).toBe("new-org-id");
+      expect(accountBillingClient.upgradePremiumToOrganization).toHaveBeenCalledWith({
+        organizationName: "Test Organization",
+        organizationKey: "org-key-encrypted",
+        collectionName: "collection-encrypted",
+        publicKey: "public-key",
+        encryptedPrivateKey: "private-key-encrypted",
+        planTier: ProductTierType.Families,
+        cadence: "annually",
+        billingAddress: nonUSBillingAddress,
+      });
+    });
+
+    it("should allow US billing address without tax ID", async () => {
+      const usBillingAddress: BillingAddress = {
+        country: "US",
+        postalCode: "12345",
+        line1: null,
+        line2: null,
+        city: null,
+        state: null,
+        taxId: null,
+      };
+
+      const result = await service.upgradeToOrganization(
+        mockAccount,
+        "Test Organization",
+        BusinessSubscriptionPricingTierIds.Teams,
+        usBillingAddress,
+      );
+
+      expect(result).toBe("new-org-id");
+      expect(syncService.fullSync).toHaveBeenCalledWith(true);
     });
   });
 
