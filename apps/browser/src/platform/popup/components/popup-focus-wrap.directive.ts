@@ -5,7 +5,7 @@ import { AfterViewInit, Directive, ElementRef, OnDestroy, Renderer2 } from "@ang
  *
  * Firefox does not cycle focus within extension popups — after the last focusable
  * element, focus moves to the document body and gets stuck instead of wrapping
- * back to the first element (https://bugzilla.mozilla.org/show_bug.cgi?id=1594459).
+ * back to the first element.
  *
  * This directive adds invisible sentinel elements at the start and end of the host.
  * When a sentinel receives focus (via Tab / Shift+Tab), focus is redirected to the
