@@ -17,7 +17,6 @@ import { AccountBillingClient } from "../clients/account-billing.client";
 @Component({
   templateUrl: "subscription.component.html",
   standalone: false,
-  providers: [AccountBillingClient],
 })
 export class SubscriptionComponent implements OnInit {
   showSubscriptionPageLink$: Observable<boolean>;

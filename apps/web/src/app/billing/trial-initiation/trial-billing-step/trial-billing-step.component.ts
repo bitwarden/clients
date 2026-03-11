@@ -15,7 +15,6 @@ import {
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
-import { PreviewInvoiceClient } from "@bitwarden/web-vault/app/billing/clients";
 import {
   BillingAddressControls,
   EnterBillingAddressComponent,
@@ -41,7 +40,6 @@ export interface OrganizationCreatedEvent {
   selector: "app-trial-billing-step",
   templateUrl: "./trial-billing-step.component.html",
   imports: [EnterPaymentMethodComponent, EnterBillingAddressComponent, SharedModule],
-  providers: [PreviewInvoiceClient, TrialBillingStepService],
 })
 export class TrialBillingStepComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

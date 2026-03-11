@@ -76,7 +76,6 @@ interface OnSuccessArgs {
   selector: "app-trial-payment-dialog",
   templateUrl: "./trial-payment-dialog.component.html",
   standalone: false,
-  providers: [SubscriberBillingClient, PreviewInvoiceClient],
 })
 export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

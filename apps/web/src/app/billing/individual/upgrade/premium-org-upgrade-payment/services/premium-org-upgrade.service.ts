@@ -46,7 +46,7 @@ export interface InvoicePreview {
   newPlanProratedAmount?: number;
 }
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class PremiumOrgUpgradeService {
   constructor(
     private accountBillingClient: AccountBillingClient,

@@ -118,7 +118,6 @@ import { EnterPaymentMethodComponent } from "./enter-payment-method.component";
   `,
   standalone: true,
   imports: [SharedModule, EnterPaymentMethodComponent, IconComponent],
-  providers: [SubscriberBillingClient],
 })
 export class DisplayPaymentMethodInlineComponent {
   readonly subscriber = input.required<BitwardenSubscriber>();

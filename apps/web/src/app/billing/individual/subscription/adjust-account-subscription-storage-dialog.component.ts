@@ -41,7 +41,6 @@ type AdjustAccountSubscriptionStorageDialogResult = "closed" | "submitted";
 @Component({
   templateUrl: "./adjust-account-subscription-storage-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [AccountBillingClient],
   imports: [
     AsyncActionsModule,
     ButtonModule,

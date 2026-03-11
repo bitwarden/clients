@@ -42,7 +42,7 @@ const format = (date: Date) =>
     year: "numeric",
   });
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class OrganizationWarningsService {
   private cache$ = new Map<OrganizationId, Observable<OrganizationWarningsResponse>>();
 

@@ -53,7 +53,6 @@ type DialogParams = {
   `,
   standalone: true,
   imports: [EnterPaymentMethodComponent, SharedModule],
-  providers: [SubscriberBillingClient],
 })
 export class ChangePaymentMethodDialogComponent extends SubmitPaymentMethodDialogComponent {
   protected override subscriber: BitwardenSubscriber;

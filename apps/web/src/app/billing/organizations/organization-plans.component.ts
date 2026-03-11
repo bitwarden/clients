@@ -51,7 +51,6 @@ import { IconComponent, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { Cart, CartSummaryComponent, DiscountTypes } from "@bitwarden/pricing";
 import {
-  AccountBillingClient,
   OrganizationSubscriptionPlan,
   OrganizationSubscriptionPurchase,
   PreviewInvoiceClient,
@@ -95,12 +94,6 @@ const Allowed2020PlansForLegacyProviders = [
     EnterBillingAddressComponent,
     IconComponent,
     CartSummaryComponent,
-  ],
-  providers: [
-    AccountBillingClient,
-    SubscriberBillingClient,
-    PreviewInvoiceClient,
-    PremiumOrgUpgradeService,
   ],
 })
 export class OrganizationPlansComponent implements OnInit, OnDestroy {

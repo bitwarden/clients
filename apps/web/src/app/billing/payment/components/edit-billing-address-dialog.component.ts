@@ -79,7 +79,6 @@ type DialogResult =
   `,
   standalone: true,
   imports: [EnterBillingAddressComponent, SharedModule],
-  providers: [SubscriberBillingClient],
 })
 export class EditBillingAddressDialogComponent {
   protected formGroup = EnterBillingAddressComponent.getFormGroup();

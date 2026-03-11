@@ -65,7 +65,6 @@ const RouteParamValues = {
     I18nPipe,
     PricingCardComponent,
   ],
-  providers: [AccountBillingClient],
 })
 export class CloudHostedPremiumComponent {
   protected hasPremiumFromAnyOrganization$: Observable<boolean>;
