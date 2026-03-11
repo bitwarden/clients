@@ -439,6 +439,183 @@ export const VirtualScrolling: Story = {
   }),
 };
 
+export const PoliciesList: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-layout>
+        <bit-item-group aria-label="Policies">
+          <bit-item>
+            <a bit-item-content href="#">
+              Require two-step login
+              <span slot="secondary">Require members to set up two-step login.</span>
+            </a>
+            <ng-container slot="end">
+              <bit-item-action>
+                <span bitBadge variant="success">On</span>
+              </bit-item-action>
+            </ng-container>
+          </bit-item>
+          <bit-item>
+            <a bit-item-content href="#">
+              Master password requirements
+              <span slot="secondary">Set requirements for master password strength.</span>
+            </a>
+            <ng-container slot="end">
+              <bit-item-action>
+                <span bitBadge variant="secondary">Off</span>
+              </bit-item-action>
+            </ng-container>
+          </bit-item>
+          <bit-item>
+            <a bit-item-content href="#">
+              Remove Unlock with PIN
+              <span slot="secondary">Do not allow members to unlock their account with a PIN.</span>
+            </a>
+            <ng-container slot="end">
+              <bit-item-action>
+                <span bitBadge variant="secondary">Off</span>
+              </bit-item-action>
+            </ng-container>
+          </bit-item>
+          <bit-item>
+            <a bit-item-content href="#">
+              Account recovery administration
+              <span slot="secondary">Based on the encryption method, recover accounts when master passwords or trusted devices are forgotten or lost.</span>
+            </a>
+            <ng-container slot="end">
+              <bit-item-action>
+                <span bitBadge variant="success">On</span>
+              </bit-item-action>
+            </ng-container>
+          </bit-item>
+          <bit-item>
+            <a bit-item-content href="#">
+              Password generator
+              <span slot="secondary">Set requirements for password generator.</span>
+            </a>
+            <ng-container slot="end">
+              <bit-item-action>
+                <span bitBadge variant="success">On</span>
+              </bit-item-action>
+            </ng-container>
+          </bit-item>
+          <bit-item>
+            <a bit-item-content href="#">
+              Single organization
+              <span slot="secondary">Restrict members from joining other organizations. This policy is required for organizations that have enabled domain verification.</span>
+            </a>
+            <ng-container slot="end">
+              <bit-item-action>
+                <span bitBadge variant="secondary">Off</span>
+              </bit-item-action>
+            </ng-container>
+          </bit-item>
+          <bit-item>
+            <a bit-item-content href="#">
+              Require single sign-on authentication
+              <span slot="secondary">Require members to log in with the Enterprise single sign-on method.</span>
+            </a>
+            <ng-container slot="end">
+              <bit-item-action>
+                <span bitBadge variant="success">On</span>
+              </bit-item-action>
+            </ng-container>
+          </bit-item>
+          <bit-item>
+            <a bit-item-content href="#">
+              Enforce organization data ownership
+              <span slot="secondary">Require all items to be owned by an organization, removing the option to store items at the account level.</span>
+            </a>
+            <ng-container slot="end">
+              <bit-item-action>
+                <span bitBadge variant="secondary">Off</span>
+              </bit-item-action>
+            </ng-container>
+          </bit-item>
+          <bit-item>
+            <a bit-item-content href="#">
+              Centralize organization ownership
+              <span slot="secondary">All member items will be owned and managed by the organization. Admins and owners are exempt.</span>
+            </a>
+            <ng-container slot="end">
+              <bit-item-action>
+                <span bitBadge variant="secondary">Off</span>
+              </bit-item-action>
+            </ng-container>
+          </bit-item>
+          <bit-item>
+            <a bit-item-content href="#">
+              Remove Send
+              <span slot="secondary">Do not allow members to create or edit Sends.</span>
+            </a>
+            <ng-container slot="end">
+              <bit-item-action>
+                <span bitBadge variant="success">On</span>
+              </bit-item-action>
+            </ng-container>
+          </bit-item>
+          <bit-item>
+            <a bit-item-content href="#">
+              Send options
+              <span slot="secondary">Set options for creating and editing Sends.</span>
+            </a>
+            <ng-container slot="end">
+              <bit-item-action>
+                <span bitBadge variant="secondary">Off</span>
+              </bit-item-action>
+            </ng-container>
+          </bit-item>
+          <bit-item>
+            <a bit-item-content href="#">
+              Remove card item type
+              <span slot="secondary">Do not allow members to create card item types. Existing cards will be automatically removed.</span>
+            </a>
+            <ng-container slot="end">
+              <bit-item-action>
+                <span bitBadge variant="secondary">Off</span>
+              </bit-item-action>
+            </ng-container>
+          </bit-item>
+          <bit-item>
+            <a bit-item-content href="#">
+              Desktop Autotype Default Setting
+              <span slot="secondary">Turn Desktop Autotype ON by default for members. Members can turn Autotype off manually in the Desktop client.</span>
+            </a>
+            <ng-container slot="end">
+              <bit-item-action>
+                <span bitBadge variant="success">On</span>
+              </bit-item-action>
+            </ng-container>
+          </bit-item>
+          <bit-item>
+            <a bit-item-content href="#">
+              Default URI match detection
+              <span slot="secondary">Determine when logins are suggested for autofill. Admins and owners are exempt from this policy.</span>
+            </a>
+            <ng-container slot="end">
+              <bit-item-action>
+                <span bitBadge variant="secondary">Off</span>
+              </bit-item-action>
+            </ng-container>
+          </bit-item>
+          <bit-item>
+            <a bit-item-content href="#">
+              Automatic user confirmation
+              <span slot="secondary">New users invited to the organization will be automatically confirmed when an admin's device is unlocked.</span>
+            </a>
+            <ng-container slot="end">
+              <bit-item-action>
+                <span bitBadge variant="success">On</span>
+              </bit-item-action>
+            </ng-container>
+          </bit-item>
+        </bit-item-group>
+      </bit-layout>
+    `,
+  }),
+};
+
 export const WithoutBorderRadius: Story = {
   render: (args) => ({
     props: args,
