@@ -1,7 +1,7 @@
-<td bitCell [ngClass]="RowHeightClass" class="tw-truncate tw-flex tw-items-center tw-gap-2">
+<td bitCell [ngClass]="RowHeightClass" class="tw-flex tw-items-center tw-gap-2">
   <app-vault-icon [cipher]="cipher()"></app-vault-icon>
-  <div class="tw-flex tw-flex-col tw-w-full">
-    <div class="tw-inline-flex">
+  <div class="tw-truncate">
+    <div class="tw-inline-flex tw-w-full">
       <button
         bitLink
         class="tw-overflow-hidden tw-text-ellipsis tw-text-start tw-leading-snug"
@@ -33,6 +33,7 @@
         }
       }
     </div>
+    <br />
     <span class="tw-text-sm tw-text-muted" appStopProp>{{ subtitle() }}</span>
   </div>
 </td>
