@@ -127,7 +127,7 @@ export class AccountRecoveryDialogComponent {
       message: this.i18nService.t("resetPasswordSuccess"),
     });
 
-    this.dialogRef.close(AccountRecoveryDialogResultType.Ok);
+    await this.dialogRef.close(AccountRecoveryDialogResultType.Ok);
   };
 
   /**

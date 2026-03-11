@@ -146,7 +146,7 @@ export class DeleteOrganizationDialogComponent implements OnInit, OnDestroy {
       title: this.i18nService.t("organizationDeleted"),
       message: this.i18nService.t("organizationDeletedDesc"),
     });
-    this.dialogRef.close(DeleteOrganizationDialogResult.Deleted);
+    await this.dialogRef.close(DeleteOrganizationDialogResult.Deleted);
   };
 
   private buildOrganizationContentSummary(ciphers: CipherView[]): OrganizationContentSummary {

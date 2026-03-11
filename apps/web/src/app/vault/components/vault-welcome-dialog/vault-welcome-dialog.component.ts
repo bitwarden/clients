@@ -47,12 +47,12 @@ export class VaultWelcomeDialogComponent {
 
   protected async onDismiss(): Promise<void> {
     await this.setAcknowledged();
-    this.dialogRef.close(VaultWelcomeDialogResult.Dismissed);
+    await this.dialogRef.close(VaultWelcomeDialogResult.Dismissed);
   }
 
   protected async onPrimaryCta(): Promise<void> {
     await this.setAcknowledged();
-    this.dialogRef.close(VaultWelcomeDialogResult.GetStarted);
+    await this.dialogRef.close(VaultWelcomeDialogResult.GetStarted);
   }
 
   private async setAcknowledged(): Promise<void> {

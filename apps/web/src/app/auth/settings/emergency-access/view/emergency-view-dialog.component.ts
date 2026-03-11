@@ -71,7 +71,7 @@ export class EmergencyViewDialogComponent {
   }
 
   cancel = () => {
-    this.dialogRef.close();
+    void this.dialogRef.close();
   };
 
   private updateTitle() {

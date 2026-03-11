@@ -181,7 +181,7 @@ export class DialogComponent implements AfterViewInit {
 
   handleEsc(event: Event) {
     if (!this.dialogRef?.disableClose) {
-      this.dialogRef?.close();
+      void this.dialogRef?.close();
       event.stopPropagation();
     }
   }

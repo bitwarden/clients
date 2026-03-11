@@ -73,7 +73,7 @@ export class ConnectHuntressDialogComponent implements OnInit {
     }
     const result = this.getHuntressConnectDialogResult(IntegrationDialogResultStatus.Edited);
 
-    this.dialogRef.close(result);
+    await this.dialogRef.close(result);
 
     return;
   };
@@ -89,7 +89,7 @@ export class ConnectHuntressDialogComponent implements OnInit {
 
     if (confirmed) {
       const result = this.getHuntressConnectDialogResult(IntegrationDialogResultStatus.Delete);
-      this.dialogRef.close(result);
+      await this.dialogRef.close(result);
     }
   };
 

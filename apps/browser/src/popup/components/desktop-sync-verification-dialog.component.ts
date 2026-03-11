@@ -43,7 +43,7 @@ export class DesktopSyncVerificationDialogComponent implements OnDestroy, OnInit
         takeUntil(this.destroy$),
       )
       .subscribe(() => {
-        this.dialogRef.close();
+        void this.dialogRef.close();
       });
   }
 

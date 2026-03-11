@@ -69,15 +69,15 @@ export class AutofillConfirmationDialogComponent {
   }
 
   close() {
-    this.dialogRef.close(AutofillConfirmationDialogResult.Canceled);
+    void this.dialogRef.close(AutofillConfirmationDialogResult.Canceled);
   }
 
   autofillAndAddUrl() {
-    this.dialogRef.close(AutofillConfirmationDialogResult.AutofillAndUrlAdded);
+    void this.dialogRef.close(AutofillConfirmationDialogResult.AutofillAndUrlAdded);
   }
 
   autofillOnly() {
-    this.dialogRef.close(AutofillConfirmationDialogResult.AutofilledOnly);
+    void this.dialogRef.close(AutofillConfirmationDialogResult.AutofilledOnly);
   }
 
   static open(

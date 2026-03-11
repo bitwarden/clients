@@ -120,7 +120,7 @@ export class EditBillingAddressDialogComponent {
           title: "",
           message: this.i18nService.t("billingAddressUpdated"),
         });
-        this.dialogRef.close({
+        await this.dialogRef.close({
           type: "success",
           billingAddress: result.value,
         });
@@ -132,7 +132,7 @@ export class EditBillingAddressDialogComponent {
           title: "",
           message: result.message,
         });
-        this.dialogRef.close({
+        await this.dialogRef.close({
           type: "error",
         });
         break;

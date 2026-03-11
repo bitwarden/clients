@@ -74,7 +74,7 @@ export class TwoFactorVerifyComponent {
       });
 
       const response = await this.formPromise;
-      this.dialogRef.close({
+      await this.dialogRef.close({
         response: response,
         secret: secret.secret,
         verificationType: secret.type,

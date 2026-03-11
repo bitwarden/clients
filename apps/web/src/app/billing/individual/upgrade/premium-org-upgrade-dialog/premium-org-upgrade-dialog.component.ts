@@ -142,7 +142,7 @@ export class PremiumOrgUpgradeDialogComponent implements OnInit {
   }
 
   private close(result: PremiumOrgUpgradeDialogResult): void {
-    this.dialogRef.close(result);
+    void this.dialogRef.close(result);
   }
 
   protected nextStep() {

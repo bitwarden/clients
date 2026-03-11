@@ -188,7 +188,7 @@ export class CreateCredentialDialogComponent implements OnInit {
       });
     }
 
-    this.dialogRef.close(CreateCredentialDialogResult.Success);
+    await this.dialogRef.close(CreateCredentialDialogResult.Success);
   }
 }
 

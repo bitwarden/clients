@@ -198,6 +198,6 @@ export class BulkDeleteDialogComponent {
   }
 
   private close(result: BulkDeleteDialogResult) {
-    this.dialogRef.close(result);
+    void this.dialogRef.close(result);
   }
 }
