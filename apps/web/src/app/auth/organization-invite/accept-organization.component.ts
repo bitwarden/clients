@@ -45,6 +45,7 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
   async authedHandler(qParams: Params): Promise<void> {
     const invite = this.fromParams(qParams);
     if (invite === null) {
+      throw new Error(this.i18nService.t(`${this.failedMessage}`));
       this.toastService.showToast({
         message: this.i18nService.t(this.failedMessage),
         variant: "error",
