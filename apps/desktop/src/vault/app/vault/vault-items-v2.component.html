@@ -85,9 +85,8 @@
     appA11yTitle="{{ 'addItem' | i18n }}"
     [disabled]="deleted"
     [bitMenuTriggerFor]="addCipherMenu"
-  >
-    <i class="bwi bwi-plus bwi-lg" aria-hidden="true"></i>
-  </button>
+    startIcon="bwi-plus"
+  ></button>
   <bit-menu #addCipherMenu>
     @for (itemTypes of itemTypes$ | async; track itemTypes.type) {
       <button type="button" bitMenuItem (click)="addCipher(itemTypes.type)">

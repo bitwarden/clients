@@ -118,8 +118,8 @@
         (click)="openAddEditCustomFieldDialog()"
         data-testid="add-field-button"
         *ngIf="!isPartialEdit && !parentFormDisabled"
+        startIcon="bwi-plus"
       >
-        <i class="bwi bwi-plus tw-font-medium" aria-hidden="true"></i>
         {{ "addField" | i18n }}
       </button>
     </bit-card>

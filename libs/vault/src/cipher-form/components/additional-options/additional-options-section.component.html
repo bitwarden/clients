@@ -26,8 +26,8 @@
       linkType="primary"
       *ngIf="!hasCustomFields && !isPartialEdit && allowNewField"
       (click)="addCustomField()"
+      startIcon="bwi-plus"
     >
-      <i class="bwi bwi-plus tw-font-medium" aria-hidden="true"></i>
       {{ "addField" | i18n }}
     </button>
   </bit-card>
