@@ -34,7 +34,7 @@ export function isFixedSeatPlan(productTierType: ProductTierType): boolean {
  *   (no new seat is consumed) even when the org is at full capacity.
  */
 export function getEmailBatchLimit(organization: Organization, occupiedSeatCount: number): number {
-  // 20 is the maximum number of email addresses the invite input accepts in a single submission.
+  // Arbitrary limit on the number of email addresses the invite input accepts in a single submission.
   const batchLimit = 20;
 
   if (isDynamicSeatPlan(organization.productTierType)) {
@@ -48,14 +48,16 @@ export function getEmailBatchLimit(organization: Organization, occupiedSeatCount
 function getUniqueInputEmails(control: AbstractControl, existingEmails: string[] = []): string[] {
   const emails: string[] = control.value
     .split(",")
-    .filter((email: string) => email && email.trim() !== "");
+    .map((email: string) => email.trim())
+    .filter((email: string) => email !== "");
   const uniqueEmails: string[] = Array.from(new Set(emails));
 
   if (existingEmails.length === 0) {
     return uniqueEmails;
   }
 
-  return uniqueEmails.filter((email) => !existingEmails.includes(email.trim()));
+  const existingEmailsSet = new Set(existingEmails);
+  return uniqueEmails.filter((email) => !existingEmailsSet.has(email));
 }
 
 /**
