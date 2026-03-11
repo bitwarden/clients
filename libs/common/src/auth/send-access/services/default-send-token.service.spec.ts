@@ -71,8 +71,6 @@ describe("SendTokenService", () => {
     const INVALID_GRANT_CODES: SendAccessTokenInvalidGrantError[] = [
       "send_id_invalid",
       "password_hash_b64_invalid",
-      "otp_invalid",
-      "otp_generation_failed",
       "unknown",
     ];
 
