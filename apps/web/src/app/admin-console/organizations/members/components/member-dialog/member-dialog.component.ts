@@ -61,7 +61,11 @@ import {
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 
 import { commaSeparatedEmails } from "./validators/comma-separated-emails.validator";
-import { inputEmailLimitValidator , getEmailBatchLimit, isDynamicSeatPlan } from "./validators/input-email-limit.validator";
+import {
+  inputEmailLimitValidator,
+  getEmailBatchLimit,
+  isDynamicSeatPlan,
+} from "./validators/input-email-limit.validator";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
