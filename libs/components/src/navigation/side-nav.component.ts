@@ -55,7 +55,7 @@ export class SideNavComponent {
 
   private readonly toggleButton = viewChild("toggleButton", { read: ElementRef });
 
-  private elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
   protected readonly handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape") {

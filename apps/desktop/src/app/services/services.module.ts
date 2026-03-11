@@ -562,7 +562,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: VAULT_FILTER_BASE_ROUTE,
-    useValue: "/new-vault",
+    useValue: "/vault",
   }),
   safeProvider({
     provide: RoutedVaultFilterService,
