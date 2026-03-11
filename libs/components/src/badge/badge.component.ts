@@ -87,7 +87,7 @@ const defaultIconMap: Record<BadgeVariant, BitwardenIcon> = {
 const getDefaultIconForVariant = (variant: BadgeVariant) => defaultIconMap[variant];
 
 /**
- * Badges are primarily used as labels, counters, and small buttons.
+ * Badges are used as labels.
  *
  * The Badge directive can only be used on a `<span>` tag
  */
@@ -167,8 +167,4 @@ export class BadgeComponent {
 
     return this.el.nativeElement?.textContent?.trim() || "";
   });
-
-  getFocusTarget() {
-    return this.el.nativeElement;
-  }
 }
