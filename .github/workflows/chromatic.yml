@@ -89,7 +89,6 @@ jobs:
         run: npm ci
 
       - name: Log in to Azure
-        if: steps.get-changed-files.outputs.storyFiles == 'true'
         uses: bitwarden/gh-actions/azure-login@main
         with:
           subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -97,7 +96,6 @@ jobs:
           client_id: ${{ secrets.AZURE_CLIENT_ID }}
   
       - name: Get Azure Key Vault secrets
-        if: steps.get-changed-files.outputs.storyFiles == 'true'
         id: get-kv-secrets
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
@@ -105,7 +103,6 @@ jobs:
           secrets: "CHROMATIC-PROJECT-TOKEN,CHROMATIC-PROJECT-TOKEN-AUTOFILL"
   
       - name: Log out from Azure
-        if: steps.get-changed-files.outputs.storyFiles == 'true'
         uses: bitwarden/gh-actions/azure-logout@main
 
       # Manually build the Storybook to resolve a bug related to TurboSnap
