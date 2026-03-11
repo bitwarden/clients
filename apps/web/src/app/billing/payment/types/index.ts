@@ -4,3 +4,4 @@ export * from "./selectable-country";
 export * from "./tax-id";
 export * from "./tax-id-type";
 export * from "./tokenized-payment-method";
+export * from "./taxable-countries";
