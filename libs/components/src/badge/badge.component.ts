@@ -152,7 +152,7 @@ export class BadgeComponent {
       ...commonStyles,
       ...sizeStyles[this.size()].label,
       ...variantStyles[this.variant()],
-    ].concat(this.maxWidthClass());
+    ].concat(this.truncate() ? this.maxWidthClass() : "");
   });
 
   /**

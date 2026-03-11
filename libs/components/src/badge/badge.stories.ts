@@ -115,6 +115,10 @@ export const Truncated: Story = {
           <span class="tw-text-main tw-block tw-mb-2">Long text (auto-truncates with title on hover):</span>
           <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>This is a very long badge text that will automatically truncate</span>
         </div>
+        <div>
+          <span class="tw-text-main tw-block tw-mb-2">Long text (with <code>[truncate]="false"</code>):</span>
+          <span bitBadge [truncate]="false">This is a very long badge text that will NOT automatically truncate</span>
+        </div>
       </div>
     `,
   }),
