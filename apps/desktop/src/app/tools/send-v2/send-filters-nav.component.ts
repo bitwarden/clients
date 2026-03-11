@@ -32,10 +32,10 @@ export class SendFiltersNavComponent {
   private readonly isSendRouteActive = toSignal(
     this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd),
-      map((event) => (event as NavigationEnd).urlAfterRedirects.includes("/new-sends")),
-      startWith(this.router.url.includes("/new-sends")),
+      map((event) => (event as NavigationEnd).urlAfterRedirects.includes("/send")),
+      startWith(this.router.url.includes("/send")),
     ),
-    { initialValue: this.router.url.includes("/new-sends") },
+    { initialValue: this.router.url.includes("/send") },
   );
 
   // Computed: Active send type (null when on send route with no filter, undefined when not on send route)
@@ -43,12 +43,12 @@ export class SendFiltersNavComponent {
     return this.isSendRouteActive() ? this.currentFilter()?.sendType : undefined;
   });
 
-  // Update send filter and navigate to /new-sends (only if not already there - send-v2 component reacts to filter changes)
+  // Update send filter and navigate to /send (only if not already there - send-v2 component reacts to filter changes)
   protected async selectTypeAndNavigate(type?: SendType): Promise<void> {
     this.filtersService.filterForm.patchValue({ sendType: type !== undefined ? type : null });
 
-    if (!this.router.url.includes("/new-sends")) {
-      await this.router.navigate(["/new-sends"]);
+    if (!this.router.url.includes("/send")) {
+      await this.router.navigate(["/send"]);
     }
   }
 }

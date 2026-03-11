@@ -1,3 +1,5 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from "@angular/core";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -92,12 +94,14 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
     let docFor2fa: string = "";
     let isInactive2faCipher: boolean = false;
 
-    const { type, login, isDeleted } = cipher;
+    const { type, login, isDeleted, edit, viewPassword } = cipher;
     if (
       type !== CipherType.Login ||
       (login.totp != null && login.totp !== "") ||
       !login.hasUris ||
-      isDeleted
+      isDeleted ||
+      (!this.organization && !edit) ||
+      !viewPassword
     ) {
       return [docFor2fa, isInactive2faCipher];
     }
