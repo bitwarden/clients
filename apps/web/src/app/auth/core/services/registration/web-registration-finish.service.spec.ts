@@ -220,6 +220,11 @@ describe("WebRegistrationFinishService", () => {
       providerInviteToken = "providerInviteToken";
       providerUserId = "providerUserId";
 
+      keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
+      keyService.makeKeyPair.mockResolvedValue(userKeyPair);
+      accountApiService.registerFinish.mockResolvedValue();
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
+
       salt = "salt" as MasterPasswordSalt;
       masterPasswordAuthentication = {
         salt,
@@ -243,11 +248,6 @@ describe("WebRegistrationFinishService", () => {
 
     describe("when feature flag is OFF (old API)", () => {
       it("registers the user with KDF fields when given valid email verification input", async () => {
-        keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
-        keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-        accountApiService.registerFinish.mockResolvedValue();
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
-
         await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
 
         expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
@@ -270,9 +270,6 @@ describe("WebRegistrationFinishService", () => {
       });
 
       it("it registers the user with org invite when given an org invite", async () => {
-        keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
-        keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-        accountApiService.registerFinish.mockResolvedValue();
         organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
 
         await service.finishRegistration(email, passwordInputResult);
@@ -289,11 +286,6 @@ describe("WebRegistrationFinishService", () => {
       });
 
       it("registers the user when given an org sponsored free family plan token", async () => {
-        keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
-        keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-        accountApiService.registerFinish.mockResolvedValue();
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
-
         await service.finishRegistration(
           email,
           passwordInputResult,
@@ -314,11 +306,6 @@ describe("WebRegistrationFinishService", () => {
       });
 
       it("registers the user when given an emergency access invite token", async () => {
-        keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
-        keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-        accountApiService.registerFinish.mockResolvedValue();
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
-
         await service.finishRegistration(
           email,
           passwordInputResult,
@@ -345,11 +332,6 @@ describe("WebRegistrationFinishService", () => {
       });
 
       it("registers the user when given a provider invite token", async () => {
-        keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
-        keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-        accountApiService.registerFinish.mockResolvedValue();
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
-
         await service.finishRegistration(
           email,
           passwordInputResult,
@@ -398,11 +380,6 @@ describe("WebRegistrationFinishService", () => {
       });
 
       it("derives the master key and registers the user with new data types", async () => {
-        keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
-        keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-        accountApiService.registerFinish.mockResolvedValue();
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
-
         await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
 
         // Verify master key is derived internally
@@ -435,9 +412,6 @@ describe("WebRegistrationFinishService", () => {
       });
 
       it("it registers the user with org invite when given an org invite", async () => {
-        keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
-        keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-        accountApiService.registerFinish.mockResolvedValue();
         organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
 
         await service.finishRegistration(email, passwordInputResult);
@@ -459,11 +433,6 @@ describe("WebRegistrationFinishService", () => {
       });
 
       it("registers the user when given an org sponsored free family plan token", async () => {
-        keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
-        keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-        accountApiService.registerFinish.mockResolvedValue();
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
-
         await service.finishRegistration(
           email,
           passwordInputResult,
@@ -489,11 +458,6 @@ describe("WebRegistrationFinishService", () => {
       });
 
       it("registers the user when given an emergency access invite token", async () => {
-        keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
-        keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-        accountApiService.registerFinish.mockResolvedValue();
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
-
         await service.finishRegistration(
           email,
           passwordInputResult,
@@ -522,11 +486,6 @@ describe("WebRegistrationFinishService", () => {
       });
 
       it("registers the user when given a provider invite token", async () => {
-        keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
-        keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-        accountApiService.registerFinish.mockResolvedValue();
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
-
         await service.finishRegistration(
           email,
           passwordInputResult,

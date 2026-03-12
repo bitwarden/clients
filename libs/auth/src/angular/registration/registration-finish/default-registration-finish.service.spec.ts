@@ -140,6 +140,8 @@ describe("DefaultRegistrationFinishService", () => {
         // Verify new API fields are NOT present
         expect((registerCall as any).masterPasswordAuthentication).toBeUndefined();
         expect((registerCall as any).masterPasswordUnlock).toBeUndefined();
+
+        expect(registerCall).toMatchSnapshot();
       });
     });
 
@@ -225,6 +227,8 @@ describe("DefaultRegistrationFinishService", () => {
         expect((registerCall as any).userSymmetricKey).toBeUndefined();
         expect((registerCall as any).kdf).toBeUndefined();
         expect((registerCall as any).kdfIterations).toBeUndefined();
+
+        expect(registerCall).toMatchSnapshot();
       });
     });
   });
