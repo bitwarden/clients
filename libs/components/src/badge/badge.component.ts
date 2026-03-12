@@ -165,6 +165,6 @@ export class BadgeComponent {
       return customTitle;
     }
 
-    return this.el.nativeElement?.textContent?.trim() || "";
+    return this.truncate() ? this.el.nativeElement?.textContent?.trim() || "" : undefined;
   });
 }
