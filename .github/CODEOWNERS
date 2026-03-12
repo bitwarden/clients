@@ -252,3 +252,4 @@ apps/desktop/native-messaging-test-runner/package-lock.json @bitwarden/team-plat
 .claude/ @bitwarden/team-ai-sme
 .github/workflows/respond.yml @bitwarden/team-ai-sme
 .github/workflows/review-code.yml @bitwarden/team-ai-sme
+libs/i18n @bitwarden/team-platform-dev
