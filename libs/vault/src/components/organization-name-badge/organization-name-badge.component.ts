@@ -5,8 +5,6 @@ import { RouterModule } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Unassigned } from "@bitwarden/common/admin-console/models/collections";
-import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
-import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ChipActionComponent } from "@bitwarden/components";
 import { OrganizationId } from "@bitwarden/sdk-internal";
@@ -35,11 +33,7 @@ export class OrganizationNameBadgeComponent implements OnChanges {
   textColor: string;
   isMe: boolean;
 
-  constructor(
-    private i18nService: I18nService,
-    private avatarService: AvatarService,
-    private tokenService: TokenService,
-  ) {}
+  constructor(private i18nService: I18nService) {}
 
   // ngOnChanges is required since this component might be reused as part of
   // cdk virtual scrolling
