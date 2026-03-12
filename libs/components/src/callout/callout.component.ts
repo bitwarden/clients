@@ -35,7 +35,7 @@ let nextId = 0;
 /**
  * The callout component provides information to your users such as success or error messages,
  * but also highlighted information complementing the normal flow of paragraphs and headers on a page.
- * Whereas a banner is meant to be used globally across pages, the alert can be used more contextually
+ * Whereas a banner is meant to be used globally across pages, the callout can be used more contextually
  * within other components / in the more standard flow of information. It’s meant to interrupt the user
  * whereas the banner is not meant to interrupt.
  */

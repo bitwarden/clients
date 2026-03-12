@@ -14,14 +14,10 @@ import { CalloutModule } from "@bitwarden/components";
 <Primary />
 <Controls />
 
-## Usage
+### With Inline Link
 
 If only a single link or CTA is needed, use the **Info** variant with an inline link. If more CTA’s
-are needed, or if a single CTA needs more prominence, include the CTAs in the `end` slot. These
-buttons do not need to use both a primary and secondary variant, but if there is only a single
-button, use the primary variant.
-
-### With Inline Link
+are needed, or if a single CTA needs more prominence, use [Footer Buttons](#with-footer-buttons).
 
 <Canvas of={stories.WithInlineLink} />
 
@@ -63,7 +59,7 @@ Use the success callout to communicate a positive messaging to the user.
 **Example:** a positive report results shows a success callout.
 
 The success callout may also be used for the information related to a premium membership. In this
-case, replace the icon with <i class="bwi bwi-star" title="bwi-star" aria-label="bwi-star"></i>
+case, set the icon input to `bwi-star`.
 
 ### Warning
 
