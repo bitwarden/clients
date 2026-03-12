@@ -18,39 +18,21 @@
         <bit-section-header>
           <h2 bitTypography="h2">{{ section.labelKey | i18n }}</h2>
         </bit-section-header>
-        <bit-table>
-          <ng-template body>
-            @for (p of section.policies; track p.type) {
-              <tr bitRow>
-                <td bitCell>
-                  <div class="tw-flex tw-items-center tw-justify-between tw-gap-4">
-                    <div class="tw-min-w-0 tw-max-w-[740px]">
-                      <button
-                        type="button"
-                        bitLink
-                        linkType="secondary"
-                        (click)="edit(p, organizationId)"
-                        class="tw-block tw-truncate"
-                      >
-                        {{ p.name | i18n }}
-                      </button>
-                      <small class="tw-text-muted tw-block tw-truncate">
-                        {{ p.description | i18n }}
-                      </small>
-                    </div>
-                    <div class="tw-shrink-0">
-                      @if (policiesEnabledMap.get(p.type)) {
-                        <span bitBadge variant="success">{{ "on" | i18n }}</span>
-                      } @else {
-                        <span bitBadge variant="secondary">{{ "off" | i18n }}</span>
-                      }
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            }
-          </ng-template>
-        </bit-table>
+        <bit-item-group [attr.aria-label]="section.labelKey | i18n">
+          @for (p of section.policies; track p.type) {
+            <bit-item>
+              <button type="button" bit-item-content (click)="edit(p, organizationId)">
+                {{ p.name | i18n }}
+                <span slot="secondary">{{ p.description | i18n }}</span>
+                @if (policiesEnabledMap.get(p.type)) {
+                  <span bitBadge variant="success" slot="end">{{ "on" | i18n }}</span>
+                } @else {
+                  <span bitBadge variant="secondary" slot="end">{{ "off" | i18n }}</span>
+                }
+              </button>
+            </bit-item>
+          }
+        </bit-item-group>
       </bit-section>
     }
   }

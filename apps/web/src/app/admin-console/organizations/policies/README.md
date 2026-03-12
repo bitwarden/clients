@@ -171,6 +171,8 @@ export class NewPolicyBeta extends BasePolicyEditDefinition {
   name = "newPolicyTitle";
   description = "newPolicyDesc";
   type = PolicyType.NewPolicy;
+  category = PolicyCategory.VaultManagement;
+  priority = 10;
   component = NewPolicyComponent;
 
   // Only show if feature flag is enabled
@@ -193,6 +195,8 @@ export class RequireSsoPolicy extends BasePolicyEditDefinition {
   name = "requireSsoTitle";
   description = "requireSsoDesc";
   type = PolicyType.RequireSso;
+  category = PolicyCategory.VaultManagement;
+  priority = 10;
   component = RequireSsoPolicyComponent;
 
   // Only show if organization has SSO enabled

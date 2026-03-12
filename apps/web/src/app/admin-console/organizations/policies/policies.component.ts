@@ -14,7 +14,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { DialogService, SectionHeaderComponent } from "@bitwarden/components";
+import { DialogService, ItemModule, SectionHeaderComponent } from "@bitwarden/components";
 import { safeProvider } from "@bitwarden/ui-common";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -27,7 +27,7 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
 @Component({
   templateUrl: "policies.component.html",
-  imports: [SharedModule, HeaderModule, SectionHeaderComponent],
+  imports: [SharedModule, HeaderModule, SectionHeaderComponent, ItemModule],
   providers: [
     safeProvider({
       provide: PolicyListService,
