@@ -179,6 +179,8 @@
         "oslog",
         "pin-project",
         "pkg",
+        "@playwright/test",
+        "playwright",
         "postcss",
         "postcss-loader",
         "rand",

@@ -217,7 +217,7 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
           }
 
           // Destructure to omit the specific sendId and get new reference for the rest of the dict for an immutable update
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
           const { [sendId]: _, ...rest } = sendAccessTokenDict;
 
           return rest;
