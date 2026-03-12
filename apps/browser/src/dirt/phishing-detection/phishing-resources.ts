@@ -3,6 +3,8 @@ export type PhishingResource = {
   primaryUrl: string;
   checksumUrl: string;
   todayUrl: string;
+  manifestUrl: string;
+  patchBaseUrl: string;
   /** Matcher used to decide whether a given URL matches an entry from this resource */
   match: (url: URL, entry: string) => boolean;
 };
@@ -24,6 +26,8 @@ export const PHISHING_RESOURCES: Record<PhishingResourceType, PhishingResource[]
         "https://raw.githubusercontent.com/Phishing-Database/checksums/refs/heads/master/phishing-domains-ACTIVE.txt.md5",
       todayUrl:
         "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/refs/heads/master/phishing-domains-NEW-today.txt",
+      manifestUrl: "",
+      patchBaseUrl: "",
       match: (url: URL, entry: string) => {
         if (!entry) {
           return false;
@@ -51,6 +55,8 @@ export const PHISHING_RESOURCES: Record<PhishingResourceType, PhishingResource[]
         "https://raw.githubusercontent.com/Phishing-Database/checksums/refs/heads/master/phishing-links-ACTIVE.txt.md5",
       todayUrl:
         "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/refs/heads/master/phishing-links-NEW-today.txt",
+      manifestUrl: "https://assets.bitwarden.com/security/v1/manifest.json",
+      patchBaseUrl: "https://assets.bitwarden.com/security/v1/",
       match: (url: URL, entry: string) => {
         if (!entry) {
           return false;
