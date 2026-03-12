@@ -92,6 +92,37 @@ struct PluginAuthenticatorComObject {
 }
 
 impl PluginAuthenticatorComObject {
+    fn make_credential(
+        &self,
+        request: PluginMakeCredentialRequest<'_>,
+    ) -> windows::core::Result<()> {
+        let transaction_id = request.transaction_id;
+        let response = self.handler.make_credential(request).map_err(|err| {
+            tracing::error!("MakeCredential failed: {err}");
+            E_FAIL
+        })?;
+        if let Err(err) = self.complete_request(transaction_id, &response) {
+            tracing::error!("Failed to write MakeCredential response to Windows: {err}");
+            return Err(E_FAIL.into());
+        }
+        tracing::debug!("MakeCredential completed successfully");
+        Ok(())
+    }
+
+    fn get_assertion(&self, request: PluginGetAssertionRequest<'_>) -> windows::core::Result<()> {
+        let transaction_id = request.transaction_id;
+        let response = self.handler.get_assertion(request).map_err(|err| {
+            tracing::error!("GetAssertion failed: {err}");
+            E_FAIL
+        })?;
+        if let Err(err) = self.complete_request(transaction_id, &response) {
+            tracing::error!("Failed to write GetAssertion response to Windows: {err}");
+            return Err(E_FAIL.into());
+        }
+        tracing::debug!("GetAssertion completed successfully");
+        Ok(())
+    }
+
     fn cancel_operation(&self, request: PluginCancelOperationRequest) -> windows::core::Result<()> {
         let mut guard = self.in_flight_request.lock().expect("not poisoned");
 
@@ -268,33 +299,20 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
     ) -> HRESULT {
         tracing::debug!("MakeCredential called");
 
-        let request: PluginMakeCredentialRequest<'_> =
-            match self.initialize_request(request, response) {
-                Ok(request) => request,
-                Err(err) => {
-                    tracing::error!(%err, "Invalid request passed to GetAssertion");
-                    return E_INVALIDARG;
-                }
-            };
-        let transaction_id = request.transaction_id;
-        match self.handler.make_credential(request) {
-            Ok(registration_response) => match self
-                .complete_request(transaction_id, &registration_response)
-            {
-                Ok(()) => {
-                    tracing::debug!("MakeCredential completed successfully");
-                    S_OK
-                }
-                Err(err) => {
-                    tracing::error!("Failed to write MakeCredential response to Windows: {err}");
-                    E_FAIL
-                }
-            },
+        // We cannot guarantee that this is safe; we have to trust the request
+        // and response structs and inner buffers are valid.
+        let init_result = unsafe { self.initialize_request(request, response) };
+
+        let request: PluginMakeCredentialRequest<'_> = match init_result {
+            Ok(request) => request,
             Err(err) => {
-                tracing::error!("MakeCredential failed: {err}");
-                E_FAIL
+                tracing::error!(%err, "Invalid request passed to MakeCredential");
+                return E_INVALIDARG;
             }
-        }
+        };
+
+        let result = self.make_credential(request);
+        result.into()
     }
 
     unsafe fn GetAssertion(
@@ -303,7 +321,12 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
         response: *mut WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
     ) -> HRESULT {
         tracing::debug!("GetAssertion called");
-        let request: PluginGetAssertionRequest = match self.initialize_request(request, response) {
+
+        // We cannot guarantee that this is safe; we have to trust the request
+        // and response structs and inner buffers are valid.
+        let init_result = unsafe { self.initialize_request(request, response) };
+
+        let request: PluginGetAssertionRequest = match init_result {
             Ok(request) => request,
             Err(err) => {
                 tracing::error!(%err, "Invalid request passed to GetAssertion");
@@ -311,27 +334,8 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
             }
         };
 
-        let transaction_id = request.transaction_id;
-
-        match self.handler.get_assertion(request) {
-            Ok(assertion_response) => {
-                // SAFETY: response pointer was given to us by Windows, so we assume it's valid.
-                match self.complete_request(transaction_id, &assertion_response) {
-                    Ok(()) => {
-                        tracing::debug!("GetAssertion completed successfully");
-                        S_OK
-                    }
-                    Err(err) => {
-                        tracing::error!("Failed to write GetCredential response to Windows: {err}");
-                        E_FAIL
-                    }
-                }
-            }
-            Err(err) => {
-                tracing::error!("GetAssertion failed: {err}");
-                E_FAIL
-            }
-        }
+        let result = self.get_assertion(request);
+        result.into()
     }
 
     unsafe fn CancelOperation(
