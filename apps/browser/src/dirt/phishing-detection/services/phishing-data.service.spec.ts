@@ -90,7 +90,7 @@ describe("PhishingDataService", () => {
     });
 
     it("should detect QA test addresses - infinite loading page", async () => {
-      const url = new URL("https://alexrubik.github.io/phishing-test-page/");
+      const url = new URL("https://bitwarden.github.io/phishing-test-page/inf-load/");
       expect(await service.isPhishingWebAddress(url)).toBe(true);
       expect(mockIndexedDbService.hasUrl).not.toHaveBeenCalled();
     });
