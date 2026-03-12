@@ -104,7 +104,6 @@ import {
   VaultItemDialogMode,
   VaultItemDialogResult,
 } from "@bitwarden/vault";
-import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import {
@@ -157,7 +156,6 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     VaultFilterModule,
     VaultItemsModule,
     SharedModule,
-    OrganizationWarningsModule,
   ],
   providers: [
     RoutedVaultFilterService,
