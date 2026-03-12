@@ -2,7 +2,6 @@
 name: cipher-type-planner
 description: Plans the creation or modification of a cipher type (vault item type) across the Bitwarden clients monorepo. Use this skill when a user wants to add a new cipher type, modify an existing cipher type, or asks about what is needed to implement a cipher type. DO NOT invoke for general vault or cipher questions unrelated to adding or changing a cipher type.
 user-invokable: true
-argument-hint: "<cipher-type-name>"
 ---
 
 # Cipher Type Planner
@@ -147,7 +146,6 @@ arrays when the flag is off.
 - `apps/web/src/app/vault/individual-vault/vault-filter/components/vault-filter.component.ts` - Add to `allTypeFilters`, `searchPlaceholder`, and feature-flag-gate in `buildAllFilters()`
 - `apps/web/src/app/admin-console/organizations/collections/vault-filter/vault-filter.component.ts` - Feature-flag-gate in `buildAllFilters()`
 - `apps/desktop/src/vault/app/vault-v3/vault-filter/filters/type-filter.component.ts` - Add `ConfigService`, `combineLatest` with feature flag
-- `apps/desktop/src/vault/app/vault/vault-filter/filters/type-filter.component.ts` - Same pattern
 - `apps/browser/src/vault/popup/services/vault-popup-list-filters.service.ts` - Add `ConfigService`, feature-flag-gate `cipherTypes`
 - `libs/angular/src/vault/components/vault-items.component.ts` - Feature-flag-gate empty state type buttons
 
