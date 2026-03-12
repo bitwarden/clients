@@ -6,6 +6,7 @@ import {
   ChangeDetectionStrategy,
   signal,
   computed,
+  Signal,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
@@ -33,8 +34,9 @@ import {
   ToastService,
   TooltipDirective,
   TypographyModule,
-  ChipSelectComponent,
+  ChipFilterComponent,
   IconComponent,
+  ChipFilterOption,
 } from "@bitwarden/components";
 import { ExportHelper } from "@bitwarden/vault-export-core";
 import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils";
@@ -73,18 +75,18 @@ export type ApplicationFilterOption =
     TypographyModule,
     ButtonModule,
     ReactiveFormsModule,
-    ChipSelectComponent,
+    ChipFilterComponent,
     IconComponent,
     TooltipDirective,
   ],
 })
 export class ApplicationsComponent implements OnInit {
-  destroyRef = inject(DestroyRef);
-  private fileDownloadService = inject(FileDownloadService);
-  private logService = inject(LogService);
+  readonly destroyRef = inject(DestroyRef);
+  private readonly fileDownloadService = inject(FileDownloadService);
+  private readonly logService = inject(LogService);
 
-  protected ReportStatusEnum = ReportStatus;
-  protected noItemsIcon = Security;
+  protected readonly ReportStatusEnum = ReportStatus;
+  protected readonly noItemsIcon = Security;
 
   // Standard properties
   protected readonly dataSource = new TableDataSource<ApplicationTableDataSource>();
@@ -106,18 +108,16 @@ export class ApplicationsComponent implements OnInit {
 
   // filter related properties
   protected readonly selectedFilter = signal<ApplicationFilterOption>(ApplicationFilterOption.All);
-  protected selectedFilterObservable = toObservable(this.selectedFilter);
+  protected readonly selectedFilterObservable = toObservable(this.selectedFilter);
   protected readonly ApplicationFilterOption = ApplicationFilterOption;
-  protected readonly filterOptions = computed(() => [
+  protected readonly filterOptions: Signal<ChipFilterOption<string>[]> = computed(() => [
     {
       label: this.i18nService.t("critical", this.criticalApplicationsCount()),
       value: ApplicationFilterOption.Critical,
-      icon: " ",
     },
     {
       label: this.i18nService.t("notCritical", this.nonCriticalApplicationsCount()),
       value: ApplicationFilterOption.NonCritical,
-      icon: " ",
     },
   ]);
 
@@ -161,11 +161,11 @@ export class ApplicationsComponent implements OnInit {
   readonly enableRequestPasswordChange = computed(() => this.unassignedCipherIds().length > 0);
 
   constructor(
-    protected i18nService: I18nService,
-    protected activatedRoute: ActivatedRoute,
-    protected toastService: ToastService,
-    protected dataService: RiskInsightsDataService,
-    protected securityTasksService: AccessIntelligenceSecurityTasksService,
+    protected readonly i18nService: I18nService,
+    protected readonly activatedRoute: ActivatedRoute,
+    protected readonly toastService: ToastService,
+    protected readonly dataService: RiskInsightsDataService,
+    protected readonly securityTasksService: AccessIntelligenceSecurityTasksService,
   ) {}
 
   async ngOnInit() {

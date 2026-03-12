@@ -25,12 +25,7 @@ export abstract class NavBaseComponent {
   readonly icon = input<string>();
 
   /**
-   * If this item is used within a tree, set `variant` to `"tree"`
-   */
-  readonly variant = input<"default" | "tree">("default");
-
-  /**
-   * Depth level when nested inside of a `'tree'` variant
+   * Depth level
    */
   readonly treeDepth = model(0);
 

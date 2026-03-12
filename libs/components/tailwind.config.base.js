@@ -122,6 +122,9 @@ module.exports = {
         sidenav: "var(--color-sidenav-background)",
         "sidenav-active-item": "var(--color-sidenav-active-item)",
         "sidenav-item-hover": "var(--color-sidenav-item-hover)",
+        "sidenav-active-item-hover": "var(--color-sidenav-active-item-hover)",
+        "sidenav-arrow-hover": "var(--color-sidenav-arrow-hover)",
+        "sidenav-active-arrow-hover": "var(--color-sidenav-active-arrow-hover)",
       },
       hover: {
         default: "var(--color-hover-default)",
@@ -192,6 +195,7 @@ module.exports = {
         "accent-tertiary": "var(--color-border-accent-tertiary)",
         focus: "var(--color-border-focus)",
         "focus-contrast": "var(--color-border-focus-contrast)",
+        "sidenav-focus": "var(--color-sidenav-focus)",
       },
     },
     textColor: () => ({
