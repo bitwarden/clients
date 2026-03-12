@@ -33,7 +33,7 @@ import { BitHintDirective } from "./hint.directive";
 })
 export class FormControlCardComponent {
   protected readonly icon = input<BitwardenIcon>();
-  protected base = inject(FormControlBaseDirective);
+  protected readonly base = inject(FormControlBaseDirective);
 
   readonly labelId = `${this.base.id}-label`;
   readonly errorId = `${this.base.id}-error`;
