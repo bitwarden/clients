@@ -73,6 +73,7 @@ export default {
               protectedBy: (product) => `Protected by ${product}`,
               learnMore: "Learn more",
               danger: "error",
+              close: "Close",
             }),
         },
         {
