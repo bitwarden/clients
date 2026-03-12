@@ -57,7 +57,7 @@ export interface Trial {
   length: number;
 }
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class TrialBillingStepService {
   constructor(
     private accountService: AccountService,
