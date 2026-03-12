@@ -206,6 +206,7 @@ import {
   DefaultStateService,
 } from "@bitwarden/state-internal";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
+import { DefaultUnlockService, UnlockService } from "@bitwarden/unlock";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -346,6 +347,7 @@ export class ServiceContainer {
   masterPasswordUnlockService: MasterPasswordUnlockService;
   cipherArchiveService: CipherArchiveService;
   lockService: LockService;
+  unlockService: UnlockService;
   private accountCryptographicStateService: DefaultAccountCryptographicStateService;
 
   constructor() {
@@ -682,6 +684,19 @@ export class ServiceContainer {
       customUserAgent,
     );
 
+    this.unlockService = new DefaultUnlockService(
+      this.registerSdkService,
+      this.accountCryptographicStateService,
+      pinStateService,
+      this.kdfConfigService,
+      this.accountService,
+      this.masterPasswordService,
+      this.cryptoFunctionService,
+      this.stateProvider,
+      this.logService,
+      new CliBiometricsService(),
+    );
+
     this.sendTokenService = new DefaultSendTokenService(
       this.globalStateProvider,
       this.sdkService,
@@ -703,6 +718,7 @@ export class ServiceContainer {
       this.registerSdkService,
       this.securityStateService,
       this.accountCryptographicStateService,
+      this.userDecryptionOptionsService,
     );
 
     this.twoFactorService = new DefaultTwoFactorService(

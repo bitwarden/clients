@@ -102,6 +102,7 @@ export class EmergencyAccessAddEditComponent implements OnInit {
       this.addEditForm.markAllAsTouched();
       return;
     }
+
     if (this.editMode) {
       await this.emergencyAccessService.update(
         this.params.emergencyAccessId,
