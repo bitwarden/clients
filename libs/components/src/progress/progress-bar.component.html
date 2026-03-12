@@ -18,7 +18,9 @@
   <div class="tw-flex tw-text-fg-body" bitTypography="body2">
     @if (!hideStartHint()) {
       <div class="tw-me-auto">
-        <ng-content select="[slot='start']"> {{ defaultStartText() }} </ng-content>
+        <ng-content select="[slot='start']">
+          <bit-hint>{{ defaultStartText() }}</bit-hint>
+        </ng-content>
       </div>
     }
     <div class="tw-ms-auto">

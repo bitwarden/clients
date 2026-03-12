@@ -4,6 +4,7 @@ import { SpotReport } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
+import { FormFieldModule } from "../form-field";
 import { SvgComponent } from "../svg/svg.component";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
@@ -17,7 +18,7 @@ export default {
   component: ProgressBarLockupComponent,
   decorators: [
     moduleMetadata({
-      imports: [ProgressBarComponent],
+      imports: [ProgressBarComponent, SvgComponent, FormFieldModule],
       providers: [
         {
           provide: I18nService,
@@ -41,11 +42,6 @@ export default {
 type Story = StoryObj<ProgressBarLockupComponent>;
 
 export const Base: Story = {
-  decorators: [
-    moduleMetadata({
-      imports: [SvgComponent],
-    }),
-  ],
   render: (args) => ({
     props: {
       ...args,

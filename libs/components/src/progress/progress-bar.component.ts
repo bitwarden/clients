@@ -3,6 +3,7 @@ import { Component, input, ChangeDetectionStrategy, computed, inject } from "@an
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { FormFieldModule } from "../form-field";
 import { TypographyModule } from "../typography";
 
 export type ProgressBarVariant = "primary" | "subtle" | "success" | "warning" | "danger";
@@ -28,7 +29,7 @@ let nextId = 0;
 @Component({
   selector: "bit-progress-bar",
   templateUrl: "./progress-bar.component.html",
-  imports: [CommonModule, TypographyModule],
+  imports: [CommonModule, TypographyModule, FormFieldModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProgressBarComponent {
