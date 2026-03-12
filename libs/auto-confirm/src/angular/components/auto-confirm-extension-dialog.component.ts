@@ -68,7 +68,7 @@ import {
   imports: [ButtonModule, DialogModule, CommonModule, JslibModule, BadgeComponent],
 })
 export class AutoConfirmExtensionSetupDialogComponent {
-  constructor(public dialogRef: DialogRef<boolean>) {}
+  constructor(readonly dialogRef: DialogRef<boolean>) {}
 
   static open(dialogService: DialogService) {
     return dialogService.open<boolean>(AutoConfirmExtensionSetupDialogComponent, {
