@@ -5,9 +5,7 @@ import {
   EMPTY,
   exhaustMap,
   first,
-  forkJoin,
   from,
-  iif,
   map,
   Observable,
   of,
@@ -18,7 +16,6 @@ import {
   Subject,
   switchMap,
   tap,
-  throwError,
   timer,
 } from "rxjs";
 
@@ -29,6 +26,7 @@ import { ScheduledTaskNames, TaskSchedulerService } from "@bitwarden/common/plat
 import { LogService } from "@bitwarden/logging";
 import { GlobalStateProvider, KeyDefinition, PHISHING_DETECTION_DISK } from "@bitwarden/state";
 
+import { PhishingManifest } from "../phishing-manifest.types";
 import { getPhishingResources, PhishingResourceType } from "../phishing-resources";
 
 import { PhishingIndexedDbService } from "./phishing-indexeddb.service";
@@ -37,7 +35,7 @@ import { PhishingIndexedDbService } from "./phishing-indexeddb.service";
  * Metadata about the phishing data set
  */
 export type PhishingDataMeta = {
-  /** The last known checksum of the phishing data set */
+  /** The last known checksum of the phishing data set (legacy MD5, kept for backward compat) */
   checksum: string;
   /** The last time the data set was updated  */
   timestamp: number;
@@ -46,6 +44,10 @@ export type PhishingDataMeta = {
    * This counteracts daily appends updates not removing inactive or false positive web addresses.
    */
   applicationVersion: string;
+  /** SHA256 of raw blocklist file (order-dependent), used for patch chaining */
+  sha256?: string;
+  /** SHA256 of sorted blocklist file (order-independent), used for integrity verification */
+  sortedSha256?: string;
 };
 
 /**
@@ -233,17 +235,6 @@ export class PhishingDataService {
     }
   }
 
-  // [FIXME] Pull fetches into api service
-  private async fetchToday(url: string) {
-    const response = await this.apiService.nativeFetch(new Request(url));
-
-    if (!response.ok) {
-      throw new Error(`[PhishingDataService] Failed to fetch web addresses: ${response.status}`);
-    }
-
-    return response.text().then((text) => text.split("\n"));
-  }
-
   private getTestWebAddresses() {
     const flag = devFlagEnabled("testPhishingUrls");
     // Normalize URLs by converting to URL object and back to ensure consistent format (e.g., trailing slashes)
@@ -281,134 +272,419 @@ export class PhishingDataService {
     return testWebAddresses;
   }
 
-  private _getUpdatedMeta(): Observable<PhishingDataMeta> {
-    return defer(() => {
-      const now = Date.now();
-
-      return forkJoin({
-        applicationVersion: from(this.platformUtilsService.getApplicationVersion()),
-        remoteChecksum: from(this.fetchPhishingChecksum(this.resourceType)),
-      }).pipe(
-        map(({ applicationVersion, remoteChecksum }) => {
-          return {
-            checksum: remoteChecksum,
-            timestamp: now,
-            applicationVersion,
-          };
-        }),
-      );
-    });
+  /**
+   * Compute SHA256 hash of a string using Web Crypto API.
+   * Returns lowercase hex string.
+   */
+  private async computeSha256(data: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const buffer = encoder.encode(data);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
   }
 
-  // Streams the full phishing data set and saves it to IndexedDB
-  private _updateFullDataSet() {
-    const resource = getPhishingResources(this.resourceType);
+  /**
+   * Compute SHA256 of the full blocklist by loading all URLs from IndexedDB.
+   */
+  private async computeLocalHashes(): Promise<{ sha256: string; sortedSha256: string }> {
+    const urls = await this.indexedDbService.loadAllUrls();
+    const raw = urls.join("\n") + "\n";
+    const sorted = [...urls].sort().join("\n") + "\n";
+    return {
+      sha256: await this.computeSha256(raw),
+      sortedSha256: await this.computeSha256(sorted),
+    };
+  }
 
-    if (!resource?.primaryUrl) {
-      return throwError(() => new Error("Invalid resource URL"));
+  /**
+   * Fetch and parse manifest.json from assets.bitwarden.com.
+   */
+  private async fetchManifest(): Promise<PhishingManifest> {
+    const resource = getPhishingResources(this.resourceType);
+    if (!resource?.manifestUrl) {
+      throw new Error("Manifest URL missing from phishing resources");
     }
 
-    this.logService.info(`[PhishingDataService] Starting FULL update using ${resource.primaryUrl}`);
-    return from(this.apiService.nativeFetch(new Request(resource.primaryUrl))).pipe(
-      switchMap((response) => {
-        if (!response.ok || !response.body) {
-          return throwError(
-            () =>
-              new Error(
-                `[PhishingDataService] Full fetch failed: ${response.status}, ${response.statusText}`,
-              ),
-          );
-        }
+    this.logService.info(
+      `[PhishingDataService] Fetching manifest from ${resource.manifestUrl}`,
+    );
 
-        return from(this.indexedDbService.saveUrlsFromStream(response.body));
+    const response = await this.apiService.nativeFetch(
+      new Request(resource.manifestUrl, {
+        headers: { "Accept-Encoding": "gzip" },
       }),
     );
-  }
 
-  private _updateDailyDataSet() {
-    this.logService.info("[PhishingDataService] Starting DAILY update...");
-
-    const todayUrl = getPhishingResources(this.resourceType)?.todayUrl;
-    if (!todayUrl) {
-      return throwError(() => new Error("Today URL missing"));
+    if (!response.ok) {
+      throw new Error(`Manifest fetch failed: ${response.status} ${response.statusText}`);
     }
 
-    return from(this.fetchToday(todayUrl)).pipe(
-      switchMap((lines) => from(this.indexedDbService.addUrls(lines))),
+    return (await response.json()) as PhishingManifest;
+  }
+
+  /**
+   * Fetch a patch file and parse into add/remove URL arrays.
+   */
+  private async fetchPatch(
+    patchPath: string,
+  ): Promise<{ additions: string[]; removals: string[] }> {
+    const resource = getPhishingResources(this.resourceType);
+    if (!resource?.patchBaseUrl) {
+      throw new Error("Patch base URL missing from phishing resources");
+    }
+
+    const url = resource.patchBaseUrl + patchPath;
+    this.logService.info(`[PhishingDataService] Fetching patch from ${url}`);
+
+    const response = await this.apiService.nativeFetch(
+      new Request(url, {
+        headers: { "Accept-Encoding": "gzip" },
+      }),
     );
+
+    if (!response.ok) {
+      throw new Error(`Patch fetch failed: ${response.status} ${response.statusText}`);
+    }
+
+    const text = await response.text();
+    const additions: string[] = [];
+    const removals: string[] = [];
+
+    for (const line of text.split("\n")) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("+")) {
+        additions.push(trimmed.slice(1));
+      } else if (trimmed.startsWith("-")) {
+        removals.push(trimmed.slice(1));
+      }
+    }
+
+    return { additions, removals };
+  }
+
+  /**
+   * Apply a chain of patches to bring the local blocklist up to date.
+   * Returns the final sha256 after all patches applied, or null if no valid chain found.
+   */
+  private async applyPatchChain(
+    manifest: PhishingManifest,
+    currentSha256: string,
+  ): Promise<string | null> {
+    const patchMap = new Map(manifest.patches.map((p) => [p.from_sha256, p]));
+
+    let localSha256 = currentSha256;
+    let patchesApplied = 0;
+
+    while (localSha256 !== manifest.full_list.sha256) {
+      const patch = patchMap.get(localSha256);
+      if (!patch) {
+        this.logService.info(
+          `[PhishingDataService] No patch found for sha256 ${localSha256.slice(0, 12)}... — falling back to full download`,
+        );
+        return null;
+      }
+
+      const { additions, removals } = await this.fetchPatch(patch.path);
+
+      if (removals.length > 0) {
+        await this.indexedDbService.removeUrls(removals);
+      }
+      if (additions.length > 0) {
+        await this.indexedDbService.addUrls(additions);
+      }
+
+      localSha256 = patch.to_sha256;
+      patchesApplied++;
+
+      this.logService.info(
+        `[PhishingDataService] Applied patch ${patch.date} (${additions.length} added, ${removals.length} removed)`,
+      );
+    }
+
+    this.logService.info(
+      `[PhishingDataService] Delta sync complete: ${patchesApplied} patch(es) applied`,
+    );
+
+    return localSha256;
+  }
+
+  /**
+   * Verify integrity of local blocklist after patch application.
+   */
+  private async verifyIntegrity(expectedSortedSha256: string): Promise<boolean> {
+    const { sortedSha256 } = await this.computeLocalHashes();
+    const match = sortedSha256 === expectedSortedSha256;
+
+    if (!match) {
+      this.logService.warning(
+        `[PhishingDataService] Integrity check failed: local sorted_sha256 ${sortedSha256.slice(0, 12)}... !== expected ${expectedSortedSha256.slice(0, 12)}...`,
+      );
+    }
+
+    return match;
   }
 
   private _backgroundUpdate(
     previous: PhishingDataMeta | null,
   ): Observable<PhishingDataMeta | null> {
-    // Use defer to restart timer if retry is activated
+    const startTime = Date.now();
+
     return defer(() => {
-      const startTime = Date.now();
-      this.logService.info(`[PhishingDataService] Update triggered...`);
-
-      // Get updated meta info
-      return this._getUpdatedMeta().pipe(
-        // Update full data set if application version or checksum changed
-        concatMap((newMeta) =>
-          iif(
-            () => {
-              const appVersionChanged = newMeta.applicationVersion !== previous?.applicationVersion;
-              const checksumChanged = newMeta.checksum !== previous?.checksum;
-
-              this.logService.info(
-                `[PhishingDataService] Checking if full update is needed: appVersionChanged=${appVersionChanged}, checksumChanged=${checksumChanged}`,
-              );
-              return appVersionChanged || checksumChanged;
-            },
-            this._updateFullDataSet().pipe(map(() => ({ meta: newMeta, updated: true }))),
-            of({ meta: newMeta, updated: false }),
-          ),
-        ),
-        // Update daily data set if last update was more than UPDATE_INTERVAL_DURATION ago
-        concatMap((result) =>
-          iif(
-            () => {
-              const isCacheExpired =
-                Date.now() - (previous?.timestamp ?? 0) > this.UPDATE_INTERVAL_DURATION;
-              return isCacheExpired;
-            },
-            this._updateDailyDataSet().pipe(map(() => ({ meta: result.meta, updated: true }))),
-            of(result),
-          ),
-        ),
+      return from(this._performDeltaSync(previous)).pipe(
         concatMap((result) => {
-          if (!result.updated) {
-            this.logService.debug(`[PhishingDataService] No update needed, metadata unchanged`);
-            return of(previous);
+          if (result.updated) {
+            return from(this._phishingMetaState.update(() => result.meta)).pipe(
+              tap(() => {
+                const elapsed = Date.now() - startTime;
+                this.logService.info(
+                  `[PhishingDataService] Update completed in ${elapsed}ms`,
+                );
+              }),
+              map(() => result.meta),
+            );
           }
 
-          this.logService.debug(`[PhishingDataService] Updated phishing meta data:`, result.meta);
-          return from(this._phishingMetaState.update(() => result.meta)).pipe(
-            tap(() => {
-              const elapsed = Date.now() - startTime;
-              this.logService.info(`[PhishingDataService] Updated data set in ${elapsed}ms`);
-            }),
-          );
-        }),
-        retry({
-          count: 2, // Total 3 attempts (initial + 2 retries)
-          delay: (error, retryCount) => {
-            this.logService.error(
-              `[PhishingDataService] Attempt ${retryCount} failed. Retrying in 5m...`,
-              error,
-            );
-            return timer(5 * 60 * 1000); // Wait 5 mins before next attempt
-          },
-        }),
-        catchError((err: unknown) => {
-          const elapsed = Date.now() - startTime;
-          this.logService.error(
-            `[PhishingDataService] Retries unsuccessful after ${elapsed}ms.`,
-            err,
-          );
+          this.logService.info("[PhishingDataService] No update needed");
           return of(previous);
         }),
       );
-    });
+    }).pipe(
+      retry({
+        count: 2,
+        delay: (error, retryCount) => {
+          this.logService.error(
+            `[PhishingDataService] Error during update (attempt ${retryCount}/3):`,
+            error,
+          );
+          return timer(5 * 60 * 1000);
+        },
+      }),
+      catchError((error) => {
+        const elapsed = Date.now() - startTime;
+        this.logService.error(
+          `[PhishingDataService] All update attempts failed after ${elapsed}ms:`,
+          error,
+        );
+        return of(previous);
+      }),
+    );
+  }
+
+  /**
+   * Core delta sync logic.
+   */
+  private async _performDeltaSync(
+    previous: PhishingDataMeta | null,
+  ): Promise<{ meta: PhishingDataMeta; updated: boolean }> {
+    const applicationVersion = await this.platformUtilsService.getApplicationVersion();
+
+    if (applicationVersion !== previous?.applicationVersion) {
+      this.logService.info(
+        "[PhishingDataService] App version changed — performing full update",
+      );
+      return this._performFullUpdate(applicationVersion);
+    }
+
+    let manifest: PhishingManifest;
+    try {
+      manifest = await this.fetchManifest();
+    } catch (e) {
+      this.logService.warning(
+        "[PhishingDataService] Failed to fetch manifest — falling back to legacy sync",
+        e,
+      );
+      return this._performLegacySync(previous, applicationVersion);
+    }
+
+    const localSha256 = previous?.sha256;
+
+    if (!localSha256) {
+      this.logService.info(
+        "[PhishingDataService] No local sha256 — performing full update",
+      );
+      return this._performFullUpdateWithManifest(manifest, applicationVersion);
+    }
+
+    if (localSha256 === manifest.full_list.sha256) {
+      this.logService.info("[PhishingDataService] Blocklist is up to date");
+      return {
+        meta: { ...previous, timestamp: Date.now(), applicationVersion },
+        updated: false,
+      };
+    }
+
+    const resultSha256 = await this.applyPatchChain(manifest, localSha256);
+
+    if (resultSha256 === null) {
+      return this._performFullUpdateWithManifest(manifest, applicationVersion);
+    }
+
+    const integrityOk = await this.verifyIntegrity(manifest.full_list.sorted_sha256);
+
+    if (!integrityOk) {
+      this.logService.warning(
+        "[PhishingDataService] Integrity check failed after patches — performing full update",
+      );
+      return this._performFullUpdateWithManifest(manifest, applicationVersion);
+    }
+
+    const { sha256, sortedSha256 } = await this.computeLocalHashes();
+
+    return {
+      meta: {
+        checksum: previous?.checksum ?? "",
+        timestamp: Date.now(),
+        applicationVersion,
+        sha256,
+        sortedSha256,
+      },
+      updated: true,
+    };
+  }
+
+  /**
+   * Full update without manifest (app version change).
+   */
+  private async _performFullUpdate(
+    applicationVersion: string,
+  ): Promise<{ meta: PhishingDataMeta; updated: boolean }> {
+    let manifest: PhishingManifest | null = null;
+    try {
+      manifest = await this.fetchManifest();
+    } catch {
+      // Manifest unavailable — proceed without verification
+    }
+
+    const resource = getPhishingResources(this.resourceType);
+    if (!resource?.primaryUrl) {
+      throw new Error("Primary URL missing from phishing resources");
+    }
+
+    this.logService.info(
+      `[PhishingDataService] Starting FULL update using ${resource.primaryUrl}`,
+    );
+
+    const response = await this.apiService.nativeFetch(
+      new Request(resource.primaryUrl, {
+        headers: { "Accept-Encoding": "gzip" },
+      }),
+    );
+
+    if (!response.ok || !response.body) {
+      throw new Error(`Full update failed: ${response.status} ${response.statusText}`);
+    }
+
+    await this.indexedDbService.saveUrlsFromStream(response.body);
+
+    const { sha256, sortedSha256 } = await this.computeLocalHashes();
+
+    if (manifest && sha256 !== manifest.full_list.sha256) {
+      this.logService.warning(
+        `[PhishingDataService] Full download sha256 mismatch — may be timing issue`,
+      );
+    }
+
+    return {
+      meta: {
+        checksum: "",
+        timestamp: Date.now(),
+        applicationVersion,
+        sha256,
+        sortedSha256,
+      },
+      updated: true,
+    };
+  }
+
+  /**
+   * Full update using manifest for SHA256 verification.
+   */
+  private async _performFullUpdateWithManifest(
+    manifest: PhishingManifest,
+    applicationVersion: string,
+  ): Promise<{ meta: PhishingDataMeta; updated: boolean }> {
+    const resource = getPhishingResources(this.resourceType);
+    if (!resource?.primaryUrl) {
+      throw new Error("Primary URL missing from phishing resources");
+    }
+
+    this.logService.info(
+      `[PhishingDataService] Starting FULL update using ${resource.primaryUrl}`,
+    );
+
+    const response = await this.apiService.nativeFetch(
+      new Request(resource.primaryUrl, {
+        headers: { "Accept-Encoding": "gzip" },
+      }),
+    );
+
+    if (!response.ok || !response.body) {
+      throw new Error(`Full update failed: ${response.status} ${response.statusText}`);
+    }
+
+    await this.indexedDbService.saveUrlsFromStream(response.body);
+
+    const { sha256, sortedSha256 } = await this.computeLocalHashes();
+
+    if (sha256 !== manifest.full_list.sha256) {
+      this.logService.warning(
+        `[PhishingDataService] Full download sha256 mismatch: ${sha256.slice(0, 12)}... !== ${manifest.full_list.sha256.slice(0, 12)}...`,
+      );
+    }
+
+    return {
+      meta: {
+        checksum: "",
+        timestamp: Date.now(),
+        applicationVersion,
+        sha256,
+        sortedSha256,
+      },
+      updated: true,
+    };
+  }
+
+  /**
+   * Legacy sync fallback when manifest is unavailable.
+   */
+  private async _performLegacySync(
+    previous: PhishingDataMeta | null,
+    applicationVersion: string,
+  ): Promise<{ meta: PhishingDataMeta; updated: boolean }> {
+    const remoteChecksum = await this.fetchPhishingChecksum(this.resourceType);
+
+    if (remoteChecksum === previous?.checksum) {
+      return {
+        meta: { ...previous!, timestamp: Date.now(), applicationVersion },
+        updated: false,
+      };
+    }
+
+    const resource = getPhishingResources(this.resourceType);
+    if (!resource?.primaryUrl) {
+      throw new Error("Primary URL missing from phishing resources");
+    }
+
+    this.logService.info(
+      `[PhishingDataService] Legacy sync: checksum changed — full update from ${resource.primaryUrl}`,
+    );
+
+    const response = await this.apiService.nativeFetch(new Request(resource.primaryUrl));
+
+    if (!response.ok || !response.body) {
+      throw new Error(`Full update failed: ${response.status}`);
+    }
+
+    await this.indexedDbService.saveUrlsFromStream(response.body);
+
+    return {
+      meta: {
+        checksum: remoteChecksum,
+        timestamp: Date.now(),
+        applicationVersion,
+      },
+      updated: true,
+    };
   }
 }
