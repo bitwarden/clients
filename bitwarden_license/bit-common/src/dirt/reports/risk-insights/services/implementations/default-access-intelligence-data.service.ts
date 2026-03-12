@@ -287,7 +287,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     // Persist once
     return this.reportPersistenceService.saveApplicationMetadata$(report).pipe(
       tap(() => {
-        this._report.next(Object.assign(new AccessReportView(), report));
+        this._report.next(report);
         this.logService.debug(
           "[DefaultAccessIntelligenceDataService] Applications marked as critical",
           appNames,
@@ -309,7 +309,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
           }
         });
         report.recomputeSummary();
-        this._report.next(Object.assign(new AccessReportView(), report));
+        this._report.next(report);
 
         this._error.next("Failed to mark applications as critical");
         return throwError(() => error);
@@ -345,7 +345,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     // Persist once
     return this.reportPersistenceService.saveApplicationMetadata$(report).pipe(
       tap(() => {
-        this._report.next(Object.assign(new AccessReportView(), report));
+        this._report.next(report);
         this.logService.debug(
           "[DefaultAccessIntelligenceDataService] Applications unmarked as critical",
           appNames,
@@ -366,7 +366,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
           }
         });
         report.recomputeSummary();
-        this._report.next(Object.assign(new AccessReportView(), report));
+        this._report.next(report);
 
         this._error.next("Failed to unmark applications as critical");
         return throwError(() => error);
@@ -401,7 +401,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     // Persist once
     return this.reportPersistenceService.saveApplicationMetadata$(report).pipe(
       tap(() => {
-        this._report.next(Object.assign(new AccessReportView(), report));
+        this._report.next(report);
         this.logService.debug(
           "[DefaultAccessIntelligenceDataService] Applications marked as reviewed",
           appNames,
@@ -421,7 +421,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
             app.reviewedDate = reviewedDate;
           }
         });
-        this._report.next(Object.assign(new AccessReportView(), report));
+        this._report.next(report);
 
         this._error.next("Failed to mark applications as reviewed");
         return throwError(() => error);

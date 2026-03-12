@@ -108,7 +108,9 @@ export class ApplicationsV2Component {
   protected readonly searchControl = new FormControl<string>("", { nonNullable: true });
 
   // Convert service observables to signals
-  protected readonly report = toSignal(this.accessIntelligenceService.report$);
+  protected readonly report = toSignal(this.accessIntelligenceService.report$, {
+    equal: () => false,
+  });
   protected readonly loading = toSignal(this.accessIntelligenceService.loading$);
   protected readonly ciphers = toSignal(this.accessIntelligenceService.ciphers$, {
     initialValue: [],

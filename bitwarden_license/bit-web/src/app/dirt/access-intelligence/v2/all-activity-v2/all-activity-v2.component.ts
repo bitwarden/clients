@@ -52,7 +52,9 @@ export class AllActivityV2Component {
   readonly organizationId = input.required<OrganizationId>();
 
   // Convert service observables to signals
-  protected readonly report = toSignal(this.accessIntelligenceService.report$);
+  protected readonly report = toSignal(this.accessIntelligenceService.report$, {
+    equal: () => false,
+  });
   protected readonly loading = toSignal(this.accessIntelligenceService.loading$, {
     initialValue: false,
   });

@@ -99,7 +99,9 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   protected readonly dataLastUpdated = computed(() => this.report()?.creationDate ?? null);
 
   // Convert V2 observables to signals for template
-  protected readonly report = toSignal(this.accessIntelligenceService.report$);
+  protected readonly report = toSignal(this.accessIntelligenceService.report$, {
+    equal: () => false,
+  });
   protected readonly loading = toSignal(
     this.accessIntelligenceService.loading$.pipe(
       skeletonLoadingDelay(1000, 1000), // Wait 1s before showing, min 1s display
