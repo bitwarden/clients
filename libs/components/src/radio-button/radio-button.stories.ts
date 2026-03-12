@@ -9,8 +9,10 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { FormControlCardComponent } from "../form-control/form-control-card.component";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
+import { RadioButtonCardComponent } from "./radio-button-card.component";
 import { RadioButtonModule } from "./radio-button.module";
 import { RadioGroupComponent } from "./radio-group.component";
 
@@ -19,7 +21,13 @@ export default {
   component: RadioGroupComponent,
   decorators: [
     moduleMetadata({
-      imports: [FormsModule, ReactiveFormsModule, RadioButtonModule],
+      imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        RadioButtonModule,
+        FormControlCardComponent,
+        RadioButtonCardComponent,
+      ],
       providers: [
         {
           provide: I18nService,
@@ -200,7 +208,7 @@ export const Required: Story = {
   }),
 };
 
-export const Disabled: Story = {
+export const Inactive: Story = {
   render: () => ({
     props: {
       formObj: new FormGroup({
@@ -223,6 +231,31 @@ export const Disabled: Story = {
           <bit-radio-button [value]="2" [disabled]="true">
             <bit-label>Third</bit-label>
           </bit-radio-button>
+        </bit-radio-group>
+      </form>
+    `,
+  }),
+};
+
+export const FormControlCard: Story = {
+  render: () => ({
+    props: {
+      formObj: new FormGroup({
+        radio: new FormControl(0),
+      }),
+    },
+    template: /* HTML */ `
+      <form [formGroup]="formObj">
+        <bit-radio-group formControlName="radio" aria-label="Example radio group">
+          <bit-radio-button-card [value]="0">
+            <bit-label>Option A</bit-label>
+          </bit-radio-button-card>
+          <bit-radio-button-card [value]="1">
+            <bit-label>Option B</bit-label>
+          </bit-radio-button-card>
+          <bit-radio-button-card [value]="2">
+            <bit-label>Option C</bit-label>
+          </bit-radio-button-card>
         </bit-radio-group>
       </form>
     `,

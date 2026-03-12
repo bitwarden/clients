@@ -1,4 +1,4 @@
-<bit-form-control [inline]="!base.block" disableMargin>
+<bit-form-control-card disableMargin>
   <input
     type="radio"
     bitRadio
@@ -9,7 +9,6 @@
     (change)="onInputChange()"
     (blur)="onBlur()"
   />
-
   <ng-content select="bit-label" ngProjectAs="bit-label"></ng-content>
   <ng-content select="bit-hint" ngProjectAs="bit-hint"></ng-content>
-</bit-form-control>
+</bit-form-control-card>

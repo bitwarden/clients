@@ -4,6 +4,7 @@ import { Meta, moduleMetadata, StoryObj, componentWrapperDecorator } from "@stor
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { FormControlModule } from "../form-control";
+import { FormControlCardComponent } from "../form-control/form-control-card.component";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { SwitchComponent } from "./switch.component";
@@ -18,7 +19,13 @@ export default {
       return /* HTML */ `<div class="tw-max-w-[600px] ">${story}</div>`;
     }),
     moduleMetadata({
-      imports: [FormsModule, ReactiveFormsModule, SwitchComponent, FormControlModule],
+      imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        SwitchComponent,
+        FormControlModule,
+        FormControlCardComponent,
+      ],
       providers: [
         {
           provide: I18nService,
@@ -42,6 +49,9 @@ export default {
       control: "boolean",
       description: "Model signal for selected state binding when used outside of a form",
     },
+    size: {
+      options: ["base", "large"],
+    },
   },
   parameters: {
     design: {
@@ -55,20 +65,19 @@ export default {
   },
 } as Meta<SwitchComponent>;
 
-type Story = StoryObj<SwitchComponent & { disabled?: boolean; selected?: boolean }>;
+type Story = StoryObj<
+  SwitchComponent & { disabled?: boolean; selected?: boolean; size: "base" | "large" }
+>;
 
 export const Default: Story = {
   render: (args) => ({
-    props: {
-      formObj: new FormGroup({
-        switch: new FormControl(0),
-      }),
-    },
+    props: args,
     template: /* HTML */ `
-      <bit-switch ${formatArgsForCodeSnippet<SwitchComponent>(args)}>
+      <bit-form-control>
+        <bit-switch ${formatArgsForCodeSnippet<SwitchComponent>(args)}></bit-switch>
         <bit-label>Example switch</bit-label>
         <bit-hint>This is a hint for the switch</bit-hint>
-      </bit-switch>
+      </bit-form-control>
     `,
   }),
   args: {
@@ -77,21 +86,31 @@ export const Default: Story = {
   },
 };
 
+export const Large: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <bit-switch ${formatArgsForCodeSnippet<SwitchComponent>(args)}></bit-switch>
+    `,
+  }),
+  args: {
+    selected: true,
+    size: "large",
+  },
+};
+
 export const WithLongLabel: Story = {
   render: (args) => ({
-    props: {
-      formObj: new FormGroup({
-        switch: new FormControl(0),
-      }),
-    },
+    props: args,
     template: /* HTML */ `
-      <bit-switch ${formatArgsForCodeSnippet<SwitchComponent>(args)}>
+      <bit-form-control>
+        <bit-switch ${formatArgsForCodeSnippet<SwitchComponent>(args)}></bit-switch>
         <bit-label>
           This example switch has a super long label. This is not recommended. Switch labels should
           be clear and concise. They should tell the user what turning on the switch will do.
         </bit-label>
         <bit-hint>This is a hint for the switch</bit-hint>
-      </bit-switch>
+      </bit-form-control>
     `,
   }),
   args: {
@@ -104,35 +123,56 @@ export const WithForm: Story = {
   render: (args) => ({
     props: {
       formObj: new FormGroup({
-        switch: new FormControl(0),
+        switch: new FormControl(false),
       }),
     },
     template: /* HTML */ `
       <form [formGroup]="formObj">
-        <bit-switch formControlName="switch" ${formatArgsForCodeSnippet<SwitchComponent>(args)}>
+        <bit-form-control>
+          <bit-switch
+            formControlName="switch"
+            ${formatArgsForCodeSnippet<SwitchComponent>(args)}
+          ></bit-switch>
           <bit-label>Example switch</bit-label>
           <bit-hint>This is a hint for the switch</bit-hint>
-        </bit-switch>
+        </bit-form-control>
       </form>
     `,
   }),
 };
 
-export const Disabled: Story = {
+export const Inactive: Story = {
   render: (args) => ({
     props: args,
     template: /* HTML */ `
-      <bit-switch
-        disabledReasonText="Switch disabled because I am not allowed to change it"
-        ${formatArgsForCodeSnippet<SwitchComponent>(args)}
-      >
+      <bit-form-control>
+        <bit-switch ${formatArgsForCodeSnippet<SwitchComponent>(args)}></bit-switch>
         <bit-label>Example switch</bit-label>
         <bit-hint>This is a hint for the switch</bit-hint>
-      </bit-switch>
+      </bit-form-control>
     `,
   }),
   args: {
     disabled: true,
-    selected: true,
+    selected: false,
   },
+};
+
+export const FormControlCard: Story = {
+  render: () => ({
+    props: {
+      formObj: new FormGroup({
+        switch: new FormControl(false),
+      }),
+    },
+    template: /* HTML */ `
+      <form [formGroup]="formObj">
+        <bit-form-control-card icon="bwi-clock">
+          <bit-switch size="large" formControlName="switch"></bit-switch>
+          <bit-label>Enable feature</bit-label>
+          <bit-hint>This feature does some pretty cool stuff</bit-hint>
+        </bit-form-control-card>
+      </form>
+    `,
+  }),
 };

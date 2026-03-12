@@ -13,6 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { BadgeModule } from "../badge";
 import { FormControlModule } from "../form-control";
+import { FormControlCardComponent } from "../form-control/form-control-card.component";
 import { FormFieldModule } from "../form-field";
 import { TableModule } from "../table";
 import { I18nMockService } from "../utils/i18n-mock.service";
@@ -68,6 +69,7 @@ export default {
         FormsModule,
         ReactiveFormsModule,
         FormControlModule,
+        FormControlCardComponent,
         CheckboxModule,
         TableModule,
         BadgeModule,
@@ -276,4 +278,26 @@ export const InTableRow: Story = {
       </bit-table>
     `,
   }),
+};
+
+export const FormControlCard: Story = {
+  render: () => {
+    const formBuilder = new FormBuilder();
+    return {
+      props: {
+        formObj: formBuilder.group({
+          checkbox: [false],
+        }),
+      },
+      template: /*html*/ `
+        <form [formGroup]="formObj">
+          <bit-form-control-card icon="bwi-clock">
+            <input type="checkbox" bitCheckbox formControlName="checkbox" />
+            <bit-label>Enable feature</bit-label>
+            <bit-hint>Enabling this feature will allow you to do cool things.</bit-hint>
+          </bit-form-control-card>
+        </form>
+      `,
+    };
+  },
 };

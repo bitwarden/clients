@@ -1,0 +1,35 @@
+<div
+  class="tw-flex tw-items-center tw-relative tw-p-4 tw-border tw-border-border-base tw-rounded-xl tw-justify-between tw-gap-4 [&:has(label:hover)]:tw-border-border-brand-soft [&:has(input:focus-visible)]:tw-ring-2 [&:has(input:focus-visible)]:tw-ring-border-focus [&:has(input:focus-visible)]:tw-border-transparent [&:has(input:checked)]:tw-bg-bg-brand-soft"
+>
+  <label
+    [for]="base.inputId()"
+    class="tw-absolute tw-top-0 tw-left-0 tw-size-full tw-cursor-pointer"
+  ></label>
+
+  <div class="tw-flex tw-items-center tw-gap-4">
+    @if (icon()) {
+      <!-- this positioning style to account for tile staying top aligned when text wraps -->
+      <bit-icon-tile class="tw-self-start tw-relative tw-top-[1px]" [icon]="icon()"></bit-icon-tile>
+    }
+
+    <span
+      class="tw-inline-flex tw-flex-col"
+      [class.tw-text-muted]="base.formControl().disabled"
+      [class.tw-text-main]="!base.formControl().disabled"
+    >
+      <span [id]="labelId" bitTypography="body2" class="tw-leading-5 tw-font-medium">
+        <ng-content select="bit-label"></ng-content>
+        @if (base.required) {
+          <span class="tw-text-xs tw-font-normal"> ({{ "required" | i18n }})</span>
+        }
+      </span>
+      <ng-content select="bit-hint"></ng-content>
+    </span>
+  </div>
+  <ng-content></ng-content>
+</div>
+@if (base.hasError) {
+  <div [id]="errorId" class="tw-mt-1 tw-text-fg-danger tw-text-xs tw-ms-0.5">
+    <i class="bwi bwi-error"></i> {{ base.displayError }}
+  </div>
+}

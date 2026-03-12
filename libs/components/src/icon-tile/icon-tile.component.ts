@@ -23,7 +23,7 @@ const sizeStyles: Record<IconTileSize, { container: string[]; icon: string[] }> 
     icon: ["tw-text-sm"],
   },
   default: {
-    container: ["tw-w-8", "tw-h-8"],
+    container: ["tw-w-9", "tw-h-9"],
     icon: ["tw-text-base"],
   },
   large: {
