@@ -36,7 +36,6 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
-  BadgeModule,
   ButtonModule,
   CompactModeService,
   DisclosureComponent,
@@ -72,7 +71,6 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     CommonModule,
     ItemModule,
     ButtonModule,
-    BadgeModule,
     IconButtonModule,
     SectionComponent,
     TypographyModule,
