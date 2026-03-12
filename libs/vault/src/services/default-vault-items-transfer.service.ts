@@ -181,12 +181,6 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
         message: this.i18nService.t("leftOrganization"),
       });
 
-      await this.eventCollectionService.collect(
-        EventType.Organization_ItemOrganization_Declined,
-        undefined,
-        undefined,
-        migrationInfo.enforcingOrganization.id,
-      );
       // Sync to reflect organization removal
       await this.syncService.fullSync(true);
       this.enforcementInFlight = false;

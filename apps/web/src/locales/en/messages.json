@@ -11506,6 +11506,15 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "User $ID$ self-revoked from organization.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "suspendedOrganizationTitle": {
     "message": "The $ORGANIZATION$ is suspended",
     "placeholders": {
