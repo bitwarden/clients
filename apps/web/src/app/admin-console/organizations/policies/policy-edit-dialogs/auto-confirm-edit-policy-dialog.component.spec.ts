@@ -116,11 +116,11 @@ describe("AutoConfirmPolicyDialogComponent", () => {
   describe("handleSubmit", () => {
     beforeEach(() => {
       // Mock the policyComponent
-      component.policyComponent = {
+      component["policyComponent"].set({
         buildRequest: jest.fn().mockResolvedValue({ enabled: true, data: null }),
         enabled: { value: true },
         setSingleOrgEnabled: jest.fn(),
-      } as any;
+      } as any);
 
       mockAutoConfirmService.configuration$.mockReturnValue(
         of({ enabled: false, showSetupDialog: true, showBrowserNotification: undefined }),
