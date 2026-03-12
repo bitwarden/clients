@@ -141,10 +141,55 @@ describe("DefaultVaultItemsTransferService", () => {
       });
     });
 
-    describe("when policy exists", () => {
+    describe("when policy exists with enableIndividualItemsTransfer: false", () => {
+      beforeEach(() => {
+        setupMocksForMigrationScenario({
+          policies: [
+            {
+              organizationId: organizationId,
+              revisionDate: new Date("2024-01-01"),
+              data: { enableIndividualItemsTransfer: false },
+            } as Policy,
+          ],
+          organizations: [{ id: organizationId, name: "Test Org" } as Organization],
+          ciphers: [{ id: "cipher-1" } as CipherView],
+        });
+      });
+
+      it("returns requiresMigration: false", async () => {
+        const result = await firstValueFrom(service.userMigrationInfo$(userId));
+
+        expect(result).toEqual({ requiresMigration: false });
+      });
+    });
+
+    describe("when policy exists without enableIndividualItemsTransfer set", () => {
+      beforeEach(() => {
+        setupMocksForMigrationScenario({
+          policies: [
+            {
+              organizationId: organizationId,
+              revisionDate: new Date("2024-01-01"),
+              data: {},
+            } as Policy,
+          ],
+          organizations: [{ id: organizationId, name: "Test Org" } as Organization],
+          ciphers: [{ id: "cipher-1" } as CipherView],
+        });
+      });
+
+      it("returns requiresMigration: false", async () => {
+        const result = await firstValueFrom(service.userMigrationInfo$(userId));
+
+        expect(result).toEqual({ requiresMigration: false });
+      });
+    });
+
+    describe("when policy exists with enableIndividualItemsTransfer: true", () => {
       const policy = {
         organizationId: organizationId,
         revisionDate: new Date("2024-01-01"),
+        data: { enableIndividualItemsTransfer: true },
       } as Policy;
       const organization = {
         id: organizationId,
@@ -229,14 +274,25 @@ describe("DefaultVaultItemsTransferService", () => {
     });
 
     describe("when multiple policies exist", () => {
+      const oldestPolicy = {
+        organizationId: "oldest-org-id" as OrganizationId,
+        revisionDate: new Date("2023-09-13"),
+        data: { enableIndividualItemsTransfer: false },
+      } as Policy;
       const olderPolicy = {
         organizationId: "older-org-id" as OrganizationId,
         revisionDate: new Date("2024-01-01"),
+        data: { enableIndividualItemsTransfer: true },
       } as Policy;
       const newerPolicy = {
         organizationId: organizationId,
         revisionDate: new Date("2024-06-01"),
+        data: { enableIndividualItemsTransfer: true },
       } as Policy;
+      const oldestOrganization = {
+        id: "oldest-org-id" as OrganizationId,
+        name: "Oldest Org",
+      } as Organization;
       const olderOrganization = {
         id: "older-org-id" as OrganizationId,
         name: "Older Org",
@@ -248,13 +304,13 @@ describe("DefaultVaultItemsTransferService", () => {
 
       beforeEach(() => {
         setupMocksForMigrationScenario({
-          policies: [newerPolicy, olderPolicy],
-          organizations: [olderOrganization, newerOrganization],
+          policies: [newerPolicy, olderPolicy, oldestPolicy],
+          organizations: [oldestOrganization, olderOrganization, newerOrganization],
           ciphers: [{ id: "cipher-1" } as CipherView],
         });
       });
 
-      it("uses the oldest policy when selecting enforcing organization", async () => {
+      it("uses the oldest enforced policy when selecting enforcing organization", async () => {
         const result = await firstValueFrom(service.userMigrationInfo$(userId));
 
         expect(result).toEqual({
@@ -543,6 +599,7 @@ describe("DefaultVaultItemsTransferService", () => {
     const policy = {
       organizationId: organizationId,
       revisionDate: new Date("2024-01-01"),
+      data: { enableIndividualItemsTransfer: true },
     } as Policy;
     const organization = {
       id: organizationId,
@@ -858,6 +915,7 @@ describe("DefaultVaultItemsTransferService", () => {
     const policy = {
       organizationId: organizationId,
       revisionDate: new Date("2024-01-01"),
+      data: { enableIndividualItemsTransfer: true },
     } as Policy;
     const organization = {
       id: organizationId,
@@ -943,6 +1001,7 @@ describe("DefaultVaultItemsTransferService", () => {
     const policy = {
       organizationId: organizationId,
       revisionDate: new Date("2024-01-01"),
+      data: { enableIndividualItemsTransfer: true },
     } as Policy;
     const organization = {
       id: organizationId,
