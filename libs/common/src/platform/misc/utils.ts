@@ -21,20 +21,25 @@ import { I18nService } from "../abstractions/i18n.service";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const nodeURL = typeof self === "undefined" ? require("url") : null;
 const pathTraversalPatterns = [
-  "..",
-  "%2e", // Double-dot traversal (single-encoded resolves to ".." via decodeURIComponent)
-  "\\",
-  "%5c", // Backslash (some parsers normalize to forward slash)
-  "\t",
-  "%09", // TAB (stripped by WHATWG URL parser during normalization)
-  "\n",
-  "%0a", // Line feed (stripped by WHATWG URL parser during normalization)
-  "\r",
-  "%0d", // Carriage return (stripped by WHATWG URL parser during normalization)
-  "\0",
-  "%00", // Null byte (can truncate strings in some parsers)
+  "..", // Double-dot traversal (single-encoded resolves to ".." via decodeURIComponent)
+  "%2e", // URL-encoded double-dot
+  "\\", // Backslash (some parsers normalize to forward slash)
+  "%5c", // URL-encoded backslash
+  "\t", // TAB (stripped by WHATWG URL parser during normalization)
+  "%09", // URL-encoded TAB
+  "\n", // Line feed (stripped by WHATWG URL parser during normalization)
+  "%0a", // URL-encoded line feed
+  "\r", // Carriage return (stripped by WHATWG URL parser during normalization)
+  "%0d", // URL-encoded carriage return
+  "\0", // Null byte (can truncate strings in some parsers)
+  "%00", // URL-encoded null byte
 ];
-const queryDangerousPatterns = ["/", "%2f", "#", "%23"];
+const queryDangerousPatterns = [
+  "/", // Forward slash (could escape query context into path)
+  "%2f", // URL-encoded forward slash
+  "#", // Hash (would terminate the query string and begin a fragment)
+  "%23", // URL-encoded hash
+];
 
 declare global {
   /* eslint-disable-next-line no-var */
