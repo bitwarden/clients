@@ -11,7 +11,7 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
-import { RiskInsightsApplicationData } from "../../models/data/risk-insights-application.data";
+import { AccessReportSettingsData } from "../../../../access-intelligence/models";
 import { mockSummaryData } from "../../models/mocks/mock-data";
 import {
   AccessReportPayload,
@@ -68,7 +68,7 @@ describe("DefaultAccessReportEncryptionService", () => {
     },
   };
 
-  const mockV2ApplicationData: RiskInsightsApplicationData[] = [
+  const mockV2ApplicationData: AccessReportSettingsData[] = [
     {
       applicationName: "application1.com",
       isCritical: true,
@@ -361,7 +361,7 @@ describe("DefaultAccessReportEncryptionService", () => {
   });
 
   describe("decryptSummary$", () => {
-    it("should decrypt summary data and return RiskInsightsSummaryData", async () => {
+    it("should decrypt summary data and return AccessReportSummaryData", async () => {
       const result = await firstValueFrom(
         service.decryptSummary$(
           { organizationId: orgId, userId },

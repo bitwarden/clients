@@ -2,9 +2,9 @@ import { Jsonify } from "type-fest";
 
 import { View } from "@bitwarden/common/models/view/view";
 
-import { RiskInsightsMetrics } from "../domain/risk-insights-metrics";
+import { AccessReportMetrics } from "../domain/access-report-metrics";
 
-export class RiskInsightsMetricsView implements View {
+export class AccessReportMetricsView implements View {
   totalApplicationCount: number = 0;
   totalAtRiskApplicationCount: number = 0;
   totalCriticalApplicationCount: number = 0;
@@ -18,7 +18,7 @@ export class RiskInsightsMetricsView implements View {
   totalCriticalPasswordCount: number = 0;
   totalCriticalAtRiskPasswordCount: number = 0;
 
-  constructor(data?: RiskInsightsMetrics) {
+  constructor(data?: AccessReportMetrics) {
     if (data == null) {
       return;
     }
@@ -41,12 +41,12 @@ export class RiskInsightsMetricsView implements View {
   }
 
   static fromJSON(
-    obj: Partial<Jsonify<RiskInsightsMetricsView>>,
-  ): RiskInsightsMetricsView | undefined {
-    return Object.assign(new RiskInsightsMetricsView(), obj);
+    obj: Partial<Jsonify<AccessReportMetricsView>>,
+  ): AccessReportMetricsView | undefined {
+    return Object.assign(new AccessReportMetricsView(), obj);
   }
 
-  // toSdkRiskInsightsMetricsView(): SdkRiskInsightsMetricsView {}
+  // toSdkAccessReportMetricsView(): SdkAccessReportMetricsView {}
 
-  // static fromRiskInsightsMetricsView(obj?: SdkRiskInsightsMetricsView): RiskInsightsMetricsView | undefined {}
+  // static fromAccessReportMetricsView(obj?: SdkAccessReportMetricsView): AccessReportMetricsView | undefined {}
 }

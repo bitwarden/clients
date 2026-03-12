@@ -2,22 +2,22 @@ import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-st
 import Domain from "@bitwarden/common/platform/models/domain/domain-base";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsReportApi } from "../api/risk-insights-report.api";
-import { RiskInsightsReportData } from "../data/risk-insights-report.data";
+import { ApplicationHealthApi } from "../api/application-health.api";
+import { ApplicationHealthData } from "../data/application-health.data";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsReportView } from "../view/risk-insights-report.view";
+import { ApplicationHealthView } from "../view/application-health.view";
 
 /**
- * Domain model for generated report data in Risk Insights containing encrypted properties
+ * Domain model for generated report data in Access Intelligence containing encrypted properties
  *
  * Uses the member registry pattern with memberRefs and cipherRefs Records instead of
  * duplicated member/cipher arrays.
  *
- * - See {@link RiskInsightsReportApi} for API model
- * - See {@link RiskInsightsReportData} for data model
- * - See {@link RiskInsightsReportView} from View Model
+ * - See {@link ApplicationHealthApi} for API model
+ * - See {@link ApplicationHealthData} for data model
+ * - See {@link ApplicationHealthView} from View Model
  */
-export class RiskInsightsReport extends Domain {
+export class ApplicationHealth extends Domain {
   applicationName: EncString = new EncString("");
   passwordCount: EncString = new EncString("");
   atRiskPasswordCount: EncString = new EncString("");
@@ -39,7 +39,7 @@ export class RiskInsightsReport extends Domain {
   memberCount: EncString = new EncString("");
   atRiskMemberCount: EncString = new EncString("");
 
-  constructor(obj?: RiskInsightsReportData) {
+  constructor(obj?: ApplicationHealthData) {
     super();
     if (obj == null) {
       return;
@@ -54,11 +54,11 @@ export class RiskInsightsReport extends Domain {
   }
 
   // [TODO] Domain level methods
-  // static fromJSON(): RiskInsightsReport {}
-  // decrypt(): RiskInsightsReportView {}
-  // toData(): RiskInsightsReportData {}
+  // static fromJSON(): ApplicationHealth {}
+  // decrypt(): ApplicationHealthView {}
+  // toData(): ApplicationHealthData {}
 
   // [TODO] SDK Mapping
-  // toSdkRiskInsightsReport(): SdkRiskInsightsReport {}
-  // static fromSdkRiskInsightsReport(obj?: SdkRiskInsightsReport): RiskInsightsReport | undefined {}
+  // toSdkApplicationHealth(): SdkApplicationHealth {}
+  // static fromSdkApplicationHealth(obj?: SdkApplicationHealth): ApplicationHealth | undefined {}
 }

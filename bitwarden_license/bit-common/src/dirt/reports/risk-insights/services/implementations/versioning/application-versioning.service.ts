@@ -2,11 +2,11 @@ import { Injectable } from "@angular/core";
 
 import { LogService } from "@bitwarden/logging";
 
+import { AccessReportSettingsData } from "../../../../../access-intelligence/models";
 import {
   validateOrganizationReportApplicationArray,
-  validateRiskInsightsApplicationDataArray,
+  validateAccessReportSettingsDataArray,
 } from "../../../helpers/type-guards/risk-insights-type-guards";
-import { RiskInsightsApplicationData } from "../../../models/data/risk-insights-application.data";
 import {
   UnsupportedVersionError,
   VersioningService,
@@ -14,14 +14,14 @@ import {
 } from "../../abstractions/versioning.service";
 
 @Injectable()
-export class ApplicationVersioningService extends VersioningService<RiskInsightsApplicationData[]> {
+export class ApplicationVersioningService extends VersioningService<AccessReportSettingsData[]> {
   readonly currentVersion = 1;
 
   constructor(private logService: LogService) {
     super();
   }
 
-  process(json: unknown): { data: RiskInsightsApplicationData[]; wasLegacy: boolean } {
+  process(json: unknown): { data: AccessReportSettingsData[]; wasLegacy: boolean } {
     if (isVersionEnvelope(json)) {
       if (json.version !== this.currentVersion) {
         throw new UnsupportedVersionError(json.version);
@@ -29,7 +29,7 @@ export class ApplicationVersioningService extends VersioningService<RiskInsights
       this.logService.debug(
         `[ApplicationVersioningService] Application blob: version ${this.currentVersion} — no transformation needed`,
       );
-      const data = validateRiskInsightsApplicationDataArray(json.data);
+      const data = validateAccessReportSettingsDataArray(json.data);
       return { data, wasLegacy: false };
     }
 
@@ -39,7 +39,7 @@ export class ApplicationVersioningService extends VersioningService<RiskInsights
         `[ApplicationVersioningService] Application blob: unversioned (legacy) format detected — transforming reviewedDate to string, targeting version ${this.currentVersion}`,
       );
       const legacyApps = validateOrganizationReportApplicationArray(json);
-      const data: RiskInsightsApplicationData[] = legacyApps.map((app) => ({
+      const data: AccessReportSettingsData[] = legacyApps.map((app) => ({
         applicationName: app.applicationName,
         isCritical: app.isCritical,
         reviewedDate: app.reviewedDate instanceof Date ? app.reviewedDate.toISOString() : undefined,
@@ -52,7 +52,7 @@ export class ApplicationVersioningService extends VersioningService<RiskInsights
     );
   }
 
-  serialize(data: RiskInsightsApplicationData[]): string {
+  serialize(data: AccessReportSettingsData[]): string {
     return JSON.stringify({ version: this.currentVersion, data });
   }
 }

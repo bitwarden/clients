@@ -2,12 +2,12 @@ import { NO_ERRORS_SCHEMA, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { BehaviorSubject, of, throwError } from "rxjs";
 
+import { AccessReportView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import {
   AccessIntelligenceDataService,
   DrawerStateService,
   DrawerType,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
-import { RiskInsightsView } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/risk-insights.view";
 import {
   createApplication,
   createMemberRegistry,
@@ -29,7 +29,7 @@ import { ApplicationsV2Component } from "./applications-v2.component";
  * Mock type for AccessIntelligenceDataService — uses BehaviorSubjects so tests can call .next()
  */
 type MockAccessIntelligenceDataService = {
-  report$: BehaviorSubject<RiskInsightsView | null>;
+  report$: BehaviorSubject<AccessReportView | null>;
   loading$: BehaviorSubject<boolean>;
   ciphers$: BehaviorSubject<CipherView[]>;
   markApplicationsAsCritical$: jest.Mock;
@@ -64,7 +64,7 @@ describe("ApplicationsV2Component", () => {
 
   beforeEach(async () => {
     mockDataService = {
-      report$: new BehaviorSubject<RiskInsightsView | null>(null),
+      report$: new BehaviorSubject<AccessReportView | null>(null),
       loading$: new BehaviorSubject<boolean>(false),
       ciphers$: new BehaviorSubject<CipherView[]>([]),
       markApplicationsAsCritical$: jest.fn().mockReturnValue(of(undefined)),

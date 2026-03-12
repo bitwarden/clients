@@ -2,12 +2,12 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { BehaviorSubject, of } from "rxjs";
 
+import { AccessReportView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import {
   AccessIntelligenceDataService,
   DrawerStateService,
   DrawerType,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
-import { RiskInsightsView } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/risk-insights.view";
 import {
   createApplication,
   createMemberRegistry,
@@ -31,7 +31,7 @@ import { AllActivityV2Component } from "./all-activity-v2.component";
  * instead of Observables so we can call .next() in tests
  */
 type MockAccessIntelligenceDataService = {
-  report$: BehaviorSubject<RiskInsightsView | null>;
+  report$: BehaviorSubject<AccessReportView | null>;
   loading$: BehaviorSubject<boolean>;
   ciphers$: BehaviorSubject<CipherView[]>;
   initializeForOrganization$: jest.Mock;
@@ -57,7 +57,7 @@ describe("AllActivityV2Component", () => {
   beforeEach(async () => {
     // Create mock services
     mockAccessIntelligenceService = {
-      report$: new BehaviorSubject<RiskInsightsView | null>(null),
+      report$: new BehaviorSubject<AccessReportView | null>(null),
       loading$: new BehaviorSubject<boolean>(false),
       ciphers$: new BehaviorSubject<CipherView[]>([]),
       initializeForOrganization$: jest.fn().mockReturnValue(of(undefined)),

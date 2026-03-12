@@ -1,9 +1,12 @@
-import { createMemberRegistry, createReport } from "../../testing/test-helpers";
-import { RiskInsightsReportData } from "../data/risk-insights-report.data";
+import {
+  createMemberRegistry,
+  createReport,
+} from "../../../reports/risk-insights/testing/test-helpers";
+import { ApplicationHealthData } from "../data/application-health.data";
 
-import { RiskInsightsReportView } from "./risk-insights-report.view";
+import { ApplicationHealthView } from "./application-health.view";
 
-describe("RiskInsightsReportView", () => {
+describe("ApplicationHealthView", () => {
   // Test helpers imported from shared testing utilities
 
   // Local helper with specific signature for this test file
@@ -11,7 +14,7 @@ describe("RiskInsightsReportView", () => {
     memberRefs: Record<string, boolean>,
     cipherRefs: Record<string, boolean>,
     atRiskPasswordCount: number,
-  ): RiskInsightsReportView => {
+  ): ApplicationHealthView => {
     const report = createReport("test-app", memberRefs, cipherRefs);
     report.atRiskPasswordCount = atRiskPasswordCount; // Override if needed
     return report;
@@ -191,7 +194,7 @@ describe("RiskInsightsReportView", () => {
     });
 
     it("should return false when atRiskPasswordCount is 0", () => {
-      const report = new RiskInsightsReportView();
+      const report = new ApplicationHealthView();
       report.atRiskPasswordCount = 0;
 
       expect(report.isAtRisk()).toBe(false);
@@ -201,8 +204,8 @@ describe("RiskInsightsReportView", () => {
   // ==================== Factory Methods ====================
 
   describe("fromData", () => {
-    it("should map all standard fields from RiskInsightsReportData", () => {
-      const data = new RiskInsightsReportData();
+    it("should map all standard fields from ApplicationHealthData", () => {
+      const data = new ApplicationHealthData();
       data.applicationName = "github.com";
       data.passwordCount = 10;
       data.atRiskPasswordCount = 3;
@@ -211,9 +214,9 @@ describe("RiskInsightsReportView", () => {
       data.memberCount = 2;
       data.atRiskMemberCount = 1;
 
-      const view = RiskInsightsReportView.fromData(data);
+      const view = ApplicationHealthView.fromData(data);
 
-      expect(view).toBeInstanceOf(RiskInsightsReportView);
+      expect(view).toBeInstanceOf(ApplicationHealthView);
       expect(view.applicationName).toBe("github.com");
       expect(view.passwordCount).toBe(10);
       expect(view.atRiskPasswordCount).toBe(3);
@@ -224,11 +227,11 @@ describe("RiskInsightsReportView", () => {
     });
 
     it("should create independent copies of memberRefs and cipherRefs", () => {
-      const data = new RiskInsightsReportData();
+      const data = new ApplicationHealthData();
       data.memberRefs = { u1: true };
       data.cipherRefs = { c1: false };
 
-      const view = RiskInsightsReportView.fromData(data);
+      const view = ApplicationHealthView.fromData(data);
 
       // Mutating the view should not affect the source data
       view.memberRefs["u2"] = false;
@@ -239,22 +242,22 @@ describe("RiskInsightsReportView", () => {
     });
 
     it("should set optional icon fields when provided", () => {
-      const data = new RiskInsightsReportData();
+      const data = new ApplicationHealthData();
       data.applicationName = "app.com";
       data.iconUri = "https://icons.example.com/app.ico";
       data.iconCipherId = "cipher-123";
 
-      const view = RiskInsightsReportView.fromData(data);
+      const view = ApplicationHealthView.fromData(data);
 
       expect(view.iconUri).toBe("https://icons.example.com/app.ico");
       expect(view.iconCipherId).toBe("cipher-123");
     });
 
     it("should leave icon fields undefined when not set on data", () => {
-      const data = new RiskInsightsReportData();
+      const data = new ApplicationHealthData();
       data.applicationName = "app.com";
 
-      const view = RiskInsightsReportView.fromData(data);
+      const view = ApplicationHealthView.fromData(data);
 
       expect(view.iconUri).toBeUndefined();
       expect(view.iconCipherId).toBeUndefined();
@@ -275,9 +278,9 @@ describe("RiskInsightsReportView", () => {
         atRiskMemberCount: 1,
       };
 
-      const report = RiskInsightsReportView.fromJSON(json);
+      const report = ApplicationHealthView.fromJSON(json);
 
-      expect(report).toBeInstanceOf(RiskInsightsReportView);
+      expect(report).toBeInstanceOf(ApplicationHealthView);
       expect(report.applicationName).toBe("github.com");
       expect(report.passwordCount).toBe(10);
       expect(report.atRiskPasswordCount).toBe(3);
@@ -288,9 +291,9 @@ describe("RiskInsightsReportView", () => {
     });
 
     it("should handle undefined input", () => {
-      const report = RiskInsightsReportView.fromJSON(undefined);
+      const report = ApplicationHealthView.fromJSON(undefined);
 
-      expect(report).toBeInstanceOf(RiskInsightsReportView);
+      expect(report).toBeInstanceOf(ApplicationHealthView);
       expect(report.applicationName).toBe("");
       expect(report.memberRefs).toEqual({});
       expect(report.cipherRefs).toEqual({});
@@ -301,7 +304,7 @@ describe("RiskInsightsReportView", () => {
         applicationName: "github.com",
       };
 
-      const report = RiskInsightsReportView.fromJSON(json);
+      const report = ApplicationHealthView.fromJSON(json);
 
       expect(report.memberRefs).toEqual({});
       expect(report.cipherRefs).toEqual({});
@@ -312,7 +315,7 @@ describe("RiskInsightsReportView", () => {
 
   describe("constructor", () => {
     it("should create empty report when no parameter provided", () => {
-      const report = new RiskInsightsReportView();
+      const report = new ApplicationHealthView();
 
       expect(report.applicationName).toBe("");
       expect(report.passwordCount).toBe(0);
@@ -324,9 +327,9 @@ describe("RiskInsightsReportView", () => {
     });
 
     it("should create report with domain model parameter", () => {
-      const report = new RiskInsightsReportView(null as any);
+      const report = new ApplicationHealthView(null as any);
 
-      expect(report).toBeInstanceOf(RiskInsightsReportView);
+      expect(report).toBeInstanceOf(ApplicationHealthView);
     });
   });
 });

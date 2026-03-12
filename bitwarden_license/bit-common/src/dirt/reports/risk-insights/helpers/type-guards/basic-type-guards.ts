@@ -221,7 +221,7 @@ export type EnhancedGuard<T> = ((obj: unknown) => obj is T) & {
  * });
  *
  * // Mixed required and optional fields — optional fields use an *OrUndefined guard
- * const isReportEntry = createValidator<RiskInsightsReportData>({
+ * const isReportEntry = createValidator<ApplicationHealthData>({
  *   applicationName: isBoundedString,  // required
  *   memberRefs: isBooleanRecord,        // required
  *   iconUri: isBoundedStringOrUndefined, // optional — key may be absent

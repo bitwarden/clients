@@ -343,7 +343,11 @@ components/
 - Easier to find and navigate components
 - Matches modern Angular component organization patterns
 
-**Barrel Exports:** NOT required for app components. Optional for library components.
+**Barrel Exports (app components):** NOT required for app components. Optional for library components.
+
+**Barrel Exports (models):** The `access-intelligence/models/` folder has a required barrel (`models/index.ts`).
+All external consumers MUST import from the barrel — never from individual model files. See
+[Model Standards — Barrel Imports](./model-standards.md#barrel-imports-required) for the full rule and examples.
 
 ---
 
@@ -500,6 +504,6 @@ or remove the corresponding `{@link}` reference and its suppression import.
 
 ---
 
-**Document Version:** 1.2
-**Last Updated:** 2026-03-03
+**Document Version:** 1.3
+**Last Updated:** 2026-03-12
 **Maintainer:** DIRT Team

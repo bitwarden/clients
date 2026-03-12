@@ -2,8 +2,8 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { BehaviorSubject, of, throwError } from "rxjs";
 
+import { AccessReportView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
-import { RiskInsightsView } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/risk-insights.view";
 import {
   createApplication,
   createMemberRegistry,
@@ -28,7 +28,7 @@ import {
  * instead of Observable so we can call .next() in tests
  */
 type MockAccessIntelligenceDataService = {
-  report$: BehaviorSubject<RiskInsightsView | null>;
+  report$: BehaviorSubject<AccessReportView | null>;
 };
 
 /**
@@ -72,7 +72,7 @@ describe("PasswordChangeMetricV2Component", () => {
   }
 
   /** Creates a report with critical apps having at-risk ciphers */
-  function createReportWithCriticalApps(): RiskInsightsView {
+  function createReportWithCriticalApps(): AccessReportView {
     const report = createRiskInsights({
       organizationId: orgId,
       creationDate: new Date("2025-01-01"),
@@ -94,7 +94,7 @@ describe("PasswordChangeMetricV2Component", () => {
 
   beforeEach(async () => {
     mockDataService = {
-      report$: new BehaviorSubject<RiskInsightsView | null>(null),
+      report$: new BehaviorSubject<AccessReportView | null>(null),
     };
 
     mockSecurityTasksService = {

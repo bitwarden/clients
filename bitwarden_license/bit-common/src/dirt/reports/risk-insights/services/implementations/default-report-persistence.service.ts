@@ -6,9 +6,11 @@ import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-st
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
 
-import { RiskInsightsData } from "../../models/data/risk-insights.data";
-import { RiskInsights } from "../../models/domain/risk-insights";
-import { RiskInsightsView } from "../../models/view/risk-insights.view";
+import {
+  AccessReportData,
+  AccessReport,
+  AccessReportView,
+} from "../../../../access-intelligence/models";
 import { AccessReportEncryptionService } from "../abstractions/access-report-encryption.service";
 import { ReportPersistenceService } from "../abstractions/report-persistence.service";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
@@ -30,7 +32,7 @@ export class DefaultReportPersistenceService extends ReportPersistenceService {
   }
 
   saveReport$(
-    view: RiskInsightsView,
+    view: AccessReportView,
     organizationId: OrganizationId,
   ): Observable<{ id: OrganizationReportId; contentEncryptionKey: EncString }> {
     this.logService.debug("[DefaultReportPersistenceService] Saving report", {
@@ -45,7 +47,7 @@ export class DefaultReportPersistenceService extends ReportPersistenceService {
 
         // Encrypt view to domain model
         return from(
-          RiskInsights.fromView(view, this.riskInsightsEncryptionService, {
+          AccessReport.fromView(view, this.riskInsightsEncryptionService, {
             organizationId,
             userId,
           }),
@@ -67,7 +69,7 @@ export class DefaultReportPersistenceService extends ReportPersistenceService {
                 summaryData: data.summary,
                 applicationData: data.applications,
                 contentEncryptionKey: data.contentEncryptionKey,
-                metrics: metrics.toRiskInsightsMetricsData(),
+                metrics: metrics.toAccessReportMetricsData(),
               },
             };
 
@@ -85,7 +87,7 @@ export class DefaultReportPersistenceService extends ReportPersistenceService {
     );
   }
 
-  saveApplicationMetadata$(view: RiskInsightsView): Observable<void> {
+  saveApplicationMetadata$(view: AccessReportView): Observable<void> {
     this.logService.debug("[DefaultReportPersistenceService] Saving application metadata", {
       reportId: view.id,
       organizationId: view.organizationId,
@@ -100,7 +102,7 @@ export class DefaultReportPersistenceService extends ReportPersistenceService {
 
         // Encrypt view to domain model
         return from(
-          RiskInsights.fromView(view, this.riskInsightsEncryptionService, {
+          AccessReport.fromView(view, this.riskInsightsEncryptionService, {
             organizationId: view.organizationId,
             userId,
           }),
@@ -126,7 +128,7 @@ export class DefaultReportPersistenceService extends ReportPersistenceService {
               {
                 data: {
                   summaryData: data.summary,
-                  metrics: metrics.toRiskInsightsMetricsData(),
+                  metrics: metrics.toAccessReportMetricsData(),
                 },
               },
             );
@@ -143,7 +145,7 @@ export class DefaultReportPersistenceService extends ReportPersistenceService {
   // TODO Rename to loadLastReport$
   loadReport$(
     organizationId: OrganizationId,
-  ): Observable<{ report: RiskInsightsView; hadLegacyBlobs: boolean } | null> {
+  ): Observable<{ report: AccessReportView; hadLegacyBlobs: boolean } | null> {
     this.logService.debug("[DefaultReportPersistenceService] Loading report", { organizationId });
 
     return from(firstValueFrom(getUserId(this.accountService.activeAccount$))).pipe(
@@ -167,7 +169,7 @@ export class DefaultReportPersistenceService extends ReportPersistenceService {
             }
 
             // Convert API → Data → Domain → View (following 4-layer architecture)
-            const data = new RiskInsightsData();
+            const data = new AccessReportData();
             data.id = apiResponse.id;
             data.organizationId = apiResponse.organizationId;
             data.reports = apiResponse.reportData.encryptedString ?? "";
@@ -176,7 +178,7 @@ export class DefaultReportPersistenceService extends ReportPersistenceService {
             data.creationDate = apiResponse.creationDate.toISOString();
             data.contentEncryptionKey = apiResponse.contentEncryptionKey.encryptedString ?? "";
 
-            const domain = new RiskInsights(data);
+            const domain = new AccessReport(data);
 
             // Domain handles its own decryption
             return from(

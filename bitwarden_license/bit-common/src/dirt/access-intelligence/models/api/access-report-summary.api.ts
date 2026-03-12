@@ -1,20 +1,20 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsSummaryData } from "../data/risk-insights-summary.data";
+import { AccessReportSummaryData } from "../data/access-report-summary.data";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsSummary } from "../domain/risk-insights-summary";
+import { AccessReportSummary } from "../domain/access-report-summary";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsSummaryView } from "../view/risk-insights-summary.view";
+import { AccessReportSummaryView } from "../view/access-report-summary.view";
 
 /**
- * Converts a RiskInsightsSummary API response
+ * Converts an AccessReportSummary API response
  *
- * - See {@link RiskInsightsSummary} for domain model
- * - See {@link RiskInsightsSummaryData} for data model
- * - See {@link RiskInsightsSummaryView} from View Model
+ * - See {@link AccessReportSummary} for domain model
+ * - See {@link AccessReportSummaryData} for data model
+ * - See {@link AccessReportSummaryView} from View Model
  */
-export class RiskInsightsSummaryApi extends BaseResponse {
+export class AccessReportSummaryApi extends BaseResponse {
   totalMemberCount: number = 0;
   totalApplicationCount: number = 0;
   totalAtRiskMemberCount: number = 0;

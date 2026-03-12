@@ -3,10 +3,13 @@ import { forkJoin, map, Observable } from "rxjs";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LogService } from "@bitwarden/logging";
 
+import {
+  AccessReportSettingsView,
+  ApplicationHealthView,
+  AccessReportView,
+  MemberRegistry,
+} from "../../../../access-intelligence/models";
 import { getTrimmedCipherUris } from "../../helpers/risk-insights-data-mappers";
-import { RiskInsightsApplicationView } from "../../models/view/risk-insights-application.view";
-import { RiskInsightsReportView } from "../../models/view/risk-insights-report.view";
-import { MemberRegistry, RiskInsightsView } from "../../models/view/risk-insights.view";
 import { CipherHealthService } from "../abstractions/cipher-health.service";
 import {
   CollectionAccessDetails,
@@ -36,8 +39,8 @@ export class DefaultReportGenerationService extends ReportGenerationService {
     members: OrganizationUserView[],
     collectionAccess: CollectionAccessDetails[],
     groupMemberships: GroupMembershipDetails[],
-    previousApplications?: RiskInsightsApplicationView[],
-  ): Observable<RiskInsightsView> {
+    previousApplications?: AccessReportSettingsView[],
+  ): Observable<AccessReportView> {
     this.logService.debug("[DefaultReportGenerationService] Starting report generation", {
       cipherCount: ciphers.length,
       memberCount: members.length,
@@ -55,7 +58,7 @@ export class DefaultReportGenerationService extends ReportGenerationService {
         const reports = this.aggregateIntoReports(processedCiphers, healthMap, memberMapping);
 
         // Build view and populate with generated data
-        const view = new RiskInsightsView();
+        const view = new AccessReportView();
         view.id = "" as any; // Temporary ID, will be set by persistence service on save
         view.reports = reports;
         view.memberRegistry = registry;
@@ -115,13 +118,13 @@ export class DefaultReportGenerationService extends ReportGenerationService {
     ciphers: CipherView[],
     healthMap: Map<string, any>,
     memberMapping: Map<string, string[]>,
-  ): RiskInsightsReportView[] {
+  ): ApplicationHealthView[] {
     const applicationMap = this.groupCiphersByApplication(ciphers);
 
-    const reports: RiskInsightsReportView[] = [];
+    const reports: ApplicationHealthView[] = [];
 
     applicationMap.forEach((cipherGroup, applicationName) => {
-      const report = new RiskInsightsReportView();
+      const report = new ApplicationHealthView();
       report.applicationName = applicationName;
 
       const allMemberIds = new Set<string>();
@@ -200,15 +203,15 @@ export class DefaultReportGenerationService extends ReportGenerationService {
    * @param previousApplications - Previous application metadata to carry over
    */
   private carryOverApplicationMetadata(
-    view: RiskInsightsView,
-    previousApplications: RiskInsightsApplicationView[],
+    view: AccessReportView,
+    previousApplications: AccessReportSettingsView[],
   ): void {
     const previousMap = new Map(previousApplications.map((app) => [app.applicationName, app]));
 
     view.applications = view.reports.map((report) => {
       const previous = previousMap.get(report.applicationName);
 
-      const app = new RiskInsightsApplicationView();
+      const app = new AccessReportSettingsView();
       app.applicationName = report.applicationName;
       app.isCritical = previous?.isCritical ?? false;
       app.reviewedDate = previous?.reviewedDate;

@@ -1,12 +1,12 @@
 import { View } from "@bitwarden/common/models/view/view";
 
-import { MemberRegistryEntryData } from "../data/member-details.data";
+import { MemberRegistryEntryData } from "../data/member-registry-entry.data";
 
 /**
  * View model for a member registry entry containing decrypted properties
  *
  * Constructed directly from {@link MemberRegistryEntryData} (the registry payload is decrypted
- * as a unit by the `RiskInsights` domain model, not field-by-field). Provides a `displayName`
+ * as a unit by the `AccessReport` domain model, not field-by-field). Provides a `displayName`
  * computed property for UI display.
  *
  * - See {@link MemberRegistryEntryData} for data model

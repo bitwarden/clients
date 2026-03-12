@@ -22,8 +22,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LogService } from "@bitwarden/logging";
 
+import { AccessReportView } from "../../../../access-intelligence/models";
 import { ReportProgress } from "../../models/report-models";
-import { RiskInsightsView } from "../../models/view/risk-insights.view";
 import { AccessIntelligenceDataService } from "../abstractions/access-intelligence-data.service";
 import {
   CollectionAccessDetails,
@@ -39,7 +39,7 @@ import { ReportPersistenceService } from "../abstractions/report-persistence.ser
  * Orchestrates data loading, report generation, and persistence for Access Intelligence.
  */
 export class DefaultAccessIntelligenceDataService extends AccessIntelligenceDataService {
-  private _report = new BehaviorSubject<RiskInsightsView | null>(null);
+  private _report = new BehaviorSubject<AccessReportView | null>(null);
   private _ciphers = new BehaviorSubject<CipherView[]>([]);
   private _loading = new BehaviorSubject<boolean>(false);
   private _error = new BehaviorSubject<string | null>(null);
@@ -287,7 +287,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     // Persist once
     return this.reportPersistenceService.saveApplicationMetadata$(report).pipe(
       tap(() => {
-        this._report.next(Object.assign(new RiskInsightsView(), report));
+        this._report.next(Object.assign(new AccessReportView(), report));
         this.logService.debug(
           "[DefaultAccessIntelligenceDataService] Applications marked as critical",
           appNames,
@@ -309,7 +309,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
           }
         });
         report.recomputeSummary();
-        this._report.next(Object.assign(new RiskInsightsView(), report));
+        this._report.next(Object.assign(new AccessReportView(), report));
 
         this._error.next("Failed to mark applications as critical");
         return throwError(() => error);
@@ -345,7 +345,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     // Persist once
     return this.reportPersistenceService.saveApplicationMetadata$(report).pipe(
       tap(() => {
-        this._report.next(Object.assign(new RiskInsightsView(), report));
+        this._report.next(Object.assign(new AccessReportView(), report));
         this.logService.debug(
           "[DefaultAccessIntelligenceDataService] Applications unmarked as critical",
           appNames,
@@ -366,7 +366,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
           }
         });
         report.recomputeSummary();
-        this._report.next(Object.assign(new RiskInsightsView(), report));
+        this._report.next(Object.assign(new AccessReportView(), report));
 
         this._error.next("Failed to unmark applications as critical");
         return throwError(() => error);
@@ -401,7 +401,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     // Persist once
     return this.reportPersistenceService.saveApplicationMetadata$(report).pipe(
       tap(() => {
-        this._report.next(Object.assign(new RiskInsightsView(), report));
+        this._report.next(Object.assign(new AccessReportView(), report));
         this.logService.debug(
           "[DefaultAccessIntelligenceDataService] Applications marked as reviewed",
           appNames,
@@ -421,7 +421,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
             app.reviewedDate = reviewedDate;
           }
         });
-        this._report.next(Object.assign(new RiskInsightsView(), report));
+        this._report.next(Object.assign(new AccessReportView(), report));
 
         this._error.next("Failed to mark applications as reviewed");
         return throwError(() => error);

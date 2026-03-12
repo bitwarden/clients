@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { MemberRegistryEntryView } from "../view/member-details.view";
+import { MemberRegistryEntryView } from "../view/member-registry-entry.view";
 
 /**
  * Serializable data model for a member registry entry

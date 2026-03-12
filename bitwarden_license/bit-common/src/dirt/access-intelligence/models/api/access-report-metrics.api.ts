@@ -1,6 +1,6 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
-export class RiskInsightsMetricsApi extends BaseResponse {
+export class AccessReportMetricsApi extends BaseResponse {
   totalApplicationCount: number = 0;
   totalAtRiskApplicationCount: number = 0;
   totalCriticalApplicationCount: number = 0;

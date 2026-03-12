@@ -1,8 +1,8 @@
 import Domain from "@bitwarden/common/platform/models/domain/domain-base";
 
-import { RiskInsightsMetricsData } from "../data/risk-insights-metrics.data";
+import { AccessReportMetricsData } from "../data/access-report-metrics.data";
 
-export class RiskInsightsMetrics extends Domain {
+export class AccessReportMetrics extends Domain {
   totalApplicationCount: number = 0;
   totalAtRiskApplicationCount: number = 0;
   totalCriticalApplicationCount: number = 0;
@@ -16,7 +16,7 @@ export class RiskInsightsMetrics extends Domain {
   totalCriticalPasswordCount: number = 0;
   totalCriticalAtRiskPasswordCount: number = 0;
 
-  constructor(data?: RiskInsightsMetricsData) {
+  constructor(data?: AccessReportMetricsData) {
     super();
     if (data == null) {
       return;
@@ -35,8 +35,8 @@ export class RiskInsightsMetrics extends Domain {
     this.totalCriticalAtRiskPasswordCount = data.totalCriticalAtRiskPasswordCount;
   }
 
-  toRiskInsightsMetricsData(): RiskInsightsMetricsData {
-    const m = new RiskInsightsMetricsData();
+  toAccessReportMetricsData(): AccessReportMetricsData {
+    const m = new AccessReportMetricsData();
     m.totalApplicationCount = this.totalApplicationCount;
     m.totalAtRiskApplicationCount = this.totalAtRiskApplicationCount;
     m.totalCriticalApplicationCount = this.totalCriticalApplicationCount;

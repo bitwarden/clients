@@ -6,19 +6,19 @@ import {
   createReport,
   createRiskInsights,
   createRiskInsightsSummary,
-} from "../../testing/test-helpers";
+} from "../../../reports/risk-insights/testing/test-helpers";
 
-import { MemberRegistryEntryView } from "./member-details.view";
-import { RiskInsightsApplicationView } from "./risk-insights-application.view";
-import { RiskInsightsReportView } from "./risk-insights-report.view";
-import { RiskInsightsView } from "./risk-insights.view";
+import { AccessReportSettingsView } from "./access-report-settings.view";
+import { AccessReportView } from "./access-report.view";
+import { ApplicationHealthView } from "./application-health.view";
+import { MemberRegistryEntryView } from "./member-registry-entry.view";
 
-describe("RiskInsightsView", () => {
+describe("AccessReportView", () => {
   // ==================== Constructor Tests ====================
 
   describe("constructor", () => {
     it("should create empty view when no parameter provided", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
 
       expect(view.id).toBe("");
       expect(view.organizationId).toBe("");
@@ -36,7 +36,7 @@ describe("RiskInsightsView", () => {
         contentEncryptionKey: undefined,
       } as any;
 
-      const view = new RiskInsightsView(mockDomain);
+      const view = new AccessReportView(mockDomain);
 
       expect(view.id).toBe("report-123");
       expect(view.organizationId).toBe("org-456");
@@ -48,7 +48,7 @@ describe("RiskInsightsView", () => {
 
   describe("getAtRiskMembers", () => {
     it("should return all unique at-risk members across applications", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
         { id: "u2", name: "Bob", email: "bob@example.com" },
@@ -67,7 +67,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should deduplicate members appearing in multiple applications", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
       ]);
@@ -85,7 +85,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should return empty array when no at-risk members exist", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
       ]);
@@ -98,7 +98,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should filter out members not in registry", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
       ]);
@@ -114,7 +114,7 @@ describe("RiskInsightsView", () => {
 
   describe("getCriticalApplications", () => {
     it("should return only critical application reports", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.applications = [
         createApplication("github.com", true),
         createApplication("gitlab.com", false),
@@ -137,7 +137,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should return empty array when no critical applications exist", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.applications = [createApplication("github.com", false)];
       view.reports = [createReport("github.com", {}, {})];
 
@@ -149,7 +149,7 @@ describe("RiskInsightsView", () => {
 
   describe("getNewApplications", () => {
     it("should return only unreviewed applications", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.applications = [
         createApplication("github.com", false, new Date("2024-01-15")),
         createApplication("gitlab.com", false, undefined),
@@ -169,7 +169,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should return empty array when all applications are reviewed", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.applications = [createApplication("github.com", false, new Date())];
       view.reports = [createReport("github.com", {}, {})];
 
@@ -181,7 +181,7 @@ describe("RiskInsightsView", () => {
 
   describe("getApplicationByName", () => {
     it("should find application by exact name match", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.reports = [createReport("github.com", {}, {}), createReport("gitlab.com", {}, {})];
 
       const app = view.getApplicationByName("github.com");
@@ -191,7 +191,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should return undefined when application not found", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.reports = [createReport("github.com", {}, {})];
 
       const app = view.getApplicationByName("gitlab.com");
@@ -202,7 +202,7 @@ describe("RiskInsightsView", () => {
 
   describe("getTotalMemberCount", () => {
     it("should return count of members in registry", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
         { id: "u2", name: "Bob", email: "bob@example.com" },
@@ -213,7 +213,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should return 0 when registry is empty", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = {};
 
       expect(view.getTotalMemberCount()).toBe(0);
@@ -222,7 +222,7 @@ describe("RiskInsightsView", () => {
 
   describe("getAtRiskPasswordCountForMember", () => {
     it("should count at-risk passwords for member across all applications", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
       ]);
@@ -239,7 +239,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should return 0 when member is not at-risk in any application", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
       ]);
@@ -255,7 +255,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should count passwords for specific application when applicationName provided", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
       ]);
@@ -271,7 +271,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should return 0 when member not at-risk in specific application", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
       ]);
@@ -287,7 +287,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should return 0 when application not found", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
       ]);
@@ -300,7 +300,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should return 0 when member not in any application", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
       ]);
@@ -317,7 +317,7 @@ describe("RiskInsightsView", () => {
 
   describe("markApplicationsAsCritical", () => {
     it("should mark existing application as critical", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.applications = [createApplication("github.com", false)];
       view.reports = [createReport("github.com", {}, {})];
 
@@ -328,7 +328,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should add new application if not in list", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.applications = [];
 
       view.markApplicationsAsCritical(["github.com"]);
@@ -339,7 +339,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should trigger summary recomputation once for multiple apps", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
       ]);
@@ -360,7 +360,7 @@ describe("RiskInsightsView", () => {
 
   describe("unmarkApplicationsAsCritical", () => {
     it("should unmark existing application as critical", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.applications = [createApplication("github.com", true)];
       view.reports = [createReport("github.com", {}, {})];
 
@@ -371,7 +371,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should unmark multiple applications in a single operation", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.applications = [
         createApplication("github.com", true),
         createApplication("gitlab.com", true),
@@ -389,7 +389,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should trigger summary recomputation when application exists", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
       ]);
@@ -402,7 +402,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should do nothing if application not found", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.applications = [];
 
       view.unmarkApplicationsAsCritical(["github.com"]);
@@ -413,7 +413,7 @@ describe("RiskInsightsView", () => {
 
   describe("markApplicationAsReviewed", () => {
     it("should mark existing application as reviewed with current date", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.applications = [createApplication("github.com", false)];
 
       const beforeDate = new Date();
@@ -427,7 +427,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should mark application with specific date", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.applications = [createApplication("github.com", false)];
 
       const specificDate = new Date("2024-01-15");
@@ -438,7 +438,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should add new application if not in list", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.applications = [];
 
       view.markApplicationAsReviewed("github.com");
@@ -449,7 +449,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should not trigger summary recomputation", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.applications = [createApplication("github.com", false)];
 
       // Manually set summary to verify it doesn't change
@@ -466,7 +466,7 @@ describe("RiskInsightsView", () => {
 
   describe("recomputeSummary", () => {
     it("should compute total counts correctly", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
         { id: "u2", name: "Bob", email: "bob@example.com" },
@@ -488,7 +488,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should deduplicate at-risk members across applications", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
       ]);
@@ -506,7 +506,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should compute critical application counts", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
         { id: "u2", name: "Bob", email: "bob@example.com" },
@@ -531,7 +531,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should handle empty reports and applications", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = {};
       view.reports = [];
       view.applications = [];
@@ -551,7 +551,7 @@ describe("RiskInsightsView", () => {
 
   describe("toMetrics", () => {
     it("should compute complete metrics including password counts", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
         { id: "u2", name: "Bob", email: "bob@example.com" },
@@ -589,7 +589,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should compute metrics with no critical applications", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
       ]);
@@ -613,7 +613,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should compute metrics with all critical applications", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
         { id: "u2", name: "Bob", email: "bob@example.com" },
@@ -640,7 +640,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should handle empty reports and applications", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = {};
       view.reports = [];
       view.applications = [];
@@ -660,7 +660,7 @@ describe("RiskInsightsView", () => {
     });
 
     it("should compute metrics with applications not in report", () => {
-      const view = new RiskInsightsView();
+      const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
       ]);
@@ -709,14 +709,14 @@ describe("RiskInsightsView", () => {
         }),
       });
 
-      const view = RiskInsightsView.fromJSON(JSON.parse(JSON.stringify(input)));
+      const view = AccessReportView.fromJSON(JSON.parse(JSON.stringify(input)));
 
       expect(view.id).toBe("report-123");
       expect(view.organizationId).toBe("org-456");
       expect(view.reports).toHaveLength(1);
-      expect(view.reports[0]).toBeInstanceOf(RiskInsightsReportView);
+      expect(view.reports[0]).toBeInstanceOf(ApplicationHealthView);
       expect(view.applications).toHaveLength(1);
-      expect(view.applications[0]).toBeInstanceOf(RiskInsightsApplicationView);
+      expect(view.applications[0]).toBeInstanceOf(AccessReportSettingsView);
       expect(view.memberRegistry["u1"]).toBeInstanceOf(MemberRegistryEntryView);
       expect(view.memberRegistry["u1"].id).toBe("u1");
       expect(view.memberRegistry["u1"].userName).toBe("Alice");
@@ -724,18 +724,18 @@ describe("RiskInsightsView", () => {
     });
 
     it("should handle null input", () => {
-      const view = RiskInsightsView.fromJSON(null as any);
+      const view = AccessReportView.fromJSON(null as any);
 
-      expect(view).toBeInstanceOf(RiskInsightsView);
+      expect(view).toBeInstanceOf(AccessReportView);
       expect(view.reports).toEqual([]);
       expect(view.applications).toEqual([]);
       expect(view.memberRegistry).toEqual({});
     });
 
     it("should handle undefined input", () => {
-      const view = RiskInsightsView.fromJSON(undefined as any);
+      const view = AccessReportView.fromJSON(undefined as any);
 
-      expect(view).toBeInstanceOf(RiskInsightsView);
+      expect(view).toBeInstanceOf(AccessReportView);
       expect(view.reports).toEqual([]);
       expect(view.applications).toEqual([]);
       expect(view.memberRegistry).toEqual({});

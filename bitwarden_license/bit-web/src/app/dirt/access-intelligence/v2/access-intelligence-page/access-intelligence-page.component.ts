@@ -17,14 +17,16 @@ import { concatMap, delay, skip } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
+  MemberRegistryEntryView,
+  ApplicationHealthView,
+  AccessReportView,
+} from "@bitwarden/bit-common/dirt/access-intelligence/models";
+import {
   AccessIntelligenceDataService,
   DrawerStateService,
   DrawerType,
   ReportProgress,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
-import { MemberRegistryEntryView } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/member-details.view";
-import { RiskInsightsReportView } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/risk-insights-report.view";
-import { RiskInsightsView } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/risk-insights.view";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -287,7 +289,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
    * Uses view model's getAtRiskMembers(registry) method.
    */
   private getAppAtRiskMembersContent(
-    report: RiskInsightsView,
+    report: AccessReportView,
     applicationName: string,
   ): AppAtRiskMembersData | null {
     const app = report.getApplicationByName(applicationName);
@@ -307,7 +309,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
    * Derives organization-wide at-risk members drawer content.
    * Uses view model's getAtRiskMembers() method (deduplicates across apps).
    */
-  private getOrgAtRiskMembersContent(report: RiskInsightsView): OrgAtRiskMembersData {
+  private getOrgAtRiskMembersContent(report: AccessReportView): OrgAtRiskMembersData {
     const members = report.getAtRiskMembers();
     return {
       type: DrawerType.OrgAtRiskMembers,
@@ -318,7 +320,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   /**
    * Derives organization-wide at-risk applications drawer content.
    */
-  private getOrgAtRiskAppsContent(report: RiskInsightsView): OrgAtRiskAppsData {
+  private getOrgAtRiskAppsContent(report: AccessReportView): OrgAtRiskAppsData {
     return {
       type: DrawerType.OrgAtRiskApps,
       applications: report.getAtRiskApplications().map((app) => ({
@@ -331,7 +333,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   /**
    * Derives critical applications' at-risk members drawer content.
    */
-  private getCriticalAtRiskMembersContent(report: RiskInsightsView): CriticalAtRiskMembersData {
+  private getCriticalAtRiskMembersContent(report: AccessReportView): CriticalAtRiskMembersData {
     return {
       type: DrawerType.CriticalAtRiskMembers,
       members: this.mapMembersToDrawerData(report.getCriticalAtRiskMembers(), report),
@@ -341,7 +343,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   /**
    * Derives critical applications' at-risk apps drawer content.
    */
-  private getCriticalAtRiskAppsContent(report: RiskInsightsView): CriticalAtRiskAppsData {
+  private getCriticalAtRiskAppsContent(report: AccessReportView): CriticalAtRiskAppsData {
     return {
       type: DrawerType.CriticalAtRiskApps,
       applications: report.getCriticalAtRiskApplications().map((app) => ({
@@ -357,8 +359,8 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
    */
   private mapMembersToDrawerData(
     members: MemberRegistryEntryView[],
-    report: RiskInsightsView,
-    app?: RiskInsightsReportView,
+    report: AccessReportView,
+    app?: ApplicationHealthView,
   ): DrawerMemberData[] {
     return members.map((member) => ({
       email: member.email,

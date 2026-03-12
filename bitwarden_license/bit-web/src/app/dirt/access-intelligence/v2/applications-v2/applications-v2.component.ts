@@ -179,7 +179,7 @@ export class ApplicationsV2Component {
   /**
    * Sets up reactive subscription to report data.
    * Updates table data source when report changes.
-   * Joins RiskInsightsReportView (health data) with RiskInsightsApplicationView (metadata).
+   * Joins ApplicationHealthView (health data) with AccessReportSettingsView (metadata).
    */
   private setupReportDataSubscription(): void {
     // Update data source when report changes

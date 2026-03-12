@@ -226,6 +226,51 @@ report.contentEncryptionKey = new EncString("test-key");
 
 ## File Organization
 
+### Barrel Imports (Required)
+
+The `access-intelligence/models/` folder exposes a barrel file at `models/index.ts` that re-exports
+all model classes from every layer (api, data, domain, view). **Always import from the barrel, never
+from individual model files.**
+
+**From bit-common** (use a relative path to the barrel root):
+
+```typescript
+// ✅ CORRECT
+import { AccessReportView, ApplicationHealthView } from "../../access-intelligence/models";
+
+// ❌ WRONG - imports from a specific file
+import { AccessReportView } from "../../access-intelligence/models/view/access-report.view";
+```
+
+**From bit-web** (use the `@bitwarden/bit-common` alias to the barrel root):
+
+```typescript
+// ✅ CORRECT
+import {
+  AccessReportView,
+  ApplicationHealthView,
+} from "@bitwarden/bit-common/dirt/access-intelligence/models";
+
+// ❌ WRONG - imports from a specific file
+import { AccessReportView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/access-report.view";
+```
+
+**Exception — files inside `models/` itself** must use `./` relative sibling imports. Importing
+from the barrel would be circular because the barrel re-exports those same files.
+
+```typescript
+// ✅ CORRECT - sibling import inside models/
+import { MemberRegistryEntryView } from "./member-registry-entry.view";
+
+// ❌ WRONG - circular
+import { MemberRegistryEntryView } from "../index";
+```
+
+**When adding a new model file:** export it from `models/index.ts` immediately so all callers can
+use the barrel.
+
+---
+
 ### One Class Per File (4-Layer Models)
 
 **Rule:** Every 4-layer model class gets its own file.
@@ -298,6 +343,6 @@ cacheable, API-mappable data objects.
 
 ---
 
-**Document Version:** 1.1
-**Last Updated:** 2026-03-02
+**Document Version:** 1.2
+**Last Updated:** 2026-03-12
 **Maintainer:** DIRT Team

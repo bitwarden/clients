@@ -1,19 +1,19 @@
 import Domain from "@bitwarden/common/platform/models/domain/domain-base";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsSummaryApi } from "../api/risk-insights-summary.api";
-import { RiskInsightsSummaryData } from "../data/risk-insights-summary.data";
+import { AccessReportSummaryApi } from "../api/access-report-summary.api";
+import { AccessReportSummaryData } from "../data/access-report-summary.data";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsSummaryView } from "../view/risk-insights-summary.view";
+import { AccessReportSummaryView } from "../view/access-report-summary.view";
 
 /**
- * Domain model for Member Details in Risk Insights containing encrypted properties
+ * Domain model for report summary in Access Intelligence containing encrypted properties
  *
- * - See {@link RiskInsightsSummaryApi} for API model
- * - See {@link RiskInsightsSummaryData} for data model
- * - See {@link RiskInsightsSummaryView} from View Model
+ * - See {@link AccessReportSummaryApi} for API model
+ * - See {@link AccessReportSummaryData} for data model
+ * - See {@link AccessReportSummaryView} from View Model
  */
-export class RiskInsightsSummary extends Domain {
+export class AccessReportSummary extends Domain {
   totalMemberCount: number = 0;
   totalApplicationCount: number = 0;
   totalAtRiskMemberCount: number = 0;
@@ -23,7 +23,7 @@ export class RiskInsightsSummary extends Domain {
   totalCriticalAtRiskMemberCount: number = 0;
   totalCriticalAtRiskApplicationCount: number = 0;
 
-  constructor(obj?: RiskInsightsSummaryData) {
+  constructor(obj?: AccessReportSummaryData) {
     super();
     if (obj == null) {
       return;
@@ -40,11 +40,11 @@ export class RiskInsightsSummary extends Domain {
   }
 
   // [TODO] Domain level methods
-  // static fromJSON(): RiskInsightsSummary {}
-  // decrypt(): RiskInsightsSummaryView {}
-  // toData(): RiskInsightsSummaryData {}
+  // static fromJSON(): AccessReportSummary {}
+  // decrypt(): AccessReportSummaryView {}
+  // toData(): AccessReportSummaryData {}
 
   // [TODO] SDK Mapping
-  // toSdkRiskInsightsReport(): SdkRiskInsightsReport {}
-  // static fromSdkRiskInsightsReport(obj?: SdkRiskInsightsReport): RiskInsightsReport | undefined {}
+  // toSdkAccessReportSummary(): SdkAccessReportSummary {}
+  // static fromSdkAccessReportSummary(obj?: SdkAccessReportSummary): AccessReportSummary | undefined {}
 }

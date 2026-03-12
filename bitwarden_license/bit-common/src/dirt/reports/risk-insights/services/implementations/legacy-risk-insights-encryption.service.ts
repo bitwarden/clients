@@ -8,6 +8,10 @@ import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
+import {
+  MemberRegistryEntryData,
+  ApplicationHealthData,
+} from "../../../../access-intelligence/models";
 import { createNewSummaryData } from "../../helpers";
 import {
   validateAccessReportPayload,
@@ -22,8 +26,6 @@ import {
   OrganizationReportApplication,
   OrganizationReportSummary,
 } from "../../models";
-import { MemberRegistryEntryData } from "../../models/data/member-details.data";
-import { RiskInsightsReportData } from "../../models/data/risk-insights-report.data";
 import {
   EncryptedDataWithKey,
   EncryptedReportData,
@@ -319,7 +321,7 @@ export class LegacyRiskInsightsEncryptionService {
    * Used when a V2-format blob is encountered during V1 decryption (feature flag downgrade).
    */
   private _convertV2ReportToV1(
-    reports: RiskInsightsReportData[],
+    reports: ApplicationHealthData[],
     memberRegistry: Record<string, MemberRegistryEntryData>,
   ): ApplicationHealthReportDetail[] {
     return reports.map((report) => {

@@ -1,21 +1,21 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsData } from "../data/risk-insights.data";
+import { AccessReportData } from "../data/access-report.data";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsights } from "../domain/risk-insights";
+import { AccessReport } from "../domain/access-report";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsView } from "../view/risk-insights.view";
+import { AccessReportView } from "../view/access-report.view";
 
 /**
- * Converts a RiskInsights API response
+ * Converts an AccessReport API response
  *
- * - See {@link RiskInsights} for domain model
- * - See {@link RiskInsightsData} for data model
- * - See {@link RiskInsightsView} from View Model
+ * - See {@link AccessReport} for domain model
+ * - See {@link AccessReportData} for data model
+ * - See {@link AccessReportView} from View Model
  */
-// [TODO] To replace GetRiskInsightsReportResponse
-export class RiskInsightsApi extends BaseResponse {
+// [TODO] To replace legacy V1 report response type
+export class AccessReportApi extends BaseResponse {
   id: string = "";
   organizationId: string = "";
   reports: string = "";
@@ -43,16 +43,16 @@ export class RiskInsightsApi extends BaseResponse {
     // Use when individual values are encrypted
     // const summary = this.getResponseProperty("summaryData");
     // if (summary != null) {
-    //   this.summary = new RiskInsightsSummaryApi(summary);
+    //   this.summary = new AccessReportSummaryApi(summary);
     // }
 
     // const reports = this.getResponseProperty("reportData");
     // if (reports != null) {
-    //   this.reports = reports.map((r: any) => new RiskInsightsReportApi(r));
+    //   this.reports = reports.map((r: any) => new ApplicationHealthApi(r));
     // }
     // const applications = this.getResponseProperty("applicationData");
     // if (applications != null) {
-    //   this.applications = applications.map((f: any) => new RiskInsightsApplicationApi(f));
+    //   this.applications = applications.map((f: any) => new AccessReportSettingsApi(f));
     // }
   }
 }

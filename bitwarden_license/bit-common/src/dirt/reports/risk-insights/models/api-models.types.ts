@@ -2,9 +2,9 @@ import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-st
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
+import { AccessReportMetricsData } from "../../../access-intelligence/models";
 import { createNewSummaryData } from "../helpers";
 
-import { RiskInsightsMetricsData } from "./data/risk-insights-metrics.data";
 import { OrganizationReportSummary, PasswordHealthReportApplicationId } from "./report-models";
 
 // -------------------- Password Health Report Models --------------------
@@ -42,7 +42,7 @@ export interface SaveRiskInsightsReportRequest {
     reportData: string;
     summaryData: string;
     applicationData: string;
-    metrics: RiskInsightsMetricsData;
+    metrics: AccessReportMetricsData;
     contentEncryptionKey: string;
   };
 }
@@ -141,7 +141,7 @@ export interface UpdateRiskInsightsApplicationDataRequest {
 export interface UpdateRiskInsightsSummaryDataRequest {
   data: {
     summaryData: string;
-    metrics: RiskInsightsMetricsData;
+    metrics: AccessReportMetricsData;
   };
 }
 export class UpdateRiskInsightsApplicationDataResponse extends BaseResponse {

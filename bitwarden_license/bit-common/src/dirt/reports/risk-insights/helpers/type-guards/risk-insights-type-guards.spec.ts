@@ -9,8 +9,8 @@ import {
   validateApplicationHealthReportDetailArray,
   validateOrganizationReportApplicationArray,
   validateOrganizationReportSummary,
-  validateRiskInsightsApplicationDataArray,
-  validateRiskInsightsSummaryData,
+  validateAccessReportSettingsDataArray,
+  validateAccessReportSummaryData,
   validateAccessReportPayload,
 } from "./risk-insights-type-guards";
 
@@ -578,7 +578,7 @@ describe("Risk Insights Type Guards", () => {
     });
 
     it("should return true when userName is undefined (userName is optional)", () => {
-      const dataWithUndefinedUserName = {
+      const dataWithUndefinedUserName: unknown = {
         id: "u1",
         userName: undefined,
         email: "alice@example.com",
@@ -646,20 +646,13 @@ describe("Risk Insights Type Guards", () => {
 
     it("should throw for non-object input", () => {
       expect(() => validateAccessReportPayload("not an object")).toThrow(
-        /expected a versioned object, received non-object/,
+        /expected object, received non-object/,
       );
       expect(() => validateAccessReportPayload(null)).toThrow(
-        /expected a versioned object, received non-object/,
+        /expected object, received non-object/,
       );
       expect(() => validateAccessReportPayload([1, 2, 3])).toThrow(
-        /expected a versioned object, received non-object/,
-      );
-    });
-
-    it("should throw for wrong version", () => {
-      const wrongVersion = { ...validV2Data, version: 1 };
-      expect(() => validateAccessReportPayload(wrongVersion)).toThrow(
-        /expected version 2, received version 1/,
+        /expected object, received non-object/,
       );
     });
 
@@ -690,7 +683,7 @@ describe("Risk Insights Type Guards", () => {
     });
 
     it("should normalize empty userName to undefined for backwards compatibility", () => {
-      const dataWithEmptyUserName = {
+      const dataWithEmptyUserName: unknown = {
         version: 2,
         reports: [],
         memberRegistry: {
@@ -702,7 +695,7 @@ describe("Risk Insights Type Guards", () => {
     });
   });
 
-  describe("validateRiskInsightsSummaryData", () => {
+  describe("validateAccessReportSummaryData", () => {
     const validSummary = {
       totalMemberCount: 10,
       totalApplicationCount: 5,
@@ -715,32 +708,32 @@ describe("Risk Insights Type Guards", () => {
     };
 
     it("should validate valid summary data", () => {
-      expect(() => validateRiskInsightsSummaryData(validSummary)).not.toThrow();
-      const result = validateRiskInsightsSummaryData(validSummary);
+      expect(() => validateAccessReportSummaryData(validSummary)).not.toThrow();
+      const result = validateAccessReportSummaryData(validSummary);
       expect(result.totalMemberCount).toBe(10);
       expect(result.totalApplicationCount).toBe(5);
     });
 
     it("should throw for invalid field types", () => {
       const invalid = { ...validSummary, totalMemberCount: "10" };
-      expect(() => validateRiskInsightsSummaryData(invalid)).toThrow(/Invalid report summary/);
+      expect(() => validateAccessReportSummaryData(invalid)).toThrow(/Invalid report summary/);
     });
 
     it("should throw for non-object input", () => {
-      expect(() => validateRiskInsightsSummaryData(null)).toThrow(/Invalid report summary/);
-      expect(() => validateRiskInsightsSummaryData("string")).toThrow(/Invalid report summary/);
+      expect(() => validateAccessReportSummaryData(null)).toThrow(/Invalid report summary/);
+      expect(() => validateAccessReportSummaryData("string")).toThrow(/Invalid report summary/);
     });
   });
 
-  describe("validateRiskInsightsApplicationDataArray", () => {
+  describe("validateAccessReportSettingsDataArray", () => {
     it("should validate valid V2 application data array", () => {
       const validData = [
         { applicationName: "app.com", isCritical: true, reviewedDate: "2024-01-15T10:30:00.000Z" },
         { applicationName: "other.com", isCritical: false },
       ];
 
-      expect(() => validateRiskInsightsApplicationDataArray(validData)).not.toThrow();
-      const result = validateRiskInsightsApplicationDataArray(validData);
+      expect(() => validateAccessReportSettingsDataArray(validData)).not.toThrow();
+      const result = validateAccessReportSettingsDataArray(validData);
       expect(result).toHaveLength(2);
       expect(result[0].reviewedDate).toBe("2024-01-15T10:30:00.000Z");
       expect(result[1].reviewedDate).toBeUndefined();
@@ -748,20 +741,20 @@ describe("Risk Insights Type Guards", () => {
 
     it("should accept missing reviewedDate (undefined)", () => {
       const validData = [{ applicationName: "app.com", isCritical: false }];
-      const result = validateRiskInsightsApplicationDataArray(validData);
+      const result = validateAccessReportSettingsDataArray(validData);
       expect(result[0].reviewedDate).toBeUndefined();
     });
 
     it("should throw for non-array input", () => {
-      expect(() => validateRiskInsightsApplicationDataArray("not an array")).toThrow(
-        "Invalid application data: expected array of RiskInsightsApplicationData, received non-array",
+      expect(() => validateAccessReportSettingsDataArray("not an array")).toThrow(
+        "Invalid application data: expected array of AccessReportSettingsData, received non-array",
       );
     });
 
     it("should throw for array with invalid elements", () => {
       const invalidData = [{ applicationName: "app.com" }]; // missing isCritical
-      expect(() => validateRiskInsightsApplicationDataArray(invalidData)).toThrow(
-        /Invalid application data: array contains 1 invalid RiskInsightsApplicationData element\(s\)/,
+      expect(() => validateAccessReportSettingsDataArray(invalidData)).toThrow(
+        /Invalid application data: array contains 1 invalid AccessReportSettingsData element\(s\)/,
       );
     });
 
@@ -769,7 +762,7 @@ describe("Risk Insights Type Guards", () => {
       const invalidData: unknown = [
         { applicationName: "app.com", isCritical: true, reviewedDate: null },
       ];
-      expect(() => validateRiskInsightsApplicationDataArray(invalidData)).toThrow(
+      expect(() => validateAccessReportSettingsDataArray(invalidData)).toThrow(
         /Invalid application data/,
       );
     });
@@ -778,7 +771,7 @@ describe("Risk Insights Type Guards", () => {
       const invalidData = [
         { applicationName: "app.com", isCritical: true, reviewedDate: "not-a-date" },
       ];
-      expect(() => validateRiskInsightsApplicationDataArray(invalidData)).toThrow(
+      expect(() => validateAccessReportSettingsDataArray(invalidData)).toThrow(
         /Invalid application data/,
       );
     });

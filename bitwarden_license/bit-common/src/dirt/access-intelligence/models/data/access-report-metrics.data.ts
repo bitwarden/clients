@@ -1,6 +1,6 @@
-import { RiskInsightsMetricsApi } from "../api/risk-insights-metrics.api";
+import { AccessReportMetricsApi } from "../api/access-report-metrics.api";
 
-export class RiskInsightsMetricsData {
+export class AccessReportMetricsData {
   totalApplicationCount: number = 0;
   totalAtRiskApplicationCount: number = 0;
   totalCriticalApplicationCount: number = 0;
@@ -14,7 +14,7 @@ export class RiskInsightsMetricsData {
   totalCriticalPasswordCount: number = 0;
   totalCriticalAtRiskPasswordCount: number = 0;
 
-  constructor(data?: RiskInsightsMetricsApi) {
+  constructor(data?: AccessReportMetricsApi) {
     if (data == null) {
       return;
     }

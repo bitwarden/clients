@@ -1,20 +1,20 @@
-import { RiskInsightsReportApi } from "../api/risk-insights-report.api";
+import { ApplicationHealthApi } from "../api/application-health.api";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsReport } from "../domain/risk-insights-report";
+import { ApplicationHealth } from "../domain/application-health";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsReportView } from "../view/risk-insights-report.view";
+import { ApplicationHealthView } from "../view/application-health.view";
 
 /**
- * Serializable data model for generated report in risk insights report
+ * Serializable data model for generated report in access report
  *
  * Uses the member registry pattern with memberRefs and cipherRefs Records instead of
  * duplicated member/cipher arrays.
  *
- * - See {@link RiskInsightsReport} for domain model
- * - See {@link RiskInsightsReportApi} for API model
- * - See {@link RiskInsightsReportView} from View Model
+ * - See {@link ApplicationHealth} for domain model
+ * - See {@link ApplicationHealthApi} for API model
+ * - See {@link ApplicationHealthView} from View Model
  */
-export class RiskInsightsReportData {
+export class ApplicationHealthData {
   applicationName: string = "";
   passwordCount: number = 0;
   atRiskPasswordCount: number = 0;
@@ -40,7 +40,7 @@ export class RiskInsightsReportData {
   iconUri?: string;
   iconCipherId?: string;
 
-  constructor(data?: RiskInsightsReportApi) {
+  constructor(data?: ApplicationHealthApi) {
     if (data == null) {
       return;
     }

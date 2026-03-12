@@ -9,9 +9,9 @@ import { OrganizationId, OrganizationReportId, UserId } from "@bitwarden/common/
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { LogService } from "@bitwarden/logging";
 
+import { AccessReportMetrics } from "../../../../access-intelligence/models";
 import { createNewSummaryData } from "../../helpers";
 import { ReportStatus, RiskInsightsData, SaveRiskInsightsReportResponse } from "../../models";
-import { RiskInsightsMetrics } from "../../models/domain/risk-insights-metrics";
 import { mockMemberCipherDetailsResponse } from "../../models/mocks/member-cipher-details-response.mock";
 import {
   mockApplicationData,
@@ -154,7 +154,7 @@ describe("RiskInsightsOrchestratorService", () => {
       // Act
       service.generateReport();
 
-      const metricsData = new RiskInsightsMetrics();
+      const metricsData = new AccessReportMetrics();
       metricsData.totalApplicationCount = 3;
       metricsData.totalAtRiskApplicationCount = 1;
       metricsData.totalAtRiskMemberCount = 2;

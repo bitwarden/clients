@@ -3,7 +3,7 @@ import { Observable } from "rxjs";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
-import { RiskInsightsView } from "../../models/view/risk-insights.view";
+import { AccessReportView } from "../../../../access-intelligence/models";
 
 /**
  * Service for persisting Risk Insights reports with backend flexibility.
@@ -33,7 +33,7 @@ export abstract class ReportPersistenceService {
    * ```
    */
   abstract saveReport$(
-    view: RiskInsightsView,
+    view: AccessReportView,
     organizationId: OrganizationId,
   ): Observable<{ id: OrganizationReportId; contentEncryptionKey: EncString }>;
 
@@ -54,13 +54,13 @@ export abstract class ReportPersistenceService {
    * this.persistenceService.saveApplicationMetadata$(report).subscribe();
    * ```
    */
-  abstract saveApplicationMetadata$(view: RiskInsightsView): Observable<void>;
+  abstract saveApplicationMetadata$(view: AccessReportView): Observable<void>;
 
   /**
    * Load the latest report for an organization
    *
    * Fetches from storage backend, decrypts, decompresses, and assembles
-   * into a complete RiskInsightsView. Returns null if no report exists.
+   * into a complete AccessReportView. Returns null if no report exists.
    *
    * The `hadLegacyBlobs` flag is `true` when the loaded report contained any V1-format
    * blobs that were inline-converted to V2 during decryption. Callers should re-save the
@@ -82,5 +82,5 @@ export abstract class ReportPersistenceService {
    */
   abstract loadReport$(
     organizationId: OrganizationId,
-  ): Observable<{ report: RiskInsightsView; hadLegacyBlobs: boolean } | null>;
+  ): Observable<{ report: AccessReportView; hadLegacyBlobs: boolean } | null>;
 }

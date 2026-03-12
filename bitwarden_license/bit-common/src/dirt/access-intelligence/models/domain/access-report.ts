@@ -9,17 +9,17 @@ import {
   AccessReportPayload,
   DecryptedAccessReportData,
   AccessReportEncryptionService,
-} from "../../services/abstractions/access-report-encryption.service";
-import { MemberRegistryEntryData } from "../data/member-details.data";
-import { RiskInsightsReportData } from "../data/risk-insights-report.data";
-import { RiskInsightsData } from "../data/risk-insights.data";
-import { MemberRegistryEntryView } from "../view/member-details.view";
-import { RiskInsightsApplicationView } from "../view/risk-insights-application.view";
-import { RiskInsightsReportView } from "../view/risk-insights-report.view";
-import { RiskInsightsSummaryView } from "../view/risk-insights-summary.view";
-import { RiskInsightsView } from "../view/risk-insights.view";
+} from "../../../reports/risk-insights/services/abstractions/access-report-encryption.service";
+import { AccessReportData } from "../data/access-report.data";
+import { ApplicationHealthData } from "../data/application-health.data";
+import { MemberRegistryEntryData } from "../data/member-registry-entry.data";
+import { AccessReportSettingsView } from "../view/access-report-settings.view";
+import { AccessReportSummaryView } from "../view/access-report-summary.view";
+import { AccessReportView } from "../view/access-report.view";
+import { ApplicationHealthView } from "../view/application-health.view";
+import { MemberRegistryEntryView } from "../view/member-registry-entry.view";
 
-export class RiskInsights extends Domain {
+export class AccessReport extends Domain {
   id: string = "";
   organizationId: string = "";
   reports: EncString = new EncString(""); // Reports + member registry
@@ -28,7 +28,7 @@ export class RiskInsights extends Domain {
   creationDate: Date;
   contentEncryptionKey?: EncString;
 
-  constructor(obj?: RiskInsightsData) {
+  constructor(obj?: AccessReportData) {
     super();
     if (obj == null) {
       this.creationDate = new Date();
@@ -55,7 +55,7 @@ export class RiskInsights extends Domain {
   decrypt(
     encryptionService: AccessReportEncryptionService,
     context: { organizationId: OrganizationId; userId: UserId },
-  ): Observable<{ view: RiskInsightsView; hadLegacyBlobs: boolean }> {
+  ): Observable<{ view: AccessReportView; hadLegacyBlobs: boolean }> {
     if (!this.contentEncryptionKey) {
       return throwError(() => new Error("Report encryption key not found"));
     }
@@ -72,13 +72,13 @@ export class RiskInsights extends Domain {
       )
       .pipe(
         map((decryptedData) => {
-          const view = new RiskInsightsView();
+          const view = new AccessReportView();
           view.id = this.id as OrganizationReportId;
           view.organizationId = this.organizationId as OrganizationId;
           view.creationDate = this.creationDate;
           view.contentEncryptionKey = this.contentEncryptionKey;
 
-          view.reports = decryptedData.reportData.reports.map(RiskInsightsReportView.fromData);
+          view.reports = decryptedData.reportData.reports.map(ApplicationHealthView.fromData);
           view.memberRegistry = Object.fromEntries(
             Object.entries(decryptedData.reportData.memberRegistry).map(([id, data]) => [
               id,
@@ -86,10 +86,8 @@ export class RiskInsights extends Domain {
             ]),
           );
 
-          view.applications = decryptedData.applicationData.map(
-            RiskInsightsApplicationView.fromData,
-          );
-          view.summary = RiskInsightsSummaryView.fromData(decryptedData.summaryData);
+          view.applications = decryptedData.applicationData.map(AccessReportSettingsView.fromData);
+          view.summary = AccessReportSummaryView.fromData(decryptedData.summaryData);
 
           return { view, hadLegacyBlobs: decryptedData.hadLegacyBlobs === true };
         }),
@@ -101,8 +99,8 @@ export class RiskInsights extends Domain {
    *
    * @returns Data model ready for persistence
    */
-  toData(): RiskInsightsData {
-    const data = new RiskInsightsData();
+  toData(): AccessReportData {
+    const data = new AccessReportData();
     data.id = this.id;
     data.organizationId = this.organizationId;
     data.reports = this.reports.encryptedString ?? "";
@@ -121,13 +119,13 @@ export class RiskInsights extends Domain {
    * @param context - The organization and user identifiers for key lookup.
    */
   static fromView(
-    view: RiskInsightsView,
+    view: AccessReportView,
     encryptionService: AccessReportEncryptionService,
     context: { organizationId: OrganizationId; userId: UserId },
-  ): Observable<RiskInsights> {
+  ): Observable<AccessReport> {
     const reportPayload: AccessReportPayload = {
       reports: view.reports.map((r) => {
-        const data = new RiskInsightsReportData();
+        const data = new ApplicationHealthData();
         data.applicationName = r.applicationName;
         data.passwordCount = r.passwordCount;
         data.atRiskPasswordCount = r.atRiskPasswordCount;
@@ -171,7 +169,7 @@ export class RiskInsights extends Domain {
 
     return encryptionService.encryptReport$(context, payload, view.contentEncryptionKey).pipe(
       map((encryptedData) => {
-        const domain = new RiskInsights();
+        const domain = new AccessReport();
         domain.id = view.id;
         domain.organizationId = context.organizationId;
         domain.reports = encryptedData.encryptedReportData;
@@ -185,6 +183,6 @@ export class RiskInsights extends Domain {
   }
 
   // [TODO] SDK Mapping
-  // toSdkRiskInsights(): SdkRiskInsights {}
-  // static fromSdkRiskInsights(obj?: SdkRiskInsights): RiskInsights | undefined {}
+  // toSdkAccessReport(): SdkAccessReport {}
+  // static fromSdkAccessReport(obj?: SdkAccessReport): AccessReport | undefined {}
 }

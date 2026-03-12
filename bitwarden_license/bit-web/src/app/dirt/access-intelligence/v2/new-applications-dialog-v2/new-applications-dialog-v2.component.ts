@@ -10,8 +10,8 @@ import {
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { EMPTY, catchError, switchMap } from "rxjs";
 
+import { ApplicationHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
-import { RiskInsightsReportView } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/risk-insights-report.view";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -32,13 +32,13 @@ import { SecurityTasksService } from "../services/abstractions/security-tasks.se
 import { ReviewApplicationsViewV2Component } from "../shared/review-applications-view-v2/review-applications-view-v2.component";
 
 /**
- * V2 Dialog Data - Works directly with RiskInsightsReportView
+ * V2 Dialog Data - Works directly with ApplicationHealthView
  *
  * No dependency on V1 ApplicationHealthReportDetail type.
  */
 export interface NewApplicationsDialogV2Data {
-  /** New applications (RiskInsightsReportView objects without reviewedDate) */
-  newApplications: RiskInsightsReportView[];
+  /** New applications (ApplicationHealthView objects without reviewedDate) */
+  newApplications: ApplicationHealthView[];
   /** Organization ID for API calls */
   organizationId: OrganizationId;
   /** Whether org has existing critical apps (affects dialog messaging) */
@@ -67,13 +67,13 @@ export type NewApplicationsDialogResultType =
   (typeof NewApplicationsDialogResultType)[keyof typeof NewApplicationsDialogResultType];
 
 /**
- * NewApplicationsDialogV2Component - V2 version using RiskInsightsReportView
+ * NewApplicationsDialogV2Component - V2 version using ApplicationHealthView
  *
  * Displays new applications for review and allows marking as critical.
  * Works directly with V2 data models (no V1 dependencies).
  *
  * Key V2 patterns:
- * - Uses RiskInsightsReportView directly (not ApplicationHealthReportDetail)
+ * - Uses ApplicationHealthView directly (not ApplicationHealthReportDetail)
  * - OnPush change detection
  * - Signal-based state management
  * - Uses AccessIntelligenceDataService for state mutations
@@ -128,13 +128,11 @@ export class NewApplicationsDialogV2Component {
   });
 
   // At-risk critical applications (have at-risk passwords)
-  // ✅ FIXED: Use view model method isAtRisk() instead of accessing nested reports
   protected readonly newAtRiskCriticalApplications = computed(() => {
     return this.newCriticalApplications().filter((report) => report.isAtRisk());
   });
 
   // Count of unique at-risk members across selected critical apps
-  // ✅ FIXED: RiskInsightsReportView has memberRefs directly, no nested reports
   protected readonly atRiskCriticalMembersCount = computed(() => {
     const memberIds = new Set<string>();
 
@@ -148,7 +146,6 @@ export class NewApplicationsDialogV2Component {
   });
 
   // Unassigned at-risk cipher IDs from newly marked critical apps
-  // ✅ FIXED: Iterate directly over reports, use view model method
   protected readonly newUnassignedAtRiskCipherIds = computed<CipherId[]>(() => {
     const atRiskCipherIds: CipherId[] = [];
 
@@ -157,7 +154,6 @@ export class NewApplicationsDialogV2Component {
       atRiskCipherIds.push(...(atRiskIds as CipherId[]));
     });
 
-    // TODO: Filter out already assigned cipher IDs if needed
     return atRiskCipherIds;
   });
 

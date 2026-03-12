@@ -21,13 +21,16 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
-import { RiskInsightsMetrics } from "../models/domain/risk-insights-metrics";
-import { CipherHealthView } from "../models/view/cipher-health.view";
-import { MemberRegistryEntryView } from "../models/view/member-details.view";
-import { RiskInsightsApplicationView } from "../models/view/risk-insights-application.view";
-import { RiskInsightsReportView } from "../models/view/risk-insights-report.view";
-import { RiskInsightsSummaryView } from "../models/view/risk-insights-summary.view";
-import { MemberRegistry, RiskInsightsView } from "../models/view/risk-insights.view";
+import {
+  AccessReportMetrics,
+  CipherHealthView,
+  MemberRegistryEntryView,
+  AccessReportSettingsView,
+  ApplicationHealthView,
+  AccessReportSummaryView,
+  AccessReportView,
+  MemberRegistry,
+} from "../../../access-intelligence/models";
 import {
   CollectionAccessDetails,
   GroupMembershipDetails,
@@ -196,10 +199,10 @@ export function createGroupMembership(
 // ==================== RiskInsights View Helpers ====================
 
 /**
- * Creates a RiskInsightsView with sensible defaults
+ * Creates a AccessReportView with sensible defaults
  *
  * @param options - Optional overrides for view properties
- * @returns RiskInsightsView for testing
+ * @returns AccessReportView for testing
  *
  * @example
  * // Minimal usage
@@ -216,14 +219,14 @@ export function createRiskInsights(
   options?: Partial<{
     id: OrganizationReportId;
     organizationId: OrganizationId;
-    reports: RiskInsightsReportView[];
-    applications: RiskInsightsApplicationView[];
+    reports: ApplicationHealthView[];
+    applications: AccessReportSettingsView[];
     memberRegistry: MemberRegistry;
-    summary: RiskInsightsSummaryView;
+    summary: AccessReportSummaryView;
     creationDate: Date;
   }>,
-): RiskInsightsView {
-  const view = new RiskInsightsView();
+): AccessReportView {
+  const view = new AccessReportView();
   if (options?.id) {
     view.id = options.id;
   }
@@ -233,16 +236,16 @@ export function createRiskInsights(
   view.reports = options?.reports ?? [];
   view.applications = options?.applications ?? [];
   view.memberRegistry = options?.memberRegistry ?? {};
-  view.summary = options?.summary ?? new RiskInsightsSummaryView();
+  view.summary = options?.summary ?? new AccessReportSummaryView();
   view.creationDate = options?.creationDate ?? new Date();
   return view;
 }
 
 /**
- * Creates a RiskInsightsSummaryView with specific counts
+ * Creates a AccessReportSummaryView with specific counts
  *
  * @param counts - Optional count overrides (defaults to 0)
- * @returns RiskInsightsSummaryView for testing
+ * @returns AccessReportSummaryView for testing
  *
  * @example
  * const summary = createRiskInsightsSummary({
@@ -263,8 +266,8 @@ export function createRiskInsightsSummary(
     totalCriticalMemberCount: number;
     totalCriticalAtRiskMemberCount: number;
   }>,
-): RiskInsightsSummaryView {
-  const summary = new RiskInsightsSummaryView();
+): AccessReportSummaryView {
+  const summary = new AccessReportSummaryView();
   summary.totalApplicationCount = counts?.totalApplicationCount ?? 0;
   summary.totalAtRiskApplicationCount = counts?.totalAtRiskApplicationCount ?? 0;
   summary.totalCriticalApplicationCount = counts?.totalCriticalApplicationCount ?? 0;
@@ -277,18 +280,18 @@ export function createRiskInsightsSummary(
 }
 
 /**
- * Creates RiskInsightsMetrics with specific counts
+ * Creates AccessReportMetrics with specific counts
  *
  * @param counts - Optional count overrides (defaults to 0)
- * @returns RiskInsightsMetrics for testing
+ * @returns AccessReportMetrics for testing
  *
  * @example
- * const metrics = createRiskInsightsMetrics({
+ * const metrics = createAccessReportMetrics({
  *   totalPasswordCount: 100,
  *   totalAtRiskPasswordCount: 20,
  * });
  */
-export function createRiskInsightsMetrics(
+export function createAccessReportMetrics(
   counts?: Partial<{
     totalApplicationCount: number;
     totalAtRiskApplicationCount: number;
@@ -303,8 +306,8 @@ export function createRiskInsightsMetrics(
     totalCriticalPasswordCount: number;
     totalCriticalAtRiskPasswordCount: number;
   }>,
-): RiskInsightsMetrics {
-  const metrics = new RiskInsightsMetrics();
+): AccessReportMetrics {
+  const metrics = new AccessReportMetrics();
   metrics.totalApplicationCount = counts?.totalApplicationCount ?? 0;
   metrics.totalAtRiskApplicationCount = counts?.totalAtRiskApplicationCount ?? 0;
   metrics.totalCriticalApplicationCount = counts?.totalCriticalApplicationCount ?? 0;
@@ -328,7 +331,7 @@ export function createRiskInsightsMetrics(
  * @param applicationName - Name of the application (e.g., "github.com")
  * @param memberRefs - Record mapping member IDs to at-risk status
  * @param cipherRefs - Record mapping cipher IDs to at-risk status
- * @returns RiskInsightsReportView for testing
+ * @returns ApplicationHealthView for testing
  *
  * @example
  * const report = createReport(
@@ -341,8 +344,8 @@ export function createReport(
   applicationName: string,
   memberRefs: Record<string, boolean> = {},
   cipherRefs: Record<string, boolean> = {},
-): RiskInsightsReportView {
-  const report = new RiskInsightsReportView();
+): ApplicationHealthView {
+  const report = new ApplicationHealthView();
   report.applicationName = applicationName;
   report.memberRefs = memberRefs;
   report.cipherRefs = cipherRefs;
@@ -359,7 +362,7 @@ export function createReport(
  * @param name - Application name
  * @param isCritical - Whether application is marked critical
  * @param reviewedDate - Optional review date
- * @returns RiskInsightsApplicationView for testing
+ * @returns AccessReportSettingsView for testing
  *
  * @example
  * const criticalApp = createApplication("github.com", true);
@@ -369,8 +372,8 @@ export function createApplication(
   name: string,
   isCritical = false,
   reviewedDate?: Date,
-): RiskInsightsApplicationView {
-  const app = new RiskInsightsApplicationView();
+): AccessReportSettingsView {
+  const app = new AccessReportSettingsView();
   app.applicationName = name;
   app.isCritical = isCritical;
   app.reviewedDate = reviewedDate;

@@ -1,23 +1,23 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsReportData } from "../data/risk-insights-report.data";
+import { ApplicationHealthData } from "../data/application-health.data";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsReport } from "../domain/risk-insights-report";
+import { ApplicationHealth } from "../domain/application-health";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsReportView } from "../view/risk-insights-report.view";
+import { ApplicationHealthView } from "../view/application-health.view";
 
 /**
- * Converts a RiskInsightsReport API response
+ * Converts an ApplicationHealth API response
  *
  * Uses the member registry pattern with memberRefs and cipherRefs Records instead of
  * duplicated member/cipher arrays.
  *
- * - See {@link RiskInsightsReport} for domain model
- * - See {@link RiskInsightsReportData} for data model
- * - See {@link RiskInsightsReportView} from View Model
+ * - See {@link ApplicationHealth} for domain model
+ * - See {@link ApplicationHealthData} for data model
+ * - See {@link ApplicationHealthView} from View Model
  */
-export class RiskInsightsReportApi extends BaseResponse {
+export class ApplicationHealthApi extends BaseResponse {
   applicationName: string = "";
   passwordCount: number = 0;
   atRiskPasswordCount: number = 0;

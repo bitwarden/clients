@@ -4,41 +4,41 @@ import { DeepJsonify } from "@bitwarden/common/types/deep-jsonify";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsApi } from "../api/risk-insights.api";
+import { AccessReportApi } from "../api/access-report.api";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsData } from "../data/risk-insights.data";
-import { RiskInsights } from "../domain/risk-insights";
-import { RiskInsightsMetrics } from "../domain/risk-insights-metrics";
+import { AccessReportData } from "../data/access-report.data";
+import { AccessReport } from "../domain/access-report";
+import { AccessReportMetrics } from "../domain/access-report-metrics";
 
-import { MemberRegistryEntryView } from "./member-details.view";
-import { RiskInsightsApplicationView } from "./risk-insights-application.view";
-import { RiskInsightsReportView } from "./risk-insights-report.view";
-import { RiskInsightsSummaryView } from "./risk-insights-summary.view";
+import { AccessReportSettingsView } from "./access-report-settings.view";
+import { AccessReportSummaryView } from "./access-report-summary.view";
+import { ApplicationHealthView } from "./application-health.view";
+import { MemberRegistryEntryView } from "./member-registry-entry.view";
 
 /** Deduplicated member lookup table keyed by organization user ID */
 export type MemberRegistry = Record<string, MemberRegistryEntryView>;
 
 /**
- * View model for Risk Insights containing decrypted properties
+ * View model for Access Report containing decrypted properties
  *
  * Uses the member registry pattern to eliminate duplicate member storage across applications.
  * The registry is shared across all application reports and provides O(1) member lookup.
  *
- * - See {@link RiskInsights} for domain model
- * - See {@link RiskInsightsData} for data model
- * - See {@link RiskInsightsApi} for API model
+ * - See {@link AccessReport} for domain model
+ * - See {@link AccessReportData} for data model
+ * - See {@link AccessReportApi} for API model
  */
-export class RiskInsightsView implements View {
+export class AccessReportView implements View {
   id: OrganizationReportId = "" as OrganizationReportId;
   organizationId: OrganizationId = "" as OrganizationId;
-  reports: RiskInsightsReportView[] = [];
-  applications: RiskInsightsApplicationView[] = [];
-  summary = new RiskInsightsSummaryView();
+  reports: ApplicationHealthView[] = [];
+  applications: AccessReportSettingsView[] = [];
+  summary = new AccessReportSummaryView();
   memberRegistry: MemberRegistry = {};
   creationDate: Date;
   contentEncryptionKey?: EncString;
 
-  constructor(report?: RiskInsights) {
+  constructor(report?: AccessReport) {
     if (!report) {
       this.creationDate = new Date();
       return;
@@ -78,7 +78,7 @@ export class RiskInsightsView implements View {
    *
    * @returns Array of application reports where at least one cipher is at-risk
    */
-  getAtRiskApplications(): RiskInsightsReportView[] {
+  getAtRiskApplications(): ApplicationHealthView[] {
     return this.reports.filter((r) => r.isAtRisk());
   }
 
@@ -87,7 +87,7 @@ export class RiskInsightsView implements View {
    *
    * @returns Array of critical application reports
    */
-  getCriticalApplications(): RiskInsightsReportView[] {
+  getCriticalApplications(): ApplicationHealthView[] {
     const criticalNames = new Set(
       this.applications.filter((a) => a.isCritical).map((a) => a.applicationName),
     );
@@ -99,7 +99,7 @@ export class RiskInsightsView implements View {
    *
    * @returns Array of critical application reports where at least one cipher is at-risk
    */
-  getCriticalAtRiskApplications(): RiskInsightsReportView[] {
+  getCriticalAtRiskApplications(): ApplicationHealthView[] {
     return this.getCriticalApplications().filter((r) => r.isAtRisk());
   }
 
@@ -131,7 +131,7 @@ export class RiskInsightsView implements View {
    *
    * @returns Array of unreviewed application reports
    */
-  getNewApplications(): RiskInsightsReportView[] {
+  getNewApplications(): ApplicationHealthView[] {
     const unreviewedNames = new Set(
       this.applications.filter((a) => !a.reviewedDate).map((a) => a.applicationName),
     );
@@ -144,7 +144,7 @@ export class RiskInsightsView implements View {
    * @param applicationName - Name of the application to find
    * @returns Application report if found, undefined otherwise
    */
-  getApplicationByName(applicationName: string): RiskInsightsReportView | undefined {
+  getApplicationByName(applicationName: string): ApplicationHealthView | undefined {
     return this.reports.find((r) => r.applicationName === applicationName);
   }
 
@@ -208,7 +208,7 @@ export class RiskInsightsView implements View {
         }
       } else {
         // Application not in list, add it
-        const newApp = new RiskInsightsApplicationView();
+        const newApp = new AccessReportSettingsView();
         newApp.applicationName = applicationName;
         newApp.isCritical = true;
         newApp.reviewedDate = new Date();
@@ -251,7 +251,7 @@ export class RiskInsightsView implements View {
     if (app) {
       app.reviewedDate = reviewedDate ?? new Date();
     } else {
-      const newApp = new RiskInsightsApplicationView();
+      const newApp = new AccessReportSettingsView();
       newApp.applicationName = applicationName;
       newApp.reviewedDate = reviewedDate ?? new Date();
       this.applications.push(newApp);
@@ -272,7 +272,7 @@ export class RiskInsightsView implements View {
    * - Critical application and member counts
    */
   recomputeSummary(): void {
-    const summary = new RiskInsightsSummaryView();
+    const summary = new AccessReportSummaryView();
 
     // Basic totals
     summary.totalMemberCount = this.getTotalMemberCount();
@@ -311,13 +311,13 @@ export class RiskInsightsView implements View {
   /**
    * Computes complete metrics from current view state
    *
-   * Generates RiskInsightsMetrics including both summary counts and password-level metrics.
+   * Generates AccessReportMetrics including both summary counts and password-level metrics.
    * Password counts are computed by aggregating cipherRefs across all reports.
    *
-   * @returns RiskInsightsMetrics with all counts populated
+   * @returns AccessReportMetrics with all counts populated
    */
-  toMetrics(): RiskInsightsMetrics {
-    const metrics = new RiskInsightsMetrics();
+  toMetrics(): AccessReportMetrics {
+    const metrics = new AccessReportMetrics();
 
     // Copy summary counts (member and application counts)
     metrics.totalApplicationCount = this.summary.totalApplicationCount;
@@ -368,16 +368,16 @@ export class RiskInsightsView implements View {
     return this;
   }
 
-  static fromJSON(obj: Partial<DeepJsonify<RiskInsightsView>> | null): RiskInsightsView {
+  static fromJSON(obj: Partial<DeepJsonify<AccessReportView>> | null): AccessReportView {
     if (obj == undefined) {
-      return new RiskInsightsView();
+      return new AccessReportView();
     }
 
-    const view = Object.assign(new RiskInsightsView(), obj) as RiskInsightsView;
+    const view = Object.assign(new AccessReportView(), obj) as AccessReportView;
 
-    view.reports = obj.reports?.map((report) => RiskInsightsReportView.fromJSON(report)) ?? [];
-    view.applications = obj.applications?.map((a) => RiskInsightsApplicationView.fromJSON(a)) ?? [];
-    view.summary = RiskInsightsSummaryView.fromJSON(obj.summary ?? {});
+    view.reports = obj.reports?.map((report) => ApplicationHealthView.fromJSON(report)) ?? [];
+    view.applications = obj.applications?.map((a) => AccessReportSettingsView.fromJSON(a)) ?? [];
+    view.summary = AccessReportSummaryView.fromJSON(obj.summary ?? {});
     view.memberRegistry = obj.memberRegistry
       ? Object.fromEntries(
           Object.entries(obj.memberRegistry).map(([k, v]) => [

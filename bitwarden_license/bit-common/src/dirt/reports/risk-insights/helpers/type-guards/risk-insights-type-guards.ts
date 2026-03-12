@@ -1,15 +1,17 @@
 import { CipherId } from "@bitwarden/common/types/guid";
 
 import {
+  MemberRegistryEntryData,
+  AccessReportSettingsData,
+  ApplicationHealthData,
+  AccessReportSummaryData,
+} from "../../../../access-intelligence/models";
+import {
   ApplicationHealthReportDetail,
   MemberDetails,
   OrganizationReportApplication,
   OrganizationReportSummary,
 } from "../../models";
-import { MemberRegistryEntryData } from "../../models/data/member-details.data";
-import { RiskInsightsApplicationData } from "../../models/data/risk-insights-application.data";
-import { RiskInsightsReportData } from "../../models/data/risk-insights-report.data";
-import { RiskInsightsSummaryData } from "../../models/data/risk-insights-summary.data";
 import { AccessReportPayload } from "../../services/abstractions/access-report-encryption.service";
 
 import {
@@ -81,7 +83,7 @@ export const isApplicationHealthReportDetailArray = createBoundedArrayGuard(
   isApplicationHealthReportDetail,
 );
 
-const isRiskInsightsReportDataV2Entry = createValidator<RiskInsightsReportData>({
+const isApplicationHealthData = createValidator<ApplicationHealthData>({
   applicationName: isBoundedString,
   passwordCount: isBoundedPositiveNumber,
   atRiskPasswordCount: isBoundedPositiveNumber,
@@ -92,7 +94,7 @@ const isRiskInsightsReportDataV2Entry = createValidator<RiskInsightsReportData>(
   iconUri: isBoundedStringOrUndefined,
   iconCipherId: isBoundedStringOrUndefined,
 });
-const isRiskInsightsReportDataV2Array = createBoundedArrayGuard(isRiskInsightsReportDataV2Entry);
+const isApplicationHealthDataArray = createBoundedArrayGuard(isApplicationHealthData);
 
 /**
  * Type guard to validate OrganizationReportSummary structure
@@ -191,7 +193,7 @@ export function validateOrganizationReportSummary(data: unknown): OrganizationRe
   return data;
 }
 
-export const isRiskInsightsSummaryData = createValidator<RiskInsightsSummaryData>({
+export const isAccessReportSummaryData = createValidator<AccessReportSummaryData>({
   totalMemberCount: isBoundedPositiveNumber,
   totalApplicationCount: isBoundedPositiveNumber,
   totalAtRiskMemberCount: isBoundedPositiveNumber,
@@ -203,11 +205,11 @@ export const isRiskInsightsSummaryData = createValidator<RiskInsightsSummaryData
 });
 
 /**
- * Validates and returns RiskInsightsSummaryData
+ * Validates and returns AccessReportSummaryData
  * @throws Error if validation fails
  */
-export function validateRiskInsightsSummaryData(data: unknown): RiskInsightsSummaryData {
-  if (!isRiskInsightsSummaryData(data)) {
+export function validateAccessReportSummaryData(data: unknown): AccessReportSummaryData {
+  if (!isAccessReportSummaryData(data)) {
     throw new Error("Invalid report summary");
   }
   return data;
@@ -272,25 +274,21 @@ export function validateOrganizationReportApplicationArray(
   return mappedData;
 }
 
-const isRiskInsightsApplicationData = createValidator<RiskInsightsApplicationData>({
+const isAccessReportSettingsData = createValidator<AccessReportSettingsData>({
   applicationName: isBoundedString,
   isCritical: isBoolean,
   reviewedDate: isDateStringOrUndefined,
 });
-export const isRiskInsightsApplicationDataArray = createBoundedArrayGuard(
-  isRiskInsightsApplicationData,
-);
+export const isAccessReportSettingsDataArray = createBoundedArrayGuard(isAccessReportSettingsData);
 
 /**
- * Validates and returns an array of RiskInsightsApplicationData
+ * Validates and returns an array of AccessReportSettingsData
  * @throws Error if validation fails
  */
-export function validateRiskInsightsApplicationDataArray(
-  data: unknown,
-): RiskInsightsApplicationData[] {
+export function validateAccessReportSettingsDataArray(data: unknown): AccessReportSettingsData[] {
   if (!Array.isArray(data)) {
     throw new Error(
-      "Invalid application data: expected array of RiskInsightsApplicationData, received non-array",
+      "Invalid application data: expected array of AccessReportSettingsData, received non-array",
     );
   }
 
@@ -302,20 +300,20 @@ export function validateRiskInsightsApplicationDataArray(
 
   const invalidItems = data
     .map((item, index) => ({ item, index }))
-    .filter(({ item }) => !isRiskInsightsApplicationData(item));
+    .filter(({ item }) => !isAccessReportSettingsData(item));
 
   if (invalidItems.length > 0) {
     const elementMessages = invalidItems.map(({ item, index }) => {
-      const fieldErrors = isRiskInsightsApplicationData.explain(item).join("; ");
+      const fieldErrors = isAccessReportSettingsData.explain(item).join("; ");
       return `  element[${index}]: ${fieldErrors}`;
     });
     throw new Error(
-      `Invalid application data: array contains ${invalidItems.length} invalid RiskInsightsApplicationData element(s)\n` +
+      `Invalid application data: array contains ${invalidItems.length} invalid AccessReportSettingsData element(s)\n` +
         elementMessages.join("\n"),
     );
   }
 
-  if (!isRiskInsightsApplicationDataArray(data)) {
+  if (!isAccessReportSettingsDataArray(data)) {
     // Throw for type casting return
     // Should never get here
     throw new Error("Invalid application data");
@@ -335,7 +333,7 @@ export function validateAccessReportPayload(data: unknown): AccessReportPayload 
 
   const obj = data as Record<string, unknown>;
 
-  if (!isRiskInsightsReportDataV2Array(obj["reports"])) {
+  if (!isApplicationHealthDataArray(obj["reports"])) {
     throw new Error("Invalid report payload: reports array failed validation");
   }
 

@@ -1,17 +1,17 @@
-import { RiskInsightsSummaryApi } from "../api/risk-insights-summary.api";
+import { AccessReportSummaryApi } from "../api/access-report-summary.api";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsSummary } from "../domain/risk-insights-summary";
+import { AccessReportSummary } from "../domain/access-report-summary";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsSummaryView } from "../view/risk-insights-summary.view";
+import { AccessReportSummaryView } from "../view/access-report-summary.view";
 
 /**
- * Serializable data model for report summary in risk insights report
+ * Serializable data model for report summary in access report
  *
- * - See {@link RiskInsightsSummary} for domain model
- * - See {@link RiskInsightsSummaryApi} for API model
- * - See {@link RiskInsightsSummaryView} from View Model
+ * - See {@link AccessReportSummary} for domain model
+ * - See {@link AccessReportSummaryApi} for API model
+ * - See {@link AccessReportSummaryView} from View Model
  */
-export class RiskInsightsSummaryData {
+export class AccessReportSummaryData {
   totalMemberCount: number = 0;
   totalApplicationCount: number = 0;
   totalAtRiskMemberCount: number = 0;
@@ -21,7 +21,7 @@ export class RiskInsightsSummaryData {
   totalCriticalAtRiskMemberCount: number = 0;
   totalCriticalAtRiskApplicationCount: number = 0;
 
-  constructor(data?: RiskInsightsSummaryApi) {
+  constructor(data?: AccessReportSummaryApi) {
     if (data == null) {
       return;
     }

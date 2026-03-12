@@ -11,9 +11,11 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
+import {
+  MemberRegistryEntryData,
+  ApplicationHealthData,
+} from "../../../../access-intelligence/models";
 import { DecryptedReportData } from "../../models";
-import { MemberRegistryEntryData } from "../../models/data/member-details.data";
-import { RiskInsightsReportData } from "../../models/data/risk-insights-report.data";
 import { mockApplicationData, mockReportData, mockSummaryData } from "../../models/mocks/mock-data";
 import { EncryptedReportData } from "../abstractions/access-report-encryption.service";
 
@@ -312,7 +314,7 @@ describe("LegacyRiskInsightsEncryptionService", () => {
         "member-1": { id: "member-1", userName: "Alice", email: "alice@example.com" },
         "member-2": { id: "member-2", userName: "Bob", email: "bob@example.com" },
       };
-      const v2Report: RiskInsightsReportData = Object.assign(new RiskInsightsReportData(), {
+      const v2Report: ApplicationHealthData = Object.assign(new ApplicationHealthData(), {
         applicationName: "app.example.com",
         passwordCount: 3,
         atRiskPasswordCount: 1,
@@ -362,7 +364,7 @@ describe("LegacyRiskInsightsEncryptionService", () => {
       const v2Blob = {
         version: 1,
         data: {
-          reports: [] as RiskInsightsReportData[],
+          reports: [] as ApplicationHealthData[],
           memberRegistry: {} as Record<string, MemberRegistryEntryData>,
         },
       };
@@ -389,7 +391,7 @@ describe("LegacyRiskInsightsEncryptionService", () => {
         "member-1": { id: "member-1", userName: "Alice", email: "alice@example.com" },
         // member-2 intentionally missing from registry
       };
-      const v2Report: RiskInsightsReportData = Object.assign(new RiskInsightsReportData(), {
+      const v2Report: ApplicationHealthData = Object.assign(new ApplicationHealthData(), {
         applicationName: "app.example.com",
         passwordCount: 1,
         atRiskPasswordCount: 0,

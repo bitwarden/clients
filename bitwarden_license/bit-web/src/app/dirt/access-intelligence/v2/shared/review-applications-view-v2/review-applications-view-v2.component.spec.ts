@@ -1,7 +1,7 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { RiskInsightsReportView } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/risk-insights-report.view";
+import { ApplicationHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import { createReport } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -25,7 +25,7 @@ describe("ReviewApplicationsViewV2Component", () => {
   };
 
   /** Sample applications for reuse across tests */
-  const sampleApps: RiskInsightsReportView[] = [
+  const sampleApps: ApplicationHealthView[] = [
     createReport("github.com", { u1: true, u2: false }, { c1: true }),
     createReport("gitlab.com", { u3: true }, { c2: true }),
     createReport("bitbucket.org", { u4: false }, { c3: false }),
@@ -76,7 +76,7 @@ describe("ReviewApplicationsViewV2Component", () => {
 
       const filtered = testAccess(component).filteredApplications();
       expect(filtered).toHaveLength(2);
-      expect(filtered.map((a: RiskInsightsReportView) => a.applicationName)).toEqual(
+      expect(filtered.map((a: ApplicationHealthView) => a.applicationName)).toEqual(
         expect.arrayContaining(["github.com", "gitlab.com"]),
       );
     });

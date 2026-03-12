@@ -3,13 +3,13 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testin
 import { ActivatedRoute, Router } from "@angular/router";
 import { BehaviorSubject, of, throwError } from "rxjs";
 
+import { AccessReportView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import {
   AccessIntelligenceDataService,
   DrawerStateService,
   DrawerType,
   ReportProgress,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
-import { RiskInsightsView } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/risk-insights.view";
 import {
   createApplication,
   createMemberRegistry,
@@ -37,7 +37,7 @@ import { AccessIntelligencePageComponent } from "./access-intelligence-page.comp
  * instead of Observables so we can call .next() in tests
  */
 type MockAccessIntelligenceDataService = {
-  report$: BehaviorSubject<RiskInsightsView | null>;
+  report$: BehaviorSubject<AccessReportView | null>;
   loading$: BehaviorSubject<boolean>;
   error$: BehaviorSubject<string | null>;
   reportProgress$: BehaviorSubject<ReportProgress | null>;
@@ -84,7 +84,7 @@ describe("AccessIntelligencePageComponent", () => {
   beforeEach(async () => {
     // Create mock services
     mockAccessIntelligenceService = {
-      report$: new BehaviorSubject<RiskInsightsView | null>(null),
+      report$: new BehaviorSubject<AccessReportView | null>(null),
       loading$: new BehaviorSubject<boolean>(false),
       error$: new BehaviorSubject<string | null>(null),
       reportProgress$: new BehaviorSubject<ReportProgress | null>(null),

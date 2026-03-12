@@ -2,8 +2,7 @@ import { Observable, of } from "rxjs";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { MemberRegistryEntryView } from "../../models/view/member-details.view";
-import { MemberRegistry } from "../../models/view/risk-insights.view";
+import { MemberRegistryEntryView, MemberRegistry } from "../../../../access-intelligence/models";
 import {
   CollectionAccessDetails,
   GroupMembershipDetails,

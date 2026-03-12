@@ -1,20 +1,20 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsApplicationData } from "../data/risk-insights-application.data";
+import { AccessReportSettingsData } from "../data/access-report-settings.data";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsApplication } from "../domain/risk-insights-application";
+import { AccessReportSettings } from "../domain/access-report-settings";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsApplicationView } from "../view/risk-insights-application.view";
+import { AccessReportSettingsView } from "../view/access-report-settings.view";
 
 /**
- * Converts a RiskInsightsApplication API response
+ * Converts an AccessReportSettings API response
  *
- * - See {@link RiskInsightsApplication} for domain model
- * - See {@link RiskInsightsApplicationData} for data model
- * - See {@link RiskInsightsApplicationView} from View Model
+ * - See {@link AccessReportSettings} for domain model
+ * - See {@link AccessReportSettingsData} for data model
+ * - See {@link AccessReportSettingsView} from View Model
  */
-export class RiskInsightsApplicationApi extends BaseResponse {
+export class AccessReportSettingsApi extends BaseResponse {
   applicationName: string = "";
   isCritical: boolean = false;
   reviewedDate: string | undefined;

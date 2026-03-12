@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, input, output, ChangeDetectionStrategy, signal, computed } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
-import { RiskInsightsReportView } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/risk-insights-report.view";
+import { ApplicationHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ButtonModule, DialogModule, SearchModule, TypographyModule } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
@@ -11,10 +11,10 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
  * ReviewApplicationsViewV2Component - V2 subcomponent for new applications review dialog
  *
  * Displays a searchable, selectable table of new applications with health metrics.
- * Works directly with V2 models (RiskInsightsReportView).
+ * Works directly with V2 models (ApplicationHealthView).
  *
  * Key V2 patterns:
- * - Uses RiskInsightsReportView instead of ApplicationHealthReportDetail
+ * - Uses ApplicationHealthView instead of ApplicationHealthReportDetail
  * - OnPush change detection
  * - Signal inputs/outputs
  * - Standalone component
@@ -39,7 +39,7 @@ export class ReviewApplicationsViewV2Component {
   /**
    * Applications to display (new applications with health data)
    */
-  readonly applications = input.required<RiskInsightsReportView[]>();
+  readonly applications = input.required<ApplicationHealthView[]>();
 
   /**
    * Ciphers for icon lookup
@@ -117,7 +117,7 @@ export class ReviewApplicationsViewV2Component {
   /**
    * Get the cipher to use for icon display for a given application report
    */
-  getIconCipher(app: RiskInsightsReportView): CipherView | undefined {
+  getIconCipher(app: ApplicationHealthView): CipherView | undefined {
     const iconCipherId = app.getIconCipherId();
     return iconCipherId ? this.cipherMap().get(iconCipherId) : undefined;
   }

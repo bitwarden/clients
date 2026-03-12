@@ -2,18 +2,18 @@ import { View } from "@bitwarden/common/models/view/view";
 import { DeepJsonify } from "@bitwarden/common/types/deep-jsonify";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsSummaryApi } from "../api/risk-insights-summary.api";
-import { RiskInsightsSummaryData } from "../data/risk-insights-summary.data";
-import { RiskInsightsSummary } from "../domain/risk-insights-summary";
+import { AccessReportSummaryApi } from "../api/access-report-summary.api";
+import { AccessReportSummaryData } from "../data/access-report-summary.data";
+import { AccessReportSummary } from "../domain/access-report-summary";
 
 /**
- * View model for Report Summary in Risk Insights containing decrypted properties
+ * View model for Report Summary in Access Intelligence containing decrypted properties
  *
- * - See {@link RiskInsightsSummary} for domain model
- * - See {@link RiskInsightsSummaryData} for data model
- * - See {@link RiskInsightsSummaryApi} for API model
+ * - See {@link AccessReportSummary} for domain model
+ * - See {@link AccessReportSummaryData} for data model
+ * - See {@link AccessReportSummaryApi} for API model
  */
-export class RiskInsightsSummaryView implements View {
+export class AccessReportSummaryView implements View {
   totalMemberCount: number = 0;
   totalApplicationCount: number = 0;
   totalAtRiskMemberCount: number = 0;
@@ -23,7 +23,7 @@ export class RiskInsightsSummaryView implements View {
   totalCriticalAtRiskMemberCount: number = 0;
   totalCriticalAtRiskApplicationCount: number = 0;
 
-  constructor(obj?: RiskInsightsSummary) {
+  constructor(obj?: AccessReportSummary) {
     if (obj == null) {
       return;
     }
@@ -42,8 +42,8 @@ export class RiskInsightsSummaryView implements View {
     return this;
   }
 
-  static fromData(data: RiskInsightsSummaryData): RiskInsightsSummaryView {
-    const view = new RiskInsightsSummaryView();
+  static fromData(data: AccessReportSummaryData): AccessReportSummaryView {
+    const view = new AccessReportSummaryView();
     view.totalMemberCount = data.totalMemberCount;
     view.totalApplicationCount = data.totalApplicationCount;
     view.totalAtRiskMemberCount = data.totalAtRiskMemberCount;
@@ -55,11 +55,11 @@ export class RiskInsightsSummaryView implements View {
     return view;
   }
 
-  static fromJSON(obj: Partial<DeepJsonify<RiskInsightsSummaryView>>): RiskInsightsSummaryView {
-    return Object.assign(new RiskInsightsSummaryView(), obj);
+  static fromJSON(obj: Partial<DeepJsonify<AccessReportSummaryView>>): AccessReportSummaryView {
+    return Object.assign(new AccessReportSummaryView(), obj);
   }
 
   // [TODO] SDK Mapping
-  // toSdkRiskInsightsSummaryView(): SdkRiskInsightsSummaryView {}
-  // static fromRiskInsightsSummaryView(obj?: SdkRiskInsightsSummaryView): RiskInsightsSummaryView | undefined {}
+  // toSdkAccessReportSummaryView(): SdkAccessReportSummaryView {}
+  // static fromAccessReportSummaryView(obj?: SdkAccessReportSummaryView): AccessReportSummaryView | undefined {}
 }

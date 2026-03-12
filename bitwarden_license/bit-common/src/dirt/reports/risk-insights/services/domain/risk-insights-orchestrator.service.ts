@@ -38,6 +38,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { LogService } from "@bitwarden/logging";
 
+import { AccessReportMetrics } from "../../../../access-intelligence/models";
 import {
   buildPasswordUseMap,
   createNewSummaryData,
@@ -49,7 +50,6 @@ import {
   ApplicationHealthReportDetailEnriched,
   PasswordHealthReportApplicationsResponse,
 } from "../../models";
-import { RiskInsightsMetrics } from "../../models/domain/risk-insights-metrics";
 import { RiskInsightsEnrichedData } from "../../models/report-data-service.types";
 import {
   CipherHealthReport,
@@ -335,7 +335,7 @@ export class RiskInsightsOrchestratorService {
           {
             data: {
               summaryData: encryptedData.encryptedSummaryData.toSdk(),
-              metrics: metrics.toRiskInsightsMetricsData(),
+              metrics: metrics.toAccessReportMetricsData(),
             },
           },
         );
@@ -468,7 +468,7 @@ export class RiskInsightsOrchestratorService {
           {
             data: {
               summaryData: encryptedData.encryptedSummaryData.toSdk(),
-              metrics: metrics.toRiskInsightsMetricsData(),
+              metrics: metrics.toAccessReportMetricsData(),
             },
           },
         );
@@ -614,7 +614,7 @@ export class RiskInsightsOrchestratorService {
           {
             data: {
               summaryData: encryptedData.encryptedSummaryData.toSdk(),
-              metrics: metrics.toRiskInsightsMetricsData(),
+              metrics: metrics.toAccessReportMetricsData(),
             },
           },
         );
@@ -800,8 +800,8 @@ export class RiskInsightsOrchestratorService {
   _getReportMetrics(
     reports: ApplicationHealthReportDetailEnriched[],
     summary: OrganizationReportSummary,
-  ): RiskInsightsMetrics {
-    const metrics = new RiskInsightsMetrics();
+  ): AccessReportMetrics {
+    const metrics = new AccessReportMetrics();
     const s = summary;
 
     // Copy summary information

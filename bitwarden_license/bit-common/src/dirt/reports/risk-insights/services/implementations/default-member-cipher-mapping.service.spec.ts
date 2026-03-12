@@ -243,7 +243,7 @@ describe("DefaultMemberCipherMappingService", () => {
         service.mapCiphersToMembers(ciphers, members, collectionAccess, groupMemberships),
       );
 
-      expect(result.registry["user-1"]?.userName).toBe("");
+      expect(result.registry["user-1"]?.userName).toBeUndefined();
     });
 
     it("should handle complex scenario with multiple groups and collections", async () => {
@@ -315,7 +315,7 @@ describe("DefaultMemberCipherMappingService", () => {
 
       const registry = await firstValueFrom(service.buildMemberRegistry(members));
 
-      expect(registry["user-1"]?.userName).toBe("");
+      expect(registry["user-1"]?.userName).toBeUndefined();
     });
   });
 });

@@ -6,12 +6,12 @@ import { makeEncString } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
+import { AccessReportMetrics } from "../../../../access-intelligence/models";
 import { DecryptedReportData } from "../../models";
 import {
   GetRiskInsightsReportResponse,
   SaveRiskInsightsReportResponse,
 } from "../../models/api-models.types";
-import { RiskInsightsMetrics } from "../../models/domain/risk-insights-metrics";
 import { mockCiphers } from "../../models/mocks/ciphers.mock";
 import { mockMemberCipherDetailsResponse } from "../../models/mocks/member-cipher-details-response.mock";
 import {
@@ -133,7 +133,7 @@ describe("RiskInsightsReportService", () => {
           mockReportData,
           mockSummaryData,
           mockApplicationData,
-          new RiskInsightsMetrics(),
+          new AccessReportMetrics(),
           {
             organizationId: mockOrganizationId,
             userId: mockUserId,

@@ -10,6 +10,7 @@ import {
   createCollectionAccess,
   createCipherHealth,
   createApplication,
+  createMemberRegistry,
 } from "../../testing/test-helpers";
 import { CipherHealthService } from "../abstractions/cipher-health.service";
 import {
@@ -79,10 +80,10 @@ describe("DefaultReportGenerationService", () => {
         ["c2", ["u1"]],
         ["c3", ["u2"]],
       ]);
-      const registry = {
-        u1: { id: "u1", userName: "Alice", email: "alice@example.com" },
-        u2: { id: "u2", userName: "Bob", email: "bob@example.com" },
-      };
+      const registry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+        { id: "u2", name: "Bob", email: "bob@example.com" },
+      ]);
       memberCipherMappingService.mapCiphersToMembers.mockReturnValue(of({ mapping, registry }));
 
       // Act
@@ -169,7 +170,9 @@ describe("DefaultReportGenerationService", () => {
         ["c2", ["u1"]],
         ["c3", ["u1"]],
       ]);
-      const registry = { u1: { id: "u1", userName: "Alice", email: "alice@example.com" } };
+      const registry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
       memberCipherMappingService.mapCiphersToMembers.mockReturnValue(of({ mapping, registry }));
 
       const result = await firstValueFrom(
@@ -207,7 +210,9 @@ describe("DefaultReportGenerationService", () => {
         ["c1", ["u1"]],
         ["c2", ["u1"]],
       ]);
-      const registry = { u1: { id: "u1", userName: "Alice", email: "alice@example.com" } };
+      const registry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
       memberCipherMappingService.mapCiphersToMembers.mockReturnValue(of({ mapping, registry }));
 
       const result = await firstValueFrom(
@@ -248,10 +253,10 @@ describe("DefaultReportGenerationService", () => {
         ["c1", ["u1"]],
         ["c2", ["u2"]],
       ]);
-      const registry = {
-        u1: { id: "u1", userName: "Alice", email: "alice@example.com" },
-        u2: { id: "u2", userName: "Bob", email: "bob@example.com" },
-      };
+      const registry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+        { id: "u2", name: "Bob", email: "bob@example.com" },
+      ]);
       memberCipherMappingService.mapCiphersToMembers.mockReturnValue(of({ mapping, registry }));
 
       const result = await firstValueFrom(
@@ -278,7 +283,9 @@ describe("DefaultReportGenerationService", () => {
       cipherHealthService.checkCipherHealth.mockReturnValue(of(healthMap));
 
       const mapping = new Map([["c1", ["u1"]]]);
-      const registry = { u1: { id: "u1", userName: "Alice", email: "alice@example.com" } };
+      const registry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
       memberCipherMappingService.mapCiphersToMembers.mockReturnValue(of({ mapping, registry }));
 
       const result = await firstValueFrom(
@@ -322,7 +329,9 @@ describe("DefaultReportGenerationService", () => {
         ["c1", ["u1"]],
         ["c2", ["u1"]],
       ]);
-      const registry = { u1: { id: "u1", userName: "Alice", email: "alice@example.com" } };
+      const registry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
       memberCipherMappingService.mapCiphersToMembers.mockReturnValue(of({ mapping, registry }));
 
       const result = await firstValueFrom(
@@ -351,7 +360,9 @@ describe("DefaultReportGenerationService", () => {
       cipherHealthService.checkCipherHealth.mockReturnValue(of(healthMap));
 
       const mapping = new Map([["c1", ["u1"]]]);
-      const registry = { u1: { id: "u1", userName: "Alice", email: "alice@example.com" } };
+      const registry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
       memberCipherMappingService.mapCiphersToMembers.mockReturnValue(of({ mapping, registry }));
 
       const previousApplications = [createApplication("github.com", true)];
@@ -380,7 +391,9 @@ describe("DefaultReportGenerationService", () => {
       cipherHealthService.checkCipherHealth.mockReturnValue(of(healthMap));
 
       const mapping = new Map([["c1", ["u1"]]]);
-      const registry = { u1: { id: "u1", userName: "Alice", email: "alice@example.com" } };
+      const registry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
       memberCipherMappingService.mapCiphersToMembers.mockReturnValue(of({ mapping, registry }));
 
       const reviewedDate = new Date("2024-01-15");
@@ -410,7 +423,9 @@ describe("DefaultReportGenerationService", () => {
       cipherHealthService.checkCipherHealth.mockReturnValue(of(healthMap));
 
       const mapping = new Map([["c1", ["u1"]]]);
-      const registry = { u1: { id: "u1", userName: "Alice", email: "alice@example.com" } };
+      const registry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
       memberCipherMappingService.mapCiphersToMembers.mockReturnValue(of({ mapping, registry }));
 
       // No previous applications
@@ -433,7 +448,9 @@ describe("DefaultReportGenerationService", () => {
       cipherHealthService.checkCipherHealth.mockReturnValue(of(healthMap));
 
       const mapping = new Map([["c1", ["u1"]]]);
-      const registry = { u1: { id: "u1", userName: "Alice", email: "alice@example.com" } };
+      const registry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
       memberCipherMappingService.mapCiphersToMembers.mockReturnValue(of({ mapping, registry }));
 
       // Previous report had gitlab.com which no longer exists
@@ -487,10 +504,10 @@ describe("DefaultReportGenerationService", () => {
         ["c1", ["u1"]],
         ["c2", ["u2"]],
       ]);
-      const registry = {
-        u1: { id: "u1", userName: "Alice", email: "alice@example.com" },
-        u2: { id: "u2", userName: "Bob", email: "bob@example.com" },
-      };
+      const registry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+        { id: "u2", name: "Bob", email: "bob@example.com" },
+      ]);
       memberCipherMappingService.mapCiphersToMembers.mockReturnValue(of({ mapping, registry }));
 
       const result = await firstValueFrom(
@@ -527,7 +544,9 @@ describe("DefaultReportGenerationService", () => {
         ["c1", ["u1"]],
         ["c2", ["u1"]],
       ]);
-      const registry = { u1: { id: "u1", userName: "Alice", email: "alice@example.com" } };
+      const registry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
       memberCipherMappingService.mapCiphersToMembers.mockReturnValue(of({ mapping, registry }));
 
       const result = await firstValueFrom(
@@ -565,10 +584,10 @@ describe("DefaultReportGenerationService", () => {
         ["c1", ["u1"]],
         ["c2", ["u2"]],
       ]);
-      const registry = {
-        u1: { id: "u1", userName: "Alice", email: "alice@example.com" },
-        u2: { id: "u2", userName: "Bob", email: "bob@example.com" },
-      };
+      const registry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+        { id: "u2", name: "Bob", email: "bob@example.com" },
+      ]);
       memberCipherMappingService.mapCiphersToMembers.mockReturnValue(of({ mapping, registry }));
 
       // Mark github.com as critical
@@ -621,10 +640,10 @@ describe("DefaultReportGenerationService", () => {
         ["c1", ["u1"]],
         ["c2", ["u2"]],
       ]);
-      const registry = {
-        u1: { id: "u1", userName: "Alice", email: "alice@example.com" },
-        u2: { id: "u2", userName: "Bob", email: "bob@example.com" },
-      };
+      const registry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+        { id: "u2", name: "Bob", email: "bob@example.com" },
+      ]);
       memberCipherMappingService.mapCiphersToMembers.mockReturnValue(of({ mapping, registry }));
 
       const result = await firstValueFrom(
@@ -654,7 +673,9 @@ describe("DefaultReportGenerationService", () => {
       cipherHealthService.checkCipherHealth.mockReturnValue(of(healthMap));
 
       const mapping = new Map([["c1", ["u1"]]]);
-      const registry = { u1: { id: "u1", userName: "Alice", email: "alice@example.com" } };
+      const registry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
       memberCipherMappingService.mapCiphersToMembers.mockReturnValue(of({ mapping, registry }));
 
       const result = await firstValueFrom(

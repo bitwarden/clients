@@ -1,4 +1,4 @@
-import { RiskInsightsReportView } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/risk-insights-report.view";
+import { ApplicationHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import { createReport } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -21,8 +21,12 @@ export function createMockCipher(name: string, id?: string): CipherView {
  * @param count - Number of applications to create (defaults to all 7)
  * @returns Array of sample applications
  */
-export function createSampleApplications(count: number = 7): RiskInsightsReportView[] {
-  const apps = [
+export function createSampleApplications(count: number = 7): ApplicationHealthView[] {
+  const apps: Array<{
+    name: string;
+    members: Record<string, boolean>;
+    ciphers: Record<string, boolean>;
+  }> = [
     {
       name: "github.com",
       members: { u1: true, u2: false, u3: true },
@@ -86,7 +90,6 @@ export function createMockCiphersWithIcons(): CipherView[] {
 
 /**
  * Generates large dataset for performance testing
- * ⚠️ IMPORTANT: Uses deterministic data for Chromatic visual regression testing
  */
 export function createLargeDataset(count: number): DrawerMemberData[] {
   return Array.from({ length: count }, (_, i) => ({

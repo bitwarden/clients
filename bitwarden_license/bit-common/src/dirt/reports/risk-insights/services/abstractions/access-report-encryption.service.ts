@@ -3,10 +3,12 @@ import { Observable } from "rxjs";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
-import { MemberRegistryEntryData } from "../../models/data/member-details.data";
-import { RiskInsightsApplicationData } from "../../models/data/risk-insights-application.data";
-import { RiskInsightsReportData } from "../../models/data/risk-insights-report.data";
-import { RiskInsightsSummaryData } from "../../models/data/risk-insights-summary.data";
+import {
+  MemberRegistryEntryData,
+  AccessReportSettingsData,
+  ApplicationHealthData,
+  AccessReportSummaryData,
+} from "../../../../access-intelligence/models";
 
 /**
  * The three encrypted payloads that make up a stored AccessReport.
@@ -40,7 +42,7 @@ export interface EncryptedDataWithKey {
  * @example { reports: [...], memberRegistry: { "user-id": { id, userName, email } } }
  */
 export interface AccessReportPayload {
-  reports: RiskInsightsReportData[];
+  reports: ApplicationHealthData[];
   memberRegistry: Record<string, MemberRegistryEntryData>;
 }
 
@@ -54,8 +56,8 @@ export interface AccessReportPayload {
  */
 export interface DecryptedAccessReportData {
   reportData: AccessReportPayload;
-  summaryData: RiskInsightsSummaryData;
-  applicationData: RiskInsightsApplicationData[];
+  summaryData: AccessReportSummaryData;
+  applicationData: AccessReportSettingsData[];
   hadLegacyBlobs?: boolean;
 }
 
@@ -108,5 +110,5 @@ export abstract class AccessReportEncryptionService {
     context: { organizationId: OrganizationId; userId: UserId },
     encryptedSummary: EncString,
     wrappedKey: EncString,
-  ): Observable<RiskInsightsSummaryData>;
+  ): Observable<AccessReportSummaryData>;
 }

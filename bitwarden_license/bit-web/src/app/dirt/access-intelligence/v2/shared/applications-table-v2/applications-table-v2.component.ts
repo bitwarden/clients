@@ -10,7 +10,7 @@ import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pip
 /**
  * V2 Application Table Row Data
  *
- * Simple type that works directly with V2 models (RiskInsightsReportView + RiskInsightsApplicationView).
+ * Simple type that works directly with V2 models (ApplicationHealthView + AccessReportSettingsView).
  * No dependency on V1 ApplicationHealthReportDetail types.
  */
 export type ApplicationTableRowV2 = {

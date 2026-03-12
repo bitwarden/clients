@@ -3,12 +3,14 @@ import { Injectable } from "@angular/core";
 import { LogService } from "@bitwarden/logging";
 
 import {
+  MemberRegistryEntryData,
+  ApplicationHealthData,
+} from "../../../../../access-intelligence/models";
+import {
   validateAccessReportPayload,
   validateApplicationHealthReportDetailArray,
 } from "../../../helpers/type-guards/risk-insights-type-guards";
 import { ApplicationHealthReportDetail, MemberDetails } from "../../../models";
-import { MemberRegistryEntryData } from "../../../models/data/member-details.data";
-import { RiskInsightsReportData } from "../../../models/data/risk-insights-report.data";
 import { AccessReportPayload } from "../../abstractions/access-report-encryption.service";
 import {
   UnsupportedVersionError,
@@ -79,7 +81,7 @@ export class ReportVersioningService extends VersioningService<AccessReportPaylo
       }
     }
 
-    const reports: RiskInsightsReportData[] = legacyData.map((app) => {
+    const reports: ApplicationHealthData[] = legacyData.map((app) => {
       const atRiskMemberSet = new Set(
         app.atRiskMemberDetails.map((m: MemberDetails) => m.userGuid),
       );

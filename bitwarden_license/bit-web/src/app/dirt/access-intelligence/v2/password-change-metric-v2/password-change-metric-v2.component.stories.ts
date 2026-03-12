@@ -3,8 +3,8 @@ import { Meta, StoryObj, moduleMetadata, applicationConfig } from "@storybook/an
 import { BehaviorSubject, of } from "rxjs";
 import { action } from "storybook/actions";
 
+import { AccessReportView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
-import { RiskInsightsView } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/view/risk-insights.view";
 import { TaskMetrics } from "@bitwarden/bit-common/dirt/reports/risk-insights/services";
 import {
   createApplication,
@@ -40,13 +40,13 @@ function createTask(id: string, cipherId: string, status: SecurityTaskStatus): S
  * Mock AccessIntelligenceDataService for Storybook stories
  */
 class MockAccessIntelligenceDataService {
-  private _report = new BehaviorSubject<RiskInsightsView | null>(null);
+  private _report = new BehaviorSubject<AccessReportView | null>(null);
   readonly report$ = this._report.asObservable();
 
   private _loading = new BehaviorSubject<boolean>(false);
   readonly loading$ = this._loading.asObservable();
 
-  constructor(initialReport: RiskInsightsView | null = null) {
+  constructor(initialReport: AccessReportView | null = null) {
     this._report.next(initialReport);
   }
 }

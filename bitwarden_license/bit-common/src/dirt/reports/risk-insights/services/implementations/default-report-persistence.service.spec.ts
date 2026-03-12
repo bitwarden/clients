@@ -7,15 +7,17 @@ import { OrganizationId, OrganizationReportId, UserId } from "@bitwarden/common/
 import { LogService } from "@bitwarden/logging";
 
 import {
+  AccessReport,
+  AccessReportSettingsView,
+  AccessReportView,
+} from "../../../../access-intelligence/models";
+import {
   GetRiskInsightsReportResponse,
   SaveRiskInsightsReportResponse,
 } from "../../models/api-models.types";
-import { RiskInsights } from "../../models/domain/risk-insights";
-import { RiskInsightsApplicationView } from "../../models/view/risk-insights-application.view";
-import { RiskInsightsView } from "../../models/view/risk-insights.view";
 import {
   createRiskInsights,
-  createRiskInsightsMetrics,
+  createAccessReportMetrics,
   createRiskInsightsSummary,
 } from "../../testing/test-helpers";
 import {
@@ -67,7 +69,7 @@ describe("DefaultReportPersistenceService", () => {
       });
 
       // Mock RiskInsights.fromView() to return domain model with encrypted data
-      const mockDomain = new RiskInsights();
+      const mockDomain = new AccessReport();
       mockDomain.organizationId = organizationId;
       mockDomain.reports = makeEncString("encrypted-reports");
       mockDomain.summary = makeEncString("encrypted-summary");
@@ -75,7 +77,7 @@ describe("DefaultReportPersistenceService", () => {
       mockDomain.contentEncryptionKey = makeEncString("encryption-key");
       mockDomain.creationDate = new Date();
 
-      jest.spyOn(RiskInsights, "fromView").mockReturnValue(of(mockDomain));
+      jest.spyOn(AccessReport, "fromView").mockReturnValue(of(mockDomain));
 
       const saveResponse = new SaveRiskInsightsReportResponse({ id: reportId });
       mockApiService.saveRiskInsightsReport$.mockReturnValue(of(saveResponse));
@@ -84,7 +86,7 @@ describe("DefaultReportPersistenceService", () => {
 
       expect(result.id).toBe(reportId);
       expect(result.contentEncryptionKey).toBeDefined();
-      expect(RiskInsights.fromView).toHaveBeenCalledWith(view, mockEncryptionService, {
+      expect(AccessReport.fromView).toHaveBeenCalledWith(view, mockEncryptionService, {
         organizationId,
         userId,
       });
@@ -110,11 +112,11 @@ describe("DefaultReportPersistenceService", () => {
       const view = createRiskInsights({ organizationId });
 
       // Mock domain model without encryption key
-      const mockDomain = new RiskInsights();
+      const mockDomain = new AccessReport();
       mockDomain.organizationId = organizationId;
       mockDomain.contentEncryptionKey = undefined;
 
-      jest.spyOn(RiskInsights, "fromView").mockReturnValue(of(mockDomain));
+      jest.spyOn(AccessReport, "fromView").mockReturnValue(of(mockDomain));
 
       await expect(firstValueFrom(service.saveReport$(view, organizationId))).rejects.toThrow(
         "Report encryption key not found",
@@ -127,7 +129,7 @@ describe("DefaultReportPersistenceService", () => {
         creationDate: new Date(),
       });
 
-      const mockDomain = new RiskInsights();
+      const mockDomain = new AccessReport();
       mockDomain.organizationId = organizationId;
       mockDomain.contentEncryptionKey = makeEncString("key");
       mockDomain.reports = makeEncString("reports");
@@ -135,7 +137,7 @@ describe("DefaultReportPersistenceService", () => {
       mockDomain.applications = makeEncString("apps");
       mockDomain.creationDate = new Date();
 
-      jest.spyOn(RiskInsights, "fromView").mockReturnValue(of(mockDomain));
+      jest.spyOn(AccessReport, "fromView").mockReturnValue(of(mockDomain));
 
       mockApiService.saveRiskInsightsReport$.mockReturnValue(
         throwError(() => new Error("API error")),
@@ -149,12 +151,12 @@ describe("DefaultReportPersistenceService", () => {
 
   describe("saveApplicationMetadata", () => {
     it("should save application metadata and summary", async () => {
-      const app1 = new RiskInsightsApplicationView();
+      const app1 = new AccessReportSettingsView();
       app1.applicationName = "github.com";
       app1.isCritical = true;
       app1.reviewedDate = new Date();
 
-      const app2 = new RiskInsightsApplicationView();
+      const app2 = new AccessReportSettingsView();
       app2.applicationName = "gitlab.com";
       app2.isCritical = false;
       app2.reviewedDate = undefined;
@@ -175,7 +177,7 @@ describe("DefaultReportPersistenceService", () => {
       });
 
       // Mock toMetrics() to return proper RiskInsightsMetrics instance
-      const mockMetrics = createRiskInsightsMetrics({
+      const mockMetrics = createAccessReportMetrics({
         totalApplicationCount: 2,
         totalAtRiskApplicationCount: 1,
         totalMemberCount: 10,
@@ -184,13 +186,13 @@ describe("DefaultReportPersistenceService", () => {
       jest.spyOn(view, "toMetrics").mockReturnValue(mockMetrics);
 
       // Mock RiskInsights.fromView() to return domain model
-      const mockDomain = new RiskInsights();
+      const mockDomain = new AccessReport();
       mockDomain.reports = makeEncString("encrypted-reports");
       mockDomain.summary = makeEncString("encrypted-summary");
       mockDomain.applications = makeEncString("encrypted-apps");
       mockDomain.contentEncryptionKey = makeEncString("key");
 
-      jest.spyOn(RiskInsights, "fromView").mockReturnValue(of(mockDomain));
+      jest.spyOn(AccessReport, "fromView").mockReturnValue(of(mockDomain));
 
       // Using {} as any for mock response (acceptable per testing standards for mock objects)
       mockApiService.updateRiskInsightsApplicationData$.mockReturnValue(of({} as any));
@@ -198,7 +200,7 @@ describe("DefaultReportPersistenceService", () => {
 
       await firstValueFrom(service.saveApplicationMetadata$(view));
 
-      expect(RiskInsights.fromView).toHaveBeenCalledWith(view, mockEncryptionService, {
+      expect(AccessReport.fromView).toHaveBeenCalledWith(view, mockEncryptionService, {
         organizationId,
         userId,
       });
@@ -250,7 +252,7 @@ describe("DefaultReportPersistenceService", () => {
       });
 
       jest
-        .spyOn(RiskInsights, "fromView")
+        .spyOn(AccessReport, "fromView")
         .mockReturnValue(throwError(() => new Error("Encryption failed")));
 
       await expect(firstValueFrom(service.saveApplicationMetadata$(view))).rejects.toThrow(
@@ -264,13 +266,13 @@ describe("DefaultReportPersistenceService", () => {
         organizationId,
       });
 
-      const mockDomain = new RiskInsights();
+      const mockDomain = new AccessReport();
       mockDomain.reports = makeEncString("encrypted-reports");
       mockDomain.summary = makeEncString("encrypted-summary");
       mockDomain.applications = makeEncString("encrypted-apps");
       mockDomain.contentEncryptionKey = makeEncString("key");
 
-      jest.spyOn(RiskInsights, "fromView").mockReturnValue(of(mockDomain));
+      jest.spyOn(AccessReport, "fromView").mockReturnValue(of(mockDomain));
 
       mockApiService.updateRiskInsightsApplicationData$.mockReturnValue(
         throwError(() => new Error("Update failed")),
@@ -295,7 +297,6 @@ describe("DefaultReportPersistenceService", () => {
       });
 
       const decryptedData: DecryptedAccessReportData = {
-        version: 2,
         reportData: {
           reports: [
             {
@@ -336,7 +337,7 @@ describe("DefaultReportPersistenceService", () => {
 
       const result = await firstValueFrom(service.loadReport$(organizationId));
 
-      expect(result!.report).toBeInstanceOf(RiskInsightsView);
+      expect(result!.report).toBeInstanceOf(AccessReportView);
       expect(result!.report.id).toBe(reportId);
       expect(result!.report.organizationId).toBe(organizationId);
       expect(result!.report.reports).toHaveLength(1);
@@ -417,7 +418,6 @@ describe("DefaultReportPersistenceService", () => {
       });
 
       const decryptedData: DecryptedAccessReportData = {
-        version: 2,
         reportData: {
           reports: [
             {

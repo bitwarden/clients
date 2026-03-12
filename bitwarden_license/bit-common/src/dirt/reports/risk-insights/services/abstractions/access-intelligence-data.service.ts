@@ -3,8 +3,8 @@ import { Observable } from "rxjs";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import { AccessReportView } from "../../../../access-intelligence/models";
 import { ReportProgress } from "../../models/report-models";
-import { RiskInsightsView } from "../../models/view/risk-insights.view";
 
 /**
  * Orchestrates Access Intelligence (Risk Insights) data loading, generation, and persistence.
@@ -23,7 +23,7 @@ export abstract class AccessIntelligenceDataService {
    * Emits the latest report or null if no report loaded.
    * All UI components derive state from this observable.
    */
-  abstract readonly report$: Observable<RiskInsightsView | null>;
+  abstract readonly report$: Observable<AccessReportView | null>;
 
   /**
    * Organization ciphers for display purposes

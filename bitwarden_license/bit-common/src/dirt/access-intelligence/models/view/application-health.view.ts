@@ -2,24 +2,24 @@ import { View } from "@bitwarden/common/models/view/view";
 import { DeepJsonify } from "@bitwarden/common/types/deep-jsonify";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RiskInsightsReportApi } from "../api/risk-insights-report.api";
-import { RiskInsightsReportData } from "../data/risk-insights-report.data";
-import { RiskInsightsReport } from "../domain/risk-insights-report";
+import { ApplicationHealthApi } from "../api/application-health.api";
+import { ApplicationHealthData } from "../data/application-health.data";
+import { ApplicationHealth } from "../domain/application-health";
 
-import { MemberRegistryEntryView } from "./member-details.view";
-import { MemberRegistry } from "./risk-insights.view";
+import { MemberRegistry } from "./access-report.view";
+import { MemberRegistryEntryView } from "./member-registry-entry.view";
 
 /**
- * View model for Risk Insights Report containing decrypted application health data
+ * View model for Application Health containing decrypted application health data
  *
  * Uses the member registry pattern to eliminate duplicate member storage across applications.
  * Instead of storing full member arrays, stores only member IDs with at-risk flags.
  *
- * - See {@link RiskInsightsReport} for domain model
- * - See {@link RiskInsightsReportData} for data model
- * - See {@link RiskInsightsReportApi} for API model
+ * - See {@link ApplicationHealth} for domain model
+ * - See {@link ApplicationHealthData} for data model
+ * - See {@link ApplicationHealthApi} for API model
  */
-export class RiskInsightsReportView implements View {
+export class ApplicationHealthView implements View {
   applicationName: string = "";
   passwordCount: number = 0;
   atRiskPasswordCount: number = 0;
@@ -59,7 +59,7 @@ export class RiskInsightsReportView implements View {
   memberCount: number = 0;
   atRiskMemberCount: number = 0;
 
-  constructor(r?: RiskInsightsReport) {
+  constructor(r?: ApplicationHealth) {
     if (r == null) {
       return;
     }
@@ -160,8 +160,8 @@ export class RiskInsightsReportView implements View {
     return this;
   }
 
-  static fromData(data: RiskInsightsReportData): RiskInsightsReportView {
-    const view = new RiskInsightsReportView();
+  static fromData(data: ApplicationHealthData): ApplicationHealthView {
+    const view = new ApplicationHealthView();
     view.applicationName = data.applicationName;
     view.passwordCount = data.passwordCount;
     view.atRiskPasswordCount = data.atRiskPasswordCount;
@@ -175,13 +175,13 @@ export class RiskInsightsReportView implements View {
   }
 
   static fromJSON(
-    obj: Partial<DeepJsonify<RiskInsightsReportView>> | undefined,
-  ): RiskInsightsReportView {
+    obj: Partial<DeepJsonify<ApplicationHealthView>> | undefined,
+  ): ApplicationHealthView {
     if (obj == undefined) {
-      return new RiskInsightsReportView();
+      return new ApplicationHealthView();
     }
 
-    const view = Object.assign(new RiskInsightsReportView(), obj) as RiskInsightsReportView;
+    const view = Object.assign(new ApplicationHealthView(), obj) as ApplicationHealthView;
 
     // Ensure memberRefs and cipherRefs are objects (not arrays)
     view.memberRefs = obj.memberRefs ?? {};
@@ -191,6 +191,6 @@ export class RiskInsightsReportView implements View {
   }
 
   // [TODO] SDK Mapping
-  // toSdkRiskInsightsReportView(): SdkRiskInsightsReportView {}
-  // static fromRiskInsightsReportView(obj?: SdkRiskInsightsReportView): RiskInsightsReportView | undefined {}
+  // toSdkApplicationHealthView(): SdkApplicationHealthView {}
+  // static fromApplicationHealthView(obj?: SdkApplicationHealthView): ApplicationHealthView | undefined {}
 }
