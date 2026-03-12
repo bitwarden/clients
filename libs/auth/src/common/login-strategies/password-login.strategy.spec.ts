@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -10,6 +10,10 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/response/master-password-policy.response";
+import {
+  PasswordPreloginData,
+  PasswordPreloginService,
+} from "@bitwarden/common/auth/password-prelogin";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
@@ -37,9 +41,8 @@ import {
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
-import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";
 
@@ -67,7 +70,7 @@ describe("PasswordLoginStrategy", () => {
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
 
-  let loginStrategyService: MockProxy<LoginStrategyServiceAbstraction>;
+  let passwordPreloginService: MockProxy<PasswordPreloginService>;
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let apiService: MockProxy<ApiService>;
@@ -93,10 +96,12 @@ describe("PasswordLoginStrategy", () => {
   let tokenResponse: IdentityTokenResponse;
 
   beforeEach(async () => {
+    cache = new PasswordLoginStrategyData();
+
     accountService = mockAccountServiceWith(userId);
     masterPasswordService = new FakeMasterPasswordService();
 
-    loginStrategyService = mock<LoginStrategyServiceAbstraction>();
+    passwordPreloginService = mock<PasswordPreloginService>();
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     apiService = mock<ApiService>();
@@ -122,7 +127,10 @@ describe("PasswordLoginStrategy", () => {
       sub: userId,
     });
 
-    loginStrategyService.makePasswordPreLoginMasterKey.mockResolvedValue(masterKey);
+    passwordPreloginService.getPreloginData$.mockReturnValue(
+      of(new PasswordPreloginData(new PBKDF2KdfConfig())),
+    );
+    keyService.makeMasterKey.mockResolvedValue(masterKey);
 
     keyService.hashMasterKey
       .calledWith(masterPassword, expect.anything(), undefined)
@@ -137,7 +145,7 @@ describe("PasswordLoginStrategy", () => {
       cache,
       passwordStrengthService,
       policyService,
-      loginStrategyService,
+      passwordPreloginService,
       accountService,
       masterPasswordService,
       keyService,
@@ -398,6 +406,30 @@ describe("PasswordLoginStrategy", () => {
       }),
     );
     expect(result.userId).toBe(userId);
+  });
+
+  describe("makePasswordPreloginMasterKey", () => {
+    it("calls getPreloginData$ when no preFetchedPreloginData is provided", async () => {
+      // credentials from beforeEach has no preFetchedPreloginData
+      await passwordLoginStrategy.logIn(credentials);
+
+      expect(passwordPreloginService.getPreloginData$).toHaveBeenCalledWith(email);
+    });
+
+    it("does not call getPreloginData$ when preFetchedPreloginData is provided", async () => {
+      const preloginData = new PasswordPreloginData(new PBKDF2KdfConfig());
+      const credentialsWithPrefetch = new PasswordLoginCredentials(
+        email,
+        masterPassword,
+        undefined,
+        undefined,
+        preloginData,
+      );
+
+      await passwordLoginStrategy.logIn(credentialsWithPrefetch);
+
+      expect(passwordPreloginService.getPreloginData$).not.toHaveBeenCalled();
+    });
   });
 
   it("sets account cryptographic state when accountKeysResponseModel is present", async () => {
