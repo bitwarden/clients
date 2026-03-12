@@ -2547,7 +2547,7 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     // Prefer a same-form candidate, fall back to any matching field
-    return bestCandidate || sameFormCandidate;
+    return sameFormCandidate || bestCandidate;
   }
 
   /**
