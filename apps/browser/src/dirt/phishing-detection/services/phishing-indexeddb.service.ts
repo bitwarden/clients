@@ -94,6 +94,42 @@ export class PhishingIndexedDbService {
   }
 
   /**
+   * Remove URLs from IndexedDB by key.
+   * Processes in chunks to prevent transaction timeouts.
+   */
+  async removeUrls(urls: string[]): Promise<boolean> {
+    try {
+      const db = await this.openDatabase();
+      try {
+        const cleaned = urls.map((u) => u.trim()).filter(Boolean);
+        for (let i = 0; i < cleaned.length; i += this.CHUNK_SIZE) {
+          const chunk = cleaned.slice(i, i + this.CHUNK_SIZE);
+          await this.removeChunk(db, chunk);
+          await new Promise((r) => setTimeout(r, 0));
+        }
+        return true;
+      } finally {
+        db.close();
+      }
+    } catch (e) {
+      this.logService.error("[PhishingIndexedDbService] Error removing URLs:", e);
+      return false;
+    }
+  }
+
+  private removeChunk(db: IDBDatabase, urls: string[]): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(this.STORE_NAME, "readwrite");
+      const store = tx.objectStore(this.STORE_NAME);
+      for (const url of urls) {
+        store.delete(url);
+      }
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  /**
    * Saves URLs in chunks to prevent transaction timeouts and UI freezes.
    */
   private async saveChunked(db: IDBDatabase, urls: string[]): Promise<void> {
