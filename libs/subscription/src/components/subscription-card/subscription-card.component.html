@@ -16,7 +16,7 @@
 
   <!-- Status-Based Callout -->
   @if (callout(); as callout) {
-    <bit-callout [type]="callout.type" [icon]="callout.icon" [title]="callout.title">
+    <bit-callout [type]="callout.type" [icon]="callout.icon ?? null" [title]="callout.title">
       <div class="tw-flex tw-flex-col tw-gap-2">
         <p class="tw-m-0">{{ callout.description }}</p>
         @if (callout.callsToAction) {
