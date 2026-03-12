@@ -45,6 +45,7 @@ export default {
               multiSelectClearAll: "Clear all",
               required: "required",
               inputRequired: "Input is required.",
+              loading: "loading",
             });
           },
         },
