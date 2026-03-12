@@ -3,11 +3,7 @@
     <bit-icon [name]="computedIcon()" [class]="iconSizeStyles()" />
   }
 
-  <span
-    #textContainer
-    class="tw-px-1 tw-text-start tw-min-w-0 tw-flex-1"
-    [class.tw-truncate]="truncate()"
-  >
+  <span class="tw-px-1 tw-text-start tw-min-w-0 tw-flex-1" [class.tw-truncate]="truncate()">
     <ng-content></ng-content>
   </span>
 </div>
