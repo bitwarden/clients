@@ -128,6 +128,11 @@ export class EmergencyAccessAddEditComponent implements OnInit {
       });
       this.dialogRef.close(EmergencyAccessAddEditDialogResult.Saved);
     } catch (e) {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: e.message,
+      });
       this.logService.error(e);
     }
   };
