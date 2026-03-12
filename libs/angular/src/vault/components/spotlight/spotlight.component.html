@@ -30,8 +30,8 @@
     buttonType="primary"
     *ngIf="buttonText()"
     (click)="handleButtonClick($event)"
+    [endIcon]="buttonIcon()"
   >
     {{ buttonText() }}
-    <i *ngIf="buttonIcon()" [ngClass]="buttonIcon()" class="bwi tw-ml-1" aria-hidden="true"></i>
   </button>
 </div>

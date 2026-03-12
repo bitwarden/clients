@@ -8,8 +8,8 @@
       (click)="handleButtonClick()"
       id="newItemDropdown"
       [appA11yTitle]="getButtonLabel() | i18n"
+      startIcon="bwi-plus"
     >
-      <i class="bwi bwi-plus tw-me-2" aria-hidden="true"></i>
       {{ getButtonLabel() | i18n }}
     </button>
     <bit-menu #addOptions aria-labelledby="newItemDropdown">
