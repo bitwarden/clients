@@ -9,9 +9,11 @@ import { BitIconButtonComponent } from "../icon-button/icon-button.component";
   },
 })
 export class BitSuffixDirective implements OnInit {
-  readonly classList = ["tw-text-muted"];
+  readonly classList: string[];
 
-  constructor(@Optional() private iconButtonComponent: BitIconButtonComponent) {}
+  constructor(@Optional() private iconButtonComponent: BitIconButtonComponent) {
+    this.classList = this.iconButtonComponent ? [] : ["tw-text-muted"];
+  }
 
   ngOnInit() {
     if (this.iconButtonComponent) {
