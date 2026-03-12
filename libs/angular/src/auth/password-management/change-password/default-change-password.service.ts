@@ -140,11 +140,7 @@ export class DefaultChangePasswordService implements ChangePasswordService {
         passwordInputResult.newPasswordHint,
       );
 
-      try {
-        await this.masterPasswordApiService.postPassword(request);
-      } catch {
-        throw new Error("Error during change password attempt. Could not change password.");
-      }
+      await this.masterPasswordApiService.postPassword(request);
 
       return; // EARLY RETURN for flagged logic
     }
@@ -202,14 +198,8 @@ export class DefaultChangePasswordService implements ChangePasswordService {
         passwordInputResult.newPasswordHint,
       );
 
-      try {
-        // TODO: PM-23047 will look to consolidate this into the change password endpoint.
-        await this.masterPasswordApiService.putUpdateTempPassword(request);
-      } catch {
-        throw new Error(
-          "Error during change password attempt. Could not change password for account recovery.",
-        );
-      }
+      // TODO: PM-23047 will look to consolidate this into the change password endpoint.
+      await this.masterPasswordApiService.putUpdateTempPassword(request);
 
       return; // EARLY RETURN for flagged logic
     }
