@@ -52,7 +52,7 @@ export class CalloutComponent implements OnInit {
 
   private readonly dismiss$ = new Subject<void>();
   readonly dismiss = outputFromObservable(this.dismiss$);
-  protected readonly isDismissible = false;
+  protected isDismissible = false;
 
   protected onDismiss(): void {
     this.dismiss$.next();
