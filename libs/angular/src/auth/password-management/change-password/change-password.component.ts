@@ -151,7 +151,7 @@ export class ChangePasswordComponent implements OnInit {
     this.submitting = true;
 
     try {
-      // Handle change password with user key rotation via PasswordSettingComponent (settings page)
+      // Handle change password with user key rotation
       if (passwordInputResult.rotateUserKey) {
         if (this.activeAccount == null) {
           throw new Error("activeAccount not found");
@@ -193,7 +193,7 @@ export class ChangePasswordComponent implements OnInit {
           );
         } else {
           // Handle either of these cases:
-          // - a user changing their password (with no key rotation) via the PasswordSettingsComponent (settings page), or
+          // - a normal change password (with no key rotation), or
           // - a user who has ForceSetPasswordReason.WeakMasterPassword (i.e. their password does not meet org policy requirements)
           await this.changePasswordService.changePassword(passwordInputResult, this.userId);
         }
