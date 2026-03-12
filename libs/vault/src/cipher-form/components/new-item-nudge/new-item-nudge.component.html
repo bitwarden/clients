@@ -1,10 +1,5 @@
 @if (showNewItemSpotlight$ | async) {
-  <bit-callout
-    [title]="nudgeTitle"
-    [icon]="null"
-    persistent="false"
-    (onDismiss)="dismissNewItemSpotlight()"
-  >
+  <bit-callout [title]="nudgeTitle" [icon]="null" (dismiss)="dismissNewItemSpotlight()">
     {{ nudgeBody }}
   </bit-callout>
 }

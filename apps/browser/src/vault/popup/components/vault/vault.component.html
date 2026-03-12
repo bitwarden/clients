@@ -43,8 +43,7 @@
       <bit-callout
         [title]="'unlockAdvancedSecurity' | i18n"
         [icon]="null"
-        persistent="false"
-        (onDismiss)="dismissVaultNudgeSpotlight(NudgeType.PremiumUpgrade)"
+        (dismiss)="dismissVaultNudgeSpotlight(NudgeType.PremiumUpgrade)"
       >
         {{ "unlockAdvancedSecurityDesc" | i18n }}
         <button
@@ -62,8 +61,7 @@
       <bit-callout
         [title]="'emptyVaultNudgeTitle' | i18n"
         [icon]="null"
-        persistent="false"
-        (onDismiss)="dismissVaultNudgeSpotlight(NudgeType.EmptyVaultNudge)"
+        (dismiss)="dismissVaultNudgeSpotlight(NudgeType.EmptyVaultNudge)"
       >
         {{ "emptyVaultNudgeBody" | i18n }}
         <button
@@ -85,8 +83,7 @@
         <bit-callout
           [title]="'hasItemsVaultNudgeTitle' | i18n"
           [icon]="null"
-          persistent="false"
-          (onDismiss)="dismissVaultNudgeSpotlight(NudgeType.HasVaultItems)"
+          (dismiss)="dismissVaultNudgeSpotlight(NudgeType.HasVaultItems)"
         >
           <ul class="tw-pl-4 tw-text-main tw-mb-0" bitTypography="body2">
             <li>{{ "hasItemsVaultNudgeBodyOne" | i18n }}</li>

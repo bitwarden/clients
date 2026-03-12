@@ -11,8 +11,7 @@
         <bit-callout
           [title]="'autofillSpotlightTitle' | i18n"
           [icon]="null"
-          persistent="false"
-          (onDismiss)="dismissSpotlight()"
+          (dismiss)="dismissSpotlight()"
         >
           {{ "autofillSpotlightDesc" | i18n }}
           <button

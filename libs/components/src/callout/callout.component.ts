@@ -1,12 +1,7 @@
 import { CommonModule } from "@angular/common";
-import {
-  Component,
-  computed,
-  input,
-  output,
-  booleanAttribute,
-  ChangeDetectionStrategy,
-} from "@angular/core";
+import { Component, computed, input, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { outputFromObservable } from "@angular/core/rxjs-interop";
+import { Subject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -45,19 +40,27 @@ let nextId = 0;
   imports: [CommonModule, TypographyModule, IconButtonModule, IconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CalloutComponent {
+export class CalloutComponent implements OnInit {
   /** The variant type of the callout. Defaults to "info". */
   readonly type = input<CalloutTypes>("info");
   /** The icon to display in the callout. If not provided, a default icon based on the type will be used. Pass in `null` to not display an icon. */
   readonly icon = input<BitwardenIcon | null>();
   /** The title of the callout. If not provided, a default title will be used if callout type is `warning | danger`. Pass in `null` to not display a title. */
   readonly title = input<string | null>();
-  /** Whether the component can be dismissed. If true, the component will not show a close button. Defaults to true. */
-  readonly persistent = input(true, { transform: booleanAttribute });
 
   readonly closeLabel = this.i18nService.t("close");
 
-  readonly onDismiss = output<void>();
+  private readonly dismiss$ = new Subject<void>();
+  readonly dismiss = outputFromObservable(this.dismiss$);
+  protected readonly isDismissible = false;
+
+  protected onDismiss(): void {
+    this.dismiss$.next();
+  }
+
+  ngOnInit() {
+    this.isDismissible = this.dismiss$.observed;
+  }
 
   readonly iconComputed = computed(() => {
     if (this.icon() === null) {
@@ -122,8 +125,4 @@ export class CalloutComponent {
   protected readonly calloutClass = computed(() => {
     return `${this.variantClass()} ${this.fgClass()} ${this.paddingClass()}`;
   });
-
-  handleDismiss(): void {
-    this.onDismiss.emit();
-  }
 }

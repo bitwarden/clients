@@ -27,13 +27,13 @@
           </div>
         }
       </div>
-      @if (!persistent()) {
+      @if (isDismissible) {
         <button
           type="button"
           bitIconButton="bwi-close"
           buttonType="subtleGhost"
           size="small"
-          (click)="handleDismiss()"
+          (click)="onDismiss()"
           [class]="fgClass()"
           [label]="closeLabel"
         ></button>
