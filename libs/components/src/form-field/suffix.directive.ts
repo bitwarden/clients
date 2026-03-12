@@ -1,4 +1,4 @@
-import { Directive, OnInit, Optional } from "@angular/core";
+import { Directive, inject, OnInit } from "@angular/core";
 
 import { BitIconButtonComponent } from "../icon-button/icon-button.component";
 
@@ -9,11 +9,9 @@ import { BitIconButtonComponent } from "../icon-button/icon-button.component";
   },
 })
 export class BitSuffixDirective implements OnInit {
-  readonly classList: string[];
+  private iconButtonComponent = inject(BitIconButtonComponent, { optional: true });
 
-  constructor(@Optional() private iconButtonComponent: BitIconButtonComponent) {
-    this.classList = this.iconButtonComponent ? [] : ["tw-text-muted"];
-  }
+  readonly classList = this.iconButtonComponent ? [] : ["tw-text-muted"];
 
   ngOnInit() {
     if (this.iconButtonComponent) {
