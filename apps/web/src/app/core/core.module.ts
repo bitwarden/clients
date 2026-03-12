@@ -44,16 +44,9 @@ import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
 } from "@bitwarden/auth/common";
-import {
-  AutomaticUserConfirmationService,
-  DefaultAutomaticUserConfirmationService,
-} from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import {
-  InternalOrganizationServiceAbstraction,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
@@ -67,6 +60,8 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { NoopAuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/noop-auth-request-answering.service";
+import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email/change-email.service";
+import { DefaultChangeEmailService } from "@bitwarden/common/auth/services/change-email/default-change-email.service";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
@@ -133,6 +128,7 @@ import {
   SessionTimeoutSettingsComponentService,
 } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
+import { UserCryptoManagementModule } from "@bitwarden/user-crypto-management";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
 import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
@@ -374,19 +370,6 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: AutomaticUserConfirmationService,
-    useClass: DefaultAutomaticUserConfirmationService,
-    deps: [
-      ConfigService,
-      ApiService,
-      OrganizationUserService,
-      StateProvider,
-      InternalOrganizationServiceAbstraction,
-      OrganizationUserApiService,
-      PolicyService,
-    ],
-  }),
-  safeProvider({
     provide: SdkLoadService,
     useClass: flagEnabled("sdk") ? WebSdkLoadService : NoopSdkLoadService,
     deps: [],
@@ -513,11 +496,22 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
     ],
   }),
+  safeProvider({
+    provide: ChangeEmailService,
+    useClass: DefaultChangeEmailService,
+    deps: [
+      ConfigService,
+      InternalMasterPasswordServiceAbstraction,
+      KdfConfigService,
+      ApiService,
+      KeyServiceAbstraction,
+    ],
+  }),
 ];
 
 @NgModule({
   declarations: [],
-  imports: [CommonModule, JslibServicesModule, GeneratorServicesModule],
+  imports: [CommonModule, JslibServicesModule, UserCryptoManagementModule, GeneratorServicesModule],
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,
 })

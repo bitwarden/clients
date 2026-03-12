@@ -24,7 +24,6 @@ import {
   from,
   defer,
   map,
-  tap,
 } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -48,6 +47,7 @@ import {
   EnterBillingAddressComponent,
   getBillingAddressFromForm,
   DisplayPaymentMethodInlineComponent,
+  EnterPaymentMethodComponent,
 } from "../../../payment/components";
 import { MaskedPaymentMethod } from "../../../payment/types";
 import { BitwardenSubscriber, mapAccountToSubscriber } from "../../../types";
@@ -83,7 +83,6 @@ export type PremiumOrgUpgradePaymentResult = {
     EnterBillingAddressComponent,
     DisplayPaymentMethodInlineComponent,
   ],
-  providers: [PremiumOrgUpgradeService],
   templateUrl: "./premium-org-upgrade-payment.component.html",
 })
 export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit {
@@ -110,13 +109,17 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
     PersonalSubscriptionPricingTierId | BusinessSubscriptionPricingTierId
   >();
   protected readonly account = input.required<Account>();
-  protected goBack = output<void>();
-  protected complete = output<PremiumOrgUpgradePaymentResult>();
 
-  readonly cartSummaryComponent = viewChild.required(CartSummaryComponent);
+  protected readonly goBack = output<void>();
+  protected readonly complete = output<PremiumOrgUpgradePaymentResult>();
 
-  protected formGroup = new FormGroup({
+  readonly cartSummaryComponent = viewChild.required<CartSummaryComponent>("cartSummaryComponent");
+  readonly paymentMethodComponent =
+    viewChild.required<DisplayPaymentMethodInlineComponent>("paymentMethodComponent");
+
+  protected readonly formGroup = new FormGroup({
     organizationName: new FormControl<string>("", [Validators.required]),
+    paymentMethodForm: EnterPaymentMethodComponent.getFormGroup(),
     billingAddress: EnterBillingAddressComponent.getFormGroup(),
   });
 
@@ -127,19 +130,17 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   // Signals for payment method
   protected readonly paymentMethod = signal<MaskedPaymentMethod | null>(null);
   protected readonly subscriber = signal<BitwardenSubscriber | null>(null);
-  /**
-   * Indicates whether the payment method is currently being changed.
-   * This is used to disable the submit button while a payment method change is in progress.
-   * or to hide other UI elements as needed.
-   */
-  protected readonly isChangingPaymentMethod = signal(false);
 
   protected readonly planMembershipMessage = computed<string>(
     () => this.PLAN_MEMBERSHIP_MESSAGES[this.selectedPlanId()] ?? "",
   );
 
+  protected readonly showTaxIdField = computed<boolean>(() => {
+    return this.selectedPlanId() !== PersonalSubscriptionPricingTierIds.Families;
+  });
+
   // Use defer to lazily create the observable when subscribed to
-  protected estimatedInvoice$ = defer(() =>
+  protected readonly estimatedInvoice$ = defer(() =>
     combineLatest([this.formGroup.controls.billingAddress.valueChanges]).pipe(
       startWith(this.formGroup.controls.billingAddress.value),
       debounceTime(1000),
@@ -252,14 +253,13 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
             map((paymentMethod) => ({ subscriber, paymentMethod })),
           ),
         ),
-        tap(({ subscriber, paymentMethod }) => {
-          this.subscriber.set(subscriber);
-          this.paymentMethod.set(paymentMethod);
-          this.loading.set(false);
-        }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe();
+      .subscribe(({ subscriber, paymentMethod }) => {
+        this.subscriber.set(subscriber);
+        this.paymentMethod.set(paymentMethod);
+        this.loading.set(false);
+      });
   }
 
   ngAfterViewInit(): void {
@@ -267,24 +267,8 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
     cartSummaryComponent.isExpanded.set(false);
   }
 
-  /**
-   * Updates the payment method when changed through the DisplayPaymentMethodComponent.
-   * @param newPaymentMethod The updated payment method details
-   */
-  handlePaymentMethodUpdate(newPaymentMethod: MaskedPaymentMethod) {
-    this.paymentMethod.set(newPaymentMethod);
-  }
-
-  /**
-   * Handles changes to the payment method changing state.
-   * @param isChanging Whether the payment method is currently being changed
-   */
-  handlePaymentMethodChangingStateChange(isChanging: boolean) {
-    this.isChangingPaymentMethod.set(isChanging);
-  }
-
-  protected submit = async (): Promise<void> => {
-    if (!this.formGroup.valid) {
+  protected readonly submit = async (): Promise<void> => {
+    if (!this.isFormValid()) {
       this.formGroup.markAllAsTouched();
       return;
     }
@@ -312,9 +296,22 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   private async processUpgrade(): Promise<PremiumOrgUpgradePaymentResult> {
     const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
     const organizationName = this.formGroup.value?.organizationName;
-
     if (!billingAddress.country || !billingAddress.postalCode) {
       throw new Error("Billing address is incomplete");
+    }
+
+    const paymentMethodComponent = this.paymentMethodComponent();
+    // If the user is changing their payment method, process that first
+    if (paymentMethodComponent && paymentMethodComponent.isChangingPayment()) {
+      const newPaymentMethod = await paymentMethodComponent.getTokenizedPaymentMethod();
+      await this.subscriberBillingClient.updatePaymentMethod(
+        this.subscriber()!,
+        newPaymentMethod,
+        billingAddress,
+      );
+    } else if (!this.paymentMethod()) {
+      // If user is not changing payment method but has no payment method on file
+      throw new Error("Payment method is required");
     }
 
     if (!organizationName) {
@@ -322,9 +319,9 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
     }
 
     const organizationId = await this.premiumOrgUpgradeService.upgradeToOrganization(
-      this.account(),
+      this.account()!,
       organizationName,
-      this.selectedPlan()!,
+      this.selectedPlan()!.tier,
       billingAddress,
     );
 
@@ -441,10 +438,27 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   }
 
   /**
+   * Checks if the form is valid.
+   */
+  protected isFormValid(): boolean {
+    const isParentFormValid =
+      this.formGroup.controls.organizationName.valid &&
+      this.formGroup.controls.billingAddress.valid;
+
+    const paymentMethodComponent = this.paymentMethodComponent();
+    const isChangingPayment = paymentMethodComponent?.isChangingPayment();
+    if (paymentMethodComponent && isChangingPayment) {
+      return isParentFormValid && paymentMethodComponent.isFormValid();
+    }
+
+    return isParentFormValid;
+  }
+
+  /**
    * Refreshes the invoice preview based on the current form state.
    */
   private refreshInvoicePreview$(): Observable<InvoicePreview> {
-    if (this.formGroup.invalid || !this.selectedPlan()) {
+    if (!this.isFormValid()) {
       return of(this.getEmptyInvoicePreview());
     }
 

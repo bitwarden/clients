@@ -10,7 +10,7 @@ import {
   OnInit,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
@@ -100,7 +100,7 @@ export interface VaultItemDialogParams {
   /**
    * Function to restore a cipher from the trash.
    */
-  restore?: (c: CipherViewLike) => Promise<boolean>;
+  restore?: (c: CipherViewLike) => Promise<void>;
 }
 
 export const VaultItemDialogResult = {
@@ -226,6 +226,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   );
 
   protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
+  private readonly archiveFlagEnabled = toSignal(this.archiveFlagEnabled$, {
+    initialValue: false,
+  });
 
   protected userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -236,6 +239,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   protected userCanArchive$ = this.userId$.pipe(
     switchMap((userId) => this.archiveService.userCanArchive$(userId)),
   );
+
+  private readonly userCanArchive = toSignal(this.userCanArchive$, { initialValue: false });
 
   protected get isTrashFilter() {
     return this.filter?.type === "trash";
@@ -268,7 +273,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   protected get disableEdit() {
-    return !this.canEdit;
+    return !this.canEdit && this.formConfig.mode !== "partial-edit";
   }
 
   protected get showEdit() {
@@ -293,14 +298,14 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return this.cipher?.isArchived;
   }
 
-  private _userCanArchive = false;
-
   protected get showArchiveOptions(): boolean {
-    return this._userCanArchive && !this.params.isAdminConsoleAction && this.params.mode === "view";
+    return (
+      this.archiveFlagEnabled() && !this.params.isAdminConsoleAction && this.params.mode === "view"
+    );
   }
 
   protected get showArchiveBtn(): boolean {
-    return this.cipher?.canBeArchived;
+    return this.userCanArchive() && this.cipher?.canBeArchived;
   }
 
   protected get showUnarchiveBtn(): boolean {
@@ -355,8 +360,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         takeUntilDestroyed(),
       )
       .subscribe();
-
-    this.userCanArchive$.pipe(takeUntilDestroyed()).subscribe((v) => (this._userCanArchive = v));
   }
 
   async ngOnInit() {
@@ -393,7 +396,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       );
 
       // If user cannot edit and dialog opened in form mode, force to view mode
-      if (!this.canEdit && this.params.mode === "form") {
+      if (!this.canEdit && this.formConfig.mode !== "partial-edit" && this.params.mode === "form") {
         this.params.mode = "view";
         this.loadForm = false;
         this.updateTitle();
@@ -524,11 +527,12 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
     const dialogRef = this.dialogService.open<
       AttachmentDialogCloseResult,
-      { cipherId: CipherId; organizationId?: OrganizationId }
+      { cipherId: CipherId; organizationId?: OrganizationId; canEditCipher?: boolean }
     >(AttachmentsV2Component, {
       data: {
         cipherId: this.formConfig.originalCipher?.id as CipherId,
         organizationId: this.formConfig.originalCipher?.organizationId as OrganizationId,
+        canEditCipher: this.formConfig.originalCipher?.edit,
       },
     });
 
@@ -612,7 +616,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("itemWasSentToArchive"),
+        message: this.i18nService.t("itemArchiveToast"),
       });
     } catch {
       this.toastService.showToast({
@@ -634,7 +638,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("itemWasUnarchived"),
+        message: this.i18nService.t("itemUnarchivedToast"),
       });
     } catch {
       this.toastService.showToast({

@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { Route, RouterModule, Routes } from "@angular/router";
+import { map } from "rxjs";
 
 import { organizationPolicyGuard } from "@bitwarden/angular/admin-console/guards";
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
@@ -50,6 +51,7 @@ import {
   NewDeviceVerificationComponent,
 } from "@bitwarden/auth/angular";
 import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
@@ -86,7 +88,6 @@ import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-land
 import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm-landing.component";
 import { AppearanceComponent } from "./settings/appearance.component";
 import { DomainRulesComponent } from "./settings/domain-rules.component";
-import { PreferencesComponent } from "./settings/preferences.component";
 import { CredentialGeneratorComponent } from "./tools/credential-generator/credential-generator.component";
 import { AccessComponent, SendAccessExplainerComponent } from "./tools/send/send-access";
 import { SendComponent } from "./tools/send/send.component";
@@ -641,6 +642,13 @@ const routes: Routes = [
         path: "sends",
         component: SendComponent,
         data: { titleId: "send" } satisfies RouteDataProperties,
+        canActivate: [
+          organizationPolicyGuard((userId, _configService, policyService) =>
+            policyService
+              .policyAppliesToUser$(PolicyType.DisableSend, userId)
+              .pipe(map((policyApplies) => !policyApplies)),
+          ),
+        ],
       },
       {
         path: "sm-landing",
@@ -669,28 +677,7 @@ const routes: Routes = [
           {
             path: "appearance",
             component: AppearanceComponent,
-            canActivate: [
-              canAccessFeature(
-                FeatureFlag.ConsolidatedSessionTimeoutComponent,
-                true,
-                "/settings/preferences",
-                false,
-              ),
-            ],
             data: { titleId: "appearance" } satisfies RouteDataProperties,
-          },
-          {
-            path: "preferences",
-            component: PreferencesComponent,
-            canActivate: [
-              canAccessFeature(
-                FeatureFlag.ConsolidatedSessionTimeoutComponent,
-                false,
-                "/settings/appearance",
-                false,
-              ),
-            ],
-            data: { titleId: "preferences" } satisfies RouteDataProperties,
           },
           {
             path: "security",

@@ -95,11 +95,7 @@ export class DefaultOrganizationUserService implements OrganizationUserService {
   restoreUser(organization: Organization, userId: string): Observable<void> {
     return this.buildRestoreUserRequest(organization).pipe(
       switchMap((request) =>
-        this.organizationUserApiService.restoreOrganizationUser_vNext(
-          organization.id,
-          userId,
-          request,
-        ),
+        this.organizationUserApiService.restoreOrganizationUser(organization.id, userId, request),
       ),
     );
   }
@@ -115,7 +111,7 @@ export class DefaultOrganizationUserService implements OrganizationUserService {
           collectionName.encryptedString,
         );
 
-        return this.organizationUserApiService.restoreManyOrganizationUsers_vNext(
+        return this.organizationUserApiService.restoreManyOrganizationUsers(
           organization.id,
           request,
         );

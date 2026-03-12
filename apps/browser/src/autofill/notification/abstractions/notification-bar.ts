@@ -25,7 +25,7 @@ const NotificationTypes = {
 type NotificationType = (typeof NotificationTypes)[keyof typeof NotificationTypes];
 
 type NotificationTaskInfo = {
-  orgName: string;
+  orgName?: string;
   remainingTasksCount: number;
 };
 
@@ -66,7 +66,7 @@ type NotificationBarWindowMessageHandlers = {
 
 type AtRiskPasswordNotificationParams = {
   passwordChangeUri?: string;
-  organizationName: string;
+  organizationName?: string;
 };
 
 export {

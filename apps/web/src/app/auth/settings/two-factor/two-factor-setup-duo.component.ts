@@ -57,7 +57,7 @@ export class TwoFactorSetupDuoComponent
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onChangeStatus: EventEmitter<boolean> = new EventEmitter();
 
-  type = TwoFactorProviderType.Duo;
+  type: TwoFactorProviderType = TwoFactorProviderType.Duo;
   formGroup = this.formBuilder.group({
     clientId: ["", [Validators.required]],
     clientSecret: ["", [Validators.required]],

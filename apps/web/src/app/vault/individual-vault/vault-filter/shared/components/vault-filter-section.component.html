@@ -1,6 +1,23 @@
 <!-- eslint-disable tailwindcss/no-custom-classname -->
 <ng-container *ngIf="filters && filters.length">
-  <div *ngIf="headerInfo.showHeader" class="filter-heading">
+  <!-- Collections coachmark (only active for the collections filter section) -->
+  <app-coachmark #collectionsCoachmark stepId="shareWithCollections" />
+
+  <!--
+    Note: passing null to [bitPopoverAnchorFor] violates its input.required<PopoverComponent>() type,
+    but is runtime safe. Ideally the directive would be conditionally applied, but Angular doesn't support conditional
+    directive bindings.
+  -->
+  <div
+    *ngIf="headerInfo.showHeader"
+    class="filter-heading"
+    [bitPopoverAnchorFor]="isCollectionFilter ? collectionsCoachmark.popover() : null"
+    [popoverOpen]="isCollectionFilter ? collectionsCoachmarkOpen() : false"
+    [spotlight]="isCollectionFilter"
+    [spotlightPadding]="5"
+    [position]="coachmarkService.getStepPosition('shareWithCollections')"
+    [closeOnBackdropClick]="false"
+  >
     <button
       type="button"
       class="toggle-button"
