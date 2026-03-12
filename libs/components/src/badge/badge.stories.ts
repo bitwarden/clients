@@ -27,7 +27,7 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Badge text</span>
+      <bit-badge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Badge text</bit-badge>
     `,
   }),
   args: {
@@ -40,7 +40,7 @@ export const NoStartIcon: Story = {
     props: args,
     template: /*html*/ `
       <p>Passing <code>[startIcon]="null"</code> to badge component will prevent the icon from rendering the default icon</p>
-      <span bitBadge [startIcon]='startIcon'>Badge text</span>
+      <bit-badge [startIcon]='startIcon'>Badge text</bit-badge>
     `,
   }),
   args: {
@@ -54,32 +54,32 @@ export const AllVariants: Story = {
       <div class="tw-space-y-4">
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Primary</h3>
-          <span bitBadge variant="primary">Primary</span>
+          <bit-badge variant="primary">Primary</bit-badge>
         </div>
 
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Subtle</h3>
-          <span bitBadge variant="subtle">Subtle</span>
+          <bit-badge variant="subtle">Subtle</bit-badge>
         </div>
 
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Success</h3>
-          <span bitBadge variant="success">Success</span>
+          <bit-badge variant="success">Success</bit-badge>
         </div>
 
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Warning</h3>
-          <span bitBadge variant="warning">Warning</span>
+          <bit-badge variant="warning">Warning</bit-badge>
         </div>
 
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Danger</h3>
-          <span bitBadge variant="danger">Danger</span>
+          <bit-badge variant="danger">Danger</bit-badge>
         </div>
 
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Accent Primary (Has no default icon)</h3>
-          <span bitBadge variant="accent-primary">Accent Primary</span>
+          <bit-badge variant="accent-primary">Accent Primary</bit-badge>
         </div>
       </div>
     `,
@@ -109,15 +109,15 @@ export const Truncated: Story = {
       <div class="tw-flex tw-flex-col tw-gap-4">
         <div>
           <span class="tw-text-main tw-block tw-mb-2">Short text (no truncation, no tooltip):</span>
-          <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Short</span>
+          <bit-badge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Short</bit-badge>
         </div>
         <div>
           <span class="tw-text-main tw-block tw-mb-2">Long text (auto-truncates with title on hover):</span>
-          <span bitBadge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>This is a very long badge text that will automatically truncate</span>
+          <bit-badge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>This is a very long badge text that will automatically truncate</bit-badge>
         </div>
         <div>
           <span class="tw-text-main tw-block tw-mb-2">Long text (with <code>[truncate]="false"</code>):</span>
-          <span bitBadge [truncate]="false">This is a very long badge text that will NOT automatically truncate</span>
+          <bit-badge [truncate]="false">This is a very long badge text that will NOT automatically truncate</bit-badge>
         </div>
       </div>
     `,

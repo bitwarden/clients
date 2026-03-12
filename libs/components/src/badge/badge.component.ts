@@ -92,7 +92,7 @@ const getDefaultIconForVariant = (variant: BadgeVariant) => defaultIconMap[varia
  * The Badge directive can only be used on a `<span>` tag
  */
 @Component({
-  selector: "span[bitBadge]",
+  selector: "span[bitBadge], bit-badge",
   imports: [IconComponent],
   templateUrl: "badge.component.html",
   host: {
