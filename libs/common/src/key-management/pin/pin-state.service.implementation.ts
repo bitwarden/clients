@@ -119,7 +119,8 @@ export class PinStateService implements PinStateServiceAbstraction {
     assertNonNullish(userId, "userId");
 
     if (pinLockType === "EPHEMERAL") {
-      return this.stateProvider.getUserState$(PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL, userId)
+      return this.stateProvider
+        .getUserState$(PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL, userId)
         .pipe(map((record) => record?.[EPHEMERAL_PIN_ENVELOPE_KEY]?.pin_envelope ?? null));
     } else if (pinLockType === "PERSISTENT") {
       return this.stateProvider.getUserState$(PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT, userId);
