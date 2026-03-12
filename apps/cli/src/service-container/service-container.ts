@@ -39,6 +39,11 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { MasterPasswordApiService as MasterPasswordApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import {
+  DefaultPasswordPreloginService,
+  PasswordPreloginApiService,
+  PasswordPreloginService,
+} from "@bitwarden/common/auth/password-prelogin";
 import { SendTokenService, DefaultSendTokenService } from "@bitwarden/common/auth/send-access";
 import {
   AccountServiceImplementation,
@@ -324,6 +329,7 @@ export class ServiceContainer {
   activeUserStateProvider: ActiveUserStateProvider;
   derivedStateProvider: DerivedStateProvider;
   stateProvider: StateProvider;
+  passwordPreloginService: PasswordPreloginService;
   loginStrategyService: LoginStrategyServiceAbstraction;
   avatarService: AvatarServiceAbstraction;
   stateEventRunnerService: StateEventRunnerService;
@@ -775,6 +781,12 @@ export class ServiceContainer {
       this.accountService,
     );
 
+    const passwordPreloginApiService = new PasswordPreloginApiService(
+      this.apiService,
+      this.environmentService,
+    );
+    this.passwordPreloginService = new DefaultPasswordPreloginService(passwordPreloginApiService);
+
     this.loginStrategyService = new LoginStrategyService(
       this.accountService,
       this.masterPasswordService,
@@ -803,6 +815,7 @@ export class ServiceContainer {
       this.taskSchedulerService,
       this.configService,
       this.accountCryptographicStateService,
+      this.passwordPreloginService,
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(
