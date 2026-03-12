@@ -10,7 +10,6 @@ pub(crate) mod api;
 #[forbid(unsafe_code)]
 pub mod plugin;
 
-#[forbid(unsafe_code)] // forbid code for this file, but not the whole crate.
 use std::{error::Error, fmt::Display};
 
 pub use api::webauthn::{

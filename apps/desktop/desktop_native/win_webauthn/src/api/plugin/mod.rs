@@ -11,9 +11,9 @@ use com::ComBuffer;
 pub(crate) use com::{register_server, shutdown_server};
 use crypto::Signature;
 use windows::{
-    core::GUID,
+    core::{GUID, HRESULT},
     Win32::{
-        Foundation::{HWND, NTE_USER_CANCELLED, S_OK},
+        Foundation::{E_INVALIDARG, HWND, NTE_USER_CANCELLED, S_OK},
         Security::Cryptography::BCRYPT_KEY_BLOB,
         System::Com::CoTaskMemFree,
     },
@@ -54,7 +54,8 @@ use crate::{
             webauthn_plugin_free_user_verification_response,
             webauthn_plugin_get_operation_signing_public_key,
             webauthn_plugin_get_user_verification_public_key,
-            webauthn_plugin_perform_user_verification, WEBAUTHN_PLUGIN_USER_VERIFICATION_REQUEST,
+            webauthn_plugin_perform_user_verification, WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
+            WEBAUTHN_PLUGIN_USER_VERIFICATION_REQUEST,
         },
         webauthn::{CoseCredentialParameter, CoseCredentialParameters},
     },
@@ -547,6 +548,95 @@ pub(crate) fn perform_user_verification(
     Ok(())
 }
 
+// Generic Operation types
+
+trait OperationRequest<'a> {
+    fn transaction_id(&self) -> GUID;
+
+    unsafe fn try_from_operation_request(
+        request: &'a WEBAUTHN_PLUGIN_OPERATION_REQUEST,
+    ) -> Result<Self, WinWebAuthnError>
+    where
+        Self: Sized;
+}
+
+impl<'a> OperationRequest<'a> for PluginGetAssertionRequest<'a> {
+    fn transaction_id(&self) -> GUID {
+        self.transaction_id
+    }
+
+    unsafe fn try_from_operation_request(
+        request: &'a WEBAUTHN_PLUGIN_OPERATION_REQUEST,
+    ) -> Result<Self, WinWebAuthnError>
+    where
+        Self: Sized,
+    {
+        Self::try_from_ptr(request)
+    }
+}
+
+impl<'a> OperationRequest<'a> for PluginMakeCredentialRequest<'a> {
+    fn transaction_id(&self) -> GUID {
+        self.transaction_id
+    }
+
+    unsafe fn try_from_operation_request(
+        request: &'a WEBAUTHN_PLUGIN_OPERATION_REQUEST,
+    ) -> Result<Self, WinWebAuthnError>
+    where
+        Self: Sized,
+    {
+        Self::try_from_ptr(request)
+    }
+}
+struct OperationResponse {
+    inner: NonNull<WEBAUTHN_PLUGIN_OPERATION_RESPONSE>,
+}
+
+impl OperationResponse {
+    /// # Safety
+    /// The caller must ensure that `ptr` points to a valid
+    /// [`WEBAUTHN_PLUGIN_OPERATION_RESPONSE`], e.g. `pbEncodedResponse` must be
+    /// a COM-allocated buffer of bytes of length `cbEncodedResponse`.
+    unsafe fn new(
+        ptr: NonNull<WEBAUTHN_PLUGIN_OPERATION_RESPONSE>,
+    ) -> Result<Self, WinWebAuthnError> {
+        if !ptr.is_aligned() {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::InvalidArguments,
+                "Response buffer is not aligned",
+            ));
+        }
+        Ok(Self { inner: ptr })
+    }
+
+    /// Copies data as COM-allocated buffer and writes to response pointer.
+    ///
+    /// Safety constraints: [response] must point to a valid
+    /// WEBAUTHN_PLUGIN_OPERATION_RESPONSE struct.
+    fn write(&mut self, data: &[u8]) -> Result<(), WinWebAuthnError> {
+        let len = match data.len().try_into() {
+            Ok(len) => len,
+            Err(err) => {
+                return Err(WinWebAuthnError::with_cause(
+                    ErrorKind::Serialization,
+                    "Response is too long to return to OS",
+                    err,
+                ));
+            }
+        };
+        let buf = data.to_com_buffer();
+        // SAFETY: We verified that the pointer is aligned and non-null.
+        unsafe {
+            self.inner.write(WEBAUTHN_PLUGIN_OPERATION_RESPONSE {
+                cbEncodedResponse: len,
+                pbEncodedResponse: buf.into_raw(),
+            });
+        }
+        Ok(())
+    }
+}
+
 // MakeCredential types
 
 #[derive(Debug)]
@@ -629,9 +719,8 @@ impl<'a> PluginMakeCredentialRequest<'a> {
     /// - pbEncodedRequest must be non-null and have the length specified in cbEncodedRequest.
     /// - pbRequestSignature must be non-null and have the length specified in cbRequestSignature.
     pub(super) unsafe fn try_from_ptr(
-        ptr: NonNull<WEBAUTHN_PLUGIN_OPERATION_REQUEST>,
+        request: &'a WEBAUTHN_PLUGIN_OPERATION_REQUEST,
     ) -> Result<PluginMakeCredentialRequest<'a>, WinWebAuthnError> {
-        let request = ptr.as_ref();
         if !matches!(
             request.requestType,
             WEBAUTHN_PLUGIN_REQUEST_TYPE::CTAP2_CBOR
@@ -914,15 +1003,16 @@ impl PluginMakeCredentialResponse {
 // GetAssertion types
 
 #[derive(Debug)]
-pub struct PluginGetAssertionRequest {
+pub struct PluginGetAssertionRequest<'a> {
     inner: *const WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST,
     pub window_handle: HWND,
     pub transaction_id: GUID,
     pub request_signature: Vec<u8>,
     pub request_hash: Vec<u8>,
+    _phantom: PhantomData<&'a WEBAUTHN_PLUGIN_OPERATION_REQUEST>,
 }
 
-impl PluginGetAssertionRequest {
+impl<'a> PluginGetAssertionRequest<'a> {
     pub fn rp_id(&self) -> &str {
         let inner = self.as_ref();
         unsafe {
@@ -960,37 +1050,38 @@ impl PluginGetAssertionRequest {
     }
 
     /// # Safety
-    /// When calling this method, callers must ensure:
-    /// - `ptr` must be convertible to a reference.
-    /// - pbEncodedRequest must be non-null and have the length specified in cbEncodedRequest.
-    /// - pbEncodedRequest must point to a valid byte string of a CTAP GetAssertion request.
+    /// When calling this method, callers must ensure that the request is valid.
+    /// Specifically:
+    /// - `pbEncodedRequest` must be non-null and have the length specified in `cbEncodedRequest`.
+    /// - `pbEncodedRequest` must point to a valid byte string of a CTAP `GetAssertion` request.
+    ///
+    /// A request can be considered valid if the signature is verified as coming from the OS.
     pub(super) unsafe fn try_from_ptr(
-        value: NonNull<WEBAUTHN_PLUGIN_OPERATION_REQUEST>,
-    ) -> Result<PluginGetAssertionRequest, WinWebAuthnError> {
-        // SAFETY: caller must ensure that ptr is convertible to a reference.
-        let request = value.as_ref();
-        if !matches!(
-            request.requestType,
-            WEBAUTHN_PLUGIN_REQUEST_TYPE::CTAP2_CBOR
-        ) {
+        value: &'a WEBAUTHN_PLUGIN_OPERATION_REQUEST,
+    ) -> Result<PluginGetAssertionRequest<'a>, WinWebAuthnError> {
+        if !matches!(value.requestType, WEBAUTHN_PLUGIN_REQUEST_TYPE::CTAP2_CBOR) {
             return Err(WinWebAuthnError::new(
                 ErrorKind::Serialization,
                 "Unknown plugin operation request type",
             ));
         }
         // SAFETY: Caller must ensure that the pointer and count is valid.
-        let request_slice =
-            std::slice::from_raw_parts(request.pbEncodedRequest, request.cbEncodedRequest as usize);
+        let request_slice = unsafe {
+            std::slice::from_raw_parts(value.pbEncodedRequest, value.cbEncodedRequest as usize)
+        };
         let request_hash = crypto::hash_sha256(request_slice).map_err(|err| {
             WinWebAuthnError::with_cause(ErrorKind::WindowsInternal, "failed to hash request", err)
         })?;
         let mut assertion_request: *mut WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST =
             std::ptr::null_mut();
-        webauthn_decode_get_assertion_request(
-            request.cbEncodedRequest,
-            request.pbEncodedRequest,
-            &mut assertion_request,
-        )?
+        // SAFETY: The caller must ensure that this is valid.
+        unsafe {
+            webauthn_decode_get_assertion_request(
+                value.cbEncodedRequest,
+                value.pbEncodedRequest,
+                &mut assertion_request,
+            )
+        }?
         .ok()
         .map_err(|err| {
             WinWebAuthnError::with_cause(
@@ -1000,7 +1091,7 @@ impl PluginGetAssertionRequest {
             )
         })?;
 
-        if request.hWnd.is_invalid() {
+        if value.hWnd.is_invalid() {
             return Err(WinWebAuthnError::new(
                 ErrorKind::WindowsInternal,
                 "Invalid handle received",
@@ -1010,26 +1101,27 @@ impl PluginGetAssertionRequest {
         Ok(Self {
             // SAFETY: Windows should return a valid decoded assertion request struct.
             inner: assertion_request as *const WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST,
-            window_handle: request.hWnd,
-            transaction_id: request.transactionId,
+            window_handle: value.hWnd,
+            transaction_id: value.transactionId,
             // SAFETY: Caller is expected to ensure that signature buffer parameters are correct.
             request_signature: std::slice::from_raw_parts(
-                request.pbRequestSignature,
-                request.cbRequestSignature as usize,
+                value.pbRequestSignature,
+                value.cbRequestSignature as usize,
             )
             .to_vec(),
             request_hash,
+            _phantom: PhantomData,
         })
     }
 }
 
-impl AsRef<WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST> for PluginGetAssertionRequest {
+impl AsRef<WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST> for PluginGetAssertionRequest<'_> {
     fn as_ref(&self) -> &WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
         unsafe { &*self.inner }
     }
 }
 
-impl Drop for PluginGetAssertionRequest {
+impl Drop for PluginGetAssertionRequest<'_> {
     fn drop(&mut self) {
         if !self.inner.is_null() {
             // SAFETY: the caller is responsible for ensuring that this pointer
@@ -1059,7 +1151,7 @@ impl PluginCancelOperationRequest<'_> {
     }
 
     /// Request signature.
-    pub(super) fn request_signature(&self) -> Signature {
+    pub(super) fn request_signature(&self) -> Signature<'_> {
         let slice = unsafe {
             std::slice::from_raw_parts(
                 self.as_ref().pbRequestSignature,
@@ -1087,22 +1179,28 @@ impl From<NonNull<WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST>> for PluginCancelOpe
     }
 }
 
-impl WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST {
-    /// Extract the signature from the cancel operation request.
-    ///
-    /// The signature is made by the OS over the SHA-256 hash of the operation
-    /// request buffer using the signing key created during authenticator
-    /// registration and retrievable via
-    /// [webauthn_plugin_get_operation_signing_public_key](crate::plugin::crypto::webauthn_plugin_get_operation_signing_public_key).
-    ///
-    /// # Safety
-    /// The caller must ensure that `request.pbRequestSignature` points to a valid non-null byte
-    /// string of length `request.cbRequestSignature`.
-    pub(super) unsafe fn signature(&self) -> Signature<'_> {
-        // SAFETY: The caller must make sure that the encoded request is valid.
-        let signature =
-            std::slice::from_raw_parts(self.pbRequestSignature, self.cbRequestSignature as usize);
-        Signature::new(signature)
+#[doc(hidden)]
+impl TryFrom<*const WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST> for PluginCancelOperationRequest<'_> {
+    type Error = HRESULT;
+    fn try_from(
+        value: *const WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
+    ) -> Result<Self, Self::Error> {
+        let op_request_ptr = match NonNull::new(value.cast_mut()) {
+            Some(p) => p,
+            None => {
+                tracing::warn!(
+                    "CancelOperation called with null request pointer from Windows. Aborting request."
+                );
+                return Err(E_INVALIDARG);
+            }
+        };
+        if !op_request_ptr.is_aligned() {
+            return Err(E_INVALIDARG);
+        }
+        Ok(Self {
+            inner: op_request_ptr,
+            _phantom: PhantomData,
+        })
     }
 }
 
