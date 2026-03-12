@@ -3,4 +3,5 @@
 export class SecretProjectView {
   id: string;
   name: string;
+  decryptionError: boolean = false;
 }

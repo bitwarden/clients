@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "მისამართის დაკოპირება"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "adminConsole": {
     "message": "Admin Console"
   },
@@ -6150,6 +6153,15 @@
   },
   "searchResults": {
     "message": "Search results"
+  },
+  "simplifiedAutofill": {
+    "message": "Simplified autofill"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open simplified autofill popover"
   },
   "resizeSideNavigation": {
     "message": "Resize side navigation"

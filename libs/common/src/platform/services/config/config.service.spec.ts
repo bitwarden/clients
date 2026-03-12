@@ -173,10 +173,7 @@ describe("ConfigService", () => {
 
               const result = await firstValueFrom(sut.serverCommunicationConfig$);
 
-              expect(result).toEqual({
-                hostname: activeApiUrl,
-                config: { bootstrap: { type: "direct" } },
-              });
+              expect(result).toEqual({ bootstrap: { type: "direct" } });
             });
 
             it("emits ssoCookieVendor config when response includes ssoCookieVendor bootstrap", async () => {
@@ -193,15 +190,12 @@ describe("ConfigService", () => {
               const result = await firstValueFrom(sut.serverCommunicationConfig$);
 
               expect(result).toEqual({
-                hostname: activeApiUrl,
-                config: {
-                  bootstrap: {
-                    type: "ssoCookieVendor",
-                    idpLoginUrl: "https://idp.example.com",
-                    cookieName: "auth_token",
-                    cookieDomain: ".example.com",
-                    cookieValue: undefined,
-                  },
+                bootstrap: {
+                  type: "ssoCookieVendor",
+                  idpLoginUrl: "https://idp.example.com",
+                  cookieName: "auth_token",
+                  cookieDomain: ".example.com",
+                  cookieValue: undefined,
                 },
               });
             });

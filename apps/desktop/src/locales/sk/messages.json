@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Obľúbené"
   },
+  "unfavorite": {
+    "message": "Odstrániť z obľúbených"
+  },
   "types": {
     "message": "Typy"
   },
@@ -586,6 +589,12 @@
   "editedItem": {
     "message": "Položka bola uložená"
   },
+  "itemAddedToFavorites": {
+    "message": "Položka pridaná medzi obľúbené"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Položka odobraná z obľúbených"
+  },
   "deleteItem": {
     "message": "Odstrániť položku"
   },
@@ -1024,7 +1033,7 @@
     "message": "Neplatný verifikačný kód"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "Neplatný e-mail alebo overovací kód"
   },
   "continue": {
     "message": "Pokračovať"
@@ -1555,6 +1564,18 @@
   "unknown": {
     "message": "Neznáme"
   },
+  "copyAddress": {
+    "message": "Kopírovať adresu"
+  },
+  "copyPhone": {
+    "message": "Kopírovať telefón"
+  },
+  "copyNote": {
+    "message": "Kopírovať poznámku"
+  },
+  "copyVerificationCode": {
+    "message": "Kopírovať overovací kód"
+  },
   "copyUsername": {
     "message": "Kopírovať používateľské meno"
   },
@@ -2082,6 +2103,24 @@
   "searchTrash": {
     "message": "Hľadať v koši"
   },
+  "searchArchive": {
+    "message": "Prehľadať archív"
+  },
+  "searchLogin": {
+    "message": "Hľadať prihlásenia"
+  },
+  "searchCard": {
+    "message": "Hľadať karty"
+  },
+  "searchIdentity": {
+    "message": "Hľadať identity"
+  },
+  "searchSecureNote": {
+    "message": "Hľadať zabezpečené poznámky"
+  },
+  "searchSshKey": {
+    "message": "Hľadať kľúč SSH"
+  },
   "permanentlyDeleteItem": {
     "message": "Natrvalo odstrániť položku"
   },
@@ -2377,6 +2416,9 @@
   "editSend": {
     "message": "Upraviť Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Ja"
   },
   "myVault": {
     "message": "Môj trezor"
@@ -4086,6 +4128,9 @@
   "missingWebsite": {
     "message": "Chýbajúca webová stránka"
   },
+  "missingPermissions": {
+    "message": "Na vykonanie tejto akcie vám chýbajú potrebné povolenia."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Zbierky, ktoré môžete len zobraziť nemôžete odstrániť: $COLLECTIONS$",
     "placeholders": {
@@ -4589,6 +4634,36 @@
   },
   "whyAmISeeingThis": {
     "message": "Prečo to vidím?"
+  },
+  "organizationIsSuspended": {
+    "message": "Organizácia je pozastavená"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "K položkám v pozastavenej organizácii nie je možné pristupovať. Požiadajte o pomoc vlastníka organizácie."
+  },
+  "noItemsInTrash": {
+    "message": "V koši nie sú žiadne položky"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Položky, ktoré odstránite, sa zobrazia tu a po 30 dňoch sa odstránia natrvalo"
+  },
+  "noItemsInVault": {
+    "message": "V trezore nie sú žiadne položky"
+  },
+  "emptyVaultDescription": {
+    "message": "Trezor chráni viac ako len heslá. Môžete tu bezpečne ukladať prihlasovacie údaje, identifikačné údaje, karty a poznámky."
+  },
+  "emptyFavorites": {
+    "message": "Nemáte žiadne obľúbené položky"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Pre rýchly prístup pridajte položky medzi obľúbené."
+  },
+  "noSearchResults": {
+    "message": "Nenašli sa žiadne výsledky vyhľadávania"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Vymažte filtre alebo zmeňte vyhľadávaný výraz"
   },
   "sendPasswordHelperText": {
     "message": "Jednotlivci budú musieť zadať heslo, aby mohli zobraziť tento Send",

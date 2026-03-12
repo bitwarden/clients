@@ -32,3 +32,8 @@ export type VerifyingKey = Opaque<string, "VerifyingKey">;
  * A signed security state, encoded in base64.
  */
 export type SignedSecurityState = Opaque<SdkSignedSecurityState, "SignedSecurityState">;
+
+/**
+ * A local user data key, encrypted with a symmetric key.
+ */
+export type LocalUserDataKey = Opaque<EncString, "LocalUserDataKey">;
