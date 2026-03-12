@@ -78,7 +78,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     const classes: string[] = [];
 
     // Icon-button specific layout styles
-    classes.push("tw-relative", "tw-inline-block", "tw-align-middle");
+    classes.push("tw-relative", "tw-inline-block", "tw-align-middle", "tw-shrink-0");
 
     // Add icon-button specific size styles (color styles are applied by BaseButtonDirective)
     classes.push(...getIconButtonSizeStyles(this.size()));
