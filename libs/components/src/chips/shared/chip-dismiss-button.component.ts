@@ -33,7 +33,7 @@ export class ChipDismissButtonComponent {
   readonly classList = computed(() => {
     const baseClasses = [
       "tw-bg-transparent",
-      "hover:tw-bg-hover-contrast",
+      "hover:tw-bg-bg-hover",
       "tw-outline-none",
       "tw-rounded-md",
       "tw-p-0.5",
