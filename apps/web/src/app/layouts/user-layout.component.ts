@@ -13,11 +13,9 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { SvgModule } from "@bitwarden/components";
-import { AccountBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
@@ -37,7 +35,6 @@ import { WebLayoutModule } from "./web-layout.module";
     SvgModule,
     BillingFreeFamiliesNavItemComponent,
   ],
-  providers: [AccountBillingClient, PremiumSubscriptionRoutingService],
 })
 export class UserLayoutComponent implements OnInit {
   protected readonly logo = PasswordManagerLogo;
@@ -47,7 +44,6 @@ export class UserLayoutComponent implements OnInit {
     switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId)),
     map((isDisabled) => !isDisabled),
   );
-  protected consolidatedSessionTimeoutComponent$: Observable<boolean>;
   protected subscriptionRoute$: Observable<string | null>;
 
   constructor(
@@ -64,10 +60,6 @@ export class UserLayoutComponent implements OnInit {
           canAccessEmergencyAccess(userId, this.configService, this.policyService),
         ),
       ),
-    );
-
-    this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
-      FeatureFlag.ConsolidatedSessionTimeoutComponent,
     );
 
     this.subscriptionRoute$ = this.premiumSubscriptionRoutingService.getSubscriptionRoute$();
