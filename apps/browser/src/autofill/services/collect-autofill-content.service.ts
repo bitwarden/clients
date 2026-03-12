@@ -564,12 +564,16 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     const labelElements = this.queryElementLabels(element);
     if (labelElements?.length) {
-      for (const label of labelElements) {labelElementsSet.add(label);}
+      for (const label of labelElements) {
+        labelElementsSet.add(label);
+      }
     }
 
     let currentElement: HTMLElement | null = element;
     while (currentElement !== null && currentElement !== document.documentElement) {
-      if (elementIsLabelElement(currentElement)) {labelElementsSet.add(currentElement);}
+      if (elementIsLabelElement(currentElement)) {
+        labelElementsSet.add(currentElement);
+      }
       currentElement = currentElement.parentElement?.closest("label") ?? null;
     }
 
@@ -1480,7 +1484,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const updateActions: Record<string, CallableFunction> = {
       action: () => {
         const actionUrl = this.getFormActionAttribute(element);
-        if (actionUrl !== null) {dataTarget.htmlAction = actionUrl;}
+        if (actionUrl !== null) {
+          dataTarget.htmlAction = actionUrl;
+        }
       },
       name: () => updateAttribute("htmlName"),
       id: () => updateAttribute("htmlID"),
