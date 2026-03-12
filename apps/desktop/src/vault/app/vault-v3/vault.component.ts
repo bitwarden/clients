@@ -28,7 +28,6 @@ import {
 import { filter, map, shareReplay, concatMap, tap } from "rxjs/operators";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import {
   NoResults,
@@ -74,18 +73,12 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
-  BadgeModule,
-  ButtonModule,
   DialogRef,
   DialogService,
-  ItemModule,
   ToastService,
   CopyClickListener,
-  IconButtonModule,
   SearchModule,
-  NoItemsModule,
 } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
 import {
   AttachmentsV2Component,
   AttachmentDialogResult,
@@ -101,6 +94,7 @@ import {
   VaultFilterServiceAbstraction as VaultFilterService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
+  RoutedVaultFilterModel,
   VaultItemDialogComponent,
   VaultItemDialogMode,
   VaultItemDialogResult,
@@ -135,19 +129,12 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
   selector: "app-vault-v3",
   templateUrl: "vault.component.html",
   imports: [
-    BadgeModule,
     CommonModule,
-    I18nPipe,
-    ItemModule,
-    ButtonModule,
-    IconButtonModule,
-    PremiumBadgeComponent,
     VaultListComponent,
     DesktopHeaderComponent,
     NewCipherMenuComponent,
     SearchModule,
     FormsModule,
-    NoItemsModule,
   ],
   providers: [
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
@@ -216,10 +203,6 @@ export class VaultComponent<C extends CipherViewLike>
     { initialValue: false },
   );
 
-  readonly archiveFlagEnabled = toSignal(this.cipherArchiveService.hasArchiveFlagEnabled$, {
-    initialValue: false,
-  });
-
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
     filterOutNullish(),
@@ -243,12 +226,6 @@ export class VaultComponent<C extends CipherViewLike>
 
       return true;
     }),
-  );
-
-  protected hasArchivedCiphers$ = this.userId$.pipe(
-    switchMap((userId) =>
-      this.cipherArchiveService.archivedCiphers$(userId).pipe(map((ciphers) => ciphers.length > 0)),
-    ),
   );
 
   protected deactivatedOrgIcon = DeactivatedOrg;
@@ -890,9 +867,13 @@ export class VaultComponent<C extends CipherViewLike>
       }
       this.activeDrawerRef.close();
     }
+    const filter: RoutedVaultFilterModel = await firstValueFrom(
+      this.routedVaultFilterService.filter$,
+    );
     this.activeDrawerRef = VaultItemDialogComponent.openDrawer(this.dialogService, {
       mode,
       formConfig,
+      filter,
     });
     this.activeDrawerRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       this.activeDrawerRef = undefined;
@@ -907,7 +888,7 @@ export class VaultComponent<C extends CipherViewLike>
     });
   }
 
-  /** Refresh the current cipher object */
+  /** Prompts the user for their master password if the cipher has reprompt enabled. */
   private async passwordReprompt(cipher: CipherView) {
     if (cipher.reprompt === CipherRepromptType.None) {
       this.cipherRepromptId = null;

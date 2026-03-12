@@ -136,6 +136,7 @@ import {
 } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import {
+  CipherFormGenerationService,
   DefaultSshImportPromptService,
   SshImportPromptService,
   VaultFilterServiceAbstraction,
@@ -172,6 +173,7 @@ import { I18nRendererService } from "../../platform/services/i18n.renderer.servi
 import { fromIpcMessaging } from "../../platform/utils/from-ipc-messaging";
 import { fromIpcSystemTheme } from "../../platform/utils/from-ipc-system-theme";
 import { BiometricMessageHandlerService } from "../../services/biometric-message-handler.service";
+import { DesktopCredentialGenerationService } from "../../services/desktop-cipher-form-generator.service";
 import { DuckDuckGoMessageHandlerService } from "../../services/duckduckgo-message-handler.service";
 import { EncryptedMessageHandlerService } from "../../services/encrypted-message-handler.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
@@ -191,6 +193,11 @@ const RELOAD_CALLBACK = new SafeInjectionToken<() => any>("RELOAD_CALLBACK");
  */
 const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
+  safeProvider({
+    provide: CipherFormGenerationService,
+    useClass: DesktopCredentialGenerationService,
+    deps: [],
+  }),
   safeProvider({
     provide: BiometricsService,
     useClass: RendererBiometricsService,

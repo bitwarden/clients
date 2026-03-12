@@ -11,11 +11,9 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { IconModule } from "@bitwarden/components";
-import { CipherFormGenerationService } from "@bitwarden/vault";
 
 import { SshAgentService } from "../autofill/services/ssh-agent.service";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
-import { DesktopCredentialGenerationService } from "../services/desktop-cipher-form-generator.service";
 import { DesktopPremiumUpgradePromptService } from "../services/desktop-premium-upgrade-prompt.service";
 
 import { AppRoutingModule } from "./app-routing.module";
@@ -55,10 +53,6 @@ import { ServicesModule } from "./services/services.module";
     {
       provide: PremiumUpgradePromptService,
       useClass: DesktopPremiumUpgradePromptService,
-    },
-    {
-      provide: CipherFormGenerationService,
-      useClass: DesktopCredentialGenerationService,
     },
   ],
   bootstrap: [AppComponent],

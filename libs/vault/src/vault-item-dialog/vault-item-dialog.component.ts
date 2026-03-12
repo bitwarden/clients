@@ -1,4 +1,4 @@
-// FIXME(https://bitwarden.atlassian.net/browse/PM-XXXXX): Update this file to be type safe and remove this and next line
+// FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, Inject, inject, OnDestroy, OnInit, viewChild } from "@angular/core";
@@ -35,8 +35,7 @@ import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-u
 import {
   AsyncActionsModule,
   ButtonModule,
-  COPY_CLICK_LISTENER,
-  CopyClickListener,
+  CenterPositionStrategy,
   DIALOG_DATA,
   DialogComponent,
   DialogModule,
@@ -85,6 +84,13 @@ export interface VaultItemDialogParams {
    * If true, the dialog is being opened from the admin console.
    */
   isAdminConsoleAction?: boolean;
+
+  /**
+   * The active vault filter. Used to determine context-specific UI (e.g. trash filter shows
+   * Restore instead of Edit/Delete). Pass this when the dialog is opened outside a routed
+   * context (e.g. desktop drawer) where RoutedVaultFilterService is not in the injection tree.
+   */
+  filter?: RoutedVaultFilterModel;
 
   /**
    * Function to restore a cipher from the trash.
@@ -150,10 +156,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   private readonly dialogComponent = viewChild(DialogComponent);
 
   // Optional — only provided by platforms that support it (e.g. desktop minimizeOnCopy)
-  private readonly copyClickListener = inject(COPY_CLICK_LISTENER, {
-    optional: true,
-  }) as CopyClickListener | null;
-
   // Optional — only provided in web where routed vault filter exists
   private readonly routedVaultFilterService = inject(RoutedVaultFilterService, { optional: true });
 
@@ -346,7 +348,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   ) {
     this.updateTitle();
     this.premiumUpgradeService.upgradeConfirmed$
-      .pipe(
+      ?.pipe(
         map((c) => c && (this.confirmedPremiumUpgrade = true)),
         takeUntilDestroyed(),
       )
@@ -400,7 +402,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       );
     }
 
-    if (this.routedVaultFilterService) {
+    if (this.params.filter) {
+      this.filter = this.params.filter;
+    } else if (this.routedVaultFilterService) {
       this.filter = await firstValueFrom(this.routedVaultFilterService.filter$);
     }
 
@@ -744,19 +748,20 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Opens the VaultItemDialog as a modal (web).
+   * Opens the VaultItemDialog as a modal.
    */
   static open(dialogService: DialogService, params: VaultItemDialogParams) {
     return dialogService.open<VaultItemDialogResult, VaultItemDialogParams>(
       VaultItemDialogComponent,
       {
         data: params,
+        positionStrategy: new CenterPositionStrategy(),
       },
     );
   }
 
   /**
-   * Opens the VaultItemDialog as a drawer (desktop).
+   * Opens the VaultItemDialog as a drawer.
    */
   static openDrawer(dialogService: DialogService, params: VaultItemDialogParams) {
     return dialogService.openDrawer<VaultItemDialogResult, VaultItemDialogParams>(
