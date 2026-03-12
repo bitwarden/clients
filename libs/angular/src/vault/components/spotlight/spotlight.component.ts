@@ -25,7 +25,7 @@ export class SpotlightComponent {
   // Whether the component can be dismissed, if true, the component will not show a close button
   readonly persistent = input(false, { transform: booleanAttribute });
   // Optional icon to display on the button
-  readonly buttonIcon = input<BitwardenIcon>();
+  readonly buttonIcon = input<BitwardenIcon | string>();
   readonly onDismiss = output<void>();
   readonly onButtonClick = output<MouseEvent>();
 
