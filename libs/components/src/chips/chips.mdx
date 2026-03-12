@@ -1,0 +1,89 @@
+import { Meta, Primary, Controls, Canvas, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as chipStories from "./chip/chip.stories";
+import * as filterChipStories from "./chip-filter/chip-filter.stories";
+import * as actionChipStories from "./chip-action/chip-action.stories";
+
+<Meta title="Component Library/Chips" />
+
+## Overview
+
+Chips are compact, interactive UI elements used to represent options, values, or actions in a
+lightweight, scannable format. They provide a consistent way to display and interact with discrete
+pieces of information across the Bitwarden interface.
+
+## Using chips
+
+Use chips when information or controls need to be:
+
+- Immediately recognizable
+- Quickly actionable
+- Easily grouped or compared
+- Secondary to the primary content or actions on the screen
+
+## Chip Types
+
+The component library provides three types of chips, each designed for specific use cases:
+
+### Chip
+
+The `bit-chip` component represents user-provided values, entities, or selections that can be
+reviewed, edited, or removed.
+
+<Canvas of={chipStories.Default} />
+
+**Use the chip when:**
+
+- Displaying user-entered tags or labels
+- Showing selected items that can be dismissed
+- Representing discrete entities with remove functionality
+
+See [Chip](?path=/docs/component-library-chips-chip--docs) for detailed usage, variants, and
+examples.
+
+### Action Chip
+
+Action chips trigger a single contextual action related to the current view or task. They help users
+act quickly without changing selection state or entering input. Action chips can be implemented as
+buttons or links.
+
+<Canvas of={actionChipStories.Default} />
+
+**Use action chips when:**
+
+- Providing quick access to contextual actions
+- Offering lightweight interactive elements that don't change state
+- Creating actions that complement but don't compete with primary buttons
+
+See [Chip Action](?path=/docs/component-library-chips-chip-action--docs) for detailed usage,
+variants, and examples.
+
+### Filter Chip
+
+Filter chips allow users to narrow or refine a list of items by predefined criteria. They can be
+single-select or multi-select with dropdown menus, supporting both flat and nested option
+structures.
+
+<Canvas of={filterChipStories.Default} />
+
+**Use filter chips when:**
+
+- Filtering lists or tables by specific criteria
+- Allowing users to select from predefined options
+- Supporting hierarchical filter selections
+
+See [Chip Filter](?path=/docs/component-library-chips-chip-filter--docs) for detailed usage and
+examples.
+
+## Content Guidelines
+
+Chip copy should be **1-2 words** for optimal scannability.
+
+Long chip text will truncate with ellipses rather than wrap to a second line.
+
+<Canvas of={chipStories.WithLongLabel} />
+
+### Accessibility
+
+- Ensure sufficient color contrast when using chips on different backgrounds
+- Use descriptive labels that clearly identify what the chip represents

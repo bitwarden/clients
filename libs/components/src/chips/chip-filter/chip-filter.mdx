@@ -1,0 +1,120 @@
+import { Meta, Primary, Controls, Canvas, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./chip-filter.stories";
+
+<Meta of={stories} />
+
+```ts
+import { ChipFilterComponent } from "@bitwarden/components";
+```
+
+<Title />
+
+## Overview
+
+<Description />
+
+<Canvas of={stories.Default} />
+
+For general information about chips, their types, and usage guidelines, see the
+[Chip overview](?path=/docs/component-library-chips--docs).
+
+## Options
+
+Options are passed to the select via an `options` input.
+
+```ts
+@Component({
+  selector: "your-component",
+  template: `
+    <bit-chip-filter
+      [options]="options"
+      placeholderText="Folder"
+      placeholderIcon="bwi-folder"
+    ></bit-chip-filter>
+  `,
+})
+class MyComponent {
+  protected options = [
+    {
+      label: "Foo",
+      value: "foo",
+      icon: "bwi-folder",
+    },
+    {
+      label: "Bar",
+      value: "bar",
+      icon: "bwi-exclamation-triangle",
+      iconClass: "tw-text-danger",
+    },
+    {
+      label: "Baz",
+      value: "baz",
+      disabled: true,
+    },
+  ];
+}
+```
+
+### Nested Options
+
+Nested trees of options are also supported by passing an array of options to `children`.
+
+```ts
+const options = [
+  {
+    label: "Foo0",
+    value: "foo0",
+    icon: "bwi-folder",
+    children: [
+      {
+        label: "Foo1",
+        value: "foo1",
+        icon: "bwi-folder",
+        children: [
+          {
+            label: "Foo2",
+            value: "foo2",
+            icon: "bwi-folder",
+            children: [
+              {
+                label: "Foo3",
+                value: "foo3",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    label: "Bar",
+    value: "bar",
+    icon: "bwi-folder",
+  },
+  {
+    label: "Baz",
+    value: "baz",
+    icon: "bwi-folder",
+  },
+];
+```
+
+<Canvas of={stories.NestedOptions} />
+
+## Placeholder
+
+Placeholder content is shown when no item is selected.
+
+```html
+<bit-chip-filter placeholderText="Foo" placeholderIcon="bwi-key"> </bit-chip-filter>
+```
+
+## Reading the Current Value
+
+The component implements `ControlValueAccessor`, so the selected value can be accessed via `ngModel`
+or `[formControlName]`.
+
+```html
+<bit-chip-filter [(ngModel)]="..."></bit-chip-filter>
+```

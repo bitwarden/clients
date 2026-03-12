@@ -100,20 +100,22 @@
   --color-brand-800: #0d43af;
   --color-brand-900: #0c3276;
   --color-brand-950: #162455;
+  --color-brand-950-rgb: 22, 36, 85;
 
   /* Gray Colors */
-  --color-gray-050: #f9fafb;
-  --color-gray-100: #f3f4f6;
-  --color-gray-200: #e5e7eb;
-  --color-gray-300: #d1d5dc;
-  --color-gray-400: #99a1af;
-  --color-gray-500: #6a7282;
-  --color-gray-600: #4a5565;
-  --color-gray-700: #333e4f;
-  --color-gray-800: #1e2939;
-  --color-gray-900: #101828;
-  --color-gray-950: #070b18;
-  --color-gray-950-rgb: 7, 11, 24;
+  --color-gray-050: #f5f7fa;
+  --color-gray-100: #e6ebf2;
+  --color-gray-200: #d5dde8;
+  --color-gray-300: #b4c2d4;
+  --color-gray-400: #8496b0;
+  --color-gray-400-rgb: 132, 150, 176;
+  --color-gray-500: #62748e;
+  --color-gray-600: #45556c;
+  --color-gray-700: #314158;
+  --color-gray-800: #1d293d;
+  --color-gray-900: #0f172b;
+  --color-gray-950: #020618;
+  --color-gray-950-rgb: 2, 6, 24;
 
   /* Red Colors */
   --color-red-050: #fef2f2;
@@ -133,13 +135,13 @@
   --color-orange-100: #feecdc;
   --color-orange-200: #fcd9bd;
   --color-orange-300: #fdba8c;
-  --color-orange-400: #ff8a4c;
-  --color-orange-500: #ff5a1f;
-  --color-orange-600: #d03801;
-  --color-orange-700: #b43403;
-  --color-orange-800: #8a2c0d;
-  --color-orange-900: #70240b;
-  --color-orange-950: #441306;
+  --color-orange-400: #ff894a;
+  --color-orange-500: #fa6216;
+  --color-orange-600: #e04b00;
+  --color-orange-700: #b23300;
+  --color-orange-800: #8a2203;
+  --color-orange-900: #631c04;
+  --color-orange-950: #441600;
 
   /* Yellow Colors */
   --color-yellow-050: #fefce8;
@@ -223,6 +225,7 @@
   --color-white: #ffffff;
   --color-white-rgb: 255, 255, 255;
   --color-black: #000000;
+  --color-black-rgb: 0, 0, 0;
 
   /* ========================================
    * SEMANTIC FOREGROUND COLORS (Light Mode)
@@ -278,6 +281,7 @@
   --color-bg-tertiary: var(--color-gray-050);
   --color-bg-quaternary: var(--color-gray-200);
   --color-bg-gray: var(--color-gray-300);
+  --color-bg-gray-strong: var(--color-gray-500);
   --color-bg-disabled: var(--color-gray-100);
 
   /* Brand Background */
@@ -314,6 +318,11 @@
 
   /* Hover & Overlay */
   --color-bg-hover: rgba(var(--color-gray-950-rgb), 0.05);
+  --color-bg-sidenav-hover: rgba(var(--color-black-rgb), 0.2);
+  --color-bg-sidenav-hover-strong: rgba(var(--color-black-rgb), 0.45);
+  --color-bg-sidenav-secondary-hover: rgba(var(--color-brand-950-rgb), 0.1);
+  --color-bg-sidenav-secondary-hover-strong: rgba(var(--color-brand-950-rgb), 0.25);
+  --color-bg-hover-contrast: rgba(var(--color-white-rgb), 0.05);
   --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.3);
 
   /* ========================================
@@ -324,13 +333,13 @@
   --color-border-muted: var(--color-gray-050);
   --color-border-light: var(--color-gray-100);
   --color-border-base: var(--color-gray-200);
-  --color-border-strong: var(--color-gray-800);
+  --color-border-strong: var(--color-gray-400);
   --color-border-buffer: var(--color-white);
 
   /* Brand Border */
   --color-border-brand-soft: var(--color-brand-200);
   --color-border-brand: var(--color-brand-700);
-  --color-border-brand-strong: var(--color-brand-900);
+  --color-border-brand-strong: var(--color-brand-800);
 
   /* Status Border */
   --color-border-success-soft: var(--color-green-200);
@@ -353,6 +362,7 @@
 
   /* Focus Border */
   --color-border-focus: var(--color-black);
+  --color-border-focus-contrast: var(--color-white);
 
   /**========================================
    * SIDENAV BACKGROUND COLORS (Light mode)
@@ -360,12 +370,20 @@
   --color-sidenav-background: var(--color-brand-800);
   --color-sidenav-text: var(--color-white);
   --color-sidenav-active-item: var(--color-brand-900);
-  --color-sidenav-item-hover: var(--color-brand-900);
+  --color-sidenav-item-hover: var(--color-bg-sidenav-hover);
+  --color-sidenav-active-item-hover: var(--color-bg-sidenav-hover-strong);
+  --color-sidenav-arrow-hover: var(--color-bg-sidenav-hover);
+  --color-sidenav-active-arrow-hover: var(--color-bg-sidenav-hover-strong);
+  --color-sidenav-focus: var(--color-white);
 
-  --color-admin-sidenav-background: var(--color-gray-100);
-  --color-admin-sidenav-text: var(--color-gray-900);
-  --color-admin-sidenav-active-item: var(--color-gray-300);
-  --color-admin-sidenav-item-hover: var(--color-gray-300);
+  --color-sidenav-secondary-background: var(--color-gray-100);
+  --color-sidenav-secondary-text: var(--color-gray-900);
+  --color-sidenav-secondary-active-item: var(--color-gray-300);
+  --color-sidenav-secondary-item-hover: var(--color-bg-sidenav-secondary-hover);
+  --color-sidenav-secondary-active-item-hover: var(--color-bg-sidenav-secondary-hover-strong);
+  --color-sidenav-secondary-arrow-hover: var(--color-bg-sidenav-secondary-hover);
+  --color-sidenav-secondary-active-arrow-hover: var(--color-bg-sidenav-secondary-hover-strong);
+  --color-sidenav-secondary-focus: var(--color-black);
 }
 
 .theme_light {
@@ -481,6 +499,7 @@
   --color-bg-tertiary: var(--color-gray-950);
   --color-bg-quaternary: var(--color-gray-700);
   --color-bg-gray: var(--color-gray-600);
+  --color-bg-gray-strong: var(--color-gray-400);
   --color-bg-disabled: var(--color-gray-950);
 
   /* Brand Background */
@@ -517,6 +536,9 @@
 
   /* Hover & Overlay */
   --color-bg-hover: rgba(var(--color-white-rgb), 0.05);
+  --color-bg-sidenav-hover: rgba(var(--color-gray-400-rgb), 0.2);
+  --color-bg-sidenav-hover-strong: rgba(var(--color-gray-400-rgb), 0.6);
+  --color-bg-hover-contrast: rgba(var(--color-gray-950-rgb), 0.05);
   --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.85);
 
   /* ========================================
@@ -527,7 +549,7 @@
   --color-border-muted: var(--color-gray-900);
   --color-border-light: var(--color-gray-800);
   --color-border-base: var(--color-gray-700);
-  --color-border-strong: var(--color-gray-400);
+  --color-border-strong: var(--color-gray-500);
   --color-border-buffer: var(--color-gray-950);
 
   /* Brand Border */
@@ -555,19 +577,28 @@
 
   /* Focus Border */
   --color-border-focus: var(--color-white);
+  --color-border-focus-contrast: var(--color-black);
 
   /**========================================
     * SIDENAV BACKGROUND COLORS (Dark mode)
     * ======================================== */
   --color-sidenav-background: var(--color-gray-800);
   --color-sidenav-text: var(--color-white);
-  --color-sidenav-active-item: var(--color-gray-900);
-  --color-sidenav-item-hover: var(--color-gray-900);
+  --color-sidenav-active-item: var(--color-gray-600);
+  --color-sidenav-item-hover: var(--color-bg-sidenav-hover);
+  --color-sidenav-active-item-hover: var(--color-bg-sidenav-hover-strong);
+  --color-sidenav-arrow-hover: var(--color-bg-sidenav-hover);
+  --color-sidenav-active-arrow-hover: var(--color-bg-sidenav-hover-strong);
+  --color-sidenav-focus: var(--color-white);
 
-  --color-admin-sidenav-background: var(--color-gray-800);
-  --color-admin-sidenav-text: var(--color-white);
-  --color-admin-sidenav-active-item: var(--color-gray-900);
-  --color-admin-sidenav-item-hover: var(--color-gray-900);
+  --color-sidenav-secondary-background: var(--color-gray-800);
+  --color-sidenav-secondary-text: var(--color-white);
+  --color-sidenav-secondary-active-item: var(--color-gray-600);
+  --color-sidenav-secondary-item-hover: var(--color-bg-sidenav-hover);
+  --color-sidenav-secondary-active-item-hover: var(--color-bg-sidenav-hover-strong);
+  --color-sidenav-secondary-arrow-hover: var(--color-bg-sidenav-hover);
+  --color-sidenav-secondary-active-arrow-hover: var(--color-bg-sidenav-hover-strong);
+  --color-sidenav-secondary-focus: var(--color-white);
 }
 
 @layer components {

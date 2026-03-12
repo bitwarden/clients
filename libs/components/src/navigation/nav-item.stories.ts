@@ -68,7 +68,7 @@ export const Default: Story = {
   }),
   args: {
     text: "Hello World",
-    icon: "bwi-filter",
+    icon: "bwi-grid",
   },
 };
 
@@ -105,8 +105,8 @@ export const WithChildButtons: Story = {
           slot="end"
           class="tw-ms-auto"
           bitIconButton="bwi-pencil-square"
-          buttonType="nav-contrast"
-          size="small"
+          buttonType="side-nav"
+          size="xsmall"
           label="Edit"
         ></button>
         <button
@@ -114,8 +114,8 @@ export const WithChildButtons: Story = {
           slot="end"
           class="tw-ms-auto"
           bitIconButton="bwi-check"
-          buttonType="nav-contrast"
-          size="small"
+          buttonType="side-nav"
+          size="xsmall"
           label="Confirm"
         ></button>
       </bit-nav-item>
