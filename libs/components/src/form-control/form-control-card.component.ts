@@ -44,6 +44,7 @@ export class FormControlCardComponent {
     effect(() => {
       const hostEl = this.base.formControlEl().nativeElement;
       const inputId = this.base.inputId();
+      const hasError = this.base.formControl().hasError;
 
       // For components like SwitchComponent where the actual input is nested
       // inside the template, target that element directly
@@ -51,7 +52,7 @@ export class FormControlCardComponent {
 
       el.setAttribute("aria-labelledby", this.labelId);
 
-      if (this.base.hasError) {
+      if (hasError) {
         el.setAttribute("aria-describedby", this.errorId);
       } else if (this.hint()) {
         el.setAttribute("aria-describedby", this.hint()!.id);
