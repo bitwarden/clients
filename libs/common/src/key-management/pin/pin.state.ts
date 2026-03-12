@@ -1,8 +1,7 @@
 import { PIN_DISK, PIN_MEMORY, UserKeyDefinition } from "@bitwarden/common/platform/state";
-import { PasswordProtectedKeyEnvelope } from "@bitwarden/sdk-internal";
+import { PasswordProtectedKeyEnvelope, EphemeralPinEnvelopeState } from "@bitwarden/sdk-internal";
 
 import { EncryptedString } from "../crypto/models/enc-string";
-import { EphemeralPinEnvelopeState } from "@bitwarden/sdk-internal/node/bitwarden_wasm_internal";
 
 /**
  * The persistent (stored on disk) version of the UserKey, stored in a `PasswordProtectedKeyEnvelope`.
