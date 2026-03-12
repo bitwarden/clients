@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, input, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { Component, computed, input, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { outputFromObservable } from "@angular/core/rxjs-interop";
 import { Subject } from "rxjs";
 
@@ -52,14 +52,14 @@ export class CalloutComponent implements OnInit {
 
   private readonly dismiss$ = new Subject<void>();
   readonly dismiss = outputFromObservable(this.dismiss$);
-  protected isDismissible = false;
+  protected readonly isDismissible = signal(false);
 
   protected onDismiss(): void {
     this.dismiss$.next();
   }
 
   ngOnInit() {
-    this.isDismissible = this.dismiss$.observed;
+    this.isDismissible.set(this.dismiss$.observed);
   }
 
   readonly iconComputed = computed(() => {
