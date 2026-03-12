@@ -1,0 +1,39 @@
+<bit-popover [title]="service.getStepTitle(stepId())" (closed)="service.completeTour()">
+  <p bitTypography="body2" class="tw-mb-3">
+    {{ service.getStepDescription(stepId()) }}
+  </p>
+
+  @if (service.getStepLearnMoreUrl(stepId()); as url) {
+    <a
+      bitLink
+      linkType="primary"
+      [href]="url"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="tw-mb-3 tw-flex tw-items-center tw-gap-1"
+    >
+      {{ "learnMore" | i18n }}
+      <i class="bwi bwi-external-link tw-text-sm" aria-hidden="true"></i>
+    </a>
+  }
+
+  <!-- Footer with navigation -->
+  <div class="tw-flex tw-items-center tw-justify-between tw-pt-2">
+    <span bitTypography="body2" class="tw-text-muted">
+      {{ "coachmarkStepIndicator" | i18n: service.currentStepNumber() : service.totalSteps() }}
+    </span>
+
+    <div class="tw-flex tw-gap-2">
+      @if (service.currentStepNumber() > 1) {
+        <button bitButton buttonType="secondary" type="button" (click)="service.previousStep()">
+          {{ "back" | i18n }}
+        </button>
+      }
+      <button bitButton buttonType="primary" type="button" (click)="service.nextStep()">
+        {{
+          service.currentStepNumber() === service.totalSteps() ? ("close" | i18n) : ("next" | i18n)
+        }}
+      </button>
+    </div>
+  </div>
+</bit-popover>

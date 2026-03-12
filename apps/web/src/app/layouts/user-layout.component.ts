@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnInit, Signal } from "@angular/core";
+import { Component, computed, inject, OnInit, Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
 import { map, Observable, switchMap } from "rxjs";
@@ -15,10 +15,11 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { SvgModule } from "@bitwarden/components";
+import { PopoverModule, SvgModule } from "@bitwarden/components";
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
+import { CoachmarkComponent, CoachmarkService } from "../vault/components/coachmark";
 
 import { WebLayoutModule } from "./web-layout.module";
 
@@ -34,6 +35,8 @@ import { WebLayoutModule } from "./web-layout.module";
     WebLayoutModule,
     SvgModule,
     BillingFreeFamiliesNavItemComponent,
+    PopoverModule,
+    CoachmarkComponent,
   ],
 })
 export class UserLayoutComponent implements OnInit {
@@ -45,6 +48,21 @@ export class UserLayoutComponent implements OnInit {
     map((isDisabled) => !isDisabled),
   );
   protected subscriptionRoute$: Observable<string | null>;
+
+  protected readonly coachmarkService = inject(CoachmarkService);
+
+  protected readonly importCoachmarkOpen = computed(
+    () => this.coachmarkService.activeStepId() === "importData",
+  );
+
+  protected readonly reportsCoachmarkOpen = computed(
+    () => this.coachmarkService.activeStepId() === "monitorSecurity",
+  );
+
+  /** Expand tools nav group when import coachmark is active */
+  protected readonly toolsNavGroupOpen = computed(
+    () => this.coachmarkService.activeStepId() === "importData",
+  );
 
   constructor(
     private syncService: SyncService,
