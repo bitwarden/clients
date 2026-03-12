@@ -1,5 +1,8 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
-  <bit-dialog [loading]="loading">
+  <bit-dialog
+    [loading]="loading"
+    [subtitle]="!policySteps()[currentStep()]?.titleContent ? (policy.name | i18n) : undefined"
+  >
     <ng-container bitDialogTitle>
       @let titleTemplate = policySteps()[currentStep()]?.titleContent?.();
       @if (titleTemplate) {
@@ -9,24 +12,14 @@
       }
     </ng-container>
 
-    @if (!policySteps()[currentStep()]?.titleContent) {
-      <span bitDialogSubtitle>{{ policy.name | i18n }}</span>
-    }
-
     <ng-container bitDialogContent>
-      @if (loading) {
-        <div>
-          <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-        </div>
-      } @else {
-        @if (policy.showDescription) {
-          <p bitTypography="body1">{{ policy.description | i18n }}</p>
-        }
+      @if (policy.showDescription) {
+        <p bitTypography="body1">{{ policy.description | i18n }}</p>
+      }
 
-        @let bodyTemplate = policySteps()[currentStep()]?.bodyContent?.();
-        @if (bodyTemplate) {
-          <ng-container [ngTemplateOutlet]="bodyTemplate"></ng-container>
-        }
+      @let bodyTemplate = policySteps()[currentStep()]?.bodyContent?.();
+      @if (bodyTemplate) {
+        <ng-container [ngTemplateOutlet]="bodyTemplate"></ng-container>
       }
       <!-- Always rendered so viewChild resolves before ngAfterViewInit runs. -->
       <ng-template #policyForm></ng-template>

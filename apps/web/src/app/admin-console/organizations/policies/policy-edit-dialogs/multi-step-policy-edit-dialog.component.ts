@@ -79,7 +79,6 @@ export class MultiStepPolicyEditDialogComponent
     accountService: AccountService,
     policyApiService: PolicyApiServiceAbstraction,
     i18nService: I18nService,
-    // Not stored — injected only to satisfy the base-class constructor.
     changeDetectorRef: ChangeDetectorRef,
     formBuilder: FormBuilder,
     dialogRef: DialogRef<PolicyEditDialogResult>,

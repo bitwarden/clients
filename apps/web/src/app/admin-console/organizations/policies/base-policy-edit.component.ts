@@ -121,6 +121,9 @@ export abstract class BasePolicyEditComponent implements OnInit {
    * An optional guard called before submission in {@link PolicyEditDialogComponent}.
    * Return `false` to abort the save (e.g. when the user cancels a warning dialog).
    * Components that need a confirmation step before saving should override this method.
+   *
+   * TODO: Remove this method when the `MigrateMyVaultToMyItems` feature flag is removed.
+   * New policy components should use {@link policySteps} with a `sideEffect` instead.
    */
   confirm?(): Promise<boolean>;
 

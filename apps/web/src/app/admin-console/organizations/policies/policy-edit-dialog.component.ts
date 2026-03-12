@@ -135,6 +135,8 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       throw new Error("PolicyComponent not initialized.");
     }
 
+    // TODO: Remove this block when the `MigrateMyVaultToMyItems` feature flag is removed.
+    // New policy components use `policySteps` with a `sideEffect` instead of `confirm`.
     if (this.policyComponent.confirm) {
       const confirmed = await this.policyComponent.confirm();
       if (!confirmed) {

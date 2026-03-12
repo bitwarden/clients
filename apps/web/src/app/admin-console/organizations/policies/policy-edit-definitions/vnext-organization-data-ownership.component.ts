@@ -68,10 +68,7 @@ export class vNextOrganizationDataOwnershipPolicyComponent
 {
   protected readonly centralizeDataOwnershipEnabled$: Observable<boolean> = defer(() =>
     from(
-      this.policyApiService.getPolicy(
-        this.organizationId ?? "",
-        PolicyType.OrganizationDataOwnership,
-      ),
+      this.policyApiService.getPolicy(this.organizationId, PolicyType.OrganizationDataOwnership),
     ).pipe(
       map((policy) => policy.enabled),
       catchError(() => of(false)),
