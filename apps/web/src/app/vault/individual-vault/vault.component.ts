@@ -129,7 +129,6 @@ import {
   BulkMoveDialogResult,
   openBulkMoveDialog,
 } from "./bulk-action-dialogs/bulk-move-dialog/bulk-move-dialog.component";
-import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
@@ -155,7 +154,6 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
   imports: [
     VaultHeaderComponent,
     VaultOnboardingComponent,
-    VaultBannersComponent,
     VaultFilterModule,
     VaultItemsModule,
     SharedModule,

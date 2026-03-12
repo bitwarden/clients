@@ -35,5 +35,6 @@
     </bit-nav-group>
   </app-side-nav>
 
+  <app-vault-banners slot="banner" [organizations]="organizations$ | async"></app-vault-banners>
   <router-outlet></router-outlet>
 </app-layout>

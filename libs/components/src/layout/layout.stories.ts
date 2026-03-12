@@ -5,6 +5,7 @@ import { userEvent } from "storybook/test";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
 
+import { BannerModule } from "../banner";
 import { CalloutModule } from "../callout";
 import { NavigationModule } from "../navigation";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
@@ -22,7 +23,7 @@ export default {
   decorators: [
     positionFixedWrapperDecorator(),
     moduleMetadata({
-      imports: [NavigationModule, RouterTestingModule, CalloutModule],
+      imports: [NavigationModule, RouterTestingModule, CalloutModule, BannerModule],
       providers: [
         {
           provide: I18nService,
@@ -119,4 +120,23 @@ export const Rounded: Story = {
   args: {
     rounded: true,
   },
+};
+
+export const WithBanner: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <bit-layout>
+        <bit-side-nav>
+          <bit-nav-item text="Vault" icon="bwi-vault"></bit-nav-item>
+        </bit-side-nav>
+        <bit-banner bannerType="info" [showClose]="false">
+          This banner should appear above the padded content area, edge-to-edge.
+        </bit-banner>
+        <bit-callout title="Page Content">
+          This content should have normal padding applied.
+        </bit-callout>
+      </bit-layout>
+    `,
+  }),
 };
