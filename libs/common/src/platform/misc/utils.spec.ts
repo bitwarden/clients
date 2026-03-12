@@ -889,6 +889,7 @@ describe("Utils Service", () => {
         ["double-dot segment", "https://example.com/api/../secret"],
         ["double-dot at root", "https://example.com/../etc/passwd"],
         ["double-dot only in path", "../secret"],
+        ["double-encoded single dot", "https://example.com/api/%252e/secret"],
         ["percent-encoded double dot (%2e%2e)", "https://example.com/api/%2e%2e/secret"],
         ["backslash segment", "https://example.com/api/..\\secret"],
         ["backslash only in path", "..\\secret"],

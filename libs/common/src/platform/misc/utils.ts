@@ -20,25 +20,30 @@ import { I18nService } from "../abstractions/i18n.service";
 // FIXME: Remove when updating file. Eslint update
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const nodeURL = typeof self === "undefined" ? require("url") : null;
+// Checked against the result of decodeURIComponent(url). Literal entries catch
+// single-encoded input (%2e%2e → ".." after decode). Percent-encoded entries catch
+// double-encoded input (%252e → "%2e" after one decode, matched literally here).
 const pathTraversalPatterns = [
-  "..", // Double-dot traversal (single-encoded resolves to ".." via decodeURIComponent)
-  "%2e", // URL-encoded double-dot
-  "\\", // Backslash (some parsers normalize to forward slash)
-  "%5c", // URL-encoded backslash
-  "\t", // TAB (stripped by WHATWG URL parser during normalization)
-  "%09", // URL-encoded TAB
-  "\n", // Line feed (stripped by WHATWG URL parser during normalization)
-  "%0a", // URL-encoded line feed
-  "\r", // Carriage return (stripped by WHATWG URL parser during normalization)
-  "%0d", // URL-encoded carriage return
-  "\0", // Null byte (can truncate strings in some parsers)
-  "%00", // URL-encoded null byte
+  "..", // Double dot
+  "%2e", // Double-encoded single dot (%252e → "%2e")
+  "\\", // Backslash
+  "%5c", // Double-encoded backslash (%255c → "%5c")
+  "\t", // TAB (stripped by WHATWG URL parser)
+  "%09", // Double-encoded TAB (%2509 → "%09")
+  "\n", // Line feed (stripped by WHATWG URL parser)
+  "%0a", // Double-encoded line feed (%250a → "%0a")
+  "\r", // Carriage return (stripped by WHATWG URL parser)
+  "%0d", // Double-encoded carriage return (%250d → "%0d")
+  "\0", // Null byte
+  "%00", // Double-encoded null byte (%2500 → "%00")
 ];
+
+// Query-string-specific patterns, also checked after decodeURIComponent.
 const queryDangerousPatterns = [
-  "/", // Forward slash (could escape query context into path)
-  "%2f", // URL-encoded forward slash
-  "#", // Hash (would terminate the query string and begin a fragment)
-  "%23", // URL-encoded hash
+  "/", // Path separator (Dangerous in a query parameter)
+  "%2f", // Double-encoded path separator (%252f → "%2f")
+  "#", // Fragment delimiter (Truncates strings)
+  "%23", // Double-encoded fragment delimiter (%2523 → "%23")
 ];
 
 declare global {
