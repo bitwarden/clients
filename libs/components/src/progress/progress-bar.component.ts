@@ -35,15 +35,15 @@ let nextId = 0;
 export class ProgressBarComponent {
   private readonly id = nextId++;
 
-  /* Hides the default start hint text. Defaults to false. */
+  /** Hides the default start hint text. Defaults to false. */
   readonly hideStartHint = input<boolean>(false);
-  /* Determines the color of the progress bar */
+  /** Determines the color of the progress bar */
   readonly variant = input<ProgressBarVariant>("primary");
-  /* The progress amount, represented as a percentage of the progress bar that is filled */
+  /** The progress amount, represented as a percentage of the progress bar that is filled */
   readonly value = input<number>(0);
-  /* The ARIA value text for the progress bar. Overrides default accessible text. */
+  /** The ARIA value text for the progress bar. Overrides default accessible text. */
   readonly ariaValueText = input<string>();
-  /* The ID of the progress bar element, used for attaching `aria-describedby` attributes. */
+  /** The ID of the progress bar element, used for attaching `aria-describedby` attributes. */
   readonly progressBarId = input<string>(`bit-progress-bar-${this.id}`);
 
   private readonly i18nService = inject(I18nService);
