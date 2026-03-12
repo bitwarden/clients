@@ -105,7 +105,17 @@ export class AutoFillConstants {
     "kennwort ändern",
   ];
 
-  static readonly NewsletterFormNames: string[] = ["newsletter"];
+  /**
+   * Form-level keywords indicating a non-login context such as newsletter signup or
+   * subscription forms. Used to exclude fields within these forms from login autofill.
+   */
+  static readonly NonLoginFormKeywords: string[] = [
+    "newsletter",
+    "subscribe",
+    "subscription",
+    "unsubscribe",
+    "mailing",
+  ];
 
   static readonly FieldIgnoreList: string[] = ["captcha", "findanything", "forgot"];
 
@@ -431,6 +441,7 @@ export class IdentityAutoFillConstants {
     "label-top",
     "data-recurly",
     "accountCreationFieldType",
+    "type",
   ];
 
   static readonly FullNameFieldNames: string[] = ["name", "full-name", "your-name"];

@@ -1,5 +1,8 @@
 import AutofillField from "../models/autofill-field";
+import AutofillPageDetails from "../models/autofill-page-details";
+import { AutoFillConstants } from "../services/autofill-constants";
 
+// Module-level cache
 const autofillFieldKeywordsCache: WeakMap<
   AutofillField,
   { keywordsSet: Set<string>; stringValue: string }
@@ -74,20 +77,20 @@ function buildAutofillFieldKeywords(field: AutofillField) {
  *
  * @param field - The AutofillField to check
  * @param keywords - Keywords to search for
- * @param exactMatch - If true, keyword must be an exact token in the field's normalized
- *   attribute data. If false (default), keyword is searched as a substring across all tokens.
+ * @param substringMatch - If true (default), keyword is searched as a substring across the
+ *   field's normalized attribute data. If false, keyword must be an exact token in the set.
  */
 export function fieldContainsKeyword(
   field: AutofillField,
   keywords: string[],
-  exactMatch = false,
+  substringMatch = true,
 ): boolean {
   const parsedKeywords = keywords.map((k) => k.replace(/-/g, ""));
   const { keywordsSet, stringValue } = buildAutofillFieldKeywords(field);
-  if (exactMatch) {
-    return parsedKeywords.some((k) => keywordsSet.has(k));
+  if (substringMatch) {
+    return parsedKeywords.some((k) => stringValue.indexOf(k) > -1);
   }
-  return parsedKeywords.some((k) => stringValue.indexOf(k) > -1);
+  return parsedKeywords.some((k) => keywordsSet.has(k));
 }
 
 /**
@@ -111,8 +114,7 @@ export function getSubmitButtonKeywordsSet(element: HTMLElement): Set<string> {
   ];
 
   const keywordsSet = new Set<string>();
-  for (let i = 0; i < keywords.length; i++) {
-    const keyword = keywords[i];
+  for (const keyword of keywords) {
     if (typeof keyword === "string") {
       // Iterate over all keywords metadata and split them by non-letter characters.
       // This ensures we check against individual words and not the entire string.
@@ -129,4 +131,43 @@ export function getSubmitButtonKeywordsSet(element: HTMLElement): Set<string> {
   }
 
   return keywordsSet;
+}
+
+/**
+ * Returns true if the field's parent form contains keywords indicating a non-login
+ * context (e.g. newsletter signup, subscription forms). Checks the form's {@link AutofillForm.htmlID},
+ * {@link AutofillForm.htmlName}, and {@link AutofillForm.htmlAction} attributes against
+ * {@link AutoFillConstants.NonLoginFormKeywords}. Returns false when the field has no parent form.
+ *
+ * @param field - The AutofillField whose parent form is to be checked
+ * @param pageDetails - Page details containing the forms map
+ */
+export function isNonLoginFormContext(
+  field: AutofillField,
+  pageDetails: AutofillPageDetails,
+): boolean {
+  const fieldForm = field.form;
+  if (!fieldForm) {
+    return false;
+  }
+
+  const parentForm = pageDetails.forms?.[fieldForm];
+  if (!parentForm) {
+    return false;
+  }
+
+  const formAttributes = [parentForm.htmlID, parentForm.htmlName, parentForm.htmlAction];
+  for (const attr of formAttributes) {
+    if (!attr || typeof attr !== "string") {
+      continue;
+    }
+    const attrLower = attr.toLowerCase();
+    for (const keyword of AutoFillConstants.NonLoginFormKeywords) {
+      if (attrLower.includes(keyword)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }

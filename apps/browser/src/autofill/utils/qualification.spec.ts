@@ -24,13 +24,13 @@ describe("fieldContainsKeyword", () => {
   it("exact mode: matches a keyword that is exactly a token", () => {
     const field = createAutofillFieldMock({ htmlName: "email" });
 
-    expect(fieldContainsKeyword(field, ["email"], true)).toBe(true);
+    expect(fieldContainsKeyword(field, ["email"], false)).toBe(true);
   });
 
   it("exact mode: does not match a keyword that is only a substring of a token", () => {
     const field = createAutofillFieldMock({ htmlName: "emailaddress" });
 
-    expect(fieldContainsKeyword(field, ["email"], true)).toBe(false);
+    expect(fieldContainsKeyword(field, ["email"], false)).toBe(false);
   });
 
   it("caching: second call on same field uses cached data without re-computing", () => {

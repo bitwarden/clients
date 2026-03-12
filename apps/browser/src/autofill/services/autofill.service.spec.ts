@@ -4380,7 +4380,6 @@ describe("AutofillService", () => {
 
       const result = autofillService["findUsernameField"](pageDetails, field, false, false, false);
 
-      expect(AutofillService.forCustomFieldsOnly).toHaveBeenCalledWith(field);
       expect(result).toBe(null);
     });
 

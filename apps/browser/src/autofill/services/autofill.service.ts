@@ -55,7 +55,7 @@ import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
-import { fieldContainsKeyword } from "../utils/qualification";
+import { fieldContainsKeyword, isNonLoginFormContext } from "../utils/qualification";
 
 import {
   AutoFillOptions,
@@ -1079,7 +1079,8 @@ export default class AutofillService implements AutofillServiceInterface {
         const isFillableUsernameField =
           !options.skipUsernameOnlyFill &&
           ["email", "tel", "text"].some((t) => t === field.type) &&
-          fieldContainsKeyword(field, AutoFillConstants.UsernameFieldNames);
+          fieldContainsKeyword(field, AutoFillConstants.UsernameFieldNames) &&
+          !isNonLoginFormContext(field, pageDetails);
 
         // Prefer more uniquely keyworded fields first.
         switch (true) {
@@ -2490,53 +2491,63 @@ export default class AutofillService implements AutofillServiceInterface {
     canBeReadOnly: boolean,
     withoutForm: boolean,
   ): AutofillField | null {
-    let usernameField: AutofillField | null = null;
-    let usernameFieldInSameForm: AutofillField | null = null;
+    let sameFormCandidate: AutofillField | null = null;
+    let bestCandidate: AutofillField | null = null;
 
-    for (let i = 0; i < pageDetails.fields.length; i++) {
-      const f = pageDetails.fields[i];
-      if (AutofillService.forCustomFieldsOnly(f)) {
+    const fieldsPrecedingPassword = pageDetails.fields.filter(
+      (f) => f.elementNumber < passwordField.elementNumber,
+    );
+
+    for (const field of fieldsPrecedingPassword) {
+      if (AutofillService.forCustomFieldsOnly(field)) {
         continue;
       }
 
-      if (f.elementNumber >= passwordField.elementNumber) {
-        break;
+      if (isNonLoginFormContext(field, pageDetails)) {
+        continue;
       }
 
-      const includesUsernameFieldName = fieldContainsKeyword(
-        f,
-        AutoFillConstants.UsernameFieldNames,
-      );
-      // only consider fields in same form if both have non-null form values
+      const isUsernameFieldType =
+        field.type === "text" || field.type === "email" || field.type === "tel";
+      if (!isUsernameFieldType) {
+        continue;
+      }
+
+      // Only consider fields with non-null form values as being in the same form;
       // null forms are treated as separate
       const isInSameForm =
-        f.form != null && passwordField.form != null && f.form === passwordField.form;
+        field.form != null && passwordField.form != null && field.form === passwordField.form;
 
-      // An email or tel field in the same form as the password field is likely a qualified
-      // candidate for autofill, even if visibility checks are unreliable
-      const isQualifiedUsernameField = isInSameForm && (f.type === "email" || f.type === "tel");
+      const includesUsernameKeyword = fieldContainsKeyword(
+        field,
+        AutoFillConstants.UsernameFieldNames,
+      );
 
-      if (
-        !f.disabled &&
-        (canBeReadOnly || !f.readonly) &&
-        (withoutForm || isInSameForm || includesUsernameFieldName) &&
-        (canBeHidden || f.viewable || isQualifiedUsernameField) &&
-        (f.type === "text" || f.type === "email" || f.type === "tel")
-      ) {
-        // Prioritize fields in the same form as the password field
-        if (isInSameForm) {
-          usernameFieldInSameForm = f;
-          if (includesUsernameFieldName) {
-            return f;
-          }
-        } else {
-          usernameField = f;
+      // Email/tel fields in the same form are strong candidates even when visibility
+      // checks are unreliable
+      const isQualifiedByType = isInSameForm && (field.type === "email" || field.type === "tel");
+
+      const isAccessible = !field.disabled && (canBeReadOnly || !field.readonly);
+      const isVisible = canBeHidden || field.viewable || isQualifiedByType;
+      const isReachable = withoutForm || isInSameForm || includesUsernameKeyword;
+
+      if (!isAccessible || !isVisible || !isReachable) {
+        continue;
+      }
+
+      if (isInSameForm) {
+        sameFormCandidate = field;
+        // A same-form field explicitly named for username is the best possible match
+        if (includesUsernameKeyword) {
+          return field;
         }
+      } else {
+        bestCandidate = field;
       }
     }
 
-    // Prefer username field in same form, fall back to any username field
-    return usernameFieldInSameForm || usernameField;
+    // Prefer a same-form candidate, fall back to any matching field
+    return bestCandidate || sameFormCandidate;
   }
 
   /**
