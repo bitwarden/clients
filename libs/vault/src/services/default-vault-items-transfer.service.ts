@@ -72,7 +72,9 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     return this.policyService.policiesByType$(PolicyType.OrganizationDataOwnership, userId).pipe(
       map(
         (policies) =>
-          policies.sort((a, b) => a.revisionDate.getTime() - b.revisionDate.getTime())?.[0],
+          policies
+            .filter((p) => p.data?.enableIndividualItemsTransfer === true)
+            .sort((a, b) => a.revisionDate.getTime() - b.revisionDate.getTime())?.[0],
       ),
       switchMap((policy) => {
         if (policy == null) {
