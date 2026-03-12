@@ -1,9 +1,8 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ReactiveFormsModule, UntypedFormGroup } from "@angular/forms";
 import { MockProxy, mock } from "jest-mock-extended";
-import { firstValueFrom, of } from "rxjs";
-
+import { of } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -148,47 +147,43 @@ describe("MultiStepPolicyEditDialogComponent", () => {
     });
   });
 
-  describe("updateSaveDisabled()", () => {
-    it("uses the step's custom disableSave observable when provided", () => {
-      const customDisable$ = of(true);
-      setupSteps([{ disableSave: customDisable$ }]);
+  describe("saveDisabled signal", () => {
+    it("is true when the current step's disableSave observable emits true", fakeAsync(() => {
+      setupSteps([{ disableSave: of(true) }]);
+      fixture.detectChanges();
+      tick();
 
-      (component as any).updateSaveDisabled();
+      expect((component as any).saveDisabled()).toBe(true);
+    }));
 
-      expect(component.saveDisabled$).toBe(customDisable$);
-    });
-
-    it("defaults to of(false) when step has no disableSave and component has no data form", async () => {
+    it("is false when step has no disableSave and policyComponent has no data", fakeAsync(() => {
       policyComponent.data = undefined;
       setupSteps([{}]);
+      fixture.detectChanges();
+      tick();
 
-      (component as any).updateSaveDisabled();
+      expect((component as any).saveDisabled()).toBe(false);
+    }));
 
-      const value = await firstValueFrom(component.saveDisabled$);
-      expect(value).toBe(false);
-    });
-
-    it("derives saveDisabled$ from the data form's status when step has no disableSave", async () => {
-      const formGroup = new UntypedFormGroup({});
-      policyComponent.data = formGroup;
+    it("is false when step has no disableSave and the data form is valid", fakeAsync(() => {
+      policyComponent.data = new UntypedFormGroup({});
       setupSteps([{}]);
+      fixture.detectChanges();
+      tick();
 
-      (component as any).updateSaveDisabled();
+      expect((component as any).saveDisabled()).toBe(false);
+    }));
 
-      // A valid empty FormGroup should not disable save
-      const value = await firstValueFrom(component.saveDisabled$);
-      expect(value).toBe(false);
-    });
+    it("reflects the new step's disableSave after advancing to the next step", fakeAsync(() => {
+      setupSteps([{}, { disableSave: of(true) }]);
+      fixture.detectChanges();
+      tick();
 
-    it("picks up the disableSave of the newly active step after step advance", async () => {
-      const step1Disable$ = of(true);
-      setupSteps([{}, { disableSave: step1Disable$ }]);
+      component.currentStep.set(1);
+      fixture.detectChanges();
+      tick();
 
-      // Move to step 1
-      await component.submit();
-      // updateSaveDisabled() is called inside submit() after advancing
-
-      expect(component.saveDisabled$).toBe(step1Disable$);
-    });
+      expect((component as any).saveDisabled()).toBe(true);
+    }));
   });
 });
