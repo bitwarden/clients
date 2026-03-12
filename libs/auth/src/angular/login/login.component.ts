@@ -575,7 +575,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     const isEmailValid = this.validateEmail();
 
     if (isEmailValid) {
-      await this.prefetchPasswordPreloginData();
+      this.prefetchPasswordPreloginData();
 
       await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY);
     }
@@ -685,15 +685,12 @@ export class LoginComponent implements OnInit, OnDestroy {
    * If it is not available by the time the user submits, the login strategy will still work
    * as it will wait for the prelogin data to be available before proceeding.
    */
-  private async prefetchPasswordPreloginData() {
-    try {
-      const email = this.formGroup.value.email;
-      if (email) {
-        // Don't await this call as we don't want to delay the UI transition to the master password entry
-        void this.passwordPreloginService.getPreloginData$(email);
-      }
-    } catch (error) {
-      this.logService.error("Failed to prefetch password prelogin data.", error);
+  private prefetchPasswordPreloginData() {
+    const email = this.formGroup.value.email;
+    if (email) {
+      // Don't await this call as we don't want to delay the UI transition to the master password entry
+      // Errors are deferred to the subscriber in submit().
+      void this.passwordPreloginService.getPreloginData$(email);
     }
   }
 
