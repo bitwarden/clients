@@ -97,7 +97,6 @@ export type UpgradePaymentParams = {
     EnterBillingAddressComponent,
     BillingServicesModule,
   ],
-  providers: [UpgradePaymentService],
   templateUrl: "./upgrade-payment.component.html",
 })
 export class UpgradePaymentComponent implements OnInit, AfterViewInit {
