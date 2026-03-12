@@ -160,7 +160,7 @@
         <p bitTypography="body1">
           {{ "subscriptionStorage" | i18n: sub.maxStorageGb || 0 : sub.storageName || "0 MB" }}
         </p>
-        <bit-progress-bar [value]="storagePercentage" variant="success"></bit-progress-bar>
+        <bit-progress-bar [value]="storagePercentage" variant="success" />
         <ng-container
           *ngIf="subscription && !subscription.cancelled && !subscriptionMarkedForCancel"
         >

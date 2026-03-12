@@ -2,11 +2,7 @@
   <div class="tw-flex tw-flex-col tw-items-center tw-gap-4">
     <!-- Progress bar -->
     <div class="tw-w-64" role="progressbar" attr.aria-label="{{ 'loadingProgress' | i18n }}">
-      <bit-progress-bar
-        [value]="stepConfig[progressStep()].progress"
-        [startText]="null"
-        variant="primary"
-      ></bit-progress-bar>
+      <bit-progress-bar [value]="stepConfig[progressStep()].progress" [hideStartHint]="true" />
     </div>
 
     <!-- Status message -->

@@ -59,16 +59,10 @@ export const Base: Story = {
           </ng-container>
           <span slot="title">Uploading file</span>
           <span slot="subtitle">This might take a few minutes.</span>
-          <bit-progress-bar
-            [value]="50"
-            label="File name"
-            startText="50% complete"
-            endText="50MB"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            aria-valuenow="50"
-            aria-valuetext="50% complete"
-          />
+          <bit-progress-bar [value]="50">
+            <bit-label slot="label">File name</bit-label>
+            <bit-hint slot="end">50MB</bit-hint>  
+          </bit-progress-bar>
         </bit-progress-bar-lockup>
       </div>
     `,

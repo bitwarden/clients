@@ -34,16 +34,12 @@ let nextId = 0;
 export class ProgressBarComponent {
   private readonly id = nextId++;
 
+  /* Hides the default start hint text. Defaults to false. */
+  readonly hideStartHint = input<boolean>(false);
   /* Determines the color of the progress bar */
   readonly variant = input<ProgressBarVariant>("primary");
-  /* The label displayed above the progress bar */
-  readonly label = input<string>();
   /* The progress amount, represented as a percentage of the progress bar that is filled */
   readonly value = input<number>(0);
-  /* The starting helper text displayed below the progress bar. Defaults to the localized "<value>% complete" text */
-  readonly startText = input<string | null>();
-  /* The ending helper text displayed below the progress bar. If nothing is passed, no text is displayed in the end slot */
-  readonly endText = input<string>();
   /* The ARIA value text for the progress bar. Overrides default accessible text. */
   readonly ariaValueText = input<string>();
   /* The ID of the progress bar element, used for attaching `aria-describedby` attributes. */
@@ -54,12 +50,12 @@ export class ProgressBarComponent {
   // Necessary for `aria-labelledby` to point to the label element
   protected readonly labelId = `bit-progress-bar-label-${this.id}`;
 
-  protected readonly startTextContent = computed(() => {
-    if (this.startText() === null || this.value() === 0) {
+  protected readonly defaultStartText = computed(() => {
+    if (this.value() === 0) {
       return undefined;
     }
 
-    return this.startText() || this.i18nService.t("percentageCompleted", this.value().toString());
+    return this.i18nService.t("percentageCompleted", this.value().toString());
   });
 
   protected readonly outerBarStyles = [

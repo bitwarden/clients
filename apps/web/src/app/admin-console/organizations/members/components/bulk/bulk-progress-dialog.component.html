@@ -2,12 +2,7 @@
   <div bitDialogContent>
     <div class="tw-flex tw-justify-center">
       <div class="tw-mt-1 tw-w-[273px]">
-        <bit-progress-bar
-          [startText]="null"
-          size="default"
-          bgColor="primary"
-          [value]="progressPercentage()"
-        ></bit-progress-bar>
+        <bit-progress-bar [hideStartHint]="true" [value]="progressPercentage()" />
       </div>
     </div>
     <div class="tw-flex tw-flex-col tw-gap-2 tw-mt-6">

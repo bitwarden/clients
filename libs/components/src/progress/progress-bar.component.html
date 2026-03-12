@@ -1,5 +1,7 @@
 <div class="tw-flex tw-flex-col">
-  <div [id]="labelId" class="!tw-mb-1" bitTypography="h5">{{ label() }}</div>
+  <div [id]="labelId" class="!tw-mb-1 empty:tw-hidden" bitTypography="h5">
+    <ng-content select="[slot='label']" />
+  </div>
   <div [class]="outerBarStyles">
     <div
       [id]="progressBarId()"
@@ -14,7 +16,13 @@
     ></div>
   </div>
   <div class="tw-flex tw-text-fg-body" bitTypography="body2">
-    <span class="tw-me-auto">{{ startTextContent() }}</span>
-    <span class="tw-ms-auto">{{ endText() }}</span>
+    @if (!hideStartHint()) {
+      <div class="tw-me-auto">
+        <ng-content select="[slot='start']"> {{ defaultStartText() }} </ng-content>
+      </div>
+    }
+    <div class="tw-ms-auto">
+      <ng-content select="[slot='end']" />
+    </div>
   </div>
 </div>

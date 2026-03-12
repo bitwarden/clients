@@ -38,23 +38,24 @@ Avoid using the progress bar for:
 
 <Canvas of={stories.AllVariants} />
 
-## With Label and Helper Texts (Start and End)
+## With Label and Helper Hints (Start and End)
 
-Always display a label to provide a text based description of what the indicator is measuring. This
-allows those who may not be familiar with the pattern to be able to read and digest the information.
-It also allows assistive technology to accurately describe the indicator to those who may be unable
-to see part or all of the indicator.
+Pass in a label with the `label` slot. Always display a label to provide a text based description of
+what the indicator is measuring. This allows those who may not be familiar with the pattern to be
+able to read and digest the information. It also allows assistive technology to accurately describe
+the indicator to those who may be unable to see part or all of the indicator. Helper hints may be
+passed in with the `start` and `end` slots.
 
-<Canvas of={stories.WithLabelAndHelperText} />
+<Canvas of={stories.WithLabelAndHelperHint} />
 
-## Start Text
+## Start Hint
 
-When measuring something other than progress, such as password strength, update the `startText` to
-fit the context of the implementation. If no `startText` is passed in, it will default to
-`[value]% complete` while `value` is greater than `0`. Set `startText` to `null` in order to omit
-displaying any value.
+When measuring something other than progress, such as password strength, pass in a `bit-hint` to the
+`start` slot that fits the context of the implementation. If nothing is passed into the `start`
+slot, it will default to `[value]% complete` while `value` is greater than `0`. Set `hideStartHint`
+to `true` in order to omit displaying any value.
 
-<Canvas of={stories.StartText} />
+<Canvas of={stories.StartHint} />
 
 ### Strength indicator styles
 
