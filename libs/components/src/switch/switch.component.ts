@@ -6,6 +6,7 @@ import {
   Injector,
   input,
   model,
+  signal,
 } from "@angular/core";
 import { ControlValueAccessor, NgControl, NG_VALUE_ACCESSOR, Validators } from "@angular/forms";
 
@@ -52,6 +53,7 @@ export class SwitchComponent implements ControlValueAccessor, BitFormControlAbst
   protected readonly selected = model(false);
 
   readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
+  private readonly _formsDisabled = signal(false);
 
   protected readonly checkIndicatorClasses = computed(() =>
     [
@@ -132,7 +134,7 @@ export class SwitchComponent implements ControlValueAccessor, BitFormControlAbst
   // TODO migrate to computed signal when Angular adds signal support to reactive forms
   // https://bitwarden.atlassian.net/browse/CL-819
   get disabled() {
-    return this.disabledInput() || this.ngControl?.disabled || false;
+    return this.disabledInput() || this._formsDisabled() || false;
   }
 
   get required() {
@@ -179,8 +181,8 @@ export class SwitchComponent implements ControlValueAccessor, BitFormControlAbst
     this.notifyOnTouch = fn;
   }
 
-  setDisabledState(_isDisabled: boolean) {
-    // disabled state is read from ngControl directly via computed signal
+  setDisabledState(isDisabled: boolean) {
+    this._formsDisabled.set(isDisabled);
   }
   // end ControlValueAccessor functions
 
