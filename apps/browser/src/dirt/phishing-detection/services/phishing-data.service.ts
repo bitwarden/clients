@@ -460,7 +460,7 @@ export class PhishingDataService {
           return timer(5 * 60 * 1000);
         },
       }),
-      catchError((error) => {
+      catchError((error: unknown) => {
         const elapsed = Date.now() - startTime;
         this.logService.error(
           `[PhishingDataService] All update attempts failed after ${elapsed}ms:`,
