@@ -2039,7 +2039,7 @@
     "message": "此导出包含未加密格式的密码库数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。使用完后请立即将其删除。"
   },
   "exportSecretsWarningDesc": {
-    "message": "本次导出包含未加密格式的机密数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。用完后请立即将其删除。"
+    "message": "此导出包含未加密格式的机密数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。使用完后请立即将其删除。"
   },
   "encExportKeyWarningDesc": {
     "message": "此导出使用您账户的加密密钥来加密您的数据。如果您曾经轮换过账户的加密密钥，您应将其重新导出，否则您将无法解密导出的文件。"
@@ -6049,10 +6049,16 @@
     "message": "提示成员转移他们的项目"
   },
   "centralizeDataOwnershipWarningDesc": {
-    "message": "如果成员的个人密码库中有项目，将提示他们选择将项目转移到组织中，或者选择退出。如果选择退出，其访问权限将被撤销，但可以随时恢复。"
+    "message": "如果成员的个人密码库中有项目，将提示他们选择将项目转移到组织，或者选择退出。如果选择退出，其访问权限将被撤销，但可以随时恢复。"
   },
   "centralizeDataOwnershipWarningLink": {
     "message": "进一步了解转移"
+  },
+  "promptUsersToMoveItems": {
+    "message": "提示用户将个人密码库项目移动到组织"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "将提示成员选择将项目转移到组织，或者选择退出。如果选择退出，其访问权限将被撤销，但可以随时恢复。"
   },
   "organizationDataOwnership": {
     "message": "强制组织数据所有权"
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "目前可用"
   },
-  "autoConfirm": {
-    "message": "自动确认新用户"
+  "automaticUserConfirmation": {
+    "message": "自动用户确认"
   },
   "autoConfirmDescription": {
     "message": "当管理员的设备解锁时，邀请加入组织的新用户将被自动确认。",
@@ -7241,7 +7247,7 @@
     "message": "单点登录配置已保存"
   },
   "sponsoredFamilies": {
-    "message": "免费的 Bitwarden 家庭版"
+    "message": "免费 Bitwarden 家庭版"
   },
   "sponsoredBitwardenFamilies": {
     "message": "赞助的家庭"
@@ -9609,7 +9615,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
-    "message": "总计 $TOTAL$",
+    "message": "满分 $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -10625,7 +10631,7 @@
     "message": "将事件数据发送到您的 Huntress SIEM 实例"
   },
   "integrationConnectedSuccessfully": {
-    "message": "$INTEGRATION$ 成功连接。",
+    "message": "$INTEGRATION$ 连接成功。",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -12525,7 +12531,7 @@
     "message": "PBKDF2-SHA256 是一种经过充分测试的加密方式，可以平衡安全性和性能。适合于所有用户。"
   },
   "encryptionKeySettingsAlgorithmPopoverArgon2Id": {
-    "message": "Argon2id 为现代攻击提供了更强大的保护。最适合拥有强大设备的高级用户。"
+    "message": "Argon2id 为现代攻击提供了更强的保护。最适合拥有强大设备的高级用户。"
   },
   "zipPostalCodeLabel": {
     "message": "ZIP / 邮政编码"
@@ -12540,7 +12546,7 @@
     "message": "阻止使用已声明的域名创建账户"
   },
   "blockClaimedDomainAccountCreationDesc": {
-    "message": "禁止用户使用已声明域名的电子邮件地址在组织外部创建账户。"
+    "message": "禁止用户使用已声明域名的电子邮箱地址在组织外部创建账户。"
   },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "必须先声明域名，然后才能激活此策略。"
@@ -12853,7 +12859,7 @@
     "message": "管理账单"
   },
   "yourNextChargeIsFor": {
-    "message": "您的下一次收费是用于"
+    "message": "您的下一笔费用为"
   },
   "dueOn": {
     "message": "到期日期为"
@@ -12947,7 +12953,7 @@
     "message": "您已成功加入！欢迎使用 Bitwarden"
   },
   "vaultWelcomeDialogDescription": {
-    "message": "将您的所有密码和个人信息存储在你的 Bitwarden 密码库中。我们将带您熟悉一下。"
+    "message": "将您的所有密码和个人信息存储在您的 Bitwarden 密码库中。我们将带您熟悉一下。"
   },
   "vaultWelcomeDialogPrimaryCta": {
     "message": "开始导览"

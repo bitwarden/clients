@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Kopiera adress"
   },
+  "myItems": {
+    "message": "Mina objekt"
+  },
   "adminConsole": {
     "message": "Adminkonsol"
   },
