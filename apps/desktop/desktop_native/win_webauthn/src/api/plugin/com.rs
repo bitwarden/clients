@@ -483,7 +483,7 @@ impl ComBuffer {
 
     pub fn into_raw<T>(self) -> *mut T {
         let this = ManuallyDrop::new(self);
-        (*this).0.cast().as_ptr()
+        this.0.cast().as_ptr()
     }
 }
 
@@ -520,7 +520,7 @@ impl ComBufferExt for Vec<u16> {
 
 impl ComBufferExt for &[u16] {
     fn to_com_buffer(&self) -> ComBuffer {
-        let byte_len = self.len() * size_of::<u16>();
+        let byte_len = std::mem::size_of_val(*self);
         let com_buffer = ComBuffer::alloc(byte_len, false);
         // SAFETY: com_buffer.0 points to a valid COM allocation of byte_len bytes.
         // We write every byte before the buffer is read.
