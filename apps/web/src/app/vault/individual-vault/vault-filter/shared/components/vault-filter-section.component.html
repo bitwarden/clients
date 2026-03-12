@@ -3,6 +3,11 @@
   <!-- Collections coachmark (only active for the collections filter section) -->
   <app-coachmark #collectionsCoachmark stepId="shareWithCollections" />
 
+  <!--
+    Note: passing null to [bitPopoverAnchorFor] violates its input.required<PopoverComponent>() type,
+    but is runtime safe. Ideally the directive would be conditionally applied, but Angular doesn't support conditional
+    directive bindings.
+  -->
   <div
     *ngIf="headerInfo.showHeader"
     class="filter-heading"
