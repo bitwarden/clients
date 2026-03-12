@@ -213,7 +213,6 @@ export class ChangePasswordComponent implements OnInit {
             await this.router.navigate(["/"]);
           }
         } else {
-          // TODO: PM-23515 eventually use the logout service instead of messaging service once it is available without circular dependencies
           this.messagingService.send("logout");
         }
 
