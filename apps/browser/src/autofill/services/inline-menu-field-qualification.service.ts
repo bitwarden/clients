@@ -32,7 +32,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
   private newPasswordAutoCompleteValue = "new-password";
   private submitButtonKeywordsMap: SubmitButtonKeywordsMap = new WeakMap();
   private newEmailFieldKeywords = new Set(AutoFillConstants.NewEmailFieldKeywords);
-  private newsletterFormKeywords = new Set(AutoFillConstants.NewsletterFormNames);
+  private = new Set(AutoFillConstants.NonLoginFormKeywords);
   private creditCardFieldKeywords = [
     ...new Set([
       ...CreditCardAutoFillConstants.CardHolderFieldNames,
