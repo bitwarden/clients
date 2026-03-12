@@ -3,16 +3,16 @@
 import {
   catchError,
   combineLatest,
+  concatMap,
   distinctUntilChanged,
   EMPTY,
   firstValueFrom,
   from,
   map,
-  of,
   Observable,
+  of,
   shareReplay,
   switchMap,
-  concatMap,
 } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -76,29 +76,11 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
       throw new Error("Vault Timeout Action cannot be null.");
     }
 
-    // We swap these tokens from being on disk for lock actions, and in memory for logout actions
-    // Get them here to set them to their new location after changing the timeout action and clearing if needed
-    const accessToken = await this.tokenService.getAccessToken(userId);
-    const refreshToken = await this.tokenService.getRefreshToken(userId);
-    const clientId = await this.tokenService.getClientId(userId);
-    const clientSecret = await this.tokenService.getClientSecret(userId);
-
     await this.setVaultTimeout(userId, timeout);
-
-    if (timeout != VaultTimeoutStringType.Never && action === VaultTimeoutAction.LogOut) {
-      // if we have a vault timeout and the action is log out, reset tokens
-      // as the tokens were stored on disk and now should be stored in memory
-      await this.tokenService.clearTokens(userId);
-    }
 
     await this.setVaultTimeoutAction(userId, action);
 
-    await this.tokenService.setTokens(accessToken, action, timeout, refreshToken, [
-      clientId,
-      clientSecret,
-    ]);
-
-    await this.keyService.refreshAdditionalKeys(userId);
+    await this.migrateTokenStorage(userId, action, timeout);
   }
 
   availableVaultTimeoutActions$(userId?: UserId): Observable<VaultTimeoutAction[]> {
@@ -259,6 +241,36 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     return currentVaultTimeout;
   }
 
+  /**
+   * Re-stores tokens in the correct location (memory vs disk) for the given action and timeout.
+   */
+  private async migrateTokenStorage(
+    userId: UserId,
+    action: VaultTimeoutAction,
+    timeout: VaultTimeout,
+  ): Promise<void> {
+    // Read tokens before any clearing so they can be re-stored in the new location
+    const accessToken = await this.tokenService.getAccessToken(userId);
+    const refreshToken = await this.tokenService.getRefreshToken(userId);
+    const clientId = await this.tokenService.getClientId(userId);
+    const clientSecret = await this.tokenService.getClientSecret(userId);
+
+    if (timeout != VaultTimeoutStringType.Never && action === VaultTimeoutAction.LogOut) {
+      // Switching to LogOut: clear tokens from disk before re-storing in memory
+      await this.tokenService.clearTokens(userId);
+    }
+
+    if (!accessToken) {
+      return;
+    }
+
+    await this.tokenService.setTokens(accessToken, action, timeout, refreshToken, [
+      clientId,
+      clientSecret,
+    ]);
+    await this.keyService.refreshAdditionalKeys(userId);
+  }
+
   private async setVaultTimeoutAction(userId: UserId, action: VaultTimeoutAction): Promise<void> {
     if (!userId) {
       throw new Error("User id required. Cannot set vault timeout action.");
@@ -280,12 +292,14 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
       this.stateProvider.getUserState$(VAULT_TIMEOUT_ACTION, userId),
       this.getMaxSessionTimeoutPolicyDataByUserId$(userId),
       this.availableVaultTimeoutActions$(userId),
+      this.getVaultTimeoutByUserId$(userId),
     ]).pipe(
       concatMap(
         async ([
           currentVaultTimeoutAction,
           maxSessionTimeoutPolicyData,
           availableVaultTimeoutActions,
+          vaultTimeout,
         ]) => {
           const vaultTimeoutAction = this.determineVaultTimeoutAction(
             availableVaultTimeoutActions,
@@ -293,11 +307,34 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
             maxSessionTimeoutPolicyData,
           );
 
-          // As a side effect, set the new value determined by determineVaultTimeout into state if it's different from the current
-          // We want to avoid having a null timeout action always so we set it to the default if it is null
-          // and if the user becomes subject to a policy that requires a specific action, we set it to that
-          if (vaultTimeoutAction !== currentVaultTimeoutAction) {
+          // As a side effect, persist the determined action back to state when needed.
+          const oneActionAvailable = availableVaultTimeoutActions.length === 1;
+          if (oneActionAvailable) {
+            const availableAction = availableVaultTimeoutActions[0];
+            // Reset to default only if the stored action is incompatible with the forced option
+            // (e.g. "lock" stored when only LogOut is available). Keep if it matches
+            // (explicit user preference) or is null (nothing to clear).
+            if (
+              currentVaultTimeoutAction !== null &&
+              currentVaultTimeoutAction !== availableAction
+            ) {
+              await this.stateProvider.setUserState(VAULT_TIMEOUT_ACTION, null, userId);
+              // Tokens were stored for the previous action (e.g. on disk for Lock);
+              // migrate them to the location required by the now-forced action.
+              await this.migrateTokenStorage(userId, availableAction, vaultTimeout);
+            }
+          } else if (vaultTimeoutAction !== currentVaultTimeoutAction) {
             await this.stateProvider.setUserState(VAULT_TIMEOUT_ACTION, vaultTimeoutAction, userId);
+
+            // Migrate tokens when effective action changes from LogOut (memory) to Lock (disk).
+            // currentVaultTimeoutAction is null when forced LogOut was reset to null by the
+            // side effect (no unlock methods) or the state migrator.
+            if (
+              currentVaultTimeoutAction === null &&
+              vaultTimeoutAction === VaultTimeoutAction.Lock
+            ) {
+              await this.migrateTokenStorage(userId, vaultTimeoutAction, vaultTimeout);
+            }
           }
 
           return vaultTimeoutAction;
