@@ -1,74 +1,33 @@
 # Implementation Guides
 
-**Purpose:** Step-by-step implementation guides for integrating Access Intelligence features
+**Purpose:** Step-by-step guides for active or upcoming Access Intelligence implementations
 
 ---
 
-This directory contains step-by-step integration guides for each abstract service created during the Access Intelligence rewrite.
+This directory holds implementation guides for features currently in progress. Add a guide here when starting a new implementation to document integration approach, DI wiring, and migration checklist.
 
-## Purpose
+Completed implementations are tracked in Jira — this folder is not a historical record.
 
-These guides document HOW to integrate each new service into the existing codebase. They are reference material for future implementation work, not immediate implementation steps.
+## Active Guides
 
-## Guide Index
-
-### Foundational Services
-
-- **[DrawerStateService Integration](./drawer-state-integration.md)** - Migrating drawer UI state from RiskInsightsDataService
-- **[CipherHealthService Integration](./cipher-health-integration.md)** - Replacing PasswordHealthService with improved architecture
-
-### Member Mapping
-
-- **[MemberCipherMappingService Integration](./member-cipher-mapping-integration.md)** - Replacing manual member mapping logic with dedicated service
-
-### Report Generation - _Integrated_
-
-- ReportGenerationService - Integrated into `DefaultAccessIntelligenceDataService` via `generateNewReport$()`. Progress tracking exposed via `reportProgress$` on `AccessIntelligenceDataService` abstraction.
-
-### Persistence Layer
-
-- **[ReportPersistenceService Integration](./report-persistence-integration.md)** - Backend-agnostic persistence with multiple implementation support
-
-### Data Service & Facade - _Integrated_
-
-- `AccessIntelligenceDataService` - Integrated into `AccessIntelligencePageComponent` (V2). Component subscribes to `report$`, `loading$`, `error$`, and `reportProgress$` via `toSignal()`. Report generation triggered via `generateNewReport$()` with progress steps wired to `<dirt-report-loading>`.
-
-### Performance & Scalability
-
-- **[Large-Scale Performance Roadmap](./large-scale-performance-roadmap.md)** - Phased implementation tracking for 10K+ organization support
-  - Related: [Large-Scale Performance Research](../architecture/large-scale-performance-research.md) (Architecture analysis)
+_None currently. Add a guide file here when starting a new implementation._
 
 ## Guide Format
 
-Each guide follows this structure:
+Each guide should cover:
 
-1. **Overview** - What service this replaces and why
+1. **Overview** - What this implements and why
 2. **DI Registration** - How to wire into Angular providers
-3. **Component Migration** - Before/after code examples
-4. **Integration Patterns** - How it interacts with existing code
-5. **Migration Checklist** - Step-by-step implementation tasks
-6. **Testing Strategy** - How to verify correctness - Should write a test file if available
-7. **Rollback Plan** - How to revert if issues arise
-
-## Usage
-
-These guides are **reference documentation** for when we're ready to migrate components. They capture architectural decisions and integration patterns established during the abstract service design phase.
-
-**When to use:**
-
-- When starting component migration for a specific service
-- When reviewing integration approaches before implementation
-- When troubleshooting migration issues
-- When onboarding team members to the new architecture
+3. **Integration Patterns** - How it interacts with existing services/components
+4. **Migration Checklist** - Step-by-step implementation tasks
+5. **Testing Strategy** - How to verify correctness
 
 ## Related Documentation
 
-- [Playbook](../playbook.md) - Overall session workflow
 - [Service Dependency Graph](../architecture/service-dependency-graph.md) - Architecture overview
-- [Session Logs](../sessions/) - Design decisions and rationale
 
 ---
 
-**Document Version:** 1.2
-**Last Updated:** 2026-02-23
+**Document Version:** 1.3
+**Last Updated:** 2026-03-12
 **Maintainer:** DIRT Team

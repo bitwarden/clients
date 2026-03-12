@@ -114,11 +114,10 @@ Mobile-first responsive design patterns, Tailwind breakpoints, accessibility req
 
 **Process:**
 
-1. Follow [Documentation Playbook](../playbooks/documentation-playbook.md)
-2. Create new file in standards/ folder
-3. Add to this README with description
-4. Update related playbooks and guides
-5. Update getting-started.md if it's a primary entry point
+1. Create new file in standards/ folder
+2. Add to this README with description
+3. Update related guides
+4. Update getting-started.md if it's a primary entry point
 
 ---
 

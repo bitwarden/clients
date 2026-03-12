@@ -130,10 +130,6 @@ export function getTrimmedCipherUris(cipher: CipherView): string[] {
 - [Code Organization Standards](./code-organization-standards.md) - Service naming and organization
 - [Testing Standards - Services](./testing-standards-services.md) - Testing service patterns
 
-**Playbooks:**
-
-- [Service Implementation Playbook](../playbooks/service-implementation-playbook.md) - Step-by-step service implementation guide
-
 **Navigation:**
 
 - [Standards Hub](./README.md) - All DIRT team standards

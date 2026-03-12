@@ -494,11 +494,6 @@ or remove the corresponding `{@link}` reference and its suppression import.
 - [Service Standards](./service-standards.md) - Service organization and helper function guidelines
 - [Angular Standards](./angular-standards.md) - Angular-specific patterns
 
-**Playbooks:**
-
-- [Service Implementation Playbook](../playbooks/service-implementation-playbook.md) - Implementing services
-- [Documentation Playbook](../playbooks/documentation-playbook.md) - Creating documentation
-
 **Navigation:**
 
 - [Standards Hub](./README.md) - All DIRT team standards

@@ -127,8 +127,6 @@ reportSignal = toSignal(this.report$);
 
 ### Phase 1: Service Work
 
-**Follow:** [Service Implementation Playbook](/bitwarden_license/bit-common/src/dirt/docs/playbooks/service-implementation-playbook.md)
-
 1. **Define domain models** (Api → Data → Domain → View)
    - `NewReportTypeApi`, `NewReportTypeData`, `NewReportType`, `NewReportTypeView`
 
@@ -152,8 +150,6 @@ reportSignal = toSignal(this.report$);
    - Example usage in components
 
 ### Phase 2: Component Work
-
-**Follow:** [Component Migration Playbook](/bitwarden_license/bit-common/src/dirt/docs/playbooks/component-migration-playbook.md)
 
 1. **Create V2 component**
    - `new-report-type-v2.component.ts`
@@ -334,14 +330,11 @@ filteredApps = computed(() => {
 
 ### Service Questions
 
-- Check: [Service Implementation Playbook](/bitwarden_license/bit-common/src/dirt/docs/playbooks/service-implementation-playbook.md)
 - Check: [Architecture Review](/bitwarden_license/bit-common/src/dirt/docs/access-intelligence/architecture/architecture-review.md)
 - Ask: DIRT team service developers
 
 ### Component Questions
 
-- Check: [Component Migration Playbook](/bitwarden_license/bit-common/src/dirt/docs/playbooks/component-migration-playbook.md)
-- Check: [Component Audit](/bitwarden_license/bit-web/src/app/dirt/access-intelligence/docs/component-standardization-audit.md)
 - Ask: DIRT team component developers
 
 ---
@@ -349,8 +342,6 @@ filteredApps = computed(() => {
 ## 📚 Related Documentation
 
 - [Generic Integration Guide](/bitwarden_license/bit-common/src/dirt/docs/integration-guide.md)
-- [Service Implementation Playbook](/bitwarden_license/bit-common/src/dirt/docs/playbooks/service-implementation-playbook.md)
-- [Component Migration Playbook](/bitwarden_license/bit-common/src/dirt/docs/playbooks/component-migration-playbook.md)
 - [Architecture Review](/bitwarden_license/bit-common/src/dirt/docs/access-intelligence/architecture/architecture-review.md)
 - [Standards](/bitwarden_license/bit-common/src/dirt/docs/standards/standards.md)
 

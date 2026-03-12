@@ -251,7 +251,7 @@ When requesting service work, provide:
 - Error handling works correctly
 - Performance is acceptable for expected dataset sizes
 
-**Reference:** [Service Implementation Playbook - Testing](/bitwarden_license/bit-common/src/dirt/docs/playbooks/service-implementation-playbook.md)
+**Reference:** [service-standards.md](./standards/service-standards.md), [testing-standards-services.md](./standards/testing-standards-services.md)
 
 ### Component Layer Testing
 
@@ -263,7 +263,7 @@ When requesting service work, provide:
 - Data is displayed correctly
 - User interactions trigger correct model methods
 
-**Reference:** [Component Migration Playbook - Testing](/bitwarden_license/bit-common/src/dirt/docs/playbooks/component-migration-playbook.md)
+**Reference:** [angular-standards.md](./standards/angular-standards.md), [testing-standards-components.md](./standards/testing-standards-components.md)
 
 ### Integration Testing
 
@@ -332,13 +332,11 @@ When requesting service work, provide:
 
 ### Service Questions
 
-- Check: [Service Implementation Playbook](/bitwarden_license/bit-common/src/dirt/docs/playbooks/service-implementation-playbook.md)
 - Check: [Standards](/bitwarden_license/bit-common/src/dirt/docs/standards/standards.md)
 - Ask: DIRT team service developers
 
 ### Component Questions
 
-- Check: [Component Migration Playbook](/bitwarden_license/bit-common/src/dirt/docs/playbooks/component-migration-playbook.md)
 - Check: [Standards](/bitwarden_license/bit-common/src/dirt/docs/standards/standards.md)
 - Ask: DIRT team component developers
 
@@ -361,11 +359,6 @@ When requesting service work, provide:
 - [Getting Started](/bitwarden_license/bit-common/src/dirt/docs/getting-started.md)
 - [Standards](/bitwarden_license/bit-common/src/dirt/docs/standards/standards.md)
 - [Documentation Structure](/bitwarden_license/bit-common/src/dirt/docs/documentation-structure.md)
-
-### Implementation Playbooks
-
-- [Service Implementation Playbook](/bitwarden_license/bit-common/src/dirt/docs/playbooks/service-implementation-playbook.md)
-- [Component Migration Playbook](/bitwarden_license/bit-common/src/dirt/docs/playbooks/component-migration-playbook.md)
 
 ### Feature-Specific Integration Guides
 

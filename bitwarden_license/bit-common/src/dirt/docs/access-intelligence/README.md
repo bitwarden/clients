@@ -25,12 +25,11 @@ This package (`bit-common`) provides the platform-agnostic services, models, and
 
 ### Core Documentation
 
-| Document                                                                    | Purpose                      | When to Use            |
-| --------------------------------------------------------------------------- | ---------------------------- | ---------------------- |
-| [playbook.md](./playbook.md)                                                | Service implementation guide | Implementing services  |
-| [glossary.md](./glossary.md)                                                | Canonical term definitions   | Understanding naming   |
-| [standards.md](../standards/standards.md)                                   | Coding standards (shared)    | Reference for patterns |
-| [testing-standards-services.md](../standards/testing-standards-services.md) | Testing guidelines           | Writing tests          |
+| Document                                                                    | Purpose                    | When to Use            |
+| --------------------------------------------------------------------------- | -------------------------- | ---------------------- |
+| [glossary.md](./glossary.md)                                                | Canonical term definitions | Understanding naming   |
+| [standards.md](../standards/standards.md)                                   | Coding standards (shared)  | Reference for patterns |
+| [testing-standards-services.md](../standards/testing-standards-services.md) | Testing guidelines         | Writing tests          |
 
 ### Architecture
 
@@ -60,9 +59,7 @@ This package (`bit-common`) provides the platform-agnostic services, models, and
 
 **Location:** `bitwarden_license/bit-web/src/app/dirt/access-intelligence/docs/`
 
-- **[component-migration-playbook.md](/bitwarden_license/playbooks/component-migration-playbook.md)** - Component migration guide
-- **[component-standardization-audit.md](/bitwarden_license/bit-web/src/app/dirt/access-intelligence/docs/component-standardization-audit.md)** - Component inventory
-- **[component-migration-quickstart.md](/bitwarden_license/bit-web/src/app/dirt/access-intelligence/docs/component-migration-quickstart.md)** - Component quick start
+- **[docs/README.md](/bitwarden_license/bit-web/src/app/dirt/access-intelligence/docs/README.md)** - Component documentation index
 
 ### Main Project Context
 

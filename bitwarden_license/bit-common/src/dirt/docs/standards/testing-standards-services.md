@@ -567,10 +567,6 @@ npm test -- --runInBand path/to/file.spec.ts
 - [RxJS Standards](./rxjs-standards.md) - Observable patterns and error handling
 - [Testing Standards - Components](./testing-standards-components.md) - Angular component testing
 
-**Playbooks:**
-
-- [Service Implementation Playbook](../playbooks/service-implementation-playbook.md) - Implementing testable services
-
 **Navigation:**
 
 - [Standards Hub](./README.md) - All DIRT team standards

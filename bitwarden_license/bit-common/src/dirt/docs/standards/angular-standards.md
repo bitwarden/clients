@@ -218,10 +218,6 @@ constructor() {
 - [Service Standards](./service-standards.md) - Service patterns and state management
 - [Testing Standards - Components](./testing-standards-components.md) - Testing OnPush components with Signals
 
-**Playbooks:**
-
-- [Component Migration Playbook](../playbooks/component-migration-playbook.md) - Migrating components to modern Angular patterns
-
 **Navigation:**
 
 - [Standards Hub](./README.md) - All DIRT team standards

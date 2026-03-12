@@ -453,11 +453,10 @@
 
 ## 📁 What's in This Folder
 
-| Document/Folder                                | Purpose               |
-| ---------------------------------------------- | --------------------- |
-| **[getting-started.md](./getting-started.md)** | Navigation hub        |
-| **[playbooks/](./playbooks/)**                 | Implementation guides |
-| **[standards/](./standards/)**                 | Team standards        |
+| Document/Folder                                | Purpose        |
+| ---------------------------------------------- | -------------- |
+| **[getting-started.md](./getting-started.md)** | Navigation hub |
+| **[standards/](./standards/)**                 | Team standards |
 ```
 
 **Bad README.md (too comprehensive):**
@@ -887,10 +886,6 @@ These exceptions should be rare and only for files that are critical to understa
 - [Service Testing Standards](./testing-standards-services.md) - Service testing guidelines
 - [Component Testing Standards](./testing-standards-components.md) - Component testing guidelines
 
-**Playbooks:**
-
-- [Documentation Playbook](../playbooks/documentation-playbook.md) - Step-by-step guide for creating/updating docs
-
 **Navigation:**
 
 - [Getting Started](../getting-started.md) - Documentation navigation hub
@@ -909,10 +904,9 @@ These exceptions should be rare and only for files that are critical to understa
 
 **How to update:**
 
-1. Follow [Documentation Playbook](../playbooks/documentation-playbook.md)
-2. Update version number
-3. Update "Last Updated" date in footer
-4. Update related documentation if structure changes
+1. Update version number
+2. Update "Last Updated" date in footer
+3. Update related documentation if structure changes
 
 ---
 

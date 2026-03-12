@@ -10,13 +10,14 @@
 
 1. [Component Test Coverage Goals](#component-test-coverage-goals)
 2. [Angular Testing Utilities](#angular-testing-utilities)
-3. [Testing OnPush Components](#testing-onpush-components)
-4. [Testing Signal Inputs/Outputs](#testing-signal-inputsoutputs)
-5. [Testing with toSignal()](#testing-with-tosignal)
-6. [Storybook as Living Documentation](#storybook-as-living-documentation)
-7. [Component Test Structure](#component-test-structure)
-8. [Common Patterns](#common-patterns)
-9. [Running Component Tests](#running-component-tests)
+3. [Mock Services vs overrideComponent](#mock-services-vs-overridecomponent)
+4. [Testing OnPush Components](#testing-onpush-components)
+5. [Testing Signal Inputs/Outputs](#testing-signal-inputsoutputs)
+6. [Testing with toSignal()](#testing-with-tosignal)
+7. [Storybook as Living Documentation](#storybook-as-living-documentation)
+8. [Component Test Structure](#component-test-structure)
+9. [Common Patterns](#common-patterns)
+10. [Running Component Tests](#running-component-tests)
 
 ---
 
@@ -38,8 +39,10 @@
 
 **V2 Reference Components:**
 
-- `risk-insights-v2.component.spec.ts` - Container with state management
-- `access-intelligence-drawer-v2.component.spec.ts` - Pure presentation component
+- `access-intelligence-page.component.spec.ts` — Container with state management, overrideComponent pattern
+- `all-activity-v2.component.spec.ts` — Service integration, BehaviorSubject mocks, computed signals
+- `new-applications-dialog-v2.component.spec.ts` — DIALOG_DATA injection, async, static open spy
+- `applications-table-v2.component.spec.ts` — Signal inputs, DOM interaction
 
 ---
 
@@ -74,6 +77,207 @@ describe("MyComponent", () => {
   });
 });
 ```
+
+---
+
+## Mock Services vs overrideComponent
+
+This is the most common source of confusion when writing component tests. The two tools solve
+**different problems** and are often used together.
+
+### The Core Distinction
+
+| Problem                                                                         | Solution                                                                            |
+| ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Component calls `inject(MyService)`                                             | Mock the service via `providers: [{ provide: MyService, useValue: mockMyService }]` |
+| Component `imports: [HeaderModule]` and Angular can't resolve HeaderModule's DI | Use `overrideComponent` to strip the heavy import                                   |
+
+**Rule:** Always mock services the component **injects**. Use `overrideComponent` to handle
+heavy **template imports** that bring in their own DI chains you don't want to satisfy.
+
+---
+
+### When to Mock Services
+
+**ALWAYS** provide mocks for services the component injects via `inject()`:
+
+```typescript
+// Component
+export class MyComponent {
+  private dataService = inject(AccessIntelligenceDataService); // ← must mock
+  private toastService = inject(ToastService); // ← must mock
+}
+
+// Test
+await TestBed.configureTestingModule({
+  imports: [MyComponent],
+  providers: [
+    { provide: AccessIntelligenceDataService, useValue: mockDataService },
+    { provide: ToastService, useValue: mockToastService },
+  ],
+  schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
+```
+
+**Use `BehaviorSubject` mocks for observable-based services** so you can call `.next()` in
+individual tests to change state:
+
+```typescript
+type MockDataService = {
+  report$: BehaviorSubject<RiskInsightsView | null>;
+  loading$: BehaviorSubject<boolean>;
+  markApplicationAsCritical$: jest.Mock;
+};
+
+const mockDataService: MockDataService = {
+  report$: new BehaviorSubject<RiskInsightsView | null>(null),
+  loading$: new BehaviorSubject<boolean>(false),
+  markApplicationAsCritical$: jest.fn().mockReturnValue(of(undefined)),
+};
+```
+
+---
+
+### When to use `overrideComponent`
+
+Use `overrideComponent` when the component imports modules that bring in complex DI chains
+you don't need for your tests. The most common case is `HeaderModule`:
+
+```typescript
+// applications-v2.component.ts
+@Component({
+  imports: [
+    HeaderModule, // ← Has its own DI requirements
+    SharedModule, // ← Brings in pipes, directives with DI
+    ApplicationsTableV2Component,
+    // ...
+  ],
+})
+export class ApplicationsV2Component {
+  private dataService = inject(AccessIntelligenceDataService); // ← still mock this
+}
+```
+
+```typescript
+// applications-v2.component.spec.ts
+await TestBed.configureTestingModule({
+  imports: [ApplicationsV2Component],
+  providers: [
+    // ✅ Still mock all injected services
+    { provide: AccessIntelligenceDataService, useValue: mockDataService },
+    { provide: ToastService, useValue: mockToastService },
+    // ...
+  ],
+  schemas: [NO_ERRORS_SCHEMA],
+})
+  // ✅ Also strip template to avoid HeaderModule DI hell
+  .overrideComponent(ApplicationsV2Component, {
+    set: { template: "", imports: [] },
+  })
+  .compileComponents();
+```
+
+**Important:** `overrideComponent` strips the template AND imports. This means:
+
+- Child components are not rendered
+- Template-based behavior can't be tested
+- Use it when you're testing **component logic** (signals, computed, async methods)
+
+---
+
+### Components with No Service Injection
+
+If a component has **no `inject()` calls**, you may only need `overrideComponent` to handle
+template dependencies (pipes, directives backed by services):
+
+```typescript
+// review-applications-view-v2.component.ts — NO inject() calls
+@Component({
+  imports: [I18nPipe, SharedModule], // ← template dependencies only
+})
+export class ReviewApplicationsViewV2Component {
+  readonly applications = input.required<RiskInsightsReportView[]>();
+  // ... signals and computed only
+}
+```
+
+```typescript
+// review-applications-view-v2.component.spec.ts
+await TestBed.configureTestingModule({
+  imports: [ReviewApplicationsViewV2Component],
+  schemas: [NO_ERRORS_SCHEMA],
+  // No providers needed — component has no inject() calls
+})
+  .overrideComponent(ReviewApplicationsViewV2Component, {
+    set: { template: "", imports: [] },
+  })
+  .compileComponents();
+```
+
+---
+
+### Decision Guide
+
+```
+Does the component call inject(MyService)?
+  YES → Mock that service in providers array
+  NO  → No service mock needed for it
+
+Does the component import [HeaderModule] or heavy modules with DI?
+  YES → Add .overrideComponent(..., { set: { template: "", imports: [] } })
+  NO  → Can test with template intact (or use NO_ERRORS_SCHEMA for child components)
+
+Do you need to test DOM / template rendering?
+  YES → Provide full module deps OR use Pattern B (MockHeaderComponent declaration)
+  NO  → overrideComponent is fine; all logic tests can run without the template
+```
+
+---
+
+### Pattern B: MockHeaderComponent (when template testing is needed)
+
+When you need to test template output but the component includes `<app-header>`:
+
+```typescript
+// Declare a minimal stub matching the selector
+@Component({ selector: "app-header", template: "<div></div>", standalone: false })
+class MockHeaderComponent {}
+
+await TestBed.configureTestingModule({
+  declarations: [MockHeaderComponent], // ← declare the stub
+  imports: [MyComponent],
+  providers: [
+    /* service mocks */
+  ],
+}).compileComponents();
+```
+
+Use this when:
+
+- Testing `@if` blocks that depend on header state
+- Testing that specific template elements render correctly
+- Integration-style tests that need the full component tree
+
+**Prefer `overrideComponent`** for pure logic tests (most of our unit tests). Use
+`MockHeaderComponent` only when template rendering is the focus.
+
+---
+
+### Summary Table
+
+| Component Type                                  | Has inject()? | Has HeaderModule? | Pattern                             |
+| ----------------------------------------------- | ------------- | ----------------- | ----------------------------------- |
+| Pure presenter (no services)                    | No            | No                | `NO_ERRORS_SCHEMA` only             |
+| Pure presenter (no services, has heavy imports) | No            | Yes               | `overrideComponent`                 |
+| Feature component                               | Yes           | No                | Service mocks + `NO_ERRORS_SCHEMA`  |
+| Feature component with header                   | Yes           | Yes               | Service mocks + `overrideComponent` |
+| Container/page component                        | Yes           | Yes               | Service mocks + `overrideComponent` |
+
+**Reference implementations:**
+
+- Pure logic, no services: [review-applications-view-v2.component.spec.ts](../../../bit-web/src/app/dirt/access-intelligence/v2/shared/review-applications-view-v2/review-applications-view-v2.component.spec.ts)
+- Service mocks only: [all-activity-v2.component.spec.ts](../../../bit-web/src/app/dirt/access-intelligence/v2/all-activity-v2/all-activity-v2.component.spec.ts)
+- Service mocks + overrideComponent: [access-intelligence-page.component.spec.ts](../../../bit-web/src/app/dirt/access-intelligence/v2/access-intelligence-page/access-intelligence-page.component.spec.ts)
 
 ---
 
@@ -197,7 +401,27 @@ it("should display report data", () => {
 
 ## Storybook as Living Documentation
 
-**Every reusable component should have a Storybook.**
+### When Storybook is Required
+
+| Component Type                              | Stories Required? | Rationale                                    |
+| ------------------------------------------- | ----------------- | -------------------------------------------- |
+| Presentational / reusable component         | ✅ Required       | Visual catalog and documentation             |
+| Feature component with meaningful UI states | ✅ Required       | Documents loading, empty, populated variants |
+| Pure routing container (no UI of its own)   | ❌ Skip           | No visual states to document                 |
+| Simple wrapper that only adds a layout slot | ❌ Skip           | No independent visual identity               |
+
+**Examples:**
+
+- ✅ `activity-card`, `all-activity-v2`, `applications-v2`, `review-applications-view-v2` — have
+  meaningful UI states (loading, empty, with data, with selections) → stories required
+- ❌ `access-intelligence-page` — routes to tab children, no content of its own → skip
+- ❌ Simple containers that only pass inputs to one child → skip
+
+**Practical test:** If you can meaningfully show "Default", "Loading", and "With Data" states in
+isolation, that component needs Storybook. If the only story would be a blank frame with child
+components filling it, skip it.
+
+---
 
 ### ⚠️ CRITICAL: Deterministic Data for Chromatic
 
@@ -556,7 +780,7 @@ describe("MyComponent", () => {
 
 - ✅ **Minimal boilerplate** - Single helper function
 - ✅ **Type-safe for tests** - TypeScript allows `any` assertions in tests
-- ✅ **Follows Angular best practices** - Recommended in [Angular testing guide](https://angular.io/guide/testing-components-basics#testing-private-members)
+- ✅ **Follows Angular best practices** - Recommended in [Angular testing guide](https://angular.dev/guide/testing)
 - ✅ **Clear intent** - `testAccess()` clearly signals "test-only access"
 
 **Alternative: Intersection Types (NOT recommended)**
@@ -789,27 +1013,29 @@ Use this checklist for each component:
 
 ## Reference Components
 
-**V2 Components (completed, use as examples):**
+**V2 Components (use as examples):**
 
-- `v2/risk-insights-v2.component.ts` - Container with state management
-  - Tests: Signal inputs, service integration, user actions
-- `v2/shared/access-intelligence-drawer-v2.component.ts` - Pure presentation
-  - Tests: Signal inputs/outputs, conditional rendering
+- `v2/access-intelligence-page/access-intelligence-page.component.spec.ts`
+  — Container with service mocks + `overrideComponent` (strips HeaderModule)
+- `v2/all-activity-v2/all-activity-v2.component.spec.ts`
+  — Feature component with BehaviorSubject mocks, computed signals, dialog spy
+- `v2/new-applications-dialog-v2/new-applications-dialog-v2.component.spec.ts`
+  — DIALOG_DATA injection, async operations, static open spy pattern
+- `v2/shared/applications-table-v2/applications-table-v2.component.spec.ts`
+  — Signal inputs, DOM interaction with `dispatchEvent`
+- `v2/shared/review-applications-view-v2/review-applications-view-v2.component.spec.ts`
+  — No-service component, `overrideComponent` for template deps, signal output testing
 
 **Study these for patterns:**
 
-- How to mock `AccessIntelligenceDataService`
-- How to test `toSignal()` conversions
+- How to mock `AccessIntelligenceDataService` with `BehaviorSubject`
+- How to test `toSignal()` conversions via BehaviorSubject emissions
 - How to test computed signals
-- How to test OnPush change detection
+- How to use `overrideComponent` for heavy imports vs mocking injected services
 
 ---
 
 ## Related Documentation
-
-**Playbooks:**
-
-- [Component Migration Playbook](../playbooks/component-migration-playbook.md) - Migrating components to modern patterns
 
 **Standards:**
 
@@ -820,7 +1046,7 @@ Use this checklist for each component:
 **External Resources:**
 
 - [Bitwarden Angular Guide](https://contributing.bitwarden.com/contributing/code-style/web/angular/)
-- [Angular Testing Guide](https://angular.io/guide/testing)
+- [Angular Testing Guide](https://angular.dev/guide/testing)
 - [Jest Documentation](https://jestjs.io/docs/getting-started)
 
 **Navigation:**
@@ -829,6 +1055,6 @@ Use this checklist for each component:
 
 ---
 
-**Document Version:** 1.1
-**Last Updated:** 2026-02-18
+**Document Version:** 1.3
+**Last Updated:** 2026-03-03
 **Maintainer:** DIRT Team

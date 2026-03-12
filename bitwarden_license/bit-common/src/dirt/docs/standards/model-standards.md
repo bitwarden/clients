@@ -292,10 +292,6 @@ cacheable, API-mappable data objects.
 - [Angular Standards](./angular-standards.md) - Smart models and mutation patterns
 - [Testing Standards - Services](./testing-standards-services.md) - Testing models and EncString
 
-**Playbooks:**
-
-- [Service Implementation Playbook](../playbooks/service-implementation-playbook.md) - Implementing services that use the 4-layer architecture
-
 **Navigation:**
 
 - [Standards Hub](./README.md) - All DIRT team standards

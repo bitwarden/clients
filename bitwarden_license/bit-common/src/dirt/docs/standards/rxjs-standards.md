@@ -260,10 +260,6 @@ import { map, switchMap, tap, catchError, shareReplay } from "rxjs";
 - [Code Organization Standards](./code-organization-standards.md) - Observable naming conventions
 - [Testing Standards - Services](./testing-standards-services.md) - Testing Observable-based services
 
-**Playbooks:**
-
-- [Service Implementation Playbook](../playbooks/service-implementation-playbook.md) - Implementing services with Observables
-
 **Navigation:**
 
 - [Standards Hub](./README.md) - All DIRT team standards
