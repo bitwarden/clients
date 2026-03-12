@@ -52,10 +52,6 @@ export class ProgressBarComponent {
   protected readonly labelId = `bit-progress-bar-label-${this.id}`;
 
   protected readonly defaultStartText = computed(() => {
-    if (this.value() === 0) {
-      return undefined;
-    }
-
     return this.i18nService.t("percentageCompleted", this.value().toString());
   });
 
