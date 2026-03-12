@@ -20,8 +20,8 @@
             *ngIf="emptyVaultImportBadge$ | async"
             variant="danger"
             [attr.aria-label]="'nudgeBadgeAria' | i18n"
+            [value]="1"
           >
-            1
           </bit-berry>
         </div>
         <ng-container slot="end">
