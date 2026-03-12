@@ -1,4 +1,4 @@
-import { Observable, from, map, shareReplay } from "rxjs";
+import { Observable, catchError, from, map, shareReplay } from "rxjs";
 
 import { PasswordPreloginApiService } from "./password-prelogin-api.service";
 import { PasswordPreloginData } from "./password-prelogin.model";
@@ -21,7 +21,17 @@ export class DefaultPasswordPreloginService implements PasswordPreloginService {
     this.currentEmail = normalized;
     this.currentPreloginData$ = from(
       this.passwordPreloginApiService.getPreloginData(new PasswordPreloginRequest(normalized)),
-    ).pipe(map(PasswordPreloginData.fromResponse), shareReplay({ bufferSize: 1, refCount: false }));
+    ).pipe(
+      map(PasswordPreloginData.fromResponse),
+      catchError((err: unknown) => {
+        // If the API call fails, we want to reset the stored email and prelogin data so that future calls will attempt to fetch again
+        // otherwise, there isn't a way to recover from a failed API call since the failed result would be cached indefinitely
+        this.currentEmail = null;
+        this.currentPreloginData$ = null;
+        throw err;
+      }),
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
 
     return this.currentPreloginData$;
   }

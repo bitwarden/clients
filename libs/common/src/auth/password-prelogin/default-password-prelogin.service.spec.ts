@@ -124,6 +124,21 @@ describe("DefaultPasswordPreloginService", () => {
       expect(apiService.getPreloginData).toHaveBeenCalledWith(new PasswordPreloginRequest(email));
     });
 
+    it("creates a new request when the previous request for the same email failed", async () => {
+      const networkError = new Error("Network error");
+      apiService.getPreloginData.mockRejectedValueOnce(networkError);
+      apiService.getPreloginData.mockResolvedValueOnce(response);
+
+      // First attempt (e.g. prefetch on Continue click) — fails
+      await expect(firstValueFrom(sut.getPreloginData$(email))).rejects.toThrow("Network error");
+
+      // Second attempt (e.g. user retries Submit with the same email) — should make a fresh request
+      const result = await firstValueFrom(sut.getPreloginData$(email));
+
+      expect(result).toEqual(expectedData);
+      expect(apiService.getPreloginData).toHaveBeenCalledTimes(2);
+    });
+
     it("emits the resolved value to a subscriber that arrives after a fire-and-forget call", async () => {
       apiService.getPreloginData.mockResolvedValue(response);
 
