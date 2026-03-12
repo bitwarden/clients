@@ -30,6 +30,7 @@ export class BitLabelComponent {
     "tw-flex-row",
     "tw-min-w-0",
     "[&_.bwi]:tw-text-xl",
+    "[&_.bwi]:tw-leading-none",
   ];
 
   @HostBinding("title") get title() {
