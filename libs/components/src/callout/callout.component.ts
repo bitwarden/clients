@@ -12,11 +12,12 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { IconModule } from "../icon";
 import { IconButtonModule } from "../icon-button";
+import { BitwardenIcon } from "../shared/icon";
 import { TypographyModule } from "../typography";
 
 export type CalloutTypes = "success" | "info" | "warning" | "danger" | "subtle";
 
-const defaultIcon: Record<CalloutTypes, string> = {
+const defaultIcon: Record<CalloutTypes, BitwardenIcon> = {
   success: "bwi-check-circle",
   info: "bwi-info-circle",
   warning: "bwi-exclamation-triangle",
@@ -48,7 +49,7 @@ export class CalloutComponent {
   // The variant type of the callout. Defaults to "info".
   readonly type = input<CalloutTypes>("info");
   // The icon to display in the callout. If not provided, a default icon based on the type will be used. Pass in `null` to not display an icon.
-  readonly icon = input<string | null>();
+  readonly icon = input<BitwardenIcon | null>();
   // The title of the callout. If not provided, a default title will be used if callout type is `warning | danger`. Pass in `null` to not display a title.
   readonly title = input<string | null>();
   // Whether the component can be dismissed. If true, the component will not show a close button. Defaults to true.
