@@ -200,7 +200,7 @@ export class SendAuthComponent implements OnInit {
           if (this.otpSubmitted) {
             this.toastService.showToast({
               variant: "error",
-              title: this.i18nService.t("errorOccurred"),
+              title: undefined,
               message: this.i18nService.t("invalidVerificationCode"),
             });
           }
@@ -211,7 +211,7 @@ export class SendAuthComponent implements OnInit {
       } else if (otpInvalid(response.error)) {
         this.toastService.showToast({
           variant: "error",
-          title: this.i18nService.t("errorOccurred"),
+          title: undefined,
           message: this.i18nService.t("invalidVerificationCode"),
         });
       } else if (passwordHashB64Required(response.error)) {
@@ -257,7 +257,7 @@ export class SendAuthComponent implements OnInit {
       if (otp == null || otp.trim() === "") {
         this.toastService.showToast({
           variant: "error",
-          title: this.i18nService.t("errorOccurred"),
+          title: null,
           message: this.i18nService.t("invalidVerificationCode"),
         });
         return;
