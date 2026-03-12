@@ -1,11 +1,5 @@
-<ng-container>
-  <div class="tw-size-[70px] tw-content-center" *ngIf="!!IconProviderMap[provider]">
-    <bit-svg [content]="IconProviderMap[provider]"></bit-svg>
+@if (IconProviderMap[provider()]) {
+  <div class="tw-size-[70px] tw-content-center">
+    <bit-svg [content]="IconProviderMap[provider()]" [ariaLabel]="name()" />
   </div>
-  <!-- Other 2FA Types (Duo, Yubico, U2F as PNG) -->
-  <img
-    [class]="'mfaType' + provider"
-    [alt]="name"
-    *ngIf="provider == 2 || provider == 3 || provider == 4 || provider == 5 || provider == 6"
-  />
-</ng-container>
+}
