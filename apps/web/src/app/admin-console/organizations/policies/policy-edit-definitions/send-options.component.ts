@@ -5,11 +5,14 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 export class SendOptionsPolicy extends BasePolicyEditDefinition {
   name = "sendOptions";
   description = "sendOptionsPolicyDesc";
   type = PolicyType.SendOptions;
+  category = PolicyCategory.DataControl;
+  priority = 30;
   component = SendOptionsPolicyComponent;
 }
 

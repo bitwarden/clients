@@ -14,6 +14,7 @@ import { EncString } from "@bitwarden/sdk-internal";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 type VNextSaveOrganizationDataOwnershipPolicyRequest = VNextSavePolicyRequest<{
   defaultUserCollectionName: string;
@@ -23,6 +24,8 @@ export class OrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
   name = "organizationDataOwnership";
   description = "organizationDataOwnershipDesc";
   type = PolicyType.OrganizationDataOwnership;
+  category = PolicyCategory.DataControl;
+  priority = 20;
   component = OrganizationDataOwnershipPolicyComponent;
   showDescription = false;
 

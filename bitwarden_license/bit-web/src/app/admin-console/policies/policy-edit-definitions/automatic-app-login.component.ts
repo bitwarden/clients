@@ -7,6 +7,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import {
   BasePolicyEditDefinition,
   BasePolicyEditComponent,
+  PolicyCategory,
 } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
@@ -14,6 +15,8 @@ export class AutomaticAppLoginPolicy extends BasePolicyEditDefinition {
   name = "automaticAppLoginWithSSO";
   description = "automaticAppLoginWithSSODesc";
   type = PolicyType.AutomaticAppLogIn;
+  category = PolicyCategory.VaultManagement;
+  priority = 30;
   component = AutomaticAppLoginPolicyComponent;
 }
 

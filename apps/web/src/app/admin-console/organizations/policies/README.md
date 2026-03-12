@@ -49,12 +49,15 @@ import { Component } from "@angular/core";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 // Policy Definition Class
 export class YourNewPolicy extends BasePolicyEditDefinition {
   name = "yourPolicyNameTitle"; // i18n key for title
   description = "yourPolicyNameDesc"; // i18n key for description
   type = PolicyType.YourNewPolicy; // Reference to enum
+  category = PolicyCategory.VaultManagement; // Category for grouping on the Policies page
+  priority = 10; // Sort order within the category (lower = higher on page)
   component = YourNewPolicyComponent; // Reference to component
 }
 
@@ -79,6 +82,8 @@ export class SimpleTogglePolicy extends BasePolicyEditDefinition {
   name = "simpleTogglePolicyTitle";
   description = "simpleTogglePolicyDesc";
   type = PolicyType.SimpleToggle;
+  category = PolicyCategory.VaultManagement;
+  priority = 10;
   component = SimpleTogglePolicyComponent;
 }
 
@@ -166,6 +171,8 @@ export class NewPolicyBeta extends BasePolicyEditDefinition {
   name = "newPolicyTitle";
   description = "newPolicyDesc";
   type = PolicyType.NewPolicy;
+  category = PolicyCategory.VaultManagement;
+  priority = 10;
   component = NewPolicyComponent;
 
   // Only show if feature flag is enabled
@@ -188,6 +195,8 @@ export class RequireSsoPolicy extends BasePolicyEditDefinition {
   name = "requireSsoTitle";
   description = "requireSsoDesc";
   type = PolicyType.RequireSso;
+  category = PolicyCategory.VaultManagement;
+  priority = 10;
   component = RequireSsoPolicyComponent;
 
   // Only show if organization has SSO enabled

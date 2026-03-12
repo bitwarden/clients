@@ -7,11 +7,14 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 export class RequireSsoPolicy extends BasePolicyEditDefinition {
   name = "requireSso";
   description = "requireSsoPolicyDesc";
   type = PolicyType.RequireSso;
+  category = PolicyCategory.Authentication;
+  priority = 30;
   component = RequireSsoPolicyComponent;
 
   display$(organization: Organization, configService: ConfigService) {

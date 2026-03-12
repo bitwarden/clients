@@ -7,11 +7,14 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 export class DesktopAutotypeDefaultSettingPolicy extends BasePolicyEditDefinition {
   name = "desktopAutotypePolicy";
   description = "desktopAutotypePolicyDesc";
   type = PolicyType.AutotypeDefaultSetting;
+  category = PolicyCategory.VaultManagement;
+  priority = 70;
   component = DesktopAutotypeDefaultSettingPolicyComponent;
 
   display$(organization: Organization, configService: ConfigService) {

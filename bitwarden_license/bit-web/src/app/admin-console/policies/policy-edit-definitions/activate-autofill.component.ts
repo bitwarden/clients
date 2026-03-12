@@ -7,6 +7,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import {
   BasePolicyEditDefinition,
   BasePolicyEditComponent,
+  PolicyCategory,
 } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
@@ -14,6 +15,8 @@ export class ActivateAutofillPolicy extends BasePolicyEditDefinition {
   name = "activateAutofillPolicy";
   description = "activateAutofillPolicyDescription";
   type = PolicyType.ActivateAutofill;
+  category = PolicyCategory.VaultManagement;
+  priority = 40;
   component = ActivateAutofillPolicyComponent;
 
   display(organization: Organization, configService: ConfigService) {
