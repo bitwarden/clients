@@ -145,6 +145,20 @@ export class ImportService implements ImportServiceAbstraction {
       throw error;
     }
 
+    return this.importImportResult(
+      importResult,
+      organizationId,
+      selectedImportTarget,
+      canAccessImportExport,
+    );
+  }
+
+  async importImportResult(
+    importResult: ImportResult,
+    organizationId: OrganizationId = null,
+    selectedImportTarget: FolderView | CollectionView = null,
+    canAccessImportExport: boolean = false,
+  ): Promise<ImportResult> {
     if (!importResult.success) {
       if (!Utils.isNullOrWhitespace(importResult.errorMessage)) {
         throw new Error(importResult.errorMessage);

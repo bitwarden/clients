@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package Push;
+
+enum MessageType {
+  UNKNOWN = 0;
+  DNA = 1;
+  SSO = 2;
+  CHAT = 3;
+  USER = 4;
+  ENTERPRISE = 5;
+  KEEPER = 6;
+  SESSION = 7;
+  DEVICE = 8;
+  TOTP = 9;
+}
+
+message UserRegistrationRequest {
+  bytes messageSessionUid = 1;
+  int32 userId = 2;
+  int32 enterpriseId = 3;
+}
+
+message KAToPushServerRequest {
+  MessageType messageType = 1;
+  string message = 2;
+  bytes messageSessionUid = 3;
+  repeated bytes encryptedDeviceToken = 4;
+  repeated int32 userId = 5;
+  repeated int32 enterpriseId = 6;
+}
+
+message WssConnectionRequest {
+  bytes messageSessionUid = 1;
+  bytes encryptedDeviceToken = 2;
+  int64 deviceTimeStamp = 3;
+}
+
+message WssClientResponse {
+  MessageType messageType = 1;
+  string message = 2;
+}
+
+message PushServerDeviceRegistrationRequest {
+  bytes encryptedDeviceToken = 1;
+  string pushToken = 2;
+  string mobilePushPlatform = 3;
+  bytes transmissionKey = 4;
+}
+
+message SnsMessage {
+  MessageType messageType = 1;
+  bytes message = 2;
+}
+

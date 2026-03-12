@@ -3827,6 +3827,129 @@
   "lastPassYubikeyDesc": {
     "message": "Insert the YubiKey associated with your LastPass account into your computer's USB port, then touch its button."
   },
+  "importDirectlyFromKeeper": {
+    "message": "Import directly from Keeper"
+  },
+  "keeperEmail": {
+    "message": "Keeper Email"
+  },
+  "keeperRegion": {
+    "message": "Data Center Location"
+  },
+  "keeperMasterPassword": {
+    "message": "Keeper master password"
+  },
+  "keeperAuthRequired": {
+    "message": "Keeper authentication required"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Keeper device approval required"
+  },
+  "keeperSelectApprovalMethod": {
+    "message": "Select approval method"
+  },
+  "keeperSelectApprovalMethodDesc": {
+    "message": "Choose how you want to approve this device."
+  },
+  "keeperApprovalMethodEmail": {
+    "message": "Email"
+  },
+  "keeperApprovalMethodPush": {
+    "message": "Keeper Push"
+  },
+  "keeperDeviceApprovalEmailDesc": {
+    "message": "Check your email and click the approval link, or enter the verification code below."
+  },
+  "keeperVerificationCode": {
+    "message": "Verification code"
+  },
+  "keeperVerificationCodeHint": {
+    "message": "Enter the 6-digit code from the email, or click the link and this dialog will close automatically."
+  },
+  "keeperDeviceApprovalPushDesc": {
+    "message": "Approve the device request on your other Keeper device. This dialog will close automatically."
+  },
+  "keeperMFARequired": {
+    "message": "Keeper two-factor authentication required"
+  },
+  "keeperMFADesc": {
+    "message": "Enter your one-time passcode from your authentication app"
+  },
+  "keeperMFAPushDesc": {
+    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+  },
+  "keeperSelectTwoFactorMethod": {
+    "message": "Select two-factor method"
+  },
+  "keeperSelectTwoFactorMethodDesc": {
+    "message": "Choose how you want to verify your identity."
+  },
+  "keeperTwoFactorTotp": {
+    "message": "Authenticator app (TOTP)"
+  },
+  "keeperTwoFactorSms": {
+    "message": "Text message (SMS)"
+  },
+  "keeperTwoFactorDuo": {
+    "message": "Duo Security"
+  },
+  "keeperTwoFactorRsa": {
+    "message": "RSA SecurID"
+  },
+  "keeperTwoFactorBackup": {
+    "message": "Backup codes"
+  },
+  "keeperTwoFactorU2f": {
+    "message": "Security key (U2F)"
+  },
+  "keeperTwoFactorWebAuthn": {
+    "message": "Security key (WebAuthn)"
+  },
+  "keeperTwoFactorKeeperPush": {
+    "message": "Keeper Push"
+  },
+  "keeperTwoFactorKeeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperTwoFactorUnknown": {
+    "message": "Unknown method"
+  },
+  "keeperSelectDuoMethod": {
+    "message": "Select Duo method"
+  },
+  "keeperSelectDuoMethodDesc": {
+    "message": "Choose how you want to verify with Duo Security."
+  },
+  "keeperDuoPush": {
+    "message": "Duo Push"
+  },
+  "keeperDuoSms": {
+    "message": "Text message (SMS)"
+  },
+  "keeperDuoVoice": {
+    "message": "Phone call"
+  },
+  "keeperDuoPasscode": {
+    "message": "Passcode"
+  },
+  "keeperDuoUnknown": {
+    "message": "Unknown method"
+  },
+  "keeperDuoApprovalRequired": {
+    "message": "Duo verification"
+  },
+  "keeperDuoPushWaiting": {
+    "message": "Approve the Duo push notification on your device."
+  },
+  "keeperDuoSmsWaiting": {
+    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+  },
+  "keeperDuoVoiceWaiting": {
+    "message": "Answer the phone call from Duo and follow the instructions."
+  },
+  "noKeeperDataFound": {
+    "message": "No Keeper data found"
+  },
   "commonImportFormats": {
     "message": "Common formats",
     "description": "Label indicating the most common import formats"

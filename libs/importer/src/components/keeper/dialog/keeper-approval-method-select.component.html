@@ -1,0 +1,27 @@
+<bit-dialog>
+  <span bitDialogTitle>
+    {{ "keeperSelectApprovalMethod" | i18n }}
+  </span>
+
+  <div bitDialogContent>
+    <p>{{ "keeperSelectApprovalMethodDesc" | i18n }}</p>
+    <div class="tw-flex tw-flex-col tw-gap-2 tw-mt-4">
+      <button
+        *ngFor="let method of methods"
+        bitButton
+        buttonType="secondary"
+        type="button"
+        (click)="select(method)"
+        class="tw-w-full"
+      >
+        {{ getMethodI18nKey(method) | i18n }}
+      </button>
+    </div>
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button bitButton bitDialogClose="cancel" buttonType="secondary" type="button">
+      <span>{{ "cancel" | i18n }}</span>
+    </button>
+  </ng-container>
+</bit-dialog>
