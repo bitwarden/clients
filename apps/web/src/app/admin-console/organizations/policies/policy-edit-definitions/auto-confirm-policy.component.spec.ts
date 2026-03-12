@@ -4,7 +4,7 @@ import { Router } from "@angular/router";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { AutomaticUserConfirmationService , AutoConfirmState } from "@bitwarden/auto-confirm";
+import { AutomaticUserConfirmationService, AutoConfirmState } from "@bitwarden/auto-confirm";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -15,7 +15,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { newGuid } from "@bitwarden/guid";
-
 
 import { AutoConfirmPolicy, AutoConfirmPolicyEditComponent } from "./auto-confirm-policy.component";
 
