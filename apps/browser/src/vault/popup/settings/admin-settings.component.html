@@ -7,7 +7,7 @@
 
   <div class="tw-px-1 tw-pt-1">
     @if (showAutoConfirmSpotlight$ | async) {
-      <bit-callout [icon]="null" persistent="false" (onDismiss)="dismissSpotlight()">
+      <bit-callout [icon]="null" (onDismiss)="dismissSpotlight()">
         {{ "autoConfirmOnboardingCallout" | i18n }}
       </bit-callout>
     }
