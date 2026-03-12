@@ -136,9 +136,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const { formElements, formFieldElements } = this.queryAutofillFormAndFieldElements();
     const autofillFormsData: Record<string, AutofillForm> =
       this.buildAutofillFormsData(formElements);
-    const autofillFieldsData: AutofillField[] = (
-      await this.buildAutofillFieldsData(formFieldElements as FormFieldElement[])
-    ).filter((field) => !!field);
+    const autofillFieldsData: AutofillField[] = await this.buildAutofillFieldsData(
+      formFieldElements as FormFieldElement[],
+    );
     this.sortAutofillFieldElementsMap();
 
     if (!autofillFieldsData.length) {
@@ -1028,15 +1028,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private setupMutationObserver() {
     this.currentLocationHref = globalThis.location.href;
     this.mutationObserver = new MutationObserver(this.handleMutationObserverMutation);
-    if (this.mutationObserver !== null) {
-      this.mutationObserver.observe(document.documentElement, {
-        attributes: true,
-        /** Mutations to node attributes NOT on this list will not be observed! */
-        attributeFilter: Object.values(AUTOFILL_ATTRIBUTES),
-        childList: true,
-        subtree: true,
-      });
-    }
+    this.mutationObserver.observe(document.documentElement, {
+      attributes: true,
+      /** Mutations to node attributes NOT on this list will not be observed! */
+      attributeFilter: Object.values(AUTOFILL_ATTRIBUTES),
+      childList: true,
+      subtree: true,
+    });
   }
 
   /**
