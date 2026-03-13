@@ -71,9 +71,9 @@ export class SendGeneratorDialogComponent {
     });
   };
 
-  onValueGenerated(value: string) {
+  readonly onValueGenerated = (value: string) => {
     this.generatedValue.set(value);
-  }
+  };
 
   readonly onAlgorithmSelected = (selected?: AlgorithmInfo) => {
     if (selected) {
