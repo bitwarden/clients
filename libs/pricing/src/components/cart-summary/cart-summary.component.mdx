@@ -28,6 +28,8 @@ behavior across Bitwarden applications.
   - [With Account Credit](#with-account-credit)
   - [With Percent Discount](#with-percent-discount)
   - [With Amount Discount](#with-amount-discount)
+  - [With Item-Level Discount](#with-item-level-discount)
+  - [With Both Cart-Level and Item-Level Discounts](#with-both-cart-level-and-item-level-discounts)
   - [With Discount and Credit](#with-discount-and-credit)
   - [Hidden Cost Breakdown](#hidden-cost-breakdown)
   - [Hidden Pricing Term](#hidden-pricing-term)
@@ -441,6 +443,72 @@ Show cart with fixed amount discount:
 </billing-cart-summary>
 ```
 
+### With Item-Level Discount
+
+Show cart with an item-level discount applied to a specific line item (e.g., Premium renewal
+discount):
+
+<Canvas of={CartSummaryStories.WithItemDiscount} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 1,
+        translationKey: 'premiumMembership',
+        cost: 10.00,
+        discount: {
+          type: 'percent-off',
+          value: 25
+        }
+      }
+    },
+    cadence: 'annually',
+    estimatedTax: 2.03
+  }"
+>
+</billing-cart-summary>
+```
+
+### With Both Cart-Level and Item-Level Discounts
+
+Show cart with both a cart-level discount and an item-level discount. The item-level discount
+renders inline under its line item, while the cart-level discount renders in the dedicated discount
+section:
+
+<Canvas of={CartSummaryStories.WithCartAndItemDiscount} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 5,
+        translationKey: 'members',
+        cost: 50.00,
+        discount: {
+          type: 'percent-off',
+          value: 25
+        }
+      },
+      additionalStorage: {
+        quantity: 2,
+        translationKey: 'additionalStorageGB',
+        cost: 10.00
+      }
+    },
+    cadence: 'monthly',
+    discount: {
+      type: 'percent-off',
+      value: 10
+    },
+    estimatedTax: 8.55
+  }"
+>
+</billing-cart-summary>
+```
+
 ### With Discount and Credit
 
 Show cart with both discount and credit applied:
@@ -617,8 +685,9 @@ Show cart with families plan:
 - **Line Item Grouping**: Organizes items by product category (Password Manager, Secrets Manager)
 - **Dynamic Calculations**: Automatically calculates subtotals, discounts, credits, taxes, and
   totals using Angular signals and computed values
-- **Discount Support**: Displays both percentage-based and fixed-amount discounts with green success
-  styling
+- **Discount Support**: Displays both cart-level and item-level discounts. Cart-level discounts
+  appear in a dedicated section, while item-level discounts render inline under the line item they
+  apply to. Supports both percentage-based and fixed-amount discounts with green success styling
 - **Credit Support**: Shows account credit deductions with clear labeling using i18n translation
   keys
 - **Custom Header Templates**: Optional header input allows for custom header designs while
