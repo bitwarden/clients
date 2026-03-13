@@ -251,7 +251,7 @@
   --color-fg-success: var(--color-green-700);
   --color-fg-success-strong: var(--color-green-800);
   --color-fg-danger: var(--color-red-700);
-  --color-fg-danger-strong: var(--color-red-900);
+  --color-fg-danger-strong: var(--color-red-800);
   --color-fg-warning: var(--color-orange-600);
   --color-fg-warning-strong: var(--color-orange-700);
   --color-fg-sensitive: var(--color-pink-600);
@@ -339,7 +339,7 @@
   /* Brand Border */
   --color-border-brand-soft: var(--color-brand-200);
   --color-border-brand: var(--color-brand-700);
-  --color-border-brand-strong: var(--color-brand-800);
+  --color-border-brand-strong: var(--color-brand-900);
 
   /* Status Border */
   --color-border-success-soft: var(--color-green-200);
@@ -347,10 +347,10 @@
   --color-border-success-strong: var(--color-green-900);
   --color-border-danger-soft: var(--color-red-200);
   --color-border-danger: var(--color-red-700);
-  --color-border-danger-strong: var(--color-red-900);
+  --color-border-danger-strong: var(--color-red-800);
   --color-border-warning-soft: var(--color-orange-200);
   --color-border-warning: var(--color-orange-600);
-  --color-border-warning-strong: var(--color-orange-900);
+  --color-border-warning-strong: var(--color-orange-700);
 
   /* Accent Border */
   --color-border-accent-primary-soft: var(--color-teal-200);
@@ -513,15 +513,15 @@
   --color-bg-success-soft: var(--color-green-950);
   --color-bg-success-medium: var(--color-green-900);
   --color-bg-success: var(--color-green-400);
-  --color-bg-success-strong: var(--color-green-300);
+  --color-bg-success-strong: var(--color-green-200);
   --color-bg-danger-soft: var(--color-red-950);
   --color-bg-danger-medium: var(--color-red-900);
   --color-bg-danger: var(--color-red-400);
-  --color-bg-danger-strong: var(--color-red-300);
+  --color-bg-danger-strong: var(--color-red-200);
   --color-bg-warning-soft: var(--color-orange-950);
   --color-bg-warning-medium: var(--color-orange-900);
   --color-bg-warning: var(--color-orange-400);
-  --color-bg-warning-strong: var(--color-orange-300);
+  --color-bg-warning-strong: var(--color-orange-200);
 
   /* Accent Background */
   --color-bg-accent-primary-soft: var(--color-teal-950);
