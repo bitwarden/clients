@@ -21,6 +21,7 @@ import { organizationPermissionsGuard } from "../guards/org-permissions.guard";
 import { organizationRedirectGuard } from "../guards/org-redirect.guard";
 import { EventsComponent } from "../manage/events.component";
 
+import { AccessIntelligenceComponent } from "./access-intelligence/access-intelligence.component";
 import { ReportsHomeComponent } from "./reports-home.component";
 
 const routes: Routes = [
@@ -79,6 +80,14 @@ const routes: Routes = [
             component: WeakPasswordsReportComponent,
             data: {
               titleId: "weakPasswordsReport",
+            },
+            canActivate: [isPaidOrgGuard()],
+          },
+          {
+            path: "access-intelligence-prototype",
+            component: AccessIntelligenceComponent,
+            data: {
+              titleId: "accessIntelligencePrototype",
             },
             canActivate: [isPaidOrgGuard()],
           },
