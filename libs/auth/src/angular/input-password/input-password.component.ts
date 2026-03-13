@@ -332,6 +332,18 @@ export class InputPasswordComponent implements OnInit {
         throw new Error("KdfConfig not found.");
       }
 
+      // Determine salt. Branches on userId presence:
+      //   - SetInitialPasswordAccountRegistration: no userId -> derives salt from email via emailToSalt()
+      //   - SetInitialPasswordAuthedUser, ChangePassword, ChangePasswordWithOptionalUserKeyRotation:
+      //     have an active userId -> retrieves stored salt via saltForUser$()
+      //
+      // Note: ChangePasswordDelegation (Emergency Access Takeover, Account Recovery) early-returns
+      // this component only collects the password for those flows. Salt determination
+      // is handled by the parent caller's service, which supplies the target user's email to
+      // emailToSalt() (see EmergencyAccessService.takeover, OrganizationUserResetPasswordService.resetMasterPassword).
+      //
+      // If/when we shift to using random entropy for the salt, the place to do so would be
+      // replacing: this.masterPasswordService.emailToSalt(this.email).
       const salt =
         this.userId != null
           ? await firstValueFrom(this.masterPasswordService.saltForUser$(this.userId))
