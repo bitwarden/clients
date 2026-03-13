@@ -22,7 +22,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+import {
+  isTwoFactorProviderType,
+  TwoFactorProviderType,
+} from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
@@ -175,7 +178,12 @@ export class LoginCommand {
     let twoFactorMethod: TwoFactorProviderType = null;
     try {
       if (options.method != null) {
-        twoFactorMethod = parseInt(options.method, null);
+        const parsed = parseInt(options.method, 10);
+        if (isTwoFactorProviderType(parsed)) {
+          twoFactorMethod = parsed;
+        } else {
+          return Response.error("Invalid two-step login method.");
+        }
       }
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
