@@ -1358,17 +1358,11 @@
   "twoStepLogin": {
     "message": "Prijava dvostrukom autentifikacijom"
   },
-  "vaultTimeoutHeader": {
-    "message": "Istek trezora"
-  },
   "vaultTimeout": {
     "message": "Istek trezora"
   },
   "vaultTimeout1": {
     "message": "Vrijeme isteka"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Radnja nakon isteka"
   },
   "vaultTimeoutDesc": {
     "message": "Odaberi kada će isteći trezor i koja će se radnja izvršiti."
@@ -1658,6 +1652,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "month"
+  },
+  "monthly": {
+    "message": "Monthly"
+  },
+  "year": {
+    "message": "year"
+  },
+  "annually": {
+    "message": "Annually"
+  },
+  "annual": {
+    "message": "Annual"
   },
   "refreshComplete": {
     "message": "Osvježavanje završeno"
@@ -2088,9 +2097,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "Za pristup tvom trezoru, potrebno je ponovno unijeti korisničko ime i glavnu lozinku."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Za promjenu vremena isteka trezora, odredi način otključavanja."
   },
   "lock": {
     "message": "Zaključaj",
@@ -2709,9 +2715,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Vrijeme isteka premašuje ograničenje koju je postavila tvoja organizacija."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Pravila tvrtke primijenjena su na vrijeme isteka"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Pravilo tvoje organizacije utječe na istek trezora. Najveće dozvoljeno vrijeme isteka je $HOURS$:$MINUTES$ h.",
@@ -4617,8 +4620,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4629,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Prihvati prijenos"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Zašto ovo vidim?"
   },
   "organizationIsSuspended": {
     "message": "Organization is suspended"
