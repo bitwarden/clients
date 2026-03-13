@@ -53,7 +53,7 @@ export class PremiumUpgradeDialogComponent {
           message: this.i18nService.t("unexpectedError"),
         });
         this.logService.error("Error fetching and mapping pricing tiers", error);
-        this.dialogRef.close();
+        void this.dialogRef.close();
         return EMPTY;
       }),
     );
@@ -74,11 +74,11 @@ export class PremiumUpgradeDialogComponent {
       environment.getWebVaultUrl() +
       "/#/settings/subscription/premium?callToAction=upgradeToPremium";
     this.platformUtilsService.launchUri(vaultUrl);
-    this.dialogRef.close();
+    void this.dialogRef.close();
   }
 
   protected close(): void {
-    this.dialogRef.close();
+    void this.dialogRef.close();
   }
 
   private mapPremiumTierToCardDetails(

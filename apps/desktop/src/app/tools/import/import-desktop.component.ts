@@ -44,7 +44,7 @@ export class ImportDesktopComponent {
    * Callback that is called after a successful import.
    */
   protected async onSuccessfulImport(organizationId: string): Promise<void> {
-    this.dialogRef.close();
+    await this.dialogRef.close();
   }
 
   protected onLoadProfilesFromBrowser(browser: string): Promise<chromium_importer.ProfileInfo[]> {

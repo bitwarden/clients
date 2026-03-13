@@ -56,7 +56,7 @@ export class ProjectDialogComponent implements OnInit {
     if (this.data.operation === OperationType.Edit && this.data.projectId) {
       await this.loadData();
     } else if (this.data.operation !== OperationType.Add) {
-      this.dialogRef.close();
+      await this.dialogRef.close();
       throw new Error(`The project dialog was not called with the appropriate operation values.`);
     }
   }
@@ -99,7 +99,7 @@ export class ProjectDialogComponent implements OnInit {
       projectView.id = this.data.projectId;
       await this.updateProject(projectView);
     }
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   private async createProject(projectView: ProjectView) {

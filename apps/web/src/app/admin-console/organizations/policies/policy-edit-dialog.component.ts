@@ -136,7 +136,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
 
     if ((await this.policyComponent.confirm()) == false) {
-      this.dialogRef.close();
+      await this.dialogRef.close();
       return;
     }
 
@@ -147,7 +147,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
         variant: "success",
         message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
       });
-      this.dialogRef.close("saved");
+      await this.dialogRef.close("saved");
     } catch (error: any) {
       this.toastService.showToast({
         variant: "error",

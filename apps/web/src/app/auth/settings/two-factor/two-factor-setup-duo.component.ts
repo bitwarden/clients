@@ -156,7 +156,7 @@ export class TwoFactorSetupDuoComponent
   }
 
   onClose = () => {
-    this.dialogRef.close(this.enabled);
+    void this.dialogRef.close(this.enabled);
   };
 
   private processResponse(response: TwoFactorDuoResponse) {

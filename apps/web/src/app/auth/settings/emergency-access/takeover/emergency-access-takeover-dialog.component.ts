@@ -140,7 +140,7 @@ export class EmergencyAccessTakeoverDialogComponent implements OnInit {
       this.parentSubmittingBehaviorSubject.next(false);
     }
 
-    this.dialogRef.close(EmergencyAccessTakeoverDialogResultType.Done);
+    await this.dialogRef.close(EmergencyAccessTakeoverDialogResultType.Done);
   }
 
   protected handleIsSubmittingChange(isSubmitting: boolean) {

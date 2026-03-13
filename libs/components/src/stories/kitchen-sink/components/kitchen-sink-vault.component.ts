@@ -96,6 +96,6 @@ export class KitchenSinkVaultComponent {
   }
 
   openDrawer() {
-    this.dialogService.openDrawer(KitchenSinkDialogComponent);
+    void this.dialogService.openDrawer(KitchenSinkDialogComponent);
   }
 }

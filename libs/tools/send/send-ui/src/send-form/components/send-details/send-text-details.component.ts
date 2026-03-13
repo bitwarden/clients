@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, input, OnInit } from "@angular/core";
+import { Component, effect, input } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, Validators, ReactiveFormsModule } from "@angular/forms";
 
@@ -24,13 +24,14 @@ import { SendFormContainer } from "../../send-form-container";
     SectionComponent,
   ],
 })
-export class SendTextDetailsComponent implements OnInit {
+export class SendTextDetailsComponent {
   readonly config = input.required<SendFormConfig>();
   readonly originalSendView = input<SendView>();
+  readonly editing = input<boolean>(false);
 
   sendTextDetailsForm = this.formBuilder.group({
-    text: new FormControl("", Validators.required),
-    hidden: new FormControl(false),
+    text: new FormControl(this.originalSendView()?.text?.text || "", Validators.required),
+    hidden: new FormControl(this.originalSendView()?.text?.hidden || false),
   });
 
   constructor(
@@ -38,6 +39,26 @@ export class SendTextDetailsComponent implements OnInit {
     protected sendFormContainer: SendFormContainer,
   ) {
     this.sendFormContainer.registerChildForm("sendTextDetailsForm", this.sendTextDetailsForm);
+
+    effect(() => {
+      if (this.editing()) {
+        this.sendTextDetailsForm.enable();
+      } else {
+        this.sendTextDetailsForm.disable();
+        if (this.originalSendView()) {
+          this.sendTextDetailsForm.patchValue({
+            text: this.originalSendView()?.text?.text || "",
+            hidden: this.originalSendView()?.text?.hidden || false,
+          });
+        }
+      }
+    });
+
+    effect(() => {
+      if (!this.config().areSendsAllowed) {
+        this.sendTextDetailsForm.disable();
+      }
+    });
 
     this.sendTextDetailsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       this.sendFormContainer.patchSend((send) => {
@@ -49,16 +70,5 @@ export class SendTextDetailsComponent implements OnInit {
         });
       });
     });
-  }
-
-  async ngOnInit(): Promise<void> {
-    this.sendTextDetailsForm.patchValue({
-      text: this.originalSendView()?.text?.text || "",
-      hidden: this.originalSendView()?.text?.hidden || false,
-    });
-
-    if (!this.config().areSendsAllowed) {
-      this.sendTextDetailsForm.disable();
-    }
   }
 }

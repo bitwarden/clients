@@ -74,7 +74,7 @@ export class AddExistingOrganizationDialogComponent implements OnInit {
         message: this.i18nService.t("addedExistingOrganization"),
       });
 
-      this.dialogRef.close(this.ResultType.Submitted);
+      await this.dialogRef.close(this.ResultType.Submitted);
     }
   };
 

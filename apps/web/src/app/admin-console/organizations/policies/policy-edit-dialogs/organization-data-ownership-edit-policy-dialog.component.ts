@@ -164,7 +164,7 @@ export class OrganizationDataOwnershipPolicyDialogComponent
     });
 
     if (!this.policyComponent.enabled.value) {
-      this.dialogRef.close("saved");
+      await this.dialogRef.close("saved");
     }
   }
 
@@ -174,7 +174,7 @@ export class OrganizationDataOwnershipPolicyDialogComponent
     }
 
     if ((await this.policyComponent.confirm()) == false) {
-      this.dialogRef.close();
+      await this.dialogRef.close();
       return;
     }
 
@@ -185,7 +185,7 @@ export class OrganizationDataOwnershipPolicyDialogComponent
       }
 
       if (this.currentStep() === this.multiStepSubmit().length - 1) {
-        this.dialogRef.close("saved");
+        await this.dialogRef.close("saved");
         return;
       }
 

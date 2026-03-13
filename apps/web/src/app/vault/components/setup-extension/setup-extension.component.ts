@@ -109,7 +109,7 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
 
         // Extension was not installed and now it is, show success state
         if (previousState === false && currentState) {
-          this.dialogRef?.close();
+          void this.dialogRef?.close();
           void this.dismissExtensionPage();
           this.state = SetupExtensionState.Success;
         }

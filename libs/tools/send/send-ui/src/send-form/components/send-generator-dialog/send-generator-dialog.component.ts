@@ -61,11 +61,11 @@ export class SendGeneratorDialogComponent {
   }
 
   protected readonly close = () => {
-    this.dialogRef.close({ action: SendGeneratorDialogAction.Canceled });
+    void this.dialogRef.close({ action: SendGeneratorDialogAction.Canceled });
   };
 
   protected readonly selectValue = () => {
-    this.dialogRef.close({
+    void this.dialogRef.close({
       action: SendGeneratorDialogAction.Selected,
       generatedValue: this.generatedValue(),
     });

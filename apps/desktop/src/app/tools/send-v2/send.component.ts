@@ -101,14 +101,14 @@ export class SendComponent {
 
   constructor() {
     this.destroyRef.onDestroy(() => {
-      this.activeDrawerRef?.close();
+      void this.activeDrawerRef?.close();
     });
   }
 
   protected async addSend(type: SendType): Promise<void> {
     const formConfig = await this.sendFormConfigService.buildConfig("add", undefined, type);
 
-    this.activeDrawerRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+    this.activeDrawerRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
       formConfig,
     });
 
@@ -119,7 +119,7 @@ export class SendComponent {
   protected async selectSend(sendId: string): Promise<void> {
     const formConfig = await this.sendFormConfigService.buildConfig("edit", sendId as SendId);
 
-    this.activeDrawerRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+    this.activeDrawerRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
       formConfig,
     });
 

@@ -212,7 +212,7 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
           title: null,
           message: this.i18nService.t("domainClaimed"),
         });
-        this.dialogRef.close();
+        await this.dialogRef.close();
       } else {
         this.domainNameCtrl.setErrors({
           errorPassthrough: {
@@ -279,7 +279,7 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
       message: this.i18nService.t("domainRemoved"),
     });
 
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   // End Async Form Actions

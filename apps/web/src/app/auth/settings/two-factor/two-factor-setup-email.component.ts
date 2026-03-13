@@ -151,7 +151,7 @@ export class TwoFactorSetupEmailComponent
   }
 
   onClose = () => {
-    this.dialogRef.close(this.enabled);
+    void this.dialogRef.close(this.enabled);
   };
 
   private async processResponse(response: TwoFactorEmailResponse) {

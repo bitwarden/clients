@@ -528,7 +528,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   }
 
   private close(action: CollectionDialogAction, collection?: CollectionResponse | CollectionView) {
-    this.dialogRef.close({ action, collection } as CollectionDialogResult);
+    void this.dialogRef.close({ action, collection } as CollectionDialogResult);
   }
 }
 

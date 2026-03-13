@@ -147,7 +147,7 @@ export class TwoFactorSetupAuthenticatorComponent
     }
     if (this.enabled) {
       await this.disableMethod();
-      this.dialogRef.close(this.enabled);
+      await this.dialogRef.close(this.enabled);
     } else {
       await this.enable();
     }

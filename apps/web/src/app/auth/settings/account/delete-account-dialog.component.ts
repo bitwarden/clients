@@ -36,7 +36,7 @@ export class DeleteAccountDialogComponent {
     try {
       const verification = this.deleteForm.get("verification").value;
       await this.accountApiService.deleteAccount(verification);
-      this.dialogRef.close();
+      await this.dialogRef.close();
       this.toastService.showToast({
         variant: "success",
         title: this.i18nService.t("accountDeleted"),

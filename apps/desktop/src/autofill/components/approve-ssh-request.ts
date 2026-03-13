@@ -73,6 +73,6 @@ export class ApproveSshRequestComponent {
   }
 
   submit = async () => {
-    this.dialogRef.close(true);
+    await this.dialogRef.close(true);
   };
 }

@@ -89,6 +89,7 @@ import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm
 import { AppearanceComponent } from "./settings/appearance.component";
 import { DomainRulesComponent } from "./settings/domain-rules.component";
 import { CredentialGeneratorComponent } from "./tools/credential-generator/credential-generator.component";
+import { unsavedSendEditsGuard } from "./tools/guards/unsaved-send-edits.guard";
 import { AccessComponent, SendAccessExplainerComponent } from "./tools/send/send-access";
 import { SendComponent } from "./tools/send/send.component";
 import { BrowserExtensionPromptInstallComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt-install.component";
@@ -649,6 +650,7 @@ const routes: Routes = [
               .pipe(map((policyApplies) => !policyApplies)),
           ),
         ],
+        canDeactivate: [unsavedSendEditsGuard],
       },
       {
         path: "sm-landing",

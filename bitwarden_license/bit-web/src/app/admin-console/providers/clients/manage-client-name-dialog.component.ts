@@ -83,6 +83,6 @@ export class ManageClientNameDialogComponent {
       message: this.i18nService.t("updatedOrganizationName"),
     });
 
-    this.dialogRef.close(this.ResultType.Submitted);
+    await this.dialogRef.close(this.ResultType.Submitted);
   };
 }

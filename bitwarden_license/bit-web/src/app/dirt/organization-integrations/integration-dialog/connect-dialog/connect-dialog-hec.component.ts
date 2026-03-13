@@ -80,7 +80,7 @@ export class ConnectHecDialogComponent implements OnInit {
     }
     const result = this.getHecConnectDialogResult(IntegrationDialogResultStatus.Edited);
 
-    this.dialogRef.close(result);
+    await this.dialogRef.close(result);
 
     return;
   };
@@ -96,7 +96,7 @@ export class ConnectHecDialogComponent implements OnInit {
 
     if (confirmed) {
       const result = this.getHecConnectDialogResult(IntegrationDialogResultStatus.Delete);
-      this.dialogRef.close(result);
+      await this.dialogRef.close(result);
     }
   };
 

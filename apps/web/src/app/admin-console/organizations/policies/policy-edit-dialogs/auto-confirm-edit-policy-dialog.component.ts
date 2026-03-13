@@ -230,7 +230,7 @@ export class AutoConfirmPolicyDialogComponent
     });
 
     if (!this.policyComponent.enabled.value) {
-      this.dialogRef.close("saved");
+      await this.dialogRef.close("saved");
     }
   }
 
@@ -257,7 +257,7 @@ export class AutoConfirmPolicyDialogComponent
     }
 
     if ((await this.policyComponent.confirm()) == false) {
-      this.dialogRef.close();
+      await this.dialogRef.close();
       return;
     }
 
@@ -269,7 +269,7 @@ export class AutoConfirmPolicyDialogComponent
       }
 
       if (this.currentStep() === multiStepSubmit.length - 1) {
-        this.dialogRef.close("saved");
+        await this.dialogRef.close("saved");
         return;
       }
 

@@ -160,7 +160,7 @@ export class KitchenSinkMainComponent {
   }
 
   openDrawer() {
-    this.dialogService.openDrawer(KitchenSinkDialogComponent);
+    void this.dialogService.openDrawer(KitchenSinkDialogComponent);
   }
 
   navItems = [

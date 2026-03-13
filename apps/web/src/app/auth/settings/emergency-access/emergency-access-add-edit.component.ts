@@ -126,7 +126,7 @@ export class EmergencyAccessAddEditComponent implements OnInit {
           this.params.name,
         ),
       });
-      this.dialogRef.close(EmergencyAccessAddEditDialogResult.Saved);
+      await this.dialogRef.close(EmergencyAccessAddEditDialogResult.Saved);
     } catch (e) {
       this.toastService.showToast({
         variant: "error",
@@ -138,7 +138,7 @@ export class EmergencyAccessAddEditComponent implements OnInit {
   };
 
   delete = async () => {
-    this.dialogRef.close(EmergencyAccessAddEditDialogResult.Deleted);
+    await this.dialogRef.close(EmergencyAccessAddEditDialogResult.Deleted);
   };
   /**
    * Strongly typed helper to open a EmergencyAccessAddEditComponent

@@ -720,7 +720,7 @@ export class MemberDialogComponent implements OnDestroy {
   }
 
   private close(result: MemberDialogResult) {
-    this.dialogRef.close(result);
+    void this.dialogRef.close(result);
   }
 
   private noMasterPasswordConfirmationDialog(username: string) {

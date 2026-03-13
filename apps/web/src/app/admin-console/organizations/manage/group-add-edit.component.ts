@@ -355,7 +355,7 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
       ),
     });
 
-    this.dialogRef.close(GroupAddEditDialogResultType.Saved);
+    await this.dialogRef.close(GroupAddEditDialogResultType.Saved);
   };
 
   delete = async () => {
@@ -379,7 +379,7 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
       title: null,
       message: this.i18nService.t("deletedGroupId", this.group.name),
     });
-    this.dialogRef.close(GroupAddEditDialogResultType.Deleted);
+    await this.dialogRef.close(GroupAddEditDialogResultType.Deleted);
   };
 }
 

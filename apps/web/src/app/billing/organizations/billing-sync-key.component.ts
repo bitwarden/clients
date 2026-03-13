@@ -72,7 +72,7 @@ export class BillingSyncKeyComponent {
       this.existingConnectionId = response?.id;
       this.billingSyncKey = response?.config?.billingSyncKey;
       this.setParentConnection(response);
-      this.dialogRef.close();
+      await this.dialogRef.close();
     } catch (e) {
       this.logService.error(e);
     }
@@ -81,7 +81,7 @@ export class BillingSyncKeyComponent {
   deleteConnection = async () => {
     await this.apiService.deleteOrganizationConnection(this.existingConnectionId);
     this.setParentConnection(null);
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   static open(dialogService: DialogService, data: BillingSyncKeyModalData) {
