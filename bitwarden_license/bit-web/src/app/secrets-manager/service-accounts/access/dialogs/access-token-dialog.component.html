@@ -15,8 +15,13 @@
   </div>
 
   <ng-container bitDialogFooter>
-    <button type="button" bitButton buttonType="primary" (click)="copyAccessToken()">
-      <i class="bwi bwi-clone" aria-hidden="true"></i>
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      (click)="copyAccessToken()"
+      startIcon="bwi-clone"
+    >
       {{ "copyToken" | i18n }}
     </button>
   </ng-container>
