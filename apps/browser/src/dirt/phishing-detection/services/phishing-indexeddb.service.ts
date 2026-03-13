@@ -1,5 +1,7 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
+import { stripProtocol } from "../phishing-resources";
+
 /**
  * Record type for phishing URL storage in IndexedDB.
  */
@@ -97,7 +99,7 @@ export class PhishingIndexedDbService {
    * Saves URLs in chunks to prevent transaction timeouts and UI freezes.
    */
   private async saveChunked(db: IDBDatabase, urls: string[]): Promise<void> {
-    const cleaned = urls.map((u) => u.trim()).filter(Boolean);
+    const cleaned = urls.map((u) => stripProtocol(u.trim())).filter(Boolean);
     for (let i = 0; i < cleaned.length; i += this.CHUNK_SIZE) {
       await this.saveChunk(db, cleaned.slice(i, i + this.CHUNK_SIZE));
       await new Promise((r) => setTimeout(r, 0)); // Yield to event loop
@@ -298,7 +300,7 @@ export class PhishingIndexedDbService {
           for (const line of lines) {
             const trimmed = line.trim();
             if (trimmed) {
-              urls.push(trimmed);
+              urls.push(stripProtocol(trimmed));
             }
           }
           if (urls.length > 0) {
@@ -313,7 +315,7 @@ export class PhishingIndexedDbService {
         for (const line of lines) {
           const trimmed = line.trim();
           if (trimmed) {
-            urls.push(trimmed);
+            urls.push(stripProtocol(trimmed));
           }
 
           if (urls.length >= this.CHUNK_SIZE) {
