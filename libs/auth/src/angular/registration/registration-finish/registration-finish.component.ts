@@ -157,16 +157,21 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
         const inputPasswordComponent = this.inputPasswordComponent();
         if (inputPasswordComponent) {
           try {
+            let submitted = false;
             await this.pqpAuthService.withDerivedPassword(async (password) => {
               inputPasswordComponent.patchPassword(password);
-              await inputPasswordComponent.submit();
+              const result = await inputPasswordComponent.submit();
+              submitted = result != null;
             });
             // Scrub password from form controls immediately after submit()
             // (submit emits the event and returns — registration is still in flight)
             inputPasswordComponent.patchPassword("");
 
-            // Wait for handlePasswordFormSubmit() to finish before hiding spinner
-            await registrationComplete;
+            // Only wait if submit() actually emitted (result was not undefined).
+            // submit() returns undefined when validation fails, policies block, etc.
+            if (submitted) {
+              await registrationComplete;
+            }
           } catch (e) {
             this.logService.error("[PQP] Auto-submit failed, user can submit manually:", e);
           } finally {
