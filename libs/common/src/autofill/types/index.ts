@@ -13,7 +13,7 @@ export type AutofillTargetingRuleType =
 /**
  * Maps a field type to its CSS query selector string.
  * Each entry identifies a specific form field on a page using a CSS selector.
- * Supports shadow DOM piercing via the `>>>` separator syntax.
+ * Supports shadow DOM piercing via the `>>>` combinator syntax.
  */
 export type AutofillTargetingRules = {
   [type in AutofillTargetingRuleType]?: string;
@@ -24,8 +24,61 @@ export type AutofillTargetingRules = {
  * for that page. The URL key is normalized by stripping query strings and fragments.
  */
 export type AutofillTargetingRulesByDomain = {
+  // @TODO Note, this does not represent a finalized data shape
   [normalizedUrl: string]: AutofillTargetingRules;
 };
+
+/**
+ * Descriptors of web domains, their pages, and page content.
+ * Rules do not prescribe or imply behaviour of consuming contexts.
+ */
+export type TargetingRulesByDomain = {
+  /**
+   * The presence of a key with a `null` value indicates all
+   * pages should be ignored (e.g. Autofill should not be used)
+   * across the site
+   */
+  [hostname: string]: TargetingRules | null; // @TODO improve `hostname` typing
+};
+
+type TargetingRules = {
+  /**
+   * Multiple form definitions for a given page allows for mixed for types
+   * (e.g. a billing / shipping combo), unpredictable renders (e.g. multivariate
+   * testing), multi-step flows at a single URI (e.g. SPAs), etc
+   */
+  forms: FormContent[];
+  pathnames: {
+    /**
+     * The presence of a key with a `null` value indicates the page
+     * should be ignored (e.g. Autofill should not be used)
+     */
+    [pathname: string]: {
+      forms: FormContent[];
+    } | null; // @TODO improve `pathname` typing
+  };
+};
+
+/**
+ * "form" here represents the user-facing concept and does not
+ * require a literal HTML `form` tag or structure
+ */
+type FormContent = {
+  /**
+   * an optional descriptor of the form, useful for mapping separate concerns
+   * (e.g. a page with both a login and registration form, mixed-purpose form, etc)
+   */
+  category?: "login" | "registration" | "identity" | "payment";
+  selectors: {
+    [type in AutofillTargetingRuleType | "form"]?: DeepSelector[];
+  };
+};
+
+/**
+ * a CSS selector which can optionally include the `>>>` combinator to
+ * represent a Shadow boundary between a Shadow host and a Shadow root
+ */
+type DeepSelector = string; // @TODO improve typing
 
 export type ClearClipboardDelaySetting =
   (typeof ClearClipboardDelay)[keyof typeof ClearClipboardDelay];
