@@ -132,9 +132,13 @@ export class VaultPopupListFiltersService {
   }
 
   private deserializeFilters(state: CachedFilterState): void {
-    combineLatest([this.organizations$, this.collections$, this.folders$])
+    combineLatest([
+      this.organizations$,
+      this.collections$,
+      this.activeUserId$.pipe(switchMap((userId) => this.folderService.folderViews$(userId))),
+    ])
       .pipe(take(1))
-      .subscribe(([orgOptions, collectionOptions, folderOptions]) => {
+      .subscribe(([orgOptions, collectionOptions, folderViews]) => {
         const patchValue: PopupListFilter = {
           organization: null,
           collection: null,
@@ -159,9 +163,7 @@ export class VaultPopupListFiltersService {
         }
 
         if (state.folderId) {
-          const folder = folderOptions
-            .flatMap((f) => this.flattenOptions(f))
-            .find((f) => f.value?.id === state.folderId)?.value;
+          const folder = folderViews.find((f) => f.id === state.folderId);
           patchValue.folder = folder || null;
         }
 
@@ -374,7 +376,7 @@ export class VaultPopupListFiltersService {
         this.filters$.pipe(
           distinctUntilChanged(
             (previousFilter, currentFilter) =>
-              // Only update the collections when the organizationId filter changes
+              // Only update the folders when the organizationId filter changes
               previousFilter.organization?.id === currentFilter.organization?.id,
           ),
         ),

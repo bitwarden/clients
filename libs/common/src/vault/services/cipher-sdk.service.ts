@@ -352,7 +352,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
           }
           using ref = sdk.take();
 
-          const decryptResult = await ref.value.vault().ciphers().list();
+          const decryptResult = await ref.value.vault().ciphers().get_all();
 
           const successes = [...(decryptResult.successes ?? [])]
             .map((sdkCipherView: any) => CipherView.fromSdkCipherView(sdkCipherView))

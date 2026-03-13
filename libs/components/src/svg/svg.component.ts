@@ -15,7 +15,7 @@ import { BitSvg, isBitSvg } from "@bitwarden/assets/svg";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SvgComponent {
-  private domSanitizer = inject(DomSanitizer);
+  private readonly domSanitizer = inject(DomSanitizer);
 
   readonly content = input<BitSvg>();
   readonly ariaLabel = input<string>();
