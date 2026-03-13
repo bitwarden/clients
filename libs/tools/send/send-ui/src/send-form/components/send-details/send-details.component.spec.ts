@@ -130,7 +130,7 @@ describe("SendDetailsComponent", () => {
     expect(passwordControl?.validator).toBeNull();
   });
 
-  it("should not show validation error when emails are cleared while authType is Email", () => {
+  it("should show required error when emails are cleared while authType is Email", () => {
     // Set authType to Email with valid emails
     component.sendDetailsForm.patchValue({
       authType: AuthType.Email,
@@ -138,15 +138,22 @@ describe("SendDetailsComponent", () => {
     });
     expect(component.sendDetailsForm.get("emails")?.valid).toBe(true);
 
-    // Clear emails - should remain valid (no required validator on emails)
+    // Clear emails - should be invalid (required validator on emails)
     component.sendDetailsForm.patchValue({ emails: "" });
-    expect(component.sendDetailsForm.get("emails")?.valid).toBe(true);
-    expect(component.sendDetailsForm.get("emails")?.hasError("emailsRequiredForEmailAuth")).toBe(
-      false,
-    );
+    expect(component.sendDetailsForm.get("emails")?.valid).toBe(false);
+    expect(component.sendDetailsForm.get("emails")?.hasError("required")).toBe(true);
   });
 
-  it("should allow form submission when emails are cleared while authType is Email", () => {
+  it("should show required error when emails contain only whitespace while authType is Email", () => {
+    component.sendDetailsForm.patchValue({
+      authType: AuthType.Email,
+      emails: "   ,  ,  ",
+    });
+    expect(component.sendDetailsForm.get("emails")?.valid).toBe(false);
+    expect(component.sendDetailsForm.get("emails")?.hasError("required")).toBe(true);
+  });
+
+  it("should block form submission when emails are cleared while authType is Email", () => {
     // Set up a send with email verification
     component.sendDetailsForm.patchValue({
       name: "Test Send",
@@ -155,11 +162,9 @@ describe("SendDetailsComponent", () => {
     });
     expect(component.sendDetailsForm.valid).toBe(true);
 
-    // User clears emails field - form remains valid (no required validator)
+    // User clears emails field - form is now invalid
     component.sendDetailsForm.patchValue({ emails: "" });
-    expect(component.sendDetailsForm.valid).toBe(true);
-    expect(component.sendDetailsForm.get("emails")?.hasError("emailsRequiredForEmailAuth")).toBe(
-      false,
-    );
+    expect(component.sendDetailsForm.valid).toBe(false);
+    expect(component.sendDetailsForm.get("emails")?.hasError("required")).toBe(true);
   });
 });
