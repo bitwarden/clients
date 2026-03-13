@@ -34,7 +34,8 @@
     "build-storybook:ci": "ng run components:build-storybook --webpack-stats-json",
     "build-storybook:autofill:ci": "cd apps/browser/src/autofill/content/components && npm run storybook:build-lit:ci",
     "test-stories": "test-storybook --url http://localhost:6006",
-    "test-stories:watch": "test-stories --watch"
+    "test-stories:watch": "test-stories --watch",
+    "dev:reverse-proxy": "node --experimental-strip-types scripts/reverse-proxy-emulator/index.ts"
   },
   "workspaces": [
     "apps/*",
