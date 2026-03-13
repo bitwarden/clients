@@ -75,6 +75,7 @@ import { EventResponse } from "../models/response/event.response";
 import { ListResponse } from "../models/response/list.response";
 import { ProfileResponse } from "../models/response/profile.response";
 import { UserKeyResponse } from "../models/response/user-key.response";
+import { FetchMiddleware } from "../platform/misc/fetch-middleware";
 import { SyncResponse } from "../platform/sync";
 import { UserId } from "../types/guid";
 import { AttachmentRequest } from "../vault/models/request/attachment.request";
@@ -460,10 +461,12 @@ export abstract class ApiService {
   abstract nativeFetch(request: Request): Promise<Response>;
 
   /**
-   * Adds a middleware function that will be called with the Request object before each API call. This allows for dynamic header manipulation, such as adding cookies for SSO authentication.
+   * Adds a middleware that wraps the fetch call. Middlewares can modify requests, inspect/modify
+   * responses, retry requests, or short-circuit by returning without calling `next`.
+   * Middlewares execute in the order they are added (first-added is outermost).
    * @param middleware The middleware function to add
    */
-  abstract addMiddleware(middleware: (request: Request) => Promise<void>): void;
+  abstract addMiddleware(middleware: FetchMiddleware): void;
 
   abstract preValidateSso(identifier: string): Promise<SsoPreValidateResponse>;
 
