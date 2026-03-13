@@ -3,8 +3,8 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { RestClient } from "@bitwarden/common/tools/integration/rpc";
 import { engine, services, strategies, Integrations } from "@bitwarden/generator-core";
@@ -27,7 +27,7 @@ export function legacyUsernameGenerationServiceFactory(
   apiService: ApiService,
   i18nService: I18nService,
   keyService: KeyService,
-  encryptService: EncryptService,
+  sdkService: SdkService,
   policyService: PolicyService,
   accountService: AccountService,
   stateProvider: StateProvider,
@@ -58,7 +58,7 @@ export function legacyUsernameGenerationServiceFactory(
       Integrations.AddyIo,
       restClient,
       i18nService,
-      encryptService,
+      sdkService,
       keyService,
       stateProvider,
     ),
@@ -70,7 +70,7 @@ export function legacyUsernameGenerationServiceFactory(
       Integrations.DuckDuckGo,
       restClient,
       i18nService,
-      encryptService,
+      sdkService,
       keyService,
       stateProvider,
     ),
@@ -82,7 +82,7 @@ export function legacyUsernameGenerationServiceFactory(
       Integrations.Fastmail,
       restClient,
       i18nService,
-      encryptService,
+      sdkService,
       keyService,
       stateProvider,
     ),
@@ -94,7 +94,7 @@ export function legacyUsernameGenerationServiceFactory(
       Integrations.FirefoxRelay,
       restClient,
       i18nService,
-      encryptService,
+      sdkService,
       keyService,
       stateProvider,
     ),
@@ -106,7 +106,7 @@ export function legacyUsernameGenerationServiceFactory(
       Integrations.ForwardEmail,
       restClient,
       i18nService,
-      encryptService,
+      sdkService,
       keyService,
       stateProvider,
     ),
@@ -118,7 +118,7 @@ export function legacyUsernameGenerationServiceFactory(
       Integrations.SimpleLogin,
       restClient,
       i18nService,
-      encryptService,
+      sdkService,
       keyService,
       stateProvider,
     ),
