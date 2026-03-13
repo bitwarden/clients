@@ -76,6 +76,7 @@ export const EventCategoryEventTypes: Record<EventCategory, EventType[]> = {
     EventType.OrganizationUser_RejectedAuthRequest,
     EventType.OrganizationUser_Deleted,
     EventType.OrganizationUser_Left,
+    EventType.OrganizationUser_SelfRevoked,
   ],
   [EventCategory.OrganizationEvents]: [
     EventType.Organization_Updated,
