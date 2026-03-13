@@ -23,6 +23,7 @@ import {
 } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
@@ -111,6 +112,7 @@ export class CipherViewComponent {
     private logService: LogService,
     private cipherRiskService: CipherRiskService,
     private billingAccountService: BillingAccountProfileStateService,
+    private vaultSettingsService: VaultSettingsService,
   ) {}
 
   readonly resolvedCollections = toSignal<CollectionView[] | undefined>(
@@ -264,8 +266,16 @@ export class CipherViewComponent {
   );
 
   readonly showChangePasswordLink = computed(() => {
-    return this.hasLoginUri() && (this.hadPendingChangePasswordTask() || this.passwordIsAtRisk());
+    return (
+      this.hasLoginUri() &&
+      (this.hadPendingChangePasswordTask() ||
+        (this.passwordIsAtRisk() && this.showAtRiskPasswordNotifications()))
+    );
   });
+
+  readonly showAtRiskPasswordNotifications = toSignal(
+    this.vaultSettingsService.showAtRiskPasswordNotifications$,
+  );
 
   launchChangePassword = async () => {
     const cipher = this.cipher();
