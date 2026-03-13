@@ -77,6 +77,7 @@ import {
   NewItemDropdownComponent,
   NewItemInitialValues,
 } from "./new-item-dropdown/new-item-dropdown.component";
+import { VaultArrowNavDirective } from "./vault-arrow-nav/vault-arrow-nav.directive";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
@@ -116,6 +117,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
     VaultLoadingSkeletonComponent,
     VaultFadeInOutSkeletonComponent,
     VaultFadeInOutComponent,
+    VaultArrowNavDirective,
   ],
   providers: [{ provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService }],
 })
