@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Kilit açma seçenekleri"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Kasa zaman aşımı eyleminizi değiştirmek için kilit açma yönteminizi ayarlayın."
-  },
   "unlockMethodNeeded": {
     "message": "Ayarlar'da bir kilit açma yöntemi ayarlayın"
   },
   "sessionTimeoutHeader": {
     "message": "Oturum zaman aşımı"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Kasa zaman aşımı"
   },
   "otherOptions": {
     "message": "Diğer seçenekler"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Kasa zaman aşımı eylemi"
   },
-  "vaultTimeoutAction1": {
-    "message": "Zaman aşımı eylemi"
-  },
   "lock": {
     "message": "Kilitle",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Dakika"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Zaman aşımı ayarlarınıza kurumsal ilke gereksinimleri uygulandı"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Kuruluş ilkeleriniz izin verilen maksimum kasa zaman aşımını $HOURS$ saat $MINUTES$ dakika olarak belirlemiş.",
@@ -6130,8 +6118,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$, güvenlik ve mevzuata uyum amacıyla tüm kayıtların kuruluşa ait olmasını zorunlu kılıyor. Kayıtlarınızın sahipliğini devretmek için \"Kabul et\"e tıklayın.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6127,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Aktarımı kabul et"
   },
   "declineAndLeave": {
     "message": "Reddet ve ayrıl"
-  },
-  "whyAmISeeingThis": {
-    "message": "Bunu neden görüyorum?"
   },
   "items": {
     "message": "Kayıtlar"

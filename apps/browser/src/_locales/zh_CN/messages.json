@@ -571,7 +571,7 @@
     "message": "归档中没有项目"
   },
   "noItemsInArchiveDesc": {
-    "message": "已归档的项目将显示在此处，并将被排除在一般搜索结果和自动填充建议之外。"
+    "message": "已归档的项目将显示在这里，并将被排除在一般搜索结果和自动填充建议之外。"
   },
   "itemArchiveToast": {
     "message": "项目已归档"
@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "解锁选项"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "设置一个解锁方式以更改您的密码库超时动作。"
-  },
   "unlockMethodNeeded": {
     "message": "在设置中设置一个解锁方式"
   },
   "sessionTimeoutHeader": {
     "message": "会话超时"
-  },
-  "vaultTimeoutHeader": {
-    "message": "密码库超时"
   },
   "otherOptions": {
     "message": "其他选项"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "密码库超时动作"
   },
-  "vaultTimeoutAction1": {
-    "message": "超时动作"
-  },
   "lock": {
     "message": "锁定",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "分钟"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "企业策略要求已应用到您的超时选项中"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "您的组织策略已将您最大允许的密码库超时设置为 $HOURS$ 小时 $MINUTES$ 分钟。",
@@ -6130,8 +6118,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "出于安全和合规考虑，$ORGANIZATION$ 要求所有项目归组织所有。点击「接受」以转移您的项目的所有权。",
+  "transferItemsToOrganizationDescription": {
+    "message": "出于安全和合规要求，$ORGANIZATION$ 要求所有项目必须归组织所有。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6127,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "点击「接受」以转移您的项目的所有权。"
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "打开有关转移项目的帮助文章"
+  },
   "acceptTransfer": {
     "message": "接受转移"
   },
   "declineAndLeave": {
     "message": "拒绝并退出"
-  },
-  "whyAmISeeingThis": {
-    "message": "为什么我会看到这个？"
   },
   "items": {
     "message": "项目"
@@ -6158,7 +6149,7 @@
     "message": "简化的自动填充"
   },
   "simplifiedAutofillDescription": {
-    "message": "当您点击一个建议的自动填充项目时，它会直接填充而不是带您查看详细信息。您仍然可以通过「更多」菜单查看这些项目。"
+    "message": "当您点击建议的自动填充项目时，它会直接填充而不是带您进入详细信息。您仍然可以通过「更多」菜单查看这些项目。"
   },
   "openSimplifiedAutofillPopover": {
     "message": "打开简化的自动填充弹窗"
