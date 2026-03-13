@@ -20,6 +20,7 @@ tokio = { workspace = true, features = ["full"] }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 windows = { workspace = true, features = [
+    "Wdk_System_SystemServices",
     "Win32_System_Pipes",
 ] }
 
