@@ -1,15 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import {
-  Component,
-  ElementRef,
-  forwardRef,
-  Inject,
-  OnDestroy,
-  OnInit,
-  viewChild,
-} from "@angular/core";
+import { Component, ElementRef, Inject, inject, OnDestroy, OnInit, viewChild } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
@@ -41,36 +33,32 @@ import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cip
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
-  DIALOG_DATA,
-  DialogRef,
   AsyncActionsModule,
   ButtonModule,
+  CenterPositionStrategy,
+  DIALOG_DATA,
+  DialogComponent,
   DialogModule,
+  DialogRef,
   DialogService,
+  IconButtonModule,
   ItemModule,
   ToastService,
-  CenterPositionStrategy,
-  DialogComponent,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { ChangeLoginPasswordService } from "../abstractions/change-login-password.service";
+import { CipherFormComponent, CipherFormConfig, CipherFormModule } from "../cipher-form";
 import {
   AttachmentDialogCloseResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
-  ChangeLoginPasswordService,
-  CipherFormComponent,
-  CipherFormConfig,
-  CipherFormGenerationService,
-  CipherFormModule,
-  CipherViewComponent,
-  DecryptionFailureDialogComponent,
-  DefaultChangeLoginPasswordService,
-  RoutedVaultFilterService,
-  RoutedVaultFilterModel,
-} from "@bitwarden/vault";
-
-import { SharedModule } from "../../../shared/shared.module";
-import { WebCipherFormGenerationService } from "../../services/web-cipher-form-generation.service";
-import { WebVaultPremiumUpgradePromptService } from "../../services/web-premium-upgrade-prompt.service";
+} from "../cipher-view/attachments/attachments-v2.component";
+import { CipherViewComponent } from "../cipher-view/cipher-view.component";
+import { DecryptionFailureDialogComponent } from "../components/decryption-failure-dialog/decryption-failure-dialog.component";
+import { RoutedVaultFilterModel } from "../models/routed-vault-filter.model";
+import { DefaultChangeLoginPasswordService } from "../services/default-change-login-password.service";
+import { RoutedVaultFilterService } from "../services/routed-vault-filter.service";
 
 export type VaultItemDialogMode = "view" | "form";
 
@@ -96,6 +84,13 @@ export interface VaultItemDialogParams {
    * If true, the dialog is being opened from the admin console.
    */
   isAdminConsoleAction?: boolean;
+
+  /**
+   * The active vault filter. Used to determine context-specific UI (e.g. trash filter shows
+   * Restore instead of Edit/Delete). Pass this when the dialog is opened outside a routed
+   * context (e.g. desktop drawer) where RoutedVaultFilterService is not in the injection tree.
+   */
+  filter?: RoutedVaultFilterModel;
 
   /**
    * Function to restore a cipher from the trash.
@@ -134,23 +129,18 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
   templateUrl: "vault-item-dialog.component.html",
   imports: [
     ButtonModule,
+    IconButtonModule,
     CipherViewComponent,
     DialogModule,
     CommonModule,
-    SharedModule,
     CipherFormModule,
     AsyncActionsModule,
     ItemModule,
     PremiumBadgeComponent,
+    I18nPipe,
   ],
   providers: [
-    {
-      provide: PremiumUpgradePromptService,
-      useClass: forwardRef(() => WebVaultPremiumUpgradePromptService),
-    },
     { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },
-    { provide: CipherFormGenerationService, useClass: WebCipherFormGenerationService },
-    RoutedVaultFilterService,
     { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
 })
@@ -164,6 +154,10 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   private readonly cipherFormComponent = viewChild.required(CipherFormComponent);
 
   private readonly dialogComponent = viewChild(DialogComponent);
+
+  // Optional — only provided by platforms that support it (e.g. desktop minimizeOnCopy)
+  // Optional — only provided in web where routed vault filter exists
+  private readonly routedVaultFilterService = inject(RoutedVaultFilterService, { optional: true });
 
   /**
    * Tracks if the cipher was ever modified while the dialog was open. Used to ensure the dialog emits the correct result
@@ -350,12 +344,11 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     private cipherAuthorizationService: CipherAuthorizationService,
     private apiService: ApiService,
     private eventCollectionService: EventCollectionService,
-    private routedVaultFilterService: RoutedVaultFilterService,
     private archiveService: CipherArchiveService,
   ) {
     this.updateTitle();
     this.premiumUpgradeService.upgradeConfirmed$
-      .pipe(
+      ?.pipe(
         map((c) => c && (this.confirmedPremiumUpgrade = true)),
         takeUntilDestroyed(),
       )
@@ -410,7 +403,11 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       );
     }
 
-    this.filter = await firstValueFrom(this.routedVaultFilterService.filter$);
+    if (this.params.filter) {
+      this.filter = this.params.filter;
+    } else if (this.routedVaultFilterService) {
+      this.filter = await firstValueFrom(this.routedVaultFilterService.filter$);
+    }
 
     this.showRestore = await this.canUserRestore();
     this.performingInitialLoad = false;
@@ -752,12 +749,22 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Opens the VaultItemDialog.
-   * @param dialogService
-   * @param params
+   * Opens the VaultItemDialog as a modal.
    */
   static open(dialogService: DialogService, params: VaultItemDialogParams) {
     return dialogService.open<VaultItemDialogResult, VaultItemDialogParams>(
+      VaultItemDialogComponent,
+      {
+        data: params,
+      },
+    );
+  }
+
+  /**
+   * Opens the VaultItemDialog as a drawer.
+   */
+  static openDrawer(dialogService: DialogService, params: VaultItemDialogParams) {
+    return dialogService.openDrawer<VaultItemDialogResult, VaultItemDialogParams>(
       VaultItemDialogComponent,
       {
         data: params,
