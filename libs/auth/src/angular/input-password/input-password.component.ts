@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
 import { ReactiveFormsModule, FormBuilder, Validators, FormControl } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
@@ -29,6 +30,7 @@ import {
   DialogService,
   FormFieldModule,
   IconButtonModule,
+  IconModule,
   InputModule,
   LinkModule,
   ToastService,
@@ -42,9 +44,6 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { SharedModule } from "../../../../components/src/shared";
 import { PasswordCalloutComponent } from "../password-callout/password-callout.component";
 import { compareInputs, ValidationGoal } from "../validators/compare-inputs.validator";
 
@@ -107,18 +106,19 @@ interface InputPasswordForm {
   selector: "auth-input-password",
   templateUrl: "./input-password.component.html",
   imports: [
+    CommonModule,
     AsyncActionsModule,
     ButtonModule,
     CheckboxModule,
     FormFieldModule,
     IconButtonModule,
+    IconModule,
     InputModule,
     JslibModule,
     PasswordCalloutComponent,
     PasswordStrengthV2Component,
     ReactiveFormsModule,
     LinkModule,
-    SharedModule,
   ],
 })
 export class InputPasswordComponent implements OnInit {
@@ -332,6 +332,18 @@ export class InputPasswordComponent implements OnInit {
         throw new Error("KdfConfig not found.");
       }
 
+      // Determine salt. Branches on userId presence:
+      //   - SetInitialPasswordAccountRegistration: no userId -> derives salt from email via emailToSalt()
+      //   - SetInitialPasswordAuthedUser, ChangePassword, ChangePasswordWithOptionalUserKeyRotation:
+      //     have an active userId -> retrieves stored salt via saltForUser$()
+      //
+      // Note: ChangePasswordDelegation (Emergency Access Takeover, Account Recovery) early-returns
+      // this component only collects the password for those flows. Salt determination
+      // is handled by the parent caller's service, which supplies the target user's email to
+      // emailToSalt() (see EmergencyAccessService.takeover, OrganizationUserResetPasswordService.resetMasterPassword).
+      //
+      // If/when we shift to using random entropy for the salt, the place to do so would be
+      // replacing: this.masterPasswordService.emailToSalt(this.email).
       const salt =
         this.userId != null
           ? await firstValueFrom(this.masterPasswordService.saltForUser$(this.userId))

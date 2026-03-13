@@ -47,8 +47,6 @@ import {
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
-import { EmailTokenRequest } from "../auth/models/request/email-token.request";
-import { EmailRequest } from "../auth/models/request/email.request";
 import { DeviceRequest } from "../auth/models/request/identity-token/device.request";
 import { PasswordTokenRequest } from "../auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token.request";
@@ -115,6 +113,7 @@ import { CipherRequest } from "../vault/models/request/cipher.request";
 import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
 import { CipherResponse } from "../vault/models/response/cipher.response";
+import { DeleteAttachmentResponse } from "../vault/models/response/delete-attachment.response";
 import { OptionalCipherResponse } from "../vault/models/response/optional-cipher.response";
 
 import { InsecureUrlNotAllowedError } from "./api-errors";
@@ -138,6 +137,11 @@ export class ApiService implements ApiServiceAbstraction {
    */
   private static readonly NEW_DEVICE_VERIFICATION_REQUIRED_MESSAGE =
     "new device verification required";
+
+  /**
+   * Middlewares are functions that take a Request and return a Promise that resolves when the middleware is done processing the request. Middlewares are executed in the order they are added, and can modify the request before it is sent. This is used for things like adding cookies to requests for SSO authentication.
+   */
+  private middlewares: Array<(request: Request) => Promise<void>> = [];
 
   constructor(
     private tokenService: TokenService,
@@ -298,15 +302,6 @@ export class ApiService implements ApiServiceAbstraction {
     );
     return new PreloginResponse(r);
   }
-
-  postEmailToken(request: EmailTokenRequest): Promise<any> {
-    return this.send("POST", "/accounts/email-token", request, true, false);
-  }
-
-  postEmail(request: EmailRequest): Promise<any> {
-    return this.send("POST", "/accounts/email", request, true, false);
-  }
-
   postSetKeyConnectorKey(request: SetKeyConnectorKeyRequest): Promise<any> {
     return this.send("POST", "/accounts/set-key-connector-key", request, true, false);
   }
@@ -590,18 +585,32 @@ export class ApiService implements ApiServiceAbstraction {
     return new AttachmentUploadDataResponse(r);
   }
 
-  deleteCipherAttachment(id: string, attachmentId: string): Promise<any> {
-    return this.send("DELETE", "/ciphers/" + id + "/attachment/" + attachmentId, null, true, true);
+  async deleteCipherAttachment(
+    id: string,
+    attachmentId: string,
+  ): Promise<DeleteAttachmentResponse> {
+    const r = await this.send(
+      "DELETE",
+      "/ciphers/" + id + "/attachment/" + attachmentId,
+      null,
+      true,
+      true,
+    );
+    return new DeleteAttachmentResponse(r);
   }
 
-  deleteCipherAttachmentAdmin(id: string, attachmentId: string): Promise<any> {
-    return this.send(
+  async deleteCipherAttachmentAdmin(
+    id: string,
+    attachmentId: string,
+  ): Promise<DeleteAttachmentResponse> {
+    const r = await this.send(
       "DELETE",
       "/ciphers/" + id + "/attachment/" + attachmentId + "/admin",
       null,
       true,
       true,
     );
+    return new DeleteAttachmentResponse(r);
   }
 
   postShareCipherAttachment(
@@ -1315,6 +1324,10 @@ export class ApiService implements ApiServiceAbstraction {
     return accessToken;
   }
 
+  addMiddleware(middleware: (request: Request) => Promise<void>): void {
+    this.middlewares.push(middleware);
+  }
+
   async fetch(request: Request): Promise<Response> {
     if (!request.url.startsWith("https://") && !this.platformUtilsService.isDev()) {
       throw new InsecureUrlNotAllowedError();
@@ -1334,6 +1347,13 @@ export class ApiService implements ApiServiceAbstraction {
     if (packageType != null) {
       request.headers.set("Bitwarden-Package-Type", packageType);
     }
+
+    await Promise.all(
+      this.middlewares.map((middleware) => {
+        return middleware(request);
+      }),
+    );
+
     return this.nativeFetch(request);
   }
 

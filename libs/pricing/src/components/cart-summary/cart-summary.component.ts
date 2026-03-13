@@ -29,13 +29,16 @@ import { DiscountTypes, getLabel } from "../../types/discount";
   imports: [TypographyModule, IconButtonModule, CurrencyPipe, I18nPipe, NgTemplateOutlet],
 })
 export class CartSummaryComponent {
-  private i18nService = inject(I18nService);
+  private readonly i18nService = inject(I18nService);
 
   // Required inputs
   readonly cart = input.required<Cart>();
 
   // Optional inputs
   readonly header = input<TemplateRef<{ total: number }>>();
+
+  // Hide pricing term (e.g., "/ month" or "/ year") if true
+  readonly hidePricingTerm = input<boolean>(false);
 
   // UI state
   readonly isExpanded = signal(true);

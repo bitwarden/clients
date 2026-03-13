@@ -25,11 +25,15 @@ export class UriMatchDefaultPolicy extends BasePolicyEditDefinition {
   imports: [SharedModule],
 })
 export class UriMatchDefaultPolicyComponent extends BasePolicyEditComponent {
-  uriMatchOptions: { label: string; value: UriMatchStrategySetting | null; disabled?: boolean }[];
+  readonly uriMatchOptions: {
+    label: string;
+    value: UriMatchStrategySetting | null;
+    disabled?: boolean;
+  }[];
 
   constructor(
-    private formBuilder: FormBuilder,
-    private i18nService: I18nService,
+    private readonly formBuilder: FormBuilder,
+    private readonly i18nService: I18nService,
   ) {
     super();
 

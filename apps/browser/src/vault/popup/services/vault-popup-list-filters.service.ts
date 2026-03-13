@@ -132,9 +132,13 @@ export class VaultPopupListFiltersService {
   }
 
   private deserializeFilters(state: CachedFilterState): void {
-    combineLatest([this.organizations$, this.collections$, this.folders$])
+    combineLatest([
+      this.organizations$,
+      this.collections$,
+      this.activeUserId$.pipe(switchMap((userId) => this.folderService.folderViews$(userId))),
+    ])
       .pipe(take(1))
-      .subscribe(([orgOptions, collectionOptions, folderOptions]) => {
+      .subscribe(([orgOptions, collectionOptions, folderViews]) => {
         const patchValue: PopupListFilter = {
           organization: null,
           collection: null,
@@ -159,9 +163,7 @@ export class VaultPopupListFiltersService {
         }
 
         if (state.folderId) {
-          const folder = folderOptions
-            .flatMap((f) => this.flattenOptions(f))
-            .find((f) => f.value?.id === state.folderId)?.value;
+          const folder = folderViews.find((f) => f.id === state.folderId);
           patchValue.folder = folder || null;
         }
 
@@ -374,7 +376,7 @@ export class VaultPopupListFiltersService {
         this.filters$.pipe(
           distinctUntilChanged(
             (previousFilter, currentFilter) =>
-              // Only update the collections when the organizationId filter changes
+              // Only update the folders when the organizationId filter changes
               previousFilter.organization?.id === currentFilter.organization?.id,
           ),
         ),
@@ -387,7 +389,7 @@ export class VaultPopupListFiltersService {
             FolderView[],
             PopupCipherViewLike[],
           ] => {
-            if (folders.length === 1 && folders[0].id === null) {
+            if (folders.length === 1 && !folders[0].id) {
               // Do not display folder selections when only the "no folder" option is available.
               return [filters as PopupListFilter, [], cipherViews];
             }
@@ -396,7 +398,7 @@ export class VaultPopupListFiltersService {
             folders.sort(Utils.getSortFunction(this.i18nService, "name"));
             let arrangedFolders = folders;
 
-            const noFolder = folders.find((f) => f.id === null);
+            const noFolder = folders.find((f) => !f.id);
 
             if (noFolder) {
               // Update `name` of the "no folder" option to "Items with no folder"
@@ -406,7 +408,7 @@ export class VaultPopupListFiltersService {
               };
 
               // Move the "no folder" option to the end of the list
-              arrangedFolders = [...folders.filter((f) => f.id !== null), updatedNoFolder];
+              arrangedFolders = [...folders.filter((f) => f.id), updatedNoFolder];
             }
             return [filters as PopupListFilter, arrangedFolders, cipherViews];
           },
@@ -545,11 +547,7 @@ export class VaultPopupListFiltersService {
 
     // When the organization filter changes and a folder is already selected,
     // reset the folder filter if the folder does not belong to the new organization filter
-    if (
-      currentFilters.folder &&
-      currentFilters.folder.id !== null &&
-      organization.id !== MY_VAULT_ID
-    ) {
+    if (currentFilters.folder && currentFilters.folder.id && organization.id !== MY_VAULT_ID) {
       // Get all ciphers that belong to the new organization
       const orgCiphers = this.cipherViews.filter((c) => c.organizationId === organization.id);
 

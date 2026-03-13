@@ -32,7 +32,12 @@
       </div>
       <ng-container *ngFor="let f of filtersList">
         <div class="filter">
-          <app-filter-section [activeFilter]="activeFilter" [section]="f"> </app-filter-section>
+          <app-filter-section
+            [activeFilter]="activeFilter"
+            [section]="f"
+            [isCollectionFilter]="f === filters?.collectionFilter"
+          >
+          </app-filter-section>
         </div>
       </ng-container>
     </div>

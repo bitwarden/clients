@@ -26,7 +26,6 @@ import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
@@ -115,7 +114,7 @@ describe("WebSetInitialPasswordService", () => {
     beforeEach(() => {
       // Mock function parameters
       credentials = {
-        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32).buffer as CsprngArray) as MasterKey,
+        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
         newServerMasterKeyHash: "newServerMasterKeyHash",
         newLocalMasterKeyHash: "newLocalMasterKeyHash",
         newPasswordHint: "newPasswordHint",
@@ -130,7 +129,7 @@ describe("WebSetInitialPasswordService", () => {
       userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;
 
       // Mock other function data
-      userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
+      userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
       userKeyEncString = new EncString("masterKeyEncryptedUserKey");
       masterKeyEncryptedUserKey = [userKey, userKeyEncString];
 

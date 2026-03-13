@@ -187,7 +187,7 @@ jobs:
           persist-credentials: false
 
       - name: Download SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' }}
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type != 'commercial' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -197,6 +197,19 @@ jobs:
           artifacts: sdk-internal
           repo: bitwarden/sdk-internal
           path: sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type == 'commercial' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: commercial-sdk-internal
           if_no_artifact_found: fail
 
       - name: Check Branch to Publish
@@ -291,7 +304,7 @@ jobs:
 
       - name: Build Docker image
         id: build-container
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
         with:
           build-args: |
             NODE_VERSION=${{ env._NODE_VERSION }}
@@ -352,7 +365,7 @@ jobs:
       - name: Scan Docker image
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         id: container-scan
-        uses: anchore/scan-action@62b74fb7bb810d2c45b1865f47a77655621862a5 # v7.2.3
+        uses: anchore/scan-action@0d444ed77d83ee2ba7f5ced0d90d640a1281d762 # v7.3.0
         with:
           image: ${{ steps.image-name.outputs.name }}
           fail-build: false
@@ -408,7 +421,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Upload Sources
-        uses: crowdin/github-action@60debf382ee245b21794321190ad0501db89d8c1 # v2.13.0
+        uses: crowdin/github-action@8818ff65bfc4322384f983ea37e3926948c11745 # v2.15.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}
