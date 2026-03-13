@@ -10,7 +10,7 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { IconModule } from "@bitwarden/components";
+import { IconModule, SpinnerComponent } from "@bitwarden/components";
 
 import { SshAgentService } from "../autofill/services/ssh-agent.service";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
@@ -36,6 +36,7 @@ import { ServicesModule } from "./services/services.module";
     AppRoutingModule,
     JslibModule,
     IconModule,
+    SpinnerComponent,
     ReactiveFormsModule,
     OverlayModule,
     ServicesModule,

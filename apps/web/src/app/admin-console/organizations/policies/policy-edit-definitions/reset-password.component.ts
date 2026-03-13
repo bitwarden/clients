@@ -57,14 +57,14 @@ export class ResetPasswordPolicyComponent extends BasePolicyEditComponent implem
       throw new Error("No user found.");
     }
 
-    if (!this.policyResponse) {
+    if (!this.policyResponse()) {
       throw new Error("Policies not found");
     }
 
     const organization = await firstValueFrom(
       this.organizationService
         .organizations$(userId)
-        .pipe(getOrganizationById(this.policyResponse.organizationId)),
+        .pipe(getOrganizationById(this.policyResponse()!.organizationId)),
     );
 
     if (!organization) {

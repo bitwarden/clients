@@ -43,11 +43,14 @@ describe("RemoveUnlockWithPinPolicyComponent", () => {
   });
 
   it("input selected on load when policy enabled", async () => {
-    component.policyResponse = new PolicyStatusResponse({
-      organizationId: "org1",
-      type: PolicyType.RemoveUnlockWithPin,
-      enabled: true,
-    });
+    fixture.componentRef.setInput(
+      "policyResponse",
+      new PolicyStatusResponse({
+        organizationId: "org1",
+        type: PolicyType.RemoveUnlockWithPin,
+        enabled: true,
+      }),
+    );
 
     component.ngOnInit();
     fixture.detectChanges();
@@ -63,11 +66,14 @@ describe("RemoveUnlockWithPinPolicyComponent", () => {
   });
 
   it("input not selected on load when policy disabled", async () => {
-    component.policyResponse = new PolicyStatusResponse({
-      organizationId: "org1",
-      type: PolicyType.RemoveUnlockWithPin,
-      enabled: false,
-    });
+    fixture.componentRef.setInput(
+      "policyResponse",
+      new PolicyStatusResponse({
+        organizationId: "org1",
+        type: PolicyType.RemoveUnlockWithPin,
+        enabled: false,
+      }),
+    );
 
     component.ngOnInit();
     fixture.detectChanges();
@@ -83,11 +89,14 @@ describe("RemoveUnlockWithPinPolicyComponent", () => {
   });
 
   it("turn on message label", async () => {
-    component.policyResponse = new PolicyStatusResponse({
-      organizationId: "org1",
-      type: PolicyType.RemoveUnlockWithPin,
-      enabled: false,
-    });
+    fixture.componentRef.setInput(
+      "policyResponse",
+      new PolicyStatusResponse({
+        organizationId: "org1",
+        type: PolicyType.RemoveUnlockWithPin,
+        enabled: false,
+      }),
+    );
     i18nService.t.mockReturnValue("Turn on");
 
     component.ngOnInit();
@@ -99,12 +108,15 @@ describe("RemoveUnlockWithPinPolicyComponent", () => {
   });
 
   it("buildVNextRequest should delegate to buildRequest and wrap with null metadata", async () => {
-    component.policy = new RemoveUnlockWithPinPolicy();
-    component.policyResponse = new PolicyStatusResponse({
-      organizationId: "org1",
-      type: PolicyType.RemoveUnlockWithPin,
-      enabled: true,
-    });
+    fixture.componentRef.setInput("policy", new RemoveUnlockWithPinPolicy());
+    fixture.componentRef.setInput(
+      "policyResponse",
+      new PolicyStatusResponse({
+        organizationId: "org1",
+        type: PolicyType.RemoveUnlockWithPin,
+        enabled: true,
+      }),
+    );
     component.ngOnInit();
 
     const buildRequestSpy = jest.spyOn(component, "buildRequest");

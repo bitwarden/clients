@@ -55,8 +55,8 @@ export class OrganizationDataOwnershipPolicyComponent
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("dialog", { static: true }) warningContent!: TemplateRef<unknown>;
 
-  override async confirm(): Promise<boolean> {
-    if (this.policyResponse?.enabled && !this.enabled.value) {
+  async confirm(): Promise<boolean> {
+    if (this.policyResponse()?.enabled && !this.enabled.value) {
       const dialogRef = this.dialogService.open(this.warningContent, {
         positionStrategy: new CenterPositionStrategy(),
       });
@@ -69,7 +69,7 @@ export class OrganizationDataOwnershipPolicyComponent
   async buildVNextRequest(
     orgKey: OrgKey,
   ): Promise<VNextSaveOrganizationDataOwnershipPolicyRequest> {
-    if (!this.policy) {
+    if (!this.policy()) {
       throw new Error("Policy was not found");
     }
 

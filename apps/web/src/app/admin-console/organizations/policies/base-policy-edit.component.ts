@@ -1,4 +1,4 @@
-import { Directive, Input, OnInit } from "@angular/core";
+import { Directive, OnInit, Signal, input, signal } from "@angular/core";
 import { FormControl, UntypedFormGroup } from "@angular/forms";
 import { Observable, of } from "rxjs";
 import { Constructor } from "type-fest";
@@ -13,6 +13,7 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 
 import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit-dialog.component";
+import type { PolicyStep } from "./policy-edit-dialogs/models";
 
 /**
  * Interface for policy dialog components.
@@ -80,12 +81,10 @@ export abstract class BasePolicyEditDefinition {
  */
 @Directive()
 export abstract class BasePolicyEditComponent implements OnInit {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() policyResponse: PolicyStatusResponse | undefined;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() policy: BasePolicyEditDefinition | undefined;
+  readonly policyResponse = input<PolicyStatusResponse | undefined>(undefined);
+  readonly policy = input<BasePolicyEditDefinition | undefined>(undefined);
+  readonly currentStep = input<Signal<number>>(signal(0));
+  readonly organizationId = input<string | undefined>(undefined);
 
   /**
    * Whether the policy is enabled.
@@ -97,16 +96,31 @@ export abstract class BasePolicyEditComponent implements OnInit {
    */
   data: UntypedFormGroup | undefined;
 
-  ngOnInit(): void {
-    this.enabled.setValue(this.policyResponse?.enabled ?? false);
+  /**
+   * Optional multi-step configuration for policies that require multiple steps to complete.
+   */
+  policySteps?: PolicyStep[];
 
-    if (this.policyResponse?.data != null) {
+  ngOnInit(): void {
+    this.enabled.setValue(this.policyResponse()?.enabled ?? false);
+
+    if (this.policyResponse()?.data != null) {
       this.loadData();
     }
   }
 
+  /**
+   * An optional guard called before submission in {@link PolicyEditDialogComponent}.
+   * Return `false` to abort the save (e.g. when the user cancels a warning dialog).
+   * Components that need a confirmation step before saving should override this method.
+   *
+   * TODO: Remove this method when the `MigrateMyVaultToMyItems` feature flag is removed.
+   * New policy components should use {@link policySteps} with a `sideEffect` instead.
+   */
+  confirm?(): Promise<boolean>;
+
   async buildVNextRequest(orgKey: OrgKey): Promise<VNextSavePolicyRequest> {
-    if (!this.policy) {
+    if (!this.policy()) {
       throw new Error("Policy was not found");
     }
 
@@ -119,7 +133,7 @@ export abstract class BasePolicyEditComponent implements OnInit {
   }
 
   buildRequest() {
-    if (!this.policy) {
+    if (!this.policy()) {
       throw new Error("Policy was not found");
     }
 
@@ -131,17 +145,8 @@ export abstract class BasePolicyEditComponent implements OnInit {
     return Promise.resolve(request);
   }
 
-  /**
-   * This is called before the policy is saved. If it returns false, it will not be saved
-   * and the user will remain on the policy edit dialog.
-   * This can be used to trigger an additional confirmation modal before saving.
-   * */
-  confirm(): Promise<boolean> | boolean {
-    return true;
-  }
-
   protected loadData() {
-    this.data?.patchValue(this.policyResponse?.data ?? {});
+    this.data?.patchValue(this.policyResponse()?.data ?? {});
   }
 
   /**
