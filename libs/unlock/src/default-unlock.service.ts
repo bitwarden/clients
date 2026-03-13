@@ -19,6 +19,7 @@ import { MasterKey } from "@bitwarden/common/types/key";
 import { BiometricsService, KdfConfig, KdfConfigService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import {
+EncString,
   Kdf,
   MasterPasswordUnlockData,
   PasswordProtectedKeyEnvelope,
@@ -29,6 +30,17 @@ import { StateProvider } from "@bitwarden/state";
 import { UserId } from "@bitwarden/user-core";
 
 import { UnlockService } from "./unlock.service";
+
+export type KeyConnectorUnlockData = {
+  /**
+   * The URL of the key connector. This should be verified by the user manually before being used to unlock.
+   */
+  url: string;
+  /**
+   * The user-key wrapped by the key-connector-key
+   */
+  keyConnectorKeyWrappedUserKey: EncString;
+}
 
 export class DefaultUnlockService implements UnlockService {
   constructor(
@@ -139,6 +151,34 @@ export class DefaultUnlockService implements UnlockService {
       ),
     );
     this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithBiometrics");
+  }
+
+  async unlockWithKeyConnector(userId: UserId, keyConnectorUnlockData: KeyConnectorUnlockData): Promise<void> {
+    // Now that we have the decrypted user key from the key connector, we can initialize the SDK with it to complete the unlock process.
+    const startTime = performance.now();
+    await firstValueFrom(
+      this.registerSdkService.registerClient$(userId).pipe(
+        map(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          return ref.value.crypto().initialize_user_crypto({
+            userId: asUuid(userId),
+            kdfParams: await this.getKdfParams(userId),
+            email: await this.getEmail(userId),
+            accountCryptographicState: await this.getAccountCryptographicState(userId),
+            method: {
+              keyConnectorUrl: {
+                url: keyConnectorUnlockData.url,
+                key_connector_key_wrapped_user_key: keyConnectorUnlockData.keyConnectorKeyWrappedUserKey,
+              }
+            },
+          });
+        }),
+      ),
+    );
+    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithKeyConnector");
   }
 
   private async getAccountCryptographicState(

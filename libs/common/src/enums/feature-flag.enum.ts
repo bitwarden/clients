@@ -49,6 +49,7 @@ export enum FeatureFlag {
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
+  UnlockKeyConnectorWithSdk = "unlockKeyConnectorWithSdk",
   UnlockViaSDK = "unlock-via-sdk",
 
   /* Tools */
@@ -169,6 +170,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
+  [FeatureFlag.UnlockKeyConnectorWithSdk]: FALSE,
   [FeatureFlag.UnlockViaSDK]: FALSE,
 
   /* Platform */

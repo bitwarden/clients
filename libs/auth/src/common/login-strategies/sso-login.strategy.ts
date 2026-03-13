@@ -9,11 +9,12 @@ import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestServiceAbstraction } from "../abstractions";
 import { SsoLoginCredentials } from "../models/domain/login-credentials";
@@ -69,9 +70,9 @@ export class SsoLoginStrategy extends LoginStrategy {
   constructor(
     data: SsoLoginStrategyData,
     private keyConnectorService: KeyConnectorService,
+    private unlockService: UnlockService,
     private deviceTrustService: DeviceTrustServiceAbstraction,
     private authRequestService: AuthRequestServiceAbstraction,
-    private i18nService: I18nService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
     super(...sharedDeps);
@@ -136,7 +137,9 @@ export class SsoLoginStrategy extends LoginStrategy {
         );
       } else {
         const keyConnectorUrl = this.getKeyConnectorUrl(tokenResponse);
-        await this.keyConnectorService.setMasterKeyFromUrl(keyConnectorUrl, userId);
+        if (!await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk)) {
+          await this.keyConnectorService.setMasterKeyFromUrl(keyConnectorUrl, userId);
+        }
       }
     }
   }
@@ -187,6 +190,14 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
 
+    if (tokenResponse.canUnlockWithKeyConnector() && await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk)) {
+      await this.unlockService.unlockWithKeyConnector(
+        userId,
+        tokenResponse.intoKeyConnectorUnlockData(),
+      );
+      return;
+    }
+
     // Note: TDE and key connector are mutually exclusive
     if (userDecryptionOptions?.trustedDeviceOption) {
       this.logService.info("Attempting to set user key with approved admin auth request.");
@@ -205,7 +216,8 @@ export class SsoLoginStrategy extends LoginStrategy {
       }
     } else if (
       masterKeyEncryptedUserKey != null &&
-      this.getKeyConnectorUrl(tokenResponse) != null
+      this.getKeyConnectorUrl(tokenResponse) != null &&
+      !await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk)
     ) {
       // Key connector enabled for user
       await this.trySetUserKeyWithMasterKey(userId);
