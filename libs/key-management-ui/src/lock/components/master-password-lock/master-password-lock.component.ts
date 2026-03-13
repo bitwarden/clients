@@ -84,6 +84,8 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
   });
 
   successfulUnlock = output<{ userKey: UserKey; masterPassword: string }>();
+  swapToBiometrics = output<void>();
+  swapToPin = output<void>();
   prfUnlockSuccess = output<UserKey>();
   logOut = output<void>();
 
