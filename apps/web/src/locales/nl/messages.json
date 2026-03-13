@@ -3047,16 +3047,16 @@
   "breachDesc": {
     "message": "Een \"datalek\" is een incident waarbij de gegevens van een website zijn gestolen door hackers en vervolgens openbaar zijn gemaakt. Controleer de soorten gegevens die zijn gelekt (e-mailadressen, wachtwoorden, creditcards, enz.) en neem passende maatregelen, zoals het wijzigen van wachtwoorden."
   },
-  "breachCheckUsernameEmail": {
-    "message": "Controleer elke gebruikersnaam of e-mailadres die je gebruikt."
+  "breachCheckEmail": {
+    "message": "Controleer elk e-mailadres dat je gebruikt."
   },
   "checkBreaches": {
     "message": "Controleer datalekken"
   },
-  "breachUsernameNotFound": {
-    "message": "$USERNAME$ is niet gevonden in bekende datalekken.",
+  "breachEmailNotFound": {
+    "message": "$EMAIL$ is niet gevonden in bekende datalekken.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3066,10 @@
     "message": "Goed nieuws",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "$USERNAME$ is in $COUNT$ verschillende datalekken gevonden.",
+  "breachEmailFound": {
+    "message": "$EMAIL$ is in $COUNT$ verschillende datalekken gevonden.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -8581,6 +8581,14 @@
     "message": "Nieuw Project",
     "description": "Title for creating a new project."
   },
+  "clickToRenameProject": {
+    "message": "Klik om dit project te hernoemen",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "Kan projectnaam niet ontsleutelen - klik op project om de naam te wijzigen",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
+  },
   "softDeleteSecretWarning": {
     "message": "Verwijderen van geheimen kan invloed hebben op bestaande integraties.",
     "description": "Warns that deleting secrets can have consequences on integrations"
@@ -11498,6 +11506,15 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "Gebruiker $ID$ heeft zichzelf ingetrokken van de organisatie.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "suspendedOrganizationTitle": {
     "message": "De $ORGANIZATION$ is geschorst",
     "placeholders": {
@@ -12551,12 +12568,6 @@
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Voordat dit beleid geactiveerd kan worden, moet je een domein claimen."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Stel een ontgrendelingsmethode in om je kluis time-out actie te wijzigen."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Bedrijfsbeleidseisen zijn toegepast op je time-out instellingen"
-  },
   "vaultTimeoutTooLarge": {
     "message": "Je kluis time-out is hoger dan het maximum van jouw organisatie."
   },
@@ -12755,8 +12766,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en naleving. Klik op accepteren voor het overdragen van eigendom van je items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en regelgeving.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12764,14 +12775,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Klik op accepteren voor het overdragen van het eigendom van je items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Help-artikel openen over de overdracht van items"
+  },
   "acceptTransfer": {
     "message": "Overdacht accepteren"
   },
   "declineAndLeave": {
     "message": "Weigeren en verlaten"
-  },
-  "whyAmISeeingThis": {
-    "message": "Waarom zie ik dit?"
   },
   "youHaveBitwardenPremium": {
     "message": "Je hebt Bitwarden Premium"
@@ -13032,6 +13046,46 @@
       "date": {
         "content": "$2",
         "example": "Jan 1, 1970"
+      }
+    }
+  },
+  "of": {
+    "message": "van"
+  },
+  "coachmarkImportTitle": {
+    "message": "Snel je wachtwoorden importeren"
+  },
+  "coachmarkImportDescription": {
+    "message": "Heb je eerder een wachtwoordmanager gehad? Je kunt een CSV met bestaande logins en andere gegevens in je kluis importeren."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Een item toevoegen"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Nieuwe wachtwoorden, notities en andere informatie aan je kluis toevoegen. Alles is beveiligd met end-to-end-versleuteling."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Items veilig met anderen delen"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "Door een item naar een collectie te verplaatsen, kun je het veilig delen met andere mensen in je organisatie."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "De beveiliging van je wachtwoord controleren"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Houd de veiligheid van je kluisitems sterk door rapporten te controleren op kwetsbaarheden."
+  },
+  "coachmarkStepIndicator": {
+    "message": "Stap $CURRENT$ van $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
       }
     }
   }

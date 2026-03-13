@@ -3047,16 +3047,16 @@
   "breachDesc": {
     "message": "As contas violadas podem expor as suas informações pessoais. Proteja as contas violadas ativando a 2FA ou criando uma palavra-passe mais forte."
   },
-  "breachCheckUsernameEmail": {
-    "message": "Verifique os nomes de utilizador ou endereços de e-mail que utiliza."
+  "breachCheckEmail": {
+    "message": "Verifique os endereços de e-mail que utiliza."
   },
   "checkBreaches": {
     "message": "Verificar violações"
   },
-  "breachUsernameNotFound": {
-    "message": "$USERNAME$ não encontrado em nenhuma violação de dados conhecida.",
+  "breachEmailNotFound": {
+    "message": "$EMAIL$ não encontrado em nenhuma violação de dados conhecida.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3066,10 @@
     "message": "Boas notícias",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "$USERNAME$ foi encontrado em $COUNT$ diferentes violações de dados online.",
+  "breachEmailFound": {
+    "message": "$EMAIL$ foi encontrado em $COUNT$ diferentes violações de dados online.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -8581,6 +8581,14 @@
     "message": "Novo projeto",
     "description": "Title for creating a new project."
   },
+  "clickToRenameProject": {
+    "message": "Clique para mudar o nome deste projeto",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "Não foi possível desencriptar o nome do projeto — clique no projeto para o mudar",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
+  },
   "softDeleteSecretWarning": {
     "message": "A eliminação de segredos pode afetar as integrações existentes.",
     "description": "Warns that deleting secrets can have consequences on integrations"
@@ -11498,6 +11506,15 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "O utilizador $ID$ revogou o próprio acesso à organização.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "suspendedOrganizationTitle": {
     "message": "A $ORGANIZATION$ está suspensa",
     "placeholders": {
@@ -12551,12 +12568,6 @@
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Um domínio tem de ser reclamado antes de ativar esta política."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configure um método de desbloqueio para alterar a ação de tempo limite do seu cofre."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Os requisitos da política empresarial foram aplicados às suas opções de tempo limite"
-  },
   "vaultTimeoutTooLarge": {
     "message": "O tempo limite do seu cofre excede as restrições definidas pela sua organização."
   },
@@ -12755,8 +12766,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ exige que todos os itens sejam propriedade da organização por motivos de segurança e conformidade. Clique em Aceitar para transferir a propriedade dos seus itens.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ exige que todos os itens pertençam à organização por motivos de segurança e conformidade.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12764,14 +12775,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Clique em aceitar para transferir a titularidade dos seus itens."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Abrir artigo de ajuda sobre a transferência de itens"
+  },
   "acceptTransfer": {
     "message": "Aceitar transferência"
   },
   "declineAndLeave": {
     "message": "Recusar e sair"
-  },
-  "whyAmISeeingThis": {
-    "message": "Porque é que estou a ver isto?"
   },
   "youHaveBitwardenPremium": {
     "message": "Tem o Bitwarden Premium"
@@ -13032,6 +13046,46 @@
       "date": {
         "content": "$2",
         "example": "Jan 1, 1970"
+      }
+    }
+  },
+  "of": {
+    "message": "de"
+  },
+  "coachmarkImportTitle": {
+    "message": "Importe rapidamente as suas palavras-passe"
+  },
+  "coachmarkImportDescription": {
+    "message": "Utilizou um gestor de palavras-passe anteriormente? Pode importar um ficheiro CSV com as credenciais e outros dados existentes para o seu cofre."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Adicionar um item"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Adicione novas palavras-passe, notas e outras informações ao seu cofre. Tudo é protegido com encriptação de ponta a ponta."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Partilhe itens com outras pessoas em segurança"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "Ao mover um item para uma coleção, pode partilhá-lo em segurança com outras pessoas na sua organização."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Monitorize a segurança das suas palavras-passe"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Mantenha a segurança dos itens do seu cofre elevada ao consultar relatórios para detetar vulnerabilidades."
+  },
+  "coachmarkStepIndicator": {
+    "message": "Passo $CURRENT$ de $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
       }
     }
   }

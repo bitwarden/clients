@@ -3047,16 +3047,16 @@
   "breachDesc": {
     "message": "A feltört fiókok felfedhetik személyes adatokat. Biztosítsuk a feltört fiókokat a 2FA engedélyezésével vagy erősebb jelszó létrehozásával."
   },
-  "breachCheckUsernameEmail": {
-    "message": "Ellenőriztük a használatban levő felhasználóneveket vagy email címeket."
+  "breachCheckEmail": {
+    "message": "Ellenőrizzük az általunk használt email címeket."
   },
   "checkBreaches": {
     "message": "Szivárgás ellenőrzés"
   },
-  "breachUsernameNotFound": {
+  "breachEmailNotFound": {
     "message": "$USERNAME$ nem található egyik ismert adatszivárgásban sem.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3066,10 @@
     "message": "Jó hírek",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
+  "breachEmailFound": {
     "message": "$USERNAME$ $COUNT$ különböző webes adatszivárgásban megtalálható.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -8581,6 +8581,14 @@
     "message": "Új projekt",
     "description": "Title for creating a new project."
   },
+  "clickToRenameProject": {
+    "message": "Kattintás a projekt átnevezéséhez",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "Nem lehet visszafejteni a projekt nevét - kattintás a projektre az átnevezéshez",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
+  },
   "softDeleteSecretWarning": {
     "message": "A titkos kódok törlése érintheti a létező integrációkat.",
     "description": "Warns that deleting secrets can have consequences on integrations"
@@ -11498,6 +11506,15 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "$ID$ felhasználó saját maga visszavonta a szervezettől.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "suspendedOrganizationTitle": {
     "message": "$ORGANIZATION$ felfüggesztésre került.",
     "placeholders": {
@@ -12551,12 +12568,6 @@
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "A házirend aktiválása előtt egy tartományt igényelni kell."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Állítsunk be egy feloldási módot a széf időkifutási műveletének módosításához."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "A vállalkozáspolitikai követelményeket alkalmazásra kerültek az időkifutási opciókra."
-  },
   "vaultTimeoutTooLarge": {
     "message": "A széf időkorlátja túllépi a szervezet által beállított korlátozást."
   },
@@ -12755,8 +12766,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ megköveteli, hogy minden elem a szervezet tulajdonában legyen a biztonság és a megfelelőség érdekében. Kattintás az elfogadásra az elemek tulajdonjogának átruházásához.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ megköveteli, hogy minden elem a szervezet tulajdonában legyen a biztonság és a megfelelőség érdekében.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12764,14 +12775,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Kattintsunk az elfogadás lehetőségre az elemek tulajdonjogának átruházásához."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Súgó cikk megnyitása az elemek átviteléről"
+  },
   "acceptTransfer": {
     "message": "Átvitel elfogadása"
   },
   "declineAndLeave": {
     "message": "Elutasítás és kilépés"
-  },
-  "whyAmISeeingThis": {
-    "message": "Miért látható ez?"
   },
   "youHaveBitwardenPremium": {
     "message": "Bitwarden Prémium verzió van használatban."
@@ -13032,6 +13046,46 @@
       "date": {
         "content": "$2",
         "example": "Jan 1, 1970"
+      }
+    }
+  },
+  "of": {
+    "message": "/"
+  },
+  "coachmarkImportTitle": {
+    "message": "Saját jelszavak gyors importálása"
+  },
+  "coachmarkImportDescription": {
+    "message": "Volt korábban jelszókezelőnk? Importálhatjuk a meglévő bejelentkezéseket és egyéb adatokat CSV formátumban a széfbe."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Elem hozzáadása"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Adjunk hozzá új jelszavakat, jegyzeteket és egyéb információkat a széfhez. Minden védett a végpontok közötti titkosítással."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Az elemek biztonságos megosztása másokkal"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "Ha egy elemet áthelyezünk egy gyűjteménybe, biztonságosan megoszthatjuk azt a szervezet többi tagjával."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "A jelszó biztonság monitorozása"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Tartsuk meg erősen a széfelemek biztonságát azáltal, hogy ellenőrizzük a jelentéseket a sebezhetőség tekintetében."
+  },
+  "coachmarkStepIndicator": {
+    "message": "$CURRENT$ / $TOTAL$ lépés",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
       }
     }
   }

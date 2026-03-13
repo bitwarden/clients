@@ -3047,16 +3047,16 @@
   "breachDesc": {
     "message": "泄露的账户可能会暴露您的个人信息。通过启用 2FA 或创建更强大的密码来保护被泄露的账户。"
   },
-  "breachCheckUsernameEmail": {
-    "message": "检查您使用的任何用户名或电子邮箱地址。"
+  "breachCheckEmail": {
+    "message": "检查您使用的任何电子邮箱地址。"
   },
   "checkBreaches": {
     "message": "检查泄漏情况"
   },
-  "breachUsernameNotFound": {
-    "message": "在任何已知的数据泄露中均未发现 $USERNAME$。",
+  "breachEmailNotFound": {
+    "message": "在任何已知的数据泄露中均未发现 $EMAIL$。",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3066,10 @@
     "message": "好消息",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "在 $COUNT$ 个不同的在线数据泄露中发现了 $USERNAME$。",
+  "breachEmailFound": {
+    "message": "在 $COUNT$ 次不同的在线数据泄露中发现了 $EMAIL$。",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -3929,7 +3929,7 @@
     "message": "用户"
   },
   "userDesc": {
-    "message": "访问项目和将项目添加到已分配的集合"
+    "message": "访问并将项目添加到已分配的集合"
   },
   "all": {
     "message": "全部"
@@ -6058,7 +6058,7 @@
     "message": "提示用户将个人密码库项目移动到组织"
   },
   "promptUsersToMoveItemsCallout": {
-    "message": "将提示成员选择将项目转移到组织，或者选择退出。如果选择退出，其访问权限将被撤销，但可以随时恢复。"
+    "message": "成员将被提示选择将项目转移到组织，或者选择退出。如果选择退出，其访问权限将被撤销，但可以随时恢复。"
   },
   "organizationDataOwnership": {
     "message": "强制组织数据所有权"
@@ -8581,6 +8581,14 @@
     "message": "新增工程",
     "description": "Title for creating a new project."
   },
+  "clickToRenameProject": {
+    "message": "点击以重命名该工程",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "无法解密工程名称 - 点击工程以重命名",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
+  },
   "softDeleteSecretWarning": {
     "message": "删除机密可能会影响现有的集成。",
     "description": "Warns that deleting secrets can have consequences on integrations"
@@ -9615,7 +9623,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
-    "message": "满分 $TOTAL$",
+    "message": "总计 $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -11498,6 +11506,15 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "User $ID$ self-revoked from organization.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "suspendedOrganizationTitle": {
     "message": "$ORGANIZATION$ 已暂停",
     "placeholders": {
@@ -11819,7 +11836,7 @@
     "message": "「删除」是一个新的操作！"
   },
   "seatsRemaining": {
-    "message": "该组织已分配 $TOTAL$ 个席位，您还剩余 $REMAINING$ 个席位。请联系提供商管理您的订阅。",
+    "message": "该组织总计分配了 $TOTAL$ 个席位，您还剩余 $REMAINING$ 个席位。请联系提供商管理您的订阅。",
     "placeholders": {
       "remaining": {
         "content": "$1",
@@ -11945,7 +11962,7 @@
     "message": "归档中没有项目"
   },
   "noItemsInArchiveDesc": {
-    "message": "已归档的项目将显示在此处，并将被排除在一般搜索结果和自动填充建议之外。"
+    "message": "已归档的项目将显示在这里，并将被排除在一般搜索结果和自动填充建议之外。"
   },
   "itemArchiveToast": {
     "message": "项目已归档"
@@ -12551,12 +12568,6 @@
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "必须先声明域名，然后才能激活此策略。"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "设置一个解锁方式以更改您的密码库超时动作。"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "企业策略要求已应用到您的超时选项中"
-  },
   "vaultTimeoutTooLarge": {
     "message": "您的密码库超时超出了您组织设置的限制。"
   },
@@ -12755,8 +12766,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "出于安全和合规考虑，$ORGANIZATION$ 要求所有项目归组织所有。点击「接受」以转移您的项目的所有权。",
+  "transferItemsToOrganizationDescription": {
+    "message": "出于安全和合规要求，$ORGANIZATION$ 要求所有项目必须归组织所有。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12764,14 +12775,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "点击「接受」以转移您的项目的所有权。"
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "打开有关转移项目的帮助文章"
+  },
   "acceptTransfer": {
     "message": "接受转移"
   },
   "declineAndLeave": {
     "message": "拒绝并退出"
-  },
-  "whyAmISeeingThis": {
-    "message": "为什么我会看到这个？"
   },
   "youHaveBitwardenPremium": {
     "message": "您有 Bitwarden 高级版"
@@ -12899,7 +12913,7 @@
     "message": "获取扩展以便轻松访问密码库"
   },
   "extensionPromptBody": {
-    "message": "安装浏览器扩展后，您可以随时随地在线使用 Bitwarden。它会自动填写密码，只需单击一下即可登录您的账户。"
+    "message": "安装浏览器扩展后，您可以随时随地在线使用 Bitwarden。它会自动填写密码，让您只需单击一下即可登录您的账户。"
   },
   "extensionPromptImageAlt": {
     "message": "一个网页浏览器显示着 Bitwarden 扩展程序，该程序带有当前网页的自动填充项目。"
@@ -13032,6 +13046,46 @@
       "date": {
         "content": "$2",
         "example": "Jan 1, 1970"
+      }
+    }
+  },
+  "of": {
+    "message": "of"
+  },
+  "coachmarkImportTitle": {
+    "message": "Quickly import your passwords"
+  },
+  "coachmarkImportDescription": {
+    "message": "Did you have a password manager before? You can import a CSV of existing logins and other data into your vault."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Add an item"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "将新的密码、笔记及其他信息添加到您的密码库。所有内容均受到端到端加密的保护。"
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Safely share items with others"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "By moving an item into a collection, you can securely share it with other people in your organization."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "监测您的密码安全性"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
+  },
+  "coachmarkStepIndicator": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
       }
     }
   }
