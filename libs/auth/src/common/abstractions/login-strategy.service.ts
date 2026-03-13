@@ -3,7 +3,6 @@ import { Observable } from "rxjs";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { MasterKey } from "@bitwarden/common/types/key";
 
 import {
   UserApiLoginCredentials,
@@ -62,14 +61,6 @@ export abstract class LoginStrategyServiceAbstraction {
    * Returns an error if no session data is found.
    */
   abstract logInTwoFactor(twoFactor: TokenTwoFactorRequest): Promise<AuthResult>;
-  /**
-   * Creates a master key from the provided master password and email.
-   */
-  abstract makePasswordPreLoginMasterKey(masterPassword: string, email: string): Promise<MasterKey>;
-  /**
-   * Prefetch and cache the KDF configuration for the given email. No-op if already in-flight or cached.
-   */
-  abstract getPasswordPrelogin(email: string): Promise<void>;
   /**
    * Emits true if the authentication session has expired.
    */

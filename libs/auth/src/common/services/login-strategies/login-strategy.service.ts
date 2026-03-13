@@ -16,16 +16,15 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
+import { PasswordPreloginService } from "@bitwarden/common/auth/password-prelogin";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
-import { PreloginRequest } from "@bitwarden/common/models/request/prelogin.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -38,15 +37,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { TaskSchedulerService, ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
-import { MasterKey } from "@bitwarden/common/types/key";
-import {
-  KdfType,
-  KeyService,
-  Argon2KdfConfig,
-  KdfConfig,
-  PBKDF2KdfConfig,
-  KdfConfigService,
-} from "@bitwarden/key-management";
+import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 
 import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
@@ -94,32 +85,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   private authRequestPushNotificationState: GlobalState<string | null>;
   private authenticationTimeoutSubject = new BehaviorSubject<boolean>(false);
 
-  // Prefetched password prelogin
-  //
-  // About versioning:
-  // Users can quickly change emails (e.g., continue with user1, go back, continue with user2)
-  // which triggers overlapping async prelogin requests. We use a monotonically increasing
-  // "version" to associate each prelogin attempt with the state at the time it was started.
-  // Only if BOTH the email and the version still match when the promise resolves do we commit
-  // the resulting KDF config or clear the in-flight promise. This prevents stale results from
-  // user1 overwriting user2's state in race conditions.
-  private passwordPrelogin: {
-    email: string | null;
-    kdfConfig: KdfConfig | null;
-    promise: Promise<KdfConfig | null> | null;
-    /**
-     * Version guard for prelogin attempts.
-     * Incremented at the start of getPasswordPrelogin for each new submission.
-     * Used to ignore stale async resolutions when email changes mid-flight.
-     */
-    version: number;
-  } = {
-    email: null,
-    kdfConfig: null,
-    promise: null,
-    version: 0,
-  };
-
   authenticationSessionTimeout$: Observable<boolean> =
     this.authenticationTimeoutSubject.asObservable();
 
@@ -135,33 +100,34 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   currentAuthType$: Observable<AuthenticationType | null>;
 
   constructor(
-    protected accountService: AccountService,
-    protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    protected keyService: KeyService,
-    protected apiService: ApiService,
-    protected tokenService: TokenService,
-    protected appIdService: AppIdService,
-    protected platformUtilsService: PlatformUtilsService,
-    protected messagingService: MessagingService,
-    protected logService: LogService,
-    protected keyConnectorService: KeyConnectorService,
-    protected environmentService: EnvironmentService,
-    protected stateService: StateService,
-    protected twoFactorService: TwoFactorService,
-    protected i18nService: I18nService,
-    protected encryptService: EncryptService,
-    protected passwordStrengthService: PasswordStrengthServiceAbstraction,
-    protected policyService: PolicyService,
-    protected deviceTrustService: DeviceTrustServiceAbstraction,
-    protected authRequestService: AuthRequestServiceAbstraction,
-    protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
-    protected stateProvider: GlobalStateProvider,
-    protected billingAccountProfileStateService: BillingAccountProfileStateService,
-    protected vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    protected kdfConfigService: KdfConfigService,
-    protected taskSchedulerService: TaskSchedulerService,
-    protected configService: ConfigService,
-    protected accountCryptographicStateService: AccountCryptographicStateService,
+    private accountService: AccountService,
+    private masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    private keyService: KeyService,
+    private apiService: ApiService,
+    private tokenService: TokenService,
+    private appIdService: AppIdService,
+    private platformUtilsService: PlatformUtilsService,
+    private messagingService: MessagingService,
+    private logService: LogService,
+    private keyConnectorService: KeyConnectorService,
+    private environmentService: EnvironmentService,
+    private stateService: StateService,
+    private twoFactorService: TwoFactorService,
+    private i18nService: I18nService,
+    private encryptService: EncryptService,
+    private passwordStrengthService: PasswordStrengthServiceAbstraction,
+    private policyService: PolicyService,
+    private deviceTrustService: DeviceTrustServiceAbstraction,
+    private authRequestService: AuthRequestServiceAbstraction,
+    private userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
+    private stateProvider: GlobalStateProvider,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    private kdfConfigService: KdfConfigService,
+    private taskSchedulerService: TaskSchedulerService,
+    private configService: ConfigService,
+    private accountCryptographicStateService: AccountCryptographicStateService,
+    private passwordPreloginService: PasswordPreloginService,
   ) {
     this.currentAuthnTypeState = this.stateProvider.get(CURRENT_LOGIN_STRATEGY_KEY);
     this.loginStrategyCacheState = this.stateProvider.get(CACHE_KEY);
@@ -337,119 +303,11 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     }
   }
 
-  async makePasswordPreLoginMasterKey(masterPassword: string, email: string): Promise<MasterKey> {
-    email = email.trim().toLowerCase();
-
-    if (await this.configService.getFeatureFlag(FeatureFlag.PM23801_PrefetchPasswordPrelogin)) {
-      let kdfConfig: KdfConfig | null = null;
-      if (this.passwordPrelogin.email === email) {
-        if (this.passwordPrelogin.kdfConfig) {
-          kdfConfig = this.passwordPrelogin.kdfConfig;
-        } else if (this.passwordPrelogin.promise != null) {
-          try {
-            await this.passwordPrelogin.promise;
-          } catch (error) {
-            this.logService.error(
-              "Failed to prefetch prelogin data, falling back to fetching now.",
-              error,
-            );
-          }
-          kdfConfig = this.passwordPrelogin.kdfConfig;
-        }
-      }
-
-      if (!kdfConfig) {
-        try {
-          const preloginResponse = await this.apiService.postPrelogin(new PreloginRequest(email));
-          kdfConfig = this.buildKdfConfigFromPrelogin(preloginResponse);
-        } catch (e: any) {
-          if (e == null || e.statusCode !== 404) {
-            throw e;
-          }
-        }
-      }
-
-      if (!kdfConfig) {
-        throw new Error("KDF config is required");
-      }
-      kdfConfig.validateKdfConfigForPrelogin();
-      return await this.keyService.makeMasterKey(masterPassword, email, kdfConfig);
-    }
-
-    // Legacy behavior when flag is disabled
-    let legacyKdfConfig: KdfConfig | undefined;
-    try {
-      const preloginResponse = await this.apiService.postPrelogin(new PreloginRequest(email));
-      legacyKdfConfig = this.buildKdfConfigFromPrelogin(preloginResponse) ?? undefined;
-    } catch (e: any) {
-      if (e == null || e.statusCode !== 404) {
-        throw e;
-      }
-    }
-
-    if (!legacyKdfConfig) {
-      throw new Error("KDF config is required");
-    }
-    legacyKdfConfig.validateKdfConfigForPrelogin();
-    return await this.keyService.makeMasterKey(masterPassword, email, legacyKdfConfig);
-  }
-
-  async getPasswordPrelogin(email: string): Promise<void> {
-    const normalizedEmail = email.trim().toLowerCase();
-    const version = ++this.passwordPrelogin.version;
-
-    this.passwordPrelogin.email = normalizedEmail;
-    this.passwordPrelogin.kdfConfig = null;
-    const promise: Promise<KdfConfig | null> = (async () => {
-      try {
-        const preloginResponse = await this.apiService.postPrelogin(
-          new PreloginRequest(normalizedEmail),
-        );
-        return this.buildKdfConfigFromPrelogin(preloginResponse);
-      } catch (e: any) {
-        if (e == null || e.statusCode !== 404) {
-          throw e;
-        }
-        return null;
-      }
-    })();
-
-    this.passwordPrelogin.promise = promise;
-    promise
-      .then((cfg) => {
-        // Only apply if still for the same email and same version
-        if (
-          this.passwordPrelogin.email === normalizedEmail &&
-          this.passwordPrelogin.version === version &&
-          cfg
-        ) {
-          this.passwordPrelogin.kdfConfig = cfg;
-        }
-      })
-      .catch(() => {
-        // swallow; best-effort prefetch
-      })
-      .finally(() => {
-        if (
-          this.passwordPrelogin.email === normalizedEmail &&
-          this.passwordPrelogin.version === version
-        ) {
-          this.passwordPrelogin.promise = null;
-        }
-      });
-  }
-
   private async clearCache(): Promise<void> {
     await this.currentAuthnTypeState.update((_) => null);
     await this.loginStrategyCacheState.update((_) => null);
     this.authenticationTimeoutSubject.next(false);
     await this.clearSessionTimeout();
-
-    // Increment to invalidate any in-flight requests
-    this.passwordPrelogin.version++;
-    this.passwordPrelogin.email = null;
-    this.passwordPrelogin.kdfConfig = null;
-    this.passwordPrelogin.promise = null;
   }
 
   private async startSessionTimeout(): Promise<void> {
@@ -525,7 +383,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               data?.password ?? new PasswordLoginStrategyData(),
               this.passwordStrengthService,
               this.policyService,
-              this,
+              this.passwordPreloginService,
               ...sharedDeps,
             );
           case AuthenticationType.Sso:
@@ -557,25 +415,5 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
         }
       }),
     );
-  }
-
-  private buildKdfConfigFromPrelogin(
-    preloginResponse: {
-      kdf: KdfType;
-      kdfIterations: number;
-      kdfMemory?: number;
-      kdfParallelism?: number;
-    } | null,
-  ): KdfConfig | null {
-    if (preloginResponse == null) {
-      return null;
-    }
-    return preloginResponse.kdf === KdfType.PBKDF2_SHA256
-      ? new PBKDF2KdfConfig(preloginResponse.kdfIterations)
-      : new Argon2KdfConfig(
-          preloginResponse.kdfIterations,
-          preloginResponse.kdfMemory,
-          preloginResponse.kdfParallelism,
-        );
   }
 }
