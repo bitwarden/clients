@@ -16,7 +16,6 @@ import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
-import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ButtonModule, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
   NewSendDropdownV2Component,
@@ -28,7 +27,6 @@ import {
   SendItemDialogResult,
 } from "@bitwarden/send-ui";
 
-import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { DesktopHeaderComponent } from "../../layout/header";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -36,13 +34,7 @@ import { DesktopHeaderComponent } from "../../layout/header";
 @Component({
   selector: "app-send",
   imports: [ButtonModule, SendListComponent, NewSendDropdownV2Component, DesktopHeaderComponent],
-  providers: [
-    DefaultSendFormConfigService,
-    {
-      provide: PremiumUpgradePromptService,
-      useClass: DesktopPremiumUpgradePromptService,
-    },
-  ],
+  providers: [DefaultSendFormConfigService],
   templateUrl: "./send.component.html",
 })
 export class SendComponent {
