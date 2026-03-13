@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
@@ -34,6 +34,7 @@ import {
   SecretDialogComponent,
   SecretOperation,
 } from "../../secrets/dialog/secret-dialog.component";
+import { openSecretVersionDialog } from "../../secrets/dialog/secret-version.component";
 import {
   SecretViewDialogComponent,
   SecretViewDialogParams,
@@ -48,7 +49,7 @@ import { ProjectService } from "../project.service";
   templateUrl: "./project-secrets.component.html",
   standalone: false,
 })
-export class ProjectSecretsComponent implements OnInit {
+export class ProjectSecretsComponent implements OnInit, OnDestroy {
   secrets$: Observable<SecretListView[]>;
 
   private organizationId: string;
@@ -67,6 +68,10 @@ export class ProjectSecretsComponent implements OnInit {
     private accountService: AccountService,
     private logService: LogService,
   ) {}
+
+  ngOnDestroy(): void {
+    this.dialogService.closeDrawer();
+  }
 
   ngOnInit() {
     const currentProjectEdited = this.projectService.project$.pipe(
@@ -157,5 +162,18 @@ export class ProjectSecretsComponent implements OnInit {
 
   copySecretUuid(id: string) {
     SecretsListComponent.copySecretUuid(id, this.platformUtilsService, this.i18nService);
+  }
+
+  async openVersionHistory(secretId: string) {
+    const secret = await this.secretService.getBySecretId(secretId);
+    openSecretVersionDialog(this.dialogService, {
+      data: {
+        organizationId: this.organizationId,
+        secretId: secretId,
+        name: secret?.name,
+        currentValue: secret?.value,
+        revisionDate: secret?.revisionDate,
+      },
+    });
   }
 }
