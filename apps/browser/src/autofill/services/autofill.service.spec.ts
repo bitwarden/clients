@@ -2911,7 +2911,7 @@ describe("AutofillService", () => {
         expect(AutofillService["isFieldMatch"]).toHaveBeenCalled();
         expect(autofillService["makeScriptAction"]).toHaveBeenCalledTimes(4);
         expect(AutofillService["hasValue"]).toHaveBeenCalledTimes(6);
-        expect(autofillService["fieldAttrsContain"]).toHaveBeenCalledTimes(3);
+        expect(autofillService["fieldAttrsContain"]).toHaveBeenCalledTimes(2);
         expect(AutofillService["fillByOpid"]).toHaveBeenCalledTimes(6);
         expect(autofillService["makeScriptActionWithValue"]).toHaveBeenCalledTimes(4);
         expect(value).toStrictEqual({

@@ -1297,9 +1297,10 @@ export default class AutofillService implements AutofillServiceInterface {
           }
         }
       } else if (
-        (this.fieldAttrsContain(fillFields.expMonth, "mm") ||
-          fillFields.expMonth.maxLength === 2) &&
-        expMonth.length === 1
+        expMonth.length === 1 &&
+        (fillFields.expMonth.maxLength === 2 ||
+          this.fieldAttrsContain(fillFields.expMonth, "mm") ||
+          this.fieldAttrsContain(fillFields.expMonth, "00"))
       ) {
         expMonth = "0" + expMonth;
       }
