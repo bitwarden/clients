@@ -5,6 +5,8 @@
     type="text"
     appAutofocus
     appInputVerbatim
+    inputmode="numeric"
+    pattern="[0-9]*"
     [formControl]="tokenFormControl"
     (keyup)="onTokenChange($event)"
   />
