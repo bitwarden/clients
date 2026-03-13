@@ -10,9 +10,9 @@ import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/m
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CenterPositionStrategy, DialogService, ToastService } from "@bitwarden/components";
+import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
-import { openEntityEventsDialog } from "../../../manage/entity-events.component";
 import {
   AccountRecoveryDialogComponent,
   AccountRecoveryDialogResultType,
