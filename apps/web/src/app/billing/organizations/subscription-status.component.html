@@ -4,7 +4,7 @@
     <button
       *ngIf="data.callout.showReinstatementButton"
       bitButton
-      buttonType="unstyled"
+      [buttonType]="data.callout.severity"
       [bitAction]="requestReinstatement"
       type="button"
     >

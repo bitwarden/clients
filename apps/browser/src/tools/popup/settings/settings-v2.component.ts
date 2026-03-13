@@ -6,7 +6,6 @@ import { filter, firstValueFrom, Observable, shareReplay, switchMap } from "rxjs
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
-import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -18,6 +17,7 @@ import {
   ItemModule,
   LinkModule,
   TypographyModule,
+  CalloutModule,
 } from "@bitwarden/components";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
@@ -37,9 +37,9 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     ItemModule,
     CurrentAccountComponent,
     BadgeComponent,
-    SpotlightComponent,
     TypographyModule,
     LinkModule,
+    CalloutModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

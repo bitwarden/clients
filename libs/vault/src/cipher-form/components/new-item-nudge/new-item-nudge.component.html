@@ -1,8 +1,5 @@
 @if (showNewItemSpotlight$ | async) {
-  <bit-spotlight
-    [title]="nudgeTitle"
-    [subtitle]="nudgeBody"
-    (onDismiss)="dismissNewItemSpotlight()"
-  >
-  </bit-spotlight>
+  <bit-callout [title]="nudgeTitle" [icon]="null" (dismiss)="dismissNewItemSpotlight()">
+    {{ nudgeBody }}
+  </bit-callout>
 }

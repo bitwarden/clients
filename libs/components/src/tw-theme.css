@@ -237,6 +237,7 @@
   --color-fg-white: var(--color-white);
   --color-fg-dark: var(--color-gray-900);
   --color-fg-contrast: var(--color-white);
+  --color-fg-contrast-strong: var(--color-gray-200);
   --color-fg-heading: var(--color-gray-900);
   --color-fg-body: var(--color-gray-600);
   --color-fg-body-subtle: var(--color-gray-500);
@@ -245,15 +246,15 @@
   /* Brand Foreground */
   --color-fg-brand-soft: var(--color-brand-200);
   --color-fg-brand: var(--color-brand-700);
-  --color-fg-brand-strong: var(--color-brand-900);
+  --color-fg-brand-strong: var(--color-brand-800);
 
   /* Status Foreground */
   --color-fg-success: var(--color-green-700);
-  --color-fg-success-strong: var(--color-green-900);
+  --color-fg-success-strong: var(--color-green-800);
   --color-fg-danger: var(--color-red-700);
-  --color-fg-danger-strong: var(--color-red-900);
+  --color-fg-danger-strong: var(--color-red-800);
   --color-fg-warning: var(--color-orange-600);
-  --color-fg-warning-strong: var(--color-orange-900);
+  --color-fg-warning-strong: var(--color-orange-700);
   --color-fg-sensitive: var(--color-pink-600);
 
   /* Accent Foreground */
@@ -274,15 +275,20 @@
   /* Neutral Background */
   --color-bg-white: var(--color-white);
   --color-bg-dark: var(--color-gray-800);
-  --color-bg-contrast: var(--color-gray-800);
-  --color-bg-contrast-strong: var(--color-gray-950);
   --color-bg-primary: var(--color-white);
   --color-bg-secondary: var(--color-gray-050);
   --color-bg-tertiary: var(--color-gray-050);
   --color-bg-quaternary: var(--color-gray-200);
+  --color-bg-disabled: var(--color-gray-100);
+
+  /* Gray Background */
   --color-bg-gray: var(--color-gray-300);
   --color-bg-gray-strong: var(--color-gray-500);
-  --color-bg-disabled: var(--color-gray-100);
+
+  /* Contrast Background */
+  --color-bg-contrast-soft: var(--color-gray-700);
+  --color-bg-contrast: var(--color-gray-800);
+  --color-bg-contrast-strong: var(--color-gray-950);
 
   /* Brand Background */
   --color-bg-brand-softer: var(--color-brand-050);
@@ -309,6 +315,7 @@
   --color-bg-accent-primary-soft: var(--color-teal-050);
   --color-bg-accent-primary-medium: var(--color-teal-100);
   --color-bg-accent-primary: var(--color-teal-400);
+  --color-bg-accent-primary-strong: var(--color-teal-700);
   --color-bg-accent-secondary-soft: var(--color-coral-050);
   --color-bg-accent-secondary-medium: var(--color-coral-100);
   --color-bg-accent-secondary: var(--color-coral-400);
@@ -318,10 +325,6 @@
 
   /* Hover & Overlay */
   --color-bg-hover: rgba(var(--color-gray-950-rgb), 0.05);
-  --color-bg-sidenav-hover: rgba(var(--color-black-rgb), 0.2);
-  --color-bg-sidenav-hover-strong: rgba(var(--color-black-rgb), 0.45);
-  --color-bg-sidenav-secondary-hover: rgba(var(--color-brand-950-rgb), 0.1);
-  --color-bg-sidenav-secondary-hover-strong: rgba(var(--color-brand-950-rgb), 0.25);
   --color-bg-hover-contrast: rgba(var(--color-white-rgb), 0.05);
   --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.3);
 
@@ -334,12 +337,13 @@
   --color-border-light: var(--color-gray-100);
   --color-border-base: var(--color-gray-200);
   --color-border-strong: var(--color-gray-400);
+  --color-border-stronger: var(--color-gray-800);
   --color-border-buffer: var(--color-white);
 
   /* Brand Border */
   --color-border-brand-soft: var(--color-brand-200);
   --color-border-brand: var(--color-brand-700);
-  --color-border-brand-strong: var(--color-brand-800);
+  --color-border-brand-strong: var(--color-brand-900);
 
   /* Status Border */
   --color-border-success-soft: var(--color-green-200);
@@ -347,10 +351,10 @@
   --color-border-success-strong: var(--color-green-900);
   --color-border-danger-soft: var(--color-red-200);
   --color-border-danger: var(--color-red-700);
-  --color-border-danger-strong: var(--color-red-900);
+  --color-border-danger-strong: var(--color-red-800);
   --color-border-warning-soft: var(--color-orange-200);
   --color-border-warning: var(--color-orange-600);
-  --color-border-warning-strong: var(--color-orange-900);
+  --color-border-warning-strong: var(--color-orange-700);
 
   /* Accent Border */
   --color-border-accent-primary-soft: var(--color-teal-200);
@@ -365,8 +369,12 @@
   --color-border-focus-contrast: var(--color-white);
 
   /**========================================
-   * SIDENAV BACKGROUND COLORS (Light mode)
+   * SIDENAV CUSTOM COLORS (Light mode)
    * ======================================== */
+
+  --color-bg-sidenav-hover: rgba(var(--color-black-rgb), 0.2);
+  --color-bg-sidenav-hover-strong: rgba(var(--color-black-rgb), 0.45);
+
   --color-sidenav-background: var(--color-brand-800);
   --color-sidenav-text: var(--color-white);
   --color-sidenav-active-item: var(--color-brand-900);
@@ -375,6 +383,10 @@
   --color-sidenav-arrow-hover: var(--color-bg-sidenav-hover);
   --color-sidenav-active-arrow-hover: var(--color-bg-sidenav-hover-strong);
   --color-sidenav-focus: var(--color-white);
+
+  /* Sidenav Secondary */
+  --color-bg-sidenav-secondary-hover: rgba(var(--color-brand-950-rgb), 0.1);
+  --color-bg-sidenav-secondary-hover-strong: rgba(var(--color-brand-950-rgb), 0.25);
 
   --color-sidenav-secondary-background: var(--color-gray-100);
   --color-sidenav-secondary-text: var(--color-gray-900);
@@ -457,6 +469,7 @@
 
   /* Neutral Foreground */
   --color-fg-contrast: var(--color-gray-900);
+  --color-fg-contrast-strong: var(--color-gray-600);
   --color-fg-heading: var(--color-gray-050);
   --color-fg-body: var(--color-gray-200);
   --color-fg-body-subtle: var(--color-gray-400);
@@ -469,11 +482,11 @@
 
   /* Status Foreground */
   --color-fg-success: var(--color-green-400);
-  --color-fg-success-strong: var(--color-green-100);
+  --color-fg-success-strong: var(--color-green-200);
   --color-fg-danger: var(--color-red-400);
-  --color-fg-danger-strong: var(--color-red-100);
+  --color-fg-danger-strong: var(--color-red-200);
   --color-fg-warning: var(--color-orange-400);
-  --color-fg-warning-strong: var(--color-orange-100);
+  --color-fg-warning-strong: var(--color-orange-200);
   --color-fg-sensitive: var(--color-pink-300);
 
   /* Accent Foreground */
@@ -492,41 +505,48 @@
    * ======================================== */
 
   /* Neutral Background */
-  --color-bg-contrast: var(--color-gray-050);
-  --color-bg-contrast-strong: var(--color-gray-050);
   --color-bg-primary: var(--color-gray-900);
   --color-bg-secondary: var(--color-gray-800);
   --color-bg-tertiary: var(--color-gray-950);
   --color-bg-quaternary: var(--color-gray-700);
-  --color-bg-gray: var(--color-gray-600);
-  --color-bg-gray-strong: var(--color-gray-400);
   --color-bg-disabled: var(--color-gray-950);
+
+  /* Gray Background */
+  --color-bg-gray: var(--color-gray-500);
+  --color-bg-gray-strong: var(--color-gray-400);
+
+  /* Contrast Background */
+  --color-bg-contrast-soft: var(--color-gray-200);
+  --color-bg-contrast: var(--color-gray-100);
+  --color-bg-contrast-strong: var(--color-white);
 
   /* Brand Background */
   --color-bg-brand-softer: var(--color-brand-950);
   --color-bg-brand-soft: var(--color-brand-900);
   --color-bg-brand-medium: var(--color-brand-800);
   --color-bg-brand: var(--color-brand-400);
-  --color-bg-brand-strong: var(--color-brand-300);
+  --color-bg-brand-strong: var(--color-brand-200);
+  --color-bg-brand-stronger: var(--color-brand-100);
 
   /* Status Background */
   --color-bg-success-soft: var(--color-green-950);
   --color-bg-success-medium: var(--color-green-900);
   --color-bg-success: var(--color-green-400);
-  --color-bg-success-strong: var(--color-green-300);
+  --color-bg-success-strong: var(--color-green-200);
   --color-bg-danger-soft: var(--color-red-950);
   --color-bg-danger-medium: var(--color-red-900);
   --color-bg-danger: var(--color-red-400);
-  --color-bg-danger-strong: var(--color-red-300);
+  --color-bg-danger-strong: var(--color-red-200);
   --color-bg-warning-soft: var(--color-orange-950);
   --color-bg-warning-medium: var(--color-orange-900);
   --color-bg-warning: var(--color-orange-400);
-  --color-bg-warning-strong: var(--color-orange-300);
+  --color-bg-warning-strong: var(--color-orange-200);
 
   /* Accent Background */
   --color-bg-accent-primary-soft: var(--color-teal-950);
   --color-bg-accent-primary-medium: var(--color-teal-900);
   --color-bg-accent-primary: var(--color-teal-400);
+  --color-bg-accent-primary-strong: var(--color-teal-200);
   --color-bg-accent-secondary-soft: var(--color-coral-950);
   --color-bg-accent-secondary-medium: var(--color-coral-900);
   --color-bg-accent-secondary: var(--color-coral-400);
@@ -536,8 +556,6 @@
 
   /* Hover & Overlay */
   --color-bg-hover: rgba(var(--color-white-rgb), 0.05);
-  --color-bg-sidenav-hover: rgba(var(--color-gray-400-rgb), 0.2);
-  --color-bg-sidenav-hover-strong: rgba(var(--color-gray-400-rgb), 0.6);
   --color-bg-hover-contrast: rgba(var(--color-gray-950-rgb), 0.05);
   --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.85);
 
@@ -550,6 +568,7 @@
   --color-border-light: var(--color-gray-800);
   --color-border-base: var(--color-gray-700);
   --color-border-strong: var(--color-gray-500);
+  --color-border-stronger: var(--color-gray-400);
   --color-border-buffer: var(--color-gray-950);
 
   /* Brand Border */
@@ -580,8 +599,12 @@
   --color-border-focus-contrast: var(--color-black);
 
   /**========================================
-    * SIDENAV BACKGROUND COLORS (Dark mode)
+    * SIDENAV CUSTOM COLORS (Dark mode)
     * ======================================== */
+
+  --color-bg-sidenav-hover: rgba(var(--color-gray-400-rgb), 0.2);
+  --color-bg-sidenav-hover-strong: rgba(var(--color-gray-400-rgb), 0.6);
+
   --color-sidenav-background: var(--color-gray-800);
   --color-sidenav-text: var(--color-white);
   --color-sidenav-active-item: var(--color-gray-600);
@@ -591,6 +614,7 @@
   --color-sidenav-active-arrow-hover: var(--color-bg-sidenav-hover-strong);
   --color-sidenav-focus: var(--color-white);
 
+  /* Sidenav Secondary */
   --color-sidenav-secondary-background: var(--color-gray-800);
   --color-sidenav-secondary-text: var(--color-white);
   --color-sidenav-secondary-active-item: var(--color-gray-600);

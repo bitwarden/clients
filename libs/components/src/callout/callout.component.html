@@ -1,26 +1,50 @@
 <aside
-  class="tw-mb-4 tw-box-border tw-border tw-border-solid tw-rounded-lg tw-bg-background tw-ps-4 tw-pe-4 tw-py-3 tw-leading-5 tw-flex tw-gap-2"
-  [ngClass]="[calloutClass()]"
+  class="tw-mb-4 tw-border tw-border-solid tw-rounded-xl tw-ps-4 tw-pe-2 tw-flex tw-flex-col tw-relative"
+  [class]="calloutClass()"
   [attr.aria-labelledby]="titleId"
 >
   @let title = titleComputed();
   @let icon = iconComputed();
 
-  @if (icon) {
-    <i
-      class="bwi tw-relative"
-      [ngClass]="[icon, title ? 'tw-top-[3px] tw-self-start' : 'tw-top-[1px]']"
-      aria-hidden="true"
-    ></i>
-  }
-  <div class="tw-flex tw-flex-col tw-gap-0.5">
-    @if (title) {
-      <header id="{{ titleId }}" class="tw-text-base tw-font-medium">
-        {{ title }}
-      </header>
-    }
-    <div bitTypography="body2">
-      <ng-content></ng-content>
+  <ng-template #contentTpl>
+    <div bitTypography="body2" class="tw-pr-4">
+      <ng-content />
     </div>
+  </ng-template>
+
+  <div class="tw-flex tw-flex-col tw-gap-2">
+    <div class="tw-flex tw-justify-between">
+      <div class="tw-flex tw-gap-2 tw-items-baseline" [class]="paddingTopClass()">
+        @if (icon) {
+          <bit-icon [name]="icon" />
+        }
+        @if (title) {
+          <header [id]="titleId" class="tw-text-base tw-font-medium">
+            <ng-content select="[slot=title]" />
+            {{ title }}
+          </header>
+        } @else {
+          <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+        }
+      </div>
+      @if (isDismissible()) {
+        <button
+          type="button"
+          bitIconButton="bwi-close"
+          buttonType="subtleGhost"
+          size="small"
+          (click)="onDismiss()"
+          [class]="fgClass()"
+          [label]="closeLabel"
+          class="tw-shrink-0"
+        ></button>
+      }
+    </div>
+    @if (title) {
+      <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+    }
+  </div>
+  <div class="tw-flex tw-gap-3 [&>*]:tw-mt-4">
+    <ng-content select="[slot=end]" />
   </div>
 </aside>
