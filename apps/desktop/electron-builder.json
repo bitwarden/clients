@@ -132,6 +132,7 @@
   },
   "dmg": {
     "icon": "dmg.icns",
+    "background": "resources/background.png",
     "sign": false,
     "contents": [
       {
