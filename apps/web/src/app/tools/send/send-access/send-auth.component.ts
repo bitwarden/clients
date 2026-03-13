@@ -207,12 +207,6 @@ export class SendAuthComponent implements OnInit {
         }
         this.enterOtp.set(true);
         this.updatePageTitle();
-      } else if (otpInvalid(response.error)) {
-        this.toastService.showToast({
-          variant: "error",
-          title: undefined,
-          message: this.i18nService.t("invalidVerificationCode"),
-        });
       } else if (passwordHashB64Required(response.error)) {
         this.sendAuthType.set(AuthType.Password);
         this.updatePageTitle();
