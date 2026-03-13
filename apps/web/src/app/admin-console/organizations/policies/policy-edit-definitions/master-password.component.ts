@@ -78,7 +78,7 @@ export class MasterPasswordPolicyComponent extends BasePolicyEditComponent imple
     const organization = await firstValueFrom(
       this.organizationService
         .organizations$(userId)
-        .pipe(getOrganizationById(this.policyResponse.organizationId)),
+        .pipe(getOrganizationById(this.policyResponse()!.organizationId)),
     );
     this.showKeyConnectorInfo = organization.keyConnectorEnabled;
   }

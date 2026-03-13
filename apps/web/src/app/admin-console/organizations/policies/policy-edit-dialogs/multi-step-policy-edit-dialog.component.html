@@ -1,14 +1,13 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
+  @let titleTemplate = policySteps()[currentStep()]?.titleContent?.();
   <bit-dialog
     [loading]="loading"
-    [subtitle]="!policySteps()[currentStep()]?.titleContent ? (policy.name | i18n) : undefined"
+    [title]="titleTemplate ? undefined : ('editPolicy' | i18n)"
+    [subtitle]="titleTemplate ? undefined : (policy.name | i18n)"
   >
     <ng-container bitDialogTitle>
-      @let titleTemplate = policySteps()[currentStep()]?.titleContent?.();
       @if (titleTemplate) {
         <ng-container [ngTemplateOutlet]="titleTemplate"></ng-container>
-      } @else {
-        {{ "editPolicy" | i18n }}
       }
     </ng-container>
 

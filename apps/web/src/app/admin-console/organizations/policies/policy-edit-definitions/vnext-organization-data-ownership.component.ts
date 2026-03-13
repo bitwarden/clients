@@ -68,7 +68,7 @@ export class vNextOrganizationDataOwnershipPolicyComponent
 {
   protected readonly centralizeDataOwnershipEnabled$: Observable<boolean> = defer(() =>
     from(
-      this.policyApiService.getPolicy(this.organizationId, PolicyType.OrganizationDataOwnership),
+      this.policyApiService.getPolicy(this.organizationId(), PolicyType.OrganizationDataOwnership),
     ).pipe(
       map((policy) => policy.enabled),
       catchError(() => of(false)),
@@ -125,11 +125,11 @@ export class vNextOrganizationDataOwnershipPolicyComponent
   }
 
   protected override loadData() {
-    if (!this.policyResponse?.data) {
+    if (!this.policyResponse()?.data) {
       return;
     }
 
-    const data = this.policyResponse.data as OrganizationDataOwnershipPolicyData;
+    const data = this.policyResponse()!.data as OrganizationDataOwnershipPolicyData;
     this.data.patchValue({
       enableIndividualItemsTransfer: data.enableIndividualItemsTransfer ?? false,
     });
@@ -145,7 +145,7 @@ export class vNextOrganizationDataOwnershipPolicyComponent
   async buildVNextRequest(
     orgKey: OrgKey,
   ): Promise<VNextSaveOrganizationDataOwnershipPolicyRequest> {
-    if (!this.policy) {
+    if (!this.policy()) {
       throw new Error("Policy was not found");
     }
 
@@ -174,7 +174,7 @@ export class vNextOrganizationDataOwnershipPolicyComponent
 
     assertNonNullish(orgKeys, "Org keys not provided");
 
-    const orgKey = orgKeys[this.organizationId as OrganizationId];
+    const orgKey = orgKeys[this.organizationId() as OrganizationId];
 
     if (orgKey == null) {
       throw new Error("No encryption key for this organization.");
@@ -183,8 +183,8 @@ export class vNextOrganizationDataOwnershipPolicyComponent
     const request = await this.buildVNextRequest(orgKey);
 
     await this.policyApiService.putPolicyVNext(
-      this.organizationId ?? "",
-      this.policy?.type ?? PolicyType.OrganizationDataOwnership,
+      this.organizationId() ?? "",
+      this.policy()?.type ?? PolicyType.OrganizationDataOwnership,
       request,
     );
   }

@@ -103,9 +103,10 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       throw new Error("Template not initialized.");
     }
 
-    this.policyComponent = this.policyFormRef.createComponent(this.data.policy.component).instance;
-    this.policyComponent.policy = this.data.policy;
-    this.policyComponent.policyResponse = policyResponse;
+    const policyComponentRef = this.policyFormRef.createComponent(this.data.policy.component);
+    this.policyComponent = policyComponentRef.instance;
+    policyComponentRef.setInput("policy", this.data.policy);
+    policyComponentRef.setInput("policyResponse", policyResponse);
 
     if (this.policyComponent.data) {
       // If the policy has additional configuration, disable the save button if the form state is invalid

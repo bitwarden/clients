@@ -49,8 +49,6 @@ export class AutoConfirmPolicy extends BasePolicyEditDefinition {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
-  override readonly policy: AutoConfirmPolicy | undefined;
-
   constructor(
     private readonly accountService: AccountService,
     private readonly organizationService: OrganizationService,
@@ -86,13 +84,13 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
       map((policies) => policies.find((p) => p.type === PolicyType.SingleOrg)?.enabled ?? false),
     );
 
-  // defer() ensures this.organizationId (an @Input set via setInput()) is read at subscription
-  // time rather than at class-field initialization time, where it would still be undefined.
+  // defer() ensures this.organizationId() is read at subscription time rather than at
+  // class-field initialization time, where it would still be undefined.
   protected readonly managePoliciesOnly$: Observable<boolean> = defer(() =>
     this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) => this.organizationService.organizations$(userId)),
-      getById(this.organizationId),
+      getById(this.organizationId()),
       map((organization) => (!organization?.isAdmin && organization?.canManagePolicies) ?? false),
     ),
   );
@@ -122,7 +120,7 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     const organizations = await firstValueFrom(this.organizationService.organizations$(userId));
-    const organization = organizations.find((o) => o.id === this.organizationId) ?? null;
+    const organization = organizations.find((o) => o.id === this.organizationId()) ?? null;
     const managePoliciesOnly = (!organization?.isAdmin && organization?.canManagePolicies) ?? false;
 
     const policies = await firstValueFrom(this.policyService.policies$(userId));
@@ -132,16 +130,20 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
 
     // AutoConfirm requires SingleOrg; enable it as a prerequisite if not already on.
     if (enabledSingleOrgDuringAction) {
-      await this.policyApiService.putPolicyVNext(this.organizationId ?? "", PolicyType.SingleOrg, {
-        policy: { enabled: true, data: null },
-        metadata: null,
-      });
+      await this.policyApiService.putPolicyVNext(
+        this.organizationId() ?? "",
+        PolicyType.SingleOrg,
+        {
+          policy: { enabled: true, data: null },
+          metadata: null,
+        },
+      );
     }
 
     try {
       const request = await this.buildRequest();
       await this.policyApiService.putPolicyVNext(
-        this.organizationId ?? "",
+        this.organizationId() ?? "",
         PolicyType.AutoConfirm,
         { policy: request, metadata: null },
       );
@@ -149,7 +151,7 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
       // Roll back the SingleOrg enablement if AutoConfirm save fails.
       if (enabledSingleOrgDuringAction) {
         await this.policyApiService.putPolicyVNext(
-          this.organizationId ?? "",
+          this.organizationId() ?? "",
           PolicyType.SingleOrg,
           { policy: { enabled: false, data: null }, metadata: null },
         );

@@ -50,12 +50,15 @@ describe("vNextOrganizationDataOwnershipPolicyComponent", () => {
 
   describe("loadData with null server response", () => {
     it("should default enableIndividualItemsTransfer to false when data is null", () => {
-      component.policyResponse = new PolicyStatusResponse({
-        organizationId: "org1",
-        type: PolicyType.OrganizationDataOwnership,
-        enabled: true,
-        data: null,
-      });
+      fixture.componentRef.setInput(
+        "policyResponse",
+        new PolicyStatusResponse({
+          organizationId: "org1",
+          type: PolicyType.OrganizationDataOwnership,
+          enabled: true,
+          data: null,
+        }),
+      );
 
       component.ngOnInit();
 
@@ -63,12 +66,15 @@ describe("vNextOrganizationDataOwnershipPolicyComponent", () => {
     });
 
     it("should default enableIndividualItemsTransfer to false when the attribute is null", () => {
-      component.policyResponse = new PolicyStatusResponse({
-        organizationId: "org1",
-        type: PolicyType.OrganizationDataOwnership,
-        enabled: true,
-        data: { enableIndividualItemsTransfer: null },
-      });
+      fixture.componentRef.setInput(
+        "policyResponse",
+        new PolicyStatusResponse({
+          organizationId: "org1",
+          type: PolicyType.OrganizationDataOwnership,
+          enabled: true,
+          data: { enableIndividualItemsTransfer: null },
+        }),
+      );
 
       component.ngOnInit();
 

@@ -86,8 +86,8 @@ describe("AutoConfirmPolicyEditComponent — policySteps[0].sideEffect", () => {
     component = fixture.componentInstance;
 
     // Simulate the inputs that MultiStepPolicyEditDialogComponent provides
-    component.organizationId = orgId;
-    (component as any).policy = new AutoConfirmPolicy();
+    fixture.componentRef.setInput("organizationId", orgId);
+    fixture.componentRef.setInput("policy", new AutoConfirmPolicy());
     component.enabled.setValue(true);
     // Intentionally skip detectChanges() — viewChild signals are not needed for sideEffect tests
   });

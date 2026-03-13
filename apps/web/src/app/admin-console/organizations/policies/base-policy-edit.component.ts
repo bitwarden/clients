@@ -1,4 +1,4 @@
-import { Directive, Input, OnInit, Signal, signal } from "@angular/core";
+import { Directive, OnInit, Signal, input, signal } from "@angular/core";
 import { FormControl, UntypedFormGroup } from "@angular/forms";
 import { Observable, of } from "rxjs";
 import { Constructor } from "type-fest";
@@ -81,18 +81,10 @@ export abstract class BasePolicyEditDefinition {
  */
 @Directive()
 export abstract class BasePolicyEditComponent implements OnInit {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() policyResponse: PolicyStatusResponse | undefined;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() policy: BasePolicyEditDefinition | undefined;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() currentStep: Signal<number> = signal(0);
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() organizationId: string | undefined;
+  readonly policyResponse = input<PolicyStatusResponse | undefined>(undefined);
+  readonly policy = input<BasePolicyEditDefinition | undefined>(undefined);
+  readonly currentStep = input<Signal<number>>(signal(0));
+  readonly organizationId = input<string | undefined>(undefined);
 
   /**
    * Whether the policy is enabled.
@@ -110,9 +102,9 @@ export abstract class BasePolicyEditComponent implements OnInit {
   policySteps?: PolicyStep[];
 
   ngOnInit(): void {
-    this.enabled.setValue(this.policyResponse?.enabled ?? false);
+    this.enabled.setValue(this.policyResponse()?.enabled ?? false);
 
-    if (this.policyResponse?.data != null) {
+    if (this.policyResponse()?.data != null) {
       this.loadData();
     }
   }
@@ -128,7 +120,7 @@ export abstract class BasePolicyEditComponent implements OnInit {
   confirm?(): Promise<boolean>;
 
   async buildVNextRequest(orgKey: OrgKey): Promise<VNextSavePolicyRequest> {
-    if (!this.policy) {
+    if (!this.policy()) {
       throw new Error("Policy was not found");
     }
 
@@ -141,7 +133,7 @@ export abstract class BasePolicyEditComponent implements OnInit {
   }
 
   buildRequest() {
-    if (!this.policy) {
+    if (!this.policy()) {
       throw new Error("Policy was not found");
     }
 
@@ -154,7 +146,7 @@ export abstract class BasePolicyEditComponent implements OnInit {
   }
 
   protected loadData() {
-    this.data?.patchValue(this.policyResponse?.data ?? {});
+    this.data?.patchValue(this.policyResponse()?.data ?? {});
   }
 
   /**
