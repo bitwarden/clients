@@ -250,22 +250,28 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    // update local state with the new integration settings
     if (response.success && response.organizationIntegrationResult) {
+      // update local state with the new integration settings
       this.state.updateIntegrationSettings(
         this.integrationSettings().name,
         response.organizationIntegrationResult,
       );
-    }
 
-    this.toastService.showToast({
-      variant: "success",
-      title: "",
-      message: this.i18nService.t(
-        "integrationConnectedSuccessfully",
-        this.integrationSettings().name,
-      ),
-    });
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t(
+          "integrationConnectedSuccessfully",
+          this.integrationSettings().name,
+        ),
+      });
+    } else {
+      this.toastService.showToast({
+        variant: "error",
+        title: "",
+        message: this.i18nService.t("failedToSaveIntegration"),
+      });
+    }
   }
 
   /**
