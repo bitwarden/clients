@@ -124,19 +124,30 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Check PqP status
+    // Check PqP status and determine if auto-submit is possible
     await this.checkPqpStatus();
+
+    // Gate auto-submit on whether a password can actually be derived
+    if (this.pqpReady && this.email) {
+      const pqpEmail = this.pqpAuthService.userEmail;
+      if (pqpEmail && this.email.toLowerCase() === pqpEmail.toLowerCase()) {
+        this.pqpAutoSubmitting = await this.pqpAuthService.canDerivePassword();
+      }
+    }
 
     this.loading = false;
 
     // After loading=false, Angular renders InputPasswordComponent (hidden).
-    // ngOnChanges patches the form values. Then we trigger submit.
+    // We ephemerally patch the form with the derived password and trigger submit.
     if (this.pqpAutoSubmitting) {
       setTimeout(async () => {
         const inputPasswordComponent = this.inputPasswordComponent();
         if (inputPasswordComponent) {
           try {
-            await inputPasswordComponent.submit();
+            await this.pqpAuthService.withDerivedPassword(async (password) => {
+              inputPasswordComponent.patchPassword(password);
+              await inputPasswordComponent.submit();
+            });
           } catch (e) {
             this.logService.error("[PQP] Auto-submit failed, user can submit manually:", e);
           } finally {

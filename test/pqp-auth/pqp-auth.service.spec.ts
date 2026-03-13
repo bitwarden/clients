@@ -17,6 +17,7 @@ jest.mock("@ovrlab/pqp-network", () => ({
   login: jest.fn(),
   authenticationService: {
     derivePasswordForBitwarden: jest.fn(),
+    withPassword: jest.fn(),
   },
   ServiceLocator: {
     getMessaging: jest.fn(),
@@ -26,6 +27,7 @@ jest.mock("@ovrlab/pqp-network", () => ({
 const mockIsPqpLoggedIn = isPqpLoggedIn as jest.Mock;
 const mockGetUserInfo = getUserInfo as jest.Mock;
 const mockDerivePassword = authenticationService.derivePasswordForBitwarden as jest.Mock;
+const mockWithPassword = authenticationService.withPassword as jest.Mock;
 const mockGetMessaging = ServiceLocator.getMessaging as jest.Mock;
 
 describe("PqpAuthService", () => {
@@ -121,22 +123,67 @@ describe("PqpAuthService", () => {
     });
   });
 
-  describe("getDerivedPassword", () => {
-    it("should derive password on-demand using authenticationService", async () => {
+  describe("canDerivePassword", () => {
+    it("should return true when password can be derived", async () => {
       mockDerivePassword.mockResolvedValue("hashed-password");
 
-      const password = await service.getDerivedPassword();
+      const result = await service.canDerivePassword();
 
       expect(mockDerivePassword).toHaveBeenCalled();
-      expect(password).toBe("hashed-password");
+      expect(result).toBe(true);
     });
 
-    it("should return null if derivation fails", async () => {
+    it("should return false if derivation fails", async () => {
       mockDerivePassword.mockRejectedValue(new Error("Derivation error"));
 
-      const password = await service.getDerivedPassword();
+      const result = await service.canDerivePassword();
 
-      expect(password).toBeNull();
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("withDerivedPassword", () => {
+    it("should pass password to callback via authenticationService.withPassword", async () => {
+      mockWithPassword.mockImplementation(async (cb: (pw: string) => Promise<string>) =>
+        cb("hashed-password"),
+      );
+
+      const result = await service.withDerivedPassword(async (pw) => {
+        return pw + "-used";
+      });
+
+      expect(mockWithPassword).toHaveBeenCalled();
+      expect(result).toBe("hashed-password-used");
+    });
+
+    it("should throw when derivation fails", async () => {
+      mockWithPassword.mockRejectedValue(new Error("Not logged in"));
+
+      await expect(service.withDerivedPassword(async () => "anything")).rejects.toThrow(
+        "Not logged in",
+      );
+    });
+  });
+
+  describe("buildPqpLoginCredentials", () => {
+    it("should build credentials using withPassword", async () => {
+      mockWithPassword.mockImplementation(async (cb: (pw: string) => Promise<any>) =>
+        cb("hashed-password"),
+      );
+
+      const credentials = await service.buildPqpLoginCredentials("test@example.com");
+
+      expect(mockWithPassword).toHaveBeenCalled();
+      expect(credentials.email).toBe("test@example.com");
+      expect(credentials.masterPassword).toBe("hashed-password");
+    });
+
+    it("should throw when password derivation fails", async () => {
+      mockWithPassword.mockRejectedValue(new Error("Cannot derive"));
+
+      await expect(service.buildPqpLoginCredentials("test@example.com")).rejects.toThrow(
+        "Cannot derive",
+      );
     });
   });
 
@@ -157,26 +204,6 @@ describe("PqpAuthService", () => {
       expect(service.networkLoggedIn).toBe(false);
       expect(service.userEmail).toBeNull();
       expect(service.isReady).toBe(false);
-    });
-  });
-
-  describe("buildPqpLoginCredentials", () => {
-    it("should build credentials when derived password is available", async () => {
-      mockDerivePassword.mockResolvedValue("hashed-password");
-
-      const credentials = await service.buildPqpLoginCredentials("test@example.com");
-
-      expect(mockDerivePassword).toHaveBeenCalled();
-      expect(credentials.email).toBe("test@example.com");
-      expect(credentials.masterPassword).toBe("hashed-password");
-    });
-
-    it("should throw when derived password is not available", async () => {
-      mockDerivePassword.mockResolvedValue(null);
-
-      await expect(service.buildPqpLoginCredentials("test@example.com")).rejects.toThrow(
-        "PQP derived password is not available",
-      );
     });
   });
 
