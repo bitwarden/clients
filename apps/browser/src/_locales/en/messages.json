@@ -1148,6 +1148,15 @@
     "message": "Automatically clear copied values from your clipboard.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Clipboard setting updated"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
+  },
+  "jumpToSetting": {
+    "message": "Jump to setting"
+  },
   "notificationAddDesc": {
     "message": "Should Bitwarden remember this password for you?"
   },
