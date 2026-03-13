@@ -31,8 +31,11 @@ export class ExtensionChangePasswordService
   }
 
   /**
-   * In the extension, the user can popout the extension view and if we don't have a root navigation call, then
-   * the user is left on the change-password page after changing their password.
+   * In the extension, if there is a "next account" user who is unlocked, if we do not route to root
+   * the user is left on the change-password page after changing their password. See `switchAccount()`
+   * in main.background.ts: when we send an "unlocked" message there is no subsequent routing, so we
+   * must route to root from the ChangePasswordComponent. [Note: LogoutService behavior and routing will
+   * be investigated in https://bitwarden.atlassian.net/browse/PM-32660]
    *
    * @returns true
    */
