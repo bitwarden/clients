@@ -2,7 +2,6 @@ import { ScrollingModule } from "@angular/cdk/scrolling";
 import { NgModule } from "@angular/core";
 
 import { ScrollLayoutDirective } from "@bitwarden/components";
-import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 
@@ -22,7 +21,6 @@ import { AccessSelectorModule } from "./shared/components/access-selector";
     HeaderModule,
     ScrollingModule,
     ScrollLayoutDirective,
-    OrganizationWarningsModule,
   ],
   declarations: [GroupsComponent, GroupAddEditComponent],
 })

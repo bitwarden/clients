@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Learn more about the transfer"
   },
+  "promptUsersToMoveItems": {
+    "message": "Prompt users to move individual vault items to the organization"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
   "organizationDataOwnership": {
     "message": "Thực thi quyền sở hữu dữ liệu của tổ chức"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Khả dụng bây giờ"
   },
-  "autoConfirm": {
-    "message": "Tự động xác nhận người dùng mới"
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
   },
   "autoConfirmDescription": {
     "message": "Người dùng mới được mời vào tổ chức sẽ tự động được xác nhận khi thiết bị của quản trị viên đang mở khóa.",
