@@ -16,7 +16,6 @@ DIRT team documentation follows a **team/feature** hierarchy organized across mu
 
 **Contains:**
 
-- Team playbooks (service, component, documentation)
 - Team coding standards
 - Integration guides
 - Getting started guide
@@ -88,9 +87,6 @@ bitwarden_license/bit-common/src/dirt/
 │   ├── getting-started.md                       ← Entry point for team
 │   ├── documentation-structure.md               ← This file
 │   ├── integration-guide.md                     ← Service ↔ Component integration
-│   │
-│   ├── playbooks/                               ← Team playbooks (service, component, docs)
-│   │   └── README.md                            ← Playbook navigation
 │   │
 │   ├── standards/                               ← Team coding standards
 │   │   └── standards.md                         ← Core standards

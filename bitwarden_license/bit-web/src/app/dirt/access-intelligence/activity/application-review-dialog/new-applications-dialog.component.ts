@@ -9,8 +9,8 @@ import {
   Signal,
   signal,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { firstValueFrom } from "rxjs";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { finalize, firstValueFrom, take } from "rxjs";
 
 import {
   ApplicationHealthReportDetail,
@@ -34,7 +34,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { CipherIcon } from "../../shared/app-table-row-scrollable.component";
-import { AccessIntelligenceSecurityTasksService } from "../../shared/security-tasks.service";
+import { SecurityTasksService } from "../../v2/services/abstractions/security-tasks.service";
 
 import { AssignTasksViewComponent } from "./assign-tasks-view.component";
 import { ReviewApplicationsViewComponent } from "./review-applications-view.component";
@@ -157,7 +157,7 @@ export class NewApplicationsDialogComponent {
     private i18nService: I18nService,
     private injector: Injector,
     private logService: LogService,
-    private securityTasksService: AccessIntelligenceSecurityTasksService,
+    private securityTasksService: SecurityTasksService,
     private toastService: ToastService,
   ) {
     this.setApplicationIconMap(this.dialogParams.newApplications);
@@ -300,47 +300,53 @@ export class NewApplicationsDialogComponent {
   }
 
   // Saves the application review and assigns tasks for unassigned at-risk ciphers
-  protected async handleAssignTasks() {
+  protected handleAssignTasks(): void {
     if (this.saving()) {
       return; // Prevent double-click
     }
     this.saving.set(true);
 
-    try {
-      await this.securityTasksService.requestPasswordChangeForCriticalApplications(
+    this.securityTasksService
+      .requestPasswordChangeForCriticalApplications$(
         this.dialogParams.organizationId,
         this.newUnassignedAtRiskCipherIds(),
-      );
+      )
+      .pipe(
+        take(1),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.saving.set(false)),
+      )
+      .subscribe({
+        next: () => {
+          this.toastService.showToast({
+            variant: "success",
+            title: this.i18nService.t("success"),
+            message: this.i18nService.t("notifiedMembers"),
+          });
 
-      this.toastService.showToast({
-        variant: "success",
-        title: this.i18nService.t("success"),
-        message: this.i18nService.t("notifiedMembers"),
+          // close the dialog
+          this.handleAssigningCompleted();
+        },
+        error: (error: unknown) => {
+          if (error instanceof ErrorResponse && error.statusCode === 404) {
+            this.toastService.showToast({
+              message: this.i18nService.t("mustBeOrganizationOwnerAdmin"),
+              variant: "error",
+              title: this.i18nService.t("error"),
+            });
+
+            return;
+          }
+
+          this.logService.error("[NewApplicationsDialog] Failed to assign tasks", error);
+
+          this.toastService.showToast({
+            message: this.i18nService.t("unexpectedError"),
+            variant: "error",
+            title: this.i18nService.t("error"),
+          });
+        },
       });
-
-      // close the dialog
-      this.handleAssigningCompleted();
-    } catch (error: unknown) {
-      if (error instanceof ErrorResponse && error.statusCode === 404) {
-        this.toastService.showToast({
-          message: this.i18nService.t("mustBeOrganizationOwnerAdmin"),
-          variant: "error",
-          title: this.i18nService.t("error"),
-        });
-
-        return;
-      }
-
-      this.logService.error("[NewApplicationsDialog] Failed to assign tasks", error);
-
-      this.toastService.showToast({
-        message: this.i18nService.t("unexpectedError"),
-        variant: "error",
-        title: this.i18nService.t("error"),
-      });
-    } finally {
-      this.saving.set(false);
-    }
   }
 
   /**

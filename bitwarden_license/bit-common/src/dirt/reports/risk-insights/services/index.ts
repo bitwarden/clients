@@ -1,14 +1,15 @@
-export * from "./abstractions/cipher-health.service";
+// API Services
 export * from "./api/critical-apps-api.service";
 export * from "./api/member-cipher-details-api.service";
 export * from "./api/risk-insights-api.service";
 export * from "./api/security-tasks-api.service";
+
+// Domain Services (legacy)
 export * from "./domain/critical-apps.service";
 export * from "./domain/password-health.service";
-export * from "./domain/risk-insights-encryption.service";
 export * from "./domain/risk-insights-orchestrator.service";
 export * from "./domain/risk-insights-report.service";
-export * from "./implementations/default-cipher-health.service";
-export * from "./implementations/default-member-cipher-mapping.service";
+
+// View Services (legacy)
 export * from "./view/all-activities.service";
 export * from "./view/risk-insights-data.service";

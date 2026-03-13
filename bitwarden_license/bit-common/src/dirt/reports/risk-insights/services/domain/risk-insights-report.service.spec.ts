@@ -6,12 +6,16 @@ import { makeEncString } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
-import { DecryptedReportData, EncryptedDataWithKey } from "../../models";
+import { AccessReportMetrics } from "../../../../access-intelligence/models";
+import {
+  EncryptedDataWithKey,
+  LegacyRiskInsightsEncryptionService,
+} from "../../../../access-intelligence/services";
+import { DecryptedReportData } from "../../models";
 import {
   GetRiskInsightsReportResponse,
   SaveRiskInsightsReportResponse,
 } from "../../models/api-models.types";
-import { RiskInsightsMetrics } from "../../models/domain/risk-insights-metrics";
 import { mockCiphers } from "../../models/mocks/ciphers.mock";
 import { mockMemberCipherDetailsResponse } from "../../models/mocks/member-cipher-details-response.mock";
 import {
@@ -26,7 +30,6 @@ import { MemberCipherDetailsApiService } from "../api/member-cipher-details-api.
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
 
 import { PasswordHealthService } from "./password-health.service";
-import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
 
 describe("RiskInsightsReportService", () => {
@@ -37,7 +40,7 @@ describe("RiskInsightsReportService", () => {
   const memberCipherDetailsService = mock<MemberCipherDetailsApiService>();
   const mockPasswordHealthService = mock<PasswordHealthService>();
   const mockRiskInsightsApiService = mock<RiskInsightsApiService>();
-  const mockRiskInsightsEncryptionService = mock<RiskInsightsEncryptionService>({
+  const mockRiskInsightsEncryptionService = mock<LegacyRiskInsightsEncryptionService>({
     encryptRiskInsightsReport: jest.fn().mockResolvedValue("encryptedReportData"),
     decryptRiskInsightsReport: jest.fn().mockResolvedValue("decryptedReportData"),
   });
@@ -132,7 +135,7 @@ describe("RiskInsightsReportService", () => {
           mockReportData,
           mockSummaryData,
           mockApplicationData,
-          new RiskInsightsMetrics(),
+          new AccessReportMetrics(),
           {
             organizationId: mockOrganizationId,
             userId: mockUserId,

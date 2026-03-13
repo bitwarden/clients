@@ -15,8 +15,8 @@ import { concat, EMPTY, firstValueFrom, of } from "rxjs";
 import { concatMap, delay, distinctUntilChanged, map, skip, tap } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { DrawerType } from "@bitwarden/bit-common/dirt/access-intelligence";
 import {
-  DrawerType,
   ReportProgress,
   ReportStatus,
   RiskInsightsDataService,

@@ -9,12 +9,13 @@ import {
 } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { getUniqueMembers } from "../../helpers/risk-insights-data-mappers";
+import { AccessReportMetrics } from "../../../../access-intelligence/models";
+import { LegacyRiskInsightsEncryptionService } from "../../../../access-intelligence/services";
+import { getUniqueMembers } from "../../helpers";
 import {
   isSaveRiskInsightsReportResponse,
   SaveRiskInsightsReportResponse,
 } from "../../models/api-models.types";
-import { RiskInsightsMetrics } from "../../models/domain/risk-insights-metrics";
 import {
   ApplicationHealthReportDetail,
   OrganizationReportSummary,
@@ -25,12 +26,10 @@ import {
 } from "../../models/report-models";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
 
-import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
-
 export class RiskInsightsReportService {
   constructor(
     private riskInsightsApiService: RiskInsightsApiService,
-    private riskInsightsEncryptionService: RiskInsightsEncryptionService,
+    private riskInsightsEncryptionService: LegacyRiskInsightsEncryptionService,
   ) {}
 
   filterApplicationsByCritical(
@@ -227,7 +226,7 @@ export class RiskInsightsReportService {
     report: ApplicationHealthReportDetail[],
     summary: OrganizationReportSummary,
     applications: OrganizationReportApplication[],
-    metrics: RiskInsightsMetrics,
+    metrics: AccessReportMetrics,
     encryptionParameters: {
       organizationId: OrganizationId;
       userId: UserId;
@@ -261,7 +260,7 @@ export class RiskInsightsReportService {
               summaryData: encryptedSummaryData.toSdk(),
               applicationData: encryptedApplicationData.toSdk(),
               contentEncryptionKey: contentEncryptionKey.toSdk(),
-              metrics: metrics.toRiskInsightsMetricsData(),
+              metrics: metrics.toAccessReportMetricsData(),
             },
           },
           // Keep the original EncString alongside the SDK payload so downstream can return the EncString type.

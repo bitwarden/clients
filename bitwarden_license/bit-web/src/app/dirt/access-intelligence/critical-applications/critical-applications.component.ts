@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { catchError, debounceTime, EMPTY, from, map, switchMap, take } from "rxjs";
+import { catchError, debounceTime, EMPTY, map, switchMap, take } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
@@ -32,7 +32,7 @@ import {
   ApplicationTableDataSource,
   AppTableRowScrollableComponent,
 } from "../shared/app-table-row-scrollable.component";
-import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks.service";
+import { SecurityTasksService } from "../v2/services/abstractions/security-tasks.service";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -68,7 +68,7 @@ export class CriticalApplicationsComponent implements OnInit {
     protected i18nService: I18nService,
     protected reportService: RiskInsightsReportService,
     protected router: Router,
-    private securityTasksService: AccessIntelligenceSecurityTasksService,
+    private securityTasksService: SecurityTasksService,
     protected toastService: ToastService,
   ) {
     this.searchControl.valueChanges
@@ -156,11 +156,9 @@ export class CriticalApplicationsComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef), // Satisfy eslint rule
         take(1), // Handle unsubscribe for one off operation
         switchMap((cipherIds) =>
-          from(
-            this.securityTasksService.requestPasswordChangeForCriticalApplications(
-              this.organizationId,
-              cipherIds,
-            ),
+          this.securityTasksService.requestPasswordChangeForCriticalApplications$(
+            this.organizationId,
+            cipherIds,
           ),
         ),
         catchError((error: unknown) => {

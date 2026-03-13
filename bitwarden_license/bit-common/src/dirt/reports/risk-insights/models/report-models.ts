@@ -45,6 +45,8 @@ export type CipherHealthReport = {
  * All applications report summary. The total members,
  * total at risk members, application, and at risk application
  * counts. Aggregated from all calculated applications
+ *
+ * @deprecated Use {@link AccessReportSummaryView} instead. Will be removed when V1 code is deleted.
  */
 export type OrganizationReportSummary = {
   totalMemberCount: number;
@@ -60,6 +62,8 @@ export type OrganizationReportSummary = {
 /**
  * An entry for an organization application and if it is
  * marked as critical
+ *
+ * @deprecated Use {@link AccessReportSettingsView} instead. Will be removed when V1 code is deleted.
  */
 export type OrganizationReportApplication = {
   applicationName: string;
@@ -74,6 +78,8 @@ export type OrganizationReportApplication = {
 /**
  * Report details for an application
  * uri. Has the at risk, password, and member information
+ *
+ * @deprecated Use {@link ApplicationHealthView} instead. Will be removed when V1 code is deleted.
  */
 export type ApplicationHealthReportDetail = {
   applicationName: string;
@@ -108,16 +114,19 @@ export const ReportStatus = Object.freeze({
 export type ReportStatus = (typeof ReportStatus)[keyof typeof ReportStatus];
 
 export const ReportProgress = Object.freeze({
-  FetchingMembers: 1,
-  AnalyzingPasswords: 2,
-  CalculatingRisks: 3,
-  GeneratingReport: 4,
-  Saving: 5,
-  Complete: 6,
+  FetchingMembers: "fetching-members",
+  AnalyzingPasswords: "analyzing-passwords",
+  CalculatingRisks: "calculating-risks",
+  GeneratingReport: "generating-report",
+  Saving: "saving",
+  Complete: "complete",
 } as const);
 
 export type ReportProgress = (typeof ReportProgress)[keyof typeof ReportProgress];
 
+/**
+ * @deprecated Use {@link AccessReportView} instead. Will be removed when V1 code is deleted.
+ */
 export interface RiskInsightsData {
   id: OrganizationReportId;
   creationDate: Date;
@@ -132,13 +141,3 @@ export interface ReportState {
   error: string | null;
   data: RiskInsightsData | null;
 }
-
-// TODO Make Versioned models for structure changes
-// export type VersionedRiskInsightsData = RiskInsightsDataV1 | RiskInsightsDataV2;
-// export interface RiskInsightsDataV1 {
-//   version: 1;
-//   creationDate: Date;
-//   reportData: ApplicationHealthReportDetail[];
-//   summaryData: OrganizationReportSummary;
-//   applicationData: OrganizationReportApplication[];
-// }

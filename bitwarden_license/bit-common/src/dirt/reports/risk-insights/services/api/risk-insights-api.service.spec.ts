@@ -7,7 +7,8 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { makeEncString } from "@bitwarden/common/spec";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
-import { EncryptedDataWithKey } from "../../models";
+import { AccessReportMetrics } from "../../../../access-intelligence/models";
+import { EncryptedDataWithKey } from "../../../../access-intelligence/services";
 import {
   GetRiskInsightsApplicationDataResponse,
   GetRiskInsightsReportResponse,
@@ -15,7 +16,6 @@ import {
   SaveRiskInsightsReportRequest,
   SaveRiskInsightsReportResponse,
 } from "../../models/api-models.types";
-import { RiskInsightsMetrics } from "../../models/domain/risk-insights-metrics";
 import { mockApplicationData, mockReportData, mockSummaryData } from "../../models/mocks/mock-data";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
 
@@ -34,7 +34,7 @@ describe("RiskInsightsApiService", () => {
   const mockSummaryEnc = makeEncString(JSON.stringify(mockSummaryData));
   const mockApplicationsEnc = makeEncString(JSON.stringify(mockApplicationData));
 
-  const mockMetrics: RiskInsightsMetrics = new RiskInsightsMetrics();
+  const mockMetrics: AccessReportMetrics = new AccessReportMetrics();
   mockMetrics.totalApplicationCount = 3;
   mockMetrics.totalAtRiskApplicationCount = 1;
   mockMetrics.totalAtRiskMemberCount = 2;
@@ -56,7 +56,7 @@ describe("RiskInsightsApiService", () => {
       summaryData: mockReportEnc.decryptedValue ?? "",
       applicationData: mockReportEnc.decryptedValue ?? "",
       contentEncryptionKey: mockReportKey.decryptedValue ?? "",
-      metrics: mockMetrics.toRiskInsightsMetricsData(),
+      metrics: mockMetrics.toAccessReportMetricsData(),
     },
   };
 
@@ -211,7 +211,7 @@ describe("RiskInsightsApiService", () => {
       service.updateRiskInsightsSummary$(reportId, orgId, {
         data: {
           summaryData: data.encryptedSummaryData.encryptedString!,
-          metrics: mockMetrics.toRiskInsightsMetricsData(),
+          metrics: mockMetrics.toAccessReportMetricsData(),
         },
       }),
     );
@@ -221,7 +221,7 @@ describe("RiskInsightsApiService", () => {
       `/reports/organizations/${orgId.toString()}/data/summary/${reportId.toString()}`,
       {
         summaryData: data.encryptedSummaryData.encryptedString!,
-        metrics: mockMetrics.toRiskInsightsMetricsData(),
+        metrics: mockMetrics.toAccessReportMetricsData(),
         reportId,
         organizationId: orgId,
       },

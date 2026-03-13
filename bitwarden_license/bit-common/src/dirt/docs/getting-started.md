@@ -32,13 +32,12 @@ The **DIRT team** (Data, Insights, Reporting & Tooling) owns:
 
 ### Development Resources
 
-| Resource Type           | What It Provides                                        | Where to Find It                                                                                                       |
-| ----------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| **Playbooks**           | Step-by-step implementation guides for common dev tasks | [Playbooks Hub](./playbooks/)                                                                                          |
-| **Standards**           | Coding conventions, patterns, and best practices        | [Standards Hub](./standards/README.md)                                                                                 |
-| **Architecture**        | Feature architecture reviews and migration plans        | [Access Intelligence Architecture](./access-intelligence/architecture/)                                                |
-| **Integration Guides**  | How services and components work together               | [Generic Guide](./integration-guide.md), [Access Intelligence](./access-intelligence/service-component-integration.md) |
-| **Documentation Guide** | How docs are organized and where to find things         | [Documentation Structure](./documentation-structure.md)                                                                |
+| Resource Type           | What It Provides                                 | Where to Find It                                                                                                       |
+| ----------------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| **Standards**           | Coding conventions, patterns, and best practices | [Standards Hub](./standards/README.md)                                                                                 |
+| **Architecture**        | Feature architecture reviews and migration plans | [Access Intelligence Architecture](./access-intelligence/architecture/)                                                |
+| **Integration Guides**  | How services and components work together        | [Generic Guide](./integration-guide.md), [Access Intelligence](./access-intelligence/service-component-integration.md) |
+| **Documentation Guide** | How docs are organized and where to find things  | [Documentation Structure](./documentation-structure.md)                                                                |
 
 ### Standards by Area
 
@@ -54,30 +53,21 @@ The **DIRT team** (Data, Insights, Reporting & Tooling) owns:
 | **Code Organization**  | [Code Organization Standards](./standards/code-organization-standards.md)  |
 | **Documentation**      | [Documentation Standards](./standards/documentation-standards.md)          |
 
-### Playbooks by Task
-
-| Task                                 | Playbook                                                                          |
-| ------------------------------------ | --------------------------------------------------------------------------------- |
-| **Implement or refactor a service**  | [Service Implementation Playbook](./playbooks/service-implementation-playbook.md) |
-| **Migrate or create a UI component** | [Component Migration Playbook](./playbooks/component-migration-playbook.md)       |
-| **Create or update documentation**   | [Documentation Playbook](./playbooks/documentation-playbook.md)                   |
-| **Browse all playbooks**             | [Playbooks Hub](./playbooks/)                                                     |
-
 ---
 
 ## 🚀 Quick Reference by Task
 
-| What are you working on?                             | Start here                                                                                                                                                                                   |
-| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Services** (implementation, architecture, testing) | [Service Playbook](./playbooks/service-implementation-playbook.md) + [Service Standards](./standards/service-standards.md)                                                                   |
-| **Domain Models** (view models, query methods)       | [Service Playbook](./playbooks/service-implementation-playbook.md) + [Model Standards](./standards/model-standards.md)                                                                       |
-| **UI Components** (Angular, migration, testing)      | [Component Playbook](./playbooks/component-migration-playbook.md) + [Angular Standards](./standards/angular-standards.md)                                                                    |
-| **Storybook** (create or update stories)             | [Component Playbook](./playbooks/component-migration-playbook.md) + [Component Testing Standards § Storybook](./standards/testing-standards-components.md#storybook-as-living-documentation) |
-| **Component Tests** (Jest, OnPush, Signals)          | [Component Playbook](./playbooks/component-migration-playbook.md) + [Component Testing Standards](./standards/testing-standards-components.md)                                               |
-| **Service Tests** (mocks, observables, RxJS)         | [Service Playbook](./playbooks/service-implementation-playbook.md) + [Service Testing Standards](./standards/testing-standards-services.md)                                                  |
-| **Documentation** (create, update, organize)         | [Documentation Playbook](./playbooks/documentation-playbook.md) + [Documentation Standards](./standards/documentation-standards.md)                                                          |
-| **Architecture Review** (feature planning)           | [Access Intelligence Architecture](./access-intelligence/architecture/)                                                                                                                      |
-| **Feature Architecture Decisions**                   | Document in [docs/[feature]/architecture/](./documentation-structure.md#feature-level-documentation) (decisions tracked in Confluence)                                                       |
+| What are you working on?                             | Start here                                                                                                                             |
+| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **Services** (implementation, architecture, testing) | [Service Standards](./standards/service-standards.md)                                                                                  |
+| **Domain Models** (view models, query methods)       | [Model Standards](./standards/model-standards.md)                                                                                      |
+| **UI Components** (Angular, migration, testing)      | [Angular Standards](./standards/angular-standards.md)                                                                                  |
+| **Storybook** (create or update stories)             | [Component Testing Standards § Storybook](./standards/testing-standards-components.md#storybook-as-living-documentation)               |
+| **Component Tests** (Jest, OnPush, Signals)          | [Component Testing Standards](./standards/testing-standards-components.md)                                                             |
+| **Service Tests** (mocks, observables, RxJS)         | [Service Testing Standards](./standards/testing-standards-services.md)                                                                 |
+| **Documentation** (create, update, organize)         | [Documentation Standards](./standards/documentation-standards.md)                                                                      |
+| **Architecture Review** (feature planning)           | [Access Intelligence Architecture](./access-intelligence/architecture/)                                                                |
+| **Feature Architecture Decisions**                   | Document in [docs/[feature]/architecture/](./documentation-structure.md#feature-level-documentation) (decisions tracked in Confluence) |
 
 ---
 
@@ -91,6 +81,6 @@ The **DIRT team** (Data, Insights, Reporting & Tooling) owns:
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2026-02-17
+**Document Version:** 1.1
+**Last Updated:** 2026-03-12
 **Maintainer:** DIRT Team

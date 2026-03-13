@@ -10,8 +10,8 @@ import {
   input,
   signal,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { map } from "rxjs";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { map, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -29,7 +29,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-import { AccessIntelligenceSecurityTasksService } from "../../shared/security-tasks.service";
+import { SecurityTasksService } from "../../v2/services/abstractions/security-tasks.service";
 
 export const PasswordChangeView = {
   EMPTY: "empty",
@@ -103,7 +103,7 @@ export class PasswordChangeMetricComponent implements OnInit {
     private allActivitiesService: AllActivitiesService,
     private i18nService: I18nService,
     private riskInsightsDataService: RiskInsightsDataService,
-    protected securityTasksService: AccessIntelligenceSecurityTasksService,
+    protected securityTasksService: SecurityTasksService,
     private toastService: ToastService,
   ) {
     this._tasks = toSignal(this.securityTasksService.tasks$, { initialValue: [] });
@@ -122,36 +122,44 @@ export class PasswordChangeMetricComponent implements OnInit {
     });
   }
 
-  async ngOnInit(): Promise<void> {
-    await this.securityTasksService.loadTasks(this.organizationId());
+  ngOnInit(): void {
+    this.securityTasksService
+      .loadTasks$(this.organizationId())
+      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe();
   }
 
-  async assignTasks() {
-    try {
-      await this.securityTasksService.requestPasswordChangeForCriticalApplications(
+  assignTasks(): void {
+    this.securityTasksService
+      .requestPasswordChangeForCriticalApplications$(
         this.organizationId(),
         this._unassignedCipherIds(),
-      );
-      this.toastService.showToast({
-        message: this.i18nService.t("notifiedMembers"),
-        variant: "success",
-        title: this.i18nService.t("success"),
-      });
-    } catch (error) {
-      if (error instanceof ErrorResponse && error.statusCode === 404) {
-        this.toastService.showToast({
-          message: this.i18nService.t("mustBeOrganizationOwnerAdmin"),
-          variant: "error",
-          title: this.i18nService.t("error"),
-        });
-        return;
-      }
+      )
+      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toastService.showToast({
+            message: this.i18nService.t("notifiedMembers"),
+            variant: "success",
+            title: this.i18nService.t("success"),
+          });
+        },
+        error: (error: unknown) => {
+          if (error instanceof ErrorResponse && error.statusCode === 404) {
+            this.toastService.showToast({
+              message: this.i18nService.t("mustBeOrganizationOwnerAdmin"),
+              variant: "error",
+              title: this.i18nService.t("error"),
+            });
+            return;
+          }
 
-      this.toastService.showToast({
-        message: this.i18nService.t("unexpectedError"),
-        variant: "error",
-        title: this.i18nService.t("error"),
+          this.toastService.showToast({
+            message: this.i18nService.t("unexpectedError"),
+            variant: "error",
+            title: this.i18nService.t("error"),
+          });
+        },
       });
-    }
   }
 }

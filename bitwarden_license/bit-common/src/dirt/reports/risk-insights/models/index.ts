@@ -4,5 +4,3 @@ export * from "./report-data-service.types";
 export * from "./report-encryption.types";
 export * from "./report-models";
 export * from "./drawer-models.types";
-export * from "./view/cipher-health.view";
-export * from "./view/risk-insights.view";

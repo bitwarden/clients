@@ -1,15 +1,8 @@
+import { DrawerType } from "../../../access-intelligence/services";
+
 import { MemberDetails } from "./report-models";
 
 // -------------------- Drawer and UI Models --------------------
-
-export const DrawerType = {
-  None: 0,
-  AppAtRiskMembers: 1,
-  OrgAtRiskMembers: 2,
-  OrgAtRiskApps: 3,
-} as const;
-
-export type DrawerType = (typeof DrawerType)[keyof typeof DrawerType];
 
 export type DrawerDetails = {
   open: boolean;

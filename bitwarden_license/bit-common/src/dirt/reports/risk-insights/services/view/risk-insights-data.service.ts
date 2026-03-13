@@ -3,11 +3,11 @@ import { distinctUntilChanged, map } from "rxjs/operators";
 
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 
+import { DrawerType } from "../../../../access-intelligence/services";
 import { getAtRiskApplicationList, getAtRiskMemberList } from "../../helpers";
 import {
   ReportState,
   DrawerDetails,
-  DrawerType,
   RiskInsightsEnrichedData,
   ReportStatus,
   ReportProgress,
