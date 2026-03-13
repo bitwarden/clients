@@ -89,7 +89,7 @@
     "@typescript-eslint/rule-tester": "8.31.0",
     "@typescript-eslint/utils": "8.31.0",
     "@webcomponents/custom-elements": "1.6.0",
-    "@yao-pkg/pkg": "6.5.1",
+    "@yao-pkg/pkg": "6.14.0",
     "angular-eslint": "20.7.0",
     "autoprefixer": "10.4.22",
     "axe-playwright": "2.2.2",
@@ -225,7 +225,7 @@
     "@types/react": "18.3.27"
   },
   "engines": {
-    "node": ">=22.12.0",
-    "npm": "~10"
+    "node": ">=24.13.1",
+    "npm": "~11"
   }
 }
