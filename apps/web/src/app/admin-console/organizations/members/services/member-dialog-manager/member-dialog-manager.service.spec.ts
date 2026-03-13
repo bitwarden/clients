@@ -9,8 +9,8 @@ import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/m
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { EntityEventsComponent } from "../../../../../dirt/event-logs";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
-import { EntityEventsComponent } from "../../../manage/entity-events.component";
 import { AccountRecoveryDialogComponent } from "../../components/account-recovery/account-recovery-dialog.component";
 import { BulkConfirmDialogComponent } from "../../components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "../../components/bulk/bulk-delete-dialog.component";

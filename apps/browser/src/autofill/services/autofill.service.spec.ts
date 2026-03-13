@@ -14,7 +14,8 @@ import {
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventType } from "@bitwarden/common/dirt/event-logs";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs/services/event-collection.service";
 import { FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -22,7 +23,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import {
   FakeStateProvider,
   FakeAccountService,
