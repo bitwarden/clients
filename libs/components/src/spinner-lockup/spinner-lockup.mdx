@@ -1,0 +1,61 @@
+import { Meta, Primary, Controls, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./spinner-lockup.stories";
+
+<Meta of={stories} />
+
+```ts
+import { SpinnerLockupComponent } from "@bitwarden/components";
+```
+
+# Spinner Lockup
+
+Spinner Lockup combines a spinner with title and body text for comprehensive loading states with
+context.
+
+<Canvas of={stories.PrimaryVariant} />
+
+## Layout
+
+Two layout options control the arrangement of spinner and text:
+
+- `horizontal` - Spinner and text side-by-side (default)
+- `vertical` - Spinner above text, centered
+
+## Variants
+
+All 7 spinner variants are supported: `primary`, `subtle`, `success`, `warning`, `danger`,
+`contrast`.
+
+## Sizes
+
+4 sizes are supported alongside Spinner: `sm`, `md`, `base`, `lg`.
+
+Text sizing scales automatically with the spinner size
+
+## Content Slots
+
+Slots support HTML content for emphasis and formatting:
+
+- `[title]` - Bold heading slot using semantic heading color
+- `[body]` - Normal body slot using semantic body color
+
+## All Vertical Variants
+
+<Canvas of={stories.AllVerticalVariants} />
+
+## All Vertical Sizes
+
+<Canvas of={stories.AllVerticalSizes} />
+
+## Vertical With Rich Content Danger Variant
+
+<Canvas of={stories.VerticalWithRichContentDangerVariant} />
+
+## All Horizontal Variants
+
+<Canvas of={stories.AllHorizontalVariants} />
+
+## All Horizontal Sizes
+
+<Canvas of={stories.AllHorizontalSizes} />

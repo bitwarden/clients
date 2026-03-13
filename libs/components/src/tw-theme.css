@@ -271,6 +271,7 @@
   /* Neutral Background */
   --color-bg-white: var(--color-white);
   --color-bg-dark: var(--color-gray-800);
+  --color-bg-contrast-soft: var(--color-gray-700);
   --color-bg-contrast: var(--color-gray-800);
   --color-bg-contrast-strong: var(--color-gray-950);
   --color-bg-primary: var(--color-white);
@@ -474,6 +475,7 @@
    * ======================================== */
 
   /* Neutral Background */
+  --color-bg-contrast-soft: var(--color-gray-200);
   --color-bg-contrast: var(--color-gray-050);
   --color-bg-contrast-strong: var(--color-gray-050);
   --color-bg-primary: var(--color-gray-900);
