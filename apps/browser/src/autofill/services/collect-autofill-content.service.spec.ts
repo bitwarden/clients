@@ -670,7 +670,6 @@ describe("CollectAutofillContentService", () => {
             <option value="1">1</option>
             <option value="2">2</option>
           </select>
-          <span data-bwautofill="true">Span Element</span>
         </form>
       </div>
       `;
@@ -678,7 +677,6 @@ describe("CollectAutofillContentService", () => {
       const passwordInput = document.querySelector('input[type="password"]');
       const commentsTextarea = document.getElementById("comments");
       const selectElement = document.getElementById("select");
-      const spanElement = document.querySelector('span[data-bwautofill="true"]');
       jest.spyOn(document, "querySelectorAll");
       jest.spyOn(collectAutofillContentService as any, "getPropertyOrAttribute");
 
@@ -686,30 +684,22 @@ describe("CollectAutofillContentService", () => {
         collectAutofillContentService["getAutofillFieldElements"]();
 
       expect(collectAutofillContentService["getPropertyOrAttribute"]).not.toHaveBeenCalled();
-      expect(formElements).toEqual([
-        usernameInput,
-        passwordInput,
-        commentsTextarea,
-        selectElement,
-        spanElement,
-      ]);
+      expect(formElements).toEqual([usernameInput, passwordInput, commentsTextarea, selectElement]);
     });
 
     it("returns up to 2 (passed as `limit`) form elements from the targeted document with more than 2 form elements", () => {
       document.body.innerHTML = `
         <div>
-          <span data-bwautofill="true">included span</span>
           <textarea name="user-bio" rows="10" cols="42">Tell us about yourself...</textarea>
           <span>ignored span</span>
           <select><option value="1">Option 1</option></select>
           <label for="username">username</label>
           <input type="text" id="username" />
           <input type="password" />
-          <span data-bwautofill="true">another included span</span>
         </div>
       `;
-      const spanElement = document.querySelector("span[data-bwautofill='true']");
       const textAreaInput = document.querySelector("textarea");
+      const selectElement = document.querySelector("select");
       jest.spyOn(collectAutofillContentService as any, "getPropertyOrAttribute");
 
       const formElements: FormFieldElement[] =
@@ -717,15 +707,15 @@ describe("CollectAutofillContentService", () => {
 
       expect(collectAutofillContentService["getPropertyOrAttribute"]).toHaveBeenNthCalledWith(
         1,
-        spanElement,
+        textAreaInput,
         "type",
       );
       expect(collectAutofillContentService["getPropertyOrAttribute"]).toHaveBeenNthCalledWith(
         2,
-        textAreaInput,
+        selectElement,
         "type",
       );
-      expect(formElements).toEqual([spanElement, textAreaInput]);
+      expect(formElements).toEqual([textAreaInput, selectElement]);
     });
 
     it("returns form elements from the targeted document, ignoring input types `hidden`, `submit`, `reset`, `button`, `image`, `file`, and inputs tagged with `data-bwignore`, while giving lower order priority to `checkbox` and `radio` inputs if the returned list is truncated by `limit", () => {
@@ -746,7 +736,6 @@ describe("CollectAutofillContentService", () => {
               <label for="option-c">Option C: Options A & B</label>
             </div>
           </fieldset>
-          <span data-bwautofill="true" id="first-span">included span</span>
           <textarea name="user-bio" rows="10" cols="42">Tell us about yourself...</textarea>
           <span>ignored span</span>
           <input type="checkbox" name="doYouWantToCheck" />
@@ -762,19 +751,16 @@ describe("CollectAutofillContentService", () => {
           <input type="file" multiple id="returned" />
           <input type="text" id="username" />
           <input type="password" />
-          <span data-bwautofill="true" id="second-span">another included span</span>
         </div>
       `;
       const inputRadioA = document.querySelector('input[type="radio"][value="option-a"]');
       const inputRadioB = document.querySelector('input[type="radio"][value="option-b"]');
       const inputRadioC = document.querySelector('input[type="radio"][value="option-c"]');
-      const firstSpan = document.getElementById("first-span");
       const textAreaInput = document.querySelector("textarea");
       const checkboxInput = document.querySelector('input[type="checkbox"]');
       const selectElement = document.querySelector("select");
       const usernameInput = document.getElementById("username");
       const passwordInput = document.querySelector('input[type="password"]');
-      const secondSpan = document.getElementById("second-span");
 
       const formElements: FormFieldElement[] =
         collectAutofillContentService["getAutofillFieldElements"]();
@@ -783,13 +769,11 @@ describe("CollectAutofillContentService", () => {
         inputRadioA,
         inputRadioB,
         inputRadioC,
-        firstSpan,
         textAreaInput,
         checkboxInput,
         selectElement,
         usernameInput,
         passwordInput,
-        secondSpan,
       ]);
     });
 
@@ -819,27 +803,24 @@ describe("CollectAutofillContentService", () => {
           <label for="username">username</label>
           <input type="text" id="username" />
           <input type="password" />
-          <span data-bwautofill="true">another included span</span>
         </div>
       `;
       const textAreaInput = document.querySelector("textarea");
       const selectElement = document.querySelector("select");
       const usernameInput = document.getElementById("username");
       const passwordInput = document.querySelector('input[type="password"]');
-      const includedSpan = document.querySelector('span[data-bwautofill="true"]');
       const checkboxInput = document.querySelector('input[type="checkbox"]');
       const inputRadioA = document.querySelector('input[type="radio"][value="option-a"]');
       const inputRadioB = document.querySelector('input[type="radio"][value="option-b"]');
 
       const truncatedFormElements: FormFieldElement[] =
-        collectAutofillContentService["getAutofillFieldElements"](8);
+        collectAutofillContentService["getAutofillFieldElements"](7);
 
       expect(truncatedFormElements).toEqual([
         textAreaInput,
         selectElement,
         usernameInput,
         passwordInput,
-        includedSpan,
         checkboxInput,
         inputRadioA,
         inputRadioB,

@@ -94,7 +94,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     for (const type of this.ignoredInputTypes) {
       inputQuery += `:not([type="${type}"])`;
     }
-    this.formFieldQueryString = `${inputQuery}, textarea:not([data-bwignore]), select:not([data-bwignore]), span[data-bwautofill]`;
+    this.formFieldQueryString = `${inputQuery}, textarea:not([data-bwignore]), select:not([data-bwignore])`;
   }
 
   get autofillFormElements(): AutofillFormElements {
@@ -960,12 +960,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     const nodeTagName = node.tagName.toLowerCase();
-
-    const nodeIsSpanElementWithAutofillAttribute =
-      nodeTagName === "span" && node.hasAttribute("data-bwautofill");
-    if (nodeIsSpanElementWithAutofillAttribute) {
-      return true;
-    }
 
     const nodeHasBwIgnoreAttribute = node.hasAttribute("data-bwignore");
     const nodeIsValidInputElement =
