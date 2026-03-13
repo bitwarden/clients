@@ -157,10 +157,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     }),
   );
 
-  protected premiumSpotlightFeatureFlag$ = this.configService.getFeatureFlag$(
-    FeatureFlag.BrowserPremiumSpotlight,
-  );
-
   protected readonly hasSearchText$ = this.vaultPopupItemsService.hasSearchText$;
   protected readonly numberOfAppliedFilters$ =
     this.vaultPopupListFiltersService.numberOfAppliedFilters$;
@@ -184,7 +180,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   );
 
   protected showPremiumSpotlight$ = combineLatest([
-    this.premiumSpotlightFeatureFlag$,
     this.activeUserId$.pipe(
       switchMap((userId) =>
         this.nudgesService.showNudgeSpotlight$(NudgeType.PremiumUpgrade, userId),
@@ -195,15 +190,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.cipherCount$,
     this.accountAgeInDays$,
   ]).pipe(
-    map(([featureFlagEnabled, showPremiumNudge, showHasItemsNudge, hasPremium, count, age]) => {
-      return (
-        featureFlagEnabled &&
-        showPremiumNudge &&
-        !showHasItemsNudge &&
-        !hasPremium &&
-        count >= 5 &&
-        age >= 7
-      );
+    map(([showPremiumNudge, showHasItemsNudge, hasPremium, count, age]) => {
+      return showPremiumNudge && !showHasItemsNudge && !hasPremium && count >= 5 && age >= 7;
     }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
