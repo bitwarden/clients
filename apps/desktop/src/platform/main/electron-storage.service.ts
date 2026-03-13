@@ -27,6 +27,10 @@ type Options = BaseOptions<"get"> | BaseOptions<"has"> | SaveOptions | BaseOptio
 
 export class ElectronStorageService implements AbstractStorageService {
   private store: ElectronStore;
+  private readonly flushDelayMs = 1000;
+  private cache: Record<string, unknown>;
+  private isDirty = false;
+  private flushTimeout: NodeJS.Timeout | null = null;
   private updatesSubject = new Subject<StorageUpdate>();
   updates$;
 
@@ -41,6 +45,7 @@ export class ElectronStorageService implements AbstractStorageService {
       configFileMode: fileMode,
     };
     this.store = new ElectronStore(storeConfig);
+    this.cache = { ...this.store.store };
     this.updates$ = this.updatesSubject.asObservable();
 
     ipcMain.handle("storageService", (event, options: Options) => {
@@ -62,12 +67,12 @@ export class ElectronStorageService implements AbstractStorageService {
   }
 
   get<T>(key: string): Promise<T> {
-    const val = this.store.get(key) as T;
+    const val = this.cache[key] as T;
     return Promise.resolve(val != null ? val : null);
   }
 
   has(key: string): Promise<boolean> {
-    const val = this.store.get(key);
+    const val = this.cache[key];
     return Promise.resolve(val != null);
   }
 
@@ -80,14 +85,63 @@ export class ElectronStorageService implements AbstractStorageService {
       obj = Array.from(obj);
     }
 
-    this.store.set(key, obj);
+    this.cache[key] = obj;
+    this.markDirty();
     this.updatesSubject.next({ key, updateType: "save" });
     return Promise.resolve();
   }
 
   remove(key: string): Promise<void> {
-    this.store.delete(key);
+    delete this.cache[key];
+    this.markDirty();
     this.updatesSubject.next({ key, updateType: "remove" });
     return Promise.resolve();
+  }
+
+  list(): Promise<string[]> {
+    return Promise.resolve(Object.keys(this.cache));
+  }
+
+  dispose(): void {
+    this.clearScheduledFlush();
+    this.flushToDisk();
+  }
+
+  private markDirty() {
+    if (this.isDirty) {
+      return;
+    }
+
+    this.isDirty = true;
+    this.scheduleFlush();
+  }
+
+  private scheduleFlush() {
+    if (this.flushTimeout != null) {
+      return;
+    }
+
+    this.flushTimeout = setTimeout(() => {
+      this.clearScheduledFlush();
+      this.flushToDisk();
+    }, this.flushDelayMs);
+  }
+
+  private clearScheduledFlush() {
+    if (this.flushTimeout == null) {
+      return;
+    }
+
+    clearTimeout(this.flushTimeout);
+    this.flushTimeout = null;
+  }
+
+  private flushToDisk() {
+    if (!this.isDirty) {
+      return;
+    }
+
+    this.store.store = { ...this.cache };
+    this.isDirty = false;
   }
 }
