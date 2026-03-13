@@ -1,3 +1,5 @@
+//! Inter-process communication for native messaging and IPC server/client.
+
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio_util::codec::{Framed, LengthDelimitedCodec};
 

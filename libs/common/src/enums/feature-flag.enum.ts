@@ -12,7 +12,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
-  DefaultUserCollectionRestore = "pm-30883-my-items-restored-users",
   BulkReinviteUI = "pm-28416-bulk-reinvite-ux-improvements",
 
   /* Auth */
@@ -47,15 +46,16 @@ export enum FeatureFlag {
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
   PasskeyUnlock = "pm-2035-passkey-unlock",
   DataRecoveryTool = "pm-28813-data-recovery-tool",
-  ConsolidatedSessionTimeoutComponent = "pm-26056-consolidated-session-timeout-component",
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
+  UnlockViaSDK = "unlock-via-sdk",
 
   /* Tools */
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
   SendUIRefresh = "pm-28175-send-ui-refresh",
   SendEmailOTP = "pm-19051-send-email-verification",
+  SendControls = "pm-31885-send-controls",
 
   /* DIRT */
   EventManagementForDataDogAndCrowdStrike = "event-management-for-datadog-and-crowdstrike",
@@ -68,7 +68,6 @@ export enum FeatureFlag {
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM22136_SdkCipherEncryption = "pm-22136-sdk-cipher-encryption",
   CipherKeyEncryption = "cipher-key-encryption",
-  BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
   MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
   PM30521_AutofillButtonViewLoginScreen = "pm-30521-autofill-button-view-login-screen",
@@ -85,9 +84,8 @@ export enum FeatureFlag {
   PM19148_InnovationArchive = "pm-19148-innovation-archive",
 
   /* Desktop */
-  DesktopUiMigrationMilestone1 = "desktop-ui-migration-milestone-1",
-  DesktopUiMigrationMilestone2 = "desktop-ui-migration-milestone-2",
   DesktopUiMigrationMilestone3 = "desktop-ui-migration-milestone-3",
+  DesktopUiMigrationMilestone4 = "desktop-ui-migration-milestone-4",
 
   /* UIF */
   RouterFocusManagement = "router-focus-management",
@@ -109,7 +107,6 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.AutoConfirm]: FALSE,
-  [FeatureFlag.DefaultUserCollectionRestore]: FALSE,
   [FeatureFlag.BulkReinviteUI]: FALSE,
 
   /* Autofill */
@@ -124,6 +121,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
   [FeatureFlag.SendUIRefresh]: FALSE,
   [FeatureFlag.SendEmailOTP]: FALSE,
+  [FeatureFlag.SendControls]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
@@ -136,7 +134,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
-  [FeatureFlag.BrowserPremiumSpotlight]: FALSE,
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
   [FeatureFlag.PM30521_AutofillButtonViewLoginScreen]: FALSE,
@@ -169,10 +166,10 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
   [FeatureFlag.PasskeyUnlock]: FALSE,
   [FeatureFlag.DataRecoveryTool]: FALSE,
-  [FeatureFlag.ConsolidatedSessionTimeoutComponent]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
+  [FeatureFlag.UnlockViaSDK]: FALSE,
 
   /* Platform */
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
@@ -182,9 +179,8 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM19148_InnovationArchive]: FALSE,
 
   /* Desktop */
-  [FeatureFlag.DesktopUiMigrationMilestone1]: FALSE,
-  [FeatureFlag.DesktopUiMigrationMilestone2]: FALSE,
   [FeatureFlag.DesktopUiMigrationMilestone3]: FALSE,
+  [FeatureFlag.DesktopUiMigrationMilestone4]: FALSE,
 
   /* UIF */
   [FeatureFlag.RouterFocusManagement]: FALSE,

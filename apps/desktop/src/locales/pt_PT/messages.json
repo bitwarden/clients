@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Favoritos"
   },
+  "unfavorite": {
+    "message": "Remover dos favoritos"
+  },
   "types": {
     "message": "Tipos"
   },
@@ -585,6 +588,12 @@
   },
   "editedItem": {
     "message": "Item guardado"
+  },
+  "itemAddedToFavorites": {
+    "message": "Item adicionado aos favoritos"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removido dos favoritos"
   },
   "deleteItem": {
     "message": "Eliminar item"
@@ -1555,6 +1564,18 @@
   "unknown": {
     "message": "Desconhecido"
   },
+  "copyAddress": {
+    "message": "Copiar endereço"
+  },
+  "copyPhone": {
+    "message": "Copiar telefone"
+  },
+  "copyNote": {
+    "message": "Copiar nota"
+  },
+  "copyVerificationCode": {
+    "message": "Copiar código de verificação"
+  },
   "copyUsername": {
     "message": "Copiar nome de utilizador"
   },
@@ -2082,6 +2103,24 @@
   "searchTrash": {
     "message": "Procurar no lixo"
   },
+  "searchArchive": {
+    "message": "Procurar no arquivo"
+  },
+  "searchLogin": {
+    "message": "Procurar credencial"
+  },
+  "searchCard": {
+    "message": "Procurar cartão"
+  },
+  "searchIdentity": {
+    "message": "Procurar identidade"
+  },
+  "searchSecureNote": {
+    "message": "Procurar nota segura"
+  },
+  "searchSshKey": {
+    "message": "Procurar chave SSH"
+  },
   "permanentlyDeleteItem": {
     "message": "Eliminar item permanentemente"
   },
@@ -2377,6 +2416,9 @@
   "editSend": {
     "message": "Editar Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Eu"
   },
   "myVault": {
     "message": "O meu cofre"
@@ -4086,6 +4128,9 @@
   "missingWebsite": {
     "message": "Site em falta"
   },
+  "missingPermissions": {
+    "message": "Não tem as permissões necessárias para realizar esta ação."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Não é possível remover coleções com permissões de Apenas visualização: $COLLECTIONS$",
     "placeholders": {
@@ -4589,6 +4634,36 @@
   },
   "whyAmISeeingThis": {
     "message": "Porque é que estou a ver isto?"
+  },
+  "organizationIsSuspended": {
+    "message": "A organização está suspensa"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Não é possível aceder aos itens de organizações suspensas. Contacte o proprietário da organização para obter assistência."
+  },
+  "noItemsInTrash": {
+    "message": "Nenhum item no lixo"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Os itens que eliminar aparecerão aqui e serão permanentemente eliminados após 30 dias"
+  },
+  "noItemsInVault": {
+    "message": "Nenhum item no cofre"
+  },
+  "emptyVaultDescription": {
+    "message": "O cofre protege mais do que apenas as suas palavras-passe. Guarde aqui credenciais, IDs, cartões e notas de forma segura."
+  },
+  "emptyFavorites": {
+    "message": "Não adicionou nenhum item aos favoritos"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Adicione itens utilizados frequentemente aos favoritos para um acesso rápido."
+  },
+  "noSearchResults": {
+    "message": "Não foram apresentados resultados de pesquisa"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Limpe os filtros ou tente outro termo de pesquisa"
   },
   "sendPasswordHelperText": {
     "message": "Os indivíduos terão de introduzir a palavra-passe para ver este Send",

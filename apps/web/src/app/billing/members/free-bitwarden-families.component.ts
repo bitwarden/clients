@@ -15,8 +15,21 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
-import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import {
+  ButtonModule,
+  ContainerComponent,
+  DialogRef,
+  DialogService,
+  IconButtonModule,
+  MenuModule,
+  TableModule,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { HeaderModule } from "../../layouts/header/header.module";
 
 import { AddSponsorshipDialogComponent } from "./add-sponsorship-dialog.component";
 
@@ -25,7 +38,16 @@ import { AddSponsorshipDialogComponent } from "./add-sponsorship-dialog.componen
 @Component({
   selector: "app-free-bitwarden-families",
   templateUrl: "free-bitwarden-families.component.html",
-  standalone: false,
+  imports: [
+    ButtonModule,
+    ContainerComponent,
+    HeaderModule,
+    I18nPipe,
+    IconButtonModule,
+    MenuModule,
+    TableModule,
+    TypographyModule,
+  ],
 })
 export class FreeBitwardenFamiliesComponent implements OnInit {
   readonly loading = signal<boolean>(true);
