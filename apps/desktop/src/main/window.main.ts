@@ -1,10 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { once } from "node:events";
+import { pathToFileURL } from "node:url";
 import * as path from "path";
 import * as url from "url";
 
-import { app, BrowserWindow, ipcMain, nativeTheme, screen, session } from "electron";
+import { app, BrowserWindow, ipcMain, nativeTheme, screen, session, protocol, net } from "electron";
 import { concatMap, firstValueFrom, pairwise } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -25,6 +26,23 @@ import {
   isSnapStore,
   isWindows,
 } from "../utils";
+
+import { resolveProtocolPath } from "./protocol";
+
+// customFileOrigin = `${customFileScheme}://${customFileHost}`
+const customFileScheme = "bw-desktop-file";
+const customFileHost = "bundle";
+
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: customFileScheme,
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+    },
+  },
+]);
 
 const mainWindowSizeKey = "mainWindowSize";
 const WindowEventHandlingDelay = 100;
@@ -159,6 +177,9 @@ export class WindowMain {
         // initialization and is ready to create browser windows.
         // Some APIs can only be used after this event occurs.
         app.on("ready", async () => {
+          this.session = session.fromPartition("persist:bitwarden", { cache: false });
+          this.setupAppProtocol();
+
           if (!isDev()) {
             // This currently breaks the file portal for snap https://github.com/flatpak/xdg-desktop-portal/issues/785
             if (!isSnapStore()) {
@@ -231,6 +252,28 @@ export class WindowMain {
     }
   }
 
+  private getWindowUrl(partial: Partial<url.UrlObject> = {}): string {
+    // TODO(PM-33211): The custom file scheme only works on servers that support it for CORS (>=2026.3.0).
+    // We have it disabled by default until self-hosted users are updated to maintain compatibility.
+    // When removing this, remember to disable the [FuseV1Options.GrantFileProtocolExtraPrivileges] fuse in after-pack.js.
+    if (process.env.BITWARDEN_USE_CUSTOM_FILE_SCHEME !== "true") {
+      return url.format({
+        protocol: "file:",
+        pathname: path.join(__dirname, "/index.html"),
+        slashes: true,
+        ...partial,
+      });
+    }
+
+    return url.format({
+      protocol: customFileScheme,
+      host: customFileHost,
+      pathname: "index.html",
+      slashes: true,
+      ...partial,
+    });
+  }
+
   // TODO: REMOVE ONCE WE CAN STOP USING FAKE POP UP BTN FROM TRAY
   // Only used for development
   async loadUrl(targetPath: string, modal: boolean = false) {
@@ -241,22 +284,38 @@ export class WindowMain {
 
     await this.desktopSettingsService.setModalMode(modal);
     await this.win.loadURL(
-      url.format({
-        protocol: "file:",
-        //pathname: `${__dirname}/index.html`,
-        pathname: path.join(__dirname, "/index.html"),
-        slashes: true,
-        hash: targetPath,
-        query: {
-          redirectUrl: targetPath,
-        },
-      }),
+      this.getWindowUrl({ hash: targetPath, query: { redirectUrl: targetPath } }),
       {
         userAgent: cleanUserAgent(this.win.webContents.userAgent),
       },
     );
     this.win.once("ready-to-show", () => {
       this.win.show();
+    });
+  }
+
+  /**
+   * Register a custom bw-desktop-file:// protocol handler to serve the renderer's bundled files following Electron's
+   * guidance to use custom schemes for loading local content. Requests to bw-desktop-file://bundle/<path> are
+   * resolved against __dirname (the built output directory) and validated to prevent directory traversal.
+   *
+   * References:
+   *  https://www.electronjs.org/docs/latest/tutorial/security#18-avoid-usage-of-the-file-protocol-and-prefer-usage-of-custom-protocols
+   *  https://www.electronjs.org/docs/latest/api/protocol#protocolhandlescheme-handler
+   */
+  private setupAppProtocol() {
+    this.session.protocol.handle(customFileScheme, (req) => {
+      try {
+        const safePath = resolveProtocolPath(req.url, customFileHost, __dirname);
+        if (safePath !== null) {
+          return net.fetch(pathToFileURL(safePath).toString());
+        }
+      } catch (e) {
+        this.logService.error(`Error handling protocol request for ${req.url}`, e);
+      }
+
+      this.logService.error(`Invalid app protocol request: ${req.url}`);
+      return new Response("bad", { status: 400, headers: { "content-type": "text/html" } });
     });
   }
 
@@ -271,8 +330,6 @@ export class WindowMain {
       this.defaultHeight,
     );
     this.enableAlwaysOnTop = await firstValueFrom(this.desktopSettingsService.alwaysOnTop$);
-
-    this.session = session.fromPartition("persist:bitwarden", { cache: false });
 
     // Create the browser window.
     this.win = new BrowserWindow({
@@ -329,23 +386,13 @@ export class WindowMain {
     if (template === "full-app") {
       // and load the index.html of the app.
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      void this.win.loadURL(
-        url.format({
-          protocol: "file:",
-          pathname: path.join(__dirname, "/index.html"),
-          slashes: true,
-        }),
-        {
-          userAgent: cleanUserAgent(this.win.webContents.userAgent),
-        },
-      );
+      void this.win.loadURL(this.getWindowUrl(), {
+        userAgent: cleanUserAgent(this.win.webContents.userAgent),
+      });
     } else {
       // we're in modal mode - load the passkeys page
       await this.win.loadURL(
-        url.format({
-          protocol: "file:",
-          pathname: path.join(__dirname, "/index.html"),
-          slashes: true,
+        this.getWindowUrl({
           hash: "/passkeys",
           query: {
             redirectUrl: "/passkeys",
