@@ -3047,16 +3047,16 @@
   "breachDesc": {
     "message": "Изтичането на данни е инцидент, при който злоумишлени лица получават достъп до данните ви, след което те биват публикувани. Прегледайте вида на изтеклата информация (адреси за електронна поща, пароли, номера на карти и т. н.) и предприемете надлежните действия като да си смените паролата."
   },
-  "breachCheckUsernameEmail": {
-    "message": "Проверка за изтекли данни, съдържащи потребителското ви име или адреса ви за електронна поща"
+  "breachCheckEmail": {
+    "message": "Проверка за всеки адрес на е-поща, който ползвате."
   },
   "checkBreaches": {
     "message": "Проверка за изтичане на данни"
   },
-  "breachUsernameNotFound": {
-    "message": "$USERNAME$ липсва във всички известни масиви с изтекли данни.",
+  "breachEmailNotFound": {
+    "message": "Адресът $EMAIL$ не беше открит в нито един известен случай на изтекли данни.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3066,10 @@
     "message": "Добри новини",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "$USERNAME$ е открит в $COUNT$ от известните масиви с изтекли данни.",
+  "breachEmailFound": {
+    "message": "Адресът $EMAIL$ беше открит в $COUNT$ различни известни случаи на изтекли данни.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -8581,6 +8581,14 @@
     "message": "Нов проект",
     "description": "Title for creating a new project."
   },
+  "clickToRenameProject": {
+    "message": "Щракнете за преименуване на този проект",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "Името на проекта не може да бъде дешифровано – щракнете проекта за преименуване",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
+  },
   "softDeleteSecretWarning": {
     "message": "Изтриването на тайни може да засегне съществуващите интеграции.",
     "description": "Warns that deleting secrets can have consequences on integrations"
@@ -11498,6 +11506,15 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "Потребителят $ID$ се премахна сам от организацията.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "suspendedOrganizationTitle": {
     "message": "Достъпът на $ORGANIZATION$ е преустановен",
     "placeholders": {
@@ -12551,12 +12568,6 @@
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Трябва да има присвоен домейн преди активирането на тази политика."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Задайте метод за отключване, за да може да промените действието при изтичане на времето за достъп до трезора."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Изискванията на политиката за големи компании бяха приложени към настройките на времето за достъп"
-  },
   "vaultTimeoutTooLarge": {
     "message": "Времето за достъп до трезора Ви превишава ограничението, определено от организацията Ви."
   },
@@ -12755,8 +12766,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ изисква всички елементи да станат притежание на организацията, за по-добра сигурност и съвместимост. Изберете, че приемате, за да прехвърлите собствеността на елементите си към организацията.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ изисква всички данни да бъдат притежание на организацията, с цел сигурност и съгласуваност.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12764,14 +12775,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Натиснете бутона за приемане, за да прехвърлите собствеността на данните си."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Отваряне на помощната информация относно прехвърлянето на данни"
+  },
   "acceptTransfer": {
     "message": "Приемане на прехвърлянето"
   },
   "declineAndLeave": {
     "message": "Отказване и напускане"
-  },
-  "whyAmISeeingThis": {
-    "message": "Защо виждам това?"
   },
   "youHaveBitwardenPremium": {
     "message": "Вие имате платен абонамент за Битуорден"
@@ -13032,6 +13046,46 @@
       "date": {
         "content": "$2",
         "example": "Jan 1, 1970"
+      }
+    }
+  },
+  "of": {
+    "message": "от"
+  },
+  "coachmarkImportTitle": {
+    "message": "Внесете бързо паролите си"
+  },
+  "coachmarkImportDescription": {
+    "message": "Досега използвали ли сте управител на пароли? Можете да внесете файл във формата CSV с текущите си данни за вписване, както и други данни, в трезора си."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Добавете запис"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Добавете нови пароли, бележки и други данни в трезора си. Всичко е защитено с шифроване от край до край."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Споделяйте данни с други хора, защитено"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "Ако преместите елемент в колекция, можете да го споделите по сигурен начин с други хора в организацията си."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Следете сигурността на паролите си"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Грижете се за сигурността на записите в трезора си, като преглеждате доклади за уязвимостите."
+  },
+  "coachmarkStepIndicator": {
+    "message": "Стъпка $CURRENT$ от $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
       }
     }
   }
