@@ -243,67 +243,68 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
     this.submitting = true;
     try {
-      await this.registrationFinishService.finishRegistration(
-        this.email,
-        passwordInputResult,
-        this.emailVerificationToken,
-        this.orgSponsoredFreeFamilyPlanToken,
-        this.acceptEmergencyAccessInviteToken,
-        this.emergencyAccessId,
-        this.providerInviteToken,
-        this.providerUserId,
-      );
-    } catch (e) {
-      this.validationService.showError(e);
-      this.submitting = false;
-      if (this._pqpRegistrationResolve) {
-        this._pqpRegistrationResolve();
-      }
-      return;
-    }
-
-    // Show acct created toast
-    this.toastService.showToast({
-      variant: "success",
-      title: null,
-      message: this.i18nService.t("newAccountCreated2"),
-    });
-
-    // login with the new account
-    try {
-      const credentials = new PasswordLoginCredentials(this.email, passwordInputResult.newPassword);
-
-      const authenticationResult = await this.loginStrategyService.logIn(credentials);
-
-      if (authenticationResult?.requiresTwoFactor) {
-        await this.router.navigate(["/2fa"]);
+      try {
+        await this.registrationFinishService.finishRegistration(
+          this.email,
+          passwordInputResult,
+          this.emailVerificationToken,
+          this.orgSponsoredFreeFamilyPlanToken,
+          this.acceptEmergencyAccessInviteToken,
+          this.emergencyAccessId,
+          this.providerInviteToken,
+          this.providerUserId,
+        );
+      } catch (e) {
+        this.validationService.showError(e);
         return;
       }
 
-      await this.loginSuccessHandlerService.run(
-        authenticationResult.userId,
-        authenticationResult.masterPassword ?? null,
-      );
+      // Show acct created toast
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("newAccountCreated2"),
+      });
 
-      if (this.premiumInterest) {
-        await this.premiumInterestStateService.setPremiumInterest(
-          authenticationResult.userId,
-          true,
+      // login with the new account
+      try {
+        const credentials = new PasswordLoginCredentials(
+          this.email,
+          passwordInputResult.newPassword,
         );
+
+        const authenticationResult = await this.loginStrategyService.logIn(credentials);
+
+        if (authenticationResult?.requiresTwoFactor) {
+          await this.router.navigate(["/2fa"]);
+          return;
+        }
+
+        await this.loginSuccessHandlerService.run(
+          authenticationResult.userId,
+          authenticationResult.masterPassword ?? null,
+        );
+
+        if (this.premiumInterest) {
+          await this.premiumInterestStateService.setPremiumInterest(
+            authenticationResult.userId,
+            true,
+          );
+        }
+
+        await this.router.navigate(["/vault"]);
+      } catch (e) {
+        // If login errors, redirect to login page per product. Don't show error
+        this.logService.error("Error logging in after registration: ", e.message);
+        await this.router.navigate(["/login"], { queryParams: { email: this.email } });
       }
-
-      await this.router.navigate(["/vault"]);
-    } catch (e) {
-      // If login errors, redirect to login page per product. Don't show error
-      this.logService.error("Error logging in after registration: ", e.message);
-      await this.router.navigate(["/login"], { queryParams: { email: this.email } });
-    }
-    this.submitting = false;
-
-    // Resolve the deferred promise so the PqP auto-submit block knows
-    // the full registration + login flow has completed.
-    if (this._pqpRegistrationResolve) {
-      this._pqpRegistrationResolve();
+    } finally {
+      this.submitting = false;
+      // Resolve the deferred promise so the PqP auto-submit block knows
+      // the full registration + login flow has completed.
+      if (this._pqpRegistrationResolve) {
+        this._pqpRegistrationResolve();
+      }
     }
   }
 
