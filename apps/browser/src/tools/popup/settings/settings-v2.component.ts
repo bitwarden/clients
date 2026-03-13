@@ -18,6 +18,7 @@ import {
   ItemModule,
   LinkModule,
   TypographyModule,
+  BerryComponent,
 } from "@bitwarden/components";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
@@ -40,6 +41,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     SpotlightComponent,
     TypographyModule,
     LinkModule,
+    BerryComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

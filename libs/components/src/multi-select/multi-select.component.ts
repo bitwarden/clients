@@ -25,7 +25,7 @@ import { NgSelectComponent, NgSelectModule } from "@ng-select/ng-select";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { BadgeModule } from "../badge";
+import { ChipComponent } from "../chips";
 import { BitFormFieldControl } from "../form-field/form-field-control";
 import { SpinnerComponent } from "../spinner";
 
@@ -44,7 +44,7 @@ let nextId = 0;
     NgSelectModule,
     ReactiveFormsModule,
     FormsModule,
-    BadgeModule,
+    ChipComponent,
     I18nPipe,
     SpinnerComponent,
   ],
