@@ -1,7 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
@@ -12,9 +13,7 @@ import {
   firstValueFrom,
   map,
   Observable,
-  Subject,
   take,
-  takeUntil,
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -93,8 +92,8 @@ interface ViewData {
     SectionHeaderComponent,
   ],
 })
-export class Fido2Component implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class Fido2Component implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private message$ = new BehaviorSubject<BrowserFido2Message>(null);
   protected BrowserFido2MessageTypes = BrowserFido2MessageTypes;
   protected cipher: CipherView;
@@ -174,7 +173,7 @@ export class Fido2Component implements OnInit, OnDestroy {
           return message;
         }),
         filter((message) => !!message),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((message) => {
         this.message$.next(message);
@@ -261,10 +260,10 @@ export class Fido2Component implements OnInit, OnDestroy {
         };
       }),
 
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(this.destroyRef),
     );
 
-    queryParams$.pipe(takeUntil(this.destroy$)).subscribe((queryParams) => {
+    queryParams$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((queryParams) => {
       this.send({
         sessionId: queryParams.sessionId,
         type: BrowserFido2MessageTypes.ConnectResponse,
@@ -415,11 +414,6 @@ export class Fido2Component implements OnInit, OnDestroy {
       type: BrowserFido2MessageTypes.AbortResponse,
       fallbackRequested: fallback,
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private buildCipher(name: string, username: string) {
