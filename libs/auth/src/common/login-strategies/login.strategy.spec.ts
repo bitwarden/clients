@@ -19,6 +19,7 @@ import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   MasterKeyWrappedUserKey,
@@ -119,6 +120,7 @@ describe("LoginStrategy", () => {
   let cache: PasswordLoginStrategyData;
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
+  let masterPasswordUnlockService: MockProxy<MasterPasswordUnlockService>;
 
   let loginStrategyService: MockProxy<LoginStrategyServiceAbstraction>;
   let keyService: MockProxy<KeyService>;
@@ -147,6 +149,7 @@ describe("LoginStrategy", () => {
   beforeEach(async () => {
     accountService = mockAccountServiceWith(userId);
     masterPasswordService = new FakeMasterPasswordService();
+    masterPasswordUnlockService = mock<MasterPasswordUnlockService>();
 
     loginStrategyService = mock<LoginStrategyServiceAbstraction>();
     keyService = mock<KeyService>();
@@ -179,6 +182,7 @@ describe("LoginStrategy", () => {
       passwordStrengthService,
       policyService,
       loginStrategyService,
+      masterPasswordUnlockService,
       accountService as unknown as AccountService,
       masterPasswordService,
       keyService,
@@ -461,6 +465,7 @@ describe("LoginStrategy", () => {
         passwordStrengthService,
         policyService,
         loginStrategyService,
+        masterPasswordUnlockService,
         accountService as AccountService,
         masterPasswordService,
         keyService,
@@ -523,6 +528,7 @@ describe("LoginStrategy", () => {
         passwordStrengthService,
         policyService,
         loginStrategyService,
+        masterPasswordUnlockService,
         accountService as AccountService,
         masterPasswordService,
         keyService,
