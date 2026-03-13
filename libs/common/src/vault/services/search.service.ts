@@ -156,17 +156,11 @@ export class SearchService implements SearchServiceAbstraction {
       return false;
     }
 
-    const isLunrQuery = query.indexOf(">") === 0;
-    if (isLunrQuery) {
-      // Lunr queries always require an index
-      return (await this.getIndexForSearch(userId)) != null;
-    }
-
     // Regular queries only require a minimum length
     return query.length >= this.searchableMinLength;
   }
 
-  async indexCiphers(
+  private async indexCiphers(
     userId: UserId,
     ciphers: CipherViewLike[],
     indexedEntityId?: string,
@@ -240,6 +234,7 @@ export class SearchService implements SearchServiceAbstraction {
     query: string,
     filter: ((cipher: C) => boolean) | ((cipher: C) => boolean)[] = null,
     ciphers: C[],
+    indexedEntityId?: IndexedEntityId,
   ): Promise<C[]> {
     this._isCipherSearching$.next(true);
     const results: C[] = [];
@@ -266,56 +261,71 @@ export class SearchService implements SearchServiceAbstraction {
       return ciphers;
     }
 
-    if (await this.getIsIndexing(userId)) {
-      await new Promise((r) => setTimeout(r, 250));
-      if (await this.getIsIndexing(userId)) {
-        await new Promise((r) => setTimeout(r, 500));
-      }
-    }
-
-    const index = await this.getIndexForSearch(userId);
-    if (index == null) {
-      // Fall back to basic search if index is not available
-      const basicResults = this.searchCiphersBasic(ciphers, query);
-      this.logService.measure(searchStartTime, "Vault", "SearchService", "basic search complete");
-      this._isCipherSearching$.next(false);
-      return basicResults;
-    }
-
-    const ciphersMap = new Map<string, C>();
-    ciphers.forEach((c) => ciphersMap.set(uuidAsString(c.id), c));
-
-    let searchResults: lunr.Index.Result[] = null;
     const isQueryString = query != null && query.length > 1 && query.indexOf(">") === 0;
     if (isQueryString) {
+      // If is indexing, then wait
+      if (await this.getIsIndexing(userId)) {
+        await new Promise((r) => setTimeout(r, 250));
+        if (await this.getIsIndexing(userId)) {
+          await new Promise((r) => setTimeout(r, 500));
+        }
+      }
+      let index = await this.getIndexForSearch(userId);
+
+      // If the caller specifies an entity ID that differs from the cached index's entity,
+      // clear the stale index so it will be rebuilt for the correct set of ciphers.
+      if (index != null) {
+        const currentEntityId = await firstValueFrom(this.indexedEntityId$(userId));
+        if ((indexedEntityId ?? null) !== (currentEntityId ?? null)) {
+          await this.clearIndex(userId);
+          index = null;
+        }
+      }
+
+      // If there is no index, build an index
+      if (index == null) {
+        this.logService.info("Building lunr index for search...");
+        await this.indexCiphers(userId, ciphers, indexedEntityId as unknown as string);
+        // indexCiphers will return early if another indexing operation is already in progress, so index may still be null here.
+        index = await this.getIndexForSearch(userId);
+        this.logService.info("Lunr index built for search.");
+      }
+
+      if (index == null) {
+        // Fallback in case a long-running index is in progress
+        this.logService.error("Lunr index is not available for search.");
+        const basicQuery = query.replace(">", "").trim();
+        const basicResults = this.searchCiphersBasic(ciphers, basicQuery);
+        this.logService.measure(searchStartTime, "Vault", "SearchService", "basic search complete");
+        this._isCipherSearching$.next(false);
+        return basicResults;
+      }
+
+      let searchResults: lunr.Index.Result[] = null;
+      const ciphersMap = new Map<string, C>();
+      ciphers.forEach((c) => ciphersMap.set(uuidAsString(c.id), c));
       try {
         searchResults = index.search(query.substr(1).trim());
       } catch (e) {
         this.logService.error(e);
       }
-    } else {
-      const soWild = lunr.Query.wildcard.LEADING | lunr.Query.wildcard.TRAILING;
-      searchResults = index.query((q) => {
-        lunr.tokenizer(query).forEach((token) => {
-          const t = token.toString();
-          q.term(t, { fields: ["name"], wildcard: soWild });
-          q.term(t, { fields: ["subtitle"], wildcard: soWild });
-          q.term(t, { fields: ["login.uris"], wildcard: soWild });
-          q.term(t, {});
+      if (searchResults != null) {
+        searchResults.forEach((r) => {
+          if (ciphersMap.has(r.ref)) {
+            results.push(ciphersMap.get(r.ref));
+          }
         });
-      });
+      }
+      this.logService.measure(searchStartTime, "Vault", "SearchService", "search complete");
+      this._isCipherSearching$.next(false);
+      return results;
+    } else {
+      // Use basic search if the query is not a lunr query
+      const basicResults = this.searchCiphersBasic(ciphers, query);
+      this.logService.measure(searchStartTime, "Vault", "SearchService", "basic search complete");
+      this._isCipherSearching$.next(false);
+      return basicResults;
     }
-
-    if (searchResults != null) {
-      searchResults.forEach((r) => {
-        if (ciphersMap.has(r.ref)) {
-          results.push(ciphersMap.get(r.ref));
-        }
-      });
-    }
-    this.logService.measure(searchStartTime, "Vault", "SearchService", "search complete");
-    this._isCipherSearching$.next(false);
-    return results;
   }
 
   searchCiphersBasic<C extends CipherViewLike>(

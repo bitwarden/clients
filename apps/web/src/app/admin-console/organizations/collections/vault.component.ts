@@ -55,7 +55,13 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import {
+  CipherId,
+  CollectionId,
+  IndexedEntityId,
+  OrganizationId,
+  UserId,
+} from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -346,7 +352,6 @@ export class VaultComponent implements OnInit, OnDestroy {
           (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted),
         );
 
-        await this.searchService.indexCiphers(userId, ciphers, organization.id);
         return ciphers;
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
@@ -388,32 +393,45 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.currentSearchText$,
       this.showCollectionAccessRestricted$,
       this.userId$,
+      this.organizationId$,
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText, showCollectionAccessRestricted, userId]) => {
-        if (filter.collectionId === undefined && filter.type === undefined) {
-          return [];
-        }
+      concatMap(
+        async ([
+          ciphers,
+          filter,
+          searchText,
+          showCollectionAccessRestricted,
+          userId,
+          organizationId,
+        ]) => {
+          if (filter.collectionId === undefined && filter.type === undefined) {
+            return [];
+          }
 
-        if (showCollectionAccessRestricted) {
-          // Do not show ciphers for restricted collections
-          // Ciphers belonging to multiple collections may still be present in $allCiphers and shouldn't be visible
-          return [];
-        }
+          if (showCollectionAccessRestricted) {
+            // Do not show ciphers for restricted collections
+            // Ciphers belonging to multiple collections may still be present in $allCiphers and shouldn't be visible
+            return [];
+          }
 
-        const filterFunction = createFilterFunction(filter);
+          const filterFunction = createFilterFunction(filter);
 
-        if (await this.searchService.isSearchable(userId, searchText)) {
-          return await this.searchService.searchCiphers<CipherView>(
-            userId,
-            searchText,
-            [filterFunction],
-            ciphers,
-          );
-        }
+          if (await this.searchService.isSearchable(userId, searchText)) {
+            return await this.searchService.searchCiphers<CipherView>(
+              userId,
+              searchText,
+              [filterFunction],
+              ciphers,
+              // We are searching on the organization ciphers, which requires keeping a separate index. The index is
+              // specified by the IndexedEntityId
+              organizationId as string as IndexedEntityId,
+            );
+          }
 
-        return ciphers.filter(filterFunction);
-      }),
+          return ciphers.filter(filterFunction);
+        },
+      ),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
