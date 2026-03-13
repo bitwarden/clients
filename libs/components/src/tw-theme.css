@@ -519,7 +519,7 @@
 
   /* Hover & Overlay */
   --color-bg-hover: rgba(var(--color-white-rgb), 0.05);
-  --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.85);
+  --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.65);
 
   /* ========================================
    * SEMANTIC BORDER COLORS (Dark Mode Overrides)
@@ -628,5 +628,9 @@
     position: relative;
     height: 100%;
     overflow: hidden;
+  }
+
+  router-outlet {
+    display: none;
   }
 }

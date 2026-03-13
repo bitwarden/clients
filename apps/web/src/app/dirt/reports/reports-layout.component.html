@@ -1,11 +1,25 @@
 <router-outlet></router-outlet>
 
-<div class="tw-flex tw-flex-wrap tw-gap-4 tw-mt-4">
-  <div class="tw-w-full">
-    @if (!homepage) {
-      <a bitButton routerLink="./">
-        {{ "backToReports" | i18n }}
-      </a>
-    }
+@if (!homepage) {
+  <!-- Focus bridge: redirects Tab to the overlay back button (which is outside cdkTrapFocus) -->
+  <span
+    tabindex="0"
+    aria-hidden="true"
+    class="tw-sr-only"
+    (keydown.tab)="focusOverlayButton($event)"
+  ></span>
+}
+
+<ng-template #backButtonTemplate>
+  <div class="tw-p-3 tw-rounded-lg tw-opacity-90">
+    <a
+      bitButton
+      buttonType="primary"
+      routerLink="./"
+      tabindex="0"
+      (keydown.tab)="returnFocusToPage($event)"
+    >
+      {{ "backToReports" | i18n }}
+    </a>
   </div>
-</div>
+</ng-template>

@@ -1,3 +1,5 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
@@ -90,6 +92,18 @@ export class NavItemComponent extends NavBaseComponent {
    * not be marked `current` while the child page is marked as `current`
    */
   readonly ariaCurrentWhenActive = input<RouterLinkActive["ariaCurrentWhenActive"]>("page");
+
+  /**
+   * By default, a navigation will put the user's focus on the `main` element.
+   *
+   * If the user's focus should be moved to another element upon navigation end, pass a selector
+   * here (i.e. `#elementId`).
+   *
+   * Pass `false` to opt out of moving the focus entirely. Focus will stay on the nav item.
+   *
+   * See router-focus-manager.service for implementation of focus management
+   */
+  readonly focusAfterNavTarget = input<string | boolean>();
 
   /**
    * The design spec calls for the an outline to wrap the entire element when the template's
