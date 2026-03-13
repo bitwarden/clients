@@ -59,8 +59,8 @@ import { AutoFillConstants } from "./autofill-constants";
 
 export class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
   pageDetailsUpdateRequired = false;
-  private showInlineMenuIdentities: boolean;
-  private showInlineMenuCards: boolean;
+  private showInlineMenuIdentities: boolean = false;
+  private showInlineMenuCards: boolean = false;
   private readonly findTabs = tabbable;
   private readonly sendExtensionMessage = sendExtensionMessage;
   private formFieldElements: Map<ElementWithOpId<FormFieldElement>, AutofillField> = new Map();
@@ -72,10 +72,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private ignoredFieldTypes: Set<string> = new Set(AutoFillConstants.ExcludedInlineMenuTypes);
   private userFilledFields: Record<string, FillableFormFieldElement> = {};
   private focusableElements: FocusableElement[] = [];
-  private mostRecentlyFocusedField: ElementWithOpId<FormFieldElement>;
-  private focusedFieldData: FocusedFieldData;
-  private closeInlineMenuOnRedirectTimeout: number | NodeJS.Timeout;
-  private focusInlineMenuListTimeout: number | NodeJS.Timeout;
+  private mostRecentlyFocusedField: ElementWithOpId<FormFieldElement> | null = null;
+  private focusedFieldData: FocusedFieldData | null = null;
+  private closeInlineMenuOnRedirectTimeout: number | NodeJS.Timeout | null = null;
+  private focusInlineMenuListTimeout: number | NodeJS.Timeout | null = null;
   private eventHandlersMemo: { [key: string]: EventListener } = {};
   private readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
     addNewVaultItemFromOverlay: ({ message }) => this.addNewVaultItem(message),
@@ -1129,7 +1129,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     autofillFieldData.inlineMenuFillType = CipherType.Login;
-    autofillFieldData.showPasskeys = autofillFieldData.autoCompleteType.includes("webauthn");
+    autofillFieldData.showPasskeys = (
+      autofillFieldData.autoCompleteType || ([] as string[])
+    ).includes("webauthn");
 
     this.qualifyAccountCreationFieldType(autofillFieldData);
   }
@@ -1369,7 +1371,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    *
    * @param element - The element to get the root node active element for.
    */
-  private getRootNodeActiveElement(element: Element): Element {
+  private getRootNodeActiveElement(element: Element): Element | null {
     if (!element) {
       return null;
     }
@@ -1389,7 +1391,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   ): Promise<SubFrameOffsetData | null> {
     const { subFrameUrl } = message;
 
-    const subFrameUrlVariations = this.getSubFrameUrlVariations(subFrameUrl);
+    const subFrameUrlVariations = subFrameUrl && this.getSubFrameUrlVariations(subFrameUrl);
     if (!subFrameUrlVariations) {
       return null;
     }
@@ -1558,7 +1560,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
         const parentFrameId = await this.sendExtensionMessage("getCurrentTabFrameId");
         if (typeof parentFrameId !== "undefined") {
-          subFrameData.parentFrameIds.push(parentFrameId);
+          subFrameData.parentFrameIds?.push(parentFrameId);
         }
 
         break;
@@ -1785,8 +1787,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
 
     const focusedFieldRectsTop = this.focusedFieldData?.focusedFieldRects?.top;
-    const focusedFieldRectsBottom =
-      focusedFieldRectsTop + this.focusedFieldData?.focusedFieldRects?.height;
+    const focusedFieldRectsHeight = this.focusedFieldData?.focusedFieldRects?.height;
+    if (!focusedFieldRectsTop || !focusedFieldRectsHeight) {
+      return false;
+    }
+    const focusedFieldRectsBottom = focusedFieldRectsTop + focusedFieldRectsHeight;
     const viewportHeight = globalThis.innerHeight + globalThis.scrollY;
     return (
       !globalThis.isNaN(focusedFieldRectsTop) &&
