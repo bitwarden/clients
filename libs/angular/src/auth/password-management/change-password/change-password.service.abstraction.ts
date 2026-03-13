@@ -4,8 +4,32 @@ import { PasswordInputResult } from "@bitwarden/auth/angular";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
+export class InvalidCurrentPasswordError extends Error {
+  constructor() {
+    super("The current password is invalid.");
+  }
+}
+
 export abstract class ChangePasswordService {
   /**
+   * Verifies that the current password is correct via `proofOfDecryption` before
+   * calling change password & user key rotation logic.
+   *
+   * @param passwordInputResult credentials object received from the `InputPasswordComponent`
+   * @param user the user account
+   * @throws if called from a non-Web client
+   * @throws if required values are not found on the `PasswordInputResult`
+   * @throws `InvalidCurrentPasswordError` if `proofOfDecryption` fails (i.e. the current
+   *          password is incorrect)
+   */
+  abstract changePasswordAndRotateUserKey(
+    passwordInputResult: PasswordInputResult,
+    user: Account,
+  ): Promise<void>;
+
+  /**
+   * @deprecated To be removed in PM-28143
+   *
    * Creates a new user key and re-encrypts all required data with it.
    * - does so by calling the underlying method on the `UserKeyRotationService`
    * - implemented in Web only
@@ -24,6 +48,16 @@ export abstract class ChangePasswordService {
   ): Promise<void>;
 
   /**
+   * Changes the user's password by building a `PasswordRequest` object that gets POSTed to the server.
+   *
+   * @param passwordInputResult credentials object received from the `InputPasswordComponent`
+   * @param userId the active user's `userId`
+   * @throws if required values are not found on the `PasswordInputResult`
+   * @throws an `InvalidCurrentPasswordError` if `proofOfDecryption` fails (i.e. if the current password is incorrect)
+   * @throws if there is an error during the API call
+   *
+   * OLD DESCRIPTION FOR UNFLAGGED LOGIC: (the rest of this JSDoc below can be removed in PM-28143)
+   *
    * Changes the user's password and re-encrypts the user key with the `newMasterKey`.
    * - Specifically, this method uses credentials from the `passwordInputResult` to:
    *   1. Decrypt the user key with the `currentMasterKey`
@@ -34,12 +68,24 @@ export abstract class ChangePasswordService {
    * @param userId the `userId`
    * @throws if the `userId`, `currentMasterKey`, or `currentServerMasterKeyHash` is not found
    */
-  abstract changePassword(
-    passwordInputResult: PasswordInputResult,
-    userId: UserId | null,
-  ): Promise<void>;
+  abstract changePassword(passwordInputResult: PasswordInputResult, userId: UserId): Promise<void>;
 
   /**
+   * Changes the user's password during Account Recovery by building an `UpdateTempPasswordRequest`
+   * object that gets PUT to the server.
+   *
+   * Note that this method pertains to the "follow-up" stage of account recovery. That is, this user
+   * is now changing their own password AFTER it was recently set/changed for them by another org member
+   * who has the "Manage Account Recovery" permission.
+   *
+   * @param passwordInputResult credentials object received from the `InputPasswordComponent`
+   * @param userId the active user's `userId`
+   * @throws if required values are not found on the `PasswordInputResult`
+   * @throws an `InvalidCurrentPasswordError` if `proofOfDecryption` fails (i.e. if the current password is incorrect)
+   * @throws if there is an error during the API call
+   *
+   * OLD DESCRIPTION FOR UNFLAGGED LOGIC: (the rest of this JSDoc below can be removed in PM-28143)
+   *
    * Changes the user's password and re-encrypts the user key with the `newMasterKey`.
    * - Specifically, this method uses credentials from the `passwordInputResult` to:
    *   1. Decrypt the user key with the `currentMasterKey`
@@ -65,4 +111,9 @@ export abstract class ChangePasswordService {
    * If not in a popout, does nothing.
    */
   abstract closeBrowserExtensionPopout?(): void;
+
+  /**
+   * Optional method that indicates if we should navigate to the root page of the app after a password change.
+   */
+  abstract shouldNavigateToRoot(): boolean;
 }

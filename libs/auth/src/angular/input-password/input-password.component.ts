@@ -340,17 +340,26 @@ export class InputPasswordComponent implements OnInit {
         throw new Error("Salt not found.");
       }
 
-      // 2. Verify current password is correct (if necessary)
-      if (
-        this.flow === InputPasswordFlow.ChangePassword ||
-        this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
-      ) {
-        const currentPasswordVerified = await this.verifyCurrentPassword(
-          currentPassword,
-          this.kdfConfig,
-        );
-        if (!currentPasswordVerified) {
-          return;
+      // When you unwind the flag in PM-28143, also remove the ConfigService if it is un-used.
+      const newApisWithInputPasswordFlagEnabled = await this.configService.getFeatureFlag(
+        FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
+      );
+
+      // Remove this current password verification block in PM-28143. Current password verification
+      // is performed by consumers when flag is on.
+      if (!newApisWithInputPasswordFlagEnabled) {
+        // 2. Verify current password is correct (if necessary)
+        if (
+          this.flow === InputPasswordFlow.ChangePassword ||
+          this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
+        ) {
+          const currentPasswordVerified = await this.verifyCurrentPassword(
+            currentPassword,
+            this.kdfConfig,
+          );
+          if (!currentPasswordVerified) {
+            return;
+          }
         }
       }
 
@@ -363,11 +372,6 @@ export class InputPasswordComponent implements OnInit {
       if (!newPasswordVerified) {
         return;
       }
-
-      // When you unwind the flag in PM-28143, also remove the ConfigService if it is un-used.
-      const newApisWithInputPasswordFlagEnabled = await this.configService.getFeatureFlag(
-        FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
-      );
 
       if (newApisWithInputPasswordFlagEnabled) {
         // 4. Build a PasswordInputResult object
@@ -537,6 +541,8 @@ export class InputPasswordComponent implements OnInit {
   }
 
   /**
+   * @deprecated To be removed in PM-28143
+   *
    * Returns `true` if the current password is correct (it can be used to successfully decrypt
    * the masterKeyEncryptedUserKey), `false` otherwise
    */
