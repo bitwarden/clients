@@ -1358,17 +1358,11 @@
   "twoStepLogin": {
     "message": "2단계 인증"
   },
-  "vaultTimeoutHeader": {
-    "message": "보관함 시간 제한"
-  },
   "vaultTimeout": {
     "message": "보관함 시간 제한"
   },
   "vaultTimeout1": {
     "message": "시간 제한"
-  },
-  "vaultTimeoutAction1": {
-    "message": "시간 제한 초과 시 동작"
   },
   "vaultTimeoutDesc": {
     "message": "보관함이 언제까지 시간을 제한하고 선택된 행동을 수행하지 선택해주세요."
@@ -1658,6 +1652,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "month"
+  },
+  "monthly": {
+    "message": "Monthly"
+  },
+  "year": {
+    "message": "year"
+  },
+  "annually": {
+    "message": "Annually"
+  },
+  "annual": {
+    "message": "Annual"
   },
   "refreshComplete": {
     "message": "새로 고침 완료"
@@ -2088,9 +2097,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "로그아웃한 보관함에 다시 접근하려면 다시 인증해야 합니다."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Set up an unlock method to change your vault timeout action."
   },
   "lock": {
     "message": "잠금",
@@ -2709,9 +2715,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "볼트 제한 시간이 조직에서 설정한 제한을 초과합니다."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
@@ -4617,8 +4620,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4629,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
   },
   "organizationIsSuspended": {
     "message": "Organization is suspended"

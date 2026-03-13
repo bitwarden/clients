@@ -1358,17 +1358,11 @@
   "twoStepLogin": {
     "message": "两步登录"
   },
-  "vaultTimeoutHeader": {
-    "message": "密码库超时"
-  },
   "vaultTimeout": {
     "message": "密码库超时"
   },
   "vaultTimeout1": {
     "message": "超时时间"
-  },
-  "vaultTimeoutAction1": {
-    "message": "超时动作"
   },
   "vaultTimeoutDesc": {
     "message": "选择您的密码库何时执行密码库超时动作。"
@@ -1658,6 +1652,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "月"
+  },
+  "monthly": {
+    "message": "每月"
+  },
+  "year": {
+    "message": "年"
+  },
+  "annually": {
+    "message": "每年"
+  },
+  "annual": {
+    "message": "每年"
   },
   "refreshComplete": {
     "message": "刷新完成"
@@ -2088,9 +2097,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "需要重新验证才能再次访问您的密码库。"
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "设置一个解锁方式以更改您的密码库超时动作。"
   },
   "lock": {
     "message": "锁定",
@@ -2709,9 +2715,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "您的密码库超时超出了您组织设置的限制。"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "企业策略要求已应用到您的超时选项中"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "您的组织策略已将您最大允许的密码库超时设置为 $HOURS$ 小时 $MINUTES$ 分钟。",
@@ -4433,7 +4436,7 @@
     "message": "归档中没有项目"
   },
   "noItemsInArchiveDesc": {
-    "message": "已归档的项目将显示在此处，并将被排除在一般搜索结果和自动填充建议之外。"
+    "message": "已归档的项目将显示在这里，并将被排除在一般搜索结果和自动填充建议之外。"
   },
   "itemArchiveToast": {
     "message": "项目已归档"
@@ -4617,8 +4620,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "出于安全和合规考虑，$ORGANIZATION$ 要求所有项目归组织所有。点击「接受」以转移您的项目的所有权。",
+  "transferItemsToOrganizationDescription": {
+    "message": "出于安全和合规要求，$ORGANIZATION$ 要求所有项目必须归组织所有。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4629,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "点击「接受」以转移您的项目的所有权。"
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "打开有关转移项目的帮助文章"
+  },
   "acceptTransfer": {
     "message": "接受转移"
   },
   "declineAndLeave": {
     "message": "拒绝并退出"
-  },
-  "whyAmISeeingThis": {
-    "message": "为什么我会看到这个？"
   },
   "organizationIsSuspended": {
     "message": "组织已暂停"
