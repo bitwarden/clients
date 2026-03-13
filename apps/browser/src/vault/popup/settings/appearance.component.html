@@ -10,11 +10,9 @@
       <bit-form-field>
         <bit-label>{{ "theme" | i18n }}</bit-label>
         <bit-select formControlName="theme">
-          <bit-option
-            *ngFor="let o of themeOptions"
-            [value]="o.value"
-            [label]="o.name"
-          ></bit-option>
+          @for (o of themeOptions; track o.value) {
+            <bit-option [value]="o.value" [label]="o.name"></bit-option>
+          }
         </bit-select>
       </bit-form-field>
 
