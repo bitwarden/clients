@@ -290,8 +290,8 @@ export class ApplicationsComponent implements OnInit {
           if (response.error) {
             this.toastService.showToast({
               variant: "error",
-              title: this.i18nService.t("error"),
-              message: this.i18nService.t("unexpectedError"),
+              title: "",
+              message: this.i18nService.t("applicationsUnmarkedAsCriticalFail"),
             });
             return;
           }
@@ -311,9 +311,9 @@ export class ApplicationsComponent implements OnInit {
         error: () => {
           this.updatingCriticalApps.set(false);
           this.toastService.showToast({
-            message: this.i18nService.t("unexpectedError"),
             variant: "error",
-            title: this.i18nService.t("error"),
+            title: "",
+            message: this.i18nService.t("applicationsUnmarkedAsCriticalFail"),
           });
         },
       });
