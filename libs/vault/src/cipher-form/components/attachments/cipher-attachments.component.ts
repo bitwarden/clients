@@ -233,7 +233,7 @@ export class CipherAttachmentsComponent {
         this.cipherDomain,
         file,
         this.activeUserId,
-        this.organization()?.canEditAllCiphers,
+        this.admin(),
       );
 
       // re-decrypt the cipher to update the attachments
@@ -301,20 +301,22 @@ export class CipherAttachmentsComponent {
       return null;
     }
 
+    // When in admin context, always fetch from server to get fresh data.
+    // Admin uploads skip local state upsert, so local state may be stale.
+    if (this.admin()) {
+      const cipherResponse = await this.apiService.getCipherAdmin(id);
+      // Admin API response doesn't include `edit`, but admin users always have edit access
+      cipherResponse.edit = true;
+      const cipherData = new CipherData(cipherResponse);
+      return new Cipher(cipherData);
+    }
+
     // First try to get the cipher directly with user permissions
     const localCipher = await this.cipherService.get(id, this.activeUserId);
 
     // If we got the cipher or there's no organization context, return the result
     if (localCipher != null || !this.organizationId()) {
       return localCipher;
-    }
-
-    // Only try the admin API if the user has admin permissions
-    const org = this.organization();
-    if (org != null && org.canEditAllCiphers) {
-      const cipherResponse = await this.apiService.getCipherAdmin(id);
-      const cipherData = new CipherData(cipherResponse);
-      return new Cipher(cipherData);
     }
 
     return null;
