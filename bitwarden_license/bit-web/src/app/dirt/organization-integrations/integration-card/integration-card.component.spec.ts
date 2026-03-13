@@ -514,5 +514,105 @@ describe("IntegrationCardComponent", () => {
         message: mockI18nService.t("mustBeOrgOwnerToPerformAction"),
       });
     });
+
+    it("should show error toast when save returns success: false", async () => {
+      (openHecConnectDialog as jest.Mock).mockReturnValue({
+        closed: of({
+          success: IntegrationDialogResultStatus.Edited,
+          url: "test-url",
+          bearerToken: "token",
+          index: "index",
+        }),
+      });
+
+      jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(false);
+      mockIntegrationService.save.mockResolvedValue({
+        mustBeOwner: false,
+        success: false,
+        organizationIntegrationResult: undefined,
+      });
+
+      await component.setupConnection();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: "",
+        message: mockI18nService.t("failedToSaveIntegration"),
+      });
+      expect(stateService.updateIntegrationSettings).not.toHaveBeenCalled();
+    });
+
+    it("should show success toast when save returns success: true", async () => {
+      (openHecConnectDialog as jest.Mock).mockReturnValue({
+        closed: of({
+          success: IntegrationDialogResultStatus.Edited,
+          url: "test-url",
+          bearerToken: "token",
+          index: "index",
+        }),
+      });
+
+      jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(false);
+      mockIntegrationService.save.mockResolvedValue({
+        mustBeOwner: false,
+        success: true,
+        organizationIntegrationResult: {} as any,
+      });
+
+      await component.setupConnection();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        title: "",
+        message: mockI18nService.t("integrationConnectedSuccessfully"),
+      });
+      expect(stateService.updateIntegrationSettings).toHaveBeenCalled();
+    });
+
+    it("should show error toast when delete returns success: false", async () => {
+      (openHecConnectDialog as jest.Mock).mockReturnValue({
+        closed: of({
+          success: IntegrationDialogResultStatus.Delete,
+        }),
+      });
+
+      mockIntegrationService.delete.mockResolvedValue({
+        mustBeOwner: false,
+        success: false,
+        organizationIntegrationResult: undefined,
+      });
+
+      await component.setupConnection();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: "",
+        message: mockI18nService.t("failedToDeleteIntegration"),
+      });
+      expect(stateService.deleteIntegrationSettings).not.toHaveBeenCalled();
+    });
+
+    it("should show success toast and update state when delete returns success: true", async () => {
+      (openHecConnectDialog as jest.Mock).mockReturnValue({
+        closed: of({
+          success: IntegrationDialogResultStatus.Delete,
+        }),
+      });
+
+      mockIntegrationService.delete.mockResolvedValue({
+        mustBeOwner: false,
+        success: true,
+        organizationIntegrationResult: undefined,
+      });
+
+      await component.setupConnection();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        title: "",
+        message: mockI18nService.t("success"),
+      });
+      expect(stateService.deleteIntegrationSettings).toHaveBeenCalled();
+    });
   });
 });
