@@ -39,7 +39,7 @@ export abstract class CryptoFunctionService {
   abstract hash(
     value: string | Uint8Array,
     algorithm: "sha1" | "sha256" | "sha512" | "md5",
-  ): Promise<Uint8Array>;
+  ): Promise<Uint8Array<ArrayBuffer>>;
   /**
    * @deprecated ️️⚠️️ HAZMAT WARNING ⚠️️: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. Implement low-level crypto operations
    * in the SDK instead. Further, you should probably never find yourself using this low-level crypto function.

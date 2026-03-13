@@ -32,7 +32,6 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DeviceKey, MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { Argon2KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
@@ -249,11 +248,11 @@ describe("SsoLoginStrategy", () => {
 
   describe("Trusted Device Decryption", () => {
     const deviceKeyBytesLength = 64;
-    const mockDeviceKeyRandomBytes = new Uint8Array(deviceKeyBytesLength).buffer as CsprngArray;
+    const mockDeviceKeyRandomBytes = new Uint8Array(deviceKeyBytesLength);
     const mockDeviceKey: DeviceKey = new SymmetricCryptoKey(mockDeviceKeyRandomBytes) as DeviceKey;
 
     const userKeyBytesLength = 64;
-    const mockUserKeyRandomBytes = new Uint8Array(userKeyBytesLength).buffer as CsprngArray;
+    const mockUserKeyRandomBytes = new Uint8Array(userKeyBytesLength);
     const mockUserKey: UserKey = new SymmetricCryptoKey(mockUserKeyRandomBytes) as UserKey;
 
     const mockEncDevicePrivateKey =
@@ -490,9 +489,7 @@ describe("SsoLoginStrategy", () => {
     });
 
     it("gets and sets the master key if Key Connector is enabled and the user doesn't have a master password", async () => {
-      const masterKey = new SymmetricCryptoKey(
-        new Uint8Array(64).buffer as CsprngArray,
-      ) as MasterKey;
+      const masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
 
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
       masterPasswordService.masterKeySubject.next(masterKey);
@@ -521,10 +518,8 @@ describe("SsoLoginStrategy", () => {
     });
 
     it("decrypts and sets the user key if Key Connector is enabled and the user doesn't have a master password", async () => {
-      const userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
-      const masterKey = new SymmetricCryptoKey(
-        new Uint8Array(64).buffer as CsprngArray,
-      ) as MasterKey;
+      const userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
+      const masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
 
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
       masterPasswordService.masterKeySubject.next(masterKey);
