@@ -14,7 +14,7 @@
       <ng-template body>
         <tr bitRow *ngFor="let item of users">
           <td width="30" bitCell>
-            <bit-avatar [text]="item.user | userName" [id]="item.user.id" size="small"></bit-avatar>
+            <bit-avatar [text]="item.user | userName" [id]="item.user.id"></bit-avatar>
           </td>
           <td bitCell>
             {{ item.user.email }}
