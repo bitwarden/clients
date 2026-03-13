@@ -5445,7 +5445,7 @@
   "minimumNumberOfWords": {
     "message": "Minimum kelime sayısı"
   },
-  "passwordTypePolicyOverride": {
+  "overridePasswordTypePolicy": {
     "message": "Parola türü",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Transfer hakkında daha fazla bilgi edinin"
   },
+  "promptUsersToMoveItems": {
+    "message": "Prompt users to move individual vault items to the organization"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
   "organizationDataOwnership": {
     "message": "Kuruluş veri sahipliğini zorunlu kılın"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Şimdi kullanılabilir"
   },
-  "autoConfirm": {
-    "message": "Yeni kullanıcıların otomatik onayı"
+  "automaticUserConfirmation": {
+    "message": "Otomatik kullanıcı onayı"
   },
   "autoConfirmDescription": {
     "message": "Kuruluşa davet edilen yeni kullanıcılar, bir yöneticinin cihazı kilitli değilken otomatik olarak onaylanacaktır.",
@@ -10624,6 +10630,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Send event data to your Huntress SIEM instance"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ başarıyla bağlandı.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Entegrasyon kaydedilemedi. Lütfen daha sonra tekrar deneyin."
   },
@@ -10976,6 +10991,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Kapalı"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Failed to load the member access report. This may be due to a large organization size or network issue. Please try again or contact support if the problem persists."
   },
   "kdfIterationRecommends": {
     "message": "600.000 veya üstünü öneriyoruz"

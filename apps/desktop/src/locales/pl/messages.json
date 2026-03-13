@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Ulubione"
   },
+  "unfavorite": {
+    "message": "Unfavorite"
+  },
   "types": {
     "message": "Rodzaje"
   },
@@ -329,10 +332,10 @@
     "message": "Zapamiętaj aż sejf będzie zablokowany"
   },
   "premiumRequired": {
-    "message": "Konto premium jest wymagane"
+    "message": "Konto Premium jest wymagane"
   },
   "premiumRequiredDesc": {
-    "message": "Konto premium jest wymagane, aby skorzystać z tej funkcji."
+    "message": "Konto Premium jest wymagane, aby skorzystać z tej funkcji."
   },
   "errorOccurred": {
     "message": "Wystąpił błąd."
@@ -586,6 +589,12 @@
   "editedItem": {
     "message": "Element został zapisany"
   },
+  "itemAddedToFavorites": {
+    "message": "Element został dodany do ulubionych"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Element został usunięty z ulubionych"
+  },
   "deleteItem": {
     "message": "Usuń element"
   },
@@ -773,7 +782,7 @@
     "message": "Dodaj załącznik"
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "Elementy zostały przeniesione"
   },
   "fixEncryption": {
     "message": "Fix encryption"
@@ -1191,10 +1200,10 @@
     "message": "Confirm your identity to continue"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "Wpisz hasło główne"
   },
   "updateSettings": {
-    "message": "Update settings"
+    "message": "Zaktualizuj ustawienia"
   },
   "featureUnavailable": {
     "message": "Funkcja jest niedostępna"
@@ -1266,7 +1275,7 @@
     "message": "Obserwuj nas"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Synchronizuj teraz"
   },
   "changeMasterPass": {
     "message": "Zmień hasło główne"
@@ -1555,6 +1564,18 @@
   "unknown": {
     "message": "Nieznane"
   },
+  "copyAddress": {
+    "message": "Kopiuj adres"
+  },
+  "copyPhone": {
+    "message": "Kopiuj numer telefonu"
+  },
+  "copyNote": {
+    "message": "Kopiuj notatkę"
+  },
+  "copyVerificationCode": {
+    "message": "Kopiuj kod weryfikacyjny"
+  },
   "copyUsername": {
     "message": "Kopiuj nazwę użytkownika"
   },
@@ -1573,7 +1594,7 @@
     "message": "numer karty"
   },
   "premiumMembership": {
-    "message": "Konto premium"
+    "message": "Konto Premium"
   },
   "premiumManage": {
     "message": "Zarządzaj kontem premium"
@@ -1585,10 +1606,10 @@
     "message": "Odśwież konto premium"
   },
   "premiumNotCurrentMember": {
-    "message": "Nie masz konta premium."
+    "message": "Nie masz konta Premium."
   },
   "premiumSignUpAndGet": {
-    "message": "Ulepsz konto do wersji premium, aby otrzymać:"
+    "message": "Ulepsz konto do wersji Premium, aby otrzymać:"
   },
   "premiumSignUpStorage": {
     "message": "1 GB miejsca na zaszyfrowane załączniki."
@@ -1615,16 +1636,16 @@
     "message": "Priorytetowe wsparcie klienta."
   },
   "premiumSignUpFuture": {
-    "message": "Wszystkie przyszłe funkcje premium. Więcej już wkrótce!"
+    "message": "Wszystkie przyszłe funkcje Premium. Więcej już wkrótce!"
   },
   "premiumPurchase": {
-    "message": "Kup konto premium"
+    "message": "Kup konto Premium"
   },
   "premiumPurchaseAlertV2": {
-    "message": "Możesz kupić konto premium w aplikacji internetowej Bitwarden."
+    "message": "Możesz kupić konto Premium w aplikacji internetowej Bitwarden."
   },
   "premiumCurrentMember": {
-    "message": "Masz konto premium!"
+    "message": "Masz konto Premium!"
   },
   "premiumCurrentMemberThanks": {
     "message": "Dziękujemy za wspieranie Bitwarden."
@@ -2029,7 +2050,7 @@
     "message": "Musisz wybrać co najmniej jedną kolekcję."
   },
   "premiumUpdated": {
-    "message": "Konto premium zostało zaktualizowane."
+    "message": "Konto Premium zostało zaktualizowane."
   },
   "restore": {
     "message": "Przywróć"
@@ -2081,6 +2102,24 @@
   },
   "searchTrash": {
     "message": "Szukaj w koszu"
+  },
+  "searchArchive": {
+    "message": "Search archive"
+  },
+  "searchLogin": {
+    "message": "Search login"
+  },
+  "searchCard": {
+    "message": "Search card"
+  },
+  "searchIdentity": {
+    "message": "Search identity"
+  },
+  "searchSecureNote": {
+    "message": "Search secure note"
+  },
+  "searchSshKey": {
+    "message": "Search SSH key"
   },
   "permanentlyDeleteItem": {
     "message": "Usuń trwale element"
@@ -2377,6 +2416,9 @@
   "editSend": {
     "message": "Edytuj wysyłkę",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Ja"
   },
   "myVault": {
     "message": "Sejf"
@@ -3112,7 +3154,7 @@
     "message": "Klucz API"
   },
   "premiumSubcriptionRequired": {
-    "message": "Wymagana jest subskrypcja premium"
+    "message": "Wymagana jest subskrypcja Premium"
   },
   "organizationIsDisabled": {
     "message": "Organizacja została zawieszona"
@@ -4051,7 +4093,7 @@
     "message": "This application does not support duplicates."
   },
   "closeThisWindow": {
-    "message": "Close this window"
+    "message": "Zamknij okno"
   },
   "allowScreenshots": {
     "message": "Zezwalaj na wykonywanie zrzutów ekranu"
@@ -4085,6 +4127,9 @@
   },
   "missingWebsite": {
     "message": "Brak strony internetowej"
+  },
+  "missingPermissions": {
+    "message": "You lack the necessary permissions to perform this action."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nie możesz usunąć następujących kolekcji z uprawnieniami tylko do odczytu: $COLLECTIONS$",
@@ -4406,13 +4451,13 @@
     "message": "Unarchive and save"
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Odnów subskrypcję Premium"
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Subskrypcja Premium wygasła"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+    "message": "Aby odzyskać dostęp do archiwum, odnów subskrypcję Premium. Jeśli przed wznowieniem subskrypcji edytujesz szczegóły archiwizowanego elementu, zostanie on przeniesiony z powrotem do sejfu."
   },
   "itemRestored": {
     "message": "Item has been restored"
@@ -4433,7 +4478,7 @@
     "message": "Secure file storage"
   },
   "emergencyAccess": {
-    "message": "Emergency access"
+    "message": "Dostęp awaryjny"
   },
   "breachMonitoring": {
     "message": "Breach monitoring"
@@ -4445,7 +4490,7 @@
     "message": "Advanced online security"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "Kup konto Premium"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
@@ -4454,10 +4499,10 @@
     "message": "Continue with log in"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Nie kontynuuj"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Domena"
   },
   "keyConnectorDomainTooltip": {
     "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
@@ -4564,7 +4609,7 @@
     "message": "How do I manage my vault?"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "Przenieś elementy do organizacji $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4588,7 +4633,37 @@
     "message": "Decline and leave"
   },
   "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+    "message": "Dlaczego to widzę?"
+  },
+  "organizationIsSuspended": {
+    "message": "Organizacja została zawieszona"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Wyczyść filtry lub użyj innej frazy"
   },
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",
@@ -4601,16 +4676,16 @@
     "message": "Emails"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Każdy, kto ma link"
   },
   "anyOneWithPassword": {
     "message": "Anyone with a password set by you"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Kto może odczytać"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Konkretni użytkownicy"
   },
   "emailVerificationDesc": {
     "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."

@@ -81,10 +81,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     return this.data.policy;
   }
 
-  get isPolicyEnabled(): boolean {
-    return this.policyComponent?.policyResponse?.enabled ?? false;
-  }
-
   /**
    * Type guard to check if the policy component has the buildVNextRequest method.
    */
@@ -183,9 +179,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     );
   }
   static open = (dialogService: DialogService, config: DialogConfig<PolicyEditDialogData>) => {
-    return dialogService.openDrawer<PolicyEditDialogResult, PolicyEditDialogData>(
-      PolicyEditDialogComponent,
-      config,
-    );
+    return dialogService.open<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
   };
 }

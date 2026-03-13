@@ -20,6 +20,7 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { UserVerificationComponent } from "../app/components/user-verification.component";
 
@@ -30,6 +31,7 @@ import { UserVerificationComponent } from "../app/components/user-verification.c
   imports: [
     JslibModule,
     UserVerificationFormInputComponent,
+    I18nPipe,
     UserVerificationComponent,
     ButtonModule,
     CalloutModule,
@@ -39,14 +41,14 @@ import { UserVerificationComponent } from "../app/components/user-verification.c
   ],
 })
 export class DeleteAccountComponent {
-  private i18nService = inject(I18nService);
-  private formBuilder = inject(FormBuilder);
-  private accountApiService = inject(AccountApiService);
-  private toastService = inject(ToastService);
-  private configService = inject(ConfigService);
-  private dialogRef = inject(DialogRef);
+  private readonly i18nService = inject(I18nService);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly accountApiService = inject(AccountApiService);
+  private readonly toastService = inject(ToastService);
+  private readonly configService = inject(ConfigService);
+  private readonly dialogRef = inject(DialogRef);
 
-  deleteForm = this.formBuilder.group({
+  readonly deleteForm = this.formBuilder.group({
     verification: undefined as VerificationWithSecret | undefined,
   });
 
@@ -72,7 +74,7 @@ export class DeleteAccountComponent {
     return this.deleteForm.get("verification")?.value?.secret;
   }
 
-  submit = async () => {
+  readonly submit = async () => {
     if (!this.migrationMilestone4()) {
       const verification = this.deleteForm.get("verification").value;
       await this.accountApiService.deleteAccount(verification);
