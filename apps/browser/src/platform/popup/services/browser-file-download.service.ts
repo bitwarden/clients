@@ -2,6 +2,9 @@
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
 
+import BrowserPopupUtils from "@bitwarden/browser/platform/browser/browser-popup-utils";
+import { BrowserPlatformUtilsService } from "@bitwarden/browser/platform/services/platform-utils/browser-platform-utils.service";
+import { DeviceType } from "@bitwarden/common/enums";
 import { FileDownloadBuilder } from "@bitwarden/common/platform/abstractions/file-download/file-download.builder";
 import { FileDownloadRequest } from "@bitwarden/common/platform/abstractions/file-download/file-download.request";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
@@ -19,6 +22,43 @@ export class BrowserFileDownloadService implements FileDownloadService {
       // This function can't be async because the interface is not async
       void this.downloadSafari(request, builder);
     } else {
+      const deviceType = BrowserPlatformUtilsService.getDevice(window);
+      const inPopout = BrowserPopupUtils.inPopout(window);
+      const inSidebar = BrowserPopupUtils.inSidebar(window);
+
+      // Prevent browser crashes when native OS file dialogs (open/save) are
+      // triggered from an extension popup. The popup can be torn down while the
+      // dialog is active or pending, crashing the renderer.
+      // This mirrors the route-level filePickerPopoutGuard() but applies at the
+      // download-service level for views that embed downloads inline (e.g.
+      // view-cipher with <app-attachments-v2-view>).
+      let needsPopout = false;
+
+      // Firefox: crashes with file dialogs in popup (Mozilla Bug #1292701)
+      if (deviceType === DeviceType.FirefoxExtension && !inPopout && !inSidebar) {
+        needsPopout = true;
+      }
+
+      // Chromium on Linux/Mac: crashes with file dialogs in popup
+      const isChromiumBased = [
+        DeviceType.ChromeExtension,
+        DeviceType.EdgeExtension,
+        DeviceType.OperaExtension,
+        DeviceType.VivaldiExtension,
+      ].includes(deviceType);
+
+      const isLinux = window?.navigator?.userAgent?.includes("Linux");
+      const isMac = window?.navigator?.userAgent?.includes("Mac OS X");
+
+      if (isChromiumBased && (isLinux || isMac) && !inPopout && !inSidebar) {
+        needsPopout = true;
+      }
+
+      if (needsPopout) {
+        void BrowserPopupUtils.openCurrentPagePopout(window);
+        return;
+      }
+
       const a = window.document.createElement("a");
       a.href = URL.createObjectURL(builder.blob);
       a.download = request.fileName;
