@@ -209,7 +209,7 @@
     "vite-tsconfig-paths": "5.1.4",
     "zone.js": "0.15.1",
     "zxcvbn": "4.4.2",
-    "@ovrlab/pqp-network": "0.1.94"
+    "@ovrlab/pqp-network": "0.1.104"
   },
   "overrides": {
     "eslint-plugin-rxjs": {
