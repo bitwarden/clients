@@ -103,7 +103,7 @@ export class TwoFactorAuthEmailComponent implements OnInit {
    * @param event - The event object from the input field
    */
   onTokenChange(event: Event) {
-    const tokenValue = (event.target as HTMLInputElement).value || "";
+    const tokenValue = (event.target as HTMLInputElement).value?.trim() || "";
     this.tokenChange.emit({ token: tokenValue });
   }
 

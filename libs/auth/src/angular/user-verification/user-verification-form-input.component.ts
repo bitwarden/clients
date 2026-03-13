@@ -333,7 +333,7 @@ export class UserVerificationFormInputComponent implements ControlValueAccessor,
 
     this.onChange({
       type: this.determineVerificationWithSecretType(),
-      secret: Utils.isNullOrWhitespace(secret) ? null : secret,
+      secret: Utils.isNullOrWhitespace(secret) ? null : secret?.trim(),
     });
   }
 
