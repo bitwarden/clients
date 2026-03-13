@@ -51,11 +51,12 @@ describe("LoginComponent continue() integration", () => {
       loginToPqpNetwork: async () => false,
       derivePassword: async (): Promise<void> => {},
       buildPqpLoginCredentials: jest.fn(),
+      canDerivePassword: jest.fn().mockResolvedValue(false),
+      withDerivedPassword: jest.fn(),
       reset: () => {},
       googleDriveLoggedIn: false,
       networkLoggedIn: false,
       userEmail: null,
-      hasDerivedPassword: false,
       isReady: false,
     };
 

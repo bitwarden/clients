@@ -1,13 +1,4 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges,
-  ViewChild,
-} from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
 import { ReactiveFormsModule, FormBuilder, Validators, FormControl } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
@@ -128,7 +119,7 @@ interface InputPasswordForm {
     SharedModule,
   ],
 })
-export class InputPasswordComponent implements OnInit, OnChanges {
+export class InputPasswordComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(PasswordStrengthV2Component) passwordStrengthComponent:
@@ -173,10 +164,6 @@ export class InputPasswordComponent implements OnInit, OnChanges {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() secondaryButtonText?: Translation;
   protected secondaryButtonTextStr: string = "";
-
-  // PqP Integration: Pre-fill password from derived key
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() initialPassword?: string;
 
   protected InputPasswordFlow = InputPasswordFlow;
   private kdfConfig: KdfConfig | null = null;
@@ -238,24 +225,17 @@ export class InputPasswordComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.addFormFieldsIfNecessary();
     this.setButtonText();
-
-    // Pre-fill password if provided (PqP flow)
-    if (this.initialPassword) {
-      this.formGroup.patchValue({
-        newPassword: this.initialPassword,
-        newPasswordConfirm: this.initialPassword,
-      });
-    }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    // Watch for async updates to initialPassword (e.g. from PqP check)
-    if (changes.initialPassword && !changes.initialPassword.firstChange && this.initialPassword) {
-      this.formGroup.patchValue({
-        newPassword: this.initialPassword,
-        newPasswordConfirm: this.initialPassword,
-      });
-    }
+  /**
+   * Programmatically set the password fields.
+   * Used by PqP auto-submit flow to ephemerally patch the form.
+   */
+  patchPassword(password: string): void {
+    this.formGroup.patchValue({
+      newPassword: password,
+      newPasswordConfirm: password,
+    });
   }
 
   private addFormFieldsIfNecessary() {

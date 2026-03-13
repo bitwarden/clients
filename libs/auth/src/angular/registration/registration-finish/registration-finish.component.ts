@@ -54,6 +54,13 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   loading = true;
   submitting = false;
   pqpAutoSubmitting = false;
+
+  /**
+   * Deferred promise resolved by handlePasswordFormSubmit() so the auto-submit
+   * block can keep pqpAutoSubmitting=true (spinner visible) until the full
+   * registration + login flow finishes.
+   */
+  private _pqpRegistrationResolve: (() => void) | null = null;
   email: string;
 
   /**
@@ -124,23 +131,52 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Check PqP status
+    // Check PqP status and determine if auto-submit is possible
     await this.checkPqpStatus();
+
+    // Gate auto-submit on whether a password can actually be derived
+    if (this.pqpReady && this.email) {
+      const pqpEmail = this.pqpAuthService.userEmail;
+      if (pqpEmail && this.email.toLowerCase() === pqpEmail.toLowerCase()) {
+        this.pqpAutoSubmitting = await this.pqpAuthService.canDerivePassword();
+      }
+    }
 
     this.loading = false;
 
     // After loading=false, Angular renders InputPasswordComponent (hidden).
-    // ngOnChanges patches the form values. Then we trigger submit.
+    // We ephemerally patch the form with the derived password and trigger submit.
     if (this.pqpAutoSubmitting) {
+      // Create a deferred promise that handlePasswordFormSubmit() will resolve
+      // when the full registration + login flow completes.
+      const registrationComplete = new Promise<void>((resolve) => {
+        this._pqpRegistrationResolve = resolve;
+      });
+
       setTimeout(async () => {
         const inputPasswordComponent = this.inputPasswordComponent();
         if (inputPasswordComponent) {
           try {
-            await inputPasswordComponent.submit();
+            let submitted = false;
+            await this.pqpAuthService.withDerivedPassword(async (password) => {
+              inputPasswordComponent.patchPassword(password);
+              const result = await inputPasswordComponent.submit();
+              submitted = result != null;
+            });
+            // Scrub password from form controls immediately after submit()
+            // (submit emits the event and returns — registration is still in flight)
+            inputPasswordComponent.patchPassword("");
+
+            // Only wait if submit() actually emitted (result was not undefined).
+            // submit() returns undefined when validation fails, policies block, etc.
+            if (submitted) {
+              await registrationComplete;
+            }
           } catch (e) {
             this.logService.error("[PQP] Auto-submit failed, user can submit manually:", e);
           } finally {
             this.pqpAutoSubmitting = false;
+            this._pqpRegistrationResolve = null;
           }
         } else {
           this.pqpAutoSubmitting = false;
@@ -207,59 +243,69 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
     this.submitting = true;
     try {
-      await this.registrationFinishService.finishRegistration(
-        this.email,
-        passwordInputResult,
-        this.emailVerificationToken,
-        this.orgSponsoredFreeFamilyPlanToken,
-        this.acceptEmergencyAccessInviteToken,
-        this.emergencyAccessId,
-        this.providerInviteToken,
-        this.providerUserId,
-      );
-    } catch (e) {
-      this.validationService.showError(e);
-      this.submitting = false;
-      return;
-    }
-
-    // Show acct created toast
-    this.toastService.showToast({
-      variant: "success",
-      title: null,
-      message: this.i18nService.t("newAccountCreated2"),
-    });
-
-    // login with the new account
-    try {
-      const credentials = new PasswordLoginCredentials(this.email, passwordInputResult.newPassword);
-
-      const authenticationResult = await this.loginStrategyService.logIn(credentials);
-
-      if (authenticationResult?.requiresTwoFactor) {
-        await this.router.navigate(["/2fa"]);
+      try {
+        await this.registrationFinishService.finishRegistration(
+          this.email,
+          passwordInputResult,
+          this.emailVerificationToken,
+          this.orgSponsoredFreeFamilyPlanToken,
+          this.acceptEmergencyAccessInviteToken,
+          this.emergencyAccessId,
+          this.providerInviteToken,
+          this.providerUserId,
+        );
+      } catch (e) {
+        this.validationService.showError(e);
         return;
       }
 
-      await this.loginSuccessHandlerService.run(
-        authenticationResult.userId,
-        authenticationResult.masterPassword ?? null,
-      );
+      // Show acct created toast
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("newAccountCreated2"),
+      });
 
-      if (this.premiumInterest) {
-        await this.premiumInterestStateService.setPremiumInterest(
-          authenticationResult.userId,
-          true,
+      // login with the new account
+      try {
+        const credentials = new PasswordLoginCredentials(
+          this.email,
+          passwordInputResult.newPassword,
         );
-      }
 
-      await this.router.navigate(["/vault"]);
-    } catch (e) {
-      // If login errors, redirect to login page per product. Don't show error
-      this.logService.error("Error logging in after registration: ", e.message);
-      await this.router.navigate(["/login"], { queryParams: { email: this.email } });
+        const authenticationResult = await this.loginStrategyService.logIn(credentials);
+
+        if (authenticationResult?.requiresTwoFactor) {
+          await this.router.navigate(["/2fa"]);
+          return;
+        }
+
+        await this.loginSuccessHandlerService.run(
+          authenticationResult.userId,
+          authenticationResult.masterPassword ?? null,
+        );
+
+        if (this.premiumInterest) {
+          await this.premiumInterestStateService.setPremiumInterest(
+            authenticationResult.userId,
+            true,
+          );
+        }
+
+        await this.router.navigate(["/vault"]);
+      } catch (e) {
+        // If login errors, redirect to login page per product. Don't show error
+        this.logService.error("Error logging in after registration: ", e.message);
+        await this.router.navigate(["/login"], { queryParams: { email: this.email } });
+      }
+    } finally {
+      this.submitting = false;
+      // Resolve the deferred promise so the PqP auto-submit block knows
+      // the full registration + login flow has completed.
+      if (this._pqpRegistrationResolve) {
+        this._pqpRegistrationResolve();
+      }
     }
-    this.submitting = false;
   }
 
   private setDefaultPageTitleAndSubtitle() {

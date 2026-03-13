@@ -50,7 +50,7 @@ export class PqpAuthService {
 
   /**
    * Build PasswordLoginCredentials using ephemeral just-in-time password derivation.
-   * Password is derived on-demand and passed directly to credentials without caching.
+   * Password is derived on-demand via withPassword() and never cached.
    *
    * @throws Error if password derivation fails or user not logged in.
    */
@@ -58,16 +58,38 @@ export class PqpAuthService {
     email: string,
     orgMasterPasswordPolicyOptions?: MasterPasswordPolicyOptions,
   ): Promise<PasswordLoginCredentials> {
-    const derivedPassword = await this.getDerivedPassword();
-    if (!derivedPassword) {
-      throw new Error("PQP derived password is not available. Cannot build login credentials.");
+    return authenticationService.withPassword(async (derivedPassword) => {
+      return new PasswordLoginCredentials(
+        email,
+        derivedPassword,
+        undefined,
+        orgMasterPasswordPolicyOptions,
+      );
+    });
+  }
+
+  /**
+   * Execute a callback with the ephemeral derived password.
+   * Password is derived on-demand, passed to the callback, and discarded after use.
+   * Use this when you need the password value directly (e.g., to patch a form).
+   *
+   * @throws Error if password derivation fails or user not logged in.
+   */
+  async withDerivedPassword<T>(callback: (password: string) => Promise<T>): Promise<T> {
+    return authenticationService.withPassword(callback);
+  }
+
+  /**
+   * Check if a derived password can be produced (user is logged in with a valid private key).
+   * Returns a boolean without exposing the password value.
+   */
+  async canDerivePassword(): Promise<boolean> {
+    try {
+      await authenticationService.derivePasswordForBitwarden();
+      return true;
+    } catch {
+      return false;
     }
-    return new PasswordLoginCredentials(
-      email,
-      derivedPassword,
-      undefined,
-      orgMasterPasswordPolicyOptions,
-    );
   }
 
   /**
@@ -180,9 +202,9 @@ export class PqpAuthService {
 
   /**
    * Get derived password on-demand (does NOT cache).
-   * Password should be used immediately and discarded.
+   * @internal — use buildPqpLoginCredentials() or withDerivedPassword() instead.
    */
-  async getDerivedPassword(): Promise<string | null> {
+  private async getDerivedPassword(): Promise<string | null> {
     try {
       return await authenticationService.derivePasswordForBitwarden();
     } catch {
