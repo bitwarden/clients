@@ -7,7 +7,6 @@ import {
   first,
   forkJoin,
   from,
-  iif,
   map,
   Observable,
   of,
@@ -345,37 +344,38 @@ export class PhishingDataService {
     return defer(() => {
       const startTime = Date.now();
       this.logService.info(`[PhishingDataService] Update triggered...`);
+      this.logService.debug("[PhishingDataService] Previous metadata state:", previous);
 
       // Get updated meta info
       return this._getUpdatedMeta().pipe(
         // Update full data set if application version or checksum changed
-        concatMap((newMeta) =>
-          iif(
-            () => {
-              const appVersionChanged = newMeta.applicationVersion !== previous?.applicationVersion;
-              const checksumChanged = newMeta.checksum !== previous?.checksum;
+        concatMap((newMeta) => {
+          const appVersionChanged = newMeta.applicationVersion !== previous?.applicationVersion;
+          const checksumChanged = newMeta.checksum !== previous?.checksum;
 
-              this.logService.info(
-                `[PhishingDataService] Checking if full update is needed: appVersionChanged=${appVersionChanged}, checksumChanged=${checksumChanged}`,
-              );
-              return appVersionChanged || checksumChanged;
-            },
-            this._updateFullDataSet().pipe(map(() => ({ meta: newMeta, updated: true }))),
-            of({ meta: newMeta, updated: false }),
-          ),
-        ),
+          this.logService.info(
+            `[PhishingDataService] Checking if full update is needed: appVersionChanged=${appVersionChanged}, checksumChanged=${checksumChanged}`,
+          );
+
+          if (appVersionChanged || checksumChanged) {
+            return this._updateFullDataSet().pipe(map(() => ({ meta: newMeta, updated: true })));
+          }
+
+          return of({ meta: newMeta, updated: false });
+        }),
         // Update daily data set if last update was more than UPDATE_INTERVAL_DURATION ago
-        concatMap((result) =>
-          iif(
-            () => {
-              const isCacheExpired =
-                Date.now() - (previous?.timestamp ?? 0) > this.UPDATE_INTERVAL_DURATION;
-              return isCacheExpired;
-            },
-            this._updateDailyDataSet().pipe(map(() => ({ meta: result.meta, updated: true }))),
-            of(result),
-          ),
-        ),
+        concatMap((result) => {
+          const isCacheExpired =
+            Date.now() - (previous?.timestamp ?? 0) > this.UPDATE_INTERVAL_DURATION;
+
+          if (isCacheExpired) {
+            return this._updateDailyDataSet().pipe(
+              map(() => ({ meta: result.meta, updated: true })),
+            );
+          }
+
+          return of(result);
+        }),
         concatMap((result) => {
           if (!result.updated) {
             this.logService.debug(`[PhishingDataService] No update needed, metadata unchanged`);
