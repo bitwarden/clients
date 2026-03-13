@@ -46,7 +46,7 @@ const spinnerVariantStyles: Record<SpinnerVariant, { foreground: string; backgro
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpinnerComponent {
-  private i18nService = inject(I18nService);
+  private readonly i18nService = inject(I18nService);
 
   readonly variant = input<SpinnerVariant>("primary");
   readonly size = input<SpinnerSize>("base");
