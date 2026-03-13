@@ -39,6 +39,7 @@ import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-u
 import { LogService } from "@bitwarden/logging";
 
 import { AccessReportMetrics } from "../../../../access-intelligence/models";
+import { LegacyRiskInsightsEncryptionService } from "../../../../access-intelligence/services";
 import {
   buildPasswordUseMap,
   createNewSummaryData,
@@ -63,7 +64,6 @@ import {
 } from "../../models/report-models";
 import { MemberCipherDetailsApiService } from "../api/member-cipher-details-api.service";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
-import { LegacyRiskInsightsEncryptionService } from "../implementations/legacy-risk-insights-encryption.service";
 
 import { CriticalAppsService } from "./critical-apps.service";
 import { PasswordHealthService } from "./password-health.service";

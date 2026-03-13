@@ -10,6 +10,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { LogService } from "@bitwarden/logging";
 
 import { AccessReportMetrics } from "../../../../access-intelligence/models";
+import { LegacyRiskInsightsEncryptionService } from "../../../../access-intelligence/services";
 import { createNewSummaryData } from "../../helpers";
 import { ReportStatus, RiskInsightsData, SaveRiskInsightsReportResponse } from "../../models";
 import { mockMemberCipherDetailsResponse } from "../../models/mocks/member-cipher-details-response.mock";
@@ -20,7 +21,6 @@ import {
 } from "../../models/mocks/mock-data";
 import { MemberCipherDetailsApiService } from "../api/member-cipher-details-api.service";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
-import { LegacyRiskInsightsEncryptionService } from "../implementations/legacy-risk-insights-encryption.service";
 
 import { CriticalAppsService } from "./critical-apps.service";
 import { PasswordHealthService } from "./password-health.service";

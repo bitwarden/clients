@@ -2,7 +2,7 @@ import { Observable } from "rxjs";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { AccessReportSettingsView, AccessReportView } from "../../../../access-intelligence/models";
+import { AccessReportSettingsView, AccessReportView } from "../../models";
 
 import {
   CollectionAccessDetails,

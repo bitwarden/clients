@@ -9,7 +9,7 @@ import {
   AccessReportPayload,
   DecryptedAccessReportData,
   AccessReportEncryptionService,
-} from "../../../reports/risk-insights/services/abstractions/access-report-encryption.service";
+} from "../../services/abstractions/access-report-encryption.service";
 import { AccessReportData } from "../data/access-report.data";
 import { ApplicationHealthData } from "../data/application-health.data";
 import { MemberRegistryEntryData } from "../data/member-registry-entry.data";

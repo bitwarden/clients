@@ -3,7 +3,7 @@ import { Observable } from "rxjs";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
-import { AccessReportView } from "../../../../access-intelligence/models";
+import { AccessReportView } from "../../models";
 
 /**
  * Service for persisting Risk Insights reports with backend flexibility.

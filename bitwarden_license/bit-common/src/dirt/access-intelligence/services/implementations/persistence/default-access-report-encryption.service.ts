@@ -8,13 +8,13 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
-import { AccessReportSummaryData } from "../../../../access-intelligence/models";
+import { AccessReportSummaryData } from "../../../models";
 import {
   AccessReportEncryptionService,
   DecryptedAccessReportData,
   EncryptedDataWithKey,
   EncryptedReportData,
-} from "../abstractions/access-report-encryption.service";
+} from "../../abstractions/access-report-encryption.service";
 
 import { ApplicationVersioningService } from "./versioning/application-versioning.service";
 import { ReportVersioningService } from "./versioning/report-versioning.service";

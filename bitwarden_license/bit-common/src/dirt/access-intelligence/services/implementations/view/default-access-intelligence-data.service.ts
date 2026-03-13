@@ -22,16 +22,16 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LogService } from "@bitwarden/logging";
 
-import { AccessReportView } from "../../../../access-intelligence/models";
-import { ReportProgress } from "../../models/report-models";
-import { AccessIntelligenceDataService } from "../abstractions/access-intelligence-data.service";
+import { ReportProgress } from "../../../../reports/risk-insights/models/report-models";
+import { AccessReportView } from "../../../models";
+import { AccessIntelligenceDataService } from "../../abstractions/access-intelligence-data.service";
 import {
   CollectionAccessDetails,
   GroupMembershipDetails,
   OrganizationUserView,
-} from "../abstractions/member-cipher-mapping.service";
-import { ReportGenerationService } from "../abstractions/report-generation.service";
-import { ReportPersistenceService } from "../abstractions/report-persistence.service";
+} from "../../abstractions/member-cipher-mapping.service";
+import { ReportGenerationService } from "../../abstractions/report-generation.service";
+import { ReportPersistenceService } from "../../abstractions/report-persistence.service";
 
 /**
  * Default implementation of AccessIntelligenceDataService.

@@ -3,20 +3,20 @@ import { Injectable } from "@angular/core";
 import { LogService } from "@bitwarden/logging";
 
 import {
-  MemberRegistryEntryData,
-  ApplicationHealthData,
-} from "../../../../../access-intelligence/models";
-import {
   validateAccessReportPayload,
   validateApplicationHealthReportDetailArray,
-} from "../../../helpers/type-guards/risk-insights-type-guards";
-import { ApplicationHealthReportDetail, MemberDetails } from "../../../models";
-import { AccessReportPayload } from "../../abstractions/access-report-encryption.service";
+} from "../../../../../reports/risk-insights/helpers";
+import {
+  ApplicationHealthReportDetail,
+  MemberDetails,
+} from "../../../../../reports/risk-insights/models";
+import { MemberRegistryEntryData, ApplicationHealthData } from "../../../../models";
+import { AccessReportPayload } from "../../../abstractions/access-report-encryption.service";
 import {
   UnsupportedVersionError,
   VersioningService,
   isVersionEnvelope,
-} from "../../abstractions/versioning.service";
+} from "../../../abstractions/versioning.service";
 
 @Injectable()
 export class ReportVersioningService extends VersioningService<AccessReportPayload> {

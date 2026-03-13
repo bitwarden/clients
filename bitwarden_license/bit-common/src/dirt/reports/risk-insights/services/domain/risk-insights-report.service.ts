@@ -10,7 +10,8 @@ import {
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { AccessReportMetrics } from "../../../../access-intelligence/models";
-import { getUniqueMembers } from "../../helpers/risk-insights-data-mappers";
+import { LegacyRiskInsightsEncryptionService } from "../../../../access-intelligence/services";
+import { getUniqueMembers } from "../../helpers";
 import {
   isSaveRiskInsightsReportResponse,
   SaveRiskInsightsReportResponse,
@@ -24,7 +25,6 @@ import {
   RiskInsightsData,
 } from "../../models/report-models";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
-import { LegacyRiskInsightsEncryptionService } from "../implementations/legacy-risk-insights-encryption.service";
 
 export class RiskInsightsReportService {
   constructor(

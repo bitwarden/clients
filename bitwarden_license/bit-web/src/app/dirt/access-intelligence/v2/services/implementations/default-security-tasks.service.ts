@@ -1,8 +1,8 @@
 import { BehaviorSubject, combineLatest, from, Observable } from "rxjs";
 import { map, shareReplay, switchMap, tap } from "rxjs/operators";
 
+import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/access-intelligence/services";
 import {
-  AccessIntelligenceDataService,
   SecurityTasksApiService,
   TaskMetrics,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/services";

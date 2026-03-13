@@ -3,6 +3,7 @@ import { distinctUntilChanged, map } from "rxjs/operators";
 
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 
+import { DrawerType } from "../../../../access-intelligence/services";
 import { getAtRiskApplicationList, getAtRiskMemberList } from "../../helpers";
 import {
   ReportState,
@@ -13,7 +14,6 @@ import {
   ApplicationHealthReportDetail,
   OrganizationReportApplication,
 } from "../../models";
-import { DrawerType } from "../abstractions/drawer-state.service";
 import { RiskInsightsOrchestratorService } from "../domain/risk-insights-orchestrator.service";
 
 export class RiskInsightsDataService {

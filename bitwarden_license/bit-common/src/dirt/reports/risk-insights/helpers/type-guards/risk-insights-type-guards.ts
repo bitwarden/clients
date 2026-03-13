@@ -6,13 +6,13 @@ import {
   ApplicationHealthData,
   AccessReportSummaryData,
 } from "../../../../access-intelligence/models";
+import { AccessReportPayload } from "../../../../access-intelligence/services";
 import {
   ApplicationHealthReportDetail,
   MemberDetails,
   OrganizationReportApplication,
   OrganizationReportSummary,
 } from "../../models";
-import { AccessReportPayload } from "../../services/abstractions/access-report-encryption.service";
 
 import {
   createBoundedArrayGuard,

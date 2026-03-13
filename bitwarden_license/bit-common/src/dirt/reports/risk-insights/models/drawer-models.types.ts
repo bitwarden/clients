@@ -1,4 +1,4 @@
-import { DrawerType } from "../services/abstractions/drawer-state.service";
+import { DrawerType } from "../../../access-intelligence/services";
 
 import { MemberDetails } from "./report-models";
 

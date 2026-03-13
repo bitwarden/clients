@@ -8,7 +8,7 @@ import {
   AccessReportSettingsData,
   ApplicationHealthData,
   AccessReportSummaryData,
-} from "../../../../access-intelligence/models";
+} from "../../models";
 
 /**
  * The three encrypted payloads that make up a stored AccessReport.

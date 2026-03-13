@@ -6,14 +6,10 @@ import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-st
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
 
-import {
-  AccessReportData,
-  AccessReport,
-  AccessReportView,
-} from "../../../../access-intelligence/models";
-import { AccessReportEncryptionService } from "../abstractions/access-report-encryption.service";
-import { ReportPersistenceService } from "../abstractions/report-persistence.service";
-import { RiskInsightsApiService } from "../api/risk-insights-api.service";
+import { RiskInsightsApiService } from "../../../../reports/risk-insights/services/api/risk-insights-api.service";
+import { AccessReportData, AccessReport, AccessReportView } from "../../../models";
+import { AccessReportEncryptionService } from "../../abstractions/access-report-encryption.service";
+import { ReportPersistenceService } from "../../abstractions/report-persistence.service";
 
 /**
  * Default implementation of ReportPersistenceService using current DB backend.

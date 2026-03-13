@@ -3,8 +3,8 @@ import { Observable } from "rxjs";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { AccessReportView } from "../../../../access-intelligence/models";
-import { ReportProgress } from "../../models/report-models";
+import { ReportProgress } from "../../../reports/risk-insights/models/report-models";
+import { AccessReportView } from "../../models";
 
 /**
  * Orchestrates Access Intelligence (Risk Insights) data loading, generation, and persistence.

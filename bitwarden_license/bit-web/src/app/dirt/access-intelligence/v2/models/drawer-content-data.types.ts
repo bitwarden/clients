@@ -1,4 +1,4 @@
-import { DrawerType } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/abstractions/drawer-state.service";
+import { DrawerType } from "@bitwarden/bit-common/dirt/access-intelligence/services";
 
 /**
  * Base member data included in drawer content.

@@ -2,13 +2,13 @@ import { Injectable } from "@angular/core";
 
 import { LogService } from "@bitwarden/logging";
 
-import { AccessReportSummaryData } from "../../../../../access-intelligence/models";
-import { isAccessReportSummaryData } from "../../../helpers/type-guards/risk-insights-type-guards";
+import { isAccessReportSummaryData } from "../../../../../reports/risk-insights/helpers";
+import { AccessReportSummaryData } from "../../../../models";
 import {
   UnsupportedVersionError,
   VersioningService,
   isVersionEnvelope,
-} from "../../abstractions/versioning.service";
+} from "../../../abstractions/versioning.service";
 
 @Injectable()
 export class SummaryVersioningService extends VersioningService<AccessReportSummaryData> {

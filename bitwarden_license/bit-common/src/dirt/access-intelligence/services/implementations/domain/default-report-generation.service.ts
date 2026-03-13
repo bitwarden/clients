@@ -3,21 +3,21 @@ import { forkJoin, map, Observable } from "rxjs";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LogService } from "@bitwarden/logging";
 
+import { getTrimmedCipherUris } from "../../../../reports/risk-insights/helpers";
 import {
   AccessReportSettingsView,
   ApplicationHealthView,
   AccessReportView,
   MemberRegistry,
-} from "../../../../access-intelligence/models";
-import { getTrimmedCipherUris } from "../../helpers/risk-insights-data-mappers";
-import { CipherHealthService } from "../abstractions/cipher-health.service";
+} from "../../../models";
+import { CipherHealthService } from "../../abstractions/cipher-health.service";
 import {
   CollectionAccessDetails,
   GroupMembershipDetails,
   MemberCipherMappingService,
   OrganizationUserView,
-} from "../abstractions/member-cipher-mapping.service";
-import { ReportGenerationService } from "../abstractions/report-generation.service";
+} from "../../abstractions/member-cipher-mapping.service";
+import { ReportGenerationService } from "../../abstractions/report-generation.service";
 
 /**
  * Default implementation of ReportGenerationService.

@@ -9,28 +9,25 @@ import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
 import {
-  MemberRegistryEntryData,
-  ApplicationHealthData,
-} from "../../../../access-intelligence/models";
-import { createNewSummaryData } from "../../helpers";
-import {
+  createNewSummaryData,
   validateAccessReportPayload,
   validateApplicationHealthReportDetailArray,
   validateOrganizationReportApplicationArray,
   validateOrganizationReportSummary,
-} from "../../helpers/type-guards/risk-insights-type-guards";
+} from "../../../../reports/risk-insights/helpers";
 import {
   ApplicationHealthReportDetail,
   DecryptedReportData,
   MemberDetails,
   OrganizationReportApplication,
   OrganizationReportSummary,
-} from "../../models";
+} from "../../../../reports/risk-insights/models";
+import { MemberRegistryEntryData, ApplicationHealthData } from "../../../models";
 import {
   EncryptedDataWithKey,
   EncryptedReportData,
-} from "../abstractions/access-report-encryption.service";
-import { isVersionEnvelope } from "../abstractions/versioning.service";
+} from "../../abstractions/access-report-encryption.service";
+import { isVersionEnvelope } from "../../abstractions/versioning.service";
 
 /**
  * @deprecated V1 encryption service. Used only by the V1 orchestrator, V1 report service,

@@ -6,8 +6,8 @@ import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/pass
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { CipherHealthView } from "../../../../access-intelligence/models";
-import { CipherHealthService } from "../abstractions/cipher-health.service";
+import { CipherHealthView } from "../../../models";
+import { CipherHealthService } from "../../abstractions/cipher-health.service";
 
 /**
  * Default implementation of CipherHealthService.

@@ -1,7 +1,7 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { DrawerType } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/abstractions/drawer-state.service";
+import { DrawerType } from "@bitwarden/bit-common/dirt/access-intelligence/services";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA } from "@bitwarden/components";

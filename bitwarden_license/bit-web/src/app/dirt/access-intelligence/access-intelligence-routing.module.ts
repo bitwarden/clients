@@ -5,13 +5,11 @@ import { map } from "rxjs";
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { componentRouteSwap } from "@bitwarden/angular/utils/component-route-swap";
-import { CriticalAppsService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import {
   AccessIntelligenceDataService,
-  AllActivitiesService,
+  AccessReportEncryptionService,
   ApplicationVersioningService,
   CipherHealthService,
-  CriticalAppsApiService,
   DefaultAccessIntelligenceDataService,
   DefaultAccessReportEncryptionService,
   DefaultCipherHealthService,
@@ -21,18 +19,22 @@ import {
   DefaultReportPersistenceService,
   DrawerStateService,
   LegacyRiskInsightsEncryptionService,
-  MemberCipherDetailsApiService,
   MemberCipherMappingService,
-  PasswordHealthService,
   ReportGenerationService,
   ReportPersistenceService,
   ReportVersioningService,
+  SummaryVersioningService,
+} from "@bitwarden/bit-common/dirt/access-intelligence/services";
+import {
+  AllActivitiesService,
+  CriticalAppsService,
+  CriticalAppsApiService,
+  MemberCipherDetailsApiService,
+  PasswordHealthService,
   RiskInsightsApiService,
   RiskInsightsDataService,
   RiskInsightsReportService,
   SecurityTasksApiService,
-  SummaryVersioningService,
-  AccessReportEncryptionService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/services";
 import { RiskInsightsOrchestratorService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/domain/risk-insights-orchestrator.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";

@@ -7,6 +7,10 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { AccessReportMetrics } from "../../../../access-intelligence/models";
+import {
+  EncryptedDataWithKey,
+  LegacyRiskInsightsEncryptionService,
+} from "../../../../access-intelligence/services";
 import { DecryptedReportData } from "../../models";
 import {
   GetRiskInsightsReportResponse,
@@ -22,10 +26,8 @@ import {
   mockReportData,
   mockSummaryData,
 } from "../../models/mocks/mock-data";
-import { EncryptedDataWithKey } from "../abstractions/access-report-encryption.service";
 import { MemberCipherDetailsApiService } from "../api/member-cipher-details-api.service";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
-import { LegacyRiskInsightsEncryptionService } from "../implementations/legacy-risk-insights-encryption.service";
 
 import { PasswordHealthService } from "./password-health.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";

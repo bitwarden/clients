@@ -8,6 +8,7 @@ import { makeEncString } from "@bitwarden/common/spec";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
 import { AccessReportMetrics } from "../../../../access-intelligence/models";
+import { EncryptedDataWithKey } from "../../../../access-intelligence/services";
 import {
   GetRiskInsightsApplicationDataResponse,
   GetRiskInsightsReportResponse,
@@ -16,7 +17,6 @@ import {
   SaveRiskInsightsReportResponse,
 } from "../../models/api-models.types";
 import { mockApplicationData, mockReportData, mockSummaryData } from "../../models/mocks/mock-data";
-import { EncryptedDataWithKey } from "../abstractions/access-report-encryption.service";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
 
 describe("RiskInsightsApiService", () => {

@@ -2,16 +2,16 @@ import { Injectable } from "@angular/core";
 
 import { LogService } from "@bitwarden/logging";
 
-import { AccessReportSettingsData } from "../../../../../access-intelligence/models";
 import {
-  validateOrganizationReportApplicationArray,
   validateAccessReportSettingsDataArray,
-} from "../../../helpers/type-guards/risk-insights-type-guards";
+  validateOrganizationReportApplicationArray,
+} from "../../../../../reports/risk-insights/helpers";
+import { AccessReportSettingsData } from "../../../../models";
 import {
   UnsupportedVersionError,
   VersioningService,
   isVersionEnvelope,
-} from "../../abstractions/versioning.service";
+} from "../../../abstractions/versioning.service";
 
 @Injectable()
 export class ApplicationVersioningService extends VersioningService<AccessReportSettingsData[]> {

@@ -1,6 +1,10 @@
 import { Injectable, signal, Signal } from "@angular/core";
 
-import { DrawerState, DrawerStateService, DrawerType } from "../abstractions/drawer-state.service";
+import {
+  DrawerState,
+  DrawerStateService,
+  DrawerType,
+} from "../../abstractions/drawer-state.service";
 
 /**
  * Default implementation of DrawerStateService using Angular Signals.

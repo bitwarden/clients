@@ -2,14 +2,14 @@ import { Observable, of } from "rxjs";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { MemberRegistryEntryView, MemberRegistry } from "../../../../access-intelligence/models";
+import { MemberRegistryEntryView, MemberRegistry } from "../../../models";
 import {
   CollectionAccessDetails,
   GroupMembershipDetails,
   MemberCipherMappingResult,
   MemberCipherMappingService,
   OrganizationUserView,
-} from "../abstractions/member-cipher-mapping.service";
+} from "../../abstractions/member-cipher-mapping.service";
 
 /**
  * Default implementation of MemberCipherMappingService

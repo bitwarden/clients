@@ -4,7 +4,7 @@ import { BehaviorSubject, of } from "rxjs";
 import { action } from "storybook/actions";
 
 import { AccessReportView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
-import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/access-intelligence/services";
 import { TaskMetrics } from "@bitwarden/bit-common/dirt/reports/risk-insights/services";
 import {
   createApplication,
