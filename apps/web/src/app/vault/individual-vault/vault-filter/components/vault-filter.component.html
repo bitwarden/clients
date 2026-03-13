@@ -33,11 +33,14 @@
           />
         </div>
         @for (f of filtersList; track f) {
-          <ng-container>
-            <div class="filter">
-              <app-filter-section [activeFilter]="activeFilter" [section]="f"> </app-filter-section>
-            </div>
-          </ng-container>
+          <div class="filter">
+            <app-filter-section
+              [activeFilter]="activeFilter"
+              [section]="f"
+              [isCollectionFilter]="f === filters?.collectionFilter"
+            >
+            </app-filter-section>
+          </div>
         }
       </div>
     </div>
