@@ -7,6 +7,7 @@ export class MasterPasswordUnlockDataRequest {
   kdfParallelism?: number;
 
   email: string;
+  salt: string;
   masterKeyAuthenticationHash: string;
 
   /**
@@ -31,6 +32,7 @@ export class MasterPasswordUnlockDataRequest {
     }
 
     this.email = email;
+    this.salt = email;
     this.masterKeyAuthenticationHash = masterKeyAuthenticationHash;
     this.masterKeyEncryptedUserKey = masterKeyWrappedUserKey;
     this.masterPasswordHint = masterPasswordHash;

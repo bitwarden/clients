@@ -90,6 +90,8 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       passwordInputResult.kdfConfig.iterations,
     );
 
+    registerFinishRequest.salt = passwordInputResult.salt;
+
     if (emailVerificationToken) {
       registerFinishRequest.emailVerificationToken = emailVerificationToken;
     }

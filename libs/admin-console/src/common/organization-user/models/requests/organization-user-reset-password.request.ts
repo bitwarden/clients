@@ -9,6 +9,7 @@ import {
 export class OrganizationUserResetPasswordRequest {
   newMasterPasswordHash: string;
   key: string;
+  salt?: string;
 
   // This will eventually be changed to be an actual constructor, once all callers are updated.
   // The body of this request will be changed to carry the authentication data and unlock data.
@@ -20,6 +21,7 @@ export class OrganizationUserResetPasswordRequest {
     const request = new OrganizationUserResetPasswordRequest();
     request.newMasterPasswordHash = authenticationData.masterPasswordAuthenticationHash;
     request.key = unlockData.masterKeyWrappedUserKey;
+    request.salt = unlockData.salt;
     return request;
   }
 }
