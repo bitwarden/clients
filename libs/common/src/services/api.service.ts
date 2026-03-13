@@ -1666,12 +1666,10 @@ export class ApiService implements ApiServiceAbstraction {
   private buildSafeApiRequestUrl(apiUrl: string, path: string): string {
     const pathParts = path.split("?");
 
-    // Check for path traversal patterns from any URL.
+    // Supplementary heuristic: detect common traversal indicators before normalization.
     const fullUrlPath = apiUrl + pathParts[0] + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
-
-    const isInvalidUrl = Utils.invalidUrlPatterns(fullUrlPath);
-    if (isInvalidUrl) {
-      throw new Error("The request URL contains dangerous patterns.");
+    if (Utils.containsTraversalIndicators(fullUrlPath)) {
+      throw new Error("The request URL contains unexpected patterns.");
     }
 
     const requestUrl =
