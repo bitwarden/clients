@@ -50,7 +50,7 @@ describe("DefaultCipherSdkService", () => {
       restore_many: jest.fn().mockResolvedValue(undefined),
       decrypt_fido2_credentials: jest.fn(),
       decrypt_fido2_private_key: jest.fn(),
-      list: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
+      get_all: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
       admin: jest.fn().mockReturnValue(mockAdminSdk),
     };
     mockVaultSdk = {
@@ -613,7 +613,7 @@ describe("DefaultCipherSdkService", () => {
     it("should list and decrypt ciphers using SDK", async () => {
       const mockSdkCipherView = new CipherView().toSdkCipherView();
       mockSdkCipherView.name = "Test Cipher";
-      mockCiphersSdk.list.mockResolvedValue({
+      mockCiphersSdk.get_all.mockResolvedValue({
         successes: [mockSdkCipherView],
         failures: [],
       });
@@ -622,7 +622,7 @@ describe("DefaultCipherSdkService", () => {
 
       expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
       expect(mockVaultSdk.ciphers).toHaveBeenCalled();
-      expect(mockCiphersSdk.list).toHaveBeenCalled();
+      expect(mockCiphersSdk.get_all).toHaveBeenCalled();
       expect(result.successes).toHaveLength(1);
       expect(result.successes[0]).toBeInstanceOf(CipherView);
       expect(result.failures).toHaveLength(0);
@@ -656,7 +656,7 @@ describe("DefaultCipherSdkService", () => {
         identity: null,
         sshKey: null,
       };
-      mockCiphersSdk.list.mockResolvedValue({
+      mockCiphersSdk.get_all.mockResolvedValue({
         successes: [],
         failures: [mockFailedCipher],
       });
@@ -678,7 +678,7 @@ describe("DefaultCipherSdkService", () => {
     });
 
     it("should throw error and log when SDK throws an error", async () => {
-      mockCiphersSdk.list.mockRejectedValue(new Error("SDK error"));
+      mockCiphersSdk.get_all.mockRejectedValue(new Error("SDK error"));
 
       await expect(cipherSdkService.getAllDecrypted(userId)).rejects.toThrow();
       expect(logService.error).toHaveBeenCalledWith(
