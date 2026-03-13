@@ -35,4 +35,9 @@ export class DefaultPasswordPreloginService implements PasswordPreloginService {
 
     return this.currentPreloginData$;
   }
+
+  clearCache(): void {
+    this.currentEmail = null;
+    this.currentPreloginData$ = null;
+  }
 }

@@ -152,4 +152,16 @@ describe("DefaultPasswordPreloginService", () => {
       expect(apiService.getPreloginData).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe("clearCache", () => {
+    it("causes a new API request for the same email after clearing", async () => {
+      apiService.getPreloginData.mockResolvedValue(response);
+
+      await firstValueFrom(sut.getPreloginData$(email));
+      sut.clearCache();
+      await firstValueFrom(sut.getPreloginData$(email));
+
+      expect(apiService.getPreloginData).toHaveBeenCalledTimes(2);
+    });
+  });
 });

@@ -257,6 +257,12 @@ describe("PasswordLoginStrategy", () => {
         "KDF config is required",
       );
     });
+
+    it("clears the prelogin cache after the master key is derived", async () => {
+      await passwordLoginStrategy.logIn(credentials);
+
+      expect(passwordPreloginService.clearCache).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("evaluateMasterPasswordIfRequired", () => {

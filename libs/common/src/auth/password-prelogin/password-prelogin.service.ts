@@ -11,4 +11,10 @@ export abstract class PasswordPreloginService {
    * in-flight observable for a given email, starting a fresh request if the email changes.
    */
   abstract getPreloginData$(email: string): Observable<PasswordPreloginData>;
+
+  /**
+   * Clears any cached prelogin data. Should be called after a successful password login
+   * to prevent stale KDF config from persisting in memory.
+   */
+  abstract clearCache(): void;
 }

@@ -90,6 +90,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
       email,
       preFetchedPreloginData,
     );
+    this.passwordPreloginService.clearCache();
     data.masterPassword = masterPassword;
     data.userEnteredEmail = email;
 
