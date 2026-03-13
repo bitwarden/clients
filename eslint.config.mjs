@@ -198,6 +198,7 @@ export default tseslint.config(
     },
     rules: {
       "@angular-eslint/template/button-has-type": "error",
+      "@angular-eslint/template/elements-content": ["error", { allowList: ["bitIconButton"] }],
       "tailwindcss/no-custom-classname": [
         "error",
         {
