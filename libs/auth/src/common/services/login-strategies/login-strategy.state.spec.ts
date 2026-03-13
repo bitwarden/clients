@@ -51,7 +51,6 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
       deviceRequest,
     );
     actual.password.masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
-    actual.password.localMasterKeyHash = "LOCAL_MASTER_KEY_HASH";
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));
 

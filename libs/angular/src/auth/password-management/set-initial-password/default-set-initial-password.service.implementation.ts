@@ -79,7 +79,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     const {
       newMasterKey,
       newServerMasterKeyHash,
-      newLocalMasterKeyHash,
       newPasswordHint,
       kdfConfig,
       orgSsoIdentifier,
@@ -211,9 +210,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         userId,
       );
     }
-
-    // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
-    await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId);
 
     if (resetPasswordAutoEnroll) {
       await this.handleResetPasswordAutoEnrollOld(newServerMasterKeyHash, orgId, userId);
