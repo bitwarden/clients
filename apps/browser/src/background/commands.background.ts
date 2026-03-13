@@ -92,7 +92,7 @@ export default class CommandsBackground {
     commandSender?: ExtensionCommandType,
   ) {
     if (!tab) {
-      tab = await BrowserApi.getTabFromCurrentWindowId();
+      tab = await BrowserApi.getTabFromCurrentWindow();
     }
 
     if (tab == null || !commandSender) {
