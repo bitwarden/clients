@@ -240,7 +240,7 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
   },
 })
 export class BaseButtonDirective {
-  readonly buttonType = input<ButtonType>("secondary");
+  readonly buttonType = model<ButtonType>("secondary");
 
   readonly block = input(false, { transform: booleanAttribute });
 
