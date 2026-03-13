@@ -882,7 +882,7 @@ describe("DefaultVaultItemsTransferService", () => {
         );
       });
 
-      it("logs declined event when user rejects transfer", async () => {
+      it("does not log an event when user rejects transfer", async () => {
         const personalCiphers = [{ id: "cipher-1" } as CipherView];
         setupMocksForEnforcementScenario({
           policies: [policy],
@@ -901,12 +901,7 @@ describe("DefaultVaultItemsTransferService", () => {
 
         await service.enforceOrganizationDataOwnership(userId);
 
-        expect(mockEventCollectionService.collect).toHaveBeenCalledWith(
-          EventType.Organization_ItemOrganization_Declined,
-          undefined,
-          undefined,
-          organizationId,
-        );
+        expect(mockEventCollectionService.collect).not.toHaveBeenCalled();
       });
     });
   });
