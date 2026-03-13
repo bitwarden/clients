@@ -206,6 +206,16 @@ export class CliUtils {
     });
   }
 
+  static searchGroups<T extends { name: string }>(groups: T[], search: string): T[] {
+    search = search.toLowerCase();
+    return groups.filter((g) => {
+      if (g.name != null && g.name.toLowerCase().indexOf(search) > -1) {
+        return true;
+      }
+      return false;
+    });
+  }
+
   /**
    * Gets a password from all available sources. In order of priority these are:
    *   * passwordfile

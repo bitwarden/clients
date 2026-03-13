@@ -9,6 +9,8 @@ import { firstValueFrom } from "rxjs";
 import {
   OrganizationUserApiService,
   DefaultOrganizationUserApiService,
+  GroupApiService,
+  DefaultGroupApiService,
   DefaultCollectionService,
 } from "@bitwarden/admin-console/common";
 import {
@@ -264,6 +266,7 @@ export class ServiceContainer {
   cipherService: CipherService;
   folderService: InternalFolderService;
   organizationUserApiService: OrganizationUserApiService;
+  groupApiService: GroupApiService;
   collectionService: DefaultCollectionService;
   vaultTimeoutService: VaultTimeoutService;
   masterPasswordService: InternalMasterPasswordServiceAbstraction;
@@ -1037,6 +1040,8 @@ export class ServiceContainer {
     this.providerApiService = new ProviderApiService(this.apiService);
 
     this.organizationUserApiService = new DefaultOrganizationUserApiService(this.apiService);
+
+    this.groupApiService = new DefaultGroupApiService(this.apiService);
 
     this.cipherAuthorizationService = new DefaultCipherAuthorizationService(
       this.collectionService,
