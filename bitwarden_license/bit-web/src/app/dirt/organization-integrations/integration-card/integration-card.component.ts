@@ -299,13 +299,19 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
 
     if (response.success) {
       this.state.deleteIntegrationSettings(this.integrationSettings().name);
-    }
 
-    this.toastService.showToast({
-      variant: "success",
-      title: "",
-      message: this.i18nService.t("success"),
-    });
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t("success"),
+      });
+    } else {
+      this.toastService.showToast({
+        variant: "error",
+        title: "",
+        message: this.i18nService.t("failedToDeleteIntegration"),
+      });
+    }
   }
 
   /**
