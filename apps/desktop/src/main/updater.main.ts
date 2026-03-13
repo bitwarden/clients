@@ -229,7 +229,10 @@ export class UpdaterMain {
       if (arg != null && arg.toUpperCase().indexOf("--ELECTRON_NO_UPDATER=1") > -1) {
         return true;
       }
+      if (arg != null && arg.toUpperCase().indexOf("--BITWARDEN_NO_UPDATER=1") > -1) {
+        return true;
+      }
     }
-    return process.env.ELECTRON_NO_UPDATER === "1";
+    return process.env.ELECTRON_NO_UPDATER === "1" || process.env.BITWARDEN_NO_UPDATER === "1";
   }
 }
