@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, output } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { LockIcon } from "@bitwarden/assets/svg";
@@ -51,6 +51,8 @@ export class ChangePasswordComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() inputPasswordFlow: InputPasswordFlow = InputPasswordFlow.ChangePassword;
+
+  passwordChanged = output<void>();
 
   activeAccount: Account | null = null;
   email?: string;
@@ -162,6 +164,8 @@ export class ChangePasswordComponent implements OnInit {
           this.activeAccount,
           passwordInputResult.newPasswordHint,
         );
+
+        this.passwordChanged.emit();
       } else {
         if (!this.userId) {
           throw new Error("userId not found");
@@ -180,6 +184,8 @@ export class ChangePasswordComponent implements OnInit {
           variant: "success",
           message: this.i18nService.t("masterPasswordChanged"),
         });
+
+        this.passwordChanged.emit();
 
         // TODO: PM-23515 eventually use the logout service instead of messaging service once it is available without circular dependencies
         this.messagingService.send("logout");

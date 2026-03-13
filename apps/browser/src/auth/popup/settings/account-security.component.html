@@ -128,7 +128,11 @@
         <bit-item *ngIf="showChangeMasterPass">
           <button bit-item-content type="button" appStopClick (click)="changePassword()">
             {{ "changeMasterPassword" | i18n }}
-            <bit-icon slot="end" name="bwi-external-link"></bit-icon>
+            @if (multiClientPasswordManagement$ | async) {
+              <bit-icon slot="end" name="bwi-angle-right" class="tw-text-lg"></bit-icon>
+            } @else {
+              <bit-icon slot="end" name="bwi-external-link"></bit-icon>
+            }
           </button>
         </bit-item>
       </bit-section>
