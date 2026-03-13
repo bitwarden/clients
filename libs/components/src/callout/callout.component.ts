@@ -125,4 +125,8 @@ export class CalloutComponent implements OnInit {
   protected readonly calloutClass = computed(() => {
     return `${this.variantClass()} ${this.fgClass()} ${this.paddingClass()}`;
   });
+
+  protected readonly verticalAlignClass = computed(() => {
+    return this.title() ? "tw-items-baseline" : "tw-items-center";
+  });
 }

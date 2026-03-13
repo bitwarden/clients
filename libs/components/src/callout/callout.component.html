@@ -12,7 +12,7 @@
 
   <div class="tw-flex tw-flex-col tw-gap-2">
     <div class="tw-flex tw-justify-between">
-      <div class="tw-flex tw-gap-2 tw-items-baseline">
+      <div class="tw-flex tw-gap-2" [class]="verticalAlignClass()">
         @if (icon) {
           <bit-icon [name]="icon" />
         }
