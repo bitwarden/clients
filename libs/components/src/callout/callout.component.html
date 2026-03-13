@@ -7,12 +7,14 @@
   @let icon = iconComputed();
 
   <ng-template #contentTpl>
-    <ng-content />
+    <div bitTypography="body2" class="tw-pr-4">
+      <ng-content />
+    </div>
   </ng-template>
 
   <div class="tw-flex tw-flex-col tw-gap-2">
     <div class="tw-flex tw-justify-between">
-      <div class="tw-flex tw-gap-2" [class]="verticalAlignClass()">
+      <div class="tw-flex tw-gap-2 tw-items-baseline" [class]="paddingTopClass()">
         @if (icon) {
           <bit-icon [name]="icon" />
         }
@@ -22,9 +24,7 @@
             {{ title }}
           </header>
         } @else {
-          <div bitTypography="body2">
-            <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
-          </div>
+          <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
         }
       </div>
       @if (isDismissible()) {
@@ -36,13 +36,12 @@
           (click)="onDismiss()"
           [class]="fgClass()"
           [label]="closeLabel"
+          class="tw-shrink-0"
         ></button>
       }
     </div>
     @if (title) {
-      <div bitTypography="body2">
-        <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
-      </div>
+      <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
     }
   </div>
   <div class="tw-flex tw-gap-3 [&>*]:tw-mt-4">
