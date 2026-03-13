@@ -1,12 +1,14 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, OnInit } from "@angular/core";
+import { Component, effect, input } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, Validators, ReactiveFormsModule } from "@angular/forms";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { CheckboxModule, FormFieldModule, SectionComponent } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
 
-import { SendFormService } from "../../abstractions/send-form.service";
+import { SendFormConfig } from "../../abstractions/send-form-config.service";
+import { SendFormContainer } from "../../send-form-container";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -16,26 +18,50 @@ import { SendFormService } from "../../abstractions/send-form.service";
   imports: [
     CheckboxModule,
     CommonModule,
-    I18nPipe,
+    JslibModule,
     ReactiveFormsModule,
     FormFieldModule,
     SectionComponent,
   ],
 })
-export class SendTextDetailsComponent implements OnInit {
-  private formBuilder = inject(FormBuilder);
-  private sendFormService = inject(SendFormService);
+export class SendTextDetailsComponent {
+  readonly config = input.required<SendFormConfig>();
+  readonly originalSendView = input<SendView>();
+  readonly editing = input<boolean>(false);
 
   sendTextDetailsForm = this.formBuilder.group({
-    text: new FormControl("", Validators.required),
-    hidden: new FormControl(false),
+    text: new FormControl(this.originalSendView()?.text?.text || "", Validators.required),
+    hidden: new FormControl(this.originalSendView()?.text?.hidden || false),
   });
 
-  constructor() {
-    this.sendFormService.registerChildForm("sendTextDetailsForm", this.sendTextDetailsForm);
+  constructor(
+    private formBuilder: FormBuilder,
+    protected sendFormContainer: SendFormContainer,
+  ) {
+    this.sendFormContainer.registerChildForm("sendTextDetailsForm", this.sendTextDetailsForm);
+
+    effect(() => {
+      if (this.editing()) {
+        this.sendTextDetailsForm.enable();
+      } else {
+        this.sendTextDetailsForm.disable();
+        if (this.originalSendView()) {
+          this.sendTextDetailsForm.patchValue({
+            text: this.originalSendView()?.text?.text || "",
+            hidden: this.originalSendView()?.text?.hidden || false,
+          });
+        }
+      }
+    });
+
+    effect(() => {
+      if (!this.config().areSendsAllowed) {
+        this.sendTextDetailsForm.disable();
+      }
+    });
 
     this.sendTextDetailsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
-      this.sendFormService.patchSend((send) => {
+      this.sendFormContainer.patchSend((send) => {
         return Object.assign(send, {
           text: {
             text: value.text,
@@ -44,16 +70,5 @@ export class SendTextDetailsComponent implements OnInit {
         });
       });
     });
-  }
-
-  async ngOnInit(): Promise<void> {
-    this.sendTextDetailsForm.patchValue({
-      text: this.sendFormService.originalSendView?.text?.text || "",
-      hidden: this.sendFormService.originalSendView?.text?.hidden || false,
-    });
-
-    if (!this.sendFormService.sendFormConfig?.areSendsAllowed) {
-      this.sendTextDetailsForm.disable();
-    }
   }
 }

@@ -117,7 +117,6 @@ interface OnSuccessArgs {
     EnterBillingAddressComponent,
     CardComponent,
   ],
-  providers: [SubscriberBillingClient, PreviewInvoiceClient],
 })
 export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
