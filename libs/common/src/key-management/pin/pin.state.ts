@@ -1,5 +1,5 @@
 import { PIN_DISK, PIN_MEMORY, UserKeyDefinition } from "@bitwarden/common/platform/state";
-import { PasswordProtectedKeyEnvelope } from "@bitwarden/sdk-internal";
+import { PasswordProtectedKeyEnvelope, EphemeralPinEnvelopeState } from "@bitwarden/sdk-internal";
 
 import { EncryptedString } from "../crypto/models/enc-string";
 
@@ -23,7 +23,7 @@ export const PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT =
  * The ephemeral (stored in memory) version of the UserKey, stored in a `PasswordProtectedKeyEnvelope`.
  */
 export const PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL =
-  new UserKeyDefinition<PasswordProtectedKeyEnvelope>(
+  UserKeyDefinition.record<EphemeralPinEnvelopeState>(
     PIN_MEMORY,
     "pinProtectedUserKeyEnvelopeEphemeral",
     {
