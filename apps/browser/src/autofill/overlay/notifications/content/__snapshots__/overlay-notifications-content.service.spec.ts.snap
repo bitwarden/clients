@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`OverlayNotificationsContentService opening the notification bar creates the notification bar elements and appends them to the body within a shadow root 1`] = `
 <div
