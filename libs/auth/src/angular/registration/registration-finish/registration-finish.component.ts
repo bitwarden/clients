@@ -54,6 +54,13 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   loading = true;
   submitting = false;
   pqpAutoSubmitting = false;
+
+  /**
+   * Deferred promise resolved by handlePasswordFormSubmit() so the auto-submit
+   * block can keep pqpAutoSubmitting=true (spinner visible) until the full
+   * registration + login flow finishes.
+   */
+  private _pqpRegistrationResolve: (() => void) | null = null;
   email: string;
 
   /**
@@ -140,6 +147,12 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     // After loading=false, Angular renders InputPasswordComponent (hidden).
     // We ephemerally patch the form with the derived password and trigger submit.
     if (this.pqpAutoSubmitting) {
+      // Create a deferred promise that handlePasswordFormSubmit() will resolve
+      // when the full registration + login flow completes.
+      const registrationComplete = new Promise<void>((resolve) => {
+        this._pqpRegistrationResolve = resolve;
+      });
+
       setTimeout(async () => {
         const inputPasswordComponent = this.inputPasswordComponent();
         if (inputPasswordComponent) {
@@ -148,10 +161,17 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
               inputPasswordComponent.patchPassword(password);
               await inputPasswordComponent.submit();
             });
+            // Scrub password from form controls immediately after submit()
+            // (submit emits the event and returns — registration is still in flight)
+            inputPasswordComponent.patchPassword("");
+
+            // Wait for handlePasswordFormSubmit() to finish before hiding spinner
+            await registrationComplete;
           } catch (e) {
             this.logService.error("[PQP] Auto-submit failed, user can submit manually:", e);
           } finally {
             this.pqpAutoSubmitting = false;
+            this._pqpRegistrationResolve = null;
           }
         } else {
           this.pqpAutoSubmitting = false;
@@ -231,6 +251,9 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     } catch (e) {
       this.validationService.showError(e);
       this.submitting = false;
+      if (this._pqpRegistrationResolve) {
+        this._pqpRegistrationResolve();
+      }
       return;
     }
 
@@ -271,6 +294,12 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
       await this.router.navigate(["/login"], { queryParams: { email: this.email } });
     }
     this.submitting = false;
+
+    // Resolve the deferred promise so the PqP auto-submit block knows
+    // the full registration + login flow has completed.
+    if (this._pqpRegistrationResolve) {
+      this._pqpRegistrationResolve();
+    }
   }
 
   private setDefaultPageTitleAndSubtitle() {
