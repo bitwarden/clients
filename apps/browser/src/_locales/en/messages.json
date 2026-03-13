@@ -488,6 +488,12 @@
   "length": {
     "message": "Length"
   },
+  "loginEmail": {
+    "message": "Login Email"
+  },
+  "loginEmailDesc": {
+    "message": "Generates an email matching your Bitwarden login email."
+  },
   "include": {
     "message": "Include",
     "description": "Card header for password generator include block"
