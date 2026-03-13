@@ -40,7 +40,7 @@ main directories are:
 cross-dependencies that violate the intended modular structure. Always consult and respect the
 dependency rules defined in `eslint.config.mjs`, `nx.json`, and other configuration files.
 
-## Angular Architecture Patterns
+## Angular Architecture Patterns (Angular app and library code only)
 
 **Observable Data Services (ADR-0003):**
 
