@@ -6,7 +6,7 @@ import {
   AccessIntelligenceDataService,
   DrawerStateService,
   DrawerType,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights";
+} from "@bitwarden/bit-common/dirt/access-intelligence";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";

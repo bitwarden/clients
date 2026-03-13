@@ -10,8 +10,8 @@ import {
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { EMPTY, catchError, switchMap } from "rxjs";
 
+import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/access-intelligence";
 import { ApplicationHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
-import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";

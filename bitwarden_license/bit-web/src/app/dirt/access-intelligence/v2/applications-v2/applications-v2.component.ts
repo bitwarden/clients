@@ -16,7 +16,7 @@ import {
   AccessIntelligenceDataService,
   DrawerStateService,
   DrawerType,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights";
+} from "@bitwarden/bit-common/dirt/access-intelligence";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";

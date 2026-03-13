@@ -17,16 +17,16 @@ import { concatMap, delay, skip } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
+  AccessIntelligenceDataService,
+  DrawerStateService,
+  DrawerType,
+} from "@bitwarden/bit-common/dirt/access-intelligence";
+import {
   MemberRegistryEntryView,
   ApplicationHealthView,
   AccessReportView,
 } from "@bitwarden/bit-common/dirt/access-intelligence/models";
-import {
-  AccessIntelligenceDataService,
-  DrawerStateService,
-  DrawerType,
-  ReportProgress,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { ReportProgress } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";

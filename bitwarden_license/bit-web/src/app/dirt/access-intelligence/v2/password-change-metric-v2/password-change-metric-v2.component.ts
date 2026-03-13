@@ -13,7 +13,7 @@ import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { map, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/access-intelligence";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
