@@ -50,9 +50,8 @@
                 appA11yTitle="{{ 'learnMoreAboutMemberRoles' | i18n }}"
                 href="https://bitwarden.com/help/user-types-access-control/"
                 slot="end"
-              >
-                <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-              </a>
+                startIcon="bwi-question-circle"
+              ></a>
             </bit-label>
             <bit-radio-button id="userTypeUser" [value]="organizationUserType.User">
               <bit-label>{{ "user" | i18n }}</bit-label>
@@ -154,9 +153,8 @@
                 rel="noreferrer"
                 appA11yTitle="{{ 'learnMore' | i18n }}"
                 href="https://bitwarden.com/help/manage-your-organization/#access-to-secrets-manager"
-              >
-                <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-              </a>
+                startIcon="bwi-question-circle"
+              ></a>
             </h3>
             <p class="tw-text-muted">{{ "secretsManagerAccessDescription" | i18n }}</p>
             <bit-form-control>
