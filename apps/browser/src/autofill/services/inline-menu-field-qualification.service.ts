@@ -533,18 +533,21 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
     // If the field is structured within a form, but no password fields are present in the form,
     // we need to consider whether the field is part of a multistep login form.
     if (passwordFieldsInPageDetails.length === 0) {
-      // If the form that contains a single field, we should assume that it is part
-      // of a multistep login form.
-      const fieldsWithinForm = pageDetails.fields.filter(
-        (pageDetailsField) => pageDetailsField.form === field.form,
+      // If the form contains a single login-eligible field (excluding non-login types like
+      // checkboxes and textareas), we should assume it is part of a multistep login form.
+      const loginEligibleFieldsWithinForm = pageDetails.fields.filter(
+        (pageDetailsField) =>
+          pageDetailsField.form === field.form &&
+          pageDetailsField.type != null &&
+          this.usernameFieldTypes.has(pageDetailsField.type),
       );
-      if (fieldsWithinForm.length === 1) {
+      if (loginEligibleFieldsWithinForm.length === 1) {
         return true;
       }
 
-      // If multiple fields exist within the form, we should check if a single visible field exists.
-      // If so, we should assume that the field is part of a login form.
-      return fieldsWithinForm.filter((field) => field.viewable).length === 1;
+      // If multiple login-eligible fields exist within the form, we should check if a
+      // single visible field exists. If so, we should assume that the field is part of a login form.
+      return loginEligibleFieldsWithinForm.filter((field) => field.viewable).length === 1;
     }
 
     // If a single password field exists within the page details, and that password field is part of

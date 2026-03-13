@@ -536,6 +536,67 @@ describe("InlineMenuFieldQualificationService", () => {
             ).toBe(false);
           });
 
+          it("is structured on a page with no password fields and has a visible checkbox in the form", () => {
+            const field = mock<AutofillField>({
+              type: "text",
+              autoCompleteType: "",
+              htmlID: "username",
+              htmlName: "username",
+              placeholder: "username",
+              form: "validFormId",
+              viewable: true,
+            });
+            const checkboxField = mock<AutofillField>({
+              type: "checkbox",
+              autoCompleteType: "",
+              htmlID: "cookie-agree",
+              htmlName: "cookie-agree",
+              placeholder: "",
+              form: "validFormId",
+              viewable: true,
+            });
+            pageDetails.fields = [field, checkboxField];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(true);
+          });
+
+          it("is structured on a page with no password fields and has hidden textarea fields in the form", () => {
+            const field = mock<AutofillField>({
+              type: "email",
+              autoCompleteType: "",
+              htmlID: "email",
+              htmlName: "email",
+              placeholder: "",
+              form: "validFormId",
+              viewable: false,
+            });
+            const captchaTextarea1 = mock<AutofillField>({
+              type: "textarea",
+              autoCompleteType: "",
+              htmlID: "g-recaptcha-response",
+              htmlName: "g-recaptcha-response",
+              placeholder: "",
+              form: "validFormId",
+              viewable: false,
+            });
+            const captchaTextarea2 = mock<AutofillField>({
+              type: "textarea",
+              autoCompleteType: "",
+              htmlID: "h-captcha-response",
+              htmlName: "h-captcha-response",
+              placeholder: "",
+              form: "validFormId",
+              viewable: false,
+            });
+            pageDetails.fields = [field, captchaTextarea1, captchaTextarea2];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(true);
+          });
+
           it("is structured on a page with multiple viewable password fields", () => {
             const field = mock<AutofillField>({
               type: "text",
