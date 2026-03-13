@@ -224,10 +224,7 @@ export class SendDetailsComponent implements OnInit {
         } else if (type === AuthType.Email) {
           passwordControl.setValue(null);
           passwordControl.clearValidators();
-          emailsControl.setValidators([
-            this.emailsRequiredForEmailAuthValidator(),
-            this.emailListValidator(),
-          ]);
+          emailsControl.setValidators([Validators.required, this.emailListValidator()]);
         } else {
           emailsControl.setValue(null);
           emailsControl.clearValidators();
@@ -314,26 +311,13 @@ export class SendDetailsComponent implements OnInit {
         return null;
       }
       const emails = control.value.split(",").map((e: string) => e.trim());
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const invalidEmails = emails.filter((e: string) => e.length > 0 && !emailRegex.test(e));
-      return invalidEmails.length > 0 ? { multipleEmails: true } : null;
-    };
-  }
-
-  emailsRequiredForEmailAuthValidator(): ValidatorFn {
-    return (control: FormControl): ValidationErrors | null => {
-      const authType = this.sendDetailsForm?.get("authType")?.value;
-      const emails = control.value;
-
-      if (authType === AuthType.Email && (!emails || emails.trim() === "")) {
-        return {
-          emailsRequiredForEmailAuth: {
-            message: this.i18nService.t("emailsRequiredChangeAccessType"),
-          },
-        };
+      const nonEmptyEmails = emails.filter((e: string) => e.length > 0);
+      if (nonEmptyEmails.length === 0) {
+        return { required: true };
       }
-
-      return null;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const invalidEmails = nonEmptyEmails.filter((e: string) => !emailRegex.test(e));
+      return invalidEmails.length > 0 ? { multipleEmails: true } : null;
     };
   }
 
