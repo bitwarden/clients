@@ -138,10 +138,8 @@ describe("EnvironmentService", () => {
     describe("logout race condition: USER_ENVIRONMENT_KEY cleared before activeAccountId$ switches to null", () => {
       // The race: background clears USER_ENVIRONMENT_KEY ("logout" state event) before
       // the popup's activeAccountId$ receives the null emission from accountService.clean().
-      // Background and popup are separate JS contexts sharing chrome.storage; storage change
-      // events can arrive in the popup out of order. If the USER_ENVIRONMENT_KEY clear
-      // propagates first, environment$ watches USER state (null → US default) while
-      // setEnvironment(EU) writes only to GLOBAL — the selector reverts immediately.
+      // If the USER_ENVIRONMENT_KEY clear propagates first, environment$ watches USER state while
+      // setEnvironment() writes only to GLOBAL, causing the selector to fall back to the default (US) immediately.
 
       it("falls back to global when user environment state is cleared mid-logout", async () => {
         setGlobalData(Region.EU, new EnvironmentUrls());
@@ -171,8 +169,8 @@ describe("EnvironmentService", () => {
         await awaitAsync();
 
         // User clicks EU in the environment selector → setEnvironment(EU) → writes GLOBAL
-        // Without fix: environment$ watches USER state (null→US), ignores GLOBAL write → stays US
-        // With fix: environment$ falls back to GLOBAL, setEnvironment(EU) updates GLOBAL → emits EU
+        // Without fix: environment$ watches USER state (which is null and defaults to US) and ignores GLOBAL write and the value stays US
+        // With fix: environment$ falls back to GLOBAL, so setEnvironment(EU) updates GLOBAL and emits EU
         await sut.setEnvironment(Region.EU);
         await awaitAsync();
 
