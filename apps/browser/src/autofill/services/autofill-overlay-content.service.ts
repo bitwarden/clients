@@ -54,8 +54,38 @@ import {
 } from "./abstractions/autofill-overlay-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
-import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
+import {
+  AutofillVector,
+  InlineMenuFieldQualificationService,
+  QualificationResult,
+} from "./abstractions/inline-menu-field-qualifications.service";
 import { AutoFillConstants } from "./autofill-constants";
+import { AutofillDebugService } from "./autofill-debug.service";
+
+export type QualificationCriteria = {
+  formFieldElement: ElementWithOpId<FormFieldElement>;
+  autofillFieldData: AutofillField;
+  pageDetails: AutofillPageDetails;
+};
+
+type Qualifier = (criteria?: QualificationCriteria) => boolean;
+type QualificationMeta = {
+  qualifier: Qualifier;
+  alias: string;
+};
+type QualificationMessageOptions = {
+  message: {
+    success: string;
+    failure: string;
+  };
+};
+type QualificationConfig = {
+  blocking?: false; // assume qualifiers are blocking unless otherwise indicated
+  effect?: (criteria?: QualificationCriteria) => void; // success side effect
+} & QualificationMessageOptions;
+
+type QualificationDefinition = QualificationMeta & QualificationConfig;
+type QualificationResponse = QualificationMeta & { result: boolean; message: string };
 
 export class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
   pageDetailsUpdateRequired = false;
@@ -97,6 +127,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     getInlineMenuFormFieldData: ({ message }) =>
       this.handleGetInlineMenuFormFieldDataMessage(message),
     generatedPasswordModifyLogin: () => this.sendGeneratedPasswordModifyLogin(),
+    getAutofillDebugExport: () =>
+      this.debugService?.exportCurrentSession("summary") ?? "Debug mode not enabled",
   };
   private readonly loginFieldQualifiers: Record<string, CallableFunction> = {
     [AutofillFieldQualifier.username]: this.inlineMenuFieldQualificationService.isUsernameField,
@@ -161,6 +193,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     private domElementVisibilityService: DomElementVisibilityService,
     private inlineMenuFieldQualificationService: InlineMenuFieldQualificationService,
     private inlineMenuContentService?: AutofillInlineMenuContentService,
+    private debugService?: AutofillDebugService,
   ) {}
 
   /**
@@ -200,19 +233,262 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     autofillFieldData: AutofillField,
     pageDetails: AutofillPageDetails,
   ) {
-    if (
-      currentlyInSandboxedIframe() ||
-      this.formFieldElements.has(formFieldElement) ||
-      this.isIgnoredField(autofillFieldData, pageDetails)
-    ) {
-      return;
+    if (this.debugService?.isDebugEnabled() && !this.debugService.hasCurrentSession()) {
+      this.debugService.startSession(globalThis.location.href);
+      this.inlineMenuFieldQualificationService.setCurrentVector("inline-menu");
     }
 
-    if (this.isHiddenField(formFieldElement, autofillFieldData)) {
+    const qualification = this.isQualifiedField({
+      formFieldElement,
+      autofillFieldData,
+      pageDetails,
+    });
+
+    if (!qualification) {
       return;
     }
 
     await this.setupOverlayListenersOnQualifiedField(formFieldElement, autofillFieldData);
+  }
+
+  private qualifiers: QualificationDefinition[] = [
+    {
+      qualifier: () => !currentlyInSandboxedIframe(),
+      alias: "notCurrentlyInSandboxedIframe",
+      message: {
+        success: "field not in sandboxed iframe",
+        failure: "field in sandboxed iframe",
+      },
+    },
+    {
+      qualifier: ({ formFieldElement }: QualificationCriteria) =>
+        !this.formFieldElements.has(formFieldElement),
+      alias: "notPreviouslyQualified",
+      message: {
+        success: "field not previously qualified",
+        failure: "field previously qualified",
+      },
+    },
+    {
+      qualifier: ({ autofillFieldData }: QualificationCriteria) =>
+        !this.ignoredFieldTypes.has(autofillFieldData.type),
+      alias: "fieldNotIgnoredType",
+      message: {
+        success: "field is not in ignored types",
+        failure: "field is in ignored types",
+      },
+    },
+    {
+      qualifier: ({ autofillFieldData, pageDetails }: QualificationCriteria) =>
+        this.inlineMenuFieldQualificationService.isFieldForLoginForm(
+          autofillFieldData,
+          pageDetails,
+        ),
+      alias: "fieldIsForLoginForm",
+      message: {
+        success: "field is for login form",
+        failure: "field is not for login form",
+      },
+      blocking: false,
+      effect: ({ autofillFieldData }: QualificationCriteria) =>
+        this.setQualifiedLoginFillType(autofillFieldData),
+    },
+    {
+      qualifier: ({ autofillFieldData, pageDetails }: QualificationCriteria) =>
+        this.showInlineMenuCards &&
+        this.inlineMenuFieldQualificationService.isFieldForCreditCardForm(
+          autofillFieldData,
+          pageDetails,
+        ),
+      alias: "fieldIsForCreditCardForm",
+      message: {
+        success: "field is for credit card form",
+        failure: "field is not for credit card form",
+      },
+      blocking: false,
+      effect: ({ autofillFieldData }: QualificationCriteria) => {
+        if (!autofillFieldData.inlineMenuFillType) {
+          autofillFieldData.inlineMenuFillType = CipherType.Card;
+        }
+      },
+    },
+    {
+      qualifier: ({ autofillFieldData, pageDetails }: QualificationCriteria) =>
+        this.inlineMenuFieldQualificationService.isFieldForAccountCreationForm(
+          autofillFieldData,
+          pageDetails,
+        ),
+      alias: "fieldIsForAccountCreationForm",
+      message: {
+        success: "field is for account creation form",
+        failure: "field is not for account creation form",
+      },
+      blocking: false,
+      effect: ({ autofillFieldData }: QualificationCriteria) => {
+        if (!autofillFieldData.inlineMenuFillType) {
+          this.setQualifiedAccountCreationFillType(autofillFieldData);
+        }
+      },
+    },
+    {
+      qualifier: ({ autofillFieldData, pageDetails }: QualificationCriteria) =>
+        this.showInlineMenuIdentities &&
+        this.inlineMenuFieldQualificationService.isFieldForIdentityForm(
+          autofillFieldData,
+          pageDetails,
+        ),
+      alias: "fieldIsForIdentityForm",
+      message: {
+        success: "field is for identity form",
+        failure: "field is not for identity form",
+      },
+      blocking: false,
+      effect: ({ autofillFieldData }: QualificationCriteria) => {
+        if (!autofillFieldData.inlineMenuFillType) {
+          autofillFieldData.inlineMenuFillType = CipherType.Identity;
+        }
+      },
+    },
+    {
+      qualifier: ({ autofillFieldData, pageDetails }: QualificationCriteria) =>
+        this.inlineMenuFieldQualificationService.isFieldForLoginForm(
+          autofillFieldData,
+          pageDetails,
+        ) ||
+        this.inlineMenuFieldQualificationService.isFieldForAccountCreationForm(
+          autofillFieldData,
+          pageDetails,
+        ) ||
+        (this.showInlineMenuCards &&
+          this.inlineMenuFieldQualificationService.isFieldForCreditCardForm(
+            autofillFieldData,
+            pageDetails,
+          )) ||
+        (this.showInlineMenuIdentities &&
+          this.inlineMenuFieldQualificationService.isFieldForIdentityForm(
+            autofillFieldData,
+            pageDetails,
+          )),
+      alias: "fieldIsForKnownFormType",
+      message: {
+        success: "field is for a recognized form type",
+        failure: "field is not for any recognized form type",
+      },
+    },
+    {
+      qualifier: ({ formFieldElement, autofillFieldData }: QualificationCriteria) =>
+        !this.isHiddenField(formFieldElement, autofillFieldData),
+      alias: "isNotHiddenField",
+      message: {
+        success: "field is not hidden",
+        failure: "field is hidden",
+      },
+    },
+  ];
+
+  qualify(
+    definition: QualificationDefinition,
+    criteria: QualificationCriteria,
+  ): QualificationResponse {
+    const {
+      qualifier,
+      alias,
+      message: { success, failure },
+    } = definition;
+    const result = qualifier(criteria);
+    return { alias, result, message: result ? success : failure, qualifier };
+  }
+
+  isQualifiedField(criteria: QualificationCriteria) {
+    const debugEnabled = this.debugService?.isDebugEnabled() ?? false;
+    const responses: QualificationResponse[] = [];
+    const { autofillFieldData } = criteria;
+
+    const elementSelector = autofillFieldData.htmlID
+      ? `#${autofillFieldData.htmlID}`
+      : autofillFieldData.htmlName
+        ? `[name="${autofillFieldData.htmlName}"]`
+        : autofillFieldData.opid;
+
+    for (const definition of this.qualifiers) {
+      const response = this.qualify(definition, criteria);
+      responses.push(response);
+
+      if (response.result === false && definition?.blocking !== false) {
+        if (debugEnabled) {
+          const qualificationResult: QualificationResult = {
+            result: false,
+            conditions: {
+              pass: responses
+                .filter((r) => r !== response && r.result)
+                .map((r) => ({ name: r.alias })),
+              fail: [{ name: response.alias }],
+            },
+          };
+          this.debugService?.recordQualification(
+            autofillFieldData.opid,
+            elementSelector,
+            "inline-menu" as AutofillVector,
+            qualificationResult,
+            "setupOverlayListeners",
+          );
+          /* eslint-disable no-console */
+          console.group(
+            `%c❌ Field Rejected: ${autofillFieldData.opid}`,
+            "color: #ef4444; font-weight: bold",
+          );
+          console.log("Field:", criteria.formFieldElement);
+          console.log("Blocking condition failed:", response.alias);
+          console.log("Message:", response.message);
+          console.log("All responses:", responses);
+          console.groupEnd();
+          /* eslint-enable no-console */
+        } else {
+          // eslint-disable-next-line no-console
+          console.log({ element: criteria.formFieldElement, responses });
+        }
+        return false;
+      }
+
+      if (response.result === true && definition.effect) {
+        void definition.effect(criteria);
+      }
+    }
+
+    if (debugEnabled) {
+      const qualificationResult: QualificationResult = {
+        result: true,
+        conditions: {
+          pass: responses.map((r) => ({ name: r.alias })),
+          fail: [],
+        },
+      };
+      this.debugService?.recordQualification(
+        autofillFieldData.opid,
+        elementSelector,
+        "inline-menu" as AutofillVector,
+        qualificationResult,
+        "setupOverlayListeners",
+      );
+      /* eslint-disable no-console */
+      console.group(
+        `%c✅ Field Qualified: ${autofillFieldData.opid}`,
+        "color: #10b981; font-weight: bold",
+      );
+      console.log("Field:", criteria.formFieldElement);
+      console.log(
+        "Passed conditions:",
+        responses.filter((r) => r.result).map((r) => r.alias),
+      );
+      console.log("All responses:", responses);
+      console.groupEnd();
+      /* eslint-enable no-console */
+    } else {
+      // eslint-disable-next-line no-console
+      console.log({ element: criteria.formFieldElement, responses });
+    }
+
+    return true;
   }
 
   /**
@@ -1070,17 +1346,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     autofillFieldData: AutofillField,
     pageDetails: AutofillPageDetails,
   ): boolean {
-    if (this.ignoredFieldTypes.has(autofillFieldData.type)) {
-      return true;
-    }
-
-    if (
-      this.inlineMenuFieldQualificationService.isFieldForLoginForm(autofillFieldData, pageDetails)
-    ) {
-      void this.setQualifiedLoginFillType(autofillFieldData);
-      return false;
-    }
-
     if (
       this.showInlineMenuCards &&
       this.inlineMenuFieldQualificationService.isFieldForCreditCardForm(

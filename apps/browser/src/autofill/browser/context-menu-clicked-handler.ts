@@ -38,6 +38,7 @@ import {
   openAddEditVaultItemPopout,
   openVaultItemPasswordRepromptPopout,
 } from "../../vault/popup/utils/vault-popout-window";
+import { COPY_AUTOFILL_DEBUG_ID } from "../enums/autofill-message.enums";
 import { LockedVaultPendingNotificationsData } from "../background/abstractions/notification.background";
 import { AutofillCipherTypeId } from "../types";
 
@@ -75,6 +76,13 @@ export class ContextMenuClickedHandler {
         }
 
         this.copyToClipboard({ text: await this.getIdentifier(tab, info), tab: tab });
+        break;
+      case COPY_AUTOFILL_DEBUG_ID:
+        if (!tab.id) {
+          return;
+        }
+
+        this.copyToClipboard({ text: await this.getAutofillDebugExport(tab), tab: tab });
         break;
       default:
         await this.cipherAction(info, tab);
@@ -275,6 +283,23 @@ export class ContextMenuClickedHandler {
           }
 
           resolve(identifier);
+        },
+      );
+    });
+  }
+
+  private async getAutofillDebugExport(tab: chrome.tabs.Tab): Promise<string> {
+    const tabId = tab.id!;
+    return new Promise<string>((resolve) => {
+      BrowserApi.sendTabsMessage(
+        tabId,
+        { command: "getAutofillDebugExport" },
+        undefined,
+        (debugText: string) => {
+          resolve(
+            debugText ||
+              "No autofill debug data available. Enable debug mode and focus a form field first.",
+          );
         },
       );
     });

@@ -27,6 +27,8 @@ export type AutofillOverlayContentExtensionMessageHandlers = {
   getInlineMenuFormFieldData: ({
     message,
   }: AutofillExtensionMessageParam) => Promise<ModifyLoginCipherFormData | void>;
+  generatedPasswordModifyLogin: () => Promise<void>;
+  getAutofillDebugExport: () => string;
 };
 
 export interface AutofillOverlayContentService {
