@@ -4,9 +4,10 @@ import { once } from "node:events";
 import * as path from "path";
 import * as url from "url";
 
-import { app, BrowserWindow, ipcMain, nativeTheme, screen, session } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, nativeTheme, screen, session } from "electron";
 import { concatMap, firstValueFrom, pairwise } from "rxjs";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ThemeTypes, Theme } from "@bitwarden/common/platform/enums";
@@ -47,6 +48,7 @@ export class WindowMain {
     private logService: LogService,
     private storageService: AbstractStorageService,
     private desktopSettingsService: DesktopSettingsService,
+    private i18nService: I18nService,
     private argvCallback: (argv: string[]) => void = null,
     private createWindowCallback: (win: BrowserWindow) => void,
   ) {}
@@ -376,6 +378,22 @@ export class WindowMain {
     this.win.on("close", async () => {
       this.isClosing = true;
       await this.updateWindowState(mainWindowSizeKey, this.win);
+    });
+
+    this.win.webContents.on("will-prevent-unload", (e) => {
+      const result = dialog.showMessageBoxSync(this.win, {
+        type: "warning",
+        title: this.i18nService.t("unsavedChangesTitle"),
+        message: this.i18nService.t("unsavedChangesTitle"),
+        detail: this.i18nService.t("unsavedChangesConfirmation"),
+        buttons: [this.i18nService.t("yes"), this.i18nService.t("no")],
+        cancelId: 1,
+        defaultId: 1,
+        noLink: true,
+      });
+      if (result === 0) {
+        e.preventDefault();
+      }
     });
 
     this.win.on("maximize", async () => {
