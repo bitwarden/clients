@@ -201,6 +201,7 @@ export class Main {
       this.logService,
       this.storageService,
       this.desktopSettingsService,
+      this.i18nService,
       (arg) => this.processDeepLink(arg),
       (win) => this.trayMain.setupWindowListeners(win),
     );

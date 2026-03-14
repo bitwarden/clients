@@ -203,6 +203,12 @@ export class AppComponent implements OnInit, OnDestroy {
       window.onmousedown = () => this.recordActivity();
       window.onscroll = () => this.recordActivity();
       window.onkeypress = () => this.recordActivity();
+
+      window.onbeforeunload = (e: BeforeUnloadEvent) => {
+        if (document.querySelectorAll("vault-cipher-form .ng-dirty").length > 0) {
+          e.returnValue = false;
+        }
+      };
     });
 
     /// ############ DEPRECATED ############
