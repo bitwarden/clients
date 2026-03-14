@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { distinctUntilChanged, firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { distinctUntilChanged, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -153,12 +153,17 @@ export class DefaultEnvironmentService implements EnvironmentService {
       .getGlobal(GLOBAL_ENVIRONMENT_KEY)
       .state$.pipe(map((state) => this.buildEnvironment(state?.region, state?.urls)));
 
+    const globalEnvState$ = this.stateProvider.getGlobal(GLOBAL_ENVIRONMENT_KEY).state$;
     this.environment$ = account$.pipe(
       switchMap((userId) => {
-        const t = userId
-          ? this.stateProvider.getUser(userId, USER_ENVIRONMENT_KEY).state$
-          : this.stateProvider.getGlobal(GLOBAL_ENVIRONMENT_KEY).state$;
-        return t;
+        if (!userId) {
+          return globalEnvState$;
+        }
+        return this.stateProvider
+          .getUser(userId, USER_ENVIRONMENT_KEY)
+          .state$.pipe(
+            switchMap((userState) => (userState != null ? of(userState) : globalEnvState$)),
+          );
       }),
       map((state) => {
         return this.buildEnvironment(state?.region, state?.urls);
