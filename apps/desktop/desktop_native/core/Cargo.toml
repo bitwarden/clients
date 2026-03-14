@@ -31,7 +31,7 @@ futures = { workspace = true }
 interprocess = { workspace = true, features = ["tokio"] }
 memsec = { workspace = true, features = ["alloc_ext"] }
 rand = { workspace = true }
-rsa = "=0.9.6"
+rsa = "=0.9.10"
 sha2 = { workspace = true }
 ssh-key = { workspace = true, features = [
     "encryption",
