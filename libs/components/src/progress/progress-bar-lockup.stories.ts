@@ -50,9 +50,27 @@ export const Base: Story = {
     template: `
       <div class="tw-w-[552px]">
         <bit-progress-bar-lockup ${formatArgsForCodeSnippet<ProgressBarLockupComponent>(args)}>
-          <ng-container slot="illustration">
-            <bit-svg [content]="illustration" aria-hidden="true" class="tw-w-[120px]" />
-          </ng-container>
+          <bit-svg slot="illustration" [content]="illustration" aria-hidden="true" class="tw-w-[120px]" />
+          <span slot="title">Uploading file</span>
+          <span slot="subtitle">This might take a few minutes.</span>
+          <bit-progress-bar [value]="50">
+            <bit-label slot="label">File name</bit-label>
+            <bit-hint slot="end">50MB</bit-hint>  
+          </bit-progress-bar>
+        </bit-progress-bar-lockup>
+      </div>
+    `,
+  }),
+};
+
+export const WithoutIllustration: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+    },
+    template: `
+      <div class="tw-w-[552px]">
+        <bit-progress-bar-lockup ${formatArgsForCodeSnippet<ProgressBarLockupComponent>(args)}>
           <span slot="title">Uploading file</span>
           <span slot="subtitle">This might take a few minutes.</span>
           <bit-progress-bar [value]="50">
