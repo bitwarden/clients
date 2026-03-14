@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
@@ -18,6 +18,7 @@ import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-mi
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -44,6 +45,7 @@ import {
   KeyService,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import {
   LockComponentService,
@@ -85,6 +87,8 @@ describe("LockComponent", () => {
   const mockLockComponentService = mock<LockComponentService>();
   const mockAnonLayoutWrapperDataService = mock<AnonLayoutWrapperDataService>();
   const mockBroadcasterService = mock<BroadcasterService>();
+  const mockUnlockService = mock<UnlockService>();
+  const mockConfigService = mock<ConfigService>();
   const mockWebAuthnPrfUnlockService = mock<WebAuthnPrfUnlockService>();
   const mockEncryptedMigrator = mock<EncryptedMigrator>();
   const mockActivatedRoute = {
@@ -111,6 +115,7 @@ describe("LockComponent", () => {
     mockSyncService.fullSync.mockResolvedValue(true);
     mockDeviceTrustService.trustDeviceIfRequired.mockResolvedValue();
     mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded.mockResolvedValue();
+    mockConfigService.getFeatureFlag.mockResolvedValue(false);
     mockAnonLayoutWrapperDataService.setAnonLayoutWrapperData.mockImplementation(() => {});
 
     await TestBed.configureTestingModule({
@@ -151,6 +156,8 @@ describe("LockComponent", () => {
         { provide: LockComponentService, useValue: mockLockComponentService },
         { provide: AnonLayoutWrapperDataService, useValue: mockAnonLayoutWrapperDataService },
         { provide: BroadcasterService, useValue: mockBroadcasterService },
+        { provide: UnlockService, useValue: mockUnlockService },
+        { provide: ConfigService, useValue: mockConfigService },
         { provide: WebAuthnPrfUnlockService, useValue: mockWebAuthnPrfUnlockService },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: EncryptedMigrator, useValue: mockEncryptedMigrator },
@@ -604,5 +611,151 @@ describe("LockComponent", () => {
       expect(mockLogoutService.logout).not.toHaveBeenCalled();
       expect(component.activeUnlockOption).toBe(UnlockOption.Biometrics);
     });
+  });
+
+  describe("listenForUnlockOptionsChanges", () => {
+    const mockActiveAccount: Account = {
+      id: userId,
+      email: "test@example.com",
+      name: "Test User",
+    } as Account;
+
+    const mockUnlockOptions: UnlockOptions = {
+      masterPassword: { enabled: true },
+      pin: { enabled: false },
+      biometrics: { enabled: false, biometricsStatus: BiometricsStatus.Available },
+      prf: { enabled: false },
+    };
+
+    beforeEach(() => {
+      (component as any).loading = false;
+      component.activeAccount = mockActiveAccount;
+      component.activeUnlockOption = null;
+      component.unlockOptions = null;
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(of(mockUnlockOptions));
+    });
+
+    it("skips polling when loading is true", fakeAsync(() => {
+      (component as any).loading = true;
+
+      component["listenForUnlockOptionsChanges"]();
+      tick(0);
+
+      expect(mockLockComponentService.getAvailableUnlockOptions$).not.toHaveBeenCalled();
+    }));
+
+    it("skips polling when activeAccount is null", fakeAsync(() => {
+      component.activeAccount = null;
+
+      component["listenForUnlockOptionsChanges"]();
+      tick(0);
+
+      expect(mockLockComponentService.getAvailableUnlockOptions$).not.toHaveBeenCalled();
+    }));
+
+    it("fetches unlock options when loading is false and activeAccount exists", fakeAsync(() => {
+      component["listenForUnlockOptionsChanges"]();
+      tick(0);
+
+      expect(mockLockComponentService.getAvailableUnlockOptions$).toHaveBeenCalledWith(userId);
+      expect(component.unlockOptions).toEqual(mockUnlockOptions);
+    }));
+
+    it("calls getAvailableUnlockOptions$ at 1000ms intervals", fakeAsync(() => {
+      component["listenForUnlockOptionsChanges"]();
+
+      // Initial timer fire at 0ms
+      tick(0);
+      expect(mockLockComponentService.getAvailableUnlockOptions$).toHaveBeenCalledTimes(1);
+
+      // First poll at 1000ms
+      tick(1000);
+      expect(mockLockComponentService.getAvailableUnlockOptions$).toHaveBeenCalledTimes(2);
+
+      // Second poll at 2000ms
+      tick(1000);
+      expect(mockLockComponentService.getAvailableUnlockOptions$).toHaveBeenCalledTimes(3);
+    }));
+
+    it("calls setDefaultActiveUnlockOption when activeUnlockOption is null", fakeAsync(() => {
+      component.activeUnlockOption = null;
+      const setDefaultSpy = jest.spyOn(component as any, "setDefaultActiveUnlockOption");
+
+      component["listenForUnlockOptionsChanges"]();
+      tick(0);
+
+      expect(setDefaultSpy).toHaveBeenCalledWith(mockUnlockOptions);
+    }));
+
+    it("does NOT call setDefaultActiveUnlockOption when activeUnlockOption is already set", fakeAsync(() => {
+      component.activeUnlockOption = UnlockOption.MasterPassword;
+      component.unlockOptions = mockUnlockOptions;
+
+      const setDefaultSpy = jest.spyOn(component as any, "setDefaultActiveUnlockOption");
+
+      component["listenForUnlockOptionsChanges"]();
+      tick(0);
+
+      expect(setDefaultSpy).not.toHaveBeenCalled();
+    }));
+
+    it("calls setDefaultActiveUnlockOption when biometrics becomes enabled", fakeAsync(() => {
+      component.activeUnlockOption = UnlockOption.MasterPassword;
+
+      // Start with biometrics disabled
+      component.unlockOptions = {
+        masterPassword: { enabled: true },
+        pin: { enabled: false },
+        biometrics: { enabled: false, biometricsStatus: BiometricsStatus.Available },
+        prf: { enabled: false },
+      };
+
+      // Mock response with biometrics enabled
+      const newUnlockOptions: UnlockOptions = {
+        masterPassword: { enabled: true },
+        pin: { enabled: false },
+        biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+        prf: { enabled: false },
+      };
+
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(of(newUnlockOptions));
+
+      const setDefaultSpy = jest.spyOn(component as any, "setDefaultActiveUnlockOption");
+      const handleBioSpy = jest.spyOn(component as any, "handleBiometricsUnlockEnabled");
+
+      component["listenForUnlockOptionsChanges"]();
+      tick(0);
+
+      expect(setDefaultSpy).toHaveBeenCalledWith(newUnlockOptions);
+      expect(handleBioSpy).toHaveBeenCalled();
+    }));
+
+    it("does NOT call setDefaultActiveUnlockOption when biometrics was already enabled", fakeAsync(() => {
+      component.activeUnlockOption = UnlockOption.MasterPassword;
+
+      // Start with biometrics already enabled
+      component.unlockOptions = {
+        masterPassword: { enabled: true },
+        pin: { enabled: false },
+        biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+        prf: { enabled: false },
+      };
+
+      // Mock response with biometrics still enabled
+      const newUnlockOptions: UnlockOptions = {
+        masterPassword: { enabled: true },
+        pin: { enabled: false },
+        biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+        prf: { enabled: false },
+      };
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(of(newUnlockOptions));
+
+      const setDefaultSpy = jest.spyOn(component as any, "setDefaultActiveUnlockOption");
+
+      component["listenForUnlockOptionsChanges"]();
+      tick(0);
+
+      expect(setDefaultSpy).not.toHaveBeenCalled();
+    }));
   });
 });

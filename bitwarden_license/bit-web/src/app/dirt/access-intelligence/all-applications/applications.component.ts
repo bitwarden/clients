@@ -79,16 +79,19 @@ export type ApplicationFilterOption =
   ],
 })
 export class ApplicationsComponent implements OnInit {
-  destroyRef = inject(DestroyRef);
-  private fileDownloadService = inject(FileDownloadService);
-  private logService = inject(LogService);
+  readonly destroyRef = inject(DestroyRef);
+  private readonly fileDownloadService = inject(FileDownloadService);
+  private readonly logService = inject(LogService);
 
-  protected ReportStatusEnum = ReportStatus;
-  protected noItemsIcon = Security;
+  protected readonly ReportStatusEnum = ReportStatus;
+  protected readonly noItemsIcon = Security;
 
   // Standard properties
   protected readonly dataSource = new TableDataSource<ApplicationTableDataSource>();
   protected readonly searchControl = new FormControl<string>("", { nonNullable: true });
+  protected readonly filteredTableData = toSignal(this.dataSource.connect(), {
+    initialValue: [],
+  });
 
   // Template driven properties
   protected readonly selectedUrls = signal(new Set<string>());
@@ -103,7 +106,7 @@ export class ApplicationsComponent implements OnInit {
 
   // filter related properties
   protected readonly selectedFilter = signal<ApplicationFilterOption>(ApplicationFilterOption.All);
-  protected selectedFilterObservable = toObservable(this.selectedFilter);
+  protected readonly selectedFilterObservable = toObservable(this.selectedFilter);
   protected readonly ApplicationFilterOption = ApplicationFilterOption;
   protected readonly filterOptions = computed(() => [
     {
@@ -117,15 +120,36 @@ export class ApplicationsComponent implements OnInit {
       icon: " ",
     },
   ]);
-  protected readonly emptyTableExplanation = signal("");
+
+  // Computed property that returns only selected applications that are currently visible in filtered data
+  readonly visibleSelectedApps = computed(() => {
+    const filteredData = this.filteredTableData();
+    const selected = this.selectedUrls();
+
+    if (!filteredData || selected.size === 0) {
+      return new Set<string>();
+    }
+
+    const visibleSelected = new Set<string>();
+    filteredData.forEach((row) => {
+      if (selected.has(row.applicationName)) {
+        visibleSelected.add(row.applicationName);
+      }
+    });
+
+    return visibleSelected;
+  });
 
   readonly allSelectedAppsAreCritical = computed(() => {
-    if (!this.dataSource.filteredData || this.selectedUrls().size == 0) {
+    const visibleSelected = this.visibleSelectedApps();
+    const filteredData = this.filteredTableData();
+
+    if (!filteredData || visibleSelected.size === 0) {
       return false;
     }
 
-    return this.dataSource.filteredData
-      .filter((row) => this.selectedUrls().has(row.applicationName))
+    return filteredData
+      .filter((row) => visibleSelected.has(row.applicationName))
       .every((row) => row.isMarkedAsCritical);
   });
 
@@ -137,11 +161,11 @@ export class ApplicationsComponent implements OnInit {
   readonly enableRequestPasswordChange = computed(() => this.unassignedCipherIds().length > 0);
 
   constructor(
-    protected i18nService: I18nService,
-    protected activatedRoute: ActivatedRoute,
-    protected toastService: ToastService,
-    protected dataService: RiskInsightsDataService,
-    protected securityTasksService: AccessIntelligenceSecurityTasksService,
+    protected readonly i18nService: I18nService,
+    protected readonly activatedRoute: ActivatedRoute,
+    protected readonly toastService: ToastService,
+    protected readonly dataService: RiskInsightsDataService,
+    protected readonly securityTasksService: AccessIntelligenceSecurityTasksService,
   ) {}
 
   async ngOnInit() {
@@ -174,22 +198,15 @@ export class ApplicationsComponent implements OnInit {
           }));
           this.dataSource.data = tableDataWithIcon;
           this.totalApplicationsCount.set(report.reportData.length);
+          this.criticalApplicationsCount.set(
+            report.reportData.filter((app) => app.isMarkedAsCritical).length,
+          );
         } else {
           this.dataSource.data = [];
         }
       },
       error: () => {
         this.dataSource.data = [];
-      },
-    });
-
-    this.dataService.criticalReportResults$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (criticalReport) => {
-        if (criticalReport != null) {
-          this.criticalApplicationsCount.set(criticalReport.reportData.length);
-        } else {
-          this.criticalApplicationsCount.set(0);
-        }
       },
     });
 
@@ -210,21 +227,6 @@ export class ApplicationsComponent implements OnInit {
         this.dataSource.filter = (app) =>
           filterFunction(app) &&
           app.applicationName.toLowerCase().includes(searchText.toLowerCase());
-
-        // filter selectedUrls down to only applications showing with active filters
-        const filteredUrls = new Set<string>();
-        this.dataSource.filteredData?.forEach((row) => {
-          if (this.selectedUrls().has(row.applicationName)) {
-            filteredUrls.add(row.applicationName);
-          }
-        });
-        this.selectedUrls.set(filteredUrls);
-
-        if (this.dataSource?.filteredData?.length === 0) {
-          this.emptyTableExplanation.set(this.i18nService.t("noApplicationsMatchTheseFilters"));
-        } else {
-          this.emptyTableExplanation.set("");
-        }
       });
   }
 
@@ -232,15 +234,16 @@ export class ApplicationsComponent implements OnInit {
     this.selectedFilter.set(value);
   }
 
-  markAppsAsCritical = async () => {
+  async markAppsAsCritical() {
     this.updatingCriticalApps.set(true);
-    const count = this.selectedUrls().size;
+    const visibleSelected = this.visibleSelectedApps();
+    const count = visibleSelected.size;
 
     this.dataService
-      .saveCriticalApplications(Array.from(this.selectedUrls()))
+      .saveCriticalApplications(Array.from(visibleSelected))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => {
+        next: (response) => {
           this.toastService.showToast({
             variant: "success",
             title: "",
@@ -248,6 +251,9 @@ export class ApplicationsComponent implements OnInit {
           });
           this.selectedUrls.set(new Set<string>());
           this.updatingCriticalApps.set(false);
+          this.criticalApplicationsCount.set(
+            response?.data?.summaryData?.totalCriticalApplicationCount ?? 0,
+          );
         },
         error: () => {
           this.toastService.showToast({
@@ -257,17 +263,17 @@ export class ApplicationsComponent implements OnInit {
           });
         },
       });
-  };
+  }
 
-  unmarkAppsAsCritical = async () => {
+  async unmarkAppsAsCritical() {
     this.updatingCriticalApps.set(true);
-    const appsToUnmark = this.selectedUrls();
+    const appsToUnmark = this.visibleSelectedApps();
 
     this.dataService
       .removeCriticalApplications(appsToUnmark)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => {
+        next: (response) => {
           this.toastService.showToast({
             message: this.i18nService.t(
               "numApplicationsUnmarkedCriticalSuccess",
@@ -277,6 +283,9 @@ export class ApplicationsComponent implements OnInit {
           });
           this.selectedUrls.set(new Set<string>());
           this.updatingCriticalApps.set(false);
+          this.criticalApplicationsCount.set(
+            response?.data?.summaryData?.totalCriticalApplicationCount ?? 0,
+          );
         },
         error: () => {
           this.toastService.showToast({
@@ -286,7 +295,7 @@ export class ApplicationsComponent implements OnInit {
           });
         },
       });
-  };
+  }
 
   async requestPasswordChange() {
     const orgId = this.organizationId();
@@ -318,24 +327,38 @@ export class ApplicationsComponent implements OnInit {
     }
   }
 
-  showAppAtRiskMembers = async (applicationName: string) => {
+  async showAppAtRiskMembers(applicationName: string) {
     await this.dataService.setDrawerForAppAtRiskMembers(applicationName);
-  };
+  }
 
-  onCheckboxChange = (applicationName: string, event: Event) => {
-    const isChecked = (event.target as HTMLInputElement).checked;
+  onCheckboxChange({ applicationName, checked }: { applicationName: string; checked: boolean }) {
     this.selectedUrls.update((selectedUrls) => {
       const nextSelected = new Set(selectedUrls);
-      if (isChecked) {
+      if (checked) {
         nextSelected.add(applicationName);
       } else {
         nextSelected.delete(applicationName);
       }
       return nextSelected;
     });
-  };
+  }
 
-  downloadApplicationsCSV = () => {
+  onSelectAllChange(checked: boolean) {
+    const filteredData = this.filteredTableData();
+    if (!filteredData) {
+      return;
+    }
+
+    this.selectedUrls.update((selectedUrls) => {
+      const nextSelected = new Set(selectedUrls);
+      filteredData.forEach((row) =>
+        checked ? nextSelected.add(row.applicationName) : nextSelected.delete(row.applicationName),
+      );
+      return nextSelected;
+    });
+  }
+
+  downloadApplicationsCSV() {
     try {
       const data = this.dataSource.filteredData;
       if (!data || data.length === 0) {
@@ -368,5 +391,5 @@ export class ApplicationsComponent implements OnInit {
     } catch (error) {
       this.logService.error("Failed to download applications CSV", error);
     }
-  };
+  }
 }

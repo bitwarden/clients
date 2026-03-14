@@ -4,26 +4,26 @@
   <p>{{ "breachDesc" | i18n }}</p>
   <form [bitSubmit]="submit" [formGroup]="formGroup">
     <bit-form-field class="tw-w-1/2" disableMargin>
-      <bit-label>{{ "username" | i18n }}</bit-label>
-      <input id="username" type="text" formControlName="username" bitInput />
+      <bit-label>{{ "email" | i18n }}</bit-label>
+      <input id="email" type="text" formControlName="email" bitInput />
     </bit-form-field>
-    <small class="tw-mb-4 tw-block tw-text-muted">{{ "breachCheckUsernameEmail" | i18n }}</small>
+    <small class="tw-mb-4 tw-block tw-text-muted">{{ "breachCheckEmail" | i18n }}</small>
     <button type="submit" buttonType="primary" bitButton [loading]="loading">
       {{ "checkBreaches" | i18n }}
     </button>
   </form>
-  @if (!loading && checkedUsername) {
+  @if (!loading && checkedEmail) {
     <div class="tw-mt-4">
       @if (error) {
         <p>{{ "reportError" | i18n }}...</p>
       } @else {
         @if (!breachedAccounts.length) {
           <bit-callout type="success" title="{{ 'goodNews' | i18n }}">
-            {{ "breachUsernameNotFound" | i18n: checkedUsername }}
+            {{ "breachEmailNotFound" | i18n: checkedEmail }}
           </bit-callout>
         } @else {
           <bit-callout type="danger" title="{{ 'breachFound' | i18n }}">
-            {{ "breachUsernameFound" | i18n: checkedUsername : breachedAccounts.length }}
+            {{ "breachEmailFound" | i18n: checkedEmail : breachedAccounts.length }}
           </bit-callout>
           <ul
             class="tw-list-none tw-flex-col tw-divide-x-0 tw-divide-y tw-divide-solid tw-divide-secondary-300 tw-rounded tw-border tw-border-solid tw-border-secondary-300 tw-p-0"
