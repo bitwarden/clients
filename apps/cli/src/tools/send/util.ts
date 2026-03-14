@@ -20,12 +20,17 @@ export function parseEmail(input: string, previousInput: string[]) {
   if (isEmail(input)) {
     result.push(input);
   } else if (input.startsWith("[")) {
-    const json = JSON.parse(input);
-    if (!Array.isArray(json)) {
-      throw new Error("invalid JSON");
+    let json;
+    try {
+        json = JSON.parse(input);
+    } catch {
+        throw new Error("Invalid JSON format for email list");
     }
-
-    result = result.concat(json);
+    if (!Array.isArray(json)) {
+        throw new Error("invalid JSON");
+    }
+  result = result.concat(json);
+  }
   } else if (input.includes(",")) {
     result = result.concat(parseList(input, ","));
   } else if (input.includes(" ")) {
