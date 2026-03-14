@@ -6,7 +6,7 @@ import { Component, EventEmitter, Input, OnChanges, Output } from "@angular/core
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
-import { ProgressModule } from "@bitwarden/components";
+import { ProgressModule, FormFieldModule } from "@bitwarden/components";
 
 export interface PasswordColorText {
   color: BackgroundTypes;
@@ -22,7 +22,7 @@ type BackgroundTypes = "danger" | "primary" | "success" | "warning";
 @Component({
   selector: "tools-password-strength",
   templateUrl: "password-strength-v2.component.html",
-  imports: [CommonModule, JslibModule, ProgressModule],
+  imports: [CommonModule, JslibModule, ProgressModule, FormFieldModule],
 })
 export class PasswordStrengthV2Component implements OnChanges {
   /**
