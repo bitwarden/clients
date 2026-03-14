@@ -35,8 +35,15 @@
           label="{{ 'remove' | i18n }}"
         ></button>
       </div>
-      <button bitButton type="button" (click)="add()" buttonType="secondary" class="tw-mb-2">
-        <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i> {{ "newCustomDomain" | i18n }}
+      <button
+        bitButton
+        type="button"
+        (click)="add()"
+        buttonType="secondary"
+        class="tw-mb-2"
+        startIcon="bwi-plus"
+      >
+        {{ "newCustomDomain" | i18n }}
       </button>
       <small class="tw-text-muted tw-block tw-mb-3">{{ "newCustomDomainDesc" | i18n }}</small>
     </ng-container>

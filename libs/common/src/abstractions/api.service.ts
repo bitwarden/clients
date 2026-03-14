@@ -36,8 +36,6 @@ import {
   ProviderUserUserDetailsResponse,
 } from "../admin-console/models/response/provider/provider-user.response";
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
-import { EmailTokenRequest } from "../auth/models/request/email-token.request";
-import { EmailRequest } from "../auth/models/request/email.request";
 import { PasswordTokenRequest } from "../auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token.request";
 import { UserApiTokenRequest } from "../auth/models/request/identity-token/user-api-token.request";
@@ -153,8 +151,6 @@ export abstract class ApiService {
   abstract putProfile(request: UpdateProfileRequest): Promise<ProfileResponse>;
   abstract putAvatar(request: UpdateAvatarRequest): Promise<ProfileResponse>;
   abstract postPrelogin(request: PreloginRequest): Promise<PreloginResponse>;
-  abstract postEmailToken(request: EmailTokenRequest): Promise<any>;
-  abstract postEmail(request: EmailRequest): Promise<any>;
   abstract postSetKeyConnectorKey(request: SetKeyConnectorKeyRequest): Promise<any>;
   abstract postSecurityStamp(request: SecretVerificationRequest): Promise<any>;
   abstract getAccountRevisionDate(): Promise<number>;
@@ -462,6 +458,12 @@ export abstract class ApiService {
   abstract getActiveBearerToken(userId: UserId): Promise<string>;
   abstract fetch(request: Request): Promise<Response>;
   abstract nativeFetch(request: Request): Promise<Response>;
+
+  /**
+   * Adds a middleware function that will be called with the Request object before each API call. This allows for dynamic header manipulation, such as adding cookies for SSO authentication.
+   * @param middleware The middleware function to add
+   */
+  abstract addMiddleware(middleware: (request: Request) => Promise<void>): void;
 
   abstract preValidateSso(identifier: string): Promise<SsoPreValidateResponse>;
 
