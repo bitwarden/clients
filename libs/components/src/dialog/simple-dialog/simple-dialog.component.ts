@@ -1,5 +1,6 @@
 import { booleanAttribute, Component, ContentChild, Directive, input } from "@angular/core";
 
+import { AutofocusDirective } from "../../input";
 import { TypographyDirective } from "../../typography/typography.directive";
 import { fadeIn } from "../animations";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
@@ -15,7 +16,7 @@ export class IconDirective {}
   selector: "bit-simple-dialog, [bit-simple-dialog]",
   templateUrl: "./simple-dialog.component.html",
   animations: [fadeIn],
-  imports: [DialogTitleContainerDirective, TypographyDirective],
+  imports: [DialogTitleContainerDirective, TypographyDirective, AutofocusDirective],
 })
 export class SimpleDialogComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
