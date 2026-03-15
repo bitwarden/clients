@@ -9,19 +9,16 @@ import {
   input,
   booleanAttribute,
   ElementRef,
-  DestroyRef,
   computed,
   signal,
-  AfterViewInit,
-  NgZone,
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
-import { combineLatest, firstValueFrom, switchMap } from "rxjs";
+import { combineLatest, switchMap } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitIconButtonComponent } from "../../icon-button/icon-button.component";
-import { queryForAutofocusDescendents } from "../../input";
+import { AutofocusDirective } from "../../input";
 import { getRootFontSizePx } from "../../shared";
 import { SpinnerComponent } from "../../spinner";
 import { TypographyDirective } from "../../typography/typography.directive";
@@ -73,12 +70,10 @@ export const drawerSizeToWidthRem: Record<string, number> = {
     CdkTrapFocus,
     CdkScrollable,
     SpinnerComponent,
+    AutofocusDirective,
   ],
 })
-export class DialogComponent implements AfterViewInit {
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly ngZone = inject(NgZone);
-  private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
+export class DialogComponent {
   private readonly drawerService = inject(DrawerService);
 
   constructor() {
@@ -190,53 +185,13 @@ export class DialogComponent implements AfterViewInit {
     this.animationCompleted.set(true);
   }
 
-  async ngAfterViewInit() {
-    /**
-     * Wait for the zone to stabilize before performing any focus behaviors. This ensures that all
-     * child elements are rendered and stable.
-     */
-    if (this.ngZone.isStable) {
-      this.handleAutofocus();
-    } else {
-      await firstValueFrom(this.ngZone.onStable);
-      this.handleAutofocus();
-    }
-  }
-
   /**
-   * Ensure that the user's focus is in the dialog by autofocusing the appropriate element.
+   * Manually focus the dialog header.
    *
-   * If there is a descendant of the dialog with the AutofocusDirective applied, we defer to that.
-   * If not, we want to fallback to a default behavior of focusing the dialog's header element. We
-   * choose the dialog header as the default fallback for dialog focus because it is always present,
-   * unlike possible interactive elements.
+   * Useful in situations where focus needs to be explicitly reset, e.g. when transitioning
+   * between dialog modes.
    */
-  handleAutofocus() {
-    /**
-     * Angular's contentChildren query cannot see into the internal templates of child components.
-     * We need to use a regular DOM query instead to see if there are descendants using the
-     * AutofocusDirective.
-     */
-    const dialogRef = this.el.nativeElement;
-    const autofocusDescendants = queryForAutofocusDescendents(dialogRef);
-    const hasAutofocusDescendants = autofocusDescendants.length > 0;
-
-    if (!hasAutofocusDescendants) {
-      /**
-       * Wait a tick for any focus management to occur on the trigger element before moving focus
-       * to the dialog header.
-       *
-       * We are doing this manually instead of using Angular's built-in focus management
-       * directives (`cdkTrapFocusAutoCapture` and `cdkFocusInitial`) because we need this delay
-       * behavior.
-       *
-       * And yes, we need the timeout even though we are already waiting for ngZone to stabilize.
-       */
-      const headerFocusTimeout = setTimeout(() => {
-        this.dialogHeader().nativeElement.focus();
-      }, 0);
-
-      this.destroyRef.onDestroy(() => clearTimeout(headerFocusTimeout));
-    }
+  focusHeader() {
+    this.dialogHeader().nativeElement.focus();
   }
 }
