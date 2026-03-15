@@ -14,6 +14,16 @@
         aria-readonly="true"
         data-testid="cardholder-name"
       />
+      <button
+        bitIconButton="bwi-clone"
+        bitSuffix
+        type="button"
+        [appCopyClick]="card.cardholderName"
+        showToast
+        [valueLabel]="'cardholderName' | i18n"
+        [label]="'copyCardholderName' | i18n"
+        data-testid="copy-cardholder-name"
+      ></button>
     </bit-form-field>
     <bit-form-field *ngIf="card.number">
       <bit-label [appTextDrag]="card.number">{{ "number" | i18n }}</bit-label>
