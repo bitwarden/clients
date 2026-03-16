@@ -527,7 +527,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * Returns the attribute of an element as a lowercase value.
    * @param {ElementWithOpId<FormFieldElement>} element
    * @param {string} attributeName
-   * @returns {string | null}
+   * @returns {string | undefined}
    * @private
    */
   private getAttributeLowerCase(
