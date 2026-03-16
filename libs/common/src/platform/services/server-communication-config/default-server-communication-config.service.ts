@@ -96,7 +96,7 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
       const needsBootstrap = await firstValueFrom(this.needsBootstrap$(hostname));
 
       if (needsBootstrap) {
-        await this.acquireCookie(request.url);
+        await this.acquireCookie(hostname);
       }
 
       // Retry with original request (follow redirect mode, cookies now in session)
