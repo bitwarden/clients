@@ -12,7 +12,6 @@ import {
   logout as pqpLogout,
   isLoggedIn,
   getUserInfo,
-  authenticationService,
 } from "@ovrlab/pqp-network";
 import { app, BrowserWindow, ipcMain, session } from "electron";
 import { Subject, firstValueFrom } from "rxjs";
@@ -560,16 +559,6 @@ export class Main {
           return { success: true, loggedIn, email: userInfo?.email || null };
         }
         return { success: true, loggedIn };
-      } catch (error) {
-        return { success: false, error: String(error) };
-      }
-    });
-
-    // Controlled password derivation endpoint
-    ipcMain.handle("PQP_DERIVE_PASSWORD", async () => {
-      try {
-        const password = await authenticationService.derivePasswordForBitwarden();
-        return { success: true, password };
       } catch (error) {
         return { success: false, error: String(error) };
       }

@@ -16,7 +16,6 @@ jest.mock("@ovrlab/pqp-network", () => ({
   getUserInfo: jest.fn(),
   login: jest.fn(),
   authenticationService: {
-    derivePasswordForBitwarden: jest.fn(),
     withPassword: jest.fn(),
   },
   ServiceLocator: {
@@ -26,7 +25,6 @@ jest.mock("@ovrlab/pqp-network", () => ({
 
 const mockIsPqpLoggedIn = isPqpLoggedIn as jest.Mock;
 const mockGetUserInfo = getUserInfo as jest.Mock;
-const mockDerivePassword = authenticationService.derivePasswordForBitwarden as jest.Mock;
 const mockWithPassword = authenticationService.withPassword as jest.Mock;
 const mockGetMessaging = ServiceLocator.getMessaging as jest.Mock;
 
@@ -125,16 +123,16 @@ describe("PqpAuthService", () => {
 
   describe("canDerivePassword", () => {
     it("should return true when password can be derived", async () => {
-      mockDerivePassword.mockResolvedValue("hashed-password");
+      mockWithPassword.mockResolvedValue(undefined);
 
       const result = await service.canDerivePassword();
 
-      expect(mockDerivePassword).toHaveBeenCalled();
+      expect(mockWithPassword).toHaveBeenCalled();
       expect(result).toBe(true);
     });
 
     it("should return false if derivation fails", async () => {
-      mockDerivePassword.mockRejectedValue(new Error("Derivation error"));
+      mockWithPassword.mockRejectedValue(new Error("Derivation error"));
 
       const result = await service.canDerivePassword();
 

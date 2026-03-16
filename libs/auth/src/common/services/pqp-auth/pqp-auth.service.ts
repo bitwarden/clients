@@ -85,7 +85,7 @@ export class PqpAuthService {
    */
   async canDerivePassword(): Promise<boolean> {
     try {
-      await authenticationService.derivePasswordForBitwarden();
+      await authenticationService.withPassword(async () => {});
       return true;
     } catch {
       return false;
@@ -197,18 +197,6 @@ export class PqpAuthService {
       } catch {
         return false;
       }
-    }
-  }
-
-  /**
-   * Get derived password on-demand (does NOT cache).
-   * @internal — use buildPqpLoginCredentials() or withDerivedPassword() instead.
-   */
-  private async getDerivedPassword(): Promise<string | null> {
-    try {
-      return await authenticationService.derivePasswordForBitwarden();
-    } catch {
-      return null;
     }
   }
 
