@@ -10,7 +10,7 @@ import { UserId, CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 
-import { mockAccountServiceWith } from "../../../../../libs/common/spec";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
 
 import { PremiumUpsellService } from "./premium-upsell.service";
 
