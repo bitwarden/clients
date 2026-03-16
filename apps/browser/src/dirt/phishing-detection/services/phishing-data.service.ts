@@ -182,6 +182,23 @@ export class PhishingDataService {
         hasUrl = await this.indexedDbService.hasUrl(urlWithoutTrailingSlash);
       }
 
+      // Check alternate protocol: block list may have http:// but browser navigated to https:// (or vice versa)
+      if (!hasUrl) {
+        const alternateHref = this.swapProtocol(urlHref);
+        if (alternateHref) {
+          hasUrl = await this.indexedDbService.hasUrl(alternateHref);
+
+          if (!hasUrl) {
+            const alternateWithoutTrailingSlash = alternateHref.endsWith("/")
+              ? alternateHref.slice(0, -1)
+              : null;
+            if (alternateWithoutTrailingSlash) {
+              hasUrl = await this.indexedDbService.hasUrl(alternateWithoutTrailingSlash);
+            }
+          }
+        }
+      }
+
       if (hasUrl) {
         this.logService.info("[PhishingDataService] Found phishing URL: " + urlHref);
         return true;
@@ -208,6 +225,20 @@ export class PhishingDataService {
     }
 
     return false;
+  }
+
+  /**
+   * Swaps the protocol of a URL string between http:// and https://.
+   * Returns null if the URL doesn't start with either protocol.
+   */
+  private swapProtocol(url: string): string | null {
+    if (url.startsWith("https://")) {
+      return "http://" + url.slice(8);
+    }
+    if (url.startsWith("http://")) {
+      return "https://" + url.slice(7);
+    }
+    return null;
   }
 
   // [FIXME] Pull fetches into api service

@@ -254,6 +254,74 @@ describe("PhishingDataService", () => {
         (PhishingDataService as any).USE_CUSTOM_MATCHER = originalValue;
       }
     });
+
+    it("should detect HTTPS URL when block list contains HTTP version", async () => {
+      mockIndexedDbService.hasUrl.mockImplementation(async (url: string) => {
+        return url === "http://phish.com/malicious-page";
+      });
+
+      const url = new URL("https://phish.com/malicious-page");
+      const result = await service.isPhishingWebAddress(url);
+
+      expect(result).toBe(true);
+      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("https://phish.com/malicious-page");
+      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://phish.com/malicious-page");
+    });
+
+    it("should detect HTTP URL when block list contains HTTPS version", async () => {
+      mockIndexedDbService.hasUrl.mockImplementation(async (url: string) => {
+        return url === "https://phish.com/malicious-page";
+      });
+
+      const url = new URL("http://phish.com/malicious-page");
+      const result = await service.isPhishingWebAddress(url);
+
+      expect(result).toBe(true);
+      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("http://phish.com/malicious-page");
+      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledWith("https://phish.com/malicious-page");
+    });
+
+    it("should detect HTTPS URL with trailing slash when block list contains HTTP without trailing slash", async () => {
+      mockIndexedDbService.hasUrl.mockImplementation(async (url: string) => {
+        return url === "http://phish.com";
+      });
+
+      // Browsers add trailing slash to root URLs: https://phish.com/
+      const url = new URL("https://phish.com");
+      const result = await service.isPhishingWebAddress(url);
+
+      expect(result).toBe(true);
+    });
+
+    it("should not perform alternate-protocol lookup when exact match is found", async () => {
+      mockIndexedDbService.hasUrl.mockImplementation(async (url: string) => {
+        return url === "https://phish.com/exact";
+      });
+
+      const url = new URL("https://phish.com/exact");
+      const result = await service.isPhishingWebAddress(url);
+
+      expect(result).toBe(true);
+      // Should have been called only once (exact match found on first try)
+      expect(mockIndexedDbService.hasUrl).toHaveBeenCalledTimes(1);
+    });
+
+    it("should return false when neither protocol matches", async () => {
+      mockIndexedDbService.hasUrl.mockResolvedValue(false);
+
+      const url = new URL("https://safe-site.com/page");
+      const result = await service.isPhishingWebAddress(url);
+
+      expect(result).toBe(false);
+    });
+
+    it("should skip non-http protocols without alternate lookup", async () => {
+      const url = new URL("ftp://phish.com/file");
+      const result = await service.isPhishingWebAddress(url);
+
+      expect(result).toBe(false);
+      expect(mockIndexedDbService.hasUrl).not.toHaveBeenCalled();
+    });
   });
 
   describe("data updates", () => {
