@@ -862,13 +862,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       siblingElement.lastChild !== null &&
       !this.isNewSectionElement(siblingElement as Node) &&
       !this.containsChildField(siblingElement)
-
     ) {
       siblingElement = siblingElement.lastChild;
     }
 
-
-    if (siblingElement === null || this.isNewSectionElement(siblingElement) || this.containsChildField(siblingElement)) {
+    if (
+      siblingElement === null ||
+      this.isNewSectionElement(siblingElement) ||
+      this.containsChildField(siblingElement)
+    ) {
       return textContentItems;
     }
 
