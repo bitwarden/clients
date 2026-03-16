@@ -1067,28 +1067,35 @@ export default class AutofillService implements AutofillServiceInterface {
           return;
         }
 
-        const isFillableTotpField =
+        const isTotpCandidate =
           options.allowTotpAutofill &&
           ["number", "tel", "text"].some((t) => t === field.type) &&
-          (AutofillService.fieldIsFuzzyMatch(field, [
-            ...AutoFillConstants.TotpFieldNames,
-            ...AutoFillConstants.AmbiguousTotpFieldNames,
-          ]) ||
-            field.autoCompleteType === "one-time-code") &&
           !AutofillService.fieldIsFuzzyMatch(field, [...AutoFillConstants.RecoveryCodeFieldNames]);
 
-        const isFillableUsernameField =
+        const isTotpField =
+          isTotpCandidate &&
+          (AutofillService.fieldIsFuzzyMatch(field, AutoFillConstants.TotpFieldNames) ||
+            field.autoCompleteType === "one-time-code");
+
+        const maybeTotpField =
+          isTotpCandidate &&
+          AutofillService.fieldIsFuzzyMatch(field, AutoFillConstants.AmbiguousTotpFieldNames);
+
+        const isUsernameField =
           !options.skipUsernameOnlyFill &&
           ["email", "tel", "text"].some((t) => t === field.type) &&
           AutofillService.fieldIsFuzzyMatch(field, AutoFillConstants.UsernameFieldNames);
 
-        // Prefer more uniquely keyworded fields first.
+        // Reliable TOTP signals win unconditionally; username wins over ambiguous TOTP signals.
         switch (true) {
-          case isFillableTotpField:
+          case isTotpField:
             totps.push(field);
             return;
-          case isFillableUsernameField:
+          case isUsernameField:
             usernames.set(field.opid, field);
+            return;
+          case maybeTotpField:
+            totps.push(field);
             return;
           default:
             return;
