@@ -1503,6 +1503,34 @@ describe("CollectAutofillContentService", () => {
 
       expect(labelTag).toEqual("Username");
     });
+
+    it("does not collect text from a sibling that contains a form field", () => {
+      document.body.innerHTML = `
+        <div>
+          <input type="text" name="username" id="username-id">
+          <div>Enter Country Code <select><option>US</option></select></div>
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldRightLabel"](element);
+
+      expect(labelTag).toEqual("");
+    });
+
+    it("does not stop traversal at a sibling div that has no form field descendant", () => {
+      document.body.innerHTML = `
+        <div>
+          <input type="text" name="username" id="username-id">
+          <div>Helper text</div>
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldRightLabel"](element);
+
+      expect(labelTag).toEqual("Helper text");
+    });
   });
 
   describe("createAutofillFieldLeftLabel", () => {
@@ -1519,6 +1547,53 @@ describe("CollectAutofillContentService", () => {
       const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
 
       expect(labelTag).toEqual("Text ContentUsername");
+    });
+
+    it("does not collect text from a direct sibling that contains a form field", () => {
+      document.body.innerHTML = `
+        <div>
+          <div>Enter Country Code <select><option>US</option></select></div>
+          <input type="text" name="username" id="username-id">
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
+
+      expect(labelTag).toEqual("");
+    });
+
+    it("does not collect text from a parent sibling that contains a form field", () => {
+      // Exercises the parent-walk code path: the input has no direct previous
+      // siblings, so the traversal walks up to the parent and checks its previous
+      // sibling — which should be blocked because it contains a form field.
+      document.body.innerHTML = `
+        <div>
+          <div>Enter Country Code <select><option>US</option></select></div>
+          <div>
+            <input type="text" name="username" id="username-id">
+          </div>
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
+
+      expect(labelTag).toEqual("");
+    });
+
+    it("does not stop traversal at a sibling div that has no form field descendant", () => {
+      document.body.innerHTML = `
+        <div>
+          <div>Helpful label</div>
+          <input type="text" name="username" id="username-id">
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
+
+      expect(labelTag).toEqual("Helpful label");
     });
   });
 
@@ -1650,6 +1725,42 @@ describe("CollectAutofillContentService", () => {
         collectAutofillContentService["createAutofillFieldTopLabel"](targetTableCellInput);
 
       expect(targetTableCellLabel).toEqual(null);
+    });
+  });
+
+  describe("containsChildField", () => {
+    it("returns true when the element contains an input descendant", () => {
+      const div = document.createElement("div");
+      div.innerHTML = `<span>Enter Country Code</span><input type="text" />`;
+
+      expect(collectAutofillContentService["containsChildField"](div)).toBe(true);
+    });
+
+    it("returns true when the element contains a select descendant", () => {
+      const div = document.createElement("div");
+      div.innerHTML = `<select><option>US</option></select>`;
+
+      expect(collectAutofillContentService["containsChildField"](div)).toBe(true);
+    });
+
+    it("returns true when the element contains a textarea descendant", () => {
+      const div = document.createElement("div");
+      div.innerHTML = `<textarea></textarea>`;
+
+      expect(collectAutofillContentService["containsChildField"](div)).toBe(true);
+    });
+
+    it("returns false when the element contains no form field descendants", () => {
+      const div = document.createElement("div");
+      div.innerHTML = `<span>Helper text</span>`;
+
+      expect(collectAutofillContentService["containsChildField"](div)).toBe(false);
+    });
+
+    it("returns false when the node is a text node", () => {
+      const textNode = document.createTextNode("Enter Country Code");
+
+      expect(collectAutofillContentService["containsChildField"](textNode)).toBe(false);
     });
   });
 
