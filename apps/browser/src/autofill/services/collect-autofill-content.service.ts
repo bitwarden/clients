@@ -874,10 +874,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return textContentItems;
     }
 
-    if (this.isNewSectionElement(siblingElement as Node)) {
-      return textContentItems;
-    }
-
     const siblingTextContent = this.getTextContentFromElement(siblingElement);
     if (siblingTextContent) {
       textContentItems.push(siblingTextContent);
