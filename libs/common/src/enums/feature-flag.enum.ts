@@ -55,6 +55,7 @@ export enum FeatureFlag {
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
   SendUIRefresh = "pm-28175-send-ui-refresh",
   SendEmailOTP = "pm-19051-send-email-verification",
+  SendControls = "pm-31885-send-controls",
 
   /* DIRT */
   EventManagementForDataDogAndCrowdStrike = "event-management-for-datadog-and-crowdstrike",
@@ -67,7 +68,6 @@ export enum FeatureFlag {
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM22136_SdkCipherEncryption = "pm-22136-sdk-cipher-encryption",
   CipherKeyEncryption = "cipher-key-encryption",
-  BrowserPremiumSpotlight = "pm-23384-browser-premium-spotlight",
   MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
   PM30521_AutofillButtonViewLoginScreen = "pm-30521-autofill-button-view-login-screen",
@@ -121,6 +121,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
   [FeatureFlag.SendUIRefresh]: FALSE,
   [FeatureFlag.SendEmailOTP]: FALSE,
+  [FeatureFlag.SendControls]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
@@ -133,7 +134,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
-  [FeatureFlag.BrowserPremiumSpotlight]: FALSE,
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
   [FeatureFlag.PM30521_AutofillButtonViewLoginScreen]: FALSE,
