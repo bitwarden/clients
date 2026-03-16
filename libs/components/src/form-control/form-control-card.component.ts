@@ -11,6 +11,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IconTileComponent } from "../icon-tile";
 import { BitwardenIcon } from "../shared/icon";
+import { SwitchComponent } from "../switch";
 import { TypographyDirective } from "../typography/typography.directive";
 
 import { FormControlBaseDirective } from "./form-control-base.directive";
@@ -39,25 +40,41 @@ export class FormControlCardComponent {
   readonly errorId = `${this.base.id}-error`;
 
   protected readonly hint = contentChild(BitHintDirective);
+  protected readonly switch = contentChild(SwitchComponent);
 
   constructor() {
+    effect(() => {
+      this.switch()?.size.set("large");
+    });
+
     effect(() => {
       const hostEl = this.base.formControlEl().nativeElement;
       const inputId = this.base.inputId();
       const hasError = this.base.formControl().hasError;
 
-      // For components like SwitchComponent where the actual input is nested
-      // inside the template, target that element directly
-      const el = (hostEl.id !== inputId && hostEl.querySelector(`[id="${inputId}"]`)) || hostEl;
+      const describedBy = hasError ? this.errorId : (this.hint()?.id ?? null);
 
-      el.setAttribute("aria-labelledby", this.labelId);
-
-      if (hasError) {
-        el.setAttribute("aria-describedby", this.errorId);
-      } else if (this.hint()) {
-        el.setAttribute("aria-describedby", this.hint()!.id);
+      if (this.switch()) {
+        // For SwitchComponent, use signals to set ARIA directly on the inner input,
+        // avoiding a querySelector race with Angular's property binding rendering cycle
+        this.switch().ariaLabelledBy.set(this.labelId);
+        this.switch().ariaDescribedBy.set(describedBy ?? undefined);
+        hostEl.removeAttribute("aria-labelledby");
+        hostEl.removeAttribute("aria-describedby");
       } else {
-        el.removeAttribute("aria-describedby");
+        // For other controls (e.g. checkbox), the host element is the input itself
+        const inputEl = hostEl.id !== inputId ? hostEl.querySelector(`[id="${inputId}"]`) : null;
+        const el = inputEl || hostEl;
+        if (inputEl) {
+          hostEl.removeAttribute("aria-labelledby");
+          hostEl.removeAttribute("aria-describedby");
+        }
+        el.setAttribute("aria-labelledby", this.labelId);
+        if (describedBy) {
+          el.setAttribute("aria-describedby", describedBy);
+        } else {
+          el.removeAttribute("aria-describedby");
+        }
       }
     });
   }
