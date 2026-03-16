@@ -97,3 +97,4 @@ jobs:
           artifacts: "apps/web/artifacts/web-${{ needs.setup.outputs.release_version }}-selfhosted-COMMERCIAL.zip,
             apps/web/artifacts/web-${{ needs.setup.outputs.release_version }}-selfhosted-open-source.zip"
           token: ${{ secrets.GITHUB_TOKEN }}
+          draft: true

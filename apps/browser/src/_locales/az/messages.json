@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Ünvanı kopyala"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "adminConsole": {
     "message": "Admin Konsolu"
   },
@@ -6150,6 +6153,15 @@
   },
   "searchResults": {
     "message": "Axtarış nəticələri"
+  },
+  "simplifiedAutofill": {
+    "message": "Sadələşdirilmiş avto-doldurma"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "Təklif edilən avto-doldurma elementinə kliklədiyiniz zaman, sizi detallara aparmaq əvəzinə avtomatik dolduracaq. Bu elementlərə Daha çox menyusunda baxa bilərsiniz."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Sadələşdirilmiş avto-doldurma pəncərəsini aç"
   },
   "resizeSideNavigation": {
     "message": "Yan naviqasiyanı yeni. ölçüləndir"

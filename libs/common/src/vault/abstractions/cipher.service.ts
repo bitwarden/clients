@@ -169,7 +169,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract saveAttachmentRawWithServer(
     cipher: Cipher,
     filename: string,
-    data: ArrayBuffer,
+    data: Uint8Array,
     userId: UserId,
     admin?: boolean,
   ): Promise<Cipher>;

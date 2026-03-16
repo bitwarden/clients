@@ -1,10 +1,15 @@
 import { TestBed } from "@angular/core/testing";
 import { of } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BusinessSubscriptionPricingTierIds } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
+import {
+  BusinessSubscriptionPricingTierIds,
+  PersonalSubscriptionPricingTierIds,
+} from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -23,7 +28,8 @@ describe("PremiumOrgUpgradeService", () => {
   let previewInvoiceClient: jest.Mocked<PreviewInvoiceClient>;
   let syncService: jest.Mocked<SyncService>;
   let keyService: jest.Mocked<KeyService>;
-  let organizationService: jest.Mocked<OrganizationService>;
+  let encryptService: jest.Mocked<EncryptService>;
+  let i18nService: jest.Mocked<I18nService>;
 
   const mockAccount = { id: "user-id", email: "test@bitwarden.com" } as Account;
   const mockPlanDetails: PremiumOrgUpgradePlanDetails = {
@@ -49,7 +55,7 @@ describe("PremiumOrgUpgradeService", () => {
 
   beforeEach(() => {
     accountBillingClient = {
-      upgradePremiumToOrganization: jest.fn().mockResolvedValue(undefined),
+      upgradePremiumToOrganization: jest.fn().mockResolvedValue("new-org-id"),
     } as any;
     previewInvoiceClient = {
       previewProrationForPremiumUpgrade: jest
@@ -62,18 +68,16 @@ describe("PremiumOrgUpgradeService", () => {
     keyService = {
       makeOrgKey: jest
         .fn()
-        .mockResolvedValue([{ encryptedString: "encrypted-string" }, "decrypted-key"]),
+        .mockResolvedValue([{ encryptedString: "org-key-encrypted" }, "org-key-decrypted"]),
+      makeKeyPair: jest
+        .fn()
+        .mockResolvedValue(["public-key", new EncString("private-key-encrypted")]),
     } as any;
-    organizationService = {
-      organizations$: jest.fn().mockReturnValue(
-        of([
-          {
-            id: "new-org-id",
-            name: "Test Organization",
-            isOwner: true,
-          } as Organization,
-        ]),
-      ),
+    encryptService = {
+      encryptString: jest.fn().mockResolvedValue(new EncString("collection-encrypted")),
+    } as any;
+    i18nService = {
+      t: jest.fn().mockReturnValue("Default Collection"),
     } as any;
 
     TestBed.configureTestingModule({
@@ -84,7 +88,8 @@ describe("PremiumOrgUpgradeService", () => {
         { provide: SyncService, useValue: syncService },
         { provide: AccountService, useValue: { activeAccount$: of(mockAccount) } },
         { provide: KeyService, useValue: keyService },
-        { provide: OrganizationService, useValue: organizationService },
+        { provide: EncryptService, useValue: encryptService },
+        { provide: I18nService, useValue: i18nService },
       ],
     });
 
@@ -96,26 +101,33 @@ describe("PremiumOrgUpgradeService", () => {
       const result = await service.upgradeToOrganization(
         mockAccount,
         "Test Organization",
-        mockPlanDetails,
+        mockPlanDetails.tier,
         mockBillingAddress,
       );
 
-      expect(accountBillingClient.upgradePremiumToOrganization).toHaveBeenCalledWith(
-        "Test Organization",
-        "encrypted-string",
-        2, // ProductTierType.Teams
-        "annually",
-        mockBillingAddress,
-      );
+      expect(accountBillingClient.upgradePremiumToOrganization).toHaveBeenCalledWith({
+        organizationName: "Test Organization",
+        organizationKey: "org-key-encrypted",
+        collectionName: "collection-encrypted",
+        publicKey: "public-key",
+        encryptedPrivateKey: "private-key-encrypted",
+        planTier: ProductTierType.Teams,
+        cadence: "annually",
+        billingAddress: mockBillingAddress,
+      });
       expect(keyService.makeOrgKey).toHaveBeenCalledWith("user-id");
+      expect(keyService.makeKeyPair).toHaveBeenCalledWith("org-key-decrypted");
+      expect(encryptService.encryptString).toHaveBeenCalledWith(
+        "Default Collection",
+        "org-key-decrypted",
+      );
       expect(syncService.fullSync).toHaveBeenCalledWith(true);
-      expect(organizationService.organizations$).toHaveBeenCalledWith("user-id");
       expect(result).toBe("new-org-id");
     });
 
     it("should throw an error if organization name is missing", async () => {
       await expect(
-        service.upgradeToOrganization(mockAccount, "", mockPlanDetails, mockBillingAddress),
+        service.upgradeToOrganization(mockAccount, "", mockPlanDetails.tier, mockBillingAddress),
       ).rejects.toThrow("Organization name is required for organization upgrade");
     });
 
@@ -133,7 +145,7 @@ describe("PremiumOrgUpgradeService", () => {
         service.upgradeToOrganization(
           mockAccount,
           "Test Organization",
-          mockPlanDetails,
+          mockPlanDetails.tier,
           incompleteBillingAddress,
         ),
       ).rejects.toThrow("Billing address information is incomplete");
@@ -149,7 +161,7 @@ describe("PremiumOrgUpgradeService", () => {
         service.upgradeToOrganization(
           mockAccount,
           "Test Organization",
-          invalidPlanDetails,
+          invalidPlanDetails.tier,
           mockBillingAddress,
         ),
       ).rejects.toThrow("Invalid plan tier for organization upgrade");
@@ -161,25 +173,10 @@ describe("PremiumOrgUpgradeService", () => {
         service.upgradeToOrganization(
           mockAccount,
           "Test Organization",
-          mockPlanDetails,
+          mockPlanDetails.tier,
           mockBillingAddress,
         ),
       ).rejects.toThrow("Key generation failed");
-    });
-
-    it("should throw an error if encrypted string is undefined", async () => {
-      keyService.makeOrgKey.mockResolvedValue([
-        { encryptedString: null } as any,
-        "decrypted-key" as any,
-      ]);
-      await expect(
-        service.upgradeToOrganization(
-          mockAccount,
-          "Test Organization",
-          mockPlanDetails,
-          mockBillingAddress,
-        ),
-      ).rejects.toThrow("Failed to generate encrypted organization key");
     });
 
     it("should propagate error if upgrade API call fails", async () => {
@@ -190,7 +187,7 @@ describe("PremiumOrgUpgradeService", () => {
         service.upgradeToOrganization(
           mockAccount,
           "Test Organization",
-          mockPlanDetails,
+          mockPlanDetails.tier,
           mockBillingAddress,
         ),
       ).rejects.toThrow("API call failed");
@@ -202,44 +199,128 @@ describe("PremiumOrgUpgradeService", () => {
         service.upgradeToOrganization(
           mockAccount,
           "Test Organization",
-          mockPlanDetails,
+          mockPlanDetails.tier,
           mockBillingAddress,
         ),
       ).rejects.toThrow("Sync failed");
     });
 
-    it("should throw an error if organization is not found after sync", async () => {
-      organizationService.organizations$.mockReturnValue(
-        of([
-          {
-            id: "different-org-id",
-            name: "Different Organization",
-            isOwner: true,
-          } as Organization,
-        ]),
+    it("should successfully upgrade with non-US billing address without tax ID", async () => {
+      const nonUSBillingAddress: BillingAddress = {
+        country: "CA",
+        postalCode: "12345",
+        line1: null,
+        line2: null,
+        city: null,
+        state: null,
+        taxId: null,
+      };
+
+      const result = await service.upgradeToOrganization(
+        mockAccount,
+        "Test Organization",
+        BusinessSubscriptionPricingTierIds.Teams,
+        nonUSBillingAddress,
       );
 
-      await expect(
-        service.upgradeToOrganization(
-          mockAccount,
-          "Test Organization",
-          mockPlanDetails,
-          mockBillingAddress,
-        ),
-      ).rejects.toThrow("Failed to find newly created organization");
+      expect(result).toBe("new-org-id");
+      expect(accountBillingClient.upgradePremiumToOrganization).toHaveBeenCalledWith({
+        organizationName: "Test Organization",
+        organizationKey: "org-key-encrypted",
+        collectionName: "collection-encrypted",
+        publicKey: "public-key",
+        encryptedPrivateKey: "private-key-encrypted",
+        planTier: ProductTierType.Teams,
+        cadence: "annually",
+        billingAddress: nonUSBillingAddress,
+      });
     });
 
-    it("should throw an error if no organizations are returned", async () => {
-      organizationService.organizations$.mockReturnValue(of([]));
+    it("should successfully upgrade with non-US billing address when tax ID is provided", async () => {
+      const nonUSBillingAddressWithTaxId: BillingAddress = {
+        country: "CA",
+        postalCode: "12345",
+        line1: null,
+        line2: null,
+        city: null,
+        state: null,
+        taxId: {
+          code: "ca_bn",
+          value: "123456789",
+        },
+      };
 
-      await expect(
-        service.upgradeToOrganization(
-          mockAccount,
-          "Test Organization",
-          mockPlanDetails,
-          mockBillingAddress,
-        ),
-      ).rejects.toThrow("Failed to find newly created organization");
+      const result = await service.upgradeToOrganization(
+        mockAccount,
+        "Test Organization",
+        BusinessSubscriptionPricingTierIds.Teams,
+        nonUSBillingAddressWithTaxId,
+      );
+
+      expect(result).toBe("new-org-id");
+      expect(accountBillingClient.upgradePremiumToOrganization).toHaveBeenCalledWith({
+        organizationName: "Test Organization",
+        organizationKey: "org-key-encrypted",
+        collectionName: "collection-encrypted",
+        publicKey: "public-key",
+        encryptedPrivateKey: "private-key-encrypted",
+        planTier: ProductTierType.Teams,
+        cadence: "annually",
+        billingAddress: nonUSBillingAddressWithTaxId,
+      });
+    });
+
+    it("should successfully upgrade Families tier with non-US billing address", async () => {
+      const nonUSBillingAddress: BillingAddress = {
+        country: "CA",
+        postalCode: "12345",
+        line1: null,
+        line2: null,
+        city: null,
+        state: null,
+        taxId: null,
+      };
+
+      const result = await service.upgradeToOrganization(
+        mockAccount,
+        "Test Organization",
+        PersonalSubscriptionPricingTierIds.Families,
+        nonUSBillingAddress,
+      );
+
+      expect(result).toBe("new-org-id");
+      expect(accountBillingClient.upgradePremiumToOrganization).toHaveBeenCalledWith({
+        organizationName: "Test Organization",
+        organizationKey: "org-key-encrypted",
+        collectionName: "collection-encrypted",
+        publicKey: "public-key",
+        encryptedPrivateKey: "private-key-encrypted",
+        planTier: ProductTierType.Families,
+        cadence: "annually",
+        billingAddress: nonUSBillingAddress,
+      });
+    });
+
+    it("should allow US billing address without tax ID", async () => {
+      const usBillingAddress: BillingAddress = {
+        country: "US",
+        postalCode: "12345",
+        line1: null,
+        line2: null,
+        city: null,
+        state: null,
+        taxId: null,
+      };
+
+      const result = await service.upgradeToOrganization(
+        mockAccount,
+        "Test Organization",
+        BusinessSubscriptionPricingTierIds.Teams,
+        usBillingAddress,
+      );
+
+      expect(result).toBe("new-org-id");
+      expect(syncService.fullSync).toHaveBeenCalledWith(true);
     });
   });
 

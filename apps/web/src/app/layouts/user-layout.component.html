@@ -6,25 +6,44 @@
     @if (sendEnabled$ | async) {
       <bit-nav-item icon="bwi-send" [text]="'send' | i18n" route="sends"></bit-nav-item>
     }
-    <bit-nav-group icon="bwi-wrench" [text]="'tools' | i18n" route="tools">
+    <bit-nav-group
+      icon="bwi-wrench"
+      [text]="'tools' | i18n"
+      route="tools"
+      [open]="toolsNavGroupOpen()"
+    >
       <bit-nav-item [text]="'generator' | i18n" route="tools/generator"></bit-nav-item>
-      <bit-nav-item [text]="'importNoun' | i18n" route="tools/import"></bit-nav-item>
+      <bit-nav-item
+        [text]="'importNoun' | i18n"
+        route="tools/import"
+        [bitPopoverAnchorFor]="importCoachmark.popover()"
+        [popoverOpen]="importCoachmarkOpen()"
+        [position]="coachmarkService.getStepPosition('importData')"
+        [closeOnBackdropClick]="false"
+        [spotlight]="true"
+      ></bit-nav-item>
+      <app-coachmark #importCoachmark stepId="importData" />
       <bit-nav-item [text]="'exportNoun' | i18n" route="tools/export"></bit-nav-item>
     </bit-nav-group>
-    <bit-nav-item icon="bwi-sliders" [text]="'reports' | i18n" route="reports"></bit-nav-item>
+    <bit-nav-item
+      icon="bwi-sliders"
+      [text]="'reports' | i18n"
+      route="reports"
+      [bitPopoverAnchorFor]="reportsCoachmark.popover()"
+      [popoverOpen]="reportsCoachmarkOpen()"
+      [position]="coachmarkService.getStepPosition('monitorSecurity')"
+      [closeOnBackdropClick]="false"
+      [spotlight]="true"
+    ></bit-nav-item>
+    <app-coachmark #reportsCoachmark stepId="monitorSecurity" />
     <bit-nav-group icon="bwi-cog" [text]="'settings' | i18n" route="settings">
       <bit-nav-item [text]="'myAccount' | i18n" route="settings/account"></bit-nav-item>
       <bit-nav-item [text]="'security' | i18n" route="settings/security"></bit-nav-item>
-      @if (consolidatedSessionTimeoutComponent$ | async) {
-        <bit-nav-item [text]="'appearance' | i18n" route="settings/appearance"></bit-nav-item>
-      } @else {
-        <bit-nav-item [text]="'preferences' | i18n" route="settings/preferences"></bit-nav-item>
+      <bit-nav-item [text]="'appearance' | i18n" route="settings/appearance"></bit-nav-item>
+      @let subscriptionRoute = subscriptionRoute$ | async;
+      @if (subscriptionRoute) {
+        <bit-nav-item [text]="'subscription' | i18n" [route]="subscriptionRoute"></bit-nav-item>
       }
-      <bit-nav-item
-        [text]="'subscription' | i18n"
-        route="settings/subscription"
-        *ngIf="showSubscription$ | async"
-      ></bit-nav-item>
       <bit-nav-item [text]="'domainRules' | i18n" route="settings/domain-rules"></bit-nav-item>
       @if (showEmergencyAccess()) {
         <bit-nav-item

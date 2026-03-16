@@ -18,6 +18,7 @@ export * from "./empty-trash";
 export * from "./favorites.icon";
 export * from "./gear";
 export * from "./generator";
+export * from "./info-filled.icon";
 export * from "./item-types";
 export * from "./lock.icon";
 export * from "./login-cards";

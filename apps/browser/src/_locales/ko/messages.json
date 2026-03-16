@@ -1344,19 +1344,19 @@
     "message": "~(으)로부터 내보내기"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "내보내기",
     "description": "The verb form of the word Export"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "내보내기",
     "description": "The noun form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "가져오기",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "가져오기",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -1438,10 +1438,10 @@
     "message": "더 알아보기"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "암호화 설정을 업데이트하는 데 오류가 발생했습니다."
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "암호화 설정 업데이트"
   },
   "updateEncryptionSettingsDesc": {
     "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
@@ -1450,13 +1450,13 @@
     "message": "Confirm your identity to continue"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "마스터 비밀번호 입력"
   },
   "updateSettings": {
-    "message": "Update settings"
+    "message": "설정 업데이트"
   },
   "later": {
-    "message": "Later"
+    "message": "나중에"
   },
   "authenticatorKeyTotp": {
     "message": "인증 키 (TOTP)"
@@ -1489,13 +1489,13 @@
     "message": "첨부 파일을 저장했습니다."
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "암호화 고치기"
   },
   "fixEncryptionTooltip": {
-    "message": "This file is using an outdated encryption method."
+    "message": "이 파일은 오래된 암호화 방식을 사용하고 있습니다."
   },
   "attachmentUpdated": {
-    "message": "Attachment updated"
+    "message": "첨부 파일 변경함"
   },
   "file": {
     "message": "파일"
@@ -1507,7 +1507,7 @@
     "message": "파일을 선택하세요."
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "항목을 전송함"
   },
   "maxFileSize": {
     "message": "최대 파일 크기는 500MB입니다."
@@ -1555,13 +1555,13 @@
     "message": "YubiKey나 Duo와 같은 독점적인 2단계 로그인 옵션"
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "프리미엄 구독이 끝났습니다"
   },
   "archivePremiumRestart": {
     "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "프리미엄 재시작"
   },
   "ppremiumSignUpReports": {
     "message": "보관함을 안전하게 유지하기 위한 암호 위생, 계정 상태, 데이터 유출 보고서"
@@ -1655,19 +1655,19 @@
     "message": "WebAuthn 인증"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "보안 키 읽기"
   },
   "readingPasskeyLoading": {
-    "message": "Reading passkey..."
+    "message": "보안 키를 읽는 중..."
   },
   "passkeyAuthenticationFailed": {
-    "message": "Passkey authentication failed"
+    "message": "패스키 인증 실패"
   },
   "useADifferentLogInMethod": {
-    "message": "Use a different log in method"
+    "message": "다른 로그인 방법 사용"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Awaiting security key interaction..."
+    "message": "보안 키 상호작용 대기 중..."
   },
   "loginUnavailable": {
     "message": "로그인 불가능"
@@ -1682,7 +1682,7 @@
     "message": "2단계 인증 옵션"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "다른 2단계 인증 선택"
   },
   "recoveryCodeTitle": {
     "message": "복구 코드"
@@ -1733,7 +1733,7 @@
     "message": "기본 서버 URL이나 최소한 하나의 사용자 지정 환경을 추가해야 합니다."
   },
   "selfHostedEnvMustUseHttps": {
-    "message": "URLs must use HTTPS."
+    "message": "URL은 HTTPS를 이용해야 합니다."
   },
   "customEnvironment": {
     "message": "사용자 지정 환경"
@@ -1771,13 +1771,13 @@
     "message": "자동 완성 제안"
   },
   "autofillSpotlightTitle": {
-    "message": "Easily find autofill suggestions"
+    "message": "쉽게 자동 완성 제안 찾기"
   },
   "autofillSpotlightDesc": {
-    "message": "Turn off your browser's autofill settings, so they don't conflict with Bitwarden."
+    "message": "브라우저의 자동 완성 설정을 꺼서, Bitwarden과 충돌하지 않도록 하세요."
   },
   "turnOffBrowserAutofill": {
-    "message": "Turn off $BROWSER$ autofill",
+    "message": "$BROWSER$ 자동 완성 끄기",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -1786,10 +1786,10 @@
     }
   },
   "turnOffAutofill": {
-    "message": "Turn off autofill"
+    "message": "자동 완성 끄기"
   },
   "confirmAutofill": {
-    "message": "Confirm autofill"
+    "message": "자동 완성 확인"
   },
   "confirmAutofillDesc": {
     "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
@@ -1801,16 +1801,16 @@
     "message": "How does Bitwarden protect your data from phishing?"
   },
   "currentWebsite": {
-    "message": "Current website"
+    "message": "현재 웹사이트"
   },
   "autofillAndAddWebsite": {
-    "message": "Autofill and add this website"
+    "message": "자동 완성 및 이 웹사이트 추가"
   },
   "autofillWithoutAdding": {
-    "message": "Autofill without adding"
+    "message": "추가하지 않고 자동 완성"
   },
   "doNotAutofill": {
-    "message": "Do not autofill"
+    "message": "자동 완성 끄기"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "신원을 제안으로 표시"
@@ -1858,7 +1858,7 @@
     "message": "위험에 대해 자세히 알아보기"
   },
   "learnMoreAboutAutofill": {
-    "message": "자동 완정에 대해 자세히 할아보기"
+    "message": "자동 완성에 대해 자세히 알아보기"
   },
   "defaultAutoFillOnPageLoad": {
     "message": "로그인 항목에 대한 기본 자동 완성 설정"
@@ -1912,7 +1912,7 @@
     "message": "드래그하여 정렬"
   },
   "dragToReorder": {
-    "message": "Drag to reorder"
+    "message": "드래그하여 순서 변경"
   },
   "cfTypeText": {
     "message": "텍스트"
@@ -1956,7 +1956,7 @@
     "message": "만료 연도"
   },
   "monthly": {
-    "message": "month"
+    "message": "월"
   },
   "expiration": {
     "message": "만료"
@@ -2001,7 +2001,7 @@
     "message": "보안 코드"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "카드 번호"
   },
   "ex": {
     "message": "예)"
@@ -2055,7 +2055,7 @@
     "message": "이메일"
   },
   "emails": {
-    "message": "Emails"
+    "message": "이메일"
   },
   "phone": {
     "message": "전화번호"
@@ -2106,82 +2106,82 @@
     "message": "SSH 키"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "메모"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "새 로그인",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "새 카드",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "새 신원",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "새 메모",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "새 SSH 키",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "새 텍스트 Send",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "새 파일 Send",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "로그인 편집",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "카드 편집",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "신원 편집",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "메모 편집",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "SSH 키 편집",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+    "message": "텍스트 Send 편집",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+    "message": "파일 Send 편집",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "로그인 보기",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "카드 보기",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "신원 보기",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "메모 보기",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "SSH 키 보기",
     "description": "Header for view SSH key item type"
   },
   "passwordHistory": {
@@ -2434,13 +2434,13 @@
     "message": "사용자 이름 생성기"
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "이 이메일 사용"
   },
   "useThisPassword": {
     "message": "이 비밀번호 사용"
   },
   "useThisPassphrase": {
-    "message": "Use this passphrase"
+    "message": "이 비밀구절 사용"
   },
   "useThisUsername": {
     "message": "이 사용자 이름 사용"
@@ -2457,7 +2457,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
-    "message": "Vault customization"
+    "message": "보관함 사용자 지정"
   },
   "vaultTimeoutAction": {
     "message": "보관함 시간 제한 초과시 동작"
@@ -2726,20 +2726,20 @@
     "message": "조직 정책으로 인해 개별 보관함으로 항목을 가져오는 것이 차단되었습니다."
   },
   "restrictCardTypeImport": {
-    "message": "Cannot import card item types"
+    "message": "카드 항목을 가져올 수 없음"
   },
   "restrictCardTypeImportDesc": {
-    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+    "message": "하나 이상의 조직에서 설정한 정책으로 인해 보관함에 카드 항목을 가져올 수 없습니다."
   },
   "domainsTitle": {
     "message": "도메인",
     "description": "A category title describing the concept of web domains"
   },
   "blockedDomains": {
-    "message": "Blocked domains"
+    "message": "차단된 도메인"
   },
   "learnMoreAboutBlockedDomains": {
-    "message": "Learn more about blocked domains"
+    "message": "차단된 도메인에 대해 자세히 알아보기"
   },
   "excludedDomains": {
     "message": "제외된 도메인"
@@ -2751,20 +2751,20 @@
     "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
   },
   "autofillBlockedNoticeV2": {
-    "message": "Autofill is blocked for this website."
+    "message": "이 웹사이트에서 자동 완성이 차단되었습니다."
   },
   "autofillBlockedNoticeGuidance": {
-    "message": "Change this in settings"
+    "message": "설정에서 변경"
   },
   "change": {
-    "message": "Change"
+    "message": "변경"
   },
   "changePassword": {
-    "message": "Change password",
+    "message": "비밀번호 변경",
     "description": "Change password button for browser at risk notification on login."
   },
   "changeButtonTitle": {
-    "message": "Change password - $ITEMNAME$",
+    "message": "비밀번호 변경 - $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2773,10 +2773,10 @@
     }
   },
   "atRiskPassword": {
-    "message": "At-risk password"
+    "message": "위험한 비밀번호"
   },
   "atRiskPasswords": {
-    "message": "At-risk passwords"
+    "message": "위험한 비밀번호"
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
@@ -2830,10 +2830,10 @@
     "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
   },
   "reviewAndChangeAtRiskPassword": {
-    "message": "Review and change one at-risk password"
+    "message": "위험한 비밀번호 1개를 검토하고 변경"
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
-    "message": "Review and change $COUNT$ at-risk passwords",
+    "message": "위험한 비밀번호 $COUNT$개를 검토하고 변경",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2848,46 +2848,46 @@
     "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
   },
   "reviewAtRiskLogins": {
-    "message": "Review at-risk logins"
+    "message": "위험한 로그인 검토"
   },
   "reviewAtRiskPasswords": {
-    "message": "Review at-risk passwords"
+    "message": "위험한 비밀번호 검토"
   },
   "reviewAtRiskLoginsSlideDesc": {
     "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
-    "message": "Illustration of a list of logins that are at-risk."
+    "message": "위험한 로그인 목록에 대한 삽화."
   },
   "welcomeDialogGraphicAlt": {
-    "message": "Illustration of the layout of the Bitwarden vault page."
+    "message": "Bitwarden 보관함 페이지 레이아웃에 대한 삽화."
   },
   "generatePasswordSlideDesc": {
     "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
   "generatePasswordSlideImgAltPeriod": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
+    "message": "생성된 비밀번호를 표시하고 있는 Bitwarden 자동 완성 메뉴에 대한 삽화."
   },
   "updateInBitwarden": {
-    "message": "Update in Bitwarden"
+    "message": "Bitwarden에서 업데이트"
   },
   "updateInBitwardenSlideDesc": {
     "message": "Bitwarden will then prompt you to update the password in the password manager.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
   "updateInBitwardenSlideImgAltPeriod": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
+    "message": "로그인 변경을 권유하는 Bitwarden의 알림에 대한 삽화."
   },
   "turnOnAutofill": {
-    "message": "Turn on autofill"
+    "message": "자동 완성 켜기"
   },
   "turnedOnAutofill": {
-    "message": "Turned on autofill"
+    "message": "자동 완성 켬"
   },
   "dismiss": {
-    "message": "Dismiss"
+    "message": "무시"
   },
   "websiteItemLabel": {
     "message": "웹사이트 $number$ (URI)",
@@ -2908,7 +2908,7 @@
     }
   },
   "blockedDomainsSavedSuccess": {
-    "message": "Blocked domain changes saved"
+    "message": "차단한 도메인 변경 사항 저장됨"
   },
   "excludedDomainsSavedSuccess": {
     "message": "제외된 도메인 변경 사항 저장됨"
@@ -2952,7 +2952,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
-    "message": "Max access count reached",
+    "message": "최대 접근 횟수 도달",
     "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
@@ -3087,7 +3087,7 @@
     }
   },
   "durationTimeHours": {
-    "message": "$HOURS$ hours",
+    "message": "$HOURS$시간",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3096,7 +3096,7 @@
     }
   },
   "sendCreatedDescriptionV2": {
-    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "message": "Send 링크를 복사 및 공유합니다. 이 Send는 링크가 있는 누구나 향후 $TIME$ 동안 이용할 수 있습니다.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -3106,7 +3106,7 @@
     }
   },
   "sendCreatedDescriptionPassword": {
-    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "message": "Send 링크를 복사 및 공유합니다. 이 Send는 링크와 설정하신 비밀번호가 있는 누구나 향후 $TIME$ 동안 이용할 수 있습니다.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -3116,7 +3116,7 @@
     }
   },
   "sendCreatedDescriptionEmail": {
-    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "message": "Send 링크를 복사 및 공유합니다. 이 Send는 지정한 인원만 향후 $TIME$ 동안 이용할 수 있습니다.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -3173,7 +3173,7 @@
     "message": "이 기능을 사용하려면 이메일 인증이 필요합니다. 웹 보관함에서 이메일을 인증할 수 있습니다."
   },
   "masterPasswordSuccessfullySet": {
-    "message": "Master password successfully set"
+    "message": "마스터 비밀번호 설정 성공"
   },
   "updatedMasterPassword": {
     "message": "마스터 비밀번호 변경됨"
@@ -3314,10 +3314,10 @@
     "message": "고유 식별자를 찾을 수 없습니다."
   },
   "organizationName": {
-    "message": "Organization name"
+    "message": "조직 이름"
   },
   "keyConnectorDomain": {
-    "message": "Key Connector domain"
+    "message": "키 커넥터 도메인"
   },
   "leaveOrganization": {
     "message": "조직 나가기"
@@ -3401,10 +3401,10 @@
     "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "복호화 오류"
   },
   "errorGettingAutoFillData": {
-    "message": "Error getting autofill data"
+    "message": "자동 완성 데이터 획득 실패"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden could not decrypt the vault item(s) listed below."
@@ -3748,13 +3748,13 @@
     "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
   },
   "device": {
-    "message": "Device"
+    "message": "기기"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "로그인 상태"
   },
   "masterPasswordChanged": {
-    "message": "Master password saved"
+    "message": "마스터 비밀번호 저장함"
   },
   "exposedMasterPassword": {
     "message": "노출된 마스터 비밀번호"
@@ -3847,28 +3847,28 @@
     "message": "향후 로그인을 원활하게 하기 위해 이 기기 기억하기"
   },
   "manageDevices": {
-    "message": "Manage devices"
+    "message": "기기 관리"
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "현재 세션"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "모바일",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "확장",
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Desktop",
+    "message": "데스크탑",
     "description": "Desktop app"
   },
   "webVault": {
-    "message": "Web vault"
+    "message": "웹 보관함"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "웹 앱"
   },
   "cli": {
     "message": "CLI"
@@ -3881,16 +3881,16 @@
     "message": "Request pending"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "첫 로그인"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "신뢰함"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "승인 필요"
   },
   "devices": {
-    "message": "Devices"
+    "message": "기기"
   },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
@@ -3902,31 +3902,31 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "접근 확인"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "접근 거부"
   },
   "time": {
-    "message": "Time"
+    "message": "시간"
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "기기 유형"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "로그인 요청"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "더 이상 유효하지 않은 요청입니다."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "이미 만료된 로그인 요청입니다."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "방금 전"
   },
   "requestedXMinutesAgo": {
-    "message": "Requested $MINUTES$ minutes ago",
+    "message": "$MINUTES$분 전에 요청됨",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -3956,7 +3956,7 @@
     "message": "관리자 인증 필요"
   },
   "unableToCompleteLogin": {
-    "message": "Unable to complete login"
+    "message": "로그인 완료 불가"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
     "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
@@ -4023,16 +4023,16 @@
     "message": "신뢰할 수 있는 장치"
   },
   "trustOrganization": {
-    "message": "Trust organization"
+    "message": "조직 신뢰"
   },
   "trust": {
-    "message": "Trust"
+    "message": "신뢰함"
   },
   "doNotTrust": {
-    "message": "Do not trust"
+    "message": "신뢰하지 않음"
   },
   "organizationNotTrusted": {
-    "message": "Organization is not trusted"
+    "message": "조직을 신뢰하지 않습니다"
   },
   "emergencyAccessTrustWarning": {
     "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
@@ -4044,7 +4044,7 @@
     "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
   },
   "trustUser": {
-    "message": "Trust user"
+    "message": "신뢰하는 사용자"
   },
   "sendsTitleNoItems": {
     "message": "민감한 정보 안전하게 보내세요",
@@ -4178,13 +4178,13 @@
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "cannotAutofill": {
-    "message": "Cannot autofill"
+    "message": "자동 완성 불가"
   },
   "cannotAutofillExactMatch": {
     "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
   },
   "okay": {
-    "message": "Okay"
+    "message": "확인"
   },
   "toggleSideNavigation": {
     "message": "사이드 내비게이션 전환"
@@ -4585,7 +4585,7 @@
     "message": "계정 활성화"
   },
   "bitwardenAccount": {
-    "message": "Bitwarden account"
+    "message": "Bitwarden 계정"
   },
   "availableAccounts": {
     "message": "사용 가능한 계정"
@@ -4643,11 +4643,11 @@
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "일치 인식에 대해 더 알아보기",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "고급 설정",
     "description": "Advanced option placeholder for uri option component"
   },
   "confirmContinueToBrowserSettingsTitle": {
@@ -4731,7 +4731,7 @@
     "message": "자동 완성 제안"
   },
   "itemSuggestions": {
-    "message": "Suggested items"
+    "message": "제안된 항목"
   },
   "autofillSuggestionsTip": {
     "message": "이 사이트에서 자동으로 작성할 로그인 항목 저장"
@@ -4776,7 +4776,7 @@
     }
   },
   "moreOptionsLabelNoPlaceholder": {
-    "message": "More options"
+    "message": "더 많은 옵션"
   },
   "moreOptionsTitle": {
     "message": "다른 옵션 - $ITEMNAME$",
@@ -4799,7 +4799,7 @@
     }
   },
   "viewItemTitleWithField": {
-    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "message": "항목 보기 - $ITEMNAME$ - $FIELD$",
     "description": "Title for a link that opens a view for an item.",
     "placeholders": {
       "itemname": {
@@ -4823,7 +4823,7 @@
     }
   },
   "autofillTitleWithField": {
-    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "message": "자동 완성 - $ITEMNAME$ - $FIELD$",
     "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
@@ -4837,7 +4837,7 @@
     }
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "$FIELD$, $CIPHERNAME$ 복사",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -4865,50 +4865,53 @@
   "copyAddress": {
     "message": "주소 복사하기"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "adminConsole": {
     "message": "관리자 콘솔"
   },
   "admin": {
-    "message": "Admin"
+    "message": "관리자"
   },
   "automaticUserConfirmation": {
-    "message": "Automatic user confirmation"
+    "message": "사용자 자동 인증"
   },
   "automaticUserConfirmationHint": {
     "message": "Automatically confirm pending users while this device is unlocked"
   },
   "autoConfirmOnboardingCallout": {
-    "message": "Save time with automatic user confirmation"
+    "message": "사용자 자동 인증으로 시간 절약"
   },
   "autoConfirmWarning": {
-    "message": "This could impact your organization’s data security. "
+    "message": "조직의 데이터 보안에 영향을 끼칠 수 있습니다. "
   },
   "autoConfirmWarningLink": {
-    "message": "Learn about the risks"
+    "message": "위험에 대해 알아보기"
   },
   "autoConfirmSetup": {
-    "message": "Automatically confirm new users"
+    "message": "신규 사용자 자동 인증"
   },
   "autoConfirmSetupDesc": {
-    "message": "New users will be automatically confirmed while this device is unlocked."
+    "message": "기기가 잠금 해제된 동안 새로운 사용자는 자동으로 인증됩니다."
   },
   "autoConfirmSetupHint": {
-    "message": "What are the potential security risks?"
+    "message": "잠재적인 보안 위험은 무엇입니까?"
   },
   "autoConfirmEnabled": {
-    "message": "Turned on automatic confirmation"
+    "message": "자동 인증 켬"
   },
   "availableNow": {
-    "message": "Available now"
+    "message": "지금 이용 가능"
   },
   "accountSecurity": {
     "message": "계정 보안"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "피싱 차단기"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "피싱 감지"
   },
   "enablePhishingDetectionDesc": {
     "message": "Display warning before accessing suspected phishing sites"
@@ -5026,34 +5029,34 @@
     }
   },
   "downloadAttachmentLabel": {
-    "message": "Download Attachment"
+    "message": "첨부 파일 다운로드"
   },
   "downloadBitwarden": {
-    "message": "Download Bitwarden"
+    "message": "Bitwarden 다운로드"
   },
   "downloadBitwardenOnAllDevices": {
-    "message": "Download Bitwarden on all devices"
+    "message": "모든 기기에서 Bitwarden 다운로드"
   },
   "getTheMobileApp": {
-    "message": "Get the mobile app"
+    "message": "모바일 앱 설치"
   },
   "getTheMobileAppDesc": {
-    "message": "Access your passwords on the go with the Bitwarden mobile app."
+    "message": "Bitwarden 모바일 앱으로 이동 중일 때도 비밀번호에 접근하세요."
   },
   "getTheDesktopApp": {
-    "message": "Get the desktop app"
+    "message": "데스크톱 앱 설치"
   },
   "getTheDesktopAppDesc": {
-    "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
+    "message": "브라우저 없이 보관함에 접근하고, 생체 인식으로 잠금 해제를 설정하면 데스크톱 앱과 브라우저 확장 프로그램에서 더 빠르게 잠금 해제할 수 있습니다."
   },
   "downloadFromBitwardenNow": {
-    "message": "Download from bitwarden.com now"
+    "message": "지금 bitwarden.com에서 다운로드"
   },
   "getItOnGooglePlay": {
-    "message": "Get it on Google Play"
+    "message": "Google Play에서 설치"
   },
   "downloadOnTheAppStore": {
-    "message": "Download on the App Store"
+    "message": "App Store에서 다운로드"
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "정말로 이 첨부파일을 영구적으로 삭제하시겠습니까?"
@@ -5149,7 +5152,7 @@
     }
   },
   "defaultLabelWithValue": {
-    "message": "Default ( $VALUE$ )",
+    "message": "기본 ( $VALUE$ )",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5168,10 +5171,10 @@
     }
   },
   "showMatchDetectionNoPlaceholder": {
-    "message": "Show match detection"
+    "message": "일치 인식 표시"
   },
   "hideMatchDetectionNoPlaceholder": {
-    "message": "Hide match detection"
+    "message": "일치 인식 숨김"
   },
   "autoFillOnPageLoad": {
     "message": "페이지 로드 시 자동 완성을 할까요?"
@@ -5503,16 +5506,16 @@
     "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
   },
   "biometricsStatusHelptextHardwareUnavailable": {
-    "message": "Biometric unlock is currently unavailable."
+    "message": "현재 생체 인식 잠금 해제를 사용할 수 없습니다."
   },
   "biometricsStatusHelptextAutoSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "시스템 파일이 잘못 설정되어 생체 인식 잠금 해제를 사용할 수 없습니다."
   },
   "biometricsStatusHelptextManualSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "시스템 파일이 잘못 설정되어 생체 인식 잠금 해제를 사용할 수 없습니다."
   },
   "biometricsStatusHelptextDesktopDisconnected": {
-    "message": "Biometric unlock is unavailable because the Bitwarden desktop app is closed."
+    "message": "Bitwarden 데스크톱 앱이 닫혀 있어 생체 인식 잠금 해제를 사용할 수 없습니다."
   },
   "biometricsStatusHelptextNotEnabledInDesktop": {
     "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
@@ -5527,10 +5530,10 @@
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
   "unlockVault": {
-    "message": "Unlock your vault in seconds"
+    "message": "빠르게 보관함 잠금 해제"
   },
   "unlockVaultDesc": {
-    "message": "You can customize your unlock and timeout settings to more quickly access your vault."
+    "message": "보관함에 빠르게 접근하기 위해 잠금 해제 및 시간 제한 설정을 사용자 지정할 수 있습니다."
   },
   "unlockPinSet": {
     "message": "Unlock PIN set"
@@ -5550,7 +5553,7 @@
     "description": "Notification message for when a password has been regenerated"
   },
   "saveToBitwarden": {
-    "message": "Save to Bitwarden",
+    "message": "Bitwarden에 저장",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -5710,34 +5713,34 @@
     "message": "매우 넓게"
   },
   "narrow": {
-    "message": "Narrow"
+    "message": "좁게"
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "입력된 비밀번호가 올바르지 않습니다."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "가져오기"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "비밀번호 확인"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Enter the password for the SSH key."
+    "message": "SSH 키의 비밀번호를 입력합니다."
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "비밀번호 입력"
   },
   "invalidSshKey": {
-    "message": "The SSH key is invalid"
+    "message": "SSH 키가 잘못되었습니다"
   },
   "sshKeyTypeUnsupported": {
-    "message": "The SSH key type is not supported"
+    "message": "SSH 키 유형이 지원되지 않음"
   },
   "importSshKeyFromClipboard": {
-    "message": "Import key from clipboard"
+    "message": "클립보드에서 키 가져오기"
   },
   "sshKeyImported": {
-    "message": "SSH key imported successfully"
+    "message": "SSH 키 가져오기 성공"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "보기 권한만 있는 컬렉션은 제거할 수 없습니다: $COLLECTIONS$",
@@ -5749,85 +5752,85 @@
     }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Please update your desktop application"
+    "message": "데스크톱 앱을 업데이트해주세요"
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+    "message": "생체 인식으로 잠금을 해제하려면 데스크톱 애플리케이션을 업데이트하거나, 데스크톱 설정에서 지문 잠금 해제를 끄세요."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "위험한 비밀번호 변경"
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "취약한 비밀번호입니다."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "지금 변경"
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "누락된 웹사이트"
   },
   "settingsVaultOptions": {
-    "message": "Vault options"
+    "message": "보관함 설정"
   },
   "emptyVaultDescription": {
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
   },
   "introCarouselLabel": {
-    "message": "Welcome to Bitwarden"
+    "message": "Bitwarden 사용을 환영합니다"
   },
   "securityPrioritized": {
-    "message": "Security, prioritized"
+    "message": "보안 우선"
   },
   "securityPrioritizedBody": {
-    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+    "message": "비밀번호, 카드와 신원을 암호화된 보관함에 저장하세요. Bitwarden은 영지식 종단간 암호화 기술을 사용하여 당신에게 중요한 정보를 보호합니다."
   },
   "quickLogin": {
-    "message": "Quick and easy login"
+    "message": "쉽고 빠른 로그인"
   },
   "quickLoginBody": {
-    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+    "message": "생체 인증과 자동 완성을 사용 설정하여 클릭만으로 계정에 로그인하세요."
   },
   "secureUser": {
-    "message": "Level up your logins"
+    "message": "더 나은 로그인"
   },
   "secureUserBody": {
-    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+    "message": "생성기를 이용하여 모든 계정에 대해 강력하고 고유한 비밀번호를 만들고 저장하세요."
   },
   "secureDevices": {
-    "message": "Your data, when and where you need it"
+    "message": "당신의 데이터, 필요한 때 필요한 곳에서"
   },
   "secureDevicesBody": {
-    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
+    "message": "Bitwarden 모바일, 브라우저와 데스크톱 앱으로 다양한 기기 사이에 비밀번호를 제한 없이 저장하세요."
   },
   "nudgeBadgeAria": {
-    "message": "1 notification"
+    "message": "알림 1개"
   },
   "emptyVaultNudgeTitle": {
-    "message": "Import existing passwords"
+    "message": "기존 비밀번호 가져오기"
   },
   "emptyVaultNudgeBody": {
-    "message": "Use the importer to quickly transfer logins to Bitwarden without manually adding them."
+    "message": "로그인 정보를 수동으로 추가하지 말고 가져오기 도구를 이용해 Bitwarden으로 빠르게 전송하세요."
   },
   "emptyVaultNudgeButton": {
-    "message": "Import now"
+    "message": "지금 가져오기"
   },
   "hasItemsVaultNudgeTitle": {
-    "message": "Welcome to your vault!"
+    "message": "보관함에 오신 것을 환영합니다!"
   },
   "phishingPageTitleV2": {
-    "message": "Phishing attempt detected"
+    "message": "피싱 시도 탐지"
   },
   "phishingPageSummary": {
-    "message": "The site you are attempting to visit is a known malicious site and a security risk."
+    "message": "방문하려는 사이트가 악성 사이트로 알려진 보안 위험에 해당합니다."
   },
   "phishingPageCloseTabV2": {
-    "message": "Close this tab"
+    "message": "이 탭 닫기"
   },
   "phishingPageContinueV2": {
-    "message": "Continue to this site (not recommended)"
+    "message": "사이트로 이동 (비권장)"
   },
   "phishingPageExplanation1": {
     "message": "This site was found in ",
@@ -5838,10 +5841,10 @@
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
   },
   "phishingPageLearnMore": {
-    "message": "Learn more about phishing detection"
+    "message": "피싱 탐지에 대해 더 알아보기"
   },
   "protectedBy": {
-    "message": "Protected by $PRODUCT$",
+    "message": "$PRODUCT$ 보호",
     "placeholders": {
       "product": {
         "content": "$1",
@@ -5850,16 +5853,16 @@
     }
   },
   "hasItemsVaultNudgeBodyOne": {
-    "message": "Autofill items for the current page"
+    "message": "현재 페이지에 자동 채우기"
   },
   "hasItemsVaultNudgeBodyTwo": {
-    "message": "Favorite items for easy access"
+    "message": "빠른 접근을 위해 즐겨찾기"
   },
   "hasItemsVaultNudgeBodyThree": {
-    "message": "Search your vault for something else"
+    "message": "보관함에서 다른 항목 검색"
   },
   "newLoginNudgeTitle": {
-    "message": "Save time with autofill"
+    "message": "자동 완성으로 시간 절약"
   },
   "newLoginNudgeBodyOne": {
     "message": "Include a",
@@ -5867,7 +5870,7 @@
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyBold": {
-    "message": "Website",
+    "message": "웹사이트",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
@@ -5889,26 +5892,26 @@
     "message": "With identities, quickly autofill long registration or contact forms."
   },
   "newNoteNudgeTitle": {
-    "message": "Keep your sensitive data safe"
+    "message": "민감한 정보를 안전하게 보관"
   },
   "newNoteNudgeBody": {
-    "message": "With notes, securely store sensitive data like banking or insurance details."
+    "message": "메모를 이용해, 은행이나 보험 등 민감정보를 안전하게 보관하세요."
   },
   "newSshNudgeTitle": {
-    "message": "Developer-friendly SSH access"
+    "message": "개발자 친화적 SSH 접근"
   },
   "newSshNudgeBodyOne": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "message": "빠르고 암호화된 인증을 위해 키를 저장하고 SSH 에이전트에 연결하세요.",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "newSshNudgeBodyTwo": {
-    "message": "Learn more about SSH agent",
+    "message": "SSH 에이전트에 대해 자세히 알아보기",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "generatorNudgeTitle": {
-    "message": "Quickly create passwords"
+    "message": "빠르게 비밀번호 생성"
   },
   "generatorNudgeBodyOne": {
     "message": "Easily create strong and unique passwords by clicking on",
@@ -5925,7 +5928,7 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "설정 정보"
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
@@ -5934,127 +5937,127 @@
     "message": "You do not have permissions to view this page. Try logging in with a different account."
   },
   "wasmNotSupported": {
-    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "message": "WebAssembly를 브라우저에서 지원하지 않거나 비활성화되어 있습니다. Bitwarden 앱을 이용하려면 WebAssembly가 필요합니다.",
     "description": "'WebAssembly' is a technical term and should not be translated."
   },
   "showMore": {
-    "message": "Show more"
+    "message": "자세히 보기"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "간단히 보기"
   },
   "next": {
-    "message": "Next"
+    "message": "다음"
   },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "confirmKeyConnectorDomain": {
-    "message": "Confirm Key Connector domain"
+    "message": "키 커넥터 도메인 확인"
   },
   "atRiskLoginsSecured": {
     "message": "Great job securing your at-risk logins!"
   },
   "upgradeNow": {
-    "message": "Upgrade now"
+    "message": "지금 업그레이드"
   },
   "builtInAuthenticator": {
-    "message": "Built-in authenticator"
+    "message": "인증 도구 내장"
   },
   "secureFileStorage": {
-    "message": "Secure file storage"
+    "message": "안전한 파일 저장소"
   },
   "emergencyAccess": {
-    "message": "Emergency access"
+    "message": "비상 접근"
   },
   "breachMonitoring": {
-    "message": "Breach monitoring"
+    "message": "유출 모니터링"
   },
   "andMoreFeatures": {
-    "message": "And more!"
+    "message": "외 다양한 기능!"
   },
   "advancedOnlineSecurity": {
-    "message": "Advanced online security"
+    "message": "향상된 온라인 보안"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "프리미엄으로 업그레이드"
   },
   "unlockAdvancedSecurity": {
-    "message": "Unlock advanced security features"
+    "message": "향상된 보안 기능들 잠금 해제"
   },
   "unlockAdvancedSecurityDesc": {
-    "message": "A Premium subscription gives you more tools to stay secure and in control"
+    "message": "프리미엄 구독 시 보안과 통제를 유지할 수 있는 도구가 더 제공됩니다"
   },
   "explorePremium": {
-    "message": "Explore Premium"
+    "message": "프리미엄 살펴보기"
   },
   "loadingVault": {
-    "message": "Loading vault"
+    "message": "보관함 불러오는 중"
   },
   "vaultLoaded": {
-    "message": "Vault loaded"
+    "message": "보관함 불러옴"
   },
   "settingDisabledByPolicy": {
-    "message": "This setting is disabled by your organization's policy.",
+    "message": "이 설정은 조직의 정책에 의해 비활성화되었습니다.",
     "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "우편번호"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "카드 번호"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "오류: 복호화 불가"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "조직에서 더 이상 마스터 비밀번호로 Bitwarden에 로그인하지 않습니다. 계속하려면 조직과 도메인을 인증하세요."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "로그인하여 계속"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "계속하지 않기"
   },
   "domain": {
-    "message": "Domain"
+    "message": "도메인"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "이 도메인에 계정 암호화 키를 저장하게 되므로, 신뢰할 수 있는지 확인하세요. 확실하지 않으면 관리자와 함께 확인하세요."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "조직을 인증하여 로그인"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "조직 인증됨"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "도메인 인증됨"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "조직을 인증하지 않으면 조직 접근 권한이 회수됩니다."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "지금 떠나기"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "도메인을 인증하여 로그인"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "로그인을 진행하려면, 도메인을 인증하세요."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "로그인을 진행하려면, 조직과 도메인을 인증하세요."
   },
   "sessionTimeoutSettingsAction": {
-    "message": "Timeout action"
+    "message": "시간 제한 초과 시 동작"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
-    "message": "This setting is managed by your organization."
+    "message": "이 설정은 조직에서 관리합니다."
   },
   "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
-    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "message": "조직에서 최대 제한 시간을 $HOURS$시간 $MINUTES$분으로 설정했습니다.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -6076,7 +6079,7 @@
     "message": "Your organization has set the default session timeout to On browser restart."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
-    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "message": "최대 제한 시간은 $HOURS$시간 $MINUTES$분을 초과할 수 없습니다",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -6089,25 +6092,25 @@
     }
   },
   "sessionTimeoutOnRestart": {
-    "message": "On browser restart"
+    "message": "브라우저 재시작 시"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
-    "message": "Set an unlock method to change your timeout action"
+    "message": "잠금 해제 방법을 설정해 보관함의 시간 초과 동작 변경"
   },
   "upgrade": {
-    "message": "Upgrade"
+    "message": "업그레이드"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "Are you sure you want to leave?"
+    "message": "정말로 떠나시겠습니까?"
   },
   "leaveConfirmationDialogContentOne": {
-    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+    "message": "거부해도 개인 항목은 계정에 남아 있지만, 공유받은 항목과 조직 기능에는 접근할 수 없게 됩니다."
   },
   "leaveConfirmationDialogContentTwo": {
-    "message": "Contact your admin to regain access."
+    "message": "접근 권한을 다시 받으려면 관리자에게 연락하세요."
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "$ORGANIZATION$ 떠나기",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6116,10 +6119,10 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "내 보관함을 어떻게 관리합니까?"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "$ORGANIZATION$에 항목 전송",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6137,52 +6140,61 @@
     }
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "전송 승인"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
+    "message": "거부 및 떠나기"
   },
   "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+    "message": "왜 이 화면이 표시됩니까?"
   },
   "items": {
-    "message": "Items"
+    "message": "항목"
   },
   "searchResults": {
-    "message": "Search results"
+    "message": "검색 결과"
+  },
+  "simplifiedAutofill": {
+    "message": "간편 자동 완성"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "제안된 자동 완성을 누르면 세부정보를 표시하는 대신 바로 입력란을 채웁니다. 여전히 '자세히' 메뉴에서 항목을 볼 수 있습니다."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "간편 자동 완성 팝오버 열기"
   },
   "resizeSideNavigation": {
-    "message": "Resize side navigation"
+    "message": "사이드 내비게이션 크기 조정"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "열람 가능 대상"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "지정한 인원"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "Send 링크를 공유한 뒤에는, 개인이 Send를 보려면 코드를 이용해 이메일을 인증해야 합니다."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "여러 이메일을 쉼표로 구분해 입력하세요."
   },
   "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+    "message": "이메일 주소가 최소 하나 이상 있어야 이메일 인증 방식을 이용할 수 있습니다. 모든 이메일을 제거하려면, 위에서 접속 유형을 바꾸세요."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
   "downloadBitwardenApps": {
-    "message": "Download Bitwarden apps"
+    "message": "Bitwarden 앱 다운로드"
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "이메일 보호됨"
   },
   "sendPasswordHelperText": {
-    "message": "Individuals will need to enter the password to view this Send",
+    "message": "개인은 Send를 보려면 비밀번호를 입력해야 합니다",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "사용자 인증에 실패했습니다."
   }
 }

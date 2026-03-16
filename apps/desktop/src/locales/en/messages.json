@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Favorites"
   },
+  "unfavorite": {
+    "message": "Unfavorite"
+  },
   "types": {
     "message": "Types"
   },
@@ -585,6 +588,12 @@
   },
   "editedItem": {
     "message": "Item saved"
+  },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
   },
   "deleteItem": {
     "message": "Delete item"
@@ -1349,17 +1358,11 @@
   "twoStepLogin": {
     "message": "Two-step login"
   },
-  "vaultTimeoutHeader": {
-    "message": "Vault timeout"
-  },
   "vaultTimeout": {
     "message": "Vault timeout"
   },
   "vaultTimeout1": {
     "message": "Timeout"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "Choose when your vault will take the vault timeout action."
@@ -1555,6 +1558,18 @@
   "unknown": {
     "message": "Unknown"
   },
+  "copyAddress": {
+    "message": "Copy address"
+  },
+  "copyPhone": {
+    "message": "Copy phone"
+  },
+  "copyNote": {
+    "message": "Copy note"
+  },
+  "copyVerificationCode": {
+    "message": "Copy verification code"
+  },
   "copyUsername": {
     "message": "Copy username"
   },
@@ -1637,6 +1652,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "month"
+  },
+  "monthly": {
+    "message": "Monthly"
+  },
+  "year": {
+    "message": "year"
+  },
+  "annually": {
+    "message": "Annually"
+  },
+  "annual": {
+    "message": "Annual"
   },
   "refreshComplete": {
     "message": "Refresh complete"
@@ -2068,9 +2098,6 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Re-authentication is required to access your vault again."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Set up an unlock method to change your vault timeout action."
-  },
   "lock": {
     "message": "Lock",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2081,6 +2108,24 @@
   },
   "searchTrash": {
     "message": "Search trash"
+  },
+  "searchArchive": {
+    "message": "Search archive"
+  },
+  "searchLogin": {
+    "message": "Search login"
+  },
+  "searchCard": {
+    "message": "Search card"
+  },
+  "searchIdentity": {
+    "message": "Search identity"
+  },
+  "searchSecureNote": {
+    "message": "Search secure note"
+  },
+  "searchSshKey": {
+    "message": "Search SSH key"
   },
   "permanentlyDeleteItem": {
     "message": "Permanently delete item"
@@ -2378,6 +2423,9 @@
     "message": "Edit Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "me": {
+    "message": "Me"
+  },
   "myVault": {
     "message": "My vault"
   },
@@ -2667,9 +2715,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Your vault timeout exceeds the restrictions set by your organization."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
@@ -4086,6 +4131,9 @@
   "missingWebsite": {
     "message": "Missing website"
   },
+  "missingPermissions": {
+    "message": "You lack the necessary permissions to perform this action."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
     "placeholders": {
@@ -4572,8 +4620,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+ "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4581,14 +4629,47 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
   },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
   },
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",

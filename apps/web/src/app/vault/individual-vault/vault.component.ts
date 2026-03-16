@@ -27,7 +27,6 @@ import {
   BitSvg,
 } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -49,7 +48,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -99,8 +98,8 @@ import {
   OrganizationFilter,
   VaultItemsTransferService,
   DefaultVaultItemsTransferService,
+  VaultItem,
 } from "@bitwarden/vault";
-import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import {
@@ -115,7 +114,6 @@ import {
   VaultItemDialogMode,
   VaultItemDialogResult,
 } from "../components/vault-item-dialog/vault-item-dialog.component";
-import { VaultItem } from "../components/vault-items/vault-item";
 import { VaultItemEvent } from "../components/vault-items/vault-item-event";
 import { VaultItemsComponent } from "../components/vault-items/vault-items.component";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
@@ -159,7 +157,6 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     VaultFilterModule,
     VaultItemsModule,
     SharedModule,
-    OrganizationWarningsModule,
   ],
   providers: [
     RoutedVaultFilterService,

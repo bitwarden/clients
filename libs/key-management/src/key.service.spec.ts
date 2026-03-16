@@ -91,6 +91,12 @@ describe("keyService", () => {
     );
   });
 
+  const setUserKeyState = (userId: UserId, userKey: UserKey | null) => {
+    stateProvider.singleUser
+      .getFake(userId, USER_KEY)
+      .nextState(userKey == null ? null : ({ "": userKey } as Record<string, UserKey>));
+  };
+
   afterEach(() => {
     jest.resetAllMocks();
   });
@@ -110,7 +116,7 @@ describe("keyService", () => {
     );
 
     it("throws error if user key not found", async () => {
-      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(null);
+      setUserKeyState(mockUserId, null);
 
       await expect(keyService.refreshAdditionalKeys(mockUserId)).rejects.toThrow(
         "No user key found for: " + mockUserId,
@@ -119,7 +125,7 @@ describe("keyService", () => {
 
     it("refreshes additional keys when user key is available", async () => {
       const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(mockUserKey);
+      setUserKeyState(mockUserId, mockUserKey);
       const setUserKeySpy = jest.spyOn(keyService, "setUserKey");
 
       await keyService.refreshAdditionalKeys(mockUserId);
@@ -143,7 +149,7 @@ describe("keyService", () => {
     });
 
     it("returns the User Key if available", async () => {
-      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(mockUserKey);
+      setUserKeyState(mockUserId, mockUserKey);
 
       const userKey = await keyService.getUserKey(mockUserId);
 
@@ -173,7 +179,7 @@ describe("keyService", () => {
     );
 
     it.each([true, false])("returns %s if the user key is set", async (hasKey) => {
-      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(hasKey ? mockUserKey : null);
+      setUserKeyState(mockUserId, hasKey ? mockUserKey : null);
       expect(await keyService.hasUserKey(mockUserId)).toBe(hasKey);
     });
   });
@@ -365,7 +371,7 @@ describe("keyService", () => {
       mockUserKey = makeSymmetricCryptoKey<UserKey>(64);
       mockEncryptedPrivateKey = makeEncString("encryptedPrivateKey").encryptedString!;
       mockUserPrivateKey = makeStaticByteArray(10, 1);
-      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(mockUserKey);
+      setUserKeyState(mockUserId, mockUserKey);
       accountCryptographicStateService.accountCryptographicState$.mockReturnValue(
         of({ V1: { private_key: mockEncryptedPrivateKey } }),
       );
@@ -392,7 +398,7 @@ describe("keyService", () => {
     });
 
     it("returns null if user key is not set", async () => {
-      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(null);
+      setUserKeyState(mockUserId, null);
 
       const result = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
 
@@ -423,14 +429,14 @@ describe("keyService", () => {
       expect(result).toEqual(mockUserPrivateKey);
 
       // Change user key to null
-      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(null);
+      setUserKeyState(mockUserId, null);
 
       result = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
 
       expect(result).toBeNull();
 
       // Restore user key, remove encrypted private key
-      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(mockUserKey);
+      setUserKeyState(mockUserId, mockUserKey);
       accountStateSubject.next(null);
 
       result = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
@@ -480,8 +486,7 @@ describe("keyService", () => {
 
     function updateKeys(keys: Partial<UpdateKeysParams> = {}) {
       if ("userKey" in keys) {
-        const userKeyState = stateProvider.singleUser.getFake(mockUserId, USER_KEY);
-        userKeyState.nextState(keys.userKey!);
+        setUserKeyState(mockUserId, keys.userKey!);
       }
 
       if ("encryptedPrivateKey" in keys) {
@@ -843,104 +848,6 @@ describe("keyService", () => {
     );
   });
 
-  describe("compareKeyHash", () => {
-    type TestCase = {
-      masterKey: MasterKey;
-      masterPassword: string;
-      storedMasterKeyHash: string | null;
-      mockReturnedHash: string;
-      expectedToMatch: boolean;
-    };
-
-    const data: TestCase[] = [
-      {
-        masterKey: makeSymmetricCryptoKey(32),
-        masterPassword: "my_master_password",
-        storedMasterKeyHash: "bXlfaGFzaA==",
-        mockReturnedHash: "bXlfaGFzaA==",
-        expectedToMatch: true,
-      },
-      {
-        masterKey: makeSymmetricCryptoKey(32),
-        masterPassword: null as unknown as string,
-        storedMasterKeyHash: "bXlfaGFzaA==",
-        mockReturnedHash: "bXlfaGFzaA==",
-        expectedToMatch: false,
-      },
-      {
-        masterKey: makeSymmetricCryptoKey(32),
-        masterPassword: null as unknown as string,
-        storedMasterKeyHash: null,
-        mockReturnedHash: "bXlfaGFzaA==",
-        expectedToMatch: false,
-      },
-      {
-        masterKey: makeSymmetricCryptoKey(32),
-        masterPassword: "my_master_password",
-        storedMasterKeyHash: "bXlfaGFzaA==",
-        mockReturnedHash: "zxccbXlfaGFzaA==",
-        expectedToMatch: false,
-      },
-    ];
-
-    it.each(data)(
-      "returns expected match value when calculated hash equals stored hash",
-      async ({
-        masterKey,
-        masterPassword,
-        storedMasterKeyHash,
-        mockReturnedHash,
-        expectedToMatch,
-      }) => {
-        masterPasswordService.masterKeyHashSubject.next(storedMasterKeyHash);
-
-        cryptoFunctionService.pbkdf2
-          .calledWith(masterKey.inner().encryptionKey, masterPassword, "sha256", 2)
-          .mockResolvedValue(Utils.fromB64ToArray(mockReturnedHash));
-
-        const actualDidMatch = await keyService.compareKeyHash(
-          masterPassword,
-          masterKey,
-          mockUserId,
-        );
-
-        expect(actualDidMatch).toBe(expectedToMatch);
-      },
-    );
-
-    test.each([null as unknown as MasterKey, undefined as unknown as MasterKey])(
-      "throws an error if masterKey is %s",
-      async (masterKey) => {
-        await expect(
-          keyService.compareKeyHash("my_master_password", masterKey, mockUserId),
-        ).rejects.toThrow("'masterKey' is required to be non-null.");
-      },
-    );
-
-    test.each([null as unknown as string, undefined as unknown as string])(
-      "returns false when masterPassword is %s",
-      async (masterPassword) => {
-        const result = await keyService.compareKeyHash(
-          masterPassword,
-          makeSymmetricCryptoKey(32),
-          mockUserId,
-        );
-        expect(result).toBe(false);
-      },
-    );
-
-    it("returns false when storedMasterKeyHash is null", async () => {
-      masterPasswordService.masterKeyHashSubject.next(null);
-
-      const result = await keyService.compareKeyHash(
-        "my_master_password",
-        makeSymmetricCryptoKey(32),
-        mockUserId,
-      );
-      expect(result).toBe(false);
-    });
-  });
-
   describe("makeOrgKey", () => {
     const mockUserPublicKey = new Uint8Array(64) as UserPublicKey;
     const shareKey = new SymmetricCryptoKey(new Uint8Array(64));
@@ -1013,7 +920,9 @@ describe("keyService", () => {
       masterPasswordService.masterKeySubject.next(fakeMasterKey);
       userKeyState.nextState(null);
       const fakeUserKey = makeUserKey ? makeSymmetricCryptoKey<UserKey>(64) : null;
-      userKeyState.nextState(fakeUserKey);
+      userKeyState.nextState(
+        fakeUserKey == null ? null : ({ "": fakeUserKey } as Record<string, UserKey>),
+      );
       return [fakeUserKey, fakeMasterKey];
     }
 
@@ -1152,7 +1061,7 @@ describe("keyService", () => {
 
     it("throws when user already has a user key", async () => {
       const existingUserKey = makeSymmetricCryptoKey<UserKey>(64);
-      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(existingUserKey);
+      setUserKeyState(mockUserId, existingUserKey);
 
       await expect(keyService.initAccount(mockUserId)).rejects.toThrow(
         "Cannot initialize account, keys already exist.",

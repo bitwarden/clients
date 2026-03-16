@@ -29,6 +29,7 @@ import { OrganizationIntegrationConfigurationApiService } from "./organization-i
 export type IntegrationModificationResult = {
   mustBeOwner: boolean;
   success: boolean;
+  organizationIntegrationResult?: OrganizationIntegration | undefined;
 };
 
 /**
@@ -113,10 +114,14 @@ export class OrganizationIntegrationService {
       if (newIntegration !== null) {
         this._integrations$.next([...this._integrations$.getValue(), newIntegration]);
       }
-      return { mustBeOwner: false, success: true };
+      return {
+        mustBeOwner: false,
+        success: newIntegration !== null,
+        organizationIntegrationResult: newIntegration ?? undefined,
+      };
     } catch (error) {
       if (error instanceof ErrorResponse && error.statusCode === 404) {
-        return { mustBeOwner: true, success: false };
+        return { mustBeOwner: true, success: false, organizationIntegrationResult: undefined };
       }
       throw error;
     }
@@ -178,10 +183,14 @@ export class OrganizationIntegrationService {
         }
         this._integrations$.next([...integrations]);
       }
-      return { mustBeOwner: false, success: true };
+      return {
+        mustBeOwner: false,
+        success: updatedIntegration !== null,
+        organizationIntegrationResult: updatedIntegration ?? undefined,
+      };
     } catch (error) {
       if (error instanceof ErrorResponse && error.statusCode === 404) {
-        return { mustBeOwner: true, success: false };
+        return { mustBeOwner: true, success: false, organizationIntegrationResult: undefined };
       }
       throw error;
     }
@@ -221,10 +230,10 @@ export class OrganizationIntegrationService {
         .filter((i) => i.id !== integrationId);
       this._integrations$.next(updatedIntegrations);
 
-      return { mustBeOwner: false, success: true };
+      return { mustBeOwner: false, success: true, organizationIntegrationResult: undefined };
     } catch (error) {
       if (error instanceof ErrorResponse && error.statusCode === 404) {
-        return { mustBeOwner: true, success: false };
+        return { mustBeOwner: true, success: false, organizationIntegrationResult: undefined };
       }
       throw error;
     }

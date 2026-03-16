@@ -1,0 +1,103 @@
+@if (showPremiumCallout()) {
+  <div class="tw-m-4">
+    <bit-callout type="default" [title]="'premiumSubscriptionEnded' | i18n">
+      <ng-container>
+        <div>
+          {{ "premiumSubscriptionEndedDesc" | i18n }}
+        </div>
+        <a bitLink href="#" appStopClick (click)="navigateToGetPremium()">
+          {{ "restartPremium" | i18n }}
+        </a>
+      </ng-container>
+    </bit-callout>
+  </div>
+}
+<cdk-virtual-scroll-viewport [itemSize]="RowHeight" bitScrollLayout>
+  <div class="tw-mb-4 tw-px-6 tw-@container">
+    <bit-table [dataSource]="dataSource" layout="fixed">
+      <ng-container header>
+        <tr>
+          <!-- Individual or Organization vault -->
+          <th
+            bitCell
+            bitSortable="name"
+            [fn]="sortByName"
+            [class]="showExtraColumn ? 'tw-w-3/6' : 'tw-w-full'"
+          >
+            {{ "name" | i18n }}
+          </th>
+          @if (showOwner()) {
+            <th
+              bitCell
+              bitSortable="owner"
+              [fn]="sortByOwner"
+              class="tw-hidden tw-w-1/6 @md:tw-table-cell"
+            >
+              {{ "owner" | i18n }}
+            </th>
+          }
+          <th bitCell class="tw-w-2/6 tw-text-right tw-font-medium">
+            {{ "options" | i18n }}
+          </th>
+        </tr>
+      </ng-container>
+      <ng-template body let-rows$>
+        <ng-container *cdkVirtualFor="let item of rows$; trackBy: trackByFn; templateCacheSize: 0">
+          @if (item.collection) {
+            <tr
+              bitRow
+              appVaultCollectionRow
+              alignContent="middle"
+              [disabled]="disabled()"
+              [collection]="item.collection"
+              [showOwner]="showOwner()"
+              [organizations]="allOrganizations()"
+            ></tr>
+          }
+          @if (item.cipher) {
+            <tr
+              bitRow
+              appVaultCipherRow
+              alignContent="middle"
+              [disabled]="disabled()"
+              [cipher]="item.cipher"
+              [showOwner]="showOwner()"
+              [showPremiumFeatures]="showPremiumFeatures()"
+              [cloneable]="canClone$(item) | async"
+              [organizations]="allOrganizations()"
+              [canEditCipher]="canEditCipher(item.cipher)"
+              [canAssignCollections]="canAssignCollections(item.cipher)"
+              [canManageCollection]="canManageCollection(item.cipher)"
+              [canDeleteCipher]="cipherAuthorizationService.canDeleteCipher$(item.cipher) | async"
+              [canRestoreCipher]="cipherAuthorizationService.canRestoreCipher$(item.cipher) | async"
+              (onEvent)="event($event)"
+              [userCanArchive]="userCanArchive()"
+              [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy()"
+              [archiveEnabled]="archiveFeatureEnabled$ | async"
+            ></tr>
+          }
+        </ng-container>
+      </ng-template>
+    </bit-table>
+  </div>
+  @if (isEmpty()) {
+    <bit-no-items [icon]="emptyStateItem()?.icon">
+      <div slot="title">
+        {{ emptyStateItem()?.title | i18n }}
+      </div>
+      <p slot="description" bitTypography="body2" class="tw-max-w-md tw-text-center">
+        {{ emptyStateItem()?.description | i18n }}
+      </p>
+      @if (showAddCipherBtn()) {
+        <vault-new-cipher-menu
+          [canCreateCipher]="true"
+          [canCreateFolder]="true"
+          [canCreateSshKey]="true"
+          (cipherAdded)="addCipher($event)"
+          (folderAdded)="addFolder()"
+          slot="button"
+        />
+      }
+    </bit-no-items>
+  }
+</cdk-virtual-scroll-viewport>

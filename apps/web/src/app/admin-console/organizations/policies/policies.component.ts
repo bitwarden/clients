@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, Observable, of, switchMap, first, map, shareReplay } from "rxjs";
@@ -14,7 +14,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import { DialogService } from "@bitwarden/components";
 import { safeProvider } from "@bitwarden/ui-common";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -37,15 +37,14 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PoliciesComponent implements OnDestroy {
-  private myDialogRef?: DialogRef;
-  private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
+export class PoliciesComponent {
+  private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
-  protected organizationId$: Observable<OrganizationId> = this.route.params.pipe(
+  protected readonly organizationId$: Observable<OrganizationId> = this.route.params.pipe(
     map((params) => params.organizationId),
   );
 
-  protected organization$: Observable<Organization> = combineLatest([
+  protected readonly organization$: Observable<Organization> = combineLatest([
     this.userId$,
     this.organizationId$,
   ]).pipe(
@@ -62,45 +61,43 @@ export class PoliciesComponent implements OnDestroy {
     ),
   );
 
-  protected policies$: Observable<readonly BasePolicyEditDefinition[]> = of(
+  protected readonly policies$: Observable<readonly BasePolicyEditDefinition[]> = of(
     this.policyListService.getPolicies(),
   );
 
-  private orgPolicies$: Observable<PolicyResponse[]> = this.accountService.activeAccount$.pipe(
-    getUserId,
-    switchMap((userId) => this.policyService.policies$(userId)),
-    switchMap(() => this.organizationId$),
-    switchMap((organizationId) => this.policyApiService.getPolicies(organizationId)),
-    map((response) => (response.data != null && response.data.length > 0 ? response.data : [])),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  private readonly orgPolicies$: Observable<PolicyResponse[]> =
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.policyService.policies$(userId)),
+      switchMap(() => this.organizationId$),
+      switchMap((organizationId) => this.policyApiService.getPolicies(organizationId)),
+      map((response) => (response.data != null && response.data.length > 0 ? response.data : [])),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
 
-  protected policiesEnabledMap$: Observable<Map<PolicyType, boolean>> = this.orgPolicies$.pipe(
-    map((orgPolicies) => {
-      const policiesEnabledMap: Map<PolicyType, boolean> = new Map<PolicyType, boolean>();
-      orgPolicies.forEach((op) => {
-        policiesEnabledMap.set(op.type, op.enabled);
-      });
-      return policiesEnabledMap;
-    }),
-  );
+  protected readonly policiesEnabledMap$: Observable<Map<PolicyType, boolean>> =
+    this.orgPolicies$.pipe(
+      map((orgPolicies) => {
+        const policiesEnabledMap: Map<PolicyType, boolean> = new Map<PolicyType, boolean>();
+        orgPolicies.forEach((op) => {
+          policiesEnabledMap.set(op.type, op.enabled);
+        });
+        return policiesEnabledMap;
+      }),
+    );
 
   constructor(
-    private route: ActivatedRoute,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-    private policyApiService: PolicyApiServiceAbstraction,
-    private policyListService: PolicyListService,
-    private dialogService: DialogService,
-    private policyService: PolicyService,
-    protected configService: ConfigService,
-    private destroyRef: DestroyRef,
+    private readonly route: ActivatedRoute,
+    private readonly organizationService: OrganizationService,
+    private readonly accountService: AccountService,
+    private readonly policyApiService: PolicyApiServiceAbstraction,
+    private readonly policyListService: PolicyListService,
+    private readonly dialogService: DialogService,
+    private readonly policyService: PolicyService,
+    protected readonly configService: ConfigService,
+    private readonly destroyRef: DestroyRef,
   ) {
     this.handleLaunchEvent();
-  }
-
-  ngOnDestroy() {
-    this.myDialogRef?.close();
   }
 
   // Handle policies component launch from Event message
@@ -136,7 +133,7 @@ export class PoliciesComponent implements OnDestroy {
   edit(policy: BasePolicyEditDefinition, organizationId: OrganizationId) {
     const dialogComponent: PolicyDialogComponent =
       policy.editDialogComponent ?? PolicyEditDialogComponent;
-    this.myDialogRef = dialogComponent.open(this.dialogService, {
+    dialogComponent.open(this.dialogService, {
       data: {
         policy: policy,
         organizationId: organizationId,

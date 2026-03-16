@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Αγαπημένα"
   },
+  "unfavorite": {
+    "message": "Unfavorite"
+  },
   "types": {
     "message": "Τύποι"
   },
@@ -114,7 +117,7 @@
     "message": "Hide your email address from viewers."
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Περιορισμός προβολών"
   },
   "limitSendViewsCount": {
     "message": "$ACCESSCOUNT$ views left",
@@ -131,7 +134,7 @@
     "description": "Displayed under the limit views field on Send"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Ιδιωτική σημείωση"
   },
   "sendDetails": {
     "message": "Send details",
@@ -157,11 +160,11 @@
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
+    "message": "Θέλετε σίγουρα να διαγράψετε οριστικά αυτό το Send;",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "new": {
-    "message": "New",
+    "message": "Νέο",
     "description": "for adding new items"
   },
   "newUri": {
@@ -586,6 +589,12 @@
   "editedItem": {
     "message": "Το αντικείμενο αποθηκεύτηκε"
   },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
+  },
   "deleteItem": {
     "message": "Διαγραφή στοιχείου"
   },
@@ -776,7 +785,7 @@
     "message": "Items transferred"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "Διόρθωση κρυπτογράφησης"
   },
   "fixEncryptionTooltip": {
     "message": "This file is using an outdated encryption method."
@@ -985,7 +994,7 @@
     "message": "Παρουσιάστηκε ένα μη αναμενόμενο σφάλμα."
   },
   "unexpectedErrorShort": {
-    "message": "Unexpected error"
+    "message": "Απρόσμενο σφάλμα"
   },
   "closeThisBitwardenWindow": {
     "message": "Close this Bitwarden window and try again."
@@ -1555,6 +1564,18 @@
   "unknown": {
     "message": "Άγνωστο"
   },
+  "copyAddress": {
+    "message": "Copy address"
+  },
+  "copyPhone": {
+    "message": "Copy phone"
+  },
+  "copyNote": {
+    "message": "Copy note"
+  },
+  "copyVerificationCode": {
+    "message": "Copy verification code"
+  },
   "copyUsername": {
     "message": "Αντιγραφή ονόματος χρήστη"
   },
@@ -1570,7 +1591,7 @@
     "description": "Copy credit card security code (CVV)"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "αριθμός κάρτας"
   },
   "premiumMembership": {
     "message": "Συνδρομή Premium"
@@ -1843,19 +1864,19 @@
     "message": "Εξαγωγή από"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Εξαγωγή",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Εξαγωγή",
     "description": "The verb form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Εισαγωγή",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Εισαγωγή",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -2081,6 +2102,24 @@
   },
   "searchTrash": {
     "message": "Αναζήτηση κάδου απορριμμάτων"
+  },
+  "searchArchive": {
+    "message": "Search archive"
+  },
+  "searchLogin": {
+    "message": "Search login"
+  },
+  "searchCard": {
+    "message": "Search card"
+  },
+  "searchIdentity": {
+    "message": "Search identity"
+  },
+  "searchSecureNote": {
+    "message": "Search secure note"
+  },
+  "searchSshKey": {
+    "message": "Search SSH key"
   },
   "permanentlyDeleteItem": {
     "message": "Μόνιμη διαγραφή αντικειμένου"
@@ -2377,6 +2416,9 @@
   "editSend": {
     "message": "Επεξεργασία Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Me"
   },
   "myVault": {
     "message": "Η κρύπτη μου"
@@ -2725,7 +2767,7 @@
     "message": "Ο κύριος κωδικός αφαιρέθηκε"
   },
   "organizationName": {
-    "message": "Organization name"
+    "message": "Όνομα οργανισμού"
   },
   "keyConnectorDomain": {
     "message": "Key Connector domain"
@@ -3803,7 +3845,7 @@
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "Σύνθετες επιλογές",
     "description": "Advanced option placeholder for uri option component"
   },
   "warningCapitalized": {
@@ -4036,7 +4078,7 @@
     "message": "No matching logins for this site"
   },
   "overwritePasskey": {
-    "message": "Overwrite passkey?"
+    "message": "Αντικατάσταση κλειδιού πρόσβασης;"
   },
   "unableToSavePasskey": {
     "message": "Unable to save passkey"
@@ -4085,6 +4127,9 @@
   },
   "missingWebsite": {
     "message": "Missing website"
+  },
+  "missingPermissions": {
+    "message": "You lack the necessary permissions to perform this action."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
@@ -4589,6 +4634,36 @@
   },
   "whyAmISeeingThis": {
     "message": "Why am I seeing this?"
+  },
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
   },
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",

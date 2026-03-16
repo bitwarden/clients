@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable, OnDestroy } from "@angular/core";
 import {
   Subject,
@@ -378,13 +380,13 @@ export class DesktopAutofillService implements OnDestroy {
     if ("credentialId" in request) {
       allowedCredentials = [
         {
-          id: new Uint8Array(request.credentialId).buffer,
+          id: new Uint8Array(request.credentialId),
           type: "public-key" as const,
         },
       ];
     } else {
       allowedCredentials = request.allowedCredentials.map((credentialId) => ({
-        id: new Uint8Array(credentialId).buffer,
+        id: new Uint8Array(credentialId),
         type: "public-key" as const,
       }));
     }

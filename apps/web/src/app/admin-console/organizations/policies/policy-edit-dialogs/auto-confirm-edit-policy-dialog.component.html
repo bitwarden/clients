@@ -1,5 +1,5 @@
-<form [formGroup]="formGroup" [bitSubmit]="submit" class="tw-h-full tw-flex tw-flex-col">
-  <bit-dialog dialogSize="large" [loading]="loading">
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog [loading]="loading">
     <ng-container bitDialogTitle>
       @let title = (multiStepSubmit | async)[currentStep()]?.titleContent();
       @if (title) {
@@ -41,14 +41,11 @@
       <span bitBadge variant="info" class="tw-w-[99px] tw-my-2"> {{ "availableNow" | i18n }}</span>
     }
     <span class="tw-flex tw-items-center tw-gap-2">
-      {{ (showBadge ? "autoConfirm" : "editPolicy") | i18n }}
+      {{ (showBadge ? "automaticUserConfirmation" : "editPolicy") | i18n }}
       @if (!showBadge) {
         <span class="tw-text-muted tw-font-normal tw-text-sm">
           {{ policy.name | i18n }}
         </span>
-      }
-      @if (isPolicyEnabled) {
-        <span bitBadge variant="success">{{ "on" | i18n }}</span>
       }
     </span>
   </div>
@@ -86,9 +83,9 @@
     [disabled]="saveDisabled$ | async"
     bitFormButton
     type="submit"
+    endIcon="bwi-external-link"
   >
     {{ "openExtension" | i18n }}
-    <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
   </button>
   <button bitButton buttonType="secondary" bitDialogClose type="button">
     {{ "close" | i18n }}

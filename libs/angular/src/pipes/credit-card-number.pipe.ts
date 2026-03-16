@@ -30,7 +30,6 @@ const numberFormats: Record<string, CardRuleEntry[]> = {
 
 @Pipe({
   name: "creditCardNumber",
-  standalone: false,
 })
 export class CreditCardNumberPipe implements PipeTransform {
   transform(creditCardNumber: string, brand: string): string {

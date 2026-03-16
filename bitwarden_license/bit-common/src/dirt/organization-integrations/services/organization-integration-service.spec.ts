@@ -9,6 +9,7 @@ import {
 } from "@bitwarden/common/types/guid";
 
 import { OrgIntegrationBuilder } from "../models/integration-builder";
+import { OrganizationIntegration } from "../models/organization-integration";
 import { OrganizationIntegrationConfigurationRequest } from "../models/organization-integration-configuration-request";
 import { OrganizationIntegrationConfigurationResponse } from "../models/organization-integration-configuration-response";
 import { OrganizationIntegrationRequest } from "../models/organization-integration-request";
@@ -207,7 +208,11 @@ describe("OrganizationIntegrationService", () => {
 
       const result = await service.save(orgId, OrganizationIntegrationType.Hec, config, template);
 
-      expect(result).toEqual({ mustBeOwner: false, success: true });
+      expect(result).toEqual({
+        mustBeOwner: false,
+        success: true,
+        organizationIntegrationResult: expect.any(OrganizationIntegration),
+      });
       expect(integrationApiService.createOrganizationIntegration).toHaveBeenCalledWith(
         orgId,
         expect.any(OrganizationIntegrationRequest),
@@ -325,7 +330,11 @@ describe("OrganizationIntegrationService", () => {
         template,
       );
 
-      expect(result).toEqual({ mustBeOwner: false, success: true });
+      expect(result).toEqual({
+        mustBeOwner: false,
+        success: true,
+        organizationIntegrationResult: expect.any(OrganizationIntegration),
+      });
       expect(integrationApiService.updateOrganizationIntegration).toHaveBeenCalledWith(
         orgId,
         integrationId,
@@ -375,7 +384,11 @@ describe("OrganizationIntegrationService", () => {
         template,
       );
 
-      expect(result).toEqual({ mustBeOwner: true, success: false });
+      expect(result).toEqual({
+        mustBeOwner: true,
+        success: false,
+        organizationIntegrationResult: undefined,
+      });
     });
 
     it("should rethrow non-404 errors", async () => {

@@ -61,8 +61,8 @@ describe("DefaultOrganizationUserService", () => {
     organizationUserApiService = {
       postOrganizationUserConfirm: jest.fn(),
       postOrganizationUserBulkConfirm: jest.fn(),
-      restoreOrganizationUser_vNext: jest.fn(),
-      restoreManyOrganizationUsers_vNext: jest.fn(),
+      restoreOrganizationUser: jest.fn(),
+      restoreManyOrganizationUsers: jest.fn(),
     } as any;
 
     accountService = {
@@ -203,7 +203,7 @@ describe("DefaultOrganizationUserService", () => {
   describe("restoreUser", () => {
     beforeEach(() => {
       setupCommonMocks();
-      organizationUserApiService.restoreOrganizationUser_vNext.mockReturnValue(Promise.resolve());
+      organizationUserApiService.restoreOrganizationUser.mockReturnValue(Promise.resolve());
     });
 
     it("should restore a user successfully", (done) => {
@@ -214,7 +214,7 @@ describe("DefaultOrganizationUserService", () => {
             mockDefaultCollectionName,
             mockOrgKey,
           );
-          expect(organizationUserApiService.restoreOrganizationUser_vNext).toHaveBeenCalledWith(
+          expect(organizationUserApiService.restoreOrganizationUser).toHaveBeenCalledWith(
             mockOrganization.id,
             mockUserId,
             {
@@ -240,7 +240,7 @@ describe("DefaultOrganizationUserService", () => {
 
     beforeEach(() => {
       setupCommonMocks();
-      organizationUserApiService.restoreManyOrganizationUsers_vNext.mockReturnValue(
+      organizationUserApiService.restoreManyOrganizationUsers.mockReturnValue(
         Promise.resolve(mockBulkResponse),
       );
     });
@@ -253,9 +253,7 @@ describe("DefaultOrganizationUserService", () => {
             mockDefaultCollectionName,
             mockOrgKey,
           );
-          expect(
-            organizationUserApiService.restoreManyOrganizationUsers_vNext,
-          ).toHaveBeenCalledWith(
+          expect(organizationUserApiService.restoreManyOrganizationUsers).toHaveBeenCalledWith(
             mockOrganization.id,
             expect.objectContaining({
               ids: mockUserIds,

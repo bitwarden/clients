@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Skopírovať adresu"
   },
+  "myItems": {
+    "message": "Moje položky"
+  },
   "adminConsole": {
     "message": "Správcovská konzola"
   },
@@ -6151,6 +6154,15 @@
   "searchResults": {
     "message": "Výsledky vyhľadávania"
   },
+  "simplifiedAutofill": {
+    "message": "Zjednodušené automatické vypĺňanie"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "Keď kliknete na navrhovanú položku automatického vypĺňania, tá sa vyplní, namiesto toho, aby vás presmerovala na podrobnosti. Tieto položky si stále môžete prezrieť v ponuke Viac."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Otvoriť zjednodušené vyskakovacie okno automatického vypĺňania"
+  },
   "resizeSideNavigation": {
     "message": "Zmeniť veľkosť bočnej navigácie"
   },
@@ -6173,7 +6185,7 @@
     "message": "pouzivate@bitwarden.com, pouzivatel@acme.com"
   },
   "downloadBitwardenApps": {
-    "message": "Download Bitwarden apps"
+    "message": "Stiahnuť aplikácie Bitwarden"
   },
   "emailProtected": {
     "message": "Chránené e-mailom"

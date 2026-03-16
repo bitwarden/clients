@@ -127,7 +127,6 @@ const positiveNumberValidator =
   `,
   standalone: true,
   imports: [SharedModule],
-  providers: [SubscriberBillingClient],
 })
 export class AddAccountCreditDialogComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

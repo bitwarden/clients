@@ -19,6 +19,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -26,6 +27,7 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
   VaultFilterServiceAbstraction as VaultFilterService,
@@ -331,20 +333,17 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
             // - Admin console: user has no ciphers of that type in the selected org
             // - Individual vault view: user has no ciphers of that type in any allowed org
             return !ciphers?.some((c) => {
-              if (c.deletedDate || c.type !== r.cipherType) {
+              if (c.deletedDate || CipherViewLikeUtils.getType(c) !== r.cipherType) {
                 return false;
               }
               // If the cipher doesn't belong to an org it is automatically restricted
               if (!c.organizationId) {
                 return false;
               }
-              if (organizationId) {
-                return (
-                  c.organizationId === organizationId &&
-                  r.allowViewOrgIds.includes(c.organizationId)
-                );
+              if (organizationId && c.organizationId !== organizationId) {
+                return false;
               }
-              return r.allowViewOrgIds.includes(c.organizationId);
+              return r.allowViewOrgIds.includes(uuidAsString(c.organizationId));
             });
           })
           .map((r) => r.cipherType);

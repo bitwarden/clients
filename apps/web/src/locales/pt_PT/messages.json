@@ -5445,8 +5445,8 @@
   "minimumNumberOfWords": {
     "message": "Número mínimo de palavras"
   },
-  "passwordTypePolicyOverride": {
-    "message": "Tipo de palavras-passe",
+  "overridePasswordTypePolicy": {
+    "message": "Tipo de palavra-passe",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Saiba mais sobre a transferência"
   },
+  "promptUsersToMoveItems": {
+    "message": "Solicitar aos utilizadores que movam itens do cofre individual para a organização"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Os membros serão convidados a transferir os seus itens para a organização ou a sair. Se optarem por sair, o respetivo acesso será revogado, podendo ser restaurado a qualquer momento."
+  },
   "organizationDataOwnership": {
     "message": "Reforçar a propriedade dos dados da organização"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Já disponível"
   },
-  "autoConfirm": {
-    "message": "Confirmação automática de novos utilizadores"
+  "automaticUserConfirmation": {
+    "message": "Confirmação automática do utilizador"
   },
   "autoConfirmDescription": {
     "message": "Os novos utilizadores convidados para a organização serão automaticamente confirmados quando o dispositivo de um administrador for desbloqueado.",
@@ -6279,7 +6285,7 @@
     "message": "Aceder aos relatórios"
   },
   "missingPermissions": {
-    "message": "Não tem as permissões necessárias para executar esta ação."
+    "message": "Não tem as permissões necessárias para realizar esta ação."
   },
   "manageAllCollections": {
     "message": "Gerir todas as coleções"
@@ -10624,6 +10630,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Enviar dados de eventos para a sua instância Huntress SIEM"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ ligado com sucesso.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Falha ao guardar a integração. Por favor, tente novamente mais tarde."
   },
@@ -10976,6 +10991,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Desativado"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Falha ao carregar o relatório de acesso de membros. Isto pode dever-se à dimensão elevada da organização ou a um problema de rede. Por favor, tente novamente ou contacte o suporte se o problema persistir."
   },
   "kdfIterationRecommends": {
     "message": "Recomendamos 600.000 ou mais"

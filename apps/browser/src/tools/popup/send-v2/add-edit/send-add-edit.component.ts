@@ -25,6 +25,7 @@ import {
   DefaultSendFormConfigService,
   SendFormConfig,
   SendFormConfigService,
+  SendFormGenerationService,
   SendFormMode,
   SendFormModule,
 } from "@bitwarden/send-ui";
@@ -33,6 +34,7 @@ import { PopupBackBrowserDirective } from "../../../../platform/popup/layout/pop
 import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
+import { BrowserSendFormGenerationService } from "../services/browser-send-form-generation.service";
 
 /**
  * Helper class to parse query parameters for the AddEdit route.
@@ -69,7 +71,10 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
 @Component({
   selector: "tools-send-add-edit",
   templateUrl: "send-add-edit.component.html",
-  providers: [{ provide: SendFormConfigService, useClass: DefaultSendFormConfigService }],
+  providers: [
+    { provide: SendFormConfigService, useClass: DefaultSendFormConfigService },
+    { provide: SendFormGenerationService, useClass: BrowserSendFormGenerationService },
+  ],
   imports: [
     CommonModule,
     SearchModule,

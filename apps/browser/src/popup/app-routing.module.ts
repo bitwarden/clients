@@ -356,7 +356,7 @@ const routes: Routes = [
   {
     path: "edit-send",
     component: SendAddEditV2Component,
-    canActivate: [authGuard, filePickerPopoutGuard()],
+    canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {

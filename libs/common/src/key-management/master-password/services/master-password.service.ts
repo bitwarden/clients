@@ -45,10 +45,14 @@ export const MASTER_KEY = new UserKeyDefinition<MasterKey>(MASTER_PASSWORD_MEMOR
 });
 
 /** Disk since master key hash is used for unlock */
-const MASTER_KEY_HASH = new UserKeyDefinition<string>(MASTER_PASSWORD_DISK, "masterKeyHash", {
-  deserializer: (masterKeyHash) => masterKeyHash,
-  clearOn: ["logout"],
-});
+export const MASTER_KEY_HASH = new UserKeyDefinition<string>(
+  MASTER_PASSWORD_DISK,
+  "masterKeyHash",
+  {
+    deserializer: (masterKeyHash) => masterKeyHash,
+    clearOn: ["logout"],
+  },
+);
 
 /** Disk to persist through lock */
 export const MASTER_KEY_ENCRYPTED_USER_KEY = new UserKeyDefinition<EncryptedString>(
@@ -358,6 +362,12 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     await this.stateProvider
       .getUser(userId, MASTER_PASSWORD_UNLOCK_KEY)
       .update(() => masterPasswordUnlockData.toJSON());
+  }
+
+  async clearMasterPasswordUnlockData(userId: UserId): Promise<void> {
+    assertNonNullish(userId, "userId");
+
+    await this.stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_KEY).update(() => null);
   }
 
   masterPasswordUnlockData$(userId: UserId): Observable<MasterPasswordUnlockData | null> {

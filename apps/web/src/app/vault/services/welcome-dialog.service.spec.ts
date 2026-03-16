@@ -108,9 +108,9 @@ describe("WelcomeDialogService", () => {
       expect(mockDialogOpen).toHaveBeenCalled();
     });
 
-    it("should show dialog for account created exactly 30 days ago", async () => {
-      const exactlyThirtyDaysAgo = new Date(Date.now() - 1000 * 60 * 60 * 24 * 30);
-      activeAccount$.next(createAccount({ creationDate: exactlyThirtyDaysAgo }));
+    it("should show dialog for account created 30 days ago", async () => {
+      const thirtyDaysAgo = new Date(Date.now() - 1000 * 60 * 60 * 24 * 30 + 1000);
+      activeAccount$.next(createAccount({ creationDate: thirtyDaysAgo }));
       getFeatureFlag.mockResolvedValueOnce(true);
       getUserState$.mockReturnValueOnce(of(false));
       mockDialogOpen.mockReturnValue({ closed: of(undefined) } as DialogRef<any>);

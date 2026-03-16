@@ -95,7 +95,9 @@ describe("InactiveTwoFactorReportComponent", () => {
     expect(component).toBeTruthy();
   });
 
-  it("should get ciphers with domains in the 2fa directory regardless of edit access", async () => {
+  it('should get only ciphers with domains in the 2fa directory that they have "Can Edit" access to', async () => {
+    const expectedIdOne: any = "cbea34a8-bde4-46ad-9d19-b05001228xy4";
+    const expectedIdTwo: any = "cbea34a8-bde4-46ad-9d19-b05001227nm5";
     component.services.set(
       "101domain.com",
       "https://help.101domain.com/account-management/account-security/enabling-disabling-two-factor-verification",
@@ -108,10 +110,11 @@ describe("InactiveTwoFactorReportComponent", () => {
     jest.spyOn(component as any, "getAllCiphers").mockReturnValue(Promise.resolve<any>(cipherData));
     await component.setCiphers();
 
-    const cipherIds = component.ciphers.map((c) => c.id);
-    expect(cipherIds).toContain("cbea34a8-bde4-46ad-9d19-b05001228xy4");
-    expect(cipherIds).toContain("cbea34a8-bde4-46ad-9d19-b05001227nm5");
     expect(component.ciphers.length).toEqual(2);
+    expect(component.ciphers[0].id).toEqual(expectedIdOne);
+    expect(component.ciphers[0].edit).toEqual(true);
+    expect(component.ciphers[1].id).toEqual(expectedIdTwo);
+    expect(component.ciphers[1].edit).toEqual(true);
   });
 
   it("should call fullSync method of syncService", () => {
@@ -194,7 +197,7 @@ describe("InactiveTwoFactorReportComponent", () => {
       expect(doc).toBe("");
     });
 
-    it("should return true for cipher without edit access", () => {
+    it("should return false if cipher does not have edit access and no organization", () => {
       component.organization = null;
       const cipher = createCipherView({
         edit: false,
@@ -203,11 +206,11 @@ describe("InactiveTwoFactorReportComponent", () => {
         },
       });
       const [doc, isInactive] = (component as any).isInactive2faCipher(cipher);
-      expect(isInactive).toBe(true);
-      expect(doc).toBe("https://example.com/2fa-doc");
+      expect(isInactive).toBe(false);
+      expect(doc).toBe("");
     });
 
-    it("should return true for cipher without viewPassword", () => {
+    it("should return false if cipher does not have viewPassword", () => {
       const cipher = createCipherView({
         viewPassword: false,
         login: {
@@ -215,8 +218,8 @@ describe("InactiveTwoFactorReportComponent", () => {
         },
       });
       const [doc, isInactive] = (component as any).isInactive2faCipher(cipher);
-      expect(isInactive).toBe(true);
-      expect(doc).toBe("https://example.com/2fa-doc");
+      expect(isInactive).toBe(false);
+      expect(doc).toBe("");
     });
 
     it("should check all uris and return true if any matches domain or host", () => {
