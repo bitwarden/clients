@@ -9,7 +9,6 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 
-import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
 import { PopupSizeService } from "../../platform/popup/layout/popup-size.service";
 import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-view-cache.service";
@@ -58,26 +57,6 @@ export class InitService {
         htmlEl.classList.add("force_redraw");
         this.logService.info("Force redraw is on");
       }
-
-      this.setupVaultPopupHeartbeat();
     };
-  }
-
-  /**
-   * Sets up a runtime message listener to indicate to the background
-   * script that the extension popup is open in some manner.
-   */
-  private setupVaultPopupHeartbeat() {
-    const respondToHeartbeat = (
-      message: { command: string },
-      _sender: chrome.runtime.MessageSender,
-      sendResponse: (response?: any) => void,
-    ) => {
-      if (message?.command === "checkVaultPopupHeartbeat") {
-        sendResponse(true);
-      }
-    };
-
-    BrowserApi.messageListener("vaultPopupHeartbeat", respondToHeartbeat);
   }
 }

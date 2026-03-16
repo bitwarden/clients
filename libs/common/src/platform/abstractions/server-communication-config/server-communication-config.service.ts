@@ -29,4 +29,14 @@ export abstract class ServerCommunicationConfigService {
    * @returns Promise resolving to array of [cookie_name, cookie_value] tuples
    */
   abstract getCookies(hostname: string): Promise<Array<[string, string]>>;
+
+  /**
+   * Initiates cookie acquisition flow for the specified hostname.
+   * Opens browser for user authentication, then captures and validates cookies.
+   *
+   * @param url - The server url requiring cookies
+   * @returns Promise that resolves when cookies acquired and saved, or rejects on error/cancellation
+   * @throws AcquireCookieError on validation failure or cancellation
+   */
+  abstract acquireCookie(url: string): Promise<void>;
 }
