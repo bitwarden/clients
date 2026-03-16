@@ -2343,7 +2343,9 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   private async clearEncryptedCiphersState(userId: UserId) {
-    await this.stateProvider.setUserState(ENCRYPTED_CIPHERS, {}, userId);
+    // Use null (not {}) so that cipherListViews$/cipherViews$ filter it out
+    // and don't emit an empty array during sync.
+    await this.stateProvider.setUserState(ENCRYPTED_CIPHERS, null, userId);
   }
 
   private async clearDecryptedCiphersState(userId: UserId) {
