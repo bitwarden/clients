@@ -14,7 +14,7 @@
 
     <bit-callout
       type="danger"
-      *ngIf="nonCompliantMembers"
+      *ngIf="nonCompliantMembers && !isRevoking"
       title="{{ 'nonCompliantMembersTitle' | i18n }}"
     >
       {{ "nonCompliantMembersError" | i18n }}

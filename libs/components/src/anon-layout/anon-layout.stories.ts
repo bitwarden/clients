@@ -2,12 +2,13 @@ import { ActivatedRoute, RouterModule } from "@angular/router";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { BehaviorSubject, of } from "rxjs";
 
-import { Icon, LockIcon } from "@bitwarden/assets/svg";
+import { BitSvg, LockIcon } from "@bitwarden/assets/svg";
 import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
+import { AvatarModule } from "../avatar";
 import { ButtonModule } from "../button";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
@@ -22,7 +23,8 @@ type StoryArgs = AnonLayoutComponent & {
   contentLength: "normal" | "long" | "thin";
   showSecondary: boolean;
   useDefaultIcon: boolean;
-  icon: Icon;
+  icon: BitSvg;
+  includeHeaderActions: boolean;
 };
 
 export default {
@@ -30,7 +32,7 @@ export default {
   component: AnonLayoutComponent,
   decorators: [
     moduleMetadata({
-      imports: [ButtonModule, RouterModule],
+      imports: [ButtonModule, RouterModule, AvatarModule],
       providers: [
         {
           provide: PlatformUtilsService,
@@ -76,6 +78,14 @@ export default {
           [hideFooter]="hideFooter"
           [hideBackgroundIllustration]="hideBackgroundIllustration"
         >
+          @if (includeHeaderActions) {
+            <div slot="header-actions" class="tw-flex tw-items-center tw-gap-2">
+              <bit-avatar
+                size="small"
+                text="Bob Loblaw"
+              ></bit-avatar>
+            </div>
+          }
           <ng-container [ngSwitch]="contentLength">
             <div *ngSwitchCase="'thin'" class="tw-text-center">  <div class="tw-font-medium">Thin Content</div></div>
             <div *ngSwitchCase="'long'">
@@ -116,7 +126,7 @@ export default {
     hideLogo: { control: "boolean" },
     hideFooter: { control: "boolean" },
     hideBackgroundIllustration: { control: "boolean" },
-
+    includeHeaderActions: { control: "boolean" },
     contentLength: {
       control: "radio",
       options: ["normal", "long", "thin"],
@@ -138,6 +148,7 @@ export default {
     hideBackgroundIllustration: false,
     contentLength: "normal",
     showSecondary: false,
+    includeHeaderActions: false,
   },
 } satisfies Meta<StoryArgs>;
 
@@ -185,6 +196,12 @@ export const LongContentAndTitlesAndLargestWidth: Story = {
 export const SecondaryContent: Story = {
   args: {
     showSecondary: true,
+  },
+};
+
+export const WithHeaderActions: Story = {
+  args: {
+    includeHeaderActions: true,
   },
 };
 

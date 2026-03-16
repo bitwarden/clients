@@ -103,6 +103,7 @@ export const AUTOTYPE_SETTINGS_DISK = new StateDefinition("autotypeSettings", "d
 export const NEW_WEB_LAYOUT_BANNER_DISK = new StateDefinition("newWebLayoutBanner", "disk", {
   web: "disk-local",
 });
+export const BIT_SIDE_NAV_DISK = new StateDefinition("bitSideNav", "disk");
 
 // DIRT
 
@@ -136,6 +137,10 @@ export const EXTENSION_INITIAL_INSTALL_DISK = new StateDefinition(
 export const WEB_PUSH_SUBSCRIPTION = new StateDefinition("webPushSubscription", "disk", {
   web: "disk-local",
 });
+export const SERVER_COMMUNICATION_CONFIG_DISK = new StateDefinition(
+  "serverCommunicationConfig",
+  "disk",
+);
 
 // Design System
 
@@ -197,9 +202,7 @@ export const CIPHERS_DISK_LOCAL = new StateDefinition("ciphersLocal", "disk", {
 export const CIPHERS_MEMORY = new StateDefinition("ciphersMemory", "memory", {
   browser: "memory-large-object",
 });
-export const PREMIUM_BANNER_DISK_LOCAL = new StateDefinition("premiumBannerReprompt", "disk", {
-  web: "disk-local",
-});
+
 export const BANNERS_DISMISSED_DISK = new StateDefinition("bannersDismissed", "disk");
 export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk");
 export const SECURITY_TASKS_DISK = new StateDefinition("securityTasks", "disk");
@@ -213,11 +216,25 @@ export const SETUP_EXTENSION_DISMISSED_DISK = new StateDefinition(
     web: "disk-local",
   },
 );
+export const VAULT_WELCOME_DIALOG_DISK = new StateDefinition("vaultWelcomeDialog", "disk", {
+  web: "disk-local",
+});
 export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
   "vaultBrowserIntroCarousel",
   "disk",
 );
+export const VAULT_AUTOFILL_SIMPLIFIED_ICON = new StateDefinition(
+  "vaultAutofillSimplifiedIcon",
+  "disk",
+);
 export const VAULT_AT_RISK_PASSWORDS_MEMORY = new StateDefinition("vaultAtRiskPasswords", "memory");
+export const WELCOME_EXTENSION_DIALOG_DISK = new StateDefinition(
+  "vaultWelcomeExtensionDialogDismissed",
+  "disk",
+  {
+    web: "disk-local",
+  },
+);
 
 // KM
 

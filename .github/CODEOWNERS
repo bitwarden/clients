@@ -4,16 +4,24 @@
 #
 # https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
+## Global styles are owned by UIF
+*.scss @bitwarden/team-ui-foundation
+*.css @bitwarden/team-ui-foundation
+
 ## Desktop native module ##
 apps/desktop/desktop_native @bitwarden/team-platform-dev
 apps/desktop/desktop_native/objc/src/native/autofill @bitwarden/team-autofill-desktop-dev
 apps/desktop/desktop_native/core/src/autofill @bitwarden/team-autofill-desktop-dev
-apps/desktop/desktop_native/macos_provider @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/autofill_provider @bitwarden/team-autofill-desktop-dev
 apps/desktop/desktop_native/core/src/secure_memory @bitwarden/team-key-management-dev
 
 ## No ownership for Cargo.lock and Cargo.toml to allow dependency updates
 apps/desktop/desktop_native/Cargo.lock
 apps/desktop/desktop_native/Cargo.toml
+
+# Web connectors
+apps/web/src/connectors @bitwarden/team-auth-dev
+apps/web/src/connectors/platform @bitwarden/team-platform-dev
 
 ## Auth team files ##
 apps/browser/src/auth @bitwarden/team-auth-dev
@@ -22,8 +30,6 @@ apps/desktop/src/auth @bitwarden/team-auth-dev
 apps/web/src/app/auth @bitwarden/team-auth-dev
 libs/auth @bitwarden/team-auth-dev
 libs/user-core @bitwarden/team-auth-dev
-# web connectors used for auth
-apps/web/src/connectors @bitwarden/team-auth-dev
 bitwarden_license/bit-web/src/app/auth @bitwarden/team-auth-dev
 libs/angular/src/auth @bitwarden/team-auth-dev
 libs/common/src/auth @bitwarden/team-auth-dev
@@ -60,6 +66,7 @@ apps/web/src/locales @bitwarden/team-platform-dev
 apps/browser/src/vault @bitwarden/team-vault-dev
 apps/cli/src/vault @bitwarden/team-vault-dev
 apps/desktop/src/vault @bitwarden/team-vault-dev
+apps/web/src/app/shared/components/onboarding @bitwarden/team-vault-dev
 apps/web/src/app/vault @bitwarden/team-vault-dev
 libs/angular/src/vault @bitwarden/team-vault-dev
 libs/common/src/vault @bitwarden/team-vault-dev
@@ -75,6 +82,7 @@ bitwarden_license/bit-cli/src/admin-console @bitwarden/team-admin-console-dev
 libs/angular/src/admin-console @bitwarden/team-admin-console-dev
 libs/common/src/admin-console @bitwarden/team-admin-console-dev
 libs/admin-console @bitwarden/team-admin-console-dev
+libs/auto-confirm @bitwarden/team-admin-console-dev
 
 ## Billing team files ##
 apps/browser/src/billing @bitwarden/team-billing-dev
@@ -83,6 +91,8 @@ apps/web/src/app/billing @bitwarden/team-billing-dev
 libs/angular/src/billing @bitwarden/team-billing-dev
 libs/common/src/billing @bitwarden/team-billing-dev
 libs/billing @bitwarden/team-billing-dev
+libs/pricing @bitwarden/team-billing-dev
+libs/subscription @bitwarden/team-billing-dev
 bitwarden_license/bit-web/src/app/billing @bitwarden/team-billing-dev
 
 ## Platform team files ##
@@ -152,13 +162,16 @@ apps/desktop/macos/autofill-extension @bitwarden/team-autofill-desktop-dev
 apps/desktop/src/app/components/fido2placeholder.component.ts @bitwarden/team-autofill-desktop-dev
 apps/desktop/desktop_native/windows_plugin_authenticator @bitwarden/team-autofill-desktop-dev
 apps/desktop/desktop_native/autotype @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-desktop-dev @bitwarden/wg-ssh-keys
+apps/desktop/desktop_native/ssh_agent @bitwarden/team-autofill-desktop-dev @bitwarden/wg-ssh-keys
+apps/desktop/desktop_native/napi/src/autofill.rs @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/napi/src/autotype.rs @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/napi/src/sshagent.rs @bitwarden/team-autofill-desktop-dev
 # DuckDuckGo integration
 apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-desktop-dev
 apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-desktop-dev
 apps/desktop/src/services/encrypted-message-handler.service.ts @bitwarden/team-autofill-desktop-dev
 .github/workflows/alert-ddg-files-modified.yml @bitwarden/team-autofill-desktop-dev
-# SSH Agent
-apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-desktop-dev @bitwarden/wg-ssh-keys
 
 ## UI Foundation ##
 .github/workflows/chromatic.yml @bitwarden/team-ui-foundation
@@ -180,7 +193,9 @@ apps/cli/src/key-management @bitwarden/team-key-management-dev
 bitwarden_license/bit-web/src/app/key-management @bitwarden/team-key-management-dev
 libs/key-management @bitwarden/team-key-management-dev
 libs/key-management-ui @bitwarden/team-key-management-dev
+libs/user-crypto-management @bitwarden/team-key-management-dev
 libs/common/src/key-management @bitwarden/team-key-management-dev
+libs/unlock @bitwarden/team-key-management-dev
 # Node-cryptofunction service
 libs/node @bitwarden/team-key-management-dev
 
@@ -219,6 +234,9 @@ apps/web/src/locales/en/messages.json
 **/docker-compose.yml @bitwarden/team-appsec @bitwarden/dept-bre
 **/entrypoint.sh @bitwarden/team-appsec @bitwarden/dept-bre
 
+# Scanning tools
+.checkmarx/ @bitwarden/team-appsec
+
 ## Overrides
 # For the time being platform owns tsconfig and jest config
 # These overrides will be removed after Nx is implemented
@@ -226,7 +244,9 @@ apps/web/src/locales/en/messages.json
 **/tsconfig.json @bitwarden/team-platform-dev
 **/jest.config.js @bitwarden/team-platform-dev
 **/project.jsons @bitwarden/team-platform-dev
-libs/pricing @bitwarden/team-billing-dev
+# Platform override specifically for the package-lock.json in
+# native-messaging-test-runner so that Platform can manage all lock file updates
+apps/desktop/native-messaging-test-runner/package-lock.json @bitwarden/team-platform-dev
 
 # Claude related files
 .claude/ @bitwarden/team-ai-sme

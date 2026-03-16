@@ -6,11 +6,10 @@ import {
   BehaviorSubject,
   filter,
   firstValueFrom,
-  interval,
+  timer,
   mergeMap,
   Subject,
   switchMap,
-  take,
   takeUntil,
   tap,
 } from "rxjs";
@@ -20,14 +19,8 @@ import { LogoutService } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import {
-  MasterPasswordVerification,
-  MasterPasswordVerificationResponse,
-} from "@bitwarden/common/auth/types/verification";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
@@ -44,6 +37,7 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserKey } from "@bitwarden/common/types/key";
 import {
+  TooltipDirective,
   AsyncActionsModule,
   AnonLayoutWrapperDataService,
   ButtonModule,
@@ -59,6 +53,7 @@ import {
   BiometricsStatus,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import {
   UnlockOption,
@@ -68,6 +63,7 @@ import {
 } from "../services/lock-component.service";
 
 import { MasterPasswordLockComponent } from "./master-password-lock/master-password-lock.component";
+import { UnlockViaPrfComponent } from "./unlock-via-prf.component";
 
 const BroadcasterSubscriptionId = "LockComponent";
 
@@ -87,6 +83,12 @@ type AfterUnlockActions = {
 /// Fixes safari autoprompt behavior
 const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
 
+const BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES = [
+  BiometricsStatus.HardwareUnavailable,
+  BiometricsStatus.DesktopDisconnected,
+  BiometricsStatus.NotEnabledInConnectedDesktopApp,
+];
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -100,16 +102,14 @@ const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
     FormFieldModule,
     AsyncActionsModule,
     IconButtonModule,
+    UnlockViaPrfComponent,
     MasterPasswordLockComponent,
+    TooltipDirective,
   ],
 })
 export class LockComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected loading = true;
-
-  protected unlockWithMasterPasswordUnlockDataFlag$ = this.configService.getFeatureFlag$(
-    FeatureFlag.UnlockWithMasterPasswordUnlockData,
-  );
 
   activeAccount: Account | null = null;
 
@@ -136,7 +136,6 @@ export class LockComponent implements OnInit, OnDestroy {
 
   biometricUnlockBtnText?: string;
 
-  // masterPassword = "";
   showPassword = false;
   private enforcedMasterPasswordOptions?: MasterPasswordPolicyOptions = undefined;
 
@@ -156,7 +155,6 @@ export class LockComponent implements OnInit, OnDestroy {
   constructor(
     private accountService: AccountService,
     private pinService: PinServiceAbstraction,
-    private userVerificationService: UserVerificationService,
     private keyService: KeyService,
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
@@ -181,9 +179,10 @@ export class LockComponent implements OnInit, OnDestroy {
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private encryptedMigrator: EncryptedMigrator,
 
-    private configService: ConfigService,
     // desktop deps
     private broadcasterService: BroadcasterService,
+    private unlockService: UnlockService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -205,13 +204,25 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   private listenForUnlockOptionsChanges() {
-    interval(1000)
+    timer(0, 1000)
       .pipe(
         mergeMap(async () => {
-          if (this.activeAccount?.id != null) {
+          // Only perform polling after the component has loaded. This prevents multiple sources setting the default active unlock option on initialization.
+          if (this.loading === false && this.activeAccount?.id != null) {
+            const prevBiometricsEnabled = this.unlockOptions?.biometrics.enabled;
+
             this.unlockOptions = await firstValueFrom(
               this.lockComponentService.getAvailableUnlockOptions$(this.activeAccount.id),
             );
+
+            if (this.activeUnlockOption == null) {
+              await this.setDefaultActiveUnlockOption(this.unlockOptions);
+            } else if (!prevBiometricsEnabled && this.unlockOptions?.biometrics.enabled) {
+              await this.setDefaultActiveUnlockOption(this.unlockOptions);
+              if (this.activeUnlockOption === UnlockOption.Biometrics) {
+                await this.handleBiometricsUnlockEnabled();
+              }
+            }
           }
         }),
         takeUntil(this.destroy$),
@@ -226,19 +237,8 @@ export class LockComponent implements OnInit, OnDestroy {
       .subscribe((activeUnlockOption: UnlockOptionValue | null) => {
         if (activeUnlockOption === UnlockOption.Pin) {
           this.buildPinForm();
-        } else if (activeUnlockOption === UnlockOption.MasterPassword) {
-          this.buildMasterPasswordForm();
         }
       });
-  }
-
-  buildMasterPasswordForm() {
-    this.formGroup = this.formBuilder.group(
-      {
-        masterPassword: ["", [Validators.required]],
-      },
-      { updateOn: "submit" },
-    );
   }
 
   private buildPinForm() {
@@ -280,7 +280,21 @@ export class LockComponent implements OnInit, OnDestroy {
       this.lockComponentService.getAvailableUnlockOptions$(activeAccount.id),
     );
 
-    this.setDefaultActiveUnlockOption(this.unlockOptions);
+    // The canUseBiometrics query is an expensive operation. Only call if both PIN and master password unlock are unavailable.
+    if (!this.unlockOptions?.masterPassword.enabled && !this.unlockOptions?.pin.enabled) {
+      const canUseBiometrics = [
+        BiometricsStatus.Available,
+        ...BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES,
+      ].includes(await this.biometricService.getBiometricsStatusForUser(activeAccount.id));
+      if (!canUseBiometrics) {
+        // User has no available unlock options, force logout. This happens for TDE users without a masterpassword, that don't have a persistent unlock method set.
+        this.logService.warning("[LockComponent] User cannot unlock again. Logging out!");
+        await this.logoutService.logout(activeAccount.id);
+        return;
+      }
+    }
+
+    await this.setDefaultActiveUnlockOption(this.unlockOptions);
 
     if (this.unlockOptions?.biometrics.enabled) {
       await this.handleBiometricsUnlockEnabled();
@@ -303,7 +317,7 @@ export class LockComponent implements OnInit, OnDestroy {
     });
   }
 
-  private setDefaultActiveUnlockOption(unlockOptions: UnlockOptions | null) {
+  private async setDefaultActiveUnlockOption(unlockOptions: UnlockOptions | null) {
     // Priorities should be Biometrics > Pin > Master Password for speed
     if (unlockOptions?.biometrics.enabled) {
       this.activeUnlockOption = UnlockOption.Biometrics;
@@ -311,6 +325,15 @@ export class LockComponent implements OnInit, OnDestroy {
       this.activeUnlockOption = UnlockOption.Pin;
     } else if (unlockOptions?.masterPassword.enabled) {
       this.activeUnlockOption = UnlockOption.MasterPassword;
+    } else if (
+      unlockOptions != null &&
+      BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES.includes(
+        unlockOptions.biometrics.biometricsStatus,
+      )
+    ) {
+      // If biometrics is temporarily unavailable for masterpassword-less users, but they have biometrics configured,
+      // then show the biometrics screen so the user knows why they can't unlock, and to give them the option to log out.
+      this.activeUnlockOption = UnlockOption.Biometrics;
     }
   }
 
@@ -362,8 +385,6 @@ export class LockComponent implements OnInit, OnDestroy {
     if (this.activeUnlockOption === UnlockOption.Pin) {
       return await this.unlockViaPin();
     }
-
-    await this.unlockViaMasterPassword();
   };
 
   async logOut() {
@@ -395,9 +416,14 @@ export class LockComponent implements OnInit, OnDestroy {
 
     try {
       await this.biometricStateService.setUserPromptCancelled();
-      const userKey = await this.biometricService.unlockWithBiometricsForUser(
-        this.activeAccount.id,
-      );
+
+      let userKey: UserKey | null;
+      if (await this.configService.getFeatureFlag(FeatureFlag.UnlockViaSDK)) {
+        await this.unlockService.unlockWithBiometrics(this.activeAccount.id);
+        userKey = await firstValueFrom(this.keyService.userKey$(this.activeAccount.id));
+      } else {
+        userKey = await this.biometricService.unlockWithBiometricsForUser(this.activeAccount.id);
+      }
 
       // If user cancels biometric prompt, userKey is undefined.
       if (userKey) {
@@ -445,23 +471,12 @@ export class LockComponent implements OnInit, OnDestroy {
     }
   }
 
-  //TODO PM-25385 This code isn't used and should be removed when removing the UnlockWithMasterPasswordUnlockData feature flag.
+  async onPrfUnlockSuccess(userKey: UserKey): Promise<void> {
+    await this.setUserKeyAndContinue(userKey);
+  }
+
   togglePassword() {
     this.showPassword = !this.showPassword;
-    const input = document.getElementById(
-      this.unlockOptions?.pin.enabled ? "pin" : "masterPassword",
-    );
-
-    if (input == null) {
-      return;
-    }
-
-    if (this.ngZone.isStable) {
-      input.focus();
-    } else {
-      // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-      this.ngZone.onStable.pipe(take(1)).subscribe(() => input.focus());
-    }
   }
 
   private validatePin(): boolean {
@@ -486,116 +501,64 @@ export class LockComponent implements OnInit, OnDestroy {
 
     const MAX_INVALID_PIN_ENTRY_ATTEMPTS = 5;
 
-    try {
-      const userKey = await this.pinService.decryptUserKeyWithPin(pin, this.activeAccount.id);
+    if (await this.configService.getFeatureFlag(FeatureFlag.UnlockViaSDK)) {
+      try {
+        await this.unlockService.unlockWithPin(this.activeAccount.id, pin);
+        const userKey = await this.keyService.getUserKey(this.activeAccount.id);
+        await this.setUserKeyAndContinue(userKey!);
+      } catch {
+        // Failure state: invalid PIN or failed decryption
+        this.invalidPinAttempts++;
 
-      if (userKey) {
-        await this.setUserKeyAndContinue(userKey);
-        return; // successfully unlocked
-      }
+        // Log user out if they have entered an invalid PIN too many times
+        if (this.invalidPinAttempts >= MAX_INVALID_PIN_ENTRY_ATTEMPTS) {
+          this.toastService.showToast({
+            variant: "error",
+            message: this.i18nService.t("tooManyInvalidPinEntryAttemptsLoggingOut"),
+          });
+          this.messagingService.send("logout");
+          return;
+        }
 
-      // Failure state: invalid PIN or failed decryption
-      this.invalidPinAttempts++;
-
-      // Log user out if they have entered an invalid PIN too many times
-      if (this.invalidPinAttempts >= MAX_INVALID_PIN_ENTRY_ATTEMPTS) {
         this.toastService.showToast({
           variant: "error",
-          message: this.i18nService.t("tooManyInvalidPinEntryAttemptsLoggingOut"),
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("invalidPin"),
         });
-        this.messagingService.send("logout");
-        return;
       }
+    } else {
+      try {
+        const userKey = await this.pinService.decryptUserKeyWithPin(pin, this.activeAccount.id);
+        if (userKey) {
+          await this.setUserKeyAndContinue(userKey);
+          return; // successfully unlocked
+        }
+        // Failure state: invalid PIN or failed decryption
+        this.invalidPinAttempts++;
 
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("invalidPin"),
-      });
-    } catch {
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("unexpectedError"),
-      });
-    }
-  }
+        // Log user out if they have entered an invalid PIN too many times
+        if (this.invalidPinAttempts >= MAX_INVALID_PIN_ENTRY_ATTEMPTS) {
+          this.toastService.showToast({
+            variant: "error",
+            message: this.i18nService.t("tooManyInvalidPinEntryAttemptsLoggingOut"),
+          });
+          this.messagingService.send("logout");
+          return;
+        }
 
-  // TODO PM-25385 remove when removing the UnlockWithMasterPasswordUnlockData feature flag.
-  private validateMasterPassword(): boolean {
-    if (this.formGroup?.invalid) {
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("masterPasswordRequired"),
-      });
-      return false;
-    }
-
-    return true;
-  }
-
-  // TODO PM-25385 remove when removing the UnlockWithMasterPasswordUnlockData feature flag.
-  async unlockViaMasterPassword() {
-    if (!this.validateMasterPassword() || this.formGroup == null || this.activeAccount == null) {
-      return;
-    }
-
-    const masterPassword = this.formGroup.controls.masterPassword.value;
-
-    const verification = {
-      type: VerificationType.MasterPassword,
-      secret: masterPassword,
-    } as MasterPasswordVerification;
-
-    let passwordValid = false;
-    let masterPasswordVerificationResponse: MasterPasswordVerificationResponse | null = null;
-    try {
-      masterPasswordVerificationResponse =
-        await this.userVerificationService.verifyUserByMasterPassword(
-          verification,
-          this.activeAccount.id,
-          this.activeAccount.email,
-        );
-
-      if (masterPasswordVerificationResponse?.policyOptions != null) {
-        this.enforcedMasterPasswordOptions = MasterPasswordPolicyOptions.fromResponse(
-          masterPasswordVerificationResponse.policyOptions,
-        );
-      } else {
-        this.enforcedMasterPasswordOptions = undefined;
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("invalidPin"),
+        });
+      } catch {
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("unexpectedError"),
+        });
       }
-
-      passwordValid = true;
-    } catch (e) {
-      this.logService.error(e);
     }
-
-    if (!passwordValid) {
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("invalidMasterPassword"),
-      });
-      return;
-    }
-
-    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-      masterPasswordVerificationResponse!.masterKey,
-      this.activeAccount.id,
-    );
-    if (userKey == null) {
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("invalidMasterPassword"),
-      });
-      return;
-    }
-
-    await this.setUserKeyAndContinue(userKey, {
-      passwordEvaluation: { masterPassword },
-    });
   }
 
   async successfulMasterPasswordUnlock(event: {
@@ -684,11 +647,17 @@ export class LockComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Vault can be de-synced since server notifications get ignored while locked. Need to check whether sync is required using the sync service.
-    const startSync = new Date().getTime();
-    // TODO: This should probably not be blocking
-    await this.syncService.fullSync(false);
-    this.logService.info(`[LockComponent] Sync took ${new Date().getTime() - startSync}ms`);
+    if (this.platformUtilsService.getClientType() == ClientType.Web) {
+      const startSync = performance.now();
+
+      // Web does not cache vault data and would be in a unusable state when unlocked.
+      await this.syncService.fullSync(true);
+
+      this.logService.measure(startSync, "KeyManagement", "LockComponent", "sync complete");
+    } else {
+      // On non-web clients, we start a sync in the background, but to not block by it
+      void this.syncService.fullSync(false);
+    }
 
     const startRegeneration = new Date().getTime();
     // TODO: This should probably not be blocking

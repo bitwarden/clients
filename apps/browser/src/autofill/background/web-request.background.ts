@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -28,7 +26,7 @@ export default class WebRequestBackground {
     this.webRequest.onAuthRequired.addListener(
       (async (
         details: chrome.webRequest.OnAuthRequiredDetails,
-        callback: (response: chrome.webRequest.BlockingResponse) => void,
+        callback: (response: chrome.webRequest.BlockingResponse | null) => void,
       ) => {
         if (!details.url || this.pendingAuthRequests.has(details.requestId)) {
           if (callback) {
@@ -51,16 +49,16 @@ export default class WebRequestBackground {
     );
 
     this.webRequest.onCompleted.addListener((details) => this.completeAuthRequest(details), {
-      urls: ["http://*/*"],
+      urls: ["http://*/*", "https://*/*"],
     });
     this.webRequest.onErrorOccurred.addListener((details) => this.completeAuthRequest(details), {
-      urls: ["http://*/*"],
+      urls: ["http://*/*", "https://*/*"],
     });
   }
 
   private async resolveAuthCredentials(
     domain: string,
-    success: (response: chrome.webRequest.BlockingResponse) => void,
+    success: (response: chrome.webRequest.BlockingResponse | null) => void,
     // eslint-disable-next-line
     error: Function,
   ) {
@@ -82,7 +80,7 @@ export default class WebRequestBackground {
       const ciphers = await this.cipherService.getAllDecryptedForUrl(
         domain,
         activeUserId,
-        null,
+        undefined,
         UriMatchStrategy.Host,
       );
       if (ciphers == null || ciphers.length !== 1) {
@@ -90,10 +88,17 @@ export default class WebRequestBackground {
         return;
       }
 
+      const username = ciphers[0].login?.username;
+      const password = ciphers[0].login?.password;
+      if (username == null || password == null) {
+        error();
+        return;
+      }
+
       success({
         authCredentials: {
-          username: ciphers[0].login.username,
-          password: ciphers[0].login.password,
+          username,
+          password,
         },
       });
     } catch {

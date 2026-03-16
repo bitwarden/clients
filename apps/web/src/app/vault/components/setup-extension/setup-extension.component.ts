@@ -18,7 +18,7 @@ import {
   CenterPositionStrategy,
   DialogRef,
   DialogService,
-  IconModule,
+  SvgModule,
   LinkModule,
 } from "@bitwarden/components";
 
@@ -52,7 +52,7 @@ type SetupExtensionState = UnionOfValues<typeof SetupExtensionState>;
     JslibModule,
     ButtonComponent,
     LinkModule,
-    IconModule,
+    SvgModule,
     RouterModule,
     AddExtensionVideosComponent,
     ManuallyOpenExtensionComponent,

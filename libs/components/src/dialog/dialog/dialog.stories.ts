@@ -11,7 +11,6 @@ import { FormFieldModule } from "../../form-field";
 import { IconButtonModule } from "../../icon-button";
 import { InputModule } from "../../input";
 import { SectionComponent, SectionHeaderComponent } from "../../section";
-import { SharedModule } from "../../shared";
 import { TabsModule } from "../../tabs";
 import { TypographyModule } from "../../typography";
 import { I18nMockService } from "../../utils/i18n-mock.service";
@@ -28,7 +27,6 @@ export default {
         DialogModule,
         BadgeModule,
         ButtonModule,
-        SharedModule,
         IconButtonModule,
         TabsModule,
         NoopAnimationsModule,
@@ -94,6 +92,7 @@ export const Default: Story = {
         <ng-container bitDialogTitle>
           <span bitBadge variant="success">Foobar</span>
         </ng-container>
+
         <ng-container bitDialogContent>Dialog body text goes here.</ng-container>
         <ng-container bitDialogFooter>
           <button type="button" bitButton buttonType="primary" [disabled]="loading">Save</button>
@@ -224,8 +223,7 @@ export const WithCards: Story = {
       ...args,
     },
     template: /*html*/ `
-      <form [formGroup]="formObj">
-      <bit-dialog [dialogSize]="dialogSize" [background]="background" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations">
+      <form [formGroup]="formObj" bit-dialog [dialogSize]="dialogSize" [background]="background" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations">
         <ng-container bitDialogContent>
           <bit-section>
             <bit-section-header>
@@ -269,6 +267,47 @@ export const WithCards: Story = {
           </bit-section>
         </ng-container>
         <ng-container bitDialogFooter>
+          <button type="submit" bitButton buttonType="primary" [disabled]="loading">Save</button>
+          <button type="button" bitButton buttonType="secondary" [disabled]="loading">Cancel</button>
+          <button
+            type="button"
+            [disabled]="loading"
+            class="tw-ms-auto"
+            bitIconButton="bwi-trash"
+            buttonType="danger"
+            size="default"
+            label="Delete"></button>
+        </ng-container>
+      </form>
+    `,
+  }),
+  args: {
+    dialogSize: "default",
+    title: "Default",
+    subtitle: "Subtitle",
+    background: "alt",
+    disableAnimations: true,
+  },
+};
+
+export const HeaderEnd: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-dialog
+        [dialogSize]="dialogSize"
+        [title]="title"
+        [subtitle]="subtitle"
+        [loading]="loading"
+        [disablePadding]="disablePadding"
+        [disableAnimations]="disableAnimations">
+
+        <ng-container bitDialogHeaderEnd>
+          <span bitBadge>Archived</span>
+        </ng-container>
+
+        <ng-container bitDialogContent>Dialog body text goes here.</ng-container>
+        <ng-container bitDialogFooter>
           <button type="button" bitButton buttonType="primary" [disabled]="loading">Save</button>
           <button type="button" bitButton buttonType="secondary" [disabled]="loading">Cancel</button>
           <button
@@ -281,14 +320,11 @@ export const WithCards: Story = {
             label="Delete"></button>
         </ng-container>
       </bit-dialog>
-  </form>
     `,
   }),
   args: {
-    dialogSize: "default",
-    title: "Default",
+    dialogSize: "small",
+    title: "Very Long Title That Should Be Truncated After Two Lines To Test Header End Slot",
     subtitle: "Subtitle",
-    background: "alt",
-    disableAnimations: true,
   },
 };

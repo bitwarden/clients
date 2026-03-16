@@ -1,8 +1,7 @@
-@for (breadcrumb of beforeOverflow; track breadcrumb; let last = $last) {
+@for (breadcrumb of beforeOverflow(); track breadcrumb; let last = $last) {
   @if (breadcrumb.route(); as route) {
     <a
       bitLink
-      linkType="primary"
       class="tw-my-2 tw-inline-block"
       [routerLink]="route"
       [queryParams]="breadcrumb.queryParams()"
@@ -14,7 +13,6 @@
     <button
       type="button"
       bitLink
-      linkType="primary"
       class="tw-my-2 tw-inline-block"
       (click)="breadcrumb.onClick($event)"
     >
@@ -26,8 +24,8 @@
   }
 }
 
-@if (hasOverflow) {
-  @if (beforeOverflow.length > 0) {
+@if (hasOverflow()) {
+  @if (beforeOverflow().length > 0) {
     <i class="bwi bwi-angle-right tw-mx-1.5 tw-text-main"></i>
   }
   <button
@@ -38,11 +36,10 @@
     [label]="'moreBreadcrumbs' | i18n"
   ></button>
   <bit-menu #overflowMenu>
-    @for (breadcrumb of overflow; track breadcrumb) {
+    @for (breadcrumb of overflow(); track breadcrumb) {
       @if (breadcrumb.route(); as route) {
         <a
           bitMenuItem
-          linkType="primary"
           [routerLink]="route"
           [queryParams]="breadcrumb.queryParams()"
           [queryParamsHandling]="breadcrumb.queryParamsHandling()"
@@ -50,18 +47,17 @@
           <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
         </a>
       } @else {
-        <button type="button" bitMenuItem linkType="primary" (click)="breadcrumb.onClick($event)">
+        <button type="button" bitMenuItem (click)="breadcrumb.onClick($event)">
           <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
         </button>
       }
     }
   </bit-menu>
   <i class="bwi bwi-angle-right tw-mx-1.5 tw-text-main"></i>
-  @for (breadcrumb of afterOverflow; track breadcrumb; let last = $last) {
+  @for (breadcrumb of afterOverflow(); track breadcrumb; let last = $last) {
     @if (breadcrumb.route(); as route) {
       <a
         bitLink
-        linkType="primary"
         class="tw-my-2 tw-inline-block"
         [routerLink]="route"
         [queryParams]="breadcrumb.queryParams()"
@@ -73,7 +69,6 @@
       <button
         type="button"
         bitLink
-        linkType="primary"
         class="tw-my-2 tw-inline-block"
         (click)="breadcrumb.onClick($event)"
       >

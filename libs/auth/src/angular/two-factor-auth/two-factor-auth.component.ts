@@ -55,6 +55,7 @@ import {
   DialogService,
   FormFieldModule,
   ToastService,
+  IconModule,
 } from "@bitwarden/components";
 
 import { TwoFactorAuthAuthenticatorComponent } from "./child-components/two-factor-auth-authenticator/two-factor-auth-authenticator.component";
@@ -88,6 +89,7 @@ import {
     AsyncActionsModule,
     CheckboxModule,
     ButtonModule,
+    IconModule,
     TwoFactorAuthAuthenticatorComponent,
     TwoFactorAuthEmailComponent,
     TwoFactorAuthDuoComponent,
@@ -487,7 +489,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       !userDecryptionOpts.hasMasterPassword && userDecryptionOpts.keyConnectorOption === undefined;
 
     // New users without a master password must set a master password before advancing.
-    if (requireSetPassword || authResult.resetMasterPassword) {
+    if (requireSetPassword) {
       // Change implies going no password -> password in this case
       return await this.handleChangePasswordRequired(this.orgSsoIdentifier);
     }

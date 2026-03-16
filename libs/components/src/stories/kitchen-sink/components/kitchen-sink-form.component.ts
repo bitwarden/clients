@@ -73,13 +73,12 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
           A random password
           <button
             bitLink
-            linkType="primary"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
             type="button"
             slot="end"
           >
-            <i class="bwi bwi-question-circle"></i>
+            <bit-icon name="bwi-question-circle" />
           </button>
         </bit-label>
         <input bitInput type="password" formControlName="password" />
@@ -99,7 +98,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
         <bit-color-password
           class="tw-text-base"
-          [password]="'Wq$Jk😀7j  DX#rS5Sdi!z'"
+          password="Wq$Jk😀7j  DX#rS5Sdi!z"
           [showCount]="true"
         ></bit-color-password>
       </div>
@@ -123,7 +122,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
       <button bitButton bitFormButton buttonType="primary" type="submit">Submit</button>
       <bit-error-summary [formGroup]="formObj"></bit-error-summary>
 
-      <bit-popover [title]="'Password help'" #myPopover>
+      <bit-popover title="Password help" #myPopover>
         <div>A strong password has the following:</div>
         <ul class="tw-mt-2 tw-mb-0 tw-ps-4">
           <li>Letters</li>

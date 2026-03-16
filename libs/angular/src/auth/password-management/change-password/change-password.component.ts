@@ -23,9 +23,10 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   AnonLayoutWrapperDataService,
-  DialogService,
-  ToastService,
   CalloutComponent,
+  DialogService,
+  IconModule,
+  ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -44,7 +45,7 @@ import { ChangePasswordService } from "./change-password.service.abstraction";
 @Component({
   selector: "auth-change-password",
   templateUrl: "change-password.component.html",
-  imports: [InputPasswordComponent, I18nPipe, CalloutComponent, CommonModule],
+  imports: [CalloutComponent, CommonModule, IconModule, InputPasswordComponent, I18nPipe],
 })
 export class ChangePasswordComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

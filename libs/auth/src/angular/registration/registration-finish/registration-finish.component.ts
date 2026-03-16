@@ -17,7 +17,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { AnonLayoutWrapperDataService, ToastService } from "@bitwarden/components";
+import { AnonLayoutWrapperDataService, ToastService, IconModule } from "@bitwarden/components";
 
 import {
   LoginStrategyServiceAbstraction,
@@ -43,7 +43,7 @@ type MarketingInitiative = (typeof MarketingInitiative)[keyof typeof MarketingIn
 @Component({
   selector: "auth-registration-finish",
   templateUrl: "./registration-finish.component.html",
-  imports: [CommonModule, JslibModule, RouterModule, InputPasswordComponent],
+  imports: [CommonModule, JslibModule, RouterModule, InputPasswordComponent, IconModule],
 })
 export class RegistrationFinishComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

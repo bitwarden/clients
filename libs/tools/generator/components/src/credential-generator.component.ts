@@ -1,4 +1,5 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
+import { AsyncPipe } from "@angular/common";
 import {
   Component,
   EventEmitter,
@@ -10,7 +11,7 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import {
   BehaviorSubject,
   catchError,
@@ -27,6 +28,7 @@ import {
   withLatestFrom,
 } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -37,7 +39,23 @@ import {
   ifEnabledSemanticLoggerProvider,
 } from "@bitwarden/common/tools/log";
 import { UserId } from "@bitwarden/common/types/guid";
-import { ToastService, Option } from "@bitwarden/components";
+import {
+  ToastService,
+  Option,
+  BaseCardDirective,
+  CardComponent,
+  ColorPasswordComponent,
+  AriaDisableDirective,
+  TooltipDirective,
+  BitIconButtonComponent,
+  CopyClickDirective,
+  SectionComponent,
+  SectionHeaderComponent,
+  ToggleGroupModule,
+  TypographyModule,
+  FormFieldModule,
+  SelectModule,
+} from "@bitwarden/components";
 import {
   CredentialType,
   CredentialGeneratorService,
@@ -55,7 +73,15 @@ import {
   Type,
 } from "@bitwarden/generator-core";
 import { GeneratorHistoryService } from "@bitwarden/generator-history";
+import { I18nPipe } from "@bitwarden/ui-common";
 
+import { CatchallSettingsComponent } from "./catchall-settings.component";
+import { ForwarderSettingsComponent } from "./forwarder-settings.component";
+import { NudgeGeneratorSpotlightComponent } from "./nudge-generator-spotlight.component";
+import { PassphraseSettingsComponent } from "./passphrase-settings.component";
+import { PasswordSettingsComponent } from "./password-settings.component";
+import { SubaddressSettingsComponent } from "./subaddress-settings.component";
+import { UsernameSettingsComponent } from "./username-settings.component";
 import { translate } from "./util";
 
 // constants used to identify navigation selections that are not
@@ -69,7 +95,32 @@ const NONE_SELECTED = "none";
 @Component({
   selector: "tools-credential-generator",
   templateUrl: "credential-generator.component.html",
-  standalone: false,
+  imports: [
+    ToggleGroupModule,
+    NudgeGeneratorSpotlightComponent,
+    BaseCardDirective,
+    CardComponent,
+    ColorPasswordComponent,
+    AriaDisableDirective,
+    TooltipDirective,
+    BitIconButtonComponent,
+    CopyClickDirective,
+    PasswordSettingsComponent,
+    PassphraseSettingsComponent,
+    SectionComponent,
+    SectionHeaderComponent,
+    TypographyModule,
+    ReactiveFormsModule,
+    FormFieldModule,
+    SelectModule,
+    CatchallSettingsComponent,
+    ForwarderSettingsComponent,
+    SubaddressSettingsComponent,
+    UsernameSettingsComponent,
+    AsyncPipe,
+    JslibModule,
+    I18nPipe,
+  ],
 })
 export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestroy {
   private readonly destroyed = new Subject<void>();

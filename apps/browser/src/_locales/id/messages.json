@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Masuk dengan kunci sandi"
   },
+  "unlockWithPasskey": {
+    "message": "Unlock with passkey"
+  },
   "useSingleSignOn": {
     "message": "Gunakan masuk tunggal"
   },
@@ -225,7 +228,7 @@
     "message": "Salin Nama Kolom Pilihan"
   },
   "noMatchingLogins": {
-    "message": "Tidak ada info masuk yang cocok."
+    "message": "Tidak ada log masuk yang cocok"
   },
   "noCards": {
     "message": "Tanpa kartu"
@@ -436,8 +439,8 @@
   "sync": {
     "message": "Sinkronisasi"
   },
-  "syncVaultNow": {
-    "message": "Sinkronkan Brankas Sekarang"
+  "syncNow": {
+    "message": "Selaraskan sekarang"
   },
   "lastSync": {
     "message": "Sinkronisasi Terakhir:"
@@ -454,9 +457,6 @@
   },
   "bitWebVaultApp": {
     "message": "Aplikasi web Bitwarden"
-  },
-  "importItems": {
-    "message": "Impor Item"
   },
   "select": {
     "message": "Pilih"
@@ -554,39 +554,48 @@
     "message": "Atur ulang pencarian"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arsip",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arsip",
     "description": "Verb"
   },
   "unArchive": {
     "message": "Unarchive"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Butir dalam arsip"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Tidak ada butir dalam arsip"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Butir yang diarsipkan akan muncul di sini dan akan dikecualikan dari hasil pencarian umum dan saran isi otomatis."
   },
-  "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemUnarchived": {
-    "message": "Item was unarchived"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Arsipkan butir"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Archived items are excluded from general search results and autofill suggestions. Are you sure you want to archive this item?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+  },
+  "archived": {
+    "message": "Archived"
+  },
+  "unarchiveAndSave": {
+    "message": "Unarchive and save"
   },
   "upgradeToUseArchive": {
     "message": "A premium membership is required to use Archive."
+  },
+  "itemRestored": {
+    "message": "Item has been restored"
   },
   "edit": {
     "message": "Edit"
@@ -887,6 +896,9 @@
   "invalidVerificationCode": {
     "message": "Kode verifikasi tidak valid"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
+  },
   "valueCopied": {
     "message": "$VALUE$ disalin",
     "description": "Value has been copied to the clipboard.",
@@ -977,6 +989,12 @@
   },
   "no": {
     "message": "Tidak"
+  },
+  "noAuth": {
+    "message": "Anyone with the link"
+  },
+  "anyOneWithPassword": {
+    "message": "Anyone with a password set by you"
   },
   "location": {
     "message": "Lokasi"
@@ -1325,8 +1343,21 @@
   "exportFrom": {
     "message": "Ekspor dari"
   },
-  "exportVault": {
-    "message": "Ekspor Brankas"
+  "exportVerb": {
+    "message": "Export",
+    "description": "The verb form of the word Export"
+  },
+  "exportNoun": {
+    "message": "Export",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Import",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Import",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Format Berkas"
@@ -1455,7 +1486,16 @@
     "message": "Tidak ada lampiran."
   },
   "attachmentSaved": {
-    "message": "Lampiran telah disimpan."
+    "message": "Lampiran disimpan"
+  },
+  "fixEncryption": {
+    "message": "Fix encryption"
+  },
+  "fixEncryptionTooltip": {
+    "message": "This file is using an outdated encryption method."
+  },
+  "attachmentUpdated": {
+    "message": "Attachment updated"
   },
   "file": {
     "message": "Berkas"
@@ -1464,7 +1504,10 @@
     "message": "Berkas untuk dibagikan"
   },
   "selectFile": {
-    "message": "Pilih berkas."
+    "message": "Pilih berkas"
+  },
+  "itemsTransferred": {
+    "message": "Items transferred"
   },
   "maxFileSize": {
     "message": "Ukuran berkas maksimal adalah 500 MB."
@@ -1510,6 +1553,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Pilihan masuk dua-langkah yang dipatenkan seperti YubiKey dan Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Your Premium subscription ended"
+  },
+  "archivePremiumRestart": {
+    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+  },
+  "restartPremium": {
+    "message": "Restart Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Kebersihan kata sandi, kesehatan akun, dan laporan kebocoran data untuk tetap menjaga keamanan brankas Anda."
@@ -1600,7 +1652,7 @@
     "message": "Buka dalam tab baru"
   },
   "webAuthnAuthenticate": {
-    "message": "Autentikasi dengan WebAuthn."
+    "message": "Autentikasikan WebAuthn"
   },
   "readSecurityKey": {
     "message": "Baca kunci keamanan"
@@ -1709,7 +1761,7 @@
     "message": "URL Server Ikon"
   },
   "environmentSaved": {
-    "message": "URL dari semua lingkungan telah disimpan."
+    "message": "URL lingkungan disimpan"
   },
   "showAutoFillMenuOnFormFields": {
     "message": "Tampilkan menu isi otomatis pada kolom formulir",
@@ -1809,7 +1861,7 @@
     "message": "Pelajari lebih lanjut tentang isi otomatis"
   },
   "defaultAutoFillOnPageLoad": {
-    "message": "Konfigurasi autofill standard untuk item login."
+    "message": "Pengaturan isian otomatis baku bagi butir log masuk"
   },
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Setelah mengaktifkan Auto-Fill waktu website terbuka, kamu dapat mengaktifkan atau meng-nonaktifkan feature ini untuk setiap item. Ini adalah konfigurasi standard untuk item yang tidak dikonfigurasi terpisah."
@@ -1839,7 +1891,7 @@
     "message": "Isi otomatis identitas yang terakhir digunakan untuk situs web saat ini"
   },
   "commandGeneratePasswordDesc": {
-    "message": "Buat dan salin kata sandi acak baru ke papan klip."
+    "message": "Buat dan salin kata sandi acak baru ke papan klip"
   },
   "commandLockVaultDesc": {
     "message": "Kunci brankas"
@@ -1904,7 +1956,7 @@
     "message": "Tahun Kedaluwarsa"
   },
   "monthly": {
-    "message": "month"
+    "message": "bulan"
   },
   "expiration": {
     "message": "Masa Berlaku"
@@ -2002,6 +2054,9 @@
   "email": {
     "message": "Email"
   },
+  "emails": {
+    "message": "Emails"
+  },
   "phone": {
     "message": "Telepon"
   },
@@ -2054,51 +2109,51 @@
     "message": "Catatan"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "Log Masuk Baru",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "Kartu Baru",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "Identitas Baru",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "Catatan Baru",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "Kunci SSH Baru",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
+    "message": "Kirim Teks Baru",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
+    "message": "Kirim Berkas Baru",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "Sunting Log Masuk",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "Sunting Kartu",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "Sunting Identitas",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "Sunting Catatan",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "Sunting kunci SSH",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
@@ -2430,6 +2485,9 @@
   "permanentlyDeletedItem": {
     "message": "Hapus Item Secara Permanen"
   },
+  "archivedItemRestored": {
+    "message": "Archived item restored"
+  },
   "restoreItem": {
     "message": "Pulihkan Item"
   },
@@ -2455,10 +2513,10 @@
     "message": "Item yang Diisi Otomatis dan URI Tersimpan"
   },
   "autoFillSuccess": {
-    "message": "Item Terisi Otomatis"
+    "message": "Butir terisi otomatis "
   },
   "insecurePageWarning": {
-    "message": "Peringatan: Ini adalah halaman HTTP yang tidak aman, dan setiap informasi yang Anda kirim dapat berpotensi terlihat dan diubah oleh orang lain. Login ini awalnya disimpan di halaman aman (HTTPS) "
+    "message": "Peringatan: Ini adalah halaman HTTP yang tidak aman, dan setiap informasi yang Anda kirim dapat berpotensi terlihat dan diubah oleh orang lain. Log masuk ini awalnya disimpan di halaman aman (HTTPS)."
   },
   "insecurePageWarningFillPrompt": {
     "message": "Anda masih ingin mengisi login ini?"
@@ -2689,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden tidak akan meminta untuk menyimpan detail login untuk domain ini. Anda harus menyegarkan halaman agar perubahan diterapkan."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden tidak akan meminta untuk menyimpan rincian login untuk domain tersebut. Anda harus menyegarkan halaman agar perubahan diterapkan."
-  },
   "blockedDomainsDesc": {
     "message": "Isi otomatis dan fitur terkait lain tidak akan ditawarkan bagi situs-situs web ini. Anda mesti menyegarkan halaman agar perubahan berdampak."
   },
@@ -2804,6 +2859,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Gambaran daftar info masuk yang berpotensi bahaya."
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
   },
   "generatePasswordSlideDesc": {
     "message": "Hasilkan kata sandi yang kuat dan unik dengan cepat dengan menu isi otomatis Bitwarden pada situs yang berpotensi bahaya.",
@@ -2977,10 +3035,6 @@
   "custom": {
     "message": "Kustom"
   },
-  "sendPasswordDescV3": {
-    "message": "Tambahkan kata sandi tidak wajib untuk penerima untuk mengakses Send ini.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Buat Send Baru",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3032,6 +3086,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "Tautan Send disalin",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3040,28 +3133,8 @@
     "message": "Send diedit",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Sembulkan ekstensi?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Untuk membuat sebuah berkas Send, Anda perlu menyembulkan ekstensi ke sebuah jendela baru.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Untuk memilih file ini, buka Extension di sidebar (jika memungkinkan) atau keluarkan menjadi window baru dengan menekan gambar ini."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Untuk memilih file menggunakan Firefox, buka ekstensi di sidebar atau keluar ke jendela baru dengan mengklik banner ini."
-  },
-  "sendSafariFileWarning": {
-    "message": "Untuk memilih file menggunakan Safari, keluar ke jendela baru dengan mengklik spanduk ini."
-  },
   "popOut": {
     "message": "Sembulkan"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Sebelum kamu memulai"
   },
   "expirationDateIsInvalid": {
     "message": "Tanggal kedaluwarsa yang diberikan tidak valid."
@@ -3161,7 +3234,7 @@
     "message": "Persyaratan kebijakan perusahaan telah diterapkan ke pilihan batas waktu Anda"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Kebijakan organisasi Anda memengaruhi waktu tunggu brankas Anda. Batas maksimal Waktu Tunggu Brankas yang diizinkan adalah $HOURS$ jam dan $MINUTES$ menit",
+    "message": "Kebijakan organisasi Anda telah menata waktu tunggu brankas maksimum yang diizinkan milik Anda ke $HOURS$ jam $MINUTES$ menit.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3240,9 +3313,6 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Tidak ada pengidentifikasi unik yang ditemukan."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Sebuah kata sandi utama tidak lagi dibutuhkan untuk para anggota dari organisasi berikut. Silakan konfirmasi domain berikut kepada pengelola organisasi Anda."
-  },
   "organizationName": {
     "message": "Nama organisasi"
   },
@@ -3256,7 +3326,7 @@
     "message": "Hapus Kata Sandi Utama"
   },
   "removedMasterPassword": {
-    "message": "Sandi utama dihapus."
+    "message": "Sandi utama dihapus"
   },
   "leaveOrganizationConfirmation": {
     "message": "Apakah Anda yakin ingin meninggalkan organisasi ini?"
@@ -3323,6 +3393,12 @@
   },
   "error": {
     "message": "Galat"
+  },
+  "prfUnlockFailed": {
+    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
   },
   "decryptionError": {
     "message": "Kesalahan dekripsi"
@@ -4206,10 +4282,6 @@
   "ignore": {
     "message": "Abaikan"
   },
-  "importData": {
-    "message": "Impor data",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
-  },
   "importError": {
     "message": "Kesalahan impor"
   },
@@ -4703,6 +4775,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "More options"
+  },
   "moreOptionsTitle": {
     "message": "Pilihan lainnya - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4790,11 +4865,56 @@
   "copyAddress": {
     "message": "Salin alamat"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "adminConsole": {
     "message": "Konsol Admin"
   },
+  "admin": {
+    "message": "Admin"
+  },
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Automatically confirm pending users while this device is unlocked"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Save time with automatic user confirmation"
+  },
+  "autoConfirmWarning": {
+    "message": "This could impact your organization’s data security. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Learn about the risks"
+  },
+  "autoConfirmSetup": {
+    "message": "Automatically confirm new users"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "New users will be automatically confirmed while this device is unlocked."
+  },
+  "autoConfirmSetupHint": {
+    "message": "What are the potential security risks?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Turned on automatic confirmation"
+  },
+  "availableNow": {
+    "message": "Available now"
+  },
   "accountSecurity": {
     "message": "Keamanan akun"
+  },
+  "phishingBlocker": {
+    "message": "Phishing Blocker"
+  },
+  "enablePhishingDetection": {
+    "message": "Phishing detection"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Display warning before accessing suspected phishing sites"
   },
   "notifications": {
     "message": "Pemberitahuan"
@@ -4907,6 +5027,9 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadAttachmentLabel": {
+    "message": "Download Attachment"
   },
   "downloadBitwarden": {
     "message": "Unduh Bitwarden"
@@ -5047,14 +5170,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Sembunyikan deteksi kecocokan $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "Isi otomatis ketika halaman dimuat?"
@@ -5592,6 +5712,9 @@
   "extraWide": {
     "message": "Ekstra lebar"
   },
+  "narrow": {
+    "message": "Narrow"
+  },
   "sshKeyWrongPassword": {
     "message": "Kata sandi yang Anda masukkan tidak benar."
   },
@@ -5639,6 +5762,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "vulnerablePassword": {
+    "message": "Vulnerable password."
+  },
+  "changeNow": {
+    "message": "Change now"
   },
   "missingWebsite": {
     "message": "Missing website"
@@ -5848,8 +5977,8 @@
   "andMoreFeatures": {
     "message": "And more!"
   },
-  "planDescPremium": {
-    "message": "Complete online security"
+  "advancedOnlineSecurity": {
+    "message": "Advanced online security"
   },
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
@@ -5879,7 +6008,193 @@
   "cardNumberLabel": {
     "message": "Card number"
   },
+  "errorCannotDecrypt": {
+    "message": "Error: Cannot decrypt"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+  },
+  "continueWithLogIn": {
+    "message": "Continue with log in"
+  },
+  "doNotContinue": {
+    "message": "Do not continue"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+  },
+  "verifyYourOrganization": {
+    "message": "Verify your organization to log in"
+  },
+  "organizationVerified": {
+    "message": "Organization verified"
+  },
+  "domainVerified": {
+    "message": "Domain verified"
+  },
+  "leaveOrganizationContent": {
+    "message": "If you don't verify your organization, your access to the organization will be revoked."
+  },
+  "leaveNow": {
+    "message": "Leave now"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Verifikasikan domain Anda untuk log masuk"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Untuk melanjutkan log masuk, verifikasikan domain ini."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Untuk melanjutkan log masuk, verifikasikan organisasi dan domain."
+  },
   "sessionTimeoutSettingsAction": {
-    "message": "Timeout action"
+    "message": "Tindakan saat habis waktu"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Pengaturan ini dikelola oleh organisasi Anda."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "Your organization has set the default session timeout to Immediately."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Your organization has set the default session timeout to On system lock."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Your organization has set the default session timeout to On browser restart."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "On browser restart"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Set an unlock method to change your timeout action"
+  },
+  "upgrade": {
+    "message": "Upgrade"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Are you sure you want to leave?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Contact your admin to regain access."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Leave $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "How do I manage my vault?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Transfer items to $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Accept transfer"
+  },
+  "declineAndLeave": {
+    "message": "Decline and leave"
+  },
+  "whyAmISeeingThis": {
+    "message": "Why am I seeing this?"
+  },
+  "items": {
+    "message": "Items"
+  },
+  "searchResults": {
+    "message": "Search results"
+  },
+  "simplifiedAutofill": {
+    "message": "Simplified autofill"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open simplified autofill popover"
+  },
+  "resizeSideNavigation": {
+    "message": "Resize side navigation"
+  },
+  "whoCanView": {
+    "message": "Who can view"
+  },
+  "specificPeople": {
+    "message": "Specific people"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Enter multiple emails by separating with a comma."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Download Bitwarden apps"
+  },
+  "emailProtected": {
+    "message": "Email protected"
+  },
+  "sendPasswordHelperText": {
+    "message": "Individuals will need to enter the password to view this Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }

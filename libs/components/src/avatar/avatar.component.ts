@@ -1,5 +1,5 @@
 import { NgClass } from "@angular/common";
-import { Component, computed, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
@@ -14,13 +14,11 @@ const SizeClasses: Record<SizeTypes, string[]> = {
 };
 
 /**
-  * Avatars display a unique color that helps a user visually recognize their logged in account.
-
-  * A variance in color across the avatar component is important as it is used in Account Switching as a
-  * visual indicator to recognize which of a personal or work account a user is logged into.
-*/
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+ * Avatars display a unique color that helps a user visually recognize their logged in account.
+ *
+ * A variance in color across the avatar component is important as it is used in Account Switching as a
+ * visual indicator to recognize which of a personal or work account a user is logged into.
+ */
 @Component({
   selector: "bit-avatar",
   template: `
@@ -49,13 +47,38 @@ const SizeClasses: Record<SizeTypes, string[]> = {
     </span>
   `,
   imports: [NgClass],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AvatarComponent {
+  /**
+   * Whether to display a border around the avatar.
+   */
   readonly border = input(false);
+
+  /**
+   * Custom background color for the avatar. If not provided, a color will be generated based on the id or text.
+   */
   readonly color = input<string>();
+
+  /**
+   * Unique identifier used to generate a consistent background color. Takes precedence over text for color generation.
+   */
   readonly id = input<string>();
+
+  /**
+   * Text to display in the avatar. The first letters of words (up to 2 characters) will be shown.
+   * Also used to generate background color if id is not provided.
+   */
   readonly text = input<string>();
+
+  /**
+   * Title attribute for the avatar. If not provided, falls back to the text value.
+   */
   readonly title = input<string>();
+
+  /**
+   * Size of the avatar.
+   */
   readonly size = input<SizeTypes>("default");
 
   protected readonly svgCharCount = 2;

@@ -13,6 +13,7 @@ import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
 import { PersonalSubscriptionPricingTierIds } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
 
@@ -20,7 +21,7 @@ import {
   AccountBillingClient,
   SubscriberBillingClient,
   TaxAmounts,
-  TaxClient,
+  PreviewInvoiceClient,
 } from "../../../../clients";
 import {
   BillingAddress,
@@ -34,7 +35,7 @@ import { UpgradePaymentService, PlanDetails } from "./upgrade-payment.service";
 describe("UpgradePaymentService", () => {
   const mockOrganizationBillingService = mock<OrganizationBillingServiceAbstraction>();
   const mockAccountBillingClient = mock<AccountBillingClient>();
-  const mockTaxClient = mock<TaxClient>();
+  const mockPreviewInvoiceClient = mock<PreviewInvoiceClient>();
   const mockLogService = mock<LogService>();
   const mockSyncService = mock<SyncService>();
   const mockOrganizationService = mock<OrganizationService>();
@@ -46,11 +47,12 @@ describe("UpgradePaymentService", () => {
 
   let sut: UpgradePaymentService;
 
-  const mockAccount = {
+  const mockAccount: Account = {
     id: "user-id" as UserId,
-    email: "test@example.com",
-    emailVerified: true,
-    name: "Test User",
+    ...mockAccountInfoWith({
+      email: "test@example.com",
+      name: "Test User",
+    }),
   };
 
   const mockTokenizedPaymentMethod: TokenizedPaymentMethod = {
@@ -110,7 +112,7 @@ describe("UpgradePaymentService", () => {
   beforeEach(() => {
     mockReset(mockOrganizationBillingService);
     mockReset(mockAccountBillingClient);
-    mockReset(mockTaxClient);
+    mockReset(mockPreviewInvoiceClient);
     mockReset(mockLogService);
     mockReset(mockOrganizationService);
     mockReset(mockAccountService);
@@ -131,7 +133,7 @@ describe("UpgradePaymentService", () => {
           useValue: mockOrganizationBillingService,
         },
         { provide: AccountBillingClient, useValue: mockAccountBillingClient },
-        { provide: TaxClient, useValue: mockTaxClient },
+        { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
         { provide: LogService, useValue: mockLogService },
         { provide: SyncService, useValue: mockSyncService },
         { provide: OrganizationService, useValue: mockOrganizationService },
@@ -151,9 +153,10 @@ describe("UpgradePaymentService", () => {
 
       const mockAccount: Account = {
         id: "user-id" as UserId,
-        email: "test@example.com",
-        name: "Test User",
-        emailVerified: true,
+        ...mockAccountInfoWith({
+          email: "test@example.com",
+          name: "Test User",
+        }),
       };
 
       const paidOrgData = {
@@ -180,7 +183,7 @@ describe("UpgradePaymentService", () => {
       const service = new UpgradePaymentService(
         mockOrganizationBillingService,
         mockAccountBillingClient,
-        mockTaxClient,
+        mockPreviewInvoiceClient,
         mockLogService,
         mockSyncService,
         mockOrganizationService,
@@ -203,9 +206,10 @@ describe("UpgradePaymentService", () => {
 
       const mockAccount: Account = {
         id: "user-id" as UserId,
-        email: "test@example.com",
-        name: "Test User",
-        emailVerified: true,
+        ...mockAccountInfoWith({
+          email: "test@example.com",
+          name: "Test User",
+        }),
       };
 
       const paidOrgData = {
@@ -232,7 +236,7 @@ describe("UpgradePaymentService", () => {
       const service = new UpgradePaymentService(
         mockOrganizationBillingService,
         mockAccountBillingClient,
-        mockTaxClient,
+        mockPreviewInvoiceClient,
         mockLogService,
         mockSyncService,
         mockOrganizationService,
@@ -255,9 +259,10 @@ describe("UpgradePaymentService", () => {
 
       const mockAccount: Account = {
         id: "user-id" as UserId,
-        email: "test@example.com",
-        name: "Test User",
-        emailVerified: true,
+        ...mockAccountInfoWith({
+          email: "test@example.com",
+          name: "Test User",
+        }),
       };
 
       mockAccountService.activeAccount$ = of(mockAccount);
@@ -266,7 +271,7 @@ describe("UpgradePaymentService", () => {
       const service = new UpgradePaymentService(
         mockOrganizationBillingService,
         mockAccountBillingClient,
-        mockTaxClient,
+        mockPreviewInvoiceClient,
         mockLogService,
         mockSyncService,
         mockOrganizationService,
@@ -289,9 +294,10 @@ describe("UpgradePaymentService", () => {
 
       const mockAccount: Account = {
         id: "user-id" as UserId,
-        email: "test@example.com",
-        name: "Test User",
-        emailVerified: true,
+        ...mockAccountInfoWith({
+          email: "test@example.com",
+          name: "Test User",
+        }),
       };
       const expectedCredit = 25.5;
 
@@ -301,7 +307,7 @@ describe("UpgradePaymentService", () => {
       const service = new UpgradePaymentService(
         mockOrganizationBillingService,
         mockAccountBillingClient,
-        mockTaxClient,
+        mockPreviewInvoiceClient,
         mockLogService,
         mockSyncService,
         mockOrganizationService,
@@ -327,7 +333,7 @@ describe("UpgradePaymentService", () => {
       const service = new UpgradePaymentService(
         mockOrganizationBillingService,
         mockAccountBillingClient,
-        mockTaxClient,
+        mockPreviewInvoiceClient,
         mockLogService,
         mockSyncService,
         mockOrganizationService,
@@ -353,9 +359,10 @@ describe("UpgradePaymentService", () => {
 
       const mockAccount: Account = {
         id: "user-id" as UserId,
-        email: "test@example.com",
-        name: "Test User",
-        emailVerified: true,
+        ...mockAccountInfoWith({
+          email: "test@example.com",
+          name: "Test User",
+        }),
       };
 
       const paidOrgData = {
@@ -382,7 +389,7 @@ describe("UpgradePaymentService", () => {
       const service = new UpgradePaymentService(
         mockOrganizationBillingService,
         mockAccountBillingClient,
-        mockTaxClient,
+        mockPreviewInvoiceClient,
         mockLogService,
         mockSyncService,
         mockOrganizationService,
@@ -405,17 +412,18 @@ describe("UpgradePaymentService", () => {
       const mockResponse = mock<TaxAmounts>();
       mockResponse.tax = 2.5;
 
-      mockTaxClient.previewTaxForPremiumSubscriptionPurchase.mockResolvedValue(mockResponse);
+      mockPreviewInvoiceClient.previewTaxForPremiumSubscriptionPurchase.mockResolvedValue(
+        mockResponse,
+      );
 
       // Act
       const result = await sut.calculateEstimatedTax(mockPremiumPlanDetails, mockBillingAddress);
 
       // Assert
       expect(result).toEqual(2.5);
-      expect(mockTaxClient.previewTaxForPremiumSubscriptionPurchase).toHaveBeenCalledWith(
-        0,
-        mockBillingAddress,
-      );
+      expect(
+        mockPreviewInvoiceClient.previewTaxForPremiumSubscriptionPurchase,
+      ).toHaveBeenCalledWith(0, mockBillingAddress);
     });
 
     it("should calculate tax for families plan", async () => {
@@ -423,14 +431,18 @@ describe("UpgradePaymentService", () => {
       const mockResponse = mock<TaxAmounts>();
       mockResponse.tax = 5.0;
 
-      mockTaxClient.previewTaxForOrganizationSubscriptionPurchase.mockResolvedValue(mockResponse);
+      mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase.mockResolvedValue(
+        mockResponse,
+      );
 
       // Act
       const result = await sut.calculateEstimatedTax(mockFamiliesPlanDetails, mockBillingAddress);
 
       // Assert
       expect(result).toEqual(5.0);
-      expect(mockTaxClient.previewTaxForOrganizationSubscriptionPurchase).toHaveBeenCalledWith(
+      expect(
+        mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
+      ).toHaveBeenCalledWith(
         {
           cadence: "annually",
           tier: "families",
@@ -447,7 +459,7 @@ describe("UpgradePaymentService", () => {
     it("should throw and log error if personal tax calculation fails", async () => {
       // Arrange
       const error = new Error("Tax service error");
-      mockTaxClient.previewTaxForPremiumSubscriptionPurchase.mockRejectedValue(error);
+      mockPreviewInvoiceClient.previewTaxForPremiumSubscriptionPurchase.mockRejectedValue(error);
 
       // Act & Assert
       await expect(
@@ -459,7 +471,9 @@ describe("UpgradePaymentService", () => {
     it("should throw and log error if organization tax calculation fails", async () => {
       // Arrange
       const error = new Error("Tax service error");
-      mockTaxClient.previewTaxForOrganizationSubscriptionPurchase.mockRejectedValue(error);
+      mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase.mockRejectedValue(
+        error,
+      );
       // Act & Assert
       await expect(
         sut.calculateEstimatedTax(mockFamiliesPlanDetails, mockBillingAddress),
@@ -471,13 +485,13 @@ describe("UpgradePaymentService", () => {
   describe("upgradeToPremium", () => {
     it("should call accountBillingClient to purchase premium subscription and refresh data", async () => {
       // Arrange
-      mockAccountBillingClient.purchasePremiumSubscription.mockResolvedValue();
+      mockAccountBillingClient.purchaseSubscription.mockResolvedValue();
 
       // Act
       await sut.upgradeToPremium(mockTokenizedPaymentMethod, mockBillingAddress);
 
       // Assert
-      expect(mockAccountBillingClient.purchasePremiumSubscription).toHaveBeenCalledWith(
+      expect(mockAccountBillingClient.purchaseSubscription).toHaveBeenCalledWith(
         mockTokenizedPaymentMethod,
         mockBillingAddress,
       );
@@ -489,13 +503,13 @@ describe("UpgradePaymentService", () => {
       const accountCreditPaymentMethod: NonTokenizedPaymentMethod = {
         type: NonTokenizablePaymentMethods.accountCredit,
       };
-      mockAccountBillingClient.purchasePremiumSubscription.mockResolvedValue();
+      mockAccountBillingClient.purchaseSubscription.mockResolvedValue();
 
       // Act
       await sut.upgradeToPremium(accountCreditPaymentMethod, mockBillingAddress);
 
       // Assert
-      expect(mockAccountBillingClient.purchasePremiumSubscription).toHaveBeenCalledWith(
+      expect(mockAccountBillingClient.purchaseSubscription).toHaveBeenCalledWith(
         accountCreditPaymentMethod,
         mockBillingAddress,
       );

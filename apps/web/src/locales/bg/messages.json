@@ -14,8 +14,32 @@
   "noCriticalAppsAtRisk": {
     "message": "Няма важни приложения в риск"
   },
+  "critical": {
+    "message": "Критични ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Некритични ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "criticalBadge": {
+    "message": "Критично"
+  },
   "accessIntelligence": {
     "message": "Анализ на достъпа"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "Няма приложения отговарящи на тези филтри"
   },
   "passwordRisk": {
     "message": "Рискова парола"
@@ -23,8 +47,8 @@
   "noEditPermissions": {
     "message": "Нямате право за редактиране на този елемент"
   },
-  "reviewAtRiskPasswords": {
-    "message": "Прегледайте паролите в риск (слаби, преизползвани или разобличени) в различните приложения. Изберете най-важните си приложения, за да дадете приоритет на действията по сигурността за потребителите си, така че те да обърнат внимание на паролите си в риск."
+  "reviewAccessIntelligence": {
+    "message": "Прегледайте докладите по сигурността, за да забележите и отстраните евентуалните рискове свързани с удостоверителните данни, преди те да ескалират."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Преглед на елементите за вписване в риск"
@@ -244,11 +268,50 @@
       }
     }
   },
+  "numCriticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ приложения са отбелязани като важни",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numApplicationsUnmarkedCriticalSuccess": {
+    "message": "$COUNT$ приложения са отбелязани като неважни",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsCritical": {
+    "message": "Отбелязване на $COUNT$ като важни",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsNotCritical": {
+    "message": "Отбелязване на $COUNT$ като неважни",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Приложенията не успяха да бъдат отбелязани като важни"
   },
   "application": {
     "message": "Приложение"
+  },
+  "applications": {
+    "message": "Приложения"
   },
   "atRiskPasswords": {
     "message": "Пароли в риск"
@@ -585,6 +648,9 @@
   },
   "email": {
     "message": "Електронна поща"
+  },
+  "emails": {
+    "message": "Е-пощи"
   },
   "phone": {
     "message": "Телефон"
@@ -1217,6 +1283,9 @@
   "selectAll": {
     "message": "Избиране на всичко"
   },
+  "deselectAll": {
+    "message": "Отмяна на избора"
+  },
   "unselectAll": {
     "message": "Без избиране"
   },
@@ -1364,6 +1433,12 @@
   },
   "no": {
     "message": "Не"
+  },
+  "noAuth": {
+    "message": "Всеки с връзката"
+  },
+  "anyOneWithPassword": {
+    "message": "Всеки с парола, зададена от Вас"
   },
   "location": {
     "message": "Местоположение"
@@ -1749,6 +1824,9 @@
   "noMembersInList": {
     "message": "Няма членове за показване."
   },
+  "noMembersToExport": {
+    "message": "Няма членове за изнасяне."
+  },
   "noEventsInList": {
     "message": "Няма събития за показване."
   },
@@ -1969,17 +2047,16 @@
   "encExportAccountWarningDesc": {
     "message": "Ключовете за шифриране са уникални за всеки потребител, затова не може да внесете шифрирани данни от един потребител в регистрацията на друг."
   },
-  "export": {
-    "message": "Изнасяне"
+  "exportNoun": {
+    "message": "Изнасяне",
+    "description": "The noun form of the word Export"
+  },
+  "exportVerb": {
+    "message": "Изнасяне",
+    "description": "The verb form of the word Export"
   },
   "exportFrom": {
     "message": "Изнасяне от"
-  },
-  "exportVault": {
-    "message": "Изнасяне на трезора"
-  },
-  "exportSecrets": {
-    "message": "Изнасяне на тайните"
   },
   "fileFormat": {
     "message": "Формат на файла"
@@ -1992,9 +2069,6 @@
   },
   "confirmMasterPassword": {
     "message": "Потвърждаване на главната парола"
-  },
-  "confirmFormat": {
-    "message": "Потвърждаване на формата"
   },
   "filePassword": {
     "message": "Парола на файла"
@@ -2306,6 +2380,14 @@
   "tools": {
     "message": "Инструменти"
   },
+  "importNoun": {
+    "message": "Внасяне",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Внасяне",
+    "description": "The verb form of the word Import"
+  },
   "importData": {
     "message": "Внасяне на данни"
   },
@@ -2533,6 +2615,9 @@
   "enabled": {
     "message": "Включено"
   },
+  "optionEnabled": {
+    "message": "Включено"
+  },
   "restoreAccess": {
     "message": "Възстановяване на достъпа"
   },
@@ -2629,6 +2714,9 @@
   },
   "key": {
     "message": "Ключ"
+  },
+  "unnamedKey": {
+    "message": "Ключ без име"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Код за потвърждаване"
@@ -3139,6 +3227,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "Ако искате отново да получите достъп до архива си, трябва да подновите платения си абонамент. Ако редактирате данните за архивиран елемент преди подновяването, той ще бъде върнат в трезора."
   },
+  "itemRestored": {
+    "message": "Записът бе възстановен"
+  },
   "restartPremium": {
     "message": "Подновяване на платения абонамент"
   },
@@ -3247,6 +3338,15 @@
   "reinstated": {
     "message": "Абонаментът е подновен."
   },
+  "resubscribe": {
+    "message": "Подновявана на абонамента"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Абонаментът Ви е изтекъл"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Абонаментът Ви е прекратен"
+  },
   "cancelConfirmation": {
     "message": "Уверени ли сте, че искате да прекратите абонамента? След края на последно платения период ще загубите всички допълнителни преимущества."
   },
@@ -3264,6 +3364,9 @@
   },
   "nextChargeHeader": {
     "message": "Следващо плащане"
+  },
+  "nextChargeDate": {
+    "message": "Следваща дата за таксуване"
   },
   "plan": {
     "message": "План"
@@ -3288,6 +3391,9 @@
   },
   "launchCloudSubscription": {
     "message": "Launch Cloud Subscription"
+  },
+  "launchCloudSubscriptionSentenceCase": {
+    "message": "Стартиране на облачния абонамент"
   },
   "storage": {
     "message": "Съхранение на данни"
@@ -3750,6 +3856,9 @@
   "editCollection": {
     "message": "Редактиране на колекция"
   },
+  "viewCollection": {
+    "message": "Преглед на колекцията"
+  },
   "collectionInfo": {
     "message": "Информация за колекцията"
   },
@@ -4204,6 +4313,12 @@
       }
     }
   },
+  "userAcceptedTransfer": {
+    "message": "Прието прехвърляне на собствеността към организацията."
+  },
+  "userDeclinedTransfer": {
+    "message": "Премахнато, поради отказ от прехвърляне на собствеността към организацията."
+  },
   "invitedUserId": {
     "message": "Потребител № $ID$ е поканен.",
     "placeholders": {
@@ -4215,6 +4330,15 @@
   },
   "confirmedUserId": {
     "message": "Потребител № $ID$ е потвърден.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "automaticallyConfirmedUserId": {
+    "message": "Автоматично потвърден потребител: $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4481,29 +4605,26 @@
   "generatingYourAccessIntelligence": {
     "message": "Създаване на Вашия анализ на достъпа…"
   },
-  "fetchingMemberData": {
-    "message": "Извличане на данните за членовете…"
-  },
-  "analyzingPasswordHealth": {
-    "message": "Анализиране на състоянието на паролите…"
-  },
-  "calculatingRiskScores": {
-    "message": "Изчисляване на оценките на риска…"
-  },
-  "generatingReportData": {
-    "message": "Създаване на данните за доклада…"
-  },
-  "savingReport": {
-    "message": "Запазване на доклада…"
-  },
-  "compilingInsights": {
-    "message": "Събиране на подробности…"
-  },
   "loadingProgress": {
     "message": "Зареждане на напредъка"
   },
-  "thisMightTakeFewMinutes": {
-    "message": "Това може да отнеме няколко минути."
+  "reviewingMemberData": {
+    "message": "Преглеждане на данните за членовете…"
+  },
+  "analyzingPasswords": {
+    "message": "Анализиране на паролите…"
+  },
+  "calculatingRisks": {
+    "message": "Изчисляване на рисковете…"
+  },
+  "generatingReports": {
+    "message": "Създаване на доклади…"
+  },
+  "compilingInsightsProgress": {
+    "message": "Събиране на подробности…"
+  },
+  "reportGenerationDone": {
+    "message": "Готово!"
   },
   "riskInsightsRunReport": {
     "message": "Изпълнение на доклада"
@@ -5169,8 +5290,20 @@
     "message": "Поправяне",
     "description": "This is a verb. ex. 'Fix The Car'"
   },
+  "fixEncryption": {
+    "message": "Поправяне на шифроването"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Този файл използва остарял метод на шифроване."
+  },
+  "attachmentUpdated": {
+    "message": "Прикаченият файл е актуализиран"
+  },
   "oldAttachmentsNeedFixDesc": {
     "message": "В трезора ви има стари прикачени файлове. Те трябва да бъдат поправени, за да можете да смените ключа за шифриране на абонамента."
+  },
+  "itemsTransferred": {
+    "message": "Елементите са прехвърлени"
   },
   "yourAccountsFingerprint": {
     "message": "Уникална фраза, идентифицираща абонамента ви",
@@ -5381,6 +5514,12 @@
   "restoreSelected": {
     "message": "Възстановяване на избраните"
   },
+  "archivedItemRestored": {
+    "message": "Архивираният елемент е възстановен"
+  },
+  "archivedItemsRestored": {
+    "message": "Архивираните елементи са възстановени"
+  },
   "restoredItem": {
     "message": "Записът е възстановен"
   },
@@ -5563,10 +5702,6 @@
   "sendTypeText": {
     "message": "Текст"
   },
-  "sendPasswordDescV3": {
-    "message": "Добавете незадължителна парола, с която получателите да имат достъп до това Изпращане.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Създаване на изпращане",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5577,6 +5712,57 @@
   },
   "createdSend": {
     "message": "Създадено изпращане",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedSuccessfully": {
+    "message": "Изпращането е създадено успешно!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Копирайте и споделете връзката към Изпращането. То ще бъде достъпно за всеки с връзката в рамките на следващите $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Копирайте и споделете връзката към Изпращането. То ще бъде достъпно за всеки с връзката и паролата, която зададете, в рамките на следващите $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Копирайте и споделете връзка към това Изпращане. То ще може да бъде видяно само от хората, които сте посочили, в рамките на следващите $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ часа",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "Ново текстово Изпращане",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "Ново файлово Изпращане",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
@@ -5617,6 +5803,9 @@
   },
   "revoked": {
     "message": "Отнет достъп"
+  },
+  "accepted": {
+    "message": "Прието"
   },
   "sendLink": {
     "message": "Изпращане на връзката",
@@ -5664,10 +5853,6 @@
   },
   "sendProtectedPasswordDontKnow": {
     "message": "Ако не знаете паролата, поискайте от изпращача да ви я даде.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendHiddenByDefault": {
-    "message": "Стандартно изпращането е скрито. Може да промените това като натиснете бутона по-долу.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "downloadAttachments": {
@@ -5838,6 +6023,43 @@
       }
     }
   },
+  "centralizeDataOwnership": {
+    "message": "Централизиране на собствеността на организацията"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "Всички данни на членовете ще се притежават и управляват от организацията. Това не включва администраторите и собствениците. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Научете повече относно централизираната собственост",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Предимства"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Получавате пълна видимост върху състоянието на данните, включително споделени и несподелени елементи."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Можете лесно да прехвърляте елементи при премахване и наследяване на потребители, така че да няма пролуки в достъпа."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Можете да дадете на всеки потребител негово собствено място, наречено „Моите елементи“, където всеки да съхранява свои лични данни за вписване."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Изискване от потребителите да прехвърлят данните си"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "Ако членовете имат данни в собствените си трезори, от тях ще бъде изискано да ги прехвърлят в организацията, или да напуснат. Ако напуснат, достъпът им ще бъде отнет, но и може да бъде възстановен по всяко време."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Научете повече относно прехвърлянето"
+  },
+  "promptUsersToMoveItems": {
+    "message": "Подканяне на потребителите да прехвърлят данните от личните си трезори към организацията"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "От членовете ще бъде изискано да прехвърлят данните си в организацията, или да напуснат. Ако напуснат, достъпът им ще бъде отнет, но и може да бъде възстановен по всяко време."
+  },
   "organizationDataOwnership": {
     "message": "Задължителна собственост на организационните данни"
   },
@@ -5875,8 +6097,8 @@
   "availableNow": {
     "message": "Налично сега"
   },
-  "autoConfirm": {
-    "message": "Автоматично потвърждение на новите потребители"
+  "automaticUserConfirmation": {
+    "message": "Автоматично потвърждение на потребителите"
   },
   "autoConfirmDescription": {
     "message": "Новите потребители, поканени в организацията, ще бъдат потвърждавани автоматично, когато се отключи устройство на администратор.",
@@ -5930,6 +6152,21 @@
   },
   "autoConfirmCheckBoxLabel": {
     "message": "Приемам тези рискове и промени в политиката"
+  },
+  "autoConfirmEnabledByAdmin": {
+    "message": "Настройката за автоматично потвърждаване на потребители е включена"
+  },
+  "autoConfirmDisabledByAdmin": {
+    "message": "Настройката за автоматично потвърждаване на потребители е изключена"
+  },
+  "autoConfirmEnabledByPortal": {
+    "message": "Добавена е политика за автоматично потвърждаване на потребителите"
+  },
+  "autoConfirmDisabledByPortal": {
+    "message": "Премахната е политика за автоматично потвърждаване на потребителите"
+  },
+  "system": {
+    "message": "Система"
   },
   "personalOwnership": {
     "message": "Индивидуално притежание"
@@ -6224,6 +6461,10 @@
     "message": "Преглед на изпращането",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Потвърдете е-пощата си, за да видите това Изпращане",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "Потребителят, който е създал това изпращане, е избрал да скрие адреса на своята е-поща. Уверете се, че източникът на тази връзка е достоверен, преди да я последвате или да свалите съдържание чрез нея.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6275,6 +6516,12 @@
   },
   "enrolledAccountRecovery": {
     "message": "Включен във възстановяването на профили"
+  },
+  "enrolled": {
+    "message": "Enrolled"
+  },
+  "notEnrolled": {
+    "message": "Not enrolled"
   },
   "withdrawAccountRecovery": {
     "message": "Оттегляне от възстановяването на профили"
@@ -6452,6 +6699,88 @@
   },
   "bulkReinviteMessage": {
     "message": "Успешно изпратени наново покани."
+  },
+  "bulkReinviteSuccessToast": {
+    "message": "$COUNT$ повторно поканени потребители",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "reinviteSuccessToast": {
+    "message": "Изпратена е 1 покана"
+  },
+  "bulkReinviteSentToast": {
+    "message": "Изпратени са $COUNT$ покани",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "bulkReinviteLimitedSuccessToast": {
+    "message": "$LIMIT$ от $SELECTEDCOUNT$ повторно поканени потребители. $EXCLUDEDCOUNT$ не бяха поканени, поради ограничението от $LIMIT$.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "4,000"
+      },
+      "selectedCount": {
+        "content": "$2",
+        "example": "4,005"
+      },
+      "excludedCount": {
+        "content": "$3",
+        "example": "5"
+      }
+    }
+  },
+  "bulkReinviteProgressTitle": {
+    "message": "Изпратени са $COUNT$ от $TOTAL$ покани…",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkReinviteProgressSubtitle": {
+    "message": "Оставете тази страница отворена, докато приключи изпращането на поканите."
+  },
+  "bulkReinviteFailuresTitle": {
+    "message": "$COUNT$ покани не бяха изпратени",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      }
+    }
+  },
+  "bulkReinviteFailureTitle": {
+    "message": "1 покана не беше изпратена"
+  },
+  "bulkReinviteFailureDescription": {
+    "message": "Възникна грешка при изпращането на покани до $COUNT$ от общо $TOTAL$ членове. Опитайте да изпратите поканите отново, а ако този проблем се повтаря,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkResendInvitations": {
+    "message": "Опитайте да изпратите отново"
   },
   "bulkRemovedMessage": {
     "message": "Успешно премахване"
@@ -6773,8 +7102,8 @@
   "vaultTimeoutRangeError": {
     "message": "Времето за изчакване на трезора не е в позволения интервал."
   },
-  "disablePersonalVaultExport": {
-    "message": "Забраняване на изнасянето на личния трезор"
+  "disableExport": {
+    "message": "Премахване на изнесеното"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Да не се разрешава на членовете да изнасят данните от собствените си трезори."
@@ -6785,16 +7114,16 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Една или повече от настройките на организацията Ви не позволяват да изнасяте личния си трезор."
   },
-  "activateAutofill": {
+  "activateAutofillPolicy": {
     "message": "Включване на автоматичното попълване"
   },
-  "activateAutofillPolicyDesc": {
+  "activateAutofillPolicyDescription": {
     "message": "Включване на автоматичното попълване при зареждане на страница в браузърното разширение на всички текущи и бъдещи членове."
   },
-  "experimentalFeature": {
+  "autofillOnPageLoadExploitWarning": {
     "message": "Компроментирани и измамни уеб сайтове могат да се възползват от автоматичното попълване при зареждане на страницата."
   },
-  "learnMoreAboutAutofill": {
+  "learnMoreAboutAutofillPolicy": {
     "message": "Научете повече относно автоматичното попълване"
   },
   "selectType": {
@@ -7094,8 +7423,8 @@
   "invalidVerificationCode": {
     "message": "Грешен код за потвърждаване"
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "За членовете на следната организация вече не се изисква главна парола. Потвърдете домейна по-долу с администратора на организацията си."
+  "invalidEmailOrVerificationCode": {
+    "message": "Грешна е-поща или код за потвърждаване"
   },
   "keyConnectorDomain": {
     "message": "Домейн на конектора за ключове"
@@ -7154,7 +7483,7 @@
   "enabledSso": {
     "message": "Еднократното удостоверяване е включено"
   },
-  "disabledSso": {
+  "ssoTurnedOff": {
     "message": "Еднократното удостоверяване е изключено"
   },
   "emailMustLoginWithSso": {
@@ -8718,9 +9047,6 @@
   "server": {
     "message": "Сървър"
   },
-  "exportData": {
-    "message": "Изнасяне на данни"
-  },
   "exportingOrganizationSecretDataTitle": {
     "message": "Изнасяне на тайните данни на организацията"
   },
@@ -9448,6 +9774,9 @@
   "ssoLoginIsRequired": {
     "message": "Необходимо е вписване чрез еднократно удостоверяване"
   },
+  "emailRequiredForSsoLogin": {
+    "message": "За еднократно удостоверяване е необходима е-поща"
+  },
   "selectedRegionFlag": {
     "message": "Знаме на избрания регион"
   },
@@ -9894,6 +10223,9 @@
   "assignTasks": {
     "message": "Назначаване на задачи"
   },
+  "allTasksAssigned": {
+    "message": "Всички задачи бяха разпределени"
+  },
   "assignSecurityTasksToMembers": {
     "message": "Изпращане на известия за промяна на пароли"
   },
@@ -10295,8 +10627,23 @@
   "datadogEventIntegrationDesc": {
     "message": "Изпращане на данните за събитията в трезора към Вашата инсталация на Datadog"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Изпращане на данни за събитията до Вашата инстанция на Huntress SIEM"
+  },
+  "integrationConnectedSuccessfully": {
+    "message": "Свързването с $INTEGRATION$ е успешно.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Интеграцията не беше запазена. Опитайте отново по-късно."
+  },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "Трябва да бъдете собственик на организацията или администратор, за да извършите това действие."
   },
   "mustBeOrgOwnerToPerformAction": {
     "message": "Трябва да бъдете собственик на организацията, за да извършите това действие."
@@ -10405,6 +10752,12 @@
   },
   "index": {
     "message": "Индекс"
+  },
+  "httpEventCollectorUrl": {
+    "message": "Адрес на събирача на събития по HTTP"
+  },
+  "httpEventCollectorToken": {
+    "message": "Идентификатор на събирача на събития по HTTP"
   },
   "selectAPlan": {
     "message": "Изберете план"
@@ -10638,6 +10991,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Изключено"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Докладът за достъпа на членовете не може да бъде зареден. Това може да се случи, ако организацията е с голям размер или ако има проблем с мрежата. Моля, опитайте отново. Ако това продължи да се случва, свържете се с поддръжката."
   },
   "kdfIterationRecommends": {
     "message": "Препоръчваме 600 000 или повече"
@@ -11220,6 +11576,18 @@
   "automaticDomainClaimProcess": {
     "message": "Битуорден ще се опита да присвои домейна 3 пъти през първите 72 часа. Ако той не може да бъде присвоен, проверете записа за DNS в сървъра си и направете присвояването ръчно. Домейнът ще бъде премахнат от организацията Ви след 7 дни, ако не бъде присвоен."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Битуорден ще се опита да присвои домейна в рамките на 72 часа. Ако той не може да бъде присвоен, проверете записа си в DNS и направете присвояването ръчно. Неприсвоените домейни се премахват след 7 дни."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "След присвояването, текущите членове с присвоени домейни ще получат е-писмо относно "
+  },
+  "accountOwnershipChange": {
+    "message": "промяната на собствеността на акаунта"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "Домейнът $DOMAIN$ не е присвоен. Проверете записите в DNS.",
     "placeholders": {
@@ -11232,8 +11600,8 @@
   "domainStatusClaimed": {
     "message": "Присвоен"
   },
-  "domainStatusUnderVerification": {
-    "message": "В процес на проверка"
+  "domainStatusPending": {
+    "message": "На изчакване"
   },
   "claimedDomainsDescription": {
     "message": "Присвойте домейн, за да притежавате акаунтите на членовете. Страницата за еднократно удостоверяване ще бъде пропускана при вписването на членове с присвоени домейни, а администраторите ще могат да изтриват присвоените акаунти."
@@ -11520,6 +11888,12 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Този елемент за вписване е в риск и в него липсва уеб сайт. Добавете уеб сайт и сменете паролата, за по-добра сигурност."
   },
+  "vulnerablePassword": {
+    "message": "Уязвима парола."
+  },
+  "changeNow": {
+    "message": "Промяна сега"
+  },
   "missingWebsite": {
     "message": "Липсващ уеб сайт"
   },
@@ -11558,6 +11932,12 @@
   "unArchive": {
     "message": "Изваждане от архива"
   },
+  "archived": {
+    "message": "Архивирано"
+  },
+  "unArchiveAndSave": {
+    "message": "Разархивиране и запазване"
+  },
   "itemsInArchive": {
     "message": "Елементи в архива"
   },
@@ -11567,14 +11947,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архивираните елементи ще се показват тук и ще бъдат изключени от общите резултати при търсене и от предложенията за автоматично попълване."
   },
-  "itemWasSentToArchive": {
-    "message": "Елементът беше преместен в архива"
+  "itemArchiveToast": {
+    "message": "Елементът е преместен в архива"
   },
-  "itemsWereSentToArchive": {
-    "message": "Елементите бяха преместени в архива"
-  },
-  "itemUnarchived": {
-    "message": "Елементът беше изваден от архива"
+  "itemUnarchivedToast": {
+    "message": "Елементът е изваден от архива"
   },
   "bulkArchiveItems": {
     "message": "Елементите са архивирани"
@@ -11586,8 +11963,8 @@
     "message": "Архивиране на елемента",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Архивираните елементи са изключени от общите резултати при търсене и от предложенията за автоматично попълване. Наистина ли искате да архивирате този елемент?"
+  "archiveItemDialogContent": {
+    "message": "След като бъде архивиран, този елемент няма да се показва в резултатите при търсене, нито в предложенията за автоматично попълване."
   },
   "archiveBulkItems": {
     "message": "Архивиране на елементите",
@@ -11940,6 +12317,15 @@
   "verifyNow": {
     "message": "Потвърдете сега."
   },
+  "unlockWithPasskey": {
+    "message": "Отключване със секретен ключ"
+  },
+  "prfUnlockFailed": {
+    "message": "Отключването със секретен ключ не беше успешно. Опитайте отново или използвайте друг начин за отключване."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Няма секретни ключове с включено PRF, налични за отключване."
+  },
   "additionalStorageGB": {
     "message": "Допълнително място в ГБ"
   },
@@ -11961,8 +12347,8 @@
   "familiesMembership": {
     "message": "Членство за семейства"
   },
-  "planDescPremium": {
-    "message": "Пълна сигурност в Интернет"
+  "advancedOnlineSecurity": {
+    "message": "Разширена сигурност в Интернет"
   },
   "planDescFamiliesV2": {
     "message": "Допълнителна защита за Вашето семейство"
@@ -12199,13 +12585,454 @@
       }
     }
   },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Вашата организация вече не използва главни пароли за вписване в Битуорден. За да продължите, потвърдете организацията и домейна."
+  },
+  "continueWithLogIn": {
+    "message": "Продължаване с вписването"
+  },
+  "doNotContinue": {
+    "message": "Не продължавам"
+  },
+  "domain": {
+    "message": "Домейн"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "Този домейн ще съхранява ключовете за шифроване на акаунта Ви, така че се уверете, че му имате доверие. Ако имате съмнения, свържете се с администратора си."
+  },
+  "verifyYourOrganization": {
+    "message": "Потвърдете организацията си, за да се впишете"
+  },
+  "organizationVerified": {
+    "message": "Организацията е потвърдена"
+  },
+  "domainVerified": {
+    "message": "Домейнът е потвърден"
+  },
+  "leaveOrganizationContent": {
+    "message": "Ако не потвърдите организацията, достъпът Ви до нея ще бъде преустановен."
+  },
+  "leaveNow": {
+    "message": "Напускане сега"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Потвърдете домейна си, за да се впишете"
+  },
+  "verifyYourDomainDescription": {
+    "message": "За да продължите с вписването, потвърдете този домейн."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "За да продължите с вписването, потвърдете организацията и домейна."
+  },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Няма избрани важни приложения"
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Наистина ли искате да продължите?"
   },
+  "errorCannotDecrypt": {
+    "message": "Грешка: не може да се дешифрира"
+  },
   "userVerificationFailed": {
     "message": "Проверката на потребителя беше неуспешна."
+  },
+  "resizeSideNavigation": {
+    "message": "Преоразмеряване на страничната навигация"
+  },
+  "recoveryDeleteCiphersTitle": {
+    "message": "Изтриване на невъзстановимите елементи от трезора"
+  },
+  "recoveryDeleteCiphersDesc": {
+    "message": "Някои от елементите в трезора не могат да бъдат възстановени. Искате ли да ги изтриете от трезора си?"
+  },
+  "recoveryDeleteFoldersTitle": {
+    "message": "Изтриване на невъзстановимите папки"
+  },
+  "recoveryDeleteFoldersDesc": {
+    "message": "Някои от папките не могат да бъдат възстановени. Искате ли да ги изтриете от трезора си?"
+  },
+  "recoveryReplacePrivateKeyTitle": {
+    "message": "Подмяна на ключа за шифроване"
+  },
+  "recoveryReplacePrivateKeyDesc": {
+    "message": "Вашата двойка ключове за шифроване не може да бъде възстановена. Искате ли да замените ключа си за шифроване с нова двойка? Ще трябва да настроите аварийния достъп отново, както и членствата си в организации."
+  },
+  "recoveryStepSyncTitle": {
+    "message": "Синхронизиране на данните…"
+  },
+  "recoveryStepPrivateKeyTitle": {
+    "message": "Потвърждаване на целостта на ключа за шифроване"
+  },
+  "recoveryStepUserInfoTitle": {
+    "message": "Потвърждаване на информацията за потребителя"
+  },
+  "recoveryStepCipherTitle": {
+    "message": "Потвърждаване на целостта на данните в трезора"
+  },
+  "recoveryStepFoldersTitle": {
+    "message": "Потвърждаване на целостта на папките"
+  },
+  "dataRecoveryTitle": {
+    "message": "Възстановяване и диагностика на данните"
+  },
+  "dataRecoveryDescription": {
+    "message": "Използвайте инструмента за възстановяване на данните, за да направите проверка и поправка, ако има проблеми с акаунта Ви. След изпълнението на диагностиката ще имате възможност да запазите нейния журнал, в случай, че са нужни на поддръжката, както и ще можете да опитате да поправите откритите проблеми."
+  },
+  "runDiagnostics": {
+    "message": "Стартиране на диагностиката"
+  },
+  "repairIssues": {
+    "message": "Поправяне на проблемите"
+  },
+  "saveDiagnosticLogs": {
+    "message": "Запазване на журнала от диагностиката"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Тази настройка се управлява от организацията Ви."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "Организацията Ви е настроила максималното разрешено време за достъп на [%1$i] час(а) и [%2$i] минути.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Организацията Ви е настроила стандартното разрешено време за достъп да бъде до презареждане на страницата в браузъра."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Максималното време на достъп не може да превишава $HOURS$ час(а) и $MINUTES$ минути",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "При презареждане на страницата в браузъра"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Задайте метод за отключване, за да може да промените действието при изтичане на времето за достъп"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Наистина ли искате да напуснете?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "Ако откажете, Вашите собствени елементи ще останат в акаунта Ви, но ще загубите достъп до споделените елементи и функционалностите на организацията."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Свържете се с администратор, за да получите достъп отново."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Напускане на $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Как да управлявам трезора си?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Прехвърляне на елементи към $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ изисква всички елементи да станат притежание на организацията, за по-добра сигурност и съвместимост. Изберете, че приемате, за да прехвърлите собствеността на елементите си към организацията.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Приемане на прехвърлянето"
+  },
+  "declineAndLeave": {
+    "message": "Отказване и напускане"
+  },
+  "whyAmISeeingThis": {
+    "message": "Защо виждам това?"
+  },
+  "youHaveBitwardenPremium": {
+    "message": "Вие имате платен абонамент за Битуорден"
+  },
+  "viewAndManagePremiumSubscription": {
+    "message": "Прегледайте и управлявайте своя платен абонамент"
+  },
+  "youNeedToUpdateLicenseFile": {
+    "message": "Ще трябва да обновите лицензния си файл"
+  },
+  "youNeedToUpdateLicenseFileDate": {
+    "message": "$DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 12, 2026"
+      }
+    }
+  },
+  "uploadLicenseFile": {
+    "message": "Качване на лицензен файл"
+  },
+  "uploadYourLicenseFile": {
+    "message": "Качете своя лицензен файл"
+  },
+  "uploadYourPremiumLicenseFile": {
+    "message": "Качете своя лицензен файл за платения абонамент"
+  },
+  "uploadLicenseFileDesc": {
+    "message": "Името на Вашия лицензен файл ще бъде подобно на: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "bitwarden_license.json"
+      }
+    }
+  },
+  "alreadyHaveSubscriptionQuestion": {
+    "message": "Имате ли вече абонамент?"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessage": {
+    "message": "Отворете страницата за абонаменти в облачния си акаунт за Битуорден и свалете лицензния си файл. След това се върнете на този екран и го качете по-долу."
+  },
+  "viewAllPlans": {
+    "message": "Преглед на всички планове"
+  },
+  "planDescPremium": {
+    "message": "Пълна сигурност в Интернет"
+  },
+  "updatePayment": {
+    "message": "Актуализиране на плащанията"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "Плащането не беше успешно. Моля, актуализирайте разплащателния си метод или се свържете с екипа по поддръжката за съдействие."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Абонаментът Ви е изтекъл. Моля, свържете се с екипа по поддръжката за съдействие."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Абонаментът Ви по план ще бъде преустановен на $DATE$. Можете да го подновите по всяко време преди това.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Споделяйте още повече със Семейния план, или преминете към подсилената защита на паролите с Екипния план или този за големи организации."
+  },
+  "youHaveAGracePeriod": {
+    "message": "След като просрочите периода на абонамента си, разполагате с още $DAYS$ дни,. Моля, заплатете старите фактури до $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Управление на фактурите"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Следващото Ви таксуване ще бъде"
+  },
+  "dueOn": {
+    "message": "с крайна дата"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Абонаментът Ви ще бъде спрян на"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Абонаментът Ви беше спрян на"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Абонаментът Ви ще бъде прекратен на"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Абонаментът Ви беше прекратен на"
+  },
+  "storageFull": {
+    "message": "Mястото за съхранение е пълно"
+  },
+  "storageUsedDescription": {
+    "message": "Използвали сте $USED$ от $AVAILABLE$ GB от наличното си място за съхранение на шифровани данни.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "Използвали сте всичките си $GB$ GB от наличното си място за съхранение на шифровани данни. Ако искате да продължите да добавяте файлове, добавете повече място за съхранение."
+  },
+  "extensionPromptHeading": {
+    "message": "Инсталирайте добавката за по-лесен достъп до трезора си"
+  },
+  "extensionPromptBody": {
+    "message": "Когато добавката е инсталирана, Битуорден ще бъде винаги лесно достъпен във всички уеб сайтове. С нея можете да попълвате паролите автоматично и да се вписвате с едно щракване на мишката."
+  },
+  "extensionPromptImageAlt": {
+    "message": "Уеб браузър показващ добавката на Битуорден с елементи за автоматично попълване за текущата уеб страница."
+  },
+  "skip": {
+    "message": "Пропускане"
+  },
+  "downloadExtension": {
+    "message": "Сваляне на добавката"
+  },
+  "whoCanView": {
+    "message": "Кой може да преглежда"
+  },
+  "specificPeople": {
+    "message": "Определени хора"
+  },
+  "emailVerificationDesc": {
+    "message": "След като споделите тази връзка към Изпращане, хората ще трябва да потвърдят е-пощата си чрез код, за да могат да видят това Изпращане."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Можете да въведете повече е-пощи, като ги разделите със запетая."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "Потвърждаването на е-пощата изисква да е наличен поне един адрес на е-поща. Ако искате да премахнете всички е-пощи, променете начина за достъп по-горе."
+  },
+  "emailPlaceholder": {
+    "message": "потребител@bitwarden.com , потребител@acme.com"
+  },
+  "whenYouRemoveStorage": {
+    "message": "Когато премахнете съхранението, ще получите пропорционално задължение към акаунта си, което ще бъде включено автоматично в следващата Ви сметка."
+  },
+  "ownerBadgeA11yDescription": {
+    "message": "Собственик, $OWNER$, показване на всички елементи собственост на $OWNER$",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "youHavePremium": {
+    "message": "Имате платен абонамент"
+  },
+  "emailProtected": {
+    "message": "Е-пощата е защитена"
+  },
+  "invalidSendPassword": {
+    "message": "Неправилна парола за Изпращане"
+  },
+  "vaultWelcomeDialogTitle": {
+    "message": "Влязохте! Добре дошли в Битуорден!"
+  },
+  "vaultWelcomeDialogDescription": {
+    "message": "Съхранявайте всичките си пароли и лични данни в трезора си в Битуорден. Нека Ви разведем!"
+  },
+  "vaultWelcomeDialogPrimaryCta": {
+    "message": "Начало на обиколката"
+  },
+  "vaultWelcomeDialogDismissCta": {
+    "message": "Пропускане"
+  },
+  "sendPasswordHelperText": {
+    "message": "Хората ще трябва да въведат паролата, за да видят това Изпращане",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "per user"
+  },
+  "upgradeToTeams": {
+    "message": "Надграждане до екипния план"
+  },
+  "upgradeToEnterprise": {
+    "message": "Надграждане до плана за големи организации"
+  },
+  "upgradeShareEvenMore": {
+    "message": "Споделяйте още повече със Семейния план, или преминете към подсилената защита на паролите с Екипния план или този за големи организации"
+  },
+  "organizationUpgradeTaxInformationMessage": {
+    "message": "Цените не включват данък и се заплащат веднъж годишно."
+  },
+  "invoicePreviewErrorMessage": {
+    "message": "Възникна грешка при създаването на предварителния вид на фактурата."
+  },
+  "planProratedMembershipInMonths": {
+    "message": "Пропорционално членство в план „$PLAN$“ ($NUMOFMONTHS$)",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      },
+      "numofmonths": {
+        "content": "$2",
+        "example": "6 Months"
+      }
+    }
+  },
+  "premiumSubscriptionCredit": {
+    "message": "Premium subscription credit"
+  },
+  "enterpriseMembership": {
+    "message": "Членство в план за големи организации"
+  },
+  "teamsMembership": {
+    "message": "Членство в екипен план"
+  },
+  "plansUpdated": {
+    "message": "Вие надградихте до $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      }
+    }
+  },
+  "paymentMethodUpdateError": {
+    "message": "Възникна грешка при обновяването на разплащателния метод."
+  },
+  "sendPasswordInvalidAskOwner": {
+    "message": "Неправилна парола. Попитайте изпращача за паролата за достъп до това Изпращане.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresOn": {
+    "message": "Това Изпращане изтича в $TIME$ на $DATE$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:00 AM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jan 1, 1970"
+      }
+    }
   }
 }

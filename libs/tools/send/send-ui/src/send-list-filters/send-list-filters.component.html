@@ -1,4 +1,4 @@
-<div *ngIf="canAccessPremium$ | async" role="toolbar" [ariaLabel]="'filters' | i18n">
+<div *ngIf="canAccessPremium$ | async" role="toolbar" [attr.aria-label]="'filters' | i18n">
   <form [formGroup]="filterForm" class="tw-flex tw-flex-wrap tw-gap-2 tw-mt-2">
     <bit-chip-select
       formControlName="sendType"

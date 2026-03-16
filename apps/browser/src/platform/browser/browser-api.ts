@@ -6,7 +6,7 @@ import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
 import { BrowserClientVendor } from "@bitwarden/common/autofill/types";
 import { DeviceType } from "@bitwarden/common/enums";
 import { LogService } from "@bitwarden/logging";
-import { isBrowserSafariApi } from "@bitwarden/platform";
+import { isBrowserSafariApi, urlOriginsMatch } from "@bitwarden/platform";
 
 import { TabMessage } from "../../types/tab-messages";
 import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
@@ -34,12 +34,20 @@ export class BrowserApi {
   }
 
   /**
-   * Helper method that attempts to distinguish whether a message sender is internal to the extension or not.
+   * Returns `true` if the message sender appears to originate from within this extension.
    *
-   * Currently this is done through source origin matching, and frameId checking (only top-level frames are internal).
-   * @param sender a message sender
-   * @param logger an optional logger to log validation results
-   * @returns whether or not the sender appears to be internal to the extension
+   * Returns `false` when:
+   * - `sender` is absent or has no `origin` property
+   * - The extension's own URL cannot be determined at runtime
+   * - The sender's origin does not match the extension's origin (compared by scheme, host, and port;
+   *   senders without a host such as `file:` or `data:` URLs are always rejected)
+   * - The message comes from a sub-frame rather than the top-level frame
+   *
+   * Note: this is a best-effort check that relies on the browser correctly populating `sender.origin`.
+   *
+   * @param sender - The message sender to validate. `undefined` or a sender without `origin` returns `false`.
+   * @param logger - Optional logger; rejections are reported at `warning` level, acceptance at `info`.
+   * @returns `true` if the sender appears to be internal to the extension; `false` otherwise.
    */
   static senderIsInternal(
     sender: chrome.runtime.MessageSender | undefined,
@@ -49,28 +57,22 @@ export class BrowserApi {
       logger?.warning("[BrowserApi] Message sender has no origin");
       return false;
     }
-    const extensionUrl =
-      (typeof chrome !== "undefined" && chrome.runtime?.getURL("")) ||
-      (typeof browser !== "undefined" && browser.runtime?.getURL("")) ||
-      "";
+    // Empty path yields the extension's base URL; coalesce to empty string so the guard below fires on a missing runtime.
+    const extensionUrl = BrowserApi.getRuntimeURL("") ?? "";
 
     if (!extensionUrl) {
       logger?.warning("[BrowserApi] Unable to determine extension URL");
       return false;
     }
 
-    // Normalize both URLs by removing trailing slashes
-    const normalizedOrigin = sender.origin.replace(/\/$/, "").toLowerCase();
-    const normalizedExtensionUrl = extensionUrl.replace(/\/$/, "").toLowerCase();
-
-    if (!normalizedOrigin.startsWith(normalizedExtensionUrl)) {
+    if (!urlOriginsMatch(extensionUrl, sender.origin)) {
       logger?.warning(
-        `[BrowserApi] Message sender origin (${normalizedOrigin}) does not match extension URL (${normalizedExtensionUrl})`,
+        `[BrowserApi] Message sender origin (${sender.origin}) does not match extension URL (${extensionUrl})`,
       );
       return false;
     }
 
-    // We only send messages from the top-level frame, but frameId is only set if tab is set, which for popups it is not.
+    // frameId is absent for popups, so use an 'in' check rather than direct comparison.
     if ("frameId" in sender && sender.frameId !== 0) {
       logger?.warning("[BrowserApi] Message sender is not from the top-level frame");
       return false;
@@ -463,11 +465,61 @@ export class BrowserApi {
   }
 
   /**
-   * Queries all extension views that are of type `popup`
-   * and returns whether any are currently open.
+   * Returns true if the vault popup is currently open.
+   *
+   * Uses `chrome.runtime.getContexts()` when available (MV3/Chrome),
+   * and falls back to `chrome.extension.getViews()` for MV2/Safari.
    */
   static async isPopupOpen(): Promise<boolean> {
-    return Promise.resolve(BrowserApi.getExtensionViews({ type: "popup" }).length > 0);
+    if (typeof (chrome.runtime as any).getContexts === "function") {
+      const contexts = await chrome.runtime.getContexts({});
+      return contexts.some((context) => context.contextType === "POPUP");
+    }
+
+    // MV2/Safari — background page can use getExtensionViews
+    return BrowserApi.getExtensionViews({ type: "popup" }).length > 0;
+  }
+
+  /**
+   * Returns true if any extension view is currently active/focused.
+   *
+   * - Main popup: always considered focused (auto-closes on blur).
+   * - Sidebar: always considered focused (always visible).
+   * - Popout windows: only focused if the window is currently focused.
+   *
+   * Uses `chrome.runtime.getContexts()` when available (MV3/Chrome),
+   * and falls back to `chrome.extension.getViews()` for MV2/Safari.
+   */
+  static async isAnyViewFocused(): Promise<boolean> {
+    if (typeof (chrome.runtime as any).getContexts === "function") {
+      const contexts = await chrome.runtime.getContexts({});
+
+      if (contexts.some((c) => c.contextType === "POPUP" || c.contextType === "SIDE_PANEL")) {
+        return true;
+      }
+
+      const tabs = contexts.filter(
+        (c) => c.contextType === "TAB" && c.documentUrl?.includes("uilocation=popout"),
+      );
+      for (const context of tabs) {
+        const win = await BrowserApi.getWindowById(context.windowId);
+        if (win?.focused) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // MV2/Safari — background page can use getExtensionViews
+    if (BrowserApi.getExtensionViews({ type: "popup" }).length > 0) {
+      return true;
+    }
+
+    return BrowserApi.getExtensionViews({ type: "tab" }).some(
+      (v) =>
+        v.location.href.includes("uilocation=sidebar") ||
+        (v.location.href.includes("uilocation=popout") && v.document.hasFocus()),
+    );
   }
 
   static createNewTab(url: string, active = true): Promise<chrome.tabs.Tab> {
@@ -560,7 +612,8 @@ export class BrowserApi {
    * @param event - The event in which to remove the listener from.
    * @param callback - The callback you want removed from the event.
    */
-  static removeListener<T extends (...args: readonly unknown[]) => unknown>(
+  // Chrome's Event.removeListener expects callback args as `any[]` to align with its internal event typings.
+  static removeListener<T extends (...args: readonly any[]) => any>(
     event: chrome.events.Event<T>,
     callback: T,
   ) {

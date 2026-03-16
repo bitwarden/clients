@@ -1,12 +1,25 @@
-import { Component, computed, inject, input, model, output } from "@angular/core";
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  model,
+  OnDestroy,
+  OnInit,
+  output,
+} from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { ClientType } from "@bitwarden/client-type";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserKey } from "@bitwarden/common/types/key";
 import {
   AsyncActionsModule,
@@ -15,8 +28,10 @@ import {
   IconButtonModule,
   ToastService,
 } from "@bitwarden/components";
-import { BiometricsStatus } from "@bitwarden/key-management";
+import { BiometricsStatus, KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
+import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
+import { UnlockService } from "@bitwarden/unlock";
 import { UserId } from "@bitwarden/user-core";
 
 import {
@@ -24,6 +39,7 @@ import {
   UnlockOptions,
   UnlockOptionValue,
 } from "../../services/lock-component.service";
+import { UnlockViaPrfComponent } from "../unlock-via-prf.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -37,14 +53,20 @@ import {
     FormFieldModule,
     AsyncActionsModule,
     IconButtonModule,
+    UnlockViaPrfComponent,
   ],
 })
-export class MasterPasswordLockComponent {
+export class MasterPasswordLockComponent implements OnInit, OnDestroy {
   private readonly accountService = inject(AccountService);
   private readonly masterPasswordUnlockService = inject(MasterPasswordUnlockService);
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
+  private readonly platformUtilsService = inject(PlatformUtilsService);
+  private readonly messageListener = inject(MessageListener);
+  private readonly unlockService = inject(UnlockService);
+  private readonly keyService = inject(KeyService);
+  private readonly configService = inject(ConfigService);
   UnlockOption = UnlockOption;
 
   readonly activeUnlockOption = model.required<UnlockOptionValue>();
@@ -62,7 +84,11 @@ export class MasterPasswordLockComponent {
   });
 
   successfulUnlock = output<{ userKey: UserKey; masterPassword: string }>();
+  prfUnlockSuccess = output<UserKey>();
   logOut = output<void>();
+
+  protected showPassword = false;
+  private destroy$ = new Subject<void>();
 
   formGroup = new FormGroup({
     masterPassword: new FormControl("", {
@@ -70,6 +96,22 @@ export class MasterPasswordLockComponent {
       updateOn: "submit",
     }),
   });
+
+  async ngOnInit(): Promise<void> {
+    if (this.platformUtilsService.getClientType() === ClientType.Desktop) {
+      this.messageListener
+        .messages$(new CommandDefinition("windowHidden"))
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          this.showPassword = false;
+        });
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   submit = async () => {
     this.formGroup.markAllAsTouched();
@@ -92,22 +134,50 @@ export class MasterPasswordLockComponent {
     masterPassword: string,
     activeUserId: UserId,
   ): Promise<void> {
-    try {
-      const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
-        masterPassword,
-        activeUserId,
-      );
-      this.successfulUnlock.emit({ userKey, masterPassword });
-    } catch (error) {
-      this.logService.error(
-        "[MasterPasswordLockComponent] Failed to unlock via master password",
-        error,
-      );
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("invalidMasterPassword"),
-      });
+    if (await this.configService.getFeatureFlag(FeatureFlag.UnlockViaSDK)) {
+      try {
+        await this.unlockService.unlockWithMasterPassword(activeUserId, masterPassword);
+        const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
+        if (!userKey) {
+          this.logService.error(
+            "[MasterPasswordLockComponent] Failed to retrieve user key after master password unlock",
+          );
+          throw Error("Failed to retrieve user key");
+        }
+        this.successfulUnlock.emit({ userKey: userKey, masterPassword });
+      } catch (error) {
+        this.logService.error(
+          "[MasterPasswordLockComponent] Failed to unlock via master password",
+          error,
+        );
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("invalidMasterPassword"),
+        });
+      }
+    } else {
+      try {
+        const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
+          masterPassword,
+          activeUserId,
+        );
+        this.successfulUnlock.emit({ userKey, masterPassword });
+      } catch (error) {
+        this.logService.error(
+          "[MasterPasswordLockComponent] Failed to unlock via master password",
+          error,
+        );
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("invalidMasterPassword"),
+        });
+      }
     }
+  }
+
+  onPrfUnlockSuccess(userKey: UserKey): void {
+    this.prfUnlockSuccess.emit(userKey);
   }
 }

@@ -1,11 +1,13 @@
 {
+  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+
   "extraMetadata": {
     "name": "bitwarden"
   },
   "productName": "Bitwarden",
   "appId": "com.bitwarden.desktop",
   "buildDependenciesFromSource": true,
-  "copyright": "Copyright © 2015-2025 Bitwarden Inc.",
+  "copyright": "Copyright © 2015-2026 Bitwarden Inc.",
   "directories": {
     "buildResources": "resources",
     "output": "dist",
@@ -13,14 +15,15 @@
   },
   "afterSign": "scripts/after-sign.js",
   "afterPack": "scripts/after-pack.js",
-  "asarUnpack": ["**/*.node"],
+  "beforePack": "scripts/before-pack.js",
   "files": [
-    "**/*",
-    "!**/node_modules/@bitwarden/desktop-napi/**/*",
-    "**/node_modules/@bitwarden/desktop-napi/index.js",
-    "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node"
+    "!node_modules/@bitwarden/desktop-napi/scripts",
+    "!node_modules/@bitwarden/desktop-napi/src",
+    "!node_modules/@bitwarden/desktop-napi/Cargo.toml",
+    "!node_modules/@bitwarden/desktop-napi/build.rs",
+    "!node_modules/@bitwarden/desktop-napi/package.json"
   ],
-  "electronVersion": "37.7.0",
+  "electronVersion": "39.2.6",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -82,23 +85,25 @@
     "signIgnore": [
       "MacOS/desktop_proxy",
       "MacOS/desktop_proxy.inherit",
-      "Contents/Plugins/autofill-extension.appex"
+      "Contents/Plugins/autofill-extension.appex",
+      "Frameworks/Electron Framework.framework/(Electron Framework|Libraries|Resources|Versions/Current)/.*"
     ],
     "target": ["dmg", "zip"]
   },
   "win": {
     "electronUpdaterCompatibility": ">=0.0.1",
     "target": ["portable", "nsis-web", "appx"],
+    "signExts": [".dll", ".node"],
     "signtoolOptions": {
       "sign": "./sign.js"
     },
     "extraFiles": [
       {
-        "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}.exe",
+        "from": "desktop_native/dist/desktop_proxy.win32-${arch}.exe",
         "to": "desktop_proxy.exe"
       },
       {
-        "from": "desktop_native/dist/bitwarden_chromium_import_helper.${platform}-${arch}.exe",
+        "from": "desktop_native/dist/bitwarden_chromium_import_helper.win32-${arch}.exe",
         "to": "bitwarden_chromium_import_helper.exe"
       }
     ]

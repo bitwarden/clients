@@ -82,3 +82,12 @@ The `background` input can be set to `alt` to change the background color. This 
 dialogs that contain multiple card sections.
 
 <Canvas of={stories.WithCards} />
+
+## Using Forms with Dialogs
+
+When using forms with dialogs, apply the `bit-dialog` attribute directly to the `<form>` element
+instead of wrapping the dialog in a form. This ensures proper styling.
+
+```html
+<form bit-dialog>...</form>
+```

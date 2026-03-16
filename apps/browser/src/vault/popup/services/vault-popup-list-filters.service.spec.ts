@@ -3,12 +3,13 @@ import { TestBed, discardPeriodicTasks, fakeAsync, tick } from "@angular/core/te
 import { FormBuilder } from "@angular/forms";
 import { BehaviorSubject, skipWhile } from "rxjs";
 
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import * as vaultFilterSvc from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
@@ -437,7 +438,7 @@ describe("VaultPopupListFiltersService", () => {
 
   describe("folders$", () => {
     it('returns no folders when "No Folder" is the only option', (done) => {
-      folderViews$.next([{ id: null, name: "No Folder" }]);
+      folderViews$.next([{ id: "", name: "No Folder" }]);
 
       service.folders$.subscribe((folders) => {
         expect(folders).toEqual([]);
@@ -447,7 +448,7 @@ describe("VaultPopupListFiltersService", () => {
 
     it('moves "No Folder" to the end of the list', (done) => {
       folderViews$.next([
-        { id: null, name: "No Folder" },
+        { id: "", name: "No Folder" },
         { id: "2345", name: "Folder 2" },
         { id: "1234", name: "Folder 1" },
       ]);
@@ -822,7 +823,6 @@ function createSeededVaultPopupListFiltersService(
       accountServiceMock,
       viewCacheServiceMock,
       restrictedItemTypesServiceMock,
-      configService,
     );
   });
 

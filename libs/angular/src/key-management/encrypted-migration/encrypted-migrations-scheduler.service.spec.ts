@@ -2,14 +2,13 @@ import { Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { AccountInfo } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { FakeAccountService } from "@bitwarden/common/spec";
+import { mockAccountInfoWith, FakeAccountService } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
@@ -22,17 +21,15 @@ import { PromptMigrationPasswordComponent } from "./prompt-migration-password.co
 
 const SomeUser = "SomeUser" as UserId;
 const AnotherUser = "SomeOtherUser" as UserId;
-const accounts: Record<UserId, AccountInfo> = {
-  [SomeUser]: {
+const accounts = {
+  [SomeUser]: mockAccountInfoWith({
     name: "some user",
     email: "some.user@example.com",
-    emailVerified: true,
-  },
-  [AnotherUser]: {
+  }),
+  [AnotherUser]: mockAccountInfoWith({
     name: "some other user",
     email: "some.other.user@example.com",
-    emailVerified: true,
-  },
+  }),
 };
 
 describe("DefaultEncryptedMigrationsSchedulerService", () => {

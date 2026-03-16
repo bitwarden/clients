@@ -2,19 +2,21 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
+import { CollectionService } from "@bitwarden/admin-console/common";
 import {
-  CollectionService,
-  CollectionTypes,
   CollectionView,
-} from "@bitwarden/admin-console/common";
+  CollectionTypes,
+} from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { Folder } from "@bitwarden/common/vault/models/domain/folder";
+import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -36,7 +38,7 @@ describe("ImportService", () => {
   let collectionService: MockProxy<CollectionService>;
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
-  let pinService: MockProxy<PinServiceAbstraction>;
+  let keyGenerationService: MockProxy<KeyGenerationService>;
   let accountService: MockProxy<AccountService>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
 
@@ -48,7 +50,7 @@ describe("ImportService", () => {
     collectionService = mock<CollectionService>();
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
-    pinService = mock<PinServiceAbstraction>();
+    keyGenerationService = mock<KeyGenerationService>();
     restrictedItemTypesService = mock<RestrictedItemTypesService>();
 
     importService = new ImportService(
@@ -59,7 +61,7 @@ describe("ImportService", () => {
       collectionService,
       keyService,
       encryptService,
-      pinService,
+      keyGenerationService,
       accountService,
       restrictedItemTypesService,
     );
@@ -277,6 +279,25 @@ describe("ImportService", () => {
       expect(importResult.collectionRelationships.map((r) => r[0])).toEqual([0, 1, 2]);
       expect(importResult.collectionRelationships.every((r) => r[1] === 0)).toBe(true);
     });
+  });
+});
+
+describe("FolderWithIdRequest", () => {
+  function makeFolder(id: string): Folder {
+    const folder = new Folder();
+    folder.id = id;
+    return folder;
+  }
+
+  it("preserves a real folder id", () => {
+    const guid = "f1a2b3c4-d5e6-7890-abcd-ef1234567890";
+    const request = new FolderWithIdRequest(makeFolder(guid));
+    expect(request.id).toBe(guid);
+  });
+
+  it("sends null when folder id is empty string (new import folder)", () => {
+    const request = new FolderWithIdRequest(makeFolder(""));
+    expect(request.id).toBeNull();
   });
 });
 

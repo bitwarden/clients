@@ -50,10 +50,10 @@ import { WindowMain } from "./main/window.main";
 import { NativeAutofillMain } from "./platform/main/autofill/native-autofill.main";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
+import { ElectronStorageService } from "./platform/main/electron-storage.service";
 import { VersionMain } from "./platform/main/version.main";
 import { DesktopSettingsService } from "./platform/services/desktop-settings.service";
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
-import { ElectronStorageService } from "./platform/services/electron-storage.service";
 import { EphemeralValueStorageService } from "./platform/services/ephemeral-value-storage.main.service";
 import { I18nMainService } from "./platform/services/i18n.main.service";
 import { SSOLocalhostCallbackService } from "./platform/services/sso-localhost-callback.service";
@@ -101,11 +101,6 @@ export class Main {
       appDataPath = path.join(process.env.PORTABLE_EXECUTABLE_DIR, "bitwarden-appdata");
     } else if (process.platform === "linux" && process.env.SNAP_USER_DATA != null) {
       appDataPath = path.join(process.env.SNAP_USER_DATA, "appdata");
-    }
-
-    // Workaround for bug described here: https://github.com/electron/electron/issues/46538
-    if (process.platform === "linux") {
-      app.commandLine.appendSwitch("gtk-version", "3");
     }
 
     app.on("ready", () => {
@@ -311,17 +306,8 @@ export class Main {
       this.windowMain,
     );
 
-    app
-      .whenReady()
-      .then(() => {
-        this.mainDesktopAutotypeService.init();
-      })
-      .catch((reason) => {
-        this.logService.error("Error initializing Autotype.", reason);
-      });
-
     app.on("will-quit", () => {
-      this.mainDesktopAutotypeService.disableAutotype();
+      this.mainDesktopAutotypeService.dispose();
     });
   }
 

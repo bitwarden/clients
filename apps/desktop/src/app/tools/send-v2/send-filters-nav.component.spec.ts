@@ -5,9 +5,11 @@ import { RouterTestingHarness } from "@angular/router/testing";
 import { BehaviorSubject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
+import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { NavigationModule } from "@bitwarden/components";
 import { SendListFiltersService } from "@bitwarden/send-ui";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { SendFiltersNavComponent } from "./send-filters-nav.component";
 
@@ -35,6 +37,8 @@ describe("SendFiltersNavComponent", () => {
   let filterFormValueSubject: BehaviorSubject<{ sendType: SendType | null }>;
   let mockSendListFiltersService: Partial<SendListFiltersService>;
 
+  const fakeGlobalStateProvider = new FakeGlobalStateProvider();
+
   beforeEach(async () => {
     filterFormValueSubject = new BehaviorSubject<{ sendType: SendType | null }>({
       sendType: null,
@@ -60,7 +64,7 @@ describe("SendFiltersNavComponent", () => {
       providers: [
         provideRouter([
           { path: "vault", component: DummyComponent },
-          { path: "new-sends", component: DummyComponent },
+          { path: "send", component: DummyComponent },
         ]),
         {
           provide: SendListFiltersService,
@@ -71,6 +75,10 @@ describe("SendFiltersNavComponent", () => {
           useValue: {
             t: jest.fn((key) => key),
           },
+        },
+        {
+          provide: GlobalStateProvider,
+          useValue: fakeGlobalStateProvider,
         },
       ],
     }).compileComponents();
@@ -101,21 +109,21 @@ describe("SendFiltersNavComponent", () => {
   });
 
   describe("isSendRouteActive", () => {
-    it("returns true when on /new-sends route", async () => {
-      await harness.navigateByUrl("/new-sends");
+    it("returns true when on /send route", async () => {
+      await harness.navigateByUrl("/send");
       fixture.detectChanges();
 
       expect(component["isSendRouteActive"]()).toBe(true);
     });
 
-    it("returns false when not on /new-sends route", () => {
+    it("returns false when not on /send route", () => {
       expect(component["isSendRouteActive"]()).toBe(false);
     });
   });
 
   describe("activeSendType", () => {
     it("returns the active send type when on send route and filter type is set", async () => {
-      await harness.navigateByUrl("/new-sends");
+      await harness.navigateByUrl("/send");
       mockSendListFiltersService.filterForm.value = { sendType: SendType.Text };
       filterFormValueSubject.next({ sendType: SendType.Text });
       fixture.detectChanges();
@@ -132,7 +140,7 @@ describe("SendFiltersNavComponent", () => {
     });
 
     it("returns null when on send route but no type is selected", async () => {
-      await harness.navigateByUrl("/new-sends");
+      await harness.navigateByUrl("/send");
       mockSendListFiltersService.filterForm.value = { sendType: null };
       filterFormValueSubject.next({ sendType: null });
       fixture.detectChanges();
@@ -166,20 +174,20 @@ describe("SendFiltersNavComponent", () => {
       });
     });
 
-    it("navigates to /new-sends when not on send route", async () => {
+    it("navigates to /send when not on send route", async () => {
       expect(harness.routeNativeElement?.textContent).toBeDefined();
 
       await component["selectTypeAndNavigate"](SendType.Text);
 
       const currentUrl = TestBed.inject(Router).url;
-      expect(currentUrl).toBe("/new-sends");
+      expect(currentUrl).toBe("/send");
       expect(mockSendListFiltersService.filterForm.patchValue).toHaveBeenCalledWith({
         sendType: SendType.Text,
       });
     });
 
     it("does not navigate when already on send route (component is reactive)", async () => {
-      await harness.navigateByUrl("/new-sends");
+      await harness.navigateByUrl("/send");
       const router = TestBed.inject(Router);
       const navigateSpy = jest.spyOn(router, "navigate");
 
@@ -195,7 +203,7 @@ describe("SendFiltersNavComponent", () => {
       await component["selectTypeAndNavigate"](); // No parameter = clear filter
 
       const currentUrl = TestBed.inject(Router).url;
-      expect(currentUrl).toBe("/new-sends");
+      expect(currentUrl).toBe("/send");
       expect(mockSendListFiltersService.filterForm.patchValue).toHaveBeenCalledWith({
         sendType: null,
       });

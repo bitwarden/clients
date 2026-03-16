@@ -32,6 +32,14 @@ on:
         required: true
         default: true
         type: boolean
+      snap_channel:
+        description: 'Snap Store channel to publish to'
+        required: false
+        default: 'stable'
+        type: choice
+        options:
+          - stable
+          - beta
       choco_publish:
         description: 'Publish to Chocolatey store'
         required: true
@@ -204,7 +212,7 @@ jobs:
       _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
@@ -234,14 +242,17 @@ jobs:
 
       - name: Download artifacts
         working-directory: apps/desktop/dist
-        run: wget "https://github.com/bitwarden/clients/releases/download/${_RELEASE_TAG}/bitwarden_${_PKG_VERSION}_amd64.snap"
+        run: |
+          wget "https://github.com/bitwarden/clients/releases/download/${_RELEASE_TAG}/bitwarden_${_PKG_VERSION}_amd64.snap"
+          wget "https://github.com/bitwarden/clients/releases/download/${_RELEASE_TAG}/bitwarden_${_PKG_VERSION}_arm64.snap"
 
       - name: Deploy to Snap Store
         if: ${{ inputs.publish_type != 'Dry Run' }}
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ steps.retrieve-secrets.outputs.snapcraft-store-token }}
         run: |
-          snapcraft upload "bitwarden_${_PKG_VERSION}_amd64.snap" --release stable
+          snapcraft upload "bitwarden_${_PKG_VERSION}_amd64.snap" --release ${{ inputs.snap_channel }}
+          snapcraft upload "bitwarden_${_PKG_VERSION}_arm64.snap" --release ${{ inputs.snap_channel }}
           snapcraft logout
         working-directory: apps/desktop/dist
 
@@ -258,7 +269,7 @@ jobs:
       _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
@@ -315,7 +326,7 @@ jobs:
       _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
@@ -331,7 +342,7 @@ jobs:
         run: wget "https://github.com/bitwarden/clients/releases/download/${_RELEASE_TAG}/macos-build-number.json"
 
       - name: Setup Ruby and Install Fastlane
-        uses: ruby/setup-ruby@d5126b9b3579e429dd52e51e68624dda2e05be25 # v1.267.0
+        uses: ruby/setup-ruby@19a43a6a2428d455dbd1b85344698725179c9d8c # v1.289.0
         with:
           ruby-version: '3.4.7'
           bundler-cache: false

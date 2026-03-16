@@ -11,11 +11,11 @@ import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/d
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DIALOG_DATA, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 
-import { LoginApprovalDialogComponentServiceAbstraction } from "./login-approval-dialog-component.service.abstraction";
 import { LoginApprovalDialogComponent } from "./login-approval-dialog.component";
 
 describe("LoginApprovalDialogComponent", () => {
@@ -48,10 +48,11 @@ describe("LoginApprovalDialogComponent", () => {
     validationService = mock<ValidationService>();
 
     accountService.activeAccount$ = of({
-      email: testEmail,
       id: "test-user-id" as UserId,
-      emailVerified: true,
-      name: null,
+      ...mockAccountInfoWith({
+        email: testEmail,
+        name: null,
+      }),
     });
 
     await TestBed.configureTestingModule({
@@ -67,10 +68,6 @@ describe("LoginApprovalDialogComponent", () => {
         { provide: LogService, useValue: logService },
         { provide: ToastService, useValue: toastService },
         { provide: ValidationService, useValue: validationService },
-        {
-          provide: LoginApprovalDialogComponentServiceAbstraction,
-          useValue: mock<LoginApprovalDialogComponentServiceAbstraction>(),
-        },
       ],
     }).compileComponents();
 

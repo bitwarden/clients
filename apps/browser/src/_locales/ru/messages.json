@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Войти с passkey"
   },
+  "unlockWithPasskey": {
+    "message": "Разблокировать при помощи passkey"
+  },
   "useSingleSignOn": {
     "message": "Использовать единый вход"
   },
@@ -436,7 +439,7 @@
   "sync": {
     "message": "Синхронизация"
   },
-  "syncVaultNow": {
+  "syncNow": {
     "message": "Синхронизировать"
   },
   "lastSync": {
@@ -454,9 +457,6 @@
   },
   "bitWebVaultApp": {
     "message": "Веб-приложение Bitwarden"
-  },
-  "importItems": {
-    "message": "Импорт элементов"
   },
   "select": {
     "message": "Выбрать"
@@ -573,20 +573,29 @@
   "noItemsInArchiveDesc": {
     "message": "Архивированные элементы появятся здесь и будут исключены из общих результатов поиска и предложений автозаполнения."
   },
-  "itemWasSentToArchive": {
-    "message": "Элемент был отправлен в архив"
+  "itemArchiveToast": {
+    "message": "Элемент архивирован"
   },
-  "itemUnarchived": {
-    "message": "Элемент был разархивирован"
+  "itemUnarchivedToast": {
+    "message": "Элемент разархивирован"
   },
   "archiveItem": {
     "message": "Архивировать элемент"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Архивированные элементы исключены из общих результатов поиска и предложений автозаполнения. Вы уверены, что хотите архивировать этот элемент?"
+  "archiveItemDialogContent": {
+    "message": "После архивации этот элемент будет исключен из результатов поиска и предложений по автозаполнению."
+  },
+  "archived": {
+    "message": "Архивирован"
+  },
+  "unarchiveAndSave": {
+    "message": "Разархивировать и сохранить"
   },
   "upgradeToUseArchive": {
     "message": "Для использования архива требуется премиум-статус."
+  },
+  "itemRestored": {
+    "message": "Элемент восстановлен"
   },
   "edit": {
     "message": "Изменить"
@@ -887,6 +896,9 @@
   "invalidVerificationCode": {
     "message": "Неверный код подтверждения"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Неверный email или код подтверждения"
+  },
   "valueCopied": {
     "message": "$VALUE$ скопировано",
     "description": "Value has been copied to the clipboard.",
@@ -931,7 +943,7 @@
     "message": "Вы вышли из своего аккаунта."
   },
   "loginExpired": {
-    "message": "Истек срок действия вашего сеанса."
+    "message": "Истек срок действия вашей сессии."
   },
   "logIn": {
     "message": "Войти"
@@ -977,6 +989,12 @@
   },
   "no": {
     "message": "Нет"
+  },
+  "noAuth": {
+    "message": "Любой, у кого есть ссылка"
+  },
+  "anyOneWithPassword": {
+    "message": "Любой, у кого есть установленный вами пароль"
   },
   "location": {
     "message": "Местоположение"
@@ -1325,8 +1343,21 @@
   "exportFrom": {
     "message": "Экспорт из"
   },
-  "exportVault": {
-    "message": "Экспорт хранилища"
+  "exportVerb": {
+    "message": "Экспортировать",
+    "description": "The verb form of the word Export"
+  },
+  "exportNoun": {
+    "message": "Экспорт",
+    "description": "The noun form of the word Export"
+  },
+  "importNoun": {
+    "message": "Импорт",
+    "description": "The noun form of the word Import"
+  },
+  "importVerb": {
+    "message": "Импортировать",
+    "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Формат файла"
@@ -1457,6 +1488,15 @@
   "attachmentSaved": {
     "message": "Вложение сохранено."
   },
+  "fixEncryption": {
+    "message": "Исправить шифрование"
+  },
+  "fixEncryptionTooltip": {
+    "message": "Этот файл использует устаревший метод шифрования."
+  },
+  "attachmentUpdated": {
+    "message": "Вложение обновлено"
+  },
   "file": {
     "message": "Файл"
   },
@@ -1465,6 +1505,9 @@
   },
   "selectFile": {
     "message": "Выбрать файл"
+  },
+  "itemsTransferred": {
+    "message": "Элементы переданы"
   },
   "maxFileSize": {
     "message": "Максимальный размер файла 500 МБ."
@@ -1510,6 +1553,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Проприетарные варианты двухэтапной аутентификации, такие как YubiKey или Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Ваша подписка Премиум закончилась"
+  },
+  "archivePremiumRestart": {
+    "message": "Чтобы восстановить доступ к своему архиву, подключите подписку Премиум повторно. Если вы измените сведения об архивированном элементе перед переподключением, он будет перемещен обратно в ваше хранилище."
+  },
+  "restartPremium": {
+    "message": "Переподключить Премиум"
   },
   "ppremiumSignUpReports": {
     "message": "Гигиена паролей, здоровье аккаунта и отчеты об утечках данных для обеспечения безопасности вашего хранилища."
@@ -1572,7 +1624,7 @@
     "message": "Таймаут аутентификации"
   },
   "authenticationSessionTimedOut": {
-    "message": "Сеанс аутентификации завершился по времени. Пожалуйста, попробуйте войти еще раз."
+    "message": "Сессия аутентификации завершилась по времени. Пожалуйста, перезапустите процесс авторизации."
   },
   "verificationCodeEmailSent": {
     "message": "Отправлено письмо подтверждения на $EMAIL$.",
@@ -2002,6 +2054,9 @@
   "email": {
     "message": "Email"
   },
+  "emails": {
+    "message": "Emails"
+  },
   "phone": {
     "message": "Телефон"
   },
@@ -2102,7 +2157,7 @@
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Изменить тестовую Send",
+    "message": "Изменить текстовую Send",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
@@ -2430,6 +2485,9 @@
   "permanentlyDeletedItem": {
     "message": "Элемент удален навсегда"
   },
+  "archivedItemRestored": {
+    "message": "Архивированный элемент восстановлен"
+  },
   "restoreItem": {
     "message": "Восстановить элемент"
   },
@@ -2689,9 +2747,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden не будет предлагать сохранить логины для этих доменов. Для вступления изменений в силу необходимо обновить страницу."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden не будет предлагать сохранение логинов для этих доменов для всех авторизованных аккаунтов. Для вступления изменений в силу необходимо обновить страницу."
-  },
   "blockedDomainsDesc": {
     "message": "Автозаполнение и другие связанные с ним функции не будут предлагаться для этих сайтов. Чтобы изменения вступили в силу, необходимо обновить страницу."
   },
@@ -2804,6 +2859,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Иллюстрация списка логинов, которые подвержены риску."
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Иллюстрация макета страницы хранилища Bitwarden."
   },
   "generatePasswordSlideDesc": {
     "message": "Быстро сгенерируйте надежный уникальный пароль с помощью меню автозаполнения Bitwarden на сайте, подверженном риску.",
@@ -2977,10 +3035,6 @@
   "custom": {
     "message": "Пользовательский"
   },
-  "sendPasswordDescV3": {
-    "message": "Добавьте опциональный пароль для доступа получателей к этой Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Новая Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3032,6 +3086,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ час.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Скопируйте и поделитесь этой ссылкой Send. Send будет доступна всем, у кого есть ссылка, в течение следующих $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Скопируйте и поделитесь этой ссылкой Send. Send будет доступна всем, у кого есть ссылка и пароль в течение следующих $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Скопируйте и распространите эту ссылку для Send. Она может быть просмотрена указанными вами пользователями в течение $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "Ссылка на Send скопирована",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3040,28 +3133,8 @@
     "message": "Send сохранена",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Открепить расширение?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Чтобы создать файл Send, необходимо открыть расширение в новом окне.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Для выбора файла откройте расширение в боковой панели (если возможно) или перейдите в новое окно, нажав на этот баннер."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Для выбора файла с помощью Firefox, откройте расширение в боковой панели или перейдите в новое окно, нажав на этот баннер."
-  },
-  "sendSafariFileWarning": {
-    "message": "Для выбора файла с помощью Safari, перейдите в новое окно, нажав на этот баннер."
-  },
   "popOut": {
     "message": "Открепить"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Перед тем, как начать"
   },
   "expirationDateIsInvalid": {
     "message": "Срок истечения указан некорректно."
@@ -3109,10 +3182,10 @@
     "message": "Обновить мастер-пароль"
   },
   "updateMasterPasswordWarning": {
-    "message": "Мастер-пароль недавно был изменен администратором вашей организации. Чтобы получить доступ к хранилищу, вы должны обновить его сейчас. В результате текущий сеанс будет завершен, потребуется повторный вход. Сеансы на других устройствах могут оставаться активными в течение одного часа."
+    "message": "Мастер-пароль недавно был изменен администратором вашей организации. Чтобы получить доступ к хранилищу, вы должны обновить его сейчас. В результате текущая сессия будет завершена, потребуется повторный вход. Сессии на других устройствах могут оставаться активными в течение одного часа."
   },
   "updateWeakMasterPasswordWarning": {
-    "message": "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущий сеанс будет завершен и потребуется повторная авторизация. Сеансы на других устройствах могут оставаться активными в течение часа."
+    "message": "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущая сессия будет завершена и потребуется повторная авторизация. Сессии на других устройствах могут оставаться активными в течение часа."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "В вашей организации отключено шифрование доверенных устройств. Пожалуйста, установите мастер-пароль для доступа к вашему хранилищу."
@@ -3240,9 +3313,6 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Уникальный идентификатор не найден."
   },
-  "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "Мастер-пароль больше не требуется для членов следующей организации. Пожалуйста, подтвердите указанный ниже домен у администратора вашей организации."
-  },
   "organizationName": {
     "message": "Название организации"
   },
@@ -3268,7 +3338,7 @@
     "message": "Показать количество символов"
   },
   "sessionTimeout": {
-    "message": "Время вашего сеанса истекло. Пожалуйста, вернитесь и попробуйте войти снова."
+    "message": "Время вашей сессии истекло. Пожалуйста, вернитесь и попробуйте войти снова."
   },
   "exportingPersonalVaultTitle": {
     "message": "Экспорт личного хранилища"
@@ -3323,6 +3393,12 @@
   },
   "error": {
     "message": "Ошибка"
+  },
+  "prfUnlockFailed": {
+    "message": "Не удалось разблокировать с помощью passkey. Пожалуйста, повторите попытку или используйте другой метод разблокировки."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Для разблокировки недоступны passkeys с поддержкой PRF. Пожалуйста, сначала авторизуйтесь, используя passkey."
   },
   "decryptionError": {
     "message": "Ошибка расшифровки"
@@ -4206,10 +4282,6 @@
   "ignore": {
     "message": "Игнорировать"
   },
-  "importData": {
-    "message": "Импорт данных",
-    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
-  },
   "importError": {
     "message": "Ошибка импорта"
   },
@@ -4703,6 +4775,9 @@
       }
     }
   },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Больше опций"
+  },
   "moreOptionsTitle": {
     "message": "Больше опций - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
@@ -4790,11 +4865,56 @@
   "copyAddress": {
     "message": "Скопировать адрес"
   },
+  "myItems": {
+    "message": "Мои элементы"
+  },
   "adminConsole": {
     "message": "консоли администратора"
   },
+  "admin": {
+    "message": "Администратор"
+  },
+  "automaticUserConfirmation": {
+    "message": "Автоматическое подтверждение пользователя"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Автоматически подтверждать ожидающих пользователей пока это устройство разблокировано"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Экономьте время благодаря автоматическому подтверждению пользователей"
+  },
+  "autoConfirmWarning": {
+    "message": "Это может повлиять на безопасность данных вашей организации. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Узнайте о рисках"
+  },
+  "autoConfirmSetup": {
+    "message": "Автоматически подтверждать новых пользователей"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Новые пользователи будут автоматически подтверждены при разблокировке устройства."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Каковы потенциальные риски для безопасности?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Включено автоматическое подтверждение"
+  },
+  "availableNow": {
+    "message": "Уже доступно"
+  },
   "accountSecurity": {
     "message": "Безопасность аккаунта"
+  },
+  "phishingBlocker": {
+    "message": "Блокировщик фишинга"
+  },
+  "enablePhishingDetection": {
+    "message": "Обнаружение фишинга"
+  },
+  "enablePhishingDetectionDesc": {
+    "message": "Отображать предупреждение перед доступом к подозрительным фишинговым сайтам"
   },
   "notifications": {
     "message": "Уведомления"
@@ -4907,6 +5027,9 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadAttachmentLabel": {
+    "message": "Скачать вложение"
   },
   "downloadBitwarden": {
     "message": "Скачать Bitwarden"
@@ -5047,14 +5170,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Скрыть обнаружение совпадений $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Показать обнаружение совпадений"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Скрыть обнаружение совпадений"
   },
   "autoFillOnPageLoad": {
     "message": "Автозаполнение при загрузке страницы?"
@@ -5592,6 +5712,9 @@
   "extraWide": {
     "message": "Очень широкое"
   },
+  "narrow": {
+    "message": "Узкий"
+  },
   "sshKeyWrongPassword": {
     "message": "Введенный пароль неверен."
   },
@@ -5639,6 +5762,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
+  },
+  "vulnerablePassword": {
+    "message": "Уязвимый пароль."
+  },
+  "changeNow": {
+    "message": "Изменить сейчас"
   },
   "missingWebsite": {
     "message": "Отсутствует сайт"
@@ -5848,8 +5977,8 @@
   "andMoreFeatures": {
     "message": "И многое другое!"
   },
-  "planDescPremium": {
-    "message": "Полная онлайн-защищенность"
+  "advancedOnlineSecurity": {
+    "message": "Расширенная онлайн-безопасность"
   },
   "upgradeToPremium": {
     "message": "Обновить до Премиум"
@@ -5879,7 +6008,193 @@
   "cardNumberLabel": {
     "message": "Номер карты"
   },
+  "errorCannotDecrypt": {
+    "message": "Ошибка: невозможно расшифровать"
+  },
+  "removeMasterPasswordForOrgUserKeyConnector": {
+    "message": "Ваша организация больше не использует мастер-пароли для входа в Bitwarden. Чтобы продолжить, подтвердите организацию и домен."
+  },
+  "continueWithLogIn": {
+    "message": "Продолжить с логином"
+  },
+  "doNotContinue": {
+    "message": "Не продолжать"
+  },
+  "domain": {
+    "message": "Домен"
+  },
+  "keyConnectorDomainTooltip": {
+    "message": "В этом домене будут храниться ключи шифрования вашего аккаунта, поэтому убедитесь, что вы ему доверяете. Если вы не уверены, обратитесь к своему администратору."
+  },
+  "verifyYourOrganization": {
+    "message": "Подтвердите свою организацию для входа"
+  },
+  "organizationVerified": {
+    "message": "Организация подтверждена"
+  },
+  "domainVerified": {
+    "message": "Домен верифицирован"
+  },
+  "leaveOrganizationContent": {
+    "message": "Если вы не подтвердите свою организацию, ваш доступ к ней будет аннулирован."
+  },
+  "leaveNow": {
+    "message": "Покинуть"
+  },
+  "verifyYourDomainToLogin": {
+    "message": "Подтвердите свой домен для входа"
+  },
+  "verifyYourDomainDescription": {
+    "message": "Чтобы продолжить с логином, подтвердите этот домен."
+  },
+  "confirmKeyConnectorOrganizationUserDescription": {
+    "message": "Чтобы продолжить с логином, подтвердите организацию и домен."
+  },
   "sessionTimeoutSettingsAction": {
     "message": "Тайм-аут действия"
+  },
+  "sessionTimeoutSettingsManagedByOrganization": {
+    "message": "Эта настройка управляется вашей организацией."
+  },
+  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
+    "message": "В вашей организации максимальный тайм-аут сессии установлен равным $HOURS$ час. и $MINUTES$ мин.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "8"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
+    "message": "Ваша организация не установила тайм-аут сессии на Немедленно."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
+    "message": "Ваша организация установила тайм-аут сессии по умолчанию на При блокировке системы."
+  },
+  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
+    "message": "Ваша организация установила тайм-аут сессии по умолчанию на При перезапуске браузера."
+  },
+  "sessionTimeoutSettingsPolicyMaximumError": {
+    "message": "Максимальный тайм-аут не может превышать $HOURS$ час. и $MINUTES$ мин.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "sessionTimeoutOnRestart": {
+    "message": "При перезапуске браузера"
+  },
+  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
+    "message": "Установите способ разблокировки для изменения действия при истечении тайм-аута"
+  },
+  "upgrade": {
+    "message": "Перейти"
+  },
+  "leaveConfirmationDialogTitle": {
+    "message": "Вы уверены, что хотите покинуть?"
+  },
+  "leaveConfirmationDialogContentOne": {
+    "message": "В случае отказа ваши личные данные останутся в вашем аккаунте, но вы потеряете доступ к общим элементам и возможностям организации."
+  },
+  "leaveConfirmationDialogContentTwo": {
+    "message": "Свяжитесь с вашим администратором для восстановления доступа."
+  },
+  "leaveConfirmationDialogConfirmButton": {
+    "message": "Покинуть $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "howToManageMyVault": {
+    "message": "Как я могу управлять своим хранилищем?"
+  },
+  "transferItemsToOrganizationTitle": {
+    "message": "Перенести элементы в $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "transferItemsToOrganizationContent": {
+    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации для обеспечения безопасности и соответствия требованиям. Нажмите Принять, чтобы передать собственность на ваши элементы.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "acceptTransfer": {
+    "message": "Принять передачу"
+  },
+  "declineAndLeave": {
+    "message": "Отклонить и покинуть"
+  },
+  "whyAmISeeingThis": {
+    "message": "Почему я это вижу?"
+  },
+  "items": {
+    "message": "Элементы"
+  },
+  "searchResults": {
+    "message": "Результаты поиска"
+  },
+  "simplifiedAutofill": {
+    "message": "Упрощенное автозаполнение"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "При нажатии на предложенный элемент автозаполнения он заполняется, а не перенаправляет вас к деталям. Вы по-прежнему можете просматривать эти элементы в меню Подробнее."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Открыть всплывающее окно упрощенного автозаполнения"
+  },
+  "resizeSideNavigation": {
+    "message": "Изменить размер боковой навигации"
+  },
+  "whoCanView": {
+    "message": "Кто может просматривать"
+  },
+  "specificPeople": {
+    "message": "Конкретные пользователи"
+  },
+  "emailVerificationDesc": {
+    "message": "После того, как вы поделитесь ссылкой на Send, пользователю нужно будет подтвердить свой email кодом, чтобы просмотреть эту Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Введите несколько email, разделяя их запятой."
+  },
+  "emailsRequiredChangeAccessType": {
+    "message": "Для проверки электронной почты требуется как минимум один адрес email. Чтобы удалить все адреса электронной почты, измените тип доступа выше."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Скачать приложения Bitwarden"
+  },
+  "emailProtected": {
+    "message": "Email защищен"
+  },
+  "sendPasswordHelperText": {
+    "message": "Пользователям необходимо будет ввести пароль для просмотра этой Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "Проверка пользователя не удалась."
   }
 }

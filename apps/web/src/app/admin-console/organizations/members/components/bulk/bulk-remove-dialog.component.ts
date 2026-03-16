@@ -23,6 +23,7 @@ type BulkRemoveDialogParams = {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "bulk-remove-dialog.component.html",
+  selector: "member-bulk-remove-dialog",
   standalone: false,
 })
 export class BulkRemoveDialogComponent extends BaseBulkRemoveComponent {

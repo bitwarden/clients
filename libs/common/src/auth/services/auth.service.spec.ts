@@ -10,6 +10,7 @@ import {
   makeStaticByteArray,
   mockAccountServiceWith,
   trackEmissions,
+  mockAccountInfoWith,
 } from "../../../spec";
 import { ApiService } from "../../abstractions/api.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
@@ -58,9 +59,10 @@ describe("AuthService", () => {
     const accountInfo = {
       status: AuthenticationStatus.Unlocked,
       id: userId,
-      email: "email",
-      emailVerified: false,
-      name: "name",
+      ...mockAccountInfoWith({
+        email: "email",
+        name: "name",
+      }),
     };
 
     beforeEach(() => {
@@ -112,9 +114,10 @@ describe("AuthService", () => {
       const accountInfo2 = {
         status: AuthenticationStatus.Unlocked,
         id: Utils.newGuid() as UserId,
-        email: "email2",
-        emailVerified: false,
-        name: "name2",
+        ...mockAccountInfoWith({
+          email: "email2",
+          name: "name2",
+        }),
       };
 
       const emissions = trackEmissions(sut.activeAccountStatus$);
@@ -131,11 +134,13 @@ describe("AuthService", () => {
     it("requests auth status for all known users", async () => {
       const userId2 = Utils.newGuid() as UserId;
 
-      await accountService.addAccount(userId2, {
-        email: "email2",
-        emailVerified: false,
-        name: "name2",
-      });
+      await accountService.addAccount(
+        userId2,
+        mockAccountInfoWith({
+          email: "email2",
+          name: "name2",
+        }),
+      );
 
       const mockFn = jest.fn().mockReturnValue(of(AuthenticationStatus.Locked));
       sut.authStatusFor$ = mockFn;

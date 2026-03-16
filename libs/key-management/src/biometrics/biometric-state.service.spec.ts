@@ -179,18 +179,36 @@ describe("BiometricStateService", () => {
   });
 
   describe("biometricUnlockEnabled$", () => {
-    it("emits when biometricUnlockEnabled state is updated", async () => {
-      const state = stateProvider.activeUser.getFake(BIOMETRIC_UNLOCK_ENABLED);
-      state.nextState(true);
+    describe("no user id provided, active user", () => {
+      it("emits when biometricUnlockEnabled state is updated", async () => {
+        const state = stateProvider.activeUser.getFake(BIOMETRIC_UNLOCK_ENABLED);
+        state.nextState(true);
 
-      expect(await firstValueFrom(sut.biometricUnlockEnabled$)).toBe(true);
+        expect(await firstValueFrom(sut.biometricUnlockEnabled$())).toBe(true);
+      });
+
+      it("emits false when biometricUnlockEnabled state is undefined", async () => {
+        const state = stateProvider.activeUser.getFake(BIOMETRIC_UNLOCK_ENABLED);
+        state.nextState(undefined as unknown as boolean);
+
+        expect(await firstValueFrom(sut.biometricUnlockEnabled$())).toBe(false);
+      });
     });
 
-    it("emits false when biometricUnlockEnabled state is undefined", async () => {
-      const state = stateProvider.activeUser.getFake(BIOMETRIC_UNLOCK_ENABLED);
-      state.nextState(undefined as unknown as boolean);
+    describe("user id provided", () => {
+      it("returns biometricUnlockEnabled state for the given user", async () => {
+        stateProvider.singleUser.getFake(userId, BIOMETRIC_UNLOCK_ENABLED).nextState(true);
 
-      expect(await firstValueFrom(sut.biometricUnlockEnabled$)).toBe(false);
+        expect(await firstValueFrom(sut.biometricUnlockEnabled$(userId))).toBe(true);
+      });
+
+      it("returns false when the state is not set", async () => {
+        stateProvider.singleUser
+          .getFake(userId, BIOMETRIC_UNLOCK_ENABLED)
+          .nextState(undefined as unknown as boolean);
+
+        expect(await firstValueFrom(sut.biometricUnlockEnabled$(userId))).toBe(false);
+      });
     });
   });
 
@@ -198,7 +216,7 @@ describe("BiometricStateService", () => {
     it("updates biometricUnlockEnabled$", async () => {
       await sut.setBiometricUnlockEnabled(true);
 
-      expect(await firstValueFrom(sut.biometricUnlockEnabled$)).toBe(true);
+      expect(await firstValueFrom(sut.biometricUnlockEnabled$())).toBe(true);
     });
 
     it("updates state", async () => {
@@ -207,22 +225,6 @@ describe("BiometricStateService", () => {
       expect(
         stateProvider.activeUser.getFake(BIOMETRIC_UNLOCK_ENABLED).nextMock,
       ).toHaveBeenCalledWith([userId, true]);
-    });
-  });
-
-  describe("getBiometricUnlockEnabled", () => {
-    it("returns biometricUnlockEnabled state for the given user", async () => {
-      stateProvider.singleUser.getFake(userId, BIOMETRIC_UNLOCK_ENABLED).nextState(true);
-
-      expect(await sut.getBiometricUnlockEnabled(userId)).toBe(true);
-    });
-
-    it("returns false when the state is not set", async () => {
-      stateProvider.singleUser
-        .getFake(userId, BIOMETRIC_UNLOCK_ENABLED)
-        .nextState(undefined as unknown as boolean);
-
-      expect(await sut.getBiometricUnlockEnabled(userId)).toBe(false);
     });
   });
 

@@ -3,9 +3,21 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Observable, combineLatest, map, of, startWith, switchMap } from "rxjs";
+import {
+  Observable,
+  combineLatest,
+  distinctUntilChanged,
+  map,
+  of,
+  startWith,
+  switchMap,
+} from "rxjs";
 
-import { CollectionView, Unassigned, CollectionAdminView } from "@bitwarden/admin-console/common";
+import {
+  CollectionAdminView,
+  Unassigned,
+  CollectionView,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -19,6 +31,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { SortDirection, TableDataSource } from "@bitwarden/components";
 import { OrganizationId } from "@bitwarden/sdk-internal";
+import { RoutedVaultFilterService, VaultItem } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -26,7 +39,6 @@ import {
   CollectionPermission,
   convertToPermission,
 } from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
-import { VaultItem } from "./vault-item";
 import { VaultItemEvent } from "./vault-item-event";
 
 // Fixed manual row height required due to how cdk-virtual-scroll works
@@ -152,6 +164,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     protected cipherAuthorizationService: CipherAuthorizationService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
     protected cipherArchiveService: CipherArchiveService,
+    protected routedVaultFilterService: RoutedVaultFilterService,
   ) {
     this.canDeleteSelected$ = this.selection.changed.pipe(
       startWith(null),
@@ -219,6 +232,22 @@ export class VaultItemsComponent<C extends CipherViewLike> {
         );
       }),
     );
+
+    this.routedVaultFilterService.filter$
+      .pipe(
+        distinctUntilChanged(
+          (prev, curr) =>
+            prev.organizationId === curr.organizationId &&
+            prev.collectionId === curr.collectionId &&
+            prev.folderId === curr.folderId &&
+            prev.type === curr.type &&
+            prev.organizationIdParamType === curr.organizationIdParamType,
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => {
+        this.clearSelection();
+      });
   }
 
   clearSelection() {
@@ -230,9 +259,9 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   get isAllSelected() {
-    return this.editableItems
-      .slice(0, MaxSelectionCount)
-      .every((item) => this.selection.isSelected(item));
+    // Check selection against sorted items to match toggleAll() behavior
+    const sortedItems = this.getSortedEditableItems();
+    return sortedItems.slice(0, MaxSelectionCount).every((item) => this.selection.isSelected(item));
   }
 
   get isEmpty() {
@@ -246,7 +275,13 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   get bulkArchiveAllowed() {
-    if (this.selection.selected.length === 0 || !this.userCanArchive) {
+    const hasCollectionsSelected = this.selection.selected.some((item) => item.collection);
+    if (
+      this.selection.selected.length === 0 ||
+      !this.userCanArchive ||
+      hasCollectionsSelected ||
+      this.showBulkTrashOptions
+    ) {
       return false;
     }
 
@@ -260,7 +295,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   // Bulk Unarchive button should appear for Archive vault even if user does not have archive permissions
   get bulkUnarchiveAllowed() {
-    if (this.selection.selected.length === 0) {
+    if (this.selection.selected.length === 0 || this.showBulkTrashOptions) {
       return false;
     }
 
@@ -340,9 +375,30 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   protected toggleAll() {
-    this.isAllSelected
-      ? this.selection.clear()
-      : this.selection.select(...this.editableItems.slice(0, MaxSelectionCount));
+    if (this.isAllSelected) {
+      this.selection.clear();
+    } else {
+      const sortedItems = this.getSortedEditableItems();
+      this.selection.select(...sortedItems.slice(0, MaxSelectionCount));
+    }
+  }
+
+  /**
+   * Returns editableItems sorted according to the current table sort configuration.
+   * This ensures bulk selection matches the visual order displayed to the user.
+   */
+  private getSortedEditableItems(): VaultItem<C>[] {
+    const currentSort = this.dataSource.sort;
+    const items = [...this.editableItems];
+
+    // If no sort function is set, return items in their original order (as displayed in table)
+    if (!currentSort || !currentSort.fn) {
+      return items;
+    }
+
+    // Apply sort function with direction modifier (matches TableDataSource.sortData behavior)
+    const directionModifier = currentSort.direction === "asc" ? 1 : -1;
+    return items.sort((a, b) => currentSort.fn(a, b, currentSort.direction) * directionModifier);
   }
 
   protected event(event: VaultItemEvent<C>) {
@@ -548,12 +604,13 @@ export class VaultItemsComponent<C extends CipherViewLike> {
    * Sorts VaultItems, grouping collections before ciphers, and sorting each group alphabetically by name.
    */
   protected sortByName = (a: VaultItem<C>, b: VaultItem<C>, direction: SortDirection) => {
-    // Collections before ciphers
-    const collectionCompare = this.prioritizeCollections(a, b, direction);
+    // Collections before ciphers (direction-independent)
+    const collectionCompare = this.prioritizeCollections(a, b);
     if (collectionCompare !== 0) {
       return collectionCompare;
     }
 
+    // Name comparison (direction-dependent, handled by directionModifier)
     return this.compareNames(a, b);
   };
 
@@ -575,8 +632,8 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       return null;
     };
 
-    // Collections before ciphers
-    const collectionCompare = this.prioritizeCollections(a, b, direction);
+    // Collections before ciphers (direction-independent)
+    const collectionCompare = this.prioritizeCollections(a, b);
     if (collectionCompare !== 0) {
       return collectionCompare;
     }
@@ -619,8 +676,8 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       return priorityMap[permission] ?? -1;
     };
 
-    // Collections before ciphers
-    const collectionCompare = this.prioritizeCollections(a, b, direction);
+    // Collections before ciphers (direction-independent)
+    const collectionCompare = this.prioritizeCollections(a, b);
     if (collectionCompare !== 0) {
       return collectionCompare;
     }
@@ -628,11 +685,12 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     const priorityA = getPermissionPriority(a);
     const priorityB = getPermissionPriority(b);
 
-    // Higher priority first
+    // Higher priority first (direction-dependent, handled by directionModifier)
     if (priorityA !== priorityB) {
       return priorityA - priorityB;
     }
 
+    // Fallback to name comparison (direction-dependent, handled by directionModifier)
     return this.compareNames(a, b);
   };
 
@@ -643,22 +701,19 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   /**
    * Sorts VaultItems by prioritizing collections over ciphers.
-   * Collections are always placed before ciphers, regardless of the sorting direction.
+   * Always returns -1 for collections before ciphers, regardless of sort direction.
+   * This comparison is direction-independent; the direction is applied separately via directionModifier.
    */
-  private prioritizeCollections(
-    a: VaultItem<C>,
-    b: VaultItem<C>,
-    direction: SortDirection,
-  ): number {
+  private prioritizeCollections(a: VaultItem<C>, b: VaultItem<C>): number {
     if (a.collection && !b.collection) {
-      return direction === "asc" ? -1 : 1;
+      return -1; // a (collection) comes before b (cipher)
     }
 
     if (!a.collection && b.collection) {
-      return direction === "asc" ? 1 : -1;
+      return 1; // b (collection) comes before a (cipher)
     }
 
-    return 0;
+    return 0; // Both are collections or both are ciphers
   }
 
   private hasPersonalItems(): boolean {

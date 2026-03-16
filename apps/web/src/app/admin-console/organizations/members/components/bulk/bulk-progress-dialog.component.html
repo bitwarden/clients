@@ -1,0 +1,22 @@
+<bit-simple-dialog hideIcon>
+  <div bitDialogContent>
+    <div class="tw-flex tw-justify-center">
+      <div class="tw-mt-1 tw-w-[273px]">
+        <bit-progress
+          [showText]="false"
+          size="default"
+          bgColor="primary"
+          [barWidth]="progressPercentage()"
+        ></bit-progress>
+      </div>
+    </div>
+    <div class="tw-flex tw-flex-col tw-gap-2 tw-mt-6">
+      <h3 class="tw-font-semibold">
+        {{ "bulkReinviteProgressTitle" | i18n: progressCount() : allCount }}
+      </h3>
+      <span class="tw-text-sm">
+        {{ "bulkReinviteProgressSubtitle" | i18n }}
+      </span>
+    </div>
+  </div>
+</bit-simple-dialog>

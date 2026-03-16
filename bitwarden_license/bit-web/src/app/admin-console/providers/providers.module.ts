@@ -5,6 +5,8 @@ import { FormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CardComponent, ScrollLayoutDirective, SearchModule } from "@bitwarden/components";
+import { MemberActionsService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.service";
+import { MemberDialogManagerService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-dialog-manager/member-dialog-manager.service";
 import { DangerZoneComponent } from "@bitwarden/web-vault/app/auth/settings/account/danger-zone.component";
 import { OrganizationPlansComponent } from "@bitwarden/web-vault/app/billing";
 import {
@@ -19,7 +21,7 @@ import { ProviderBillingHistoryComponent } from "../../billing/providers/billing
 import { SetupBusinessUnitComponent } from "../../billing/providers/setup/setup-business-unit.component";
 import { ProviderSubscriptionStatusComponent } from "../../billing/providers/subscription/provider-subscription-status.component";
 import { ProviderSubscriptionComponent } from "../../billing/providers/subscription/provider-subscription.component";
-import { ProviderWarningsModule } from "../../billing/providers/warnings/provider-warnings.module";
+import { EventsComponent } from "../../dirt/provider-events/events.component";
 
 import { AddExistingOrganizationDialogComponent } from "./clients/add-existing-organization-dialog.component";
 import { CreateClientDialogComponent } from "./clients/create-client-dialog.component";
@@ -29,8 +31,8 @@ import { AcceptProviderComponent } from "./manage/accept-provider.component";
 import { AddEditMemberDialogComponent } from "./manage/dialogs/add-edit-member-dialog.component";
 import { BulkConfirmDialogComponent } from "./manage/dialogs/bulk-confirm-dialog.component";
 import { BulkRemoveDialogComponent } from "./manage/dialogs/bulk-remove-dialog.component";
-import { EventsComponent } from "./manage/events.component";
 import { MembersComponent } from "./manage/members.component";
+import { ProviderActionsService } from "./manage/services/provider-actions/provider-actions.service";
 import { ProvidersLayoutComponent } from "./providers-layout.component";
 import { ProvidersRoutingModule } from "./providers-routing.module";
 import { ProvidersComponent } from "./providers.component";
@@ -54,7 +56,6 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     ScrollingModule,
     CardComponent,
     ScrollLayoutDirective,
-    ProviderWarningsModule,
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
   ],
@@ -81,6 +82,11 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     VerifyRecoverDeleteProviderComponent,
     SetupBusinessUnitComponent,
   ],
-  providers: [WebProviderService],
+  providers: [
+    WebProviderService,
+    ProviderActionsService,
+    MemberActionsService,
+    MemberDialogManagerService,
+  ],
 })
 export class ProvidersModule {}

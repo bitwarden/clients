@@ -4,7 +4,6 @@ import { Directive, ElementRef, Input, OnInit, Renderer2 } from "@angular/core";
 
 @Directive({
   selector: "[appInputVerbatim]",
-  standalone: false,
 })
 export class InputVerbatimDirective implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

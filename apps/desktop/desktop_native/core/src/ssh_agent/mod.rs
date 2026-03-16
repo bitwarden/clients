@@ -307,3 +307,128 @@ fn parse_key_safe(pem: &str) -> Result<ssh_key::private::PrivateKey, anyhow::Err
         Err(e) => Err(anyhow::Error::msg(format!("Failed to parse key: {e}"))),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::sync::atomic::Ordering;
+
+    use ssh_key::Signature;
+
+    use super::*;
+
+    // Test Ed25519 key (unencrypted OpenSSH format)
+    const TEST_ED25519_KEY: &str = "-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+QyNTUxOQAAACAOYor3+kyAsXYs2sGikmUuhpxmVf2hAGd2TK7KwN4N9gAAAJj79ujB+/bo
+wQAAAAtzc2gtZWQyNTUxOQAAACAOYor3+kyAsXYs2sGikmUuhpxmVf2hAGd2TK7KwN4N9g
+AAAEAgAQkLDKjON00XO+Y09BoIBuQsAXAx6HUhQoTEodVzig5iivf6TICxdizawaKSZS6G
+nGZV/aEAZ3ZMrsrA3g32AAAAEHRlc3RAZXhhbXBsZS5jb20BAgMEBQ==
+-----END OPENSSH PRIVATE KEY-----";
+
+    // Test RSA 2048-bit key (unencrypted OpenSSH format)
+    const TEST_RSA_KEY: &str = "-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABFwAAAAdzc2gtcn
+NhAAAAAwEAAQAAAQEAy0YUFvgBLMZXIKjsBfcdO6N2Kk2VmjSpxa2aFD1TrAcVyyIZ9v8o
+slQITyFL4GCK5VCJX9bqXBwc9ml8G/zt21ue6nadeZLhp2iXeQ+VUxmola9HhaFvxSNqi0
+MOJaWIfmisH4jt7Msdv4jwlDE5AkHAFig8wiwDgvSV3kmfhyPs38aq8Pa+wT3zBneGXT17
+34OhH4nicuq+L0GcR9BJQ5+jXNQIgGdqd7sKa8JchPXLXAbTug2SfwRmKgiCM0L6JQ5NSQ
+FdRHW/iz4ARacSkHP3w0pH6ZtAd8+glzvZn1KcXwrN/CYl3fqFwiwcQXIF0KDoOI/UyiKZ
+uDE+DW5M1wAAA8g2Sf0XNkn9FwAAAAdzc2gtcnNhAAABAQDLRhQW+AEsxlcgqOwF9x07o3
+YqTZWaNKnFrZoUPVOsBxXLIhn2/yiyVAhPIUvgYIrlUIlf1upcHBz2aXwb/O3bW57qdp15
+kuGnaJd5D5VTGaiVr0eFoW/FI2qLQw4lpYh+aKwfiO3syx2/iPCUMTkCQcAWKDzCLAOC9J
+XeSZ+HI+zfxqrw9r7BPfMGd4ZdPXvfg6EfieJy6r4vQZxH0ElDn6Nc1AiAZ2p3uwprwlyE
+9ctcBtO6DZJ/BGYqCIIzQvolDk1JAV1Edb+LPgBFpxKQc/fDSkfpm0B3z6CXO9mfUpxfCs
+38JiXd+oXCLBxBcgXQoOg4j9TKIpm4MT4NbkzXAAAAAwEAAQAAAQB9HWssIAYJGyNxlMeB
+fHJfzOLkctCME7ITXCEkKAMiNVIyr5CvuKnB6XsbyXC8cG/NaV7EwLGLdDpXaOHdEDcO9z
+u/MLcIp2GA+x2QhAjzFy3uw+4P0CfNfVkM0n8YqOR0edTHrC5Vu0daJt19OTbPrsyeVrHf
+Cdw3dHfyU/p+4IMP9NRA5ZSmYuOacC7ZoZU7xeVBpeZ4KEzrO98iIWtscncaQv4AcaAehL
+VpvZWG1QmRhdbooU2ce5KH3aFKiyszcMGPMzn4aTZS14ycLFzmrMSa+nYf+nHXmyR5KmBd
+A5P6ZLtcpT1xw6CC/ItRsdD7E67bugG38lgQpzloHAsRAAAAgBVKGMFi+lP+HKYdSzPAQN
+n3HxVuuZ5VIjM6Rq2SxfdyGKj5PH4+ofNGBrF5j1du1oqfPypMM/B75bkBNOlzn6TQcgyX
+YlsVOF31aE1hRg8eN1BH2bc1DC43MyTHgunAFzIYfs1hbX8i+cMybzXSTDsIc/xvQHkJ2w
+TrPuz7+MATAAAAgQDk6e4ywxrINaOcuDKmRQxTs7rlkJk/tX59OkkqD/gYLMBRMfeKeuFD
+Y8M1f5vlDkGFD/Jy0RtTfEJh02VjKTrszaaGCDFHe9tt6DAHY457tzr856zsq5hKDFEU0+
+jd+yE8QaloegGrcpujrxHnrpZx/7mA2qjQxLveHyCGWH3Q2wAAAIEA41N7DKxeb0doXai7
+Sl8+RpZBoyCyNkexWKHAeATKb4abd+k5/EEoLAb6aKaGMzMPm+s82l0lozVreKvHdAdZsY
+fq1lhaVvnRWZhN/DXf7Akgicrg/TLqHH9w6db0Vg5A+zHmbkUzZ4A30CYIgn4vzVv5YIq3
+CmfliIQWtUylhrUAAAAQdGVzdEBleGFtcGxlLmNvbQECAw==
+-----END OPENSSH PRIVATE KEY-----";
+
+    fn create_test_agent() -> (
+        BitwardenDesktopAgent,
+        tokio::sync::mpsc::Receiver<SshAgentUIRequest>,
+        tokio::sync::broadcast::Sender<(u32, bool)>,
+    ) {
+        let (request_tx, request_rx) = tokio::sync::mpsc::channel::<SshAgentUIRequest>(16);
+        let (response_tx, response_rx) = tokio::sync::broadcast::channel::<(u32, bool)>(16);
+        let response_rx = Arc::new(Mutex::new(response_rx));
+
+        let agent = BitwardenDesktopAgent::new(request_tx, response_rx);
+        (agent, request_rx, response_tx)
+    }
+
+    #[tokio::test]
+    async fn test_agent_sign_with_ed25519_key() {
+        let (mut agent, _request_rx, _response_tx) = create_test_agent();
+        agent.is_running.store(true, Ordering::Relaxed);
+
+        let keys = vec![(
+            TEST_ED25519_KEY.to_string(),
+            "ed25519-key".to_string(),
+            "ed25519-uuid".to_string(),
+        )];
+        agent.set_keys(keys).expect("set_keys should succeed");
+
+        let keystore = agent.keystore.0.read().expect("RwLock is not poisoned");
+        assert_eq!(keystore.len(), 1);
+        let (_pub_bytes, ssh_key) = keystore.iter().next().expect("should have one key");
+
+        // Verify the key metadata
+        assert_eq!(ssh_key.name, "ed25519-key");
+        assert_eq!(ssh_key.cipher_uuid, "ed25519-uuid");
+
+        // Verify the key can sign data
+        let signing_key = ssh_key.private_key().expect("should have signing key");
+        let message = b"test message for ed25519";
+        let signature: Signature = signing_key.try_sign(message).expect("signing should work");
+
+        // Verify signature is non-empty and has expected algorithm
+        assert!(!signature.as_bytes().is_empty());
+        assert_eq!(signature.algorithm(), ssh_key::Algorithm::Ed25519);
+    }
+
+    #[tokio::test]
+    async fn test_agent_sign_with_rsa_key() {
+        let (mut agent, _request_rx, _response_tx) = create_test_agent();
+        agent.is_running.store(true, Ordering::Relaxed);
+
+        let keys = vec![(
+            TEST_RSA_KEY.to_string(),
+            "rsa-key".to_string(),
+            "rsa-uuid".to_string(),
+        )];
+        agent.set_keys(keys).expect("set_keys should succeed");
+
+        let keystore = agent.keystore.0.read().expect("RwLock is not poisoned");
+        assert_eq!(keystore.len(), 1);
+        let (_pub_bytes, ssh_key) = keystore.iter().next().expect("should have one key");
+
+        // Verify the key metadata
+        assert_eq!(ssh_key.name, "rsa-key");
+        assert_eq!(ssh_key.cipher_uuid, "rsa-uuid");
+
+        // Verify the key can sign data
+        let signing_key = ssh_key.private_key().expect("should have signing key");
+        let message = b"test message for rsa";
+        let signature: Signature = signing_key.try_sign(message).expect("signing should work");
+
+        // Verify signature is non-empty and has expected algorithm
+        assert!(!signature.as_bytes().is_empty());
+        assert_eq!(
+            signature.algorithm(),
+            ssh_key::Algorithm::Rsa {
+                hash: Some(ssh_key::HashAlg::Sha512)
+            }
+        );
+    }
+}

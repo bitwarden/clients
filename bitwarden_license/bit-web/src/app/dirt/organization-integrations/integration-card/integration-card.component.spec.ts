@@ -4,9 +4,11 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
-import { OrganizationIntegrationServiceType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
-import { DatadogOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/datadog-organization-integration-service";
-import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
+import { OrgIntegrationBuilder } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration-builder";
+import { OrganizationIntegrationServiceName } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
+import { OrganizationIntegrationType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-type";
+import { OrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/organization-integration-service";
+import { IntegrationStateService } from "@bitwarden/bit-common/dirt/organization-integrations/shared/integration-state.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
@@ -15,13 +17,15 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { HecConnectDialogResultStatus, openHecConnectDialog } from "../integration-dialog";
+import { IntegrationDialogResultStatus, openHecConnectDialog } from "../integration-dialog";
 
 import { IntegrationCardComponent } from "./integration-card.component";
 
 jest.mock("../integration-dialog", () => ({
   openHecConnectDialog: jest.fn(),
-  HecConnectDialogResultStatus: { Edited: "edit", Delete: "delete" },
+  openDatadogConnectDialog: jest.fn(),
+  openHuntressConnectDialog: jest.fn(),
+  IntegrationDialogResultStatus: { Edited: "edit", Delete: "delete" },
 }));
 
 describe("IntegrationCardComponent", () => {
@@ -29,10 +33,10 @@ describe("IntegrationCardComponent", () => {
   let fixture: ComponentFixture<IntegrationCardComponent>;
   const mockI18nService = mock<I18nService>();
   const activatedRoute = mock<ActivatedRoute>();
-  const mockIntegrationService = mock<HecOrganizationIntegrationService>();
-  const mockDatadogIntegrationService = mock<DatadogOrganizationIntegrationService>();
+  const mockIntegrationService = mock<OrganizationIntegrationService>();
   const dialogService = mock<DialogService>();
   const toastService = mock<ToastService>();
+  const stateService = mock<IntegrationStateService>();
 
   const systemTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
   const usersPreferenceTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
@@ -54,10 +58,10 @@ describe("IntegrationCardComponent", () => {
         { provide: I18nPipe, useValue: mock<I18nPipe>() },
         { provide: I18nService, useValue: mockI18nService },
         { provide: ActivatedRoute, useValue: activatedRoute },
-        { provide: HecOrganizationIntegrationService, useValue: mockIntegrationService },
-        { provide: DatadogOrganizationIntegrationService, useValue: mockDatadogIntegrationService },
+        { provide: OrganizationIntegrationService, useValue: mockIntegrationService },
         { provide: ToastService, useValue: toastService },
         { provide: DialogService, useValue: dialogService },
+        { provide: IntegrationStateService, useValue: stateService },
       ],
     }).compileComponents();
   });
@@ -66,9 +70,9 @@ describe("IntegrationCardComponent", () => {
     fixture = TestBed.createComponent(IntegrationCardComponent);
     component = fixture.componentInstance;
 
-    component.name = "Integration Name";
-    component.image = "test-image.png";
-    component.linkURL = "https://example.com/";
+    fixture.componentRef.setInput("name", "Integration Name");
+    fixture.componentRef.setInput("image", "test-image.png");
+    fixture.componentRef.setInput("linkURL", "https://example.com/");
 
     mockI18nService.t.mockImplementation((key) => key);
     fixture.detectChanges();
@@ -87,7 +91,7 @@ describe("IntegrationCardComponent", () => {
   });
 
   it("assigns external rel attribute", () => {
-    component.externalURL = true;
+    fixture.componentRef.setInput("externalURL", true);
     fixture.detectChanges();
 
     const link = fixture.nativeElement.querySelector("a");
@@ -106,26 +110,27 @@ describe("IntegrationCardComponent", () => {
     });
 
     it("shows when expiration is in the future", () => {
-      component.newBadgeExpiration = "2023-09-02";
+      fixture.componentRef.setInput("newBadgeExpiration", "2023-09-02");
       expect(component.showNewBadge()).toBe(true);
     });
 
     it("does not show when expiration is not set", () => {
+      fixture.componentRef.setInput("newBadgeExpiration", undefined);
       expect(component.showNewBadge()).toBe(false);
     });
 
     it("does not show when expiration is in the past", () => {
-      component.newBadgeExpiration = "2023-08-31";
+      fixture.componentRef.setInput("newBadgeExpiration", "2023-08-31");
       expect(component.showNewBadge()).toBe(false);
     });
 
     it("does not show when expiration is today", () => {
-      component.newBadgeExpiration = "2023-09-01";
+      fixture.componentRef.setInput("newBadgeExpiration", "2023-09-01");
       expect(component.showNewBadge()).toBe(false);
     });
 
     it("does not show when expiration is invalid", () => {
-      component.newBadgeExpiration = "not-a-date";
+      fixture.componentRef.setInput("newBadgeExpiration", "not-a-date");
       expect(component.showNewBadge()).toBe(false);
     });
   });
@@ -137,12 +142,12 @@ describe("IntegrationCardComponent", () => {
 
       fixture.detectChanges();
 
-      expect(component.imageEle.nativeElement.src).toContain("test-image.png");
+      expect(component.imageEle().nativeElement.src).toContain("test-image.png");
     });
 
     describe("user prefers the system theme", () => {
       beforeEach(() => {
-        component.imageDarkMode = "test-image-dark.png";
+        fixture.componentRef.setInput("imageDarkMode", "test-image-dark.png");
       });
 
       it("sets image src to imageDarkMode", () => {
@@ -151,24 +156,24 @@ describe("IntegrationCardComponent", () => {
 
         fixture.detectChanges();
 
-        expect(component.imageEle.nativeElement.src).toContain("test-image-dark.png");
+        expect(component.imageEle().nativeElement.src).toContain("test-image-dark.png");
       });
 
       it("sets image src to light mode image", () => {
-        component.imageEle.nativeElement.src = "test-image-dark.png";
+        component.imageEle().nativeElement.src = "test-image-dark.png";
 
         usersPreferenceTheme$.next(ThemeType.System);
         systemTheme$.next(ThemeType.Light);
 
         fixture.detectChanges();
 
-        expect(component.imageEle.nativeElement.src).toContain("test-image.png");
+        expect(component.imageEle().nativeElement.src).toContain("test-image.png");
       });
     });
 
     describe("user prefers dark mode", () => {
       beforeEach(() => {
-        component.imageDarkMode = "test-image-dark.png";
+        fixture.componentRef.setInput("imageDarkMode", "test-image-dark.png");
       });
 
       it("updates image to dark mode", () => {
@@ -177,24 +182,24 @@ describe("IntegrationCardComponent", () => {
 
         fixture.detectChanges();
 
-        expect(component.imageEle.nativeElement.src).toContain("test-image-dark.png");
+        expect(component.imageEle().nativeElement.src).toContain("test-image-dark.png");
       });
     });
 
     describe("user prefers light mode", () => {
       beforeEach(() => {
-        component.imageDarkMode = "test-image-dark.png";
+        fixture.componentRef.setInput("imageDarkMode", "test-image-dark.png");
       });
 
       it("updates image to light mode", () => {
-        component.imageEle.nativeElement.src = "test-image-dark.png";
+        component.imageEle().nativeElement.src = "test-image-dark.png";
 
         systemTheme$.next(ThemeType.Dark); // system theme shouldn't matter
         usersPreferenceTheme$.next(ThemeType.Light);
 
         fixture.detectChanges();
 
-        expect(component.imageEle.nativeElement.src).toContain("test-image.png");
+        expect(component.imageEle().nativeElement.src).toContain("test-image.png");
       });
     });
   });
@@ -210,57 +215,52 @@ describe("IntegrationCardComponent", () => {
     });
 
     it("returns false when newBadgeExpiration is undefined", () => {
-      component.newBadgeExpiration = undefined;
+      fixture.componentRef.setInput("newBadgeExpiration", undefined);
       expect(component.showNewBadge()).toBe(false);
     });
 
     it("returns false when newBadgeExpiration is an invalid date", () => {
-      component.newBadgeExpiration = "invalid-date";
+      fixture.componentRef.setInput("newBadgeExpiration", "invalid-date");
       expect(component.showNewBadge()).toBe(false);
     });
 
     it("returns true when newBadgeExpiration is in the future", () => {
-      component.newBadgeExpiration = "2024-06-02";
+      fixture.componentRef.setInput("newBadgeExpiration", "2024-06-02");
       expect(component.showNewBadge()).toBe(true);
     });
 
     it("returns false when newBadgeExpiration is today", () => {
-      component.newBadgeExpiration = "2024-06-01";
+      fixture.componentRef.setInput("newBadgeExpiration", "2024-06-01");
       expect(component.showNewBadge()).toBe(false);
     });
 
     it("returns false when newBadgeExpiration is in the past", () => {
-      component.newBadgeExpiration = "2024-05-31";
+      fixture.componentRef.setInput("newBadgeExpiration", "2024-05-31");
       expect(component.showNewBadge()).toBe(false);
     });
   });
   describe("showConnectedBadge", () => {
     it("returns true when canSetupConnection is true", () => {
-      component.canSetupConnection = true;
+      fixture.componentRef.setInput("canSetupConnection", true);
       expect(component.showConnectedBadge()).toBe(true);
     });
 
     it("returns false when canSetupConnection is false", () => {
-      component.canSetupConnection = false;
-      expect(component.showConnectedBadge()).toBe(false);
-    });
-
-    it("returns false when canSetupConnection is undefined", () => {
-      component.canSetupConnection = undefined;
+      fixture.componentRef.setInput("canSetupConnection", false);
       expect(component.showConnectedBadge()).toBe(false);
     });
   });
 
   describe("setupConnection", () => {
     beforeEach(() => {
-      component.integrationSettings = {
+      fixture.componentRef.setInput("integrationSettings", {
         organizationIntegration: {
           id: "integration-id",
           configuration: {},
           integrationConfiguration: [{ id: "config-id" }],
         },
-        name: OrganizationIntegrationServiceType.CrowdStrike,
-      } as any;
+        name: OrganizationIntegrationServiceName.CrowdStrike,
+      } as any);
       component.organizationId = "org-id" as any;
       jest.resetAllMocks();
     });
@@ -270,128 +270,142 @@ describe("IntegrationCardComponent", () => {
         closed: of({ success: false }),
       });
       await component.setupConnection();
-      expect(mockIntegrationService.updateHec).not.toHaveBeenCalled();
-      expect(mockIntegrationService.saveHec).not.toHaveBeenCalled();
+      expect(mockIntegrationService.update).not.toHaveBeenCalled();
+      expect(mockIntegrationService.save).not.toHaveBeenCalled();
     });
 
     it("should call updateHec if isUpdateAvailable is true", async () => {
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: HecConnectDialogResultStatus.Edited,
+          success: IntegrationDialogResultStatus.Edited,
           url: "test-url",
           bearerToken: "token",
           index: "index",
         }),
       });
+
+      const config = OrgIntegrationBuilder.buildHecConfiguration(
+        "test-url",
+        "token",
+        OrganizationIntegrationServiceName.CrowdStrike,
+      );
+      const template = OrgIntegrationBuilder.buildHecTemplate(
+        "index",
+        OrganizationIntegrationServiceName.CrowdStrike,
+      );
 
       jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(true);
 
       await component.setupConnection();
 
-      expect(mockIntegrationService.updateHec).toHaveBeenCalledWith(
+      expect(mockIntegrationService.update).toHaveBeenCalledWith(
         "org-id",
         "integration-id",
+        OrganizationIntegrationType.Hec,
         "config-id",
-        OrganizationIntegrationServiceType.CrowdStrike,
-        "test-url",
-        "token",
-        "index",
+        config,
+        template,
       );
-      expect(mockIntegrationService.saveHec).not.toHaveBeenCalled();
+      expect(mockIntegrationService.save).not.toHaveBeenCalled();
     });
 
     it("should call saveHec if isUpdateAvailable is false", async () => {
-      component.integrationSettings = {
+      fixture.componentRef.setInput("integrationSettings", {
         organizationIntegration: null,
-        name: OrganizationIntegrationServiceType.CrowdStrike,
-      } as any;
+        name: OrganizationIntegrationServiceName.CrowdStrike,
+      } as any);
       component.organizationId = "org-id" as any;
 
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: HecConnectDialogResultStatus.Edited,
+          success: IntegrationDialogResultStatus.Edited,
           url: "test-url",
           bearerToken: "token",
           index: "index",
         }),
       });
+
+      const config = OrgIntegrationBuilder.buildHecConfiguration(
+        "test-url",
+        "token",
+        OrganizationIntegrationServiceName.CrowdStrike,
+      );
+      const template = OrgIntegrationBuilder.buildHecTemplate(
+        "index",
+        OrganizationIntegrationServiceName.CrowdStrike,
+      );
 
       jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(false);
 
-      mockIntegrationService.saveHec.mockResolvedValue({ mustBeOwner: false, success: true });
+      mockIntegrationService.save.mockResolvedValue({ mustBeOwner: false, success: true });
 
       await component.setupConnection();
 
-      expect(mockIntegrationService.saveHec).toHaveBeenCalledWith(
+      expect(mockIntegrationService.save).toHaveBeenCalledWith(
         "org-id",
-        OrganizationIntegrationServiceType.CrowdStrike,
-        "test-url",
-        "token",
-        "index",
+        OrganizationIntegrationType.Hec,
+        config,
+        template,
       );
-      expect(mockIntegrationService.updateHec).not.toHaveBeenCalled();
+      expect(mockIntegrationService.update).not.toHaveBeenCalled();
     });
 
-    it("should call deleteHec when a delete is requested", async () => {
+    it("should call delete with Hec type when a delete is requested", async () => {
       component.organizationId = "org-id" as any;
 
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: HecConnectDialogResultStatus.Delete,
+          success: IntegrationDialogResultStatus.Delete,
           url: "test-url",
           bearerToken: "token",
           index: "index",
         }),
       });
 
-      mockIntegrationService.deleteHec.mockResolvedValue({ mustBeOwner: false, success: true });
+      mockIntegrationService.delete.mockResolvedValue({ mustBeOwner: false, success: true });
 
       await component.setupConnection();
 
-      expect(mockIntegrationService.deleteHec).toHaveBeenCalledWith(
+      expect(mockIntegrationService.delete).toHaveBeenCalledWith(
         "org-id",
         "integration-id",
         "config-id",
       );
-      expect(mockIntegrationService.saveHec).not.toHaveBeenCalled();
+      expect(mockIntegrationService.save).not.toHaveBeenCalled();
     });
 
-    it("should not call deleteHec if no existing configuration", async () => {
-      component.integrationSettings = {
+    it("should not call delete if no existing configuration", async () => {
+      fixture.componentRef.setInput("integrationSettings", {
         organizationIntegration: null,
-        name: OrganizationIntegrationServiceType.CrowdStrike,
-      } as any;
+        name: OrganizationIntegrationServiceName.CrowdStrike,
+      } as any);
       component.organizationId = "org-id" as any;
 
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: HecConnectDialogResultStatus.Delete,
+          success: IntegrationDialogResultStatus.Delete,
           url: "test-url",
           bearerToken: "token",
           index: "index",
         }),
       });
 
-      mockIntegrationService.deleteHec.mockResolvedValue({ mustBeOwner: false, success: true });
+      mockIntegrationService.delete.mockResolvedValue({ mustBeOwner: false, success: true });
 
       await component.setupConnection();
 
-      expect(mockIntegrationService.deleteHec).not.toHaveBeenCalledWith(
+      expect(mockIntegrationService.delete).not.toHaveBeenCalledWith(
         "org-id",
         "integration-id",
         "config-id",
-        OrganizationIntegrationServiceType.CrowdStrike,
-        "test-url",
-        "token",
-        "index",
       );
-      expect(mockIntegrationService.updateHec).not.toHaveBeenCalled();
+      expect(mockIntegrationService.update).not.toHaveBeenCalled();
     });
 
     it("should show toast on error while saving", async () => {
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: HecConnectDialogResultStatus.Edited,
+          success: IntegrationDialogResultStatus.Edited,
           url: "test-url",
           bearerToken: "token",
           index: "index",
@@ -399,11 +413,11 @@ describe("IntegrationCardComponent", () => {
       });
 
       jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(true);
-      mockIntegrationService.updateHec.mockRejectedValue(new Error("fail"));
+      mockIntegrationService.update.mockRejectedValue(new Error("fail"));
 
       await component.setupConnection();
 
-      expect(mockIntegrationService.updateHec).toHaveBeenCalled();
+      expect(mockIntegrationService.update).toHaveBeenCalled();
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
         title: "",
@@ -414,7 +428,7 @@ describe("IntegrationCardComponent", () => {
     it("should show mustBeOwner toast on error while inserting data", async () => {
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: HecConnectDialogResultStatus.Edited,
+          success: IntegrationDialogResultStatus.Edited,
           url: "test-url",
           bearerToken: "token",
           index: "index",
@@ -422,11 +436,11 @@ describe("IntegrationCardComponent", () => {
       });
 
       jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(true);
-      mockIntegrationService.updateHec.mockRejectedValue(new ErrorResponse("Not Found", 404));
+      mockIntegrationService.update.mockRejectedValue(new ErrorResponse("Not Found", 404));
 
       await component.setupConnection();
 
-      expect(mockIntegrationService.updateHec).toHaveBeenCalled();
+      expect(mockIntegrationService.update).toHaveBeenCalled();
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
         title: "",
@@ -437,7 +451,7 @@ describe("IntegrationCardComponent", () => {
     it("should show mustBeOwner toast on error while updating data", async () => {
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: HecConnectDialogResultStatus.Edited,
+          success: IntegrationDialogResultStatus.Edited,
           url: "test-url",
           bearerToken: "token",
           index: "index",
@@ -445,11 +459,10 @@ describe("IntegrationCardComponent", () => {
       });
 
       jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(true);
-      mockIntegrationService.updateHec.mockRejectedValue(new ErrorResponse("Not Found", 404));
-
+      mockIntegrationService.update.mockRejectedValue(new ErrorResponse("Not Found", 404));
       await component.setupConnection();
 
-      expect(mockIntegrationService.updateHec).toHaveBeenCalled();
+      expect(mockIntegrationService.update).toHaveBeenCalled();
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
         title: "",
@@ -460,7 +473,7 @@ describe("IntegrationCardComponent", () => {
     it("should show toast on error while deleting", async () => {
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: HecConnectDialogResultStatus.Delete,
+          success: IntegrationDialogResultStatus.Delete,
           url: "test-url",
           bearerToken: "token",
           index: "index",
@@ -468,11 +481,11 @@ describe("IntegrationCardComponent", () => {
       });
 
       jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(true);
-      mockIntegrationService.deleteHec.mockRejectedValue(new Error("fail"));
+      mockIntegrationService.delete.mockRejectedValue(new Error("fail"));
 
       await component.setupConnection();
 
-      expect(mockIntegrationService.deleteHec).toHaveBeenCalled();
+      expect(mockIntegrationService.delete).toHaveBeenCalled();
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
         title: "",
@@ -483,7 +496,7 @@ describe("IntegrationCardComponent", () => {
     it("should show mustbeOwner toast on 404 while deleting", async () => {
       (openHecConnectDialog as jest.Mock).mockReturnValue({
         closed: of({
-          success: HecConnectDialogResultStatus.Delete,
+          success: IntegrationDialogResultStatus.Delete,
           url: "test-url",
           bearerToken: "token",
           index: "index",
@@ -491,11 +504,10 @@ describe("IntegrationCardComponent", () => {
       });
 
       jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(true);
-      mockIntegrationService.deleteHec.mockRejectedValue(new ErrorResponse("Not Found", 404));
-
+      mockIntegrationService.delete.mockRejectedValue(new ErrorResponse("Not Found", 404));
       await component.setupConnection();
 
-      expect(mockIntegrationService.deleteHec).toHaveBeenCalled();
+      expect(mockIntegrationService.delete).toHaveBeenCalled();
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
         title: "",

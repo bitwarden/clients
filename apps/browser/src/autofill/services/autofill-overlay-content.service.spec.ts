@@ -23,6 +23,7 @@ import {
   sendMockExtensionMessage,
 } from "../spec/testing-utils";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
+import { EventSecurity } from "../utils/event-security";
 
 import { AutoFillConstants } from "./autofill-constants";
 import { AutofillOverlayContentService } from "./autofill-overlay-content.service";
@@ -55,6 +56,9 @@ describe("AutofillOverlayContentService", () => {
   const mockQuerySelectorAll = mockQuerySelectorAllDefinedCall();
 
   beforeEach(async () => {
+    // Mock EventSecurity to allow synthetic events in tests
+    jest.spyOn(EventSecurity, "isEventTrusted").mockReturnValue(true);
+
     inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
     domQueryService = new DomQueryService();
     domElementVisibilityService = new DomElementVisibilityService();
@@ -331,6 +335,8 @@ describe("AutofillOverlayContentService", () => {
             pageDetailsMock,
           );
           jest.spyOn(globalThis.customElements, "define").mockImplementation();
+          // Mock EventSecurity to allow synthetic events in tests
+          jest.spyOn(EventSecurity, "isEventTrusted").mockReturnValue(true);
         });
 
         it("closes the autofill inline menu when the `Escape` key is pressed", () => {

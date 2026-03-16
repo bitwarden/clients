@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable, OnDestroy } from "@angular/core";
 import {
   Subject,
@@ -10,12 +12,12 @@ import {
   mergeMap,
   switchMap,
   takeUntil,
+  tap,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
@@ -30,7 +32,6 @@ import {
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { parseCredentialId } from "@bitwarden/common/platform/services/fido2/credential-id-utils";
 import { getCredentialsForAutofill } from "@bitwarden/common/platform/services/fido2/fido2-autofill-utils";
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -52,6 +53,8 @@ import type { NativeWindowObject } from "./desktop-fido2-user-interface.service"
 export class DesktopAutofillService implements OnDestroy {
   private destroy$ = new Subject<void>();
   private registrationRequest: autofill.PasskeyRegistrationRequest;
+  private featureFlag?: typeof FeatureFlag.MacOsNativeCredentialSync;
+  private isEnabled: boolean = false;
 
   constructor(
     private logService: LogService,
@@ -60,19 +63,26 @@ export class DesktopAutofillService implements OnDestroy {
     private fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction<NativeWindowObject>,
     private accountService: AccountService,
     private authService: AuthService,
-    private platformUtilsService: PlatformUtilsService,
-  ) {}
+    platformUtilsService: PlatformUtilsService,
+  ) {
+    const deviceType = platformUtilsService.getDevice();
+    if (deviceType === DeviceType.MacOsDesktop) {
+      this.featureFlag = FeatureFlag.MacOsNativeCredentialSync;
+    }
+  }
 
   async init() {
-    // Currently only supported for MacOS
-    if (this.platformUtilsService.getDevice() !== DeviceType.MacOsDesktop) {
+    this.isEnabled =
+      this.featureFlag && (await this.configService.getFeatureFlag(this.featureFlag));
+    if (!this.isEnabled) {
       return;
     }
 
     this.configService
-      .getFeatureFlag$(FeatureFlag.MacOsNativeCredentialSync)
+      .getFeatureFlag$(this.featureFlag)
       .pipe(
         distinctUntilChanged(),
+        tap((enabled) => (this.isEnabled = enabled)),
         filter((enabled) => enabled === true), // Only proceed if feature is enabled
         switchMap(() => {
           return combineLatest([
@@ -142,11 +152,13 @@ export class DesktopAutofillService implements OnDestroy {
       passwordCredentials = cipherViews
         .filter(
           (cipher) =>
+            !cipher.isDeleted &&
             cipher.type === CipherType.Login &&
             cipher.login.uris?.length > 0 &&
             cipher.login.uris.some((uri) => uri.match !== UriMatchStrategy.Never) &&
             cipher.login.uris.some((uri) => !Utils.isNullOrWhitespace(uri.uri)) &&
-            !Utils.isNullOrWhitespace(cipher.login.username),
+            !Utils.isNullOrWhitespace(cipher.login.username) &&
+            !Utils.isNullOrWhitespace(cipher.login.password),
         )
         .map((cipher) => ({
           type: "password",
@@ -199,11 +211,11 @@ export class DesktopAutofillService implements OnDestroy {
 
   listenIpc() {
     ipc.autofill.listenPasskeyRegistration(async (clientId, sequenceNumber, request, callback) => {
-      if (!(await this.configService.getFeatureFlag(FeatureFlag.MacOsNativeCredentialSync))) {
+      if (!this.isEnabled) {
         this.logService.debug(
-          "listenPasskeyRegistration: MacOsNativeCredentialSync feature flag is disabled",
+          `listenPasskeyRegistration: Native credential sync feature flag (${this.featureFlag}) is disabled`,
         );
-        callback(new Error("MacOsNativeCredentialSync feature flag is disabled"), null);
+        callback(new Error("Native credential sync feature flag is disabled"), null);
         return;
       }
 
@@ -230,11 +242,11 @@ export class DesktopAutofillService implements OnDestroy {
 
     ipc.autofill.listenPasskeyAssertionWithoutUserInterface(
       async (clientId, sequenceNumber, request, callback) => {
-        if (!(await this.configService.getFeatureFlag(FeatureFlag.MacOsNativeCredentialSync))) {
+        if (!this.isEnabled) {
           this.logService.debug(
-            "listenPasskeyAssertionWithoutUserInterface: MacOsNativeCredentialSync feature flag is disabled",
+            `listenPasskeyAssertionWithoutUserInterface: Native credential sync feature flag (${this.featureFlag}) is disabled`,
           );
-          callback(new Error("MacOsNativeCredentialSync feature flag is disabled"), null);
+          callback(new Error("Native credential sync feature flag is disabled"), null);
           return;
         }
 
@@ -248,39 +260,6 @@ export class DesktopAutofillService implements OnDestroy {
         const controller = new AbortController();
 
         try {
-          // For some reason the credentialId is passed as an empty array in the request, so we need to
-          // get it from the cipher. For that we use the recordIdentifier, which is the cipherId.
-          if (request.recordIdentifier && request.credentialId.length === 0) {
-            const activeUserId = await firstValueFrom(
-              this.accountService.activeAccount$.pipe(getOptionalUserId),
-            );
-            if (!activeUserId) {
-              this.logService.error("listenPasskeyAssertion error", "Active user not found");
-              callback(new Error("Active user not found"), null);
-              return;
-            }
-
-            const cipher = await this.cipherService.get(request.recordIdentifier, activeUserId);
-            if (!cipher) {
-              this.logService.error("listenPasskeyAssertion error", "Cipher not found");
-              callback(new Error("Cipher not found"), null);
-              return;
-            }
-
-            const decrypted = await this.cipherService.decrypt(cipher, activeUserId);
-
-            const fido2Credential = decrypted.login.fido2Credentials?.[0];
-            if (!fido2Credential) {
-              this.logService.error("listenPasskeyAssertion error", "Fido2Credential not found");
-              callback(new Error("Fido2Credential not found"), null);
-              return;
-            }
-
-            request.credentialId = Array.from(
-              new Uint8Array(parseCredentialId(decrypted.login.fido2Credentials?.[0].credentialId)),
-            );
-          }
-
           const response = await this.fido2AuthenticatorService.getAssertion(
             this.convertAssertionRequest(request, true),
             { windowXy: normalizePosition(request.windowXy) },
@@ -297,11 +276,11 @@ export class DesktopAutofillService implements OnDestroy {
     );
 
     ipc.autofill.listenPasskeyAssertion(async (clientId, sequenceNumber, request, callback) => {
-      if (!(await this.configService.getFeatureFlag(FeatureFlag.MacOsNativeCredentialSync))) {
+      if (!this.isEnabled) {
         this.logService.debug(
-          "listenPasskeyAssertion: MacOsNativeCredentialSync feature flag is disabled",
+          `listenPasskeyAssertion: Native credential sync feature flag (${this.featureFlag}) is disabled`,
         );
-        callback(new Error("MacOsNativeCredentialSync feature flag is disabled"), null);
+        callback(new Error("Native credential sync feature flag is disabled"), null);
         return;
       }
 
@@ -324,9 +303,9 @@ export class DesktopAutofillService implements OnDestroy {
 
     // Listen for native status messages
     ipc.autofill.listenNativeStatus(async (clientId, sequenceNumber, status) => {
-      if (!(await this.configService.getFeatureFlag(FeatureFlag.MacOsNativeCredentialSync))) {
+      if (!this.isEnabled) {
         this.logService.debug(
-          "listenNativeStatus: MacOsNativeCredentialSync feature flag is disabled",
+          `listenNativeStatus: Native credential sync feature flag (${this.featureFlag}) is disabled`,
         );
         return;
       }
@@ -401,13 +380,13 @@ export class DesktopAutofillService implements OnDestroy {
     if ("credentialId" in request) {
       allowedCredentials = [
         {
-          id: new Uint8Array(request.credentialId).buffer,
+          id: new Uint8Array(request.credentialId),
           type: "public-key" as const,
         },
       ];
     } else {
       allowedCredentials = request.allowedCredentials.map((credentialId) => ({
-        id: new Uint8Array(credentialId).buffer,
+        id: new Uint8Array(credentialId),
         type: "public-key" as const,
       }));
     }

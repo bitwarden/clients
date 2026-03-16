@@ -2,6 +2,7 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { of, throwError } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -70,6 +71,7 @@ describe("regenerateIfNeeded", () => {
   let apiService: MockProxy<ApiService>;
   let configService: MockProxy<ConfigService>;
   let encryptService: MockProxy<EncryptService>;
+  let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
 
   beforeEach(() => {
     keyService = mock<KeyService>();
@@ -80,6 +82,7 @@ describe("regenerateIfNeeded", () => {
     apiService = mock<ApiService>();
     configService = mock<ConfigService>();
     encryptService = mock<EncryptService>();
+    accountCryptographicStateService = mock<AccountCryptographicStateService>();
 
     sut = new DefaultUserAsymmetricKeysRegenerationService(
       keyService,
@@ -89,6 +92,7 @@ describe("regenerateIfNeeded", () => {
       sdkService,
       apiService,
       configService,
+      accountCryptographicStateService,
     );
 
     configService.getFeatureFlag.mockResolvedValue(true);
@@ -131,7 +135,7 @@ describe("regenerateIfNeeded", () => {
     expect(
       userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
     ).not.toHaveBeenCalled();
-    expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
   });
 
   it("should not regenerate when private key is decryptable and valid", async () => {
@@ -146,7 +150,7 @@ describe("regenerateIfNeeded", () => {
     expect(
       userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
     ).not.toHaveBeenCalled();
-    expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
   });
 
   it("should not regenerate when user symmetric key is unavailable", async () => {
@@ -162,7 +166,7 @@ describe("regenerateIfNeeded", () => {
     expect(
       userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
     ).not.toHaveBeenCalled();
-    expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
   });
 
   it("should not regenerate when user's encrypted private key is unavailable", async () => {
@@ -180,7 +184,7 @@ describe("regenerateIfNeeded", () => {
     expect(
       userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
     ).not.toHaveBeenCalled();
-    expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
   });
 
   it("should not regenerate when user's public key is unavailable", async () => {
@@ -196,7 +200,7 @@ describe("regenerateIfNeeded", () => {
     expect(
       userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
     ).not.toHaveBeenCalled();
-    expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
   });
 
   it("should regenerate when private key is decryptable and invalid", async () => {
@@ -211,7 +215,7 @@ describe("regenerateIfNeeded", () => {
     expect(
       userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
     ).toHaveBeenCalled();
-    expect(keyService.setPrivateKey).toHaveBeenCalled();
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalled();
   });
 
   it("should not set private key on known API error", async () => {
@@ -230,7 +234,7 @@ describe("regenerateIfNeeded", () => {
     expect(
       userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
     ).toHaveBeenCalled();
-    expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
   });
 
   it("should not set private key on unknown API error", async () => {
@@ -249,7 +253,7 @@ describe("regenerateIfNeeded", () => {
     expect(
       userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
     ).toHaveBeenCalled();
-    expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
   });
 
   it("should regenerate when private key is not decryptable and user key is valid", async () => {
@@ -265,7 +269,7 @@ describe("regenerateIfNeeded", () => {
     expect(
       userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
     ).toHaveBeenCalled();
-    expect(keyService.setPrivateKey).toHaveBeenCalled();
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalled();
   });
 
   it("should not regenerate when private key is not decryptable and user key is invalid", async () => {
@@ -283,7 +287,7 @@ describe("regenerateIfNeeded", () => {
     expect(
       userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
     ).not.toHaveBeenCalled();
-    expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
   });
 
   it("should not regenerate when private key is not decryptable and no ciphers to check", async () => {
@@ -299,7 +303,7 @@ describe("regenerateIfNeeded", () => {
     expect(
       userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
     ).not.toHaveBeenCalled();
-    expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
   });
 
   it("should regenerate when private key is not decryptable and invalid and user key is valid", async () => {
@@ -315,7 +319,7 @@ describe("regenerateIfNeeded", () => {
     expect(
       userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
     ).toHaveBeenCalled();
-    expect(keyService.setPrivateKey).toHaveBeenCalled();
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalled();
   });
 
   it("should not regenerate when private key is not decryptable and invalid and user key is invalid", async () => {
@@ -333,7 +337,7 @@ describe("regenerateIfNeeded", () => {
     expect(
       userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
     ).not.toHaveBeenCalled();
-    expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
   });
 
   it("should not regenerate when private key is not decryptable and invalid and no ciphers to check", async () => {
@@ -349,7 +353,7 @@ describe("regenerateIfNeeded", () => {
     expect(
       userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
     ).not.toHaveBeenCalled();
-    expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
   });
 
   it("should not regenerate when userKey type is CoseEncrypt0 (V2 encryption)", async () => {
@@ -364,7 +368,7 @@ describe("regenerateIfNeeded", () => {
     expect(
       userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
     ).not.toHaveBeenCalled();
-    expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
     expect(logService.error).toHaveBeenCalledWith(
       "[UserAsymmetricKeyRegeneration] Cannot regenerate asymmetric keys for accounts on V2 encryption.",
     );
@@ -382,6 +386,7 @@ describe("regenerateUserPublicKeyEncryptionKeyPair", () => {
   let sdkService: MockSdkService;
   let apiService: MockProxy<ApiService>;
   let configService: MockProxy<ConfigService>;
+  let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
 
   beforeEach(() => {
     keyService = mock<KeyService>();
@@ -391,6 +396,7 @@ describe("regenerateUserPublicKeyEncryptionKeyPair", () => {
     sdkService = new MockSdkService();
     apiService = mock<ApiService>();
     configService = mock<ConfigService>();
+    accountCryptographicStateService = mock<AccountCryptographicStateService>();
 
     sut = new DefaultUserAsymmetricKeysRegenerationService(
       keyService,
@@ -400,6 +406,7 @@ describe("regenerateUserPublicKeyEncryptionKeyPair", () => {
       sdkService,
       apiService,
       configService,
+      accountCryptographicStateService,
     );
   });
 

@@ -18,6 +18,12 @@ export class CipherFormCacheService {
    */
   initializedWithValue: boolean;
 
+  /**
+   * The cipher form will overwrite the cache from various components when initialized
+   * To prevent this, we store the initial value of the cache when the service is initialized
+   */
+  initialCacheValue: CipherView | null;
+
   private cipherCache = this.viewCacheService.signal<CipherView | null>({
     key: CIPHER_FORM_CACHE_KEY,
     initialValue: null,
@@ -26,6 +32,7 @@ export class CipherFormCacheService {
 
   constructor() {
     this.initializedWithValue = !!this.cipherCache();
+    this.initialCacheValue = this.cipherCache();
   }
 
   /**
@@ -42,13 +49,14 @@ export class CipherFormCacheService {
    * Returns the cached CipherView when available.
    */
   getCachedCipherView(): CipherView | null {
-    return this.cipherCache();
+    return this.initialCacheValue;
   }
 
   /**
    * Clear the cached CipherView.
    */
   clearCache(): void {
+    this.initialCacheValue = null;
     this.cipherCache.set(null);
   }
 }

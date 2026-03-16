@@ -1,9 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PluralizePipe } from "@bitwarden/angular/pipes/pluralize.pipe";
 import { ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import {
   AssignCollectionsComponent,
   CollectionAssignmentParams,
@@ -15,7 +17,7 @@ import {
 @Component({
   standalone: true,
   templateUrl: "./assign-collections-desktop.component.html",
-  imports: [AssignCollectionsComponent, PluralizePipe, DialogModule, ButtonModule, JslibModule],
+  imports: [AssignCollectionsComponent, PluralizePipe, DialogModule, ButtonModule, I18nPipe],
 })
 export class AssignCollectionsDesktopComponent {
   protected editableItemCount: number;

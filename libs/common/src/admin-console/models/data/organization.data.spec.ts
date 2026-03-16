@@ -64,7 +64,9 @@ describe("ORGANIZATIONS state", () => {
         isAdminInitiated: false,
         ssoEnabled: false,
         ssoMemberDecryptionType: undefined,
+        useDisableSMAdsForUsers: false,
         usePhishingBlocker: false,
+        useMyItems: false,
       },
     };
     const result = sut.deserializer(JSON.parse(JSON.stringify(expectedResult)));

@@ -1,7 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import { mockContainerService, mockEnc } from "../../../../../spec";
-import { SendType } from "../../enums/send-type";
+import { SendType } from "../../types/send-type";
 import { SendAccessResponse } from "../response/send-access.response";
 
 import { SendAccess } from "./send-access";

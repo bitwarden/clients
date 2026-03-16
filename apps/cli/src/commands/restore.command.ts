@@ -46,7 +46,9 @@ export class RestoreCommand {
       return Response.notFound();
     }
 
-    if (cipher.archivedDate && isArchivedVaultEnabled) {
+    // Determine if restoring from archive or trash
+    // When a cipher is archived and deleted, restore from the trash first
+    if (cipher.archivedDate && cipher.deletedDate == null && isArchivedVaultEnabled) {
       return this.restoreArchivedCipher(cipher, activeUserId);
     } else {
       return this.restoreDeletedCipher(cipher, activeUserId);

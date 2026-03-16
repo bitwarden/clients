@@ -10,8 +10,10 @@ import {
   DialogService,
   ButtonModule,
   DialogModule,
+  IconModule,
   LinkModule,
   TypographyModule,
+  CenterPositionStrategy,
 } from "@bitwarden/components";
 
 export interface TransferItemsDialogParams {
@@ -34,7 +36,7 @@ export type TransferItemsDialogResultType = UnionOfValues<typeof TransferItemsDi
 @Component({
   templateUrl: "./transfer-items-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonModule, DialogModule, LinkModule, TypographyModule, JslibModule],
+  imports: [ButtonModule, DialogModule, IconModule, LinkModule, TypographyModule, JslibModule],
 })
 export class TransferItemsDialogComponent {
   private readonly params = inject<TransferItemsDialogParams>(DIALOG_DATA);
@@ -58,6 +60,8 @@ export class TransferItemsDialogComponent {
 
   static open(dialogService: DialogService, config: DialogConfig<TransferItemsDialogParams>) {
     return dialogService.open<TransferItemsDialogResultType>(TransferItemsDialogComponent, {
+      positionStrategy: new CenterPositionStrategy(),
+      disableClose: true,
       ...config,
     });
   }

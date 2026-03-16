@@ -1,0 +1,41 @@
+<popup-page [loading]="formLoading()">
+  <popup-header slot="header" [pageTitle]="'admin' | i18n" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
+  <div class="tw-px-1 tw-pt-1">
+    @if (showAutoConfirmSpotlight$ | async) {
+      <bit-spotlight [persistent]="true">
+        <div class="tw-flex tw-flex-row tw-items-center tw-justify-between">
+          <span class="tw-text-sm">
+            {{ "autoConfirmOnboardingCallout" | i18n }}
+          </span>
+
+          <button
+            type="button"
+            bitIconButton="bwi-close"
+            size="small"
+            (click)="dismissSpotlight()"
+            class="tw-ml-1 tw-mt-[2px]"
+            [label]="'close' | i18n"
+          ></button>
+        </div>
+      </bit-spotlight>
+    }
+
+    <form [formGroup]="adminForm">
+      <bit-card>
+        <bit-switch formControlName="autoConfirm">
+          <bit-label>
+            <span class="tw-text-sm">
+              {{ "automaticUserConfirmation" | i18n }}
+            </span>
+          </bit-label>
+          <bit-hint class="tw-max-w-[18rem]">{{ "automaticUserConfirmationHint" | i18n }}</bit-hint>
+        </bit-switch>
+      </bit-card>
+    </form>
+  </div>
+</popup-page>

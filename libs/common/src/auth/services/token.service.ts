@@ -445,13 +445,15 @@ export class TokenService implements TokenServiceAbstraction {
     // we can't determine storage location w/out vaultTimeoutAction and vaultTimeout
     // but we can simply clear all locations to avoid the need to require those parameters.
 
+    // When secure storage is supported, clear the encryption key from secure storage.
+    // When not supported (e.g., portable builds), tokens are stored on disk and this step is skipped.
     if (this.platformSupportsSecureStorage) {
-      // Always clear the access token key when clearing the access token
-      // The next set of the access token will create a new access token key
+      // Always clear the access token key when clearing the access token.
+      // The next set of the access token will create a new access token key.
       await this.clearAccessTokenKey(userId);
     }
 
-    // Platform doesn't support secure storage, so use state provider implementation
+    // Clear tokens from disk storage (all platforms)
     await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_DISK).update((_) => null, {
       shouldUpdate: (previousValue) => previousValue !== null,
     });
@@ -478,6 +480,9 @@ export class TokenService implements TokenServiceAbstraction {
       return null;
     }
 
+    // When platformSupportsSecureStorage=true, tokens on disk are encrypted and require
+    // decryption keys from secure storage. When false (e.g., portable builds), tokens are
+    // stored on disk.
     if (this.platformSupportsSecureStorage) {
       let accessTokenKey: AccessTokenKey;
       try {
@@ -1118,6 +1123,9 @@ export class TokenService implements TokenServiceAbstraction {
     ) {
       return TokenStorageLocation.Memory;
     } else {
+      // Secure storage (e.g., OS credential manager) is preferred when available.
+      // Desktop portable builds set platformSupportsSecureStorage=false to store tokens
+      // on disk for portability across machines.
       if (useSecureStorage && this.platformSupportsSecureStorage) {
         return TokenStorageLocation.SecureStorage;
       }

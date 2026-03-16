@@ -16,9 +16,11 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { IconButtonModule, MenuModule } from "@bitwarden/components";
-import { CopyCipherFieldDirective, CopyCipherFieldService } from "@bitwarden/vault";
-
-import { OrganizationNameBadgeComponent } from "../../individual-vault/organization-badge/organization-name-badge.component";
+import {
+  CopyCipherFieldDirective,
+  CopyCipherFieldService,
+  OrganizationNameBadgeComponent,
+} from "@bitwarden/vault";
 
 import { VaultCipherRowComponent } from "./vault-cipher-row.component";
 
@@ -45,7 +47,7 @@ describe("VaultCipherRowComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [VaultCipherRowComponent, OrganizationNameBadgeComponent],
+      declarations: [VaultCipherRowComponent],
       imports: [
         CommonModule,
         RouterModule.forRoot([]),
@@ -53,6 +55,7 @@ describe("VaultCipherRowComponent", () => {
         IconButtonModule,
         JslibModule,
         CopyCipherFieldDirective,
+        OrganizationNameBadgeComponent,
       ],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
@@ -140,6 +143,47 @@ describe("VaultCipherRowComponent", () => {
       const overlayContent = openMenuAndGetContent();
 
       expect(overlayContent).not.toContain('appcopyfield="password"');
+    });
+  });
+
+  describe("showAssignToCollections", () => {
+    let archivedCipher: CipherView;
+
+    beforeEach(() => {
+      archivedCipher = new CipherView();
+      archivedCipher.id = "cipher-1";
+      archivedCipher.name = "Test Cipher";
+      archivedCipher.type = CipherType.Login;
+      archivedCipher.organizationId = "org-1";
+      archivedCipher.deletedDate = null;
+      archivedCipher.archivedDate = new Date();
+
+      component.cipher = archivedCipher;
+      component.organizations = [{ id: "org-1" } as any];
+      component.canAssignCollections = true;
+      component.disabled = false;
+    });
+
+    it("returns true when cipher is archived and conditions are met", () => {
+      expect(component["showAssignToCollections"]).toBe(true);
+    });
+
+    it("returns false when cipher is deleted", () => {
+      archivedCipher.deletedDate = new Date();
+
+      expect(component["showAssignToCollections"]).toBe(false);
+    });
+
+    it("returns false when user cannot assign collections", () => {
+      component.canAssignCollections = false;
+
+      expect(component["showAssignToCollections"]).toBe(false);
+    });
+
+    it("returns false when there are no organizations", () => {
+      component.organizations = [];
+
+      expect(component["showAssignToCollections"]).toBeFalsy();
     });
   });
 });

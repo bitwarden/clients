@@ -94,7 +94,7 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
     protected cipherService: CipherService,
     protected accountService: AccountService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
-    private configService: ConfigService,
+    protected configService: ConfigService,
   ) {
     this.subscribeToCiphers();
 
@@ -194,7 +194,7 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
           return this.searchService.searchCiphers(
             userId,
             searchText,
-            [filter, this.deletedFilter, this.archivedFilter, restrictedTypeFilter],
+            [filter, restrictedTypeFilter],
             allCiphers,
           );
         }),

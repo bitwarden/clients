@@ -32,4 +32,5 @@ export type BackgroundPortMessageHandlers = {
 
 export interface AutofillInlineMenuIframeService {
   initMenuIframe(): void;
+  destroy(): void;
 }
