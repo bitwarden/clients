@@ -5,9 +5,9 @@ import { ActivatedRoute, convertToParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { DrawerType } from "@bitwarden/bit-common/dirt/access-intelligence";
 import {
   DrawerDetails,
-  DrawerType,
   MemberDetails,
   ReportStatus,
   RiskInsightsDataService,

@@ -7,7 +7,7 @@ import {
   CollectionAccessDetails,
   GroupMembershipDetails,
   OrganizationUserView,
-} from "../abstractions/member-cipher-mapping.service";
+} from "../../abstractions/member-cipher-mapping.service";
 
 import { DefaultMemberCipherMappingService } from "./default-member-cipher-mapping.service";
 

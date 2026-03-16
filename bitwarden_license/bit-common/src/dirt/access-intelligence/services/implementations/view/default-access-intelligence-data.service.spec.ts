@@ -9,10 +9,14 @@ import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/gu
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { LogService } from "@bitwarden/logging";
 
-import { ReportProgress } from "../../models/report-models";
-import { createCipher, createRiskInsights, createReport } from "../../testing/test-helpers";
-import { ReportGenerationService } from "../abstractions/report-generation.service";
-import { ReportPersistenceService } from "../abstractions/report-persistence.service";
+import { ReportProgress } from "../../../../reports/risk-insights/models/report-models";
+import {
+  createCipher,
+  createRiskInsights,
+  createReport,
+} from "../../../../reports/risk-insights/testing/test-helpers";
+import { ReportGenerationService } from "../../abstractions/report-generation.service";
+import { ReportPersistenceService } from "../../abstractions/report-persistence.service";
 
 import { DefaultAccessIntelligenceDataService } from "./default-access-intelligence-data.service";
 

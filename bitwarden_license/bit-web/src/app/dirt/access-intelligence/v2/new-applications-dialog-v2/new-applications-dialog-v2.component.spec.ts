@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { BehaviorSubject, of, throwError } from "rxjs";
 
-import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/access-intelligence";
 import { createReport } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";

@@ -2,8 +2,8 @@ import { mock } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/logging";
 
-import { OrganizationReportApplication } from "../../../models";
-import { UnsupportedVersionError } from "../../abstractions/versioning.service";
+import { OrganizationReportApplication } from "../../../../../reports/risk-insights/models";
+import { UnsupportedVersionError } from "../../../abstractions/versioning.service";
 
 import { ApplicationVersioningService } from "./application-versioning.service";
 

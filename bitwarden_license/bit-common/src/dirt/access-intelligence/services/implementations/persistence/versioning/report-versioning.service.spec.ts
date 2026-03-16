@@ -3,10 +3,13 @@ import { mock } from "jest-mock-extended";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
 
-import { ApplicationHealthReportDetail, MemberDetails } from "../../../models";
-import { mockReportData } from "../../../models/mocks/mock-data";
-import { AccessReportPayload } from "../../abstractions/access-report-encryption.service";
-import { UnsupportedVersionError } from "../../abstractions/versioning.service";
+import {
+  ApplicationHealthReportDetail,
+  MemberDetails,
+} from "../../../../../reports/risk-insights/models";
+import { mockReportData } from "../../../../../reports/risk-insights/models/mocks/mock-data";
+import { AccessReportPayload } from "../../../abstractions/access-report-encryption.service";
+import { UnsupportedVersionError } from "../../../abstractions/versioning.service";
 
 import { ReportVersioningService } from "./report-versioning.service";
 

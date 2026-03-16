@@ -11,14 +11,14 @@ import {
   createCipherHealth,
   createApplication,
   createMemberRegistry,
-} from "../../testing/test-helpers";
-import { CipherHealthService } from "../abstractions/cipher-health.service";
+} from "../../../../reports/risk-insights/testing/test-helpers";
+import { CipherHealthService } from "../../abstractions/cipher-health.service";
 import {
   CollectionAccessDetails,
   GroupMembershipDetails,
   MemberCipherMappingService,
   OrganizationUserView,
-} from "../abstractions/member-cipher-mapping.service";
+} from "../../abstractions/member-cipher-mapping.service";
 
 import { DefaultReportGenerationService } from "./default-report-generation.service";
 

@@ -15,9 +15,13 @@ import {
   MemberRegistryEntryData,
   ApplicationHealthData,
 } from "../../../../access-intelligence/models";
-import { DecryptedReportData } from "../../models";
-import { mockApplicationData, mockReportData, mockSummaryData } from "../../models/mocks/mock-data";
-import { EncryptedReportData } from "../abstractions/access-report-encryption.service";
+import { DecryptedReportData } from "../../../../reports/risk-insights/models";
+import {
+  mockApplicationData,
+  mockReportData,
+  mockSummaryData,
+} from "../../../../reports/risk-insights/models/mocks/mock-data";
+import { EncryptedReportData } from "../../abstractions/access-report-encryption.service";
 
 import { LegacyRiskInsightsEncryptionService } from "./legacy-risk-insights-encryption.service";
 

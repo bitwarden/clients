@@ -2,7 +2,7 @@ import { Meta, StoryObj, moduleMetadata, applicationConfig } from "@storybook/an
 import { BehaviorSubject } from "rxjs";
 import { action } from "storybook/actions";
 
-import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/access-intelligence";
 import { createReport } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";

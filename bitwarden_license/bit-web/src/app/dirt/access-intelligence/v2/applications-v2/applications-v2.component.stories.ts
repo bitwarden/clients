@@ -4,11 +4,11 @@ import { Meta, StoryObj, moduleMetadata, applicationConfig } from "@storybook/an
 import { BehaviorSubject } from "rxjs";
 import { action } from "storybook/actions";
 
-import { AccessReportView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import {
   AccessIntelligenceDataService,
   DrawerStateService,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights";
+} from "@bitwarden/bit-common/dirt/access-intelligence";
+import { AccessReportView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import {
   createApplication,
   createMemberRegistry,

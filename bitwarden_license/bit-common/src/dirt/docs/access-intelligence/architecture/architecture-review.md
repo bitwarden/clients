@@ -46,7 +46,7 @@ This review compares the **original Access Intelligence architecture** (Risk Ins
 - [report-persistence.service.ts](../../services/abstractions/report-persistence.service.ts) — Save/load orchestration
 - [cipher-health.service.ts](../../services/abstractions/cipher-health.service.ts) — Health checks
 - [member-cipher-mapping.service.ts](../../services/abstractions/member-cipher-mapping.service.ts) — Client-side member resolution
-- **AccessIntelligenceDataService** (not yet implemented) — Top-level orchestrator
+- **AccessIntelligenceDataService** Top-level orchestrator
 
 **Characteristics:**
 
@@ -72,7 +72,7 @@ This review compares the **original Access Intelligence architecture** (Risk Ins
 **New:** `DefaultReportGenerationService.generateReport()`
 
 - [default-report-generation.service.ts:34-73](../../services/implementations/default-report-generation.service.ts#L34-L73) (40 lines)
-- Pure transformation: takes pre-loaded data → returns RiskInsightsView
+- Pure transformation: takes pre-loaded data → returns AccessReportView
 - Delegates health checks to `CipherHealthService`
 - Delegates member mapping to `MemberCipherMappingService`
 
@@ -162,17 +162,17 @@ This review compares the **original Access Intelligence architecture** (Risk Ins
 
 **New:** Smart view models with query/update methods
 
-- [risk-insights.view.ts:77-143](../../models/view/risk-insights.view.ts#L77-L143) — Query methods:
+- [access-report.view.ts:77-143](../../models/view/access-report.view.ts#L77-L143) — Query methods:
   - `getAtRiskMembers()` — Deduplicated at-risk members
   - `getCriticalApplications()` — Filter by critical flag
   - `getNewApplications()` — Filter by reviewedDate
   - `getApplicationByName(name)` — Find specific app
   - `getTotalMemberCount()` — Count members in registry
-- [risk-insights.view.ts:145-208](../../models/view/risk-insights.view.ts#L145-L208) — Update methods:
+- [access-report.view.ts:145-208](../../models/view/access-report.view.ts#L145-L208) — Update methods:
   - `markApplicationAsCritical(name)` — Mutate + recompute summary
   - `unmarkApplicationAsCritical(name)` — Mutate + recompute summary
   - `markApplicationAsReviewed(name)` — Update reviewedDate
-- [risk-insights.view.ts:222-257](../../models/view/risk-insights.view.ts#L222-L257) — Computation methods:
+- [access-report.view.ts:222-257](../../models/view/access-report.view.ts#L222-L257) — Computation methods:
   - `recomputeSummary()` — Aggregate counts from reports + applications
 
 **Status:** ✅ **New feature**. Follows CipherView pattern, makes business logic testable and reusable.
@@ -189,8 +189,8 @@ This review compares the **original Access Intelligence architecture** (Risk Ins
 
 **New:** Shared member registry + ID references
 
-- [risk-insights.view.ts:43](../../models/view/risk-insights.view.ts#L43) — `type MemberRegistry = Record<string, MemberRegistryEntry>`
-- [risk-insights-report.view.ts:36](../../models/view/risk-insights-report.view.ts#L36) — `memberRefs: Record<memberId, isAtRisk>`
+- [access-report.view.ts:43](../../models/view/access-report.view.ts#L43) — `type MemberRegistry = Record<string, MemberRegistryEntry>`
+- [application-health.view.ts:36](../../models/view/application-health.view.ts#L36) — `memberRefs: Record<memberId, isAtRisk>`
 - **Memory savings:** 5,000 members × 140 bytes = ~700KB (98% reduction)
 
 **Status:** ✅ **New feature**. Major performance improvement for large organizations.
@@ -199,7 +199,7 @@ This review compares the **original Access Intelligence architecture** (Risk Ins
 
 ## 3. Missing Features — What Needs Migration?
 
-### ⚠️ AccessIntelligenceDataService (Not Implemented)
+### ✅ AccessIntelligenceDataService (Implemented)
 
 **Old:** `RiskInsightsOrchestratorService`
 
@@ -211,34 +211,32 @@ This review compares the **original Access Intelligence architecture** (Risk Ins
 - Lines 359-489: `saveCriticalApplications$(apps)` — Mark apps as critical + save
 - Lines 498-639: `saveApplicationReviewStatus$(apps)` — Mark apps as reviewed + save
 
-**New:** **Missing** — AccessIntelligenceDataService needs to be implemented
+**New:** `DefaultAccessIntelligenceDataService`
 
-**What it should do:**
+**Implemented in:** `implementations/view/default-access-intelligence-data.service.ts`
+
+**What it does:**
 
 1. **State Management**:
-   - `report$: Observable<RiskInsightsView | null>` — Current report
-   - `ciphers$: Observable<CipherView[]>` — Organization ciphers (for `getCipherIcon()`)
+   - `report$: Observable<AccessReportView | null>` — Current report (BehaviorSubject)
    - `loading$: Observable<boolean>` — Loading state
    - `error$: Observable<string | null>` — Error state
+   - `progress$: Observable<ReportProgress | null>` — Generation progress
 
 2. **Data Loading**:
-   - `initializeForOrganization(orgId)` — Load ciphers, members, collections, groups
-   - Fetch from `CipherService`, `OrganizationService`, etc.
+   - `initializeForOrganization$(orgId)` — Load existing report; re-saves if `hadLegacyBlobs` detected
+   - Fetches org data (ciphers, members, groups, collections) inline during generation
 
 3. **Report Operations**:
-   - `generateNewReport(orgId)` — Load data → generate → save → emit
-   - `loadExistingReport(orgId)` — Fetch from persistence → decrypt → emit
-   - `refreshReport(orgId)` — Re-generate from latest org data
+   - `generateNewReport$(orgId)` — Emits progress → loads org data → generate → save → emit report
+   - Progress states: `FetchingMembers` → `AnalyzingPasswords` → `CalculatingRisks` → `GeneratingReport` → `Saving` → `Complete`
 
-4. **Application Metadata Updates**:
-   - `markApplicationsAsCritical(names[])` — Update + persist + emit
-   - `unmarkApplicationsAsCritical(names[])` — Update + persist + emit
-   - `saveApplicationReviewStatus(apps[])` — Update + persist + emit
+4. **Application Metadata Updates** (all with rollback on error):
+   - `markApplicationsAsCritical$(names[])` — Mutate view + persist + emit
+   - `unmarkApplicationsAsCritical$(names[])` — Mutate view + persist + emit
+   - `markApplicationsAsReviewed$(names[], date?)` — Mutate view + persist + emit
 
-5. **UI Helpers**:
-   - `getCipherIcon(cipherId)` — Lookup cipher from `ciphers$` for icon display
-
-**Status:** 🚧 **In Progress** — Expected to be implemented next.
+**Status:** ✅ **Complete** — Implemented in `implementations/view/default-access-intelligence-data.service.ts`.
 
 ---
 
@@ -279,26 +277,22 @@ This review compares the **original Access Intelligence architecture** (Risk Ins
 
 ## 4. Architectural Concerns & Recommendations
 
-### 🔴 **CRITICAL: AccessIntelligenceDataService Missing**
+### ✅ **RESOLVED: AccessIntelligenceDataService Implemented**
 
-**Issue:** The top-level orchestrator that ties everything together is not yet implemented.
+**Resolution:** The top-level orchestrator is now fully implemented.
 
-**Impact:**
+**Implementation:** `DefaultAccessIntelligenceDataService` in
+`implementations/view/default-access-intelligence-data.service.ts`
 
-- Cannot integrate new services into UI yet
-- No state management for `report$`, `ciphers$`, `loading$`
-- No public API for components to trigger operations
+**Provides:**
 
-**Recommendation:**
-Create `AccessIntelligenceDataService` with:
+- Observable state management (`report$`, `loading$`, `error$`, `progress$`)
+- Data loading (fetches org data inline during report generation)
+- Report operations (`initializeForOrganization$()`, `generateNewReport$()`)
+- Application metadata updates with rollback (`markApplicationsAsCritical$()`, etc.)
+- Progress tracking through generation pipeline
 
-- Observable state management (`report$`, `ciphers$`, `loading$`, `error$`)
-- Data loading methods (fetch ciphers, members, collections, groups)
-- Report operations (generate, load, refresh)
-- Application metadata updates (mark critical, mark reviewed)
-- UI helpers (`getCipherIcon()`)
-
-**Priority:** 🔴 **Highest** — Blocking integration with UI.
+**Status:** ✅ **Resolved**.
 
 ---
 
@@ -324,14 +318,14 @@ metrics.totalCriticalAtRiskPasswordCount = 0;
 
 **Recommendation:**
 
-- Move metrics computation to `RiskInsightsView.toMetrics()` method
+- Move metrics computation to `AccessReportView.toMetrics()` method
 - View model already has all the data (reports with cipherRefs, applications with isCritical)
 - Example:
 
 ```typescript
-// In RiskInsightsView
-toMetrics(): RiskInsightsMetrics {
-  const metrics = new RiskInsightsMetrics();
+// In AccessReportView
+toMetrics(): AccessReportMetrics {
+  const metrics = new AccessReportMetrics();
 
   // Copy summary counts
   metrics.totalApplicationCount = this.summary.totalApplicationCount;
@@ -387,19 +381,12 @@ toMetrics(): RiskInsightsMetrics {
   - `ReportProgress.Saving`
   - `ReportProgress.Complete`
 
-**New:** **Not implemented**
+**New:** ✅ **Implemented** — `progress$: Observable<ReportProgress | null>` exposed by
+`AccessIntelligenceDataService`. Emits during `generateNewReport$()`:
 
-**Recommendation:**
+- `FetchingMembers` → `AnalyzingPasswords` → `CalculatingRisks` → `GeneratingReport` → `Saving` → `Complete`
 
-- Add progress tracking to `AccessIntelligenceDataService`
-- Emit progress events during `generateNewReport()` pipeline
-- Progress states can be simpler in new architecture:
-  - `Loading` — Loading org data (ciphers, members, collections, groups)
-  - `Analyzing` — Running health checks + member mapping
-  - `Saving` — Encrypting + persisting
-  - `Complete` — Done
-
-**Priority:** 🟡 **Medium** — Nice UX improvement but not blocking.
+**Status:** ✅ **Complete**.
 
 ---
 
@@ -413,7 +400,7 @@ toMetrics(): RiskInsightsMetrics {
 
 **Current:**
 
-- `RiskInsightsView.getNewApplications()` — Returns array
+- `AccessReportView.getNewApplications()` — Returns array
 - Can be used in `AccessIntelligenceDataService` like:
   ```typescript
   newApplications$ = this.report$.pipe(map((report) => report?.getNewApplications() ?? []));
@@ -438,7 +425,7 @@ toMetrics(): RiskInsightsMetrics {
 
 **Current:**
 
-- `RiskInsightsView.getCriticalApplications()` — Returns array of critical reports
+- `AccessReportView.getCriticalApplications()` — Returns array of critical reports
 - Can compute critical summary on-demand
 
 **Recommendation:**
@@ -451,7 +438,7 @@ toMetrics(): RiskInsightsMetrics {
       if (!report) return null;
 
       const criticalReports = report.getCriticalApplications();
-      const criticalView = new RiskInsightsView();
+      const criticalView = new AccessReportView();
       criticalView.reports = criticalReports;
       criticalView.applications = report.applications.filter((a) => a.isCritical);
       criticalView.memberRegistry = report.memberRegistry;
@@ -551,8 +538,8 @@ View → Domain → Data → API  (Save)
 
 **New:** Smart view models (CipherView pattern)
 
-- [RiskInsightsView](../../models/view/risk-insights.view.ts) — Query methods + update methods + computation methods
-- [RiskInsightsReportView](../../models/view/risk-insights-report.view.ts) — Query methods for members/ciphers
+- [AccessReportView](../../models/view/access-report.view.ts) — Query methods + update methods + computation methods
+- [ApplicationHealthView](../../models/view/application-health.view.ts) — Query methods for members/ciphers
 
 **Benefits:**
 
@@ -574,8 +561,8 @@ View → Domain → Data → API  (Save)
 
 **Implementation:**
 
-- [MemberRegistry](../../models/view/risk-insights.view.ts#L43) — `Record<userId, MemberRegistryEntry>`
-- [RiskInsightsReportView.memberRefs](../../models/view/risk-insights-report.view.ts#L36) — `Record<userId, isAtRisk>`
+- [MemberRegistry](../../models/view/access-report.view.ts#L43) — `Record<userId, MemberRegistryEntry>`
+- [ApplicationHealthView.memberRefs](../../models/view/application-health.view.ts#L36) — `Record<userId, isAtRisk>`
 - Query methods resolve IDs to full entries on-demand
 
 **Status:** ✅ **Excellent**. Major performance improvement.
@@ -623,12 +610,15 @@ const memberDetails = Object.keys(report.memberRefs).map((memberId) => {
 6. **Client-Side Member Mapping** — Eliminates server-side timeout issues
 7. **Standards Compliance** — Follows all standards from [standards.md](../../standards/standards.md)
 
-### 🚧 Work In Progress
+### ✅ Resolved Since Initial Review
 
-1. **AccessIntelligenceDataService** — Not yet implemented (highest priority)
-2. **Metrics Computation** — Incomplete (password counts hardcoded to 0)
-3. **Progress Tracking** — Not exposed as Observable
-4. **Migration Logic** — Decision needed: migrate or deploy fresh?
+1. **AccessIntelligenceDataService** — ✅ Implemented (`implementations/view/default-access-intelligence-data.service.ts`)
+2. **Progress Tracking** — ✅ Implemented (exposed as `progress$` with 6 states)
+
+### 🚧 Remaining Work
+
+1. **Metrics Computation** — May still be incomplete (password counts); verify `AccessReportView.toMetrics()` computes password-level counts correctly
+2. **Migration Logic** — Decision needed: migrate or deploy fresh?
 
 ### 🟢 Minor Gaps (Easy to Add)
 
@@ -641,29 +631,27 @@ const memberDetails = Object.keys(report.memberRefs).map((memberId) => {
 
 ## 7. Recommendations — Next Steps
 
-### Phase 1: Complete Core Services (Priority 1)
+### Phase 1: Complete Core Services (Priority 1) — ✅ DONE
 
-1. ✅ **Implement AccessIntelligenceDataService**
-   - State management (`report$`, `ciphers$`, `loading$`, `error$`)
-   - Data loading (ciphers, members, collections, groups)
-   - Report operations (generate, load, refresh)
-   - Application metadata updates (mark critical, mark reviewed)
-   - UI helpers (`getCipherIcon()`)
+1. ✅ **AccessIntelligenceDataService** — Implemented
+   - State management (`report$`, `loading$`, `error$`, `progress$`)
+   - Data loading (fetches org data inline during generation)
+   - Report operations (`initializeForOrganization$()`, `generateNewReport$()`)
+   - Application metadata updates with rollback
 
-2. ✅ **Fix Metrics Computation**
-   - Add `RiskInsightsView.toMetrics()` method
-   - Compute password counts from reports + applications
-   - Update `DefaultReportPersistenceService` to use view method
+2. 🚧 **Fix Metrics Computation** — Verify status
+   - `AccessReportView.toMetrics()` method exists; verify password-level counts are correct
+   - `DefaultReportPersistenceService` uses `view.toMetrics()` during save
 
-### Phase 2: Polish & Enhancement (Priority 2)
+### Phase 2: Polish & Enhancement (Priority 2) — ✅ DONE
 
-3. ✅ **Add Progress Tracking**
-   - Expose `progress$: Observable<ReportProgress>` from AccessIntelligenceDataService
-   - Emit during `generateNewReport()` pipeline
+3. ✅ **Progress Tracking** — Implemented
+   - `progress$: Observable<ReportProgress | null>` exposed by AccessIntelligenceDataService
+   - Emits 6 states during `generateNewReport$()` pipeline
 
-4. ✅ **Add Derived Observables** (if needed by UI)
-   - `newApplications$` — Reactive list of unreviewed apps
-   - `criticalReport$` — Report filtered to critical apps only
+4. ✅ **Derived Observables** — Available via view model methods
+   - `report.getNewApplications()` — unreviewed apps
+   - `report.getCriticalApplications()` — critical apps
 
 ### Phase 3: Migration & Cleanup (Priority 3)
 
@@ -697,7 +685,7 @@ const memberDetails = Object.keys(report.memberRefs).map((memberId) => {
 - ✅ Cipher health: Complete with concurrency limiting
 - ✅ Member mapping: Complete with major performance win
 - ✅ Model architecture: Excellent 4-layer + smart models
-- 🚧 Orchestrator (AccessIntelligenceDataService): In progress (expected)
+- ✅ Orchestrator (AccessIntelligenceDataService): Implemented
 - 🟡 Metrics computation: Minor fix needed
 - 🟢 Progress tracking: Enhancement, not blocker
 
@@ -725,8 +713,8 @@ const memberDetails = Object.keys(report.memberRefs).map((memberId) => {
 
 ### New Architecture — Models
 
-- [risk-insights.view.ts](../../models/view/risk-insights.view.ts) — 280 lines
-- [risk-insights-report.view.ts](../../models/view/risk-insights-report.view.ts) — 157 lines
+- [access-report.view.ts](../../models/view/access-report.view.ts) — 280 lines
+- [application-health.view.ts](../../models/view/application-health.view.ts) — 157 lines
 - [risk-insights.ts](../../models/domain/risk-insights.ts) — 275 lines
 
 ### Documentation
@@ -736,6 +724,6 @@ const memberDetails = Object.keys(report.memberRefs).map((memberId) => {
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2026-02-17
+**Document Version:** 1.1
+**Last Updated:** 2026-03-12
 **Maintainer:** DIRT Team

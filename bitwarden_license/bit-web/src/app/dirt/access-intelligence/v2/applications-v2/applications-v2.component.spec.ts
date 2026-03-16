@@ -2,12 +2,12 @@ import { NO_ERRORS_SCHEMA, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { BehaviorSubject, of, throwError } from "rxjs";
 
-import { AccessReportView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import {
   AccessIntelligenceDataService,
   DrawerStateService,
   DrawerType,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights";
+} from "@bitwarden/bit-common/dirt/access-intelligence";
+import { AccessReportView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import {
   createApplication,
   createMemberRegistry,

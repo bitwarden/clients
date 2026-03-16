@@ -2,8 +2,8 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { BehaviorSubject, of, throwError } from "rxjs";
 
+import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/access-intelligence";
 import { AccessReportView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
-import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import {
   createApplication,
   createMemberRegistry,

@@ -12,13 +12,13 @@ import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
 import { AccessReportSettingsData } from "../../../../access-intelligence/models";
-import { mockSummaryData } from "../../models/mocks/mock-data";
+import { mockSummaryData } from "../../../../reports/risk-insights/models/mocks/mock-data";
 import {
   AccessReportPayload,
   DecryptedAccessReportData,
   EncryptedReportData,
-} from "../abstractions/access-report-encryption.service";
-import { UnsupportedVersionError } from "../abstractions/versioning.service";
+} from "../../abstractions/access-report-encryption.service";
+import { UnsupportedVersionError } from "../../abstractions/versioning.service";
 
 import { DefaultAccessReportEncryptionService } from "./default-access-report-encryption.service";
 import { ApplicationVersioningService } from "./versioning/application-versioning.service";

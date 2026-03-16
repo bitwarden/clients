@@ -61,7 +61,7 @@ The `version` field describes the schema of `data`. Current versions:
 ### Supporting types
 
 All versioning types live in
-[`services/abstractions/versioning.service.ts`](../../../../../reports/risk-insights/services/abstractions/versioning.service.ts):
+[`services/abstractions/versioning.service.ts`](../../../../../access-intelligence/services/abstractions/versioning.service.ts):
 
 ```typescript
 // The on-disk wrapper format
@@ -85,11 +85,11 @@ export class UnsupportedVersionError extends Error {
 
 Three services handle versioning, one per payload type:
 
-| Service                        | Type parameter                  | `currentVersion` |
-| ------------------------------ | ------------------------------- | ---------------- |
-| `ReportVersioningService`      | `AccessReportPayload`           | 1                |
-| `SummaryVersioningService`     | `RiskInsightsSummaryData`       | 1                |
-| `ApplicationVersioningService` | `RiskInsightsApplicationData[]` | 1                |
+| Service                        | Type parameter               | `currentVersion` |
+| ------------------------------ | ---------------------------- | ---------------- |
+| `ReportVersioningService`      | `AccessReportPayload`        | 1                |
+| `SummaryVersioningService`     | `AccessReportSummaryData`    | 1                |
+| `ApplicationVersioningService` | `AccessReportSettingsData[]` | 1                |
 
 All three extend `VersioningService<T>`:
 
@@ -119,7 +119,7 @@ EncString (stored on disk)
   → JSON.parse()                          unknown
   → VersioningService.process(json)       { data: T, wasLegacy: boolean }
   → typed payload data
-  → used to populate RiskInsightsView
+  → used to populate AccessReportView
 ```
 
 `process()` handles two cases:
@@ -193,8 +193,8 @@ restructuring the shape, or adding a new required field. For optional additions,
 
 ### Breaking change: step-by-step
 
-1. **Update the payload type** (`AccessReportPayload`, `RiskInsightsSummaryData`, or
-   `RiskInsightsApplicationData[]`)
+1. **Update the payload type** (`AccessReportPayload`, `AccessReportSummaryData`, or
+   `AccessReportSettingsData[]`)
 
 2. **Update the type guard** in `risk-insights-type-guards.ts` to validate the new shape
 
@@ -211,7 +211,7 @@ restructuring the shape, or adding a new required field. For optional additions,
 
 ```typescript
 // payload type change:
-interface RiskInsightsSummaryData {
+interface AccessReportSummaryData {
   totalMemberCount: number;
   // ... existing fields ...
   totalPendingTaskCount: number; // new required field
@@ -220,24 +220,24 @@ interface RiskInsightsSummaryData {
 // SummaryVersioningService:
 readonly currentVersion = 2;
 
-process(json: unknown): { data: RiskInsightsSummaryData; wasLegacy: boolean } {
+process(json: unknown): { data: AccessReportSummaryData; wasLegacy: boolean } {
   if (isVersionEnvelope(json)) {
     if (json.version === 2) {
       // current — validate and return
-      if (!isRiskInsightsSummaryData(json.data)) { throw ... }
+      if (!isAccessReportSummaryData(json.data)) { throw ... }
       return { data: json.data, wasLegacy: false };
     }
     if (json.version === 1) {
       // migrate: supply default for new required field
       const migrated = { ...(json.data as V1Shape), totalPendingTaskCount: 0 };
-      if (!isRiskInsightsSummaryData(migrated)) { throw ... }
+      if (!isAccessReportSummaryData(migrated)) { throw ... }
       return { data: migrated, wasLegacy: false };
     }
     throw new UnsupportedVersionError(json.version);
   }
   // legacy (no envelope) — migrate to current
   const migrated = { ...(json as LegacyShape), totalPendingTaskCount: 0 };
-  if (!isRiskInsightsSummaryData(migrated)) { throw ... }
+  if (!isAccessReportSummaryData(migrated)) { throw ... }
   return { data: migrated, wasLegacy: true };
 }
 ```
@@ -267,11 +267,11 @@ rename across `DefaultAccessReportEncryptionService` and its callers.
 
 - [Report storage architecture](./report-blob-storage-architecture.md) — Storage plan for the
   report payload
-- [`versioning.service.ts`](../../../../../reports/risk-insights/services/abstractions/versioning.service.ts) — Abstract base class and shared types
-- [`access-report-encryption.service.ts`](../../../../../reports/risk-insights/services/abstractions/access-report-encryption.service.ts) — Encryption service abstraction
+- [`versioning.service.ts`](../../../../../access-intelligence/services/abstractions/versioning.service.ts) — Abstract base class and shared types
+- [`access-report-encryption.service.ts`](../../../../../access-intelligence/services/abstractions/access-report-encryption.service.ts) — Encryption service abstraction
 
 ---
 
-**Document Version:** 1.1
-**Last Updated:** 2026-03-11
+**Document Version:** 1.2
+**Last Updated:** 2026-03-12
 **Maintainer:** DIRT Team

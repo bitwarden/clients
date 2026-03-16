@@ -2,8 +2,8 @@ import { mock } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/logging";
 
-import { mockSummaryData } from "../../../models/mocks/mock-data";
-import { UnsupportedVersionError } from "../../abstractions/versioning.service";
+import { mockSummaryData } from "../../../../../reports/risk-insights/models/mocks/mock-data";
+import { UnsupportedVersionError } from "../../../abstractions/versioning.service";
 
 import { SummaryVersioningService } from "./summary-versioning.service";
 

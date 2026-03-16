@@ -2,7 +2,8 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { mock } from "jest-mock-extended";
 
-import { DrawerDetails, DrawerType } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { DrawerType } from "@bitwarden/bit-common/dirt/access-intelligence";
+import { DrawerDetails } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA } from "@bitwarden/components";

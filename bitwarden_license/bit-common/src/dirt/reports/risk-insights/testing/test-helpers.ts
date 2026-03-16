@@ -35,7 +35,7 @@ import {
   CollectionAccessDetails,
   GroupMembershipDetails,
   OrganizationUserView,
-} from "../services/abstractions/member-cipher-mapping.service";
+} from "../../../access-intelligence/services/abstractions/member-cipher-mapping.service";
 
 // ==================== Member Helpers ====================
 

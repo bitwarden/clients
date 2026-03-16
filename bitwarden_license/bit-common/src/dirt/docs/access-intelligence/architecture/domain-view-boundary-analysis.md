@@ -1,8 +1,9 @@
-# Domain vs. View Boundary Analysis - Access Intelligence Architecture
+# Domain vs. View Boundary Analysis — Access Intelligence Architecture
 
-**Date:** 2026-02-17
-**Status:** Architecture Review
-**Question:** Are we properly following the Cipher/CipherView boundary pattern?
+**Purpose:** Documents why AccessIntelligenceDataService intentionally deviates from the Cipher
+pattern by storing View models rather than Domain models, and the justification for that decision
+
+**Status:** Decision accepted — deviation is the current implemented architecture
 
 ---
 
@@ -83,10 +84,10 @@ export class Cipher extends Domain {
 // bitwarden_license/bit-common/src/dirt/reports/risk-insights/services/
 //   implementations/default-report-persistence.service.ts
 
-saveReport$(view: RiskInsightsView, orgId): Observable<OrganizationReportId> {
+saveReport$(view: AccessReportView, orgId): Observable<OrganizationReportId> {
   // View → Domain (encrypt) → Data → API
   return from(
-    RiskInsights.fromView(view, encryptionService, context)  // ← Encrypt!
+    AccessReport.fromView(view, encryptionService, context)  // ← Encrypt!
   ).pipe(
     switchMap((domain) => {
       const data = domain.toData();  // ← Domain → Data
@@ -95,12 +96,12 @@ saveReport$(view: RiskInsightsView, orgId): Observable<OrganizationReportId> {
   );
 }
 
-loadReport$(orgId): Observable<RiskInsightsView | null> {
+loadReport$(orgId): Observable<AccessReportView | null> {
   // API → Data → Domain → View (decrypt)
   return this.apiService.get(orgId).pipe(
     switchMap((apiResponse) => {
-      const data = new RiskInsightsData(apiResponse);
-      const domain = new RiskInsights(data);  // ← Data → Domain
+      const data = new AccessReportData(apiResponse);
+      const domain = new AccessReport(data);  // ← Data → Domain
       return from(domain.decrypt(encryptionService, context));  // ← Decrypt!
     })
   );
@@ -122,7 +123,7 @@ loadReport$(orgId): Observable<RiskInsightsView | null> {
 
 export class DefaultAccessIntelligenceDataService {
   // ❌ Stores DECRYPTED View model
-  private _report = new BehaviorSubject<RiskInsightsView | null>(null);
+  private _report = new BehaviorSubject<AccessReportView | null>(null);
   readonly report$ = this._report.asObservable();
 
   initializeForOrganization$(orgId: OrganizationId): Observable<void> {
@@ -140,7 +141,7 @@ export class DefaultAccessIntelligenceDataService {
 ```typescript
 export class DefaultAccessIntelligenceDataService {
   // ✅ Store ENCRYPTED Domain model
-  private _report = new BehaviorSubject<RiskInsights | null>(null);
+  private _report = new BehaviorSubject<AccessReport | null>(null);
 
   // ✅ Expose DECRYPTED View model (computed)
   readonly report$ = combineLatest([this._report.asObservable(), this.encryptionKeys$]).pipe(
@@ -219,7 +220,7 @@ export class DefaultAccessIntelligenceDataService {
    *
    * See: docs/access-intelligence/architecture/domain-view-boundary-analysis.md
    */
-  private _report = new BehaviorSubject<RiskInsightsView | null>(null);
+  private _report = new BehaviorSubject<AccessReportView | null>(null);
   readonly report$ = this._report.asObservable();
 }
 ```
@@ -230,7 +231,7 @@ export class DefaultAccessIntelligenceDataService {
 
 **Changes Required:**
 
-1. Store `BehaviorSubject<RiskInsights | null>` instead of View
+1. Store `BehaviorSubject<AccessReport | null>` instead of View
 2. Compute `report$` observable that decrypts on demand
 3. Manage `contentEncryptionKey` separately (or extract from Domain)
 4. Update all service methods to work with Domain
@@ -239,7 +240,7 @@ export class DefaultAccessIntelligenceDataService {
 
 ```typescript
 export class DefaultAccessIntelligenceDataService {
-  private _encryptedReport = new BehaviorSubject<RiskInsights | null>(null);
+  private _encryptedReport = new BehaviorSubject<AccessReport | null>(null);
   private _encryptionContext = new BehaviorSubject<EncryptionContext | null>(null);
 
   readonly report$ = combineLatest([
@@ -281,17 +282,17 @@ _TODO: Survey codebase for other services that store View models_
 
 ## Action Items
 
-### Immediate (If choosing Option 1)
+### Immediate (Option 1 accepted — deviation is now the implemented architecture)
 
-- [ ] Create ADR documenting this architectural decision
-- [ ] Add inline comments to `AccessIntelligenceDataService` explaining deviation
-- [ ] Update `CLAUDE.md` with this pattern exception
+- [ ] Create ADR documenting this architectural decision — **still pending**
+- [ ] Add inline comments to `AccessIntelligenceDataService` explaining deviation — verify in code
+- [x] Update `CLAUDE.md` with this pattern exception — domain-view boundary noted in `dirt/CLAUDE.md`
 - [ ] Add this document reference to getting-started.md
 
 ### Future Considerations
 
 - [ ] Monitor for security team feedback on storing decrypted data
-- [ ] Re-evaluate if moving to field-level encryption (Version 2)
+- [ ] Re-evaluate if moving to field-level encryption (envelope approach)
 - [ ] Consider if other large, single-instance encrypted models should follow this pattern
 
 ---
@@ -301,8 +302,9 @@ _TODO: Survey codebase for other services that store View models_
 - **Cipher Pattern:** `libs/common/src/vault/models/domain/cipher.ts` (lines 127-221, decrypt method)
 - **CipherService:** `libs/common/src/vault/services/cipher.service.ts` (lines 142-218)
 - **4-Layer Architecture:** `bitwarden_license/bit-common/src/dirt/CLAUDE.md` (lines 56-224)
-- **Domain Models:** `bitwarden_license/bit-common/src/dirt/reports/risk-insights/models/domain/risk-insights.ts`
-- **Persistence Service:** `bitwarden_license/bit-common/src/dirt/reports/risk-insights/services/implementations/default-report-persistence.service.ts`
+- **Domain Models:** `bitwarden_license/bit-common/src/dirt/access-intelligence/models/domain/access-report.ts`
+- **Data Service:** `bitwarden_license/bit-common/src/dirt/access-intelligence/services/implementations/view/default-access-intelligence-data.service.ts`
+- **Persistence Service:** `bitwarden_license/bit-common/src/dirt/access-intelligence/services/implementations/persistence/default-report-persistence.service.ts`
 
 ---
 
@@ -311,3 +313,9 @@ _TODO: Survey codebase for other services that store View models_
 While Access Intelligence **does deviate** from the Cipher pattern by storing View models in the data service, this deviation is **justified by the unique characteristics** of the domain (single large report vs. thousands of small ciphers). The **ReportPersistenceService correctly follows the Domain pattern**, so the architecture is sound at the storage boundary.
 
 **Recommendation:** Document this as an intentional architectural decision rather than refactoring to match Cipher pattern exactly.
+
+---
+
+**Document Version:** 1.1
+**Last Updated:** 2026-03-12
+**Maintainer:** DIRT Team

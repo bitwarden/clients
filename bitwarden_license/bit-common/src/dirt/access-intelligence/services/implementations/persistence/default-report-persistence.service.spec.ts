@@ -14,17 +14,17 @@ import {
 import {
   GetRiskInsightsReportResponse,
   SaveRiskInsightsReportResponse,
-} from "../../models/api-models.types";
+} from "../../../../reports/risk-insights/models/api-models.types";
+import { RiskInsightsApiService } from "../../../../reports/risk-insights/services/api/risk-insights-api.service";
 import {
   createRiskInsights,
   createAccessReportMetrics,
   createRiskInsightsSummary,
-} from "../../testing/test-helpers";
+} from "../../../../reports/risk-insights/testing/test-helpers";
 import {
   AccessReportEncryptionService,
   DecryptedAccessReportData,
-} from "../abstractions/access-report-encryption.service";
-import { RiskInsightsApiService } from "../api/risk-insights-api.service";
+} from "../../abstractions/access-report-encryption.service";
 
 import { DefaultReportPersistenceService } from "./default-report-persistence.service";
 
