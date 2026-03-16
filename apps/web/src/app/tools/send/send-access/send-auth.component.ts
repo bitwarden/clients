@@ -250,7 +250,7 @@ export class SendAuthComponent implements OnInit {
       if (otp == null || otp.trim() === "") {
         this.toastService.showToast({
           variant: "error",
-          title: null,
+          title: undefined,
           message: this.i18nService.t("invalidVerificationCode"),
         });
         return;
