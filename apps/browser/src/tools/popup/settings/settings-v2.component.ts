@@ -44,40 +44,41 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsV2Component {
-  NudgeType = NudgeType;
+  readonly NudgeType = NudgeType;
 
-  private authenticatedAccount$: Observable<Account> = this.accountService.activeAccount$.pipe(
-    filter((account): account is Account => account !== null),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  private readonly authenticatedAccount$: Observable<Account> =
+    this.accountService.activeAccount$.pipe(
+      filter((account): account is Account => account !== null),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
 
-  protected hasPremium$ = this.authenticatedAccount$.pipe(
+  protected readonly hasPremium$ = this.authenticatedAccount$.pipe(
     switchMap((account) => this.accountProfileStateService.hasPremiumFromAnySource$(account.id)),
   );
 
-  showDownloadBitwardenNudge$: Observable<boolean> = this.authenticatedAccount$.pipe(
+  readonly showDownloadBitwardenNudge$: Observable<boolean> = this.authenticatedAccount$.pipe(
     switchMap((account) =>
       this.nudgesService.showNudgeBadge$(NudgeType.DownloadBitwarden, account.id),
     ),
   );
 
-  showVaultBadge$: Observable<boolean> = this.authenticatedAccount$.pipe(
+  readonly showVaultBadge$: Observable<boolean> = this.authenticatedAccount$.pipe(
     switchMap((account) =>
       this.nudgesService.showNudgeBadge$(NudgeType.EmptyVaultNudge, account.id),
     ),
   );
 
-  showAdminBadge$: Observable<boolean> = this.authenticatedAccount$.pipe(
+  readonly showAdminBadge$: Observable<boolean> = this.authenticatedAccount$.pipe(
     switchMap((account) =>
       this.nudgesService.showNudgeBadge$(NudgeType.AutoConfirmNudge, account.id),
     ),
   );
 
-  showAutofillBadge$: Observable<boolean> = this.authenticatedAccount$.pipe(
+  readonly showAutofillBadge$: Observable<boolean> = this.authenticatedAccount$.pipe(
     switchMap((account) => this.nudgesService.showNudgeBadge$(NudgeType.AutofillNudge, account.id)),
   );
 
-  showAdminSettingsLink$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+  readonly showAdminSettingsLink$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) => this.autoConfirmService.canManageAutoConfirm$(userId)),
   );

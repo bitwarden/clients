@@ -44,9 +44,9 @@ export class OrganizationDataOwnershipPolicyComponent
   implements OnInit
 {
   constructor(
-    private dialogService: DialogService,
-    private i18nService: I18nService,
-    private encryptService: EncryptService,
+    private readonly dialogService: DialogService,
+    private readonly i18nService: I18nService,
+    private readonly encryptService: EncryptService,
   ) {
     super();
   }

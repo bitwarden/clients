@@ -163,20 +163,20 @@ export class Utils {
     return arr.toBase64({ alphabet: "base64" });
   }
 
-  static fromArrayToUrlB64(arr: Uint8Array): string;
-  static fromArrayToUrlB64(arr: null): null;
   /**
-   * Converts a Uint8Array to a URL-safe Base64 encoded string.
+   * Converts a Uint8Array to a URL-safe Base64 encoded string, while stripping padding.
    * @param arr - The Uint8Array to convert.
    * @returns The URL-safe Base64 encoded string, or null if the input is null.
    */
+  static fromArrayToUrlB64(arr: Uint8Array): string;
+  static fromArrayToUrlB64(arr: null): null;
   static fromArrayToUrlB64(arr: Uint8Array | null): string | null {
     if (arr == null) {
       return null;
     }
 
     // @ts-expect-error - polyfilled by core-js
-    return arr.toBase64({ alphabet: "base64url" });
+    return arr.toBase64({ alphabet: "base64url", omitPadding: true });
   }
 
   static fromArrayToByteString(arr: null): null;

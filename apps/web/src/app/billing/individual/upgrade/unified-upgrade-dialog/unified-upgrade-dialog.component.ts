@@ -15,10 +15,8 @@ import {
   DialogService,
 } from "@bitwarden/components";
 
-import { AccountBillingClient, PreviewInvoiceClient } from "../../../clients";
 import { BillingServicesModule } from "../../../services";
 import { UpgradeAccountComponent } from "../upgrade-account/upgrade-account.component";
-import { UpgradePaymentService } from "../upgrade-payment/services/upgrade-payment.service";
 import {
   UpgradePaymentComponent,
   UpgradePaymentResult,
@@ -74,7 +72,6 @@ export type UnifiedUpgradeDialogParams = {
     UpgradePaymentComponent,
     BillingServicesModule,
   ],
-  providers: [UpgradePaymentService, AccountBillingClient, PreviewInvoiceClient],
   templateUrl: "./unified-upgrade-dialog.component.html",
 })
 export class UnifiedUpgradeDialogComponent implements OnInit {
@@ -92,10 +89,10 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
   protected readonly PlanSelectionStep = UnifiedUpgradeDialogStep.PlanSelection;
 
   constructor(
-    private dialogRef: DialogRef<UnifiedUpgradeDialogResult>,
-    @Inject(DIALOG_DATA) private params: UnifiedUpgradeDialogParams,
-    private router: Router,
-    private premiumInterestStateService: PremiumInterestStateService,
+    private readonly dialogRef: DialogRef<UnifiedUpgradeDialogResult>,
+    @Inject(DIALOG_DATA) private readonly params: UnifiedUpgradeDialogParams,
+    private readonly router: Router,
+    private readonly premiumInterestStateService: PremiumInterestStateService,
   ) {}
 
   async ngOnInit(): Promise<void> {

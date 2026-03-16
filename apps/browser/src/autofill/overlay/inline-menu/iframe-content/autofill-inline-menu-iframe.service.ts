@@ -45,6 +45,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   private defaultIframeAttributes: Record<string, string> = {
     src: "",
     title: "",
+    credentialless: "",
     allowtransparency: "true",
     tabIndex: "-1",
     scrolling: "no",

@@ -17,5 +17,5 @@ export class IntegrationGridComponent {
   readonly ariaI18nKey = input<string>("integrationCardAriaLabel");
   readonly tooltipI18nKey = input<string>("integrationCardTooltip");
 
-  protected IntegrationType = IntegrationType;
+  protected readonly IntegrationType = IntegrationType;
 }

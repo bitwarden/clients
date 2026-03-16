@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Sevimlilər"
   },
+  "unfavorite": {
+    "message": "Sevimlilərdən sil"
+  },
   "types": {
     "message": "Növlər"
   },
@@ -585,6 +588,12 @@
   },
   "editedItem": {
     "message": "Elementə düzəliş edildi"
+  },
+  "itemAddedToFavorites": {
+    "message": "Element sevimlilərə əlavə edildi"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Element sevimlilərdən xaric edildi"
   },
   "deleteItem": {
     "message": "Elementi sil"
@@ -1555,6 +1564,18 @@
   "unknown": {
     "message": "Bilinməyən"
   },
+  "copyAddress": {
+    "message": "Ünvanı kopyala"
+  },
+  "copyPhone": {
+    "message": "Telefonu kopyala"
+  },
+  "copyNote": {
+    "message": "Notu kopyala"
+  },
+  "copyVerificationCode": {
+    "message": "Doğrulama kodunu kopyala"
+  },
   "copyUsername": {
     "message": "İstifadəçi adını kopyala"
   },
@@ -2082,6 +2103,24 @@
   "searchTrash": {
     "message": "Tullantı qutusunda axtar"
   },
+  "searchArchive": {
+    "message": "Arxivdə axtar"
+  },
+  "searchLogin": {
+    "message": "Giriş axtar"
+  },
+  "searchCard": {
+    "message": "Kart axtar"
+  },
+  "searchIdentity": {
+    "message": "Kimlik axtar"
+  },
+  "searchSecureNote": {
+    "message": "Güvənli not axtar"
+  },
+  "searchSshKey": {
+    "message": "SSH açarını axtar"
+  },
   "permanentlyDeleteItem": {
     "message": "Elementi birdəfəlik sil"
   },
@@ -2377,6 +2416,9 @@
   "editSend": {
     "message": "\"Send\"ə düzəliş et",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Mən"
   },
   "myVault": {
     "message": "Seyfim"
@@ -4086,6 +4128,9 @@
   "missingWebsite": {
     "message": "Əskik veb sayt"
   },
+  "missingPermissions": {
+    "message": "Bu əməliyyatı icra etmək üçün lazımi icazələrin yoxdur."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "\"Yalnız baxma\" icazələrinə sahib kolleksiyaları silə bilməzsiniz: $COLLECTIONS$",
     "placeholders": {
@@ -4589,6 +4634,36 @@
   },
   "whyAmISeeingThis": {
     "message": "Bunu niyə görürəm?"
+  },
+  "organizationIsSuspended": {
+    "message": "Təşkilatın fəaliyyəti dayandırılıb"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Fəaliyyəti dayandırılmış təşkilatlardakı elementlərə erişilə bilməz. Kömək üçün təşkilatınızın sahibi ilə əlaqə saxlayın."
+  },
+  "noItemsInTrash": {
+    "message": "Tullantıda element yoxdur"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Sildiyiniz elementlər burada görünəcək və 30 gün sonra həmişəlik silinəcək"
+  },
+  "noItemsInVault": {
+    "message": "Seyfdə element yoxdur"
+  },
+  "emptyVaultDescription": {
+    "message": "Seyf, yalnız parollarızı yox, həm də daha çoxunu qoruyur. Giriş məlumatlarınızı, kimlikləri, kartları və notları burada güvənli şəkildə saxlayın."
+  },
+  "emptyFavorites": {
+    "message": "Hələ sevimlilərinizdə heç nə yoxdur"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Çox istifadə etdiyiniz elementləri cəld erişim üçün sevimlilərə əlavə edin."
+  },
+  "noSearchResults": {
+    "message": "Heç bir axtarış nəticəsi qayıtmadı"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Filtrləri təmizləyin və ya başqa bir axtarış terminini sınayın"
   },
   "sendPasswordHelperText": {
     "message": "Şəxslər, Send-ə baxması üçün parolu daxil etməli olacaqlar",
