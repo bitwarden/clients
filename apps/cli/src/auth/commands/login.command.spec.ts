@@ -415,8 +415,8 @@ describe("LoginCommand", () => {
         loginStrategyService.logIn.mockResolvedValue(mock2faAuthResult());
         twoFactorService.getSupportedProviders.mockResolvedValue(providers);
 
-        // method=99 doesn't match any provider; non-interactive so no prompt fallback
-        const response = await command.run("a@b.c", "password", { method: "99", code: "123456" });
+        // Yubikey (3) is valid but not offered by the server; non-interactive so no prompt fallback
+        const response = await command.run("a@b.c", "password", { method: "3", code: "123456" });
 
         expect(response.success).toBe(false);
         expect(response.message).toBe("Login failed. No provider selected.");
