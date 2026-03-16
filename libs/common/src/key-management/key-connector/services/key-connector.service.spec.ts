@@ -35,7 +35,6 @@ import { AccountCryptographicStateService } from "../../account-cryptography/acc
 import { KeyGenerationService } from "../../crypto";
 import { EncString } from "../../crypto/models/enc-string";
 import { FakeMasterPasswordService } from "../../master-password/services/fake-master-password.service";
-import { SecurityStateService } from "../../security-state/abstractions/security-state.service";
 import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
 import { NewSsoUserKeyConnectorConversion } from "../models/new-sso-user-key-connector-conversion";
 
@@ -44,6 +43,7 @@ import {
   NEW_SSO_USER_KEY_CONNECTOR_CONVERSION,
   USES_KEY_CONNECTOR,
 } from "./key-connector.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 
 describe("KeyConnectorService", () => {
   let keyConnectorService: KeyConnectorService;
@@ -57,9 +57,9 @@ describe("KeyConnectorService", () => {
   const logoutCallback = jest.fn();
   const configService = mock<ConfigService>();
   const registerSdkService = mock<RegisterSdkService>();
-  const securityStateService = mock<SecurityStateService>();
   const accountCryptographicStateService = mock<AccountCryptographicStateService>();
   const userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
+  const sdkService = mock<SdkService>();
 
   let stateProvider: FakeStateProvider;
 
@@ -102,8 +102,8 @@ describe("KeyConnectorService", () => {
       stateProvider,
       configService,
       registerSdkService,
-      securityStateService,
       accountCryptographicStateService,
+      sdkService,
       userDecryptionOptionsService,
     );
   });
