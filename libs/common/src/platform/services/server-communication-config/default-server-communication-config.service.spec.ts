@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { Subject } from "rxjs";
+import { Subject, of } from "rxjs";
 
 import {
   ServerCommunicationConfig,
@@ -7,10 +7,22 @@ import {
   ServerCommunicationConfigPlatformApi,
 } from "@bitwarden/sdk-internal";
 
+import { ApiService } from "../../../abstractions/api.service";
 import { ConfigService } from "../../abstractions/config/config.service";
+import { FetchFn, FetchMiddleware } from "../../misc/fetch-middleware";
 
 import { DefaultServerCommunicationConfigService } from "./default-server-communication-config.service";
 import { ServerCommunicationConfigRepository } from "./server-communication-config.repository";
+
+class MockRequest {
+  url: string;
+  redirect: string;
+
+  constructor(input: string | MockRequest, init?: { redirect?: string }) {
+    this.url = typeof input === "string" ? input : input.url;
+    this.redirect = init?.redirect ?? "follow";
+  }
+}
 
 // Mock SdkLoadService
 jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk-load.service", () => ({
@@ -35,6 +47,7 @@ describe("DefaultServerCommunicationConfigService", () => {
   let repository: MockProxy<ServerCommunicationConfigRepository>;
   let platformApi: MockProxy<ServerCommunicationConfigPlatformApi>;
   let configService: MockProxy<ConfigService>;
+  let apiService: MockProxy<ApiService>;
   let serverCommunicationConfig$: Subject<ServerCommunicationConfig>;
   let service: DefaultServerCommunicationConfigService;
 
@@ -44,11 +57,17 @@ describe("DefaultServerCommunicationConfigService", () => {
     repository = mock<ServerCommunicationConfigRepository>();
     platformApi = mock<ServerCommunicationConfigPlatformApi>();
     configService = mock<ConfigService>();
+    apiService = mock<ApiService>();
 
     serverCommunicationConfig$ = new Subject<ServerCommunicationConfig>();
     configService.serverCommunicationConfig$ = serverCommunicationConfig$.asObservable();
 
-    service = new DefaultServerCommunicationConfigService(repository, platformApi, configService);
+    service = new DefaultServerCommunicationConfigService(
+      repository,
+      platformApi,
+      configService,
+      apiService,
+    );
     await service.init();
   });
 
@@ -77,6 +96,86 @@ describe("DefaultServerCommunicationConfigService", () => {
       serverCommunicationConfig$.next(config);
 
       expect(mockClientInstance.setCommunicationType).toHaveBeenCalledWith("example.com", config);
+    });
+  });
+
+  describe("redirect middleware", () => {
+    let middleware: FetchMiddleware;
+    let next: jest.MockedFn<FetchFn>;
+    let originalRequest: typeof Request;
+
+    beforeEach(() => {
+      originalRequest = global.Request;
+      (global as any).Request = MockRequest;
+
+      middleware = apiService.addMiddleware.mock.calls[0][0];
+      next = jest.fn();
+      repository.get$.mockReturnValue(of(undefined));
+    });
+
+    afterEach(() => {
+      (global as any).Request = originalRequest;
+    });
+
+    it("registers one middleware on init", () => {
+      expect(apiService.addMiddleware).toHaveBeenCalledTimes(1);
+    });
+
+    it("passes non-redirect responses through with one fetch", async () => {
+      const ok = { status: 200, type: "default" } as Response;
+      next.mockResolvedValueOnce(ok);
+      const result = await middleware(new Request("https://vault.acme.com/"), next);
+      expect(result).toBe(ok);
+      expect(next).toHaveBeenCalledTimes(1);
+    });
+
+    it("first call uses redirect: manual clone, not original request", async () => {
+      const ok = { status: 200, type: "default" } as Response;
+      next.mockResolvedValueOnce(ok);
+      const request = new Request("https://vault.acme.com/");
+      await middleware(request, next);
+      expect(next.mock.calls[0][0]).not.toBe(request);
+      expect(next.mock.calls[0][0].redirect).toBe("manual");
+    });
+
+    it("calls acquireCookie and retries on opaqueredirect when bootstrap needed", async () => {
+      const redirect = { status: 0, type: "opaqueredirect" } as Response;
+      const ok = { status: 200, type: "default" } as Response;
+      next.mockResolvedValueOnce(redirect).mockResolvedValueOnce(ok);
+      mockClientInstance.needsBootstrap.mockResolvedValue(true);
+
+      const request = new Request("https://vault.acme.com/api");
+      const result = await middleware(request, next);
+
+      expect(mockClientInstance.acquireCookie).toHaveBeenCalledWith("https://vault.acme.com/api");
+      expect(next).toHaveBeenCalledTimes(2);
+      expect(next.mock.calls[1][0]).toBe(request); // retry uses original
+      expect(result).toBe(ok);
+    });
+
+    it("calls acquireCookie and retries on 3xx status when bootstrap needed", async () => {
+      const redirect = { status: 302, type: "basic" } as Response;
+      const ok = { status: 200, type: "default" } as Response;
+      next.mockResolvedValueOnce(redirect).mockResolvedValueOnce(ok);
+      mockClientInstance.needsBootstrap.mockResolvedValue(true);
+
+      await middleware(new Request("https://vault.acme.com/"), next);
+
+      expect(mockClientInstance.acquireCookie).toHaveBeenCalledTimes(1);
+      expect(next).toHaveBeenCalledTimes(2);
+    });
+
+    it("retries without acquireCookie on redirect when bootstrap not needed", async () => {
+      const redirect = { status: 302, type: "basic" } as Response;
+      const ok = { status: 200, type: "default" } as Response;
+      next.mockResolvedValueOnce(redirect).mockResolvedValueOnce(ok);
+      mockClientInstance.needsBootstrap.mockResolvedValue(false);
+
+      const result = await middleware(new Request("https://vault.acme.com/"), next);
+
+      expect(mockClientInstance.acquireCookie).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledTimes(2);
+      expect(result).toBe(ok);
     });
   });
 });
