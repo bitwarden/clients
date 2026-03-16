@@ -6,6 +6,8 @@
       [id]="inputId"
       [checked]="selected()"
       [attr.aria-disabled]="disabled"
+      [attr.aria-labelledby]="ariaLabelledBy() ?? null"
+      [attr.aria-describedby]="ariaDescribedBy() ?? null"
       (change)="onInputChange($event)"
       class="tw-sr-only tw-absolute tw-size-full"
     />

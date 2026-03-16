@@ -45,7 +45,10 @@ export class SwitchComponent implements ControlValueAccessor, BitFormControlAbst
     return this.injector.get(NgControl, null, { self: true, optional: true });
   }
 
-  protected readonly size = input<"base" | "large">("base");
+  readonly size = signal<"base" | "large">("base");
+
+  readonly ariaLabelledBy = signal<string | undefined>(undefined);
+  readonly ariaDescribedBy = signal<string | undefined>(undefined);
 
   /**
    * Model signal for selected state binding when used outside of a form
