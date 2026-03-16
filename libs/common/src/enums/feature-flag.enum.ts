@@ -49,7 +49,7 @@ export enum FeatureFlag {
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
-  SdkKeyConnectorMigration = "sdk-key-connector-migration",
+  SdkKeyConnectorMigration = "use-sdk-for-key-connector-migration",
   UnlockViaSDK = "unlock-via-sdk",
 
   /* Tools */
