@@ -106,13 +106,11 @@ pub mod sshagent {
             }
         });
 
-        match desktop_core::ssh_agent::BitwardenDesktopAgent::start_server(
+        let state = desktop_core::ssh_agent::BitwardenDesktopAgent::start_server(
             auth_request_tx,
             Arc::new(Mutex::new(auth_response_rx)),
-        ) {
-            Ok(state) => Ok(SshAgentState { state }),
-            Err(e) => Err(napi::Error::from_reason(e.to_string())),
-        }
+        )?;
+        Ok(SshAgentState { state })
     }
 
     #[napi]
@@ -134,30 +132,24 @@ pub mod sshagent {
         new_keys: Vec<PrivateKey>,
     ) -> napi::Result<()> {
         let bitwarden_agent_state = &mut agent_state.state;
-        bitwarden_agent_state
-            .set_keys(
-                new_keys
-                    .iter()
-                    .map(|k| (k.private_key.clone(), k.name.clone(), k.cipher_id.clone()))
-                    .collect(),
-            )
-            .map_err(|e| napi::Error::from_reason(e.to_string()))?;
+        bitwarden_agent_state.set_keys(
+            new_keys
+                .iter()
+                .map(|k| (k.private_key.clone(), k.name.clone(), k.cipher_id.clone()))
+                .collect(),
+        )?;
         Ok(())
     }
 
     #[napi]
     pub fn lock(agent_state: &mut SshAgentState) -> napi::Result<()> {
         let bitwarden_agent_state = &mut agent_state.state;
-        bitwarden_agent_state
-            .lock()
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+        Ok(bitwarden_agent_state.lock()?)
     }
 
     #[napi]
     pub fn clear_keys(agent_state: &mut SshAgentState) -> napi::Result<()> {
         let bitwarden_agent_state = &mut agent_state.state;
-        bitwarden_agent_state
-            .clear_keys()
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+        Ok(bitwarden_agent_state.clear_keys()?)
     }
 }

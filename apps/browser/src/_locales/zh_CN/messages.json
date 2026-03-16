@@ -4866,7 +4866,7 @@
     "message": "复制地址"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "我的项目"
   },
   "adminConsole": {
     "message": "管理控制台"
@@ -6158,7 +6158,7 @@
     "message": "简化的自动填充"
   },
   "simplifiedAutofillDescription": {
-    "message": "当您点击一个建议的自动填充项目时，它会直接填充而不是带您查看详细信息。您仍然可以从「更多」菜单中查看这些项目。"
+    "message": "当您点击一个建议的自动填充项目时，它会直接填充而不是带您查看详细信息。您仍然可以通过「更多」菜单查看这些项目。"
   },
   "openSimplifiedAutofillPopover": {
     "message": "打开简化的自动填充弹窗"
