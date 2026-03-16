@@ -85,7 +85,7 @@ export default {
           provide: I18nService,
           useFactory: () => {
             return new I18nMockService({
-              passwordChangeProgress: "Password Change Progress",
+              passwordChangeProgress: "Credential Change Progress",
               assignMembersTasksToMonitorProgress: "Assign members tasks to monitor progress",
               onceYouReviewApplications:
                 "Once you review applications and mark them as critical, you can assign tasks to members.",
@@ -95,7 +95,7 @@ export default {
               percentageCompleted: (n: string | undefined) => `${n}% Completed`,
               securityTasksCompleted: (completed: string | undefined, total: string | undefined) =>
                 `${completed} of ${total} tasks completed`,
-              passwordChangeProgressBar: "Password change progress bar",
+              passwordChangeProgressBar: "Credential change progress bar",
               success: "Success",
               notifiedMembers: "Members have been notified",
               error: "Error",
