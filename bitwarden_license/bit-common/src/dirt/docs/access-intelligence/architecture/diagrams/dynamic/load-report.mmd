@@ -1,0 +1,35 @@
+---
+title: "Dynamic: Load Report"
+---
+sequenceDiagram
+    participant Browser as Browser
+    participant DataSvc as AccessIntelligenceDataService
+    participant PersistSvc as ReportPersistenceService
+    participant EncryptSvc as AccessReportEncryptionService
+    participant Server as Bitwarden Server
+    participant UI as UI Components
+
+    Note over Browser: Page load / org context initialized
+    Browser->>DataSvc: initializeForOrganization$(orgId)
+    DataSvc->>DataSvc: loadExistingReport$(orgId)
+    Note over DataSvc: loading$ = true
+
+    DataSvc->>PersistSvc: loadReport$(orgId)
+
+    par Load from backends in parallel
+        PersistSvc->>Server: getRiskInsightsReport$(orgId) — metadata
+        PersistSvc->>Server: getRiskInsightsSummary$(orgId) — summary
+        PersistSvc->>Server: downloadReport$(orgId) — encrypted payload (planned)
+    end
+    Server-->>PersistSvc: metadata + summary + encrypted payload
+
+    PersistSvc->>EncryptSvc: decryptReport$(context, encryptedData, wrappedKey)
+    Note over EncryptSvc: versioning services parse + validate payload
+    EncryptSvc-->>PersistSvc: DecryptedAccessReportData
+
+    PersistSvc->>PersistSvc: assemble AccessReportView from<br/>decrypted payload + metadata + summary
+
+    PersistSvc-->>DataSvc: AccessReportView
+
+    DataSvc-->>UI: report$ emits AccessReportView
+    Note over UI: loading$ = false<br/>UI renders report

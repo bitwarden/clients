@@ -1,0 +1,45 @@
+---
+title: "Dynamic: Review New Applications"
+---
+sequenceDiagram
+    actor Admin as Organization Admin
+    participant UI as UI Components
+    participant DataSvc as AccessIntelligenceDataService
+    participant PersistSvc as ReportPersistenceService
+    participant TaskSvc as SecurityTasksService
+    participant AdminTaskSvc as AdminTaskService [Vault Team]
+    participant TaskApiSvc as SecurityTasksApiService
+    participant Server as Bitwarden Server
+
+    Admin->>UI: opens Review New Applications
+    UI->>DataSvc: report$ (subscribe)
+    DataSvc-->>UI: AccessReportView
+    UI->>UI: display report.getNewApplications()
+    Note over UI: Shows apps where reviewedDate === null
+
+    Admin->>UI: selects critical apps, submits review
+
+    UI->>DataSvc: markApplicationsAsCritical$(selectedNames)
+    DataSvc->>DataSvc: report.markApplicationAsCritical(name) × selected
+    Note over DataSvc: View model mutation + recomputeSummary()
+
+    UI->>DataSvc: markApplicationsAsReviewed$(allNames)
+    DataSvc->>DataSvc: report.markApplicationAsReviewed(name, today) × all
+    Note over DataSvc: View model mutation — no summary change
+
+    DataSvc-->>UI: report$ emits (updated flags + review dates)
+
+    DataSvc->>PersistSvc: saveApplicationMetadata$(report)
+    PersistSvc->>Server: updateRiskInsightsApplicationData$() — critical flags + review dates
+
+    DataSvc->>TaskSvc: requestPasswordChangeForCriticalApplications$(orgId, cipherIds)
+    Note over TaskSvc: Derives cipher IDs for critical at-risk apps<br/>from report$ via AccessIntelligenceDataService
+    TaskSvc->>AdminTaskSvc: bulkCreateTasks(orgId, tasks)
+    Note over AdminTaskSvc: Creates security tasks for affected members<br/>(Vault Team service)
+    AdminTaskSvc-->>TaskSvc: SecurityTask[]
+
+    TaskSvc->>TaskApiSvc: loadTasks$(orgId)
+    TaskApiSvc->>Server: getAllTasks(orgId)
+    Server-->>TaskApiSvc: SecurityTask[]
+    TaskApiSvc-->>TaskSvc: SecurityTask[]
+    TaskSvc-->>UI: tasks$ emits updated task list

@@ -1,0 +1,62 @@
+---
+title: "Component: Access Intelligence UI"
+---
+%%{init: {"flowchart": {"useMaxWidth": false, "subGraphTitleMargin": {"bottom": 40}}}}%%
+flowchart TB
+    ADMIN["Organization Admin
+[Person]"]
+    MEMBER["Org Member
+[Person]"]
+
+    subgraph UI["Access Intelligence UI
+[Container: Angular + TypeScript]"]
+        direction LR
+        PAGE["Access Intelligence Page
+[Component: Angular Component]<br/>
+Main page; coordinates feature views and top-level report state"]
+        APPS["Applications Component
+[Component: Angular Component]<br/>
+Displays the applications table with critical flag management"]
+        ACTIVITY["Activity Component
+[Component: Angular Component]<br/>
+Shows credential activity, review tools, and password change metrics"]
+        DRAWER["Drawer Component
+[Component: Angular Component]<br/>
+Displays at-risk member and application details in a side panel"]
+    end
+
+    SERVICES["Access Intelligence Services
+[Container: Angular + TypeScript]<br/>
+Data, domain, and task services for Access Intelligence"]
+
+    ADMIN -->|"Uses"| PAGE
+    MEMBER -->|"Uses"| PAGE
+    PAGE -->|"Reads report data"| SERVICES
+    APPS -->|"Reads application data"| SERVICES
+    ACTIVITY -->|"Reads activity data"| SERVICES
+    ACTIVITY -->|"Sends security tasks"| SERVICES
+    DRAWER -->|"Reads report for content"| SERVICES
+
+    click SERVICES href "access-intelligence-service.component.mmd" "Services Component Detail"
+    click PAGE href "code/class-ui.mmd" "UI Class Detail"
+    click APPS href "code/class-ui.mmd" "UI Class Detail"
+    click ACTIVITY href "code/class-ui.mmd" "UI Class Detail"
+    click DRAWER href "code/class-ui.mmd" "UI Class Detail"
+
+    subgraph LEGEND["Legend"]
+        direction LR
+        LP["Person"]
+        LC["DIRT-Owned"]
+    end
+
+    style ADMIN fill:#FFF9C4,color:#1a1a1a,stroke:#D4AC00
+    style MEMBER fill:#FFF9C4,color:#1a1a1a,stroke:#D4AC00
+    style UI fill:#d8ecff,stroke:#1168BD,stroke-width:2px,color:#1a2a4a
+    style PAGE fill:#2166AC,color:#fff,stroke:#ffffff
+    style APPS fill:#2166AC,color:#fff,stroke:#ffffff
+    style ACTIVITY fill:#2166AC,color:#fff,stroke:#ffffff
+    style DRAWER fill:#2166AC,color:#fff,stroke:#ffffff
+    style SERVICES fill:#2166AC,color:#fff,stroke:#ffffff
+    style LEGEND fill:#fafafa,stroke:#ccc,color:#333
+    style LP fill:#FFF9C4,color:#1a1a1a,stroke:#D4AC00
+    style LC fill:#2166AC,color:#fff,stroke:#ffffff

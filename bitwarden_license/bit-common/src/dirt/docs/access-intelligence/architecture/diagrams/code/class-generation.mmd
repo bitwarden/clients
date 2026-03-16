@@ -1,0 +1,106 @@
+---
+title: "Code: Report Generation"
+---
+classDiagram
+    namespace DataLayer {
+        class AccessIntelligenceDataService {
+            <<abstract>>
+            +report$ Observable~AccessReportView~
+            +ciphers$ Observable~CipherView[]~
+            +loading$ Observable~boolean~
+            +error$ Observable~string~
+            +reportProgress$ Observable~ReportProgress~
+            +initializeForOrganization$(orgId) Observable~void~
+            +generateNewReport$(orgId) Observable~void~
+            +loadExistingReport$(orgId) Observable~void~
+            +refreshReport$(orgId) Observable~void~
+            +markApplicationsAsCritical$(names) Observable~void~
+            +unmarkApplicationsAsCritical$(names) Observable~void~
+            +markApplicationsAsReviewed$(names) Observable~void~
+        }
+    }
+    namespace DomainServices {
+        class ReportGenerationService {
+            <<abstract>>
+            +generateReport(ciphers, members, collectionAccess, groupMemberships, previousApplications?) Observable~AccessReportView~
+        }
+        class CipherHealthService {
+            <<abstract>>
+            +checkCipherHealth(ciphers) Observable~Map~
+            +checkSingleCipherHealth(cipher) Observable~CipherHealthView~
+            +detectPasswordReuse(ciphers) Observable~Map~
+        }
+        class MemberCipherMappingService {
+            <<abstract>>
+            +mapCiphersToMembers(ciphers, members, collectionAccess, groupMemberships) Observable~MemberCipherMappingResult~
+            +buildMemberRegistry(members) Observable~MemberRegistry~
+        }
+    }
+    namespace OutputModels {
+        class AccessReportView {
+            +applications ApplicationHealthView[]
+            +settings AccessReportSettingsView[]
+            +summary AccessReportSummaryView
+            +getAtRiskMembers() MemberRegistryEntryView[]
+            +getCriticalApplications() ApplicationHealthView[]
+            +getApplicationByName(name) ApplicationHealthView
+            +getNewApplications() ApplicationHealthView[]
+            +getSummary() AccessReportSummaryView
+            +markApplicationAsCritical(name) void
+            +unmarkApplicationAsCritical(name) void
+            +markApplicationAsReviewed(name, date?) void
+            +recomputeSummary() void
+        }
+        class ApplicationHealthView {
+            +applicationName string
+            +passwordCount int
+            +atRiskCount int
+            +memberRefs MemberRef[]
+            +getMemberDetails() MemberRegistryEntryView[]
+            +isAtRisk() boolean
+        }
+        class CipherHealthView {
+            +cipherId string
+            +hasWeakPassword boolean
+            +hasReusedPassword boolean
+            +hasExposedPassword boolean
+            +exposedCount int
+            +weakPasswordScore int
+            +isAtRisk() boolean
+            +getPasswordStrengthLabel() string
+            +getPasswordStrengthBadgeVariant() string
+        }
+        class MemberCipherMappingResult {
+            <<interface>>
+            +mapping Map~string, string[]~
+            +registry MemberRegistry
+        }
+        class MemberRegistry {
+            +entries Map~string, MemberRegistryEntryView~
+            +lookup(key) MemberRegistryEntryView
+        }
+        class MemberRegistryEntryView {
+            +id string
+            +userName string
+            +email string
+            +displayName string
+            +fromData(data)$ MemberRegistryEntryView
+            +fromJSON(obj)$ MemberRegistryEntryView
+        }
+    }
+
+    %% Data → Domain
+    AccessIntelligenceDataService --> ReportGenerationService : delegates
+    ReportGenerationService --> CipherHealthService : uses
+    ReportGenerationService --> MemberCipherMappingService : uses
+
+    %% Model production
+    ReportGenerationService ..> AccessReportView : produces
+    CipherHealthService ..> CipherHealthView : produces
+    MemberCipherMappingService ..> MemberCipherMappingResult : produces
+
+    %% Model composition
+    AccessReportView --> ApplicationHealthView : contains
+    MemberCipherMappingResult --> MemberRegistry : contains
+    MemberRegistry --> MemberRegistryEntryView : contains
+    ApplicationHealthView --> MemberRegistry : references

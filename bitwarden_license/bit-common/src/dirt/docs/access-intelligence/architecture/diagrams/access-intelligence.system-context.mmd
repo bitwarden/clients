@@ -1,0 +1,54 @@
+---
+title: "System Context: Access Intelligence"
+---
+flowchart LR
+    ADMIN["Organization Admin
+    [Person]<br/>
+    Generates reports, manages critical apps, sends security tasks"]
+    MEMBER["Org Member
+    [Person]<br/>
+    Receives security task requests"]
+    AI["Access Intelligence
+    [Software System]<br/>
+    Allows admins to generate, view, and track application health reports"]
+    BW_SERVER["Bitwarden Server
+    [Software System]<br/>
+    Stores report data and application settings for the organization"]
+    HIBP["Have I Been Pwned
+    [Software System: External]<br/>
+    Checks passwords against breach database"]
+    BLOB["Azure Blob Storage
+    [Software System: External]<br/>
+    Stores the report as a file for the organization"]
+
+    ADMIN -->|"Generate report, mark critical apps, send security tasks"| AI
+    AI -->|"Sends security tasks"| MEMBER
+    AI -->|"Read/write report data and settings"| BW_SERVER
+    AI -->|"Check password breach status"| HIBP
+    AI -.->|"Upload/download report file (planned)"| BLOB
+
+    click AI href "access-intelligence.container.mmd" "Container Detail"
+
+    subgraph LEGEND["Legend"]
+        direction LR
+        LP["Person"]
+        LS["This System (blue)"]
+        LB["Bitwarden System (lighter blue)"]
+        LE["Software System: External (gray, dashed border)"]
+        LXP["Planned"]
+        LF["·· dotted arrow = planned or expected"]
+    end
+
+    style ADMIN fill:#FFF9C4,color:#1a1a1a,stroke:#D4AC00
+    style MEMBER fill:#FFF9C4,color:#1a1a1a,stroke:#D4AC00
+    style AI fill:#1168BD,color:#fff,stroke:#1168BD
+    style BW_SERVER fill:#85BBF0,color:#1a1a1a,stroke:#438DD5
+    style HIBP fill:#999999,color:#fff,stroke-dasharray:5
+    style BLOB fill:#cccccc,color:#1a1a1a,stroke:#aaaaaa,stroke-dasharray:3
+    style LEGEND fill:#fafafa,stroke:#ccc,color:#333
+    style LP fill:#FFF9C4,color:#1a1a1a,stroke:#D4AC00
+    style LS fill:#1168BD,color:#fff,stroke:#1168BD
+    style LB fill:#85BBF0,color:#1a1a1a,stroke:#438DD5
+    style LE fill:#999999,color:#fff,stroke-dasharray:5
+    style LXP fill:#cccccc,color:#1a1a1a,stroke:#aaaaaa,stroke-dasharray:3
+    style LF fill:#fafafa,stroke:#ccc,color:#555

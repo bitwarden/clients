@@ -1,0 +1,76 @@
+---
+title: "Code: UI and Presentational"
+---
+classDiagram
+    namespace UILayer {
+        class ApplicationsV2Component {
+            <<component>>
+        }
+        class AllActivityV2Component {
+            <<component>>
+        }
+        class PasswordChangeMetricV2Component {
+            <<component>>
+        }
+        class AccessIntelligenceDrawerV2Component {
+            <<component>>
+        }
+    }
+    namespace PresentationalServices {
+        class DrawerStateService {
+            <<abstract>>
+            +drawerState Signal~DrawerState~
+            +openDrawer(type, invokerId) void
+            +closeDrawer() void
+            +toggleDrawer(type, invokerId) void
+            +isActiveDrawerType(type) boolean
+            +isDrawerOpenForInvoker(invokerId) boolean
+        }
+    }
+    namespace ViewModels {
+        class DrawerState {
+            <<interface>>
+            +open boolean
+            +type DrawerType
+            +invokerId string
+        }
+        class AccessReportSettingsView {
+            +applicationName string
+            +isCritical boolean
+            +reviewedDate Date
+            +markAsCritical() void
+            +unmarkAsCritical() void
+            +markAsReviewed(date?) void
+            +isReviewed() boolean
+        }
+        class AccessReportSummaryView {
+            +totalApplications int
+            +atRiskApplications int
+            +criticalApplications int
+            +totalMembers int
+            +atRiskMembers int
+        }
+        class AccessReportMetricsView {
+            +totalApplicationCount int
+            +totalAtRiskApplicationCount int
+            +totalCriticalApplicationCount int
+            +totalCriticalAtRiskApplicationCount int
+            +totalMemberCount int
+            +totalAtRiskMemberCount int
+            +totalCriticalMemberCount int
+            +totalCriticalAtRiskMemberCount int
+            +totalPasswordCount int
+            +totalAtRiskPasswordCount int
+            +totalCriticalPasswordCount int
+            +totalCriticalAtRiskPasswordCount int
+        }
+    }
+
+    %% UI → Presentational
+    AccessIntelligenceDrawerV2Component --> DrawerStateService : subscribes
+
+    %% Presentational → Model
+    DrawerStateService --> DrawerState : manages
+
+    %% View model composition (within AccessReportView — shown here for UI reference)
+    %% AccessReportView contains settings and summary; components consume via DataService

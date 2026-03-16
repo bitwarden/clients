@@ -1,0 +1,49 @@
+---
+title: "Dynamic: Generate Report"
+---
+sequenceDiagram
+    actor Admin as Organization Admin
+    participant UI as UI Components
+    participant DataSvc as AccessIntelligenceDataService
+    participant GenSvc as ReportGenerationService
+    participant HealthSvc as CipherHealthService
+    participant MapSvc as MemberCipherMappingService
+    participant PersistSvc as ReportPersistenceService
+    participant Server as Bitwarden Server
+
+    Admin->>UI: clicks "Generate Report"
+    UI->>DataSvc: generateNewReport$(orgId)
+    Note over DataSvc: loading$ = true
+
+    par Fetch org data in parallel
+        DataSvc->>Server: fetch CipherView[]
+        DataSvc->>Server: fetch OrganizationUserView[]
+        DataSvc->>Server: fetch GroupMembershipDetails[]
+        DataSvc->>Server: fetch CollectionAccessDetails[]
+        DataSvc->>Server: loadReport$(orgId) — previous app settings
+    end
+    Server-->>DataSvc: org data + previous ApplicationHealthView[]
+
+    DataSvc->>GenSvc: generateReport(ciphers, members, collections, groups, previousApps)
+
+    par Run health + mapping in parallel
+        GenSvc->>HealthSvc: checkCipherHealth(ciphers)
+        Note over HealthSvc: detectPasswordReuse(ciphers)<br/>checkExposedPasswords(ciphers)<br/>via Have I Been Pwned
+        HealthSvc-->>GenSvc: Map~CipherId, CipherHealthView~
+
+        GenSvc->>MapSvc: mapCiphersToMembers(ciphers, members, collections, groups)
+        MapSvc-->>GenSvc: MemberCipherMappingResult
+    end
+
+    GenSvc->>GenSvc: aggregate health + mapping into ApplicationHealthView[]
+    GenSvc->>GenSvc: carry over previous critical flags + review dates
+    GenSvc->>GenSvc: compute AccessReportSummaryView
+    GenSvc-->>DataSvc: AccessReportView
+
+    DataSvc-->>UI: report$ emits AccessReportView
+    Note over UI: loading$ = false<br/>UI updates with new report
+
+    DataSvc->>PersistSvc: saveReport$(view, orgId) [async, background]
+    Note over PersistSvc: encrypt + version report payload<br/>save metadata + summary to DB<br/>upload payload to blob storage (planned)
+    PersistSvc->>Server: save metadata + summary (RiskInsightsApiService)
+    PersistSvc->>Server: upload encrypted payload (ReportStorageApiService — planned)

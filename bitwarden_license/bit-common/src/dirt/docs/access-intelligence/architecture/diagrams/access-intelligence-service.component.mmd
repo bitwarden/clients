@@ -1,0 +1,91 @@
+---
+title: "Component: Access Intelligence Services"
+---
+flowchart LR
+    UI_COMP["Access Intelligence UI
+[Container: Angular + TypeScript]<br/>
+Angular page components for applications, activity, cards, and drawer views"]
+
+    subgraph SERVICES["Access Intelligence Services [Container: Angular + TypeScript]"]
+        direction TB
+        AI_DATA["Access Intelligence Data Service
+[Component: Angular Service]<br/>
+Coordinates report generation and persistence; provides report data to UI components"]
+        REPORT_GEN["Report Generation Component
+[Component: Angular Service]<br/>
+Builds the full access report from vault data, password health, and member access"]
+        PERSIST["Report Persistence Component
+[Component: Angular Service]<br/>
+Saves and loads the report across the API and cloud storage"]
+        SECURITY_TASKS["Security Tasks Service
+[Component: Angular Service]<br/>
+Creates and loads security tasks for at-risk credentials"]
+    end
+
+    VAULT_TEAM["Admin Task Service
+[Component: Angular Service, Vault Team]<br/>
+Vault team service for creating bulk security tasks"]
+
+    BW_PLATFORM["Bitwarden Platform Services
+[Component: Angular Services, Bitwarden Platform]<br/>
+Core platform services for vault data, password health, and org membership"]
+
+    HIBP["Have I Been Pwned
+[Software System: External]<br/>
+Checks passwords against breach database"]
+
+    BW_SERVER["Bitwarden Server
+[Container: .NET API]<br/>
+API endpoints for report metadata and security tasks"]
+
+    BLOBSTORE["Blob Storage
+[Container: Azure Blob Storage]<br/>
+Stores encrypted report files for large organizations"]
+
+    UI_COMP -->|"Reads report data"| AI_DATA
+    UI_COMP -->|"Sends security tasks"| SECURITY_TASKS
+    AI_DATA -->|"Generates report"| REPORT_GEN
+    AI_DATA -->|"Saves and loads report"| PERSIST
+    REPORT_GEN -->|"Checks password strength"| BW_PLATFORM
+    REPORT_GEN -->|"Checks breach status"| HIBP
+    PERSIST -->|"Saves and loads report data"| BW_SERVER
+    PERSIST -.->|"Saves encrypted report (planned)"| BLOBSTORE
+    SECURITY_TASKS -->|"Creates tasks"| VAULT_TEAM
+    SECURITY_TASKS -->|"Saves and loads tasks"| BW_SERVER
+    SECURITY_TASKS -->|"Finds unassigned credentials"| AI_DATA
+    AI_DATA -->|"Fetches credentials and org data"| BW_PLATFORM
+
+    click UI_COMP href "access-intelligence-ui.component.mmd" "UI Component Detail"
+    click AI_DATA href "code/class-generation.mmd" "Data Service Detail"
+    click REPORT_GEN href "code/class-generation.mmd" "Report Generation Detail"
+    click PERSIST href "code/class-persistence.mmd" "Persistence Detail"
+    click SECURITY_TASKS href "code/class-security-tasks.mmd" "Security Tasks Detail"
+
+    subgraph LEGEND["Legend"]
+        direction LR
+        LC["DIRT-Owned Component"]
+        LO["Bitwarden-Owned (Other Team)"]
+        LX["External System"]
+        LXP["Planned"]
+        LXE["Expected"]
+        LF["·· dotted arrow = planned or expected"]
+    end
+
+    style SERVICES fill:#d8ecff,stroke:#1168BD,stroke-width:2px,color:#1a2a4a
+    style UI_COMP fill:#2166AC,color:#fff,stroke:#ffffff
+    style AI_DATA fill:#2166AC,color:#fff,stroke:#ffffff
+    style REPORT_GEN fill:#2166AC,color:#fff,stroke:#ffffff
+    style PERSIST fill:#2166AC,color:#fff,stroke:#ffffff
+    style SECURITY_TASKS fill:#2166AC,color:#fff,stroke:#ffffff
+    style VAULT_TEAM fill:#85BBF0,color:#1a1a1a,stroke:#438DD5
+    style BW_PLATFORM fill:#85BBF0,color:#1a1a1a,stroke:#438DD5
+    style BW_SERVER fill:#85BBF0,color:#1a1a1a,stroke:#438DD5
+    style HIBP fill:#999999,color:#fff,stroke-dasharray:5
+    style BLOBSTORE fill:#cccccc,color:#1a1a1a,stroke:#aaaaaa,stroke-dasharray:3
+    style LEGEND fill:#fafafa,stroke:#ccc,color:#333
+    style LC fill:#2166AC,color:#fff,stroke:#ffffff
+    style LO fill:#85BBF0,color:#1a1a1a,stroke:#438DD5
+    style LX fill:#999999,color:#fff,stroke-dasharray:5
+    style LXP fill:#cccccc,color:#1a1a1a,stroke:#aaaaaa,stroke-dasharray:3
+    style LXE fill:#ffffff,color:#1a1a1a,stroke:#aaaaaa,stroke-dasharray:3
+    style LF fill:#fafafa,stroke:#ccc,color:#555

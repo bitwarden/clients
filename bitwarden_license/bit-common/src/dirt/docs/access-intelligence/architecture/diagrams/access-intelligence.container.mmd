@@ -1,0 +1,86 @@
+---
+title: "Container: Access Intelligence"
+---
+flowchart TB
+    ADMIN["Organization Admin
+    [Person]<br/>
+    Generates reports, manages critical apps, and sends security tasks"]
+
+    subgraph AI["Access Intelligence [Software System]"]
+        direction TB
+        UI["UI
+        [Angular Components]<br/>
+        Single-page interface for Access Intelligence features"]
+
+        BUSINESS_LOGIC["Business Logic
+        [Angular Services]<br/>
+        Orchestrates report generation, health checks, member mapping, and persistence"]
+
+        API(["Backend
+        [Container: .NET / ASP.NET Core]<br/>
+        Handles report metadata, application settings, and security task endpoints"])
+
+        DB[("Database
+        [Container: Database]<br/>
+        Stores report metadata, application settings, and summaries")]
+
+        BLOBSTORE[("Blob Storage
+        [Container: Azure Blob Storage]<br/>
+        Stores the compressed report payload")]
+
+        SDK["Bitwarden SDK
+        [Container: Rust]<br/>
+        Expected future runtime for Access Intelligence business logic"]
+    end
+
+    PLATFORM["Bitwarden Platform Services
+    [Software System: Bitwarden]<br/>
+    Provides ciphers, members, groups, collections, and security task infrastructure"]
+
+    HIBP["Have I Been Pwned
+    [Software System: External]<br/>
+    Checks passwords against breach database"]
+
+    ADMIN -->|"Uses"| UI
+    UI -->|"Delegates to"| BUSINESS_LOGIC
+    BUSINESS_LOGIC -->|"Calls API"| API
+    API -->|"Reads and writes to"| DB
+    BUSINESS_LOGIC -.->|"Reads and writes report file (planned)"| BLOBSTORE
+    BUSINESS_LOGIC -->|"Checks for breaches"| HIBP
+    BUSINESS_LOGIC -->|"Uses for ciphers, members, groups, collections, and security tasks"| PLATFORM
+    BUSINESS_LOGIC ---|"Expected migration"| SDK
+
+    click UI href "access-intelligence-ui.component.mmd" "UI Component Detail"
+    click BUSINESS_LOGIC href "access-intelligence-service.component.mmd" "Services Component Detail"
+
+    subgraph LEGEND["Legend"]
+        direction LR
+        LP["Person"]
+        LC["DIRT-Owned"]
+        LB["Bitwarden Platform (Other Team)"]
+        LE["External System"]
+        LXP["Planned"]
+        LXE["Expected / Migration Target"]
+        LF["·· dotted = planned or expected"]
+        LFL["— line = expected migration"]
+    end
+
+    style ADMIN fill:#FFF9C4,color:#1a1a1a,stroke:#D4AC00
+    style UI fill:#2166AC,color:#fff,stroke:#ffffff
+    style BUSINESS_LOGIC fill:#2166AC,color:#fff,stroke:#ffffff
+    style API fill:#2166AC,color:#fff,stroke:#ffffff
+    style DB fill:#2166AC,color:#fff,stroke:#ffffff
+    style BLOBSTORE fill:#cccccc,color:#1a1a1a,stroke:#aaaaaa,stroke-dasharray:3
+    style HIBP fill:#999999,color:#fff,stroke-dasharray:5
+    style PLATFORM fill:#85BBF0,color:#1a1a1a,stroke:#438DD5
+    style SDK fill:#ffffff,color:#1a1a1a,stroke:#aaaaaa,stroke-dasharray:3
+    style AI fill:#d8ecff,stroke:#1168BD,stroke-width:2px,color:#1a2a4a
+    style LEGEND fill:#fafafa,stroke:#ccc,color:#333
+    style LP fill:#FFF9C4,color:#1a1a1a,stroke:#D4AC00
+    style LC fill:#2166AC,color:#fff,stroke:#ffffff
+    style LB fill:#85BBF0,color:#1a1a1a,stroke:#438DD5
+    style LE fill:#999999,color:#fff,stroke-dasharray:5
+    style LXP fill:#cccccc,color:#1a1a1a,stroke:#aaaaaa,stroke-dasharray:3
+    style LXE fill:#ffffff,color:#1a1a1a,stroke:#aaaaaa,stroke-dasharray:3
+    style LF fill:#fafafa,stroke:#ccc,color:#555
+    style LFL fill:#fafafa,stroke:#ccc,color:#555

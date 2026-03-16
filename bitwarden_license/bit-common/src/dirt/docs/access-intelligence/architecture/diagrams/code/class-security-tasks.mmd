@@ -1,0 +1,54 @@
+---
+title: "Code: Security Tasks"
+---
+classDiagram
+    namespace TaskServices {
+        class SecurityTasksService {
+            <<abstract>>
+            +tasks$ Observable~SecurityTask[]~
+            +unassignedCriticalCipherIds$ Observable~string[]~
+            +getTaskMetrics$(orgId) Observable~TaskMetrics~
+            +loadTasks$(orgId) Observable~void~
+            +requestPasswordChangeForCriticalApplications$(orgId, cipherIds) Observable~void~
+        }
+        class DefaultSecurityTasksService {
+            -adminTaskService AdminTaskService
+            -securityTasksApiService SecurityTasksApiService
+            -dataService AccessIntelligenceDataService
+            +tasks$ Observable~SecurityTask[]~
+            +unassignedCriticalCipherIds$ Observable~string[]~
+            +getTaskMetrics$(orgId) Observable~TaskMetrics~
+            +loadTasks$(orgId) Observable~void~
+            +requestPasswordChangeForCriticalApplications$(orgId, cipherIds) Observable~void~
+        }
+    }
+    namespace ExternalDependency_VaultTeam {
+        class AdminTaskService {
+            <<abstract>>
+            +bulkCreateTasks(orgId, tasks) Promise~SecurityTask[]~
+        }
+    }
+    namespace APIServices {
+        class SecurityTasksApiService {
+            +getTaskMetrics(orgId) Observable~TaskMetrics~
+            +getAllTasks(orgId, status?) Promise~SecurityTask[]~
+        }
+    }
+    namespace DataLayer {
+        class AccessIntelligenceDataService {
+            <<abstract>>
+            +report$ Observable~AccessReportView~
+        }
+    }
+
+    %% Inheritance
+    SecurityTasksService <|-- DefaultSecurityTasksService
+
+    %% Dependencies
+    DefaultSecurityTasksService --> AdminTaskService : delegates task creation
+    DefaultSecurityTasksService --> SecurityTasksApiService : loads task data
+    DefaultSecurityTasksService --> AccessIntelligenceDataService : derives unassigned cipher ids
+
+    %% Note: AdminTaskService lives in bit-web/vault/ (Vault Team ownership).
+    %% SecurityTasksService and its implementation must stay in bit-web
+    %% due to this cross-team dependency.

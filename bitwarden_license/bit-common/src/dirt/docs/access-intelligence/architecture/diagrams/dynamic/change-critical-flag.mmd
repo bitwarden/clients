@@ -1,0 +1,29 @@
+---
+title: "Dynamic: Change Critical Flag"
+---
+sequenceDiagram
+    actor Admin as Organization Admin
+    participant UI as UI Components
+    participant DataSvc as AccessIntelligenceDataService
+    participant PersistSvc as ReportPersistenceService
+    participant Server as Bitwarden Server
+
+    Admin->>UI: Mark/Unmark application as critical
+
+    alt Mark as critical
+        UI->>DataSvc: markApplicationsAsCritical$(names)
+        DataSvc->>DataSvc: report.markApplicationAsCritical(name)
+        Note over DataSvc: View model mutation — no report regeneration<br/>report.recomputeSummary()
+    else Unmark as critical
+        UI->>DataSvc: unmarkApplicationsAsCritical$(names)
+        DataSvc->>DataSvc: report.unmarkApplicationAsCritical(name)
+        Note over DataSvc: View model mutation — no report regeneration<br/>report.recomputeSummary()
+    end
+
+    DataSvc-->>UI: report$ emits (same reference, flag updated)
+    Note over UI: UI reflects updated critical status immediately
+
+    DataSvc->>PersistSvc: saveApplicationMetadata$(report)
+    Note over PersistSvc: Settings only — critical flags + review dates<br/>No encryption needed (metadata stored in DB)
+    PersistSvc->>Server: updateRiskInsightsApplicationData$() via RiskInsightsApiService
+    Server-->>PersistSvc: success

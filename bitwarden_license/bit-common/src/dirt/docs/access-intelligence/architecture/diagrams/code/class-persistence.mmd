@@ -1,0 +1,74 @@
+---
+title: "Code: Persistence and Encryption"
+---
+classDiagram
+    direction TB
+    namespace DomainServices {
+        class ReportPersistenceService {
+            <<abstract>>
+            +saveReport$(view, orgId) Observable~SaveResult~
+            +saveApplicationMetadata$(view) Observable~void~
+            +loadReport$(orgId) Observable~LoadResult~
+        }
+        class AccessReportEncryptionService {
+            <<abstract>>
+            +encryptReport$(context, data, wrappedKey?) Observable~EncryptedDataWithKey~
+            +decryptReport$(context, encryptedData, wrappedKey) Observable~DecryptedAccessReportData~
+            +decryptSummary$(context, encryptedSummary, wrappedKey) Observable~AccessReportSummaryData~
+        }
+    }
+    namespace VersioningServices {
+        class VersioningService~T~ {
+            <<abstract>>
+            +currentVersion int
+            +process(json) ProcessResult~T~
+            +serialize(data) string
+        }
+        class ReportVersioningService {
+            +currentVersion 1
+            +process(json) ProcessResult~AccessReportPayload~
+            +serialize(data) string
+        }
+        class ApplicationVersioningService {
+            +currentVersion 1
+            +process(json) ProcessResult~AccessReportSettingsData[]~
+            +serialize(data) string
+        }
+        class SummaryVersioningService {
+            +currentVersion 1
+            +process(json) ProcessResult~AccessReportSummaryData~
+            +serialize(data) string
+        }
+    }
+    namespace APIServices {
+        class RiskInsightsApiService {
+            +getRiskInsightsReport$(orgId) Observable~RiskInsightsResponse~
+            +saveRiskInsightsReport$(request, orgId) Observable~SaveResponse~
+            +getRiskInsightsSummary$(orgId, minDate, maxDate) Observable~SummaryResponse~
+            +updateRiskInsightsSummary$(reportId, orgId, request) Observable~void~
+            +getRiskInsightsApplicationData$(orgId, reportId) Observable~AppDataResponse~
+            +updateRiskInsightsApplicationData$(reportId, orgId, request) Observable~AppDataResponse~
+        }
+        class ReportStorageApiService {
+            <<planned>>
+            +uploadReport$(orgId, payload) Observable~UploadResponse~
+            +downloadReport$(orgId, reportId) Observable~Blob~
+        }
+    }
+
+    %% Persistence → Encryption
+    ReportPersistenceService --> AccessReportEncryptionService : uses
+
+    %% Persistence → API
+    ReportPersistenceService --> RiskInsightsApiService : uses
+    ReportPersistenceService --> ReportStorageApiService : uses (planned)
+
+    %% Encryption → Versioning
+    AccessReportEncryptionService --> ReportVersioningService : uses
+    AccessReportEncryptionService --> ApplicationVersioningService : uses
+    AccessReportEncryptionService --> SummaryVersioningService : uses
+
+    %% Versioning inheritance
+    VersioningService <|-- ReportVersioningService
+    VersioningService <|-- ApplicationVersioningService
+    VersioningService <|-- SummaryVersioningService

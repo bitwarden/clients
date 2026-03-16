@@ -1,0 +1,31 @@
+---
+title: "Dynamic: Send Security Tasks"
+---
+sequenceDiagram
+    actor Admin as Organization Admin
+    participant UI as UI Components
+    participant TaskSvc as SecurityTasksService
+    participant DataSvc as AccessIntelligenceDataService
+    participant AdminTaskSvc as AdminTaskService [Vault Team]
+    participant TaskApiSvc as SecurityTasksApiService
+    participant Server as Bitwarden Server
+
+    Admin->>UI: clicks "Send Security Tasks"
+    UI->>TaskSvc: requestPasswordChangeForCriticalApplications$(orgId, cipherIds)
+
+    TaskSvc->>DataSvc: report$ (subscribe)
+    DataSvc-->>TaskSvc: AccessReportView
+    TaskSvc->>TaskSvc: derive unassignedCriticalCipherIds$
+    Note over TaskSvc: Filters critical at-risk apps<br/>that have no existing open task
+
+    TaskSvc->>AdminTaskSvc: bulkCreateTasks(orgId, tasks)
+    Note over AdminTaskSvc: Creates password-change tasks<br/>for members with at-risk ciphers<br/>(Vault Team service)
+    AdminTaskSvc-->>TaskSvc: SecurityTask[]
+
+    TaskSvc->>TaskApiSvc: loadTasks$(orgId)
+    TaskApiSvc->>Server: getAllTasks(orgId)
+    Server-->>TaskApiSvc: SecurityTask[]
+    TaskApiSvc-->>TaskSvc: SecurityTask[]
+
+    TaskSvc-->>UI: tasks$ emits updated task list
+    Note over UI: Task count / status updated in UI
