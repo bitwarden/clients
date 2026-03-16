@@ -36,6 +36,7 @@ import {
 } from "./abstractions/collect-autofill-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
+import { AutoFillConstants } from "./autofill-constants";
 
 export class CollectAutofillContentService implements CollectAutofillContentServiceInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
@@ -662,6 +663,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         break;
       }
 
+      if (this.containsChildField(currentElement)) {
+        break;
+      }
+
       const textContent = this.getTextContentFromElement(currentElement);
       if (textContent) {
         labelTextContent.push(textContent);
@@ -710,6 +715,18 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     return parentSiblingTableRowElement?.cells?.length > tableDataElementIndex
       ? this.getTextContentFromElement(parentSiblingTableRowElement.cells[tableDataElementIndex])
       : null;
+  }
+
+  /**
+   * Checks whether any of an element's descendants are form fields.
+   */
+  private containsChildField(element: Node): boolean {
+    if (nodeIsElement(element)) {
+      const fields = AutoFillConstants.FieldElements.join(", ");
+      return !!element.querySelector(fields);
+    } else {
+      return false;
+    }
   }
 
   /**
@@ -794,6 +811,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         return textContentItems;
       }
 
+      if (this.containsChildField(currentElement)) {
+        return textContentItems;
+      }
+
       const textContent = this.getTextContentFromElement(currentElement);
       if (textContent) {
         textContentItems.push(textContent);
@@ -813,11 +834,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     let siblingElement = nodeIsElement(currentElement)
       ? currentElement.previousElementSibling
       : currentElement.previousSibling;
-    while (siblingElement?.lastChild && !this.isNewSectionElement(siblingElement)) {
+    while (
+      siblingElement?.lastChild &&
+      !this.isNewSectionElement(siblingElement) &&
+      !this.containsChildField(siblingElement)
+    ) {
       siblingElement = siblingElement.lastChild;
     }
 
-    if (this.isNewSectionElement(siblingElement)) {
+    if (this.isNewSectionElement(siblingElement) || this.containsChildField(siblingElement)) {
       return textContentItems;
     }
 
