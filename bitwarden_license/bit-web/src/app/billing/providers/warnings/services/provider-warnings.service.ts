@@ -24,7 +24,7 @@ import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/type
 
 import { ProviderWarningsResponse } from "../types/provider-warnings";
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class ProviderWarningsService {
   private cache$ = new Map<ProviderId, Observable<ProviderWarningsResponse>>();
 

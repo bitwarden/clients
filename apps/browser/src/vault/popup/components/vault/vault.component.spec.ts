@@ -5,7 +5,7 @@ import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, Observable, Subject, of } from "rxjs";
+import { BehaviorSubject, Observable, Subject, of, take } from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { NudgeType, NudgesService } from "@bitwarden/angular/vault";
@@ -18,12 +18,12 @@ import AutofillService from "@bitwarden/browser/autofill/services/autofill.servi
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
 import { PopupRouterCacheService } from "@bitwarden/browser/platform/popup/view-cache/popup-router-cache.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -472,20 +472,19 @@ describe("VaultComponent", () => {
     expect(spy).toHaveBeenCalledWith(NudgeType.HasVaultItems, "user-xyz");
   }));
 
-  it("accountAgeInDays$ computes integer days since creation", (done) => {
+  it("accountAgeInDays$ computes integer days since creation", fakeAsync(() => {
     activeAccount$.next({
       id: "user-123",
       creationDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
     } as any);
-    getObs<number | null>(component, "accountAgeInDays$").subscribe((days) => {
-      if (days !== null) {
-        expect(days).toBeGreaterThanOrEqual(7);
-        done();
-      }
-    });
 
     void component.ngOnInit();
-  });
+    tick();
+
+    getObs<number | null>(component, "accountAgeInDays$")
+      .pipe(take(1))
+      .subscribe((days) => expect(days).toBeGreaterThanOrEqual(7));
+  }));
 
   it("renders Premium spotlight when eligible and opens dialog on click", fakeAsync(() => {
     itemsSvc.cipherCount$.next(10);
@@ -559,6 +558,10 @@ describe("VaultComponent", () => {
   }));
 
   it("does not render Premium spotlight when account is less than a week old", fakeAsync(() => {
+    activeAccount$.next({
+      id: "user-1",
+      creationDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+    } as any);
     itemsSvc.cipherCount$.next(10);
     hasPremiumFromAnySource$.next(false);
 

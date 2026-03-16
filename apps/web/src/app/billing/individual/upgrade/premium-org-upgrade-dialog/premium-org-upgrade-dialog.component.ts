@@ -28,14 +28,12 @@ import {
   DialogService,
 } from "@bitwarden/components";
 
-import { AccountBillingClient, PreviewInvoiceClient } from "../../../clients";
 import { BillingServicesModule } from "../../../services";
 import {
   PremiumOrgUpgradePaymentComponent,
   PremiumOrgUpgradePaymentResult,
 } from "../premium-org-upgrade-payment/premium-org-upgrade-payment.component";
 import { PremiumOrgUpgradePlanSelectionComponent } from "../premium-org-upgrade-plan-selection/premium-org-upgrade-plan-selection.component";
-import { UpgradePaymentService } from "../upgrade-payment/services/upgrade-payment.service";
 
 export const PremiumOrgUpgradeDialogStatus = {
   Closed: "closed",
@@ -84,7 +82,6 @@ export type PremiumOrgUpgradeDialogParams = {
     PremiumOrgUpgradePlanSelectionComponent,
     PremiumOrgUpgradePaymentComponent,
   ],
-  providers: [UpgradePaymentService, AccountBillingClient, PreviewInvoiceClient],
   templateUrl: "./premium-org-upgrade-dialog.component.html",
 })
 export class PremiumOrgUpgradeDialogComponent implements OnInit {

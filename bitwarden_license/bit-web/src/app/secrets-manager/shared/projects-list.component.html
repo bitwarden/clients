@@ -11,8 +11,8 @@
     bitButton
     buttonType="secondary"
     (click)="newProjectEvent.emit()"
+    startIcon="bwi-plus"
   >
-    <i class="bwi bwi-plus" aria-hidden="true"></i>
     {{ "newProject" | i18n }}
   </button>
 </bit-no-items>
@@ -62,13 +62,30 @@
         <div class="tw-flex tw-items-center tw-gap-4 tw-break-all">
           <i class="bwi bwi-collection tw-text-muted" aria-hidden="true"></i>
           <div>
+            <span
+              *ngIf="project.decryptionError"
+              class="tw-cursor-pointer tw-text-warning tw-underline"
+              role="button"
+              tabindex="0"
+              [title]="'clickToRenameProject' | i18n"
+              [attr.aria-label]="'clickToRenameProject' | i18n"
+              (click)="editProjectEvent.emit(project.id); $event.stopPropagation()"
+              (keydown.enter)="editProjectEvent.emit(project.id); $event.stopPropagation()"
+              (keydown.space)="
+                editProjectEvent.emit(project.id); $event.stopPropagation(); $event.preventDefault()
+              "
+            >
+              {{ project.name }}
+              <i class="bwi bwi-pencil-square tw-ml-1" aria-hidden="true"></i>
+            </span>
             <a
-              *ngIf="project.linkable"
+              *ngIf="!project.decryptionError && project.linkable"
               bitLink
               [routerLink]="['/sm', project.organizationId, 'projects', project.id]"
-              >{{ project.name }}</a
             >
-            <span *ngIf="!project.linkable">{{ project.name }}</span>
+              {{ project.name }}
+            </a>
+            <span *ngIf="!project.decryptionError && !project.linkable">{{ project.name }}</span>
             <div class="tw-text-sm tw-text-muted tw-block">
               {{ project.id }}
               <button

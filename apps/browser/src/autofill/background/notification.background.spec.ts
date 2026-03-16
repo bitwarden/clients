@@ -253,10 +253,16 @@ describe("NotificationBackground", () => {
       });
 
       it("triggers a retryHandler if the message target is `notification.background` and a handler exists", async () => {
+        const retrySender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1 } as chrome.tabs.Tab,
+        });
         const message: NotificationBackgroundExtensionMessage = {
           command: "unlockCompleted",
           data: {
-            commandToRetry: { message: { command: "bgSaveCipher" } },
+            commandToRetry: {
+              message: { command: "bgSaveCipher" },
+              sender: retrySender,
+            },
             target: "notification.background",
           } as LockedVaultPendingNotificationsData,
         };
@@ -2764,7 +2770,7 @@ describe("NotificationBackground", () => {
 
           expect(convertAddLoginQueueMessageToCipherViewSpy).toHaveBeenCalledWith(
             queueMessage,
-            null,
+            undefined,
           );
           expect(createWithServerSpy).toHaveBeenCalled();
           expect(tabSendMessageDataSpy).toHaveBeenCalledWith(

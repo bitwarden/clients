@@ -7,7 +7,10 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import {
+  DECRYPT_ERROR,
+  EncString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -359,15 +362,21 @@ export class AccessPolicyService {
     organizationKey: SymmetricCryptoKey,
     response: GrantedProjectAccessPolicyResponse,
   ): Promise<GrantedProjectAccessPolicyView> {
+    let projectName = null;
+    if (response.grantedProjectName) {
+      try {
+        projectName = await this.encryptService.decryptString(
+          new EncString(response.grantedProjectName),
+          organizationKey,
+        );
+      } catch {
+        projectName = DECRYPT_ERROR;
+      }
+    }
     return {
       ...this.createBaseAccessPolicyView(response),
       grantedProjectId: response.grantedProjectId,
-      grantedProjectName: response.grantedProjectName
-        ? await this.encryptService.decryptString(
-            new EncString(response.grantedProjectName),
-            organizationKey,
-          )
-        : null,
+      grantedProjectName: projectName,
     };
   }
 
@@ -432,9 +441,15 @@ export class AccessPolicyService {
         view.currentUserInGroup = r.currentUserInGroup;
 
         if (r.type === "serviceAccount" || r.type === "project") {
-          view.name = r.name
-            ? await this.encryptService.decryptString(new EncString(r.name), orgKey)
-            : null;
+          if (r.name) {
+            try {
+              view.name = await this.encryptService.decryptString(new EncString(r.name), orgKey);
+            } catch {
+              view.name = DECRYPT_ERROR;
+            }
+          } else {
+            view.name = null;
+          }
         } else {
           view.name = r.name;
         }
