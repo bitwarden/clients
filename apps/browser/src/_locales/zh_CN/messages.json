@@ -365,7 +365,7 @@
     "message": "使用 Passwordless.dev 摆脱传统密码束缚，打造流畅且安全的登录体验。访问 bitwarden.com 网站了解更多信息。"
   },
   "freeBitwardenFamilies": {
-    "message": "免费的 Bitwarden 家庭版"
+    "message": "免费 Bitwarden 家庭版"
   },
   "freeBitwardenFamiliesPageDesc": {
     "message": "您有资格获得免费的 Bitwarden 家庭版。立即在网页 App 中兑换此优惠。"
@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "复制地址"
   },
+  "myItems": {
+    "message": "我的项目"
+  },
   "adminConsole": {
     "message": "管理控制台"
   },
@@ -6150,6 +6153,15 @@
   },
   "searchResults": {
     "message": "搜索结果"
+  },
+  "simplifiedAutofill": {
+    "message": "简化的自动填充"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "当您点击一个建议的自动填充项目时，它会直接填充而不是带您查看详细信息。您仍然可以通过「更多」菜单查看这些项目。"
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "打开简化的自动填充弹窗"
   },
   "resizeSideNavigation": {
     "message": "调整侧边导航栏大小"

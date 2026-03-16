@@ -4,7 +4,10 @@ import { combineLatest, filter, firstValueFrom, map, Observable, of, switchMap }
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "@bitwarden/auth/common";
+import {
+  InternalUserDecryptionOptionsServiceAbstraction,
+  LogoutReason,
+} from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { NewSsoUserKeyConnectorConversion } from "@bitwarden/common/key-management/key-connector/models/new-sso-user-key-connector-conversion";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -27,7 +30,6 @@ import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { KeysRequest } from "../../../models/request/keys.request";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { RegisterSdkService } from "../../../platform/abstractions/sdk/register-sdk.service";
-import { asUuid } from "../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { KEY_CONNECTOR_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
@@ -92,6 +94,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     private registerSdkService: RegisterSdkService,
     private securityStateService: SecurityStateService,
     private accountCryptographicStateService: AccountCryptographicStateService,
+    private userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
   ) {
     this.convertAccountRequired$ = accountService.activeAccount$.pipe(
       filter((account) => account != null),
@@ -142,6 +145,22 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     await this.apiService.postConvertToKeyConnector();
 
     await this.setUsesKeyConnector(true, userId);
+
+    // Clear master password unlock from state
+    await this.masterPasswordService.clearMasterKeyHash(userId);
+    await this.masterPasswordService.clearMasterPasswordUnlockData(userId);
+
+    const userDecryptionOptions = await firstValueFrom(
+      this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
+    );
+    userDecryptionOptions.hasMasterPassword = false;
+    userDecryptionOptions.keyConnectorOption = {
+      keyConnectorUrl,
+    };
+    await this.userDecryptionOptionsService.setUserDecryptionOptionsById(
+      userId,
+      userDecryptionOptions,
+    );
   }
 
   // TODO: UserKey should be renamed to MasterKey and typed accordingly
@@ -214,11 +233,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
           return ref.value
             .auth()
             .registration()
-            .post_keys_for_key_connector_registration(
-              keyConnectorUrl,
-              ssoOrganizationIdentifier,
-              asUuid(userId),
-            );
+            .post_keys_for_key_connector_registration(keyConnectorUrl, ssoOrganizationIdentifier);
         }),
       ),
     );

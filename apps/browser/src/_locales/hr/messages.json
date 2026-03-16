@@ -583,16 +583,16 @@
     "message": "Arhiviraj stavku"
   },
   "archiveItemDialogContent": {
-    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+    "message": "Nakon arhiviranja, stavka će biti izuzeta iz rezultata pretrage i prijedloga auto-ispune."
   },
   "archived": {
     "message": "Arhivirano"
   },
   "unarchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Odarhiviraj i spremi"
   },
   "upgradeToUseArchive": {
-    "message": "A premium membership is required to use Archive."
+    "message": "Za korištenje arhive, potrebno je Premium članstvo."
   },
   "itemRestored": {
     "message": "Stavka je vraćena"
@@ -1507,7 +1507,7 @@
     "message": "Odaberi datoteku."
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "Stavke prenesene"
   },
   "maxFileSize": {
     "message": "Najveća veličina datoteke je 500 MB."
@@ -2486,7 +2486,7 @@
     "message": "Stavka trajno izbrisana"
   },
   "archivedItemRestored": {
-    "message": "Archived item restored"
+    "message": "Arhivirana stavka vraćena"
   },
   "restoreItem": {
     "message": "Vrati stavku"
@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Kopiraj adresu"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "adminConsole": {
     "message": "Konzola administratora"
   },
@@ -6150,6 +6153,15 @@
   },
   "searchResults": {
     "message": "Search results"
+  },
+  "simplifiedAutofill": {
+    "message": "Simplified autofill"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open simplified autofill popover"
   },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
