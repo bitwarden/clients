@@ -29,4 +29,13 @@ function removeExtraNodeFiles(context) {
       fileFilter.push(`!node_modules/**/prebuilds/${platform}-*/*.node`);
     }
   }
+
+  // For macOS universal builds, before-pack runs separately for x64 and arm64.
+  // Strip the other darwin arch's prebuilds so @electron/universal doesn't detect
+  // identical cross-arch native binaries when merging the two builds.
+  if (packagerPlatform === "darwin") {
+    const { Arch } = require("app-builder-lib");
+    const otherDarwinArch = context.arch === Arch.arm64 ? "x64" : "arm64";
+    fileFilter.push(`!node_modules/**/prebuilds/darwin-${otherDarwinArch}/*.node`);
+  }
 }
