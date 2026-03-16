@@ -38,6 +38,7 @@ import { EncString } from "../../crypto/models/enc-string";
 import { FakeMasterPasswordService } from "../../master-password/services/fake-master-password.service";
 import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
 import { NewSsoUserKeyConnectorConversion } from "../models/new-sso-user-key-connector-conversion";
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
 
 import {
   KeyConnectorService,
@@ -265,6 +266,10 @@ describe("KeyConnectorService", () => {
   });
 
   describe("migrateUser", () => {
+    beforeEach(() => {
+      configService.getFeatureFlag$.mockReturnValue(of(false));
+    });
+
     it("should migrate the user to the key connector", async () => {
       // Arrange
       const masterKey = getMockMasterKey();
