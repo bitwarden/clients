@@ -52,7 +52,7 @@ export default {
       description: "The visual style variant of the icon button",
       table: {
         type: { summary: "ButtonType" },
-        defaultValue: { summary: "secondary" },
+        defaultValue: { summary: "primaryGhost" },
       },
     },
     size: {

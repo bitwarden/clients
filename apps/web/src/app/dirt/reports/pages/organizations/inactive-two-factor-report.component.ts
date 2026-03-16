@@ -14,7 +14,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ChipFilterComponent, DialogService } from "@bitwarden/components";
+import { ChipActionComponent, ChipFilterComponent, DialogService } from "@bitwarden/components";
 import {
   CipherFormConfigService,
   PasswordRepromptService,
@@ -42,7 +42,14 @@ import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponen
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
   ],
-  imports: [SharedModule, HeaderModule, OrganizationBadgeModule, PipesModule, ChipFilterComponent],
+  imports: [
+    SharedModule,
+    HeaderModule,
+    OrganizationBadgeModule,
+    PipesModule,
+    ChipFilterComponent,
+    ChipActionComponent,
+  ],
 })
 export class InactiveTwoFactorReportComponent
   extends BaseInactiveTwoFactorReportComponent

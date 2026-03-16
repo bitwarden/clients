@@ -35,9 +35,11 @@
         <div class="tw-flex tw-items-center tw-justify-center">
           <p class="tw-pr-2">{{ "autofill" | i18n }}</p>
           @if (showAutofillBadge$ | async) {
-            <span bitBadge variant="notification" [attr.aria-label]="'nudgeBadgeAria' | i18n"
-              >1</span
-            >
+            <bit-berry
+              variant="danger"
+              [value]="1"
+              [attr.aria-label]="'nudgeBadgeAria' | i18n"
+            ></bit-berry>
           }
         </div>
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
@@ -65,9 +67,11 @@
             Will make this dynamic when more nudges are added
           -->
           @if (showVaultBadge$ | async) {
-            <span bitBadge variant="notification" [attr.aria-label]="'nudgeBadgeAria' | i18n"
-              >1</span
-            >
+            <bit-berry
+              variant="danger"
+              [value]="1"
+              [attr.aria-label]="'nudgeBadgeAria' | i18n"
+            ></bit-berry>
           }
         </div>
 
@@ -89,9 +93,11 @@
           <div class="tw-flex tw-items-center tw-justify-center">
             <p class="tw-pr-2">{{ "admin" | i18n }}</p>
             @if (showAdminBadge$ | async) {
-              <span bitBadge variant="notification" [attr.aria-label]="'nudgeBadgeAria' | i18n"
-                >1</span
-              >
+              <bit-berry
+                variant="danger"
+                [value]="1"
+                [attr.aria-label]="'nudgeBadgeAria' | i18n"
+              ></bit-berry>
             }
           </div>
           <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
@@ -112,9 +118,11 @@
         <div class="tw-flex tw-items-center">
           <p class="tw-pr-2">{{ "downloadBitwardenApps" | i18n }}</p>
           @if (showDownloadBitwardenNudge$ | async) {
-            <span bitBadge variant="notification" [attr.aria-label]="'nudgeBadgeAria' | i18n"
-              >1
-            </span>
+            <bit-berry
+              variant="danger"
+              [value]="1"
+              [attr.aria-label]="'nudgeBadgeAria' | i18n"
+            ></bit-berry>
           }
         </div>
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>

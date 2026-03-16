@@ -12,12 +12,12 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
-  BadgeComponent,
   DialogService,
   ItemModule,
   LinkModule,
   TypographyModule,
   CalloutModule,
+  BerryComponent,
 } from "@bitwarden/components";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
@@ -36,10 +36,10 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     PopOutComponent,
     ItemModule,
     CurrentAccountComponent,
-    BadgeComponent,
     TypographyModule,
     LinkModule,
     CalloutModule,
+    BerryComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

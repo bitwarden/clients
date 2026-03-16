@@ -3,7 +3,7 @@ import { Component, computed, effect, ElementRef, inject, input, model } from "@
 import { AriaDisableDirective } from "../a11y";
 import { setA11yTitleAndAriaLabel } from "../a11y/set-a11y-title-and-aria-label";
 import { BaseButtonDirective } from "../shared/base-button.directive";
-import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
+import { ButtonLikeAbstraction, ButtonType } from "../shared/button-like.abstraction";
 import { FocusableElement } from "../shared/focusable-element";
 import { SpinnerComponent } from "../spinner";
 import { TooltipDirective } from "../tooltip";
@@ -43,7 +43,7 @@ type IconButtonSize = "default" | "xsmall" | "small" | "large";
     { directive: TooltipDirective, inputs: ["tooltipPosition"] },
     {
       directive: BaseButtonDirective,
-      inputs: ["loading", "disabled", "buttonType"],
+      inputs: ["loading", "disabled"],
     },
   ],
 })
@@ -62,6 +62,8 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
    */
   readonly label = input<string>();
 
+  readonly buttonType = input<ButtonType>("primaryGhost");
+
   readonly size = model<IconButtonSize>("default");
 
   // Expose loading and disabled from base directive for ButtonLikeAbstraction
@@ -78,7 +80,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     const classes: string[] = [];
 
     // Icon-button specific layout styles
-    classes.push("tw-relative", "tw-inline-block", "tw-align-middle");
+    classes.push("tw-relative", "tw-inline-block", "tw-align-middle", "tw-shrink-0");
 
     // Add icon-button specific size styles (color styles are applied by BaseButtonDirective)
     classes.push(...getIconButtonSizeStyles(this.size()));
@@ -95,6 +97,8 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
 
   constructor() {
     const element = this.elementRef.nativeElement;
+
+    effect(() => this.baseButton.buttonType.set(this.buttonType()));
 
     ariaDisableElement(element, this.baseButton.disabledAttr);
 
