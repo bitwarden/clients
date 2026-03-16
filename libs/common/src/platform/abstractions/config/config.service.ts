@@ -16,11 +16,11 @@ export abstract class ConfigService {
   /** The server config of the currently active user */
   serverConfig$: Observable<ServerConfig | null>;
   /**
-   * Emits whenever a server config is successfully fetched, pairing the server's
-   * API URL with the parsed ServerCommunicationConfig. Use this to react to
-   * communication config changes without coupling to the config fetch pipeline.
+   * Emits whenever a server config is successfully fetched with the parsed
+   * ServerCommunicationConfig. Use this to react to communication config changes
+   * without coupling to the config fetch pipeline.
    */
-  serverCommunicationConfig$: Observable<{ hostname: string; config: ServerCommunicationConfig }>;
+  serverCommunicationConfig$: Observable<ServerCommunicationConfig>;
   /** The server settings of the currently active user */
   serverSettings$: Observable<ServerSettings | null>;
   /** The cloud region of the currently active user */
