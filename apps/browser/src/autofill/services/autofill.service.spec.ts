@@ -17,6 +17,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
+import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -96,6 +97,9 @@ describe("AutofillService", () => {
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
   let authService: MockProxy<AuthService>;
   let configService: MockProxy<ConfigService>;
+  let enableRoutingAnimationMock$: BehaviorSubject<boolean>;
+  let enableAutofillAnimationMock$: BehaviorSubject<boolean>;
+  let animationControlService: MockProxy<AnimationControlService>;
   let enableChangedPasswordPromptMock$: BehaviorSubject<boolean>;
   let enableAddedLoginPromptMock$: BehaviorSubject<boolean>;
   let userNotificationsSettings: MockProxy<UserNotificationSettingsServiceAbstraction>;
@@ -130,6 +134,11 @@ describe("AutofillService", () => {
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
     messageListener = mock<MessageListener>();
+    enableRoutingAnimationMock$ = new BehaviorSubject(true);
+    enableAutofillAnimationMock$ = new BehaviorSubject(true);
+    animationControlService = mock<AnimationControlService>();
+    animationControlService.enableRoutingAnimation$ = enableRoutingAnimationMock$;
+    animationControlService.enableAutofillAnimation$ = enableAutofillAnimationMock$;
     enableChangedPasswordPromptMock$ = new BehaviorSubject(true);
     enableAddedLoginPromptMock$ = new BehaviorSubject(true);
     userNotificationsSettings = mock<UserNotificationSettingsServiceAbstraction>();
@@ -150,6 +159,7 @@ describe("AutofillService", () => {
       configService,
       userNotificationsSettings,
       messageListener,
+      animationControlService,
     );
     jest.spyOn(BrowserApi, "tabSendMessage");
   });
@@ -815,6 +825,7 @@ describe("AutofillService", () => {
           },
           url: currentAutofillPageDetails.tab.url,
           pageDetailsUrl: "url",
+          showAnimations: true,
         },
         {
           frameId: currentAutofillPageDetails.frameId,

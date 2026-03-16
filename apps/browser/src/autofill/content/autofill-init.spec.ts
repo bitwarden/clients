@@ -288,6 +288,7 @@ describe("AutofillInit", () => {
 
           expect(autofillInit["insertAutofillContentService"].fillForm).toHaveBeenCalledWith(
             fillScript,
+            undefined,
           );
         });
 
@@ -324,6 +325,7 @@ describe("AutofillInit", () => {
           );
           expect(autofillInit["insertAutofillContentService"].fillForm).toHaveBeenCalledWith(
             fillScript,
+            undefined,
           );
           expect(sendExtensionMessageSpy).toHaveBeenNthCalledWith(
             2,

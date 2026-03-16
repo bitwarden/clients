@@ -9,6 +9,12 @@ export abstract class AnimationControlService {
   abstract enableRoutingAnimation$: Observable<boolean>;
 
   /**
+   * Whether autofill input scaling animations are enabled.
+   * Currently backed by the routing animation state; will be decoupled in the future.
+   */
+  abstract enableAutofillAnimation$: Observable<boolean>;
+
+  /**
    * A method for updating the state of the animation toggle.
    * @param theme The new state.
    */
@@ -25,6 +31,9 @@ export class DefaultAnimationControlService implements AnimationControlService {
   enableRoutingAnimation$ = this.enableRoutingAnimationState.state$.pipe(
     map((state) => state ?? this.defaultEnableRoutingAnimation),
   );
+
+  // Proxying `enableRoutingAnimation` for now to enable future decoupling
+  enableAutofillAnimation$ = this.enableRoutingAnimation$;
 
   constructor(
     private globalStateProvider: GlobalStateProvider,
