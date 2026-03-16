@@ -19,7 +19,7 @@ export class PremiumUpsellService {
   private cipherService = inject(CipherService);
 
   private activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
-  private readonly activeUserId = toSignal(this.activeUserId$);
+  private readonly activeUserId = toSignal(this.activeUserId$, { requireSync: true });
   private hasPremium$ = this.activeUserId$.pipe(
     switchMap((userId) => {
       return this.billingAccountService.hasPremiumFromAnySource$(userId);
@@ -27,10 +27,11 @@ export class PremiumUpsellService {
   );
   private ciphers$ = this.cipherService.ciphers$(this.activeUserId());
 
-  private readonly ciphers = toSignal(this.ciphers$);
+  private readonly ciphers = toSignal(this.ciphers$, { initialValue: {} });
   private readonly hasPremium = toSignal(this.hasPremium$);
   private readonly accountAgeFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32180PremiumUpsellAccountAge),
+    { initialValue: 7 },
   );
 
   private accountAgeInDays$ = this.accountService.activeAccount$.pipe(
@@ -43,7 +44,7 @@ export class PremiumUpsellService {
       return Math.floor(ageInMilliseconds / (1000 * 60 * 60 * 24)); //1000 ms * 60 seconds * 60 minutes * 24 hours for milliseconds to days
     }),
   );
-  private readonly accountAgeInDays = toSignal(this.accountAgeInDays$);
+  private readonly accountAgeInDays = toSignal(this.accountAgeInDays$, { initialValue: -1 });
 
   showUpsell() {
     const cipherCount = Object.keys(this.ciphers()).length;
