@@ -154,12 +154,13 @@ nx.json @bitwarden/team-platform-dev
 
 ## Autofill team files ##
 apps/browser/src/autofill @bitwarden/team-autofill-dev
+apps/desktop/src/autofill @bitwarden/team-autofill-desktop-dev
 libs/common/src/autofill @bitwarden/team-autofill-dev
+apps/desktop/macos/autofill-extension @bitwarden/team-autofill-desktop-dev
+apps/browser/src/autofill/content/.claude/CLAUDE.md @bitwarden/team-autofill-dev
 .github/workflows/test-browser-interactions.yml @bitwarden/team-autofill-dev
 
 # Autofill desktop files
-apps/desktop/macos/autofill-extension @bitwarden/team-autofill-desktop-dev
-apps/desktop/src/autofill @bitwarden/team-autofill-desktop-dev
 apps/desktop/src/app/components/fido2placeholder.component.ts @bitwarden/team-autofill-desktop-dev
 apps/desktop/desktop_native/windows_plugin_authenticator @bitwarden/team-autofill-desktop-dev
 apps/desktop/desktop_native/autotype @bitwarden/team-autofill-desktop-dev
@@ -254,4 +255,3 @@ apps/desktop/native-messaging-test-runner/package-lock.json @bitwarden/team-plat
 .claude/ @bitwarden/team-ai-sme
 .github/workflows/respond.yml @bitwarden/team-ai-sme
 .github/workflows/review-code.yml @bitwarden/team-ai-sme
-apps/browser/src/autofill/content/.claude/CLAUDE.md @bitwarden/team-autofill-dev
