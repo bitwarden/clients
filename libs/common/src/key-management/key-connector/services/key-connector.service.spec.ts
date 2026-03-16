@@ -11,6 +11,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { SetKeyConnectorKeyRequest } from "@bitwarden/common/key-management/key-connector/models/set-key-connector-key.request";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, KdfType, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
@@ -43,7 +44,6 @@ import {
   NEW_SSO_USER_KEY_CONNECTOR_CONVERSION,
   USES_KEY_CONNECTOR,
 } from "./key-connector.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 
 describe("KeyConnectorService", () => {
   let keyConnectorService: KeyConnectorService;

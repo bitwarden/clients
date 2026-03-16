@@ -10,6 +10,7 @@ import {
 } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { NewSsoUserKeyConnectorConversion } from "@bitwarden/common/key-management/key-connector/models/new-sso-user-key-connector-conversion";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -43,7 +44,6 @@ import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstra
 import { KeyConnectorDomainConfirmation } from "../models/key-connector-domain-confirmation";
 import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../models/set-key-connector-key.request";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 
 export const USES_KEY_CONNECTOR = new UserKeyDefinition<boolean | null>(
   KEY_CONNECTOR_DISK,
