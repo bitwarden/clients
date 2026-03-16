@@ -25,7 +25,7 @@ export type UpgradePremiumToOrganizationRequest = {
   billingAddress: Pick<BillingAddress, "country" | "postalCode" | "taxId">;
 };
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class AccountBillingClient {
   private endpoint = "/account/billing/vnext";
 

@@ -69,7 +69,7 @@ export interface TaxAmounts {
   total: number;
 }
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class PreviewInvoiceClient {
   constructor(private apiService: ApiService) {}
 
