@@ -595,6 +595,7 @@ const safeProviders: SafeProvider[] = [
       messageListener: MessageListener,
       logService: LogService,
       configService: ConfigService,
+      apiService: ApiService,
     ) =>
       new DefaultServerCommunicationConfigService(
         new ServerCommunicationConfigRepository(stateProvider),
@@ -604,6 +605,7 @@ const safeProviders: SafeProvider[] = [
           logService,
         ),
         configService,
+        apiService,
       ),
     deps: [
       StateProvider,
@@ -611,6 +613,7 @@ const safeProviders: SafeProvider[] = [
       MessageListener,
       LogService,
       ConfigService,
+      ApiService,
     ],
   }),
 ];

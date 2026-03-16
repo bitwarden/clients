@@ -1,13 +1,15 @@
-import { Observable, shareReplay, switchMap } from "rxjs";
+import { firstValueFrom, Observable, shareReplay, switchMap } from "rxjs";
 
 import {
   ServerCommunicationConfigClient,
   ServerCommunicationConfigPlatformApi,
 } from "@bitwarden/sdk-internal";
 
+import { ApiService } from "../../../abstractions/api.service";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { ServerCommunicationConfigService } from "../../abstractions/server-communication-config/server-communication-config.service";
+import { FetchFn, FetchMiddleware } from "../../misc/fetch-middleware";
 
 import { ServerCommunicationConfigRepository } from "./server-communication-config.repository";
 
@@ -37,6 +39,7 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
     protected repository: ServerCommunicationConfigRepository,
     protected platformApi: ServerCommunicationConfigPlatformApi,
     private configService: ConfigService,
+    private apiService: ApiService,
   ) {}
 
   async init() {
@@ -53,6 +56,7 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
       // FIXME The requirement on a hostname will be removed in the sdk, but the bindings need to be updated. Andreas is working on this.
       void this.client.setCommunicationType(config.bootstrap.cookieDomain!, config);
     });
+    this.apiService.addMiddleware(this.buildRedirectMiddleware());
   }
 
   needsBootstrap$(hostname: string): Observable<boolean> {
@@ -74,5 +78,29 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
     // 3. Saving validated cookies to repository
     // 4. Throwing appropriate AcquireCookieError on failure
     await this.client.acquireCookie(url);
+  }
+
+  private buildRedirectMiddleware(): FetchMiddleware {
+    return async (request: Request, next: FetchFn): Promise<Response> => {
+      const manualRequest = new Request(request, { redirect: "manual" });
+      const response = await next(manualRequest);
+
+      const isRedirect =
+        response.type === "opaqueredirect" || (response.status >= 300 && response.status < 400);
+
+      if (!isRedirect) {
+        return response;
+      }
+
+      const hostname = new URL(request.url).hostname;
+      const needsBootstrap = await firstValueFrom(this.needsBootstrap$(hostname));
+
+      if (needsBootstrap) {
+        await this.acquireCookie(request.url);
+      }
+
+      // Retry with original request (follow redirect mode, cookies now in session)
+      return next(request);
+    };
   }
 }
