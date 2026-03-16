@@ -7,7 +7,7 @@ import { ProgressModule } from "@bitwarden/components";
 // Map of progress step to display config
 const ProgressStepConfig = Object.freeze({
   [ReportProgress.FetchingMembers]: { message: "reviewingMemberData", progress: 20 },
-  [ReportProgress.AnalyzingPasswords]: { message: "analyzingPasswords", progress: 40 },
+  [ReportProgress.AnalyzingCredentials]: { message: "analyzingPasswords", progress: 40 },
   [ReportProgress.CalculatingRisks]: { message: "calculatingRisks", progress: 60 },
   [ReportProgress.GeneratingReport]: { message: "generatingReports", progress: 80 },
   [ReportProgress.Saving]: { message: "compilingInsightsProgress", progress: 95 },

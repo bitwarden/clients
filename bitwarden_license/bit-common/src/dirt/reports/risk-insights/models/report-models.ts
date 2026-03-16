@@ -115,7 +115,7 @@ export type ReportStatus = (typeof ReportStatus)[keyof typeof ReportStatus];
 
 export const ReportProgress = Object.freeze({
   FetchingMembers: "fetching-members",
-  AnalyzingPasswords: "analyzing-passwords",
+  AnalyzingCredentials: "analyzing-credentials",
   CalculatingRisks: "calculating-risks",
   GeneratingReport: "generating-report",
   Saving: "saving",

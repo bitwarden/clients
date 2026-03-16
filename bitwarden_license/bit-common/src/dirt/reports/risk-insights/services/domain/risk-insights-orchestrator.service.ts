@@ -679,7 +679,7 @@ export class RiskInsightsOrchestratorService {
     const reportGeneration$ = forkJoin([this._ciphers$.pipe(take(1)), memberCiphers$]).pipe(
       switchMap(([ciphers, memberCiphers]) => {
         this.logService.debug("[RiskInsightsOrchestratorService] Analyzing password health");
-        this._reportProgressSubject.next(ReportProgress.AnalyzingPasswords);
+        this._reportProgressSubject.next(ReportProgress.AnalyzingCredentials);
         return forkJoin({
           memberDetails: of(memberCiphers),
           cipherHealthReports: this._getCipherHealth(ciphers ?? [], memberCiphers),

@@ -431,14 +431,14 @@ describe("AccessIntelligencePageComponent", () => {
       fixture = TestBed.createComponent(AccessIntelligencePageComponent);
       component = fixture.componentInstance;
 
-      mockAccessIntelligenceService.reportProgress$.next(ReportProgress.AnalyzingPasswords);
+      mockAccessIntelligenceService.reportProgress$.next(ReportProgress.AnalyzingCredentials);
 
       // Not yet visible (delayed)
       expect(testAccess(component).currentProgressStep()).toBeNull();
 
       tick(250);
 
-      expect(testAccess(component).currentProgressStep()).toBe(ReportProgress.AnalyzingPasswords);
+      expect(testAccess(component).currentProgressStep()).toBe(ReportProgress.AnalyzingCredentials);
     }));
 
     it("should hide loader after Complete step", fakeAsync(() => {

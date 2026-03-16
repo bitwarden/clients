@@ -243,7 +243,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       expect(progressSteps).toEqual([
         null, // reset at start
         ReportProgress.FetchingMembers,
-        ReportProgress.AnalyzingPasswords,
+        ReportProgress.AnalyzingCredentials,
         ReportProgress.CalculatingRisks,
         ReportProgress.GeneratingReport,
         ReportProgress.Saving,

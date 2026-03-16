@@ -161,8 +161,8 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
           },
         );
 
-        // Emit AnalyzingPasswords then CalculatingRisks before report generation
-        this._reportProgress.next(ReportProgress.AnalyzingPasswords);
+        // Emit AnalyzingCredentials then CalculatingRisks before report generation
+        this._reportProgress.next(ReportProgress.AnalyzingCredentials);
         this._reportProgress.next(ReportProgress.CalculatingRisks);
 
         // Generate report

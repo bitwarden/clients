@@ -229,7 +229,7 @@ This review compares the **original Access Intelligence architecture** (Risk Ins
 
 3. **Report Operations**:
    - `generateNewReport$(orgId)` — Emits progress → loads org data → generate → save → emit report
-   - Progress states: `FetchingMembers` → `AnalyzingPasswords` → `CalculatingRisks` → `GeneratingReport` → `Saving` → `Complete`
+   - Progress states: `FetchingMembers` → `AnalyzingCredentials` → `CalculatingRisks` → `GeneratingReport` → `Saving` → `Complete`
 
 4. **Application Metadata Updates** (all with rollback on error):
    - `markApplicationsAsCritical$(names[])` — Mutate view + persist + emit
@@ -375,7 +375,7 @@ toMetrics(): AccessReportMetrics {
 - Lines 139-140: Exposes `reportProgress$: Observable<ReportProgress | null>`
 - Lines 668-762: Updates progress during report generation:
   - `ReportProgress.FetchingMembers`
-  - `ReportProgress.AnalyzingPasswords`
+  - `ReportProgress.AnalyzingCredentials`
   - `ReportProgress.CalculatingRisks`
   - `ReportProgress.GeneratingReport`
   - `ReportProgress.Saving`
@@ -384,7 +384,7 @@ toMetrics(): AccessReportMetrics {
 **New:** ✅ **Implemented** — `progress$: Observable<ReportProgress | null>` exposed by
 `AccessIntelligenceDataService`. Emits during `generateNewReport$()`:
 
-- `FetchingMembers` → `AnalyzingPasswords` → `CalculatingRisks` → `GeneratingReport` → `Saving` → `Complete`
+- `FetchingMembers` → `AnalyzingCredentials` → `CalculatingRisks` → `GeneratingReport` → `Saving` → `Complete`
 
 **Status:** ✅ **Complete**.
 
