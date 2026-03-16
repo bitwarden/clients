@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "En savoir plus sur le transfert"
   },
+  "promptUsersToMoveItems": {
+    "message": "Demander aux utilisateurs de déplacer les éléments individuels du coffre vers l'organisation"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Les membres seront invités à transférer leurs éléments à l'organisation ou à partir. S'ils quittent, leur accès est révoqué mais peut être restauré à tout moment."
+  },
   "organizationDataOwnership": {
     "message": "Forcer la propriété des données de l'organisation"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Disponible maintenant"
   },
-  "autoConfirm": {
-    "message": "Confirmation automatique des nouveaux utilisateurs"
+  "automaticUserConfirmation": {
+    "message": "Confirmation d'utilisateur automatique"
   },
   "autoConfirmDescription": {
     "message": "Les nouveaux utilisateurs invités à rejoindre l'organisation seront automatiquement confirmés lorsque l'appareil d'un administrateur est déverrouillé.",

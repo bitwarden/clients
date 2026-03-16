@@ -1,3 +1,5 @@
+//! Secure memory management with platform-specific protections.
+
 #[cfg(target_os = "windows")]
 pub(crate) mod dpapi;
 
@@ -13,6 +15,7 @@ use crate::secure_memory::secure_key::DecryptionError;
 /// platform-specific protections are applied to prevent memory dumps or debugger access from
 /// reading the stored values.
 pub trait SecureMemoryStore {
+    /// Key type used to identify stored values.
     type KeyType;
 
     /// Stores a copy of the provided value in secure memory.

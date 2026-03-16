@@ -15,11 +15,13 @@ import {
 } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
+import { I18nPipe } from "@bitwarden/ui-common";
+
 import { drawerSizeToWidthRem } from "../dialog/dialog/dialog.component";
 import { DrawerService } from "../dialog/drawer.service";
 import { LinkComponent, LinkModule } from "../link";
 import { SideNavService } from "../navigation/side-nav.service";
-import { getRootFontSizePx, SharedModule } from "../shared";
+import { getRootFontSizePx } from "../shared";
 
 import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
 
@@ -37,7 +39,7 @@ const SIDERAIL_WIDTH_REM = 4;
   templateUrl: "layout.component.html",
   imports: [
     CommonModule,
-    SharedModule,
+    I18nPipe,
     LinkModule,
     RouterModule,
     PortalModule,

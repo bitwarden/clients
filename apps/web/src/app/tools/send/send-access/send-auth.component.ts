@@ -1,3 +1,5 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, input, OnInit, output, signal } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
@@ -5,7 +7,6 @@ import { firstValueFrom } from "rxjs";
 import {
   emailAndOtpRequired,
   emailRequired,
-  otpInvalid,
   passwordHashB64Invalid,
   passwordHashB64Required,
   SendAccessDomainCredentials,
@@ -203,12 +204,6 @@ export class SendAuthComponent implements OnInit {
         }
         this.otpSubmitted = true;
         this.updatePageTitle();
-      } else if (otpInvalid(response.error)) {
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccurred"),
-          message: this.i18nService.t("invalidEmailOrVerificationCode"),
-        });
       } else if (passwordHashB64Required(response.error)) {
         this.sendAuthType.set(AuthType.Password);
         this.updatePageTitle();
