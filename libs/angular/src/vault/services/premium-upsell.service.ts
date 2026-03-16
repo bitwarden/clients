@@ -28,7 +28,7 @@ export class PremiumUpsellService {
   private ciphers$ = this.cipherService.ciphers$(this.activeUserId());
 
   private readonly ciphers = toSignal(this.ciphers$, { initialValue: {} });
-  private readonly hasPremium = toSignal(this.hasPremium$);
+  private readonly hasPremium = toSignal(this.hasPremium$, { initialValue: true });
   private readonly accountAgeFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32180PremiumUpsellAccountAge),
     { initialValue: 7 },

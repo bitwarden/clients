@@ -6,11 +6,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId, CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
-
-import { mockAccountServiceWith } from "@bitwarden/common/spec";
 
 import { PremiumUpsellService } from "./premium-upsell.service";
 
