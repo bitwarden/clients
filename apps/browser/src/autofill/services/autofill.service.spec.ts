@@ -2438,6 +2438,139 @@ describe("AutofillService", () => {
             AutoFillConstants.TotpFieldNames,
           );
         });
+
+        it("classifies a field matching TotpFieldNames as TOTP", async () => {
+          const totpCode = "123456";
+          options.allowTotpAutofill = true;
+          totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
+          const totpField = createAutofillFieldMock({
+            opid: "reliable-totp",
+            type: "text",
+            form: "validFormId",
+            htmlName: AutoFillConstants.TotpFieldNames[0],
+            elementNumber: 5,
+          });
+          pageDetails.fields = [totpField];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(fillScript, totpField, totpCode);
+        });
+
+        it("classifies a field matching AmbiguousTotpFieldNames as username when it also matches username signals", async () => {
+          options.allowTotpAutofill = true;
+          // Simulates a username field whose label-left was contaminated with an
+          // ambiguous TOTP keyword.
+          const ambiguousField = createAutofillFieldMock({
+            opid: "ambiguous-totp",
+            type: "text",
+            form: "validFormId",
+            htmlName: "username",
+            htmlID: AutoFillConstants.AmbiguousTotpFieldNames[0],
+            "label-left": AutoFillConstants.AmbiguousTotpFieldNames[0],
+            elementNumber: 5,
+          });
+          pageDetails.fields = [ambiguousField];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledTimes(1);
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            ambiguousField,
+            options.cipher.login.username,
+          );
+        });
+
+        it("classifies a field matching only AmbiguousTotpFieldNames as TOTP when there are no username signals", async () => {
+          const totpCode = "123456";
+          options.allowTotpAutofill = true;
+          totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
+          const ambiguousField = createAutofillFieldMock({
+            opid: "ambiguous-totp-only",
+            type: "text",
+            form: "validFormId",
+            htmlName: AutoFillConstants.AmbiguousTotpFieldNames[0],
+            htmlID: AutoFillConstants.AmbiguousTotpFieldNames[0],
+            elementNumber: 5,
+          });
+          pageDetails.fields = [ambiguousField];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            ambiguousField,
+            totpCode,
+          );
+        });
+
+        it("classifies a field matching TotpFieldNames as TOTP even when it also matches username signals", async () => {
+          const totpCode = "123456";
+          options.allowTotpAutofill = true;
+          totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
+          const field = createAutofillFieldMock({
+            opid: "reliable-totp-with-username-signal",
+            type: "text",
+            form: "validFormId",
+            htmlName: AutoFillConstants.TotpFieldNames[0],
+            "label-left": "username",
+            elementNumber: 5,
+          });
+          pageDetails.fields = [field];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(fillScript, field, totpCode);
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            field,
+            options.cipher.login.username,
+          );
+        });
+
+        it("classifies a field with autocomplete=one-time-code as TOTP", async () => {
+          const totpCode = "123456";
+          options.allowTotpAutofill = true;
+          totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
+          const field = createAutofillFieldMock({
+            opid: "otp-autocomplete",
+            type: "text",
+            form: "validFormId",
+            autoCompleteType: "one-time-code",
+            elementNumber: 5,
+          });
+          pageDetails.fields = [field];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(fillScript, field, totpCode);
+        });
       });
 
       it("returns a value indicating if the page url is in an untrusted iframe", async () => {
