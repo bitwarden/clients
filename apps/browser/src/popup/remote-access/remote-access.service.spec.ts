@@ -183,15 +183,23 @@ describe("RemoteAccessService", () => {
       mockEnableRendezvous.mockResolvedValue(undefined);
       await service.startListening("rendezvous");
 
-      const credential = { username: "user", password: "pass" };
-      await service.respondToCredential("req-1", "sess-1", true, credential);
+      const credential = {
+        credentialId: "cipher-1",
+        username: "user",
+        password: "pass",
+        domain: "example.com",
+      };
+      const query = { domain: "example.com" };
+      await service.respondToCredential("req-1", "sess-1", true, credential, query);
 
       expect(mockSendResponse).toHaveBeenCalledWith({
         type: "respond_credential",
         request_id: "req-1",
         session_id: "sess-1",
+        query: { domain: "example.com" },
         approved: true,
         credential,
+        credential_id: "cipher-1",
       });
     });
 
@@ -199,12 +207,15 @@ describe("RemoteAccessService", () => {
       mockEnableRendezvous.mockResolvedValue(undefined);
       await service.startListening("rendezvous");
 
-      await service.respondToCredential("req-1", "sess-1", false);
+      const query = { domain: "example.com" };
+      await service.respondToCredential("req-1", "sess-1", false, undefined, query);
 
       expect(mockSendResponse).toHaveBeenCalledWith(
         expect.objectContaining({
           approved: false,
           credential: undefined,
+          credential_id: undefined,
+          query: { domain: "example.com" },
         }),
       );
     });

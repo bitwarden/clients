@@ -139,7 +139,7 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
 
   // Reassigned when re-subscribing on mode switch; takeUntilDestroyed handles final cleanup
-   
+
   private readonly eventSubscription: { unsubscribe(): void } | null = null;
 
   async ngOnInit(): Promise<void> {
@@ -250,6 +250,7 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
       request.sessionId,
       true,
       credential ?? undefined,
+      request.query,
     );
 
     this.clearPendingRequest(request.sessionId);
@@ -267,7 +268,13 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.service.respondToCredential(request.requestId, request.sessionId, false);
+    await this.service.respondToCredential(
+      request.requestId,
+      request.sessionId,
+      false,
+      undefined,
+      request.query,
+    );
     this.clearPendingRequest(request.sessionId);
 
     if (request.matches.length > 0) {
@@ -346,6 +353,10 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
       case "listening":
       case "handshake_complete":
       case "handshake_progress":
+      case "credential_approved":
+      case "credential_denied":
+      case "reconnecting":
+      case "reconnected":
         break;
 
       case "rendezvous_code_generated":
@@ -475,6 +486,7 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
       sessionId,
       connectionName,
       matches,
+      query: event.query,
     };
 
     this.pendingRequests.update((map) => {

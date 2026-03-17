@@ -21,11 +21,12 @@ const DEFAULT_PROXY_URL = "wss://rat1.lesspassword.dev";
 export type ConnectionMode = "rendezvous" | "psk" | "cached";
 
 export interface CredentialLookupResult {
-  id?: string;
+  credentialId?: string;
   username?: string;
   password?: string;
   totp?: string;
   uri?: string;
+  domain?: string;
 }
 
 @Injectable()
@@ -202,6 +203,7 @@ export class RemoteAccessService implements OnDestroy {
     sessionId: string,
     approved: boolean,
     credential?: CredentialLookupResult,
+    query?: { domain: string } | { id: string } | { search: string },
   ): Promise<void> {
     if (!this.client) {
       return;
@@ -210,9 +212,10 @@ export class RemoteAccessService implements OnDestroy {
       type: "respond_credential",
       request_id: requestId,
       session_id: sessionId,
+      query,
       approved,
       credential: approved ? credential : undefined,
-      credential_id: approved ? credential?.id : undefined,
+      credential_id: approved ? credential?.credentialId : undefined,
     });
     await this.persistState();
   }
@@ -266,12 +269,23 @@ export class RemoteAccessService implements OnDestroy {
         return null;
       }
 
+      const uri = login.uris?.[0]?.uri ?? undefined;
+      let domain: string | undefined;
+      if (uri) {
+        try {
+          domain = new URL(uri.startsWith("http") ? uri : `https://${uri}`).hostname;
+        } catch {
+          domain = uri;
+        }
+      }
+
       return {
-        id: cipherId,
+        credentialId: cipherId,
         username: login.username ?? undefined,
         password: login.password ?? undefined,
         totp: login.totp ?? undefined,
-        uri: login.uris?.[0]?.uri ?? undefined,
+        uri,
+        domain,
       };
     } catch {
       return null;

@@ -19,4 +19,5 @@ export interface CredentialRequestData {
   sessionId: string;
   connectionName: string;
   matches: CredentialMatch[];
+  query?: { domain: string } | { id: string } | { search: string };
 }
