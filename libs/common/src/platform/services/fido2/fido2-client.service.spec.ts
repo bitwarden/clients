@@ -616,6 +616,59 @@ describe("FidoAuthenticatorService", () => {
       });
     });
 
+    describe("fallback for hardware/roaming keys", () => {
+      it("throws FallbackRequestedError when all allowCredentials have non-internal transports only", async () => {
+        const params = createParams({
+          allowedCredentialIds: ["credId1", "credId2"],
+          allowedCredentialTransports: [["usb"], ["nfc"]],
+          fallbackSupported: true,
+        });
+
+        await expect(client.assertCredential(params, windowReference)).rejects.toMatchObject({
+          fallbackRequested: true,
+        });
+        expect(authenticator.getAssertion).not.toHaveBeenCalled();
+      });
+
+      it("does not fall back early when at least one credential has internal transport", async () => {
+        const params = createParams({
+          allowedCredentialIds: ["credId1"],
+          allowedCredentialTransports: [["usb", "internal"]],
+          fallbackSupported: true,
+        });
+        authenticator.getAssertion.mockResolvedValue(createAuthenticatorAssertResult());
+
+        await client.assertCredential(params, windowReference);
+
+        expect(authenticator.getAssertion).toHaveBeenCalled();
+      });
+
+      it("does not fall back early when transports list is empty for a credential", async () => {
+        const params = createParams({
+          allowedCredentialIds: ["credId1"],
+          allowedCredentialTransports: [[]],
+          fallbackSupported: true,
+        });
+        authenticator.getAssertion.mockResolvedValue(createAuthenticatorAssertResult());
+
+        await client.assertCredential(params, windowReference);
+
+        expect(authenticator.getAssertion).toHaveBeenCalled();
+      });
+
+      it("throws FallbackRequestedError when authenticator returns CredentialNotFound", async () => {
+        const params = createParams({
+          allowedCredentialIds: ["credId1"],
+          fallbackSupported: true,
+        });
+        authenticator.getAssertion.mockRejectedValue(
+          new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.CredentialNotFound),
+        );
+        const result = async () => await client.assertCredential(params, windowReference);
+        await expect(result).rejects.toMatchObject({ fallbackRequested: true });
+      });
+    });
+
     describe("assert discoverable credential", () => {
       it("should call authenticator.assertCredential", async () => {
         const params = createParams({
@@ -688,6 +741,7 @@ describe("FidoAuthenticatorService", () => {
     function createParams(params: Partial<AssertCredentialParams> = {}): AssertCredentialParams {
       return {
         allowedCredentialIds: params.allowedCredentialIds ?? [],
+        allowedCredentialTransports: params.allowedCredentialTransports,
         challenge: params.challenge ?? Fido2Utils.arrayToString(randomBytes(16)),
         origin: params.origin ?? Origin,
         rpId: params.rpId ?? RpId,

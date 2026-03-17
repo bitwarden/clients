@@ -268,6 +268,10 @@ export class Fido2AuthenticatorService<
           `[Fido2Authenticator] Aborting because no matching credentials were found in the vault.`,
         );
 
+        if (params.allowCredentialDescriptorList?.length > 0 && params.fallbackSupported) {
+          throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.CredentialNotFound);
+        }
+
         await userInterfaceSession.informCredentialNotFound();
         throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.NotAllowed);
       }

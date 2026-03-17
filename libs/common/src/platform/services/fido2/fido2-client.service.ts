@@ -325,6 +325,19 @@ export class Fido2ClientService<
     }
 
     const clientDataHash = await crypto.subtle.digest({ name: "SHA-256" }, clientDataJSONBytes);
+    const transports = params.allowedCredentialTransports;
+    if (
+      params.allowedCredentialIds.length > 0 &&
+      transports != null &&
+      transports.length === params.allowedCredentialIds.length &&
+      transports.every((t) => t.length > 0 && !t.includes("internal"))
+    ) {
+      this.logService?.info(
+        `[Fido2Client] All allowCredentials entries specify non-internal transports only — falling back to browser.`,
+      );
+      throw new FallbackRequestedError();
+    }
+
     const getAssertionParams = mapToGetAssertionParams({ params, clientDataHash });
 
     if (abortController.signal.aborted) {
@@ -351,6 +364,16 @@ export class Fido2ClientService<
         abortController.signal.reason === UserRequestedFallbackAbortReason
       ) {
         this.logService?.info(`[Fido2Client] Aborting because user requested fallback`);
+        throw new FallbackRequestedError();
+      }
+
+      if (
+        (error as any)?.message === Fido2AuthenticatorErrorCode.CredentialNotFound ||
+        (error as any)?.errorCode === Fido2AuthenticatorErrorCode.CredentialNotFound
+      ) {
+        this.logService?.info(
+          `[Fido2Client] No vault credential matched allowCredentials — falling back to browser.`,
+        );
         throw new FallbackRequestedError();
       }
 

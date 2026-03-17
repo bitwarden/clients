@@ -59,6 +59,7 @@ export enum Fido2AuthenticatorErrorCode {
   InvalidState = "InvalidStateError",
   NotAllowed = "NotAllowedError",
   Constraint = "ConstraintError",
+  CredentialNotFound = "CredentialNotFoundError",
 }
 
 export class Fido2AuthenticatorError extends Error {

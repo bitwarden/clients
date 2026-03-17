@@ -136,6 +136,7 @@ export interface CreateCredentialResult {
  */
 export interface AssertCredentialParams {
   allowedCredentialIds: string[];
+  allowedCredentialTransports?: ("ble" | "hybrid" | "internal" | "nfc" | "usb")[][];
   rpId?: string;
   origin: string;
   challenge: string;
