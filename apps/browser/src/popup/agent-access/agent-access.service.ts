@@ -10,10 +10,10 @@ import type { UserClientEvent } from "@bitwarden/sdk-internal";
 import { ConnectionEntry, CredentialMatch } from "./agent-access.types";
 import { BrowserProxyClient } from "./proxy-client";
 
-/** Storage keys for RAT state in chrome.storage.local */
-const RAT_CONNECTIONS_KEY = "rat_connections";
-const RAT_IDENTITY_KEY = "rat_identity";
-const RAT_LISTENING_ENABLED_KEY = "rat_listening_enabled";
+/** Storage keys for agent access state in chrome.storage.local */
+const CONNECTIONS_KEY = "rat_connections";
+const IDENTITY_KEY = "rat_identity";
+const LISTENING_ENABLED_KEY = "rat_listening_enabled";
 
 /** Default proxy URL — should eventually come from environment config */
 const DEFAULT_PROXY_URL = "wss://rat1.lesspassword.dev";
@@ -47,7 +47,7 @@ export class AgentAccessService implements OnDestroy {
   // --- Connection storage ---
 
   async loadConnections(): Promise<ConnectionEntry[]> {
-    const data = await this.storageService.get<ConnectionEntry[] | string>(RAT_CONNECTIONS_KEY);
+    const data = await this.storageService.get<ConnectionEntry[] | string>(CONNECTIONS_KEY);
     if (!data) {
       return [];
     }
@@ -56,17 +56,17 @@ export class AgentAccessService implements OnDestroy {
       try {
         const parsed = JSON.parse(data) as ConnectionEntry[];
         if (Array.isArray(parsed)) {
-          await this.storageService.save(RAT_CONNECTIONS_KEY, parsed);
+          await this.storageService.save(CONNECTIONS_KEY, parsed);
           return parsed;
         }
       } catch {
         // Corrupted data, reset
       }
-      await this.storageService.remove(RAT_CONNECTIONS_KEY);
+      await this.storageService.remove(CONNECTIONS_KEY);
       return [];
     }
     if (!Array.isArray(data)) {
-      await this.storageService.remove(RAT_CONNECTIONS_KEY);
+      await this.storageService.remove(CONNECTIONS_KEY);
       return [];
     }
     return data;
@@ -80,25 +80,25 @@ export class AgentAccessService implements OnDestroy {
     } else {
       connections.push(entry);
     }
-    await this.storageService.save(RAT_CONNECTIONS_KEY, connections);
+    await this.storageService.save(CONNECTIONS_KEY, connections);
     return connections;
   }
 
   async removeConnection(id: string): Promise<void> {
     const connections = await this.loadConnections();
     const filtered = connections.filter((c) => c.id !== id);
-    await this.storageService.save(RAT_CONNECTIONS_KEY, filtered);
+    await this.storageService.save(CONNECTIONS_KEY, filtered);
   }
 
   // --- Listening toggle ---
 
   async getListeningEnabled(): Promise<boolean> {
-    const value = await this.storageService.get<boolean>(RAT_LISTENING_ENABLED_KEY);
+    const value = await this.storageService.get<boolean>(LISTENING_ENABLED_KEY);
     return value ?? true;
   }
 
   async setListeningEnabled(enabled: boolean): Promise<void> {
-    await this.storageService.save(RAT_LISTENING_ENABLED_KEY, enabled);
+    await this.storageService.save(LISTENING_ENABLED_KEY, enabled);
   }
 
   // --- Core connection ---
@@ -112,7 +112,7 @@ export class AgentAccessService implements OnDestroy {
     const sdk = await import("@bitwarden/sdk-internal");
 
     // Load persisted state
-    const identityB64 = await this.storageService.get<string>(RAT_IDENTITY_KEY);
+    const identityB64 = await this.storageService.get<string>(IDENTITY_KEY);
     let identityData = identityB64 ? this.base64ToBytes(identityB64) : undefined;
 
     // Ensure we have identity bytes BEFORE creating the proxy client,
@@ -325,7 +325,7 @@ export class AgentAccessService implements OnDestroy {
     try {
       const identityData = this.client.get_identity_data();
       await this.storageService.save(
-        RAT_IDENTITY_KEY,
+        IDENTITY_KEY,
         this.bytesToBase64(new Uint8Array(identityData)),
       );
     } catch {

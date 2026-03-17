@@ -1,6 +1,6 @@
 import { svg } from "../svg";
 
-export const RemoteAccessInactive = svg`
+export const AgentAccessInactive = svg`
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M12 18.5C12.8284 18.5 13.5 17.8284 13.5 17C13.5 16.1716 12.8284 15.5 12 15.5C11.1716 15.5 10.5 16.1716 10.5 17C10.5 17.8284 11.1716 18.5 12 18.5Z" class="tw-fill-secondary-600 group-hover/tab-nav-btn:tw-fill-primary-600" />
     <path fill-rule="evenodd" clip-rule="evenodd" d="M2.04938 8.36413C5.68462 4.87862 8.61538 3.5 12 3.5C15.3846 3.5 18.3154 4.87862 21.9506 8.36413C22.2569 8.65773 22.2673 9.14373 21.9737 9.45005C21.6801 9.75636 21.1941 9.76683 20.8878 9.47322C17.4539 6.18334 14.8462 5 12 5C9.15385 5 6.54615 6.18334 3.11222 9.47322C2.80591 9.76683 2.31991 9.75636 2.0263 9.45005C1.7327 9.14373 1.74317 8.65773 2.04938 8.36413Z" class="tw-fill-secondary-600 group-hover/tab-nav-btn:tw-fill-primary-600" />
@@ -8,7 +8,7 @@ export const RemoteAccessInactive = svg`
   </svg>
 `;
 
-export const RemoteAccessActive = svg`
+export const AgentAccessActive = svg`
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M12 18.5C12.8284 18.5 13.5 17.8284 13.5 17C13.5 16.1716 12.8284 15.5 12 15.5C11.1716 15.5 10.5 16.1716 10.5 17C10.5 17.8284 11.1716 18.5 12 18.5Z" class="tw-fill-primary-600" />
     <path fill-rule="evenodd" clip-rule="evenodd" d="M2.04938 8.36413C5.68462 4.87862 8.61538 3.5 12 3.5C15.3846 3.5 18.3154 4.87862 21.9506 8.36413C22.2569 8.65773 22.2673 9.14373 21.9737 9.45005C21.6801 9.75636 21.1941 9.76683 20.8878 9.47322C17.4539 6.18334 14.8462 5 12 5C9.15385 5 6.54615 6.18334 3.11222 9.47322C2.80591 9.76683 2.31991 9.75636 2.0263 9.45005C1.7327 9.14373 1.74317 8.65773 2.04938 8.36413Z" class="tw-fill-primary-600" />

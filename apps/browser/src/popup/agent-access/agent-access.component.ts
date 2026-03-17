@@ -51,7 +51,7 @@ type AgentAccessView = (typeof AgentAccessView)[keyof typeof AgentAccessView];
     <popup-page>
       <popup-header
         slot="header"
-        [pageTitle]="'remoteAccess' | i18n"
+        [pageTitle]="'agentAccess' | i18n"
         [showBackButton]="view() !== 'home'"
         [backAction]="goHomeAction"
       ></popup-header>
