@@ -17,10 +17,7 @@ import type { RatUserClientEvent } from "@bitwarden/sdk-internal";
 import { PopupHeaderComponent } from "../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../platform/popup/layout/popup-page.component";
 
-import {
-  RemoteAccessCredentialRequestComponent,
-  type CredentialApproval,
-} from "./pages/remote-access-credential-request.component";
+import { RemoteAccessCredentialRequestComponent } from "./pages/remote-access-credential-request.component";
 import { RemoteAccessHomeComponent } from "./pages/remote-access-home.component";
 import { RemoteAccessPairingComponent } from "./pages/remote-access-pairing.component";
 import { RemoteAccessStatusComponent } from "./pages/remote-access-status.component";
@@ -241,22 +238,19 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
 
   // --- Credential request actions ---
 
-  async onCredentialApproved(approval: CredentialApproval): Promise<void> {
+  async onCredentialApproved(cipherId: string): Promise<void> {
     const request = this.currentRequest();
     if (!request) {
       return;
     }
 
-    const credential = await this.service.getCredentialById(approval.cipherId);
-    const filtered = credential
-      ? {
-          username: approval.fields.has("username") ? credential.username : undefined,
-          password: approval.fields.has("password") ? credential.password : undefined,
-          totp: approval.fields.has("totp") ? credential.totp : undefined,
-          uri: approval.fields.has("uri") ? credential.uri : undefined,
-        }
-      : undefined;
-    await this.service.respondToCredential(request.requestId, request.sessionId, true, filtered);
+    const credential = await this.service.getCredentialById(cipherId);
+    await this.service.respondToCredential(
+      request.requestId,
+      request.sessionId,
+      true,
+      credential ?? undefined,
+    );
 
     this.clearPendingRequest(request.sessionId);
     this.toastService.showToast({

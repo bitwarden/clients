@@ -1,50 +1,89 @@
 import { ChangeDetectionStrategy, Component, input, output, signal, OnInit } from "@angular/core";
-import { FormsModule } from "@angular/forms";
 
-import { ButtonModule, RadioButtonModule } from "@bitwarden/components";
+import { ButtonModule } from "@bitwarden/components";
 
-import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
-import { CredentialRequestData } from "../remote-access.types";
+import { CredentialMatch, CredentialRequestData } from "../remote-access.types";
 
 @Component({
   selector: "app-remote-access-credential-request",
   standalone: true,
-  imports: [FormsModule, PopupFooterComponent, ButtonModule, RadioButtonModule],
+  imports: [ButtonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ng-container>
-      <div class="tw-p-4 tw-space-y-4">
-        <p class="tw-text-main tw-mb-0">
-          <strong>{{ request()?.connectionName }}</strong> is requesting a credential for:
+      <div class="tw-p-3 tw-space-y-3">
+        <p class="tw-text-main tw-text-sm tw-mb-0">
+          A connected device is requesting access to a credential from your vault.
         </p>
 
+        <!-- Request card -->
+        <div
+          class="tw-bg-background-alt tw-border tw-border-solid tw-border-secondary-300 tw-rounded tw-px-3 tw-py-2"
+        >
+          <div class="tw-flex tw-items-center tw-gap-2">
+            <i class="bwi bwi-globe tw-text-primary-600 tw-shrink-0"></i>
+            <div class="tw-min-w-0">
+              <p class="tw-text-main tw-font-semibold tw-text-sm tw-mb-0 tw-truncate">
+                {{ request()?.domain }}
+              </p>
+              <p class="tw-text-muted tw-text-xs tw-mb-0">
+                Requested by <strong>{{ request()?.connectionName }}</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+
         @if (request()?.matches?.length) {
-          <div
-            class="tw-bg-background tw-border tw-border-solid tw-border-secondary-300 tw-rounded tw-p-3 tw-text-center"
-          >
-            <p class="tw-text-lg tw-font-bold tw-text-main tw-mb-0">
-              {{ request()?.domain }}
-            </p>
+          <p class="tw-text-muted tw-text-xs tw-uppercase tw-tracking-wide tw-mb-0">
+            Matching vault items
+          </p>
+
+          <div class="tw-space-y-1">
+            @for (match of request()!.matches; track match.cipherId) {
+              <label
+                class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-rounded tw-border tw-border-solid tw-cursor-pointer tw-mb-0 tw-transition-colors"
+                [class.tw-border-primary-600]="selectedCipherId() === match.cipherId"
+                [class.tw-bg-primary-600/5]="selectedCipherId() === match.cipherId"
+                [class.tw-border-secondary-300]="selectedCipherId() !== match.cipherId"
+                [class.tw-bg-background]="selectedCipherId() !== match.cipherId"
+              >
+                <input
+                  type="radio"
+                  name="credential"
+                  class="tw-shrink-0"
+                  [value]="match.cipherId"
+                  [checked]="selectedCipherId() === match.cipherId"
+                  (change)="selectMatch(match)"
+                />
+                <div class="tw-min-w-0">
+                  <p class="tw-text-main tw-text-sm tw-font-semibold tw-mb-0 tw-truncate">
+                    {{ match.name }}
+                  </p>
+                  <p class="tw-text-muted tw-text-xs tw-mb-0 tw-truncate">{{ match.username }}</p>
+                </div>
+              </label>
+            }
           </div>
 
-          <bit-radio-group
-            [ngModel]="selectedCipherId()"
-            (ngModelChange)="selectedCipherId.set($event)"
-          >
-            @for (match of request()!.matches; track match.cipherId) {
-              <bit-radio-button [value]="match.cipherId">
-                <bit-label>
-                  {{ match.name }}
-                  <span class="tw-text-muted tw-text-sm tw-ml-2">{{ match.username }}</span>
-                </bit-label>
-              </bit-radio-button>
-            }
-          </bit-radio-group>
+          <div class="tw-flex tw-gap-2">
+            <button
+              type="button"
+              bitButton
+              buttonType="primary"
+              [disabled]="!selectedCipherId()"
+              (click)="onApprove()"
+            >
+              Approve
+            </button>
+            <button type="button" bitButton buttonType="danger" (click)="denied.emit()">
+              Deny
+            </button>
+          </div>
         } @else {
-          <div class="tw-flex tw-flex-col tw-items-center tw-gap-3 tw-py-8">
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-3 tw-py-6">
             <svg
-              width="40"
-              height="40"
+              width="36"
+              height="36"
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -57,38 +96,21 @@ import { CredentialRequestData } from "../remote-access.types";
                 fill="currentColor"
               />
             </svg>
-            <p class="tw-text-main tw-font-bold tw-mb-0">No matching credentials</p>
-            <p class="tw-text-muted tw-text-sm tw-text-center tw-mb-0">
+            <p class="tw-text-main tw-font-bold tw-text-sm tw-mb-0">No matching credentials</p>
+            <p class="tw-text-muted tw-text-xs tw-text-center tw-mb-0">
               No saved credentials were found matching
               <strong>{{ request()?.domain }}</strong
               >.
             </p>
           </div>
+
+          <div class="tw-flex tw-justify-center">
+            <button type="button" bitButton buttonType="secondary" (click)="denied.emit()">
+              Dismiss
+            </button>
+          </div>
         }
       </div>
-
-      @if (request()?.matches?.length) {
-        <popup-footer slot="footer">
-          <button
-            type="button"
-            bitButton
-            buttonType="primary"
-            [disabled]="!selectedCipherId()"
-            (click)="approved.emit(selectedCipherId())"
-          >
-            Approve
-          </button>
-          <button type="button" bitButton buttonType="danger" slot="end" (click)="denied.emit()">
-            Deny
-          </button>
-        </popup-footer>
-      } @else {
-        <div class="tw-flex tw-justify-center tw-px-4 tw-pb-4">
-          <button type="button" bitButton buttonType="secondary" (click)="denied.emit()">
-            Dismiss
-          </button>
-        </div>
-      }
     </ng-container>
   `,
 })
@@ -104,6 +126,17 @@ export class RemoteAccessCredentialRequestComponent implements OnInit {
     const matches = this.request()?.matches;
     if (matches && matches.length > 0) {
       this.selectedCipherId.set(matches[0].cipherId);
+    }
+  }
+
+  selectMatch(match: CredentialMatch): void {
+    this.selectedCipherId.set(match.cipherId);
+  }
+
+  onApprove(): void {
+    const id = this.selectedCipherId();
+    if (id) {
+      this.approved.emit(id);
     }
   }
 }

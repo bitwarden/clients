@@ -315,8 +315,9 @@ describe("RemoteAccessService", () => {
         sessionData: "session",
       };
 
-      await service.saveConnection(entry);
+      const result = await service.saveConnection(entry);
 
+      expect(result).toEqual([expect.objectContaining({ id: "aabbccdd" })]);
       expect(storageService.save).toHaveBeenCalledWith(
         "rat_connections",
         expect.arrayContaining([expect.objectContaining({ id: "aabbccdd" })]),

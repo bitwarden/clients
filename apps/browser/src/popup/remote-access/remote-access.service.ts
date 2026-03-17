@@ -21,6 +21,7 @@ const DEFAULT_PROXY_URL = "wss://rat1.lesspassword.dev";
 export type ConnectionMode = "rendezvous" | "psk" | "cached";
 
 export interface CredentialLookupResult {
+  id?: string;
   username?: string;
   password?: string;
   totp?: string;
@@ -70,7 +71,7 @@ export class RemoteAccessService implements OnDestroy {
     return data;
   }
 
-  async saveConnection(entry: ConnectionEntry): Promise<void> {
+  async saveConnection(entry: ConnectionEntry): Promise<ConnectionEntry[]> {
     const connections = await this.loadConnections();
     const existingIndex = connections.findIndex((c) => c.id === entry.id);
     if (existingIndex >= 0) {
@@ -79,6 +80,7 @@ export class RemoteAccessService implements OnDestroy {
       connections.push(entry);
     }
     await this.storageService.save(RAT_CONNECTIONS_KEY, connections);
+    return connections;
   }
 
   async removeConnection(id: string): Promise<void> {
@@ -210,6 +212,7 @@ export class RemoteAccessService implements OnDestroy {
       session_id: sessionId,
       approved,
       credential: approved ? credential : undefined,
+      credential_id: approved ? credential?.id : undefined,
     });
     await this.persistState();
   }
@@ -264,6 +267,7 @@ export class RemoteAccessService implements OnDestroy {
       }
 
       return {
+        id: cipherId,
         username: login.username ?? undefined,
         password: login.password ?? undefined,
         totp: login.totp ?? undefined,
@@ -281,31 +285,6 @@ export class RemoteAccessService implements OnDestroy {
     }
     try {
       return this.client.get_session_data() as string;
-    } catch {
-      return null;
-    }
-  }
-
-  /**
-   * Get the most recently connected remote identity from the session store.
-   * Returns a stable string key derived from the remote device's IdentityFingerprint.
-   */
-  getMostRecentRemoteIdentity(): string | null {
-    const data = this.getSessionData();
-    if (!data) {
-      return null;
-    }
-    try {
-      const sessions = JSON.parse(data) as Array<{
-        fingerprint: number[];
-        last_connected: number;
-      }>;
-      if (sessions.length === 0) {
-        return null;
-      }
-      const mostRecent = sessions.reduce((a, b) => (b.last_connected > a.last_connected ? b : a));
-      // Convert the fingerprint byte array to a hex string for stable comparison
-      return mostRecent.fingerprint.map((b: number) => b.toString(16).padStart(2, "0")).join("");
     } catch {
       return null;
     }
