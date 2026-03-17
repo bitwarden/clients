@@ -209,14 +209,17 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   readonly selectablePlans = computed(() => {
     const selectedProductTierType = this.formValues().productTier;
     const result =
-      this.passwordManagerPlans?.filter(
-        (plan) =>
-          plan.productTier === selectedProductTierType &&
-          (plan.productTier !== ProductTierType.Families || plan.type === this._familyPlan) &&
-          ((!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
-            (this.isProviderQualifiedFor2020Plan() &&
-              Allowed2020PlansForLegacyProviders.includes(plan.type))),
-      ) || [];
+      this.passwordManagerPlans?.filter((plan) => {
+        const matchesSelectedTier = plan.productTier === selectedProductTierType;
+        const isCorrectFamilyPlan =
+          plan.productTier !== ProductTierType.Families || plan.type === this._familyPlan;
+        const meetsProviderPlanRequirements =
+          (!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
+          (this.isProviderQualifiedFor2020Plan() &&
+            Allowed2020PlansForLegacyProviders.includes(plan.type));
+
+        return matchesSelectedTier && isCorrectFamilyPlan && meetsProviderPlanRequirements;
+      }) || [];
 
     result.sort((planA, planB) => planA.displaySortOrder - planB.displaySortOrder);
     return result;
