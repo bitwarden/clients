@@ -151,7 +151,7 @@ describe("BrowserRatProxyClient", () => {
     await connectPromise;
 
     ws.simulateMessage({
-      IdentityInfo: { fingerprint: [0xab, 0xcd, 0xef], identity: { key: "val" } },
+      IdentityInfo: { fingerprint: [0xab, 0xcd, 0xef] as any, identity: { key: "val" } },
     });
 
     expect(onMessage).toHaveBeenCalledWith({

@@ -35,8 +35,9 @@ import { PopupTabNavigationComponent } from "../platform/popup/layout/popup-tab-
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { ExtensionAnonLayoutWrapperComponent } from "./components/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
-import { ServicesModule } from "./services/services.module";
+import { RemoteAccessTestComponent } from "./remote-access/remote-access-test.component";
 import { RemoteAccessComponent } from "./remote-access/remote-access.component";
+import { ServicesModule } from "./services/services.module";
 import { TabsV2Component } from "./tabs-v2.component";
 
 // Register the locales for the application
@@ -81,6 +82,7 @@ import "../platform/popup/locales";
     CalloutModule,
     LinkModule,
     RemoteAccessComponent,
+    RemoteAccessTestComponent,
   ],
   declarations: [AppComponent, TabsV2Component],
   exports: [CalloutModule],

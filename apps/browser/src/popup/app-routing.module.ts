@@ -73,7 +73,6 @@ import { filePickerPopoutGuard } from "../tools/popup/guards/file-picker-popout.
 import { SendAddEditComponent as SendAddEditV2Component } from "../tools/popup/send-v2/add-edit/send-add-edit.component";
 import { SendCreatedComponent } from "../tools/popup/send-v2/send-created/send-created.component";
 import { SendV2Component } from "../tools/popup/send-v2/send-v2.component";
-import { RemoteAccessComponent } from "./remote-access/remote-access.component";
 import { AboutPageV2Component } from "../tools/popup/settings/about-page/about-page-v2.component";
 import { ExportBrowserV2Component } from "../tools/popup/settings/export/export-browser-v2.component";
 import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-browser-v2.component";
@@ -107,6 +106,8 @@ import {
   ExtensionAnonLayoutWrapperComponent,
   ExtensionAnonLayoutWrapperData,
 } from "./components/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
+import { RemoteAccessTestComponent } from "./remote-access/remote-access-test.component";
+import { RemoteAccessComponent } from "./remote-access/remote-access.component";
 import { debounceNavigationGuard } from "./services/debounce-navigation.service";
 import { TabsV2Component } from "./tabs-v2.component";
 
@@ -727,6 +728,11 @@ const routes: Routes = [
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
     ],
+  },
+  {
+    path: "remote-access-test",
+    component: RemoteAccessTestComponent,
+    data: { elevation: 0 } satisfies RouteDataProperties,
   },
   {
     path: "at-risk-passwords",
