@@ -1,0 +1,231 @@
+import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
+import { FormsModule } from "@angular/forms";
+
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import {
+  ButtonModule,
+  CalloutModule,
+  FormFieldModule,
+  SpinnerComponent,
+  ToggleGroupModule,
+} from "@bitwarden/components";
+
+import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
+import type { ConnectionMode } from "../remote-access.service";
+
+const ConnectionModeEnum = Object.freeze({
+  Rendezvous: "rendezvous" as ConnectionMode,
+  Psk: "psk" as ConnectionMode,
+  Cached: "cached" as ConnectionMode,
+} as const);
+
+@Component({
+  selector: "app-remote-access-pairing",
+  standalone: true,
+  imports: [
+    JslibModule,
+    FormsModule,
+    PopupFooterComponent,
+    ButtonModule,
+    CalloutModule,
+    FormFieldModule,
+    SpinnerComponent,
+    ToggleGroupModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <ng-container>
+      @switch (stage()) {
+        @case ("token") {
+          <div class="tw-p-4 tw-space-y-4">
+            <bit-toggle-group
+              fullWidth
+              [selected]="connectionMode()"
+              (selectedChange)="modeChanged.emit($event)"
+            >
+              <bit-toggle [value]="ConnectionModeEnum.Rendezvous">Rendezvous</bit-toggle>
+              <bit-toggle [value]="ConnectionModeEnum.Psk">PSK Token</bit-toggle>
+              <bit-toggle [value]="ConnectionModeEnum.Cached">Cached</bit-toggle>
+            </bit-toggle-group>
+
+            @switch (connectionMode()) {
+              @case ("rendezvous") {
+                <div
+                  class="tw-bg-background-alt tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-py-8 tw-px-4 tw-text-center"
+                >
+                  <p class="tw-text-sm tw-text-muted tw-mb-6">Rendezvous Code</p>
+                  @if (rendezvousCode()) {
+                    <p
+                      class="tw-text-4xl tw-font-mono tw-tracking-[0.5em] tw-text-main tw-font-bold tw-mb-0 tw-uppercase"
+                    >
+                      {{ rendezvousCode() }}
+                    </p>
+                  } @else {
+                    <div class="tw-flex tw-justify-center tw-py-4">
+                      <bit-spinner size="small"></bit-spinner>
+                    </div>
+                  }
+                </div>
+
+                @if (rendezvousCode()) {
+                  <div class="tw-flex tw-justify-center">
+                    <button
+                      type="button"
+                      bitButton
+                      buttonType="secondary"
+                      size="small"
+                      (click)="copyCode.emit()"
+                    >
+                      {{ codeCopied() ? "Copied!" : "Copy Code" }}
+                    </button>
+                  </div>
+                }
+              }
+              @case ("psk") {
+                <div
+                  class="tw-bg-background-alt tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-py-8 tw-px-4 tw-text-center"
+                >
+                  <p class="tw-text-sm tw-text-muted tw-mb-6">PSK Token</p>
+                  @if (pskToken()) {
+                    <p class="tw-text-sm tw-font-mono tw-text-main tw-break-all tw-mb-0">
+                      {{ pskToken() }}
+                    </p>
+                  } @else {
+                    <div class="tw-flex tw-justify-center tw-py-4">
+                      <bit-spinner size="small"></bit-spinner>
+                    </div>
+                  }
+                </div>
+
+                @if (pskToken()) {
+                  <div class="tw-flex tw-justify-center">
+                    <button
+                      type="button"
+                      bitButton
+                      buttonType="secondary"
+                      size="small"
+                      (click)="copyToken.emit()"
+                    >
+                      {{ tokenCopied() ? "Copied!" : "Copy Token" }}
+                    </button>
+                  </div>
+                }
+              }
+              @case ("cached") {
+                <div
+                  class="tw-bg-background-alt tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-py-8 tw-px-4 tw-text-center"
+                >
+                  <p class="tw-text-sm tw-text-muted tw-mb-6">Cached Sessions</p>
+                  <div class="tw-flex tw-justify-center tw-py-2">
+                    <bit-spinner size="small"></bit-spinner>
+                  </div>
+                  <p class="tw-text-sm tw-text-muted tw-mt-4 tw-mb-0">
+                    Listening for cached sessions...
+                  </p>
+                </div>
+              }
+            }
+
+            <!-- Connection name -->
+            <bit-form-field>
+              <bit-label>Connection Name</bit-label>
+              <input
+                bitInput
+                type="text"
+                placeholder="e.g. Work Laptop"
+                [ngModel]="connectionName()"
+                (ngModelChange)="nameChanged.emit($event)"
+              />
+            </bit-form-field>
+          </div>
+
+          <popup-footer slot="footer">
+            <button type="button" bitButton buttonType="secondary" (click)="cancel.emit()">
+              {{ "cancel" | i18n }}
+            </button>
+          </popup-footer>
+        }
+        @case ("fingerprint") {
+          <div class="tw-p-4 tw-space-y-4">
+            <h3 class="tw-text-main tw-font-bold tw-text-lg tw-mb-0">Verify Connection</h3>
+            <p class="tw-text-muted tw-text-sm tw-mb-0">
+              Confirm this fingerprint matches what is shown on the remote device. If they do not
+              match, reject the connection.
+            </p>
+
+            <div
+              class="tw-bg-background tw-border tw-border-solid tw-border-secondary-300 tw-rounded tw-p-4 tw-text-center"
+            >
+              <p class="tw-text-xs tw-text-muted tw-mb-2">Connection Fingerprint</p>
+              <p
+                class="tw-text-3xl tw-font-mono tw-tracking-[0.3em] tw-text-main tw-font-bold tw-mb-0"
+              >
+                {{ fingerprint() }}
+              </p>
+            </div>
+
+            <!-- Connection name (still editable) -->
+            <bit-form-field>
+              <bit-label>Connection Name</bit-label>
+              <input
+                bitInput
+                type="text"
+                placeholder="e.g. Work Laptop"
+                [ngModel]="connectionName()"
+                (ngModelChange)="nameChanged.emit($event)"
+              />
+            </bit-form-field>
+          </div>
+
+          <popup-footer slot="footer">
+            <button
+              type="button"
+              bitButton
+              buttonType="primary"
+              (click)="fingerprintApproved.emit()"
+            >
+              Accept
+            </button>
+            <button
+              type="button"
+              bitButton
+              buttonType="danger"
+              slot="end"
+              (click)="fingerprintRejected.emit()"
+            >
+              Reject
+            </button>
+          </popup-footer>
+        }
+        @case ("handshake") {
+          <div
+            class="tw-p-4 tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-4 tw-h-full"
+          >
+            <bit-spinner size="large"></bit-spinner>
+            <p class="tw-text-main tw-mb-0">Performing secure handshake...</p>
+          </div>
+        }
+      }
+    </ng-container>
+  `,
+})
+export class RemoteAccessPairingComponent {
+  protected readonly ConnectionModeEnum = ConnectionModeEnum;
+
+  readonly stage = input.required<"token" | "fingerprint" | "handshake">();
+  readonly connectionMode = input.required<ConnectionMode>();
+  readonly rendezvousCode = input("");
+  readonly pskToken = input("");
+  readonly fingerprint = input("");
+  readonly connectionName = input("");
+  readonly codeCopied = input(false);
+  readonly tokenCopied = input(false);
+
+  readonly modeChanged = output<ConnectionMode>();
+  readonly copyCode = output();
+  readonly copyToken = output();
+  readonly nameChanged = output<string>();
+  readonly fingerprintApproved = output();
+  readonly fingerprintRejected = output();
+  readonly cancel = output();
+}

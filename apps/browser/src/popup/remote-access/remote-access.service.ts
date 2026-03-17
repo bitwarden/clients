@@ -7,13 +7,15 @@ import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { BrowserRatProxyClient } from "./rat-proxy-client";
+import { ConnectionEntry, CredentialMatch } from "./remote-access.types";
 
 /** Storage keys for RAT state in chrome.storage.local */
-const RAT_SESSION_KEY = "rat_session_cache";
+const RAT_CONNECTIONS_KEY = "rat_connections";
 const RAT_IDENTITY_KEY = "rat_identity";
+const RAT_LISTENING_ENABLED_KEY = "rat_listening_enabled";
 
 /** Default proxy URL — should eventually come from environment config */
-const DEFAULT_PROXY_URL = "ws://localhost:8080";
+const DEFAULT_PROXY_URL = "wss://rat1.lesspassword.dev";
 
 export type ConnectionMode = "rendezvous" | "psk" | "cached";
 
@@ -44,16 +46,68 @@ export class RemoteAccessService implements OnDestroy {
   private environmentService = inject(EnvironmentService);
   private ngZone = inject(NgZone);
 
+  // --- Connection storage ---
+
+  async loadConnections(): Promise<ConnectionEntry[]> {
+    const data = await this.storageService.get<string>(RAT_CONNECTIONS_KEY);
+    if (!data) {
+      return [];
+    }
+    try {
+      return JSON.parse(data) as ConnectionEntry[];
+    } catch {
+      return [];
+    }
+  }
+
+  async saveConnection(entry: ConnectionEntry): Promise<void> {
+    const connections = await this.loadConnections();
+    const existingIndex = connections.findIndex((c) => c.id === entry.id);
+    if (existingIndex >= 0) {
+      connections[existingIndex] = entry;
+    } else {
+      connections.push(entry);
+    }
+    await this.storageService.save(RAT_CONNECTIONS_KEY, JSON.stringify(connections));
+  }
+
+  async removeConnection(id: string): Promise<void> {
+    const connections = await this.loadConnections();
+    const filtered = connections.filter((c) => c.id !== id);
+    await this.storageService.save(RAT_CONNECTIONS_KEY, JSON.stringify(filtered));
+  }
+
+  async updateConnectionLastUsed(id: string): Promise<void> {
+    const connections = await this.loadConnections();
+    const conn = connections.find((c) => c.id === id);
+    if (conn) {
+      conn.lastUsed = Date.now();
+      await this.storageService.save(RAT_CONNECTIONS_KEY, JSON.stringify(connections));
+    }
+  }
+
+  // --- Listening toggle ---
+
+  async getListeningEnabled(): Promise<boolean> {
+    const value = await this.storageService.get<boolean>(RAT_LISTENING_ENABLED_KEY);
+    return value ?? true;
+  }
+
+  async setListeningEnabled(enabled: boolean): Promise<void> {
+    await this.storageService.save(RAT_LISTENING_ENABLED_KEY, enabled);
+  }
+
+  // --- Core connection ---
+
   /**
    * Initialize the RAT client: load persisted identity/session from storage,
    * connect to proxy, and prepare to listen.
    */
-  async startListening(mode: ConnectionMode): Promise<void> {
+  async startListening(mode: ConnectionMode, sessionData?: string): Promise<void> {
     // Load SDK module
     const sdk = await import("@bitwarden/sdk-internal");
 
     // Load persisted state
-    const sessionData = await this.storageService.get<string>(RAT_SESSION_KEY);
     const identityB64 = await this.storageService.get<string>(RAT_IDENTITY_KEY);
     let identityData = identityB64 ? this.base64ToBytes(identityB64) : undefined;
 
@@ -105,6 +159,24 @@ export class RemoteAccessService implements OnDestroy {
     }
   }
 
+  /**
+   * Start listening using cached session data from all saved connections.
+   * Currently the WASM SDK only supports one active client, so we use
+   * the most recently used connection's session data.
+   */
+  async startListeningForAll(): Promise<void> {
+    const connections = await this.loadConnections();
+    if (connections.length === 0) {
+      return;
+    }
+
+    // Use the most recently used connection's session data
+    const sorted = [...connections].sort((a, b) => b.lastUsed - a.lastUsed);
+    const sessionData = sorted[0].sessionData;
+
+    await this.startListening("cached", sessionData);
+  }
+
   /** Approve or reject fingerprint verification. */
   async verifyFingerprint(approved: boolean, name?: string): Promise<void> {
     if (!this.client) {
@@ -141,8 +213,34 @@ export class RemoteAccessService implements OnDestroy {
     await this.persistState();
   }
 
-  /** Look up a vault credential by domain. */
-  async lookupCredential(domain: string): Promise<CredentialLookupResult | null> {
+  /** Look up all vault credentials matching a domain. */
+  async lookupCredentials(domain: string): Promise<CredentialMatch[]> {
+    try {
+      const activeAccount = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      if (!activeAccount) {
+        return [];
+      }
+
+      const url = domain.startsWith("http") ? domain : `https://${domain}`;
+      const ciphers = await this.cipherService.getAllDecryptedForUrl(url, activeAccount);
+
+      return ciphers
+        .filter((c) => c.login)
+        .map((c) => ({
+          cipherId: c.id!,
+          name: c.name,
+          username: c.login!.username ?? "",
+          uri: c.login!.uris?.[0]?.uri ?? url,
+        }));
+    } catch {
+      return [];
+    }
+  }
+
+  /** Get a single credential by cipher ID for sending to the agent. */
+  async getCredentialById(cipherId: string): Promise<CredentialLookupResult | null> {
     try {
       const activeAccount = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.id)),
@@ -151,16 +249,15 @@ export class RemoteAccessService implements OnDestroy {
         return null;
       }
 
-      const url = domain.startsWith("http") ? domain : `https://${domain}`;
-      const ciphers = await this.cipherService.getAllDecryptedForUrl(url, activeAccount);
-
-      if (ciphers.length === 0) {
+      const cipher = await this.cipherService.get(cipherId, activeAccount);
+      if (!cipher) {
         return null;
       }
 
-      // Use the best match (first result after sorting)
-      const cipher = ciphers[0];
-      const login = cipher.login;
+      const decrypted = await cipher.decrypt(
+        await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeAccount),
+      );
+      const login = decrypted.login;
       if (!login) {
         return null;
       }
@@ -171,6 +268,18 @@ export class RemoteAccessService implements OnDestroy {
         totp: login.totp ?? undefined,
         uri: login.uris?.[0]?.uri ?? undefined,
       };
+    } catch {
+      return null;
+    }
+  }
+
+  /** Get the current session data from the active client. */
+  getSessionData(): string | null {
+    if (!this.client) {
+      return null;
+    }
+    try {
+      return this.client.get_session_data() as string;
     } catch {
       return null;
     }
@@ -187,11 +296,6 @@ export class RemoteAccessService implements OnDestroy {
       this.proxyClient = null;
     }
     this.client = null;
-
-    // Clear the session cache so next connection goes through full
-    // handshake with fingerprint verification. Without session management
-    // UI, stale cache silently skips verification for returning devices.
-    await this.storageService.remove(RAT_SESSION_KEY);
   }
 
   ngOnDestroy(): void {
@@ -204,9 +308,7 @@ export class RemoteAccessService implements OnDestroy {
       return;
     }
     try {
-      const sessionData = this.client.get_session_data();
       const identityData = this.client.get_identity_data();
-      await this.storageService.save(RAT_SESSION_KEY, sessionData);
       await this.storageService.save(
         RAT_IDENTITY_KEY,
         this.bytesToBase64(new Uint8Array(identityData)),

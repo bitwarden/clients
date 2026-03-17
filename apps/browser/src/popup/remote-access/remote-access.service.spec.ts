@@ -121,7 +121,6 @@ describe("RemoteAccessService", () => {
 
       await service.startListening("rendezvous");
 
-      expect(storageService.save).toHaveBeenCalledWith("rat_session_cache", "session-data");
       expect(storageService.save).toHaveBeenCalledWith("rat_identity", expect.any(String));
     });
 
@@ -215,10 +214,12 @@ describe("RemoteAccessService", () => {
   // Credential lookup
   // ---------------------------------------------------------------------------
 
-  describe("lookupCredential", () => {
-    it("should return matching credential from vault", async () => {
+  describe("lookupCredentials", () => {
+    it("should return matching credentials from vault", async () => {
       cipherService.getAllDecryptedForUrl.mockResolvedValue([
         {
+          id: "cipher-1",
+          name: "Example Login",
           login: {
             username: "admin",
             password: "secret",
@@ -228,24 +229,26 @@ describe("RemoteAccessService", () => {
         },
       ] as any);
 
-      const result = await service.lookupCredential("example.com");
+      const result = await service.lookupCredentials("example.com");
 
-      expect(result).toEqual({
-        username: "admin",
-        password: "secret",
-        totp: "TOTP123",
-        uri: "https://example.com",
-      });
+      expect(result).toEqual([
+        {
+          cipherId: "cipher-1",
+          name: "Example Login",
+          username: "admin",
+          uri: "https://example.com",
+        },
+      ]);
     });
 
-    it("should return null when no ciphers match", async () => {
+    it("should return empty array when no ciphers match", async () => {
       cipherService.getAllDecryptedForUrl.mockResolvedValue([]);
 
-      const result = await service.lookupCredential("nosite.com");
-      expect(result).toBeNull();
+      const result = await service.lookupCredentials("nosite.com");
+      expect(result).toEqual([]);
     });
 
-    it("should return null when no active account", async () => {
+    it("should return empty array when no active account", async () => {
       // Reconfigure with null active account
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
@@ -259,21 +262,21 @@ describe("RemoteAccessService", () => {
       });
       const svcNoAccount = TestBed.inject(RemoteAccessService);
 
-      const result = await svcNoAccount.lookupCredential("example.com");
-      expect(result).toBeNull();
+      const result = await svcNoAccount.lookupCredentials("example.com");
+      expect(result).toEqual([]);
     });
 
-    it("should return null on error", async () => {
+    it("should return empty array on error", async () => {
       cipherService.getAllDecryptedForUrl.mockRejectedValue(new Error("vault locked"));
 
-      const result = await service.lookupCredential("example.com");
-      expect(result).toBeNull();
+      const result = await service.lookupCredentials("example.com");
+      expect(result).toEqual([]);
     });
 
     it("should prepend https:// to bare domains", async () => {
       cipherService.getAllDecryptedForUrl.mockResolvedValue([]);
 
-      await service.lookupCredential("example.com");
+      await service.lookupCredentials("example.com");
 
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
         "https://example.com",
@@ -284,7 +287,7 @@ describe("RemoteAccessService", () => {
     it("should not prepend https:// to domains starting with http", async () => {
       cipherService.getAllDecryptedForUrl.mockResolvedValue([]);
 
-      await service.lookupCredential("http://example.com");
+      await service.lookupCredentials("http://example.com");
 
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
         "http://example.com",
@@ -294,19 +297,75 @@ describe("RemoteAccessService", () => {
   });
 
   // ---------------------------------------------------------------------------
+  // Connection storage
+  // ---------------------------------------------------------------------------
+
+  describe("connection storage", () => {
+    it("should load empty array when no connections stored", async () => {
+      const result = await service.loadConnections();
+      expect(result).toEqual([]);
+    });
+
+    it("should save and load connections", async () => {
+      const entry = {
+        id: "conn-1",
+        name: "Test Device",
+        fingerprint: "abc123",
+        lastUsed: Date.now(),
+        sessionData: "session",
+      };
+
+      await service.saveConnection(entry);
+
+      expect(storageService.save).toHaveBeenCalledWith("rat_connections", expect.any(String));
+    });
+
+    it("should remove connection by id", async () => {
+      storageService.get.mockImplementation((key: string) => {
+        if (key === "rat_connections") {
+          return Promise.resolve(
+            JSON.stringify([
+              { id: "conn-1", name: "A", fingerprint: "", lastUsed: 0, sessionData: "" },
+              { id: "conn-2", name: "B", fingerprint: "", lastUsed: 0, sessionData: "" },
+            ]),
+          );
+        }
+        return Promise.resolve(null);
+      });
+
+      await service.removeConnection("conn-1");
+
+      const savedArg = (storageService.save as jest.Mock).mock.calls.find(
+        (call: any[]) => call[0] === "rat_connections",
+      );
+      const saved = JSON.parse(savedArg[1]);
+      expect(saved).toHaveLength(1);
+      expect(saved[0].id).toBe("conn-2");
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Listening toggle
+  // ---------------------------------------------------------------------------
+
+  describe("listening toggle", () => {
+    it("should default to true when not set", async () => {
+      const result = await service.getListeningEnabled();
+      expect(result).toBe(true);
+    });
+
+    it("should save listening enabled state", async () => {
+      await service.setListeningEnabled(false);
+
+      expect(storageService.save).toHaveBeenCalledWith("rat_listening_enabled", false);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
   // Disconnect
   // ---------------------------------------------------------------------------
 
   describe("disconnect", () => {
-    it("should clear session cache on disconnect", async () => {
-      mockEnableRendezvous.mockResolvedValue(undefined);
-      await service.startListening("rendezvous");
-
-      await service.disconnect();
-
-      expect(storageService.remove).toHaveBeenCalledWith("rat_session_cache");
-    });
-
     it("should be safe to call when not connected", async () => {
       await expect(service.disconnect()).resolves.not.toThrow();
     });
