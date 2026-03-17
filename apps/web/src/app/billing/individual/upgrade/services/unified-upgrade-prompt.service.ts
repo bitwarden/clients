@@ -1,11 +1,10 @@
 import { Injectable } from "@angular/core";
-import { combineLatest, firstValueFrom, timeout, from, Observable, of } from "rxjs";
+import { combineLatest, firstValueFrom, timeout, Observable, of } from "rxjs";
 import { filter, switchMap, take, map } from "rxjs/operators";
 
-import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
+import { PremiumUpsellService } from "@bitwarden/angular/vault";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
@@ -36,14 +35,13 @@ export class UnifiedUpgradePromptService {
   private unifiedUpgradeDialogRef: DialogRef<UnifiedUpgradeDialogResult> | null = null;
   constructor(
     private accountService: AccountService,
-    private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private vaultProfileService: VaultProfileService,
     private syncService: SyncService,
     private dialogService: DialogService,
     private organizationService: OrganizationService,
     private platformUtilsService: PlatformUtilsService,
     private stateProvider: StateProvider,
     private logService: LogService,
+    private premiumUpsellService: PremiumUpsellService,
   ) {}
 
   private shouldShowPrompt$: Observable<boolean> = this.accountService.activeAccount$.pipe(
@@ -57,22 +55,13 @@ export class UnifiedUpgradePromptService {
         return of(false);
       }
 
-      const isProfileLessThanFiveMinutesOld$ = from(
-        this.isProfileLessThanFiveMinutesOld(account.id),
-      );
-      const hasOrganizations$ = from(this.hasOrganizations(account.id));
-      const hasDismissedModal$ = this.hasDismissedModal$(account.id);
-
       return combineLatest([
-        isProfileLessThanFiveMinutesOld$,
-        hasOrganizations$,
-        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-        hasDismissedModal$,
+        this.hasDismissedModal$(account.id),
+        this.hasOrganizations(account.id),
+        of(this.premiumUpsellService.showUpsell()),
       ]).pipe(
-        map(([isProfileLessThanFiveMinutesOld, hasOrganizations, hasPremium, hasDismissed]) => {
-          return (
-            isProfileLessThanFiveMinutesOld && !hasOrganizations && !hasPremium && !hasDismissed
-          );
+        map(([hasDismissed, hasOrganizations, hasAgeAndCount]) => {
+          return !hasDismissed && !hasOrganizations && hasAgeAndCount;
         }),
       );
     }),
@@ -92,26 +81,6 @@ export class UnifiedUpgradePromptService {
     }
 
     return null;
-  }
-
-  /**
-   * Checks if a user's profile was created less than five minutes ago
-   * @param userId User ID to check
-   * @returns Promise that resolves to true if profile was created less than five minutes ago
-   */
-  private async isProfileLessThanFiveMinutesOld(userId: string): Promise<boolean> {
-    const createdAtDate = await this.vaultProfileService.getProfileCreationDate(userId);
-    if (!createdAtDate) {
-      return false;
-    }
-    const createdAtInMs = createdAtDate.getTime();
-    const nowInMs = new Date().getTime();
-
-    const differenceInMs = nowInMs - createdAtInMs;
-    const msInAMinute = 1000 * 60; // 60 seconds * 1000ms
-    const differenceInMinutes = Math.round(differenceInMs / msInAMinute);
-
-    return differenceInMinutes <= 5;
   }
 
   private async launchUpgradeDialog(): Promise<UnifiedUpgradeDialogResult | null> {
