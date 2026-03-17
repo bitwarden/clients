@@ -167,6 +167,7 @@ apps/desktop/desktop_native/ssh_agent @bitwarden/team-autofill-desktop-dev @bitw
 apps/desktop/desktop_native/napi/src/autofill.rs @bitwarden/team-autofill-desktop-dev
 apps/desktop/desktop_native/napi/src/autotype.rs @bitwarden/team-autofill-desktop-dev
 apps/desktop/desktop_native/napi/src/sshagent.rs @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/napi/src/sshagent_v2.rs @bitwarden/team-autofill-desktop-dev
 # DuckDuckGo integration
 apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-desktop-dev
 apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-desktop-dev

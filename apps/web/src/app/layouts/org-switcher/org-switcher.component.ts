@@ -11,14 +11,12 @@ import type { Organization } from "@bitwarden/common/admin-console/models/domain
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { DialogService, IconModule, NavigationModule } from "@bitwarden/components";
-import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
-
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "org-switcher",
   templateUrl: "org-switcher.component.html",
-  imports: [CommonModule, JslibModule, NavigationModule, OrganizationWarningsModule, IconModule],
+  imports: [CommonModule, JslibModule, NavigationModule, IconModule],
 })
 export class OrgSwitcherComponent {
   protected organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
