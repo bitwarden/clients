@@ -18,7 +18,7 @@ import { FormFieldModule } from "../../form-field";
 import { HeaderComponent } from "../../header";
 import { IconComponent } from "../../icon";
 import { IconButtonModule } from "../../icon-button";
-import { InputModule } from "../../input";
+import { AutofocusDirective, InputModule } from "../../input";
 import { LayoutComponent } from "../../layout";
 import { LinkModule } from "../../link";
 import { MenuModule } from "../../menu";
@@ -38,6 +38,7 @@ import { TypographyModule } from "../../typography";
 
 @NgModule({
   imports: [
+    AutofocusDirective,
     AsyncActionsModule,
     AvatarModule,
     BadgeModule,
@@ -76,6 +77,7 @@ import { TypographyModule } from "../../typography";
     TypographyModule,
   ],
   exports: [
+    AutofocusDirective,
     AsyncActionsModule,
     AvatarModule,
     BadgeModule,
