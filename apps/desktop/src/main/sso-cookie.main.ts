@@ -68,6 +68,8 @@ export class SsoCookieMain {
           value,
           domain,
           path: "/",
+          sameSite: "no_restriction",
+          secure: true,
         });
         this.activeDomains.add(domain);
       } catch (e) {
