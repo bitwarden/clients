@@ -101,7 +101,6 @@ import { MoreFromBitwardenPageComponent } from "../vault/popup/settings/more-fro
 import { TrashComponent } from "../vault/popup/settings/trash.component";
 import { VaultSettingsComponent } from "../vault/popup/settings/vault-settings.component";
 
-import { AgentAccessTestComponent } from "./agent-access/agent-access-test.component";
 import { AgentAccessComponent } from "./agent-access/agent-access.component";
 import { RouteElevation } from "./app-routing.animations";
 import {
@@ -728,11 +727,6 @@ const routes: Routes = [
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
     ],
-  },
-  {
-    path: "agent-access-test",
-    component: AgentAccessTestComponent,
-    data: { elevation: 0 } satisfies RouteDataProperties,
   },
   {
     path: "at-risk-passwords",

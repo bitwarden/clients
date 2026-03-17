@@ -32,7 +32,6 @@ import { PopupHeaderComponent } from "../platform/popup/layout/popup-header.comp
 import { PopupPageComponent } from "../platform/popup/layout/popup-page.component";
 import { PopupTabNavigationComponent } from "../platform/popup/layout/popup-tab-navigation.component";
 
-import { AgentAccessTestComponent } from "./agent-access/agent-access-test.component";
 import { AgentAccessComponent } from "./agent-access/agent-access.component";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -82,7 +81,6 @@ import "../platform/popup/locales";
     CalloutModule,
     LinkModule,
     AgentAccessComponent,
-    AgentAccessTestComponent,
   ],
   declarations: [AppComponent, TabsV2Component],
   exports: [CalloutModule],

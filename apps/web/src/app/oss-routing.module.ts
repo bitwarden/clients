@@ -84,7 +84,6 @@ import { DataRecoveryComponent } from "./key-management/data-recovery/data-recov
 import { ConfirmKeyConnectorDomainComponent } from "./key-management/key-connector/confirm-key-connector-domain.component";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
-import { RemoteAccessTestComponent } from "./remote-access-test.component";
 import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-landing/request-sm-access.component";
 import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm-landing.component";
 import { AppearanceComponent } from "./settings/appearance.component";
@@ -99,11 +98,6 @@ import { setupExtensionRedirectGuard } from "./vault/guards/setup-extension-redi
 import { VaultModule } from "./vault/individual-vault/vault.module";
 
 const routes: Routes = [
-  // Dev test page — no auth required
-  {
-    path: "remote-access-test",
-    component: RemoteAccessTestComponent,
-  },
   // These need to be placed at the top of the list prior to the root
   // so that the redirectGuard does not interrupt the navigation.
   {
