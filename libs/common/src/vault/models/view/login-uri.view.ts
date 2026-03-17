@@ -4,7 +4,7 @@ import { LoginUriView as SdkLoginUriView } from "@bitwarden/sdk-internal";
 
 import { UriMatchStrategy, UriMatchStrategySetting } from "../../../models/domain/domain-service";
 import { View } from "../../../models/view/view";
-import { SafeUrls } from "../../../platform/misc/safe-urls";
+import { SafeUrls, UrlType } from "../../../platform/misc/safe-urls";
 import { Utils } from "../../../platform/misc/utils";
 import { LoginUri } from "../domain/login-uri";
 
@@ -95,7 +95,7 @@ export class LoginUriView implements View {
       return this._canLaunch;
     }
     if (this.uri != null && this.match !== UriMatchStrategy.RegularExpression) {
-      this._canLaunch = SafeUrls.canLaunch(this.launchUri);
+      this._canLaunch = SafeUrls.canLaunch(this.launchUri, UrlType.CipherUri);
     } else {
       this._canLaunch = false;
     }

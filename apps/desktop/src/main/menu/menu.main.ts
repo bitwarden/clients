@@ -5,6 +5,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
+import { SafeShell } from "../../platform/main/safe-shell.main";
 import { VersionMain } from "../../platform/main/version.main";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { UpdaterMain } from "../updater.main";
@@ -24,6 +25,7 @@ export class MenuMain {
     private updaterMain: UpdaterMain,
     private desktopSettingsService: DesktopSettingsService,
     private versionMain: VersionMain,
+    private shell: SafeShell,
   ) {}
 
   async init() {
@@ -47,6 +49,7 @@ export class MenuMain {
         app.getVersion(),
         await firstValueFrom(this.desktopSettingsService.hardwareAcceleration$),
         this.versionMain,
+        this.shell,
         updateRequest,
       ).menu,
     );
