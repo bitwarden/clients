@@ -86,19 +86,6 @@ export const Default: Story = {
   },
 };
 
-export const Large: Story = {
-  render: (args) => ({
-    props: args,
-    template: /* HTML */ `
-      <bit-switch ${formatArgsForCodeSnippet<SwitchComponent>(args)}></bit-switch>
-    `,
-  }),
-  args: {
-    selected: true,
-    size: "large",
-  },
-};
-
 export const WithLongLabel: Story = {
   render: (args) => ({
     props: args,
@@ -168,10 +155,40 @@ export const FormControlCard: Story = {
     template: /* HTML */ `
       <form [formGroup]="formObj">
         <bit-form-control-card icon="bwi-clock">
-          <bit-switch size="large" formControlName="switch"></bit-switch>
+          <bit-switch formControlName="switch"></bit-switch>
           <bit-label>Enable feature</bit-label>
           <bit-hint>This feature does some pretty cool stuff</bit-hint>
         </bit-form-control-card>
+      </form>
+    `,
+  }),
+};
+
+export const FormControlCardGroup: Story = {
+  render: () => ({
+    props: {
+      formObj: new FormGroup({
+        notifications: new FormControl(false),
+        autoLock: new FormControl(true),
+      }),
+    },
+    template: /* HTML */ `
+      <form [formGroup]="formObj">
+        <bit-form-control-card-group>
+          <bit-label>Switch group</bit-label>
+
+          <bit-form-control-card icon="bwi-envelope">
+            <bit-switch formControlName="notifications"></bit-switch>
+            <bit-label>Notifications</bit-label>
+            <bit-hint>Enable email notifications</bit-hint>
+          </bit-form-control-card>
+
+          <bit-form-control-card icon="bwi-lock">
+            <bit-switch formControlName="autoLock"></bit-switch>
+            <bit-label>Auto-lock</bit-label>
+            <bit-hint>Automatically lock after inactivity</bit-hint>
+          </bit-form-control-card>
+        </bit-form-control-card-group>
       </form>
     `,
   }),

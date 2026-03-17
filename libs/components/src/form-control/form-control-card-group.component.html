@@ -1,0 +1,19 @@
+@if (label()) {
+  <fieldset class="tw-border-none tw-m-0 tw-p-0">
+    <legend class="tw-mb-2 tw-block tw-text-sm tw-font-medium tw-text-main tw-w-full">
+      <ng-content select="bit-label"></ng-content>
+    </legend>
+    <ng-container *ngTemplateOutlet="cardStack"></ng-container>
+  </fieldset>
+}
+
+@if (!label()) {
+  <ng-container *ngTemplateOutlet="cardStack"></ng-container>
+}
+
+<ng-template #cardStack>
+  <div class="tw-flex tw-flex-col tw-gap-2">
+    <ng-content></ng-content>
+  </div>
+  <ng-content select="bit-hint" ngProjectAs="bit-hint"></ng-content>
+</ng-template>
