@@ -131,7 +131,7 @@ export class AdjustAccountSubscriptionStorageDialogComponent {
     }
   });
 
-  formGroup = new FormGroup({
+  readonly formGroup = new FormGroup({
     amount: new FormControl<number>(1, {
       nonNullable: true,
       validators: [
@@ -142,7 +142,7 @@ export class AdjustAccountSubscriptionStorageDialogComponent {
     }),
   });
 
-  submit = async () => {
+  readonly submit = async () => {
     this.formGroup.markAllAsTouched();
     if (!this.formGroup.valid || !this.formGroup.value.amount) {
       return;
@@ -171,7 +171,7 @@ export class AdjustAccountSubscriptionStorageDialogComponent {
     this.dialogRef.close("submitted");
   };
 
-  static open = (
+  static readonly open = (
     dialogService: DialogService,
     dialogConfig: DialogConfig<AdjustAccountSubscriptionStorageDialogParams>,
   ) =>

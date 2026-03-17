@@ -14,7 +14,6 @@ import { OrganizationInviteService } from "@bitwarden/common/auth/services/organ
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
 
@@ -175,7 +174,7 @@ describe("WebRegistrationFinishService", () => {
     beforeEach(() => {
       email = "test@email.com";
       emailVerificationToken = "emailVerificationToken";
-      masterKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey;
+      masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
       passwordInputResult = {
         newMasterKey: masterKey,
         newServerMasterKeyHash: "newServerMasterKeyHash",
@@ -185,7 +184,7 @@ describe("WebRegistrationFinishService", () => {
         newPassword: "newPassword",
       };
 
-      userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
+      userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
       userKeyEncString = new EncString("userKeyEncrypted");
 
       userKeyPair = ["publicKey", new EncString("privateKey")];

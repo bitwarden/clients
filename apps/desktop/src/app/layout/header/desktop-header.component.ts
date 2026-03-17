@@ -15,8 +15,8 @@ import { AccountSwitcherV2Component } from "../../../auth/components/account-swi
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DesktopHeaderComponent {
-  private route = inject(ActivatedRoute);
-  private i18nService = inject(I18nService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly i18nService = inject(I18nService);
 
   /**
    * Title to display in header (takes precedence over route data)

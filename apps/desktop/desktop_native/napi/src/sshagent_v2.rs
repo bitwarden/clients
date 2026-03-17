@@ -5,16 +5,19 @@
 
 #[napi]
 pub mod sshagent_v2 {
-    use std::sync::Arc;
+    use std::{sync::Arc, time::Duration};
 
-    use anyhow::Context;
     use async_trait::async_trait;
     use napi::threadsafe_function::ThreadsafeFunction;
     use ssh_agent::{
-        ApprovalRequester, BitwardenSSHAgent, InMemoryEncryptedKeyStore,
-        SignRequest as SSHSignRequest, SignRequestNamespace as SSHSignRequestNamespace,
+        ApprovalError, ApprovalRequester, BitwardenSSHAgent, InMemoryEncryptedKeyStore,
+        SIGNamespace as SSHSIGNamespace, SignApprovalRequest as SSHSignApprovalRequest,
     };
+    use tokio::time::timeout;
     use tracing::{debug, error};
+
+    /// Timeout for Electron approval callbacks
+    const APPROVAL_CALLBACK_TIMEOUT: Duration = Duration::from_secs(60);
 
     /// SSH key data, sent from Electron.
     // NOTE: the public key is derived from the private key.
@@ -33,47 +36,62 @@ pub mod sshagent_v2 {
         pub blob: Vec<u8>,
     }
 
-    /// Namespace of a sign request.
+    /// A sign request's SIG namespace
     #[napi(string_enum)]
     #[derive(Debug)]
-    pub enum SignRequestNamespace {
+    pub enum SIGNamespace {
         Git,
         File,
         Unsupported,
     }
 
-    impl From<SSHSignRequestNamespace> for SignRequestNamespace {
-        fn from(ns: SSHSignRequestNamespace) -> Self {
+    impl From<SSHSIGNamespace> for SIGNamespace {
+        fn from(ns: SSHSIGNamespace) -> Self {
             match ns {
-                SSHSignRequestNamespace::Git => Self::Git,
-                SSHSignRequestNamespace::File => Self::File,
-                SSHSignRequestNamespace::Unsupported => Self::Unsupported,
+                SSHSIGNamespace::Git => Self::Git,
+                SSHSIGNamespace::File => Self::File,
+                SSHSIGNamespace::Unsupported => Self::Unsupported,
             }
         }
     }
 
-    /// Data for a sign request
+    /// SSH sign request fields.
+    #[napi(object)]
+    #[derive(Debug)]
+    pub struct SignRequest {
+        pub public_key: PublicKey,
+        pub process_name: Option<String>,
+        pub is_forwarding: bool,
+        pub namespace: Option<SIGNamespace>,
+    }
+
+    impl From<ssh_agent::SignRequest> for SignRequest {
+        fn from(r: ssh_agent::SignRequest) -> Self {
+            Self {
+                public_key: PublicKey {
+                    alg: r.public_key.alg,
+                    blob: r.public_key.blob,
+                },
+                process_name: r.process_name,
+                is_forwarding: r.is_forwarding,
+                namespace: r.namespace.map(Into::into),
+            }
+        }
+    }
+
+    /// Data for a sign request, including vault cipher context.
     #[napi(object)]
     #[derive(Debug)]
     pub struct SignRequestData {
-        pub public_key: PublicKey,
+        pub sign_request: SignRequest,
         pub cipher_id: Option<String>,
-        pub process_name: Option<String>,
-        pub is_forwarding: bool,
-        pub namespace: Option<SignRequestNamespace>,
     }
 
-    impl From<(SSHSignRequest, Option<String>)> for SignRequestData {
-        fn from((sign_request, cipher_id): (SSHSignRequest, Option<String>)) -> Self {
+    impl From<SSHSignApprovalRequest> for SignRequestData {
+        fn from(request: SSHSignApprovalRequest) -> Self {
             Self {
-                public_key: PublicKey {
-                    alg: sign_request.public_key.alg,
-                    blob: sign_request.public_key.blob,
-                },
-                cipher_id,
-                process_name: sign_request.process_name,
-                is_forwarding: sign_request.is_forwarding,
-                namespace: sign_request.namespace.map(Into::into),
+                sign_request: request.sign_request.into(),
+                cipher_id: request.cipher_id,
             }
         }
     }
@@ -94,13 +112,18 @@ pub mod sshagent_v2 {
 
     #[async_trait]
     impl ApprovalRequester for ElectronApprovalRequester {
-        async fn request_unlock(&self) -> anyhow::Result<bool> {
+        async fn request_unlock(&self) -> Result<bool, ApprovalError> {
             debug!("Sending unlock request to Electron.");
-            let is_approved = self
-                .unlock_callback
-                .call_async(Ok(()))
-                .await
-                .context("Electron unlock callback failed")?;
+
+            let is_approved = timeout(APPROVAL_CALLBACK_TIMEOUT, async {
+                self.unlock_callback
+                    .call_async(Ok(()))
+                    .await
+                    .map_err(|e| ApprovalError::HandlerFailed(e.into()))
+            })
+            .await
+            .map_err(|_| ApprovalError::Timeout)
+            .flatten()?;
 
             debug!(%is_approved, "Unlock response from Electron.");
             Ok(is_approved)
@@ -108,17 +131,21 @@ pub mod sshagent_v2 {
 
         async fn request_sign_approval(
             &self,
-            sign_request: SSHSignRequest,
-            cipher_id: Option<String>,
-        ) -> anyhow::Result<bool> {
-            let request = SignRequestData::from((sign_request, cipher_id));
+            request: SSHSignApprovalRequest,
+        ) -> Result<bool, ApprovalError> {
+            let request = SignRequestData::from(request);
 
             debug!(?request, "Sending sign approval request to Electron.");
-            let is_approved = self
-                .sign_callback
-                .call_async(Ok(request))
-                .await
-                .context("Electron sign callback failed")?;
+
+            let is_approved = timeout(APPROVAL_CALLBACK_TIMEOUT, async {
+                self.sign_callback
+                    .call_async(Ok(request))
+                    .await
+                    .map_err(|e| ApprovalError::HandlerFailed(e.into()))
+            })
+            .await
+            .map_err(|_| ApprovalError::Timeout)
+            .flatten()?;
 
             debug!(%is_approved, "Sign approval response from Electron.");
             Ok(is_approved)

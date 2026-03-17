@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { concatMap, firstValueFrom, lastValueFrom, map, of, switchMap, takeUntil, tap } from "rxjs";

@@ -10,7 +10,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import type { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
-import { DialogService, NavigationModule } from "@bitwarden/components";
+import { DialogService, IconModule, NavigationModule } from "@bitwarden/components";
 import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -18,7 +18,7 @@ import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/org
 @Component({
   selector: "org-switcher",
   templateUrl: "org-switcher.component.html",
-  imports: [CommonModule, JslibModule, NavigationModule, OrganizationWarningsModule],
+  imports: [CommonModule, JslibModule, NavigationModule, OrganizationWarningsModule, IconModule],
 })
 export class OrgSwitcherComponent {
   protected organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(

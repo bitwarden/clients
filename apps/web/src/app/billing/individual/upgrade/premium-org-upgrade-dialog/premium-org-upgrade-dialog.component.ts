@@ -112,11 +112,11 @@ export class PremiumOrgUpgradeDialogComponent implements OnInit {
   protected readonly PlanSelectionStep = PremiumOrgUpgradeDialogStep.PlanSelection;
 
   constructor(
-    private dialogRef: DialogRef<PremiumOrgUpgradeDialogResult>,
-    @Inject(DIALOG_DATA) private params: PremiumOrgUpgradeDialogParams,
-    private router: Router,
-    private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private configService: ConfigService,
+    private readonly dialogRef: DialogRef<PremiumOrgUpgradeDialogResult>,
+    @Inject(DIALOG_DATA) private readonly params: PremiumOrgUpgradeDialogParams,
+    private readonly router: Router,
+    private readonly billingAccountProfileStateService: BillingAccountProfileStateService,
+    private readonly configService: ConfigService,
   ) {}
 
   async ngOnInit(): Promise<void> {

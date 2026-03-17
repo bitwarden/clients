@@ -8,7 +8,6 @@ import { BehaviorSubject, Observable, Subject, combineLatest, firstValueFrom, of
 import { concatMap, map, pairwise, startWith, switchMap, takeUntil, timeout } from "rxjs/operators";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -59,6 +58,7 @@ import {
   SessionTimeoutInputLegacyComponent,
   SessionTimeoutSettingsComponent,
 } from "@bitwarden/key-management-ui";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
@@ -92,7 +92,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     IconButtonModule,
     IconModule,
     ItemModule,
-    JslibModule,
+    I18nPipe,
     LinkModule,
     RouterModule,
     SectionComponent,

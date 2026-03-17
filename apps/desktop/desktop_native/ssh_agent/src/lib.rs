@@ -31,6 +31,7 @@ mod storage;
 
 // external exports for napi
 pub use agent::BitwardenSSHAgent;
-pub use approval::ApprovalRequester;
-pub use server::{AuthRequest, SignRequest, SignRequestNamespace};
+pub use approval::{ApprovalError, ApprovalRequester, SignApprovalRequest};
+pub use crypto::PublicKey;
+pub use server::{AuthRequest, SIGNamespace, SignRequest};
 pub use storage::keystore::{InMemoryEncryptedKeyStore, KeyStore};

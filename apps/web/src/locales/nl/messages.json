@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Meer informatie over de overstap"
   },
+  "promptUsersToMoveItems": {
+    "message": "Vraag gebruikers om individuele kluisitems naar de organisatie te verplaatsen"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Leden worden gevraagd om hun items over te dragen naar de organisatie of te vertrekken. Als ze vertrekken, wordt hun toegang ingetrokken maar kan deze op elk moment worden hersteld."
+  },
   "organizationDataOwnership": {
     "message": "Gegevenseigendom van organisatie afdwingen"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Nu beschikbaar"
   },
-  "autoConfirm": {
-    "message": "Automatische bevestiging van nieuwe gebruikers"
+  "automaticUserConfirmation": {
+    "message": "Automatische gebruikersbevestiging"
   },
   "autoConfirmDescription": {
     "message": "Nieuwe uitgenodigde gebruikers in de organisatie worden automatisch bevestigd wanneer het apparaat van een beheerder is ontgrendeld.",

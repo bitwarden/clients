@@ -439,7 +439,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     for (const details of allDetails) {
       if (
         trustedPublicKeys.find(
-          (pk) => Utils.fromBufferToHex(pk) === Utils.fromBufferToHex(details.publicKey),
+          (pk) => Utils.fromArrayToHex(pk) === Utils.fromArrayToHex(details.publicKey),
         ) == null
       ) {
         this.logService.info(

@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Scopri di più sul trasferimento"
   },
+  "promptUsersToMoveItems": {
+    "message": "Prompt users to move individual vault items to the organization"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
   "organizationDataOwnership": {
     "message": "Forza la proprietà dei dati dell'organizzazione"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Disponibile ora"
   },
-  "autoConfirm": {
-    "message": "Conferma automatica dei nuovi utenti"
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
   },
   "autoConfirmDescription": {
     "message": "I nuovi utenti invitati ad accedere all'organizzazione saranno automaticamente confermati quando il dispositivo di un amministratore è sbloccato.",

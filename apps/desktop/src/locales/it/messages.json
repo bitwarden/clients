@@ -12,7 +12,7 @@
     "message": "Preferiti"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Rimuovi dai preferiti"
   },
   "types": {
     "message": "Tipi"
@@ -590,10 +590,10 @@
     "message": "Elemento salvato"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Elemento aggiunto ai preferiti"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Elemento rimosso dai preferiti"
   },
   "deleteItem": {
     "message": "Elimina elemento"
@@ -1565,16 +1565,16 @@
     "message": "Sconosciuto"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Copia indirizzo"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Copia numero di telefono"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Copia nota"
   },
   "copyVerificationCode": {
-    "message": "Copy verification code"
+    "message": "Copia codice di verifica"
   },
   "copyUsername": {
     "message": "Copia nome utente"
@@ -2104,22 +2104,22 @@
     "message": "Cerca nel cestino"
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Cerca nell'archivio"
   },
   "searchLogin": {
-    "message": "Search login"
+    "message": "Cerca (login)"
   },
   "searchCard": {
-    "message": "Search card"
+    "message": "Cerca (carta)"
   },
   "searchIdentity": {
-    "message": "Search identity"
+    "message": "Cerca (identità)"
   },
   "searchSecureNote": {
-    "message": "Search secure note"
+    "message": "Cerca (nota sicura)"
   },
   "searchSshKey": {
-    "message": "Search SSH key"
+    "message": "Cerca (chiave SSH)"
   },
   "permanentlyDeleteItem": {
     "message": "Elimina definitivamente elemento"
@@ -2418,7 +2418,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "me": {
-    "message": "Me"
+    "message": "Io"
   },
   "myVault": {
     "message": "La mia cassaforte"
@@ -4129,7 +4129,7 @@
     "message": "Sito Web mancante"
   },
   "missingPermissions": {
-    "message": "You lack the necessary permissions to perform this action."
+    "message": "Non hai i permessi necessari per eseguire questa azione."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Non puoi rimuovere raccolte con i soli permessi di visualizzazione: $COLLECTIONS$",
@@ -4636,34 +4636,34 @@
     "message": "Perché vedo questo avviso?"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "Organizzazione sospesa"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "Non è possibile accedere agli elementi delle organizzazioni sospese. Contatta il proprietario dell'organizzazione per ricevere assistenza."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "Non ci sono elementi nel cestino"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Gli elementi cancellati appariranno qui e saranno eliminati definitivamente dopo 30 giorni"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "La cassaforte è vuota"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "La cassaforte protegge non solo le password: archivia in modo sicuro anche passkey, identità, carte di pagamento e note."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "La lista dei preferiti è vuota"
   },
   "emptyFavoritesDesc": {
-    "message": "Add frequently used items to favorites for quick access."
+    "message": "Aggiungi ai preferiti gli elementi che usi più spesso per un accesso rapido."
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "Nessun risultato"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Azzera i filtri o cerca qualcos'altro"
   },
   "sendPasswordHelperText": {
     "message": "I destinatari dovranno inserire la password per visualizzare questo Send",

@@ -174,7 +174,7 @@
     "message": "प्राइवेट की कॉपी करें"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "पब्लिक की कॉपी करें"
   },
   "copyFingerprint": {
     "message": "फिंगरप्रिंट कॉपी करें"
@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Copy address"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "adminConsole": {
     "message": "Admin Console"
   },
@@ -6192,6 +6195,6 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "उपयोगकर्ता सत्यापन विफल रहा।"
   }
 }

@@ -395,7 +395,7 @@ describe("CollectAutofillContentService", () => {
       });
     });
 
-    it("sets the noFieldsFond property to true if the page has no forms or fields", async function () {
+    it("sets the noFieldsFound property to true if the page has no forms or fields", async function () {
       document.body.innerHTML = "";
       collectAutofillContentService["noFieldsFound"] = false;
       jest.spyOn(collectAutofillContentService as any, "buildAutofillFormsData");
@@ -2240,6 +2240,187 @@ describe("CollectAutofillContentService", () => {
 
       expect(collectAutofillContentService["setupOverlayListenersOnMutatedElements"]).toBeCalled();
     });
+
+    it("triggers debounced page details update when mutations occur in shadow roots", () => {
+      jest.useFakeTimers();
+      const mutationRecord: MutationRecord = {
+        type: "childList",
+        addedNodes: document.querySelectorAll("div"),
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: null,
+        target: document.body,
+      };
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+
+      jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(true);
+      jest.spyOn(collectAutofillContentService as any, "debouncedRequirePageDetailsUpdate");
+
+      collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
+
+      expect(domQueryService.checkMutationsInShadowRoots).toHaveBeenCalledWith([mutationRecord]);
+      expect(collectAutofillContentService["debouncedRequirePageDetailsUpdate"]).toHaveBeenCalled();
+
+      jest.useRealTimers();
+    });
+
+    it("does not trigger debounced update when mutations are not in shadow roots", () => {
+      jest.useFakeTimers();
+      const mutationRecord: MutationRecord = {
+        type: "childList",
+        addedNodes: document.querySelectorAll("div"),
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: null,
+        target: document.body,
+      };
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+
+      jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
+      jest.spyOn(collectAutofillContentService as any, "debouncedRequirePageDetailsUpdate");
+
+      collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
+
+      expect(domQueryService.checkMutationsInShadowRoots).toHaveBeenCalledWith([mutationRecord]);
+      expect(
+        collectAutofillContentService["debouncedRequirePageDetailsUpdate"],
+      ).not.toHaveBeenCalled();
+
+      jest.useRealTimers();
+    });
+
+    it("schedules a debounced check for new shadow roots", () => {
+      jest.useFakeTimers();
+      const div = document.createElement("div");
+      document.body.appendChild(div);
+
+      const mutationRecord: MutationRecord = {
+        type: "childList",
+        addedNodes: document.querySelectorAll("div"),
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: document.querySelectorAll("nonexistent"),
+        target: document.body,
+      };
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+      collectAutofillContentService["pendingShadowDomCheck"] = false;
+
+      jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
+      jest.spyOn(domQueryService, "checkForNewShadowRoots").mockReturnValue(false);
+
+      collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
+
+      expect(collectAutofillContentService["pendingShadowDomCheck"]).toBe(true);
+      expect(collectAutofillContentService["shadowDomCheckTimeout"]).not.toBeNull();
+
+      // Fast-forward time to trigger the debounced check
+      jest.advanceTimersByTime(500);
+
+      expect(domQueryService.checkForNewShadowRoots).toHaveBeenCalled();
+      expect(collectAutofillContentService["pendingShadowDomCheck"]).toBe(false);
+
+      jest.useRealTimers();
+    });
+
+    it("does not schedule duplicate shadow root checks when already pending", () => {
+      jest.useFakeTimers();
+      const div = document.createElement("div");
+      document.body.appendChild(div);
+
+      const mutationRecord: MutationRecord = {
+        type: "childList",
+        addedNodes: document.querySelectorAll("div"),
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: document.querySelectorAll("nonexistent"),
+        target: document.body,
+      };
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+      collectAutofillContentService["pendingShadowDomCheck"] = true;
+
+      const initialTimeout = setTimeout(() => {}, 500);
+      collectAutofillContentService["shadowDomCheckTimeout"] = initialTimeout;
+
+      collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
+
+      // Should not change the timeout since check is already pending
+      expect(collectAutofillContentService["shadowDomCheckTimeout"]).toBe(initialTimeout);
+
+      clearTimeout(initialTimeout);
+      jest.useRealTimers();
+    });
+
+    it("debounces multiple rapid shadow root mutations with real timers", (done) => {
+      jest.useRealTimers();
+
+      // Use real debounce for this test
+      const actualUtils = jest.requireActual("../utils");
+      const realDebounce = actualUtils.debounce;
+
+      const shadowHost = document.createElement("div");
+      const shadowRoot = shadowHost.attachShadow({ mode: "open" });
+      document.body.appendChild(shadowHost);
+
+      const mutationRecord: MutationRecord = {
+        type: "attributes",
+        addedNodes: document.querySelectorAll("nonexistent"),
+        attributeName: "value",
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: document.querySelectorAll("nonexistent"),
+        target: shadowRoot,
+      };
+
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+
+      jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(true);
+
+      // Track actual calls to requirePageDetailsUpdate
+      let callCount = 0;
+      const originalRequirePageDetailsUpdate =
+        collectAutofillContentService["requirePageDetailsUpdate"];
+      collectAutofillContentService["requirePageDetailsUpdate"] = () => {
+        callCount++;
+        originalRequirePageDetailsUpdate.call(collectAutofillContentService);
+      };
+
+      // Temporarily override with real debounce
+      const originalDebounced = collectAutofillContentService["debouncedRequirePageDetailsUpdate"];
+      collectAutofillContentService["debouncedRequirePageDetailsUpdate"] = realDebounce(() => {
+        collectAutofillContentService["requirePageDetailsUpdate"]();
+      }, 300);
+
+      // Trigger 5 rapid mutations
+      for (let i = 0; i < 5; i++) {
+        collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
+      }
+
+      // Should only call requirePageDetailsUpdate once after debounce
+      setTimeout(() => {
+        expect(callCount).toBe(1);
+
+        // Restore original
+        collectAutofillContentService["debouncedRequirePageDetailsUpdate"] = originalDebounced;
+        collectAutofillContentService["requirePageDetailsUpdate"] =
+          originalRequirePageDetailsUpdate;
+        document.body.removeChild(shadowHost);
+        done();
+      }, 350);
+    });
   });
 
   describe("setupOverlayListenersOnMutatedElements", () => {
@@ -2645,6 +2826,38 @@ describe("CollectAutofillContentService", () => {
       expect(clearTimeout).toHaveBeenCalledWith(
         collectAutofillContentService["updateAfterMutationIdleCallback"],
       );
+    });
+  });
+
+  describe("processMutations", () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.runOnlyPendingTimers();
+      jest.useRealTimers();
+    });
+
+    it("processes queued mutations and clears the queue", () => {
+      const mutationRecord: MutationRecord = {
+        type: "childList",
+        addedNodes: document.querySelectorAll("div"),
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: document.querySelectorAll("li"),
+        target: document.body,
+      };
+
+      collectAutofillContentService["mutationsQueue"] = [[mutationRecord], [mutationRecord]];
+      jest.spyOn(collectAutofillContentService as any, "processMutationRecords");
+
+      collectAutofillContentService["processMutations"]();
+
+      expect(collectAutofillContentService["mutationsQueue"]).toHaveLength(0);
     });
   });
 });

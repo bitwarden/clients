@@ -8,12 +8,12 @@ mod connection;
 mod listener;
 mod peer_info;
 
-// external exports for napi
 use std::sync::Arc;
 
 use anyhow::Result;
 pub(crate) use auth_policy::AuthPolicy;
-pub use auth_policy::{AuthRequest, SignRequest, SignRequestNamespace};
+// external exports for napi
+pub use auth_policy::{AuthRequest, SIGNamespace, SignRequest};
 use connection::Connection;
 pub(crate) use listener::Listener;
 use tokio::{sync::mpsc, task::JoinHandle};

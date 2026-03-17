@@ -12,7 +12,7 @@
     "message": "Oblíbené"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Odebrat z oblíbených"
   },
   "types": {
     "message": "Typy"
@@ -590,10 +590,10 @@
     "message": "Položka byla uložena"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Položka byla přidána do oblíbených"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Položka byla odebrána z oblíbených"
   },
   "deleteItem": {
     "message": "Smazat položku"
@@ -1565,16 +1565,16 @@
     "message": "Neznámá"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Kopírovat adresu"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Kopírovat telefon"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Kopírovat poznámku"
   },
   "copyVerificationCode": {
-    "message": "Copy verification code"
+    "message": "Kopírovat ověřovací kód"
   },
   "copyUsername": {
     "message": "Kopírovat uživatelské jméno"
@@ -2104,22 +2104,22 @@
     "message": "Prohledat koš"
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Hledat v archivu"
   },
   "searchLogin": {
-    "message": "Search login"
+    "message": "Prohledat přihlášení"
   },
   "searchCard": {
-    "message": "Search card"
+    "message": "Prohledat karty"
   },
   "searchIdentity": {
-    "message": "Search identity"
+    "message": "Prohledat identity"
   },
   "searchSecureNote": {
-    "message": "Search secure note"
+    "message": "Prohledat zabezpečené poznámky"
   },
   "searchSshKey": {
-    "message": "Search SSH key"
+    "message": "Prohledat SSH klíče"
   },
   "permanentlyDeleteItem": {
     "message": "Trvale smazat položku"
@@ -2418,7 +2418,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "me": {
-    "message": "Me"
+    "message": "Já"
   },
   "myVault": {
     "message": "Můj trezor"
@@ -4129,7 +4129,7 @@
     "message": "Chybějící webová stránka"
   },
   "missingPermissions": {
-    "message": "You lack the necessary permissions to perform this action."
+    "message": "K provedení této akce nemáte potřebná oprávnění."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nemůžete odebrat sbírky s oprávněními jen pro zobrazení: $COLLECTIONS$",
@@ -4636,34 +4636,34 @@
     "message": "Proč se mi toto zobrazuje?"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "Organizace je deaktivována"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "K položkám v deaktivované organizaci nemáte přístup. Požádejte o pomoc vlastníka organizace."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "Žádné položky v koši"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Položky, které smažete, se zde zobrazí a budou trvale smazány po 30 dnech"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Žádné položky v trezoru"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "Trezor chrání více než jen Vaše hesla. Bezpečně zde uložte zabezpečená přihlášení, ID, karty a poznámky."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "Nemáte oblíbené žádné položky"
   },
   "emptyFavoritesDesc": {
-    "message": "Add frequently used items to favorites for quick access."
+    "message": "Přidejte často používané položky do oblíbených pro rychlý přístup."
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "Nebyly vráceny žádné výsledky hledání"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Vymažte filtry nebo zkuste jiný hledaný výraz"
   },
   "sendPasswordHelperText": {
     "message": "Pro zobrazení tohoto Send budou muset jednotlivci zadat heslo",

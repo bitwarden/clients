@@ -106,6 +106,7 @@ describe("MemberAccessReportService", () => {
     resetPasswordEnrolled: options.resetPasswordEnrolled ?? false,
     groups: options.groups ?? [],
     avatarColor: options.avatarColor,
+    userId: "userIdFromOrgUser" + id,
   });
 
   const createMockCipher = (id: string, collectionIds: string[]): Partial<CipherView> => ({
@@ -224,6 +225,7 @@ describe("MemberAccessReportService", () => {
           itemsCount: 0,
           userGuid: expect.any(String),
           usesKeyConnector: expect.any(Boolean),
+          userIdFromOrgUser: "",
         },
         {
           name: "James Lull",
@@ -234,6 +236,7 @@ describe("MemberAccessReportService", () => {
           itemsCount: 0,
           userGuid: expect.any(String),
           usesKeyConnector: expect.any(Boolean),
+          userIdFromOrgUser: "",
         },
         {
           name: "Beth Williams",
@@ -244,6 +247,7 @@ describe("MemberAccessReportService", () => {
           itemsCount: 0,
           userGuid: expect.any(String),
           usesKeyConnector: expect.any(Boolean),
+          userIdFromOrgUser: "",
         },
         {
           name: "Ray Williams",
@@ -254,6 +258,7 @@ describe("MemberAccessReportService", () => {
           itemsCount: 0,
           userGuid: expect.any(String),
           usesKeyConnector: expect.any(Boolean),
+          userIdFromOrgUser: "",
         },
       ]);
     });
@@ -452,6 +457,7 @@ describe("MemberAccessReportService", () => {
         collectionsCount: 1,
         groupsCount: 1,
         itemsCount: 1,
+        userIdFromOrgUser: "userIdFromOrgUser" + userId1,
       });
     });
 
@@ -503,6 +509,7 @@ describe("MemberAccessReportService", () => {
         collectionsCount: 2, // Distinct collections
         groupsCount: 0,
         itemsCount: 3, // Distinct ciphers
+        userIdFromOrgUser: "userIdFromOrgUser" + userId1,
       });
     });
 
