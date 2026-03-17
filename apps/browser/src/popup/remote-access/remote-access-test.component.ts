@@ -6,7 +6,7 @@ import { ButtonModule, CalloutModule } from "@bitwarden/components";
 import { PopupHeaderComponent } from "../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../platform/popup/layout/popup-page.component";
 
-import { BrowserRatProxyClient } from "./rat-proxy-client";
+import { BrowserProxyClient } from "./rat-proxy-client";
 
 interface LogEntry {
   time: string;
@@ -183,7 +183,7 @@ export class RemoteAccessTestComponent implements OnDestroy {
   private readonly sdk: any = null;
   private readonly identity: Uint8Array | null = null;
   private readonly client: any = null;
-  private readonly proxyClient: BrowserRatProxyClient | null = null;
+  private readonly proxyClient: BrowserProxyClient | null = null;
 
   async initSdk(): Promise<void> {
     try {
@@ -196,7 +196,7 @@ export class RemoteAccessTestComponent implements OnDestroy {
 
       // Generate identity
       this.log("Generating identity keypair...", "info");
-      this.identity = sdk.RatUserClient.generate_identity();
+      this.identity = sdk.UserClient.generate_identity();
       this.log(
         `Identity: ${this.identity!.length} bytes [${this.hexPreview(this.identity!)}]`,
         "data",
@@ -207,13 +207,13 @@ export class RemoteAccessTestComponent implements OnDestroy {
       const fakeChallenge = JSON.stringify({
         AuthChallenge: Array.from(new Uint8Array(32)),
       });
-      const response = sdk.RatUserClient.sign_proxy_challenge(this.identity, fakeChallenge);
+      const response = sdk.UserClient.sign_proxy_challenge(this.identity, fakeChallenge);
       const parsed = JSON.parse(response);
       this.log(`sign_proxy_challenge OK, keys: ${Object.keys(parsed).join(", ")}`, "data");
 
       // Test constructor
-      this.log("Testing RatUserClient constructor...", "info");
-      const testClient = new sdk.RatUserClient(null, this.identity);
+      this.log("Testing UserClient constructor...", "info");
+      const testClient = new sdk.UserClient(null, this.identity);
       const sessionData = testClient.get_session_data();
       const identityData = testClient.get_identity_data();
       this.log(`get_session_data: ${sessionData.length} chars`, "data");
@@ -237,11 +237,11 @@ export class RemoteAccessTestComponent implements OnDestroy {
       this.pendingFingerprint.set("");
 
       // Create proxy client
-      this.proxyClient = new BrowserRatProxyClient(this.proxyUrl(), this.identity!);
+      this.proxyClient = new BrowserProxyClient(this.proxyUrl(), this.identity!);
 
       // Create WASM client
-      this.client = new this.sdk.RatUserClient(null, this.identity);
-      this.log("RatUserClient created", "info");
+      this.client = new this.sdk.UserClient(null, this.identity);
+      this.log("UserClient created", "info");
 
       // Connect
       await this.client.connect(this.proxyClient);

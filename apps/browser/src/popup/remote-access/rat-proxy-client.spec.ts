@@ -1,4 +1,4 @@
-import { BrowserRatProxyClient, ProxyMessage } from "./rat-proxy-client";
+import { BrowserProxyClient, ProxyMessage } from "./rat-proxy-client";
 
 // ---------------------------------------------------------------------------
 // Mock WebSocket
@@ -48,7 +48,7 @@ class MockWebSocket {
 
 // Mock the SDK import used inside connect()
 jest.mock("@bitwarden/sdk-internal", () => ({
-  RatUserClient: {
+  UserClient: {
     sign_proxy_challenge: (identityCose: number[], challengeJson: string) => {
       // Return a deterministic "signed" response
       return JSON.stringify({ AuthResponse: [identityCose, challengeJson] });
@@ -61,14 +61,14 @@ function flushMicrotasks(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0));
 }
 
-describe("BrowserRatProxyClient", () => {
-  let client: BrowserRatProxyClient;
+describe("BrowserProxyClient", () => {
+  let client: BrowserProxyClient;
   const proxyUrl = "ws://test:8080";
   const identityCose = new Uint8Array([1, 2, 3]);
 
   beforeEach(() => {
     MockWebSocket.instances = [];
-    client = new BrowserRatProxyClient(
+    client = new BrowserProxyClient(
       proxyUrl,
       identityCose,
       MockWebSocket as unknown as { new (url: string): WebSocket },
@@ -113,8 +113,8 @@ describe("BrowserRatProxyClient", () => {
   it("should reject connect on auth challenge failure", async () => {
     // Override mock to throw
     const sdk = jest.requireMock("@bitwarden/sdk-internal");
-    const original = sdk.RatUserClient.sign_proxy_challenge;
-    sdk.RatUserClient.sign_proxy_challenge = () => {
+    const original = sdk.UserClient.sign_proxy_challenge;
+    sdk.UserClient.sign_proxy_challenge = () => {
       throw new Error("sign failed");
     };
 
@@ -123,7 +123,7 @@ describe("BrowserRatProxyClient", () => {
 
     await expect(connectPromise).rejects.toThrow("Auth challenge failed");
 
-    sdk.RatUserClient.sign_proxy_challenge = original;
+    sdk.UserClient.sign_proxy_challenge = original;
   });
 
   // ---------------------------------------------------------------------------

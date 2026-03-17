@@ -20,10 +20,10 @@ describe("Remote Access E2E", () => {
     // Check for WASM SDK
     try {
       sdk = await import("@bitwarden/sdk-internal");
-      if (!sdk?.RatUserClient) {
+      if (!sdk?.UserClient) {
         shouldSkip = true;
         // eslint-disable-next-line no-console
-        console.warn("Skipping E2E tests: RatUserClient not available in SDK");
+        console.warn("Skipping E2E tests: UserClient not available in SDK");
         return;
       }
     } catch {
@@ -61,9 +61,9 @@ describe("Remote Access E2E", () => {
     identity: Uint8Array;
     client: NodeWebSocketProxyClient;
   } {
-    const identity = new Uint8Array(sdk.RatUserClient.generate_identity());
+    const identity = new Uint8Array(sdk.UserClient.generate_identity());
     const signFn = (identityCose: number[], challengeJson: string) =>
-      sdk.RatUserClient.sign_proxy_challenge(identityCose, challengeJson);
+      sdk.UserClient.sign_proxy_challenge(identityCose, challengeJson);
     const client = new NodeWebSocketProxyClient(proxyHarness.url, identity, signFn);
     return { identity, client };
   }
@@ -113,7 +113,7 @@ describe("Remote Access E2E", () => {
     await client.disconnect();
   });
 
-  it("should handle full RatUserClient lifecycle via WASM", async () => {
+  it("should handle full UserClient lifecycle via WASM", async () => {
     if (skipIfUnavailable()) {
       return;
     }
@@ -121,7 +121,7 @@ describe("Remote Access E2E", () => {
     const { identity, client: nodeProxy } = createTestClient();
 
     try {
-      const ratClient = await sdk.RatUserClient.listen(nodeProxy, undefined, identity);
+      const ratClient = await sdk.UserClient.listen(nodeProxy, undefined, identity);
 
       const sessionData = ratClient.get_session_data();
       expect(sessionData).toBeDefined();

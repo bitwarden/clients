@@ -1,5 +1,5 @@
 /**
- * Integration tests that exercise the real WASM RatUserClient bindings.
+ * Integration tests that exercise the real WASM UserClient bindings.
  *
  * Requires either:
  *   - WASM_NODE_PATH env var pointing to the Node.js WASM build, OR
@@ -8,7 +8,7 @@
  * Run: WASM_NODE_PATH=... npx jest --config apps/browser/jest.integration.config.js
  */
 
-describe("RatUserClient WASM integration", () => {
+describe("UserClient WASM integration", () => {
   let sdk: any;
 
   beforeAll(async () => {
@@ -20,7 +20,7 @@ describe("RatUserClient WASM integration", () => {
   });
 
   function skipIfNoSdk(): boolean {
-    if (!sdk?.RatUserClient) {
+    if (!sdk?.UserClient) {
       return true;
     }
     return false;
@@ -35,7 +35,7 @@ describe("RatUserClient WASM integration", () => {
       return;
     }
 
-    const identity = sdk.RatUserClient.generate_identity();
+    const identity = sdk.UserClient.generate_identity();
     expect(identity).toBeDefined();
     expect(identity.length).toBeGreaterThan(0);
   });
@@ -45,8 +45,8 @@ describe("RatUserClient WASM integration", () => {
       return;
     }
 
-    const id1 = sdk.RatUserClient.generate_identity();
-    const id2 = sdk.RatUserClient.generate_identity();
+    const id1 = sdk.UserClient.generate_identity();
+    const id2 = sdk.UserClient.generate_identity();
 
     // COSE keys should differ
     expect(Array.from(id1)).not.toEqual(Array.from(id2));
@@ -61,10 +61,10 @@ describe("RatUserClient WASM integration", () => {
       return;
     }
 
-    const identity = sdk.RatUserClient.generate_identity();
+    const identity = sdk.UserClient.generate_identity();
     const challenge = JSON.stringify({ AuthChallenge: Array.from(new Uint8Array(32)) });
 
-    const response = sdk.RatUserClient.sign_proxy_challenge(Array.from(identity), challenge);
+    const response = sdk.UserClient.sign_proxy_challenge(Array.from(identity), challenge);
 
     expect(response).toBeDefined();
     expect(typeof response).toBe("string");
@@ -83,7 +83,7 @@ describe("RatUserClient WASM integration", () => {
       return;
     }
 
-    const identity = sdk.RatUserClient.generate_identity();
+    const identity = sdk.UserClient.generate_identity();
 
     // Create a minimal proxy client that auto-resolves connect
     const mockProxy = {
@@ -95,7 +95,7 @@ describe("RatUserClient WASM integration", () => {
     };
 
     try {
-      const client = await sdk.RatUserClient.listen(
+      const client = await sdk.UserClient.listen(
         mockProxy,
         undefined, // no session data
         new Uint8Array(identity),

@@ -23,7 +23,7 @@ const mockGetIdentityData = jest.fn(() => [1, 2, 3, 4]);
 const mockSendResponse = jest.fn();
 
 jest.mock("@bitwarden/sdk-internal", () => ({
-  RatUserClient: {
+  UserClient: {
     generate_identity: mockGenerateIdentity,
     sign_proxy_challenge: mockSignProxyChallenge,
     listen: mockListen.mockResolvedValue({
@@ -37,9 +37,9 @@ jest.mock("@bitwarden/sdk-internal", () => ({
   },
 }));
 
-// Mock BrowserRatProxyClient
+// Mock BrowserProxyClient
 jest.mock("./rat-proxy-client", () => ({
-  BrowserRatProxyClient: jest.fn().mockImplementation(() => ({
+  BrowserProxyClient: jest.fn().mockImplementation(() => ({
     connect: jest.fn().mockResolvedValue(undefined),
     disconnect: jest.fn().mockResolvedValue(undefined),
     request_rendezvous: jest.fn().mockResolvedValue(undefined),

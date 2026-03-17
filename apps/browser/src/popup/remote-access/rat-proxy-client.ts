@@ -1,8 +1,8 @@
 /**
- * Browser implementation of the RatProxyClient interface.
+ * Browser implementation of the ProxyClient interface.
  *
- * Manages a WebSocket connection to the bw-proxy relay server.
- * Uses the WASM `RatUserClient.sign_proxy_challenge()` helper
+ * Manages a WebSocket connection to the proxy relay server.
+ * Uses the WASM `UserClient.sign_proxy_challenge()` helper
  * for the auth challenge-response (crypto stays in Rust).
  */
 
@@ -16,7 +16,7 @@ export interface ProxyMessage {
   Send?: { source?: unknown; destination: unknown; payload: number[] };
 }
 
-export class BrowserRatProxyClient {
+export class BrowserProxyClient {
   private ws: WebSocket | null = null;
   private onMessageCallback: ((msg: unknown) => void) | null = null;
   private authenticated = false;
@@ -37,7 +37,7 @@ export class BrowserRatProxyClient {
     // not be in the pre-built TS types yet — cast through any.
     const sdk: any = await import("@bitwarden/sdk-internal");
     this.signChallengeFn = (identityCose: number[], challengeJson: string) =>
-      sdk.RatUserClient.sign_proxy_challenge(identityCose, challengeJson) as string;
+      sdk.UserClient.sign_proxy_challenge(identityCose, challengeJson) as string;
 
     return new Promise<void>((resolve, reject) => {
       this.ws = new this.WebSocketImpl(this.proxyUrl);

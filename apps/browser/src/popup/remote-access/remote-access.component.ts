@@ -12,7 +12,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
-import type { RatUserClientEvent } from "@bitwarden/sdk-internal";
+import type { UserClientEvent } from "@bitwarden/sdk-internal";
 
 import { PopupHeaderComponent } from "../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../platform/popup/layout/popup-page.component";
@@ -348,7 +348,7 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
       });
   }
 
-  private handleEvent(event: RatUserClientEvent): void {
+  private handleEvent(event: UserClientEvent): void {
     switch (event.type) {
       case "listening":
       case "handshake_complete":
@@ -467,7 +467,7 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
   }
 
   private async handleCredentialRequest(
-    event: Extract<RatUserClientEvent, { type: "credential_request" }>,
+    event: Extract<UserClientEvent, { type: "credential_request" }>,
   ): Promise<void> {
     const query = event.query;
     const domain = "domain" in query ? query.domain : "search" in query ? query.search : query.id;

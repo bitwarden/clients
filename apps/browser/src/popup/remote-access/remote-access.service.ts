@@ -5,9 +5,9 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import type { RatUserClientEvent } from "@bitwarden/sdk-internal";
+import type { UserClientEvent } from "@bitwarden/sdk-internal";
 
-import { BrowserRatProxyClient } from "./rat-proxy-client";
+import { BrowserProxyClient } from "./rat-proxy-client";
 import { ConnectionEntry, CredentialMatch } from "./remote-access.types";
 
 /** Storage keys for RAT state in chrome.storage.local */
@@ -31,12 +31,12 @@ export interface CredentialLookupResult {
 
 @Injectable()
 export class RemoteAccessService implements OnDestroy {
-  private client: any = null; // RatUserClient from SDK
-  private proxyClient: BrowserRatProxyClient | null = null;
+  private client: any = null; // UserClient from WASM SDK
+  private proxyClient: BrowserProxyClient | null = null;
   private identityCose: Uint8Array | null = null;
 
-  private readonly eventsSubject = new Subject<RatUserClientEvent>();
-  readonly events$: Observable<RatUserClientEvent> = this.eventsSubject.asObservable();
+  private readonly eventsSubject = new Subject<UserClientEvent>();
+  readonly events$: Observable<UserClientEvent> = this.eventsSubject.asObservable();
 
   private storageService = inject(AbstractStorageService);
   private cipherService = inject(CipherService);
@@ -117,28 +117,24 @@ export class RemoteAccessService implements OnDestroy {
 
     // Ensure we have identity bytes BEFORE creating the proxy client,
     // because connect() needs them for the auth challenge-response.
-    const RatUserClient = (sdk as any).RatUserClient;
+    const UserClient = (sdk as any).UserClient;
     if (!identityData || identityData.length === 0) {
-      identityData = new Uint8Array(RatUserClient.generate_identity());
+      identityData = new Uint8Array(UserClient.generate_identity());
     }
     this.identityCose = identityData;
 
     // Create proxy client with the real identity
     const proxyUrl = this.getProxyUrl();
-    this.proxyClient = new BrowserRatProxyClient(proxyUrl, this.identityCose);
+    this.proxyClient = new BrowserProxyClient(proxyUrl, this.identityCose);
 
     // Create WASM UserClient — uses the same identity we gave the proxy client
-    this.client = await RatUserClient.listen(
-      this.proxyClient,
-      sessionData ?? undefined,
-      identityData,
-    );
+    this.client = await UserClient.listen(this.proxyClient, sessionData ?? undefined, identityData);
 
     // Persist identity immediately
     await this.persistState();
 
     // Event callback — runs in the WASM event loop, need to re-enter NgZone
-    const eventCallback = (event: RatUserClientEvent) => {
+    const eventCallback = (event: UserClientEvent) => {
       this.ngZone.run(() => {
         this.eventsSubject.next(event);
       });
