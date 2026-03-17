@@ -6,6 +6,7 @@ const baseConfig = require("./jest.config");
 module.exports = {
   ...baseConfig,
   testMatch: ["**/*.integration.spec.ts"],
+  testPathIgnorePatterns: ["/node_modules/", "e2e\\.integration\\.spec\\.ts"],
   moduleNameMapper: {
     ...baseConfig.moduleNameMapper,
     "^@bitwarden/sdk-internal$":
