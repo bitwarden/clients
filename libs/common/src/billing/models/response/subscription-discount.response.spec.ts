@@ -2,8 +2,21 @@ import { DiscountTierType } from "../../enums/discount-tier-type.enum";
 
 import { SubscriptionDiscountResponse } from "./subscription-discount.response";
 
+type RawDiscountResponse = {
+  StripeCouponId: string;
+  PercentOff: number | null;
+  AmountOff: number | null;
+  Currency: string | null;
+  Duration: string;
+  DurationInMonths: number | null;
+  Name: string;
+  StartDate: string;
+  EndDate: string;
+  TierEligibility: Record<DiscountTierType, boolean> | null;
+};
+
 describe("SubscriptionDiscountResponse", () => {
-  const baseResponse = {
+  const baseResponse: RawDiscountResponse = {
     StripeCouponId: "coupon-abc",
     PercentOff: 20,
     AmountOff: null,
@@ -27,13 +40,13 @@ describe("SubscriptionDiscountResponse", () => {
   });
 
   it("deserializes amountOff correctly", () => {
-    const response = { ...baseResponse, AmountOff: 500, PercentOff: null };
+    const response: RawDiscountResponse = { ...baseResponse, AmountOff: 500, PercentOff: null };
     const sut = new SubscriptionDiscountResponse(response);
     expect(sut.amountOff).toBe(500);
   });
 
   it("preserves amountOff in cents (no conversion)", () => {
-    const response = { ...baseResponse, AmountOff: 1000, PercentOff: null };
+    const response: RawDiscountResponse = { ...baseResponse, AmountOff: 1000, PercentOff: null };
     const sut = new SubscriptionDiscountResponse(response);
     expect(sut.amountOff).toBe(1000);
   });
@@ -65,13 +78,13 @@ describe("SubscriptionDiscountResponse", () => {
   });
 
   it("stores null for tierEligibility when TierEligibility is null in response", () => {
-    const response = { ...baseResponse, TierEligibility: null };
+    const response: RawDiscountResponse = { ...baseResponse, TierEligibility: null };
     const sut = new SubscriptionDiscountResponse(response);
     expect(sut.tierEligibility).toBeNull();
   });
 
   it("leaves percentOff undefined when null in response", () => {
-    const response = { ...baseResponse, PercentOff: null };
+    const response: RawDiscountResponse = { ...baseResponse, PercentOff: null };
     const sut = new SubscriptionDiscountResponse(response);
     expect(sut.percentOff).toBeUndefined();
   });
