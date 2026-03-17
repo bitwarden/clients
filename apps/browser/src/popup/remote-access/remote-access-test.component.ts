@@ -158,20 +158,7 @@ interface LogEntry {
             class="tw-bg-background tw-border tw-border-solid tw-border-secondary-300 tw-rounded tw-p-2 tw-h-48 tw-overflow-y-auto tw-font-mono tw-text-xs"
           >
             @for (entry of logEntries(); track $index) {
-              <div
-                [class]="
-                  'tw-py-0.5 ' +
-                  (entry.level === 'error'
-                    ? 'tw-text-danger'
-                    : entry.level === 'warn'
-                      ? 'tw-text-warning'
-                      : entry.level === 'event'
-                        ? 'tw-text-success'
-                        : entry.level === 'data'
-                          ? 'tw-text-primary-600'
-                          : 'tw-text-muted')
-                "
-              >
+              <div [class]="logEntryClass(entry.level)">
                 <span class="tw-opacity-50">{{ entry.time }}</span>
                 {{ entry.message }}
               </div>
@@ -362,9 +349,28 @@ export class RemoteAccessTestComponent implements OnDestroy {
     this.statusType.set(type);
   }
 
+  private static readonly MAX_LOG_ENTRIES = 500;
+
+  private static readonly LOG_LEVEL_CLASSES: Record<LogEntry["level"], string> = {
+    error: "tw-py-0.5 tw-text-danger",
+    warn: "tw-py-0.5 tw-text-warning",
+    event: "tw-py-0.5 tw-text-success",
+    data: "tw-py-0.5 tw-text-primary-600",
+    info: "tw-py-0.5 tw-text-muted",
+  };
+
+  protected logEntryClass(level: LogEntry["level"]): string {
+    return RemoteAccessTestComponent.LOG_LEVEL_CLASSES[level] ?? "tw-py-0.5 tw-text-muted";
+  }
+
   private log(msg: string, level: LogEntry["level"]): void {
     const time = new Date().toISOString().slice(11, 23);
-    this.logEntries.update((entries) => [...entries, { time, message: msg, level }]);
+    this.logEntries.update((entries) => {
+      const updated = [...entries, { time, message: msg, level }];
+      return updated.length > RemoteAccessTestComponent.MAX_LOG_ENTRIES
+        ? updated.slice(-RemoteAccessTestComponent.MAX_LOG_ENTRIES)
+        : updated;
+    });
   }
 
   private logError(e: unknown): void {

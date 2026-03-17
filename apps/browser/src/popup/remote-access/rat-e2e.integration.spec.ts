@@ -57,19 +57,24 @@ describe("Remote Access E2E", () => {
     return false;
   }
 
+  function createTestClient(): {
+    identity: Uint8Array;
+    client: NodeWebSocketProxyClient;
+  } {
+    const identity = new Uint8Array(sdk.RatUserClient.generate_identity());
+    const signFn = (identityCose: number[], challengeJson: string) =>
+      sdk.RatUserClient.sign_proxy_challenge(identityCose, challengeJson);
+    const client = new NodeWebSocketProxyClient(proxyHarness.url, identity, signFn);
+    return { identity, client };
+  }
+
   it("should connect to proxy and authenticate", async () => {
     if (skipIfUnavailable()) {
       return;
     }
 
-    const identity = sdk.RatUserClient.generate_identity();
-    const signFn = (identityCose: number[], challengeJson: string) =>
-      sdk.RatUserClient.sign_proxy_challenge(identityCose, challengeJson);
-
-    const client = new NodeWebSocketProxyClient(proxyHarness.url, new Uint8Array(identity), signFn);
-
-    const messages: unknown[] = [];
-    await client.connect((msg) => messages.push(msg));
+    const { client } = createTestClient();
+    await client.connect(() => {});
 
     // If we got here, auth succeeded
     expect(true).toBe(true);
@@ -82,12 +87,7 @@ describe("Remote Access E2E", () => {
       return;
     }
 
-    const identity = sdk.RatUserClient.generate_identity();
-    const signFn = (identityCose: number[], challengeJson: string) =>
-      sdk.RatUserClient.sign_proxy_challenge(identityCose, challengeJson);
-
-    const client = new NodeWebSocketProxyClient(proxyHarness.url, new Uint8Array(identity), signFn);
-
+    const { client } = createTestClient();
     const messages: any[] = [];
     await client.connect((msg) => messages.push(msg));
 
@@ -118,25 +118,11 @@ describe("Remote Access E2E", () => {
       return;
     }
 
-    const identity = sdk.RatUserClient.generate_identity();
-    const signFn = (identityCose: number[], challengeJson: string) =>
-      sdk.RatUserClient.sign_proxy_challenge(identityCose, challengeJson);
-
-    const nodeProxy = new NodeWebSocketProxyClient(
-      proxyHarness.url,
-      new Uint8Array(identity),
-      signFn,
-    );
+    const { identity, client: nodeProxy } = createTestClient();
 
     try {
-      // Create the WASM client using the Node proxy
-      const ratClient = await sdk.RatUserClient.listen(
-        nodeProxy,
-        undefined,
-        new Uint8Array(identity),
-      );
+      const ratClient = await sdk.RatUserClient.listen(nodeProxy, undefined, identity);
 
-      // Verify we can retrieve state
       const sessionData = ratClient.get_session_data();
       expect(sessionData).toBeDefined();
 
@@ -145,7 +131,6 @@ describe("Remote Access E2E", () => {
       expect(identityData.length).toBeGreaterThan(0);
     } catch {
       // Some WASM builds may not support listen() with NodeWebSocketProxyClient
-      // In that case, just verify the identity operations work
       expect(identity.length).toBeGreaterThan(0);
     } finally {
       await nodeProxy.disconnect();

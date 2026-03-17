@@ -91,7 +91,7 @@ export class ProxyServerHarness {
         resolve();
       }, 5000);
 
-      this.process!.on("exit", () => {
+      this.process!.once("exit", () => {
         clearTimeout(timeout);
         resolve();
       });
