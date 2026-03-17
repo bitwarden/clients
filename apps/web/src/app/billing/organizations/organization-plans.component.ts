@@ -182,22 +182,40 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     }
 
     const businessOwnedIsChecked = this.formValues().businessOwned;
+    const currentPlan = this.currentPlan();
+    const canUpgradeFromPremium = this.canUpgradeFromPremium();
 
     const result = this.passwordManagerPlans.filter((plan) => {
-      const currentPlan = this.currentPlan();
+      const isNotCustomPlan = plan.type !== PlanType.Custom;
+      const isBusinessCompatible = !businessOwnedIsChecked || plan.canBeUsedByBusiness;
+      const isPlanAllowed =
+        plan.productTier !== ProductTierType.Free
+          ? true
+          : this.showFree() && !canUpgradeFromPremium;
+      const isAnnualOrOtherEligibleCase =
+        plan.isAnnual ||
+        plan.productTier === ProductTierType.Free ||
+        plan.productTier === ProductTierType.TeamsStarter;
+      const isUpgradeFromCurrent =
+        !currentPlan || currentPlan.upgradeSortOrder < plan.upgradeSortOrder;
+      const isTeamsStarterAllowed =
+        !this.hasProvider() || plan.productTier !== ProductTierType.TeamsStarter;
+      const isCorrectFamilyPlanVariant =
+        plan.productTier !== ProductTierType.Families || plan.type === this._familyPlan;
+      const meetsProviderPlanRequirements =
+        (!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
+        (this.isProviderQualifiedFor2020Plan() &&
+          Allowed2020PlansForLegacyProviders.includes(plan.type));
+
       return (
-        plan.type !== PlanType.Custom &&
-        (!businessOwnedIsChecked || plan.canBeUsedByBusiness) &&
-        (this.showFree() || plan.productTier !== ProductTierType.Free) &&
-        (plan.isAnnual ||
-          plan.productTier === ProductTierType.Free ||
-          plan.productTier === ProductTierType.TeamsStarter) &&
-        (!currentPlan || currentPlan.upgradeSortOrder < plan.upgradeSortOrder) &&
-        (!this.hasProvider() || plan.productTier !== ProductTierType.TeamsStarter) &&
-        (plan.productTier !== ProductTierType.Families || plan.type === this._familyPlan) &&
-        ((!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
-          (this.isProviderQualifiedFor2020Plan() &&
-            Allowed2020PlansForLegacyProviders.includes(plan.type)))
+        isNotCustomPlan &&
+        isBusinessCompatible &&
+        isPlanAllowed &&
+        isAnnualOrOtherEligibleCase &&
+        isUpgradeFromCurrent &&
+        isTeamsStarterAllowed &&
+        isCorrectFamilyPlanVariant &&
+        meetsProviderPlanRequirements
       );
     });
 
