@@ -17,7 +17,10 @@ import type { RatUserClientEvent } from "@bitwarden/sdk-internal";
 import { PopupHeaderComponent } from "../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../platform/popup/layout/popup-page.component";
 
-import { RemoteAccessCredentialRequestComponent } from "./pages/remote-access-credential-request.component";
+import {
+  RemoteAccessCredentialRequestComponent,
+  type CredentialApproval,
+} from "./pages/remote-access-credential-request.component";
 import { RemoteAccessHomeComponent } from "./pages/remote-access-home.component";
 import { RemoteAccessPairingComponent } from "./pages/remote-access-pairing.component";
 import { RemoteAccessStatusComponent } from "./pages/remote-access-status.component";
@@ -60,10 +63,10 @@ type AgentAccessView = (typeof AgentAccessView)[keyof typeof AgentAccessView];
         @case ("home") {
           <app-remote-access-home
             [connections]="connections()"
-            [listeningEnabled]="listeningEnabled()"
+            [pendingRequests]="pendingRequests()"
             (addConnection)="startPairing()"
             (removeConnection)="onRemoveConnection($event)"
-            (toggleListening)="onToggleListening($event)"
+            (openRequest)="openPendingRequest($event)"
           />
         }
         @case ("pairing") {
@@ -127,6 +130,8 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
 
   // Credential request state
   protected readonly currentRequest = signal<CredentialRequestData | null>(null);
+  // Pending requests by connection ID — survives navigation back to home
+  protected readonly pendingRequests = signal<Map<string, CredentialRequestData>>(new Map());
 
   // Error state
   protected readonly errorMessage = signal("");
@@ -135,6 +140,8 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
+
+  // Reassigned when re-subscribing on mode switch; takeUntilDestroyed handles final cleanup
    
   private readonly eventSubscription: { unsubscribe(): void } | null = null;
 
@@ -234,20 +241,24 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
 
   // --- Credential request actions ---
 
-  async onCredentialApproved(cipherId: string): Promise<void> {
+  async onCredentialApproved(approval: CredentialApproval): Promise<void> {
     const request = this.currentRequest();
     if (!request) {
       return;
     }
 
-    const credential = await this.service.getCredentialById(cipherId);
-    await this.service.respondToCredential(
-      request.requestId,
-      request.sessionId,
-      true,
-      credential ?? undefined,
-    );
+    const credential = await this.service.getCredentialById(approval.cipherId);
+    const filtered = credential
+      ? {
+          username: approval.fields.has("username") ? credential.username : undefined,
+          password: approval.fields.has("password") ? credential.password : undefined,
+          totp: approval.fields.has("totp") ? credential.totp : undefined,
+          uri: approval.fields.has("uri") ? credential.uri : undefined,
+        }
+      : undefined;
+    await this.service.respondToCredential(request.requestId, request.sessionId, true, filtered);
 
+    this.clearPendingRequest(request.sessionId);
     this.toastService.showToast({
       variant: "success",
       title: null,
@@ -263,13 +274,24 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
     }
 
     await this.service.respondToCredential(request.requestId, request.sessionId, false);
+    this.clearPendingRequest(request.sessionId);
 
-    this.toastService.showToast({
-      variant: "warning",
-      title: null,
-      message: `Request denied for ${request.domain}`,
-    });
+    if (request.matches.length > 0) {
+      this.toastService.showToast({
+        variant: "warning",
+        title: null,
+        message: `Request denied for ${request.domain}`,
+      });
+    }
     this.goHome();
+  }
+
+  openPendingRequest(connectionId: string): void {
+    const request = this.pendingRequests().get(connectionId);
+    if (request) {
+      this.currentRequest.set(request);
+      this.view.set(AgentAccessView.CredentialRequest);
+    }
   }
 
   // --- Navigation ---
@@ -282,6 +304,12 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
     this.view.set(AgentAccessView.Home);
     this.currentRequest.set(null);
     this.errorMessage.set("");
+
+    // Don't disconnect/reconnect if there are pending requests — the active
+    // client holds the event loop needed to respond to them.
+    if (this.pendingRequests().size > 0) {
+      return;
+    }
 
     // Resume listening if enabled and we have connections
     if (this.listeningEnabled() && this.connections().length > 0) {
@@ -421,8 +449,7 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
       sessionData,
     };
 
-    await this.service.saveConnection(entry);
-    const updated = await this.service.loadConnections();
+    const updated = await this.service.saveConnection(entry);
     this.connections.set(updated);
 
     this.toastService.showToast({
@@ -448,14 +475,31 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
     const knownConn = this.connections().find((c) => c.id === remoteId);
     const connectionName = knownConn?.name ?? "Connected device";
 
-    this.currentRequest.set({
+    const requestData: CredentialRequestData = {
       domain,
       requestId,
       sessionId,
       connectionName,
       matches,
+    };
+
+    this.pendingRequests.update((map) => {
+      const updated = new Map(map);
+      updated.set(remoteId, requestData);
+      return updated;
     });
+
+    this.currentRequest.set(requestData);
     this.view.set(AgentAccessView.CredentialRequest);
+  }
+
+  private clearPendingRequest(sessionId: string): void {
+    const remoteId = parseIdentityFingerprint(sessionId);
+    this.pendingRequests.update((map) => {
+      const updated = new Map(map);
+      updated.delete(remoteId);
+      return updated;
+    });
   }
 
   private resetPairingState(): void {

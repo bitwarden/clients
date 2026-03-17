@@ -1,10 +1,9 @@
-import { SlicePipe } from "@angular/common";
+import { DatePipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   ButtonModule,
-  CheckboxModule,
   IconButtonModule,
   ItemModule,
   SectionComponent,
@@ -12,16 +11,15 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-import { ConnectionEntry } from "../remote-access.types";
+import { ConnectionEntry, CredentialRequestData } from "../remote-access.types";
 
 @Component({
   selector: "app-remote-access-home",
   standalone: true,
   imports: [
-    SlicePipe,
+    DatePipe,
     JslibModule,
     ButtonModule,
-    CheckboxModule,
     IconButtonModule,
     ItemModule,
     SectionComponent,
@@ -30,58 +28,19 @@ import { ConnectionEntry } from "../remote-access.types";
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <!-- Listening toggle -->
-    <div class="tw-flex tw-items-center tw-justify-between tw-px-4 tw-py-3">
-      <span class="tw-text-main tw-text-sm">Listening for agents</span>
-      <label class="tw-flex tw-items-center tw-gap-2 tw-cursor-pointer tw-mb-0">
-        <input
-          type="checkbox"
-          bitCheckbox
-          [checked]="listeningEnabled()"
-          (change)="toggleListening.emit($any($event.target).checked)"
-        />
-      </label>
-    </div>
-
     @if (connections().length === 0) {
       <!-- Empty state -->
-      <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-3 tw-py-12 tw-px-4">
-        <svg
-          width="48"
-          height="48"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          class="tw-text-muted"
-        >
-          <path
-            d="M12 18.5C12.8284 18.5 13.5 17.8284 13.5 17C13.5 16.1716 12.8284 15.5 12 15.5C11.1716 15.5 10.5 16.1716 10.5 17C10.5 17.8284 11.1716 18.5 12 18.5Z"
-            fill="currentColor"
-          />
-          <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
-            d="M2.04938 8.36413C5.68462 4.87862 8.61538 3.5 12 3.5C15.3846 3.5 18.3154 4.87862 21.9506 8.36413C22.2569 8.65773 22.2673 9.14373 21.9737 9.45005C21.6801 9.75636 21.1941 9.76683 20.8878 9.47322C17.4539 6.18334 14.8462 5 12 5C9.15385 5 6.54615 6.18334 3.11222 9.47322C2.80591 9.76683 2.31991 9.75636 2.0263 9.45005C1.7327 9.14373 1.74317 8.65773 2.04938 8.36413Z"
-            fill="currentColor"
-          />
-          <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
-            d="M5.63604 11.636C7.3726 9.89943 9.37868 9 12 9C14.6213 9 16.6274 9.89943 18.364 11.636C18.6569 11.9289 18.6569 12.4038 18.364 12.6967C18.0711 12.9896 17.5962 12.9896 17.3033 12.6967C15.8726 11.266 14.2787 10.5 12 10.5C9.72132 10.5 8.1274 11.266 6.6967 12.6967C6.40381 12.9896 5.92893 12.9896 5.63604 12.6967C5.34315 12.4038 5.34315 11.9289 5.63604 11.636Z"
-            fill="currentColor"
-          />
-        </svg>
-
+      <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-4 tw-py-16 tw-px-6">
+        <i class="bwi bwi-desktop tw-text-3xl tw-text-muted"></i>
         <p class="tw-text-main tw-font-bold tw-text-lg tw-mb-0">No connections yet</p>
-        <p class="tw-text-muted tw-text-sm tw-mb-0 tw-text-center">
-          Click "Add Connection" to pair a new device
+        <p class="tw-text-muted tw-text-sm tw-mb-0 tw-text-center tw-max-w-52">
+          Pair a device to allow agents to request credentials
         </p>
-
         <button
           type="button"
           bitButton
           buttonType="primary"
-          class="tw-mt-2"
+          class="tw-mt-4"
           (click)="addConnection.emit()"
         >
           + Add Connection
@@ -97,23 +56,50 @@ import { ConnectionEntry } from "../remote-access.types";
           @for (conn of connections(); track conn.id) {
             <bit-item>
               <bit-item-content>
-                {{ conn.name }}
-                <span slot="secondary">{{ conn.id | slice: 0 : 12 }}...</span>
+                <i slot="start" class="bwi bwi-desktop tw-text-2xl tw-text-muted"></i>
+                <div class="tw-flex tw-items-center tw-gap-2">
+                  {{ conn.name }}
+                  @if (pendingRequests().has(conn.id)) {
+                    <span
+                      class="tw-inline-flex tw-items-center tw-px-1.5 tw-py-0.5 tw-rounded-full tw-text-xs tw-font-medium tw-bg-warning-600 tw-text-contrast"
+                    >
+                      Request
+                    </span>
+                  }
+                </div>
+                @if (pendingRequests().has(conn.id)) {
+                  <span slot="secondary" class="tw-text-warning-600">
+                    {{ pendingRequests().get(conn.id)!.domain }}
+                  </span>
+                } @else {
+                  <span slot="secondary"> Last used {{ conn.lastUsed | date: "short" }} </span>
+                }
               </bit-item-content>
-              <button
-                type="button"
-                slot="end"
-                bitIconButton="bwi-close"
-                label="Remove connection"
-                size="small"
-                (click)="removeConnection.emit(conn.id)"
-              ></button>
+              @if (pendingRequests().has(conn.id)) {
+                <button
+                  type="button"
+                  slot="end"
+                  bitIconButton="bwi-angle-right"
+                  label="View request"
+                  size="small"
+                  (click)="openRequest.emit(conn.id)"
+                ></button>
+              } @else {
+                <button
+                  type="button"
+                  slot="end"
+                  bitIconButton="bwi-close"
+                  label="Remove connection"
+                  size="small"
+                  (click)="removeConnection.emit(conn.id)"
+                ></button>
+              }
             </bit-item>
           }
         </bit-item-group>
       </bit-section>
 
-      <div class="tw-flex tw-justify-center tw-py-4">
+      <div class="tw-flex tw-justify-center tw-py-6">
         <button type="button" bitButton buttonType="primary" (click)="addConnection.emit()">
           + Add Connection
         </button>
@@ -123,9 +109,9 @@ import { ConnectionEntry } from "../remote-access.types";
 })
 export class RemoteAccessHomeComponent {
   readonly connections = input<ConnectionEntry[]>([]);
-  readonly listeningEnabled = input(true);
+  readonly pendingRequests = input<Map<string, CredentialRequestData>>(new Map());
 
   readonly addConnection = output();
   readonly removeConnection = output<string>();
-  readonly toggleListening = output<boolean>();
+  readonly openRequest = output<string>();
 }
