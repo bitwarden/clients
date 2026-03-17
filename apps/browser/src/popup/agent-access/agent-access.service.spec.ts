@@ -103,7 +103,7 @@ describe("AgentAccessService", () => {
       // Base64 of [10, 20, 30]
       const b64 = btoa(String.fromCharCode(10, 20, 30));
       storageService.get.mockImplementation((key: string) => {
-        if (key === "rat_identity") {
+        if (key === "agent_access_identity") {
           return Promise.resolve(b64);
         }
         return Promise.resolve(null);
@@ -121,7 +121,7 @@ describe("AgentAccessService", () => {
 
       await service.startListening("rendezvous");
 
-      expect(storageService.save).toHaveBeenCalledWith("rat_identity", expect.any(String));
+      expect(storageService.save).toHaveBeenCalledWith("agent_access_identity", expect.any(String));
     });
 
     it("should dispatch to enable_psk for psk mode", async () => {
@@ -330,14 +330,14 @@ describe("AgentAccessService", () => {
 
       expect(result).toEqual([expect.objectContaining({ id: "aabbccdd" })]);
       expect(storageService.save).toHaveBeenCalledWith(
-        "rat_connections",
+        "agent_access_connections",
         expect.arrayContaining([expect.objectContaining({ id: "aabbccdd" })]),
       );
     });
 
     it("should remove connection by id", async () => {
       storageService.get.mockImplementation((key: string) => {
-        if (key === "rat_connections") {
+        if (key === "agent_access_connections") {
           return Promise.resolve([
             { id: "r1", name: "A", fingerprint: "", lastUsed: 0, sessionData: "" },
             { id: "r2", name: "B", fingerprint: "", lastUsed: 0, sessionData: "" },
@@ -349,7 +349,7 @@ describe("AgentAccessService", () => {
       await service.removeConnection("r1");
 
       const savedArg = (storageService.save as jest.Mock).mock.calls.find(
-        (call: any[]) => call[0] === "rat_connections",
+        (call: any[]) => call[0] === "agent_access_connections",
       );
       const saved = savedArg[1];
       expect(saved).toHaveLength(1);
@@ -370,7 +370,7 @@ describe("AgentAccessService", () => {
     it("should save listening enabled state", async () => {
       await service.setListeningEnabled(false);
 
-      expect(storageService.save).toHaveBeenCalledWith("rat_listening_enabled", false);
+      expect(storageService.save).toHaveBeenCalledWith("agent_access_listening_enabled", false);
     });
   });
 

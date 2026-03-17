@@ -11,9 +11,9 @@ import { ConnectionEntry, CredentialMatch } from "./agent-access.types";
 import { BrowserProxyClient } from "./proxy-client";
 
 /** Storage keys for agent access state in chrome.storage.local */
-const CONNECTIONS_KEY = "rat_connections";
-const IDENTITY_KEY = "rat_identity";
-const LISTENING_ENABLED_KEY = "rat_listening_enabled";
+const CONNECTIONS_KEY = "agent_access_connections";
+const IDENTITY_KEY = "agent_access_identity";
+const LISTENING_ENABLED_KEY = "agent_access_listening_enabled";
 
 /** Default proxy URL — should eventually come from environment config */
 const DEFAULT_PROXY_URL = "wss://rat1.lesspassword.dev";
