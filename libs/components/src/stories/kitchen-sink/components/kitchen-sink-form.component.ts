@@ -78,7 +78,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
             type="button"
             slot="end"
           >
-            <i class="bwi bwi-question-circle"></i>
+            <bit-icon name="bwi-question-circle" />
           </button>
         </bit-label>
         <input bitInput type="password" formControlName="password" />

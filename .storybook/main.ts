@@ -71,12 +71,17 @@ const config: StorybookConfig = {
   staticDirs: ["../apps/web/src/images"],
   refs: (config, { configType }) => {
     if (configType === "PRODUCTION") {
-      const branchName = process.env.STORYBOOK_BRANCH_NAME;
+      const autofillUrl = process.env.AUTOFILL_CHROMATIC_URL;
 
       return {
         autofill: {
-          title: `Autofill Components (branch: ${branchName})`,
-          url: `https://${branchName}--695ffc4bef53d3a5ae4c8067.chromatic.com`,
+          /**
+           * If we don't have a chromatic URL for the current branch's build, default to `main`
+           * and include it in the sidebar title to notify users that they're not looking at the
+           * current branch's stories
+           */
+          title: `Autofill Components ${autofillUrl ? "" : "(main)"}`,
+          url: autofillUrl ?? "https://main--695ffc4bef53d3a5ae4c8067.chromatic.com",
         },
       };
     }
