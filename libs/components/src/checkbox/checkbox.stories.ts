@@ -301,3 +301,41 @@ export const FormControlCard: Story = {
     };
   },
 };
+
+export const FormControlCardGroup: Story = {
+  render: () => ({
+    props: {
+      formObj: new FormGroup({
+        featureA: new FormControl(false),
+        featureB: new FormControl(true),
+        featureC: new FormControl(false),
+      }),
+    },
+    template: /* HTML */ `
+      <form [formGroup]="formObj">
+        <bit-form-control-card-group>
+          <bit-label>Checkbox group</bit-label>
+
+          <bit-form-control-card>
+            <input type="checkbox" bitCheckbox formControlName="featureA" />
+            <bit-label>Feature A</bit-label>
+            <bit-hint>Enables Feature A for your account</bit-hint>
+          </bit-form-control-card>
+
+          <bit-form-control-card>
+            <input type="checkbox" bitCheckbox formControlName="featureB" />
+            <bit-label>Feature B</bit-label>
+            <bit-hint>Enables Feature B for your account</bit-hint>
+          </bit-form-control-card>
+
+          <bit-form-control-card>
+            <input type="checkbox" bitCheckbox formControlName="featureC" />
+            <bit-label>Feature C</bit-label>
+          </bit-form-control-card>
+
+          <bit-hint>Choose which features to enable.</bit-hint>
+        </bit-form-control-card-group>
+      </form>
+    `,
+  }),
+};
