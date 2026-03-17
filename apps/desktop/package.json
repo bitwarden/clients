@@ -15,6 +15,9 @@
     "url": "git+https://github.com/bitwarden/clients.git"
   },
   "license": "GPL-3.0",
+  "dependencies": {
+    "@bitwarden/desktop-napi": "file:desktop_native/napi"
+  },
   "scripts": {
     "postinstall": "electron-rebuild",
     "start": "cross-env ELECTRON_IS_DEV=0 ELECTRON_NO_UPDATER=1 electron ./build",
