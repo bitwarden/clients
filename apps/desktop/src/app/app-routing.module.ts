@@ -55,7 +55,7 @@ import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.c
 import { VaultWrapperComponent } from "../vault/app/vault-v3/vault-wrapper.component";
 
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
-import { SendComponent } from "./tools/send-v2/send.component";
+import { SendComponent } from "./tools/send/send.component";
 
 /**
  * Data properties acceptable for use in route objects in the desktop
