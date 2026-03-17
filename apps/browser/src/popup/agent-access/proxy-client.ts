@@ -36,8 +36,10 @@ export class BrowserProxyClient {
     // The sign_proxy_challenge static method is added by our WASM bindings but may
     // not be in the pre-built TS types yet — cast through any.
     const sdk: any = await import("@bitwarden/sdk-internal");
+    // Support both old (RatUserClient) and new (UserClient) WASM export names
+    const Client = sdk.UserClient ?? sdk.RatUserClient;
     this.signChallengeFn = (identityCose: number[], challengeJson: string) =>
-      sdk.UserClient.sign_proxy_challenge(identityCose, challengeJson) as string;
+      Client.sign_proxy_challenge(identityCose, challengeJson) as string;
 
     return new Promise<void>((resolve, reject) => {
       this.ws = new this.WebSocketImpl(this.proxyUrl);

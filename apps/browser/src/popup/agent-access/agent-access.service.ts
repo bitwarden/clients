@@ -117,7 +117,8 @@ export class AgentAccessService implements OnDestroy {
 
     // Ensure we have identity bytes BEFORE creating the proxy client,
     // because connect() needs them for the auth challenge-response.
-    const UserClient = (sdk as any).UserClient;
+    // Support both old (RatUserClient) and new (UserClient) WASM export names
+    const UserClient = (sdk as any).UserClient ?? (sdk as any).RatUserClient;
     if (!identityData || identityData.length === 0) {
       identityData = new Uint8Array(UserClient.generate_identity());
     }
