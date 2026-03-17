@@ -1,10 +1,11 @@
 <div
-  class="tw-px-2 tw-pt-[calc(0.5rem_+_var(--bit-sidenav-macos-extra-top-padding,_0px))] tw-bg-bg-sidenav"
-  [class]="
-    sideNavService.open()
-      ? 'tw-sticky tw-top-0 tw-z-50 tw-pb-4'
-      : 'tw-pb-[calc(theme(spacing.8)_+_2px)]'
-  "
+  class="tw-px-2 tw-bg-bg-sidenav"
+  [ngClass]="{
+    'tw-sticky tw-top-0 tw-z-50 tw-pb-4': sideNavService.open(),
+    'tw-pb-[calc(theme(spacing.8)_+_2px)]': !sideNavService.open(),
+    'tw-pt-[calc(0.5rem_+_var(--bit-sidenav-extra-top-padding,_0px))]': sideNavService.isOverlay(),
+    'tw-pt-2': !sideNavService.isOverlay(),
+  }"
 >
   <!-- absolutely position the link svg to avoid shifting layout when sidenav is closed -->
   <a
