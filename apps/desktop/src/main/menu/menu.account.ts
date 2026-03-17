@@ -1,8 +1,10 @@
-import { BrowserWindow, dialog, MenuItemConstructorOptions, shell } from "electron";
+import { BrowserWindow, dialog, MenuItemConstructorOptions } from "electron";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 
+import { SafeShell } from "../../platform/main/safe-shell.main";
 import { isMacAppStore, isWindowsStore } from "../../utils";
 
 import { IMenubarMenu } from "./menubar";
@@ -40,6 +42,7 @@ export class AccountMenu implements IMenubarMenu {
     window: BrowserWindow,
     isLocked: boolean,
     hasMasterPassword: boolean,
+    private shell: SafeShell,
   ) {
     this._i18nService = i18nService;
     this._messagingService = messagingService;
@@ -74,9 +77,7 @@ export class AccountMenu implements IMenubarMenu {
           noLink: true,
         });
         if (result.response === 0) {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          shell.openExternal(this._webVaultUrl);
+          void this.shell.openExternal(this._webVaultUrl, UrlType.WebUrl);
         }
       },
       enabled: !this._isLocked,
@@ -98,9 +99,7 @@ export class AccountMenu implements IMenubarMenu {
           noLink: true,
         });
         if (result.response === 0) {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          shell.openExternal(this._webVaultUrl);
+          void this.shell.openExternal(this._webVaultUrl, UrlType.WebUrl);
         }
       },
       enabled: !this._isLocked,
