@@ -106,6 +106,11 @@ const ConnectionModeEnum = Object.freeze({
                       {{ tokenCopied() ? "Copied!" : "Copy Token" }}
                     </button>
                   </div>
+
+                  <div class="tw-flex tw-items-center tw-gap-2 tw-justify-center tw-text-muted">
+                    <bit-spinner size="small"></bit-spinner>
+                    <p class="tw-text-sm tw-mb-0">Waiting for connection...</p>
+                  </div>
                 }
               }
             }
@@ -211,7 +216,22 @@ const ConnectionModeEnum = Object.freeze({
             class="tw-p-4 tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-4 tw-h-full"
           >
             <bit-spinner size="large"></bit-spinner>
-            <p class="tw-text-main tw-mb-0">Performing secure handshake...</p>
+            <p class="tw-text-main tw-mb-0">
+              @if (connectionMode() === "psk") {
+                Waiting for connection...
+              } @else {
+                Performing secure handshake...
+              }
+            </p>
+          </div>
+        }
+        @case ("connected") {
+          <div
+            class="tw-p-4 tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-4 tw-h-full"
+          >
+            <i class="bwi bwi-check-circle tw-text-success tw-text-4xl"></i>
+            <p class="tw-text-main tw-font-bold tw-mb-0">Connected!</p>
+            <p class="tw-text-muted tw-text-sm tw-mb-0">{{ connectionName() }}</p>
           </div>
         }
       }
@@ -221,7 +241,7 @@ const ConnectionModeEnum = Object.freeze({
 export class AgentAccessPairingComponent {
   protected readonly ConnectionModeEnum = ConnectionModeEnum;
 
-  readonly stage = input.required<"token" | "fingerprint" | "known" | "handshake">();
+  readonly stage = input.required<"token" | "fingerprint" | "known" | "handshake" | "connected">();
   readonly connectionMode = input.required<ConnectionMode>();
   readonly rendezvousCode = input("");
   readonly pskToken = input("");

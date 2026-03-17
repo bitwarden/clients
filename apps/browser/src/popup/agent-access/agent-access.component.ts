@@ -112,9 +112,9 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
   protected readonly listeningEnabled = signal(true);
 
   // Pairing state
-  protected readonly pairingStage = signal<"token" | "fingerprint" | "known" | "handshake">(
-    "token",
-  );
+  protected readonly pairingStage = signal<
+    "token" | "fingerprint" | "known" | "handshake" | "connected"
+  >("token");
   protected readonly connectionMode = signal<ConnectionMode>("rendezvous");
   protected readonly rendezvousCode = signal("");
   protected readonly pskToken = signal("");
@@ -379,16 +379,21 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
         this.remoteSessionId.set(identity);
 
         if (this.view() === AgentAccessView.Pairing) {
-          const known = identity ? this.connections().find((c) => c.id === identity) : undefined;
-          if (known) {
-            // Known device — show reconnect screen with option to rename
-            this.knownConnectionName.set(known.name);
-            if (!this.connectionName()) {
-              this.connectionName.set(known.name);
-            }
-            this.pairingStage.set("known");
+          if (this.connectionMode() === "psk") {
+            // PSK already authenticates — auto-approve without fingerprint verification
+            this.pairingStage.set("handshake");
+            void this.service.verifyFingerprint(true, this.connectionName() || undefined);
           } else {
-            this.pairingStage.set("fingerprint");
+            const known = identity ? this.connections().find((c) => c.id === identity) : undefined;
+            if (known) {
+              this.knownConnectionName.set(known.name);
+              if (!this.connectionName()) {
+                this.connectionName.set(known.name);
+              }
+              this.pairingStage.set("known");
+            } else {
+              this.pairingStage.set("fingerprint");
+            }
           }
         }
         break;
@@ -457,13 +462,18 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
     const updated = await this.service.saveConnection(entry);
     this.connections.set(updated);
 
-    this.toastService.showToast({
-      variant: "success",
-      title: null,
-      message: `Securely connected to ${name}`,
-    });
+    // Show brief success animation before navigating home
+    this.pairingStage.set("connected");
+    this.connectionName.set(name);
 
-    this.goHome();
+    setTimeout(() => {
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: `Securely connected to ${name}`,
+      });
+      this.goHome();
+    }, 1500);
   }
 
   private async handleCredentialRequest(
