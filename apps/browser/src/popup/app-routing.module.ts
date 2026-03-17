@@ -101,13 +101,13 @@ import { MoreFromBitwardenPageComponent } from "../vault/popup/settings/more-fro
 import { TrashComponent } from "../vault/popup/settings/trash.component";
 import { VaultSettingsComponent } from "../vault/popup/settings/vault-settings.component";
 
+import { AgentAccessTestComponent } from "./agent-access/agent-access-test.component";
+import { AgentAccessComponent } from "./agent-access/agent-access.component";
 import { RouteElevation } from "./app-routing.animations";
 import {
   ExtensionAnonLayoutWrapperComponent,
   ExtensionAnonLayoutWrapperData,
 } from "./components/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
-import { RemoteAccessTestComponent } from "./remote-access/remote-access-test.component";
-import { RemoteAccessComponent } from "./remote-access/remote-access.component";
 import { debounceNavigationGuard } from "./services/debounce-navigation.service";
 import { TabsV2Component } from "./tabs-v2.component";
 
@@ -722,16 +722,16 @@ const routes: Routes = [
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
       {
-        path: "remote-access",
-        component: RemoteAccessComponent,
+        path: "agent-access",
+        component: AgentAccessComponent,
         canActivate: [authGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
     ],
   },
   {
-    path: "remote-access-test",
-    component: RemoteAccessTestComponent,
+    path: "agent-access-test",
+    component: AgentAccessTestComponent,
     data: { elevation: 0 } satisfies RouteDataProperties,
   },
   {

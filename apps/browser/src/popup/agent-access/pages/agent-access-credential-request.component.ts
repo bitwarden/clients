@@ -2,10 +2,10 @@ import { ChangeDetectionStrategy, Component, input, output, signal, OnInit } fro
 
 import { ButtonModule } from "@bitwarden/components";
 
-import { CredentialMatch, CredentialRequestData } from "../remote-access.types";
+import { CredentialMatch, CredentialRequestData } from "../agent-access.types";
 
 @Component({
-  selector: "app-remote-access-credential-request",
+  selector: "app-agent-access-credential-request",
   standalone: true,
   imports: [ButtonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -114,7 +114,7 @@ import { CredentialMatch, CredentialRequestData } from "../remote-access.types";
     </ng-container>
   `,
 })
-export class RemoteAccessCredentialRequestComponent implements OnInit {
+export class AgentAccessCredentialRequestComponent implements OnInit {
   readonly request = input.required<CredentialRequestData | null>();
 
   readonly approved = output<string>();

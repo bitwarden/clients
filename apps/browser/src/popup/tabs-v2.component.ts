@@ -54,7 +54,7 @@ export class TabsV2Component {
         },
         {
           label: "remoteAccess",
-          page: "/tabs/remote-access",
+          page: "/tabs/agent-access",
           icon: RemoteAccessInactive,
           iconActive: RemoteAccessActive,
         },

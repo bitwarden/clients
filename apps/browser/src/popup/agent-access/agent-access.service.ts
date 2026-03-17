@@ -7,8 +7,8 @@ import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import type { UserClientEvent } from "@bitwarden/sdk-internal";
 
-import { BrowserProxyClient } from "./rat-proxy-client";
-import { ConnectionEntry, CredentialMatch } from "./remote-access.types";
+import { ConnectionEntry, CredentialMatch } from "./agent-access.types";
+import { BrowserProxyClient } from "./proxy-client";
 
 /** Storage keys for RAT state in chrome.storage.local */
 const RAT_CONNECTIONS_KEY = "rat_connections";
@@ -30,7 +30,7 @@ export interface CredentialLookupResult {
 }
 
 @Injectable()
-export class RemoteAccessService implements OnDestroy {
+export class AgentAccessService implements OnDestroy {
   private client: any = null; // UserClient from WASM SDK
   private proxyClient: BrowserProxyClient | null = null;
   private identityCose: Uint8Array | null = null;

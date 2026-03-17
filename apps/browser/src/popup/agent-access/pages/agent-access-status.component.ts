@@ -6,7 +6,7 @@ import { ButtonModule, CalloutModule } from "@bitwarden/components";
 import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 
 @Component({
-  selector: "app-remote-access-status",
+  selector: "app-agent-access-status",
   standalone: true,
   imports: [JslibModule, PopupFooterComponent, ButtonModule, CalloutModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,7 +43,7 @@ import { PopupFooterComponent } from "../../../platform/popup/layout/popup-foote
     }
   `,
 })
-export class RemoteAccessStatusComponent {
+export class AgentAccessStatusComponent {
   readonly status = input.required<"disconnected" | "error">();
   readonly errorMessage = input("");
 

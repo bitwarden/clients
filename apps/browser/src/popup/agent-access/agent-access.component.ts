@@ -17,12 +17,12 @@ import type { UserClientEvent } from "@bitwarden/sdk-internal";
 import { PopupHeaderComponent } from "../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../platform/popup/layout/popup-page.component";
 
-import { RemoteAccessCredentialRequestComponent } from "./pages/remote-access-credential-request.component";
-import { RemoteAccessHomeComponent } from "./pages/remote-access-home.component";
-import { RemoteAccessPairingComponent } from "./pages/remote-access-pairing.component";
-import { RemoteAccessStatusComponent } from "./pages/remote-access-status.component";
-import { RemoteAccessService, type ConnectionMode } from "./remote-access.service";
-import { ConnectionEntry, CredentialRequestData } from "./remote-access.types";
+import { AgentAccessService, type ConnectionMode } from "./agent-access.service";
+import { ConnectionEntry, CredentialRequestData } from "./agent-access.types";
+import { AgentAccessCredentialRequestComponent } from "./pages/agent-access-credential-request.component";
+import { AgentAccessHomeComponent } from "./pages/agent-access-home.component";
+import { AgentAccessPairingComponent } from "./pages/agent-access-pairing.component";
+import { AgentAccessStatusComponent } from "./pages/agent-access-status.component";
 
 const AgentAccessView = Object.freeze({
   Home: "home",
@@ -34,18 +34,18 @@ const AgentAccessView = Object.freeze({
 type AgentAccessView = (typeof AgentAccessView)[keyof typeof AgentAccessView];
 
 @Component({
-  selector: "app-remote-access",
+  selector: "app-agent-access",
   standalone: true,
   imports: [
     JslibModule,
     PopupPageComponent,
     PopupHeaderComponent,
-    RemoteAccessHomeComponent,
-    RemoteAccessPairingComponent,
-    RemoteAccessCredentialRequestComponent,
-    RemoteAccessStatusComponent,
+    AgentAccessHomeComponent,
+    AgentAccessPairingComponent,
+    AgentAccessCredentialRequestComponent,
+    AgentAccessStatusComponent,
   ],
-  providers: [RemoteAccessService],
+  providers: [AgentAccessService],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <popup-page>
@@ -58,7 +58,7 @@ type AgentAccessView = (typeof AgentAccessView)[keyof typeof AgentAccessView];
 
       @switch (view()) {
         @case ("home") {
-          <app-remote-access-home
+          <app-agent-access-home
             [connections]="connections()"
             [pendingRequests]="pendingRequests()"
             (addConnection)="startPairing()"
@@ -67,7 +67,7 @@ type AgentAccessView = (typeof AgentAccessView)[keyof typeof AgentAccessView];
           />
         }
         @case ("pairing") {
-          <app-remote-access-pairing
+          <app-agent-access-pairing
             [stage]="pairingStage()"
             [connectionMode]="connectionMode()"
             [rendezvousCode]="rendezvousCode()"
@@ -86,17 +86,17 @@ type AgentAccessView = (typeof AgentAccessView)[keyof typeof AgentAccessView];
           />
         }
         @case ("credential-request") {
-          <app-remote-access-credential-request
+          <app-agent-access-credential-request
             [request]="currentRequest()"
             (approved)="onCredentialApproved($event)"
             (denied)="onCredentialDenied()"
           />
         }
         @case ("disconnected") {
-          <app-remote-access-status status="disconnected" (action)="goHome()" />
+          <app-agent-access-status status="disconnected" (action)="goHome()" />
         }
         @case ("error") {
-          <app-remote-access-status
+          <app-agent-access-status
             status="error"
             [errorMessage]="errorMessage()"
             (action)="goHome()"
@@ -106,7 +106,7 @@ type AgentAccessView = (typeof AgentAccessView)[keyof typeof AgentAccessView];
     </popup-page>
   `,
 })
-export class RemoteAccessComponent implements OnInit, OnDestroy {
+export class AgentAccessComponent implements OnInit, OnDestroy {
   protected readonly view = signal<AgentAccessView>(AgentAccessView.Home);
   protected readonly connections = signal<ConnectionEntry[]>([]);
   protected readonly listeningEnabled = signal(true);
@@ -133,7 +133,7 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
   // Error state
   protected readonly errorMessage = signal("");
 
-  private readonly service = inject(RemoteAccessService);
+  private readonly service = inject(AgentAccessService);
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);

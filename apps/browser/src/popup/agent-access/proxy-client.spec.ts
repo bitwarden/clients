@@ -1,4 +1,4 @@
-import { BrowserProxyClient, ProxyMessage } from "./rat-proxy-client";
+import { BrowserProxyClient, ProxyMessage } from "./proxy-client";
 
 // ---------------------------------------------------------------------------
 // Mock WebSocket

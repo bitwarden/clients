@@ -6,7 +6,7 @@ import { ButtonModule, CalloutModule } from "@bitwarden/components";
 import { PopupHeaderComponent } from "../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../platform/popup/layout/popup-page.component";
 
-import { BrowserProxyClient } from "./rat-proxy-client";
+import { BrowserProxyClient } from "./proxy-client";
 
 interface LogEntry {
   time: string;
@@ -15,7 +15,7 @@ interface LogEntry {
 }
 
 @Component({
-  selector: "app-remote-access-test",
+  selector: "app-agent-access-test",
   standalone: true,
   imports: [CommonModule, PopupPageComponent, PopupHeaderComponent, ButtonModule, CalloutModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -169,7 +169,7 @@ interface LogEntry {
     </popup-page>
   `,
 })
-export class RemoteAccessTestComponent implements OnDestroy {
+export class AgentAccessTestComponent implements OnDestroy {
   protected readonly proxyUrl = signal("ws://localhost:8080");
   protected readonly statusMessage = signal("Not initialized");
   protected readonly statusType = signal<"info" | "success" | "danger" | "warning">("info");
@@ -360,15 +360,15 @@ export class RemoteAccessTestComponent implements OnDestroy {
   };
 
   protected logEntryClass(level: LogEntry["level"]): string {
-    return RemoteAccessTestComponent.LOG_LEVEL_CLASSES[level] ?? "tw-py-0.5 tw-text-muted";
+    return AgentAccessTestComponent.LOG_LEVEL_CLASSES[level] ?? "tw-py-0.5 tw-text-muted";
   }
 
   private log(msg: string, level: LogEntry["level"]): void {
     const time = new Date().toISOString().slice(11, 23);
     this.logEntries.update((entries) => {
       const updated = [...entries, { time, message: msg, level }];
-      return updated.length > RemoteAccessTestComponent.MAX_LOG_ENTRIES
-        ? updated.slice(-RemoteAccessTestComponent.MAX_LOG_ENTRIES)
+      return updated.length > AgentAccessTestComponent.MAX_LOG_ENTRIES
+        ? updated.slice(-AgentAccessTestComponent.MAX_LOG_ENTRIES)
         : updated;
     });
   }

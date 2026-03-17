@@ -6,7 +6,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
-import { RemoteAccessService } from "./remote-access.service";
+import { AgentAccessService } from "./agent-access.service";
 
 // ---------------------------------------------------------------------------
 // Mock @bitwarden/sdk-internal
@@ -38,7 +38,7 @@ jest.mock("@bitwarden/sdk-internal", () => ({
 }));
 
 // Mock BrowserProxyClient
-jest.mock("./rat-proxy-client", () => ({
+jest.mock("./proxy-client", () => ({
   BrowserProxyClient: jest.fn().mockImplementation(() => ({
     connect: jest.fn().mockResolvedValue(undefined),
     disconnect: jest.fn().mockResolvedValue(undefined),
@@ -46,8 +46,8 @@ jest.mock("./rat-proxy-client", () => ({
   })),
 }));
 
-describe("RemoteAccessService", () => {
-  let service: RemoteAccessService;
+describe("AgentAccessService", () => {
+  let service: AgentAccessService;
   let storageService: jest.Mocked<AbstractStorageService>;
   let cipherService: jest.Mocked<CipherService>;
 
@@ -73,7 +73,7 @@ describe("RemoteAccessService", () => {
 
     TestBed.configureTestingModule({
       providers: [
-        RemoteAccessService,
+        AgentAccessService,
         { provide: AbstractStorageService, useValue: storageService },
         { provide: CipherService, useValue: cipherService },
         { provide: AccountService, useValue: accountService },
@@ -81,7 +81,7 @@ describe("RemoteAccessService", () => {
       ],
     });
 
-    service = TestBed.inject(RemoteAccessService);
+    service = TestBed.inject(AgentAccessService);
   });
 
   // ---------------------------------------------------------------------------
@@ -264,14 +264,14 @@ describe("RemoteAccessService", () => {
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
         providers: [
-          RemoteAccessService,
+          AgentAccessService,
           { provide: AbstractStorageService, useValue: storageService },
           { provide: CipherService, useValue: cipherService },
           { provide: AccountService, useValue: { activeAccount$: of(null) } },
           { provide: EnvironmentService, useValue: {} },
         ],
       });
-      const svcNoAccount = TestBed.inject(RemoteAccessService);
+      const svcNoAccount = TestBed.inject(AgentAccessService);
 
       const result = await svcNoAccount.lookupCredentials("example.com");
       expect(result).toEqual([]);

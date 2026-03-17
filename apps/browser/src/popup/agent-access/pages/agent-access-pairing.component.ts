@@ -10,7 +10,7 @@ import {
   ToggleGroupModule,
 } from "@bitwarden/components";
 
-import type { ConnectionMode } from "../remote-access.service";
+import type { ConnectionMode } from "../agent-access.service";
 
 const ConnectionModeEnum = Object.freeze({
   Rendezvous: "rendezvous" as ConnectionMode,
@@ -19,7 +19,7 @@ const ConnectionModeEnum = Object.freeze({
 } as const);
 
 @Component({
-  selector: "app-remote-access-pairing",
+  selector: "app-agent-access-pairing",
   standalone: true,
   imports: [
     JslibModule,
@@ -218,7 +218,7 @@ const ConnectionModeEnum = Object.freeze({
     </ng-container>
   `,
 })
-export class RemoteAccessPairingComponent {
+export class AgentAccessPairingComponent {
   protected readonly ConnectionModeEnum = ConnectionModeEnum;
 
   readonly stage = input.required<"token" | "fingerprint" | "known" | "handshake">();

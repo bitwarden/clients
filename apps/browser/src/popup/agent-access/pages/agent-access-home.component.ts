@@ -11,10 +11,10 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-import { ConnectionEntry, CredentialRequestData } from "../remote-access.types";
+import { ConnectionEntry, CredentialRequestData } from "../agent-access.types";
 
 @Component({
-  selector: "app-remote-access-home",
+  selector: "app-agent-access-home",
   standalone: true,
   imports: [
     DatePipe,
@@ -107,7 +107,7 @@ import { ConnectionEntry, CredentialRequestData } from "../remote-access.types";
     }
   `,
 })
-export class RemoteAccessHomeComponent {
+export class AgentAccessHomeComponent {
   readonly connections = input<ConnectionEntry[]>([]);
   readonly pendingRequests = input<Map<string, CredentialRequestData>>(new Map());
 
