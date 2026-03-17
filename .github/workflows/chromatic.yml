@@ -71,7 +71,7 @@ jobs:
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
         if: steps.get-changed-files.outputs.storyFiles == 'true'
@@ -89,7 +89,6 @@ jobs:
         run: npm ci
 
       - name: Log in to Azure
-        if: steps.get-changed-files.outputs.storyFiles == 'true'
         uses: bitwarden/gh-actions/azure-login@main
         with:
           subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -97,7 +96,6 @@ jobs:
           client_id: ${{ secrets.AZURE_CLIENT_ID }}
   
       - name: Get Azure Key Vault secrets
-        if: steps.get-changed-files.outputs.storyFiles == 'true'
         id: get-kv-secrets
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
@@ -105,7 +103,6 @@ jobs:
           secrets: "CHROMATIC-PROJECT-TOKEN,CHROMATIC-PROJECT-TOKEN-AUTOFILL"
   
       - name: Log out from Azure
-        if: steps.get-changed-files.outputs.storyFiles == 'true'
         uses: bitwarden/gh-actions/azure-logout@main
 
       # Manually build the Storybook to resolve a bug related to TurboSnap
