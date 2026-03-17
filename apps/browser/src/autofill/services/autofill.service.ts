@@ -78,6 +78,7 @@ export default class AutofillService implements AutofillServiceInterface {
   private currentlyOpeningPasswordRepromptPopout = false;
   private autofillScriptPortsSet = new Set<chrome.runtime.Port>();
   static searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
+  readonly enableInlineMenuAnimation$: Observable<boolean>;
 
   constructor(
     private cipherService: CipherService,
@@ -95,7 +96,9 @@ export default class AutofillService implements AutofillServiceInterface {
     private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
     private messageListener: MessageListener,
     private animationControlService: AnimationControlService,
-  ) {}
+  ) {
+    this.enableInlineMenuAnimation$ = this.animationControlService.enableInlineMenuAnimation$;
+  }
 
   /**
    * Collects page details from the specific tab. This method returns an observable that can

@@ -15,6 +15,12 @@ export abstract class AnimationControlService {
   abstract enableAutofillAnimation$: Observable<boolean>;
 
   /**
+   * Whether inline menu animations are enabled.
+   * Currently backed by the routing animation state; will be decoupled in the future.
+   */
+  abstract enableInlineMenuAnimation$: Observable<boolean>;
+
+  /**
    * A method for updating the state of the animation toggle.
    * @param theme The new state.
    */
@@ -34,6 +40,7 @@ export class DefaultAnimationControlService implements AnimationControlService {
 
   // Proxying `enableRoutingAnimation` for now to enable future decoupling
   enableAutofillAnimation$ = this.enableRoutingAnimation$;
+  enableInlineMenuAnimation$ = this.enableRoutingAnimation$;
 
   constructor(
     private globalStateProvider: GlobalStateProvider,

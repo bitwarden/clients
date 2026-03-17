@@ -76,6 +76,7 @@ export const COLLECT_PAGE_DETAILS_RESPONSE_COMMAND =
   );
 
 export abstract class AutofillService {
+  enableInlineMenuAnimation$!: Observable<boolean>;
   /** Non-null asserted. */
   collectPageDetailsFromTab$!: (tab: chrome.tabs.Tab) => Observable<PageDetail[]>;
   /** Non-null asserted. */
