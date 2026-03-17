@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DebugElement, signal } from "@angul
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
-import { BadgeModule } from "../badge";
+import { BerryComponent } from "../berry";
 
 import { ToggleGroupComponent } from "./toggle-group.component";
 import { ToggleGroupModule } from "./toggle-group.module";
@@ -48,18 +48,18 @@ describe("Toggle", () => {
 });
 
 describe("Toggle with badge content", () => {
-  let fixtureWithBadge: ComponentFixture<TestComponentWithBadgeComponent>;
+  let fixtureWithBerry: ComponentFixture<TestComponentWithBerryComponent>;
   let badgeContainers: DebugElement[];
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [TestComponentWithBadgeComponent],
+      imports: [TestComponentWithBerryComponent],
     });
 
     await TestBed.compileComponents();
-    fixtureWithBadge = TestBed.createComponent(TestComponentWithBadgeComponent);
-    fixtureWithBadge.detectChanges();
-    badgeContainers = fixtureWithBadge.debugElement.queryAll(By.css(".tw-shrink-0"));
+    fixtureWithBerry = TestBed.createComponent(TestComponentWithBerryComponent);
+    fixtureWithBerry.detectChanges();
+    badgeContainers = fixtureWithBerry.debugElement.queryAll(By.css(".tw-shrink-0"));
   });
 
   it("should hide badge container when no badge content is projected", () => {
@@ -74,13 +74,13 @@ describe("Toggle with badge content", () => {
   });
 
   it("should show badge container when badge content is projected", () => {
-    const badgeElement = fixtureWithBadge.debugElement.query(By.css("[bitBadge]"));
+    const badgeElement = fixtureWithBerry.debugElement.query(By.css("bit-berry"));
     expect(badgeElement).toBeTruthy();
     expect(badgeElement.nativeElement.textContent.trim()).toBe("2");
   });
 
   it("should render badge content correctly", () => {
-    const badges = fixtureWithBadge.debugElement.queryAll(By.css("[bitBadge]"));
+    const badges = fixtureWithBerry.debugElement.queryAll(By.css("bit-berry"));
     expect(badges.length).toBe(1);
     expect(badges[0].nativeElement.textContent.trim()).toBe("2");
   });
@@ -106,13 +106,13 @@ class TestComponent {
   template: `
     <bit-toggle-group [(selected)]="selected">
       <bit-toggle [value]="0">Zero</bit-toggle>
-      <bit-toggle [value]="1">One <span bitBadge variant="info">2</span></bit-toggle>
+      <bit-toggle [value]="1">One <bit-berry [value]="2"></bit-berry></bit-toggle>
       <bit-toggle [value]="2">Two</bit-toggle>
     </bit-toggle-group>
   `,
-  imports: [ToggleGroupModule, BadgeModule],
+  imports: [ToggleGroupModule, BerryComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class TestComponentWithBadgeComponent {
+class TestComponentWithBerryComponent {
   readonly selected = signal(0);
 }
