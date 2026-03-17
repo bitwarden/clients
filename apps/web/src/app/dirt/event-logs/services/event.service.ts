@@ -363,7 +363,7 @@ export class EventService {
         );
         break;
       case EventType.OrganizationUser_SelfRevoked:
-        msg = humanReadableMsg = this.i18nService.t("userSelfRevokedFromOrganization");
+        msg = humanReadableMsg = this.i18nService.t("userSelfRevokedOrganizationOwnership");
         break;
       // Org
       case EventType.Organization_Updated:
