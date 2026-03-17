@@ -308,7 +308,7 @@ describe("RemoteAccessService", () => {
 
     it("should save and load connections", async () => {
       const entry = {
-        id: "conn-1",
+        id: "aabbccdd",
         name: "Test Device",
         fingerprint: "abc123",
         lastUsed: Date.now(),
@@ -317,30 +317,31 @@ describe("RemoteAccessService", () => {
 
       await service.saveConnection(entry);
 
-      expect(storageService.save).toHaveBeenCalledWith("rat_connections", expect.any(String));
+      expect(storageService.save).toHaveBeenCalledWith(
+        "rat_connections",
+        expect.arrayContaining([expect.objectContaining({ id: "aabbccdd" })]),
+      );
     });
 
     it("should remove connection by id", async () => {
       storageService.get.mockImplementation((key: string) => {
         if (key === "rat_connections") {
-          return Promise.resolve(
-            JSON.stringify([
-              { id: "conn-1", name: "A", fingerprint: "", lastUsed: 0, sessionData: "" },
-              { id: "conn-2", name: "B", fingerprint: "", lastUsed: 0, sessionData: "" },
-            ]),
-          );
+          return Promise.resolve([
+            { id: "r1", name: "A", fingerprint: "", lastUsed: 0, sessionData: "" },
+            { id: "r2", name: "B", fingerprint: "", lastUsed: 0, sessionData: "" },
+          ]);
         }
         return Promise.resolve(null);
       });
 
-      await service.removeConnection("conn-1");
+      await service.removeConnection("r1");
 
       const savedArg = (storageService.save as jest.Mock).mock.calls.find(
         (call: any[]) => call[0] === "rat_connections",
       );
-      const saved = JSON.parse(savedArg[1]);
+      const saved = savedArg[1];
       expect(saved).toHaveLength(1);
-      expect(saved[0].id).toBe("conn-2");
+      expect(saved[0].id).toBe("r2");
     });
   });
 

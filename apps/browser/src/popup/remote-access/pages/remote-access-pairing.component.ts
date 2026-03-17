@@ -10,7 +10,6 @@ import {
   ToggleGroupModule,
 } from "@bitwarden/components";
 
-import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import type { ConnectionMode } from "../remote-access.service";
 
 const ConnectionModeEnum = Object.freeze({
@@ -25,7 +24,6 @@ const ConnectionModeEnum = Object.freeze({
   imports: [
     JslibModule,
     FormsModule,
-    PopupFooterComponent,
     ButtonModule,
     CalloutModule,
     FormFieldModule,
@@ -45,7 +43,6 @@ const ConnectionModeEnum = Object.freeze({
             >
               <bit-toggle [value]="ConnectionModeEnum.Rendezvous">Rendezvous</bit-toggle>
               <bit-toggle [value]="ConnectionModeEnum.Psk">PSK Token</bit-toggle>
-              <bit-toggle [value]="ConnectionModeEnum.Cached">Cached</bit-toggle>
             </bit-toggle-group>
 
             @switch (connectionMode()) {
@@ -56,7 +53,7 @@ const ConnectionModeEnum = Object.freeze({
                   <p class="tw-text-sm tw-text-muted tw-mb-6">Rendezvous Code</p>
                   @if (rendezvousCode()) {
                     <p
-                      class="tw-text-4xl tw-font-mono tw-tracking-[0.5em] tw-text-main tw-font-bold tw-mb-0 tw-uppercase"
+                      class="tw-text-2xl tw-font-mono tw-tracking-[0.3em] tw-text-main tw-font-bold tw-mb-0 tw-uppercase"
                     >
                       {{ rendezvousCode() }}
                     </p>
@@ -111,19 +108,6 @@ const ConnectionModeEnum = Object.freeze({
                   </div>
                 }
               }
-              @case ("cached") {
-                <div
-                  class="tw-bg-background-alt tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-py-8 tw-px-4 tw-text-center"
-                >
-                  <p class="tw-text-sm tw-text-muted tw-mb-6">Cached Sessions</p>
-                  <div class="tw-flex tw-justify-center tw-py-2">
-                    <bit-spinner size="small"></bit-spinner>
-                  </div>
-                  <p class="tw-text-sm tw-text-muted tw-mt-4 tw-mb-0">
-                    Listening for cached sessions...
-                  </p>
-                </div>
-              }
             }
 
             <!-- Connection name -->
@@ -138,12 +122,6 @@ const ConnectionModeEnum = Object.freeze({
               />
             </bit-form-field>
           </div>
-
-          <popup-footer slot="footer">
-            <button type="button" bitButton buttonType="secondary" (click)="cancel.emit()">
-              {{ "cancel" | i18n }}
-            </button>
-          </popup-footer>
         }
         @case ("fingerprint") {
           <div class="tw-p-4 tw-space-y-4">
@@ -177,7 +155,7 @@ const ConnectionModeEnum = Object.freeze({
             </bit-form-field>
           </div>
 
-          <popup-footer slot="footer">
+          <div class="tw-flex tw-justify-between tw-px-4 tw-pb-4">
             <button
               type="button"
               bitButton
@@ -190,12 +168,43 @@ const ConnectionModeEnum = Object.freeze({
               type="button"
               bitButton
               buttonType="danger"
-              slot="end"
               (click)="fingerprintRejected.emit()"
             >
               Reject
             </button>
-          </popup-footer>
+          </div>
+        }
+        @case ("known") {
+          <div class="tw-p-4 tw-space-y-4">
+            <h3 class="tw-text-main tw-font-bold tw-text-lg tw-mb-0">Known Device</h3>
+            <p class="tw-text-muted tw-text-sm tw-mb-0">
+              This device is already paired as
+              <strong>{{ knownConnectionName() }}</strong
+              >. You can update the connection name below.
+            </p>
+
+            <bit-form-field>
+              <bit-label>New Name</bit-label>
+              <input
+                bitInput
+                type="text"
+                [placeholder]="knownConnectionName()"
+                [ngModel]="connectionName()"
+                (ngModelChange)="nameChanged.emit($event)"
+              />
+            </bit-form-field>
+          </div>
+
+          <div class="tw-flex tw-justify-between tw-px-4 tw-pb-4">
+            <button
+              type="button"
+              bitButton
+              buttonType="primary"
+              (click)="fingerprintApproved.emit()"
+            >
+              Update
+            </button>
+          </div>
         }
         @case ("handshake") {
           <div
@@ -212,12 +221,13 @@ const ConnectionModeEnum = Object.freeze({
 export class RemoteAccessPairingComponent {
   protected readonly ConnectionModeEnum = ConnectionModeEnum;
 
-  readonly stage = input.required<"token" | "fingerprint" | "handshake">();
+  readonly stage = input.required<"token" | "fingerprint" | "known" | "handshake">();
   readonly connectionMode = input.required<ConnectionMode>();
   readonly rendezvousCode = input("");
   readonly pskToken = input("");
   readonly fingerprint = input("");
   readonly connectionName = input("");
+  readonly knownConnectionName = input("");
   readonly codeCopied = input(false);
   readonly tokenCopied = input(false);
 
@@ -227,5 +237,4 @@ export class RemoteAccessPairingComponent {
   readonly nameChanged = output<string>();
   readonly fingerprintApproved = output();
   readonly fingerprintRejected = output();
-  readonly cancel = output();
 }

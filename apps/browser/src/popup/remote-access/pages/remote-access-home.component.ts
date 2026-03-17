@@ -1,3 +1,4 @@
+import { SlicePipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -17,6 +18,7 @@ import { ConnectionEntry } from "../remote-access.types";
   selector: "app-remote-access-home",
   standalone: true,
   imports: [
+    SlicePipe,
     JslibModule,
     ButtonModule,
     CheckboxModule,
@@ -96,16 +98,16 @@ import { ConnectionEntry } from "../remote-access.types";
             <bit-item>
               <bit-item-content>
                 {{ conn.name }}
-                <span slot="secondary">{{ conn.fingerprint | slice: 0 : 16 }}...</span>
-                <button
-                  type="button"
-                  slot="end"
-                  bitIconButton="bwi-close"
-                  label="Remove connection"
-                  size="small"
-                  (click)="removeConnection.emit(conn.id)"
-                ></button>
+                <span slot="secondary">{{ conn.id | slice: 0 : 12 }}...</span>
               </bit-item-content>
+              <button
+                type="button"
+                slot="end"
+                bitIconButton="bwi-close"
+                label="Remove connection"
+                size="small"
+                (click)="removeConnection.emit(conn.id)"
+              ></button>
             </bit-item>
           }
         </bit-item-group>

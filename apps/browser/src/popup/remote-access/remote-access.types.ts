@@ -1,7 +1,7 @@
 export interface ConnectionEntry {
-  id: string;
+  id: string; // hex of remote IdentityFingerprint — stable per device
   name: string;
-  fingerprint: string;
+  fingerprint: string; // 6-char handshake fingerprint — for display only
   lastUsed: number;
   sessionData: string;
 }

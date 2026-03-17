@@ -12,6 +12,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
+import type { RatUserClientEvent } from "@bitwarden/sdk-internal";
 
 import { PopupHeaderComponent } from "../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../platform/popup/layout/popup-page.component";
@@ -20,7 +21,7 @@ import { RemoteAccessCredentialRequestComponent } from "./pages/remote-access-cr
 import { RemoteAccessHomeComponent } from "./pages/remote-access-home.component";
 import { RemoteAccessPairingComponent } from "./pages/remote-access-pairing.component";
 import { RemoteAccessStatusComponent } from "./pages/remote-access-status.component";
-import { RemoteAccessService, type ConnectionMode, type RatEvent } from "./remote-access.service";
+import { RemoteAccessService, type ConnectionMode } from "./remote-access.service";
 import { ConnectionEntry, CredentialRequestData } from "./remote-access.types";
 
 const AgentAccessView = Object.freeze({
@@ -52,7 +53,7 @@ type AgentAccessView = (typeof AgentAccessView)[keyof typeof AgentAccessView];
         slot="header"
         [pageTitle]="'remoteAccess' | i18n"
         [showBackButton]="view() !== 'home'"
-        (backAction)="goHome()"
+        [backAction]="goHomeAction"
       ></popup-header>
 
       @switch (view()) {
@@ -73,6 +74,7 @@ type AgentAccessView = (typeof AgentAccessView)[keyof typeof AgentAccessView];
             [pskToken]="pskToken()"
             [fingerprint]="fingerprint()"
             [connectionName]="connectionName()"
+            [knownConnectionName]="knownConnectionName()"
             [codeCopied]="codeCopied()"
             [tokenCopied]="tokenCopied()"
             (modeChanged)="switchMode($event)"
@@ -81,7 +83,6 @@ type AgentAccessView = (typeof AgentAccessView)[keyof typeof AgentAccessView];
             (nameChanged)="connectionName.set($event)"
             (fingerprintApproved)="onFingerprintApproved()"
             (fingerprintRejected)="onFingerprintRejected()"
-            (cancel)="goHome()"
           />
         }
         @case ("credential-request") {
@@ -111,12 +112,16 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
   protected readonly listeningEnabled = signal(true);
 
   // Pairing state
-  protected readonly pairingStage = signal<"token" | "fingerprint" | "handshake">("token");
+  protected readonly pairingStage = signal<"token" | "fingerprint" | "known" | "handshake">(
+    "token",
+  );
   protected readonly connectionMode = signal<ConnectionMode>("rendezvous");
   protected readonly rendezvousCode = signal("");
   protected readonly pskToken = signal("");
   protected readonly fingerprint = signal("");
   protected readonly connectionName = signal("");
+  protected readonly knownConnectionName = signal("");
+  private readonly remoteSessionId = signal("");
   protected readonly codeCopied = signal(false);
   protected readonly tokenCopied = signal(false);
 
@@ -130,6 +135,7 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
+   
   private readonly eventSubscription: { unsubscribe(): void } | null = null;
 
   async ngOnInit(): Promise<void> {
@@ -268,6 +274,10 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
 
   // --- Navigation ---
 
+  protected readonly goHomeAction = async () => {
+    this.goHome();
+  };
+
   goHome(): void {
     this.view.set(AgentAccessView.Home);
     this.currentRequest.set(null);
@@ -309,17 +319,19 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
       });
   }
 
-  private handleEvent(event: RatEvent): void {
+  private handleEvent(event: RatUserClientEvent): void {
     switch (event.type) {
       case "listening":
+      case "handshake_complete":
+      case "handshake_progress":
         break;
 
       case "rendezvous_code_generated":
-        this.rendezvousCode.set(event["code"] as string);
+        this.rendezvousCode.set(event.code);
         break;
 
       case "psk_token_generated":
-        this.pskToken.set(event["token"] as string);
+        this.pskToken.set(event.token);
         break;
 
       case "handshake_start":
@@ -328,19 +340,38 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
         }
         break;
 
-      case "handshake_complete":
-        break;
+      case "handshake_fingerprint": {
+        this.fingerprint.set(event.fingerprint);
+        const identity = parseIdentityFingerprint(event.identity);
+        this.remoteSessionId.set(identity);
 
-      case "handshake_fingerprint":
-        this.fingerprint.set(event["fingerprint"] as string);
         if (this.view() === AgentAccessView.Pairing) {
-          this.pairingStage.set("fingerprint");
+          const known = identity ? this.connections().find((c) => c.id === identity) : undefined;
+          if (known) {
+            // Known device — show reconnect screen with option to rename
+            this.knownConnectionName.set(known.name);
+            if (!this.connectionName()) {
+              this.connectionName.set(known.name);
+            }
+            this.pairingStage.set("known");
+          } else {
+            this.pairingStage.set("fingerprint");
+          }
+        }
+        break;
+      }
+
+      case "fingerprint_verified":
+        if (this.view() === AgentAccessView.Pairing) {
+          void this.onConnectionEstablished();
         }
         break;
 
-      case "fingerprint_verified":
       case "session_refreshed":
-        void this.onConnectionEstablished();
+        this.remoteSessionId.set(parseIdentityFingerprint(event.fingerprint));
+        if (this.view() === AgentAccessView.Pairing) {
+          void this.onConnectionEstablished();
+        }
         break;
 
       case "fingerprint_rejected":
@@ -369,20 +400,23 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
         break;
 
       case "error":
-        this.errorMessage.set(event["message"] as string);
+        this.errorMessage.set(event.message);
         this.view.set(AgentAccessView.Error);
         break;
     }
   }
 
   private async onConnectionEstablished(): Promise<void> {
-    const name = this.connectionName() || "Unnamed Connection";
+    const remoteId = this.remoteSessionId();
+    const fp = this.fingerprint();
     const sessionData = this.service.getSessionData() ?? "";
 
+    const existing = remoteId ? this.connections().find((c) => c.id === remoteId) : undefined;
+    const name = this.connectionName() || existing?.name || "Unnamed Connection";
     const entry: ConnectionEntry = {
-      id: crypto.randomUUID(),
+      id: remoteId,
       name,
-      fingerprint: this.fingerprint(),
+      fingerprint: fp,
       lastUsed: Date.now(),
       sessionData,
     };
@@ -400,15 +434,19 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
     this.goHome();
   }
 
-  private async handleCredentialRequest(event: RatEvent): Promise<void> {
-    const domain = event["domain"] as string;
-    const requestId = event["request_id"] as string;
-    const sessionId = event["session_id"] as string;
+  private async handleCredentialRequest(
+    event: Extract<RatUserClientEvent, { type: "credential_request" }>,
+  ): Promise<void> {
+    const query = event.query;
+    const domain = "domain" in query ? query.domain : "search" in query ? query.search : query.id;
+    const requestId = event.request_id;
+    const sessionId = event.session_id;
 
     const matches = await this.service.lookupCredentials(domain);
 
-    // Try to find which connection this came from
-    const connectionName = "Connected device";
+    const remoteId = parseIdentityFingerprint(sessionId);
+    const knownConn = this.connections().find((c) => c.id === remoteId);
+    const connectionName = knownConn?.name ?? "Connected device";
 
     this.currentRequest.set({
       domain,
@@ -427,7 +465,15 @@ export class RemoteAccessComponent implements OnInit, OnDestroy {
     this.pskToken.set("");
     this.fingerprint.set("");
     this.connectionName.set("");
+    this.knownConnectionName.set("");
+    this.remoteSessionId.set("");
     this.codeCopied.set(false);
     this.tokenCopied.set(false);
   }
+}
+
+/** Extract hex from "IdentityFingerprint(hex...)" Debug format, or return as-is. */
+function parseIdentityFingerprint(raw: string): string {
+  const match = raw.match(/IdentityFingerprint\(([0-9a-f]+)\)/);
+  return match ? match[1] : raw;
 }

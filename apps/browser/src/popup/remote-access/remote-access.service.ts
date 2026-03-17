@@ -5,6 +5,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import type { RatUserClientEvent } from "@bitwarden/sdk-internal";
 
 import { BrowserRatProxyClient } from "./rat-proxy-client";
 import { ConnectionEntry, CredentialMatch } from "./remote-access.types";
@@ -19,11 +20,6 @@ const DEFAULT_PROXY_URL = "wss://rat1.lesspassword.dev";
 
 export type ConnectionMode = "rendezvous" | "psk" | "cached";
 
-export interface RatEvent {
-  type: string;
-  [key: string]: unknown;
-}
-
 export interface CredentialLookupResult {
   username?: string;
   password?: string;
@@ -37,8 +33,8 @@ export class RemoteAccessService implements OnDestroy {
   private proxyClient: BrowserRatProxyClient | null = null;
   private identityCose: Uint8Array | null = null;
 
-  private readonly eventsSubject = new Subject<RatEvent>();
-  readonly events$: Observable<RatEvent> = this.eventsSubject.asObservable();
+  private readonly eventsSubject = new Subject<RatUserClientEvent>();
+  readonly events$: Observable<RatUserClientEvent> = this.eventsSubject.asObservable();
 
   private storageService = inject(AbstractStorageService);
   private cipherService = inject(CipherService);
@@ -49,15 +45,29 @@ export class RemoteAccessService implements OnDestroy {
   // --- Connection storage ---
 
   async loadConnections(): Promise<ConnectionEntry[]> {
-    const data = await this.storageService.get<string>(RAT_CONNECTIONS_KEY);
+    const data = await this.storageService.get<ConnectionEntry[] | string>(RAT_CONNECTIONS_KEY);
     if (!data) {
       return [];
     }
-    try {
-      return JSON.parse(data) as ConnectionEntry[];
-    } catch {
+    // Migrate from old JSON-stringified format
+    if (typeof data === "string") {
+      try {
+        const parsed = JSON.parse(data) as ConnectionEntry[];
+        if (Array.isArray(parsed)) {
+          await this.storageService.save(RAT_CONNECTIONS_KEY, parsed);
+          return parsed;
+        }
+      } catch {
+        // Corrupted data, reset
+      }
+      await this.storageService.remove(RAT_CONNECTIONS_KEY);
       return [];
     }
+    if (!Array.isArray(data)) {
+      await this.storageService.remove(RAT_CONNECTIONS_KEY);
+      return [];
+    }
+    return data;
   }
 
   async saveConnection(entry: ConnectionEntry): Promise<void> {
@@ -68,22 +78,13 @@ export class RemoteAccessService implements OnDestroy {
     } else {
       connections.push(entry);
     }
-    await this.storageService.save(RAT_CONNECTIONS_KEY, JSON.stringify(connections));
+    await this.storageService.save(RAT_CONNECTIONS_KEY, connections);
   }
 
   async removeConnection(id: string): Promise<void> {
     const connections = await this.loadConnections();
     const filtered = connections.filter((c) => c.id !== id);
-    await this.storageService.save(RAT_CONNECTIONS_KEY, JSON.stringify(filtered));
-  }
-
-  async updateConnectionLastUsed(id: string): Promise<void> {
-    const connections = await this.loadConnections();
-    const conn = connections.find((c) => c.id === id);
-    if (conn) {
-      conn.lastUsed = Date.now();
-      await this.storageService.save(RAT_CONNECTIONS_KEY, JSON.stringify(connections));
-    }
+    await this.storageService.save(RAT_CONNECTIONS_KEY, filtered);
   }
 
   // --- Listening toggle ---
@@ -134,7 +135,7 @@ export class RemoteAccessService implements OnDestroy {
     await this.persistState();
 
     // Event callback — runs in the WASM event loop, need to re-enter NgZone
-    const eventCallback = (event: RatEvent) => {
+    const eventCallback = (event: RatUserClientEvent) => {
       this.ngZone.run(() => {
         this.eventsSubject.next(event);
       });
@@ -280,6 +281,31 @@ export class RemoteAccessService implements OnDestroy {
     }
     try {
       return this.client.get_session_data() as string;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Get the most recently connected remote identity from the session store.
+   * Returns a stable string key derived from the remote device's IdentityFingerprint.
+   */
+  getMostRecentRemoteIdentity(): string | null {
+    const data = this.getSessionData();
+    if (!data) {
+      return null;
+    }
+    try {
+      const sessions = JSON.parse(data) as Array<{
+        fingerprint: number[];
+        last_connected: number;
+      }>;
+      if (sessions.length === 0) {
+        return null;
+      }
+      const mostRecent = sessions.reduce((a, b) => (b.last_connected > a.last_connected ? b : a));
+      // Convert the fingerprint byte array to a hex string for stable comparison
+      return mostRecent.fingerprint.map((b: number) => b.toString(16).padStart(2, "0")).join("");
     } catch {
       return null;
     }
