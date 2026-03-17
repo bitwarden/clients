@@ -25,6 +25,7 @@ aes-gcm = "=0.10.3"
 anyhow = "=1.0.100"
 arboard = { version = "=3.6.1", default-features = false }
 ashpd = "=0.12.0"
+async-trait = "=0.1.89"
 base64 = "=0.22.1"
 bitwarden-russh = { git = "https://github.com/bitwarden/bitwarden-russh.git", rev = "a641316227227f8777fdf56ac9fa2d6b5f7fe662" }
 byteorder = "=1.5.0"
@@ -64,7 +65,7 @@ serde_with = "=3.14.1"
 sha2 = "=0.10.9"
 ssh-encoding = "=0.2.0"
 ssh-key = { version = "=0.6.7", default-features = false }
-sysinfo = "=0.37.2"
+sysinfo = "=0.38.2"
 thiserror = "=2.0.17"
 tokio = "=1.48.0"
 tokio-util = "=0.7.17"

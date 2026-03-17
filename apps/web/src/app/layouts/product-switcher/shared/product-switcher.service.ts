@@ -34,6 +34,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { BitwardenIcon } from "@bitwarden/components";
 
 export type ProductSwitcherItem = {
   /**
@@ -44,7 +45,7 @@ export type ProductSwitcherItem = {
   /**
    * Displayed icon
    */
-  icon: string;
+  icon: BitwardenIcon;
 
   /**
    * Route for items in the `bentoProducts$` section

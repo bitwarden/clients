@@ -991,10 +991,10 @@
     "message": "Nie"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Każdy, kto ma link"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "Każdy, kto ma hasło wysyłki"
   },
   "location": {
     "message": "Lokalizacja"
@@ -1356,7 +1356,7 @@
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Importuj",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -1519,7 +1519,7 @@
     "message": "Starsze szyfrowanie nie jest już obsługiwane. Skontaktuj się z pomocą techniczną, aby odzyskać konto."
   },
   "premiumMembership": {
-    "message": "Konto premium"
+    "message": "Konto Premium"
   },
   "premiumManage": {
     "message": "Zarządzaj kontem premium"
@@ -1531,16 +1531,16 @@
     "message": "Odśwież konto premium"
   },
   "premiumNotCurrentMember": {
-    "message": "Nie masz konta premium."
+    "message": "Nie masz konta Premium."
   },
   "premiumSignUpAndGet": {
-    "message": "Ulepsz konto do wersji premium, aby otrzymać:"
+    "message": "Kup konto Premium, aby otrzymać:"
   },
   "ppremiumSignUpStorage": {
     "message": "1 GB miejsca na zaszyfrowane załączniki."
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "$SIZE$ miejsca na zaszyfrowane załączniki.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -1555,13 +1555,13 @@
     "message": "Specjalne opcje logowania dwustopniowego, takie jak YubiKey i Duo."
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Subskrypcja Premium wygasła"
   },
   "archivePremiumRestart": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "Aby odzyskać dostęp do archiwum, odnów subskrypcję Premium. Jeśli przed wznowieniem subskrypcji edytujesz szczegóły archiwizowanego elementu, zostanie on przeniesiony z powrotem do sejfu."
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Odnów subskrypcję Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Raporty bezpieczeństwa haseł, konta i wycieków danych, aby Twoje dane były bezpieczne."
@@ -1573,22 +1573,22 @@
     "message": "Priorytetowe wsparcie klienta."
   },
   "ppremiumSignUpFuture": {
-    "message": "Wszystkie przyszłe funkcje premium. Więcej już wkrótce!"
+    "message": "Wszystkie przyszłe funkcje Premium. Więcej już wkrótce!"
   },
   "premiumPurchase": {
-    "message": "Kup konto premium"
+    "message": "Kup konto Premium"
   },
   "premiumPurchaseAlertV2": {
-    "message": "Możesz kupić konto premium w aplikacji internetowej Bitwarden."
+    "message": "Możesz kupić konto Premium w aplikacji internetowej Bitwarden."
   },
   "premiumCurrentMember": {
-    "message": "Masz konto premium!"
+    "message": "Masz konto Premium!"
   },
   "premiumCurrentMemberThanks": {
     "message": "Dziękujemy za wspieranie Bitwarden."
   },
   "premiumFeatures": {
-    "message": "Ulepsz konto do wersji premium i otrzymaj:"
+    "message": "Kup konto Premium i otrzymaj:"
   },
   "premiumPrice": {
     "message": "Tylko $PRICE$ / rok!",
@@ -3636,7 +3636,7 @@
     "message": "Wystąpił błąd serwera Key Connector. Upewnij się, że serwer jest dostępny i działa poprawnie."
   },
   "premiumSubcriptionRequired": {
-    "message": "Wymagana jest subskrypcja premium"
+    "message": "Wymagana jest subskrypcja Premium"
   },
   "organizationIsDisabled": {
     "message": "Organizacja została zawieszona."
@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Kopiuj adres"
   },
+  "myItems": {
+    "message": "Moje elementy"
+  },
   "adminConsole": {
     "message": "Konsola administratora"
   },
@@ -5960,7 +5963,7 @@
     "message": "Zaktualizuj teraz"
   },
   "builtInAuthenticator": {
-    "message": "Wbudowany uwierzytelniacz"
+    "message": "Wbudowana aplikacja uwierzytelniająca"
   },
   "secureFileStorage": {
     "message": "Bezpieczne przechowywanie plików"
@@ -5978,7 +5981,7 @@
     "message": "Advanced online security"
   },
   "upgradeToPremium": {
-    "message": "Ulepsz do Premium"
+    "message": "Kup konto Premium"
   },
   "unlockAdvancedSecurity": {
     "message": "Unlock advanced security features"
@@ -5987,13 +5990,13 @@
     "message": "A Premium subscription gives you more tools to stay secure and in control"
   },
   "explorePremium": {
-    "message": "Poznaj Premium"
+    "message": "Poznaj konto Premium"
   },
   "loadingVault": {
     "message": "Ładowanie sejfu"
   },
   "vaultLoaded": {
-    "message": "Sejf załadowany"
+    "message": "Sejf został załadowany"
   },
   "settingDisabledByPolicy": {
     "message": "Ustawienie jest wyłączone przez Twoją organizację.",
@@ -6039,19 +6042,19 @@
     "message": "Leave now"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Zweryfikuj domenę, aby się zalogować"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Sprawdź domenę, aby kontynuować logowanie."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Sprawdź organizację i domenę, aby kontynuować logowanie."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Sposób blokady"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
-    "message": "This setting is managed by your organization."
+    "message": "Ustawienie jest zarządzane przez Twoją organizację."
   },
   "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
     "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
@@ -6067,13 +6070,13 @@
     }
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
-    "message": "Your organization has set the default session timeout to Immediately."
+    "message": "Twoja organizacja włączyła domyślną blokadę aplikacji."
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
-    "message": "Your organization has set the default session timeout to On system lock."
+    "message": "Twoja organizacja włączyła domyślną blokadę aplikacji po zablokowaniu systemu."
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
-    "message": "Your organization has set the default session timeout to On browser restart."
+    "message": "Twoja organizacja ustawiła domyślną blokadę aplikacji po uruchomieniu przeglądarki."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
     "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
@@ -6140,10 +6143,10 @@
     "message": "Accept transfer"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
+    "message": "Odrzuć i wyjdź"
   },
   "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+    "message": "Dlaczego to widzę?"
   },
   "items": {
     "message": "Elementy"
@@ -6151,26 +6154,35 @@
   "searchResults": {
     "message": "Wyniki wyszukiwania"
   },
+  "simplifiedAutofill": {
+    "message": "Simplified autofill"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open simplified autofill popover"
+  },
   "resizeSideNavigation": {
     "message": "Zmień rozmiar nawigacji bocznej"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Kto może odczytać"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Konkretni użytkownicy"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "Aby wyświetlić wysyłkę, odbiorcy będą musieli zweryfikować adres e-mail za pomocą kodu."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "Wpisz wiele adresów e-mail, oddzielając je przecinkami."
   },
   "emailsRequiredChangeAccessType": {
     "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
   },
   "emailPlaceholder": {
-    "message": "user@bitwarden.com , user@acme.com"
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Pobierz aplikacje Bitwarden"

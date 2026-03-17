@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Preferiti"
   },
+  "unfavorite": {
+    "message": "Rimuovi dai preferiti"
+  },
   "types": {
     "message": "Tipi"
   },
@@ -585,6 +588,12 @@
   },
   "editedItem": {
     "message": "Elemento salvato"
+  },
+  "itemAddedToFavorites": {
+    "message": "Elemento aggiunto ai preferiti"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Elemento rimosso dai preferiti"
   },
   "deleteItem": {
     "message": "Elimina elemento"
@@ -1555,6 +1564,18 @@
   "unknown": {
     "message": "Sconosciuto"
   },
+  "copyAddress": {
+    "message": "Copia indirizzo"
+  },
+  "copyPhone": {
+    "message": "Copia numero di telefono"
+  },
+  "copyNote": {
+    "message": "Copia nota"
+  },
+  "copyVerificationCode": {
+    "message": "Copia codice di verifica"
+  },
   "copyUsername": {
     "message": "Copia nome utente"
   },
@@ -2082,6 +2103,24 @@
   "searchTrash": {
     "message": "Cerca nel cestino"
   },
+  "searchArchive": {
+    "message": "Cerca nell'archivio"
+  },
+  "searchLogin": {
+    "message": "Cerca (login)"
+  },
+  "searchCard": {
+    "message": "Cerca (carta)"
+  },
+  "searchIdentity": {
+    "message": "Cerca (identità)"
+  },
+  "searchSecureNote": {
+    "message": "Cerca (nota sicura)"
+  },
+  "searchSshKey": {
+    "message": "Cerca (chiave SSH)"
+  },
   "permanentlyDeleteItem": {
     "message": "Elimina definitivamente elemento"
   },
@@ -2377,6 +2416,9 @@
   "editSend": {
     "message": "Modifica Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Io"
   },
   "myVault": {
     "message": "La mia cassaforte"
@@ -4086,6 +4128,9 @@
   "missingWebsite": {
     "message": "Sito Web mancante"
   },
+  "missingPermissions": {
+    "message": "Non hai i permessi necessari per eseguire questa azione."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Non puoi rimuovere raccolte con i soli permessi di visualizzazione: $COLLECTIONS$",
     "placeholders": {
@@ -4589,6 +4634,36 @@
   },
   "whyAmISeeingThis": {
     "message": "Perché vedo questo avviso?"
+  },
+  "organizationIsSuspended": {
+    "message": "Organizzazione sospesa"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Non è possibile accedere agli elementi delle organizzazioni sospese. Contatta il proprietario dell'organizzazione per ricevere assistenza."
+  },
+  "noItemsInTrash": {
+    "message": "Non ci sono elementi nel cestino"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Gli elementi cancellati appariranno qui e saranno eliminati definitivamente dopo 30 giorni"
+  },
+  "noItemsInVault": {
+    "message": "La cassaforte è vuota"
+  },
+  "emptyVaultDescription": {
+    "message": "La cassaforte protegge non solo le password: archivia in modo sicuro anche passkey, identità, carte di pagamento e note."
+  },
+  "emptyFavorites": {
+    "message": "La lista dei preferiti è vuota"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Aggiungi ai preferiti gli elementi che usi più spesso per un accesso rapido."
+  },
+  "noSearchResults": {
+    "message": "Nessun risultato"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Azzera i filtri o cerca qualcos'altro"
   },
   "sendPasswordHelperText": {
     "message": "I destinatari dovranno inserire la password per visualizzare questo Send",

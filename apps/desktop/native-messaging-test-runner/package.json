@@ -18,14 +18,14 @@
     "@bitwarden/node": "file:../../../libs/node",
     "@bitwarden/storage-core": "file:../../../libs/storage-core",
     "@bitwarden/logging": "dist/libs/logging/src",
-    "module-alias": "2.2.3",
+    "module-alias": "2.3.4",
     "ts-node": "10.9.2",
     "uuid": "9.0.1",
     "yargs": "17.7.2"
   },
   "devDependencies": {
     "@types/node": "22.19.7",
-    "typescript": "5.4.2"
+    "typescript": "5.8.2"
   },
   "_moduleAliases": {
     "@bitwarden/common": "dist/libs/common/src",

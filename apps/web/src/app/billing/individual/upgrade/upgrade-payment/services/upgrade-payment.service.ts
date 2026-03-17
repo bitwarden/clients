@@ -53,7 +53,7 @@ export type PaymentFormValues = {
 /**
  * Service for handling payment submission and sales tax calculation for upgrade payment component
  */
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class UpgradePaymentService {
   constructor(
     private organizationBillingService: OrganizationBillingServiceAbstraction,

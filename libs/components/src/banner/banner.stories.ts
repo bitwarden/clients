@@ -5,7 +5,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
-import { SharedModule } from "../shared/shared.module";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { BannerComponent } from "./banner.component";
@@ -15,7 +14,7 @@ export default {
   component: BannerComponent,
   decorators: [
     moduleMetadata({
-      imports: [SharedModule, IconButtonModule, LinkModule],
+      imports: [IconButtonModule, LinkModule],
       providers: [
         {
           provide: I18nService,

@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Kedvencek"
   },
+  "unfavorite": {
+    "message": "Nem kedvenc"
+  },
   "types": {
     "message": "Típusok"
   },
@@ -585,6 +588,12 @@
   },
   "editedItem": {
     "message": "Az elem szerkesztésre került."
+  },
+  "itemAddedToFavorites": {
+    "message": "Az elem bekerült a kedvencekhez.."
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Az elem kikerült a kedvencekből."
   },
   "deleteItem": {
     "message": "Elem törlése"
@@ -1555,6 +1564,18 @@
   "unknown": {
     "message": "Ismeretlen"
   },
+  "copyAddress": {
+    "message": "Postai cím másolása"
+  },
+  "copyPhone": {
+    "message": "Telefonszám másolása"
+  },
+  "copyNote": {
+    "message": "Jegyzet másolása"
+  },
+  "copyVerificationCode": {
+    "message": "Ellenőrző kód másolása"
+  },
   "copyUsername": {
     "message": "Felhasználónév másolása"
   },
@@ -2082,6 +2103,24 @@
   "searchTrash": {
     "message": "Keresés a lomtárban"
   },
+  "searchArchive": {
+    "message": "Archívum keresés"
+  },
+  "searchLogin": {
+    "message": "Bejelentkezés keresése"
+  },
+  "searchCard": {
+    "message": "Kártya keresése"
+  },
+  "searchIdentity": {
+    "message": "Azonosítás keresése"
+  },
+  "searchSecureNote": {
+    "message": "Biztonságos jegyzet keresése"
+  },
+  "searchSshKey": {
+    "message": "SSH kulcs keresése"
+  },
   "permanentlyDeleteItem": {
     "message": "Az elem végleges törlése"
   },
@@ -2377,6 +2416,9 @@
   "editSend": {
     "message": "Küldés szerkesztése",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Én"
   },
   "myVault": {
     "message": "Saját széf"
@@ -4086,6 +4128,9 @@
   "missingWebsite": {
     "message": "Hiányzó webhely"
   },
+  "missingPermissions": {
+    "message": "Nincs megfelelő jogosultság a művelet végrehajtásához."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nem távolíthatók el a csak megtekintési engedéllyel bíró gyűjtemények: $COLLECTIONS$",
     "placeholders": {
@@ -4589,6 +4634,36 @@
   },
   "whyAmISeeingThis": {
     "message": "Miért látható ez?"
+  },
+  "organizationIsSuspended": {
+    "message": "A szervezet felfüggesztésre került."
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "A felfüggesztett szervezetek elemei nem érhetők el. Vegyük fel a kapcsolatot a szervezet tulajdonosával segítségért."
+  },
+  "noItemsInTrash": {
+    "message": "Nincs elem a lomtárban."
+  },
+  "noItemsInTrashDesc": {
+    "message": "A törölt elemek itt jelennek meg és 30 nap elteltével véglegesen törlődnek."
+  },
+  "noItemsInVault": {
+    "message": "Nincsenek elemek a széfben."
+  },
+  "emptyVaultDescription": {
+    "message": "A széf nemcsak a jelszavakat védi. Itt biztonságosan tárolhatjuk a bejelentkezési adatokat, egyéb azonosítókat, kártyákat és jegyzeteket."
+  },
+  "emptyFavorites": {
+    "message": "Nem lett kedvencnek minősítve egyetlen elem sem."
+  },
+  "emptyFavoritesDesc": {
+    "message": "Gyakran használt elemek hozzáadása a kedvencekhez a gyors hozzáférés érdekében."
+  },
+  "noSearchResults": {
+    "message": "Nincsenek visszakapott keresési eredmények."
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Töröljük a szűrőket vagy próbálkozzunk másik keresési kifejezéssel."
   },
   "sendPasswordHelperText": {
     "message": "A személyeknek meg kell adniuk a jelszót a Send elem megtekintéséhez.",

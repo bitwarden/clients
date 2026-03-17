@@ -325,6 +325,12 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     );
 
     if (newApisWithInputPasswordFlagEnabled) {
+      // Determine salt. In the Emergency Access Takeover flow, the grantee is setting a new
+      // master password for the grantor. The grantor's UserId is not available in this context
+      // (activeUserId is the grantee's), so salt is always derived from the grantor's email
+      // via emailToSalt().
+      //
+      // If/when we shift to using random entropy for the salt, this would need to be replaced.
       const salt: MasterPasswordSalt = this.masterPasswordService.emailToSalt(email);
 
       const authenticationData: MasterPasswordAuthenticationData =
@@ -439,7 +445,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     for (const details of allDetails) {
       if (
         trustedPublicKeys.find(
-          (pk) => Utils.fromBufferToHex(pk) === Utils.fromBufferToHex(details.publicKey),
+          (pk) => Utils.fromArrayToHex(pk) === Utils.fromArrayToHex(details.publicKey),
         ) == null
       ) {
         this.logService.info(

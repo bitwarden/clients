@@ -138,6 +138,11 @@ export class ApiService implements ApiServiceAbstraction {
   private static readonly NEW_DEVICE_VERIFICATION_REQUIRED_MESSAGE =
     "new device verification required";
 
+  /**
+   * Middlewares are functions that take a Request and return a Promise that resolves when the middleware is done processing the request. Middlewares are executed in the order they are added, and can modify the request before it is sent. This is used for things like adding cookies to requests for SSO authentication.
+   */
+  private middlewares: Array<(request: Request) => Promise<void>> = [];
+
   constructor(
     private tokenService: TokenService,
     private platformUtilsService: PlatformUtilsService,
@@ -1319,6 +1324,10 @@ export class ApiService implements ApiServiceAbstraction {
     return accessToken;
   }
 
+  addMiddleware(middleware: (request: Request) => Promise<void>): void {
+    this.middlewares.push(middleware);
+  }
+
   async fetch(request: Request): Promise<Response> {
     if (!request.url.startsWith("https://") && !this.platformUtilsService.isDev()) {
       throw new InsecureUrlNotAllowedError();
@@ -1338,6 +1347,13 @@ export class ApiService implements ApiServiceAbstraction {
     if (packageType != null) {
       request.headers.set("Bitwarden-Package-Type", packageType);
     }
+
+    await Promise.all(
+      this.middlewares.map((middleware) => {
+        return middleware(request);
+      }),
+    );
+
     return this.nativeFetch(request);
   }
 
