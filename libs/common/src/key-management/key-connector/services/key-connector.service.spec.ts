@@ -11,6 +11,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { SetKeyConnectorKeyRequest } from "@bitwarden/common/key-management/key-connector/models/set-key-connector-key.request";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, KdfType, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
@@ -35,7 +36,6 @@ import { AccountCryptographicStateService } from "../../account-cryptography/acc
 import { KeyGenerationService } from "../../crypto";
 import { EncString } from "../../crypto/models/enc-string";
 import { FakeMasterPasswordService } from "../../master-password/services/fake-master-password.service";
-import { SecurityStateService } from "../../security-state/abstractions/security-state.service";
 import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
 import { NewSsoUserKeyConnectorConversion } from "../models/new-sso-user-key-connector-conversion";
 
@@ -57,9 +57,9 @@ describe("KeyConnectorService", () => {
   const logoutCallback = jest.fn();
   const configService = mock<ConfigService>();
   const registerSdkService = mock<RegisterSdkService>();
-  const securityStateService = mock<SecurityStateService>();
   const accountCryptographicStateService = mock<AccountCryptographicStateService>();
   const userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
+  const sdkService = mock<SdkService>();
 
   let stateProvider: FakeStateProvider;
 
@@ -102,8 +102,8 @@ describe("KeyConnectorService", () => {
       stateProvider,
       configService,
       registerSdkService,
-      securityStateService,
       accountCryptographicStateService,
+      sdkService,
       userDecryptionOptionsService,
     );
   });
@@ -265,6 +265,10 @@ describe("KeyConnectorService", () => {
   });
 
   describe("migrateUser", () => {
+    beforeEach(() => {
+      configService.getFeatureFlag$.mockReturnValue(of(false));
+    });
+
     it("should migrate the user to the key connector", async () => {
       // Arrange
       const masterKey = getMockMasterKey();
