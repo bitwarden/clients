@@ -6,7 +6,7 @@
  * for the auth challenge-response (crypto stays in Rust).
  */
 
-interface ProxyMessage {
+export interface ProxyMessage {
   AuthChallenge?: number[];
   AuthResponse?: [unknown, unknown];
   GetRendevouz?: null;
@@ -26,6 +26,7 @@ export class BrowserRatProxyClient {
   constructor(
     private proxyUrl: string,
     private identityCose: Uint8Array,
+    private WebSocketImpl: { new (url: string): WebSocket } = WebSocket,
   ) {}
 
   async connect(onMessage: (msg: unknown) => void): Promise<void> {
@@ -39,7 +40,7 @@ export class BrowserRatProxyClient {
       sdk.RatUserClient.sign_proxy_challenge(identityCose, challengeJson) as string;
 
     return new Promise<void>((resolve, reject) => {
-      this.ws = new WebSocket(this.proxyUrl);
+      this.ws = new this.WebSocketImpl(this.proxyUrl);
 
       this.ws.onmessage = (event: MessageEvent) => {
         const data = typeof event.data === "string" ? event.data : "";
