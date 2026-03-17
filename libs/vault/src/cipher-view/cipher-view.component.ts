@@ -268,9 +268,13 @@ export class CipherViewComponent {
   });
 
   protected readonly changePasswordUrl = resource({
-    params: () => ({ cipher: this.cipher() }),
-    loader: async ({ params }) =>
-      await this.changeLoginPasswordService.getChangePasswordUrl(params.cipher),
+    params: () => ({ cipher: this.cipher(), showPwLink: this.showChangePasswordLink() }),
+    loader: async ({ params }) => {
+      if (!params.showPwLink) {
+        return "";
+      }
+      return await this.changeLoginPasswordService.getChangePasswordUrl(params.cipher);
+    },
   });
 
   launchChangePassword = async () => {
