@@ -1351,7 +1351,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
   private buildTotpElement(
     totpCode: string,
-    username: string,
+    username: string | undefined,
     reprompt: CipherRepromptType,
   ): HTMLDivElement | null {
     if (!totpCode) {
