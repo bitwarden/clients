@@ -2,11 +2,13 @@ import { CommonModule } from "@angular/common";
 import {
   QueryList,
   Component,
+  DestroyRef,
   ElementRef,
-  OnDestroy,
+  inject,
   AfterViewInit,
   ViewChildren,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   FormsModule,
   ReactiveFormsModule,
@@ -15,7 +17,6 @@ import {
   FormArray,
 } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -67,7 +68,9 @@ import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popu
     TypographyModule,
   ],
 })
-export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
+export class ExcludedDomainsComponent implements AfterViewInit {
+  private readonly destroyRef = inject(DestroyRef);
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChildren("uriInput") uriInputElements: QueryList<ElementRef<HTMLInputElement>> =
@@ -85,8 +88,6 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
   // How many fields should be non-editable before editable fields
   fieldsEditThreshold: number = 0;
 
-  private destroy$ = new Subject<void>();
-
   constructor(
     private domainSettingsService: DomainSettingsService,
     private i18nService: I18nService,
@@ -101,17 +102,14 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
 
   async ngAfterViewInit() {
     this.domainSettingsService.neverDomains$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((neverDomains: NeverDomains) => this.handleStateUpdate(neverDomains));
 
-    this.uriInputElements.changes.pipe(takeUntil(this.destroy$)).subscribe(({ last }) => {
-      this.focusNewUriInput(last);
-    });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.uriInputElements.changes
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ last }) => {
+        this.focusNewUriInput(last);
+      });
   }
 
   handleStateUpdate(neverDomains: NeverDomains) {
