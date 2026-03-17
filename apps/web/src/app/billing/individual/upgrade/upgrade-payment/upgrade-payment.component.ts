@@ -214,7 +214,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     this.upgradePaymentService.adminConsoleRouteForOwnedOrganization$;
 
   ngOnInit(): void {
-    if (!this.isFamiliesPlan) {
+    if (!this.isFamiliesPlan()) {
       this.formGroup.controls.organizationName.disable();
     }
 
