@@ -22,4 +22,5 @@ pub mod passwords;
 pub mod powermonitors;
 pub mod processisolations;
 pub mod sshagent;
+pub mod sshagent_v2;
 pub mod windows_registry;
