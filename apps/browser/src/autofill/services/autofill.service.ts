@@ -78,7 +78,8 @@ export default class AutofillService implements AutofillServiceInterface {
   private currentlyOpeningPasswordRepromptPopout = false;
   private autofillScriptPortsSet = new Set<chrome.runtime.Port>();
   static searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
-  readonly enableInlineMenuAnimation$: Observable<boolean>;
+  enableInlineMenuAnimation$: Observable<boolean>;
+  enableNotificationAnimation$: Observable<boolean>;
 
   constructor(
     private cipherService: CipherService,
@@ -98,6 +99,7 @@ export default class AutofillService implements AutofillServiceInterface {
     private animationControlService: AnimationControlService,
   ) {
     this.enableInlineMenuAnimation$ = this.animationControlService.enableInlineMenuAnimation$;
+    this.enableNotificationAnimation$ = this.animationControlService.enableNotificationAnimation$;
   }
 
   /**

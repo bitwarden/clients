@@ -100,6 +100,7 @@ describe("AutofillService", () => {
   let enableRoutingAnimationMock$: BehaviorSubject<boolean>;
   let enableAutofillAnimationMock$: BehaviorSubject<boolean>;
   let enableInlineMenuAnimationMock$: BehaviorSubject<boolean>;
+  let enableNotificationAnimationMock$: BehaviorSubject<boolean>;
   let animationControlService: MockProxy<AnimationControlService>;
   let enableChangedPasswordPromptMock$: BehaviorSubject<boolean>;
   let enableAddedLoginPromptMock$: BehaviorSubject<boolean>;
@@ -138,9 +139,11 @@ describe("AutofillService", () => {
     enableRoutingAnimationMock$ = new BehaviorSubject(true);
     enableAutofillAnimationMock$ = new BehaviorSubject(true);
     enableInlineMenuAnimationMock$ = new BehaviorSubject(true);
+    enableNotificationAnimationMock$ = new BehaviorSubject(true);
     animationControlService = mock<AnimationControlService>();
     animationControlService.enableRoutingAnimation$ = enableRoutingAnimationMock$;
     animationControlService.enableAutofillAnimation$ = enableAutofillAnimationMock$;
+    animationControlService.enableNotificationAnimation$ = enableNotificationAnimationMock$;
     animationControlService.enableInlineMenuAnimation$ = enableInlineMenuAnimationMock$;
     enableChangedPasswordPromptMock$ = new BehaviorSubject(true);
     enableAddedLoginPromptMock$ = new BehaviorSubject(true);

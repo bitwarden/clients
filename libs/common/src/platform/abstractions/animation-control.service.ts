@@ -15,6 +15,12 @@ export abstract class AnimationControlService {
   abstract enableAutofillAnimation$: Observable<boolean>;
 
   /**
+   * Whether notification bar animations are enabled.
+   * Currently backed by the routing animation state; will be decoupled in the future.
+   */
+  abstract enableNotificationAnimation$: Observable<boolean>;
+
+  /**
    * Whether inline menu animations are enabled.
    * Currently backed by the routing animation state; will be decoupled in the future.
    */
@@ -40,6 +46,7 @@ export class DefaultAnimationControlService implements AnimationControlService {
 
   // Proxying `enableRoutingAnimation` for now to enable future decoupling
   enableAutofillAnimation$ = this.enableRoutingAnimation$;
+  enableNotificationAnimation$ = this.enableRoutingAnimation$;
   enableInlineMenuAnimation$ = this.enableRoutingAnimation$;
 
   constructor(

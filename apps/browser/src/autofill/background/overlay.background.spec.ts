@@ -111,6 +111,8 @@ describe("OverlayBackground", () => {
   let selectedThemeMock$: BehaviorSubject<ThemeType>;
   let inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
   let themeStateService: MockProxy<ThemeStateService>;
+  let enableNotificationAnimationMock$: BehaviorSubject<boolean>;
+  let enableInlineMenuAnimationMock$: BehaviorSubject<boolean>;
   let totpService: MockProxy<TotpService>;
   let overlayBackground: OverlayBackground;
   let portKeyForTabSpy: Record<number, string>;
@@ -195,6 +197,10 @@ describe("OverlayBackground", () => {
     inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
     themeStateService = mock<ThemeStateService>();
     themeStateService.selectedTheme$ = selectedThemeMock$;
+    enableNotificationAnimationMock$ = new BehaviorSubject(true);
+    enableInlineMenuAnimationMock$ = new BehaviorSubject(true);
+    autofillService.enableNotificationAnimation$ = enableNotificationAnimationMock$;
+    autofillService.enableInlineMenuAnimation$ = enableInlineMenuAnimationMock$;
     totpService = mock<TotpService>({
       getCode$: jest.fn().mockReturnValue(of(undefined)),
     });
