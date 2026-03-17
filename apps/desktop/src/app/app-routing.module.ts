@@ -14,7 +14,6 @@ import {
 } from "@bitwarden/angular/auth/guards";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
-import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
@@ -40,7 +39,6 @@ import {
   TwoFactorAuthGuard,
   NewDeviceVerificationComponent,
 } from "@bitwarden/auth/angular";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import {
   LockComponent,
@@ -54,12 +52,10 @@ import { reactiveUnlockVaultGuard } from "../autofill/guards/reactive-vault-guar
 import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create.component";
 import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
 import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
-import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 import { VaultWrapperComponent } from "../vault/app/vault-v3/vault-wrapper.component";
 
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
 import { SendComponent } from "./tools/send/send.component";
-import { SendV2Component } from "./tools/send-v2/send-v2.component";
 
 /**
  * Data properties acceptable for use in route objects in the desktop
@@ -119,21 +115,6 @@ const routes: Routes = [
         key: "weDontRecognizeThisDevice",
       },
     } satisfies RouteDataProperties & AnonLayoutWrapperData,
-  },
-  {
-    path: "vault",
-    component: VaultV2Component,
-    canActivate: [
-      authGuard,
-      canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone1, false, "new-vault", false),
-    ],
-    // Needed to ensure feature flag changes are picked up on account switching
-    runGuardsAndResolvers: "always",
-  },
-  {
-    path: "send",
-    component: SendComponent,
-    canActivate: [authGuard],
   },
   {
     path: "fido2-assertion",
@@ -464,13 +445,13 @@ const routes: Routes = [
     canActivate: [authGuard],
     children: [
       {
-        path: "new-vault",
+        path: "vault",
         component: VaultWrapperComponent,
         data: { pageTitle: { key: "vault" } } satisfies RouteDataProperties,
       },
       {
-        path: "new-sends",
-        component: SendV2Component,
+        path: "send",
+        component: SendComponent,
         data: { pageTitle: { key: "send" } } satisfies RouteDataProperties,
       },
     ],

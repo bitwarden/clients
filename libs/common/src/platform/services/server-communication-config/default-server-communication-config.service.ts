@@ -45,8 +45,13 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
     // Initialize SDK client with repository and platform API
     this.client = new ServerCommunicationConfigClient(this.repository, this.platformApi);
     // Forward each server communication config update to the SDK client
-    this.configService.serverCommunicationConfig$.subscribe(({ hostname, config }) => {
-      void this.client.setCommunicationType(hostname, config);
+    this.configService.serverCommunicationConfig$.subscribe((config) => {
+      if (config.bootstrap.type === "direct") {
+        return;
+      }
+
+      // FIXME The requirement on a hostname will be removed in the sdk, but the bindings need to be updated. Andreas is working on this.
+      void this.client.setCommunicationType(config.bootstrap.cookieDomain!, config);
     });
   }
 
@@ -60,5 +65,14 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
 
   async getCookies(hostname: string): Promise<Array<[string, string]>> {
     return this.client.cookies(hostname);
+  }
+
+  async acquireCookie(url: string): Promise<void> {
+    // SDK client handles:
+    // 1. Calling platform API (this.platformApi.acquireCookies(url))
+    // 2. Validating cookie names match config
+    // 3. Saving validated cookies to repository
+    // 4. Throwing appropriate AcquireCookieError on failure
+    await this.client.acquireCookie(url);
   }
 }

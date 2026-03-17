@@ -10,6 +10,7 @@ import { InsecureCreateCredentialParams, MessageTypes } from "./messaging/messag
 import { MessageWithMetadata, Messenger } from "./messaging/messenger";
 
 jest.mock("../../../autofill/utils", () => ({
+  currentlyInSandboxedIframe: jest.fn(() => false),
   sendExtensionMessage: jest.fn((command, options) => {
     return chrome.runtime.sendMessage(Object.assign({ command }, options));
   }),
@@ -208,6 +209,18 @@ describe("Fido2 Content Script", () => {
     }));
 
     // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("./fido2-content-script");
+
+    expect(messengerForDOMCommunicationSpy).not.toHaveBeenCalled();
+  });
+
+  it("skips initializing when in a sandboxed iframe", () => {
+    jest.clearAllMocks();
+
+    const utils = jest.requireMock("../../../autofill/utils");
+    (utils.currentlyInSandboxedIframe as jest.Mock).mockReturnValueOnce(true);
+
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-content-script");
 
