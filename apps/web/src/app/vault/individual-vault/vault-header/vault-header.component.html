@@ -80,9 +80,13 @@
       [canCreateFolder]="true"
       [canCreateSshKey]="true"
       [canCreateCollection]="canCreateCollections"
+      [coachmarkPopover]="addItemCoachmark.popover()"
+      [coachmarkPopoverOpen]="addItemCoachmarkOpen()"
+      [coachmarkPosition]="coachmarkService.getStepPosition('addItem')"
       (cipherAdded)="addCipher($event)"
       (folderAdded)="addFolder()"
       (collectionAdded)="addCollection()"
     />
+    <app-coachmark #addItemCoachmark stepId="addItem" />
   </div>
 </app-header>

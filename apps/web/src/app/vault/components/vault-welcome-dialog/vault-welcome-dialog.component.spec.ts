@@ -7,6 +7,8 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
 
+import { CoachmarkService } from "../coachmark/coachmark.service";
+
 import {
   VaultWelcomeDialogComponent,
   VaultWelcomeDialogResult,
@@ -22,6 +24,7 @@ describe("VaultWelcomeDialogComponent", () => {
   } as Account);
   const setUserState = jest.fn().mockResolvedValue([mockUserId, true]);
   const close = jest.fn();
+  const startTour = jest.fn().mockResolvedValue(undefined);
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -33,6 +36,7 @@ describe("VaultWelcomeDialogComponent", () => {
         { provide: StateProvider, useValue: { setUserState } },
         { provide: DialogRef, useValue: { close } },
         { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: CoachmarkService, useValue: { startTour } },
       ],
     }).compileComponents();
 
@@ -74,6 +78,22 @@ describe("VaultWelcomeDialogComponent", () => {
         mockUserId,
       );
       expect(close).toHaveBeenCalledWith(VaultWelcomeDialogResult.GetStarted);
+    });
+
+    it("should start the coachmark tour after closing", async () => {
+      activeAccount$.next({ id: mockUserId } as Account);
+
+      await component["onPrimaryCta"]();
+
+      expect(startTour).toHaveBeenCalled();
+    });
+
+    it("should not start the coachmark tour on dismiss", async () => {
+      activeAccount$.next({ id: mockUserId } as Account);
+
+      await component["onDismiss"]();
+
+      expect(startTour).not.toHaveBeenCalled();
     });
 
     it("should throw if no active account", async () => {
