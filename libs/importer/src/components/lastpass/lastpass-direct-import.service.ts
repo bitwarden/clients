@@ -14,6 +14,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+import { LogService } from "@bitwarden/logging";
 
 import { ClientInfo, Vault } from "../../importers/lastpass/access";
 import { FederatedUserContext } from "../../importers/lastpass/access/models";
@@ -43,6 +44,7 @@ export class LastPassDirectImportService {
     private ngZone: NgZone,
     private dialogService: DialogService,
     private i18nService: I18nService,
+    private logService: LogService,
   ) {
     this.vault = new Vault(this.cryptoFunctionService);
 
@@ -130,17 +132,23 @@ export class LastPassDirectImportService {
       loadUserInfo: true,
     });
 
-    return await this.oidcClient.createSigninRequest({
-      state: {
-        email,
-      },
-      nonce: await this.passwordGenerationService.generatePassword({
-        length: 20,
-        uppercase: true,
-        lowercase: true,
-        number: true,
-      }),
-    });
+    try {
+      const signinRequest = await this.oidcClient.createSigninRequest({
+        state: {
+          email,
+        },
+        nonce: await this.passwordGenerationService.generatePassword({
+          length: 20,
+          uppercase: true,
+          lowercase: true,
+          number: true,
+        }),
+      });
+      return signinRequest;
+    } catch (err) {
+      this.logService.error("Unable to generate OIDC sign in request");
+      throw err;
+    }
   }
 
   private getOidcRedirectUrlWithParams(oidcCode: string, oidcState: string) {
@@ -169,9 +177,15 @@ export class LastPassDirectImportService {
     includeSharedFolders: boolean,
   ): Promise<string> {
     const clientInfo = await this.createClientInfo(email);
-    await this.vault.open(email, password, clientInfo, this.lastPassDirectImportUIService, {
-      parseSecureNotesToAccount: false,
-    });
+
+    try {
+      await this.vault.open(email, password, clientInfo, this.lastPassDirectImportUIService, {
+        parseSecureNotesToAccount: false,
+      });
+    } catch (err) {
+      this.logService.error("Unable to open LastPass vault");
+      throw err;
+    }
 
     return this.vault.accountsToExportedCsvString(!includeSharedFolders);
   }
@@ -181,21 +195,35 @@ export class LastPassDirectImportService {
     oidcState: string,
     includeSharedFolders: boolean,
   ): Promise<string> {
-    const response = await this.oidcClient.processSigninResponse(
-      this.getOidcRedirectUrlWithParams(oidcCode, oidcState),
-    );
-    const userState = response.userState as any;
-
     const federatedUser = new FederatedUserContext();
-    federatedUser.idToken = response.id_token;
-    federatedUser.accessToken = response.access_token;
-    federatedUser.idpUserInfo = response.profile;
-    federatedUser.username = userState.email;
+    try {
+      const response = await this.oidcClient.processSigninResponse(
+        this.getOidcRedirectUrlWithParams(oidcCode, oidcState),
+      );
+      const userState = response.userState as any;
+      federatedUser.idToken = response.id_token;
+      federatedUser.accessToken = response.access_token;
+      federatedUser.idpUserInfo = response.profile;
+      federatedUser.username = userState.email;
+    } catch (err) {
+      this.logService.error("Unable to process OIDC sign in response");
+      throw err;
+    }
 
     const clientInfo = await this.createClientInfo(federatedUser.username);
-    await this.vault.openFederated(federatedUser, clientInfo, this.lastPassDirectImportUIService, {
-      parseSecureNotesToAccount: false,
-    });
+    try {
+      await this.vault.openFederated(
+        federatedUser,
+        clientInfo,
+        this.lastPassDirectImportUIService,
+        {
+          parseSecureNotesToAccount: false,
+        },
+      );
+    } catch (err) {
+      this.logService.error("Unable to open LastPass vault with federated user");
+      throw err;
+    }
 
     return this.vault.accountsToExportedCsvString(!includeSharedFolders);
   }
