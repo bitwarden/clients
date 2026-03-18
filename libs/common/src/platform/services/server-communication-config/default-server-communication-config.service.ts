@@ -78,6 +78,9 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
     // 3. Saving validated cookies to repository
     // 4. Throwing appropriate AcquireCookieError on failure
     await this.client.acquireCookie(url);
+
+    // Small delay to ensure cookies are saved before retrying request
+    await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   private buildRedirectMiddleware(): FetchMiddleware {
