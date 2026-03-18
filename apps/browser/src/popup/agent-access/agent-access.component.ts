@@ -8,6 +8,7 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -167,10 +168,8 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
-  // Reassigned when re-subscribing on mode switch; takeUntilDestroyed handles final cleanup
-
-   
-  private readonly eventSubscription: { unsubscribe(): void } | null = null;
+  /** Emits to tear down the current event subscription before re-subscribing. */
+  private readonly unsubscribeEvents$ = new Subject<void>();
 
   async ngOnInit(): Promise<void> {
     const [savedSessions, savedListening] = await Promise.all([
@@ -387,7 +386,8 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.eventSubscription?.unsubscribe();
+    this.unsubscribeEvents$.next();
+    this.unsubscribeEvents$.complete();
     void this.service.disconnect();
   }
 
@@ -404,9 +404,9 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
   }
 
   private subscribeToEvents(): void {
-    this.eventSubscription?.unsubscribe();
-    this.eventSubscription = this.service.events$
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this.unsubscribeEvents$.next();
+    this.service.events$
+      .pipe(takeUntilDestroyed(this.destroyRef), takeUntil(this.unsubscribeEvents$))
       .subscribe((event) => {
         this.handleEvent(event);
       });
@@ -444,9 +444,8 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
 
         if (this.view() === AgentAccessView.Pairing) {
           if (this.connectionMode() === "psk") {
-            // PSK already authenticates — auto-approve without fingerprint verification
-            this.pairingStage.set("handshake");
-            void this.service.verifyFingerprint(true, this.connectionName() || undefined);
+            // PSK: SDK already accepted the connection — just show success
+            void this.onConnectionEstablished();
           } else {
             const known = identity ? this.connections().find((c) => c.id === identity) : undefined;
             if (known) {
