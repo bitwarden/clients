@@ -100,7 +100,7 @@ interface SessionDisplay {
             (modeChanged)="switchMode($event)"
             (copyCode)="copyCode()"
             (copyToken)="copyToken()"
-            (nameChanged)="connectionName.set($event)"
+            (nameChanged)="onConnectionNameChanged($event)"
             (fingerprintApproved)="onFingerprintApproved()"
             (fingerprintRejected)="onFingerprintRejected()"
           />
@@ -248,6 +248,11 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
     this.tokenCopied.set(false);
     this.pairingStage.set("token");
     this.beginListening();
+  }
+
+  onConnectionNameChanged(name: string): void {
+    this.connectionName.set(name);
+    this.service.setPendingSessionName(name);
   }
 
   copyCode(): void {

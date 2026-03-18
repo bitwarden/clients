@@ -179,6 +179,13 @@ export class AgentAccessService implements OnDestroy {
     await this.startListening("cached");
   }
 
+  /** Set the name for the next connection (forwarded to WASM client). */
+  setPendingSessionName(name: string): void {
+    if (this.client) {
+      this.client.set_pending_session_name(name);
+    }
+  }
+
   /** Approve or reject fingerprint verification. */
   async verifyFingerprint(approved: boolean, name?: string): Promise<void> {
     if (!this.client) {
