@@ -102,7 +102,7 @@ describe("CipherFormComponent", () => {
 
     it("should return null if updatedCipherView.login is undefined", () => {
       component["updatedCipherView"] = new CipherView();
-      delete component["updatedCipherView"].login;
+      component["updatedCipherView"].login = undefined as any;
       expect(component.website).toBeNull();
     });
 
@@ -140,6 +140,7 @@ describe("CipherFormComponent", () => {
   describe("clone", () => {
     const cipherView = new CipherView();
     cipherView.id = "test-id";
+    cipherView.key = "existingCipherKey" as any;
     cipherView.login.fido2Credentials = [new Fido2CredentialView()];
 
     beforeEach(() => {
@@ -155,6 +156,12 @@ describe("CipherFormComponent", () => {
       await component.ngOnInit();
 
       expect(component["updatedCipherView"]?.id).toBeNull();
+    });
+
+    it("clears key on updatedCipherView so a new cipher key is generated", async () => {
+      await component.ngOnInit();
+
+      expect(component["updatedCipherView"]?.key).toBeUndefined();
     });
 
     it("clears fido2Credentials on updatedCipherView", async () => {
