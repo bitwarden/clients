@@ -34,7 +34,11 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
     primaryGhost: [
       "tw-text-fg-heading",
       "hover:tw-text-fg-brand",
-      "focus-visible:tw-text-fg-brand",
+      "[&:focus-visible:not([aria-expanded='true'])]:tw-text-fg-brand",
+      "aria-expanded:tw-bg-bg-brand-stronger",
+      "aria-expanded:hover:tw-bg-bg-brand-stronger",
+      "aria-expanded:tw-text-fg-contrast",
+      "aria-expanded:hover:tw-text-fg-contrast",
     ],
     secondary: [
       "tw-bg-bg-secondary",
@@ -195,7 +199,7 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-bg-transparent",
       "tw-bg-clip-padding",
       "hover:tw-bg-bg-hover",
-      "focus-visible:tw-bg-bg-hover",
+      "[&:focus-visible:not([aria-expanded='true'])]:tw-bg-bg-hover",
       "focus-visible:tw-border-transparent",
     );
   }
