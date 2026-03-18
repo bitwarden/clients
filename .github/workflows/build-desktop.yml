@@ -604,8 +604,8 @@ jobs:
           $sig = Get-AuthenticodeSignature $helperPath
           $actual = $sig.SignerCertificate.GetCertHashString("SHA256").ToLower()
 
-          $hardcoded = (Get-Content "../desktop_native/chromium_importer/src/chromium/platform/windows/signature.rs" -Raw) `
-            | Select-String '"([a-f0-9]{64})"' | ForEach-Object { $_.Matches[0].Groups[1].Value }
+          $content = Get-Content "../desktop_native/chromium_importer/src/chromium/platform/windows/signature.rs" -Raw
+          $hardcoded = [regex]::Match($content, 'EXPECTED_SIGNATURE_SHA256_THUMBPRINT[^"]*"([a-f0-9]{64})"').Groups[1].Value
 
           if ($actual -ne $hardcoded) {
             Write-Error "Thumbprint mismatch! Binary has '$actual' but signature.rs has '$hardcoded'. Update EXPECTED_SIGNATURE_SHA256_THUMBPRINT."
@@ -883,8 +883,8 @@ jobs:
           $sig = Get-AuthenticodeSignature $helperPath
           $actual = $sig.SignerCertificate.GetCertHashString("SHA256").ToLower()
 
-          $hardcoded = (Get-Content "../desktop_native/chromium_importer/src/chromium/platform/windows/signature.rs" -Raw) `
-            | Select-String '"([a-f0-9]{64})"' | ForEach-Object { $_.Matches[0].Groups[1].Value }
+          $content = Get-Content "../desktop_native/chromium_importer/src/chromium/platform/windows/signature.rs" -Raw
+          $hardcoded = [regex]::Match($content, 'EXPECTED_SIGNATURE_SHA256_THUMBPRINT[^"]*"([a-f0-9]{64})"').Groups[1].Value
 
           if ($actual -ne $hardcoded) {
             Write-Error "Thumbprint mismatch! Binary has '$actual' but signature.rs has '$hardcoded'. Update EXPECTED_SIGNATURE_SHA256_THUMBPRINT."
