@@ -146,7 +146,7 @@ const ConnectionModeEnum = Object.freeze({
               <p
                 class="tw-text-3xl tw-font-mono tw-tracking-[0.3em] tw-text-main tw-font-bold tw-mb-0"
               >
-                {{ fingerprint() }}
+                {{ fingerprint().toUpperCase() }}
               </p>
             </div>
 
@@ -163,7 +163,7 @@ const ConnectionModeEnum = Object.freeze({
             </bit-form-field>
           </div>
 
-          <div class="tw-flex tw-justify-between tw-px-4 tw-pb-4">
+          <div class="tw-flex tw-gap-2 tw-px-4 tw-pb-4">
             <button
               type="button"
               bitButton

@@ -14,6 +14,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ButtonModule } from "@bitwarden/components";
 
+import { AgentAccessService, type CredentialLookupResult } from "../agent-access.service";
 import { CredentialMatch, CredentialRequestData } from "../agent-access.types";
 
 @Component({
@@ -23,14 +24,14 @@ import { CredentialMatch, CredentialRequestData } from "../agent-access.types";
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ng-container>
-      <div class="tw-p-3 tw-space-y-3">
+      <div class="tw-p-3 tw-space-y-2">
         <p class="tw-text-main tw-text-sm tw-mb-0">
           A connected device is requesting access to a credential from your vault.
         </p>
 
         <!-- Request card -->
         <div
-          class="tw-bg-background-alt tw-border tw-border-solid tw-border-secondary-300 tw-rounded tw-px-3 tw-py-2"
+          class="tw-bg-background tw-border tw-border-dashed tw-border-secondary-300 tw-rounded tw-px-3 tw-py-1.5"
         >
           <div class="tw-flex tw-items-center tw-gap-2">
             <img
@@ -60,42 +61,138 @@ import { CredentialMatch, CredentialRequestData } from "../agent-access.types";
 
           <div class="tw-space-y-1">
             @for (match of request()!.matches; track match.cipherId) {
-              <label
-                class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-rounded tw-border tw-border-solid tw-cursor-pointer tw-mb-0 tw-transition-colors"
-                [class.tw-border-primary-600]="selectedCipherId() === match.cipherId"
-                [class.tw-bg-primary-600/5]="selectedCipherId() === match.cipherId"
-                [class.tw-border-secondary-300]="selectedCipherId() !== match.cipherId"
-                [class.tw-bg-background]="selectedCipherId() !== match.cipherId"
+              <div
+                class="tw-rounded tw-border tw-border-solid tw-transition-colors tw-overflow-hidden tw-bg-background"
+                [class.tw-border-primary-600]="expandedMatch()?.cipherId === match.cipherId"
+                [class.tw-border-secondary-300]="expandedMatch()?.cipherId !== match.cipherId"
               >
-                <input
-                  type="radio"
-                  name="credential"
-                  class="tw-shrink-0"
-                  [value]="match.cipherId"
-                  [checked]="selectedCipherId() === match.cipherId"
-                  (change)="selectMatch(match)"
-                />
-                <img
-                  [src]="getMatchIconUrl(match)"
-                  class="tw-size-4 tw-shrink-0 tw-rounded-sm"
-                  (error)="$any($event.target).style.display = 'none'"
-                />
-                <div class="tw-min-w-0">
-                  <p class="tw-text-main tw-text-sm tw-font-semibold tw-mb-0 tw-truncate">
-                    {{ match.name }}
-                  </p>
-                  <p class="tw-text-muted tw-text-xs tw-mb-0 tw-truncate">{{ match.username }}</p>
-                </div>
-              </label>
+                <!-- Header row -->
+                <button
+                  type="button"
+                  class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-1.5 tw-cursor-pointer tw-mb-0 tw-w-full tw-text-left tw-bg-transparent tw-border-0"
+                  (click)="toggleExpand(match)"
+                >
+                  @if (isMultipleMatches()) {
+                    <input
+                      type="radio"
+                      name="matchSelection"
+                      class="tw-shrink-0"
+                      [checked]="expandedMatch()?.cipherId === match.cipherId"
+                      (click)="$event.stopPropagation()"
+                      (change)="toggleExpand(match)"
+                    />
+                  }
+                  <img
+                    [src]="getMatchIconUrl(match)"
+                    class="tw-size-4 tw-shrink-0 tw-rounded-sm"
+                    (error)="$any($event.target).style.display = 'none'"
+                  />
+                  <div class="tw-min-w-0">
+                    <p class="tw-text-main tw-text-sm tw-font-semibold tw-mb-0 tw-truncate">
+                      {{ match.name }}
+                    </p>
+                    <p class="tw-text-muted tw-text-xs tw-mb-0 tw-truncate">{{ match.username }}</p>
+                  </div>
+                  <i
+                    class="bwi tw-shrink-0 tw-text-muted tw-text-xs tw-ml-auto"
+                    [class.bwi-angle-down]="expandedMatch()?.cipherId === match.cipherId"
+                    [class.bwi-angle-right]="expandedMatch()?.cipherId !== match.cipherId"
+                  ></i>
+                </button>
+
+                <!-- Expanded details (inline) -->
+                @if (expandedMatch()?.cipherId === match.cipherId) {
+                  <div class="tw-px-3 tw-pb-2 tw-space-y-1">
+                    @if (loadingDetails()) {
+                      <p class="tw-text-muted tw-text-xs tw-mb-0">Loading credential details…</p>
+                    } @else if (credentialDetails()) {
+                      <!-- Field checkboxes (vertical layout: label above value) -->
+                      @if (credentialDetails()!.username) {
+                        <label class="tw-flex tw-items-start tw-gap-2 tw-cursor-pointer tw-mb-0">
+                          <input
+                            type="checkbox"
+                            class="tw-shrink-0 tw-mt-2"
+                            [checked]="selectedFields().has('username')"
+                            (change)="toggleField('username')"
+                          />
+                          <div class="tw-min-w-0">
+                            <p class="tw-text-muted tw-text-xs tw-mb-0">User name</p>
+                            <p class="tw-text-main tw-text-sm tw-mb-0 tw-truncate">
+                              {{ credentialDetails()!.username }}
+                            </p>
+                          </div>
+                        </label>
+                      }
+                      @if (credentialDetails()!.password) {
+                        <label class="tw-flex tw-items-start tw-gap-2 tw-cursor-pointer tw-mb-0">
+                          <input
+                            type="checkbox"
+                            class="tw-shrink-0 tw-mt-2"
+                            [checked]="selectedFields().has('password')"
+                            (change)="toggleField('password')"
+                          />
+                          <div class="tw-min-w-0">
+                            <p class="tw-text-muted tw-text-xs tw-mb-0">Password</p>
+                            <div class="tw-flex tw-items-center tw-gap-1">
+                              @if (showPassword()) {
+                                <span
+                                  class="tw-text-main tw-text-sm tw-truncate tw-max-w-[180px]"
+                                  >{{ credentialDetails()!.password }}</span
+                                >
+                              } @else {
+                                <span class="tw-text-main tw-text-sm">••••••••</span>
+                              }
+                              <button
+                                type="button"
+                                class="tw-bg-transparent tw-border-0 tw-cursor-pointer tw-p-0 tw-text-muted"
+                                (click)="showPassword.set(!showPassword()); $event.preventDefault()"
+                              >
+                                <i
+                                  class="bwi tw-text-xs"
+                                  [class.bwi-eye]="!showPassword()"
+                                  [class.bwi-eye-slash]="showPassword()"
+                                ></i>
+                              </button>
+                            </div>
+                          </div>
+                        </label>
+                      }
+                      @if (credentialDetails()!.totp) {
+                        <label class="tw-flex tw-items-start tw-gap-2 tw-cursor-pointer tw-mb-0">
+                          <input
+                            type="checkbox"
+                            class="tw-shrink-0 tw-mt-2"
+                            [checked]="selectedFields().has('totp')"
+                            (change)="toggleField('totp')"
+                          />
+                          <div class="tw-min-w-0">
+                            <p class="tw-text-muted tw-text-xs tw-mb-0">TOTP</p>
+                            <p class="tw-text-main tw-text-sm tw-mb-0 tw-truncate">
+                              {{ credentialDetails()!.totp }}
+                            </p>
+                          </div>
+                        </label>
+                      }
+                    }
+                  </div>
+                }
+              </div>
             }
           </div>
+
+          <!-- Summary line -->
+          @if (expandedMatch() && selectedFields().size > 0) {
+            <p class="tw-text-muted tw-text-xs tw-mb-0">
+              Your <strong>{{ fieldSummary() }}</strong> will be shared with this connection.
+            </p>
+          }
 
           <div class="tw-flex tw-gap-2">
             <button
               type="button"
               bitButton
               buttonType="primary"
-              [disabled]="!selectedCipherId()"
+              [disabled]="!expandedMatch() || selectedFields().size === 0"
               (click)="onApprove()"
             >
               Approve
@@ -128,14 +225,19 @@ import { CredentialMatch, CredentialRequestData } from "../agent-access.types";
 export class AgentAccessCredentialRequestComponent implements OnInit {
   readonly request = input.required<CredentialRequestData | null>();
 
-  readonly approved = output<string>();
+  readonly approved = output<{ cipherId: string; fields: Set<string> }>();
   readonly denied = output<void>();
 
-  protected readonly selectedCipherId = signal<string>("");
+  protected readonly expandedMatch = signal<CredentialMatch | null>(null);
+  protected readonly selectedFields = signal<Set<string>>(new Set(["username", "password"]));
+  protected readonly credentialDetails = signal<CredentialLookupResult | null>(null);
+  protected readonly loadingDetails = signal(false);
+  protected readonly showPassword = signal(false);
   protected readonly domainIconFailed = signal(false);
   protected readonly iconsUrl = signal<string | null>(null);
 
   private readonly environmentService = inject(EnvironmentService);
+  private readonly agentAccessService = inject(AgentAccessService);
 
   protected readonly domainIconUrl = computed(() => {
     const base = this.iconsUrl();
@@ -147,26 +249,74 @@ export class AgentAccessCredentialRequestComponent implements OnInit {
     return `${base}/${hostname}/icon.png`;
   });
 
-  async ngOnInit(): Promise<void> {
-    const matches = this.request()?.matches;
-    if (matches && matches.length > 0) {
-      this.selectedCipherId.set(matches[0].cipherId);
-    }
+  protected readonly isMultipleMatches = computed(() => {
+    return (this.request()?.matches?.length ?? 0) > 1;
+  });
 
+  protected readonly fieldSummary = computed(() => {
+    const fields = this.selectedFields();
+    const labels: string[] = [];
+    if (fields.has("username")) {
+      labels.push("username");
+    }
+    if (fields.has("password")) {
+      labels.push("password");
+    }
+    if (fields.has("totp")) {
+      labels.push("TOTP");
+    }
+    if (labels.length <= 1) {
+      return labels[0] ?? "";
+    }
+    return labels.slice(0, -1).join(", ") + " and " + labels[labels.length - 1];
+  });
+
+  async ngOnInit(): Promise<void> {
     const url = await firstValueFrom(
       this.environmentService.environment$.pipe(map((e) => e.getIconsUrl())),
     );
     this.iconsUrl.set(url);
+
+    const matches = this.request()?.matches;
+    if (matches?.length === 1) {
+      await this.toggleExpand(matches[0]);
+    }
   }
 
-  selectMatch(match: CredentialMatch): void {
-    this.selectedCipherId.set(match.cipherId);
+  async toggleExpand(match: CredentialMatch): Promise<void> {
+    if (this.expandedMatch()?.cipherId === match.cipherId) {
+      this.expandedMatch.set(null);
+      this.credentialDetails.set(null);
+      return;
+    }
+
+    this.expandedMatch.set(match);
+    this.credentialDetails.set(null);
+    this.selectedFields.set(new Set(["username", "password"]));
+    this.showPassword.set(false);
+    this.loadingDetails.set(true);
+
+    const details = await this.agentAccessService.getCredentialById(match.cipherId);
+    this.credentialDetails.set(details);
+    this.loadingDetails.set(false);
+  }
+
+  toggleField(field: string): void {
+    this.selectedFields.update((prev) => {
+      const next = new Set(prev);
+      if (next.has(field)) {
+        next.delete(field);
+      } else {
+        next.add(field);
+      }
+      return next;
+    });
   }
 
   onApprove(): void {
-    const id = this.selectedCipherId();
-    if (id) {
-      this.approved.emit(id);
+    const match = this.expandedMatch();
+    if (match && this.selectedFields().size > 0) {
+      this.approved.emit({ cipherId: match.cipherId, fields: new Set(this.selectedFields()) });
     }
   }
 

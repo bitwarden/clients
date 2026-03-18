@@ -252,18 +252,28 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
 
   // --- Credential request actions ---
 
-  async onCredentialApproved(cipherId: string): Promise<void> {
+  async onCredentialApproved(selection: { cipherId: string; fields: Set<string> }): Promise<void> {
     const request = this.currentRequest();
     if (!request) {
       return;
     }
 
-    const credential = await this.service.getCredentialById(cipherId);
+    const credential = await this.service.getCredentialById(selection.cipherId);
+    const filtered = credential
+      ? {
+          credentialId: credential.credentialId,
+          username: selection.fields.has("username") ? credential.username : undefined,
+          password: selection.fields.has("password") ? credential.password : undefined,
+          totp: selection.fields.has("totp") ? credential.totp : undefined,
+          uri: credential.uri,
+          domain: credential.domain,
+        }
+      : undefined;
     await this.service.respondToCredential(
       request.requestId,
       request.sessionId,
       true,
-      credential ?? undefined,
+      filtered,
       request.query,
     );
 
