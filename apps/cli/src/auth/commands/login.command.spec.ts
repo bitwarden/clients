@@ -8,6 +8,9 @@ import {
   UserApiLoginCredentials,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -82,11 +85,13 @@ describe("LoginCommand", () => {
   let command: LoginCommand;
 
   let loginStrategyService: MockProxy<LoginStrategyServiceAbstraction>;
+  let authService: MockProxy<AuthService>;
   let twoFactorApiService: MockProxy<TwoFactorApiService>;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let environmentService: MockProxy<EnvironmentService>;
   let passwordGenerationService: MockProxy<PasswordGenerationServiceAbstraction>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
+  let accountService: MockProxy<AccountService>;
   let twoFactorService: MockProxy<TwoFactorService>;
   let syncService: MockProxy<SyncService>;
   let keyConnectorService: MockProxy<KeyConnectorService>;
@@ -115,11 +120,13 @@ describe("LoginCommand", () => {
 
     // Create mocks
     loginStrategyService = mock<LoginStrategyServiceAbstraction>();
+    authService = mock<AuthService>();
     twoFactorApiService = mock<TwoFactorApiService>();
     cryptoFunctionService = mock<CryptoFunctionService>();
     environmentService = mock<EnvironmentService>();
     passwordGenerationService = mock<PasswordGenerationServiceAbstraction>();
     platformUtilsService = mock<PlatformUtilsService>();
+    accountService = mock<AccountService>();
     twoFactorService = mock<TwoFactorService>();
     syncService = mock<SyncService>();
     keyConnectorService = mock<KeyConnectorService>();
@@ -139,17 +146,21 @@ describe("LoginCommand", () => {
     syncService.fullSync.mockResolvedValue(true);
     keyConnectorService.getUsesKeyConnector.mockResolvedValue(false);
     encryptedMigrator.runMigrations.mockResolvedValue(undefined);
+    accountService.activeAccount$ = of({ id: TEST_USER_ID } as any);
+    authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
     environmentService.environment$ = of({
       getWebVaultUrl: () => "https://vault.bitwarden.com",
     } as any);
 
     command = new LoginCommand(
       loginStrategyService,
+      authService,
       twoFactorApiService,
       cryptoFunctionService,
       environmentService,
       passwordGenerationService,
       platformUtilsService,
+      accountService,
       twoFactorService,
       syncService,
       keyConnectorService,

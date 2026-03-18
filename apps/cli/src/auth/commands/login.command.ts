@@ -5,7 +5,7 @@ import * as http from "http";
 import { OptionValues } from "commander";
 import * as inquirer from "inquirer";
 import Separator from "inquirer/lib/objects/separator";
-import { firstValueFrom } from "rxjs";
+import { filter, firstValueFrom } from "rxjs";
 
 import {
   LoginStrategyServiceAbstraction,
@@ -15,6 +15,9 @@ import {
   UserApiLoginCredentials,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import {
   isTwoFactorProviderType,
   TwoFactorProviderType,
@@ -42,6 +45,7 @@ import { NodeUtils } from "@bitwarden/node/node-utils";
 import { ConfirmKeyConnectorDomainCommand } from "../../key-management/confirm-key-connector-domain.command";
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
+import { firstValueFromOrNull } from "../../utils";
 
 export class LoginCommand {
   protected canInteract: boolean;
@@ -53,11 +57,13 @@ export class LoginCommand {
 
   constructor(
     protected loginStrategyService: LoginStrategyServiceAbstraction,
+    protected authService: AuthService,
     protected twoFactorApiService: TwoFactorApiService,
     protected cryptoFunctionService: CryptoFunctionService,
     protected environmentService: EnvironmentService,
     protected passwordGenerationService: PasswordGenerationServiceAbstraction,
     protected platformUtilsService: PlatformUtilsService,
+    protected accountService: AccountService,
     protected twoFactorService: TwoFactorService,
     protected syncService: SyncService,
     protected keyConnectorService: KeyConnectorService,
@@ -376,6 +382,19 @@ export class LoginCommand {
           return confirmResponse;
         }
       }
+
+      // Guard against race condition: active account and auth state observables may lag
+      // behind state writes. Await them here to let state propagate before fullSync reads them.
+      await firstValueFromOrNull(
+        this.accountService.activeAccount$.pipe(
+          filter((account) => account?.id === response.userId),
+        ),
+      );
+      await firstValueFromOrNull(
+        this.authService
+          .authStatusFor$(response.userId)
+          .pipe(filter((status) => status !== AuthenticationStatus.LoggedOut)),
+      );
 
       // Run full sync before handling success response or password reset flows (to get Master Password Policies)
       await this.syncService.fullSync(true, { skipTokenRefresh: true });
