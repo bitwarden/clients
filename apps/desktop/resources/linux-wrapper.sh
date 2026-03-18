@@ -12,6 +12,11 @@ if [ -e "/usr/lib/x86_64-linux-gnu/libdbus-1.so.3" ]; then
   export LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libdbus-1.so.3"
 fi
 
+# fix Bitwarden logo tray icon not appearing with the Snap on GNOME
+if [ -n "$SNAP" ]; then
+  export XDG_CURRENT_DESKTOP=Unity
+fi
+
 # A bug in Electron 39 (which now enables Wayland by default) causes a crash on
 # systems using Wayland with hardware acceleration. Platform decided to
 # configure Electron to use X11 (with an opt-out) until the upstream bug is
