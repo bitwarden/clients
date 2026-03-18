@@ -74,7 +74,7 @@ const commonStyles = [
 ];
 
 const defaultIconMap: Record<BadgeVariant, BitwardenIcon | null> = {
-  info: "bwi-info-circle",
+  info: null,
   subtle: null,
   secondary: null,
   primary: null,
