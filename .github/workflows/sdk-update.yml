@@ -196,6 +196,11 @@ jobs:
 
           echo "✅ No stop-updates label found. Proceeding."
 
+      - name: Configure git identity
+        run: |
+          git config user.name "$_BOT_NAME"
+          git config user.email "$_BOT_EMAIL"
+
       - name: Rebase the existing branch onto base branch to clean up diff
         if: ${{ steps.switch-branch.outputs.updating_existing_branch == 'true' }}
         env:
@@ -267,9 +272,6 @@ jobs:
           BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
         run: |
           echo "👀 Committing SDK version update..."
-
-          git config user.name "$_BOT_NAME"
-          git config user.email "$_BOT_EMAIL"
 
           git add package.json package-lock.json
 
