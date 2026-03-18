@@ -49,7 +49,7 @@ describe("Toggle", () => {
 
 describe("Toggle with badge content", () => {
   let fixtureWithBerry: ComponentFixture<TestComponentWithBerryComponent>;
-  let badgeContainers: DebugElement[];
+  let berryContainers: DebugElement[];
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
@@ -59,30 +59,49 @@ describe("Toggle with badge content", () => {
     await TestBed.compileComponents();
     fixtureWithBerry = TestBed.createComponent(TestComponentWithBerryComponent);
     fixtureWithBerry.detectChanges();
-    badgeContainers = fixtureWithBerry.debugElement.queryAll(By.css(".tw-shrink-0"));
+    berryContainers = fixtureWithBerry.debugElement.queryAll(By.css(".tw-shrink-0"));
   });
 
-  it("should hide badge container when no badge content is projected", () => {
-    // First toggle has no badge
-    expect(badgeContainers[0].nativeElement.hidden).toBe(true);
+  it("should hide berry container when no berry content is projected", () => {
+    // First toggle has no berry
+    expect(berryContainers[0].nativeElement.hidden).toBe(true);
 
-    // Second toggle has a badge
-    expect(badgeContainers[1].nativeElement.hidden).toBe(false);
+    // Second toggle has a berry
+    expect(berryContainers[1].nativeElement.hidden).toBe(false);
 
-    // Third toggle has no badge
-    expect(badgeContainers[2].nativeElement.hidden).toBe(true);
+    // Third toggle has no berry
+    expect(berryContainers[2].nativeElement.hidden).toBe(true);
   });
 
-  it("should show badge container when badge content is projected", () => {
-    const badgeElement = fixtureWithBerry.debugElement.query(By.css("bit-berry"));
-    expect(badgeElement).toBeTruthy();
-    expect(badgeElement.nativeElement.textContent.trim()).toBe("2");
+  it("should show berry container when berry content is projected", () => {
+    const berryElement = fixtureWithBerry.debugElement.query(By.css("bit-berry"));
+    expect(berryElement).toBeTruthy();
+    expect(berryElement.nativeElement.textContent.trim()).toBe("2");
   });
 
-  it("should render badge content correctly", () => {
-    const badges = fixtureWithBerry.debugElement.queryAll(By.css("bit-berry"));
-    expect(badges.length).toBe(1);
-    expect(badges[0].nativeElement.textContent.trim()).toBe("2");
+  it("should render berry content correctly", () => {
+    const berryies = fixtureWithBerry.debugElement.queryAll(By.css("bit-berry"));
+    expect(berryies.length).toBe(1);
+    expect(berryies[0].nativeElement.textContent.trim()).toBe("2");
+  });
+
+  it("should set berry variant to 'primary' when toggle is not selected", () => {
+    // value=1 toggle has the berry, but selected=0, so berry should be primary
+    const berryComponent = fixtureWithBerry.debugElement.query(By.directive(BerryComponent))
+      .componentInstance as BerryComponent;
+    expect(berryComponent.variant()).toBe("primary");
+  });
+
+  it("should set berry variant to 'contrast' when toggle is selected", () => {
+    const toggleGroup = fixtureWithBerry.debugElement.query(By.directive(ToggleGroupComponent))
+      .componentInstance as ToggleGroupComponent;
+
+    toggleGroup.onInputInteraction(1); // select the toggle that has the berry
+    fixtureWithBerry.detectChanges();
+
+    const berryComponent = fixtureWithBerry.debugElement.query(By.directive(BerryComponent))
+      .componentInstance as BerryComponent;
+    expect(berryComponent.variant()).toBe("contrast");
   });
 });
 
