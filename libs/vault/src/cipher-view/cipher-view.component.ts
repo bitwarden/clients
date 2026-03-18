@@ -269,6 +269,9 @@ export class CipherViewComponent {
     return (
       this.hasLoginUri() &&
       (this.hadPendingChangePasswordTask() ||
+        // Only show the change password link if the password is at risk and the user has opted to see at-risk password notifications.
+        // `hasPendingChangePasswordTask` supersedes the `showAtRiskPasswordNotifications` setting because it comes from
+        // an organization marking the cipher as at-risk.
         (this.passwordIsAtRisk() && this.showAtRiskPasswordNotifications()))
     );
   });
