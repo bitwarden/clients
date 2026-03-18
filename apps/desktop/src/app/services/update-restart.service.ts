@@ -1,5 +1,6 @@
 import { Injectable, NgZone } from "@angular/core";
 
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, DirtyFormService } from "@bitwarden/components";
 
 /**
@@ -12,25 +13,37 @@ export class UpdateRestartService {
     private ngZone: NgZone,
     private dialogService: DialogService,
     private dirtyFormService: DirtyFormService,
+    private logService: LogService,
   ) {}
 
   init(): void {
     ipc.platform.registerUpdateRestartHandler((resolve) => {
-      if (!this.dirtyFormService.hasDirtyForm()) {
+      try {
+        if (!this.dirtyFormService.hasDirtyForm()) {
+          resolve(true);
+          return;
+        }
+      } catch (e) {
+        this.logService.error("Error checking for dirty forms", e);
         resolve(true);
         return;
       }
 
       void this.ngZone.run(async () => {
-        const installLater = await this.dialogService.openSimpleDialog({
-          title: { key: "unsavedChangesTitle" },
-          content: { key: "unsavedChangesUpdateBody" },
-          acceptButtonText: { key: "installLater" },
-          cancelButtonText: { key: "continueWithInstall" },
-          type: "warning",
-        });
+        try {
+          const installLater = await this.dialogService.openSimpleDialog({
+            title: { key: "unsavedChangesTitle" },
+            content: { key: "unsavedChangesUpdateBody" },
+            acceptButtonText: { key: "installLater" },
+            cancelButtonText: { key: "continueWithInstall" },
+            type: "warning",
+          });
 
-        resolve(!installLater);
+          resolve(!installLater);
+        } catch (e) {
+          this.logService.error("Error showing unsaved changes dialog", e);
+          resolve(true);
+        }
       });
     });
   }

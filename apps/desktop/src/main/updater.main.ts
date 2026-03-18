@@ -1,4 +1,4 @@
-import { dialog, IpcMainEvent, ipcMain, shell, Notification } from "electron";
+import { dialog, IpcMainEvent, ipcMain, Notification } from "electron";
 import log from "electron-log";
 import { autoUpdater, UpdateDownloadedEvent, VerifyUpdateSupport } from "electron-updater";
 
@@ -225,12 +225,15 @@ export class UpdaterMain {
 
     if (result.response === 0) {
       if (!(await this.confirmUpdateRestart())) {
+        this.reset();
         return;
       }
 
       // Quit and install have a different window logic, setting `isQuitting` just to be safe.
       this.windowMain.isQuitting = true;
       autoUpdater.quitAndInstall(true, true);
+    } else {
+      this.reset();
     }
   }
 

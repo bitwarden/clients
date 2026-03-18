@@ -35,11 +35,6 @@ export class BitSubmitDirective implements OnInit {
     @Optional() validationService?: ValidationService,
     @Optional() logService?: LogService,
   ) {
-    this.dirtyFormService.registerFormGroup(formGroupDirective.form);
-    this.destroyRef.onDestroy(() => {
-      this.dirtyFormService.deregisterFormGroup(formGroupDirective.form);
-    });
-
     formGroupDirective.ngSubmit
       .pipe(
         filter(() => !this.disabled),
@@ -68,6 +63,11 @@ export class BitSubmitDirective implements OnInit {
   }
 
   ngOnInit(): void {
+    this.dirtyFormService.registerForm(this.formGroupDirective);
+    this.destroyRef.onDestroy(() => {
+      this.dirtyFormService.deregisterForm(this.formGroupDirective);
+    });
+
     this.formGroupDirective.statusChanges
       ?.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((c) => {

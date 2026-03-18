@@ -1,25 +1,29 @@
 import { Injectable } from "@angular/core";
-import { FormGroup } from "@angular/forms";
+import { FormGroupDirective } from "@angular/forms";
 
 /**
- * Tracks registered FormGroups to determine if any form has unsaved changes.
+ * Tracks registered FormGroupDirectives to determine if any form has unsaved changes.
  * Forms are registered/deregistered automatically by BitSubmitDirective.
+ *
+ * We track FormGroupDirective (not FormGroup) because components may reassign
+ * their FormGroup instance (e.g., cipher-form reinitializes on config change).
+ * The directive always reflects the currently bound FormGroup.
  */
 @Injectable({ providedIn: "root" })
 export class DirtyFormService {
-  private registeredForms = new Set<FormGroup>();
+  private registeredDirectives = new Set<FormGroupDirective>();
 
-  registerFormGroup(formGroup: FormGroup): void {
-    this.registeredForms.add(formGroup);
+  registerForm(directive: FormGroupDirective): void {
+    this.registeredDirectives.add(directive);
   }
 
-  deregisterFormGroup(formGroup: FormGroup): void {
-    this.registeredForms.delete(formGroup);
+  deregisterForm(directive: FormGroupDirective): void {
+    this.registeredDirectives.delete(directive);
   }
 
   hasDirtyForm(): boolean {
-    for (const form of this.registeredForms) {
-      if (form.dirty) {
+    for (const directive of this.registeredDirectives) {
+      if (directive.form?.dirty) {
         return true;
       }
     }
