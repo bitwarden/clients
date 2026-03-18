@@ -91,12 +91,12 @@ export class TrendWidgetComponent {
   private readonly lineChart = viewChild<LineChartComponent>(LineChartComponent);
 
   constructor(
-    private themeStateService: ThemeStateService,
-    @Inject(SYSTEM_THEME_OBSERVABLE) private systemTheme$: Observable<ThemeType>,
-    private i18nService: I18nService,
-    private fileDownloadService: FileDownloadService,
-    private chartExportService: ChartExportService,
-    private toastService: ToastService,
+    private readonly themeStateService: ThemeStateService,
+    @Inject(SYSTEM_THEME_OBSERVABLE) private readonly systemTheme$: Observable<ThemeType>,
+    private readonly i18nService: I18nService,
+    private readonly fileDownloadService: FileDownloadService,
+    private readonly chartExportService: ChartExportService,
+    private readonly toastService: ToastService,
   ) {}
 
   protected onViewChange(view: TrendWidgetViewType) {
@@ -188,7 +188,7 @@ export class TrendWidgetComponent {
   };
 
   protected downloadAsPNG(): void {
-    const chart = this.lineChart()?.chart;
+    const chart = this.lineChart()?.chart();
     if (!chart) {
       return;
     }

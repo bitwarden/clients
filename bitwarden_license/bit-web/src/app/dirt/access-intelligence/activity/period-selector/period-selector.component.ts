@@ -26,7 +26,7 @@ interface TranslatedPeriodOption {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PeriodSelectorComponent {
-  private i18nService = inject(I18nService);
+  private readonly i18nService = inject(I18nService);
 
   /** The currently selected time period */
   readonly selectedPeriod = signal<TimePeriod>(DEFAULT_TIME_PERIOD);

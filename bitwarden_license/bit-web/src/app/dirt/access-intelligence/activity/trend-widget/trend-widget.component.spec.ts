@@ -58,32 +58,56 @@ describe("TrendWidgetComponent", () => {
     })) as any;
 
     // Mock canvas context for Chart.js
-    HTMLCanvasElement.prototype.getContext = jest.fn(() => ({
-      fillRect: jest.fn(),
-      clearRect: jest.fn(),
-      getImageData: jest.fn(),
-      putImageData: jest.fn(),
-      createImageData: jest.fn(),
-      setTransform: jest.fn(),
-      drawImage: jest.fn(),
-      save: jest.fn(),
-      fillText: jest.fn(),
-      restore: jest.fn(),
-      beginPath: jest.fn(),
-      moveTo: jest.fn(),
-      lineTo: jest.fn(),
-      closePath: jest.fn(),
-      stroke: jest.fn(),
-      translate: jest.fn(),
-      scale: jest.fn(),
-      rotate: jest.fn(),
-      arc: jest.fn(),
-      fill: jest.fn(),
-      measureText: jest.fn(() => ({ width: 0 })),
-      transform: jest.fn(),
-      rect: jest.fn(),
-      clip: jest.fn(),
-    })) as any;
+    // ResizeObserver is not available in JSDOM; Chart.js uses it in bindResponsiveEvents
+    // when a real canvas context is acquired.
+    global.ResizeObserver = jest.fn().mockImplementation(() => ({
+      observe: jest.fn(),
+      unobserve: jest.fn(),
+      disconnect: jest.fn(),
+    }));
+
+    // Use a regular function (not arrow) so `this` refers to the canvas element.
+    // Chart.js's DomPlatform.acquireContext checks `context.canvas === canvas`,
+    // so the mock context must include `canvas: this` for the chart to initialize correctly.
+    HTMLCanvasElement.prototype.getContext = jest.fn(function (this: HTMLCanvasElement) {
+      return {
+        canvas: this,
+        fillRect: jest.fn(),
+        clearRect: jest.fn(),
+        getImageData: jest.fn(),
+        putImageData: jest.fn(),
+        createImageData: jest.fn(),
+        setTransform: jest.fn(),
+        resetTransform: jest.fn(),
+        drawImage: jest.fn(),
+        save: jest.fn(),
+        fillText: jest.fn(),
+        strokeText: jest.fn(),
+        restore: jest.fn(),
+        beginPath: jest.fn(),
+        moveTo: jest.fn(),
+        lineTo: jest.fn(),
+        bezierCurveTo: jest.fn(),
+        quadraticCurveTo: jest.fn(),
+        closePath: jest.fn(),
+        stroke: jest.fn(),
+        strokeRect: jest.fn(),
+        translate: jest.fn(),
+        scale: jest.fn(),
+        rotate: jest.fn(),
+        arc: jest.fn(),
+        ellipse: jest.fn(),
+        fill: jest.fn(),
+        measureText: jest.fn(() => ({ width: 0 })),
+        transform: jest.fn(),
+        rect: jest.fn(),
+        clip: jest.fn(),
+        setLineDash: jest.fn(),
+        getLineDash: jest.fn(() => []),
+        createLinearGradient: jest.fn(() => ({ addColorStop: jest.fn() })),
+        createRadialGradient: jest.fn(() => ({ addColorStop: jest.fn() })),
+      };
+    }) as any;
 
     await TestBed.configureTestingModule({
       imports: [TrendWidgetComponent, NoopAnimationsModule],

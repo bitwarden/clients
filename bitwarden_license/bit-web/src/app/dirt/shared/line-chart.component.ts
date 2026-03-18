@@ -6,6 +6,9 @@ import {
   viewChild,
   ElementRef,
   effect,
+  signal,
+  afterNextRender,
+  untracked,
 } from "@angular/core";
 import {
   Chart,
@@ -61,35 +64,45 @@ export type ChartConfig = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LineChartComponent implements OnDestroy {
-  chart: Chart | null = null;
+  readonly chart = signal<Chart | null>(null);
   readonly chartCanvas = viewChild.required<ElementRef<HTMLCanvasElement>>("chartCanvas");
 
-  // Input signals for chart data
   readonly lines = input<LineData[]>([]);
   readonly configuration = input<ChartConfig>({
     xAxisType: "default",
   });
 
   constructor() {
-    // Update chart when inputs change
-    effect(() => {
-      const lineData = this.lines();
-      const configuration = this.configuration();
-      const canvas = this.chartCanvas();
+    afterNextRender(() => {
+      this.initChart(this.lines(), this.configuration());
+    });
 
-      if (!canvas) {
+    effect(() => {
+      const configuration = this.configuration();
+      const chart = untracked(() => this.chart());
+      if (!chart) {
         return;
       }
+      chart.options = this.buildOptions(configuration);
+      chart.update();
+    });
 
-      this.updateChart(lineData, configuration);
+    effect(() => {
+      const lineData = this.lines();
+      const chart = untracked(() => this.chart());
+      if (!chart) {
+        return;
+      }
+      chart.data.datasets = this.mapLinesToDatasetObjects(lineData);
+      chart.update();
     });
   }
 
   ngOnDestroy(): void {
-    this.chart?.destroy();
+    this.chart()?.destroy();
   }
 
-  private updateChart(lineData: LineData[], configuration: ChartConfig): void {
+  private initChart(lineData: LineData[], configuration: ChartConfig): void {
     const canvas = this.chartCanvas().nativeElement;
     const ctx = canvas.getContext("2d");
 
@@ -97,65 +110,67 @@ export class LineChartComponent implements OnDestroy {
       return;
     }
 
-    if (this.chart) {
-      // Destroy existing chart before creating new one
-      this.chart.destroy();
-    }
-
-    // Initialize new chart
     const config: ChartConfiguration<"line"> = {
       type: "line",
       data: {
         datasets: this.mapLinesToDatasetObjects(lineData),
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {
-          mode: "index",
-          intersect: false,
+      options: this.buildOptions(configuration),
+    };
+
+    this.chart.set(new Chart(ctx, config));
+  }
+
+  private buildOptions(
+    configuration: ChartConfig,
+  ): NonNullable<ChartConfiguration<"line">["options"]> {
+    const options: NonNullable<ChartConfiguration<"line">["options"]> = {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: "index",
+        intersect: false,
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: "top",
+          align: "end",
+          labels: {
+            padding: 16,
+            usePointStyle: true,
+          },
         },
-        plugins: {
-          legend: {
-            display: true,
-            position: "top",
-            align: "end",
-            labels: {
-              padding: 16,
-              usePointStyle: true,
-            },
+        tooltip: {
+          enabled: true,
+        },
+      },
+      scales: {
+        x: {
+          type: configuration.xAxisType === "datetime" ? "time" : "linear",
+          title: {
+            display: !!configuration.xAxisLabel,
+            text: configuration.xAxisLabel,
           },
-          tooltip: {
-            enabled: true,
+          grid: {
+            display: false,
+          },
+          ticks: {
+            maxTicksLimit: 6,
           },
         },
-        scales: {
-          x: {
-            type: configuration.xAxisType === "datetime" ? "time" : "linear",
-            title: {
-              display: !!configuration.xAxisLabel,
-              text: configuration.xAxisLabel,
-            },
-            grid: {
-              display: false,
-            },
-            ticks: {
-              maxTicksLimit: 6,
-            },
-          },
-          y: {
-            beginAtZero: true,
-            title: {
-              display: !!configuration.yAxisLabel,
-              text: configuration.yAxisLabel,
-            },
+        y: {
+          beginAtZero: true,
+          title: {
+            display: !!configuration.yAxisLabel,
+            text: configuration.yAxisLabel,
           },
         },
       },
     };
 
-    if (config.options?.scales?.x?.type === "time") {
-      config.options.scales.x.time = {
+    if (options?.scales?.x?.type === "time") {
+      options.scales.x.time = {
         unit: "day",
         displayFormats: {
           day: configuration.timeDisplayFormat ?? "MMM d yyyy",
@@ -163,7 +178,7 @@ export class LineChartComponent implements OnDestroy {
       };
     }
 
-    this.chart = new Chart(ctx, config);
+    return options;
   }
 
   private mapLinesToDatasetObjects(lines: LineData[]): ChartDataset<"line">[] {
