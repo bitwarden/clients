@@ -83,7 +83,6 @@ export type PremiumOrgUpgradePaymentResult = {
     EnterBillingAddressComponent,
     DisplayPaymentMethodInlineComponent,
   ],
-  providers: [PremiumOrgUpgradeService],
   templateUrl: "./premium-org-upgrade-payment.component.html",
 })
 export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit {
