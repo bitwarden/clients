@@ -2391,6 +2391,37 @@ describe("OrganizationPlansComponent", () => {
 
         expect(mockPremiumOrgUpgradeService.upgradeToOrganization).not.toHaveBeenCalled();
       });
+
+      it("should use createCloudHosted instead of upgradeFromPremiumToOrganization when upgrading to Free Org", async () => {
+        // Change the plan to Free (beforeEach set it to Teams)
+        patchOrganizationForm(component, {
+          name: "Free Org",
+          billingEmail: "test@example.com",
+          productTier: ProductTierType.Free,
+          plan: PlanType.Free,
+        });
+
+        mockOrganizationApiService.create.mockResolvedValue({
+          id: "free-org-id",
+        } as any);
+
+        await component.submit();
+
+        // Should call generateOrganizationEncryptionData and create (via createCloudHosted)
+        expect(
+          mockPremiumOrgUpgradeService.generateOrganizationEncryptionData,
+        ).toHaveBeenCalledWith("user-id");
+        expect(mockOrganizationApiService.create).toHaveBeenCalled();
+
+        // Should NOT call upgradeToOrganization
+        expect(mockPremiumOrgUpgradeService.upgradeToOrganization).not.toHaveBeenCalled();
+
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "success",
+          title: "organizationCreated",
+          message: "organizationReadyToGo",
+        });
+      });
     });
 
     describe("refreshSalesTax (premium upgrade proration)", () => {

@@ -818,7 +818,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       if (this.createOrganization()) {
         const canUpgradeFromPremium = this.canUpgradeFromPremium();
         const account = await firstValueFrom(this.accountService.activeAccount$);
-        if (canUpgradeFromPremium) {
+        if (canUpgradeFromPremium && this.selectedPlan()?.type !== PlanType.Free) {
           orgId = await this.upgradeFromPremiumToOrganization(account!);
         } else {
           const encryptionData =
