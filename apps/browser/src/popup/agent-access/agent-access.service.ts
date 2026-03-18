@@ -4,6 +4,7 @@ import { firstValueFrom, map, Observable, Subject } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import type { UserClientEvent } from "@bitwarden/sdk-internal";
 
@@ -59,6 +60,15 @@ export class AgentAccessService implements OnDestroy {
   async removeSession(id: string): Promise<void> {
     const repo = this.getOrCreateRepository();
     await repo.remove(id);
+  }
+
+  async renameSession(id: string, name: string): Promise<void> {
+    const repo = this.getOrCreateRepository();
+    const record = await repo.get(id);
+    if (record) {
+      record.name = name;
+      await repo.set(id, record);
+    }
   }
 
   // --- Listening toggle ---
@@ -353,7 +363,7 @@ export class AgentAccessService implements OnDestroy {
     if (!entry.connectionName) {
       const sessions = await this.listSessions();
       const session = sessions.find(
-        (s) => this.fingerprintToHex(s.fingerprint) === entry.connectionId,
+        (s) => Utils.fromBufferToHex(new Uint8Array(s.fingerprint)) === entry.connectionId,
       );
       entry.connectionName = session?.name ?? "Unknown";
     }
@@ -370,9 +380,5 @@ export class AgentAccessService implements OnDestroy {
   private getProxyUrl(): string {
     // TODO: Read from environment service / server config
     return DEFAULT_PROXY_URL;
-  }
-
-  private fingerprintToHex(fingerprint: number[]): string {
-    return fingerprint.map((b) => b.toString(16).padStart(2, "0")).join("");
   }
 }

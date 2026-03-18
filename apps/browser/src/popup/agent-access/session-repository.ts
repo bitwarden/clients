@@ -1,4 +1,5 @@
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 /**
  * Session record as stored by the WASM SDK.
@@ -123,7 +124,7 @@ export class ChromeSessionRepository {
         continue;
       }
       // Convert hex id back to fingerprint bytes
-      const fpBytes = hexToBytes(entry.id);
+      const fpBytes = Utils.fromHexToArray(entry.id);
       sessions[entry.id] = {
         fingerprint: Array.from(fpBytes),
         name: entry.name || null,
@@ -140,12 +141,4 @@ export class ChromeSessionRepository {
   private async getAll(): Promise<Record<string, SessionRecord>> {
     return (await this.storageService.get<Record<string, SessionRecord>>(SESSIONS_KEY)) ?? {};
   }
-}
-
-function hexToBytes(hex: string): Uint8Array {
-  const bytes = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < bytes.length; i++) {
-    bytes[i] = parseInt(hex.substring(i * 2, i * 2 + 2), 16);
-  }
-  return bytes;
 }

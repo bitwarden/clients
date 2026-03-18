@@ -1,6 +1,7 @@
 import { inject, Injectable } from "@angular/core";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
@@ -26,15 +27,23 @@ export class AgentAccessIdentityService {
   private cipherService = inject(CipherService);
   private accountService = inject(AccountService);
 
+  /** Cached identity bytes — immutable once created, safe to cache for service lifetime. */
+  private cachedIdentity: Uint8Array | null = null;
+
   /**
    * Get the account's agent-access identity COSE bytes.
    * Generates and stores a new identity if this is the first use.
    */
   async getIdentity(userId: UserId): Promise<Uint8Array> {
+    if (this.cachedIdentity) {
+      return this.cachedIdentity;
+    }
+
     // Try to find existing identity cipher
     const existing = await this.findIdentityCipher(userId);
     if (existing?.notes) {
-      return this.base64ToBytes(existing.notes);
+      this.cachedIdentity = Utils.fromB64ToArray(existing.notes);
+      return this.cachedIdentity;
     }
 
     // Generate new identity via WASM
@@ -45,6 +54,7 @@ export class AgentAccessIdentityService {
     // Store as SecureNote cipher in the vault
     await this.createIdentityCipher(userId, identityBytes);
 
+    this.cachedIdentity = identityBytes;
     return identityBytes;
   }
 
@@ -64,25 +74,8 @@ export class AgentAccessIdentityService {
 
     cipher.secureNote = new SecureNoteView();
     cipher.secureNote.type = SecureNoteType.Generic;
-    cipher.notes = this.bytesToBase64(identityBytes);
+    cipher.notes = Utils.fromBufferToB64(identityBytes);
 
     await this.cipherService.createWithServer(cipher, userId);
-  }
-
-  private base64ToBytes(b64: string): Uint8Array {
-    const binary = atob(b64);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-      bytes[i] = binary.charCodeAt(i);
-    }
-    return bytes;
-  }
-
-  private bytesToBase64(bytes: Uint8Array): string {
-    let binary = "";
-    for (const byte of bytes) {
-      binary += String.fromCharCode(byte);
-    }
-    return btoa(binary);
   }
 }

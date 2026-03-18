@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ToastService } from "@bitwarden/components";
 import type { UserClientEvent } from "@bitwarden/sdk-internal";
 
@@ -168,6 +169,7 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
 
   // Reassigned when re-subscribing on mode switch; takeUntilDestroyed handles final cleanup
 
+   
   private readonly eventSubscription: { unsubscribe(): void } | null = null;
 
   async ngOnInit(): Promise<void> {
@@ -206,9 +208,8 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
     if (!newName || newName === conn.name) {
       return;
     }
-    // TODO: Update session name via repository or WASM client
-    // For now, just update the display
-    this.connections.update((list) => list.map((c) => (c.id === id ? { ...c, name: newName } : c)));
+    await this.service.renameSession(id, newName);
+    await this.refreshConnections();
   }
 
   async onRemoveConnection(id: string): Promise<void> {
@@ -599,7 +600,7 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
 
   private toDisplay(record: SessionRecord): SessionDisplay {
     return {
-      id: record.fingerprint.map((b) => b.toString(16).padStart(2, "0")).join(""),
+      id: Utils.fromBufferToHex(new Uint8Array(record.fingerprint)),
       name: record.name ?? "Unnamed Connection",
       lastConnected: record.lastConnected,
     };
