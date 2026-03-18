@@ -195,9 +195,28 @@ describe("ConfigService", () => {
                   idpLoginUrl: "https://idp.example.com",
                   cookieName: "auth_token",
                   cookieDomain: ".example.com",
+                  vaultUrl: "vault.example.com",
                   cookieValue: undefined,
                 },
               });
+            });
+
+            it("emits direct bootstrap config when ssoCookieVendor bootstrap has no vault URL", async () => {
+              const ssoResponse = serverConfigResponseFactory("hash", {
+                type: "ssoCookieVendor",
+                idpLoginUrl: "https://idp.example.com",
+                cookieName: "auth_token",
+                cookieDomain: ".example.com",
+              });
+              // Remove the environment field so vaultUrl will be undefined
+              ssoResponse.environment = undefined as any;
+              configApiService.get.mockResolvedValue(ssoResponse);
+
+              await firstValueFrom(sut.serverConfig$);
+
+              const result = await firstValueFrom(sut.serverCommunicationConfig$);
+
+              expect(result).toEqual({ bootstrap: { type: "direct" } });
             });
           });
         });
