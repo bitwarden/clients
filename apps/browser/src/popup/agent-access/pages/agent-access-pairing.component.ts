@@ -41,22 +41,33 @@ const ConnectionModeEnum = Object.freeze({
               [selected]="connectionMode()"
               (selectedChange)="modeChanged.emit($event)"
             >
-              <bit-toggle [value]="ConnectionModeEnum.Rendezvous">Rendezvous</bit-toggle>
-              <bit-toggle [value]="ConnectionModeEnum.Psk">PSK Token</bit-toggle>
+              <bit-toggle [value]="ConnectionModeEnum.Rendezvous">Short Code</bit-toggle>
+              <bit-toggle [value]="ConnectionModeEnum.Psk">Machine Key</bit-toggle>
             </bit-toggle-group>
 
             @switch (connectionMode()) {
               @case ("rendezvous") {
                 <div
-                  class="tw-bg-background-alt tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-py-8 tw-px-4 tw-text-center"
+                  class="tw-bg-background-alt tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-py-5 tw-px-4 tw-text-center"
                 >
-                  <p class="tw-text-sm tw-text-muted tw-mb-6">Rendezvous Code</p>
+                  <p class="tw-text-xs tw-text-muted tw-mb-3">
+                    Share this code with the agent to pair
+                  </p>
                   @if (rendezvousCode()) {
                     <p
-                      class="tw-text-2xl tw-font-mono tw-tracking-[0.3em] tw-text-main tw-font-bold tw-mb-0 tw-uppercase"
+                      class="tw-text-2xl tw-font-mono tw-tracking-[0.3em] tw-text-main tw-font-bold tw-mb-4 tw-uppercase"
                     >
                       {{ rendezvousCode() }}
                     </p>
+                    <button
+                      type="button"
+                      bitButton
+                      buttonType="secondary"
+                      size="small"
+                      (click)="copyCode.emit()"
+                    >
+                      {{ codeCopied() ? "Copied!" : "Copy" }}
+                    </button>
                   } @else {
                     <div class="tw-flex tw-justify-center tw-py-4">
                       <bit-spinner size="small"></bit-spinner>
@@ -65,28 +76,32 @@ const ConnectionModeEnum = Object.freeze({
                 </div>
 
                 @if (rendezvousCode()) {
-                  <div class="tw-flex tw-justify-center">
-                    <button
-                      type="button"
-                      bitButton
-                      buttonType="secondary"
-                      size="small"
-                      (click)="copyCode.emit()"
-                    >
-                      {{ codeCopied() ? "Copied!" : "Copy Code" }}
-                    </button>
+                  <div class="tw-flex tw-items-center tw-gap-2 tw-justify-center tw-text-muted">
+                    <bit-spinner size="small"></bit-spinner>
+                    <p class="tw-text-sm tw-mb-0">Waiting for connection...</p>
                   </div>
                 }
               }
               @case ("psk") {
                 <div
-                  class="tw-bg-background-alt tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-py-8 tw-px-4 tw-text-center"
+                  class="tw-bg-background-alt tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-py-5 tw-px-4 tw-text-center"
                 >
-                  <p class="tw-text-sm tw-text-muted tw-mb-6">PSK Token</p>
+                  <p class="tw-text-xs tw-text-muted tw-mb-3">
+                    Add this key to the agent's configuration
+                  </p>
                   @if (pskToken()) {
-                    <p class="tw-text-sm tw-font-mono tw-text-main tw-break-all tw-mb-0">
+                    <p class="tw-text-sm tw-font-mono tw-text-main tw-break-all tw-mb-4">
                       {{ pskToken() }}
                     </p>
+                    <button
+                      type="button"
+                      bitButton
+                      buttonType="secondary"
+                      size="small"
+                      (click)="copyToken.emit()"
+                    >
+                      {{ tokenCopied() ? "Copied!" : "Copy" }}
+                    </button>
                   } @else {
                     <div class="tw-flex tw-justify-center tw-py-4">
                       <bit-spinner size="small"></bit-spinner>
@@ -95,18 +110,6 @@ const ConnectionModeEnum = Object.freeze({
                 </div>
 
                 @if (pskToken()) {
-                  <div class="tw-flex tw-justify-center">
-                    <button
-                      type="button"
-                      bitButton
-                      buttonType="secondary"
-                      size="small"
-                      (click)="copyToken.emit()"
-                    >
-                      {{ tokenCopied() ? "Copied!" : "Copy Token" }}
-                    </button>
-                  </div>
-
                   <div class="tw-flex tw-items-center tw-gap-2 tw-justify-center tw-text-muted">
                     <bit-spinner size="small"></bit-spinner>
                     <p class="tw-text-sm tw-mb-0">Waiting for connection...</p>
@@ -121,7 +124,7 @@ const ConnectionModeEnum = Object.freeze({
               <input
                 bitInput
                 type="text"
-                placeholder="e.g. Work Laptop"
+                placeholder="e.g. Work Agent"
                 [ngModel]="connectionName()"
                 (ngModelChange)="nameChanged.emit($event)"
               />
@@ -153,7 +156,7 @@ const ConnectionModeEnum = Object.freeze({
               <input
                 bitInput
                 type="text"
-                placeholder="e.g. Work Laptop"
+                placeholder="e.g. Work Agent"
                 [ngModel]="connectionName()"
                 (ngModelChange)="nameChanged.emit($event)"
               />

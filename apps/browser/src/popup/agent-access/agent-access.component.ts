@@ -62,6 +62,7 @@ type AgentAccessView = (typeof AgentAccessView)[keyof typeof AgentAccessView];
             [connections]="connections()"
             [pendingRequests]="pendingRequests()"
             (addConnection)="startPairing()"
+            (renameConnection)="onRenameConnection($event)"
             (removeConnection)="onRemoveConnection($event)"
             (openRequest)="openPendingRequest($event)"
           />
@@ -167,6 +168,19 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
     this.resetPairingState();
     this.view.set(AgentAccessView.Pairing);
     this.beginListening();
+  }
+
+  async onRenameConnection(id: string): Promise<void> {
+    const conn = this.connections().find((c) => c.id === id);
+    if (!conn) {
+      return;
+    }
+    const newName = prompt("Rename connection", conn.name);
+    if (!newName || newName === conn.name) {
+      return;
+    }
+    const updated = await this.service.saveConnection({ ...conn, name: newName });
+    this.connections.set(updated);
   }
 
   async onRemoveConnection(id: string): Promise<void> {
