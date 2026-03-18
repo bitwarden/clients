@@ -1,6 +1,6 @@
 ---
 paths:
-  - "apps/browser/src/autofill/content/**/*.ts"
+  - "apps/browser/src/autofill/content/**"
 ---
 
 # Autofill Content Scripts - Critical Rules
