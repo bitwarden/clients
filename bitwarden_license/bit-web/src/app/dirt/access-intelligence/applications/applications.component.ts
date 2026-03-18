@@ -42,8 +42,10 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
-import { AppTableRowScrollableM11Component } from "../shared/app-table-row-scrollable-m11.component";
-import { ApplicationTableDataSource } from "../shared/app-table-row-scrollable.component";
+import {
+  ApplicationTableDataSource,
+  AppTableRowScrollableComponent,
+} from "../shared/app-table-row-scrollable.component";
 import { ReportLoadingComponent } from "../shared/report-loading.component";
 import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks.service";
 
@@ -68,7 +70,7 @@ export type ApplicationFilterOption =
     PipesModule,
     NoItemsModule,
     SharedModule,
-    AppTableRowScrollableM11Component,
+    AppTableRowScrollableComponent,
     IconButtonModule,
     TypographyModule,
     ButtonModule,

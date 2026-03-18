@@ -75,7 +75,7 @@
       </div>
     </div>
 
-    <app-table-row-scrollable-m11
+    <app-table-row-scrollable
       [dataSource]="dataSource"
       [selectedUrls]="selectedUrls()"
       [openApplication]="drawerDetails.invokerId || ''"
@@ -83,7 +83,7 @@
       (checkboxChange)="onCheckboxChange($event)"
       (selectAllChange)="onSelectAllChange($event)"
       class="tw-mb-10"
-    ></app-table-row-scrollable-m11>
+    ></app-table-row-scrollable>
 
     @if (this.dataSource.filteredData?.length === 0) {
       <div class="tw-flex tw-mt-10 tw-justify-center">

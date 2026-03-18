@@ -62,7 +62,6 @@ export enum FeatureFlag {
   EventManagementForDataDogAndCrowdStrike = "event-management-for-datadog-and-crowdstrike",
   EventManagementForHuntress = "event-management-for-huntress",
   PhishingDetection = "phishing-detection",
-  Milestone11AppPageImprovements = "pm-30538-dirt-milestone-11-app-page-improvements",
   AccessIntelligenceNewArchitecture = "pm-31936-access-intelligence-new-architecture",
 
   /* Vault */
@@ -130,7 +129,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
   [FeatureFlag.EventManagementForHuntress]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
-  [FeatureFlag.Milestone11AppPageImprovements]: FALSE,
   [FeatureFlag.AccessIntelligenceNewArchitecture]: FALSE,
 
   /* Vault */

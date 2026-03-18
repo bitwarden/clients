@@ -8,7 +8,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { TableDataSource } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { AppTableRowScrollableM11Component } from "./app-table-row-scrollable-m11.component";
+import { AppTableRowScrollableComponent } from "./app-table-row-scrollable.component";
 
 // Mock ResizeObserver
 global.ResizeObserver = class ResizeObserver {
@@ -84,22 +84,22 @@ const mockTableData: ApplicationHealthReportDetailEnriched[] = [
   },
 ];
 
-describe("AppTableRowScrollableM11Component", () => {
-  let fixture: ComponentFixture<AppTableRowScrollableM11Component>;
+describe("AppTableRowScrollableComponent", () => {
+  let fixture: ComponentFixture<AppTableRowScrollableComponent>;
 
   beforeEach(async () => {
     const mockI18nService = mock<I18nService>();
     mockI18nService.t.mockImplementation((key: string) => key);
 
     await TestBed.configureTestingModule({
-      imports: [AppTableRowScrollableM11Component],
+      imports: [AppTableRowScrollableComponent],
       providers: [
         { provide: I18nPipe, useValue: mock<I18nPipe>() },
         { provide: I18nService, useValue: mockI18nService },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AppTableRowScrollableM11Component);
+    fixture = TestBed.createComponent(AppTableRowScrollableComponent);
 
     await fixture.whenStable();
   });

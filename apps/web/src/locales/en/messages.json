@@ -1,7 +1,4 @@
 {
-  "allApplications": {
-    "message": "All applications"
-  },
   "activity": {
     "message": "Activity"
   },
@@ -10,9 +7,6 @@
   },
   "criticalApplications": {
     "message": "Critical applications"
-  },
-  "noCriticalAppsAtRisk": {
-    "message": "No critical applications at risk"
   },
   "critical":{
     "message": "Critical ($COUNT$)",
@@ -77,15 +71,6 @@
   "cannotRestoreAccessError": {
     "message": "Cannot restore organization access"
   },
-  "allApplicationsWithCount": {
-    "message": "All applications ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "createNewLoginItem": {
     "message": "Create new login item"
   },
@@ -142,15 +127,6 @@
       "total": {
         "content": "$2",
         "example": "5"
-      }
-    }
-  },
-  "criticalApplicationsWithCount": {
-    "message": "Critical applications ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
       }
     }
   },
@@ -241,9 +217,6 @@
   "markCriticalApplications": {
     "message": "Select critical applications"
   },
-  "markAppAsCritical": {
-    "message": "Mark app as critical"
-  },
   "markAsCritical": {
     "message": "Mark as critical"
   },
@@ -315,9 +288,6 @@
   },
   "atRiskPasswords": {
     "message": "At-risk passwords"
-  },
-  "requestPasswordChange": {
-    "message": "Request password change"
   },
   "totalPasswords": {
     "message": "Total passwords"
@@ -396,9 +366,6 @@
   },
   "totalMembers": {
     "message": "Total members"
-  },
-  "atRiskApplications": {
-    "message": "At-risk applications"
   },
   "totalApplications": {
     "message": "Total applications"
