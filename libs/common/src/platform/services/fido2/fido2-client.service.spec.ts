@@ -655,18 +655,6 @@ describe("FidoAuthenticatorService", () => {
 
         expect(authenticator.getAssertion).toHaveBeenCalled();
       });
-
-      it("throws FallbackRequestedError when authenticator returns CredentialNotFound", async () => {
-        const params = createParams({
-          allowedCredentialIds: ["credId1"],
-          fallbackSupported: true,
-        });
-        authenticator.getAssertion.mockRejectedValue(
-          new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.CredentialNotFound),
-        );
-        const result = async () => await client.assertCredential(params, windowReference);
-        await expect(result).rejects.toMatchObject({ fallbackRequested: true });
-      });
     });
 
     describe("assert discoverable credential", () => {

@@ -790,64 +790,6 @@ describe("FidoAuthenticatorService", () => {
       });
     });
 
-    describe("fallback when no vault credential matches allowCredentials", () => {
-      it("throws CredentialNotFound when allowCredentialDescriptorList is non-empty, fallbackSupported is true, and no vault match exists", async () => {
-        const credentialId = Utils.newGuid();
-        const params = await createParams({
-          allowCredentialDescriptorList: [
-            {
-              id: Fido2Utils.stringToArray(credentialId),
-              type: "public-key",
-            },
-          ],
-          fallbackSupported: true,
-        });
-        cipherService.getAllDecrypted.mockResolvedValue([]);
-
-        const result = authenticator.getAssertion(params, windowReference);
-
-        await expect(result).rejects.toMatchObject({
-          errorCode: Fido2AuthenticatorErrorCode.CredentialNotFound,
-        });
-      });
-
-      it("does not throw CredentialNotFound when fallbackSupported is false — shows UI instead", async () => {
-        const credentialId = Utils.newGuid();
-        const params = await createParams({
-          allowCredentialDescriptorList: [
-            {
-              id: Fido2Utils.stringToArray(credentialId),
-              type: "public-key",
-            },
-          ],
-          fallbackSupported: false,
-        });
-        cipherService.getAllDecrypted.mockResolvedValue([]);
-        userInterface.informCredentialNotFound.mockResolvedValue();
-
-        const result = authenticator.getAssertion(params, windowReference);
-
-        await expect(result).rejects.toMatchObject({
-          errorCode: Fido2AuthenticatorErrorCode.NotAllowed,
-        });
-      });
-
-      it("does not throw CredentialNotFound when allowCredentialDescriptorList is empty", async () => {
-        const params = await createParams({
-          allowCredentialDescriptorList: [],
-          fallbackSupported: true,
-        });
-        cipherService.getAllDecrypted.mockResolvedValue([]);
-        userInterface.informCredentialNotFound.mockResolvedValue();
-
-        const result = authenticator.getAssertion(params, windowReference);
-
-        await expect(result).rejects.toMatchObject({
-          errorCode: Fido2AuthenticatorErrorCode.NotAllowed,
-        });
-      });
-    });
-
     describe("silentCredentialDiscovery", () => {
       it("returns the fido2Credentials of a cipher found by its rpId", async () => {
         const credentialId = Utils.newGuid();

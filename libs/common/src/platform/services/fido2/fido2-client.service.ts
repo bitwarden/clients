@@ -368,16 +368,6 @@ export class Fido2ClientService<
       }
 
       if (
-        (error as any)?.message === Fido2AuthenticatorErrorCode.CredentialNotFound ||
-        (error as any)?.errorCode === Fido2AuthenticatorErrorCode.CredentialNotFound
-      ) {
-        this.logService?.info(
-          `[Fido2Client] No vault credential matched allowCredentials — falling back to browser.`,
-        );
-        throw new FallbackRequestedError();
-      }
-
-      if (
         error instanceof Fido2AuthenticatorError &&
         error.errorCode === Fido2AuthenticatorErrorCode.InvalidState
       ) {
