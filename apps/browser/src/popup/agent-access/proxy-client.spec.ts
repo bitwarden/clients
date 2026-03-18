@@ -136,7 +136,7 @@ describe("BrowserProxyClient", () => {
     ws.simulateMessage({ AuthChallenge: [1] });
     await connectPromise;
 
-    ws.simulateMessage({ RendevouzInfo: { code: "ABC123" } });
+    ws.simulateMessage({ RendezvousInfo: { code: "ABC123" } });
 
     expect(onMessage).toHaveBeenCalledWith({
       type: "rendezvous_info",
@@ -187,13 +187,13 @@ describe("BrowserProxyClient", () => {
   // request_rendezvous / request_identity / send_to
   // ---------------------------------------------------------------------------
 
-  it("should send GetRendevouz command", async () => {
+  it("should send GetRendezvous command", async () => {
     const { connectPromise, ws } = await connectAndGetWs();
     ws.simulateMessage({ AuthChallenge: [1] });
     await connectPromise;
 
     await client.request_rendezvous();
-    expect(ws.sent[ws.sent.length - 1]).toBe(JSON.stringify("GetRendevouz"));
+    expect(ws.sent[ws.sent.length - 1]).toBe(JSON.stringify("GetRendezvous"));
   });
 
   it("should send GetIdentity command with code", async () => {

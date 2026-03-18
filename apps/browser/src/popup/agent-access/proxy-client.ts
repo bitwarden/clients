@@ -9,8 +9,8 @@
 export interface ProxyMessage {
   AuthChallenge?: number[];
   AuthResponse?: [unknown, unknown];
-  GetRendevouz?: null;
-  RendevouzInfo?: { code: string };
+  GetRendezvous?: null;
+  RendezvousInfo?: { code: string };
   GetIdentity?: string;
   IdentityInfo?: { fingerprint: string; identity: unknown };
   Send?: { source?: unknown; destination: unknown; payload: number[] };
@@ -64,7 +64,7 @@ export class BrowserProxyClient {
   }
 
   async request_rendezvous(): Promise<void> {
-    this.send(JSON.stringify("GetRendevouz"));
+    this.send(JSON.stringify("GetRendezvous"));
   }
 
   async request_identity(code: string): Promise<void> {
@@ -112,8 +112,8 @@ export class BrowserProxyClient {
       return;
     }
 
-    if (msg.RendevouzInfo != null) {
-      const info = msg.RendevouzInfo;
+    if (msg.RendezvousInfo != null) {
+      const info = msg.RendezvousInfo;
       this.onMessageCallback({
         type: "rendezvous_info",
         code: typeof info === "object" ? info.code : info,
