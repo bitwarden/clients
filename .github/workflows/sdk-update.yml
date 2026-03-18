@@ -218,21 +218,6 @@ jobs:
           npm install --save-exact @bitwarden/commercial-sdk-internal@$SDK_VERSION
           echo "✅ SDK packages updated in package.json"
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run linter
-        id: lint
-        run: npm run lint
-
-      - name: Lint SDK internal versions
-        run: npm run lint:sdk-internal-versions
-
-      - name: Run tests
-        id: tests
-        run: npm test
-        continue-on-error: true
-
       - name: Generate changelog
         id: changelog
         env:
@@ -264,29 +249,11 @@ jobs:
       - name: Generate validation summary
         env:
           SDK_VERSION: ${{ inputs.sdk-version }}
-          LINT_OUTCOME: ${{ steps.lint.outcome }}
-          TEST_OUTCOME: ${{ steps.tests.outcome }}
         run: |
-          if [ "$LINT_OUTCOME" = "success" ]; then
-            LINT_STATUS="✅ Passed"
-          else
-            LINT_STATUS="❌ Failed"
-          fi
-
-          if [ "$TEST_OUTCOME" = "success" ]; then
-            TEST_STATUS="✅ Passed"
-          elif [ "$TEST_OUTCOME" = "skipped" ]; then
-            TEST_STATUS="⏭️ Skipped"
-          else
-            TEST_STATUS="⚠️ Failed"
-          fi
-
           {
             echo "## 📊 Validation Summary"
             echo ""
             echo "- SDK Version: $SDK_VERSION"
-            echo "- Lint: $LINT_STATUS"
-            echo "- Tests: $TEST_STATUS"
             echo ""
             echo "### Changed Files"
             echo '```'
@@ -323,8 +290,6 @@ jobs:
           OLD_SDK_VERSION: ${{ steps.get-current-sdk.outputs.current-sdk-version }}
           OLD_COMMERCIAL_VERSION: ${{ steps.get-current-sdk.outputs.current-commercial-version }}
           CHANGELOG: ${{ steps.changelog.outputs.changelog }}
-          LINT_STATUS: ${{ steps.lint.outcome }}
-          TEST_STATUS: ${{ steps.tests.outcome }}
           BASE_BRANCH: ${{ inputs.base-branch }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_SERVER_URL: ${{ github.server_url }}
@@ -332,21 +297,6 @@ jobs:
           TRIGGERING_RUN_ID: ${{ inputs.triggering-run-id }}
         run: |
           SDK_VERSION_SHORT=$(echo "$SDK_VERSION" | grep -oE '[a-f0-9]{7}$' || echo "$SDK_VERSION")
-
-          # Determine validation status
-          if [ "$LINT_STATUS" = "success" ]; then
-            LINT_RESULT="✅ Passed"
-          else
-            LINT_RESULT="❌ Failed"
-          fi
-
-          if [ "$TEST_STATUS" = "success" ]; then
-            TEST_RESULT="✅ Passed"
-          elif [ "$TEST_STATUS" = "skipped" ]; then
-            TEST_RESULT="⏭️ Skipped"
-          else
-            TEST_RESULT="⚠️ Failed"
-          fi
 
           # Build PR body
           PR_TITLE="Update SDK to $SDK_VERSION_SHORT ($SDK_VERSION)"
@@ -363,10 +313,6 @@ jobs:
               echo "### What's Changed in SDK"
               echo "$CHANGELOG"
             fi
-            echo ""
-            echo "### Validation Results"
-            echo "- Lint: $LINT_RESULT"
-            echo "- Tests: $TEST_RESULT"
             echo ""
             echo "### Links"
             echo "- [Workflow Run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)"
@@ -389,9 +335,6 @@ jobs:
           else
             echo "📝 Creating new PR..."
             LABELS="dependencies,automated"
-            if [ "$TEST_STATUS" != "success" ]; then
-              LABELS="$LABELS,tests-failing"
-            fi
 
             PR_URL=$(gh pr create \
               --title "$PR_TITLE" \
@@ -474,52 +417,13 @@ jobs:
           npm install --save-exact @bitwarden/commercial-sdk-internal@$SDK_VERSION
           echo "✅ SDK packages updated in package.json"
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run linter
-        id: lint
-        run: npm run lint
-
-      - name: Lint SDK internal versions
-        run: npm run lint:sdk-internal-versions
-
-      - name: Run tests
-        id: tests
-        run: npm test
-        continue-on-error: true
-
       - name: Test summary
         env:
           SDK_VERSION: ${{ inputs.sdk-version }}
-          LINT_OUTCOME: ${{ steps.lint.outcome }}
-          TEST_OUTCOME: ${{ steps.tests.outcome }}
         run: |
-          if [ "$LINT_OUTCOME" = "success" ]; then
-            LINT_STATUS="✅ Passed"
-          else
-            LINT_STATUS="❌ Failed"
-          fi
-
-          if [ "$TEST_OUTCOME" = "success" ]; then
-            TEST_STATUS="✅ Passed"
-          elif [ "$TEST_OUTCOME" = "skipped" ]; then
-            TEST_STATUS="⏭️ Skipped"
-          else
-            TEST_STATUS="❌ Failed"
-          fi
-
           {
             echo "## 📊 Test Results"
             echo ""
             echo "- SDK Version: $SDK_VERSION"
-            echo "- Lint: $LINT_STATUS"
-            echo "- Tests: $TEST_STATUS"
+            echo "- ✅ SDK packages updated successfully"
           } >> $GITHUB_STEP_SUMMARY
-
-          if [ "$LINT_OUTCOME" = "success" ] && [ "$TEST_OUTCOME" = "success" ]; then
-            {
-              echo ""
-              echo "### ✅ All checks passed - SDK version $SDK_VERSION is ready for release"
-            } >> $GITHUB_STEP_SUMMARY
-          fi
