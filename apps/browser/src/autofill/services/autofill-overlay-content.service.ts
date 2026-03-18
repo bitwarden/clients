@@ -1129,8 +1129,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     autofillFieldData.inlineMenuFillType = CipherType.Login;
-    autofillFieldData.showPasskeys =
-      autofillFieldData.autoCompleteType?.includes("webauthn") ?? false;
+    autofillFieldData.showPasskeys = autofillFieldData.autoCompleteType?.includes("webauthn");
 
     this.qualifyAccountCreationFieldType(autofillFieldData);
   }
