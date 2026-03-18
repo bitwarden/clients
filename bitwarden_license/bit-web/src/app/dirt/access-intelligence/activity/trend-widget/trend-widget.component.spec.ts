@@ -103,7 +103,7 @@ describe("TrendWidgetComponent", () => {
         rect: jest.fn(),
         clip: jest.fn(),
         setLineDash: jest.fn(),
-        getLineDash: jest.fn(() => []),
+        getLineDash: jest.fn((): number[] => []),
         createLinearGradient: jest.fn(() => ({ addColorStop: jest.fn() })),
         createRadialGradient: jest.fn(() => ({ addColorStop: jest.fn() })),
       };
