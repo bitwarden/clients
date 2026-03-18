@@ -915,7 +915,10 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   private async refreshSalesTax(): Promise<void> {
-    if (this.billingFormGroup.controls.billingAddress.invalid) {
+    if (
+      this.billingFormGroup.controls.billingAddress.invalid ||
+      this.selectedPlan()?.type === PlanType.Free
+    ) {
       return;
     }
 
