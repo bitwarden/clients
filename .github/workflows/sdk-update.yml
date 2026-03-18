@@ -334,7 +334,7 @@ jobs:
             echo "## ✅ Updated PR: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "📝 Creating new PR..."
-            LABELS="dependencies,automated"
+            LABELS="automated pr"
 
             PR_URL=$(gh pr create \
               --title "$PR_TITLE" \
