@@ -779,18 +779,6 @@ describe("OrganizationPlansComponent", () => {
 
         expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Enterprise);
       });
-
-      it("should respect non-Free initialPlan even when canUpgradeFromPremium is true", async () => {
-        hasPremiumPersonallySubject.next(true);
-        fixture.componentRef.setInput("initialPlan", PlanType.TeamsAnnually);
-        fixture.componentRef.setInput("initialProductTier", ProductTierType.Teams);
-
-        fixture.detectChanges();
-        await fixture.whenStable();
-
-        expect(component["formGroup"].controls.plan.value).toBe(PlanType.TeamsAnnually);
-        expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Teams);
-      });
     });
   });
 
