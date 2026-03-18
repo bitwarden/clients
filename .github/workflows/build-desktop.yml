@@ -604,7 +604,7 @@ jobs:
           $sig = Get-AuthenticodeSignature $helperPath
           $actual = $sig.SignerCertificate.GetCertHashString("SHA256").ToLower()
 
-          $hardcoded = (Get-Content "apps/desktop/desktop_native/chromium_importer/src/chromium/platform/windows/signature.rs" -Raw) `
+          $hardcoded = (Get-Content "../desktop_native/chromium_importer/src/chromium/platform/windows/signature.rs" -Raw) `
             | Select-String '"([a-f0-9]{64})"' | ForEach-Object { $_.Matches[0].Groups[1].Value }
 
           if ($actual -ne $hardcoded) {
@@ -883,7 +883,7 @@ jobs:
           $sig = Get-AuthenticodeSignature $helperPath
           $actual = $sig.SignerCertificate.GetCertHashString("SHA256").ToLower()
 
-          $hardcoded = (Get-Content "apps/desktop/desktop_native/chromium_importer/src/chromium/platform/windows/signature.rs" -Raw) `
+          $hardcoded = (Get-Content "../desktop_native/chromium_importer/src/chromium/platform/windows/signature.rs" -Raw) `
             | Select-String '"([a-f0-9]{64})"' | ForEach-Object { $_.Matches[0].Groups[1].Value }
 
           if ($actual -ne $hardcoded) {
