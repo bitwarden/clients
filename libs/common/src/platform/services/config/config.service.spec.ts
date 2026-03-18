@@ -196,6 +196,7 @@ describe("ConfigService", () => {
                   cookieName: "auth_token",
                   cookieDomain: ".example.com",
                   cookieValue: undefined,
+                  vaultUrl: "vault.example.com",
                 },
               });
             });
