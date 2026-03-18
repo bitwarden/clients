@@ -7,7 +7,12 @@ import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import type { UserClientEvent } from "@bitwarden/sdk-internal";
 
-import { AuditLogEntry, ConnectionEntry, CredentialMatch } from "./agent-access.types";
+import {
+  AuditLogEntry,
+  ConnectionEntry,
+  CredentialMatch,
+  parseIdentityFingerprint,
+} from "./agent-access.types";
 import { BrowserProxyClient } from "./proxy-client";
 
 /** Storage keys for agent access state in chrome.storage.local */
@@ -356,7 +361,7 @@ export class AgentAccessService implements OnDestroy {
       if (!remoteIdentity) {
         return;
       }
-      const connectionId = this.parseIdentityFingerprint(remoteIdentity);
+      const connectionId = parseIdentityFingerprint(remoteIdentity);
 
       let entry: AuditLogEntry | null = null;
       switch (event.type) {
@@ -406,11 +411,6 @@ export class AgentAccessService implements OnDestroy {
       entry.connectionName = conn?.name ?? "Unknown";
     }
     await this.appendAuditLog(entry);
-  }
-
-  private parseIdentityFingerprint(raw: string): string {
-    const match = raw.match(/IdentityFingerprint\(([0-9a-f]+)\)/);
-    return match ? match[1] : raw;
   }
 
   private async persistState(): Promise<void> {

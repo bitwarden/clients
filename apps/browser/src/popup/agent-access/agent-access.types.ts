@@ -22,6 +22,12 @@ export interface AuditLogEntry {
   fields?: string[];
 }
 
+/** Extract hex from "IdentityFingerprint(hex...)" Debug format, or return as-is. */
+export function parseIdentityFingerprint(raw: string): string {
+  const match = raw.match(/IdentityFingerprint\(([0-9a-f]+)\)/);
+  return match ? match[1] : raw;
+}
+
 export interface CredentialRequestData {
   domain: string;
   requestId: string;

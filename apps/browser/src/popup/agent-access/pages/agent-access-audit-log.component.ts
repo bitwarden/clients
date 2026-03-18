@@ -44,7 +44,12 @@ interface DayGroup {
 
                 <!-- Text -->
                 <div class="tw-flex-1 tw-min-w-0">
-                  <p class="tw-text-main tw-text-sm tw-mb-0" [innerHTML]="actionText(entry)"></p>
+                  <p class="tw-text-main tw-text-sm tw-mb-0">
+                    {{ actionLabel(entry.action) }}
+                    @if (entry.domain) {
+                      <strong>{{ entry.domain }}</strong>
+                    }
+                  </p>
                   @if (entry.action === "credential_approved" && entry.fields?.length) {
                     <p class="tw-text-muted tw-text-xs tw-mb-0">{{ entry.fields!.join(", ") }}</p>
                   }
@@ -68,49 +73,42 @@ export class AgentAccessAuditLogComponent {
 
   protected readonly groups = computed(() => this.groupByDay(this.entries()));
 
+  private static readonly actionConfig: Record<
+    AuditLogEntry["action"],
+    { bgClass: string; icon: string; label: string }
+  > = {
+    credential_approved: {
+      bgClass: "tw-bg-success-600/10",
+      icon: "bwi-check tw-text-success",
+      label: "Credentials approved for",
+    },
+    credential_denied: {
+      bgClass: "tw-bg-danger-600/10",
+      icon: "bwi-close tw-text-danger",
+      label: "Request denied for",
+    },
+    connected: {
+      bgClass: "tw-bg-primary-600/10",
+      icon: "bwi-lock tw-text-primary-600",
+      label: "Connection established",
+    },
+    disconnected: {
+      bgClass: "tw-bg-secondary-300/30",
+      icon: "bwi-unlock tw-text-muted",
+      label: "Device disconnected",
+    },
+  };
+
   protected iconBgClass(action: AuditLogEntry["action"]): string {
-    switch (action) {
-      case "credential_approved":
-        return "tw-bg-success-600/10";
-      case "credential_denied":
-        return "tw-bg-danger-600/10";
-      case "connected":
-        return "tw-bg-primary-600/10";
-      case "disconnected":
-        return "tw-bg-secondary-300/30";
-    }
+    return AgentAccessAuditLogComponent.actionConfig[action].bgClass;
   }
 
   protected iconClass(action: AuditLogEntry["action"]): string {
-    switch (action) {
-      case "credential_approved":
-        return "bwi-check tw-text-success";
-      case "credential_denied":
-        return "bwi-close tw-text-danger";
-      case "connected":
-        return "bwi-lock tw-text-primary-600";
-      case "disconnected":
-        return "bwi-unlock tw-text-muted";
-    }
+    return AgentAccessAuditLogComponent.actionConfig[action].icon;
   }
 
-  protected actionText(entry: AuditLogEntry): string {
-    switch (entry.action) {
-      case "credential_approved":
-        return `Credentials approved for <strong>${this.escapeHtml(entry.domain ?? "unknown")}</strong>`;
-      case "credential_denied":
-        return `Request denied for <strong>${this.escapeHtml(entry.domain ?? "unknown")}</strong>`;
-      case "connected":
-        return "Connection established";
-      case "disconnected":
-        return "Device disconnected";
-    }
-  }
-
-  private escapeHtml(text: string): string {
-    const div = document.createElement("div");
-    div.textContent = text;
-    return div.innerHTML;
+  protected actionLabel(action: AuditLogEntry["action"]): string {
+    return AgentAccessAuditLogComponent.actionConfig[action].label;
   }
 
   private groupByDay(entries: AuditLogEntry[]): DayGroup[] {

@@ -18,7 +18,12 @@ import { PopupHeaderComponent } from "../../platform/popup/layout/popup-header.c
 import { PopupPageComponent } from "../../platform/popup/layout/popup-page.component";
 
 import { AgentAccessService, type ConnectionMode } from "./agent-access.service";
-import { AuditLogEntry, ConnectionEntry, CredentialRequestData } from "./agent-access.types";
+import {
+  AuditLogEntry,
+  ConnectionEntry,
+  CredentialRequestData,
+  parseIdentityFingerprint,
+} from "./agent-access.types";
 import { AgentAccessAuditLogComponent } from "./pages/agent-access-audit-log.component";
 import { AgentAccessCredentialRequestComponent } from "./pages/agent-access-credential-request.component";
 import { AgentAccessHomeComponent } from "./pages/agent-access-home.component";
@@ -590,10 +595,4 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
     this.codeCopied.set(false);
     this.tokenCopied.set(false);
   }
-}
-
-/** Extract hex from "IdentityFingerprint(hex...)" Debug format, or return as-is. */
-function parseIdentityFingerprint(raw: string): string {
-  const match = raw.match(/IdentityFingerprint\(([0-9a-f]+)\)/);
-  return match ? match[1] : raw;
 }
