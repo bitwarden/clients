@@ -2,8 +2,17 @@
   "allApplications": {
     "message": "All applications"
   },
+  "allMembers": {
+    "message": "All members"
+  },
+  "allPasswords": {
+    "message": "All passwords"
+  },
   "activity": {
     "message": "Activity"
+  },
+  "applicationsAtRisk": {
+    "message": "Applications at risk"
   },
   "appLogoLabel": {
     "message": "Bitwarden logo"
@@ -43,6 +52,15 @@
   },
   "passwordRisk": {
     "message": "Password Risk"
+  },
+  "passwords": {
+    "message": "Passwords"
+  },
+  "riskOverTime": {
+    "message": "Risk over time"
+  },
+  "passwordsAtRisk": {
+    "message": "Passwords at risk"
   },
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
@@ -8310,6 +8328,9 @@
   "members": {
     "message": "Members"
   },
+  "membersAtRisk": {
+    "message": "Members at risk"
+  },
   "reporting": {
     "message": "Reporting"
   },
@@ -11054,6 +11075,9 @@
   "clientDetails": {
     "message": "Client details"
   },
+  "downloadChart": {
+    "message": "Download chart"
+  },
   "downloadCSV": {
     "message": "Download CSV"
   },
@@ -13048,6 +13072,24 @@
         "example": "Jan 1, 1970"
       }
     }
+  },
+  "pastMonth": {
+    "message": "Past month"
+  },
+  "past3Months": {
+    "message": "Past 3 months"
+  },
+  "past6Months": {
+    "message": "Past 6 months"
+  },
+  "pastYear": {
+    "message": "Past year"
+  },
+  "allTime": {
+    "message": "All time"
+  },
+  "timePeriod": {
+    "message": "Time period"
   },
   "of": {
     "message": "of"

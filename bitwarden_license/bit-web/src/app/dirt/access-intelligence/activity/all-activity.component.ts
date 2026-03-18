@@ -10,6 +10,8 @@ import {
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
@@ -49,7 +51,9 @@ export class AllActivityComponent implements OnInit {
   showNeedsReviewState = false;
 
   destroyRef = inject(DestroyRef);
+  private configService = inject(ConfigService);
 
+  protected trendChartEnabled = false;
   protected ReportStatusEnum = ReportStatus;
 
   constructor(
@@ -61,6 +65,10 @@ export class AllActivityComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
+    this.trendChartEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.AccessIntelligenceTrendChart,
+    );
+
     this.allActivitiesService.reportSummary$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((summary) => {
