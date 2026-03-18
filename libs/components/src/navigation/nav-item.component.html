@@ -2,7 +2,7 @@
 @let containerClasses =
   "tw-size-full tw-px-0 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-fg-sidenav-text hover:tw-text-fg-sidenav-text hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]";
 
-<div class="tw-cursor-pointer">
+<div class="tw-cursor-pointer" [class]="open ? 'tw-ps-2 tw-pe-2' : 'tw-ps-3 tw-pe-3'">
   @if (open || icon()) {
     <div
       [style.padding-inline-start]="navItemIndentationPadding()"
