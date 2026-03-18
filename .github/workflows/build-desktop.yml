@@ -597,6 +597,22 @@ jobs:
         run: |
           npm run pack:win
 
+      - name: Verify helper exe thumbprint matches hardcoded value
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        run: |
+          $helperPath = Get-ChildItem -Recurse -Filter "bitwarden_chromium_import_helper.exe" ./dist | Select-Object -First 1 -ExpandProperty FullName
+          $sig = Get-AuthenticodeSignature $helperPath
+          $actual = $sig.SignerCertificate.GetCertHashString("SHA256").ToLower()
+
+          $hardcoded = (Get-Content "apps/desktop/desktop_native/chromium_importer/src/chromium/platform/windows/signature.rs" -Raw) `
+            | Select-String '"([a-f0-9]{64})"' | ForEach-Object { $_.Matches[0].Groups[1].Value }
+
+          if ($actual -ne $hardcoded) {
+            Write-Error "Thumbprint mismatch! Binary has '$actual' but signature.rs has '$hardcoded'. Update EXPECTED_SIGNATURE_SHA256_THUMBPRINT."
+            exit 1
+          }
+          Write-Host "Thumbprint verified: $actual"
+
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
@@ -859,6 +875,22 @@ jobs:
           SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
           SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
         run: npm run pack:win:beta
+
+      - name: Verify helper exe thumbprint matches hardcoded value
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        run: |
+          $helperPath = Get-ChildItem -Recurse -Filter "bitwarden_chromium_import_helper.exe" ./dist | Select-Object -First 1 -ExpandProperty FullName
+          $sig = Get-AuthenticodeSignature $helperPath
+          $actual = $sig.SignerCertificate.GetCertHashString("SHA256").ToLower()
+
+          $hardcoded = (Get-Content "apps/desktop/desktop_native/chromium_importer/src/chromium/platform/windows/signature.rs" -Raw) `
+            | Select-String '"([a-f0-9]{64})"' | ForEach-Object { $_.Matches[0].Groups[1].Value }
+
+          if ($actual -ne $hardcoded) {
+            Write-Error "Thumbprint mismatch! Binary has '$actual' but signature.rs has '$hardcoded'. Update EXPECTED_SIGNATURE_SHA256_THUMBPRINT."
+            exit 1
+          }
+          Write-Host "Thumbprint verified: $actual"
 
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
