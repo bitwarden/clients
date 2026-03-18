@@ -604,7 +604,7 @@ jobs:
           $sig = Get-AuthenticodeSignature $helperPath
           $actual = $sig.SignerCertificate.GetCertHashString("SHA256").ToLower()
 
-          $content = Get-Content "../desktop_native/chromium_importer/src/chromium/platform/windows/signature.rs" -Raw
+          $content = Get-Content "./desktop_native/chromium_importer/src/chromium/platform/windows/signature.rs" -Raw
           $hardcoded = [regex]::Match($content, 'EXPECTED_SIGNATURE_SHA256_THUMBPRINT[^"]*"([a-f0-9]{64})"').Groups[1].Value
 
           if ($actual -ne $hardcoded) {
@@ -883,7 +883,7 @@ jobs:
           $sig = Get-AuthenticodeSignature $helperPath
           $actual = $sig.SignerCertificate.GetCertHashString("SHA256").ToLower()
 
-          $content = Get-Content "../desktop_native/chromium_importer/src/chromium/platform/windows/signature.rs" -Raw
+          $content = Get-Content "./desktop_native/chromium_importer/src/chromium/platform/windows/signature.rs" -Raw
           $hardcoded = [regex]::Match($content, 'EXPECTED_SIGNATURE_SHA256_THUMBPRINT[^"]*"([a-f0-9]{64})"').Groups[1].Value
 
           if ($actual -ne $hardcoded) {
