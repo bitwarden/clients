@@ -179,6 +179,8 @@
     "buffer": "6.0.3",
     "bufferutil": "4.1.0",
     "chalk": "4.1.2",
+    "chart.js": "4.5.1",
+    "chartjs-adapter-date-fns": "3.0.0",
     "commander": "14.0.0",
     "core-js": "3.48.0",
     "form-data": "4.0.4",
