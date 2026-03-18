@@ -59,16 +59,32 @@ type TargetingRules = {
   };
 };
 
+type FormPurposeCategory =
+  | "account-creation"
+  | "account-login"
+  | "account-recovery"
+  | "address"
+  | "email-update"
+  | "identity"
+  | "password-update"
+  | "payment-card"
+  | "search"
+  | "shipping"
+  | "subscribe";
+
 /**
  * "form" here represents the user-facing concept and does not
  * require a literal HTML `form` tag or structure
  */
 type FormContent = {
   /**
-   * an optional descriptor of the form, useful for mapping separate concerns
+   * An optional descriptor of the form, useful for mapping separate concerns
    * (e.g. a page with both a login and registration form, mixed-purpose form, etc)
+   *
+   * Note, the client logic can use these to make determinations about what _not_ to
+   * consider as well (e.g. don't autofill search forms, newsletter sign ups)
    */
-  category?: "login" | "registration" | "identity" | "payment";
+  category?: FormPurposeCategory;
   selectors: {
     [type in AutofillTargetingRuleType | "form"]?: DeepSelector[];
   };
