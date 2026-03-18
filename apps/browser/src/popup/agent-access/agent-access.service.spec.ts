@@ -14,7 +14,8 @@ import { AgentAccessService } from "./agent-access.service";
 
 const mockGenerateIdentity = jest.fn(() => [1, 2, 3, 4]);
 const mockSignProxyChallenge = jest.fn(() => "signed");
-const mockListen = jest.fn();
+const mockConnect = jest.fn().mockResolvedValue(undefined);
+const mockSetAuditCallback = jest.fn();
 const mockEnableRendezvous = jest.fn();
 const mockEnablePsk = jest.fn();
 const mockListenCachedOnly = jest.fn();
@@ -22,19 +23,23 @@ const mockGetSessionData = jest.fn(() => "session-data");
 const mockGetIdentityData = jest.fn(() => [1, 2, 3, 4]);
 const mockSendResponse = jest.fn();
 
+function MockUserClient() {
+  return {
+    connect: mockConnect,
+    set_audit_callback: mockSetAuditCallback,
+    enable_rendezvous: mockEnableRendezvous,
+    enable_psk: mockEnablePsk,
+    listen_cached_only: mockListenCachedOnly,
+    get_session_data: mockGetSessionData,
+    get_identity_data: mockGetIdentityData,
+    send_response: mockSendResponse,
+  };
+}
+MockUserClient.generate_identity = mockGenerateIdentity;
+MockUserClient.sign_proxy_challenge = mockSignProxyChallenge;
+
 jest.mock("@bitwarden/sdk-internal", () => ({
-  UserClient: {
-    generate_identity: mockGenerateIdentity,
-    sign_proxy_challenge: mockSignProxyChallenge,
-    listen: mockListen.mockResolvedValue({
-      enable_rendezvous: mockEnableRendezvous,
-      enable_psk: mockEnablePsk,
-      listen_cached_only: mockListenCachedOnly,
-      get_session_data: mockGetSessionData,
-      get_identity_data: mockGetIdentityData,
-      send_response: mockSendResponse,
-    }),
-  },
+  UserClient: MockUserClient,
 }));
 
 // Mock BrowserProxyClient
@@ -96,7 +101,7 @@ describe("AgentAccessService", () => {
       await service.startListening("rendezvous");
 
       expect(mockGenerateIdentity).toHaveBeenCalled();
-      expect(mockListen).toHaveBeenCalled();
+      expect(mockConnect).toHaveBeenCalled();
     });
 
     it("should load persisted identity from storage", async () => {

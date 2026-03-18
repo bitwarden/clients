@@ -18,7 +18,8 @@ import { PopupHeaderComponent } from "../../platform/popup/layout/popup-header.c
 import { PopupPageComponent } from "../../platform/popup/layout/popup-page.component";
 
 import { AgentAccessService, type ConnectionMode } from "./agent-access.service";
-import { ConnectionEntry, CredentialRequestData } from "./agent-access.types";
+import { AuditLogEntry, ConnectionEntry, CredentialRequestData } from "./agent-access.types";
+import { AgentAccessAuditLogComponent } from "./pages/agent-access-audit-log.component";
 import { AgentAccessCredentialRequestComponent } from "./pages/agent-access-credential-request.component";
 import { AgentAccessHomeComponent } from "./pages/agent-access-home.component";
 import { AgentAccessPairingComponent } from "./pages/agent-access-pairing.component";
@@ -28,6 +29,7 @@ const AgentAccessView = Object.freeze({
   Home: "home",
   Pairing: "pairing",
   CredentialRequest: "credential-request",
+  AuditLog: "audit-log",
   Disconnected: "disconnected",
   Error: "error",
 } as const);
@@ -43,6 +45,7 @@ type AgentAccessView = (typeof AgentAccessView)[keyof typeof AgentAccessView];
     AgentAccessHomeComponent,
     AgentAccessPairingComponent,
     AgentAccessCredentialRequestComponent,
+    AgentAccessAuditLogComponent,
     AgentAccessStatusComponent,
   ],
   providers: [AgentAccessService],
@@ -65,6 +68,7 @@ type AgentAccessView = (typeof AgentAccessView)[keyof typeof AgentAccessView];
             (renameConnection)="onRenameConnection($event)"
             (removeConnection)="onRemoveConnection($event)"
             (openRequest)="openPendingRequest($event)"
+            (viewConnection)="openAuditLog($event)"
           />
         }
         @case ("pairing") {
@@ -91,6 +95,12 @@ type AgentAccessView = (typeof AgentAccessView)[keyof typeof AgentAccessView];
             [request]="currentRequest()"
             (approved)="onCredentialApproved($event)"
             (denied)="onCredentialDenied()"
+          />
+        }
+        @case ("audit-log") {
+          <app-agent-access-audit-log
+            [entries]="auditLogEntries()"
+            [connectionName]="auditLogConnectionName()"
           />
         }
         @case ("disconnected") {
@@ -130,6 +140,10 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
   protected readonly currentRequest = signal<CredentialRequestData | null>(null);
   // Pending requests by connection ID — survives navigation back to home
   protected readonly pendingRequests = signal<Map<string, CredentialRequestData>>(new Map());
+
+  // Audit log state
+  protected readonly auditLogEntries = signal<AuditLogEntry[]>([]);
+  protected readonly auditLogConnectionName = signal("");
 
   // Error state
   protected readonly errorMessage = signal("");
@@ -278,6 +292,7 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
     );
 
     this.clearPendingRequest(request.sessionId);
+
     this.toastService.showToast({
       variant: "success",
       title: null,
@@ -317,6 +332,17 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
       this.currentRequest.set(request);
       this.view.set(AgentAccessView.CredentialRequest);
     }
+  }
+
+  async openAuditLog(connectionId: string): Promise<void> {
+    const conn = this.connections().find((c) => c.id === connectionId);
+    if (!conn) {
+      return;
+    }
+    const entries = await this.service.loadAuditLog(connectionId);
+    this.auditLogEntries.set(entries);
+    this.auditLogConnectionName.set(conn.name);
+    this.view.set(AgentAccessView.AuditLog);
   }
 
   // --- Navigation ---
@@ -453,6 +479,16 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
         if (this.view() === AgentAccessView.Pairing) {
           this.view.set(AgentAccessView.Disconnected);
         } else {
+          const disconnectedId = this.remoteSessionId();
+          if (disconnectedId) {
+            const disconnectedConn = this.connections().find((c) => c.id === disconnectedId);
+            void this.service.appendAuditLog({
+              connectionId: disconnectedId,
+              connectionName: disconnectedConn?.name ?? "Unknown",
+              timestamp: Date.now(),
+              action: "disconnected",
+            });
+          }
           this.toastService.showToast({
             variant: "info",
             title: null,

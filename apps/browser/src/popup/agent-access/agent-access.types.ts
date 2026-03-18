@@ -13,6 +13,15 @@ export interface CredentialMatch {
   uri: string;
 }
 
+export interface AuditLogEntry {
+  connectionId: string;
+  connectionName: string;
+  timestamp: number;
+  action: "credential_approved" | "credential_denied" | "connected" | "disconnected";
+  domain?: string;
+  fields?: string[];
+}
+
 export interface CredentialRequestData {
   domain: string;
   requestId: string;

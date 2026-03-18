@@ -7,13 +7,15 @@ import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import type { UserClientEvent } from "@bitwarden/sdk-internal";
 
-import { ConnectionEntry, CredentialMatch } from "./agent-access.types";
+import { AuditLogEntry, ConnectionEntry, CredentialMatch } from "./agent-access.types";
 import { BrowserProxyClient } from "./proxy-client";
 
 /** Storage keys for agent access state in chrome.storage.local */
 const CONNECTIONS_KEY = "agent_access_connections";
 const IDENTITY_KEY = "agent_access_identity";
 const LISTENING_ENABLED_KEY = "agent_access_listening_enabled";
+const AUDIT_LOG_KEY = "agent_access_audit_log";
+const AUDIT_LOG_MAX_ENTRIES = 200;
 
 /** Default proxy URL — should eventually come from environment config */
 const DEFAULT_PROXY_URL = "wss://rat1.lesspassword.dev";
@@ -101,6 +103,29 @@ export class AgentAccessService implements OnDestroy {
     await this.storageService.save(LISTENING_ENABLED_KEY, enabled);
   }
 
+  // --- Audit log ---
+
+  async loadAuditLog(connectionId?: string): Promise<AuditLogEntry[]> {
+    const data = await this.storageService.get<AuditLogEntry[]>(AUDIT_LOG_KEY);
+    const entries = Array.isArray(data) ? data : [];
+    if (connectionId) {
+      return entries.filter((e) => e.connectionId === connectionId);
+    }
+    return entries;
+  }
+
+  async appendAuditLog(entry: AuditLogEntry): Promise<void> {
+    const data = await this.storageService.get<AuditLogEntry[]>(AUDIT_LOG_KEY);
+    const entries = Array.isArray(data) ? data : [];
+    entries.push(entry);
+    // Cap at max entries, drop oldest
+    const trimmed =
+      entries.length > AUDIT_LOG_MAX_ENTRIES
+        ? entries.slice(entries.length - AUDIT_LOG_MAX_ENTRIES)
+        : entries;
+    await this.storageService.save(AUDIT_LOG_KEY, trimmed);
+  }
+
   // --- Core connection ---
 
   /**
@@ -127,8 +152,11 @@ export class AgentAccessService implements OnDestroy {
     const proxyUrl = this.getProxyUrl();
     this.proxyClient = new BrowserProxyClient(proxyUrl, this.identityCose);
 
-    // Create WASM UserClient — uses the same identity we gave the proxy client
-    this.client = await UserClient.listen(this.proxyClient, sessionData ?? undefined, identityData);
+    // Create WASM UserClient — two-step: new() then connect()
+    // so we can set the audit callback before the connection is established
+    this.client = new UserClient(sessionData ?? undefined, identityData);
+    this.client.set_audit_callback(this.createAuditCallback());
+    await this.client.connect(this.proxyClient);
 
     // Persist identity immediately
     await this.persistState();
@@ -316,6 +344,73 @@ export class AgentAccessService implements OnDestroy {
   ngOnDestroy(): void {
     void this.disconnect();
     this.eventsSubject.complete();
+  }
+
+  /**
+   * Create a JS callback for the WASM AuditLog trait.
+   * Converts WASM audit events to AuditLogEntry and persists them.
+   */
+  private createAuditCallback(): (event: any) => void {
+    return (event: any) => {
+      const remoteIdentity = event.remoteIdentity as string | undefined;
+      if (!remoteIdentity) {
+        return;
+      }
+      const connectionId = this.parseIdentityFingerprint(remoteIdentity);
+
+      let entry: AuditLogEntry | null = null;
+      switch (event.type) {
+        case "connection_established":
+        case "session_refreshed":
+          entry = {
+            connectionId,
+            connectionName: (event.remoteName as string) ?? "Unknown",
+            timestamp: Date.now(),
+            action: "connected",
+          };
+          break;
+        case "credential_approved":
+          entry = {
+            connectionId,
+            connectionName: "",
+            timestamp: Date.now(),
+            action: "credential_approved",
+            domain: event.domain as string | undefined,
+            fields: event.fields as string[] | undefined,
+          };
+          break;
+        case "credential_denied": {
+          const query = event.query as { domain?: string } | undefined;
+          entry = {
+            connectionId,
+            connectionName: "",
+            timestamp: Date.now(),
+            action: "credential_denied",
+            domain: query?.domain,
+          };
+          break;
+        }
+      }
+
+      if (entry) {
+        // Fill in connection name from stored connections (fire-and-forget)
+        void this.enrichAndAppendAuditEntry(entry);
+      }
+    };
+  }
+
+  private async enrichAndAppendAuditEntry(entry: AuditLogEntry): Promise<void> {
+    if (!entry.connectionName) {
+      const connections = await this.loadConnections();
+      const conn = connections.find((c) => c.id === entry.connectionId);
+      entry.connectionName = conn?.name ?? "Unknown";
+    }
+    await this.appendAuditLog(entry);
+  }
+
+  private parseIdentityFingerprint(raw: string): string {
+    const match = raw.match(/IdentityFingerprint\(([0-9a-f]+)\)/);
+    return match ? match[1] : raw;
   }
 
   private async persistState(): Promise<void> {

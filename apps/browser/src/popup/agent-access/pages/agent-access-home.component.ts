@@ -70,8 +70,16 @@ import { ConnectionEntry, CredentialRequestData } from "../agent-access.types";
               </svg>
             </div>
 
-            <!-- Name + date -->
-            <div class="tw-flex-1 tw-min-w-0">
+            <!-- Name + date (clickable for audit log) -->
+            <button
+              type="button"
+              class="tw-flex-1 tw-min-w-0 tw-bg-transparent tw-border-0 tw-p-0 tw-text-left tw-cursor-pointer"
+              (click)="
+                pendingRequests().has(conn.id)
+                  ? openRequest.emit(conn.id)
+                  : viewConnection.emit(conn.id)
+              "
+            >
               <p class="tw-text-main tw-font-semibold tw-text-sm tw-mb-0 tw-truncate">
                 {{ conn.name }}
                 @if (pendingRequests().has(conn.id)) {
@@ -91,7 +99,7 @@ import { ConnectionEntry, CredentialRequestData } from "../agent-access.types";
                   Connected {{ conn.lastUsed | date: "short" }}
                 </p>
               }
-            </div>
+            </button>
 
             <!-- Actions -->
             @if (pendingRequests().has(conn.id)) {
@@ -138,4 +146,5 @@ export class AgentAccessHomeComponent {
   readonly renameConnection = output<string>();
   readonly removeConnection = output<string>();
   readonly openRequest = output<string>();
+  readonly viewConnection = output<string>();
 }
