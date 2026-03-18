@@ -706,10 +706,12 @@ describe("CartSummaryComponent", () => {
             },
           },
         },
-        discount: {
-          type: DiscountTypes.PercentOff,
-          value: 10,
-        },
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 10,
+          },
+        ],
       };
       fixture.componentRef.setInput("cart", cartWithBothDiscounts);
       fixture.detectChanges();
