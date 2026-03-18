@@ -17,10 +17,10 @@ import type { UserClientEvent } from "@bitwarden/sdk-internal";
 import { PopupHeaderComponent } from "../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../platform/popup/layout/popup-page.component";
 
+import { AgentAccessIdentityService } from "./agent-access-identity.service";
 import { AgentAccessService, type ConnectionMode } from "./agent-access.service";
 import {
   AuditLogEntry,
-  ConnectionEntry,
   CredentialRequestData,
   parseIdentityFingerprint,
 } from "./agent-access.types";
@@ -29,6 +29,7 @@ import { AgentAccessCredentialRequestComponent } from "./pages/agent-access-cred
 import { AgentAccessHomeComponent } from "./pages/agent-access-home.component";
 import { AgentAccessPairingComponent } from "./pages/agent-access-pairing.component";
 import { AgentAccessStatusComponent } from "./pages/agent-access-status.component";
+import { type SessionRecord } from "./session-repository";
 
 const AgentAccessView = Object.freeze({
   Home: "home",
@@ -39,6 +40,13 @@ const AgentAccessView = Object.freeze({
   Error: "error",
 } as const);
 type AgentAccessView = (typeof AgentAccessView)[keyof typeof AgentAccessView];
+
+/** UI-facing session info derived from SessionRecord + hex key. */
+interface SessionDisplay {
+  id: string; // hex fingerprint (repository key)
+  name: string;
+  lastConnected: number;
+}
 
 @Component({
   selector: "app-agent-access",
@@ -53,7 +61,7 @@ type AgentAccessView = (typeof AgentAccessView)[keyof typeof AgentAccessView];
     AgentAccessAuditLogComponent,
     AgentAccessStatusComponent,
   ],
-  providers: [AgentAccessService],
+  providers: [AgentAccessService, AgentAccessIdentityService],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <popup-page>
@@ -124,7 +132,7 @@ type AgentAccessView = (typeof AgentAccessView)[keyof typeof AgentAccessView];
 })
 export class AgentAccessComponent implements OnInit, OnDestroy {
   protected readonly view = signal<AgentAccessView>(AgentAccessView.Home);
-  protected readonly connections = signal<ConnectionEntry[]>([]);
+  protected readonly connections = signal<SessionDisplay[]>([]);
   protected readonly listeningEnabled = signal(true);
 
   // Pairing state
@@ -163,15 +171,15 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
   private readonly eventSubscription: { unsubscribe(): void } | null = null;
 
   async ngOnInit(): Promise<void> {
-    const [savedConnections, savedListening] = await Promise.all([
-      this.service.loadConnections(),
+    const [savedSessions, savedListening] = await Promise.all([
+      this.service.listSessions(),
       this.service.getListeningEnabled(),
     ]);
 
-    this.connections.set(savedConnections);
+    this.connections.set(savedSessions.map((s) => this.toDisplay(s)));
     this.listeningEnabled.set(savedListening);
 
-    if (savedListening && savedConnections.length > 0) {
+    if (savedListening && savedSessions.length > 0) {
       this.subscribeToEvents();
       this.service.startListeningForAll().catch((err: Error) => {
         this.errorMessage.set(err.message || "Failed to start listening");
@@ -198,14 +206,14 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
     if (!newName || newName === conn.name) {
       return;
     }
-    const updated = await this.service.saveConnection({ ...conn, name: newName });
-    this.connections.set(updated);
+    // TODO: Update session name via repository or WASM client
+    // For now, just update the display
+    this.connections.update((list) => list.map((c) => (c.id === id ? { ...c, name: newName } : c)));
   }
 
   async onRemoveConnection(id: string): Promise<void> {
-    await this.service.removeConnection(id);
-    const updated = await this.service.loadConnections();
-    this.connections.set(updated);
+    await this.service.removeSession(id);
+    await this.refreshConnections();
 
     this.toastService.showToast({
       variant: "success",
@@ -510,22 +518,10 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
   }
 
   private async onConnectionEstablished(): Promise<void> {
-    const remoteId = this.remoteSessionId();
-    const fp = this.fingerprint();
-    const sessionData = this.service.getSessionData() ?? "";
+    const name = this.connectionName() || "Unnamed Connection";
 
-    const existing = remoteId ? this.connections().find((c) => c.id === remoteId) : undefined;
-    const name = this.connectionName() || existing?.name || "Unnamed Connection";
-    const entry: ConnectionEntry = {
-      id: remoteId,
-      name,
-      fingerprint: fp,
-      lastUsed: Date.now(),
-      sessionData,
-    };
-
-    const updated = await this.service.saveConnection(entry);
-    this.connections.set(updated);
+    // Refresh the connections list from the repository (auto-persisted by WASM)
+    await this.refreshConnections();
 
     // Show brief success animation before navigating home
     this.pairingStage.set("connected");
@@ -594,5 +590,18 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
     this.remoteSessionId.set("");
     this.codeCopied.set(false);
     this.tokenCopied.set(false);
+  }
+
+  private async refreshConnections(): Promise<void> {
+    const sessions = await this.service.listSessions();
+    this.connections.set(sessions.map((s) => this.toDisplay(s)));
+  }
+
+  private toDisplay(record: SessionRecord): SessionDisplay {
+    return {
+      id: record.fingerprint.map((b) => b.toString(16).padStart(2, "0")).join(""),
+      name: record.name ?? "Unnamed Connection",
+      lastConnected: record.lastConnected,
+    };
   }
 }

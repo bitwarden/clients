@@ -7,17 +7,12 @@ import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import type { UserClientEvent } from "@bitwarden/sdk-internal";
 
-import {
-  AuditLogEntry,
-  ConnectionEntry,
-  CredentialMatch,
-  parseIdentityFingerprint,
-} from "./agent-access.types";
+import { AgentAccessIdentityService } from "./agent-access-identity.service";
+import { AuditLogEntry, CredentialMatch, parseIdentityFingerprint } from "./agent-access.types";
 import { BrowserProxyClient } from "./proxy-client";
+import { ChromeSessionRepository, type SessionRecord } from "./session-repository";
 
 /** Storage keys for agent access state in chrome.storage.local */
-const CONNECTIONS_KEY = "agent_access_connections";
-const IDENTITY_KEY = "agent_access_identity";
 const LISTENING_ENABLED_KEY = "agent_access_listening_enabled";
 const AUDIT_LOG_KEY = "agent_access_audit_log";
 const AUDIT_LOG_MAX_ENTRIES = 200;
@@ -49,52 +44,21 @@ export class AgentAccessService implements OnDestroy {
   private cipherService = inject(CipherService);
   private accountService = inject(AccountService);
   private environmentService = inject(EnvironmentService);
+  private identityService = inject(AgentAccessIdentityService);
   private ngZone = inject(NgZone);
 
-  // --- Connection storage ---
+  private sessionRepository: ChromeSessionRepository | null = null;
 
-  async loadConnections(): Promise<ConnectionEntry[]> {
-    const data = await this.storageService.get<ConnectionEntry[] | string>(CONNECTIONS_KEY);
-    if (!data) {
-      return [];
-    }
-    // Migrate from old JSON-stringified format
-    if (typeof data === "string") {
-      try {
-        const parsed = JSON.parse(data) as ConnectionEntry[];
-        if (Array.isArray(parsed)) {
-          await this.storageService.save(CONNECTIONS_KEY, parsed);
-          return parsed;
-        }
-      } catch {
-        // Corrupted data, reset
-      }
-      await this.storageService.remove(CONNECTIONS_KEY);
-      return [];
-    }
-    if (!Array.isArray(data)) {
-      await this.storageService.remove(CONNECTIONS_KEY);
-      return [];
-    }
-    return data;
+  // --- Session listing (delegates to repository) ---
+
+  async listSessions(): Promise<SessionRecord[]> {
+    const repo = this.getOrCreateRepository();
+    return repo.list();
   }
 
-  async saveConnection(entry: ConnectionEntry): Promise<ConnectionEntry[]> {
-    const connections = await this.loadConnections();
-    const existingIndex = connections.findIndex((c) => c.id === entry.id);
-    if (existingIndex >= 0) {
-      connections[existingIndex] = entry;
-    } else {
-      connections.push(entry);
-    }
-    await this.storageService.save(CONNECTIONS_KEY, connections);
-    return connections;
-  }
-
-  async removeConnection(id: string): Promise<void> {
-    const connections = await this.loadConnections();
-    const filtered = connections.filter((c) => c.id !== id);
-    await this.storageService.save(CONNECTIONS_KEY, filtered);
+  async removeSession(id: string): Promise<void> {
+    const repo = this.getOrCreateRepository();
+    await repo.remove(id);
   }
 
   // --- Listening toggle ---
@@ -134,37 +98,42 @@ export class AgentAccessService implements OnDestroy {
   // --- Core connection ---
 
   /**
-   * Initialize the RAT client: load persisted identity/session from storage,
-   * connect to proxy, and prepare to listen.
+   * Initialize the RAT client: load identity from vault, create session
+   * repository, connect to proxy, and start listening.
+   *
+   * The session repository auto-persists all session state — no manual
+   * persistState() calls needed.
    */
-  async startListening(mode: ConnectionMode, sessionData?: string): Promise<void> {
+  async startListening(mode: ConnectionMode): Promise<void> {
     // Load SDK module
     const sdk = await import("@bitwarden/sdk-internal");
 
-    // Load persisted state
-    const identityB64 = await this.storageService.get<string>(IDENTITY_KEY);
-    let identityData = identityB64 ? this.base64ToBytes(identityB64) : undefined;
-
-    // Ensure we have identity bytes BEFORE creating the proxy client,
-    // because connect() needs them for the auth challenge-response.
-    const UserClient = (sdk as any).UserClient;
-    if (!identityData || identityData.length === 0) {
-      identityData = new Uint8Array(UserClient.generate_identity());
+    // Get active user
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
+    if (!activeUserId) {
+      throw new Error("No active account");
     }
-    this.identityCose = identityData;
 
-    // Create proxy client with the real identity
+    // Get identity from vault (generates on first use)
+    this.identityCose = new Uint8Array(await this.identityService.getIdentity(activeUserId));
+
+    // Create session repository for auto-persistence
+    const repo = this.getOrCreateRepository();
+
+    // Run migration from old format (one-time)
+    await repo.migrateFromOldFormat();
+
+    // Create proxy client with identity for auth challenge
     const proxyUrl = this.getProxyUrl();
     this.proxyClient = new BrowserProxyClient(proxyUrl, this.identityCose);
 
-    // Create WASM UserClient — two-step: new() then connect()
-    // so we can set the audit callback before the connection is established
-    this.client = new UserClient(sessionData ?? undefined, identityData);
+    // Create WASM UserClient with repository + identity
+    const UserClient = (sdk as any).UserClient;
+    this.client = new UserClient(repo, this.identityCose);
     this.client.set_audit_callback(this.createAuditCallback());
     await this.client.connect(this.proxyClient);
-
-    // Persist identity immediately
-    await this.persistState();
 
     // Event callback — runs in the WASM event loop, need to re-enter NgZone
     const eventCallback = (event: UserClientEvent) => {
@@ -174,40 +143,30 @@ export class AgentAccessService implements OnDestroy {
     };
 
     // Start the event loop (this promise resolves when client disconnects)
-    try {
-      switch (mode) {
-        case "rendezvous":
-          await this.client.enable_rendezvous(eventCallback);
-          break;
-        case "psk":
-          await this.client.enable_psk(eventCallback);
-          break;
-        case "cached":
-          await this.client.listen_cached_only(eventCallback);
-          break;
-      }
-    } finally {
-      // Persist state after event loop ends
-      await this.persistState();
+    switch (mode) {
+      case "rendezvous":
+        await this.client.enable_rendezvous(eventCallback);
+        break;
+      case "psk":
+        await this.client.enable_psk(eventCallback);
+        break;
+      case "cached":
+        await this.client.listen_cached_only(eventCallback);
+        break;
     }
   }
 
   /**
-   * Start listening using cached session data from all saved connections.
-   * Currently the WASM SDK only supports one active client, so we use
-   * the most recently used connection's session data.
+   * Start listening using cached sessions.
+   * The session repository already holds all persisted sessions,
+   * so no need to pass session data explicitly.
    */
   async startListeningForAll(): Promise<void> {
-    const connections = await this.loadConnections();
-    if (connections.length === 0) {
+    const sessions = await this.listSessions();
+    if (sessions.length === 0) {
       return;
     }
-
-    // Use the most recently used connection's session data
-    const sorted = [...connections].sort((a, b) => b.lastUsed - a.lastUsed);
-    const sessionData = sorted[0].sessionData;
-
-    await this.startListening("cached", sessionData);
+    await this.startListening("cached");
   }
 
   /** Approve or reject fingerprint verification. */
@@ -223,7 +182,6 @@ export class AgentAccessService implements OnDestroy {
       response["name"] = name;
     }
     this.client.send_response(response);
-    await this.persistState();
   }
 
   /** Respond to a credential request. */
@@ -246,7 +204,6 @@ export class AgentAccessService implements OnDestroy {
       credential: approved ? credential : undefined,
       credential_id: approved ? credential?.credentialId : undefined,
     });
-    await this.persistState();
   }
 
   /** Look up all vault credentials matching a domain. */
@@ -321,18 +278,6 @@ export class AgentAccessService implements OnDestroy {
     }
   }
 
-  /** Get the current session data from the active client. */
-  getSessionData(): string | null {
-    if (!this.client) {
-      return null;
-    }
-    try {
-      return this.client.get_session_data() as string;
-    } catch {
-      return null;
-    }
-  }
-
   /** Disconnect and clean up. */
   async disconnect(): Promise<void> {
     if (this.proxyClient) {
@@ -398,7 +343,7 @@ export class AgentAccessService implements OnDestroy {
       }
 
       if (entry) {
-        // Fill in connection name from stored connections (fire-and-forget)
+        // Fill in connection name from stored sessions (fire-and-forget)
         void this.enrichAndAppendAuditEntry(entry);
       }
     };
@@ -406,26 +351,20 @@ export class AgentAccessService implements OnDestroy {
 
   private async enrichAndAppendAuditEntry(entry: AuditLogEntry): Promise<void> {
     if (!entry.connectionName) {
-      const connections = await this.loadConnections();
-      const conn = connections.find((c) => c.id === entry.connectionId);
-      entry.connectionName = conn?.name ?? "Unknown";
+      const sessions = await this.listSessions();
+      const session = sessions.find(
+        (s) => this.fingerprintToHex(s.fingerprint) === entry.connectionId,
+      );
+      entry.connectionName = session?.name ?? "Unknown";
     }
     await this.appendAuditLog(entry);
   }
 
-  private async persistState(): Promise<void> {
-    if (!this.client) {
-      return;
+  private getOrCreateRepository(): ChromeSessionRepository {
+    if (!this.sessionRepository) {
+      this.sessionRepository = new ChromeSessionRepository(this.storageService);
     }
-    try {
-      const identityData = this.client.get_identity_data();
-      await this.storageService.save(
-        IDENTITY_KEY,
-        this.bytesToBase64(new Uint8Array(identityData)),
-      );
-    } catch {
-      // Persist failures are non-fatal
-    }
+    return this.sessionRepository;
   }
 
   private getProxyUrl(): string {
@@ -433,20 +372,7 @@ export class AgentAccessService implements OnDestroy {
     return DEFAULT_PROXY_URL;
   }
 
-  private base64ToBytes(b64: string): Uint8Array {
-    const binary = atob(b64);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-      bytes[i] = binary.charCodeAt(i);
-    }
-    return bytes;
-  }
-
-  private bytesToBase64(bytes: Uint8Array): string {
-    let binary = "";
-    for (const byte of bytes) {
-      binary += String.fromCharCode(byte);
-    }
-    return btoa(binary);
+  private fingerprintToHex(fingerprint: number[]): string {
+    return fingerprint.map((b) => b.toString(16).padStart(2, "0")).join("");
   }
 }

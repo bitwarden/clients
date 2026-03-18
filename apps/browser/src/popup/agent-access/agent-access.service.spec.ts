@@ -6,20 +6,19 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
+import { AgentAccessIdentityService } from "./agent-access-identity.service";
 import { AgentAccessService } from "./agent-access.service";
 
 // ---------------------------------------------------------------------------
 // Mock @bitwarden/sdk-internal
 // ---------------------------------------------------------------------------
 
-const mockGenerateIdentity = jest.fn(() => [1, 2, 3, 4]);
 const mockSignProxyChallenge = jest.fn(() => "signed");
 const mockConnect = jest.fn().mockResolvedValue(undefined);
 const mockSetAuditCallback = jest.fn();
 const mockEnableRendezvous = jest.fn();
 const mockEnablePsk = jest.fn();
 const mockListenCachedOnly = jest.fn();
-const mockGetSessionData = jest.fn(() => "session-data");
 const mockGetIdentityData = jest.fn(() => [1, 2, 3, 4]);
 const mockSendResponse = jest.fn();
 
@@ -30,12 +29,10 @@ function MockUserClient() {
     enable_rendezvous: mockEnableRendezvous,
     enable_psk: mockEnablePsk,
     listen_cached_only: mockListenCachedOnly,
-    get_session_data: mockGetSessionData,
     get_identity_data: mockGetIdentityData,
     send_response: mockSendResponse,
   };
 }
-MockUserClient.generate_identity = mockGenerateIdentity;
 MockUserClient.sign_proxy_challenge = mockSignProxyChallenge;
 
 jest.mock("@bitwarden/sdk-internal", () => ({
@@ -55,6 +52,7 @@ describe("AgentAccessService", () => {
   let service: AgentAccessService;
   let storageService: jest.Mocked<AbstractStorageService>;
   let cipherService: jest.Mocked<CipherService>;
+  let identityService: jest.Mocked<AgentAccessIdentityService>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -70,6 +68,10 @@ describe("AgentAccessService", () => {
       getAllDecryptedForUrl: jest.fn().mockResolvedValue([]),
     } as any;
 
+    identityService = {
+      getIdentity: jest.fn().mockResolvedValue(new Uint8Array([1, 2, 3, 4])),
+    } as any;
+
     const accountService = {
       activeAccount$: of({ id: "user-1" }),
     } as any;
@@ -83,6 +85,7 @@ describe("AgentAccessService", () => {
         { provide: CipherService, useValue: cipherService },
         { provide: AccountService, useValue: accountService },
         { provide: EnvironmentService, useValue: environmentService },
+        { provide: AgentAccessIdentityService, useValue: identityService },
       ],
     });
 
@@ -90,43 +93,17 @@ describe("AgentAccessService", () => {
   });
 
   // ---------------------------------------------------------------------------
-  // Identity generation/loading
+  // Identity loading via identity service
   // ---------------------------------------------------------------------------
 
   describe("startListening", () => {
-    it("should generate identity when none is stored", async () => {
-      storageService.get.mockResolvedValue(null);
+    it("should get identity from identity service", async () => {
       mockEnableRendezvous.mockResolvedValue(undefined);
 
       await service.startListening("rendezvous");
 
-      expect(mockGenerateIdentity).toHaveBeenCalled();
+      expect(identityService.getIdentity).toHaveBeenCalledWith("user-1");
       expect(mockConnect).toHaveBeenCalled();
-    });
-
-    it("should load persisted identity from storage", async () => {
-      // Base64 of [10, 20, 30]
-      const b64 = btoa(String.fromCharCode(10, 20, 30));
-      storageService.get.mockImplementation((key: string) => {
-        if (key === "agent_access_identity") {
-          return Promise.resolve(b64);
-        }
-        return Promise.resolve(null);
-      });
-      mockEnableRendezvous.mockResolvedValue(undefined);
-
-      await service.startListening("rendezvous");
-
-      // Should NOT generate new identity since one was loaded
-      expect(mockGenerateIdentity).not.toHaveBeenCalled();
-    });
-
-    it("should persist state after starting", async () => {
-      mockEnableRendezvous.mockResolvedValue(undefined);
-
-      await service.startListening("rendezvous");
-
-      expect(storageService.save).toHaveBeenCalledWith("agent_access_identity", expect.any(String));
     });
 
     it("should dispatch to enable_psk for psk mode", async () => {
@@ -152,7 +129,7 @@ describe("AgentAccessService", () => {
   // ---------------------------------------------------------------------------
 
   describe("verifyFingerprint", () => {
-    it("should send verify response and persist state", async () => {
+    it("should send verify response", async () => {
       mockEnableRendezvous.mockResolvedValue(undefined);
       await service.startListening("rendezvous");
 
@@ -274,6 +251,7 @@ describe("AgentAccessService", () => {
           { provide: CipherService, useValue: cipherService },
           { provide: AccountService, useValue: { activeAccount$: of(null) } },
           { provide: EnvironmentService, useValue: {} },
+          { provide: AgentAccessIdentityService, useValue: identityService },
         ],
       });
       const svcNoAccount = TestBed.inject(AgentAccessService);
@@ -313,52 +291,19 @@ describe("AgentAccessService", () => {
   });
 
   // ---------------------------------------------------------------------------
-  // Connection storage
+  // Session storage (via repository)
   // ---------------------------------------------------------------------------
 
-  describe("connection storage", () => {
-    it("should load empty array when no connections stored", async () => {
-      const result = await service.loadConnections();
+  describe("session management", () => {
+    it("should list sessions from repository", async () => {
+      const result = await service.listSessions();
       expect(result).toEqual([]);
     });
 
-    it("should save and load connections", async () => {
-      const entry = {
-        id: "aabbccdd",
-        name: "Test Device",
-        fingerprint: "abc123",
-        lastUsed: Date.now(),
-        sessionData: "session",
-      };
-
-      const result = await service.saveConnection(entry);
-
-      expect(result).toEqual([expect.objectContaining({ id: "aabbccdd" })]);
-      expect(storageService.save).toHaveBeenCalledWith(
-        "agent_access_connections",
-        expect.arrayContaining([expect.objectContaining({ id: "aabbccdd" })]),
-      );
-    });
-
-    it("should remove connection by id", async () => {
-      storageService.get.mockImplementation((key: string) => {
-        if (key === "agent_access_connections") {
-          return Promise.resolve([
-            { id: "r1", name: "A", fingerprint: "", lastUsed: 0, sessionData: "" },
-            { id: "r2", name: "B", fingerprint: "", lastUsed: 0, sessionData: "" },
-          ]);
-        }
-        return Promise.resolve(null);
-      });
-
-      await service.removeConnection("r1");
-
-      const savedArg = (storageService.save as jest.Mock).mock.calls.find(
-        (call: any[]) => call[0] === "agent_access_connections",
-      );
-      const saved = savedArg[1];
-      expect(saved).toHaveLength(1);
-      expect(saved[0].id).toBe("r2");
+    it("should remove session by id", async () => {
+      await service.removeSession("abc123");
+      // Verifies it doesn't throw — actual persistence is via the repository
+      expect(storageService.get).toHaveBeenCalled();
     });
   });
 

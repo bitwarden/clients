@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, input, output } from "@angular/core
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ButtonModule, IconButtonModule } from "@bitwarden/components";
 
-import { ConnectionEntry, CredentialRequestData } from "../agent-access.types";
+import { CredentialRequestData } from "../agent-access.types";
 
 @Component({
   selector: "app-agent-access-home",
@@ -96,7 +96,7 @@ import { ConnectionEntry, CredentialRequestData } from "../agent-access.types";
                 </p>
               } @else {
                 <p class="tw-text-muted tw-text-xs tw-mb-0">
-                  Connected {{ conn.lastUsed | date: "short" }}
+                  Connected {{ conn.lastConnected | date: "short" }}
                 </p>
               }
             </button>
@@ -139,7 +139,7 @@ import { ConnectionEntry, CredentialRequestData } from "../agent-access.types";
   `,
 })
 export class AgentAccessHomeComponent {
-  readonly connections = input<ConnectionEntry[]>([]);
+  readonly connections = input<{ id: string; name: string; lastConnected: number }[]>([]);
   readonly pendingRequests = input<Map<string, CredentialRequestData>>(new Map());
 
   readonly addConnection = output();
