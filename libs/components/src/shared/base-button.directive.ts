@@ -21,6 +21,8 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-bg-bg-brand",
       "hover:tw-bg-bg-brand-strong",
       "hover:tw-border-border-brand-strong",
+      "aria-expanded:tw-bg-bg-brand-strong",
+      "aria-expanded:tw-border-border-brand-strong",
       "focus-visible:tw-bg-bg-brand-strong",
       "focus-visible:tw-border-border-brand-strong",
     ],
@@ -29,16 +31,15 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-text-fg-brand",
       "hover:tw-border-border-brand-strong",
       "hover:tw-text-fg-brand-strong",
+      "aria-expanded:tw-border-border-brand-strong",
+      "aria-expanded:tw-text-fg-brand-strong",
       "focus-visible:tw-text-fg-brand-strong",
     ],
     primaryGhost: [
       "tw-text-fg-heading",
       "hover:tw-text-fg-brand",
-      "[&:focus-visible:not([aria-expanded='true'])]:tw-text-fg-brand",
-      "aria-expanded:tw-bg-bg-brand-stronger",
-      "aria-expanded:hover:tw-bg-bg-brand-stronger",
-      "aria-expanded:tw-text-fg-contrast",
-      "aria-expanded:hover:tw-text-fg-contrast",
+      "aria-expanded:tw-text-fg-brand",
+      "focus-visible:tw-text-fg-brand",
     ],
     secondary: [
       "tw-bg-bg-secondary",
@@ -46,6 +47,8 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-text-fg-heading",
       "hover:tw-bg-bg-quaternary",
       "hover:tw-text-fg-brand-strong",
+      "aria-expanded:tw-bg-bg-quaternary",
+      "aria-expanded:tw-text-fg-brand-strong",
       "focus-visible:tw-text-fg-brand-strong",
       "focus-visible:tw-bg-bg-quaternary",
     ],
@@ -54,6 +57,8 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-bg-bg-contrast",
       "hover:tw-bg-bg-contrast-strong",
       "hover:tw-border-border-contrast-strong",
+      "aria-expanded:tw-bg-bg-contrast-strong",
+      "aria-expanded:tw-border-border-contrast-strong",
       "focus-visible:tw-border-border-contrast-strong",
       "focus-visible:tw-bg-bg-contrast-strong",
     ],
@@ -62,11 +67,14 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-text-fg-heading",
       "hover:tw-border-border-contrast-strong",
       "hover:tw-text-fg-heading",
+      "aria-expanded:tw-border-border-contrast-strong",
+      "aria-expanded:tw-text-fg-heading",
       "focus-visible:tw-text-fg-heading",
     ],
     subtleGhost: [
       "tw-text-fg-heading",
       "hover:tw-text-fg-heading",
+      "aria-expanded:tw-text-fg-heading",
       "focus-visible:tw-text-fg-heading",
     ],
     danger: [
@@ -75,6 +83,9 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "hover:tw-bg-bg-danger-strong",
       "hover:tw-border-border-danger-strong",
       "hover:tw-text-fg-contrast",
+      "aria-expanded:tw-bg-bg-danger-strong",
+      "aria-expanded:tw-border-border-danger-strong",
+      "aria-expanded:tw-text-fg-contrast",
       "focus-visible:tw-border-border-danger-strong",
       "focus-visible:tw-text-fg-contrast",
       "focus-visible:tw-bg-bg-danger-strong",
@@ -84,11 +95,14 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-text-fg-danger",
       "hover:tw-border-border-danger-strong",
       "hover:!tw-text-fg-danger-strong",
+      "aria-expanded:tw-border-border-danger-strong",
+      "aria-expanded:!tw-text-fg-danger-strong",
       "focus-visible:!tw-text-fg-danger-strong",
     ],
     dangerGhost: [
       "tw-text-fg-danger",
       "hover:tw-text-fg-danger",
+      "aria-expanded:tw-text-fg-danger",
       "focus-visible:tw-text-fg-danger",
     ],
     warning: [
@@ -96,6 +110,8 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-border-border-warning",
       "hover:tw-bg-bg-warning-strong",
       "hover:tw-border-border-warning-strong",
+      "aria-expanded:tw-bg-bg-warning-strong",
+      "aria-expanded:tw-border-border-warning-strong",
       "focus-visible:tw-bg-bg-warning-strong",
       "focus-visible:tw-border-border-warning-strong",
     ],
@@ -104,11 +120,14 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-text-fg-warning",
       "hover:tw-border-border-warning-strong",
       "hover:!tw-text-fg-warning-strong",
+      "aria-expanded:tw-border-border-warning-strong",
+      "aria-expanded:!tw-text-fg-warning-strong",
       "focus-visible:!tw-text-fg-warning-strong",
     ],
     warningGhost: [
       "tw-text-fg-warning",
       "hover:tw-text-fg-warning-strong",
+      "aria-expanded:tw-text-fg-warning-strong",
       "focus-visible:tw-text-fg-warning-strong",
     ],
     success: [
@@ -116,6 +135,8 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-border-border-success",
       "hover:tw-bg-bg-success-strong",
       "hover:tw-border-border-success-strong",
+      "aria-expanded:tw-bg-bg-success-strong",
+      "aria-expanded:tw-border-border-success-strong",
       "focus-visible:tw-bg-bg-success-strong",
       "focus-visible:tw-border-border-success-strong",
     ],
@@ -124,11 +145,14 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-text-fg-success",
       "hover:tw-border-border-success-strong",
       "hover:tw-text-fg-success-strong",
+      "aria-expanded:tw-border-border-success-strong",
+      "aria-expanded:tw-text-fg-success-strong",
       "focus-visible:tw-text-fg-success-strong",
     ],
     successGhost: [
       "tw-text-fg-success",
       "hover:tw-text-fg-success-strong",
+      "aria-expanded:tw-text-fg-success-strong",
       "focus-visible:tw-text-fg-success-strong",
     ],
     contrast: [
@@ -138,6 +162,9 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "hover:tw-bg-bg-quaternary",
       "hover:tw-text-fg-heading",
       "hover:tw-border-bg-quaternary",
+      "aria-expanded:tw-bg-bg-quaternary",
+      "aria-expanded:tw-text-fg-heading",
+      "aria-expanded:tw-border-bg-quaternary",
       "focus-visible:tw-text-fg-heading",
     ],
     contrastOutline: [
@@ -146,6 +173,9 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "hover:tw-border-border-contrast-strong",
       "hover:tw-text-fg-contrast-strong",
       "hover:tw-bg-bg-hover-contrast",
+      "aria-expanded:tw-border-border-contrast-strong",
+      "aria-expanded:tw-text-fg-contrast-strong",
+      "aria-expanded:tw-bg-bg-hover-contrast",
       "focus-visible:tw-text-fg-contrast-strong",
       "focus-visible:tw-bg-bg-hover-contrast",
     ],
@@ -153,10 +183,13 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-text-fg-contrast",
       "hover:tw-text-fg-contrast-strong",
       "hover:tw-bg-bg-hover-contrast",
+      "hover:tw-border-bg-hover-contrast",
+      "aria-expanded:tw-text-fg-contrast-strong",
+      "aria-expanded:tw-bg-bg-hover-contrast",
+      "aria-expanded:tw-border-bg-hover-contrast",
       "focus-visible:tw-text-fg-contrast-strong",
       "focus-visible:tw-bg-bg-hover-contrast",
       "focus-visible:tw-border-bg-hover-contrast",
-      "hover:tw-border-bg-hover-contrast",
     ],
     "side-nav": [
       "!tw-text-fg-sidenav-text",
@@ -164,6 +197,8 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-bg-transparent",
       "hover:!tw-text-fg-sidenav-text",
       "hover:tw-bg-hover-contrast",
+      "aria-expanded:!tw-text-fg-sidenav-text",
+      "aria-expanded:tw-bg-hover-contrast",
       "focus-visible:!tw-ring-fg-sidenav-text",
       "focus-visible:!tw-ring-offset-bg-sidenav",
       "focus-visible:!tw-text-fg-sidenav-text",
@@ -199,19 +234,25 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-bg-transparent",
       "tw-bg-clip-padding",
       "hover:tw-bg-bg-hover",
-      "[&:focus-visible:not([aria-expanded='true'])]:tw-bg-bg-hover",
+      "aria-expanded:tw-bg-bg-hover",
+      "focus-visible:tw-bg-bg-hover",
       "focus-visible:tw-border-transparent",
     );
   }
 
   if (isSolid && !isSecondary) {
-    baseStyles.push("tw-text-fg-contrast", "hover:tw-text-fg-contrast");
+    baseStyles.push(
+      "tw-text-fg-contrast",
+      "hover:tw-text-fg-contrast",
+      "aria-expanded:tw-text-fg-contrast",
+    );
   }
 
   if (isGhost) {
     baseStyles.push(
       "tw-border-transparent",
       "hover:tw-border-bg-hover",
+      "aria-expanded:tw-border-bg-hover",
       "focus-visible:tw-border-bg-hover",
     );
   }
