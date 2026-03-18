@@ -196,6 +196,7 @@ module.exports = {
         focus: "var(--color-border-focus)",
         "focus-contrast": "var(--color-border-focus-contrast)",
         "sidenav-focus": "var(--color-sidenav-focus)",
+        "sidenav-divider": "var(--color-sidenav-border-primary)",
       },
     },
     textColor: () => ({
