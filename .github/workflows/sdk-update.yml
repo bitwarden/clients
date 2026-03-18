@@ -267,7 +267,6 @@ jobs:
           BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
         run: |
           echo "👀 Committing SDK version update..."
-          SDK_VERSION_SHORT=$(echo "$SDK_VERSION" | grep -oE '[a-f0-9]{7}$' || echo "$SDK_VERSION")
 
           git config user.name "$_BOT_NAME"
           git config user.email "$_BOT_EMAIL"
@@ -277,7 +276,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "::warning::No changes to commit — branch already contains SDK $SDK_VERSION"
           else
-            git commit -m "Update SDK to $SDK_VERSION_SHORT ($SDK_VERSION)"
+            git commit -m "Update sdk-internal to $SDK_VERSION"
           fi
 
           git push --force-with-lease origin "$BRANCH_NAME"
@@ -296,10 +295,8 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
           TRIGGERING_RUN_ID: ${{ inputs.triggering-run-id }}
         run: |
-          SDK_VERSION_SHORT=$(echo "$SDK_VERSION" | grep -oE '[a-f0-9]{7}$' || echo "$SDK_VERSION")
-
           # Build PR body
-          PR_TITLE="Update SDK to $SDK_VERSION_SHORT ($SDK_VERSION)"
+          PR_TITLE="Update sdk-internal to $SDK_VERSION"
           {
             echo "## 🤖 Automated SDK Update"
             echo ""
