@@ -89,6 +89,28 @@ function isBypassPath(urlPath: string): boolean {
   return BYPASS_PATHS.some((bp) => urlPath === bp || urlPath.startsWith(bp + "/"));
 }
 
+function describeProxyError(err: NodeJS.ErrnoException, backendUrl: string): string {
+  switch (err.code) {
+    case "ECONNREFUSED":
+      return `Could not connect to backend at ${backendUrl}. Check that the server is running.`;
+    case "ENOTFOUND":
+      return `Could not resolve hostname for ${backendUrl}. Check the --backend URL.`;
+    case "ETIMEDOUT":
+    case "ESOCKETTIMEDOUT":
+      return `Connection to backend at ${backendUrl} timed out.`;
+    case "ECONNRESET":
+      return `Connection to backend at ${backendUrl} was reset.`;
+    case "DEPTH_ZERO_SELF_SIGNED_CERT":
+    case "SELF_SIGNED_CERT_IN_CHAIN":
+    case "UNABLE_TO_GET_ISSUER_CERT_LOCALLY":
+    case "CERT_HAS_EXPIRED":
+    case "ERR_TLS_CERT_ALTNAME_INVALID":
+      return `TLS error connecting to ${backendUrl}: ${err.message}. Try the --insecure flag. Have you added the TLS cert to your trust store?`;
+    default:
+      return `Error proxying to ${backendUrl}: ${err.message}`;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Auth page
 // ---------------------------------------------------------------------------
@@ -221,10 +243,11 @@ function proxyRequest(ctx: Koa.Context): void {
     },
   );
   proxyReq.on("error", (err) => {
-    console.error("[proxy error]", err.message);
+    const msg = describeProxyError(err, config.backendUrl);
+    console.error(`[proxy] ${msg}`);
     if (!ctx.res.writableEnded) {
-      ctx.res.writeHead(502);
-      ctx.res.end("Bad Gateway");
+      ctx.res.writeHead(502, { "content-type": "text/plain" });
+      ctx.res.end(msg);
     }
   });
   ctx.req.pipe(proxyReq);
@@ -295,7 +318,7 @@ server.on("upgrade", (req, clientSocket, head) => {
   });
 
   serverSocket.on("error", (err) => {
-    console.error("[ws proxy error]", err.message);
+    console.error(`[ws proxy] ${describeProxyError(err, config.backendUrl)}`);
     clientSocket.destroy();
   });
   clientSocket.on("error", () => serverSocket.destroy());
@@ -317,7 +340,9 @@ if (process.stdin.isTTY) {
   process.stdin.resume();
   process.stdin.setEncoding("utf8");
   process.stdin.on("data", (key: string) => {
-    if (key === "\u0003") {process.exit();} // Ctrl+C
+    if (key === "\u0003") {
+      process.exit();
+    } // Ctrl+C
     if (key === "r" || key === "R") {
       cookieGeneration++;
       console.log(
