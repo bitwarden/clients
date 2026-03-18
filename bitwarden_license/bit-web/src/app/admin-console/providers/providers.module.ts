@@ -21,7 +21,6 @@ import { ProviderBillingHistoryComponent } from "../../billing/providers/billing
 import { SetupBusinessUnitComponent } from "../../billing/providers/setup/setup-business-unit.component";
 import { ProviderSubscriptionStatusComponent } from "../../billing/providers/subscription/provider-subscription-status.component";
 import { ProviderSubscriptionComponent } from "../../billing/providers/subscription/provider-subscription.component";
-import { ProviderWarningsModule } from "../../billing/providers/warnings/provider-warnings.module";
 import { EventsComponent } from "../../dirt/provider-events/events.component";
 
 import { AddExistingOrganizationDialogComponent } from "./clients/add-existing-organization-dialog.component";
@@ -57,7 +56,6 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     ScrollingModule,
     CardComponent,
     ScrollLayoutDirective,
-    ProviderWarningsModule,
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
   ],

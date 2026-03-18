@@ -71,7 +71,7 @@ jobs:
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
         if: steps.get-changed-files.outputs.storyFiles == 'true'
@@ -88,51 +88,47 @@ jobs:
         if: steps.get-changed-files.outputs.storyFiles == 'true'
         run: npm ci
 
-      - name: Get branch name
-        id: branch-names
-        env: 
-          EVENT_NAME: ${{ github.event_name }}
-          HEAD_REF: ${{ github.event.pull_request.head.ref || github.head_ref }}
-          REF_NAME: ${{ github.ref_name }}
-        run: |
-            # Get branch name based on event type
-            if [[ "$EVENT_NAME" == *"pull_request"* ]]; then
-              BRANCH_NAME="$HEAD_REF"
-            else
-              BRANCH_NAME="$REF_NAME"
-            fi
-            # Replace slashes with hyphens
-            BRANCH_NAME_NORMALIZED="${BRANCH_NAME//\//-}"
-            echo "current_branch=$BRANCH_NAME_NORMALIZED" >> "$GITHUB_OUTPUT"
-        shell: bash
-
-      # Manually build the Storybook to resolve a bug related to TurboSnap
-      - name: Build CL Storybook
-        if: steps.get-changed-files.outputs.storyFiles == 'true'
-        env:
-          STORYBOOK_BRANCH_NAME: ${{ steps.branch-names.outputs.current_branch }}
-        run: npm run build-storybook:ci
-
-      - name: Build Autofill Storybook
-        if: steps.get-changed-files.outputs.storyFiles == 'true'
-        run: npm run build-storybook:autofill:ci
-
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
         with:
           subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           client_id: ${{ secrets.AZURE_CLIENT_ID }}
-
+  
       - name: Get Azure Key Vault secrets
         id: get-kv-secrets
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-clients
           secrets: "CHROMATIC-PROJECT-TOKEN,CHROMATIC-PROJECT-TOKEN-AUTOFILL"
-
+  
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
+
+      # Manually build the Storybook to resolve a bug related to TurboSnap
+      - name: Build Autofill Storybook
+        if: steps.get-changed-files.outputs.storyFiles == 'true'
+        run: npm run build-storybook:autofill:ci
+
+      - name: Publish to Chromatic for Autofill
+        id: publish-chromatic-autofill
+        uses: chromaui/action@ac86f2ff0a458ffbce7b40698abd44c0fa34d4b6 # v13.3.3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          projectToken: ${{ steps.get-kv-secrets.outputs.CHROMATIC-PROJECT-TOKEN-AUTOFILL }}
+          storybookBaseDir: ./apps/browser/src/autofill/content/components
+          storybookBuildDir: ./apps/browser/src/autofill/content/components/storybook-static
+          exitOnceUploaded: true
+          onlyChanged: true
+          # Rather than use an `if` check on the whole publish step, we need to tell Chromatic to skip so that any Chromatic-spawned actions are properly skipped
+          skip: ${{ steps.get-changed-files.outputs.storyFiles == 'false' }}
+
+      # Manually build the Storybook to resolve a bug related to TurboSnap
+      - name: Build CL Storybook
+        if: steps.get-changed-files.outputs.storyFiles == 'true'
+        env:
+          AUTOFILL_CHROMATIC_URL: ${{ steps.publish-chromatic-autofill.outputs.storybookUrl }}
+        run: npm run build-storybook:ci
 
       - name: Publish to Chromatic for CL
         uses: chromaui/action@ac86f2ff0a458ffbce7b40698abd44c0fa34d4b6 # v13.3.3
@@ -146,17 +142,5 @@ jobs:
             libs/components/**/*.scss
             libs/components/**/*.css
             libs/components/tailwind.config*.js
-          # Rather than use an `if` check on the whole publish step, we need to tell Chromatic to skip so that any Chromatic-spawned actions are properly skipped
-          skip: ${{ steps.get-changed-files.outputs.storyFiles == 'false' }}
-
-      - name: Publish to Chromatic for Autofill
-        uses: chromaui/action@ac86f2ff0a458ffbce7b40698abd44c0fa34d4b6 # v13.3.3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          projectToken: ${{ steps.get-kv-secrets.outputs.CHROMATIC-PROJECT-TOKEN-AUTOFILL }}
-          storybookBaseDir: ./apps/browser/src/autofill/content/components
-          storybookBuildDir: ./apps/browser/src/autofill/content/components/storybook-static
-          exitOnceUploaded: true
-          onlyChanged: true
           # Rather than use an `if` check on the whole publish step, we need to tell Chromatic to skip so that any Chromatic-spawned actions are properly skipped
           skip: ${{ steps.get-changed-files.outputs.storyFiles == 'false' }}

@@ -63,6 +63,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
+import { SSO_COOKIE_VENDOR_CALLBACK_COMMAND } from "@bitwarden/common/platform/services/server-communication-config/server-communication-config-platform-api.service";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -839,6 +840,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Process the sso callback links
   private processDeepLink(urlString: string) {
+    // Handle SSO cookie vendor callback
+    if (urlString.indexOf("bitwarden://sso-cookie-vendor") === 0) {
+      this.messagingService.send(SSO_COOKIE_VENDOR_CALLBACK_COMMAND, { urlString });
+      return;
+    }
+
     const url = new URL(urlString);
     const code = url.searchParams.get("code");
     const receivedState = url.searchParams.get("state");
