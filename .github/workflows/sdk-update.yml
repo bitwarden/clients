@@ -225,9 +225,9 @@ jobs:
           OLD_VERSION: ${{ steps.get-current-sdk.outputs.current-sdk-version }}
           NEW_VERSION: ${{ inputs.sdk-version }}
         run: |
-          # Extract git refs from version strings (format: x.y.z-build-gitref)
-          OLD_REF=$(echo "$OLD_VERSION" | grep -oE '[a-f0-9]{7,40}$' || echo "")
-          NEW_REF=$(echo "$NEW_VERSION" | grep -oE '[a-f0-9]{7,40}$' || echo "")
+          # Look up source commits from npm package metadata
+          OLD_REF=$(npm view "@bitwarden/sdk-internal@$OLD_VERSION" gitHead 2>/dev/null || echo "")
+          NEW_REF=$(npm view "@bitwarden/sdk-internal@$NEW_VERSION" gitHead 2>/dev/null || echo "")
 
           if [ -n "$OLD_REF" ] && [ -n "$NEW_REF" ]; then
             echo "Fetching changelog for sdk-internal: $OLD_REF...$NEW_REF"
@@ -243,7 +243,7 @@ jobs:
               echo "::warning::Could not generate changelog"
             fi
           else
-            echo "::warning::Could not extract git refs from versions for changelog"
+            echo "::warning::Could not resolve source commits from npm for changelog (old: $OLD_VERSION, new: $NEW_VERSION)"
           fi
 
       - name: Generate validation summary
