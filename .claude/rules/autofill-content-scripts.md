@@ -1,3 +1,8 @@
+---
+paths:
+  - "apps/browser/src/autofill/content/**/*.ts"
+---
+
 # Autofill Content Scripts - Critical Rules
 
 ## Angular Exception
