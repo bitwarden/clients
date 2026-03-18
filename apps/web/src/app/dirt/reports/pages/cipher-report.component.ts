@@ -252,7 +252,7 @@ export abstract class CipherReportComponent implements OnDestroy {
       const index = this.ciphers.findIndex((c) => c.id === updatedCipherView.id);
 
       // the updated cipher does not meet the criteria for the report, it returns a null
-      if (updatedReportResult === null) {
+      if (updatedReportResult === null && index > -1) {
         this.ciphers.splice(index, 1);
       }
 

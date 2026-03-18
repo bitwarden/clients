@@ -86,7 +86,11 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
     const index = this.weakPasswordCiphers.findIndex((c) => c.id === updatedCipherView.id);
 
     if (index !== -1) {
-      this.weakPasswordCiphers[index] = updatedReportStatus;
+      if (updatedReportStatus !== null) {
+        this.weakPasswordCiphers[index] = updatedReportStatus;
+      } else {
+        this.weakPasswordCiphers.splice(index, 1);
+      }
     }
 
     return updatedReportStatus;
@@ -106,6 +110,7 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
     const { type, login, isDeleted, edit, viewPassword } = ciph;
     if (
       type !== CipherType.Login ||
+      login == null ||
       login.password == null ||
       login.password === "" ||
       isDeleted ||
