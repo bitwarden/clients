@@ -183,15 +183,11 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
     const businessOwnedIsChecked = this.formValues().businessOwned;
     const currentPlan = this.currentPlan();
-    const canUpgradeFromPremium = this.canUpgradeFromPremium();
 
     const result = this.passwordManagerPlans.filter((plan) => {
       const isNotCustomPlan = plan.type !== PlanType.Custom;
       const isBusinessCompatible = !businessOwnedIsChecked || plan.canBeUsedByBusiness;
-      const isPlanAllowed =
-        plan.productTier !== ProductTierType.Free
-          ? true
-          : this.showFree() && !canUpgradeFromPremium;
+      const isPlanAllowed = plan.productTier !== ProductTierType.Free || this.showFree();
       const isAnnualOrOtherEligibleCase =
         plan.isAnnual ||
         plan.productTier === ProductTierType.Free ||
@@ -1283,20 +1279,14 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     const initialPlan = this.initialPlan();
     const initialProductTier = this.initialProductTier();
     const preSelectedProductTier = this.preSelectedProductTier();
-    const canUpgradeFromPremium = this.canUpgradeFromPremium();
 
     // Set plan
     if (initialPlan !== PlanType.Free) {
       this.formGroup.controls.plan.setValue(initialPlan);
-    } else if (canUpgradeFromPremium) {
-      this.formGroup.controls.plan.setValue(this._familyPlan);
     }
-
     // Set product tier
     if (initialProductTier !== ProductTierType.Free) {
       this.formGroup.controls.productTier.setValue(initialProductTier);
-    } else if (canUpgradeFromPremium) {
-      this.formGroup.controls.productTier.setValue(ProductTierType.Families);
     }
 
     // Allow preSelectedProductTier to override if it's higher

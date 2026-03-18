@@ -780,28 +780,6 @@ describe("OrganizationPlansComponent", () => {
         expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Enterprise);
       });
 
-      it("should initialize with Families plan when canUpgradeFromPremium is true", async () => {
-        hasPremiumPersonallySubject.next(true);
-
-        fixture.detectChanges();
-        await fixture.whenStable();
-
-        expect(component["formGroup"].controls.plan.value).toBe(PlanType.FamiliesAnnually);
-        expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Families);
-      });
-
-      it("should override Free initialPlan with Families when canUpgradeFromPremium is true", async () => {
-        hasPremiumPersonallySubject.next(true);
-        fixture.componentRef.setInput("initialPlan", PlanType.Free);
-        fixture.componentRef.setInput("initialProductTier", ProductTierType.Free);
-
-        fixture.detectChanges();
-        await fixture.whenStable();
-
-        expect(component["formGroup"].controls.plan.value).toBe(PlanType.FamiliesAnnually);
-        expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Families);
-      });
-
       it("should respect non-Free initialPlan even when canUpgradeFromPremium is true", async () => {
         hasPremiumPersonallySubject.next(true);
         fixture.componentRef.setInput("initialPlan", PlanType.TeamsAnnually);
@@ -1246,17 +1224,11 @@ describe("OrganizationPlansComponent", () => {
       });
     });
 
-    it("should exclude Free plan when canUpgradeFromPremium is true", async () => {
+    it("should include Free plan even when canUpgradeFromPremium is true", async () => {
       hasPremiumPersonallySubject.next(true);
       const products = component.selectableProducts();
-      expect(products.find((p) => p.type === PlanType.Free)).toBeUndefined();
-      expect(products.find((p) => p.productTier === ProductTierType.Families)).toBeDefined();
-    });
-
-    it("should include Free plan when canUpgradeFromPremium is false", async () => {
-      hasPremiumPersonallySubject.next(false);
-      const products = component.selectableProducts();
       expect(products.find((p) => p.type === PlanType.Free)).toBeDefined();
+      expect(products.find((p) => p.productTier === ProductTierType.Families)).toBeDefined();
     });
   });
 
