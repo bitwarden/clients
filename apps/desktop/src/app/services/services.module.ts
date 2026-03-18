@@ -94,6 +94,7 @@ import {
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { ServerCommunicationConfigService } from "@bitwarden/common/platform/abstractions/server-communication-config/server-communication-config.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
@@ -107,6 +108,11 @@ import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk
 import { DefaultSdkLoadService } from "@bitwarden/common/platform/services/sdk/default-sdk-load.service";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { NoopSdkLoadService } from "@bitwarden/common/platform/services/sdk/noop-sdk-load.service";
+import {
+  DefaultServerCommunicationConfigService,
+  ServerCommunicationConfigRepository,
+  ServerCommunicationConfigPlatformApiService,
+} from "@bitwarden/common/platform/services/server-communication-config";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -556,7 +562,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: VAULT_FILTER_BASE_ROUTE,
-    useValue: "/new-vault",
+    useValue: "/vault",
   }),
   safeProvider({
     provide: RoutedVaultFilterService,
@@ -579,6 +585,32 @@ const safeProviders: SafeProvider[] = [
       PendingAuthRequestsStateService,
       I18nServiceAbstraction,
       LogService,
+    ],
+  }),
+  safeProvider({
+    provide: ServerCommunicationConfigService,
+    useFactory: (
+      stateProvider: StateProvider,
+      platformUtilsService: PlatformUtilsServiceAbstraction,
+      messageListener: MessageListener,
+      logService: LogService,
+      configService: ConfigService,
+    ) =>
+      new DefaultServerCommunicationConfigService(
+        new ServerCommunicationConfigRepository(stateProvider),
+        new ServerCommunicationConfigPlatformApiService(
+          platformUtilsService,
+          messageListener,
+          logService,
+        ),
+        configService,
+      ),
+    deps: [
+      StateProvider,
+      PlatformUtilsServiceAbstraction,
+      MessageListener,
+      LogService,
+      ConfigService,
     ],
   }),
 ];

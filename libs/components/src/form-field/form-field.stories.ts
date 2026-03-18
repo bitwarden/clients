@@ -136,8 +136,7 @@ export const LabelWithIcon: Story = {
         <bit-form-field>
           <bit-label>
             Label
-            <a href="#" slot="end" bitLink aria-label="More info" title="More info">
-              <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+            <a href="#" slot="end" bitLink startIcon="bwi-question-circle" aria-label="More info" title="More info">
             </a>
           </bit-label>
           <input bitInput formControlName="name" />
@@ -167,8 +166,7 @@ export const LongLabel: Story = {
         <bit-form-field>
           <bit-label>
             Hello I am a very long label with lots of very cool helpful information
-            <a href="#" slot="end" bitLink aria-label="More info" title="More info">
-              <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+            <a href="#" slot="end" bitLink startIcon="bwi-question-circle" aria-label="More info" title="More info">
             </a>
           </bit-label>
           <input bitInput formControlName="name" />
@@ -306,8 +304,7 @@ export const ButtonInputGroup: Story = {
       <bit-form-field>
         <bit-label>
           Label
-          <a href="#" slot="end" bitLink [appA11yTitle]="'More info'">
-            <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+          <a href="#" slot="end" startIcon="bwi-question-circle" bitLink [appA11yTitle]="'More info'">
           </a>
         </bit-label>
         <button type="button" bitPrefix bitIconButton="bwi-star" label="Favorite Label"></button>

@@ -12,7 +12,7 @@
     "message": "Favoriter"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Ta bort favorit"
   },
   "types": {
     "message": "Typer"
@@ -590,10 +590,10 @@
     "message": "Objekt sparat"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Objekt tillagt i favoriter"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Objekt borttaget från favoriter"
   },
   "deleteItem": {
     "message": "Radera objekt"
@@ -1565,16 +1565,16 @@
     "message": "Okänd"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Kopiera adress"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Kopiera telefon"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Kopiera anteckning"
   },
   "copyVerificationCode": {
-    "message": "Copy verification code"
+    "message": "Kopiera verifieringskod"
   },
   "copyUsername": {
     "message": "Kopiera användarnamn"
@@ -2104,22 +2104,22 @@
     "message": "Sök i papperskorgen"
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Sök i arkiv"
   },
   "searchLogin": {
-    "message": "Search login"
+    "message": "Sök inloggning"
   },
   "searchCard": {
-    "message": "Search card"
+    "message": "Sök kort"
   },
   "searchIdentity": {
-    "message": "Search identity"
+    "message": "Sök identitet"
   },
   "searchSecureNote": {
-    "message": "Search secure note"
+    "message": "Sök säker anteckning"
   },
   "searchSshKey": {
-    "message": "Search SSH key"
+    "message": "Sök SSH-nyckel"
   },
   "permanentlyDeleteItem": {
     "message": "Radera objekt permanent"
@@ -2418,7 +2418,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "me": {
-    "message": "Me"
+    "message": "Jag"
   },
   "myVault": {
     "message": "Mitt valv"
@@ -4636,34 +4636,34 @@
     "message": "Varför ser jag det här?"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "Organisationen är avstängd"
   },
   "organizationIsSuspendedDesc": {
     "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "Inga objekt i papperskorgen"
   },
   "noItemsInTrashDesc": {
     "message": "Items you delete will appear here and be permanently deleted after 30 days"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Inga objekt i valvet"
   },
   "emptyVaultDescription": {
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "Du har inga favoritobjekt"
   },
   "emptyFavoritesDesc": {
     "message": "Add frequently used items to favorites for quick access."
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "Inga sökresultat returnerades"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Töm filter eller försök med en annan sökterm"
   },
   "sendPasswordHelperText": {
     "message": "Individer måste ange lösenordet för att visa denna Send",

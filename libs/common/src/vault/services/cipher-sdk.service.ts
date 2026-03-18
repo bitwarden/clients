@@ -1,12 +1,14 @@
 import { firstValueFrom, switchMap, catchError } from "rxjs";
 
+import { DECRYPT_ERROR } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService, asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
+import { CipherListView, CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
 
-import { CipherSdkService } from "../abstractions/cipher-sdk.service";
+import { CipherSdkService, DecryptAllCiphersResult } from "../abstractions/cipher-sdk.service";
+import { Cipher } from "../models/domain/cipher";
 
 export class DefaultCipherSdkService implements CipherSdkService {
   constructor(
@@ -26,14 +28,18 @@ export class DefaultCipherSdkService implements CipherSdkService {
             throw new Error("SDK not available");
           }
           using ref = sdk.take();
-          const sdkCreateRequest = cipherView.toSdkCreateCipherRequest();
+          const sdkCiphersClient = ref.value.vault().ciphers();
+
+          const sdkCreateRequest = cipherView.toSdkCreateCipherRequest(sdkCiphersClient);
+
           let result: SdkCipherView;
           if (orgAdmin) {
-            result = await ref.value.vault().ciphers().admin().create(sdkCreateRequest);
+            result = await sdkCiphersClient.admin().create(sdkCreateRequest);
           } else {
-            result = await ref.value.vault().ciphers().create(sdkCreateRequest);
+            result = await sdkCiphersClient.create(sdkCreateRequest);
           }
-          return CipherView.fromSdkCipherView(result);
+
+          return CipherView.fromSdkCipherView(result, sdkCiphersClient);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to create cipher: ${error}`);
@@ -56,21 +62,23 @@ export class DefaultCipherSdkService implements CipherSdkService {
             throw new Error("SDK not available");
           }
           using ref = sdk.take();
-          const sdkUpdateRequest = cipher.toSdkUpdateCipherRequest();
+          const sdkCiphersClient = ref.value.vault().ciphers();
+
+          const sdkUpdateRequest = cipher.toSdkUpdateCipherRequest(sdkCiphersClient);
+
           let result: SdkCipherView;
           if (orgAdmin) {
-            result = await ref.value
-              .vault()
-              .ciphers()
+            result = await sdkCiphersClient
               .admin()
               .edit(
                 sdkUpdateRequest,
                 originalCipherView?.toSdkCipherView() || new CipherView().toSdkCipherView(),
               );
           } else {
-            result = await ref.value.vault().ciphers().edit(sdkUpdateRequest);
+            result = await sdkCiphersClient.edit(sdkUpdateRequest);
           }
-          return CipherView.fromSdkCipherView(result);
+
+          return CipherView.fromSdkCipherView(result, sdkCiphersClient);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to update cipher: ${error}`);
@@ -255,6 +263,71 @@ export class DefaultCipherSdkService implements CipherSdkService {
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to restore multiple ciphers: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async getAllDecrypted(userId: UserId): Promise<DecryptAllCiphersResult> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+
+          const decryptResult = await ref.value.vault().ciphers().get_all();
+
+          const successes = [...(decryptResult.successes ?? [])]
+            .map((sdkCipherView: any) => CipherView.fromSdkCipherView(sdkCipherView))
+            .filter((v): v is CipherView => v !== undefined);
+
+          const failures: CipherView[] = [...(decryptResult.failures ?? [])].map((failure: any) => {
+            const cipherView = new CipherView(Cipher.fromSdkCipher(failure));
+            cipherView.name = DECRYPT_ERROR;
+            cipherView.decryptionFailure = true;
+            return cipherView;
+          });
+
+          return { successes, failures };
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to list and decrypt ciphers: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async getAllFromApiForOrganization(
+    organizationId: string,
+    userId: UserId,
+    includeMemberItems: boolean,
+  ): Promise<[Cipher[], CipherListView[]]> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+
+          const result = await ref.value
+            .vault()
+            .ciphers()
+            .admin()
+            .list_org_ciphers(asUuid(organizationId), includeMemberItems);
+
+          const ciphers = result.ciphers
+            .map((c) => Cipher.fromSdkCipher(c))
+            .filter((c): c is Cipher => c !== undefined);
+
+          return [ciphers, result.listViews] as [Cipher[], CipherListView[]];
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to list organization ciphers: ${error}`);
           throw error;
         }),
       ),

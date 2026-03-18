@@ -48,7 +48,7 @@
     "message": "Du bist nicht berechtigt, diesen Eintrag zu bearbeiten"
   },
   "reviewAccessIntelligence": {
-    "message": "Sicherheitsberichte prüfen, um Zugangsdatenrisiken zu finden und zu beheben, bevor sie eskalieren."
+    "message": "Überprüfe Sicherheitsberichte, um Risiken im Zusammenhang mit Zugangsdaten zu erkennen und zu beheben, bevor sie eskalieren."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Gefährdete Zugangsdaten überprüfen"
@@ -4609,19 +4609,19 @@
     "message": "Ladefortschritt"
   },
   "reviewingMemberData": {
-    "message": "Mitgliedsdaten werden überprüft …"
+    "message": "Mitgliedsdaten werden überprüft..."
   },
   "analyzingPasswords": {
     "message": "Passwörter werden analysiert..."
   },
   "calculatingRisks": {
-    "message": "Risiken werden berechnet …"
+    "message": "Risiken werden berechnet..."
   },
   "generatingReports": {
-    "message": "Berichte werden erstellt ..."
+    "message": "Berichte werden erstellt..."
   },
   "compilingInsightsProgress": {
-    "message": "Erkenntnisse werden zusammengestellt …"
+    "message": "Analyse wird zusammengestellt..."
   },
   "reportGenerationDone": {
     "message": "Fertig!"
@@ -5446,7 +5446,7 @@
     "message": "Mindestanzahl an Wörtern"
   },
   "overridePasswordTypePolicy": {
-    "message": "Password Type",
+    "message": "Passworttyp",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Erfahre mehr über die Übertragung"
   },
+  "promptUsersToMoveItems": {
+    "message": "Benutzer auffordern, einzelne Tresoreinträge in die Organisation zu verschieben"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Mitglieder werden aufgefordert, ihre Einträge entweder an die Organisation zu übertragen oder sie zu verlassen. Wenn sie gehen, wird ihr Zugang deaktiviert, kann aber jederzeit wiederhergestellt werden."
+  },
   "organizationDataOwnership": {
     "message": "Eigentumsrechte an Unternehmensdaten erzwingen"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Jetzt verfügbar"
   },
-  "autoConfirm": {
-    "message": "Automatische Bestätigung neuer Benutzer"
+  "automaticUserConfirmation": {
+    "message": "Automatische Benutzerbestätigung"
   },
   "autoConfirmDescription": {
     "message": "Neue Benutzer, die in die Organisation eingeladen werden, werden automatisch bestätigt, wenn das Gerät eines Administrators entsperrt wird.",
@@ -6456,7 +6462,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "verifyYourEmailToViewThisSend": {
-    "message": "Verifiziere deine E-Mail, um dieses Send anzuzeigen",
+    "message": "Verifiziere deine E-Mail-Adresse, um dieses Send anzuzeigen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -6758,7 +6764,7 @@
     }
   },
   "bulkReinviteFailureTitle": {
-    "message": "1 Einladung konnte nicht gesendet werden"
+    "message": "1 Einladung wurde nicht versendet"
   },
   "bulkReinviteFailureDescription": {
     "message": "Beim Senden von Einladungen an $COUNT$ von $TOTAL$ Mitgliedern ist ein Fehler aufgetreten. Versuche es erneut, und falls das Problem weiterhin besteht,",
@@ -7418,7 +7424,7 @@
     "message": "Ungültiger Verifizierungscode"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "E-Mail oder Verifizierungscode ungültig"
+    "message": "Ungültige E-Mail-Adresse oder Verifizierungscode"
   },
   "keyConnectorDomain": {
     "message": "Key Connector-Domain"
@@ -10987,7 +10993,7 @@
     "message": "Aus"
   },
   "memberAccessReportLoadError": {
-    "message": "Fehler beim Laden des Mitgliederzugriffsberichts. Dies kann aufgrund einer großen Organisationsgröße oder eines Netzwerkproblems geschehen. Bitte versuchen Sie es erneut oder wenden Sie sich an den Support, falls das Problem weiterhin besteht."
+    "message": "Der Mitgliederzugriffsbericht konnte nicht geladen werden. Dies kann an einer großen Organisationsgröße oder einem Netzwerkproblem liegen. Bitte versuche es erneut oder wende dich an den Support, wenn das Problem weiterhin besteht."
   },
   "kdfIterationRecommends": {
     "message": "Wir empfehlen 600.000 oder mehr"
@@ -12890,13 +12896,13 @@
     "message": "Du hast die gesamten $GB$ GB deines verschlüsselten Speichers verwendet. Um mit dem Speichern von Dateien fortzufahren, füge mehr Speicher hinzu."
   },
   "extensionPromptHeading": {
-    "message": "Erhalten Sie die Erweiterung für einfachen Tresor Zugriff"
+    "message": "Lade dir die Erweiterung für einfachen Zugriff auf den Tresor herunter"
   },
   "extensionPromptBody": {
-    "message": "Wenn die Browser-Erweiterung installiert ist, können Sie Bitwarden online überall mitnehmen. Sie wird Passwörter ausfüllen, so dass Sie sich mit nur einem Klick in Ihre Konten einloggen können."
+    "message": "Mit der installierten Browser-Erweiterung kannst du Bitwarden überall online nutzen. Es füllt Passwörter aus, sodass du dich mit einem einzigen Klick bei deinen Konten anmelden kannst."
   },
   "extensionPromptImageAlt": {
-    "message": "Ein Web-Browser, der die Bitwarden-Erweiterung mit autofill Elementen für die aktuelle Webseite anzeigt."
+    "message": "Ein Web-Browser, der die Bitwarden-Erweiterung mit Einträgen zum Auto-Ausfüllen für die aktuelle Website anzeigt."
   },
   "skip": {
     "message": "Überspringen"
@@ -12917,7 +12923,7 @@
     "message": "Gib mehrere E-Mail-Adressen ein, indem du sie mit einem Komma trennst."
   },
   "emailsRequiredChangeAccessType": {
-    "message": "E-Mail-Verifizierung erfordert mindestens eine E-Mail-Adresse. Ändere den Zugriffstyp oben, um alle E-Mails zu entfernen."
+    "message": "Die E-Mail-Verifizierung erfordert mindestens eine E-Mail-Adresse. Ändere den Zugriffstyp oben, um alle E-Mails zu entfernen."
   },
   "emailPlaceholder": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"
@@ -12944,7 +12950,7 @@
     "message": "Ungültiges Send-Passwort"
   },
   "vaultWelcomeDialogTitle": {
-    "message": "Du bist drin! Willkommen bei Bitwarden"
+    "message": "Du bist dabei! Willkommen bei Bitwarden"
   },
   "vaultWelcomeDialogDescription": {
     "message": "Speichere alle deine Passwörter und persönlichen Daten in deinem Bitwarden-Tresor. Wir zeigen dir alles."

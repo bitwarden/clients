@@ -9,7 +9,6 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
@@ -21,6 +20,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
 import { AvatarModule, IconButtonModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DesktopBiometricsService } from "../../../key-management/biometrics/desktop.biometrics.service";
 
@@ -41,7 +41,7 @@ type InactiveAccount = ActiveAccount & {
 @Component({
   selector: "app-account-switcher-v2",
   templateUrl: "account-switcher-v2.component.html",
-  imports: [CommonModule, OverlayModule, A11yModule, JslibModule, AvatarModule, IconButtonModule],
+  imports: [CommonModule, OverlayModule, A11yModule, I18nPipe, AvatarModule, IconButtonModule],
   animations: [
     trigger("transformPanel", [
       state(
