@@ -6,6 +6,8 @@ import { ActivatedRoute, Params, Router } from "@angular/router";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { isId } from "@bitwarden/common/types/guid";
+import { ToastService } from "@bitwarden/components";
 
 import { BaseAcceptComponent } from "../../../common/base.accept.component";
 import { SharedModule } from "../../../shared";
@@ -34,19 +36,26 @@ export class AcceptEmergencyComponent extends BaseAcceptComponent {
     route: ActivatedRoute,
     authService: AuthService,
     private emergencyAccessService: EmergencyAccessService,
+    private toastService: ToastService,
   ) {
     super(router, platformUtilsService, i18nService, route, authService);
   }
 
   async authedHandler(qParams: Params): Promise<void> {
+    const qParamsValidated = this.validateParams(qParams);
+    if (!qParamsValidated) {
+      await this.handleInvalidInvite();
+      return;
+    }
+
     this.actionPromise = this.emergencyAccessService.accept(qParams.id, qParams.token);
     await this.actionPromise;
-    this.platformUtilService.showToast(
-      "success",
-      this.i18nService.t("inviteAccepted"),
-      this.i18nService.t("emergencyInviteAcceptedDesc"),
-      { timeout: 10000 },
-    );
+    this.toastService.showToast({
+      variant: "success",
+      title: this.i18nService.t("inviteAccepted"),
+      message: this.i18nService.t("emergencyInviteAcceptedDesc"),
+      timeout: 10000,
+    });
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/vault"]);
@@ -59,13 +68,14 @@ export class AcceptEmergencyComponent extends BaseAcceptComponent {
       this.name = this.name.replace(/\+/g, " ");
     }
 
-    if (qParams.id) {
-      this.emergencyAccessId = qParams.id;
+    const qParamsValidated = this.validateParams(qParams);
+    if (!qParamsValidated) {
+      await this.handleInvalidInvite();
+      return;
     }
 
-    if (qParams.token) {
-      this.acceptEmergencyAccessInviteToken = qParams.token;
-    }
+    this.emergencyAccessId = qParams.id;
+    this.acceptEmergencyAccessInviteToken = qParams.token;
   }
 
   async register() {
@@ -78,5 +88,23 @@ export class AcceptEmergencyComponent extends BaseAcceptComponent {
         emergencyAccessId: this.emergencyAccessId,
       },
     });
+  }
+
+  private validateParams(qParams: Params): boolean {
+    if (!isId(qParams.id)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private async handleInvalidInvite(): Promise<void> {
+    this.toastService.showToast({
+      message: this.i18nService.t(this.failedMessage),
+      variant: "error",
+      timeout: 10000,
+    });
+    await this.router.navigate(["/"]);
+    return;
   }
 }
