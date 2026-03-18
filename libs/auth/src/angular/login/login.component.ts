@@ -26,7 +26,10 @@ import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.d
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
-import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import {
+  SsoLoginServiceAbstraction,
+  SsoRequiredCacheEntry,
+} from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { PasswordPreloginService } from "@bitwarden/common/auth/password-prelogin";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
@@ -241,20 +244,26 @@ export class LoginComponent implements OnInit, OnDestroy {
     const ssoRequiredCache = await firstValueFrom(this.ssoLoginService.ssoRequiredCache$);
 
     // Only perform initial update and setup a subscription if there is actually a populated ssoRequiredCache
-    if (ssoRequiredCache != null && ssoRequiredCache.size > 0) {
+    if (ssoRequiredCache != null && ssoRequiredCache.length > 0) {
+      const env = await firstValueFrom(this.environmentService.environment$);
+      const webVaultUrl = env.getWebVaultUrl().replace(/\/$/, "");
+
       // If the pre-filled/remembered email field value exists in the cache, set to true
       if (
         this.emailFormControl.value &&
-        ssoRequiredCache.has(this.emailFormControl.value.toLowerCase())
+        ssoRequiredCache.some(
+          (e) =>
+            e.email === this.emailFormControl.value!.toLowerCase() && e.webVaultUrl === webVaultUrl,
+        )
       ) {
         this.ssoRequired = true;
       }
 
-      this.listenForEmailChanges(ssoRequiredCache);
+      this.listenForEmailChanges(ssoRequiredCache, webVaultUrl);
     }
   }
 
-  private listenForEmailChanges(ssoRequiredCache: Set<string>) {
+  private listenForEmailChanges(ssoRequiredCache: SsoRequiredCacheEntry[], webVaultUrl: string) {
     // On subsequent email field value changes, check and set again. This allows alternate login buttons
     // to dynamically enable/disable depending on whether or not the entered email is in the ssoRequiredCache
     this.formGroup.controls.email.valueChanges
@@ -262,7 +271,11 @@ export class LoginComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         if (
           this.emailFormControl.value &&
-          ssoRequiredCache.has(this.emailFormControl.value.toLowerCase())
+          ssoRequiredCache.some(
+            (e) =>
+              e.email === this.emailFormControl.value!.toLowerCase() &&
+              e.webVaultUrl === webVaultUrl,
+          )
         ) {
           this.ssoRequired = true;
         } else {
