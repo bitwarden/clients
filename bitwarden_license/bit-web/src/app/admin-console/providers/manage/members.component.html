@@ -27,15 +27,15 @@
   >
     <bit-toggle [value]="undefined">
       {{ "all" | i18n }}
-      <bit-berry [value]="dataSource.activeUserCount" variant="primary"></bit-berry>
+      <bit-berry [value]="dataSource.activeUserCount"></bit-berry>
     </bit-toggle>
     <bit-toggle [value]="userStatusType.Invited">
       {{ "invited" | i18n }}
-      <bit-berry [value]="dataSource.invitedUserCount" variant="primary"></bit-berry>
+      <bit-berry [value]="dataSource.invitedUserCount"></bit-berry>
     </bit-toggle>
     <bit-toggle [value]="userStatusType.Accepted">
       {{ "needsConfirmation" | i18n }}
-      <bit-berry [value]="dataSource.acceptedUserCount" variant="primary"></bit-berry>
+      <bit-berry [value]="dataSource.acceptedUserCount"></bit-berry>
     </bit-toggle>
   </bit-toggle-group>
 </div>
