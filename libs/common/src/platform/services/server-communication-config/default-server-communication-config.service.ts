@@ -82,7 +82,7 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
 
   private buildRedirectMiddleware(): FetchMiddleware {
     return async (request: Request, next: FetchFn): Promise<Response> => {
-      const manualRequest = new Request(request, { redirect: "manual" });
+      const manualRequest = new Request(request.clone(), { redirect: "manual" });
       const response = await next(manualRequest);
 
       const isRedirect =
@@ -100,7 +100,8 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
       }
 
       // Retry with original request (follow redirect mode, cookies now in session)
-      return next(request);
+      const retryRequest = new Request(request.clone(), { redirect: "manual" });
+      return next(retryRequest);
     };
   }
 }
