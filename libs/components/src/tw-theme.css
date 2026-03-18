@@ -296,6 +296,7 @@
   --color-bg-brand-medium: var(--color-brand-200);
   --color-bg-brand: var(--color-brand-700);
   --color-bg-brand-strong: var(--color-brand-800);
+  --color-bg-brand-stronger: var(--color-brand-900);
 
   /* Status Background */
   --color-bg-success-soft: var(--color-green-050);
