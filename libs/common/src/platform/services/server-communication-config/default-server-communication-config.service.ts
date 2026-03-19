@@ -10,6 +10,7 @@ import { ConfigService } from "../../abstractions/config/config.service";
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { ServerCommunicationConfigService } from "../../abstractions/server-communication-config/server-communication-config.service";
 import { FetchFn, FetchMiddleware } from "../../misc/fetch-middleware";
+import { Utils } from "../../misc/utils";
 
 import { ServerCommunicationConfigRepository } from "./server-communication-config.repository";
 
@@ -95,7 +96,10 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
         return response;
       }
 
-      const hostname = new URL(request.url).hostname;
+      const hostname = Utils.getHostname(request.url);
+      if (Utils.isNullOrWhitespace(hostname)) {
+        return response;
+      }
       const needsBootstrap = await firstValueFrom(this.needsBootstrap$(hostname));
 
       if (needsBootstrap) {

@@ -10,6 +10,7 @@ import {
 import { ApiService } from "../../../abstractions/api.service";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { FetchFn, FetchMiddleware } from "../../misc/fetch-middleware";
+import { Utils } from "../../misc/utils";
 
 import { DefaultServerCommunicationConfigService } from "./default-server-communication-config.service";
 import { ServerCommunicationConfigRepository } from "./server-communication-config.repository";
@@ -187,6 +188,19 @@ describe("DefaultServerCommunicationConfigService", () => {
       expect(mockClientInstance.acquireCookie).not.toHaveBeenCalled();
       expect(next).toHaveBeenCalledTimes(2);
       expect(result).toBe(ok);
+    });
+
+    it("returns redirect response without bootstrap when hostname cannot be extracted from URL", async () => {
+      const redirect = { status: 302, type: "basic" } as Response;
+      next.mockResolvedValueOnce(redirect);
+      jest.spyOn(Utils, "getHostname").mockReturnValueOnce(null);
+
+      const result = await middleware(new Request("https://vault.acme.com/"), next);
+
+      expect(mockClientInstance.needsBootstrap).not.toHaveBeenCalled();
+      expect(mockClientInstance.acquireCookie).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(result).toBe(redirect);
     });
   });
 });
