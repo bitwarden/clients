@@ -1,6 +1,13 @@
 import { CipherId } from "@bitwarden/common/types/guid";
 
 import {
+  MemberRegistryEntryData,
+  AccessReportSettingsData,
+  ApplicationHealthData,
+  AccessReportSummaryData,
+} from "../../../../access-intelligence/models";
+import { AccessReportPayload } from "../../../../access-intelligence/services";
+import {
   ApplicationHealthReportDetail,
   MemberDetails,
   OrganizationReportApplication,
@@ -9,17 +16,22 @@ import {
 
 import {
   createBoundedArrayGuard,
+  createBoundedRecordGuard,
+  createEnhancedBoundedArrayGuard,
   createValidator,
   isBoolean,
+  isBooleanRecord,
   isBoundedString,
   isBoundedStringOrNull,
+  isBoundedStringOrUndefined,
   isBoundedPositiveNumber,
   BOUNDED_ARRAY_MAX_LENGTH,
   isDate,
   isDateString,
+  isDateStringOrUndefined,
 } from "./basic-type-guards";
 
-// Risk Insights specific type guards
+// === Type Guards for Access Intelligence ===
 
 /**
  * Type guard to validate MemberDetails structure
@@ -30,14 +42,27 @@ export const isMemberDetails = createValidator<MemberDetails>({
   userGuid: isBoundedString,
   userName: isBoundedStringOrNull,
   email: isBoundedString,
-  cipherId: isBoundedString,
+  cipherId: isBoundedString, // TODO is isBoundedStringOrNull for backwards compatibility
 });
-export const isMemberDetailsArray = createBoundedArrayGuard(isMemberDetails);
+export const isMemberDetailsArray = createEnhancedBoundedArrayGuard(isMemberDetails);
+
+/**
+ * Type guard to validate MemberRegistryEntryData structure
+ * Exported for testability
+ * Strict validation: rejects objects with unexpected properties and prototype pollution
+ */
+export const isMemberRegistryEntryData = createValidator<MemberRegistryEntryData>({
+  id: isBoundedString,
+  userName: isBoundedStringOrUndefined,
+  email: isBoundedString,
+});
+const isMemberRegistry = createBoundedRecordGuard(isMemberRegistryEntryData);
 
 export function isCipherId(value: unknown): value is CipherId {
   return value == null || isBoundedString(value);
 }
 export const isCipherIdArray = createBoundedArrayGuard(isCipherId);
+
 /**
  * Type guard to validate ApplicationHealthReportDetail structure
  * Exported for testability
@@ -57,6 +82,19 @@ export const isApplicationHealthReportDetail = createValidator<ApplicationHealth
 export const isApplicationHealthReportDetailArray = createBoundedArrayGuard(
   isApplicationHealthReportDetail,
 );
+
+const isApplicationHealthData = createValidator<ApplicationHealthData>({
+  applicationName: isBoundedString,
+  passwordCount: isBoundedPositiveNumber,
+  atRiskPasswordCount: isBoundedPositiveNumber,
+  memberRefs: isBooleanRecord,
+  cipherRefs: isBooleanRecord,
+  memberCount: isBoundedPositiveNumber,
+  atRiskMemberCount: isBoundedPositiveNumber,
+  iconUri: isBoundedStringOrUndefined,
+  iconCipherId: isBoundedStringOrUndefined,
+});
+const isApplicationHealthDataArray = createBoundedArrayGuard(isApplicationHealthData);
 
 /**
  * Type guard to validate OrganizationReportSummary structure
@@ -98,6 +136,8 @@ export const isOrganizationReportApplicationArray = createBoundedArrayGuard(
   isOrganizationReportApplication,
 );
 
+// === Validate Functions ===
+
 /**
  * Validates and returns an array of ApplicationHealthReportDetail
  * @throws Error if validation fails
@@ -122,9 +162,13 @@ export function validateApplicationHealthReportDetailArray(
     .filter(({ item }) => !isApplicationHealthReportDetail(item));
 
   if (invalidItems.length > 0) {
-    const invalidIndices = invalidItems.map(({ index }) => index).join(", ");
+    const elementMessages = invalidItems.map(({ item, index }) => {
+      const fieldErrors = isApplicationHealthReportDetail.explain(item).join("; ");
+      return `  element[${index}]: ${fieldErrors}`;
+    });
     throw new Error(
-      `Invalid report data: array contains ${invalidItems.length} invalid ApplicationHealthReportDetail element(s) at indices: ${invalidIndices}`,
+      `Invalid report data: array contains ${invalidItems.length} invalid ApplicationHealthReportDetail element(s)\n` +
+        elementMessages.join("\n"),
     );
   }
 
@@ -146,6 +190,28 @@ export function validateOrganizationReportSummary(data: unknown): OrganizationRe
     throw new Error("Invalid report summary");
   }
 
+  return data;
+}
+
+export const isAccessReportSummaryData = createValidator<AccessReportSummaryData>({
+  totalMemberCount: isBoundedPositiveNumber,
+  totalApplicationCount: isBoundedPositiveNumber,
+  totalAtRiskMemberCount: isBoundedPositiveNumber,
+  totalAtRiskApplicationCount: isBoundedPositiveNumber,
+  totalCriticalApplicationCount: isBoundedPositiveNumber,
+  totalCriticalMemberCount: isBoundedPositiveNumber,
+  totalCriticalAtRiskMemberCount: isBoundedPositiveNumber,
+  totalCriticalAtRiskApplicationCount: isBoundedPositiveNumber,
+});
+
+/**
+ * Validates and returns AccessReportSummaryData
+ * @throws Error if validation fails
+ */
+export function validateAccessReportSummaryData(data: unknown): AccessReportSummaryData {
+  if (!isAccessReportSummaryData(data)) {
+    throw new Error("Invalid report summary");
+  }
   return data;
 }
 
@@ -173,9 +239,13 @@ export function validateOrganizationReportApplicationArray(
     .filter(({ item }) => !isOrganizationReportApplication(item));
 
   if (invalidItems.length > 0) {
-    const invalidIndices = invalidItems.map(({ index }) => index).join(", ");
+    const elementMessages = invalidItems.map(({ item, index }) => {
+      const fieldErrors = isOrganizationReportApplication.explain(item).join("; ");
+      return `  element[${index}]: ${fieldErrors}`;
+    });
     throw new Error(
-      `Invalid application data: array contains ${invalidItems.length} invalid OrganizationReportApplication element(s) at indices: ${invalidIndices}`,
+      `Invalid application data: array contains ${invalidItems.length} invalid OrganizationReportApplication element(s)\n` +
+        elementMessages.join("\n"),
     );
   }
 
@@ -202,4 +272,90 @@ export function validateOrganizationReportApplicationArray(
 
   // Convert string dates to Date objects for reviewedDate
   return mappedData;
+}
+
+const isAccessReportSettingsData = createValidator<AccessReportSettingsData>({
+  applicationName: isBoundedString,
+  isCritical: isBoolean,
+  reviewedDate: isDateStringOrUndefined,
+});
+export const isAccessReportSettingsDataArray = createBoundedArrayGuard(isAccessReportSettingsData);
+
+/**
+ * Validates and returns an array of AccessReportSettingsData
+ * @throws Error if validation fails
+ */
+export function validateAccessReportSettingsDataArray(data: unknown): AccessReportSettingsData[] {
+  if (!Array.isArray(data)) {
+    throw new Error(
+      "Invalid application data: expected array of AccessReportSettingsData, received non-array",
+    );
+  }
+
+  if (data.length > BOUNDED_ARRAY_MAX_LENGTH) {
+    throw new Error(
+      `Invalid application data: array length ${data.length} exceeds maximum allowed length ${BOUNDED_ARRAY_MAX_LENGTH}`,
+    );
+  }
+
+  const invalidItems = data
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => !isAccessReportSettingsData(item));
+
+  if (invalidItems.length > 0) {
+    const elementMessages = invalidItems.map(({ item, index }) => {
+      const fieldErrors = isAccessReportSettingsData.explain(item).join("; ");
+      return `  element[${index}]: ${fieldErrors}`;
+    });
+    throw new Error(
+      `Invalid application data: array contains ${invalidItems.length} invalid AccessReportSettingsData element(s)\n` +
+        elementMessages.join("\n"),
+    );
+  }
+
+  if (!isAccessReportSettingsDataArray(data)) {
+    // Throw for type casting return
+    // Should never get here
+    throw new Error("Invalid application data");
+  }
+
+  return data;
+}
+
+/**
+ * Validates and returns AccessReportPayload
+ * @throws Error if validation fails
+ */
+export function validateAccessReportPayload(data: unknown): AccessReportPayload {
+  if (data == null || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error("Invalid report payload: expected object, received non-object");
+  }
+
+  const obj = data as Record<string, unknown>;
+
+  if (!isApplicationHealthDataArray(obj["reports"])) {
+    throw new Error("Invalid report payload: reports array failed validation");
+  }
+
+  // Pre-normalize "" → undefined before validation for backwards compatibility with
+  // blobs that stored empty string. The guard uses isBoundedStringOrUndefined which
+  // rejects "", so normalization must happen before the guard runs.
+  if (typeof obj["memberRegistry"] === "object" && obj["memberRegistry"] !== null) {
+    for (const entry of Object.values(obj["memberRegistry"] as Record<string, unknown>)) {
+      if (
+        typeof entry === "object" &&
+        entry !== null &&
+        (entry as Record<string, unknown>)["userName"] === ""
+      ) {
+        (entry as Record<string, unknown>)["userName"] = undefined;
+      }
+    }
+  }
+
+  if (!isMemberRegistry(obj["memberRegistry"])) {
+    const errors = isMemberRegistry.explain(obj["memberRegistry"]).join("; ");
+    throw new Error(`Invalid report payload: memberRegistry failed validation: ${errors}`);
+  }
+
+  return data as AccessReportPayload;
 }
