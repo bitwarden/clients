@@ -312,12 +312,16 @@ export class Parser {
     }
   }
 
-  async parseEncryptedPrivateKey(encryptedPrivateKey: string, encryptionKey: Uint8Array) {
+  async parseEncryptedPrivateKey(
+    encryptedPrivateKey: Uint8Array,
+    encryptionKey: Uint8Array,
+    iv: Uint8Array,
+  ) {
     const decrypted = await this.cryptoUtils.decryptAes256(
-      Utils.fromHexToArray(encryptedPrivateKey),
+      encryptedPrivateKey,
       encryptionKey,
       "cbc",
-      encryptionKey.subarray(0, 16),
+      iv,
     );
 
     const header = "LastPassPrivateKey<";

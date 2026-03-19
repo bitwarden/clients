@@ -7,7 +7,7 @@ import { HttpStatusCode } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-import { IdpProvider } from "./enums";
+import { IdpProvider, LastpassLoginType } from "./enums";
 import {
   Account,
   ClientInfo,
@@ -65,6 +65,7 @@ export class Vault {
       "sha256",
     );
     const hiddenPassword = Utils.fromBufferToB64(hiddenPasswordArr);
+    clientInfo.login = LastpassLoginType.Federated;
     this.accounts = await this.client.openVault(
       federatedUser.username,
       hiddenPassword,

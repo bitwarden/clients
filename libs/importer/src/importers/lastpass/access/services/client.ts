@@ -3,7 +3,7 @@
 import { HttpStatusCode } from "@bitwarden/common/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-import { OtpMethod, Platform } from "../enums";
+import { LastpassLoginType, OtpMethod, Platform } from "../enums";
 import {
   Account,
   Chunk,
@@ -63,8 +63,20 @@ export class Client {
       );
 
       let privateKey: Uint8Array = null;
+      let iv: Uint8Array = null;
       if (session.encryptedPrivateKey != null && session.encryptedPrivateKey != "") {
-        privateKey = await this.parser.parseEncryptedPrivateKey(session.encryptedPrivateKey, key);
+        let encryptedPrivateKey = null;
+        if (clientInfo.login == LastpassLoginType.MasterPassword) {
+          encryptedPrivateKey = Utils.fromHexToArray(session.encryptedPrivateKey);
+          iv = key.subarray(0, 16);
+        } else if (clientInfo.login == LastpassLoginType.Federated) {
+          const [eiv, epk] = session.encryptedPrivateKey.split("|");
+          encryptedPrivateKey = Utils.fromB64ToArray(epk);
+          iv = Utils.fromB64ToArray(eiv.slice(1));
+        } else {
+          throw new Error("Unsupported lastpass login");
+        }
+        privateKey = await this.parser.parseEncryptedPrivateKey(encryptedPrivateKey, key, iv);
       }
 
       return this.parseVault(blob, key, privateKey, options);
