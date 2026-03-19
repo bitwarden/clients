@@ -23,7 +23,7 @@ export function parseIdentityFingerprint(raw: string): string {
 export interface CredentialRequestData {
   domain: string;
   requestId: string;
-  sessionId: string;
+  identity: string;
   connectionName: string;
   matches: CredentialMatch[];
   query?: { domain: string } | { id: string } | { search: string };

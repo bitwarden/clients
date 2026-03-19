@@ -10,12 +10,11 @@ import {
   ToggleGroupModule,
 } from "@bitwarden/components";
 
-import type { ConnectionMode } from "../agent-access.service";
+type PairingMode = "rendezvous" | "psk";
 
 const ConnectionModeEnum = Object.freeze({
-  Rendezvous: "rendezvous" as ConnectionMode,
-  Psk: "psk" as ConnectionMode,
-  Cached: "cached" as ConnectionMode,
+  Rendezvous: "rendezvous" as PairingMode,
+  Psk: "psk" as PairingMode,
 } as const);
 
 @Component({
@@ -245,7 +244,7 @@ export class AgentAccessPairingComponent {
   protected readonly ConnectionModeEnum = ConnectionModeEnum;
 
   readonly stage = input.required<"token" | "fingerprint" | "known" | "handshake" | "connected">();
-  readonly connectionMode = input.required<ConnectionMode>();
+  readonly connectionMode = input.required<PairingMode>();
   readonly rendezvousCode = input("");
   readonly pskToken = input("");
   readonly fingerprint = input("");
@@ -254,7 +253,7 @@ export class AgentAccessPairingComponent {
   readonly codeCopied = input(false);
   readonly tokenCopied = input(false);
 
-  readonly modeChanged = output<ConnectionMode>();
+  readonly modeChanged = output<PairingMode>();
   readonly copyCode = output();
   readonly copyToken = output();
   readonly nameChanged = output<string>();

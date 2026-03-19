@@ -21,8 +21,6 @@ const AUDIT_LOG_MAX_ENTRIES = 200;
 /** Default proxy URL — should eventually come from environment config */
 const DEFAULT_PROXY_URL = "wss://rat1.lesspassword.dev";
 
-export type ConnectionMode = "rendezvous" | "psk" | "cached";
-
 export interface CredentialLookupResult {
   credentialId?: string;
   username?: string;
@@ -109,12 +107,13 @@ export class AgentAccessService implements OnDestroy {
 
   /**
    * Initialize the RAT client: load identity from vault, create session
-   * repository, connect to proxy, and start listening.
+   * repository, connect to proxy, and start the event loop.
    *
    * The session repository auto-persists all session state — no manual
-   * persistState() calls needed.
+   * persistState() calls needed. After connecting, call `getPskToken()` or
+   * `getRendezvousToken()` to start accepting connections.
    */
-  async startListening(mode: ConnectionMode): Promise<void> {
+  async startListening(): Promise<void> {
     // Load SDK module
     const sdk = await import("@bitwarden/sdk-internal");
 
@@ -143,7 +142,6 @@ export class AgentAccessService implements OnDestroy {
     const UserClient = (sdk as any).UserClient;
     this.client = new UserClient(repo, this.identityCose);
     this.client.set_audit_callback(this.createAuditCallback());
-    await this.client.connect(this.proxyClient);
 
     // Event callback — runs in the WASM event loop, need to re-enter NgZone
     const eventCallback = (event: UserClientEvent) => {
@@ -152,18 +150,8 @@ export class AgentAccessService implements OnDestroy {
       });
     };
 
-    // Start the event loop (this promise resolves when client disconnects)
-    switch (mode) {
-      case "rendezvous":
-        await this.client.enable_rendezvous(eventCallback);
-        break;
-      case "psk":
-        await this.client.enable_psk(eventCallback);
-        break;
-      case "cached":
-        await this.client.listen_cached_only(eventCallback);
-        break;
-    }
+    // Connect with event callback — starts the event loop in the background
+    await this.client.connect(this.proxyClient, eventCallback);
   }
 
   /**
@@ -176,23 +164,33 @@ export class AgentAccessService implements OnDestroy {
     if (sessions.length === 0) {
       return;
     }
-    await this.startListening("cached");
+    await this.startListening();
   }
 
-  /** Set the name for the next connection (forwarded to WASM client). */
-  setPendingSessionName(name: string): void {
-    if (this.client) {
-      this.client.set_pending_session_name(name);
+  /** Get a PSK token for pairing. Name is passed at token generation time. */
+  async getPskToken(name?: string): Promise<string> {
+    if (!this.client) {
+      throw new Error("Client not initialized");
     }
+    return await this.client.get_psk_token(name ?? null);
+  }
+
+  /** Get a rendezvous token for pairing. Name is passed at token generation time. */
+  async getRendezvousToken(name?: string): Promise<string> {
+    if (!this.client) {
+      throw new Error("Client not initialized");
+    }
+    return await this.client.get_rendezvous_token(name ?? null);
   }
 
   /** Approve or reject fingerprint verification. */
-  async verifyFingerprint(approved: boolean, name?: string): Promise<void> {
+  async verifyFingerprint(requestId: string, approved: boolean, name?: string): Promise<void> {
     if (!this.client) {
       return;
     }
     const response: Record<string, unknown> = {
       type: "verify_fingerprint",
+      request_id: requestId,
       approved,
     };
     if (name) {
@@ -204,10 +202,8 @@ export class AgentAccessService implements OnDestroy {
   /** Respond to a credential request. */
   async respondToCredential(
     requestId: string,
-    sessionId: string,
     approved: boolean,
     credential?: CredentialLookupResult,
-    query?: { domain: string } | { id: string } | { search: string },
   ): Promise<void> {
     if (!this.client) {
       return;
@@ -215,8 +211,6 @@ export class AgentAccessService implements OnDestroy {
     this.client.send_response({
       type: "respond_credential",
       request_id: requestId,
-      session_id: sessionId,
-      query,
       approved,
       credential: approved ? credential : undefined,
       credential_id: approved ? credential?.credentialId : undefined,

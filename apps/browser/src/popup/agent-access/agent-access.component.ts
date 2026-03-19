@@ -20,7 +20,7 @@ import { PopupHeaderComponent } from "../../platform/popup/layout/popup-header.c
 import { PopupPageComponent } from "../../platform/popup/layout/popup-page.component";
 
 import { AgentAccessIdentityService } from "./agent-access-identity.service";
-import { AgentAccessService, type ConnectionMode } from "./agent-access.service";
+import { AgentAccessService } from "./agent-access.service";
 import {
   AuditLogEntry,
   CredentialRequestData,
@@ -42,6 +42,9 @@ const AgentAccessView = Object.freeze({
   Error: "error",
 } as const);
 type AgentAccessView = (typeof AgentAccessView)[keyof typeof AgentAccessView];
+
+/** Local UI-only pairing mode (not exported — just for the toggle). */
+type PairingMode = "rendezvous" | "psk";
 
 /** UI-facing session info derived from SessionRecord + hex key. */
 interface SessionDisplay {
@@ -141,7 +144,7 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
   protected readonly pairingStage = signal<
     "token" | "fingerprint" | "known" | "handshake" | "connected"
   >("token");
-  protected readonly connectionMode = signal<ConnectionMode>("rendezvous");
+  protected readonly connectionMode = signal<PairingMode>("rendezvous");
   protected readonly rendezvousCode = signal("");
   protected readonly pskToken = signal("");
   protected readonly fingerprint = signal("");
@@ -150,6 +153,7 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
   private readonly remoteSessionId = signal("");
   protected readonly codeCopied = signal(false);
   protected readonly tokenCopied = signal(false);
+  private readonly currentFingerprintRequestId = signal("");
 
   // Credential request state
   protected readonly currentRequest = signal<CredentialRequestData | null>(null);
@@ -239,20 +243,19 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
 
   // --- Pairing actions ---
 
-  switchMode(mode: ConnectionMode): void {
+  switchMode(mode: PairingMode): void {
     this.connectionMode.set(mode);
-    void this.service.disconnect();
     this.rendezvousCode.set("");
     this.pskToken.set("");
     this.codeCopied.set(false);
     this.tokenCopied.set(false);
     this.pairingStage.set("token");
-    this.beginListening();
+    // No disconnect/reconnect needed — just generate a new token
+    this.generateToken();
   }
 
   onConnectionNameChanged(name: string): void {
     this.connectionName.set(name);
-    this.service.setPendingSessionName(name);
   }
 
   copyCode(): void {
@@ -269,11 +272,17 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
 
   onFingerprintApproved(): void {
     this.pairingStage.set("handshake");
-    void this.service.verifyFingerprint(true, this.connectionName() || undefined);
+    const requestId = this.currentFingerprintRequestId();
+    if (requestId) {
+      void this.service.verifyFingerprint(requestId, true, this.connectionName() || undefined);
+    }
   }
 
   onFingerprintRejected(): void {
-    void this.service.verifyFingerprint(false);
+    const requestId = this.currentFingerprintRequestId();
+    if (requestId) {
+      void this.service.verifyFingerprint(requestId, false);
+    }
     this.toastService.showToast({
       variant: "warning",
       title: null,
@@ -301,15 +310,9 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
           domain: credential.domain,
         }
       : undefined;
-    await this.service.respondToCredential(
-      request.requestId,
-      request.sessionId,
-      true,
-      filtered,
-      request.query,
-    );
+    await this.service.respondToCredential(request.requestId, true, filtered);
 
-    this.clearPendingRequest(request.sessionId);
+    this.clearPendingRequest(request.identity);
 
     this.toastService.showToast({
       variant: "success",
@@ -325,14 +328,8 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.service.respondToCredential(
-      request.requestId,
-      request.sessionId,
-      false,
-      undefined,
-      request.query,
-    );
-    this.clearPendingRequest(request.sessionId);
+    await this.service.respondToCredential(request.requestId, false);
+    this.clearPendingRequest(request.identity);
 
     if (request.matches.length > 0) {
       this.toastService.showToast({
@@ -373,21 +370,8 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
     this.view.set(AgentAccessView.Home);
     this.currentRequest.set(null);
     this.errorMessage.set("");
-
-    // Don't disconnect/reconnect if there are pending requests — the active
-    // client holds the event loop needed to respond to them.
-    if (this.pendingRequests().size > 0) {
-      return;
-    }
-
-    // Resume listening if enabled and we have connections
-    if (this.listeningEnabled() && this.connections().length > 0) {
-      void this.service.disconnect();
-      this.subscribeToEvents();
-      this.service.startListeningForAll().catch(() => {
-        // Silent failure for auto-listen resume
-      });
-    }
+    // With the actor-handle pattern the event loop keeps running in the
+    // background — no need to disconnect/reconnect when navigating home.
   }
 
   ngOnDestroy(): void {
@@ -399,13 +383,38 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
   // --- Private helpers ---
 
   private beginListening(): void {
-    const mode = this.connectionMode();
     this.subscribeToEvents();
 
-    this.service.startListening(mode).catch((err: Error) => {
-      this.errorMessage.set(err.message || "Failed to connect");
-      this.view.set(AgentAccessView.Error);
-    });
+    this.service
+      .startListening()
+      .then(() => {
+        this.generateToken();
+      })
+      .catch((err: Error) => {
+        this.errorMessage.set(err.message || "Failed to connect");
+        this.view.set(AgentAccessView.Error);
+      });
+  }
+
+  private generateToken(): void {
+    const mode = this.connectionMode();
+    if (mode === "psk") {
+      this.service
+        .getPskToken(this.connectionName() || undefined)
+        .then((token) => this.pskToken.set(token))
+        .catch((err: Error) => {
+          this.errorMessage.set(err.message || "Failed to get PSK token");
+          this.view.set(AgentAccessView.Error);
+        });
+    } else {
+      this.service
+        .getRendezvousToken(this.connectionName() || undefined)
+        .then((code) => this.rendezvousCode.set(code))
+        .catch((err: Error) => {
+          this.errorMessage.set(err.message || "Failed to get rendezvous code");
+          this.view.set(AgentAccessView.Error);
+        });
+    }
   }
 
   private subscribeToEvents(): void {
@@ -428,14 +437,6 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
       case "reconnected":
         break;
 
-      case "rendezvous_code_generated":
-        this.rendezvousCode.set(event.code);
-        break;
-
-      case "psk_token_generated":
-        this.pskToken.set(event.token);
-        break;
-
       case "handshake_start":
         if (this.view() === AgentAccessView.Pairing) {
           this.pairingStage.set("handshake");
@@ -443,25 +444,36 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
         break;
 
       case "handshake_fingerprint": {
+        // Informational notification — PSK connections auto-accepted by SDK
         this.fingerprint.set(event.fingerprint);
         const identity = parseIdentityFingerprint(event.identity);
         this.remoteSessionId.set(identity);
 
+        if (this.view() === AgentAccessView.Pairing && this.connectionMode() === "psk") {
+          // PSK: SDK already accepted — show success
+          void this.onConnectionEstablished();
+        }
+        break;
+      }
+
+      case "verify_fingerprint_request": {
+        // Rendezvous mode: SDK asks us to verify the fingerprint
+        const reqEvent = event as any;
+        this.fingerprint.set(reqEvent.fingerprint);
+        const identity = parseIdentityFingerprint(reqEvent.identity);
+        this.remoteSessionId.set(identity);
+        this.currentFingerprintRequestId.set(reqEvent.request_id);
+
         if (this.view() === AgentAccessView.Pairing) {
-          if (this.connectionMode() === "psk") {
-            // PSK: SDK already accepted the connection — just show success
-            void this.onConnectionEstablished();
-          } else {
-            const known = identity ? this.connections().find((c) => c.id === identity) : undefined;
-            if (known) {
-              this.knownConnectionName.set(known.name);
-              if (!this.connectionName()) {
-                this.connectionName.set(known.name);
-              }
-              this.pairingStage.set("known");
-            } else {
-              this.pairingStage.set("fingerprint");
+          const known = identity ? this.connections().find((c) => c.id === identity) : undefined;
+          if (known) {
+            this.knownConnectionName.set(known.name);
+            if (!this.connectionName()) {
+              this.connectionName.set(known.name);
             }
+            this.pairingStage.set("known");
+          } else {
+            this.pairingStage.set("fingerprint");
           }
         }
         break;
@@ -548,18 +560,18 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
     const query = event.query;
     const domain = "domain" in query ? query.domain : "search" in query ? query.search : query.id;
     const requestId = event.request_id;
-    const sessionId = event.session_id;
+    const identity = (event as any).identity as string;
 
     const matches = await this.service.lookupCredentials(domain);
 
-    const remoteId = parseIdentityFingerprint(sessionId);
+    const remoteId = parseIdentityFingerprint(identity);
     const knownConn = this.connections().find((c) => c.id === remoteId);
     const connectionName = knownConn?.name ?? "Connected device";
 
     const requestData: CredentialRequestData = {
       domain,
       requestId,
-      sessionId,
+      identity: remoteId,
       connectionName,
       matches,
       query: event.query,
@@ -575,8 +587,8 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
     this.view.set(AgentAccessView.CredentialRequest);
   }
 
-  private clearPendingRequest(sessionId: string): void {
-    const remoteId = parseIdentityFingerprint(sessionId);
+  private clearPendingRequest(identity: string): void {
+    const remoteId = parseIdentityFingerprint(identity);
     this.pendingRequests.update((map) => {
       const updated = new Map(map);
       updated.delete(remoteId);
@@ -595,6 +607,7 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
     this.remoteSessionId.set("");
     this.codeCopied.set(false);
     this.tokenCopied.set(false);
+    this.currentFingerprintRequestId.set("");
   }
 
   private async refreshConnections(): Promise<void> {
