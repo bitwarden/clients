@@ -845,6 +845,23 @@ describe("AutofillService", () => {
       expect(autofillResult).toBeNull();
     });
 
+    it("sends showAnimations as false when enableAutofillAnimation$ emits false", async () => {
+      enableAutofillAnimationMock$.next(false);
+
+      await autofillService.doAutoFill(autofillOptions);
+
+      const currentAutofillPageDetails = autofillOptions.pageDetails[0];
+      expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(
+        currentAutofillPageDetails.tab.id,
+        expect.objectContaining({
+          command: "fillForm",
+          showAnimations: false,
+        }),
+        { frameId: currentAutofillPageDetails.frameId },
+        expect.any(Function),
+      );
+    });
+
     it("will autofill card data for a page", async () => {
       autofillOptions.cipher.type = CipherType.Card;
       autofillOptions.cipher.card = mock<CardView>({
