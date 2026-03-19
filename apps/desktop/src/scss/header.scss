@@ -1,7 +1,7 @@
 .header {
   -webkit-app-region: drag;
-  min-height: 54px;
-  max-height: 54px;
+  min-height: var(--header-height);
+  max-height: var(--header-height);
   display: grid;
   grid-template-columns: 25% 1fr 25%;
   grid-column-gap: 5px;

@@ -5,7 +5,7 @@ import * as http from "http";
 import { OptionValues } from "commander";
 import * as inquirer from "inquirer";
 import Separator from "inquirer/lib/objects/separator";
-import { firstValueFrom, map } from "rxjs";
+import { filter, firstValueFrom, map } from "rxjs";
 
 import {
   LoginStrategyServiceAbstraction,
@@ -21,7 +21,11 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
-import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import {
+  isTwoFactorProviderType,
+  TwoFactorProviderType,
+} from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
@@ -51,6 +55,7 @@ import { NodeUtils } from "@bitwarden/node/node-utils";
 import { ConfirmKeyConnectorDomainCommand } from "../../key-management/confirm-key-connector-domain.command";
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
+import { firstValueFromOrNull } from "../../utils";
 
 export class LoginCommand {
   protected canInteract: boolean;
@@ -173,7 +178,12 @@ export class LoginCommand {
     let twoFactorMethod: TwoFactorProviderType = null;
     try {
       if (options.method != null) {
-        twoFactorMethod = parseInt(options.method, null);
+        const parsed = parseInt(options.method, 10);
+        if (isTwoFactorProviderType(parsed)) {
+          twoFactorMethod = parsed;
+        } else {
+          return Response.error("Invalid two-step login method.");
+        }
       }
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -389,6 +399,19 @@ export class LoginCommand {
           return confirmResponse;
         }
       }
+
+      // Guard against race condition: active account and auth state observables may lag
+      // behind state writes. Await them here to let state propagate before fullSync reads them.
+      await firstValueFromOrNull(
+        this.accountService.activeAccount$.pipe(
+          filter((account) => account?.id === response.userId),
+        ),
+      );
+      await firstValueFromOrNull(
+        this.authService
+          .authStatusFor$(response.userId)
+          .pipe(filter((status) => status !== AuthenticationStatus.LoggedOut)),
+      );
 
       // Run full sync before handling success response or password reset flows (to get Master Password Policies)
       await this.syncService.fullSync(true, { skipTokenRefresh: true });
