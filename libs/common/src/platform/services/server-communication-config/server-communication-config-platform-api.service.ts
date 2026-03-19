@@ -77,8 +77,9 @@ export class ServerCommunicationConfigPlatformApiService implements ServerCommun
       this.pendingAcquisition = { hostname: vaultUrl, resolve, timeoutId };
 
       // Open browser to cookie redirect page
-      const url = `${vaultUrl}/proxy-cookie-redirect-connector.html`;
-      this.logService.info(`Opening browser for cookie acquisition: ${url}`);
+      const normalizedVaultUrl = vaultUrl.startsWith("https://") ? vaultUrl : `https://${vaultUrl}`;
+      const url = `${normalizedVaultUrl}/proxy-cookie-redirect-connector.html`;
+      this.logService.info(`Opening browser for cookie acquisition: ${normalizedVaultUrl}`);
       this.platformUtilsService.launchUri(url);
     });
   }
