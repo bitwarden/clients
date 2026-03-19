@@ -103,8 +103,7 @@ describe("AutofillService", () => {
 
   beforeEach(() => {
     configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockImplementation(() => of(false));
-
+    (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(false));
     // Initialize domainSettingsService BEFORE it's used
     domainSettingsService = new DefaultDomainSettingsService(
       fakeStateProvider,

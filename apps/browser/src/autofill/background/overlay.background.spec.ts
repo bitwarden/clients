@@ -153,7 +153,7 @@ describe("OverlayBackground", () => {
 
   beforeEach(() => {
     configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockImplementation(() => of(true));
+    (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(false));
     accountService = mockAccountServiceWith(mockUserId);
     fakeStateProvider = new FakeStateProvider(accountService);
     showFaviconsMock$ = new BehaviorSubject(true);
@@ -2878,7 +2878,7 @@ describe("OverlayBackground", () => {
           { command: "closeAutofillInlineMenu", overlayElement: undefined },
           { frameId: 0 },
         );
-        expect(tabSendMessageDataSpy).toBeCalledWith(
+        expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
           sender.tab,
           "addToLockedVaultPendingNotifications",
           {

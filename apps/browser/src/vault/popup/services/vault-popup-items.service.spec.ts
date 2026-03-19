@@ -285,8 +285,8 @@ describe("VaultPopupItemsService", () => {
       };
 
       // Assume all ciphers are autofill ciphers to test sorting
-      cipherServiceMock.filterCiphersForUrl.mockImplementation(async () =>
-        Object.values(allCiphers),
+      cipherServiceMock.filterCiphersForUrl.mockImplementation(async (ciphers) =>
+        ciphers.filter((c) => true),
       );
 
       service.autoFillCiphers$.subscribe((ciphers) => {
@@ -328,8 +328,8 @@ describe("VaultPopupItemsService", () => {
       const cipherList = Object.values(allCiphers);
       const searchText = "Login";
 
-      searchService.searchCiphers.mockImplementation(async () => {
-        return cipherList.filter((cipher) => {
+      searchService.searchCiphers.mockImplementation(async (userId, _, __, ciphers) => {
+        return (ciphers || cipherList).filter((cipher) => {
           return cipher.name.includes(searchText);
         });
       });
@@ -355,8 +355,8 @@ describe("VaultPopupItemsService", () => {
       const cipherList = Object.values(allCiphers);
       const searchText = "Card 2";
 
-      searchService.searchCiphers.mockImplementation(async () => {
-        return cipherList.filter((cipher) => {
+      searchService.searchCiphers.mockImplementation(async (userId, _, __, ciphers) => {
+        return (ciphers || cipherList).filter((cipher) => {
           return cipher.name === searchText;
         });
       });

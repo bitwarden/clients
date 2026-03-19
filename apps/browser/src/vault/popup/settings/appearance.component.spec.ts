@@ -83,7 +83,7 @@ describe("AppearanceComponent", () => {
     setClickItemsToAutofillVaultView.mockClear();
 
     const configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) => {
+    (configService.getFeatureFlag$ as jest.Mock).mockImplementation((flag: FeatureFlag) => {
       if (flag === FeatureFlag.PM31039ItemActionInExtension) {
         return featureFlag$.asObservable();
       }
