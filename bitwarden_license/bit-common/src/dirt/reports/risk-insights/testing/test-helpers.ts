@@ -265,6 +265,10 @@ export function createRiskInsightsSummary(
     totalAtRiskMemberCount: number;
     totalCriticalMemberCount: number;
     totalCriticalAtRiskMemberCount: number;
+    totalPasswordCount: number;
+    totalAtRiskPasswordCount: number;
+    totalCriticalPasswordCount: number;
+    totalCriticalAtRiskPasswordCount: number;
   }>,
 ): AccessReportSummaryView {
   const summary = new AccessReportSummaryView();
@@ -276,6 +280,10 @@ export function createRiskInsightsSummary(
   summary.totalAtRiskMemberCount = counts?.totalAtRiskMemberCount ?? 0;
   summary.totalCriticalMemberCount = counts?.totalCriticalMemberCount ?? 0;
   summary.totalCriticalAtRiskMemberCount = counts?.totalCriticalAtRiskMemberCount ?? 0;
+  summary.totalPasswordCount = counts?.totalPasswordCount ?? 0;
+  summary.totalAtRiskPasswordCount = counts?.totalAtRiskPasswordCount ?? 0;
+  summary.totalCriticalPasswordCount = counts?.totalCriticalPasswordCount ?? 0;
+  summary.totalCriticalAtRiskPasswordCount = counts?.totalCriticalAtRiskPasswordCount ?? 0;
   return summary;
 }
 
