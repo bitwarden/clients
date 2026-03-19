@@ -278,10 +278,11 @@
     {
       matchPackageNames: [
         "@types/jest",
+        "jest-diff",
+        "jest-environment-jsdom",
         "jest-junit",
         "jest-mock-extended",
         "jest-preset-angular",
-        "jest-diff",
         "ts-jest",
       ],
       description: "Secrets Manager owned dependencies",

@@ -562,72 +562,72 @@ describe("BrowserApi", () => {
   });
 
   describe("reloadOpenWindows", () => {
-    const href = window.location.href;
-    const reload = window.location.reload;
-
-    afterEach(() => {
-      window.location.href = href;
-      window.location.reload = reload;
-    });
-
     it("skips reloading any windows if no views can be found", () => {
-      Object.defineProperty(window, "location", {
-        value: { reload: jest.fn(), href: "chrome-extension://id-value/background.html" },
-        writable: true,
-      });
       chrome.extension.getViews = jest.fn().mockReturnValue([]);
 
       BrowserApi.reloadOpenWindows();
 
-      expect(window.location.reload).not.toHaveBeenCalled();
+      expect(chrome.extension.getViews).toHaveBeenCalledTimes(1);
     });
 
     it("reloads all open windows", () => {
-      Object.defineProperty(window, "location", {
-        value: { reload: jest.fn(), href: "chrome-extension://id-value/index.html" },
-        writable: true,
-      });
-      const views = [window];
-      chrome.extension.getViews = jest.fn().mockReturnValue(views);
+      const mockView = {
+        location: {
+          href: "chrome-extension://id-value/popup.html",
+          reload: jest.fn(),
+        },
+      };
+      const views = [mockView];
+      chrome.extension.getViews = jest.fn().mockReturnValue(views as any);
 
       BrowserApi.reloadOpenWindows();
 
-      expect(window.location.reload).toHaveBeenCalledTimes(views.length);
+      expect(mockView.location.reload).toHaveBeenCalledTimes(1);
     });
 
     it("skips reloading the background page", () => {
-      Object.defineProperty(window, "location", {
-        value: { reload: jest.fn(), href: "chrome-extension://id-value/background.html" },
-        writable: true,
-      });
-      const views = [window];
-      chrome.extension.getViews = jest.fn().mockReturnValue(views);
-      chrome.extension.getBackgroundPage = jest.fn().mockReturnValue(window);
+      const backgroundView = {
+        location: {
+          href: "chrome-extension://id-value/background.html",
+          reload: jest.fn(),
+        },
+      };
+      const regularView = {
+        location: {
+          href: "chrome-extension://id-value/popup.html",
+          reload: jest.fn(),
+        },
+      };
+      const views = [backgroundView, regularView];
+      chrome.extension.getViews = jest.fn().mockReturnValue(views as any);
 
       BrowserApi.reloadOpenWindows();
 
-      expect(window.location.reload).toHaveBeenCalledTimes(0);
+      expect(backgroundView.location.reload).not.toHaveBeenCalled();
+      expect(regularView.location.reload).toHaveBeenCalledTimes(1);
     });
 
     it("skips reloading the current href if it is exempt", () => {
-      Object.defineProperty(window, "location", {
-        value: { reload: jest.fn(), href: "chrome-extension://id-value/index.html" },
-        writable: true,
-      });
-      const mockWindow = mock<Window>({
+      const currentHref = window.location.href;
+      const currentView = {
+        location: {
+          href: currentHref,
+          reload: jest.fn(),
+        },
+      };
+      const otherView = {
         location: {
           href: "chrome-extension://id-value/sidebar.html",
           reload: jest.fn(),
         },
-      });
-      const views = [window, mockWindow];
-      chrome.extension.getViews = jest.fn().mockReturnValue(views);
-      window.location.href = "chrome-extension://id-value/index.html";
+      };
+      const views = [currentView, otherView];
+      chrome.extension.getViews = jest.fn().mockReturnValue(views as any);
 
       BrowserApi.reloadOpenWindows(true);
 
-      expect(window.location.reload).toHaveBeenCalledTimes(0);
-      expect(mockWindow.location.reload).toHaveBeenCalledTimes(1);
+      expect(currentView.location.reload).not.toHaveBeenCalled();
+      expect(otherView.location.reload).toHaveBeenCalledTimes(1);
     });
   });
 

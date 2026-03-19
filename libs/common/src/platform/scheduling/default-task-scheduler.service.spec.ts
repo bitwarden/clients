@@ -23,7 +23,6 @@ describe("DefaultTaskSchedulerService", () => {
   });
 
   afterEach(() => {
-    jest.clearAllTimers();
     jest.clearAllMocks();
   });
 

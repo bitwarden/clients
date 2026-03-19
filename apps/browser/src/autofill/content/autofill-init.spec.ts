@@ -248,7 +248,7 @@ describe("AutofillInit", () => {
           await flushPromises();
 
           expect(autofillInit["collectAutofillContentService"].getPageDetails).toHaveBeenCalled();
-          expect(sendResponse).toBeCalledWith(pageDetails);
+          expect(sendResponse).toHaveBeenCalledWith(pageDetails);
           expect(chrome.runtime.sendMessage).not.toHaveBeenCalledWith({
             command: "collectPageDetailsResponse",
             tab: message.tab,

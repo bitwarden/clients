@@ -103,7 +103,7 @@ describe("AutofillService", () => {
 
   beforeEach(() => {
     configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockImplementation(() => of(false));
+    configService.getFeatureFlag$.mockImplementation((() => of(false)) as any);
 
     // Initialize domainSettingsService BEFORE it's used
     domainSettingsService = new DefaultDomainSettingsService(

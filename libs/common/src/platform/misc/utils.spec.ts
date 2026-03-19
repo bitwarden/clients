@@ -1,5 +1,3 @@
-import * as path from "path";
-
 import { Utils } from "./utils";
 
 describe("Utils Service", () => {
@@ -884,7 +882,7 @@ describe("Utils Service", () => {
     it("removes multiple encoded traversals", () => {
       expect(
         Utils.normalizePath("api/sends/access/..%2f..%2f..%2fapi%2fsends%2faccess%2fsendkey"),
-      ).toBe(path.normalize("api/sends/access/sendkey"));
+      ).toBe("api/sends/access/sendkey");
     });
   });
 

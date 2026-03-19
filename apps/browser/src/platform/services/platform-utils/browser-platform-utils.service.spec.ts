@@ -305,9 +305,11 @@ describe("Browser Utils Service", () => {
       BrowserApi.sendMessageWithResponse = jest.fn();
       offscreenDocumentService.offscreenApiSupported.mockReturnValue(true);
       getManifestVersionSpy.mockReturnValue(3);
-      offscreenDocumentService.withDocument.mockImplementationOnce((_, __, callback) =>
-        Promise.resolve("test"),
-      );
+      offscreenDocumentService.withDocument.mockImplementationOnce(((
+        _: any,
+        __: any,
+        callback: any,
+      ) => callback()) as any);
 
       await browserPlatformUtilsService.readFromClipboard();
 
@@ -328,9 +330,11 @@ describe("Browser Utils Service", () => {
         .mockReturnValue(DeviceType.ChromeExtension);
       getManifestVersionSpy.mockReturnValue(3);
       jest.spyOn(BrowserApi, "sendMessageWithResponse").mockResolvedValue(1);
-      offscreenDocumentService.withDocument.mockImplementationOnce((_, __, callback) =>
-        Promise.resolve(1),
-      );
+      offscreenDocumentService.withDocument.mockImplementationOnce(((
+        _: any,
+        __: any,
+        callback: any,
+      ) => callback()) as any);
 
       const result = await browserPlatformUtilsService.readFromClipboard();
 

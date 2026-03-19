@@ -1,7 +1,3 @@
-/**
- * need to update test environment so trackEmissions works appropriately
- * @jest-environment ../shared/test.environment.ts
- */
 import { Subject, firstValueFrom } from "rxjs";
 
 import { awaitAsync, trackEmissions } from "@bitwarden/core-test-utils";

@@ -1,8 +1,3 @@
-/**
- * need to update test environment so structuredClone works appropriately
- * @jest-environment ../../libs/shared/test.environment.ts
- */
-
 import { matches, mock } from "jest-mock-extended";
 import { BehaviorSubject, Subject, bufferCount, firstValueFrom, of } from "rxjs";
 

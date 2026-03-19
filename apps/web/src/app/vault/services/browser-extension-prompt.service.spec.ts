@@ -39,7 +39,6 @@ describe("BrowserExtensionPromptService", () => {
   });
 
   afterEach(() => {
-    jest.clearAllTimers();
     jest.useRealTimers();
   });
 

@@ -713,7 +713,10 @@ export class Utils {
    * @returns
    */
   static normalizePath(denormalizedPath: string): string {
-    return path.normalize(decodeURIComponent(denormalizedPath)).replace(/^(\.\.(\/|\\|$))+/, "");
+    // For URL paths, we need to preserve forward slashes regardless of platform
+    // Use posixPath.normalize instead of path.normalize to avoid Windows backslashes
+    const normalizedPath = path.posix.normalize(decodeURIComponent(denormalizedPath));
+    return normalizedPath.replace(/^(\.\.(\/|\\|$))+/, "");
   }
 
   /**

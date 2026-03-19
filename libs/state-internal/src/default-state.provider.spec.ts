@@ -1,7 +1,3 @@
-/**
- * need to update test environment so structuredClone works appropriately
- * @jest-environment ../shared/test.environment.ts
- */
 import { Observable, of } from "rxjs";
 
 import { awaitAsync, trackEmissions } from "@bitwarden/core-test-utils";

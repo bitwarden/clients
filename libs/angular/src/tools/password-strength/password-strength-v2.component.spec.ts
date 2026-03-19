@@ -50,11 +50,11 @@ describe("PasswordStrengthV2Component", () => {
     expect(component.passwordStrengthScore.emit).toHaveBeenCalled();
   });
 
-  it("should emit password score text and color when ngOnChanges executes", () => {
+  it("should emit password score text and color when ngOnChanges executes", async () => {
     jest.spyOn(component.passwordScoreTextWithColor, "emit");
     jest.useFakeTimers();
     component.ngOnChanges();
-    jest.runAllTimers();
+    await jest.runAllTimersAsync();
     expect(component.passwordScoreTextWithColor.emit).toHaveBeenCalled();
   });
 
@@ -68,12 +68,12 @@ describe("PasswordStrengthV2Component", () => {
 
   test.each(table)(
     "should passwordScore be %d then emit passwordScoreTextWithColor = %s",
-    (score: PasswordStrengthScore, expected: PasswordColorText) => {
+    async (score: PasswordStrengthScore, expected: PasswordColorText) => {
       jest.useFakeTimers();
       jest.spyOn(component.passwordScoreTextWithColor, "emit");
       component.passwordScore = score;
       component.ngOnChanges();
-      jest.runAllTimers();
+      await jest.runAllTimersAsync();
       expect(component.passwordScoreTextWithColor.emit).toHaveBeenCalledWith(expected);
     },
   );

@@ -25,16 +25,6 @@ describe("NotificationBar iframe handleWindowMessage security", () => {
   });
 
   beforeEach(() => {
-    Object.defineProperty(globalThis, "location", {
-      value: { search: `?parentOrigin=${encodeURIComponent(trustedOrigin)}` },
-      writable: true,
-      configurable: true,
-    });
-    Object.defineProperty(globalThis, "parent", {
-      value: mock<Window>(),
-      writable: true,
-      configurable: true,
-    });
     globalThis.dispatchEvent(new Event("load"));
   });
 
@@ -87,13 +77,6 @@ describe("NotificationBar iframe handleWindowMessage security", () => {
       source: () => globalThis.parent,
     },
   ])("should reject messages $description", ({ message, origin, source, resetOrigin }) => {
-    if (resetOrigin) {
-      Object.defineProperty(globalThis, "location", {
-        value: { search: "" },
-        writable: true,
-        configurable: true,
-      });
-    }
     const spy = jest.spyOn(globalThis.parent, "postMessage").mockImplementation();
     postWindowMessage(message(), origin, source());
     expect(spy).not.toHaveBeenCalled();

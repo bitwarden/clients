@@ -235,9 +235,9 @@ describe("PasswordRandomizer", () => {
       // given. In the password generator, the array is generated from the
       // options. Thus, returning a fixed set of results effectively overrides
       // the randomizer's arguments.
-      randomizer.shuffle.mockImplementation(() => {
+      randomizer.shuffle.mockImplementation((items: any[]) => {
         const results = [Ascii.Full.Uppercase, Ascii.Full.Digit];
-        return Promise.resolve(results);
+        return Promise.resolve(results) as any;
       });
 
       const result = await password.randomAscii({

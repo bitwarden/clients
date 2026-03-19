@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`DefaultRegistrationFinishService finishRegistration() when feature flag is OFF (old API) registers the user with KDF fields when given valid email verification input 1`] = `
 RegisterFinishRequest {

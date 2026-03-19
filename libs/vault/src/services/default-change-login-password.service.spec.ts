@@ -1,7 +1,7 @@
 /**
- * Jest needs to run in custom environment to mock Request/Response objects
- * @jest-environment ../../libs/shared/test.environment.ts
+ * @jest-environment jsdom
  */
+/// <reference lib="dom" />
 
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
@@ -49,9 +49,8 @@ describe("DefaultChangeLoginPasswordService", () => {
   });
 
   it("should return null for non-login ciphers", async () => {
-    const cipher = {
-      type: CipherType.Card,
-    } as CipherView;
+    const cipher = new CipherView();
+    cipher.type = CipherType.Card;
 
     const url = await service.getChangePasswordUrl(cipher);
 
@@ -59,10 +58,9 @@ describe("DefaultChangeLoginPasswordService", () => {
   });
 
   it("should return null for logins with no URIs", async () => {
-    const cipher = {
-      type: CipherType.Login,
-      login: Object.assign(new LoginView(), { uris: [] as LoginUriView[] }),
-    } as CipherView;
+    const cipher = new CipherView();
+    cipher.type = CipherType.Login;
+    cipher.login = Object.assign(new LoginView(), { uris: [] as LoginUriView[] });
 
     const url = await service.getChangePasswordUrl(cipher);
 
@@ -70,12 +68,11 @@ describe("DefaultChangeLoginPasswordService", () => {
   });
 
   it("should return null for logins with no valid HTTP/HTTPS URIs", async () => {
-    const cipher = {
-      type: CipherType.Login,
-      login: Object.assign(new LoginView(), {
-        uris: [{ uri: "ftp://example.com" }],
-      }),
-    } as CipherView;
+    const cipher = new CipherView();
+    cipher.type = CipherType.Login;
+    cipher.login = Object.assign(new LoginView(), {
+      uris: [{ uri: "ftp://example.com" }],
+    });
 
     const url = await service.getChangePasswordUrl(cipher);
 
@@ -83,12 +80,11 @@ describe("DefaultChangeLoginPasswordService", () => {
   });
 
   it("should call the icons url endpoint", async () => {
-    const cipher = {
-      type: CipherType.Login,
-      login: Object.assign(new LoginView(), {
-        uris: [{ uri: "https://example.com" }],
-      }),
-    } as CipherView;
+    const cipher = new CipherView();
+    cipher.type = CipherType.Login;
+    cipher.login = Object.assign(new LoginView(), {
+      uris: [{ uri: "https://example.com" }],
+    });
 
     await service.getChangePasswordUrl(cipher);
 
@@ -104,12 +100,11 @@ describe("DefaultChangeLoginPasswordService", () => {
       Promise.resolve({ ok: true, json: () => Promise.resolve({ uri: null }) } as Response),
     );
 
-    const cipher = {
-      type: CipherType.Login,
-      login: Object.assign(new LoginView(), {
-        uris: [{ uri: "https://example.com/" }],
-      }),
-    } as CipherView;
+    const cipher = new CipherView();
+    cipher.type = CipherType.Login;
+    cipher.login = Object.assign(new LoginView(), {
+      uris: [{ uri: "https://example.com/" }],
+    });
 
     const url = await service.getChangePasswordUrl(cipher);
 
@@ -124,12 +119,11 @@ describe("DefaultChangeLoginPasswordService", () => {
       } as Response);
     });
 
-    const cipher = {
-      type: CipherType.Login,
-      login: Object.assign(new LoginView(), {
-        uris: [{ uri: "https://example.com/" }, { uri: "https://working.com/" }],
-      }),
-    } as CipherView;
+    const cipher = new CipherView();
+    cipher.type = CipherType.Login;
+    cipher.login = Object.assign(new LoginView(), {
+      uris: [{ uri: "https://example.com/" }, { uri: "https://working.com/" }],
+    });
 
     const url = await service.getChangePasswordUrl(cipher);
 
@@ -155,12 +149,11 @@ describe("DefaultChangeLoginPasswordService", () => {
       throw new Error("Unexpected request");
     });
 
-    const cipher = {
-      type: CipherType.Login,
-      login: Object.assign(new LoginView(), {
-        uris: [{ uri: "https://no-wellknown.com/" }, { uri: "https://working.com/" }],
-      }),
-    } as CipherView;
+    const cipher = new CipherView();
+    cipher.type = CipherType.Login;
+    cipher.login = Object.assign(new LoginView(), {
+      uris: [{ uri: "https://no-wellknown.com/" }, { uri: "https://working.com/" }],
+    });
 
     const url = await service.getChangePasswordUrl(cipher);
 
@@ -170,12 +163,11 @@ describe("DefaultChangeLoginPasswordService", () => {
   it("returns the first URI when `showFavicons$` setting is disabled", async () => {
     showFavicons$.next(false);
 
-    const cipher = {
-      type: CipherType.Login,
-      login: Object.assign(new LoginView(), {
-        uris: [{ uri: "https://example.com/" }, { uri: "https://another.com/" }],
-      }),
-    } as CipherView;
+    const cipher = new CipherView();
+    cipher.type = CipherType.Login;
+    cipher.login = Object.assign(new LoginView(), {
+      uris: [{ uri: "https://example.com/" }, { uri: "https://another.com/" }],
+    });
 
     const url = await service.getChangePasswordUrl(cipher);
 

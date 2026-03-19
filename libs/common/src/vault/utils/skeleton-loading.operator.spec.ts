@@ -8,7 +8,6 @@ describe("skeletonLoadingDelay", () => {
   });
 
   afterEach(() => {
-    jest.clearAllTimers();
     jest.useRealTimers();
   });
 

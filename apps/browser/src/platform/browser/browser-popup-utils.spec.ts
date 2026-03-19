@@ -329,7 +329,7 @@ describe("BrowserPopupUtils", () => {
       jest.spyOn(BrowserApi, "removeWindow").mockResolvedValueOnce();
 
       await BrowserPopupUtils.closeSingleActionPopout("123");
-      jest.runOnlyPendingTimers();
+      await jest.runOnlyPendingTimersAsync();
 
       expect(BrowserApi.removeWindow).toHaveBeenNthCalledWith(1, 11);
       expect(BrowserApi.removeWindow).toHaveBeenNthCalledWith(2, 21);
