@@ -363,7 +363,9 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
   private simulateUserKeyboardEventInteractions(element: FormFieldElement): void {
     const simulatedKeyboardEvents = [EVENTS.KEYDOWN, EVENTS.KEYUP];
     for (let index = 0; index < simulatedKeyboardEvents.length; index++) {
-      element.dispatchEvent(new KeyboardEvent(simulatedKeyboardEvents[index], { bubbles: true }));
+      element.dispatchEvent(
+        new KeyboardEvent(simulatedKeyboardEvents[index], { bubbles: true, composed: true }),
+      );
     }
   }
 
@@ -376,7 +378,9 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
   private simulateInputElementChangedEvent(element: FormFieldElement): void {
     const simulatedInputEvents = [EVENTS.INPUT, EVENTS.CHANGE];
     for (let index = 0; index < simulatedInputEvents.length; index++) {
-      element.dispatchEvent(new Event(simulatedInputEvents[index], { bubbles: true }));
+      element.dispatchEvent(
+        new Event(simulatedInputEvents[index], { bubbles: true, composed: true }),
+      );
     }
   }
 }
