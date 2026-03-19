@@ -2,12 +2,11 @@
 @let containerClasses =
   "tw-size-full tw-px-0 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-fg-nav hover:tw-text-fg-nav hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]";
 
-<div class="tw-cursor-pointer" [class]="open ? 'tw-ps-2 tw-pe-2' : 'tw-ps-3 tw-pe-3'">
+<div class="tw-cursor-pointer tw-ps-3 tw-pe-3">
   @if (open || icon()) {
     <div
       [style.padding-inline-start]="navItemIndentationPadding()"
-      class="tw-relative tw-rounded-xl tw-h-10 tw-py-1.5"
-      [class.tw-w-10]="!open"
+      class="tw-relative tw-rounded-xl tw-h-10"
       [class]="fvwStyles()"
       [class.tw-bg-bg-nav-strong]="showActiveStyles()"
       [class.hover:tw-bg-bg-nav-hover]="!showActiveStyles()"

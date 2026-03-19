@@ -196,7 +196,7 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
       "tw-border-transparent",
       "tw-bg-transparent",
       "hover:!tw-text-fg-nav",
-      "hover:tw-bg-hover-contrast",
+      "hover:!tw-bg-bg-nav-hover",
       "aria-expanded:!tw-text-fg-nav",
       "aria-expanded:tw-bg-hover-contrast",
       "focus-visible:!tw-ring-fg-nav",

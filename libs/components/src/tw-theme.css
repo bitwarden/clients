@@ -617,8 +617,8 @@
   --color-nav-bg-secondary-hover-strong: rgba(var(--color-gray-400-rgb), 0.6);
 
   /* Sidenav Border */
-  --color-nav-border-primary: rgb(var(--color-secondary-300));
-  --color-nav-border-secondary: rgb(var(--color-secondary-300));
+  --color-nav-border-primary: var(--color-gray-700);
+  --color-nav-border-secondary: var(--color-gray-700);
   --color-nav-border-primary-focus: var(--color-white);
   --color-nav-border-secondary-focus: var(--color-white);
 }
