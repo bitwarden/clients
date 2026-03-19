@@ -12,15 +12,13 @@ export const focusRing = [
   "focus-visible:tw-z-10",
 ];
 
-type ButtonColorStylesArgs = {
-  buttonType: ButtonType;
-  isDisabled: boolean;
-};
-
 export const getButtonColorStyles = ({
   buttonType,
   isDisabled,
-}: ButtonColorStylesArgs): string[] => {
+}: {
+  buttonType: ButtonType;
+  isDisabled: boolean;
+}): string[] => {
   const normalizedType = (buttonType || "secondary").toLowerCase();
 
   const buttonStyles: Record<ButtonType, string[]> = {
