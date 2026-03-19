@@ -65,6 +65,7 @@ describe("SsoCookieMain", () => {
             cookieValue: [{ name: "auth", value: "tok" }],
             cookieName: undefined,
             cookieDomain: undefined,
+            vaultUrl: undefined,
             idpLoginUrl: undefined,
           },
         },
@@ -78,6 +79,8 @@ describe("SsoCookieMain", () => {
         value: "tok",
         domain: "example.com",
         path: "/",
+        sameSite: "no_restriction",
+        secure: true,
       });
     });
 
@@ -91,6 +94,7 @@ describe("SsoCookieMain", () => {
             cookieValue: undefined,
             cookieName: undefined,
             cookieDomain: undefined,
+            vaultUrl: undefined,
             idpLoginUrl: undefined,
           },
         },
@@ -111,6 +115,7 @@ describe("SsoCookieMain", () => {
             cookieValue: [],
             cookieName: undefined,
             cookieDomain: undefined,
+            vaultUrl: undefined,
             idpLoginUrl: undefined,
           },
         },
@@ -156,6 +161,7 @@ describe("SsoCookieMain", () => {
             cookieValue: [{ name: "old-cookie", value: "old-value" }],
             cookieName: undefined,
             cookieDomain: undefined,
+            vaultUrl: undefined,
             idpLoginUrl: undefined,
           },
         },
@@ -176,6 +182,7 @@ describe("SsoCookieMain", () => {
             cookieValue: [{ name: "new-cookie", value: "new-value" }],
             cookieName: undefined,
             cookieDomain: undefined,
+            vaultUrl: undefined,
             idpLoginUrl: undefined,
           },
         },
@@ -190,6 +197,8 @@ describe("SsoCookieMain", () => {
         value: "new-value",
         domain: "example.com",
         path: "/",
+        sameSite: "no_restriction",
+        secure: true,
       });
     });
 
@@ -206,6 +215,7 @@ describe("SsoCookieMain", () => {
             cookieValue: [{ name: "auth", value: "tok" }],
             cookieName: undefined,
             cookieDomain: undefined,
+            vaultUrl: undefined,
             idpLoginUrl: undefined,
           },
         },
@@ -232,6 +242,7 @@ describe("SsoCookieMain", () => {
             ],
             cookieName: undefined,
             cookieDomain: undefined,
+            vaultUrl: undefined,
             idpLoginUrl: undefined,
           },
         },
