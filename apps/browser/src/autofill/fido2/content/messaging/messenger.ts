@@ -111,6 +111,10 @@ export class Messenger {
       if (!window.origin || String(window.origin).toLowerCase() === "null") {
         return;
       }
+      if (!event.isTrusted) {
+        return;
+      }
+
       const windowOrigin = window.location.origin;
       if (event.origin !== windowOrigin || !this.handler) {
         return;

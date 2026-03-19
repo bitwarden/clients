@@ -11,12 +11,11 @@ import {
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -181,12 +180,6 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
         message: this.i18nService.t("leftOrganization"),
       });
 
-      await this.eventCollectionService.collect(
-        EventType.Organization_ItemOrganization_Declined,
-        undefined,
-        undefined,
-        migrationInfo.enforcingOrganization.id,
-      );
       // Sync to reflect organization removal
       await this.syncService.fullSync(true);
       this.enforcementInFlight = false;
