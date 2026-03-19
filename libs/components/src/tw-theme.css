@@ -372,32 +372,27 @@
    * SIDENAV CUSTOM COLORS (Light mode)
    * ======================================== */
 
-  --color-bg-sidenav-hover: rgba(var(--color-black-rgb), 0.2);
-  --color-bg-sidenav-hover-strong: rgba(var(--color-black-rgb), 0.45);
+  /* Sidenav Foreground */
+  --color-nav-fg-primary: var(--color-white);
+  --color-nav-fg-secondary: var(--color-gray-900);
 
-  --color-sidenav-background: var(--color-brand-800);
-  --color-sidenav-text: var(--color-white);
-  --color-sidenav-active-item: var(--color-brand-900);
-  --color-sidenav-item-hover: var(--color-bg-sidenav-hover);
-  --color-sidenav-active-item-hover: var(--color-bg-sidenav-hover-strong);
-  --color-sidenav-arrow-hover: var(--color-bg-sidenav-hover);
-  --color-sidenav-active-arrow-hover: var(--color-bg-sidenav-hover-strong);
-  --color-sidenav-focus: var(--color-white);
-  --color-sidenav-border-primary: var(--color-brand-700);
+  /* Sidenav Background */
+  --color-nav-bg-primary: var(--color-brand-800);
+  --color-nav-bg-secondary: var(--color-gray-100);
+  --color-nav-bg-primary-strong: var(--color-brand-900);
+  --color-nav-bg-secondary-strong: var(--color-gray-300);
 
-  /* Sidenav Secondary */
-  --color-bg-sidenav-secondary-hover: rgba(var(--color-brand-950-rgb), 0.1);
-  --color-bg-sidenav-secondary-hover-strong: rgba(var(--color-brand-950-rgb), 0.25);
+  /* Sidenav Hover */
+  --color-nav-bg-primary-hover: rgba(var(--color-black-rgb), 0.2);
+  --color-nav-bg-secondary-hover: rgba(var(--color-brand-950-rgb), 0.1);
+  --color-nav-bg-primary-hover-strong: rgba(var(--color-black-rgb), 0.45);
+  --color-nav-bg-secondary-hover-strong: rgba(var(--color-brand-950-rgb), 0.25);
 
-  --color-sidenav-secondary-background: var(--color-gray-100);
-  --color-sidenav-secondary-text: var(--color-gray-900);
-  --color-sidenav-secondary-active-item: var(--color-gray-300);
-  --color-sidenav-secondary-item-hover: var(--color-bg-sidenav-secondary-hover);
-  --color-sidenav-secondary-active-item-hover: var(--color-bg-sidenav-secondary-hover-strong);
-  --color-sidenav-secondary-arrow-hover: var(--color-bg-sidenav-secondary-hover);
-  --color-sidenav-secondary-active-arrow-hover: var(--color-bg-sidenav-secondary-hover-strong);
-  --color-sidenav-secondary-focus: var(--color-black);
-  --color-sidenav-border-secondary: var(--color-gray-200);
+  /* Sidenav Border */
+  --color-nav-border-primary: var(--color-brand-700);
+  --color-nav-border-secondary: var(--color-gray-200);
+  --color-nav-border-primary-focus: var(--color-white);
+  --color-nav-border-secondary-focus: var(--color-black);
 }
 
 .theme_light {
@@ -604,29 +599,27 @@
     * SIDENAV CUSTOM COLORS (Dark mode)
     * ======================================== */
 
-  --color-bg-sidenav-hover: rgba(var(--color-gray-400-rgb), 0.2);
-  --color-bg-sidenav-hover-strong: rgba(var(--color-gray-400-rgb), 0.6);
+  /* Sidenav Foreground */
+  --color-nav-fg-primary: var(--color-white);
+  --color-nav-fg-secondary: var(--color-white);
 
-  --color-sidenav-background: var(--color-gray-800);
-  --color-sidenav-text: var(--color-white);
-  --color-sidenav-active-item: var(--color-gray-600);
-  --color-sidenav-item-hover: var(--color-bg-sidenav-hover);
-  --color-sidenav-active-item-hover: var(--color-bg-sidenav-hover-strong);
-  --color-sidenav-arrow-hover: var(--color-bg-sidenav-hover);
-  --color-sidenav-active-arrow-hover: var(--color-bg-sidenav-hover-strong);
-  --color-sidenav-focus: var(--color-white);
-  --color-sidenav-border-primary: rgb(var(--color-secondary-300));
+  /* Sidenav Background */
+  --color-nav-bg-primary: var(--color-gray-800);
+  --color-nav-bg-secondary: var(--color-gray-800);
+  --color-nav-bg-primary-strong: var(--color-gray-600);
+  --color-nav-bg-secondary-strong: var(--color-gray-600);
 
-  /* Sidenav Secondary */
-  --color-sidenav-secondary-background: var(--color-gray-800);
-  --color-sidenav-secondary-text: var(--color-white);
-  --color-sidenav-secondary-active-item: var(--color-gray-600);
-  --color-sidenav-secondary-item-hover: var(--color-bg-sidenav-hover);
-  --color-sidenav-secondary-active-item-hover: var(--color-bg-sidenav-hover-strong);
-  --color-sidenav-secondary-arrow-hover: var(--color-bg-sidenav-hover);
-  --color-sidenav-secondary-active-arrow-hover: var(--color-bg-sidenav-hover-strong);
-  --color-sidenav-secondary-focus: var(--color-white);
-  --color-sidenav-border-secondary: rgb(var(--color-secondary-300));
+  /* Sidenav Hover */
+  --color-nav-bg-primary-hover: rgba(var(--color-gray-400-rgb), 0.2);
+  --color-nav-bg-secondary-hover: rgba(var(--color-gray-400-rgb), 0.2);
+  --color-nav-bg-primary-hover-strong: rgba(var(--color-gray-400-rgb), 0.6);
+  --color-nav-bg-secondary-hover-strong: rgba(var(--color-gray-400-rgb), 0.6);
+
+  /* Sidenav Border */
+  --color-nav-border-primary: rgb(var(--color-secondary-300));
+  --color-nav-border-secondary: rgb(var(--color-secondary-300));
+  --color-nav-border-primary-focus: var(--color-white);
+  --color-nav-border-secondary-focus: var(--color-white);
 }
 
 @layer components {
