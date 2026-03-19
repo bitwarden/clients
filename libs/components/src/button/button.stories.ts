@@ -274,7 +274,16 @@ export const Loading: Story = {
 };
 
 export const Inactive: Story = {
-  ...Loading,
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <div class="tw-flex tw-gap-4 tw-items-center">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="primary" [size]="size" [block]="block">Inactive Primary</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="primaryOutline" [size]="size" [block]="block">Inactive Primary Outline</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="primaryGhost" [size]="size" [block]="block">Inactive Primary Ghost</button>
+      </div>
+    `,
+  }),
   args: {
     disabled: true,
   },

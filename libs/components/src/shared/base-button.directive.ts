@@ -12,7 +12,15 @@ export const focusRing = [
   "focus-visible:tw-z-10",
 ];
 
-export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
+type ButtonColorStylesArgs = {
+  buttonType: ButtonType;
+  isDisabled: boolean;
+};
+
+export const getButtonColorStyles = ({
+  buttonType,
+  isDisabled,
+}: ButtonColorStylesArgs): string[] => {
   const normalizedType = (buttonType || "secondary").toLowerCase();
 
   const buttonStyles: Record<ButtonType, string[]> = {
@@ -221,12 +229,39 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
     ...focusRing,
   ];
 
+  const baseDisabledStyles = [
+    "aria-disabled:!tw-text-fg-disabled",
+    "hover:!tw-text-fg-disabled",
+    "aria-disabled:tw-cursor-not-allowed",
+    "hover:tw-no-underline",
+  ];
+
   const isOutline = normalizedType.includes("outline");
   const isGhost = normalizedType.includes("ghost");
   const isSecondary = normalizedType === "secondary";
   const isUnstyled = normalizedType === "unstyled";
   const isSolid = !isOutline && !isGhost && !isUnstyled;
   const isContrast = normalizedType.includes("contrast");
+
+  if (isDisabled) {
+    if (isGhost) {
+      baseStyles.push(
+        ...baseDisabledStyles,
+        "aria-disabled:!tw-bg-transparent",
+        "hover:tw-bg-transparent",
+        "hover:tw-border-transparent",
+      );
+    } else {
+      baseStyles.push(
+        ...baseDisabledStyles,
+        "aria-disabled:!tw-bg-bg-disabled",
+        "hover:tw-bg-bg-hover",
+        "aria-disabled:tw-border-border-base",
+        "aria-disabled:hover:tw-border-border-base",
+        "hover:tw-border-border-base",
+      );
+    }
+  }
 
   if (isOutline || isGhost) {
     baseStyles.push(
@@ -321,23 +356,9 @@ export class BaseButtonDirective {
    * component-specific layout styles.
    */
   protected readonly colorClassList = computed(() => {
-    const classes = getButtonColorStyles(this.buttonType() || "secondary");
-
-    // Add disabled styles when button is disabled or loading
-    if (this.showLoadingStyle() || this.disabledAttr()) {
-      classes.push(
-        "aria-disabled:!tw-bg-bg-disabled",
-        "hover:tw-bg-bg-hover",
-        "aria-disabled:tw-border-border-base",
-        "aria-disabled:hover:tw-border-border-base",
-        "hover:tw-border-border-disabled",
-        "aria-disabled:!tw-text-fg-disabled",
-        "hover:!tw-text-fg-disabled",
-        "aria-disabled:tw-cursor-not-allowed",
-        "hover:tw-no-underline",
-      );
-    }
-
-    return classes.join(" ");
+    return getButtonColorStyles({
+      buttonType: this.buttonType() || "secondary",
+      isDisabled: this.showLoadingStyle() || this.disabledAttr(),
+    }).join(" ");
   });
 }
