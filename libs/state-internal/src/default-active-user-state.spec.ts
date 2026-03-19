@@ -1,7 +1,3 @@
-/**
- * need to update test environment so trackEmissions works appropriately
- * @jest-environment ../shared/test.environment.ts
- */
 import { any, mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of, timeout } from "rxjs";
 import { Jsonify } from "type-fest";

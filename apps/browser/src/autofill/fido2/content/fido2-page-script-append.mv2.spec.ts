@@ -11,7 +11,6 @@ describe("FIDO2 page-script for manifest v2", () => {
   afterEach(() => {
     Object.defineProperty(window.document, "contentType", { value: "text/html", writable: true });
     jest.clearAllMocks();
-    jest.clearAllTimers();
     jest.resetModules();
   });
 

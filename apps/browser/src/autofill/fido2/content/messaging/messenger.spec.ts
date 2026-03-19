@@ -12,12 +12,8 @@ describe("Messenger", () => {
   beforeEach(() => {
     // jest does not support MessageChannel
     window.MessageChannel = MockMessageChannel as any;
-    Object.defineProperty(window, "location", {
-      value: {
-        origin: "https://bitwarden.com",
-      },
-      writable: true,
-    });
+    // Note: window.location cannot be redefined with Object.defineProperty in newer Jest/JSDOM
+    // Use the default window.location.origin which should be "http://localhost"
 
     const channelPair = new TestChannelPair();
     messengerA = new Messenger(channelPair.channelA);
@@ -229,7 +225,7 @@ class MockMessagePort<T> {
   postMessage(message: T, port?: MessagePort) {
     const event = {
       isTrusted: true,
-      origin: "https://bitwarden.com",
+      origin: window.location.origin,
       data: message,
       ports: port ? [port] : [],
     };

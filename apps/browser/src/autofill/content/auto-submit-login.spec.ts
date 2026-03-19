@@ -53,7 +53,6 @@ describe("AutoSubmitLogin content script", () => {
 
   afterEach(() => {
     jest.resetModules();
-    jest.clearAllTimers();
   });
 
   afterAll(() => {

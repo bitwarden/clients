@@ -91,7 +91,6 @@ describe("BrowserTaskSchedulerService", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-    jest.clearAllTimers();
     jest.useRealTimers();
 
     (globalThis.browser as any) = undefined;

@@ -78,7 +78,6 @@ describe("normalizeExpiryYearFormat", () => {
         expect(formattedValue).toEqual(expectedValue);
       });
     });
-    jest.clearAllTimers();
   });
 });
 

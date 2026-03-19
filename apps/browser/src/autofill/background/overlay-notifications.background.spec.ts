@@ -49,7 +49,6 @@ describe("OverlayNotificationsBackground", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-    jest.clearAllTimers();
   });
 
   describe("setting up the form submission listeners", () => {

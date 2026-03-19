@@ -39,7 +39,6 @@ describe("OverlayNotificationsContentService", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-    jest.clearAllTimers();
   });
 
   describe("opening the notification bar", () => {

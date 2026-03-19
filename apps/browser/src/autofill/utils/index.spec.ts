@@ -221,9 +221,7 @@ describe("debounce", () => {
     jest.useFakeTimers();
   });
 
-  afterEach(() => {
-    jest.clearAllTimers();
-  });
+  afterEach(() => {});
 
   afterAll(() => {
     jest.useRealTimers();

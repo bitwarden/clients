@@ -48,8 +48,9 @@ describe("MigrationRunner", () => {
 
       storage.get.mockImplementation((key) => {
         if (key === "stateVersion") {
-          return Promise.resolve(stateVersion);
+          return Promise.resolve(stateVersion) as any;
         }
+        return Promise.resolve(undefined) as any;
       });
 
       let promiseCompleted = false;

@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd:*)",
+      "Bash(cat:*)",
+      "Bash(npm test:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(grep:*)",
+      "Bash(for file:*)",
+      "Bash(do echo:*)",
+      "Read(//c/Users/CarleyDiaz/Documents/GitHub/clients/**)",
+      "Bash(done)",
+      "Bash(npm run:*)"
+    ]
+  }
+}

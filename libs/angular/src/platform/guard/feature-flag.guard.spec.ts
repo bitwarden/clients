@@ -31,8 +31,9 @@ describe("canAccessFeature", () => {
 
     // Mock the correct getter based on the type of flagValue; also mock default values if one is not provided
     if (typeof flagValue === "boolean") {
-      mockConfigService.getFeatureFlag.mockImplementation((flag, defaultValue = false) =>
-        flag == testFlag ? Promise.resolve(flagValue) : Promise.resolve(defaultValue),
+      mockConfigService.getFeatureFlag.mockImplementation(
+        (flag, defaultValue = false) =>
+          (flag == testFlag ? Promise.resolve(flagValue) : Promise.resolve(defaultValue)) as any,
       );
     } else if (typeof flagValue === "string") {
       mockConfigService.getFeatureFlag.mockImplementation((flag) =>

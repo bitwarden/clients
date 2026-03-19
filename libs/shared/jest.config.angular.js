@@ -15,6 +15,7 @@ const presetConfig = createCjsPreset({
 /** @type {import('jest').Config} */
 module.exports = {
   ...presetConfig,
+  testEnvironment: "jsdom",
   testMatch: ["**/+(*.)+(spec).+(ts)"],
 
   testPathIgnorePatterns: [
