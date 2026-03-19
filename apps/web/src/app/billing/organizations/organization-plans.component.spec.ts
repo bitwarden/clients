@@ -2,7 +2,7 @@
 /* eslint-disable @angular-eslint/prefer-output-emitter-ref */
 /* eslint-disable @angular-eslint/prefer-signals */
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
-import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, flushMicrotasks, TestBed, tick } from "@angular/core/testing";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import { BehaviorSubject, of } from "rxjs";
@@ -14,6 +14,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -25,11 +26,13 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import {
+  AccountBillingClient,
   PreviewInvoiceClient,
   SubscriberBillingClient,
 } from "@bitwarden/web-vault/app/billing/clients";
 
 import { OrganizationInformationComponent } from "../../admin-console/organizations/create/organization-information.component";
+import { PremiumOrgUpgradeService } from "../individual/upgrade/premium-org-upgrade-payment/services/premium-org-upgrade.service";
 import { EnterBillingAddressComponent, EnterPaymentMethodComponent } from "../payment/components";
 import { SecretsManagerSubscribeComponent } from "../shared";
 import { OrganizationSelfHostingLicenseUploaderComponent } from "../shared/self-hosting-license-uploader/organization-self-hosting-license-uploader.component";
@@ -128,38 +131,27 @@ class MockOrganizationSelfHostingLicenseUploaderComponent {
   @Output() onLicenseFileUploaded = new EventEmitter<string>();
 }
 
-// Test Helper Functions
-
-/**
- * Sets up mock encryption keys and org key services
- */
-const setupMockEncryptionKeys = (
-  mockKeyService: jest.Mocked<KeyService>,
-  mockEncryptService: jest.Mocked<EncryptService>,
-) => {
-  mockKeyService.makeOrgKey.mockResolvedValue([{ encryptedString: "mock-key" }, {} as any] as any);
-
-  mockEncryptService.encryptString.mockResolvedValue({
-    encryptedString: "mock-collection",
-  } as any);
-
-  mockKeyService.makeKeyPair.mockResolvedValue([
-    "public-key",
-    { encryptedString: "private-key" },
-  ] as any);
-};
-
 /**
  * Sets up a mock payment method component that returns a successful tokenization
  */
 const setupMockPaymentMethodComponent = (
   component: OrganizationPlansComponent,
-  token = "mock_token",
-  type = "card",
+  token?: string,
+  type?: string,
 ) => {
-  component["enterPaymentMethodComponent"] = {
-    tokenize: jest.fn().mockResolvedValue({ token, type }),
-  } as any;
+  let mockPaymentMethod;
+  if (token == null || type == null) {
+    // Simulate tokenization failure
+    mockPaymentMethod = { tokenize: jest.fn().mockResolvedValue(null) };
+  } else {
+    // Simulate successful tokenization
+    mockPaymentMethod = { tokenize: jest.fn().mockResolvedValue({ token, type }) };
+  }
+
+  Object.defineProperty(component, "enterPaymentMethodComponent", {
+    value: () => mockPaymentMethod, // ← must be callable like a signal
+    configurable: true,
+  });
 };
 
 /**
@@ -177,7 +169,7 @@ const patchBillingAddress = (
     taxId: string;
   }> = {},
 ) => {
-  component.billingFormGroup.controls.billingAddress.patchValue({
+  component["billingFormGroup"].controls.billingAddress.patchValue({
     country: "US",
     postalCode: "12345",
     line1: "123 Street",
@@ -260,7 +252,7 @@ const patchOrganizationForm = (
     additionalStorage?: number;
   },
 ) => {
-  component.formGroup.patchValue({
+  component["formGroup"].patchValue({
     name: "Test Org",
     billingEmail: "test@example.com",
     productTier: ProductTierType.Free,
@@ -394,15 +386,19 @@ describe("OrganizationPlansComponent", () => {
   let mockProviderApiService: jest.Mocked<ProviderApiServiceAbstraction>;
   let mockToastService: jest.Mocked<ToastService>;
   let mockAccountService: jest.Mocked<AccountService>;
+  let mockAccountBillingClient: jest.Mocked<AccountBillingClient>;
   let mockSubscriberBillingClient: jest.Mocked<SubscriberBillingClient>;
   let mockPreviewInvoiceClient: jest.Mocked<PreviewInvoiceClient>;
   let mockConfigService: jest.Mocked<ConfigService>;
+  let mockBillingAccountProfileService: jest.Mocked<BillingAccountProfileStateService>;
+  let mockPremiumOrgUpgradeService: jest.Mocked<PremiumOrgUpgradeService>;
 
   // Mock data
   let mockPasswordManagerPlans: PlanResponse[];
   let mockOrganization: Organization;
   let activeAccountSubject: BehaviorSubject<any>;
   let organizationsSubject: BehaviorSubject<Organization[]>;
+  let hasPremiumPersonallySubject: BehaviorSubject<boolean>;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -460,6 +456,7 @@ describe("OrganizationPlansComponent", () => {
       email: "test@example.com",
     });
     organizationsSubject = new BehaviorSubject<Organization[]>([]);
+    hasPremiumPersonallySubject = new BehaviorSubject<boolean>(false);
 
     mockAccountService = {
       activeAccount$: activeAccountSubject.asObservable(),
@@ -490,6 +487,8 @@ describe("OrganizationPlansComponent", () => {
       showToast: jest.fn(),
     } as any;
 
+    mockAccountBillingClient = {} as any;
+
     mockSubscriberBillingClient = {
       getBillingAddress: jest.fn().mockResolvedValue({
         country: "US",
@@ -503,10 +502,49 @@ describe("OrganizationPlansComponent", () => {
         tax: 5.0,
         total: 50.0,
       }),
+      previewProrationForPremiumUpgrade: jest.fn().mockResolvedValue({
+        tax: 2.5,
+        total: 25.0,
+        credit: 10.0,
+        newPlanProratedMonths: 6,
+        newPlanProratedAmount: 24.0,
+      }),
     } as any;
 
     mockConfigService = {
       getFeatureFlag: jest.fn().mockResolvedValue(true),
+      getFeatureFlag$: jest.fn().mockReturnValue(of(true)),
+    } as any;
+
+    mockPremiumOrgUpgradeService = {
+      upgradeToOrganization: jest.fn().mockResolvedValue("new-premium-org-id"),
+      generateOrganizationEncryptionData: jest.fn().mockResolvedValue({
+        key: "mock-key",
+        collectionCt: "mock-collection",
+        orgKeys: ["public-key", { encryptedString: "private-key" }],
+        orgKey: {} as any,
+        activeUserId: "user-id" as any,
+      }),
+      previewProratedInvoice: jest.fn().mockResolvedValue({
+        tax: 2.5,
+        total: 25.0,
+        credit: 10.0,
+        newPlanProratedMonths: 6,
+        newPlanProratedAmount: 24.0,
+      }),
+      SubscriptionTierIdFromProductTier: jest.fn().mockImplementation((productTier) => {
+        // Mock implementation that returns appropriate tier based on product tier
+        if (productTier === ProductTierType.Families) {
+          return "families";
+        }
+        if (productTier === ProductTierType.Teams) {
+          return "teams";
+        }
+        if (productTier === ProductTierType.Enterprise) {
+          return "enterprise";
+        }
+        throw new Error(`Unsupported product tier: ${productTier}`);
+      }),
     } as any;
 
     // Setup mock plan data
@@ -515,6 +553,14 @@ describe("OrganizationPlansComponent", () => {
     mockApiService.getPlans.mockResolvedValue({
       data: mockPasswordManagerPlans,
     } as any);
+
+    mockBillingAccountProfileService = {
+      hasPremiumFromAnyOrganization$: jest.fn().mockReturnValue(of(false)),
+      hasPremiumPersonally$: jest.fn().mockReturnValue(hasPremiumPersonallySubject.asObservable()),
+      hasPremiumFromAnySource$: jest.fn().mockReturnValue(of(false)),
+      canViewSubscription$: jest.fn().mockReturnValue(of(true)),
+      setHasPremium: jest.fn().mockResolvedValue(undefined),
+    } as any;
 
     await TestBed.configureTestingModule({
       providers: [
@@ -536,6 +582,8 @@ describe("OrganizationPlansComponent", () => {
         { provide: SubscriberBillingClient, useValue: mockSubscriberBillingClient },
         { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
         { provide: ConfigService, useValue: mockConfigService },
+        { provide: BillingAccountProfileStateService, useValue: mockBillingAccountProfileService },
+        { provide: PremiumOrgUpgradeService, useValue: mockPremiumOrgUpgradeService },
       ],
     })
       // Override the component to replace child components with mocks and provide mock services
@@ -548,7 +596,12 @@ describe("OrganizationPlansComponent", () => {
             EnterBillingAddressComponent,
             OrganizationSelfHostingLicenseUploaderComponent,
           ],
-          providers: [PreviewInvoiceClient, SubscriberBillingClient],
+          providers: [
+            AccountBillingClient,
+            PreviewInvoiceClient,
+            SubscriberBillingClient,
+            PremiumOrgUpgradeService,
+          ],
         },
         add: {
           imports: [
@@ -559,8 +612,10 @@ describe("OrganizationPlansComponent", () => {
             MockOrganizationSelfHostingLicenseUploaderComponent,
           ],
           providers: [
+            { provide: AccountBillingClient, useValue: mockAccountBillingClient },
             { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
             { provide: SubscriberBillingClient, useValue: mockSubscriberBillingClient },
+            { provide: PremiumOrgUpgradeService, useValue: mockPremiumOrgUpgradeService },
           ],
         },
       })
@@ -576,10 +631,10 @@ describe("OrganizationPlansComponent", () => {
     });
 
     it("should initialize with default values", () => {
-      expect(component.loading).toBe(true);
-      expect(component.showFree).toBe(true);
-      expect(component.showCancel).toBe(false);
-      expect(component.productTier).toBe(ProductTierType.Free);
+      expect(component["loading"]).toBe(true);
+      expect(component.showFree()).toBe(true);
+      expect(component.showCancel()).toBe(false);
+      expect(component.initialProductTier()).toBe(ProductTierType.Free);
     });
   });
 
@@ -590,19 +645,19 @@ describe("OrganizationPlansComponent", () => {
         await fixture.whenStable();
 
         expect(mockApiService.getPlans).toHaveBeenCalled();
-        expect(component.passwordManagerPlans).toEqual(mockPasswordManagerPlans);
-        expect(component.loading).toBe(false);
+        expect(component["passwordManagerPlans"]).toEqual(mockPasswordManagerPlans);
+        expect(component["loading"]).toBe(false);
       });
 
       it("should set required validators on name and billing email", async () => {
         fixture.detectChanges();
         await fixture.whenStable();
 
-        component.formGroup.controls.name.setValue("");
-        component.formGroup.controls.billingEmail.setValue("");
+        component["formGroup"].controls.name.setValue("");
+        component["formGroup"].controls.billingEmail.setValue("");
 
-        expect(component.formGroup.controls.name.hasError("required")).toBe(true);
-        expect(component.formGroup.controls.billingEmail.hasError("required")).toBe(true);
+        expect(component["formGroup"].controls.name.hasError("required")).toBe(true);
+        expect(component["formGroup"].controls.billingEmail.hasError("required")).toBe(true);
       });
 
       it("should not load organization data for create flow", async () => {
@@ -623,15 +678,14 @@ describe("OrganizationPlansComponent", () => {
             planType: PlanType.FamiliesAnnually2025,
           },
         );
-
-        component.organizationId = mockOrganization.id;
+        fixture.componentRef.setInput("organizationId", mockOrganization.id);
       });
 
       it("should load existing organization data", async () => {
         fixture.detectChanges();
         await fixture.whenStable();
 
-        expect(component.organization).toEqual(mockOrganization);
+        expect(component["organization"]).toEqual(mockOrganization);
         expect(mockOrganizationApiService.getBilling).toHaveBeenCalledWith(mockOrganization.id);
         expect(mockOrganizationApiService.getSubscription).toHaveBeenCalledWith(
           mockOrganization.id,
@@ -641,20 +695,22 @@ describe("OrganizationPlansComponent", () => {
           data: mockOrganization,
         });
         // Verify the form was updated
-        expect(component.billingFormGroup.controls.billingAddress.value.country).toBe("US");
-        expect(component.billingFormGroup.controls.billingAddress.value.postalCode).toBe("12345");
+        expect(component["billingFormGroup"].controls.billingAddress.value.country).toBe("US");
+        expect(component["billingFormGroup"].controls.billingAddress.value.postalCode).toBe(
+          "12345",
+        );
       });
 
       it("should not add validators for name and billingEmail in upgrade flow", async () => {
         fixture.detectChanges();
         await fixture.whenStable();
 
-        component.formGroup.controls.name.setValue("");
-        component.formGroup.controls.billingEmail.setValue("");
+        component["formGroup"].controls.name.setValue("");
+        component["formGroup"].controls.billingEmail.setValue("");
 
         // In upgrade flow, these should not be required
-        expect(component.formGroup.controls.name.hasError("required")).toBe(false);
-        expect(component.formGroup.controls.billingEmail.hasError("required")).toBe(false);
+        expect(component["formGroup"].controls.name.hasError("required")).toBe(false);
+        expect(component["formGroup"].controls.billingEmail.hasError("required")).toBe(false);
       });
     });
 
@@ -679,6 +735,51 @@ describe("OrganizationPlansComponent", () => {
         expect(familyPlan).toBe(PlanType.FamiliesAnnually2025);
       });
     });
+
+    describe("initialPlan and initialProductTier inputs", () => {
+      it("should set form values from initialPlan and initialProductTier inputs during ngOnInit", async () => {
+        fixture.componentRef.setInput("initialPlan", PlanType.TeamsAnnually);
+        fixture.componentRef.setInput("initialProductTier", ProductTierType.Teams);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(component["formGroup"].controls.plan.value).toBe(PlanType.TeamsAnnually);
+        expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Teams);
+      });
+
+      it("should not override Free values when initialPlan and initialProductTier are Free", async () => {
+        fixture.componentRef.setInput("initialPlan", PlanType.Free);
+        fixture.componentRef.setInput("initialProductTier", ProductTierType.Free);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        // Free plan is default, shouldn't be explicitly set
+        expect(component["formGroup"].controls.plan.value).toBe(PlanType.Free);
+        expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Free);
+      });
+
+      it("should allow preSelectedProductTier to override initialProductTier if higher", async () => {
+        fixture.componentRef.setInput("initialProductTier", ProductTierType.Teams);
+        fixture.componentRef.setInput("preSelectedProductTier", ProductTierType.Enterprise);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Enterprise);
+      });
+
+      it("should use initialProductTier when preSelectedProductTier is lower", async () => {
+        fixture.componentRef.setInput("initialProductTier", ProductTierType.Enterprise);
+        fixture.componentRef.setInput("preSelectedProductTier", ProductTierType.Teams);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Enterprise);
+      });
+    });
   });
 
   describe("organization creation validation flow", () => {
@@ -688,7 +789,7 @@ describe("OrganizationPlansComponent", () => {
     });
 
     it("should prevent submission with invalid form data", async () => {
-      component.formGroup.patchValue({
+      component["formGroup"].patchValue({
         name: "",
         billingEmail: "invalid-email",
         additionalStorage: -1,
@@ -698,7 +799,7 @@ describe("OrganizationPlansComponent", () => {
       await component.submit();
 
       expect(mockOrganizationApiService.create).not.toHaveBeenCalled();
-      expect(component.formGroup.invalid).toBe(true);
+      expect(component["formGroup"].invalid).toBe(true);
     });
 
     it("should allow submission with valid form data", async () => {
@@ -709,7 +810,6 @@ describe("OrganizationPlansComponent", () => {
         plan: PlanType.Free,
       });
 
-      setupMockEncryptionKeys(mockKeyService, mockEncryptService);
       mockOrganizationApiService.create.mockResolvedValue({
         id: "new-org-id",
       } as any);
@@ -721,37 +821,39 @@ describe("OrganizationPlansComponent", () => {
   });
 
   describe("plan selection flow", () => {
-    beforeEach(async () => {
+    it("should configure form appropriately when switching between product tiers", fakeAsync(async () => {
       fixture.detectChanges();
       await fixture.whenStable();
-    });
-
-    it("should configure form appropriately when switching between product tiers", () => {
       // Start with Families plan with unsupported features
-      component.productTier = ProductTierType.Families;
-      component.formGroup.controls.additionalSeats.setValue(10);
-      component.formGroup.controls.additionalStorage.setValue(5);
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
+
+      component["formGroup"].controls.additionalSeats.setValue(10);
+      component["formGroup"].controls.additionalStorage.setValue(5);
+      tick();
       component.changedProduct();
 
       // Families doesn't support additional seats
-      expect(component.formGroup.controls.additionalSeats.value).toBe(0);
-      expect(component.formGroup.controls.plan.value).toBe(PlanType.FamiliesAnnually);
+      expect(component["formGroup"].controls.additionalSeats.value).toBe(0);
+      expect(component["formGroup"].controls.additionalStorage.value).toBe(0);
+      expect(component["formGroup"].controls.plan.value).toBe(PlanType.FamiliesAnnually);
 
       // Switch to Teams plan which supports additional seats
-      component.productTier = ProductTierType.Teams;
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+      tick();
       component.changedProduct();
 
-      expect(component.formGroup.controls.plan.value).toBe(PlanType.TeamsAnnually);
+      expect(component["formGroup"].controls.plan.value).toBe(PlanType.TeamsAnnually);
       // Teams initializes with 1 seat by default
-      expect(component.formGroup.controls.additionalSeats.value).toBeGreaterThan(0);
+      expect(component["formGroup"].controls.additionalSeats.value).toBeGreaterThan(0);
 
       // Switch to Free plan which doesn't support additional storage
-      component.formGroup.controls.additionalStorage.setValue(10);
-      component.productTier = ProductTierType.Free;
+      component["formGroup"].controls.additionalStorage.setValue(10);
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Free);
+      tick();
       component.changedProduct();
 
-      expect(component.formGroup.controls.additionalStorage.value).toBe(0);
-    });
+      expect(component["formGroup"].controls.additionalStorage.value).toBe(0);
+    }));
   });
 
   describe("subscription pricing flow", () => {
@@ -762,21 +864,23 @@ describe("OrganizationPlansComponent", () => {
 
     it("should calculate total price based on selected plan options", () => {
       // Select Teams plan and configure options
-      component.productTier = ProductTierType.Teams;
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
       component.changedProduct();
-      component.formGroup.controls.additionalSeats.setValue(5);
-      component.formGroup.controls.additionalStorage.setValue(10);
-      component.formGroup.controls.premiumAccessAddon.setValue(true);
+
+      component["formGroup"].controls.additionalSeats.setValue(5);
+      component["formGroup"].controls.additionalStorage.setValue(10);
+      component["formGroup"].controls.premiumAccessAddon.setValue(true);
 
       const pmSubtotal = component.passwordManagerSubtotal;
+
       // Verify pricing includes all selected options
       expect(pmSubtotal).toBeGreaterThan(0);
       expect(pmSubtotal).toBe(5 * 48 + 10 * 4 + 40); // seats + storage + premium
     });
 
     it("should calculate pricing with Secrets Manager addon", () => {
-      component.productTier = ProductTierType.Teams;
-      component.plan = PlanType.TeamsAnnually;
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+      component["formGroup"].controls.plan.setValue(PlanType.TeamsAnnually);
 
       // Enable Secrets Manager with additional options
       component.secretsManagerForm.patchValue({
@@ -804,10 +908,10 @@ describe("OrganizationPlansComponent", () => {
     });
 
     it("should calculate tax after debounce period", fakeAsync(() => {
-      component.productTier = ProductTierType.Teams;
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
       component.changedProduct();
-      component.formGroup.controls.additionalSeats.setValue(1);
-      component.billingFormGroup.controls.billingAddress.patchValue({
+      component["formGroup"].controls.additionalSeats.setValue(1);
+      component["billingFormGroup"].controls.billingAddress.patchValue({
         country: "US",
         postalCode: "12345",
       });
@@ -817,11 +921,11 @@ describe("OrganizationPlansComponent", () => {
       expect(
         mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
       ).toHaveBeenCalled();
-      expect(component["estimatedTax"]).toBe(5.0);
+      expect(component["estimatedTax"]()).toBe(5.0);
     }));
 
     it("should not calculate tax with invalid billing address", fakeAsync(() => {
-      component.billingFormGroup.controls.billingAddress.patchValue({
+      component["billingFormGroup"].controls.billingAddress.patchValue({
         country: "",
         postalCode: "",
       });
@@ -846,7 +950,6 @@ describe("OrganizationPlansComponent", () => {
         billingEmail: "test@example.com",
       });
 
-      setupMockEncryptionKeys(mockKeyService, mockEncryptService);
       mockOrganizationApiService.create.mockResolvedValue({
         id: "new-org-id",
       } as any);
@@ -870,7 +973,6 @@ describe("OrganizationPlansComponent", () => {
         billingEmail: "test@example.com",
       });
 
-      setupMockEncryptionKeys(mockKeyService, mockEncryptService);
       mockOrganizationApiService.create.mockResolvedValue({
         id: "new-org-id",
       } as any);
@@ -892,13 +994,8 @@ describe("OrganizationPlansComponent", () => {
       });
 
       patchBillingAddress(component);
-      setupMockEncryptionKeys(mockKeyService, mockEncryptService);
 
-      // Mock payment method component to return null (failure)
-      component["enterPaymentMethodComponent"] = {
-        tokenize: jest.fn().mockResolvedValue(null),
-      } as any;
-
+      setupMockPaymentMethodComponent(component); // Simulate tokenization failure
       await component.submit();
 
       // Should not create organization if payment method validation fails
@@ -914,7 +1011,7 @@ describe("OrganizationPlansComponent", () => {
       policyFixture.detectChanges();
       await policyFixture.whenStable();
 
-      policyComponent.formGroup.patchValue({
+      policyComponent["formGroup"].patchValue({
         name: "Test",
         billingEmail: "test@example.com",
       });
@@ -927,7 +1024,7 @@ describe("OrganizationPlansComponent", () => {
 
   describe("provider flow", () => {
     beforeEach(() => {
-      component.providerId = "provider-123";
+      fixture.componentRef.setInput("providerId", "provider-123");
     });
 
     it("should load provider data", async () => {
@@ -940,7 +1037,7 @@ describe("OrganizationPlansComponent", () => {
       await fixture.whenStable();
 
       expect(mockProviderApiService.getProvider).toHaveBeenCalledWith("provider-123");
-      expect(component.provider).toBeDefined();
+      expect(component["provider"]).toBeDefined();
     });
 
     it("should default to Teams Annual plan for providers", async () => {
@@ -949,7 +1046,7 @@ describe("OrganizationPlansComponent", () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(component.plan).toBe(PlanType.TeamsAnnually);
+      expect(component["formGroup"].controls.plan.value).toBe(PlanType.TeamsAnnually);
     });
 
     it("should require clientOwnerEmail for provider flow", async () => {
@@ -958,7 +1055,7 @@ describe("OrganizationPlansComponent", () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      const clientOwnerEmailControl = component.formGroup.controls.clientOwnerEmail;
+      const clientOwnerEmailControl = component["formGroup"].controls.clientOwnerEmail;
       clientOwnerEmailControl.setValue("");
 
       expect(clientOwnerEmailControl.hasError("required")).toBe(true);
@@ -970,7 +1067,7 @@ describe("OrganizationPlansComponent", () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(component.formGroup.controls.businessOwned.value).toBe(true);
+      expect(component["formGroup"].controls.businessOwned.value).toBe(true);
     });
   });
 
@@ -984,7 +1081,7 @@ describe("OrganizationPlansComponent", () => {
       const selfHostedFixture = TestBed.createComponent(OrganizationPlansComponent);
       const selfHostedComponent = selfHostedFixture.componentInstance;
 
-      expect(selfHostedComponent.selfHosted).toBe(true);
+      expect(selfHostedComponent["selfHosted"]).toBe(true);
       expect(mockApiService.getPlans).not.toHaveBeenCalled();
     });
 
@@ -1009,7 +1106,7 @@ describe("OrganizationPlansComponent", () => {
     });
 
     it("should navigate after license upload if not in trial or sponsorship flow", async () => {
-      component.acceptingSponsorship = false;
+      fixture.componentRef.setInput("acceptingSponsorship", false);
       component["isInTrialFlow"] = false;
 
       await component["onLicenseFileUploaded"]("uploaded-org-id");
@@ -1018,7 +1115,7 @@ describe("OrganizationPlansComponent", () => {
     });
 
     it("should not navigate after license upload if accepting sponsorship", async () => {
-      component.acceptingSponsorship = true;
+      fixture.componentRef.setInput("acceptingSponsorship", true);
 
       await component["onLicenseFileUploaded"]("uploaded-org-id");
 
@@ -1046,18 +1143,18 @@ describe("OrganizationPlansComponent", () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(component.singleOrgPolicyAppliesToActiveUser).toBe(true);
+      expect(component["singleOrgPolicyAppliesToActiveUser"]).toBe(true);
     });
 
     it("should not block provider flow with single org policy", async () => {
       mockPolicyService.policyAppliesToUser$.mockReturnValue(of(true));
-      component.providerId = "provider-123";
+      fixture.componentRef.setInput("providerId", "provider-123");
       mockProviderApiService.getProvider.mockResolvedValue({} as any);
 
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(component.singleOrgPolicyBlock).toBe(false);
+      expect(component["singleOrgPolicyBlock"]).toBe(false);
     });
   });
 
@@ -1069,23 +1166,23 @@ describe("OrganizationPlansComponent", () => {
 
     it("should automatically upgrade to business-compatible plan when marking as business-owned", () => {
       // Start with a personal plan
-      component.formGroup.controls.businessOwned.setValue(false);
-      component.productTier = ProductTierType.Families;
-      component.plan = PlanType.FamiliesAnnually;
+      component["formGroup"].controls.businessOwned.setValue(false);
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
+      component["formGroup"].controls.plan.setValue(PlanType.FamiliesAnnually);
 
       // Mark as business-owned
-      component.formGroup.controls.businessOwned.setValue(true);
+      component["formGroup"].controls.businessOwned.setValue(true);
       component.changedOwnedBusiness();
 
       // Should automatically switch to Teams (lowest business plan)
-      expect(component.formGroup.controls.productTier.value).toBe(ProductTierType.Teams);
-      expect(component.formGroup.controls.plan.value).toBe(PlanType.TeamsAnnually);
+      expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Teams);
+      expect(component["formGroup"].controls.plan.value).toBe(PlanType.TeamsAnnually);
 
       // Unchecking businessOwned should not force a downgrade
-      component.formGroup.controls.businessOwned.setValue(false);
+      component["formGroup"].controls.businessOwned.setValue(false);
       component.changedOwnedBusiness();
 
-      expect(component.formGroup.controls.productTier.value).toBe(ProductTierType.Teams);
+      expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Teams);
     });
   });
 
@@ -1095,20 +1192,20 @@ describe("OrganizationPlansComponent", () => {
       await fixture.whenStable();
     });
 
-    it("should restrict available plans based on business ownership and upgrade context", () => {
+    it("should restrict available plans based on business ownership and upgrade context", async () => {
       // Upgrade flow (showFree = false) should exclude Free plan
-      component.showFree = false;
-      let products = component.selectableProducts;
+      fixture.componentRef.setInput("showFree", false);
+      let products = component.selectableProducts();
       expect(products.find((p) => p.type === PlanType.Free)).toBeUndefined();
 
       // Create flow (showFree = true) should include Free plan
-      component.showFree = true;
-      products = component.selectableProducts;
+      fixture.componentRef.setInput("showFree", true);
+      products = component.selectableProducts();
       expect(products.find((p) => p.type === PlanType.Free)).toBeDefined();
 
       // Business organizations should only see business-compatible plans
-      component.formGroup.controls.businessOwned.setValue(true);
-      products = component.selectableProducts;
+      component["formGroup"].controls.businessOwned.setValue(true);
+      products = component.selectableProducts();
       const nonFreeBusinessPlans = products.filter((p) => p.type !== PlanType.Free);
       nonFreeBusinessPlans.forEach((plan) => {
         expect(plan.canBeUsedByBusiness).toBe(true);
@@ -1118,7 +1215,7 @@ describe("OrganizationPlansComponent", () => {
 
   describe("accepting sponsorship flow", () => {
     beforeEach(() => {
-      component.acceptingSponsorship = true;
+      fixture.componentRef.setInput("acceptingSponsorship", true);
     });
 
     it("should configure Families plan with full discount when accepting sponsorship", async () => {
@@ -1126,17 +1223,17 @@ describe("OrganizationPlansComponent", () => {
       await fixture.whenStable();
 
       // Only Families plan should be available
-      const products = component.selectableProducts;
+      const products = component.selectableProducts();
       expect(products.length).toBe(1);
       expect(products[0].productTier).toBe(ProductTierType.Families);
 
       // Full discount should be applied making the base price free
-      component.productTier = ProductTierType.Families;
-      component.plan = PlanType.FamiliesAnnually;
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
+      component["formGroup"].controls.plan.setValue(PlanType.FamiliesAnnually);
 
       const subtotal = component.passwordManagerSubtotal;
       expect(subtotal).toBe(0); // Discount covers the full base price
-      expect(component.discount).toBe(products[0].PasswordManager.basePrice);
+      expect(component["discount"]).toBe(products[0].PasswordManager.basePrice);
     });
   });
 
@@ -1147,18 +1244,16 @@ describe("OrganizationPlansComponent", () => {
       });
 
       const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
-      const upgradeComponent = upgradeFixture.componentInstance;
-      upgradeComponent.organizationId = "org-123";
-      upgradeComponent.currentPlan = mockPasswordManagerPlans[0]; // Free plan
-
+      upgradeFixture.componentRef.setInput("organizationId", "org-123");
+      upgradeFixture.componentRef.setInput("currentPlan", mockPasswordManagerPlans[0]); // Free plan
       upgradeFixture.detectChanges();
       await upgradeFixture.whenStable();
 
-      upgradeComponent.productTier = ProductTierType.Teams;
-      upgradeComponent.plan = PlanType.TeamsAnnually;
-      upgradeComponent.formGroup.controls.additionalSeats.setValue(5);
+      const upgradeComponent = upgradeFixture.componentInstance;
+      upgradeComponent["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+      upgradeComponent["formGroup"].controls.plan.setValue(PlanType.TeamsAnnually);
 
-      mockOrganizationApiService.upgrade.mockResolvedValue(undefined);
+      upgradeComponent["formGroup"].controls.additionalSeats.setValue(5);
 
       await upgradeComponent.submit();
 
@@ -1167,12 +1262,14 @@ describe("OrganizationPlansComponent", () => {
         expect.objectContaining({
           planType: PlanType.TeamsAnnually,
           additionalSeats: 5,
+          billingAddressCountry: "US",
+          billingAddressPostalCode: "12345",
         }),
       );
 
       expect(mockToastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        title: null,
+        title: undefined,
         message: "organizationUpgraded",
       });
     });
@@ -1184,77 +1281,66 @@ describe("OrganizationPlansComponent", () => {
       });
 
       const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
-      const upgradeComponent = upgradeFixture.componentInstance;
-      upgradeComponent.organizationId = "org-123";
-      upgradeComponent.showFree = false; // Required for upgradeRequiresPaymentMethod
-
+      upgradeFixture.componentRef.setInput("organizationId", "org-123");
+      upgradeFixture.componentRef.setInput("showFree", false); // Required for upgradeRequiresPaymentMethod
       upgradeFixture.detectChanges();
       await upgradeFixture.whenStable();
+
+      const upgradeComponent = upgradeFixture.componentInstance;
 
       expect(upgradeComponent.upgradeRequiresPaymentMethod).toBe(true);
     });
   });
 
   describe("billing form display flow", () => {
-    beforeEach(async () => {
-      fixture.detectChanges();
-      await fixture.whenStable();
-    });
-
     it("should show appropriate billing fields based on plan type", () => {
       // Personal plans (Free, Families) should not require tax ID
-      component.productTier = ProductTierType.Free;
-      expect(component["showTaxIdField"]).toBe(false);
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Free);
+      fixture.detectChanges();
 
-      component.productTier = ProductTierType.Families;
-      expect(component["showTaxIdField"]).toBe(false);
+      expect(component["showTaxIdField"]()).toBe(false);
+
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
+      fixture.detectChanges();
+
+      expect(component["showTaxIdField"]()).toBe(false);
 
       // Business plans (Teams, Enterprise) should show tax ID field
-      component.productTier = ProductTierType.Teams;
-      expect(component["showTaxIdField"]).toBe(true);
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+      fixture.detectChanges();
 
-      component.productTier = ProductTierType.Enterprise;
-      expect(component["showTaxIdField"]).toBe(true);
+      expect(component["showTaxIdField"]()).toBe(true);
+
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Enterprise);
+      fixture.detectChanges();
+      expect(component["showTaxIdField"]()).toBe(true);
     });
   });
 
   describe("secrets manager handling flow", () => {
-    beforeEach(async () => {
-      fixture.detectChanges();
-      await fixture.whenStable();
-    });
-
     it("should prefill SM seats from existing subscription", async () => {
-      mockOrganization = {
-        id: "org-123",
-        name: "Test Org",
-        productTierType: ProductTierType.Teams,
-        useSecretsManager: true,
-      } as Organization;
-
-      organizationsSubject.next([mockOrganization]);
-
-      mockOrganizationApiService.getBilling.mockResolvedValue({
-        paymentSource: { type: "card" },
-      } as any);
-
-      mockOrganizationApiService.getSubscription.mockResolvedValue({
-        planType: PlanType.TeamsAnnually,
-        smSeats: 5,
-        smServiceAccounts: 75,
-      } as any);
+      const mockOrganization = setupMockUpgradeOrganization(
+        mockOrganizationApiService,
+        organizationsSubject,
+        {
+          productTierType: ProductTierType.Teams,
+          useSecretsManager: true,
+          planType: PlanType.TeamsAnnually,
+          smSeats: 5,
+          smServiceAccounts: 75,
+        },
+      );
 
       const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
-      const upgradeComponent = upgradeFixture.componentInstance;
-      upgradeComponent.organizationId = "org-123";
-      upgradeComponent.currentPlan = mockPasswordManagerPlans[2]; // Teams plan
+      upgradeFixture.componentRef.setInput("organizationId", mockOrganization.id);
+      upgradeFixture.componentRef.setInput("currentPlan", mockPasswordManagerPlans[2]); // Teams plan
 
+      const upgradeComponent = upgradeFixture.componentInstance;
       upgradeFixture.detectChanges();
       await upgradeFixture.whenStable();
 
       upgradeComponent.changedProduct();
 
-      expect(upgradeComponent.secretsManagerForm.controls.enabled.value).toBe(true);
       expect(upgradeComponent.secretsManagerForm.controls.userSeats.value).toBe(5);
       expect(upgradeComponent.secretsManagerForm.controls.additionalServiceAccounts.value).toBe(25);
     });
@@ -1262,8 +1348,8 @@ describe("OrganizationPlansComponent", () => {
     it("should enable SM by default when enableSecretsManagerByDefault is true", async () => {
       const smFixture = TestBed.createComponent(OrganizationPlansComponent);
       const smComponent = smFixture.componentInstance;
-      smComponent.enableSecretsManagerByDefault = true;
-      smComponent.productTier = ProductTierType.Teams;
+      smFixture.componentRef.setInput("enableSecretsManagerByDefault", true);
+      smComponent["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
 
       smFixture.detectChanges();
       await smFixture.whenStable();
@@ -1274,15 +1360,14 @@ describe("OrganizationPlansComponent", () => {
     });
 
     it("should trigger tax recalculation when SM form changes", fakeAsync(() => {
-      component.productTier = ProductTierType.Teams;
-      component.changedProduct();
-      component.billingFormGroup.controls.billingAddress.patchValue({
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+      component["billingFormGroup"].controls.billingAddress.patchValue({
         country: "US",
         postalCode: "90210",
       });
 
-      // Clear previous calls
-      jest.clearAllMocks();
+      fixture.detectChanges();
+      flushMicrotasks(); // Complete async ngOnInit so the merge subscription is set up
 
       // Change SM form
       component.secretsManagerForm.patchValue({
@@ -1290,87 +1375,81 @@ describe("OrganizationPlansComponent", () => {
         userSeats: 3,
       });
 
-      tick(1500); // Wait for debounce
+      tick(1200); // Wait for debounce (1000ms)
 
       expect(
         mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
-      ).toHaveBeenCalled();
+      ).toHaveBeenCalledTimes(1);
     }));
   });
 
   describe("form update helpers flow", () => {
-    beforeEach(async () => {
+    it("should handle premium addon access based on plan features", async () => {
+      // Plan without premium access option should set addon to true (meaning it's included)
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
       fixture.detectChanges();
       await fixture.whenStable();
-    });
 
-    it("should handle premium addon access based on plan features", () => {
-      // Plan without premium access option should set addon to true (meaning it's included)
-      component.productTier = ProductTierType.Families;
       component.changedProduct();
 
-      expect(component.formGroup.controls.premiumAccessAddon.value).toBe(true);
+      expect(component["formGroup"].controls.premiumAccessAddon.value).toBe(true);
 
       // Plan with premium access option should set addon to false (user can opt-in)
-      component.productTier = ProductTierType.Teams;
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
       component.changedProduct();
 
-      expect(component.formGroup.controls.premiumAccessAddon.value).toBe(false);
+      expect(component["formGroup"].controls.premiumAccessAddon.value).toBe(false);
     });
 
     it("should handle additional storage for upgrade with existing data", async () => {
-      mockOrganization = {
-        id: "org-123",
-        name: "Test Org",
+      setupMockUpgradeOrganization(mockOrganizationApiService, organizationsSubject, {
         productTierType: ProductTierType.Free,
         maxStorageGb: 5,
-      } as Organization;
-
-      organizationsSubject.next([mockOrganization]);
-
-      mockOrganizationApiService.getBilling.mockResolvedValue({
-        paymentSource: { type: "card" },
-      } as any);
-
-      mockOrganizationApiService.getSubscription.mockResolvedValue({
-        planType: PlanType.Free,
-      } as any);
+      });
 
       const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
       const upgradeComponent = upgradeFixture.componentInstance;
-      upgradeComponent.organizationId = "org-123";
-      upgradeComponent.currentPlan = mockPasswordManagerPlans[0]; // Free plan with 0 GB base
+      upgradeFixture.componentRef.setInput("organizationId", "org-123"); // Free plan with 0 GB base
+      upgradeFixture.componentRef.setInput("currentPlan", mockPasswordManagerPlans[0]); // Free plan with 0 GB base
 
       upgradeFixture.detectChanges();
       await upgradeFixture.whenStable();
 
-      upgradeComponent.productTier = ProductTierType.Teams;
+      upgradeComponent["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
       upgradeComponent.changedProduct();
 
-      expect(upgradeComponent.formGroup.controls.additionalStorage.value).toBe(5);
+      expect(upgradeComponent["formGroup"].controls.additionalStorage.value).toBe(5);
     });
 
-    it("should reset additional storage when plan doesn't support it", () => {
-      component.formGroup.controls.additionalStorage.setValue(10);
-      component.productTier = ProductTierType.Free;
+    it("should reset additional storage when plan doesn't support it", async () => {
+      component["formGroup"].controls.additionalStorage.setValue(10);
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Free);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
       component.changedProduct();
 
-      expect(component.formGroup.controls.additionalStorage.value).toBe(0);
+      expect(component["formGroup"].controls.additionalStorage.value).toBe(0);
     });
 
-    it("should handle additional seats for various scenarios", () => {
+    it("should handle additional seats for various scenarios", async () => {
       // Plan without additional seats option should reset to 0
-      component.formGroup.controls.additionalSeats.setValue(10);
-      component.productTier = ProductTierType.Families;
+      component["formGroup"].controls.additionalSeats.setValue(10);
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
       component.changedProduct();
 
-      expect(component.formGroup.controls.additionalSeats.value).toBe(0);
+      expect(component["formGroup"].controls.additionalSeats.value).toBe(0);
 
       // Default to 1 seat for new org with seats option
-      component.productTier = ProductTierType.Teams;
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
       component.changedProduct();
 
-      expect(component.formGroup.controls.additionalSeats.value).toBeGreaterThanOrEqual(1);
+      expect(component["formGroup"].controls.additionalSeats.value).toBeGreaterThanOrEqual(1);
     });
 
     it("should prefill seats from current plan when upgrading from non-seats plan", async () => {
@@ -1393,23 +1472,23 @@ describe("OrganizationPlansComponent", () => {
 
       const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
       const upgradeComponent = upgradeFixture.componentInstance;
-      upgradeComponent.organizationId = "org-123";
-      upgradeComponent.currentPlan = mockPasswordManagerPlans[0]; // Free plan (no additional seats)
+      upgradeFixture.componentRef.setInput("organizationId", "org-123");
+      upgradeFixture.componentRef.setInput("currentPlan", mockPasswordManagerPlans[0]); // Free plan (no additional seats)
 
       upgradeFixture.detectChanges();
       await upgradeFixture.whenStable();
 
-      upgradeComponent.productTier = ProductTierType.Teams;
+      upgradeComponent["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
       upgradeComponent.changedProduct();
 
       // Should use base seats from current plan
-      expect(upgradeComponent.formGroup.controls.additionalSeats.value).toBe(2);
+      expect(upgradeComponent["formGroup"].controls.additionalSeats.value).toBe(2);
     });
   });
 
   describe("provider creation flow", () => {
     beforeEach(() => {
-      component.providerId = "provider-123";
+      fixture.componentRef.setInput("providerId", "provider-123");
       mockProviderApiService.getProvider.mockResolvedValue({
         id: "provider-123",
         name: "Test Provider",
@@ -1427,7 +1506,7 @@ describe("OrganizationPlansComponent", () => {
         plan: PlanType.TeamsAnnually,
         additionalSeats: 5,
       });
-      component.formGroup.patchValue({
+      component["formGroup"].patchValue({
         clientOwnerEmail: "owner@client.com",
       });
 
@@ -1460,7 +1539,7 @@ describe("OrganizationPlansComponent", () => {
         organizationId: "provider-org-id",
       } as any);
 
-      setupMockPaymentMethodComponent(component);
+      setupMockPaymentMethodComponent(component, "mock-token", "mock-type");
 
       await component.submit();
 
@@ -1495,16 +1574,16 @@ describe("OrganizationPlansComponent", () => {
         planType: PlanType.Free,
       } as any);
 
-      component.organizationId = "org-123";
+      fixture.componentRef.setInput("organizationId", "org-123");
 
       fixture.detectChanges();
       await fixture.whenStable();
     });
 
     it("should backfill organization keys during upgrade", async () => {
-      component.productTier = ProductTierType.Teams;
-      component.plan = PlanType.TeamsAnnually;
-      component.formGroup.controls.additionalSeats.setValue(5);
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+      component["formGroup"].controls.plan.setValue(PlanType.TeamsAnnually);
+      component["formGroup"].controls.additionalSeats.setValue(5);
 
       const mockOrgShareKey = {} as any;
       mockKeyService.orgKeys$.mockReturnValue(of({ "org-123": mockOrgShareKey }));
@@ -1513,8 +1592,6 @@ describe("OrganizationPlansComponent", () => {
         "public-key",
         { encryptedString: "private-key" },
       ] as any);
-
-      mockOrganizationApiService.upgrade.mockResolvedValue(undefined);
 
       await component.submit();
 
@@ -1537,7 +1614,7 @@ describe("OrganizationPlansComponent", () => {
       component["isInTrialFlow"] = true;
       const trialSpy = jest.spyOn(component.onTrialBillingSuccess, "emit");
 
-      component.formGroup.patchValue({
+      component["formGroup"].patchValue({
         name: "Trial Org",
         billingEmail: "trial@example.com",
         productTier: ProductTierType.Enterprise,
@@ -1545,7 +1622,7 @@ describe("OrganizationPlansComponent", () => {
         additionalSeats: 10,
       });
 
-      component.billingFormGroup.controls.billingAddress.patchValue({
+      component["billingFormGroup"].controls.billingAddress.patchValue({
         country: "US",
         postalCode: "12345",
         line1: "123 Street",
@@ -1571,12 +1648,7 @@ describe("OrganizationPlansComponent", () => {
         id: "trial-org-id",
       } as any);
 
-      component["enterPaymentMethodComponent"] = {
-        tokenize: jest.fn().mockResolvedValue({
-          token: "mock_token",
-          type: "card",
-        }),
-      } as any;
+      setupMockPaymentMethodComponent(component, "mock-token", "mock-type");
 
       await component.submit();
 
@@ -1589,7 +1661,7 @@ describe("OrganizationPlansComponent", () => {
     it("should not navigate away when in trial flow", async () => {
       component["isInTrialFlow"] = true;
 
-      component.formGroup.patchValue({
+      component["formGroup"].patchValue({
         name: "Trial Org",
         billingEmail: "trial@example.com",
         productTier: ProductTierType.Free,
@@ -1640,14 +1712,16 @@ describe("OrganizationPlansComponent", () => {
 
       const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
       const upgradeComponent = upgradeFixture.componentInstance;
-      upgradeComponent.organizationId = "org-123";
-      upgradeComponent.currentPlan = mockPasswordManagerPlans[0]; // Free
+      upgradeFixture.componentRef.setInput("organizationId", "org-123");
+      upgradeFixture.componentRef.setInput("currentPlan", mockPasswordManagerPlans[0]); // Free
 
       upgradeFixture.detectChanges();
       await upgradeFixture.whenStable();
 
-      expect(upgradeComponent.plan).toBe(PlanType.FamiliesAnnually);
-      expect(upgradeComponent.productTier).toBe(ProductTierType.Families);
+      expect(upgradeComponent["formGroup"].controls.plan.value).toBe(PlanType.FamiliesAnnually);
+      expect(upgradeComponent["formGroup"].controls.productTier.value).toBe(
+        ProductTierType.Families,
+      );
     });
 
     it("should prefill Teams plan for Families tier upgrade when TeamsStarter unavailable", async () => {
@@ -1669,14 +1743,14 @@ describe("OrganizationPlansComponent", () => {
 
       const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
       const upgradeComponent = upgradeFixture.componentInstance;
-      upgradeComponent.organizationId = "org-123";
-      upgradeComponent.currentPlan = mockPasswordManagerPlans[1]; // Families
+      upgradeFixture.componentRef.setInput("organizationId", "org-123");
+      upgradeFixture.componentRef.setInput("currentPlan", mockPasswordManagerPlans[1]); // Families
 
       upgradeFixture.detectChanges();
       await upgradeFixture.whenStable();
 
-      expect(upgradeComponent.plan).toBe(PlanType.TeamsAnnually);
-      expect(upgradeComponent.productTier).toBe(ProductTierType.Teams);
+      expect(upgradeComponent["formGroup"].controls.plan.value).toBe(PlanType.TeamsAnnually);
+      expect(upgradeComponent["formGroup"].controls.productTier.value).toBe(ProductTierType.Teams);
     });
 
     it("should use upgradeSortOrder for sequential plan upgrades", async () => {
@@ -1698,14 +1772,16 @@ describe("OrganizationPlansComponent", () => {
 
       const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
       const upgradeComponent = upgradeFixture.componentInstance;
-      upgradeComponent.organizationId = "org-123";
-      upgradeComponent.currentPlan = mockPasswordManagerPlans[2]; // Teams
+      upgradeFixture.componentRef.setInput("organizationId", "org-123");
+      upgradeFixture.componentRef.setInput("currentPlan", mockPasswordManagerPlans[2]); // Teams
 
       upgradeFixture.detectChanges();
       await upgradeFixture.whenStable();
 
-      expect(upgradeComponent.plan).toBe(PlanType.EnterpriseAnnually);
-      expect(upgradeComponent.productTier).toBe(ProductTierType.Enterprise);
+      expect(upgradeComponent["formGroup"].controls.plan.value).toBe(PlanType.EnterpriseAnnually);
+      expect(upgradeComponent["formGroup"].controls.productTier.value).toBe(
+        ProductTierType.Enterprise,
+      );
     });
 
     it("should not prefill for Enterprise tier (no upgrade available)", async () => {
@@ -1727,14 +1803,14 @@ describe("OrganizationPlansComponent", () => {
 
       const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
       const upgradeComponent = upgradeFixture.componentInstance;
-      upgradeComponent.organizationId = "org-123";
-      upgradeComponent.currentPlan = mockPasswordManagerPlans[3]; // Enterprise
+      upgradeFixture.componentRef.setInput("organizationId", "org-123");
+      upgradeFixture.componentRef.setInput("currentPlan", mockPasswordManagerPlans[3]); // Enterprise
 
       upgradeFixture.detectChanges();
       await upgradeFixture.whenStable();
 
       // Should not change from default Free
-      expect(upgradeComponent.productTier).toBe(ProductTierType.Free);
+      expect(upgradeComponent["formGroup"].controls.productTier.value).toBe(ProductTierType.Free);
     });
   });
 
@@ -1745,7 +1821,7 @@ describe("OrganizationPlansComponent", () => {
     });
 
     it("should check if provider is qualified for 2020 plans", () => {
-      component.providerId = "provider-123";
+      fixture.componentRef.setInput("providerId", "provider-123");
       component["provider"] = {
         id: "provider-123",
         creationDate: "2023-01-01", // Before cutoff
@@ -1757,7 +1833,7 @@ describe("OrganizationPlansComponent", () => {
     });
 
     it("should not qualify provider created after 2020 plan cutoff", () => {
-      component.providerId = "provider-123";
+      fixture.componentRef.setInput("providerId", "provider-123");
       component["provider"] = {
         id: "provider-123",
         creationDate: "2023-12-01", // After cutoff (2023-11-06)
@@ -1769,7 +1845,7 @@ describe("OrganizationPlansComponent", () => {
     });
 
     it("should return false if provider has no creation date", () => {
-      component.providerId = "provider-123";
+      fixture.componentRef.setInput("providerId", "provider-123");
       component["provider"] = {
         id: "provider-123",
         creationDate: null,
@@ -1799,13 +1875,13 @@ describe("OrganizationPlansComponent", () => {
 
       const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
       const upgradeComponent = upgradeFixture.componentInstance;
-      upgradeComponent.organizationId = "org-123";
-      upgradeComponent.currentPlan = mockPasswordManagerPlans[2]; // Teams
+      upgradeFixture.componentRef.setInput("organizationId", "org-123");
+      upgradeFixture.componentRef.setInput("currentPlan", mockPasswordManagerPlans[2]); // Teams
 
       upgradeFixture.detectChanges();
       await upgradeFixture.whenStable();
 
-      const products = upgradeComponent.selectableProducts;
+      const products = upgradeComponent.selectableProducts();
 
       // Should not include plans with lower or equal upgradeSortOrder
       expect(products.find((p) => p.type === PlanType.Free)).toBeUndefined();
@@ -1834,9 +1910,11 @@ describe("OrganizationPlansComponent", () => {
       expect(monthlyPrice).toBeCloseTo(0.333, 2); // 4 / 12
     });
 
-    it("should generate billing sublabel text for annual plan", () => {
-      component.productTier = ProductTierType.Teams;
-      component.plan = PlanType.TeamsAnnually;
+    it("should generate billing sublabel text for annual plan", async () => {
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+      component["formGroup"].controls.plan.setValue(PlanType.TeamsAnnually);
+
+      component.changedProduct();
 
       const sublabel = component["billingSubLabelText"]();
 
@@ -1846,8 +1924,10 @@ describe("OrganizationPlansComponent", () => {
     });
 
     it("should generate billing sublabel text for plan with base price", () => {
-      component.productTier = ProductTierType.Families;
-      component.plan = PlanType.FamiliesAnnually;
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
+      component["formGroup"].controls.plan.setValue(PlanType.FamiliesAnnually);
+
+      component.changedProduct();
 
       const sublabel = component["billingSubLabelText"]();
 
@@ -1864,30 +1944,30 @@ describe("OrganizationPlansComponent", () => {
 
     it("should control form visibility based on loading state", () => {
       // Initially not loading after setup
-      expect(component.loading).toBe(false);
+      expect(component["loading"]).toBe(false);
 
       // When loading
-      component.loading = true;
-      expect(component.loading).toBe(true);
+      component["loading"] = true;
+      expect(component["loading"]).toBe(true);
 
       // When not loading
-      component.loading = false;
-      expect(component.loading).toBe(false);
+      component["loading"] = false;
+      expect(component["loading"]).toBe(false);
     });
 
     it("should determine createOrganization based on organizationId", () => {
       // Create flow - no organizationId
-      expect(component.createOrganization).toBe(true);
+      expect(component.createOrganization()).toBe(true);
 
       // Upgrade flow - has organizationId
-      component.organizationId = "org-123";
-      expect(component.createOrganization).toBe(false);
+      fixture.componentRef.setInput("organizationId", "org-123");
+      expect(component.createOrganization()).toBe(false);
     });
 
     it("should calculate passwordManagerSubtotal correctly for paid plans", () => {
-      component.productTier = ProductTierType.Teams;
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
       component.changedProduct();
-      component.formGroup.controls.additionalSeats.setValue(5);
+      component["formGroup"].controls.additionalSeats.setValue(5);
 
       const subtotal = component.passwordManagerSubtotal;
 
@@ -1896,7 +1976,7 @@ describe("OrganizationPlansComponent", () => {
     });
 
     it("should show payment description based on plan type", () => {
-      component.productTier = ProductTierType.Teams;
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
       component.changedProduct();
 
       const paymentDesc = component.paymentDesc;
@@ -1906,28 +1986,28 @@ describe("OrganizationPlansComponent", () => {
     });
 
     it("should display tax ID field for business plans", () => {
-      component.productTier = ProductTierType.Free;
-      expect(component["showTaxIdField"]).toBe(false);
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Free);
+      expect(component["showTaxIdField"]()).toBe(false);
 
-      component.productTier = ProductTierType.Families;
-      expect(component["showTaxIdField"]).toBe(false);
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
+      expect(component["showTaxIdField"]()).toBe(false);
 
-      component.productTier = ProductTierType.Teams;
-      expect(component["showTaxIdField"]).toBe(true);
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+      expect(component["showTaxIdField"]()).toBe(true);
 
-      component.productTier = ProductTierType.Enterprise;
-      expect(component["showTaxIdField"]).toBe(true);
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Enterprise);
+      expect(component["showTaxIdField"]()).toBe(true);
     });
 
     it("should show single org policy block when applicable", () => {
-      component.singleOrgPolicyAppliesToActiveUser = false;
+      component["singleOrgPolicyAppliesToActiveUser"] = false;
       expect(component.singleOrgPolicyBlock).toBe(false);
 
-      component.singleOrgPolicyAppliesToActiveUser = true;
+      component["singleOrgPolicyAppliesToActiveUser"] = true;
       expect(component.singleOrgPolicyBlock).toBe(true);
 
       // But not when has provider
-      component.providerId = "provider-123";
+      fixture.componentRef.setInput("providerId", "provider-123");
       expect(component.singleOrgPolicyBlock).toBe(false);
     });
 
@@ -1936,19 +2016,15 @@ describe("OrganizationPlansComponent", () => {
       expect(component.upgradeRequiresPaymentMethod).toBe(false);
 
       // Create new component with organization setup
-      const mockOrg = setupMockUpgradeOrganization(
-        mockOrganizationApiService,
-        organizationsSubject,
-        {
-          productTierType: ProductTierType.Free,
-          hasPaymentSource: false,
-        },
-      );
+      setupMockUpgradeOrganization(mockOrganizationApiService, organizationsSubject, {
+        productTierType: ProductTierType.Free,
+        hasPaymentSource: false,
+      });
 
       const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
       const upgradeComponent = upgradeFixture.componentInstance;
-      upgradeComponent.organizationId = mockOrg.id;
-      upgradeComponent.showFree = false;
+      upgradeFixture.componentRef.setInput("organizationId", "org-123");
+      upgradeFixture.componentRef.setInput("showFree", false); // Required for upgradeRequiresPaymentMethod
 
       upgradeFixture.detectChanges();
       await upgradeFixture.whenStable();
@@ -1964,26 +2040,25 @@ describe("OrganizationPlansComponent", () => {
     });
 
     it("should update component state when product tier changes", () => {
-      component.productTier = ProductTierType.Free;
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Free);
 
       // Simulate changing product tier
-      component.productTier = ProductTierType.Teams;
-      component.formGroup.controls.productTier.setValue(ProductTierType.Teams);
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
       component.changedProduct();
 
-      expect(component.productTier).toBe(ProductTierType.Teams);
-      expect(component.formGroup.controls.plan.value).toBe(PlanType.TeamsAnnually);
+      expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Teams);
+      expect(component["formGroup"].controls.plan.value).toBe(PlanType.TeamsAnnually);
     });
 
     it("should update plan when changedOwnedBusiness is called", () => {
-      component.formGroup.controls.businessOwned.setValue(false);
-      component.productTier = ProductTierType.Families;
+      component["formGroup"].controls.businessOwned.setValue(false);
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
 
-      component.formGroup.controls.businessOwned.setValue(true);
+      component["formGroup"].controls.businessOwned.setValue(true);
       component.changedOwnedBusiness();
 
       // Should switch to a business-compatible plan
-      expect(component.formGroup.controls.productTier.value).toBe(ProductTierType.Teams);
+      expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Teams);
     });
 
     it("should emit onCanceled when cancel is called", () => {
@@ -1995,29 +2070,29 @@ describe("OrganizationPlansComponent", () => {
     });
 
     it("should update form value when additional seats changes", () => {
-      component.productTier = ProductTierType.Teams;
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
       component.changedProduct();
 
-      component.formGroup.controls.additionalSeats.setValue(10);
+      component["formGroup"].controls.additionalSeats.setValue(10);
 
-      expect(component.formGroup.controls.additionalSeats.value).toBe(10);
+      expect(component["formGroup"].controls.additionalSeats.value).toBe(10);
     });
 
     it("should update form value when additional storage changes", () => {
-      component.productTier = ProductTierType.Teams;
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
       component.changedProduct();
 
-      component.formGroup.controls.additionalStorage.setValue(5);
+      component["formGroup"].controls.additionalStorage.setValue(5);
 
-      expect(component.formGroup.controls.additionalStorage.value).toBe(5);
+      expect(component["formGroup"].controls.additionalStorage.value).toBe(5);
     });
 
     it("should mark form as invalid when required fields are empty", () => {
-      component.formGroup.controls.name.setValue("");
-      component.formGroup.controls.billingEmail.setValue("");
-      component.formGroup.markAllAsTouched();
+      component["formGroup"].controls.name.setValue("");
+      component["formGroup"].controls.billingEmail.setValue("");
+      component["formGroup"].markAllAsTouched();
 
-      expect(component.formGroup.invalid).toBe(true);
+      expect(component["formGroup"].invalid).toBe(true);
     });
 
     it("should mark form as valid when all required fields are filled correctly", () => {
@@ -2026,14 +2101,14 @@ describe("OrganizationPlansComponent", () => {
         billingEmail: "valid@example.com",
       });
 
-      expect(component.formGroup.valid).toBe(true);
+      expect(component["formGroup"].valid).toBe(true);
     });
 
     it("should calculate subtotals based on form values", () => {
-      component.productTier = ProductTierType.Teams;
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
       component.changedProduct();
-      component.formGroup.controls.additionalSeats.setValue(5);
-      component.formGroup.controls.additionalStorage.setValue(10);
+      component["formGroup"].controls.additionalSeats.setValue(5);
+      component["formGroup"].controls.additionalStorage.setValue(10);
 
       const subtotal = component.passwordManagerSubtotal;
 
@@ -2043,21 +2118,19 @@ describe("OrganizationPlansComponent", () => {
 
     it("should enable Secrets Manager form when plan supports it", () => {
       // Free plan doesn't offer Secrets Manager
-      component.productTier = ProductTierType.Free;
-      component.formGroup.controls.productTier.setValue(ProductTierType.Free);
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Free);
       component.changedProduct();
-      expect(component.planOffersSecretsManager).toBe(false);
+      expect(component.planOffersSecretsManager()).toBe(false);
 
       // Teams plan offers Secrets Manager
-      component.productTier = ProductTierType.Teams;
-      component.formGroup.controls.productTier.setValue(ProductTierType.Teams);
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
       component.changedProduct();
-      expect(component.planOffersSecretsManager).toBe(true);
+      expect(component.planOffersSecretsManager()).toBe(true);
       expect(component.secretsManagerForm.disabled).toBe(false);
     });
 
     it("should update Secrets Manager subtotal when values change", () => {
-      component.productTier = ProductTierType.Teams;
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
       component.changedProduct();
 
       component.secretsManagerForm.patchValue({
@@ -2103,17 +2176,18 @@ describe("OrganizationPlansComponent", () => {
 
       const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
       const upgradeComponent = upgradeFixture.componentInstance;
-      upgradeComponent.organizationId = "org-123";
-      upgradeComponent.showFree = false; // Triggers upgradeRequiresPaymentMethod
+      upgradeFixture.componentRef.setInput("organizationId", "org-123");
+      upgradeFixture.componentRef.setInput("showFree", false);
 
       upgradeFixture.detectChanges();
       await upgradeFixture.whenStable();
 
-      upgradeComponent.productTier = ProductTierType.Teams;
-      upgradeComponent.plan = PlanType.TeamsAnnually;
-      upgradeComponent.formGroup.controls.additionalSeats.setValue(5);
+      upgradeComponent["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+      upgradeComponent["formGroup"].controls.plan.setValue(PlanType.TeamsAnnually);
+      upgradeComponent.changedProduct();
+      upgradeComponent["formGroup"].controls.additionalSeats.setValue(5);
 
-      upgradeComponent.billingFormGroup.controls.billingAddress.patchValue({
+      upgradeComponent["billingFormGroup"].controls.billingAddress.patchValue({
         country: "US",
         postalCode: "12345",
         line1: "123 Street",
@@ -2121,20 +2195,13 @@ describe("OrganizationPlansComponent", () => {
         state: "CA",
       });
 
-      upgradeComponent["enterPaymentMethodComponent"] = {
-        tokenize: jest.fn().mockResolvedValue({
-          token: "new_token",
-          type: "card",
-        }),
-      } as any;
-
-      mockOrganizationApiService.upgrade.mockResolvedValue(undefined);
+      setupMockPaymentMethodComponent(upgradeComponent, "mock_token", "card");
 
       await upgradeComponent.submit();
 
       expect(mockSubscriberBillingClient.updatePaymentMethod).toHaveBeenCalledWith(
         { type: "organization", data: mockOrganization },
-        { token: "new_token", type: "card" },
+        { token: "mock_token", type: "card" },
         { country: "US", postalCode: "12345" },
       );
 
@@ -2142,7 +2209,7 @@ describe("OrganizationPlansComponent", () => {
     });
 
     it("should validate billing form for paid plans during creation", async () => {
-      component.formGroup.patchValue({
+      component["formGroup"].patchValue({
         name: "New Org",
         billingEmail: "test@example.com",
         productTier: ProductTierType.Teams,
@@ -2151,7 +2218,7 @@ describe("OrganizationPlansComponent", () => {
       });
 
       // Invalid billing form - explicitly mark as invalid since we removed validators from mock forms
-      component.billingFormGroup.controls.billingAddress.patchValue({
+      component["billingFormGroup"].controls.billingAddress.patchValue({
         country: "",
         postalCode: "",
       });
@@ -2159,11 +2226,11 @@ describe("OrganizationPlansComponent", () => {
       await component.submit();
 
       expect(mockOrganizationApiService.create).not.toHaveBeenCalled();
-      expect(component.billingFormGroup.invalid).toBe(true);
+      expect(component["billingFormGroup"].invalid).toBe(true);
     });
 
     it("should not require billing validation for Free plan", async () => {
-      component.formGroup.patchValue({
+      component["formGroup"].patchValue({
         name: "Free Org",
         billingEmail: "test@example.com",
         productTier: ProductTierType.Free,
@@ -2171,7 +2238,7 @@ describe("OrganizationPlansComponent", () => {
       });
 
       // Leave billing form empty
-      component.billingFormGroup.reset();
+      component["billingFormGroup"].reset();
 
       mockKeyService.makeOrgKey.mockResolvedValue([
         { encryptedString: "mock-key" },
@@ -2194,6 +2261,224 @@ describe("OrganizationPlansComponent", () => {
       await component.submit();
 
       expect(mockOrganizationApiService.create).toHaveBeenCalled();
+    });
+  });
+
+  describe("premium to organization upgrade flow", () => {
+    describe("canUpgradeFromPremium computed signal", () => {
+      it("should be true when user has premium personally and organizationId is null", async () => {
+        hasPremiumPersonallySubject.next(true);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(component.canUpgradeFromPremium()).toBe(true);
+      });
+
+      it("should be false when user does not have premium personally", async () => {
+        // hasPremiumPersonallySubject defaults to false
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(component.canUpgradeFromPremium()).toBe(false);
+      });
+
+      it("should be false when organizationId is set (upgrading existing org)", async () => {
+        hasPremiumPersonallySubject.next(true);
+        setupMockUpgradeOrganization(mockOrganizationApiService, organizationsSubject);
+        fixture.componentRef.setInput("organizationId", "org-123");
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(component.canUpgradeFromPremium()).toBe(false);
+      });
+
+      it("should be false when feature flag is disabled even with premium personally", async () => {
+        // Need to set up the mock before component initialization since it uses toSignal
+        mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
+        hasPremiumPersonallySubject.next(true);
+
+        // Create a new fixture with the updated mock
+        const newFixture = TestBed.createComponent(OrganizationPlansComponent);
+        const newComponent = newFixture.componentInstance;
+
+        newFixture.detectChanges();
+        await newFixture.whenStable();
+
+        expect(newComponent.canUpgradeFromPremium()).toBe(false);
+      });
+    });
+
+    describe("submit", () => {
+      const newOrgId = "new-premium-org-id";
+      const newOrgName = "My Org";
+
+      beforeEach(async () => {
+        hasPremiumPersonallySubject.next(true);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        fixture.componentRef.setInput("initialProductTier", ProductTierType.Teams);
+        patchOrganizationForm(component, {
+          name: newOrgName,
+          billingEmail: "test@example.com",
+          productTier: ProductTierType.Teams,
+          plan: PlanType.TeamsAnnually,
+          additionalSeats: 3,
+        });
+        patchBillingAddress(component);
+      });
+
+      it("should call premiumOrgUpgradeService.upgradeToOrganization() instead of create()", async () => {
+        organizationsSubject.next([{ id: newOrgId, name: newOrgName, isOwner: true } as any]);
+
+        await component.submit();
+
+        expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenCalledWith(
+          expect.objectContaining({ id: "user-id" }),
+          newOrgName,
+          "teams",
+          expect.objectContaining({ country: "US", postalCode: "12345" }),
+        );
+        expect(mockOrganizationApiService.create).not.toHaveBeenCalled();
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "success",
+          title: "organizationCreated",
+          message: "organizationReadyToGo",
+        });
+      });
+
+      it("should navigate to the new org and show success toast after premium upgrade", async () => {
+        organizationsSubject.next([{ id: newOrgId, name: newOrgName, isOwner: true } as any]);
+
+        await component.submit();
+
+        expect(mockRouter.navigate).toHaveBeenCalledWith(["/organizations/" + newOrgId]);
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "success",
+          title: "organizationCreated",
+          message: "organizationReadyToGo",
+        });
+      });
+
+      it("should not call upgradeToOrganization when billing address is incomplete", async () => {
+        component["billingFormGroup"].controls.billingAddress.patchValue({
+          country: "",
+          postalCode: "",
+        });
+
+        await component.submit();
+
+        expect(mockPremiumOrgUpgradeService.upgradeToOrganization).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("refreshSalesTax (premium upgrade proration)", () => {
+      it("should call previewProrationForPremiumUpgrade instead of the standard tax endpoint", fakeAsync(() => {
+        hasPremiumPersonallySubject.next(true);
+        fixture.componentRef.setInput("initialProductTier", ProductTierType.Teams);
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+        component["formGroup"].controls.plan.setValue(PlanType.TeamsAnnually);
+
+        fixture.detectChanges();
+        flushMicrotasks();
+
+        component["billingFormGroup"].controls.billingAddress.patchValue({
+          country: "US",
+          postalCode: "90210",
+        });
+
+        tick(1200);
+
+        expect(mockPreviewInvoiceClient.previewProrationForPremiumUpgrade).toHaveBeenCalledWith(
+          ProductTierType.Teams,
+          expect.objectContaining({ country: "US", postalCode: "90210" }),
+        );
+        expect(
+          mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
+        ).not.toHaveBeenCalled();
+      }));
+
+      it("should set previewInvoice signal with proration preview data", fakeAsync(() => {
+        hasPremiumPersonallySubject.next(true);
+        fixture.componentRef.setInput("initialProductTier", ProductTierType.Teams);
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+        component["formGroup"].controls.plan.setValue(PlanType.TeamsAnnually);
+
+        fixture.detectChanges();
+        flushMicrotasks();
+
+        component["billingFormGroup"].controls.billingAddress.patchValue({
+          country: "US",
+          postalCode: "12345",
+        });
+
+        tick(1200);
+
+        const invoice = component["previewInvoice"]();
+        expect(invoice.tax).toBe(2.5);
+        expect(invoice.credit).toBe(10.0);
+        expect(invoice.newPlanProratedMonths).toBe(6);
+        expect(invoice.newPlanProratedAmount).toBe(24.0);
+      }));
+    });
+
+    describe("cart computed signal (premium upgrade branch)", () => {
+      beforeEach(async () => {
+        hasPremiumPersonallySubject.next(true);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+        component["formGroup"].controls.plan.setValue(PlanType.TeamsAnnually);
+      });
+
+      it("should use prorated amount from previewInvoice for PM seats cost", () => {
+        component["previewInvoice"].set({
+          tax: 2.5,
+          total: 25.0,
+          credit: 10.0,
+          newPlanProratedMonths: 6,
+          newPlanProratedAmount: 24.0,
+        });
+
+        const cart = component["cart"]();
+        expect(cart.passwordManager.seats.cost).toBe(24.0);
+        expect(cart.passwordManager.seats.hideBreakdown).toBe(true);
+        expect(cart.passwordManager.seats.translationKey).toBe("planProratedMembershipInMonths");
+      });
+
+      it("should include premium subscription credit in cart", () => {
+        component["previewInvoice"].set({
+          tax: 2.5,
+          total: 25.0,
+          credit: 10.0,
+          newPlanProratedMonths: 6,
+          newPlanProratedAmount: 24.0,
+        });
+
+        const cart = component["cart"]();
+        expect(cart.credit).toEqual({
+          translationKey: "premiumSubscriptionCredit",
+          value: 10.0,
+        });
+      });
+
+      it("should use proration tax from previewInvoice (not estimatedTax)", () => {
+        component["previewInvoice"].set({
+          tax: 2.5,
+          total: 25.0,
+          credit: 10.0,
+          newPlanProratedMonths: 6,
+          newPlanProratedAmount: 24.0,
+        });
+        component["estimatedTax"].set(99);
+
+        const cart = component["cart"]();
+        expect(cart.estimatedTax).toBe(2.5);
+      });
     });
   });
 });

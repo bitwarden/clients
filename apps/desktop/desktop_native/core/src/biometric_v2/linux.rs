@@ -21,6 +21,8 @@ use zbus_polkit::policykit1::{AuthorityProxy, CheckAuthorizationFlags, Subject};
 
 use crate::secure_memory::{encrypted_memory_store::EncryptedMemoryStore, SecureMemoryStore as _};
 
+/// Biometric lock system using Polkit for authentication and secure memory to hold the key on
+/// Linux.
 pub struct BiometricLockSystem {
     // The userkeys that are held in memory MUST be protected from memory dumping attacks, to
     // ensure locked vaults cannot be unlocked
@@ -28,6 +30,7 @@ pub struct BiometricLockSystem {
 }
 
 impl BiometricLockSystem {
+    /// Creates a new biometric lock system with secure memory storage.
     pub fn new() -> Self {
         Self {
             secure_memory: Arc::new(Mutex::new(EncryptedMemoryStore::default())),

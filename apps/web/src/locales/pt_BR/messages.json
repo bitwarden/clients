@@ -5445,8 +5445,8 @@
   "minimumNumberOfWords": {
     "message": "Número mínimo de palavras"
   },
-  "passwordTypePolicyOverride": {
-    "message": "Tipo da senha",
+  "overridePasswordTypePolicy": {
+    "message": "Password Type",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -6054,6 +6054,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Saiba mais sobre a transferência"
   },
+  "promptUsersToMoveItems": {
+    "message": "Prompt users to move individual vault items to the organization"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
   "organizationDataOwnership": {
     "message": "Aplicar propriedade de dados da organização"
   },
@@ -6091,8 +6097,8 @@
   "availableNow": {
     "message": "Disponível agora"
   },
-  "autoConfirm": {
-    "message": "Confirmação automática de novos usuários"
+  "automaticUserConfirmation": {
+    "message": "Automatic user confirmation"
   },
   "autoConfirmDescription": {
     "message": "Novos usuários convidados para a organização serão confirmados automaticamente quando o dispositivo de um administrador for desbloqueado.",
@@ -10624,6 +10630,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Envie dados de eventos para sua instância do Huntress SIEM"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ connected successfully.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Falha ao salvar a integração. Tente novamente mais tarde."
   },
@@ -10976,6 +10991,9 @@
   },
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Desativada"
+  },
+  "memberAccessReportLoadError": {
+    "message": "Failed to load the member access report. This may be due to a large organization size or network issue. Please try again or contact support if the problem persists."
   },
   "kdfIterationRecommends": {
     "message": "Recomendamos 600.000 ou mais"

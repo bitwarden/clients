@@ -2157,7 +2157,7 @@
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Изменить тестовую Send",
+    "message": "Изменить текстовую Send",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
@@ -4865,6 +4865,9 @@
   "copyAddress": {
     "message": "Скопировать адрес"
   },
+  "myItems": {
+    "message": "Мои элементы"
+  },
   "adminConsole": {
     "message": "консоли администратора"
   },
@@ -6150,6 +6153,15 @@
   },
   "searchResults": {
     "message": "Результаты поиска"
+  },
+  "simplifiedAutofill": {
+    "message": "Упрощенное автозаполнение"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "При нажатии на предложенный элемент автозаполнения он заполняется, а не перенаправляет вас к деталям. Вы по-прежнему можете просматривать эти элементы в меню Подробнее."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Открыть всплывающее окно упрощенного автозаполнения"
   },
   "resizeSideNavigation": {
     "message": "Изменить размер боковой навигации"

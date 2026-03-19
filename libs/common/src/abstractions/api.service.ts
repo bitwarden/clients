@@ -459,6 +459,12 @@ export abstract class ApiService {
   abstract fetch(request: Request): Promise<Response>;
   abstract nativeFetch(request: Request): Promise<Response>;
 
+  /**
+   * Adds a middleware function that will be called with the Request object before each API call. This allows for dynamic header manipulation, such as adding cookies for SSO authentication.
+   * @param middleware The middleware function to add
+   */
+  abstract addMiddleware(middleware: (request: Request) => Promise<void>): void;
+
   abstract preValidateSso(identifier: string): Promise<SsoPreValidateResponse>;
 
   abstract postCreateSponsorship(
