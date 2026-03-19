@@ -63,20 +63,40 @@ export class Client {
       );
 
       let privateKey: Uint8Array = null;
-      let iv: Uint8Array = null;
+      // The initialization vector is a random 16-byte value used to ensure
+      // the same plaintext (e.g. same password used for two different accounts)
+      // results in a different ciphertext when encrypted
+      let initVec: Uint8Array = null;
       if (session.encryptedPrivateKey != null && session.encryptedPrivateKey != "") {
         let encryptedPrivateKey = null;
+
         if (clientInfo.login == LastpassLoginType.MasterPassword) {
           encryptedPrivateKey = Utils.fromHexToArray(session.encryptedPrivateKey);
-          iv = key.subarray(0, 16);
+          initVec = key.subarray(0, 16);
         } else if (clientInfo.login == LastpassLoginType.Federated) {
-          const [eiv, epk] = session.encryptedPrivateKey.split("|");
-          encryptedPrivateKey = Utils.fromB64ToArray(epk);
-          iv = Utils.fromB64ToArray(eiv.slice(1));
+          // LastPass private key format is !<base64>|<base64>
+          // Private key use AES-CBC encryption, with the first base64 string
+          // being the initialization vector and the second base64 string
+          // containing the actual encrypted key
+          const parts = session.encryptedPrivateKey.split("|");
+          if (parts.length !== 2) {
+            throw new Error("Wrong lastpass private key format, no | separator");
+          }
+          if (!parts[0].startsWith("!")) {
+            throw new Error("Wrong lastpass private key format, no ! starting separator");
+          }
+          // Remove the starting ! character, which is not a part of the initialization
+          // vector, and then base64 decode
+          initVec = Utils.fromB64ToArray(parts[0].slice(1));
+          if (initVec.length !== 16) {
+            throw new Error(`Wrong lastpass private key init vector length (${initVec.length})`);
+          }
+          encryptedPrivateKey = Utils.fromB64ToArray(parts[1]);
         } else {
           throw new Error("Unsupported lastpass login");
         }
-        privateKey = await this.parser.parseEncryptedPrivateKey(encryptedPrivateKey, key, iv);
+
+        privateKey = await this.parser.parseEncryptedPrivateKey(encryptedPrivateKey, key, initVec);
       }
 
       return this.parseVault(blob, key, privateKey, options);
