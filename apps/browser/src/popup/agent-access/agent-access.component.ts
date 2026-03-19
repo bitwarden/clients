@@ -16,21 +16,22 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ToastService } from "@bitwarden/components";
 import type { UserClientEvent } from "@bitwarden/sdk-internal";
 
+import {
+  type AuditLogEntry,
+  type CredentialRequestData,
+  parseIdentityFingerprint,
+} from "../../agent-access/agent-access.types";
+import { type SessionRecord } from "../../agent-access/session-repository";
 import { PopupHeaderComponent } from "../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../platform/popup/layout/popup-page.component";
 
+
 import { AgentAccessService } from "./agent-access.service";
-import {
-  AuditLogEntry,
-  CredentialRequestData,
-  parseIdentityFingerprint,
-} from "./agent-access.types";
 import { AgentAccessAuditLogComponent } from "./pages/agent-access-audit-log.component";
 import { AgentAccessCredentialRequestComponent } from "./pages/agent-access-credential-request.component";
 import { AgentAccessHomeComponent } from "./pages/agent-access-home.component";
 import { AgentAccessPairingComponent } from "./pages/agent-access-pairing.component";
 import { AgentAccessStatusComponent } from "./pages/agent-access-status.component";
-import { type SessionRecord } from "./session-repository";
 
 const AgentAccessView = Object.freeze({
   Home: "home",

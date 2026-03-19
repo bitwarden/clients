@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from "@angular/co
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 
-import { AuditLogEntry } from "../agent-access.types";
+import { AuditLogEntry } from "../../../agent-access/agent-access.types";
 
 interface DayGroup {
   label: string;

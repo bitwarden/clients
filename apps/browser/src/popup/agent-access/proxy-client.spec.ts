@@ -1,4 +1,4 @@
-import { BrowserProxyClient, ProxyMessage } from "./proxy-client";
+import { BrowserProxyClient, ProxyMessage } from "../../agent-access/proxy-client";
 
 // ---------------------------------------------------------------------------
 // Mock WebSocket

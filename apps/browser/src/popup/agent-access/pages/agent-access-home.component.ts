@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, input, output } from "@angular/core
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ButtonModule, IconButtonModule } from "@bitwarden/components";
 
-import { CredentialRequestData } from "../agent-access.types";
+import { CredentialRequestData } from "../../../agent-access/agent-access.types";
 
 @Component({
   selector: "app-agent-access-home",

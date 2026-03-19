@@ -14,8 +14,12 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ButtonModule } from "@bitwarden/components";
 
-import { AgentAccessService, type CredentialLookupResult } from "../agent-access.service";
-import { CredentialMatch, CredentialRequestData } from "../agent-access.types";
+import {
+  type CredentialLookupResult,
+  CredentialMatch,
+  CredentialRequestData,
+} from "../../../agent-access/agent-access.types";
+import { AgentAccessService } from "../agent-access.service";
 
 @Component({
   selector: "app-agent-access-credential-request",

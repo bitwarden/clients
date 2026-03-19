@@ -1,5 +1,5 @@
 import { inject, Injectable, NgZone, OnDestroy } from "@angular/core";
-import { filter, firstValueFrom, Observable, of, Subject, timeout } from "rxjs";
+import { filter, firstValueFrom, Observable, of, Subject, Subscription, timeout } from "rxjs";
 
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
@@ -11,25 +11,17 @@ import {
   AGENT_ACCESS_EVENT,
   AGENT_ACCESS_RESULT,
 } from "../../agent-access/agent-access.messages";
-
-import { AuditLogEntry, CredentialMatch } from "./agent-access.types";
-import { ChromeSessionRepository, type SessionRecord } from "./session-repository";
+import {
+  AUDIT_LOG_KEY,
+  type AuditLogEntry,
+  type CredentialLookupResult,
+  type CredentialMatch,
+  LISTENING_ENABLED_KEY,
+} from "../../agent-access/agent-access.types";
+import { ChromeSessionRepository, type SessionRecord } from "../../agent-access/session-repository";
 
 /** Timeout for background commands (ms). */
 const COMMAND_TIMEOUT = 30_000;
-
-/** Storage keys — must match background listener. */
-const LISTENING_ENABLED_KEY = "agent_access_listening_enabled";
-const AUDIT_LOG_KEY = "agent_access_audit_log";
-
-export interface CredentialLookupResult {
-  credentialId?: string;
-  username?: string;
-  password?: string;
-  totp?: string;
-  uri?: string;
-  domain?: string;
-}
 
 /**
  * Hybrid service — read-only state reads directly from storage (fast, reliable).
@@ -47,10 +39,11 @@ export class AgentAccessService implements OnDestroy {
   private readonly ngZone = inject(NgZone);
 
   private sessionRepository: ChromeSessionRepository | null = null;
+  private readonly eventSubscription: Subscription;
 
   constructor() {
     // Subscribe to event broadcasts from the background listener
-    this.messageListener.messages$(AGENT_ACCESS_EVENT).subscribe((msg) => {
+    this.eventSubscription = this.messageListener.messages$(AGENT_ACCESS_EVENT).subscribe((msg) => {
       this.ngZone.run(() => {
         this.eventsSubject.next(msg.event as UserClientEvent);
       });
@@ -196,6 +189,7 @@ export class AgentAccessService implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.eventSubscription.unsubscribe();
     this.eventsSubject.complete();
   }
 

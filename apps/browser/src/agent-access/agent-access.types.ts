@@ -1,3 +1,17 @@
+/** Storage keys for agent access state in chrome.storage.local */
+export const LISTENING_ENABLED_KEY = "agent_access_listening_enabled";
+export const AUDIT_LOG_KEY = "agent_access_audit_log";
+export const AUDIT_LOG_MAX_ENTRIES = 200;
+
+export interface CredentialLookupResult {
+  credentialId?: string;
+  username?: string;
+  password?: string;
+  totp?: string;
+  uri?: string;
+  domain?: string;
+}
+
 export interface CredentialMatch {
   cipherId: string;
   name: string;

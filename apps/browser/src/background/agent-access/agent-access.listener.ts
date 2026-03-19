@@ -13,48 +13,26 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import * as sdk from "@bitwarden/sdk-internal";
 import type { UserClientEvent } from "@bitwarden/sdk-internal";
 
+import { AgentAccessIdentity } from "../../agent-access/agent-access-identity";
 import {
   AGENT_ACCESS_COMMAND,
   AGENT_ACCESS_EVENT,
   AGENT_ACCESS_RESULT,
 } from "../../agent-access/agent-access.messages";
+import {
+  AUDIT_LOG_KEY,
+  AUDIT_LOG_MAX_ENTRIES,
+  type AuditLogEntry,
+  type CredentialLookupResult,
+  LISTENING_ENABLED_KEY,
+  parseIdentityFingerprint,
+} from "../../agent-access/agent-access.types";
+import { BrowserProxyClient } from "../../agent-access/proxy-client";
+import { ChromeSessionRepository, type SessionRecord } from "../../agent-access/session-repository";
 import { BrowserApi } from "../../platform/browser/browser-api";
-
-import { AgentAccessIdentity } from "./agent-access-identity";
-import { BrowserProxyClient } from "./proxy-client";
-import { ChromeSessionRepository, type SessionRecord } from "./session-repository";
-
-/** Storage keys for agent access state in chrome.storage.local */
-const LISTENING_ENABLED_KEY = "agent_access_listening_enabled";
-const AUDIT_LOG_KEY = "agent_access_audit_log";
-const AUDIT_LOG_MAX_ENTRIES = 200;
 
 /** Default proxy URL — should eventually come from environment config */
 const DEFAULT_PROXY_URL = "wss://rat1.lesspassword.dev";
-
-export interface CredentialLookupResult {
-  credentialId?: string;
-  username?: string;
-  password?: string;
-  totp?: string;
-  uri?: string;
-  domain?: string;
-}
-
-interface AuditLogEntry {
-  connectionId: string;
-  connectionName: string;
-  timestamp: number;
-  action: "credential_approved" | "credential_denied" | "connected" | "disconnected";
-  domain?: string;
-  fields?: string[];
-}
-
-/** Extract hex from "IdentityFingerprint(hex...)" Debug format, or return as-is. */
-function parseIdentityFingerprint(raw: string): string {
-  const match = raw.match(/IdentityFingerprint\(([0-9a-f]+)\)/);
-  return match ? match[1] : raw;
-}
 
 /**
  * Background listener that owns the WASM UserClient, WebSocket proxy connection,
@@ -161,24 +139,6 @@ export class AgentAccessListener {
         case "getCredentialById":
           result = await this.getCredentialById(params["cipherId"]);
           break;
-        case "listSessions":
-          result = await this.listSessions();
-          break;
-        case "removeSession":
-          await this.removeSession(params["id"]);
-          break;
-        case "renameSession":
-          await this.renameSession(params["id"], params["name"]);
-          break;
-        case "getListeningEnabled":
-          result = await this.getListeningEnabled();
-          break;
-        case "setListeningEnabled":
-          await this.setListeningEnabled(params["enabled"]);
-          break;
-        case "loadAuditLog":
-          result = await this.loadAuditLog(params["connectionId"]);
-          break;
         case "appendAuditLog":
           await this.appendAuditLog(params["entry"]);
           break;
@@ -221,20 +181,6 @@ export class AgentAccessListener {
     return repo.list();
   }
 
-  private async removeSession(id: string): Promise<void> {
-    const repo = this.getOrCreateRepository();
-    await repo.remove(id);
-  }
-
-  private async renameSession(id: string, name: string): Promise<void> {
-    const repo = this.getOrCreateRepository();
-    const record = await repo.get(id);
-    if (record) {
-      record.name = name;
-      await repo.set(id, record);
-    }
-  }
-
   // --- Listening toggle ---
 
   private async getListeningEnabled(): Promise<boolean> {
@@ -242,20 +188,7 @@ export class AgentAccessListener {
     return value ?? true;
   }
 
-  private async setListeningEnabled(enabled: boolean): Promise<void> {
-    await this.storageService.save(LISTENING_ENABLED_KEY, enabled);
-  }
-
   // --- Audit log ---
-
-  private async loadAuditLog(connectionId?: string): Promise<AuditLogEntry[]> {
-    const data = await this.storageService.get<AuditLogEntry[]>(AUDIT_LOG_KEY);
-    const entries = Array.isArray(data) ? data : [];
-    if (connectionId) {
-      return entries.filter((e) => e.connectionId === connectionId);
-    }
-    return entries;
-  }
 
   private async appendAuditLog(entry: AuditLogEntry): Promise<void> {
     const data = await this.storageService.get<AuditLogEntry[]>(AUDIT_LOG_KEY);
@@ -453,6 +386,8 @@ export class AgentAccessListener {
       this.proxyClient = null;
     }
     this.client = null;
+    this.pendingRequests.clear();
+    void this.updateBadge();
   }
 
   // --- Private helpers ---
