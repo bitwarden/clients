@@ -99,6 +99,11 @@ export class ServerCommunicationConfigPlatformApiService implements ServerCommun
       return;
     }
 
+    if (!urlString) {
+      this.cancelPendingAcquisition();
+      return;
+    }
+
     try {
       const url = new URL(urlString);
       const cookies: AcquiredCookie[] = [];
@@ -116,6 +121,13 @@ export class ServerCommunicationConfigPlatformApiService implements ServerCommun
       this.cleanup();
     } catch (error) {
       this.logService.error("Failed to parse cookie callback URL", error);
+      this.cancelPendingAcquisition();
+    }
+  }
+
+  private cancelPendingAcquisition(): void {
+    if (this.pendingAcquisition) {
+      this.logService.info("Cancelling pending cookie acquisition");
       clearTimeout(this.pendingAcquisition.timeoutId);
       this.pendingAcquisition.resolve(undefined);
       this.cleanup();

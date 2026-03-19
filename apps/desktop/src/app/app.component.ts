@@ -490,6 +490,8 @@ export class AppComponent implements OnInit, OnDestroy {
             });
             if (approved) {
               this.platformUtilsService.launchUri(message.connectorUrl);
+            } else {
+              this.messagingService.send(SSO_COOKIE_VENDOR_CALLBACK_COMMAND, { urlString: "" });
             }
             break;
           }
