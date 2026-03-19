@@ -34,7 +34,8 @@
     "build-storybook:ci": "ng run components:build-storybook --webpack-stats-json",
     "build-storybook:autofill:ci": "cd apps/browser/src/autofill/content/components && npm run storybook:build-lit:ci",
     "test-stories": "test-storybook --url http://localhost:6006",
-    "test-stories:watch": "test-stories --watch"
+    "test-stories:watch": "test-stories --watch",
+    "dev:reverse-proxy": "node --experimental-strip-types scripts/reverse-proxy-emulator/index.ts"
   },
   "workspaces": [
     "apps/*",
@@ -179,6 +180,8 @@
     "buffer": "6.0.3",
     "bufferutil": "4.1.0",
     "chalk": "4.1.2",
+    "chart.js": "4.5.1",
+    "chartjs-adapter-date-fns": "3.0.0",
     "commander": "14.0.0",
     "core-js": "3.48.0",
     "form-data": "4.0.4",
