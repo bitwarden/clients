@@ -6,6 +6,7 @@ use std::{
 
 use futures::Stream;
 use tokio::net::{UnixListener, UnixStream};
+use tracing::warn;
 
 use super::{peerinfo, peerinfo::models::PeerInfo};
 
@@ -44,7 +45,11 @@ impl Stream for PeercredUnixListenerStream {
                     Err(_) => Poll::Ready(Some(Ok((stream, PeerInfo::unknown())))),
                 }
             }
-            Poll::Ready(Err(err)) => Poll::Ready(Some(Err(err))),
+            Poll::Ready(Err(err)) => {
+                warn!(%err, "SSH agent accept error, retrying");
+                cx.waker().wake_by_ref();
+                Poll::Pending
+            }
             Poll::Pending => Poll::Pending,
         }
     }

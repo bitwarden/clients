@@ -205,6 +205,7 @@ impl BitwardenDesktopAgent {
 
         self.is_running
             .store(false, std::sync::atomic::Ordering::Relaxed);
+        self.cancellation_token.cancel();
         self.keystore
             .0
             .write()
