@@ -399,7 +399,7 @@ describe("WebAuthnLoginStrategy", () => {
 });
 
 // Helpers and mocks
-function randomBytes(length: number): Uint8Array {
+function randomBytes(length: number): Uint8Array<ArrayBuffer> {
   return new Uint8Array(Array.from({ length }, (_, k) => k % 255));
 }
 
