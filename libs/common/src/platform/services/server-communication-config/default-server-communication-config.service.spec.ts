@@ -152,7 +152,7 @@ describe("DefaultServerCommunicationConfigService", () => {
       const request = new Request("https://vault.acme.com/api");
       const result = await middleware(request, next);
 
-      expect(mockClientInstance.acquireCookie).toHaveBeenCalledWith("https://vault.acme.com/api");
+      expect(mockClientInstance.acquireCookie).toHaveBeenCalledWith("vault.acme.com");
       expect(next).toHaveBeenCalledTimes(2);
       expect(next.mock.calls[1][0]).toBe(request); // retry uses original
       expect(result).toBe(ok);

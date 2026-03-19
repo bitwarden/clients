@@ -103,8 +103,7 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
       }
 
       // Retry with original request (follow redirect mode, cookies now in session)
-      const retryRequest = new Request(request.clone(), { redirect: "manual" });
-      return next(retryRequest);
+      return next(request);
     };
   }
 }
