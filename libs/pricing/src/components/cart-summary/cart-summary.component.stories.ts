@@ -59,6 +59,8 @@ export default {
                   return "due on";
                 case "premiumSubscriptionCredit":
                   return "Premium subscription credit";
+                case "discount":
+                  return "discount";
                 default:
                   return key;
               }
@@ -429,6 +431,57 @@ export const WithDiscountAndCredit: Story = {
         value: 50.0,
       },
       estimatedTax: 15.0,
+    } satisfies Cart,
+  },
+};
+
+export const WithItemDiscount: Story = {
+  name: "With Item-Level Discount (Premium Renewal)",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 1,
+          translationKey: "premiumMembership",
+          cost: 10.0,
+          discount: {
+            type: DiscountTypes.PercentOff,
+            value: 25,
+          },
+        },
+      },
+      cadence: "annually",
+      estimatedTax: 2.03,
+    } satisfies Cart,
+  },
+};
+
+export const WithCartAndItemDiscount: Story = {
+  name: "With Both Cart-Level and Item-Level Discounts",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+          discount: {
+            type: DiscountTypes.PercentOff,
+            value: 25,
+          },
+        },
+        additionalStorage: {
+          quantity: 2,
+          translationKey: "additionalStorageGB",
+          cost: 10.0,
+        },
+      },
+      cadence: "monthly",
+      discount: {
+        type: DiscountTypes.PercentOff,
+        value: 10,
+      },
+      estimatedTax: 8.55,
     } satisfies Cart,
   },
 };
