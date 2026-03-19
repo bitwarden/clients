@@ -24,14 +24,14 @@ import { IntroCarouselService } from "../../../services/intro-carousel.service";
   ],
 })
 export class IntroCarouselComponent {
-  protected itemTypes = ItemTypes;
-  protected loginCards = LoginCards;
-  protected noCredentials = NoCredentialsIcon;
-  protected secureDevices = DevicesIcon;
+  protected readonly itemTypes = ItemTypes;
+  protected readonly loginCards = LoginCards;
+  protected readonly noCredentials = NoCredentialsIcon;
+  protected readonly secureDevices = DevicesIcon;
 
   constructor(
-    private router: Router,
-    private introCarouselService: IntroCarouselService,
+    private readonly router: Router,
+    private readonly introCarouselService: IntroCarouselService,
   ) {}
 
   protected async navigateToSignup() {
