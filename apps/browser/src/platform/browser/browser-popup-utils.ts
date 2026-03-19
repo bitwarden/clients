@@ -146,33 +146,32 @@ export default class BrowserPopupUtils {
       ),
       height: 630,
     };
-
+    const offsetRight = 15;
+    const offsetTop = 90;
+    const popupWidth = defaultPopoutWindowOptions.width;
     const senderWindow = await BrowserApi.getWindow(senderWindowId);
-    const waylandLike = senderWindow.left === 0 && senderWindow.top === 0;
 
-    let popoutWindowOptions: chrome.windows.CreateData;
+    // On Wayland, browser window coordinates are not being precisely reported. This is
+    // particularly troublesome for multi-monitor configurations, where the popup can be placed
+    // far enough outside the visible area that the browser refuses to create the window and emits
+    // an error: Invalid value for bounds. Bounds must be at least 50% within visible screen space.
+    // It is acceptable that this heuristic may fire for X11 sessions.
+    const operatingSystemIsLinux = (await BrowserApi.getPlatformInfo()).os === "linux";
+    const coordsMaybeNotPrecise = senderWindow.left === 0 && senderWindow.top === 0;
+    const canPositionWindow = !(operatingSystemIsLinux && coordsMaybeNotPrecise);
+    const positionOptions = canPositionWindow
+      ? {
+          left: senderWindow.left + senderWindow.width - popupWidth - offsetRight,
+          top: senderWindow.top + offsetTop,
+        }
+      : {};
 
-    if (waylandLike) {
-      popoutWindowOptions = {
-        ...defaultPopoutWindowOptions,
-        ...windowOptions,
-        url: BrowserPopupUtils.buildPopoutUrl(extensionUrlPath, singleActionKey),
-      };
-      delete popoutWindowOptions.left;
-      delete popoutWindowOptions.top;
-    } else {
-      const offsetRight = 15;
-      const offsetTop = 90;
-      const popupWidth = defaultPopoutWindowOptions.width;
-
-      popoutWindowOptions = {
-        left: senderWindow.left + senderWindow.width - popupWidth - offsetRight,
-        top: senderWindow.top + offsetTop,
-        ...defaultPopoutWindowOptions,
-        ...windowOptions,
-        url: BrowserPopupUtils.buildPopoutUrl(extensionUrlPath, singleActionKey),
-      };
-    }
+    const popoutWindowOptions = {
+      ...defaultPopoutWindowOptions,
+      ...positionOptions,
+      ...windowOptions,
+      url: BrowserPopupUtils.buildPopoutUrl(extensionUrlPath, singleActionKey),
+    };
 
     if (
       (await BrowserPopupUtils.isSingleActionPopoutOpen(
