@@ -24,8 +24,7 @@ export function hasPasswordGuard(redirectTo: string[] = ["/"]) {
     );
 
     if (!userHasPassword) {
-      await router.navigate(redirectTo);
-      return false;
+      return router.createUrlTree(redirectTo);
     }
 
     return true;
