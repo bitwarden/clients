@@ -19,7 +19,6 @@ import type { UserClientEvent } from "@bitwarden/sdk-internal";
 import { PopupHeaderComponent } from "../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../platform/popup/layout/popup-page.component";
 
-import { AgentAccessIdentityService } from "./agent-access-identity.service";
 import { AgentAccessService } from "./agent-access.service";
 import {
   AuditLogEntry,
@@ -66,7 +65,7 @@ interface SessionDisplay {
     AgentAccessAuditLogComponent,
     AgentAccessStatusComponent,
   ],
-  providers: [AgentAccessService, AgentAccessIdentityService],
+  providers: [AgentAccessService],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <popup-page>
@@ -176,27 +175,33 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
   private readonly unsubscribeEvents$ = new Subject<void>();
 
   async ngOnInit(): Promise<void> {
-    const [savedSessions, savedListening] = await Promise.all([
-      this.service.listSessions(),
-      this.service.getListeningEnabled(),
-    ]);
+    // Subscribe to live events from background before fetching state
+    this.subscribeToEvents();
 
-    this.connections.set(savedSessions.map((s) => this.toDisplay(s)));
-    this.listeningEnabled.set(savedListening);
+    // Load state — sessions and listening come from storage (fast),
+    // pending requests come from background messaging (best-effort)
+    const state = await this.service.getState();
 
-    if (savedListening && savedSessions.length > 0) {
-      this.subscribeToEvents();
+    this.connections.set(state.sessions.map((s) => this.toDisplay(s)));
+    this.listeningEnabled.set(state.listening);
+
+    // If background isn't connected yet but should be, start listening
+    if (state.listening && state.sessions.length > 0 && !state.connected) {
       this.service.startListeningForAll().catch((err: Error) => {
         this.errorMessage.set(err.message || "Failed to start listening");
         this.view.set(AgentAccessView.Error);
       });
+    }
+
+    // Restore any pending credential requests from background (show on home, don't auto-navigate)
+    for (const pending of state.pendingRequests) {
+      await this.addPendingRequest(pending);
     }
   }
 
   // --- Home actions ---
 
   startPairing(): void {
-    void this.service.disconnect();
     this.resetPairingState();
     this.view.set(AgentAccessView.Pairing);
     this.beginListening();
@@ -377,7 +382,6 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.unsubscribeEvents$.next();
     this.unsubscribeEvents$.complete();
-    void this.service.disconnect();
   }
 
   // --- Private helpers ---
@@ -557,24 +561,39 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
   private async handleCredentialRequest(
     event: Extract<UserClientEvent, { type: "credential_request" }>,
   ): Promise<void> {
-    const query = event.query;
-    const domain = "domain" in query ? query.domain : "search" in query ? query.search : query.id;
-    const requestId = event.request_id;
-    const identity = (event as any).identity as string;
+    await this.handlePendingRequest({
+      domain:
+        "domain" in event.query
+          ? event.query.domain
+          : "search" in event.query
+            ? event.query.search
+            : event.query.id,
+      requestId: event.request_id,
+      identity: (event as any).identity as string,
+      query: event.query,
+    });
+  }
 
-    const matches = await this.service.lookupCredentials(domain);
+  /** Build CredentialRequestData and add to pendingRequests map (no navigation). */
+  private async addPendingRequest(pending: {
+    domain: string;
+    requestId: string;
+    identity: string;
+    query: any;
+  }): Promise<CredentialRequestData> {
+    const matches = await this.service.lookupCredentials(pending.domain);
 
-    const remoteId = parseIdentityFingerprint(identity);
+    const remoteId = parseIdentityFingerprint(pending.identity);
     const knownConn = this.connections().find((c) => c.id === remoteId);
     const connectionName = knownConn?.name ?? "Connected device";
 
     const requestData: CredentialRequestData = {
-      domain,
-      requestId,
+      domain: pending.domain,
+      requestId: pending.requestId,
       identity: remoteId,
       connectionName,
       matches,
-      query: event.query,
+      query: pending.query,
     };
 
     this.pendingRequests.update((map) => {
@@ -583,6 +602,17 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
       return updated;
     });
 
+    return requestData;
+  }
+
+  /** Handle a live credential request event — add to pending and navigate to it. */
+  private async handlePendingRequest(pending: {
+    domain: string;
+    requestId: string;
+    identity: string;
+    query: any;
+  }): Promise<void> {
+    const requestData = await this.addPendingRequest(pending);
     this.currentRequest.set(requestData);
     this.view.set(AgentAccessView.CredentialRequest);
   }

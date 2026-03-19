@@ -356,6 +356,7 @@ import {
 import { fromChromeRuntimeMessaging } from "../platform/utils/from-chrome-runtime-messaging";
 import { AtRiskCipherBadgeUpdaterService } from "../vault/services/at-risk-cipher-badge-updater.service";
 
+import { AgentAccessListener } from "./agent-access/agent-access.listener";
 import CommandsBackground from "./commands.background";
 import IdleBackground from "./idle.background";
 import { NativeMessagingBackground } from "./nativeMessaging.background";
@@ -472,6 +473,7 @@ export default class MainBackground {
   kdfConfigService: KdfConfigService;
   offscreenDocumentService: OffscreenDocumentService;
   syncServiceListener: SyncServiceListener;
+  agentAccessListener: AgentAccessListener;
   browserInitialInstallService: BrowserInitialInstallService;
   backgroundSyncService: BackgroundSyncService;
   accountCryptographicStateService: AccountCryptographicStateService;
@@ -1099,6 +1101,15 @@ export default class MainBackground {
       this.logService,
     );
 
+    this.agentAccessListener = new AgentAccessListener(
+      messageListener,
+      this.messagingService,
+      this.storageService,
+      this.cipherService,
+      this.accountService,
+      this.logService,
+    );
+
     this.eventUploadService = new EventUploadService(
       this.apiService,
       this.stateProvider,
@@ -1623,6 +1634,8 @@ export default class MainBackground {
     this.idleBackground.init();
     this.webRequestBackground?.startListening();
     this.syncServiceListener?.listener$().subscribe();
+    this.agentAccessListener?.listener$().subscribe();
+    void this.agentAccessListener?.init();
     await this.autoSubmitLoginBackground.init();
 
     // If the user is logged out, switch to the next account
