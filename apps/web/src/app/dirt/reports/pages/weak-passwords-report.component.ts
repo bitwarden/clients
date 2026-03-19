@@ -22,6 +22,8 @@ import { CipherReportComponent } from "./cipher-report.component";
 type ReportScore = { label: string; badgeVariant: BadgeVariant; sortOrder: number };
 type ReportResult = CipherView & { score: number; reportValue: ReportScore; scoreKey: number };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-weak-passwords-report",
   templateUrl: "weak-passwords-report.component.html",
@@ -84,7 +86,11 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
     const index = this.weakPasswordCiphers.findIndex((c) => c.id === updatedCipherView.id);
 
     if (index !== -1) {
-      this.weakPasswordCiphers[index] = updatedReportStatus;
+      if (updatedReportStatus !== null) {
+        this.weakPasswordCiphers[index] = updatedReportStatus;
+      } else {
+        this.weakPasswordCiphers.splice(index, 1);
+      }
     }
 
     return updatedReportStatus;
@@ -104,6 +110,7 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
     const { type, login, isDeleted, edit, viewPassword } = ciph;
     if (
       type !== CipherType.Login ||
+      login == null ||
       login.password == null ||
       login.password === "" ||
       isDeleted ||

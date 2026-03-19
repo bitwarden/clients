@@ -12,7 +12,8 @@
         "outputPath": "dist/libs/assets",
         "main": "libs/assets/src/index.ts",
         "tsConfig": "libs/assets/tsconfig.lib.json",
-        "assets": ["libs/assets/*.md"]
+        "assets": ["libs/assets/*.md"],
+        "rootDir": "libs/assets/src"
       }
     },
     "lint": {

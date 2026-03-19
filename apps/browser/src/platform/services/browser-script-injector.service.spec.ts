@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import {
   DomainSettingsService,
   DefaultDomainSettingsService,
@@ -41,7 +42,10 @@ describe("ScriptInjectorService", () => {
   const mv2SpecificFile = "content/autofill-init-mv2.js";
   const mv2Details = { file: mv2SpecificFile };
   const mv3SpecificFile = "content/autofill-init-mv3.js";
-  const mv3Details: Mv3ScriptInjectionDetails = { file: mv3SpecificFile, world: "MAIN" };
+  const mv3Details: Mv3ScriptInjectionDetails = {
+    file: mv3SpecificFile,
+    world: chrome.scripting.ExecutionWorld.MAIN,
+  };
   const sharedInjectDetails: CommonScriptInjectionDetails = {
     runAt: "document_start",
   };
@@ -54,10 +58,15 @@ describe("ScriptInjectorService", () => {
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
   const fakeStateProvider: FakeStateProvider = new FakeStateProvider(accountService);
   let domainSettingsService: DomainSettingsService;
+  const policyService = mock<PolicyService>();
 
   beforeEach(() => {
     jest.spyOn(BrowserApi, "getTab").mockImplementation(async () => tabMock);
-    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
+    domainSettingsService = new DefaultDomainSettingsService(
+      fakeStateProvider,
+      policyService,
+      accountService,
+    );
     domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
     domainSettingsService.blockedInteractionsUris$ = of({});
     scriptInjectorService = new BrowserScriptInjectorService(

@@ -7,8 +7,8 @@ import { safeProvider, SafeProvider } from "@bitwarden/angular/platform/utils/sa
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -37,7 +37,9 @@ import {
 
 // FIXME: unify with `SYSTEM_SERVICE_PROVIDER` when migrating it from the generator component module
 //        to a general module.
-const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("SystemServices");
+export const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>(
+  "SystemServices",
+);
 
 /** Import service factories */
 export const ImporterProviders: SafeProvider[] = [
@@ -82,10 +84,9 @@ export const ImporterProviders: SafeProvider[] = [
       CollectionService,
       KeyService,
       EncryptService,
-      PinServiceAbstraction,
+      KeyGenerationService,
       AccountService,
       RestrictedItemTypesService,
-      SYSTEM_SERVICE_PROVIDER,
     ],
   }),
 ];

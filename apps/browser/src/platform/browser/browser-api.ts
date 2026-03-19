@@ -5,7 +5,8 @@ import { Observable } from "rxjs";
 import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
 import { BrowserClientVendor } from "@bitwarden/common/autofill/types";
 import { DeviceType } from "@bitwarden/common/enums";
-import { isBrowserSafariApi } from "@bitwarden/platform";
+import { LogService } from "@bitwarden/logging";
+import { isBrowserSafariApi, urlOriginsMatch } from "@bitwarden/platform";
 
 import { TabMessage } from "../../types/tab-messages";
 import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
@@ -30,6 +31,55 @@ export class BrowserApi {
    */
   static isManifestVersion(expectedVersion: 2 | 3) {
     return BrowserApi.manifestVersion === expectedVersion;
+  }
+
+  /**
+   * Returns `true` if the message sender appears to originate from within this extension.
+   *
+   * Returns `false` when:
+   * - `sender` is absent or has no `origin` property
+   * - The extension's own URL cannot be determined at runtime
+   * - The sender's origin does not match the extension's origin (compared by scheme, host, and port;
+   *   senders without a host such as `file:` or `data:` URLs are always rejected)
+   * - The message comes from a sub-frame rather than the top-level frame
+   *
+   * Note: this is a best-effort check that relies on the browser correctly populating `sender.origin`.
+   *
+   * @param sender - The message sender to validate. `undefined` or a sender without `origin` returns `false`.
+   * @param logger - Optional logger; rejections are reported at `warning` level, acceptance at `info`.
+   * @returns `true` if the sender appears to be internal to the extension; `false` otherwise.
+   */
+  static senderIsInternal(
+    sender: chrome.runtime.MessageSender | undefined,
+    logger?: LogService,
+  ): boolean {
+    if (!sender?.origin) {
+      logger?.warning("[BrowserApi] Message sender has no origin");
+      return false;
+    }
+    // Empty path yields the extension's base URL; coalesce to empty string so the guard below fires on a missing runtime.
+    const extensionUrl = BrowserApi.getRuntimeURL("") ?? "";
+
+    if (!extensionUrl) {
+      logger?.warning("[BrowserApi] Unable to determine extension URL");
+      return false;
+    }
+
+    if (!urlOriginsMatch(extensionUrl, sender.origin)) {
+      logger?.warning(
+        `[BrowserApi] Message sender origin (${sender.origin}) does not match extension URL (${extensionUrl})`,
+      );
+      return false;
+    }
+
+    // frameId is absent for popups, so use an 'in' check rather than direct comparison.
+    if ("frameId" in sender && sender.frameId !== 0) {
+      logger?.warning("[BrowserApi] Message sender is not from the top-level frame");
+      return false;
+    }
+
+    logger?.info("[BrowserApi] Message sender appears to be internal");
+    return true;
   }
 
   /**
@@ -212,6 +262,47 @@ export class BrowserApi {
     );
   }
 
+  /**
+   * Closes a browser tab with the given id
+   *
+   * @param tabId The id of the tab to close
+   */
+  static async closeTab(tabId: number): Promise<void> {
+    if (tabId) {
+      if (BrowserApi.isWebExtensionsApi) {
+        await browser.tabs.remove(tabId).catch((error) => {
+          throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
+        });
+      } else if (BrowserApi.isChromeApi) {
+        await chrome.tabs.remove(tabId).catch((error) => {
+          throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
+        });
+      }
+    }
+  }
+
+  /**
+   * Navigates a browser tab to the given URL
+   *
+   * @param tabId The id of the tab to navigate
+   * @param url The URL to navigate to
+   */
+  static async navigateTabToUrl(tabId: number, url: URL): Promise<void> {
+    if (tabId) {
+      if (BrowserApi.isWebExtensionsApi) {
+        await browser.tabs.update(tabId, { url: url.href }).catch((error) => {
+          throw new Error("Failed to navigate tab to URL: " + error.message);
+        });
+      } else if (BrowserApi.isChromeApi) {
+        chrome.tabs.update(tabId, { url: url.href }, () => {
+          if (chrome.runtime.lastError) {
+            throw new Error("Failed to navigate tab to URL: " + chrome.runtime.lastError.message);
+          }
+        });
+      }
+    }
+  }
+
   static async tabsQuery(options: chrome.tabs.QueryInfo): Promise<chrome.tabs.Tab[]> {
     return new Promise((resolve) => {
       chrome.tabs.query(options, (tabs) => {
@@ -233,7 +324,7 @@ export class BrowserApi {
    * Drop-in replacement for {@link BrowserApi.tabsQueryFirst}.
    *
    * Safari sometimes returns >1 tabs unexpectedly even when
-   * specificing a `windowId` or `currentWindow: true` query option.
+   * specifying a `windowId` or `currentWindow: true` query option.
    *
    * For all of these calls,
    * ```
@@ -320,6 +411,14 @@ export class BrowserApi {
     chrome.tabs.sendMessage<TabMessage, T>(tabId, message, options, responseCallback);
   }
 
+  static getRuntimeURL(path: string): string {
+    if (BrowserApi.isWebExtensionsApi) {
+      return browser.runtime.getURL(path);
+    } else if (BrowserApi.isChromeApi) {
+      return chrome.runtime.getURL(path);
+    }
+  }
+
   static async onWindowCreated(callback: (win: chrome.windows.Window) => any) {
     // FIXME: Make sure that is does not cause a memory leak in Safari or use BrowserApi.AddListener
     // and test that it doesn't break.
@@ -366,11 +465,61 @@ export class BrowserApi {
   }
 
   /**
-   * Queries all extension views that are of type `popup`
-   * and returns whether any are currently open.
+   * Returns true if the vault popup is currently open.
+   *
+   * Uses `chrome.runtime.getContexts()` when available (MV3/Chrome),
+   * and falls back to `chrome.extension.getViews()` for MV2/Safari.
    */
   static async isPopupOpen(): Promise<boolean> {
-    return Promise.resolve(BrowserApi.getExtensionViews({ type: "popup" }).length > 0);
+    if (typeof (chrome.runtime as any).getContexts === "function") {
+      const contexts = await chrome.runtime.getContexts({});
+      return contexts.some((context) => context.contextType === "POPUP");
+    }
+
+    // MV2/Safari — background page can use getExtensionViews
+    return BrowserApi.getExtensionViews({ type: "popup" }).length > 0;
+  }
+
+  /**
+   * Returns true if any extension view is currently active/focused.
+   *
+   * - Main popup: always considered focused (auto-closes on blur).
+   * - Sidebar: always considered focused (always visible).
+   * - Popout windows: only focused if the window is currently focused.
+   *
+   * Uses `chrome.runtime.getContexts()` when available (MV3/Chrome),
+   * and falls back to `chrome.extension.getViews()` for MV2/Safari.
+   */
+  static async isAnyViewFocused(): Promise<boolean> {
+    if (typeof (chrome.runtime as any).getContexts === "function") {
+      const contexts = await chrome.runtime.getContexts({});
+
+      if (contexts.some((c) => c.contextType === "POPUP" || c.contextType === "SIDE_PANEL")) {
+        return true;
+      }
+
+      const tabs = contexts.filter(
+        (c) => c.contextType === "TAB" && c.documentUrl?.includes("uilocation=popout"),
+      );
+      for (const context of tabs) {
+        const win = await BrowserApi.getWindowById(context.windowId);
+        if (win?.focused) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // MV2/Safari — background page can use getExtensionViews
+    if (BrowserApi.getExtensionViews({ type: "popup" }).length > 0) {
+      return true;
+    }
+
+    return BrowserApi.getExtensionViews({ type: "tab" }).some(
+      (v) =>
+        v.location.href.includes("uilocation=sidebar") ||
+        (v.location.href.includes("uilocation=popout") && v.document.hasFocus()),
+    );
   }
 
   static createNewTab(url: string, active = true): Promise<chrome.tabs.Tab> {
@@ -463,7 +612,8 @@ export class BrowserApi {
    * @param event - The event in which to remove the listener from.
    * @param callback - The callback you want removed from the event.
    */
-  static removeListener<T extends (...args: readonly unknown[]) => unknown>(
+  // Chrome's Event.removeListener expects callback args as `any[]` to align with its internal event typings.
+  static removeListener<T extends (...args: readonly any[]) => any>(
     event: chrome.events.Event<T>,
     callback: T,
   ) {
@@ -636,29 +786,27 @@ export class BrowserApi {
    */
   static executeScriptInTab(
     tabId: number,
-    details: chrome.tabs.InjectDetails,
+    details: chrome.extensionTypes.InjectDetails,
     scriptingApiDetails?: {
       world: chrome.scripting.ExecutionWorld;
     },
   ): Promise<unknown> {
     if (BrowserApi.isManifestVersion(3)) {
-      const target: chrome.scripting.InjectionTarget = {
-        tabId,
-      };
+      let target: chrome.scripting.InjectionTarget;
 
       if (typeof details.frameId === "number") {
-        target.frameIds = [details.frameId];
-      }
-
-      if (!target.frameIds?.length && details.allFrames) {
-        target.allFrames = details.allFrames;
+        target = { tabId, frameIds: [details.frameId] };
+      } else if (details.allFrames) {
+        target = { tabId, allFrames: true };
+      } else {
+        target = { tabId };
       }
 
       return chrome.scripting.executeScript({
         target,
         files: details.file ? [details.file] : null,
         injectImmediately: details.runAt === "document_start",
-        world: scriptingApiDetails?.world || "ISOLATED",
+        world: scriptingApiDetails?.world || chrome.scripting.ExecutionWorld.ISOLATED,
       });
     }
 

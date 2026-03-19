@@ -1,8 +1,19 @@
 import { CommonModule } from "@angular/common";
-import { booleanAttribute, Component, inject, Input, signal } from "@angular/core";
+import {
+  booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  input,
+  signal,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { filter, switchMap, fromEvent, startWith, map } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ScrollLayoutHostDirective } from "@bitwarden/components";
+import { IconModule, ScrollLayoutHostDirective, ScrollLayoutService } from "@bitwarden/components";
 
 @Component({
   selector: "popup-page",
@@ -10,23 +21,39 @@ import { ScrollLayoutHostDirective } from "@bitwarden/components";
   host: {
     class: "tw-h-full tw-flex tw-flex-col tw-overflow-y-hidden",
   },
-  imports: [CommonModule, ScrollLayoutHostDirective],
+  imports: [CommonModule, IconModule, ScrollLayoutHostDirective],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PopupPageComponent {
-  protected i18nService = inject(I18nService);
+  protected readonly i18nService = inject(I18nService);
+  private readonly scrollLayout = inject(ScrollLayoutService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  @Input() loading = false;
+  readonly loading = input<boolean>(false);
 
-  @Input({ transform: booleanAttribute })
-  disablePadding = false;
+  readonly disablePadding = input(false, { transform: booleanAttribute });
 
-  protected scrolled = signal(false);
-  isScrolled = this.scrolled.asReadonly();
+  /** Hides any overflow within the page content */
+  readonly hideOverflow = input(false, { transform: booleanAttribute });
+
+  protected readonly scrolled = signal(false);
+  readonly isScrolled = this.scrolled.asReadonly();
+
+  constructor() {
+    this.scrollLayout.scrollableRef$
+      .pipe(
+        filter((ref): ref is ElementRef<HTMLElement> => ref != null),
+        switchMap((ref) =>
+          fromEvent(ref.nativeElement, "scroll").pipe(
+            startWith(null),
+            map(() => ref.nativeElement.scrollTop !== 0),
+          ),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((isScrolled) => this.scrolled.set(isScrolled));
+  }
 
   /** Accessible loading label for the spinner. Defaults to "loading" */
-  @Input() loadingText?: string = this.i18nService.t("loading");
-
-  handleScroll(event: Event) {
-    this.scrolled.set((event.currentTarget as HTMLElement).scrollTop !== 0);
-  }
+  readonly loadingText = input<string | undefined>(this.i18nService.t("loading"));
 }

@@ -1,18 +1,19 @@
-import { Component } from "@angular/core";
+import { Component, Signal } from "@angular/core";
 
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
+import { IntegrationStateService } from "@bitwarden/bit-common/dirt/organization-integrations/shared/integration-state.service";
 import { IntegrationType } from "@bitwarden/common/enums";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-integrations",
   templateUrl: "./integrations.component.html",
   standalone: false,
 })
 export class IntegrationsComponent {
-  private integrationsAndSdks: Integration[] = [];
-
-  constructor() {
-    this.integrationsAndSdks = [
+  constructor(private state: IntegrationStateService) {
+    const integrations = [
       {
         name: "Rust",
         linkURL: "https://github.com/bitwarden/sdk-sm",
@@ -36,7 +37,7 @@ export class IntegrationsComponent {
       },
       {
         name: "Ansible",
-        linkURL: "https://bitwarden.com/help/ansible-integration/",
+        linkURL: "https://galaxy.ansible.com/ui/repo/published/bitwarden/secrets",
         image: "../../../../../../../images/secrets-manager/integrations/ansible.svg",
         type: IntegrationType.Integration,
       },
@@ -96,20 +97,24 @@ export class IntegrationsComponent {
         type: IntegrationType.Integration,
         newBadgeExpiration: "2024-8-12",
       },
+      {
+        name: "Terraform Provider",
+        linkURL: "https://registry.terraform.io/providers/bitwarden/bitwarden-secrets/latest",
+        image: "../../../../../../../images/secrets-manager/integrations/terraform.svg",
+        type: IntegrationType.Integration,
+        newBadgeExpiration: "2025-12-12", // December 12, 2025
+      },
     ];
+
+    this.state.setIntegrations(integrations);
   }
 
-  /** Filter out content for the integrations sections */
-  get integrations(): Integration[] {
-    return this.integrationsAndSdks.filter(
-      (integration) => integration.type === IntegrationType.Integration,
-    );
+  get integrations(): Signal<Integration[]> {
+    return this.state.integrations;
   }
 
-  /** Filter out content for the SDKs section */
-  get sdks(): Integration[] {
-    return this.integrationsAndSdks.filter(
-      (integration) => integration.type === IntegrationType.SDK,
-    );
+  // use in the view
+  get IntegrationType(): typeof IntegrationType {
+    return IntegrationType;
   }
 }

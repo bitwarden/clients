@@ -2,14 +2,12 @@
 // @ts-strict-ignore
 import * as papa from "papaparse";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { Collection, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
@@ -193,7 +191,6 @@ export abstract class BaseImporter {
       if (this.isNullOrWhitespace(loginUri.uri)) {
         return null;
       }
-      loginUri.match = null;
       return [loginUri];
     }
 
@@ -205,7 +202,6 @@ export abstract class BaseImporter {
         if (this.isNullOrWhitespace(loginUri.uri)) {
           return;
         }
-        loginUri.match = null;
         returnArr.push(loginUri);
       });
       return returnArr.length === 0 ? null : returnArr;
@@ -236,7 +232,7 @@ export abstract class BaseImporter {
     return hostname.startsWith("www.") ? hostname.replace("www.", "") : hostname;
   }
 
-  protected isNullOrWhitespace(str: string): boolean {
+  protected isNullOrWhitespace(str: string | undefined | null): boolean {
     return Utils.isNullOrWhitespace(str);
   }
 
@@ -281,8 +277,7 @@ export abstract class BaseImporter {
       const collection = new CollectionView({
         name: f.name,
         organizationId: this.organizationId,
-        // FIXME: Folder.id may be null, this should be changed when refactoring Folders to be ts-strict
-        id: Collection.isCollectionId(f.id) ? f.id : null,
+        id: f.id && f.id !== "" ? (f.id as CollectionId) : null,
       });
       return collection;
     });
@@ -321,8 +316,6 @@ export abstract class BaseImporter {
     }
     if (this.isNullOrWhitespace(cipher.notes)) {
       cipher.notes = null;
-    } else {
-      cipher.notes = cipher.notes.trim();
     }
   }
 

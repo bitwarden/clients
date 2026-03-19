@@ -19,7 +19,7 @@ import { DeviceType, DeviceTypeMetadata } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
-import { ButtonModule, DialogService, PopoverModule } from "@bitwarden/components";
+import { ButtonModule, DialogService, IconModule, PopoverModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { LoginApprovalDialogComponent } from "../login-approval";
@@ -50,6 +50,8 @@ export interface DeviceDisplayData {
  * - Medium to Large screens = `bit-table` view
  * - Small screens = `bit-item-group` view
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   standalone: true,
   selector: "auth-device-management",
@@ -60,6 +62,7 @@ export interface DeviceDisplayData {
     DeviceManagementItemGroupComponent,
     DeviceManagementTableComponent,
     I18nPipe,
+    IconModule,
     PopoverModule,
   ],
 })

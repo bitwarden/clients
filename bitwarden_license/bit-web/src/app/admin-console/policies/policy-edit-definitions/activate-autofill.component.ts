@@ -11,8 +11,8 @@ import {
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 export class ActivateAutofillPolicy extends BasePolicyEditDefinition {
-  name = "activateAutofill";
-  description = "activateAutofillPolicyDesc";
+  name = "activateAutofillPolicy";
+  description = "activateAutofillPolicyDescription";
   type = PolicyType.ActivateAutofill;
   component = ActivateAutofillPolicyComponent;
 
@@ -21,7 +21,10 @@ export class ActivateAutofillPolicy extends BasePolicyEditDefinition {
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  selector: "activate-autofill-policy-edit",
   templateUrl: "activate-autofill.component.html",
   imports: [SharedModule],
 })

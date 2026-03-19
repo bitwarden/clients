@@ -42,7 +42,7 @@ export class TwoFactorAuthComponentCacheService {
   /**
    * Signal for the cached TwoFactorAuthData.
    */
-  private twoFactorAuthComponentCache: WritableSignal<TwoFactorAuthComponentCache | null> =
+  private readonly twoFactorAuthComponentCache: WritableSignal<TwoFactorAuthComponentCache | null> =
     this.viewCacheService.signal<TwoFactorAuthComponentCache | null>({
       key: TWO_FACTOR_AUTH_COMPONENT_CACHE_KEY,
       initialValue: null,

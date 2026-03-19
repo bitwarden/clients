@@ -27,6 +27,8 @@ import { TabComponent } from "./tab.component";
 /** Used to generate unique ID's for each tab component */
 let nextId = 0;
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-tab-group",
   templateUrl: "./tab-group.component.html",
@@ -57,14 +59,16 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
   readonly preserveContent = input(false);
 
   /** Error if no `TabComponent` is supplied. (`contentChildren`, used to query for all the tabs, doesn't support `required`) */
-  private _tab = contentChild.required(TabComponent);
+  private readonly _tab = contentChild.required(TabComponent);
 
-  protected tabs = contentChildren(TabComponent);
+  protected readonly tabs = contentChildren(TabComponent);
   readonly tabLabels = viewChildren(TabListItemDirective);
 
   /** The index of the active tab. */
   // TODO: Skipped for signal migration because:
   //  Accessor inputs cannot be migrated as they are too complex.
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get selectedIndex(): number | null {
     return this._selectedIndex;
@@ -75,9 +79,13 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
   private _selectedIndex: number | null = null;
 
   /** Output to enable support for two-way binding on `[(selectedIndex)]` */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() readonly selectedIndexChange: EventEmitter<number> = new EventEmitter<number>();
 
   /** Event emitted when the tab selection has changed. */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() readonly selectedTabChange: EventEmitter<BitTabChangeEvent> =
     new EventEmitter<BitTabChangeEvent>();
 

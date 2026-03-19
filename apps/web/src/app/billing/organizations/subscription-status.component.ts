@@ -23,13 +23,19 @@ type ComponentData = {
   };
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-subscription-status",
   templateUrl: "subscription-status.component.html",
   standalone: false,
 })
 export class SubscriptionStatusComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) organizationSubscriptionResponse: OrganizationSubscriptionResponse;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() reinstatementRequested = new EventEmitter<void>();
 
   constructor(

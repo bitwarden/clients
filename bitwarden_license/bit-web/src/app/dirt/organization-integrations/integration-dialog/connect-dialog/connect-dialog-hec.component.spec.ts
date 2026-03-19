@@ -10,6 +10,8 @@ import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/
 import { I18nPipe } from "@bitwarden/ui-common";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
+import { IntegrationDialogResultStatus } from "../integration-dialog-result-status";
+
 import {
   ConnectHecDialogComponent,
   HecConnectDialogParams,
@@ -65,7 +67,6 @@ describe("ConnectDialogHecComponent", () => {
     imageDarkMode: "test-image-dark.png",
     newBadgeExpiration: "2024-12-31",
     description: "Test Description",
-    isConnected: false,
     canSetupConnection: true,
     type: IntegrationType.EVENT,
   } as Integration;
@@ -121,9 +122,9 @@ describe("ConnectDialogHecComponent", () => {
     expect(component.formGroup.valid).toBeTruthy();
   });
 
-  it("should invalidate url if not matching pattern", () => {
+  it("should test url is at least 7 characters long", () => {
     component.formGroup.setValue({
-      url: "ftp://test.com",
+      url: "test",
       bearerToken: "token",
       index: "1",
       service: "Test Service",
@@ -155,8 +156,7 @@ describe("ConnectDialogHecComponent", () => {
       bearerToken: "token",
       index: "1",
       service: "Test Service",
-      success: true,
-      error: null,
+      success: IntegrationDialogResultStatus.Edited,
     });
   });
 });

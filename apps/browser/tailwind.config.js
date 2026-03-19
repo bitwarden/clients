@@ -10,6 +10,8 @@ config.content = [
   "../../libs/vault/src/**/*.{html,ts}",
   "../../libs/angular/src/**/*.{html,ts}",
   "../../libs/vault/src/**/*.{html,ts}",
+  "../../libs/pricing/src/**/*.{html,ts}",
 ];
+config.corePlugins.preflight = true;
 
 module.exports = config;

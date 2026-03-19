@@ -2,7 +2,7 @@ import { NgZone } from "@angular/core";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, filter, firstValueFrom, of, take, timeout, timer } from "rxjs";
 
-import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
@@ -10,16 +10,12 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { FakeAccountService } from "@bitwarden/common/spec";
+import { mockAccountInfoWith, FakeAccountService } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DialogService, I18nMockService } from "@bitwarden/components";
-import {
-  KeyService,
-  BiometricsService,
-  BiometricStateService,
-  BiometricsCommands,
-} from "@bitwarden/key-management";
+import { DialogService } from "@bitwarden/components";
+import { KeyService, BiometricsService, BiometricsCommands } from "@bitwarden/key-management";
+import { ConfigService } from "@bitwarden/services/config.service";
 
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 
@@ -27,17 +23,15 @@ import { BiometricMessageHandlerService } from "./biometric-message-handler.serv
 
 const SomeUser = "SomeUser" as UserId;
 const AnotherUser = "SomeOtherUser" as UserId;
-const accounts: Record<UserId, AccountInfo> = {
-  [SomeUser]: {
+const accounts = {
+  [SomeUser]: mockAccountInfoWith({
     name: "some user",
     email: "some.user@example.com",
-    emailVerified: true,
-  },
-  [AnotherUser]: {
+  }),
+  [AnotherUser]: mockAccountInfoWith({
     name: "some other user",
     email: "some.other.user@example.com",
-    emailVerified: true,
-  },
+  }),
 };
 
 describe("BiometricMessageHandlerService", () => {
@@ -47,15 +41,14 @@ describe("BiometricMessageHandlerService", () => {
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let logService: MockProxy<LogService>;
+  let configService: MockProxy<ConfigService>;
   let messagingService: MockProxy<MessagingService>;
   let desktopSettingsService: DesktopSettingsService;
-  let biometricStateService: BiometricStateService;
   let biometricsService: MockProxy<BiometricsService>;
   let dialogService: MockProxy<DialogService>;
   let accountService: AccountService;
   let authService: MockProxy<AuthService>;
   let ngZone: MockProxy<NgZone>;
-  let i18nService: MockProxy<I18nMockService>;
 
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
@@ -64,14 +57,13 @@ describe("BiometricMessageHandlerService", () => {
     logService = mock<LogService>();
     messagingService = mock<MessagingService>();
     desktopSettingsService = mock<DesktopSettingsService>();
-    biometricStateService = mock<BiometricStateService>();
+    configService = mock<ConfigService>();
     biometricsService = mock<BiometricsService>();
     dialogService = mock<DialogService>();
 
     accountService = new FakeAccountService(accounts);
     authService = mock<AuthService>();
     ngZone = mock<NgZone>();
-    i18nService = mock<I18nMockService>();
 
     desktopSettingsService.browserIntegrationEnabled$ = of(false);
     desktopSettingsService.browserIntegrationFingerprintEnabled$ = of(false);
@@ -94,7 +86,7 @@ describe("BiometricMessageHandlerService", () => {
     cryptoFunctionService.rsaEncrypt.mockResolvedValue(
       Utils.fromUtf8ToArray("encrypted") as CsprngArray,
     );
-
+    configService.getFeatureFlag.mockResolvedValue(false);
     service = new BiometricMessageHandlerService(
       cryptoFunctionService,
       keyService,
@@ -102,13 +94,12 @@ describe("BiometricMessageHandlerService", () => {
       logService,
       messagingService,
       desktopSettingsService,
-      biometricStateService,
       biometricsService,
       dialogService,
       accountService,
       authService,
       ngZone,
-      i18nService,
+      configService,
     );
   });
 
@@ -160,13 +151,12 @@ describe("BiometricMessageHandlerService", () => {
         logService,
         messagingService,
         desktopSettingsService,
-        biometricStateService,
         biometricsService,
         dialogService,
         accountService,
         authService,
         ngZone,
-        i18nService,
+        configService,
       );
     });
 

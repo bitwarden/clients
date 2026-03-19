@@ -5,6 +5,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
 import { Subject, firstValueFrom } from "rxjs";
 
+import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
@@ -16,7 +17,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { AnonLayoutWrapperDataService, ToastService } from "@bitwarden/components";
+import { AnonLayoutWrapperDataService, ToastService, IconModule } from "@bitwarden/components";
 
 import {
   LoginStrategyServiceAbstraction,
@@ -31,10 +32,18 @@ import { PasswordInputResult } from "../../input-password/password-input-result"
 
 import { RegistrationFinishService } from "./registration-finish.service";
 
+const MarketingInitiative = Object.freeze({
+  Premium: "premium",
+} as const);
+
+type MarketingInitiative = (typeof MarketingInitiative)[keyof typeof MarketingInitiative];
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "auth-registration-finish",
   templateUrl: "./registration-finish.component.html",
-  imports: [CommonModule, JslibModule, RouterModule, InputPasswordComponent],
+  imports: [CommonModule, JslibModule, RouterModule, InputPasswordComponent, IconModule],
 })
 export class RegistrationFinishComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -43,6 +52,12 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   loading = true;
   submitting = false;
   email: string;
+
+  /**
+   * Indicates that the user is coming from a marketing page designed to streamline
+   * users who intend to setup a premium subscription after registration.
+   */
+  premiumInterest = false;
 
   // Note: this token is the email verification token. When it is supplied as a query param,
   // it either comes from the email verification email or, if email verification is disabled server side
@@ -77,6 +92,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
+    private premiumInterestStateService: PremiumInterestStateService,
   ) {}
 
   async ngOnInit() {
@@ -123,6 +139,10 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     if (qParams.providerInviteToken != null && qParams.providerUserId != null) {
       this.providerInviteToken = qParams.providerInviteToken;
       this.providerUserId = qParams.providerUserId;
+    }
+
+    if (qParams.fromMarketing != null && qParams.fromMarketing === MarketingInitiative.Premium) {
+      this.premiumInterest = true;
     }
   }
 
@@ -186,7 +206,17 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
         return;
       }
 
-      await this.loginSuccessHandlerService.run(authenticationResult.userId);
+      await this.loginSuccessHandlerService.run(
+        authenticationResult.userId,
+        authenticationResult.masterPassword ?? null,
+      );
+
+      if (this.premiumInterest) {
+        await this.premiumInterestStateService.setPremiumInterest(
+          authenticationResult.userId,
+          true,
+        );
+      }
 
       await this.router.navigate(["/vault"]);
     } catch (e) {

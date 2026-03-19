@@ -1,4 +1,5 @@
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
+import { AsyncPipe } from "@angular/common";
 import {
   OnInit,
   Input,
@@ -9,9 +10,10 @@ import {
   SimpleChanges,
   OnChanges,
 } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { skip, takeUntil, Subject, map, withLatestFrom, ReplaySubject, tap } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -21,10 +23,20 @@ import {
   ifEnabledSemanticLoggerProvider,
 } from "@bitwarden/common/tools/log";
 import {
+  SectionComponent,
+  SectionHeaderComponent,
+  BaseCardDirective,
+  CardComponent,
+  TypographyModule,
+  FormFieldModule,
+  CheckboxModule,
+} from "@bitwarden/components";
+import {
   CredentialGeneratorService,
   PassphraseGenerationOptions,
   BuiltIn,
 } from "@bitwarden/generator-core";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 const Controls = Object.freeze({
   numWords: "numWords",
@@ -34,10 +46,24 @@ const Controls = Object.freeze({
 });
 
 /** Options group for passphrases */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-passphrase-settings",
   templateUrl: "passphrase-settings.component.html",
-  standalone: false,
+  imports: [
+    SectionComponent,
+    SectionHeaderComponent,
+    TypographyModule,
+    ReactiveFormsModule,
+    BaseCardDirective,
+    CardComponent,
+    FormFieldModule,
+    CheckboxModule,
+    AsyncPipe,
+    JslibModule,
+    I18nPipe,
+  ],
 })
 export class PassphraseSettingsComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the component
@@ -57,6 +83,8 @@ export class PassphraseSettingsComponent implements OnInit, OnChanges, OnDestroy
    *
    *  @warning this may reveal sensitive information in plaintext.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   debug: boolean = false;
 
@@ -67,6 +95,8 @@ export class PassphraseSettingsComponent implements OnInit, OnChanges, OnDestroy
    *  @remarks this is initialized to null but since it's a required input it'll
    *     never have that value in practice.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true })
   account: Account = null!;
 
@@ -79,10 +109,14 @@ export class PassphraseSettingsComponent implements OnInit, OnChanges, OnDestroy
   }
 
   /** When `true`, an options header is displayed by the component. Otherwise, the header is hidden. */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   showHeader: boolean = true;
 
   /** Removes bottom margin from `bit-section` */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: coerceBooleanProperty }) disableMargin = false;
 
   /** Emits settings updates and completes if the settings become unavailable.
@@ -90,6 +124,8 @@ export class PassphraseSettingsComponent implements OnInit, OnChanges, OnDestroy
    *   to receive live settings updates including the initial update,
    *   use {@link CredentialGeneratorService.settings} instead.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   readonly onUpdated = new EventEmitter<PassphraseGenerationOptions>();
 

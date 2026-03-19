@@ -5,19 +5,19 @@ import { By } from "@angular/platform-browser";
 import { ButtonModule } from "./index";
 
 describe("Button", () => {
-  let fixture: ComponentFixture<TestApp>;
-  let testAppComponent: TestApp;
+  let fixture: ComponentFixture<TestAppComponent>;
+  let testAppComponent: TestAppComponent;
   let buttonDebugElement: DebugElement;
   let disabledButtonDebugElement: DebugElement;
   let linkDebugElement: DebugElement;
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [TestApp],
+      imports: [TestAppComponent],
     });
 
     await TestBed.compileComponents();
-    fixture = TestBed.createComponent(TestApp);
+    fixture = TestBed.createComponent(TestAppComponent);
     testAppComponent = fixture.debugElement.componentInstance;
     buttonDebugElement = fixture.debugElement.query(By.css("button"));
     disabledButtonDebugElement = fixture.debugElement.query(By.css("button#disabled"));
@@ -56,6 +56,8 @@ describe("Button", () => {
   });
 });
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "test-app",
   template: `
@@ -84,7 +86,7 @@ describe("Button", () => {
   `,
   imports: [ButtonModule],
 })
-class TestApp {
+class TestAppComponent {
   buttonType?: string;
   block?: boolean;
   disabled?: boolean;

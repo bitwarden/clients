@@ -4,12 +4,11 @@ import { OptionValues } from "commander";
 import * as inquirer from "inquirer";
 import { firstValueFrom, switchMap } from "rxjs";
 
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   ExportFormat,
@@ -70,10 +69,13 @@ export class ExportCommand {
         password = await this.promptPassword(password);
       }
 
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
       exportContent =
         options.organizationid == null
-          ? await this.exportService.getExport(format, password)
+          ? await this.exportService.getExport(userId, format, password)
           : await this.exportService.getOrganizationExport(
+              userId,
               options.organizationid,
               format,
               password,

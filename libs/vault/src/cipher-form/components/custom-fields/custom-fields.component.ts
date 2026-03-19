@@ -21,8 +21,7 @@ import { FormArray, FormBuilder, FormsModule, ReactiveFormsModule } from "@angul
 import { Subject, zip } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType, FieldType, LinkedIdType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
@@ -68,6 +67,8 @@ export type CustomField = {
   newField: boolean;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-custom-fields",
   templateUrl: "./custom-fields.component.html",
@@ -88,10 +89,16 @@ export type CustomField = {
   ],
 })
 export class CustomFieldsComponent implements OnInit, AfterViewInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() numberOfFieldsChange = new EventEmitter<number>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChildren("customFieldRow") customFieldRows: QueryList<ElementRef<HTMLDivElement>>;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() disableSectionMargin: boolean;
 
   customFieldsForm = this.formBuilder.group({
@@ -386,7 +393,7 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
       fieldView.type = field.type;
       fieldView.name = field.name;
       fieldView.value = value;
-      fieldView.linkedId = field.linkedId;
+      fieldView.linkedId = field.linkedId ?? undefined;
       return fieldView;
     });
 

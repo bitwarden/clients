@@ -8,6 +8,8 @@ import { Observable, of, switchMap } from "rxjs";
 import { getHostname, parse } from "tldts";
 import { Merge } from "type-fest";
 
+import "core-js/proposals/array-buffer-base64";
+
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
@@ -18,6 +20,31 @@ import { I18nService } from "../abstractions/i18n.service";
 // FIXME: Remove when updating file. Eslint update
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const nodeURL = typeof self === "undefined" ? require("url") : null;
+// Checked against the result of decodeURIComponent(url). Literal entries catch
+// single-encoded input (%2e%2e → ".." after decode). Percent-encoded entries catch
+// double-encoded input (%252e → "%2e" after one decode, matched literally here).
+const pathTraversalPatterns = [
+  "..", // Double dot
+  "%2e", // Double-encoded single dot (%252e → "%2e")
+  "\\", // Backslash
+  "%5c", // Double-encoded backslash (%255c → "%5c")
+  "\t", // TAB (stripped by WHATWG URL parser)
+  "%09", // Double-encoded TAB (%2509 → "%09")
+  "\n", // Line feed (stripped by WHATWG URL parser)
+  "%0a", // Double-encoded line feed (%250a → "%0a")
+  "\r", // Carriage return (stripped by WHATWG URL parser)
+  "%0d", // Double-encoded carriage return (%250d → "%0d")
+  "\0", // Null byte
+  "%00", // Double-encoded null byte (%2500 → "%00")
+];
+
+// Query-string-specific patterns, also checked after decodeURIComponent.
+const queryDangerousPatterns = [
+  "/", // Path separator (Dangerous in a query parameter)
+  "%2f", // Double-encoded path separator (%252f → "%2f")
+  "#", // Fragment delimiter (Truncates strings)
+  "%23", // Double-encoded fragment delimiter (%2523 → "%23")
+];
 
 declare global {
   /* eslint-disable-next-line no-var */
@@ -42,6 +69,7 @@ export class Utils {
   static readonly validHosts: string[] = ["localhost"];
   static readonly originalMinimumPasswordLength = 8;
   static readonly minimumPasswordLength = 12;
+  static readonly maximumPasswordLength = 128;
   static readonly DomainMatchBlacklist = new Map<string, Set<string>>([
     ["google.com", new Set(["script.google.com"])],
   ]);
@@ -71,7 +99,7 @@ export class Utils {
     }
   }
 
-  static fromB64ToArray(str: string): Uint8Array {
+  static fromB64ToArray(str: string): Uint8Array<ArrayBuffer> {
     if (str == null) {
       return null;
     }
@@ -88,11 +116,11 @@ export class Utils {
     }
   }
 
-  static fromUrlB64ToArray(str: string): Uint8Array {
+  static fromUrlB64ToArray(str: string): Uint8Array<ArrayBuffer> {
     return Utils.fromB64ToArray(Utils.fromUrlB64ToB64(str));
   }
 
-  static fromHexToArray(str: string): Uint8Array {
+  static fromHexToArray(str: string): Uint8Array<ArrayBuffer> {
     if (Utils.isNode) {
       return new Uint8Array(Buffer.from(str, "hex"));
     } else {
@@ -104,7 +132,7 @@ export class Utils {
     }
   }
 
-  static fromUtf8ToArray(str: string): Uint8Array {
+  static fromUtf8ToArray(str: string): Uint8Array<ArrayBuffer> {
     if (Utils.isNode) {
       return new Uint8Array(Buffer.from(str, "utf8"));
     } else {
@@ -117,7 +145,7 @@ export class Utils {
     }
   }
 
-  static fromByteStringToArray(str: string): Uint8Array {
+  static fromByteStringToArray(str: string): Uint8Array<ArrayBuffer> {
     if (str == null) {
       return null;
     }
@@ -128,19 +156,162 @@ export class Utils {
     return arr;
   }
 
-  static fromBufferToB64(buffer: ArrayBuffer): string {
+  static fromArrayToHex(arr: Uint8Array): string;
+  static fromArrayToHex(arr: null): null;
+  /**
+   * Converts a Uint8Array to a hexadecimal string.
+   * @param arr - The Uint8Array to convert.
+   * @returns The hexadecimal string representation, or null if the input is null.
+   */
+  static fromArrayToHex(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    // @ts-expect-error - polyfilled by core-js
+    return arr.toHex();
+  }
+
+  static fromArrayToB64(arr: Uint8Array): string;
+  static fromArrayToB64(arr: null): null;
+  /**
+   * Converts a Uint8Array to a Base64 encoded string.
+   * @param arr - The Uint8Array to convert.
+   * @returns The Base64 encoded string, or null if the input is null.
+   */
+  static fromArrayToB64(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    // @ts-expect-error - polyfilled by core-js
+    return arr.toBase64({ alphabet: "base64" });
+  }
+
+  /**
+   * Converts a Uint8Array to a URL-safe Base64 encoded string, while stripping padding.
+   * @param arr - The Uint8Array to convert.
+   * @returns The URL-safe Base64 encoded string, or null if the input is null.
+   */
+  static fromArrayToUrlB64(arr: Uint8Array): string;
+  static fromArrayToUrlB64(arr: null): null;
+  static fromArrayToUrlB64(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    // @ts-expect-error - polyfilled by core-js
+    return arr.toBase64({ alphabet: "base64url", omitPadding: true });
+  }
+
+  static fromArrayToByteString(arr: null): null;
+  static fromArrayToByteString(arr: Uint8Array): string;
+  /**
+   * Converts a Uint8Array to a byte string (each byte as a character).
+   * @param arr - The Uint8Array to convert.
+   * @returns The byte string representation, or null if the input is null.
+   */
+  static fromArrayToByteString(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    let byteString = "";
+    for (let i = 0; i < arr.length; i++) {
+      byteString += String.fromCharCode(arr[i]);
+    }
+    return byteString;
+  }
+
+  static fromArrayToUtf8(arr: Uint8Array): string;
+  static fromArrayToUtf8(arr: null): null;
+  /**
+   * Converts a Uint8Array to a UTF-8 decoded string.
+   * @param arr - The Uint8Array containing UTF-8 encoded bytes.
+   * @returns The decoded UTF-8 string, or null if the input is null.
+   */
+  static fromArrayToUtf8(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    return BufferLib.from(arr).toString("utf8");
+  }
+
+  /**
+   * Convert binary data into a Base64 string.
+   *
+   * Overloads are provided for two categories of input:
+   *
+   * 1. ArrayBuffer
+   *    - A raw, fixed-length chunk of memory (no element semantics).
+   *    - Example: `const buf = new ArrayBuffer(16);`
+   *
+   * 2. ArrayBufferView
+   *    - A *view* onto an existing buffer that gives the bytes meaning.
+   *    - Examples: Uint8Array, Int32Array, DataView, etc.
+   *    - Views can expose only a *window* of the underlying buffer via
+   *      `byteOffset` and `byteLength`.
+   *      Example:
+   *      ```ts
+   *      const buf = new ArrayBuffer(8);
+   *      const full = new Uint8Array(buf);       // sees all 8 bytes
+   *      const half = new Uint8Array(buf, 4, 4); // sees only last 4 bytes
+   *      ```
+   *
+   * Returns:
+   * - Base64 string for non-empty inputs,
+   * - null if `buffer` is `null` or `undefined`
+   * - empty string if `buffer` is empty (0 bytes)
+   */
+  static fromBufferToB64(buffer: null | undefined): null;
+  static fromBufferToB64(buffer: ArrayBuffer): string;
+  static fromBufferToB64(buffer: ArrayBufferView): string;
+  static fromBufferToB64(buffer: ArrayBuffer | ArrayBufferView | null | undefined): string | null {
+    // Handle null / undefined input
     if (buffer == null) {
       return null;
     }
+
+    const bytes: Uint8Array = Utils.normalizeToUint8Array(buffer);
+
+    // Handle empty input
+    if (bytes.length === 0) {
+      return "";
+    }
+
     if (Utils.isNode) {
-      return Buffer.from(buffer).toString("base64");
+      return Buffer.from(bytes).toString("base64");
     } else {
       let binary = "";
-      const bytes = new Uint8Array(buffer);
       for (let i = 0; i < bytes.byteLength; i++) {
         binary += String.fromCharCode(bytes[i]);
       }
       return Utils.global.btoa(binary);
+    }
+  }
+
+  /**
+   * Normalizes input into a Uint8Array so we always have a uniform,
+   * byte-level view of the data. This avoids dealing with differences
+   * between ArrayBuffer (raw memory with no indexing) and other typed
+   * views (which may have element sizes, offsets, and lengths).
+   * @param buffer ArrayBuffer or ArrayBufferView (e.g. Uint8Array, DataView, etc.)
+   */
+  private static normalizeToUint8Array(buffer: ArrayBuffer | ArrayBufferView): Uint8Array {
+    /**
+     * 1) Uint8Array: already bytes → use directly.
+     * 2) ArrayBuffer: wrap whole buffer.
+     * 3) Other ArrayBufferView (e.g., DataView, Int32Array):
+     *    wrap the view’s window (byteOffset..byteOffset+byteLength).
+     */
+    if (buffer instanceof Uint8Array) {
+      return buffer;
+    } else if (buffer instanceof ArrayBuffer) {
+      return new Uint8Array(buffer);
+    } else {
+      const view = buffer as ArrayBufferView;
+      return new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
     }
   }
 
@@ -240,7 +411,7 @@ export class Utils {
   }
 
   static fromUtf8ToUrlB64(utfStr: string): string {
-    return Utils.fromBufferToUrlB64(Utils.fromUtf8ToArray(utfStr));
+    return Utils.fromArrayToUrlB64(Utils.fromUtf8ToArray(utfStr));
   }
 
   static fromB64ToUtf8(b64Str: string): string {
@@ -288,12 +459,6 @@ export class Utils {
       return null;
     }
 
-    // Does uriString contain invalid characters
-    // TODO Needs to possibly be extended, although '!' is a reserved character
-    if (uriString.indexOf("!") > 0) {
-      return null;
-    }
-
     try {
       const hostname = getHostname(uriString, { validHosts: this.validHosts });
       if (hostname != null) {
@@ -314,7 +479,7 @@ export class Utils {
     }
   }
 
-  static getDomain(uriString: string): string {
+  static getDomain(uriString: string | null | undefined): string {
     if (Utils.isNullOrWhitespace(uriString)) {
       return null;
     }
@@ -392,11 +557,11 @@ export class Utils {
     };
   }
 
-  static isNullOrWhitespace(str: string): boolean {
+  static isNullOrWhitespace(str: string | null | undefined): boolean {
     return str == null || typeof str !== "string" || str.trim() === "";
   }
 
-  static isNullOrEmpty(str: string | null): boolean {
+  static isNullOrEmpty(str: string | null | undefined): boolean {
     return str == null || typeof str !== "string" || str == "";
   }
 
@@ -418,7 +583,7 @@ export class Utils {
     return (Object.keys(obj).filter((k) => Number.isNaN(+k)) as K[]).map((k) => obj[k]);
   }
 
-  static getUrl(uriString: string): URL {
+  static getUrl(uriString: string | undefined | null): URL {
     if (this.isNullOrWhitespace(uriString)) {
       return null;
     }
@@ -549,6 +714,64 @@ export class Utils {
    */
   static normalizePath(denormalizedPath: string): string {
     return path.normalize(decodeURIComponent(denormalizedPath)).replace(/^(\.\.(\/|\\|$))+/, "");
+  }
+
+  /**
+   * Checks whether a URL string contains common path traversal indicators.
+   *
+   * This is a **supplementary heuristic**, not a security boundary.
+   *
+   * Primary defense against untrusted input in URL paths is
+   * validation at the input boundary (component level).
+   * Companion sanitizer: {@link normalizePath}.
+   *
+   * Known limitations:
+   * - This is a denylist, NOT a substitute for boundary validation.
+   * - WHATWG URL normalization may alter byte sequences beyond the checked set.
+   *
+   * @param url - The full URL string to inspect (path + optional query string).
+   * @returns `true` if traversal indicators are found; `false` otherwise.
+   */
+  static containsTraversalIndicators(url: string): boolean {
+    let decodedUrl: string;
+    try {
+      decodedUrl = decodeURIComponent(url.toLowerCase());
+    } catch {
+      // Malformed URI sequences (e.g., overlong UTF-8) are treated as suspicious.
+      return true;
+    }
+
+    if (pathTraversalPatterns.some((p) => decodedUrl.includes(p))) {
+      return true;
+    }
+
+    if (decodedUrl.includes("?")) {
+      return this.containsDangerousQueryPatterns(decodedUrl);
+    }
+
+    return false;
+  }
+
+  /**
+   * Checks whether query parameters contain characters that could indicate
+   * path injection within a query string context.
+   *
+   * Note: When called from {@link containsTraversalIndicators}, the URL has
+   * already been decoded via `decodeURIComponent`. The encoded forms (`%2f`,
+   * `%23`) in the pattern list are therefore redundant in that context — the
+   * literal `/` and `#` entries handle matching. The encoded forms are retained
+   * for clarity and in case this method is called on non-decoded input.
+   *
+   * @param url - A URL string containing a query string (after `?`).
+   * @returns `true` if dangerous patterns are found in the query string; `false` otherwise.
+   */
+  private static containsDangerousQueryPatterns(url: string): boolean {
+    const queryString = url.split("?")[1];
+    if (!queryString) {
+      return false;
+    }
+
+    return queryDangerousPatterns.some((p) => queryString.includes(p));
   }
 
   private static isMobile(win: Window) {

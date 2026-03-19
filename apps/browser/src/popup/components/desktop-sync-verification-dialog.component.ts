@@ -9,12 +9,15 @@ import {
   ButtonModule,
   DialogModule,
   DialogService,
+  CenterPositionStrategy,
 } from "@bitwarden/components";
 
 export type DesktopSyncVerificationDialogParams = {
   fingerprint: string[];
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "desktop-sync-verification-dialog.component.html",
   imports: [JslibModule, ButtonModule, DialogModule],
@@ -47,6 +50,7 @@ export class DesktopSyncVerificationDialogComponent implements OnDestroy, OnInit
   static open(dialogService: DialogService, data: DesktopSyncVerificationDialogParams) {
     return dialogService.open(DesktopSyncVerificationDialogComponent, {
       data,
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 }

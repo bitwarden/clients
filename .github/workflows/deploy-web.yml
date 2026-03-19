@@ -54,8 +54,7 @@ on:
         type: string
         required: false
 
-permissions:
-  deployments: write
+permissions: {}
 
 jobs:
   setup:
@@ -74,56 +73,58 @@ jobs:
     steps:
       - name: Configure
         id: config
+        env:
+          _ENVIRONMENT: ${{ inputs.environment }}
         run: |
-          ENV_NAME_LOWER=$(echo "${{ inputs.environment }}" | awk '{print tolower($0)}')
-          echo "configuring the Web deploy for ${{ inputs.environment }}"
-          echo "environment=${{ inputs.environment }}" >> $GITHUB_OUTPUT
+          ENV_NAME_LOWER=$(echo "$_ENVIRONMENT" | awk '{print tolower($0)}')
+          echo "configuring the Web deploy for _ENVIRONMENT"
+          echo "environment=$_ENVIRONMENT" >> "$GITHUB_OUTPUT"
 
-          case ${{ inputs.environment }} in
+          case $_ENVIRONMENT in
             "USQA")
-              echo "azure_login_client_key_name=AZURE_CLIENT_ID_USQA" >> $GITHUB_OUTPUT
-              echo "azure_login_subscription_id_key_name=AZURE_SUBSCRIPTION_ID_USQA" >> $GITHUB_OUTPUT
-              echo "retrieve_secrets_keyvault=bw-webvault-rlktusqa-kv" >> $GITHUB_OUTPUT
-              echo "environment_artifact=web-*-cloud-QA.zip" >> $GITHUB_OUTPUT
-              echo "environment_name=Web Vault - US QA Cloud" >> $GITHUB_OUTPUT
-              echo "environment_url=http://vault.$ENV_NAME_LOWER.bitwarden.pw" >> $GITHUB_OUTPUT
-              echo "slack_channel_name=alerts-deploy-qa"  >> $GITHUB_OUTPUT
+              echo "azure_login_client_key_name=AZURE_CLIENT_ID_USQA" >> "$GITHUB_OUTPUT"
+              echo "azure_login_subscription_id_key_name=AZURE_SUBSCRIPTION_ID_USQA" >> "$GITHUB_OUTPUT"
+              echo "retrieve_secrets_keyvault=bw-webvault-rlktusqa-kv" >> "$GITHUB_OUTPUT"
+              echo "environment_artifact=web-*-cloud-QA.zip" >> "$GITHUB_OUTPUT"
+              echo "environment_name=Web Vault - US QA Cloud" >> "$GITHUB_OUTPUT"
+              echo "environment_url=http://vault.$ENV_NAME_LOWER.bitwarden.pw" >> "$GITHUB_OUTPUT"
+              echo "slack_channel_name=alerts-deploy-qa"  >> "$GITHUB_OUTPUT"
               ;;
             "EUQA")
-              echo "azure_login_client_key_name=AZURE_CLIENT_ID_EUQA" >> $GITHUB_OUTPUT
-              echo "azure_login_subscription_id_key_name=AZURE_SUBSCRIPTION_ID_EUQA" >> $GITHUB_OUTPUT
-              echo "retrieve_secrets_keyvault=webvaulteu-westeurope-qa" >> $GITHUB_OUTPUT
-              echo "environment_artifact=web-*-cloud-euqa.zip" >> $GITHUB_OUTPUT
-              echo "environment_name=Web Vault - EU QA Cloud" >> $GITHUB_OUTPUT
-              echo "environment_url=http://vault.$ENV_NAME_LOWER.bitwarden.pw" >> $GITHUB_OUTPUT
-              echo "slack_channel_name=alerts-deploy-qa"  >> $GITHUB_OUTPUT
+              echo "azure_login_client_key_name=AZURE_CLIENT_ID_EUQA" >> "$GITHUB_OUTPUT"
+              echo "azure_login_subscription_id_key_name=AZURE_SUBSCRIPTION_ID_EUQA" >> "$GITHUB_OUTPUT"
+              echo "retrieve_secrets_keyvault=webvaulteu-westeurope-qa" >> "$GITHUB_OUTPUT"
+              echo "environment_artifact=web-*-cloud-euqa.zip" >> "$GITHUB_OUTPUT"
+              echo "environment_name=Web Vault - EU QA Cloud" >> "$GITHUB_OUTPUT"
+              echo "environment_url=http://vault.$ENV_NAME_LOWER.bitwarden.pw" >> "$GITHUB_OUTPUT"
+              echo "slack_channel_name=alerts-deploy-qa"  >> "$GITHUB_OUTPUT"
               ;;
             "USPROD")
-              echo "azure_login_client_key_name=AZURE_CLIENT_ID_USPROD" >> $GITHUB_OUTPUT
-              echo "azure_login_subscription_id_key_name=AZURE_SUBSCRIPTION_ID_USPROD" >> $GITHUB_OUTPUT
-              echo "retrieve_secrets_keyvault=bw-webvault-klrt-kv" >> $GITHUB_OUTPUT
-              echo "environment_artifact=web-*-cloud-COMMERCIAL.zip" >> $GITHUB_OUTPUT
-              echo "environment_name=Web Vault - US Production Cloud" >> $GITHUB_OUTPUT
-              echo "environment_url=http://vault.bitwarden.com" >> $GITHUB_OUTPUT
-              echo "slack_channel_name=alerts-deploy-prd"  >> $GITHUB_OUTPUT
+              echo "azure_login_client_key_name=AZURE_CLIENT_ID_USPROD" >> "$GITHUB_OUTPUT"
+              echo "azure_login_subscription_id_key_name=AZURE_SUBSCRIPTION_ID_USPROD" >> "$GITHUB_OUTPUT"
+              echo "retrieve_secrets_keyvault=bw-webvault-klrt-kv" >> "$GITHUB_OUTPUT"
+              echo "environment_artifact=web-*-cloud-COMMERCIAL.zip" >> "$GITHUB_OUTPUT"
+              echo "environment_name=Web Vault - US Production Cloud" >> "$GITHUB_OUTPUT"
+              echo "environment_url=http://vault.bitwarden.com" >> "$GITHUB_OUTPUT"
+              echo "slack_channel_name=alerts-deploy-prd"  >> "$GITHUB_OUTPUT"
               ;;
             "EUPROD")
-              echo "azure_login_client_key_name=AZURE_CLIENT_ID_EUPROD" >> $GITHUB_OUTPUT
-              echo "azure_login_subscription_id_key_name=AZURE_SUBSCRIPTION_ID_EUPROD" >> $GITHUB_OUTPUT
-              echo "retrieve_secrets_keyvault=webvault-westeurope-prod" >> $GITHUB_OUTPUT
-              echo "environment_artifact=web-*-cloud-euprd.zip" >> $GITHUB_OUTPUT
-              echo "environment_name=Web Vault - EU Production Cloud" >> $GITHUB_OUTPUT
-              echo "environment_url=http://vault.bitwarden.eu" >> $GITHUB_OUTPUT
-              echo "slack_channel_name=alerts-deploy-prd"  >> $GITHUB_OUTPUT
+              echo "azure_login_client_key_name=AZURE_CLIENT_ID_EUPROD" >> "$GITHUB_OUTPUT"
+              echo "azure_login_subscription_id_key_name=AZURE_SUBSCRIPTION_ID_EUPROD" >> "$GITHUB_OUTPUT"
+              echo "retrieve_secrets_keyvault=webvault-westeurope-prod" >> "$GITHUB_OUTPUT"
+              echo "environment_artifact=web-*-cloud-euprd.zip" >> "$GITHUB_OUTPUT"
+              echo "environment_name=Web Vault - EU Production Cloud" >> "$GITHUB_OUTPUT"
+              echo "environment_url=http://vault.bitwarden.eu" >> "$GITHUB_OUTPUT"
+              echo "slack_channel_name=alerts-deploy-prd"  >> "$GITHUB_OUTPUT"
               ;;
             "USDEV")
-              echo "azure_login_client_key_name=AZURE_CLIENT_ID_USDEV" >> $GITHUB_OUTPUT
-              echo "azure_login_subscription_id_key_name=AZURE_SUBSCRIPTION_ID_USDEV" >> $GITHUB_OUTPUT
-              echo "retrieve_secrets_keyvault=webvault-eastus-dev" >> $GITHUB_OUTPUT
-              echo "environment_artifact=web-*-cloud-usdev.zip" >> $GITHUB_OUTPUT
-              echo "environment_name=Web Vault - US Development Cloud" >> $GITHUB_OUTPUT
-              echo "environment_url=http://vault.$ENV_NAME_LOWER.bitwarden.pw" >> $GITHUB_OUTPUT
-              echo "slack_channel_name=alerts-deploy-dev"  >> $GITHUB_OUTPUT
+              echo "azure_login_client_key_name=AZURE_CLIENT_ID_USDEV" >> "$GITHUB_OUTPUT"
+              echo "azure_login_subscription_id_key_name=AZURE_SUBSCRIPTION_ID_USDEV" >> "$GITHUB_OUTPUT"
+              echo "retrieve_secrets_keyvault=webvault-eastus-dev" >> "$GITHUB_OUTPUT"
+              echo "environment_artifact=web-*-cloud-usdev.zip" >> "$GITHUB_OUTPUT"
+              echo "environment_name=Web Vault - US Development Cloud" >> "$GITHUB_OUTPUT"
+              echo "environment_url=http://vault.$ENV_NAME_LOWER.bitwarden.pw" >> "$GITHUB_OUTPUT"
+              echo "slack_channel_name=alerts-deploy-dev"  >> "$GITHUB_OUTPUT"
               ;;
           esac
 
@@ -131,12 +132,14 @@ jobs:
         env:
           BUILD_WEB_RUN_ID: ${{ inputs.build-web-run-id }}
           GH_TOKEN: ${{ github.token }}
+          _ENVIRONMENT: ${{ inputs.environment }}
+          _BRANCH_OR_TAG: ${{ inputs.branch-or-tag }}
         run: |
           BRANCH_OR_TAG_LOWER=""
           if [[ "$BUILD_WEB_RUN_ID" == "" ]]; then
-            BRANCH_OR_TAG_LOWER=$(echo ${{ inputs.branch-or-tag }} | awk '{print tolower($0)}')
+            BRANCH_OR_TAG_LOWER=$(echo "$_BRANCH_OR_TAG" | awk '{print tolower($0)}')
           else
-            BRANCH_OR_TAG_LOWER=$(gh api /repos/bitwarden/clients/actions/runs/$BUILD_WEB_RUN_ID/artifacts --jq '.artifacts[0].workflow_run.head_branch' | awk '{print tolower($0)}')
+            BRANCH_OR_TAG_LOWER=$(gh api "/repos/bitwarden/clients/actions/runs/$BUILD_WEB_RUN_ID/artifacts" --jq '.artifacts[0].workflow_run.head_branch' | awk '{print tolower($0)}')
           fi
 
           echo "Branch/Tag: $BRANCH_OR_TAG_LOWER"
@@ -151,23 +154,23 @@ jobs:
           DEV_ALLOWED_TAGS_PATTERN='main'
 
           if [[ \
-              ${{ inputs.environment }} =~ \.*($PROD_ENV_PATTERN)\.* && \
+              $_ENVIRONMENT =~ \.*($PROD_ENV_PATTERN)\.* && \
               ! "$BRANCH_OR_TAG_LOWER" =~ ^($PROD_ALLOWED_TAGS_PATTERN).* \
           ]] || [[ \
-              ${{ inputs.environment }} =~ \.*($QA_ENV_PATTERN)\.* && \
+              $_ENVIRONMENT =~ \.*($QA_ENV_PATTERN)\.* && \
               ! "$BRANCH_OR_TAG_LOWER" =~ ^($QA_ALLOWED_TAGS_PATTERN).* \
           ]] || [[ \
-              ${{ inputs.environment }} =~ \.*($DEV_ENV_PATTERN)\.* && \
-              $BRANCH_OR_TAG_LOWER != $DEV_ALLOWED_TAGS_PATTERN \
+              $_ENVIRONMENT =~ \.*($DEV_ENV_PATTERN)\.* && \
+              $BRANCH_OR_TAG_LOWER != "$DEV_ALLOWED_TAGS_PATTERN" \
           ]]; then
               echo "!Deployment blocked!"
-              echo "Attempting to deploy a tag that is not allowed in ${{ inputs.environment }} environment"
+              echo "Attempting to deploy a tag that is not allowed in $_ENVIRONMENT environment"
               echo
-              echo "Environment: ${{ inputs.environment }}"
+              echo "Environment: $_ENVIRONMENT"
               echo "Tag: $BRANCH_OR_TAG_LOWER"
               exit 1
           else
-              echo "The input Branch/Tag: '$BRANCH_OR_TAG_LOWER' is allowed to deploy on ${{ inputs.environment }} environment"
+              echo "The input Branch/Tag: '$BRANCH_OR_TAG_LOWER' is allowed to deploy on $_ENVIRONMENT environment"
           fi
 
   approval:
@@ -251,19 +254,24 @@ jobs:
         id: set-artifact-commit
         env:
           GH_TOKEN: ${{ github.token }}
+          _BUILD_WEB_RUN_ID: ${{ inputs.build-web-run-id }}
+          _ARTIFACT_BUILD_COMMIT: ${{ steps.download-latest-artifacts-run-id.outputs.artifact-build-commit }}
+          _DOWNLOAD_LATEST_ARTIFACTS_OUTCOME: ${{ steps.download-latest-artifacts.outcome }}
+          _WORKFLOW_ID: ${{ steps.trigger-build-web.outputs.workflow_id}}
+          _ARTIFACT_COMMIT: ${{ steps.download-latest-artifacts.outputs.artifact-build-commit }}
         run: |
           # If run-id was used, get the commit from the download-latest-artifacts-run-id step
-          if [ "${{ inputs.build-web-run-id }}" ]; then
-            echo "commit=${{ steps.download-latest-artifacts-run-id.outputs.artifact-build-commit }}" >> $GITHUB_OUTPUT
+          if [ "$_BUILD_WEB_RUN_ID" ]; then
+            echo "commit=$_ARTIFACT_BUILD_COMMIT" >> "$GITHUB_OUTPUT"
 
-          elif [ "${{ steps.download-latest-artifacts.outcome }}" == "failure" ]; then
+          elif [ "$_DOWNLOAD_LATEST_ARTIFACTS_OUTCOME" == "failure" ]; then
             # If the download-latest-artifacts step failed, query the GH API to get the commit SHA of the artifact that was just built with trigger-build-web.
-            commit=$(gh api /repos/bitwarden/clients/actions/runs/${{ steps.trigger-build-web.outputs.workflow_id }}/artifacts --jq '.artifacts[0].workflow_run.head_sha')
-            echo "commit=$commit" >> $GITHUB_OUTPUT
+            commit=$(gh api "/repos/bitwarden/clients/actions/runs/$_WORKFLOW_ID/artifacts" --jq '.artifacts[0].workflow_run.head_sha')
+            echo "commit=$commit" >> "$GITHUB_OUTPUT"
 
           else
             # Set the commit to the output of step download-latest-artifacts.
-            echo "commit=${{ steps.download-latest-artifacts.outputs.artifact-build-commit }}" >> $GITHUB_OUTPUT
+            echo "commit=$_ARTIFACT_COMMIT" >> "$GITHUB_OUTPUT"
           fi
 
   notify-start:
@@ -299,12 +307,14 @@ jobs:
     name: Display commit
     needs: artifact-check
     runs-on: ubuntu-22.04
+    env:
+      _ARTIFACT_BUILD_COMMIT_SHA: ${{ needs.artifact-check.outputs.artifact_build_commit }}
     steps:
       - name: Display commit SHA
         run: |
           REPO_URL="https://github.com/bitwarden/clients/commit"
-          COMMIT_SHA="${{ needs.artifact-check.outputs.artifact_build_commit }}"
-          echo ":steam_locomotive: View [commit]($REPO_URL/$COMMIT_SHA)" >> $GITHUB_STEP_SUMMARY
+          COMMIT_SHA="$_ARTIFACT_BUILD_COMMIT_SHA"
+          echo ":steam_locomotive: View [commit]($REPO_URL/$COMMIT_SHA)" >> "$GITHUB_STEP_SUMMARY"
 
   azure-deploy:
     name: Deploy Web Vault to ${{ inputs.environment }} Storage Account
@@ -358,14 +368,20 @@ jobs:
 
       - name: Unzip build asset
         working-directory: apps/web
-        run: unzip ${{ env._ENVIRONMENT_ARTIFACT }}
+        run: unzip "$_ENVIRONMENT_ARTIFACT"
 
       - name: Login to Azure
         uses: bitwarden/gh-actions/azure-login@main
+        env:
+          # The following 2 values are ignored in Zizmor, because they have to be dynamically mapped from secrets
+          # The only way around this is to create separate steps per environment with static secret references, which is not maintainable
+          SUBSCRIPTION_ID: ${{ secrets[ needs.setup.outputs.azure_login_subscription_id_key_name ] }} # zizmor: ignore[overprovisioned-secrets]
+          CLIENT_ID: ${{ secrets[ needs.setup.outputs.azure_login_client_key_name ] }} # zizmor: ignore[overprovisioned-secrets]
+          TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         with:
-          subscription_id: ${{ secrets[needs.setup.outputs.azure_login_subscription_id_key_name] }}
-          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-          client_id: ${{ secrets[needs.setup.outputs.azure_login_client_key_name] }}
+          subscription_id: ${{ env.SUBSCRIPTION_ID }}
+          tenant_id: ${{ env.TENANT_ID }}
+          client_id: ${{ env.CLIENT_ID }}
 
       - name: Retrieve Storage Account name
         id: retrieve-secrets-azcopy
@@ -379,9 +395,10 @@ jobs:
         env:
           AZCOPY_AUTO_LOGIN_TYPE: AZCLI
           AZCOPY_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          _VAULT_NAME: ${{ steps.retrieve-secrets-azcopy.outputs.sa-bitwarden-web-vault-name }}
         run: |
-          azcopy sync ./build 'https://${{ steps.retrieve-secrets-azcopy.outputs.sa-bitwarden-web-vault-name }}.blob.core.windows.net/$web/' \
-            --delete-destination=${{ inputs.force-delete-destination }} --compare-hash="MD5"
+          azcopy sync ./build "https://$_VAULT_NAME.blob.core.windows.net/\$web/" \
+            --delete-destination="${{ inputs.force-delete-destination }}" --compare-hash="MD5"
 
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main

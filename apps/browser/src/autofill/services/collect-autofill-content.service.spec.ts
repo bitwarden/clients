@@ -158,7 +158,7 @@ describe("CollectAutofillContentService", () => {
         type: "text",
         value: "",
         checked: false,
-        autoCompleteType: "",
+        autoCompleteType: null,
         disabled: false,
         readonly: false,
         selectInfo: null,
@@ -346,7 +346,7 @@ describe("CollectAutofillContentService", () => {
             type: "text",
             value: "",
             checked: false,
-            autoCompleteType: "",
+            autoCompleteType: null,
             disabled: false,
             readonly: false,
             selectInfo: null,
@@ -379,7 +379,7 @@ describe("CollectAutofillContentService", () => {
             type: "password",
             value: "",
             checked: false,
-            autoCompleteType: "",
+            autoCompleteType: null,
             disabled: false,
             readonly: false,
             selectInfo: null,
@@ -578,7 +578,7 @@ describe("CollectAutofillContentService", () => {
       const autofillFieldsData = await Promise.resolve(autofillFieldsPromise);
 
       expect(collectAutofillContentService["getAutofillFieldElements"]).toHaveBeenCalledWith(
-        100,
+        200,
         formFieldElements,
       );
       expect(collectAutofillContentService["buildAutofillFieldItem"]).toHaveBeenCalledTimes(2);
@@ -588,7 +588,7 @@ describe("CollectAutofillContentService", () => {
           "aria-disabled": false,
           "aria-haspopup": false,
           "aria-hidden": false,
-          autoCompleteType: "",
+          autoCompleteType: null,
           checked: false,
           "data-stripe": null,
           disabled: false,
@@ -621,7 +621,7 @@ describe("CollectAutofillContentService", () => {
           "aria-disabled": false,
           "aria-haspopup": false,
           "aria-hidden": false,
-          autoCompleteType: "",
+          autoCompleteType: null,
           checked: false,
           "data-stripe": null,
           disabled: false,
@@ -1503,6 +1503,34 @@ describe("CollectAutofillContentService", () => {
 
       expect(labelTag).toEqual("Username");
     });
+
+    it("does not collect text from a sibling that contains a form field", () => {
+      document.body.innerHTML = `
+        <div>
+          <input type="text" name="username" id="username-id">
+          <div>Enter Country Code <select><option>US</option></select></div>
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldRightLabel"](element);
+
+      expect(labelTag).toEqual("");
+    });
+
+    it("does not stop traversal at a sibling div that has no form field descendant", () => {
+      document.body.innerHTML = `
+        <div>
+          <input type="text" name="username" id="username-id">
+          <div>Helper text</div>
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldRightLabel"](element);
+
+      expect(labelTag).toEqual("Helper text");
+    });
   });
 
   describe("createAutofillFieldLeftLabel", () => {
@@ -1519,6 +1547,53 @@ describe("CollectAutofillContentService", () => {
       const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
 
       expect(labelTag).toEqual("Text ContentUsername");
+    });
+
+    it("does not collect text from a direct sibling that contains a form field", () => {
+      document.body.innerHTML = `
+        <div>
+          <div>Enter Country Code <select><option>US</option></select></div>
+          <input type="text" name="username" id="username-id">
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
+
+      expect(labelTag).toEqual("");
+    });
+
+    it("does not collect text from a parent sibling that contains a form field", () => {
+      // Exercises the parent-walk code path: the input has no direct previous
+      // siblings, so the traversal walks up to the parent and checks its previous
+      // sibling — which should be blocked because it contains a form field.
+      document.body.innerHTML = `
+        <div>
+          <div>Enter Country Code <select><option>US</option></select></div>
+          <div>
+            <input type="text" name="username" id="username-id">
+          </div>
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
+
+      expect(labelTag).toEqual("");
+    });
+
+    it("does not stop traversal at a sibling div that has no form field descendant", () => {
+      document.body.innerHTML = `
+        <div>
+          <div>Helpful label</div>
+          <input type="text" name="username" id="username-id">
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
+
+      expect(labelTag).toEqual("Helpful label");
     });
   });
 
@@ -1650,6 +1725,42 @@ describe("CollectAutofillContentService", () => {
         collectAutofillContentService["createAutofillFieldTopLabel"](targetTableCellInput);
 
       expect(targetTableCellLabel).toEqual(null);
+    });
+  });
+
+  describe("containsChildField", () => {
+    it("returns true when the element contains an input descendant", () => {
+      const div = document.createElement("div");
+      div.innerHTML = `<span>Enter Country Code</span><input type="text" />`;
+
+      expect(collectAutofillContentService["containsChildField"](div)).toBe(true);
+    });
+
+    it("returns true when the element contains a select descendant", () => {
+      const div = document.createElement("div");
+      div.innerHTML = `<select><option>US</option></select>`;
+
+      expect(collectAutofillContentService["containsChildField"](div)).toBe(true);
+    });
+
+    it("returns true when the element contains a textarea descendant", () => {
+      const div = document.createElement("div");
+      div.innerHTML = `<textarea></textarea>`;
+
+      expect(collectAutofillContentService["containsChildField"](div)).toBe(true);
+    });
+
+    it("returns false when the element contains no form field descendants", () => {
+      const div = document.createElement("div");
+      div.innerHTML = `<span>Helper text</span>`;
+
+      expect(collectAutofillContentService["containsChildField"](div)).toBe(false);
+    });
+
+    it("returns false when the node is a text node", () => {
+      const textNode = document.createTextNode("Enter Country Code");
+
+      expect(collectAutofillContentService["containsChildField"](textNode)).toBe(false);
     });
   });
 
@@ -2240,6 +2351,187 @@ describe("CollectAutofillContentService", () => {
 
       expect(collectAutofillContentService["setupOverlayListenersOnMutatedElements"]).toBeCalled();
     });
+
+    it("triggers debounced page details update when mutations occur in shadow roots", () => {
+      jest.useFakeTimers();
+      const mutationRecord: MutationRecord = {
+        type: "childList",
+        addedNodes: document.querySelectorAll("div"),
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: null,
+        target: document.body,
+      };
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+
+      jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(true);
+      jest.spyOn(collectAutofillContentService as any, "debouncedRequirePageDetailsUpdate");
+
+      collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
+
+      expect(domQueryService.checkMutationsInShadowRoots).toHaveBeenCalledWith([mutationRecord]);
+      expect(collectAutofillContentService["debouncedRequirePageDetailsUpdate"]).toHaveBeenCalled();
+
+      jest.useRealTimers();
+    });
+
+    it("does not trigger debounced update when mutations are not in shadow roots", () => {
+      jest.useFakeTimers();
+      const mutationRecord: MutationRecord = {
+        type: "childList",
+        addedNodes: document.querySelectorAll("div"),
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: null,
+        target: document.body,
+      };
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+
+      jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
+      jest.spyOn(collectAutofillContentService as any, "debouncedRequirePageDetailsUpdate");
+
+      collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
+
+      expect(domQueryService.checkMutationsInShadowRoots).toHaveBeenCalledWith([mutationRecord]);
+      expect(
+        collectAutofillContentService["debouncedRequirePageDetailsUpdate"],
+      ).not.toHaveBeenCalled();
+
+      jest.useRealTimers();
+    });
+
+    it("schedules a debounced check for new shadow roots", () => {
+      jest.useFakeTimers();
+      const div = document.createElement("div");
+      document.body.appendChild(div);
+
+      const mutationRecord: MutationRecord = {
+        type: "childList",
+        addedNodes: document.querySelectorAll("div"),
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: document.querySelectorAll("nonexistent"),
+        target: document.body,
+      };
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+      collectAutofillContentService["pendingShadowDomCheck"] = false;
+
+      jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
+      jest.spyOn(domQueryService, "checkForNewShadowRoots").mockReturnValue(false);
+
+      collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
+
+      expect(collectAutofillContentService["pendingShadowDomCheck"]).toBe(true);
+      expect(collectAutofillContentService["shadowDomCheckTimeout"]).not.toBeNull();
+
+      // Fast-forward time to trigger the debounced check
+      jest.advanceTimersByTime(500);
+
+      expect(domQueryService.checkForNewShadowRoots).toHaveBeenCalled();
+      expect(collectAutofillContentService["pendingShadowDomCheck"]).toBe(false);
+
+      jest.useRealTimers();
+    });
+
+    it("does not schedule duplicate shadow root checks when already pending", () => {
+      jest.useFakeTimers();
+      const div = document.createElement("div");
+      document.body.appendChild(div);
+
+      const mutationRecord: MutationRecord = {
+        type: "childList",
+        addedNodes: document.querySelectorAll("div"),
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: document.querySelectorAll("nonexistent"),
+        target: document.body,
+      };
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+      collectAutofillContentService["pendingShadowDomCheck"] = true;
+
+      const initialTimeout = setTimeout(() => {}, 500);
+      collectAutofillContentService["shadowDomCheckTimeout"] = initialTimeout;
+
+      collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
+
+      // Should not change the timeout since check is already pending
+      expect(collectAutofillContentService["shadowDomCheckTimeout"]).toBe(initialTimeout);
+
+      clearTimeout(initialTimeout);
+      jest.useRealTimers();
+    });
+
+    it("debounces multiple rapid shadow root mutations with real timers", (done) => {
+      jest.useRealTimers();
+
+      // Use real debounce for this test
+      const actualUtils = jest.requireActual("../utils");
+      const realDebounce = actualUtils.debounce;
+
+      const shadowHost = document.createElement("div");
+      const shadowRoot = shadowHost.attachShadow({ mode: "open" });
+      document.body.appendChild(shadowHost);
+
+      const mutationRecord: MutationRecord = {
+        type: "attributes",
+        addedNodes: document.querySelectorAll("nonexistent"),
+        attributeName: "value",
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: document.querySelectorAll("nonexistent"),
+        target: shadowRoot,
+      };
+
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+
+      jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(true);
+
+      // Track actual calls to requirePageDetailsUpdate
+      let callCount = 0;
+      const originalRequirePageDetailsUpdate =
+        collectAutofillContentService["requirePageDetailsUpdate"];
+      collectAutofillContentService["requirePageDetailsUpdate"] = () => {
+        callCount++;
+        originalRequirePageDetailsUpdate.call(collectAutofillContentService);
+      };
+
+      // Temporarily override with real debounce
+      const originalDebounced = collectAutofillContentService["debouncedRequirePageDetailsUpdate"];
+      collectAutofillContentService["debouncedRequirePageDetailsUpdate"] = realDebounce(() => {
+        collectAutofillContentService["requirePageDetailsUpdate"]();
+      }, 300);
+
+      // Trigger 5 rapid mutations
+      for (let i = 0; i < 5; i++) {
+        collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
+      }
+
+      // Should only call requirePageDetailsUpdate once after debounce
+      setTimeout(() => {
+        expect(callCount).toBe(1);
+
+        // Restore original
+        collectAutofillContentService["debouncedRequirePageDetailsUpdate"] = originalDebounced;
+        collectAutofillContentService["requirePageDetailsUpdate"] =
+          originalRequirePageDetailsUpdate;
+        document.body.removeChild(shadowHost);
+        done();
+      }, 350);
+    });
   });
 
   describe("setupOverlayListenersOnMutatedElements", () => {
@@ -2314,6 +2606,22 @@ describe("CollectAutofillContentService", () => {
       collectAutofillContentService["deleteCachedAutofillElement"](fieldElement);
 
       expect(collectAutofillContentService["autofillFieldElements"].size).toEqual(0);
+    });
+
+    it("clears pending overlay setup timeout when removing a field element", () => {
+      const fieldElement = document.createElement("input") as ElementWithOpId<HTMLInputElement>;
+      const autofillField = mock<AutofillField>();
+      collectAutofillContentService["autofillFieldElements"] = new Map([
+        [fieldElement, autofillField],
+      ]);
+      const timeoutId = setTimeout(jest.fn, 100);
+      collectAutofillContentService["pendingOverlaySetup"].set(fieldElement, timeoutId);
+      const clearTimeoutSpy = jest.spyOn(globalThis, "clearTimeout");
+
+      collectAutofillContentService["deleteCachedAutofillElement"](fieldElement);
+
+      expect(clearTimeoutSpy).toHaveBeenCalledWith(timeoutId);
+      expect(collectAutofillContentService["pendingOverlaySetup"].has(fieldElement)).toBe(false);
     });
   });
 
@@ -2507,9 +2815,7 @@ describe("CollectAutofillContentService", () => {
       "class",
       "tabindex",
       "title",
-      "value",
       "rel",
-      "tagname",
       "checked",
       "disabled",
       "readonly",
@@ -2618,6 +2924,7 @@ describe("CollectAutofillContentService", () => {
 
     it("sets up the inline menu listeners on a viewable field", async () => {
       const formFieldElement = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      document.body.appendChild(formFieldElement);
       const autofillField = mock<AutofillField>();
       const entries = [
         { target: formFieldElement, isIntersecting: true },
@@ -2637,6 +2944,66 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
+  describe("setupOverlayOnField", () => {
+    it("executes immediately on first call then debounces subsequent rapid calls", () => {
+      const formFieldElement = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      document.body.appendChild(formFieldElement);
+      const autofillField = mock<AutofillField>();
+      collectAutofillContentService["autofillFieldElements"].set(formFieldElement, autofillField);
+      const setupAutofillOverlayListenerOnFieldSpy = jest.spyOn(
+        collectAutofillContentService["autofillOverlayContentService"],
+        "setupOverlayListeners",
+      );
+      jest.useFakeTimers();
+
+      // First call executes immediately
+      collectAutofillContentService["setupOverlayOnField"](formFieldElement, autofillField);
+      expect(setupAutofillOverlayListenerOnFieldSpy).toHaveBeenCalledTimes(1);
+
+      // Subsequent rapid calls are debounced
+      collectAutofillContentService["setupOverlayOnField"](formFieldElement, autofillField);
+      collectAutofillContentService["setupOverlayOnField"](formFieldElement, autofillField);
+      expect(setupAutofillOverlayListenerOnFieldSpy).toHaveBeenCalledTimes(1);
+
+      // After debounce delay, the next call executes immediately again
+      jest.advanceTimersByTime(150);
+      collectAutofillContentService["setupOverlayOnField"](formFieldElement, autofillField);
+      expect(setupAutofillOverlayListenerOnFieldSpy).toHaveBeenCalledTimes(2);
+
+      jest.useRealTimers();
+    });
+
+    it("does not call setupOverlayListeners if the element is not in DOM", () => {
+      const formFieldElement = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      // Note: not appending to document.body
+      const autofillField = mock<AutofillField>();
+      collectAutofillContentService["autofillFieldElements"].set(formFieldElement, autofillField);
+      const setupAutofillOverlayListenerOnFieldSpy = jest.spyOn(
+        collectAutofillContentService["autofillOverlayContentService"],
+        "setupOverlayListeners",
+      );
+
+      collectAutofillContentService["setupOverlayOnField"](formFieldElement, autofillField);
+
+      expect(setupAutofillOverlayListenerOnFieldSpy).not.toHaveBeenCalled();
+    });
+
+    it("does not call setupOverlayListeners if the element is not in cache", () => {
+      const formFieldElement = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      document.body.appendChild(formFieldElement);
+      const autofillField = mock<AutofillField>();
+      // Note: not adding to autofillFieldElements cache
+      const setupAutofillOverlayListenerOnFieldSpy = jest.spyOn(
+        collectAutofillContentService["autofillOverlayContentService"],
+        "setupOverlayListeners",
+      );
+
+      collectAutofillContentService["setupOverlayOnField"](formFieldElement, autofillField);
+
+      expect(setupAutofillOverlayListenerOnFieldSpy).not.toHaveBeenCalled();
+    });
+  });
+
   describe("destroy", () => {
     it("clears the updateAfterMutationIdleCallback", () => {
       jest.spyOn(window, "clearTimeout");
@@ -2647,6 +3014,29 @@ describe("CollectAutofillContentService", () => {
       expect(clearTimeout).toHaveBeenCalledWith(
         collectAutofillContentService["updateAfterMutationIdleCallback"],
       );
+    });
+
+    it("clears all pending overlay setup timeouts", () => {
+      const formFieldElement1 = document.createElement(
+        "input",
+      ) as ElementWithOpId<FormFieldElement>;
+      const formFieldElement2 = document.createElement(
+        "input",
+      ) as ElementWithOpId<FormFieldElement>;
+      const clearTimeoutSpy = jest.spyOn(window, "clearTimeout");
+      collectAutofillContentService["pendingOverlaySetup"].set(
+        formFieldElement1,
+        setTimeout(jest.fn, 100),
+      );
+      collectAutofillContentService["pendingOverlaySetup"].set(
+        formFieldElement2,
+        setTimeout(jest.fn, 100),
+      );
+
+      collectAutofillContentService.destroy();
+
+      expect(clearTimeoutSpy).toHaveBeenCalledTimes(2);
+      expect(collectAutofillContentService["pendingOverlaySetup"].size).toBe(0);
     });
   });
 
@@ -2660,22 +3050,25 @@ describe("CollectAutofillContentService", () => {
       jest.useRealTimers();
     });
 
-    it("will require an update to page details if shadow DOM is present", () => {
-      jest
-        .spyOn(domQueryService as any, "checkPageContainsShadowDom")
-        .mockImplementationOnce(() => true);
+    it("processes queued mutations and clears the queue", () => {
+      const mutationRecord: MutationRecord = {
+        type: "childList",
+        addedNodes: document.querySelectorAll("div"),
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: document.querySelectorAll("li"),
+        target: document.body,
+      };
 
-      collectAutofillContentService["requirePageDetailsUpdate"] = jest.fn();
-
-      collectAutofillContentService["mutationsQueue"] = [[], []];
+      collectAutofillContentService["mutationsQueue"] = [[mutationRecord], [mutationRecord]];
+      jest.spyOn(collectAutofillContentService as any, "processMutationRecords");
 
       collectAutofillContentService["processMutations"]();
 
-      jest.runOnlyPendingTimers();
-
-      expect(domQueryService.checkPageContainsShadowDom).toHaveBeenCalled();
       expect(collectAutofillContentService["mutationsQueue"]).toHaveLength(0);
-      expect(collectAutofillContentService["requirePageDetailsUpdate"]).toHaveBeenCalled();
     });
   });
 });

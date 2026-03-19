@@ -33,6 +33,7 @@ export class CipherFileUploadService implements CipherFileUploadServiceAbstracti
       fileName: encFileName.encryptedString,
       fileSize: encData.buffer.byteLength,
       adminRequest: admin,
+      lastKnownRevisionDate: cipher.revisionDate,
     };
 
     let response: CipherResponse;
@@ -92,12 +93,12 @@ export class CipherFileUploadService implements CipherFileUploadServiceAbstracti
     response: CipherResponse,
     uploadData: AttachmentUploadDataResponse,
     isAdmin: boolean,
-  ) {
-    return () => {
+  ): () => Promise<void> {
+    return async () => {
       if (isAdmin) {
-        return this.apiService.deleteCipherAttachmentAdmin(response.id, uploadData.attachmentId);
+        await this.apiService.deleteCipherAttachmentAdmin(response.id, uploadData.attachmentId);
       } else {
-        return this.apiService.deleteCipherAttachment(response.id, uploadData.attachmentId);
+        await this.apiService.deleteCipherAttachment(response.id, uploadData.attachmentId);
       }
     };
   }

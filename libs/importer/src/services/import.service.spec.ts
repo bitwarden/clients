@@ -1,23 +1,22 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, Subject, firstValueFrom } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
-import { ClientType } from "@bitwarden/client-type";
+import { CollectionService } from "@bitwarden/admin-console/common";
+import {
+  CollectionView,
+  CollectionTypes,
+} from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { Folder } from "@bitwarden/common/vault/models/domain/folder";
+import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -25,8 +24,6 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { BitwardenPasswordProtectedImporter } from "../importers/bitwarden/bitwarden-password-protected-importer";
 import { Importer } from "../importers/importer";
-import { ImporterMetadata, Instructions, Loader } from "../metadata";
-import { ImportType } from "../models";
 import { ImportResult } from "../models/import-result";
 
 import { ImportApiServiceAbstraction } from "./import-api.service.abstraction";
@@ -41,10 +38,9 @@ describe("ImportService", () => {
   let collectionService: MockProxy<CollectionService>;
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
-  let pinService: MockProxy<PinServiceAbstraction>;
+  let keyGenerationService: MockProxy<KeyGenerationService>;
   let accountService: MockProxy<AccountService>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
-  let systemServiceProvider: MockProxy<SystemServiceProvider>;
 
   beforeEach(() => {
     cipherService = mock<CipherService>();
@@ -54,20 +50,8 @@ describe("ImportService", () => {
     collectionService = mock<CollectionService>();
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
-    pinService = mock<PinServiceAbstraction>();
+    keyGenerationService = mock<KeyGenerationService>();
     restrictedItemTypesService = mock<RestrictedItemTypesService>();
-
-    const configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(new BehaviorSubject(false));
-
-    const environment = mock<PlatformUtilsService>();
-    environment.getClientType.mockReturnValue(ClientType.Desktop);
-
-    systemServiceProvider = mock<SystemServiceProvider>({
-      configService,
-      environment,
-      log: jest.fn().mockReturnValue({ debug: jest.fn() }),
-    });
 
     importService = new ImportService(
       cipherService,
@@ -77,10 +61,9 @@ describe("ImportService", () => {
       collectionService,
       keyService,
       encryptService,
-      pinService,
+      keyGenerationService,
       accountService,
       restrictedItemTypesService,
-      systemServiceProvider,
     );
   });
 
@@ -217,7 +200,7 @@ describe("ImportService", () => {
       );
     });
 
-    it("passing importTarget as null on setImportTarget with organizationId throws error", async () => {
+    it("passing importTarget as undefined on setImportTarget with organizationId throws error", async () => {
       const setImportTargetMethod = importService["setImportTarget"](
         null,
         organizationId,
@@ -227,10 +210,10 @@ describe("ImportService", () => {
       await expect(setImportTargetMethod).rejects.toThrow();
     });
 
-    it("passing importTarget as null on setImportTarget throws error", async () => {
+    it("passing importTarget as undefined on setImportTarget throws error", async () => {
       const setImportTargetMethod = importService["setImportTarget"](
         null,
-        "",
+        undefined,
         new Object() as CollectionView,
       );
 
@@ -262,175 +245,59 @@ describe("ImportService", () => {
       importResult.ciphers.push(createCipher({ name: "cipher2" }));
       importResult.folderRelationships.push([0, 0]);
 
-      await importService["setImportTarget"](importResult, "", mockImportTargetFolder);
+      await importService["setImportTarget"](importResult, undefined, mockImportTargetFolder);
       expect(importResult.folderRelationships.length).toEqual(2);
       expect(importResult.folderRelationships[0]).toEqual([1, 0]);
       expect(importResult.folderRelationships[1]).toEqual([0, 1]);
     });
+
+    it("If importTarget is of type DefaultUserCollection sets it as new root for all ciphers as nesting is not supported", async () => {
+      importResult.collections.push(mockCollection1);
+      importResult.collections.push(mockCollection2);
+      importResult.ciphers.push(createCipher({ name: "cipher1" }));
+      importResult.ciphers.push(createCipher({ name: "cipher2" }));
+      importResult.ciphers.push(createCipher({ name: "cipher3" }));
+
+      importResult.collectionRelationships.push([0, 0]);
+      importResult.collectionRelationships.push([1, 1]);
+      importResult.collectionRelationships.push([2, 0]);
+
+      mockImportTargetCollection.type = CollectionTypes.DefaultUserCollection;
+      await importService["setImportTarget"](
+        importResult,
+        organizationId,
+        mockImportTargetCollection,
+      );
+      expect(importResult.collections.length).toBe(1);
+      expect(importResult.collections[0]).toBe(mockImportTargetCollection);
+
+      expect(importResult.collectionRelationships.length).toEqual(3);
+      expect(importResult.collectionRelationships[0]).toEqual([0, 0]);
+      expect(importResult.collectionRelationships[1]).toEqual([1, 0]);
+      expect(importResult.collectionRelationships[2]).toEqual([2, 0]);
+
+      expect(importResult.collectionRelationships.map((r) => r[0])).toEqual([0, 1, 2]);
+      expect(importResult.collectionRelationships.every((r) => r[1] === 0)).toBe(true);
+    });
+  });
+});
+
+describe("FolderWithIdRequest", () => {
+  function makeFolder(id: string): Folder {
+    const folder = new Folder();
+    folder.id = id;
+    return folder;
+  }
+
+  it("preserves a real folder id", () => {
+    const guid = "f1a2b3c4-d5e6-7890-abcd-ef1234567890";
+    const request = new FolderWithIdRequest(makeFolder(guid));
+    expect(request.id).toBe(guid);
   });
 
-  describe("metadata$", () => {
-    let featureFlagSubject: BehaviorSubject<boolean>;
-    let typeSubject: Subject<ImportType>;
-    let mockLogger: { debug: jest.Mock };
-
-    beforeEach(() => {
-      featureFlagSubject = new BehaviorSubject(false);
-      typeSubject = new Subject<ImportType>();
-      mockLogger = { debug: jest.fn() };
-
-      const configService = mock<ConfigService>();
-      configService.getFeatureFlag$.mockReturnValue(featureFlagSubject);
-
-      const environment = mock<PlatformUtilsService>();
-      environment.getClientType.mockReturnValue(ClientType.Desktop);
-
-      systemServiceProvider = mock<SystemServiceProvider>({
-        configService,
-        environment,
-        log: jest.fn().mockReturnValue(mockLogger),
-      });
-
-      // Recreate the service with the updated mocks for logging tests
-      importService = new ImportService(
-        cipherService,
-        folderService,
-        importApiService,
-        i18nService,
-        collectionService,
-        keyService,
-        encryptService,
-        pinService,
-        accountService,
-        restrictedItemTypesService,
-        systemServiceProvider,
-      );
-    });
-
-    afterEach(() => {
-      featureFlagSubject.complete();
-      typeSubject.complete();
-    });
-
-    it("should emit metadata when type$ emits", async () => {
-      const testType: ImportType = "chromecsv";
-
-      const metadataPromise = firstValueFrom(importService.metadata$(typeSubject));
-      typeSubject.next(testType);
-
-      const result = await metadataPromise;
-
-      expect(result).toEqual({
-        type: testType,
-        loaders: expect.any(Array),
-        instructions: Instructions.chromium,
-      });
-      expect(result.type).toBe(testType);
-    });
-
-    it("should include all loaders when chromium feature flag is enabled", async () => {
-      const testType: ImportType = "bravecsv"; // bravecsv supports both file and chromium loaders
-      featureFlagSubject.next(true);
-
-      const metadataPromise = firstValueFrom(importService.metadata$(typeSubject));
-      typeSubject.next(testType);
-
-      const result = await metadataPromise;
-
-      expect(result.loaders).toContain(Loader.chromium);
-      expect(result.loaders).toContain(Loader.file);
-    });
-
-    it("should exclude chromium loader when feature flag is disabled", async () => {
-      const testType: ImportType = "bravecsv"; // bravecsv supports both file and chromium loaders
-      featureFlagSubject.next(false);
-
-      const metadataPromise = firstValueFrom(importService.metadata$(typeSubject));
-      typeSubject.next(testType);
-
-      const result = await metadataPromise;
-
-      expect(result.loaders).not.toContain(Loader.chromium);
-      expect(result.loaders).toContain(Loader.file);
-    });
-
-    it("should update when type$ changes", async () => {
-      const emissions: ImporterMetadata[] = [];
-      const subscription = importService.metadata$(typeSubject).subscribe((metadata) => {
-        emissions.push(metadata);
-      });
-
-      typeSubject.next("chromecsv");
-      typeSubject.next("bravecsv");
-
-      // Wait for emissions
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      expect(emissions).toHaveLength(2);
-      expect(emissions[0].type).toBe("chromecsv");
-      expect(emissions[1].type).toBe("bravecsv");
-
-      subscription.unsubscribe();
-    });
-
-    it("should update when feature flag changes", async () => {
-      const testType: ImportType = "bravecsv"; // Use bravecsv which supports chromium loader
-      const emissions: ImporterMetadata[] = [];
-
-      const subscription = importService.metadata$(typeSubject).subscribe((metadata) => {
-        emissions.push(metadata);
-      });
-
-      typeSubject.next(testType);
-      featureFlagSubject.next(true);
-
-      // Wait for emissions
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      expect(emissions).toHaveLength(2);
-      expect(emissions[0].loaders).not.toContain(Loader.chromium);
-      expect(emissions[1].loaders).toContain(Loader.chromium);
-
-      subscription.unsubscribe();
-    });
-
-    it("should update when both type$ and feature flag change", async () => {
-      const emissions: ImporterMetadata[] = [];
-
-      const subscription = importService.metadata$(typeSubject).subscribe((metadata) => {
-        emissions.push(metadata);
-      });
-
-      // Initial emission
-      typeSubject.next("chromecsv");
-
-      // Change both at the same time
-      featureFlagSubject.next(true);
-      typeSubject.next("bravecsv");
-
-      // Wait for emissions
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      expect(emissions.length).toBeGreaterThanOrEqual(2);
-      const lastEmission = emissions[emissions.length - 1];
-      expect(lastEmission.type).toBe("bravecsv");
-
-      subscription.unsubscribe();
-    });
-
-    it("should log debug information with correct data", async () => {
-      const testType: ImportType = "chromecsv";
-
-      const metadataPromise = firstValueFrom(importService.metadata$(typeSubject));
-      typeSubject.next(testType);
-
-      await metadataPromise;
-
-      expect(mockLogger.debug).toHaveBeenCalledWith(
-        { importType: testType, capabilities: expect.any(Object) },
-        "capabilities updated",
-      );
-    });
+  it("sends null when folder id is empty string (new import folder)", () => {
+    const request = new FolderWithIdRequest(makeFolder(""));
+    expect(request.id).toBeNull();
   });
 });
 

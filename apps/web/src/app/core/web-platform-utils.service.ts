@@ -90,6 +90,10 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     return this.getDevice() === DeviceType.SafariBrowser;
   }
 
+  isChromium(): boolean {
+    return this.isChrome() || this.isEdge() || this.isOpera() || this.isVivaldi();
+  }
+
   isWebKit(): boolean {
     return true;
   }
@@ -99,6 +103,10 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
   }
 
   isPopupOpen(): Promise<boolean> {
+    return Promise.resolve(false);
+  }
+
+  isAnyViewFocused(): Promise<boolean> {
     return Promise.resolve(false);
   }
 
@@ -213,6 +221,10 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
   }
 
   getAutofillKeyboardShortcut(): Promise<string> {
+    return null;
+  }
+
+  packageType(): Promise<string | null> {
     return null;
   }
 }

@@ -13,7 +13,7 @@
               <ul class="bwi-ul">
                 <li>
                   <i class="bwi bwi-li bwi-check text-success" aria-hidden="true"></i>
-                  {{ "premiumSignUpStorage" | i18n }}
+                  {{ "premiumSignUpStorageV2" | i18n: `${storageProvidedGb} GB` }}
                 </li>
                 <li>
                   <i class="bwi bwi-li bwi-check text-success" aria-hidden="true"></i>
@@ -61,7 +61,7 @@
         >
           <b>{{ "premiumPurchase" | i18n }}</b>
         </button>
-        <button type="button" data-dismiss="modal">{{ "close" | i18n }}</button>
+        <button type="button" bitDialogClose>{{ "close" | i18n }}</button>
         <div class="right" *ngIf="!(isPremium$ | async)">
           <button
             #refreshBtn

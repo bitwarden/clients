@@ -13,6 +13,8 @@ export class TabListItemDirective implements FocusableOption {
   // TODO: Skipped for signal migration because:
   //  This input overrides a field from a superclass, while the superclass field
   //  is not migrated.
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() disabled = false;
 
   @HostBinding("attr.disabled")
@@ -58,7 +60,7 @@ export class TabListItemDirective implements FocusableOption {
       "tw-relative",
       "tw-py-2",
       "tw-px-4",
-      "tw-font-semibold",
+      "tw-font-medium",
       "tw-transition",
       "tw-rounded-t-lg",
       "tw-border-0",

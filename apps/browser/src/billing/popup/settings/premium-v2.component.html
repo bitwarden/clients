@@ -6,13 +6,13 @@
   </popup-header>
 
   <div class="tw-flex tw-flex-col tw-p-2">
-    <h2 class="tw-font-bold">{{ "premiumFeatures" | i18n }}</h2>
+    <h2 class="tw-font-medium">{{ "premiumFeatures" | i18n }}</h2>
     <bit-section>
       <bit-card>
         <div class="tw-flex tw-flex-col tw-p-2">
           <ul class="tw-list-disc tw-pl-5 tw-space-y-2 tw-break-words tw-mb-0">
             <li>
-              {{ "ppremiumSignUpStorage" | i18n }}
+              {{ "premiumSignUpStorageV2" | i18n: `${storageProvidedGb} GB` }}
             </li>
             <li>
               {{ "premiumSignUpTwoStepOptions" | i18n }}

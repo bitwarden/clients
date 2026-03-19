@@ -27,9 +27,7 @@ function buildKeyDefinition<T>(key: string): UserKeyDefinition<T> {
 
 export const AUTO_CONFIRM_FINGERPRINTS = buildKeyDefinition<boolean>("autoConfirmFingerPrints");
 
-export class DefaultOrganizationManagementPreferencesService
-  implements OrganizationManagementPreferencesService
-{
+export class DefaultOrganizationManagementPreferencesService implements OrganizationManagementPreferencesService {
   constructor(private stateProvider: StateProvider) {}
 
   autoConfirmFingerPrints = this.buildOrganizationManagementPreference(

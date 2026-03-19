@@ -4,9 +4,7 @@ import { PlatformUtilsService } from "../../../platform/abstractions/platform-ut
 import { OrganizationSponsorshipApiServiceAbstraction } from "../../abstractions/organizations/organization-sponsorship-api.service.abstraction";
 import { OrganizationSponsorshipInvitesResponse } from "../../models/response/organization-sponsorship-invites.response";
 
-export class OrganizationSponsorshipApiService
-  implements OrganizationSponsorshipApiServiceAbstraction
-{
+export class OrganizationSponsorshipApiService implements OrganizationSponsorshipApiServiceAbstraction {
   constructor(
     private apiService: ApiService,
     private platformUtilsService: PlatformUtilsService,

@@ -9,12 +9,14 @@ import {
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
   EnvironmentService,
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { AccountSwitcherService } from "./account-switcher.service";
@@ -36,6 +38,7 @@ describe("AccountSwitcherService", () => {
   const environmentService = mock<EnvironmentService>();
   const logService = mock<LogService>();
   const authService = mock<AuthService>();
+  const configService = mock<ConfigService>();
 
   let accountSwitcherService: AccountSwitcherService;
 
@@ -59,6 +62,7 @@ describe("AccountSwitcherService", () => {
       messagingService,
       environmentService,
       logService,
+      configService,
       authService,
     );
   });
@@ -71,11 +75,10 @@ describe("AccountSwitcherService", () => {
 
   describe("availableAccounts$", () => {
     it("should return all logged in accounts and an add account option when accounts are less than 5", async () => {
-      const accountInfo: AccountInfo = {
+      const accountInfo = mockAccountInfoWith({
         name: "Test User 1",
         email: "test1@email.com",
-        emailVerified: true,
-      };
+      });
 
       avatarService.getUserAvatarColor$.mockReturnValue(of("#cccccc"));
       accountsSubject.next({ ["1" as UserId]: accountInfo, ["2" as UserId]: accountInfo });
@@ -109,11 +112,10 @@ describe("AccountSwitcherService", () => {
         const seedAccounts: Record<UserId, AccountInfo> = {};
         const seedStatuses: Record<UserId, AuthenticationStatus> = {};
         for (let i = 0; i < numberOfAccounts; i++) {
-          seedAccounts[`${i}` as UserId] = {
+          seedAccounts[`${i}` as UserId] = mockAccountInfoWith({
             email: `test${i}@email.com`,
-            emailVerified: true,
             name: "Test User ${i}",
-          };
+          });
           seedStatuses[`${i}` as UserId] = AuthenticationStatus.Unlocked;
         }
         avatarService.getUserAvatarColor$.mockReturnValue(of("#cccccc"));
@@ -133,11 +135,10 @@ describe("AccountSwitcherService", () => {
     );
 
     it("excludes logged out accounts", async () => {
-      const user1AccountInfo: AccountInfo = {
+      const user1AccountInfo = mockAccountInfoWith({
         name: "Test User 1",
         email: "",
-        emailVerified: true,
-      };
+      });
       accountsSubject.next({ ["1" as UserId]: user1AccountInfo });
       authStatusSubject.next({ ["1" as UserId]: AuthenticationStatus.LoggedOut });
       accountsSubject.next({

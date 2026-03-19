@@ -3,17 +3,18 @@
 import { Component, Inject } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherBulkDeleteRequest } from "@bitwarden/common/vault/models/request/cipher-bulk-delete.request";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
+  CenterPositionStrategy,
   DIALOG_DATA,
   DialogConfig,
   DialogRef,
@@ -48,10 +49,15 @@ export const openBulkDeleteDialog = (
 ) => {
   return dialogService.open<BulkDeleteDialogResult, BulkDeleteDialogParams>(
     BulkDeleteDialogComponent,
-    config,
+    {
+      positionStrategy: new CenterPositionStrategy(),
+      ...config,
+    },
   );
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "bulk-delete-dialog.component.html",
   standalone: false,
@@ -141,11 +147,16 @@ export class BulkDeleteDialogComponent {
   }
 
   private async deleteCiphersAdmin(ciphers: string[]): Promise<any> {
-    const deleteRequest = new CipherBulkDeleteRequest(ciphers, this.organization.id);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (this.permanent) {
-      return await this.apiService.deleteManyCiphersAdmin(deleteRequest);
+      await this.cipherService.deleteManyWithServer(ciphers, userId, true, this.organization.id);
     } else {
-      return await this.apiService.putDeleteManyCiphersAdmin(deleteRequest);
+      await this.cipherService.softDeleteManyWithServer(
+        ciphers,
+        userId,
+        true,
+        this.organization.id,
+      );
     }
   }
 

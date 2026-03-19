@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
@@ -10,6 +10,7 @@ import { VaultCarouselComponent } from "./carousel.component";
 @Component({
   selector: "app-test-carousel-slide",
   imports: [VaultCarouselComponent, VaultCarouselSlideComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <vault-carousel label="Storybook Demo">
       <vault-carousel-slide label="First Slide">
@@ -91,8 +92,7 @@ describe("VaultCarouselComponent", () => {
     const backButton = fixture.debugElement.queryAll(By.css("button"))[0];
 
     middleSlideButton.nativeElement.click();
-    await new Promise((r) => setTimeout(r, 100)); // Give time for the DOM to update.
-
+    fixture.detectChanges();
     jest.spyOn(component.slideChange, "emit");
 
     backButton.nativeElement.click();

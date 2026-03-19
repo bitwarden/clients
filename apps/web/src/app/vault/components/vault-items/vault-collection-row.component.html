@@ -13,7 +13,12 @@
 </td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit">
   <div aria-hidden="true">
-    <i class="bwi bwi-fw bwi-lg bwi-collection-shared"></i>
+    <i
+      [class]="
+        'bwi bwi-fw bwi-lg ' +
+        (collection.type === DefaultCollectionType ? 'bwi-user' : 'bwi-collection-shared')
+      "
+    ></i>
   </div>
 </td>
 <td bitCell [ngClass]="RowHeightClass">
@@ -22,7 +27,7 @@
       bitLink
       [disabled]="disabled"
       type="button"
-      class="tw-flex tw-text-start tw-leading-snug"
+      class="tw-flex tw-text-start tw-leading-snug tw-truncate"
       linkType="secondary"
       title="{{ 'viewCollectionWithName' | i18n: collection.name }}"
       [routerLink]="[]"

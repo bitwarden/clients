@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { mock } from "jest-mock-extended";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -144,7 +142,6 @@ export function createAutofillScriptMock(
 
   return {
     autosubmit: null,
-    metadata: {},
     properties: {
       delay_between_operations: 20,
     },
@@ -178,6 +175,7 @@ export function createInitAutofillInlineMenuButtonMessageMock(
     styleSheetUrl: "https://jest-testing-website.com",
     authStatus: AuthenticationStatus.Unlocked,
     portKey: "portKey",
+    token: "test-token",
     ...customFields,
   };
 }
@@ -215,6 +213,7 @@ export function createInitAutofillInlineMenuListMessageMock(
     theme: ThemeTypes.Light,
     authStatus: AuthenticationStatus.Unlocked,
     portKey: "portKey",
+    token: "test-token",
     inlineMenuFillType: CipherType.Login,
     ciphers: [
       createAutofillOverlayCipherDataMock(1, {
@@ -299,7 +298,7 @@ export function createMutationRecordMock(customFields = {}): MutationRecord {
     oldValue: "default-oldValue",
     previousSibling: null,
     removedNodes: mock<NodeList>(),
-    target: null,
+    target: mock<Node>(),
     type: "attributes",
     ...customFields,
   };

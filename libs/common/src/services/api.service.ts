@@ -4,16 +4,15 @@ import { firstValueFrom, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
+import { CreateCollectionRequest, UpdateCollectionRequest } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { LogoutReason } from "@bitwarden/auth/common";
 import {
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
   CollectionResponse,
-  CreateCollectionRequest,
-  UpdateCollectionRequest,
-} from "@bitwarden/admin-console/common";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "@bitwarden/auth/common";
+} from "@bitwarden/common/admin-console/models/collections";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
 import { OrganizationConnectionType } from "../admin-console/enums";
@@ -33,7 +32,6 @@ import {
   OrganizationConnectionConfigApis,
   OrganizationConnectionResponse,
 } from "../admin-console/models/response/organization-connection.response";
-import { OrganizationExportResponse } from "../admin-console/models/response/organization-export.response";
 import { OrganizationSponsorshipSyncStatusResponse } from "../admin-console/models/response/organization-sponsorship-sync-status.response";
 import { PreValidateSponsorshipResponse } from "../admin-console/models/response/pre-validate-sponsorship.response";
 import {
@@ -49,10 +47,6 @@ import {
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
-import { DeviceVerificationRequest } from "../auth/models/request/device-verification.request";
-import { DisableTwoFactorAuthenticatorRequest } from "../auth/models/request/disable-two-factor-authenticator.request";
-import { EmailTokenRequest } from "../auth/models/request/email-token.request";
-import { EmailRequest } from "../auth/models/request/email.request";
 import { DeviceRequest } from "../auth/models/request/identity-token/device.request";
 import { PasswordTokenRequest } from "../auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token.request";
@@ -62,44 +56,22 @@ import { WebAuthnLoginTokenRequest } from "../auth/models/request/identity-token
 import { PasswordHintRequest } from "../auth/models/request/password-hint.request";
 import { PasswordlessAuthRequest } from "../auth/models/request/passwordless-auth.request";
 import { SecretVerificationRequest } from "../auth/models/request/secret-verification.request";
-import { TwoFactorEmailRequest } from "../auth/models/request/two-factor-email.request";
-import { TwoFactorProviderRequest } from "../auth/models/request/two-factor-provider.request";
 import { UpdateProfileRequest } from "../auth/models/request/update-profile.request";
-import { UpdateTwoFactorAuthenticatorRequest } from "../auth/models/request/update-two-factor-authenticator.request";
-import { UpdateTwoFactorDuoRequest } from "../auth/models/request/update-two-factor-duo.request";
-import { UpdateTwoFactorEmailRequest } from "../auth/models/request/update-two-factor-email.request";
-import { UpdateTwoFactorWebAuthnDeleteRequest } from "../auth/models/request/update-two-factor-web-authn-delete.request";
-import { UpdateTwoFactorWebAuthnRequest } from "../auth/models/request/update-two-factor-web-authn.request";
-import { UpdateTwoFactorYubikeyOtpRequest } from "../auth/models/request/update-two-factor-yubikey-otp.request";
 import { ApiKeyResponse } from "../auth/models/response/api-key.response";
 import { AuthRequestResponse } from "../auth/models/response/auth-request.response";
-import { DeviceVerificationResponse } from "../auth/models/response/device-verification.response";
 import { IdentityDeviceVerificationResponse } from "../auth/models/response/identity-device-verification.response";
+import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
 import { PreloginResponse } from "../auth/models/response/prelogin.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
-import { TwoFactorAuthenticatorResponse } from "../auth/models/response/two-factor-authenticator.response";
-import { TwoFactorDuoResponse } from "../auth/models/response/two-factor-duo.response";
-import { TwoFactorEmailResponse } from "../auth/models/response/two-factor-email.response";
-import { TwoFactorProviderResponse } from "../auth/models/response/two-factor-provider.response";
-import { TwoFactorRecoverResponse } from "../auth/models/response/two-factor-recover.response";
-import {
-  ChallengeResponse,
-  TwoFactorWebAuthnResponse,
-} from "../auth/models/response/two-factor-web-authn.response";
-import { TwoFactorYubiKeyResponse } from "../auth/models/response/two-factor-yubi-key.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
-import { PaymentRequest } from "../billing/models/request/payment.request";
-import { TaxInfoUpdateRequest } from "../billing/models/request/tax-info-update.request";
 import { BillingHistoryResponse } from "../billing/models/response/billing-history.response";
-import { BillingPaymentResponse } from "../billing/models/response/billing-payment.response";
 import { PaymentResponse } from "../billing/models/response/payment.response";
 import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
-import { TaxInfoResponse } from "../billing/models/response/tax-info.response";
-import { ClientType, DeviceType } from "../enums";
+import { ClientType, DeviceType, HttpStatusCode } from "../enums";
 import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
@@ -114,7 +86,6 @@ import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
 import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-recover.request";
 import { VerifyEmailRequest } from "../models/request/verify-email.request";
-import { BreachAccountResponse } from "../models/response/breach-account.response";
 import { DomainsResponse } from "../models/response/domains.response";
 import { ErrorResponse } from "../models/response/error.response";
 import { EventResponse } from "../models/response/event.response";
@@ -142,7 +113,10 @@ import { CipherRequest } from "../vault/models/request/cipher.request";
 import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
 import { CipherResponse } from "../vault/models/response/cipher.response";
+import { DeleteAttachmentResponse } from "../vault/models/response/delete-attachment.response";
 import { OptionalCipherResponse } from "../vault/models/response/optional-cipher.response";
+
+import { InsecureUrlNotAllowedError } from "./api-errors";
 
 export type HttpOperations = {
   createRequest: (url: string, request: RequestInit) => Request;
@@ -163,6 +137,11 @@ export class ApiService implements ApiServiceAbstraction {
    */
   private static readonly NEW_DEVICE_VERIFICATION_REQUIRED_MESSAGE =
     "new device verification required";
+
+  /**
+   * Middlewares are functions that take a Request and return a Promise that resolves when the middleware is done processing the request. Middlewares are executed in the order they are added, and can modify the request before it is sent. This is used for things like adding cookies to requests for SSO authentication.
+   */
+  private middlewares: Array<(request: Request) => Promise<void>> = [];
 
   constructor(
     private tokenService: TokenService,
@@ -190,7 +169,10 @@ export class ApiService implements ApiServiceAbstraction {
       | SsoTokenRequest
       | WebAuthnLoginTokenRequest,
   ): Promise<
-    IdentityTokenResponse | IdentityTwoFactorResponse | IdentityDeviceVerificationResponse
+    | IdentityTokenResponse
+    | IdentityTwoFactorResponse
+    | IdentityDeviceVerificationResponse
+    | IdentitySsoRequiredResponse
   > {
     const headers = new Headers({
       "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
@@ -237,6 +219,8 @@ export class ApiService implements ApiServiceAbstraction {
         responseJson?.ErrorModel?.Message === ApiService.NEW_DEVICE_VERIFICATION_REQUIRED_MESSAGE
       ) {
         return new IdentityDeviceVerificationResponse(responseJson);
+      } else if (response.status === 400 && responseJson?.SsoOrganizationIdentifier) {
+        return new IdentitySsoRequiredResponse(responseJson);
       }
     }
 
@@ -296,11 +280,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new SubscriptionResponse(r);
   }
 
-  async getTaxInfo(): Promise<TaxInfoResponse> {
-    const r = await this.send("GET", "/accounts/tax", null, true, true);
-    return new TaxInfoResponse(r);
-  }
-
   async putProfile(request: UpdateProfileRequest): Promise<ProfileResponse> {
     const r = await this.send("PUT", "/accounts/profile", request, true, true);
     return new ProfileResponse(r);
@@ -309,10 +288,6 @@ export class ApiService implements ApiServiceAbstraction {
   async putAvatar(request: UpdateAvatarRequest): Promise<ProfileResponse> {
     const r = await this.send("PUT", "/accounts/avatar", request, true, true);
     return new ProfileResponse(r);
-  }
-
-  putTaxInfo(request: TaxInfoUpdateRequest): Promise<any> {
-    return this.send("PUT", "/accounts/tax", request, true, false);
   }
 
   async postPrelogin(request: PreloginRequest): Promise<PreloginResponse> {
@@ -327,15 +302,6 @@ export class ApiService implements ApiServiceAbstraction {
     );
     return new PreloginResponse(r);
   }
-
-  postEmailToken(request: EmailTokenRequest): Promise<any> {
-    return this.send("POST", "/accounts/email-token", request, true, false);
-  }
-
-  postEmail(request: EmailRequest): Promise<any> {
-    return this.send("POST", "/accounts/email", request, true, false);
-  }
-
   postSetKeyConnectorKey(request: SetKeyConnectorKeyRequest): Promise<any> {
     return this.send("POST", "/accounts/set-key-connector-key", request, true, false);
   }
@@ -358,6 +324,7 @@ export class ApiService implements ApiServiceAbstraction {
     return new PaymentResponse(r);
   }
 
+  // TODO: Remove with deletion of pm-29594-update-individual-subscription-page
   postReinstatePremium(): Promise<any> {
     return this.send("POST", "/accounts/reinstate-premium", null, true, false);
   }
@@ -365,10 +332,6 @@ export class ApiService implements ApiServiceAbstraction {
   async postAccountStorage(request: StorageRequest): Promise<PaymentResponse> {
     const r = await this.send("POST", "/accounts/storage", request, true, true);
     return new PaymentResponse(r);
-  }
-
-  postAccountPayment(request: PaymentRequest): Promise<void> {
-    return this.send("POST", "/accounts/payment", request, true, false);
   }
 
   postAccountLicense(data: FormData): Promise<any> {
@@ -431,11 +394,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new BillingHistoryResponse(r);
   }
 
-  async getUserBillingPayment(): Promise<BillingPaymentResponse> {
-    const r = await this.send("GET", "/accounts/billing/payment-method", null, true, true);
-    return new BillingPaymentResponse(r);
-  }
-
   // Cipher APIs
 
   async getCipher(id: string): Promise<CipherResponse> {
@@ -453,14 +411,15 @@ export class ApiService implements ApiServiceAbstraction {
     return new CipherResponse(r);
   }
 
-  async getCiphersOrganization(organizationId: string): Promise<ListResponse<CipherResponse>> {
-    const r = await this.send(
-      "GET",
-      "/ciphers/organization-details?organizationId=" + organizationId,
-      null,
-      true,
-      true,
-    );
+  async getCiphersOrganization(
+    organizationId: string,
+    includeMemberItems?: boolean,
+  ): Promise<ListResponse<CipherResponse>> {
+    let url = "/ciphers/organization-details?organizationId=" + organizationId;
+    if (includeMemberItems) {
+      url += `&includeMemberItems=${includeMemberItems}`;
+    }
+    const r = await this.send("GET", url, null, true, true);
     return new ListResponse(r, CipherResponse);
   }
 
@@ -626,18 +585,32 @@ export class ApiService implements ApiServiceAbstraction {
     return new AttachmentUploadDataResponse(r);
   }
 
-  deleteCipherAttachment(id: string, attachmentId: string): Promise<any> {
-    return this.send("DELETE", "/ciphers/" + id + "/attachment/" + attachmentId, null, true, true);
+  async deleteCipherAttachment(
+    id: string,
+    attachmentId: string,
+  ): Promise<DeleteAttachmentResponse> {
+    const r = await this.send(
+      "DELETE",
+      "/ciphers/" + id + "/attachment/" + attachmentId,
+      null,
+      true,
+      true,
+    );
+    return new DeleteAttachmentResponse(r);
   }
 
-  deleteCipherAttachmentAdmin(id: string, attachmentId: string): Promise<any> {
-    return this.send(
+  async deleteCipherAttachmentAdmin(
+    id: string,
+    attachmentId: string,
+  ): Promise<DeleteAttachmentResponse> {
+    const r = await this.send(
       "DELETE",
       "/ciphers/" + id + "/attachment/" + attachmentId + "/admin",
       null,
       true,
       true,
     );
+    return new DeleteAttachmentResponse(r);
   }
 
   postShareCipherAttachment(
@@ -831,205 +804,6 @@ export class ApiService implements ApiServiceAbstraction {
       : "/sync";
     const r = await this.send("GET", path, null, true, true);
     return new SyncResponse(r);
-  }
-
-  // Two-factor APIs
-
-  async getTwoFactorProviders(): Promise<ListResponse<TwoFactorProviderResponse>> {
-    const r = await this.send("GET", "/two-factor", null, true, true);
-    return new ListResponse(r, TwoFactorProviderResponse);
-  }
-
-  async getTwoFactorOrganizationProviders(
-    organizationId: string,
-  ): Promise<ListResponse<TwoFactorProviderResponse>> {
-    const r = await this.send(
-      "GET",
-      "/organizations/" + organizationId + "/two-factor",
-      null,
-      true,
-      true,
-    );
-    return new ListResponse(r, TwoFactorProviderResponse);
-  }
-
-  async getTwoFactorAuthenticator(
-    request: SecretVerificationRequest,
-  ): Promise<TwoFactorAuthenticatorResponse> {
-    const r = await this.send("POST", "/two-factor/get-authenticator", request, true, true);
-    return new TwoFactorAuthenticatorResponse(r);
-  }
-
-  async getTwoFactorEmail(request: SecretVerificationRequest): Promise<TwoFactorEmailResponse> {
-    const r = await this.send("POST", "/two-factor/get-email", request, true, true);
-    return new TwoFactorEmailResponse(r);
-  }
-
-  async getTwoFactorDuo(request: SecretVerificationRequest): Promise<TwoFactorDuoResponse> {
-    const r = await this.send("POST", "/two-factor/get-duo", request, true, true);
-    return new TwoFactorDuoResponse(r);
-  }
-
-  async getTwoFactorOrganizationDuo(
-    organizationId: string,
-    request: SecretVerificationRequest,
-  ): Promise<TwoFactorDuoResponse> {
-    const r = await this.send(
-      "POST",
-      "/organizations/" + organizationId + "/two-factor/get-duo",
-      request,
-      true,
-      true,
-    );
-    return new TwoFactorDuoResponse(r);
-  }
-
-  async getTwoFactorYubiKey(request: SecretVerificationRequest): Promise<TwoFactorYubiKeyResponse> {
-    const r = await this.send("POST", "/two-factor/get-yubikey", request, true, true);
-    return new TwoFactorYubiKeyResponse(r);
-  }
-
-  async getTwoFactorWebAuthn(
-    request: SecretVerificationRequest,
-  ): Promise<TwoFactorWebAuthnResponse> {
-    const r = await this.send("POST", "/two-factor/get-webauthn", request, true, true);
-    return new TwoFactorWebAuthnResponse(r);
-  }
-
-  async getTwoFactorWebAuthnChallenge(
-    request: SecretVerificationRequest,
-  ): Promise<ChallengeResponse> {
-    const r = await this.send("POST", "/two-factor/get-webauthn-challenge", request, true, true);
-    return new ChallengeResponse(r);
-  }
-
-  async getTwoFactorRecover(request: SecretVerificationRequest): Promise<TwoFactorRecoverResponse> {
-    const r = await this.send("POST", "/two-factor/get-recover", request, true, true);
-    return new TwoFactorRecoverResponse(r);
-  }
-
-  async putTwoFactorAuthenticator(
-    request: UpdateTwoFactorAuthenticatorRequest,
-  ): Promise<TwoFactorAuthenticatorResponse> {
-    const r = await this.send("PUT", "/two-factor/authenticator", request, true, true);
-    return new TwoFactorAuthenticatorResponse(r);
-  }
-
-  async deleteTwoFactorAuthenticator(
-    request: DisableTwoFactorAuthenticatorRequest,
-  ): Promise<TwoFactorProviderResponse> {
-    const r = await this.send("DELETE", "/two-factor/authenticator", request, true, true);
-    return new TwoFactorProviderResponse(r);
-  }
-
-  async putTwoFactorEmail(request: UpdateTwoFactorEmailRequest): Promise<TwoFactorEmailResponse> {
-    const r = await this.send("PUT", "/two-factor/email", request, true, true);
-    return new TwoFactorEmailResponse(r);
-  }
-
-  async putTwoFactorDuo(request: UpdateTwoFactorDuoRequest): Promise<TwoFactorDuoResponse> {
-    const r = await this.send("PUT", "/two-factor/duo", request, true, true);
-    return new TwoFactorDuoResponse(r);
-  }
-
-  async putTwoFactorOrganizationDuo(
-    organizationId: string,
-    request: UpdateTwoFactorDuoRequest,
-  ): Promise<TwoFactorDuoResponse> {
-    const r = await this.send(
-      "PUT",
-      "/organizations/" + organizationId + "/two-factor/duo",
-      request,
-      true,
-      true,
-    );
-    return new TwoFactorDuoResponse(r);
-  }
-
-  async putTwoFactorYubiKey(
-    request: UpdateTwoFactorYubikeyOtpRequest,
-  ): Promise<TwoFactorYubiKeyResponse> {
-    const r = await this.send("PUT", "/two-factor/yubikey", request, true, true);
-    return new TwoFactorYubiKeyResponse(r);
-  }
-
-  async putTwoFactorWebAuthn(
-    request: UpdateTwoFactorWebAuthnRequest,
-  ): Promise<TwoFactorWebAuthnResponse> {
-    const response = request.deviceResponse.response as AuthenticatorAttestationResponse;
-    const data: any = Object.assign({}, request);
-
-    data.deviceResponse = {
-      id: request.deviceResponse.id,
-      rawId: btoa(request.deviceResponse.id),
-      type: request.deviceResponse.type,
-      extensions: request.deviceResponse.getClientExtensionResults(),
-      response: {
-        AttestationObject: Utils.fromBufferToB64(response.attestationObject),
-        clientDataJson: Utils.fromBufferToB64(response.clientDataJSON),
-      },
-    };
-
-    const r = await this.send("PUT", "/two-factor/webauthn", data, true, true);
-    return new TwoFactorWebAuthnResponse(r);
-  }
-
-  async deleteTwoFactorWebAuthn(
-    request: UpdateTwoFactorWebAuthnDeleteRequest,
-  ): Promise<TwoFactorWebAuthnResponse> {
-    const r = await this.send("DELETE", "/two-factor/webauthn", request, true, true);
-    return new TwoFactorWebAuthnResponse(r);
-  }
-
-  async putTwoFactorDisable(request: TwoFactorProviderRequest): Promise<TwoFactorProviderResponse> {
-    const r = await this.send("PUT", "/two-factor/disable", request, true, true);
-    return new TwoFactorProviderResponse(r);
-  }
-
-  async putTwoFactorOrganizationDisable(
-    organizationId: string,
-    request: TwoFactorProviderRequest,
-  ): Promise<TwoFactorProviderResponse> {
-    const r = await this.send(
-      "PUT",
-      "/organizations/" + organizationId + "/two-factor/disable",
-      request,
-      true,
-      true,
-    );
-    return new TwoFactorProviderResponse(r);
-  }
-
-  postTwoFactorEmailSetup(request: TwoFactorEmailRequest): Promise<any> {
-    return this.send("POST", "/two-factor/send-email", request, true, false);
-  }
-
-  postTwoFactorEmail(request: TwoFactorEmailRequest): Promise<any> {
-    return this.send("POST", "/two-factor/send-email-login", request, false, false);
-  }
-
-  async getDeviceVerificationSettings(): Promise<DeviceVerificationResponse> {
-    const r = await this.send(
-      "GET",
-      "/two-factor/get-device-verification-settings",
-      null,
-      true,
-      true,
-    );
-    return new DeviceVerificationResponse(r);
-  }
-
-  async putDeviceVerificationSettings(
-    request: DeviceVerificationRequest,
-  ): Promise<DeviceVerificationResponse> {
-    const r = await this.send(
-      "PUT",
-      "/two-factor/device-verification-settings",
-      request,
-      true,
-      true,
-    );
-    return new DeviceVerificationResponse(r);
   }
 
   // Organization APIs
@@ -1296,6 +1070,28 @@ export class ApiService implements ApiServiceAbstraction {
     return new ListResponse(r, EventResponse);
   }
 
+  async getEventsServiceAccount(
+    orgId: string,
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>> {
+    const r = await this.send(
+      "GET",
+      this.addEventParameters(
+        "/organization/" + orgId + "/service-account/" + id + "/events",
+        start,
+        end,
+        token,
+      ),
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, EventResponse);
+  }
+
   async getEventsProject(
     orgId: string,
     id: string,
@@ -1431,14 +1227,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new UserKeyResponse(r);
   }
 
-  // HIBP APIs
-
-  async getHibpBreach(username: string): Promise<BreachAccountResponse[]> {
-    const encodedUsername = encodeURIComponent(username);
-    const r = await this.send("GET", "/hibp/breach?username=" + encodedUsername, null, true, true);
-    return r.map((a: any) => new BreachAccountResponse(a));
-  }
-
   // Misc
 
   async postBitPayInvoice(request: BitPayInvoiceRequest): Promise<string> {
@@ -1473,8 +1261,8 @@ export class ApiService implements ApiServiceAbstraction {
       }),
     );
 
-    if (response.status !== 200) {
-      const error = await this.handleError(response, false, true);
+    if (response.status !== HttpStatusCode.Ok) {
+      const error = await this.handleApiRequestError(response, true);
       return Promise.reject(error);
     }
 
@@ -1504,8 +1292,8 @@ export class ApiService implements ApiServiceAbstraction {
       }),
     );
 
-    if (response.status !== 200) {
-      const error = await this.handleError(response, false, true);
+    if (response.status !== HttpStatusCode.Ok) {
+      const error = await this.handleApiRequestError(response, true);
       return Promise.reject(error);
     }
   }
@@ -1522,24 +1310,11 @@ export class ApiService implements ApiServiceAbstraction {
       }),
     );
 
-    if (response.status !== 200) {
-      const error = await this.handleError(response, false, true);
+    if (response.status !== HttpStatusCode.Ok) {
+      const error = await this.handleApiRequestError(response, true);
       return Promise.reject(error);
     }
   }
-
-  async getOrganizationExport(organizationId: string): Promise<OrganizationExportResponse> {
-    const r = await this.send(
-      "GET",
-      "/organizations/" + organizationId + "/export",
-      null,
-      true,
-      true,
-    );
-    return new OrganizationExportResponse(r);
-  }
-
-  // Helpers
 
   async getActiveBearerToken(userId: UserId): Promise<string> {
     let accessToken = await this.tokenService.getAccessToken(userId);
@@ -1549,7 +1324,15 @@ export class ApiService implements ApiServiceAbstraction {
     return accessToken;
   }
 
+  addMiddleware(middleware: (request: Request) => Promise<void>): void {
+    this.middlewares.push(middleware);
+  }
+
   async fetch(request: Request): Promise<Response> {
+    if (!request.url.startsWith("https://") && !this.platformUtilsService.isDev()) {
+      throw new InsecureUrlNotAllowedError();
+    }
+
     if (request.method === "GET") {
       request.headers.set("Cache-Control", "no-store");
       request.headers.set("Pragma", "no-cache");
@@ -1559,6 +1342,18 @@ export class ApiService implements ApiServiceAbstraction {
       "Bitwarden-Client-Version",
       await this.platformUtilsService.getApplicationVersionNumber(),
     );
+
+    const packageType = await this.platformUtilsService.packageType();
+    if (packageType != null) {
+      request.headers.set("Bitwarden-Package-Type", packageType);
+    }
+
+    await Promise.all(
+      this.middlewares.map((middleware) => {
+        return middleware(request);
+      }),
+    );
+
     return this.nativeFetch(request);
   }
 
@@ -1593,7 +1388,7 @@ export class ApiService implements ApiServiceAbstraction {
       const body = await response.json();
       return new SsoPreValidateResponse(body);
     } else {
-      const error = await this.handleError(response, false, true);
+      const error = await this.handleApiRequestError(response, false);
       return Promise.reject(error);
     }
   }
@@ -1748,7 +1543,7 @@ export class ApiService implements ApiServiceAbstraction {
       );
       return refreshedTokens.accessToken;
     } else {
-      const error = await this.handleError(response, true, true);
+      const error = await this.handleTokenRefreshRequestError(response);
       return Promise.reject(error);
     }
   }
@@ -1803,6 +1598,87 @@ export class ApiService implements ApiServiceAbstraction {
     apiUrl?: string | null,
     alterHeaders?: (headers: Headers) => void,
   ): Promise<any> {
+    // We assume that if there is a UserId making the request, it is also an authenticated
+    // request and we will attempt to add an access token to the request.
+    const userIdMakingRequest = await this.getUserIdMakingRequest(authedOrUserId);
+
+    const environment = await firstValueFrom(
+      userIdMakingRequest == null
+        ? this.environmentService.environment$
+        : this.environmentService.getEnvironment$(userIdMakingRequest),
+    );
+    apiUrl = Utils.isNullOrWhitespace(apiUrl) ? environment.getApiUrl() : apiUrl;
+
+    const requestUrl = await this.buildSafeApiRequestUrl(apiUrl, path);
+
+    let request = await this.buildRequest(
+      method,
+      userIdMakingRequest,
+      environment,
+      hasResponse,
+      body,
+      alterHeaders,
+    );
+
+    let response = await this.fetch(this.httpOperations.createRequest(requestUrl, request));
+
+    // First, check to see if we were making an authenticated request and received an Unauthorized (401)
+    // response.  This could mean that we attempted to make a request with an expired access token.
+    // If so, attempt to refresh the token and try again.
+    if (
+      hasResponse &&
+      userIdMakingRequest != null &&
+      response.status === HttpStatusCode.Unauthorized
+    ) {
+      this.logService.warning(
+        "Unauthorized response received for request to " + path + ". Attempting request again.",
+      );
+      request = await this.buildRequest(
+        method,
+        userIdMakingRequest,
+        environment,
+        hasResponse,
+        body,
+        alterHeaders,
+      );
+      response = await this.fetch(this.httpOperations.createRequest(requestUrl, request));
+    }
+
+    // At this point we are processing either the initial response or the response for the retry with the refreshed
+    // access token.
+    const responseType = response.headers.get("content-type");
+    const responseIsJson = responseType != null && responseType.indexOf("application/json") !== -1;
+    const responseIsCsv = responseType != null && responseType.indexOf("text/csv") !== -1;
+    if (hasResponse && response.status === HttpStatusCode.Ok && responseIsJson) {
+      const responseJson = await response.json();
+      return responseJson;
+    } else if (hasResponse && response.status === HttpStatusCode.Ok && responseIsCsv) {
+      return await response.text();
+    } else if (
+      response.status !== HttpStatusCode.Ok &&
+      response.status !== HttpStatusCode.NoContent
+    ) {
+      const error = await this.handleApiRequestError(response, userIdMakingRequest != null);
+      return Promise.reject(error);
+    }
+  }
+
+  private buildSafeApiRequestUrl(apiUrl: string, path: string): string {
+    const pathParts = path.split("?");
+
+    // Supplementary heuristic: detect common traversal indicators before normalization.
+    const fullUrlPath = apiUrl + pathParts[0] + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
+    if (Utils.containsTraversalIndicators(fullUrlPath)) {
+      throw new Error("The request URL contains unexpected patterns.");
+    }
+
+    const requestUrl =
+      apiUrl + Utils.normalizePath(pathParts[0]) + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
+
+    return requestUrl;
+  }
+
+  private async getUserIdMakingRequest(authedOrUserId: UserId | boolean): Promise<UserId> {
     if (authedOrUserId == null) {
       throw new Error("A user id was given but it was null, cannot complete API request.");
     }
@@ -1814,21 +1690,19 @@ export class ApiService implements ApiServiceAbstraction {
     } else if (typeof authedOrUserId === "string") {
       userId = authedOrUserId;
     }
+    return userId;
+  }
 
-    const env = await firstValueFrom(
-      userId == null
-        ? this.environmentService.environment$
-        : this.environmentService.getEnvironment$(userId),
-    );
-    apiUrl = Utils.isNullOrWhitespace(apiUrl) ? env.getApiUrl() : apiUrl;
-
-    // Prevent directory traversal from malicious paths
-    const pathParts = path.split("?");
-    const requestUrl =
-      apiUrl + Utils.normalizePath(pathParts[0]) + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
-
+  private async buildRequest(
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
+    userForAccessToken: UserId | null,
+    environment: Environment,
+    hasResponse: boolean,
+    body: string,
+    alterHeaders?: (headers: Headers) => void,
+  ): Promise<RequestInit> {
     const [requestHeaders, requestBody] = await this.buildHeadersAndBody(
-      userId,
+      userForAccessToken,
       hasResponse,
       body,
       alterHeaders,
@@ -1836,29 +1710,17 @@ export class ApiService implements ApiServiceAbstraction {
 
     const requestInit: RequestInit = {
       cache: "no-store",
-      credentials: await this.getCredentials(env),
+      credentials: await this.getCredentials(environment),
       method: method,
     };
     requestInit.headers = requestHeaders;
     requestInit.body = requestBody;
-    const response = await this.fetch(this.httpOperations.createRequest(requestUrl, requestInit));
 
-    const responseType = response.headers.get("content-type");
-    const responseIsJson = responseType != null && responseType.indexOf("application/json") !== -1;
-    const responseIsCsv = responseType != null && responseType.indexOf("text/csv") !== -1;
-    if (hasResponse && response.status === 200 && responseIsJson) {
-      const responseJson = await response.json();
-      return responseJson;
-    } else if (hasResponse && response.status === 200 && responseIsCsv) {
-      return await response.text();
-    } else if (response.status !== 200 && response.status !== 204) {
-      const error = await this.handleError(response, false, userId != null);
-      return Promise.reject(error);
-    }
+    return requestInit;
   }
 
   private async buildHeadersAndBody(
-    userToAuthenticate: UserId | null,
+    userForAccessToken: UserId | null,
     hasResponse: boolean,
     body: any,
     alterHeaders: (headers: Headers) => void,
@@ -1880,8 +1742,8 @@ export class ApiService implements ApiServiceAbstraction {
     if (alterHeaders != null) {
       alterHeaders(headers);
     }
-    if (userToAuthenticate != null) {
-      const authHeader = await this.getActiveBearerToken(userToAuthenticate);
+    if (userForAccessToken != null) {
+      const authHeader = await this.getActiveBearerToken(userForAccessToken);
       headers.set("Authorization", "Bearer " + authHeader);
     } else {
       // For unauthenticated requests, we need to tell the server what the device is for flag targeting,
@@ -1907,32 +1769,59 @@ export class ApiService implements ApiServiceAbstraction {
     return [headers, requestBody];
   }
 
-  private async handleError(
+  /**
+   * Handle an error response from a request to the Bitwarden API.
+   * If the request is made with an access token (aka the user is authenticated),
+   * and we receive a 401 or 403 response, we will log the user out, as this indicates
+   * that the access token used on the request is either expired or does not have the appropriate permissions.
+   * It is unlikely that it is expired, as we attempt to refresh the token on initial failure.
+   * @param response The response from the API request
+   * @param userIsAuthenticated A boolean indicating whether this is an authenticated request.
+   * @returns An ErrorResponse with a message based on the response status.
+   */
+  private async handleApiRequestError(
     response: Response,
-    tokenError: boolean,
-    authed: boolean,
+    userIsAuthenticated: boolean,
   ): Promise<ErrorResponse> {
+    if (
+      userIsAuthenticated &&
+      (response.status === HttpStatusCode.Unauthorized ||
+        response.status === HttpStatusCode.Forbidden)
+    ) {
+      await this.logoutCallback("invalidAccessToken");
+    }
+
+    const responseJson = await this.getJsonResponse(response);
+    return new ErrorResponse(responseJson, response.status);
+  }
+
+  /**
+   * Handle an error response when trying to refresh an access token.
+   * If the error indicates that the user's session has expired, it will log the user out.
+   * @param response The response from the token refresh request.
+   * @returns An ErrorResponse with a message based on the response status.
+   */
+  private async handleTokenRefreshRequestError(response: Response): Promise<ErrorResponse> {
+    const responseJson = await this.getJsonResponse(response);
+
+    // IdentityServer will return an invalid_grant response if the refresh token has expired.
+    // This means that the user's session has expired, and they need to log out.
+    // We issue the logoutCallback() to log the user out through messaging.
+    if (response.status === HttpStatusCode.BadRequest && responseJson?.error === "invalid_grant") {
+      await this.logoutCallback("sessionExpired");
+    }
+
+    return new ErrorResponse(responseJson, response.status, true);
+  }
+
+  private async getJsonResponse(response: Response): Promise<any> {
     let responseJson: any = null;
     if (this.isJsonResponse(response)) {
       responseJson = await response.json();
     } else if (this.isTextPlainResponse(response)) {
       responseJson = { Message: await response.text() };
     }
-
-    if (authed) {
-      if (
-        response.status === 401 ||
-        response.status === 403 ||
-        (tokenError &&
-          response.status === 400 &&
-          responseJson != null &&
-          responseJson.error === "invalid_grant")
-      ) {
-        await this.logoutCallback("invalidGrantError");
-      }
-    }
-
-    return new ErrorResponse(responseJson, response.status, tokenError);
+    return responseJson;
   }
 
   private qsStringify(params: any): string {

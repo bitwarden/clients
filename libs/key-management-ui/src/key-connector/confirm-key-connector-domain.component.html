@@ -8,17 +8,34 @@
     <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   </div>
 } @else {
-  <div class="tw-mb-4">
-    <p class="tw-mb-1 tw-text-sm tw-font-semibold">{{ "keyConnectorDomain" | i18n }}:</p>
-    <p class="tw-text-muted tw-break-all">{{ keyConnectorUrl }}</p>
-  </div>
+  @if (organizationName) {
+    <p>{{ "confirmKeyConnectorOrganizationUserDescription" | i18n }}</p>
+
+    <p class="tw-mb-0 tw-font-bold">{{ "organization" | i18n }}</p>
+    <p class="tw-mb-6">{{ organizationName }}</p>
+  } @else {
+    <p>{{ "verifyYourDomainDescription" | i18n }}</p>
+  }
+
+  <p class="tw-mb-0 tw-font-bold tw-inline-flex tw-items-center">
+    {{ "domain" | i18n }}
+    <button
+      type="button"
+      [label]="'keyConnectorDomainTooltip' | i18n"
+      tooltipPosition="above-center"
+      bitIconButton="bwi-info-circle"
+      size="small"
+    ></button>
+  </p>
+  <p class="tw-mb-6 tw-font-mono">{{ keyConnectorHostName }}</p>
 
   <div class="tw-flex tw-flex-col tw-gap-2">
     <button bitButton type="button" buttonType="primary" [bitAction]="confirm" [block]="true">
-      {{ "confirm" | i18n }}
+      {{ "continueWithLogIn" | i18n }}
     </button>
+
     <button bitButton type="button" buttonType="secondary" [bitAction]="cancel" [block]="true">
-      {{ "cancel" | i18n }}
+      {{ "doNotContinue" | i18n }}
     </button>
   </div>
 }

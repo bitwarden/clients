@@ -1,6 +1,16 @@
 import { CommonModule } from "@angular/common";
-import { Input, Output, EventEmitter, Component, OnInit, ViewChild } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import {
+  Input,
+  Output,
+  EventEmitter,
+  Component,
+  OnInit,
+  ViewChild,
+  OnChanges,
+  SimpleChanges,
+  input,
+} from "@angular/core";
+import { combineLatest, firstValueFrom, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -8,32 +18,64 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { ButtonComponent, ButtonModule, DialogService, ToastService } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { ArchiveCipherUtilitiesService, PasswordRepromptService } from "@bitwarden/vault";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-vault-item-footer",
   templateUrl: "item-footer.component.html",
   imports: [ButtonModule, CommonModule, JslibModule],
 })
-export class ItemFooterComponent implements OnInit {
+export class ItemFooterComponent implements OnInit, OnChanges {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) cipher: CipherView = new CipherView();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() collectionId: string | null = null;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) action: string = "view";
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() masterPasswordAlreadyPrompted: boolean = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onEdit = new EventEmitter<CipherView>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onClone = new EventEmitter<CipherView>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onDelete = new EventEmitter<CipherView>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onRestore = new EventEmitter<CipherView>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onCancel = new EventEmitter<CipherView>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
+  @Output() onArchiveToggle = new EventEmitter<CipherView>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("submitBtn", { static: false }) submitBtn: ButtonComponent | null = null;
+
+  readonly submitButtonText = input<string>(this.i18nService.t("save"));
 
   activeUserId: UserId | null = null;
   passwordReprompted: boolean = false;
+
+  protected showArchiveButton = false;
+  protected showUnarchiveButton = false;
+  protected userCanArchive = false;
 
   constructor(
     protected cipherService: CipherService,
@@ -44,11 +86,20 @@ export class ItemFooterComponent implements OnInit {
     protected toastService: ToastService,
     protected i18nService: I18nService,
     protected logService: LogService,
+    protected cipherArchiveService: CipherArchiveService,
+    protected archiveCipherUtilitiesService: ArchiveCipherUtilitiesService,
   ) {}
 
   async ngOnInit() {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     this.passwordReprompted = this.masterPasswordAlreadyPrompted;
+    await this.checkArchiveState();
+  }
+
+  async ngOnChanges(changes: SimpleChanges) {
+    if (changes.cipher || changes.action) {
+      await this.checkArchiveState();
+    }
   }
 
   async clone() {
@@ -74,6 +125,24 @@ export class ItemFooterComponent implements OnInit {
 
   protected edit() {
     this.onEdit.emit(this.cipher);
+  }
+
+  protected get hasFooterAction() {
+    return this.showArchiveButton || this.showUnarchiveButton || this.canDelete;
+  }
+
+  protected get showCloneOption() {
+    return (
+      this.cipher.id &&
+      !this.cipher?.organizationId &&
+      !this.cipher.isDeleted &&
+      this.action === "view" &&
+      (!this.cipher.isArchived || this.userCanArchive)
+    );
+  }
+
+  protected get canDelete() {
+    return this.cipher.permissions?.delete && (this.action === "edit" || this.action === "view");
   }
 
   cancel() {
@@ -115,8 +184,15 @@ export class ItemFooterComponent implements OnInit {
   }
 
   async restore(): Promise<boolean> {
+    let toastMessage;
     if (!this.cipher.isDeleted) {
       return false;
+    }
+
+    if (this.cipher.isArchived) {
+      toastMessage = this.i18nService.t("archivedItemRestored");
+    } else {
+      toastMessage = this.i18nService.t("restoredItem");
     }
 
     try {
@@ -124,7 +200,7 @@ export class ItemFooterComponent implements OnInit {
       await this.restoreCipher(activeUserId);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("restoredItem"),
+        message: toastMessage,
       });
       this.onRestore.emit(this.cipher);
     } catch (e) {
@@ -150,5 +226,50 @@ export class ItemFooterComponent implements OnInit {
     }
 
     return (this.passwordReprompted = await this.passwordRepromptService.showPasswordPrompt());
+  }
+
+  protected async archive() {
+    /**
+     * When the Archive Button is used in the footer we can skip the reprompt since
+     * the user will have already passed the reprompt when they opened the item.
+     */
+    await this.archiveCipherUtilitiesService.archiveCipher(this.cipher, true);
+    this.onArchiveToggle.emit();
+  }
+
+  protected async unarchive() {
+    /**
+     * When the Unarchive Button is used in the footer we can skip the reprompt since
+     * the user will have already passed the reprompt when they opened the item.
+     */
+    await this.archiveCipherUtilitiesService.unarchiveCipher(this.cipher, true);
+    this.onArchiveToggle.emit();
+  }
+
+  private async checkArchiveState() {
+    const cipherCanBeArchived = !this.cipher.isDeleted;
+    const [userCanArchive, hasArchiveFlagEnabled] = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((id) =>
+          combineLatest([
+            this.cipherArchiveService.userCanArchive$(id),
+            this.cipherArchiveService.hasArchiveFlagEnabled$,
+          ]),
+        ),
+      ),
+    );
+
+    this.userCanArchive = userCanArchive;
+
+    this.showArchiveButton =
+      cipherCanBeArchived && userCanArchive && this.action === "view" && !this.cipher.isArchived;
+
+    // A user should always be able to unarchive an archived item
+    this.showUnarchiveButton =
+      hasArchiveFlagEnabled &&
+      this.action === "view" &&
+      this.cipher.isArchived &&
+      !this.cipher.isDeleted;
   }
 }

@@ -1,7 +1,13 @@
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum OtpMethod {
-  GoogleAuth,
-  MicrosoftAuth,
-  Yubikey,
-}
+/**
+ * Represents OTP authentication methods.
+ */
+export const OtpMethod = Object.freeze({
+  GoogleAuth: 0,
+  MicrosoftAuth: 1,
+  Yubikey: 2,
+} as const);
+
+/**
+ * Type representing valid OTP method values.
+ */
+export type OtpMethod = (typeof OtpMethod)[keyof typeof OtpMethod];

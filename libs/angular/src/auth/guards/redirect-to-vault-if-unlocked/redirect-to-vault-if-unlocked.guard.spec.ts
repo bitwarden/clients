@@ -7,6 +7,7 @@ import { EmptyComponent } from "@bitwarden/angular/platform/guard/feature-flag.g
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { redirectToVaultIfUnlockedGuard } from "./redirect-to-vault-if-unlocked.guard";
@@ -14,9 +15,10 @@ import { redirectToVaultIfUnlockedGuard } from "./redirect-to-vault-if-unlocked.
 describe("redirectToVaultIfUnlockedGuard", () => {
   const activeUser: Account = {
     id: "userId" as UserId,
-    email: "test@email.com",
-    emailVerified: true,
-    name: "Test User",
+    ...mockAccountInfoWith({
+      email: "test@email.com",
+      name: "Test User",
+    }),
   };
 
   const setup = (activeUser: Account | null, authStatus: AuthenticationStatus | null) => {

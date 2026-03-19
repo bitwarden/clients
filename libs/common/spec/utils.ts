@@ -2,7 +2,10 @@
 // @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { KeyService } from "@bitwarden/key-management";
 
 import { EncryptionType } from "../src/platform/enums";
 import { Utils } from "../src/platform/misc/utils";
@@ -29,7 +32,7 @@ export function BuildTestObject<T, K extends keyof T = keyof T>(
 
 export function mockEnc(s: string): MockProxy<EncString> {
   const mocked = mock<EncString>();
-  mocked.decrypt.mockResolvedValue(s);
+  mocked.decryptedValue = s;
 
   return mocked;
 }
@@ -75,6 +78,16 @@ export const mockFromSdk = (stub: any) => {
   }
 
   return `${stub}_fromSdk`;
+};
+
+export const mockContainerService = () => {
+  const keyService = mock<KeyService>();
+  const encryptService = mock<EncryptService>();
+  encryptService.decryptString.mockImplementation(async (encStr, _key) => {
+    return encStr.decryptedValue;
+  });
+  (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+  return (window as any).bitwardenContainerService;
 };
 
 export { trackEmissions, awaitAsync } from "@bitwarden/core-test-utils";

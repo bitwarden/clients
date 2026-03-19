@@ -53,7 +53,8 @@ export function isWindowsStore() {
   if (
     windows &&
     !windowsStore &&
-    process.resourcesPath?.indexOf("8bitSolutionsLLC.bitwardendesktop_") > -1
+    (process.resourcesPath?.indexOf("8bitSolutionsLLC.bitwardendesktop_") > -1 ||
+      process.resourcesPath?.indexOf("8bitSolutionsLLC.BitwardenBeta_") > -1)
   ) {
     windowsStore = true;
   }
@@ -69,8 +70,7 @@ export function isWindowsPortable() {
 }
 
 /**
- * We block the browser integration on some unsupported platforms, which also
- * blocks partially supported platforms (mac .dmg in dev builds) / prevents
+ * We block the browser integration on some unsupported platforms prevents
  * experimenting with the feature for QA. So this env var allows overriding
  * the block.
  */

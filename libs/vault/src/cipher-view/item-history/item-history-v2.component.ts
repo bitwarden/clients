@@ -16,6 +16,8 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-item-history-v2",
   templateUrl: "item-history-v2.component.html",
@@ -31,6 +33,8 @@ import {
   ],
 })
 export class ItemHistoryV2Component {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() cipher: CipherView;
 
   constructor(private viewPasswordHistoryService: ViewPasswordHistoryService) {}

@@ -15,8 +15,8 @@ export async function registerOssPrograms(serviceContainer: ServiceContainer) {
   await program.register();
 
   const vaultProgram = new VaultProgram(serviceContainer);
-  vaultProgram.register();
+  await vaultProgram.register();
 
   const sendProgram = new SendProgram(serviceContainer);
-  sendProgram.register();
+  await sendProgram.register();
 }

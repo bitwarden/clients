@@ -6,9 +6,8 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -23,6 +22,8 @@ import {
 
 import { CipherFormContainer } from "../../cipher-form-container";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-card-details-section",
   templateUrl: "./card-details-section.component.html",
@@ -40,9 +41,13 @@ import { CipherFormContainer } from "../../cipher-form-container";
 })
 export class CardDetailsSectionComponent implements OnInit {
   /** The original cipher */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() originalCipherView: CipherView;
 
   /** True when all fields should be disabled */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() disabled: boolean;
 
   /**
@@ -52,12 +57,12 @@ export class CardDetailsSectionComponent implements OnInit {
    * leaving as just null gets inferred as `unknown`
    */
   cardDetailsForm = this.formBuilder.group({
-    cardholderName: null as string | null,
-    number: null as string | null,
-    brand: null as string | null,
-    expMonth: null as string | null,
-    expYear: null as string | number | null,
-    code: null as string | null,
+    cardholderName: "",
+    number: "",
+    brand: "",
+    expMonth: "",
+    expYear: "" as string | number,
+    code: "",
   });
 
   /** Available Card Brands */
@@ -110,16 +115,14 @@ export class CardDetailsSectionComponent implements OnInit {
       .pipe(takeUntilDestroyed())
       .subscribe(({ cardholderName, number, brand, expMonth, expYear, code }) => {
         this.cipherFormContainer.patchCipher((cipher) => {
-          const expirationYear = normalizeExpiryYearFormat(expYear);
+          const expirationYear = normalizeExpiryYearFormat(expYear) ?? "";
 
-          Object.assign(cipher.card, {
-            cardholderName,
-            number,
-            brand,
-            expMonth,
-            expYear: expirationYear,
-            code,
-          });
+          cipher.card.cardholderName = cardholderName;
+          cipher.card.number = number;
+          cipher.card.brand = brand;
+          cipher.card.expMonth = expMonth;
+          cipher.card.expYear = expirationYear;
+          cipher.card.code = code;
 
           return cipher;
         });
@@ -154,6 +157,7 @@ export class CardDetailsSectionComponent implements OnInit {
     this.cardDetailsForm.patchValue({
       cardholderName: this.initialValues?.cardholderName ?? existingCard.cardholderName,
       number: this.initialValues?.number ?? existingCard.number,
+      brand: this.initialValues?.brand ?? existingCard.brand,
       expMonth: this.initialValues?.expMonth ?? existingCard.expMonth,
       expYear: this.initialValues?.expYear ?? existingCard.expYear,
       code: this.initialValues?.code ?? existingCard.code,
@@ -167,6 +171,7 @@ export class CardDetailsSectionComponent implements OnInit {
       expMonth: this.initialValues?.expMonth || "",
       expYear: this.initialValues?.expYear || "",
       code: this.initialValues?.code || "",
+      brand: CardView.getCardBrandByPatterns(this.initialValues?.number) || "",
     });
   }
 
@@ -194,19 +199,5 @@ export class CardDetailsSectionComponent implements OnInit {
         originalCipher.organizationId,
       );
     }
-  }
-
-  /** Set form initial form values from the current cipher */
-  private setInitialValues(cipherView: CipherView) {
-    const { cardholderName, number, brand, expMonth, expYear, code } = cipherView.card;
-
-    this.cardDetailsForm.setValue({
-      cardholderName: cardholderName,
-      number: number,
-      brand: brand,
-      expMonth: expMonth,
-      expYear: expYear,
-      code: code,
-    });
   }
 }

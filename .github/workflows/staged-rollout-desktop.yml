@@ -47,11 +47,11 @@ jobs:
           AWS_DEFAULT_REGION: 'us-west-2'
           AWS_S3_BUCKET_NAME: ${{ steps.retrieve-secrets.outputs.aws-electron-bucket-name }}
         run: |
-          aws s3 cp $AWS_S3_BUCKET_NAME/desktop/latest.yml . \
+          aws s3 cp "$AWS_S3_BUCKET_NAME/desktop/latest.yml" . \
           --quiet
-          aws s3 cp $AWS_S3_BUCKET_NAME/desktop/latest-linux.yml . \
+          aws s3 cp "$AWS_S3_BUCKET_NAME/desktop/latest-linux.yml" . \
           --quiet
-          aws s3 cp $AWS_S3_BUCKET_NAME/desktop/latest-mac.yml . \
+          aws s3 cp "$AWS_S3_BUCKET_NAME/desktop/latest-mac.yml" . \
           --quiet
 
       - name: Check new rollout percentage
@@ -86,11 +86,11 @@ jobs:
           AWS_DEFAULT_REGION: 'us-west-2'
           AWS_S3_BUCKET_NAME: ${{ steps.retrieve-secrets.outputs.aws-electron-bucket-name }}
         run: |
-          aws s3 cp latest.yml $AWS_S3_BUCKET_NAME/desktop/ \
+          aws s3 cp latest.yml "$AWS_S3_BUCKET_NAME/desktop/" \
           --acl "public-read"
 
-          aws s3 cp latest-linux.yml $AWS_S3_BUCKET_NAME/desktop/ \
+          aws s3 cp latest-linux.yml "$AWS_S3_BUCKET_NAME/desktop/" \
           --acl "public-read"
 
-          aws s3 cp latest-mac.yml $AWS_S3_BUCKET_NAME/desktop/ \
+          aws s3 cp latest-mac.yml "$AWS_S3_BUCKET_NAME/desktop/" \
           --acl "public-read"

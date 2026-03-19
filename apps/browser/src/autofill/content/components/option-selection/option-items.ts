@@ -3,6 +3,7 @@ import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
+import { EventSecurity } from "../../../utils/event-security";
 import { Option } from "../common-types";
 import { themes, typography, scrollbarStyles, spacing } from "../constants/styles";
 
@@ -57,6 +58,10 @@ export function OptionItems({
 }
 
 function handleMenuKeyUp(event: KeyboardEvent) {
+  if (!EventSecurity.isEventTrusted(event)) {
+    return;
+  }
+
   const items = [
     ...(event.currentTarget as HTMLElement).querySelectorAll<HTMLElement>('[tabindex="0"]'),
   ];
@@ -94,7 +99,7 @@ const optionsLabelStyles = ({ theme }: { theme: Theme }) => css`
   user-select: none;
   padding: 0.375rem ${spacing["3"]};
   color: ${themes[theme].text.muted};
-  font-weight: 600;
+  font-weight: 500;
 `;
 
 export const optionsMenuItemMaxWidth = 260;

@@ -18,6 +18,8 @@ let nextId = 0;
 /**
  * Do not nest Search components inside another `<form>`, as they already contain their own standalone `<form>` element for searching.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-search",
   templateUrl: "./search.component.html",
@@ -45,10 +47,13 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   // Use `type="text"` for Safari to improve rendering performance
   protected inputType = isBrowserSafariApi() ? ("text" as const) : ("search" as const);
 
-  protected isInputFocused = signal(false);
-  protected isFormHovered = signal(false);
+  protected readonly isInputFocused = signal(false);
+  protected readonly isFormHovered = signal(false);
+  protected readonly isResetButtonFocused = signal(false);
 
-  protected showResetButton = computed(() => this.isInputFocused() || this.isFormHovered());
+  protected readonly showResetButton = computed(
+    () => this.isInputFocused() || this.isFormHovered() || this.isResetButtonFocused(),
+  );
 
   readonly disabled = model<boolean>();
   readonly placeholder = input<string>();
@@ -71,6 +76,8 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
     if (this.notifyOnChange) {
       this.notifyOnChange("");
     }
+    // Return focus to the search input since the reset button is about to be removed from the DOM
+    this.input()?.nativeElement.focus();
   }
 
   onTouch() {

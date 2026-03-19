@@ -8,9 +8,11 @@ import { NEVER, switchMap } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { EmergencyAccessId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
+import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   ItemModule,
@@ -22,6 +24,8 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { DownloadAttachmentComponent } from "../../components/download-attachment/download-attachment.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-attachments-v2-view",
   templateUrl: "attachments-v2-view.component.html",
@@ -36,11 +40,17 @@ import { DownloadAttachmentComponent } from "../../components/download-attachmen
   ],
 })
 export class AttachmentsV2ViewComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() cipher: CipherView;
 
   // Required for fetching attachment data when viewed from cipher via emergency access
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() emergencyAccessId?: EmergencyAccessId;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() admin: boolean = false;
 
   canAccessPremium: boolean;
@@ -51,6 +61,7 @@ export class AttachmentsV2ViewComponent {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private stateProvider: StateProvider,
     private accountService: AccountService,
+    private i18nService: I18nService,
   ) {
     this.subscribeToHasPremiumCheck();
     this.subscribeToOrgKey();
@@ -80,5 +91,13 @@ export class AttachmentsV2ViewComponent {
           this.orgKey = data[this.cipher.organizationId as OrganizationId];
         }
       });
+  }
+
+  getAttachmentFileName(attachment: AttachmentView): string {
+    if (attachment.hasDecryptionError) {
+      return this.i18nService.t("errorCannotDecrypt");
+    }
+
+    return attachment.fileName ?? "";
   }
 }

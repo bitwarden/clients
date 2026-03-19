@@ -1,4 +1,4 @@
-import { Component, importProvidersFrom } from "@angular/core";
+import { ChangeDetectionStrategy, Component, importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
@@ -20,6 +20,7 @@ interface Breadcrumb {
 
 @Component({
   template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class EmptyComponent {}
 
@@ -35,6 +36,7 @@ export default {
           useFactory: () => {
             return new I18nMockService({
               moreBreadcrumbs: "More breadcrumbs",
+              loading: "Loading",
             });
           },
         },

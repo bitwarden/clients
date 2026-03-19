@@ -27,6 +27,7 @@ export type InitAutofillInlineMenuListMessage = AutofillInlineMenuListMessage & 
   showInlineMenuAccountCreation?: boolean;
   showPasskeysLabels?: boolean;
   portKey: string;
+  token: string;
   generatedPassword?: string;
   showSaveLoginMenu?: boolean;
 };

@@ -16,6 +16,8 @@ export type AddExtensionLaterDialogData = {
   onDismiss: () => void;
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-add-extension-later-dialog",
   templateUrl: "./add-extension-later-dialog.component.html",

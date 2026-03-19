@@ -1,16 +1,16 @@
 <input
   type="radio"
-  id="bit-toggle-{{ id }}"
+  [id]="id"
   [name]="name"
-  [ngClass]="inputClasses"
-  [checked]="selected"
-  (change)="onInputInteraction()"
+  [class]="inputClasses"
+  [checked]="selected()"
+  (change)="handleInputChange()"
 />
-<label for="bit-toggle-{{ id }}" [ngClass]="labelClasses" [title]="labelTitle()">
+<label [for]="id" [class]="labelClasses" [title]="labelTitle()">
   <span class="tw-line-clamp-2 tw-break-words" #labelContent>
     <ng-content></ng-content>
   </span>
-  <span class="tw-shrink-0" #bitBadgeContainer [hidden]="!bitBadgeContainerHasChidlren()">
+  <span class="tw-shrink-0" [hidden]="!hasBadge()">
     <ng-content select="[bitBadge]"></ng-content>
   </span>
 </label>

@@ -20,11 +20,10 @@ import {
   ButtonModule,
   DialogModule,
   DialogService,
+  IconModule,
   ToastService,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-
-import { LoginApprovalDialogComponentServiceAbstraction } from "./login-approval-dialog-component.service.abstraction";
 
 const RequestTimeOut = 60000 * 15; // 15 Minutes
 const RequestTimeUpdate = 60000 * 5; // 5 Minutes
@@ -33,9 +32,11 @@ export interface LoginApprovalDialogParams {
   notificationId: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "login-approval-dialog.component.html",
-  imports: [AsyncActionsModule, ButtonModule, CommonModule, DialogModule, JslibModule],
+  imports: [AsyncActionsModule, ButtonModule, CommonModule, DialogModule, IconModule, JslibModule],
 })
 export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
   authRequestId: string;
@@ -55,7 +56,6 @@ export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
     private devicesService: DevicesServiceAbstraction,
     private dialogRef: DialogRef,
     private i18nService: I18nService,
-    private loginApprovalDialogComponentService: LoginApprovalDialogComponentServiceAbstraction,
     private logService: LogService,
     private toastService: ToastService,
     private validationService: ValidationService,
@@ -110,10 +110,6 @@ export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
     this.interval = setInterval(() => {
       this.updateTimeText();
     }, RequestTimeUpdate);
-
-    await this.loginApprovalDialogComponentService.showLoginRequestedAlertIfWindowNotVisible(
-      this.email,
-    );
 
     this.loading = false;
   }

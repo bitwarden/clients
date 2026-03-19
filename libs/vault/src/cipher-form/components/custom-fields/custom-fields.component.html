@@ -107,7 +107,7 @@
           (keydown)="handleKeyDown($event, field.value.name, i)"
           data-testid="reorder-toggle-button"
           [disabled]="parentFormDisabled"
-          *ngIf="canEdit(field.value.type)"
+          *ngIf="canEdit(field.value.type) && fields.controls.length > 1"
         ></button>
       </div>
 
@@ -119,7 +119,7 @@
         data-testid="add-field-button"
         *ngIf="!isPartialEdit && !parentFormDisabled"
       >
-        <i class="bwi bwi-plus tw-font-bold" aria-hidden="true"></i>
+        <i class="bwi bwi-plus tw-font-medium" aria-hidden="true"></i>
         {{ "addField" | i18n }}
       </button>
     </bit-card>

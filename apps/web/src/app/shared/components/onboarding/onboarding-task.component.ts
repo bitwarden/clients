@@ -2,6 +2,10 @@
 // @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 
+import { BitwardenIcon } from "@bitwarden/components";
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-onboarding-task",
   templateUrl: "./onboarding-task.component.html",
@@ -11,18 +15,28 @@ import { Component, Input } from "@angular/core";
   standalone: false,
 })
 export class OnboardingTaskComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   completed = false;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
-  icon = "bwi-info-circle";
+  icon: BitwardenIcon = "bwi-info-circle";
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   title: string;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   route: string | any[];
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   isDisabled: boolean = false;
 

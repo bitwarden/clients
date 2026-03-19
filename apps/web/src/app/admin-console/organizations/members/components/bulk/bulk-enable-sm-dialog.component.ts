@@ -20,8 +20,11 @@ export type BulkEnableSecretsManagerDialogData = {
   users: OrganizationUserView[];
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: `bulk-enable-sm-dialog.component.html`,
+  selector: "member-bulk-enable-sm-dialog",
   standalone: false,
 })
 export class BulkEnableSecretsManagerDialogComponent implements OnInit {

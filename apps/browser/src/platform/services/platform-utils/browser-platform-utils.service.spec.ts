@@ -144,40 +144,21 @@ describe("Browser Utils Service", () => {
     });
   });
 
-  describe("isViewOpen", () => {
-    it("returns false if a heartbeat response is not received", async () => {
-      chrome.runtime.sendMessage = jest.fn().mockImplementation((message, callback) => {
-        callback(undefined);
-      });
+  describe("isPopupOpen", () => {
+    it("delegates to BrowserApi.isPopupOpen", async () => {
+      const spy = jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(true);
 
-      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
-
-      expect(isViewOpen).toBe(false);
+      expect(await browserPlatformUtilsService.isPopupOpen()).toBe(true);
+      expect(spy).toHaveBeenCalled();
     });
+  });
 
-    it("returns true if a heartbeat response is received", async () => {
-      chrome.runtime.sendMessage = jest.fn().mockImplementation((message, callback) => {
-        callback(message.command === "checkVaultPopupHeartbeat");
-      });
+  describe("isAnyViewFocused", () => {
+    it("delegates to BrowserApi.isAnyViewFocused", async () => {
+      const spy = jest.spyOn(BrowserApi, "isAnyViewFocused").mockResolvedValue(true);
 
-      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
-
-      expect(isViewOpen).toBe(true);
-    });
-
-    it("returns false if special error is sent", async () => {
-      chrome.runtime.sendMessage = jest.fn().mockImplementation((message, callback) => {
-        chrome.runtime.lastError = new Error(
-          "Could not establish connection. Receiving end does not exist.",
-        );
-        callback(undefined);
-      });
-
-      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
-
-      expect(isViewOpen).toBe(false);
-
-      chrome.runtime.lastError = null;
+      expect(await browserPlatformUtilsService.isAnyViewFocused()).toBe(true);
+      expect(spy).toHaveBeenCalled();
     });
   });
 
@@ -354,6 +335,33 @@ describe("Browser Utils Service", () => {
       const result = await browserPlatformUtilsService.readFromClipboard();
 
       expect(result).toBe("");
+    });
+  });
+
+  describe("isChromium", () => {
+    const chromiumDevices: DeviceType[] = [
+      DeviceType.ChromeExtension,
+      DeviceType.EdgeExtension,
+      DeviceType.OperaExtension,
+      DeviceType.VivaldiExtension,
+    ];
+
+    const nonChromiumDevices: DeviceType[] = [
+      DeviceType.FirefoxExtension,
+      DeviceType.SafariExtension,
+    ];
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    test.each(chromiumDevices)("returns true when getDevice() is %s", (deviceType) => {
+      jest.spyOn(browserPlatformUtilsService, "getDevice").mockReturnValue(deviceType);
+      expect(browserPlatformUtilsService.isChromium()).toBe(true);
+    });
+
+    test.each(nonChromiumDevices)("returns false when getDevice() is %s", (deviceType) => {
+      jest.spyOn(browserPlatformUtilsService, "getDevice").mockReturnValue(deviceType);
+      expect(browserPlatformUtilsService.isChromium()).toBe(false);
     });
   });
 });

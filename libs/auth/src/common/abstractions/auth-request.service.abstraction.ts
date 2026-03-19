@@ -4,7 +4,7 @@ import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/a
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { AuthRequestPushNotification } from "@bitwarden/common/models/response/notification.response";
 import { UserId } from "@bitwarden/common/types/guid";
-import { UserKey, MasterKey } from "@bitwarden/common/types/key";
+import { UserKey } from "@bitwarden/common/types/key";
 
 export abstract class AuthRequestServiceAbstraction {
   /** Emits an auth request id when an auth request has been approved. */
@@ -55,6 +55,7 @@ export abstract class AuthRequestServiceAbstraction {
    * Approve or deny an auth request.
    * @param approve True to approve, false to deny.
    * @param authRequest The auth request to approve or deny, must have an id and key.
+   * @param activeUserId the active user id
    * @returns The updated auth request, the `requestApproved` field will be true if
    * approval was successful.
    * @throws If the auth request is missing an id or key.
@@ -71,18 +72,7 @@ export abstract class AuthRequestServiceAbstraction {
    */
   abstract setUserKeyAfterDecryptingSharedUserKey(
     authReqResponse: AuthRequestResponse,
-    authReqPrivateKey: ArrayBuffer,
-    userId: UserId,
-  ): Promise<void>;
-  /**
-   * Sets the `MasterKey` and `MasterKeyHash` from an auth request. Auth request must have a `MasterKey` and `MasterKeyHash`.
-   * @param authReqResponse The auth request.
-   * @param authReqPrivateKey The private key corresponding to the public key sent in the auth request.
-   * @param userId The ID of the user for whose account we will set the keys.
-   */
-  abstract setKeysAfterDecryptingSharedMasterKeyAndHash(
-    authReqResponse: AuthRequestResponse,
-    authReqPrivateKey: ArrayBuffer,
+    authReqPrivateKey: Uint8Array,
     userId: UserId,
   ): Promise<void>;
   /**
@@ -93,20 +83,8 @@ export abstract class AuthRequestServiceAbstraction {
    */
   abstract decryptPubKeyEncryptedUserKey(
     pubKeyEncryptedUserKey: string,
-    privateKey: ArrayBuffer,
+    privateKey: Uint8Array,
   ): Promise<UserKey>;
-  /**
-   * Decrypts a `MasterKey` and `MasterKeyHash` from a public key encrypted `MasterKey` and `MasterKeyHash`.
-   * @param pubKeyEncryptedMasterKey The public key encrypted `MasterKey`.
-   * @param pubKeyEncryptedMasterKeyHash The public key encrypted `MasterKeyHash`.
-   * @param privateKey The private key corresponding to the public key used to encrypt the `MasterKey` and `MasterKeyHash`.
-   * @returns The decrypted `MasterKey` and `MasterKeyHash`.
-   */
-  abstract decryptPubKeyEncryptedMasterKeyAndHash(
-    pubKeyEncryptedMasterKey: string,
-    pubKeyEncryptedMasterKeyHash: string,
-    privateKey: ArrayBuffer,
-  ): Promise<{ masterKey: MasterKey; masterKeyHash: string }>;
 
   /**
    * Handles incoming auth request push server notifications.

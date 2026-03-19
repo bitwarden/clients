@@ -12,7 +12,8 @@
         "outputPath": "dist/libs/serialization",
         "main": "libs/serialization/src/index.ts",
         "tsConfig": "libs/serialization/tsconfig.lib.json",
-        "assets": ["libs/serialization/*.md"]
+        "assets": ["libs/serialization/*.md"],
+        "rootDir": "libs/serialization/src"
       }
     },
     "lint": {

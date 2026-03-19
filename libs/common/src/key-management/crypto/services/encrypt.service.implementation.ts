@@ -42,16 +42,25 @@ export class EncryptServiceImplementation implements EncryptService {
   }
 
   async decryptString(encString: EncString, key: SymmetricCryptoKey): Promise<string> {
+    if (encString.encryptionType === EncryptionType.AesCbc256_B64) {
+      throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
+    }
     await SdkLoadService.Ready;
     return PureCrypto.symmetric_decrypt_string(encString.encryptedString, key.toEncoded());
   }
 
   async decryptBytes(encString: EncString, key: SymmetricCryptoKey): Promise<Uint8Array> {
+    if (encString.encryptionType === EncryptionType.AesCbc256_B64) {
+      throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
+    }
     await SdkLoadService.Ready;
     return PureCrypto.symmetric_decrypt_bytes(encString.encryptedString, key.toEncoded());
   }
 
   async decryptFileData(encBuffer: EncArrayBuffer, key: SymmetricCryptoKey): Promise<Uint8Array> {
+    if (encBuffer.encryptionType === EncryptionType.AesCbc256_B64) {
+      throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
+    }
     await SdkLoadService.Ready;
     return PureCrypto.symmetric_decrypt_filedata(encBuffer.buffer, key.toEncoded());
   }
@@ -121,6 +130,10 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("No wrappingKey provided for unwrapping.");
     }
 
+    if (wrappedDecapsulationKey.encryptionType === EncryptionType.AesCbc256_B64) {
+      throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
+    }
+
     await SdkLoadService.Ready;
     return PureCrypto.unwrap_decapsulation_key(
       wrappedDecapsulationKey.encryptedString,
@@ -136,6 +149,9 @@ export class EncryptServiceImplementation implements EncryptService {
     }
     if (wrappingKey == null) {
       throw new Error("No wrappingKey provided for unwrapping.");
+    }
+    if (wrappedEncapsulationKey.encryptionType === EncryptionType.AesCbc256_B64) {
+      throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
     }
 
     await SdkLoadService.Ready;
@@ -153,6 +169,9 @@ export class EncryptServiceImplementation implements EncryptService {
     }
     if (wrappingKey == null) {
       throw new Error("No wrappingKey provided for unwrapping.");
+    }
+    if (keyToBeUnwrapped.encryptionType === EncryptionType.AesCbc256_B64) {
+      throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
     }
 
     await SdkLoadService.Ready;
@@ -199,31 +218,5 @@ export class EncryptServiceImplementation implements EncryptService {
       decapsulationKey,
     );
     return new SymmetricCryptoKey(keyBytes);
-  }
-
-  async rsaDecrypt(data: EncString, privateKey: Uint8Array): Promise<Uint8Array> {
-    if (data == null) {
-      throw new Error("[Encrypt service] rsaDecrypt: No data provided for decryption.");
-    }
-
-    let algorithm: "sha1" | "sha256";
-    switch (data.encryptionType) {
-      case EncryptionType.Rsa2048_OaepSha1_B64:
-      case EncryptionType.Rsa2048_OaepSha1_HmacSha256_B64:
-        algorithm = "sha1";
-        break;
-      case EncryptionType.Rsa2048_OaepSha256_B64:
-      case EncryptionType.Rsa2048_OaepSha256_HmacSha256_B64:
-        algorithm = "sha256";
-        break;
-      default:
-        throw new Error("Invalid encryption type.");
-    }
-
-    if (privateKey == null) {
-      throw new Error("[Encrypt service] rsaDecrypt: No private key provided for decryption.");
-    }
-
-    return this.cryptoFunctionService.rsaDecrypt(data.dataBytes, privateKey, algorithm);
   }
 }

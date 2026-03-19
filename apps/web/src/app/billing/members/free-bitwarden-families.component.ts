@@ -15,18 +15,42 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
-import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import {
+  ButtonModule,
+  ContainerComponent,
+  DialogRef,
+  DialogService,
+  IconButtonModule,
+  MenuModule,
+  TableModule,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { HeaderModule } from "../../layouts/header/header.module";
 
 import { AddSponsorshipDialogComponent } from "./add-sponsorship-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-free-bitwarden-families",
   templateUrl: "free-bitwarden-families.component.html",
-  standalone: false,
+  imports: [
+    ButtonModule,
+    ContainerComponent,
+    HeaderModule,
+    I18nPipe,
+    IconButtonModule,
+    MenuModule,
+    TableModule,
+    TypographyModule,
+  ],
 })
 export class FreeBitwardenFamiliesComponent implements OnInit {
-  loading = signal<boolean>(true);
+  readonly loading = signal<boolean>(true);
   tabIndex = 0;
   sponsoredFamilies: OrganizationSponsorshipInvitesResponse[] = [];
 

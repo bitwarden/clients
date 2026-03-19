@@ -1,26 +1,24 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { IdentityApi } from "../api/identity.api";
 
 export class IdentityData {
-  title: string;
-  firstName: string;
-  middleName: string;
-  lastName: string;
-  address1: string;
-  address2: string;
-  address3: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
-  company: string;
-  email: string;
-  phone: string;
-  ssn: string;
-  username: string;
-  passportNumber: string;
-  licenseNumber: string;
+  title?: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  address1?: string;
+  address2?: string;
+  address3?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+  company?: string;
+  email?: string;
+  phone?: string;
+  ssn?: string;
+  username?: string;
+  passportNumber?: string;
+  licenseNumber?: string;
 
   constructor(data?: IdentityApi) {
     if (data == null) {

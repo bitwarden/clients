@@ -10,14 +10,13 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import type { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
-import { DialogService, NavigationModule } from "@bitwarden/components";
-
-import { TrialFlowService } from "./../../billing/services/trial-flow.service";
-
+import { DialogService, IconModule, NavigationModule } from "@bitwarden/components";
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "org-switcher",
   templateUrl: "org-switcher.component.html",
-  imports: [CommonModule, JslibModule, NavigationModule],
+  imports: [CommonModule, JslibModule, NavigationModule, IconModule],
 })
 export class OrgSwitcherComponent {
   protected organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
@@ -43,20 +42,28 @@ export class OrgSwitcherComponent {
    * const smFilter = (org: Organization) => org.canAccessSecretsManager
    * // <org-switcher [filter]="smFilter">
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   filter: (org: Organization) => boolean = () => true;
 
   /**
    * Is `true` if the expanded content is visible
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   open = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   openChange = new EventEmitter<boolean>();
 
   /**
    * Visibility of the New Organization button
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   hideNewButton = false;
 
@@ -64,7 +71,6 @@ export class OrgSwitcherComponent {
     private route: ActivatedRoute,
     protected dialogService: DialogService,
     private organizationService: OrganizationService,
-    private trialFlowService: TrialFlowService,
     protected billingApiService: BillingApiServiceAbstraction,
     private accountService: AccountService,
   ) {}
@@ -73,10 +79,5 @@ export class OrgSwitcherComponent {
     event?.stopPropagation();
     this.open = !this.open;
     this.openChange.emit(this.open);
-  }
-
-  async handleUnpaidSubscription(org: Organization) {
-    const metaData = await this.billingApiService.getOrganizationBillingMetadata(org.id);
-    await this.trialFlowService.handleUnpaidSubscriptionDialog(org, metaData);
   }
 }

@@ -3,6 +3,7 @@ import { html, TemplateResult } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
+import { EventSecurity } from "../../../utils/event-security";
 import { border, themes, typography, spacing } from "../constants/styles";
 import { Spinner } from "../icons";
 
@@ -26,7 +27,7 @@ export function ActionButton({
   fullWidth = true,
 }: ActionButtonProps) {
   const handleButtonClick = (event: Event) => {
-    if (!disabled && !isLoading) {
+    if (EventSecurity.isEventTrusted(event) && !disabled && !isLoading) {
       handleClick(event);
     }
   };
@@ -68,7 +69,7 @@ const actionButtonStyles = ({
   overflow: hidden;
   text-align: center;
   text-overflow: ellipsis;
-  font-weight: 700;
+  font-weight: 500;
 
   ${disabled || isLoading
     ? `

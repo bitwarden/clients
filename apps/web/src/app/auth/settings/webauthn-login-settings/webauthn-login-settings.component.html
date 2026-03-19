@@ -19,10 +19,9 @@
         </span>
       </ng-container>
     </ng-container>
-    <span bitBadge variant="warning" class="!tw-align-middle">{{ "beta" | i18n }}</span>
   </span>
   <ng-container *ngIf="loading">
-    <i class="bwi bwi-spinner bwi-spin tw-ml-1" aria-hidden="true"></i>
+    <bit-icon name="bwi-spinner" class="bwi-spin tw-ml-1" [ariaLabel]="'loading' | i18n"></bit-icon>
   </ng-container>
 </h2>
 <p bitTypography="body1">
@@ -34,10 +33,10 @@
 
 <table *ngIf="hasCredentials" class="tw-mb-5">
   <tr *ngFor="let credential of credentials">
-    <td class="tw-p-2 tw-pl-0 tw-font-semibold">{{ credential.name }}</td>
+    <td class="tw-p-2 tw-pl-0 tw-font-medium">{{ credential.name }}</td>
     <td class="tw-p-2 tw-pr-10 tw-text-left">
       <ng-container *ngIf="credential.prfStatus === WebauthnLoginCredentialPrfStatus.Enabled">
-        <i class="bwi bwi-lock-encrypted"></i>
+        <bit-icon name="bwi-lock-encrypted"></bit-icon>
         <span bitTypography="body1" class="tw-text-muted">{{ "usedForEncryption" | i18n }}</span>
       </ng-container>
       <ng-container *ngIf="credential.prfStatus === WebauthnLoginCredentialPrfStatus.Supported">
@@ -48,7 +47,7 @@
           [attr.aria-label]="('enablePasskeyEncryption' | i18n) + ' ' + credential.name"
           (click)="enableEncryption(credential.id)"
         >
-          <i class="bwi bwi-lock-encrypted"></i>
+          <bit-icon name="bwi-lock-encrypted"></bit-icon>
           {{ "enablePasskeyEncryption" | i18n }}
         </button>
       </ng-container>

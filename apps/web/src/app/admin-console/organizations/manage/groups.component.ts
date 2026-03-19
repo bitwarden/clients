@@ -17,15 +17,15 @@ import {
 } from "rxjs";
 import { debounceTime, first } from "rxjs/operators";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import {
-  CollectionService,
-  CollectionData,
-  Collection,
+  CollectionView,
   CollectionDetailsResponse,
   CollectionResponse,
-  CollectionView,
-} from "@bitwarden/admin-console/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
+  Collection,
+  CollectionData,
+} from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
@@ -77,6 +77,8 @@ const groupsFilter = (filter: string) => {
   };
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "groups.component.html",
   standalone: false,

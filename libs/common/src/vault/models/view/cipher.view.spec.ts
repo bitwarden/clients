@@ -3,6 +3,7 @@ import { Jsonify } from "type-fest";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { CipherPermissionsApi } from "@bitwarden/common/vault/models/api/cipher-permissions.api";
 import {
+  CiphersClient,
   CipherView as SdkCipherView,
   CipherType as SdkCipherType,
   CipherRepromptType as SdkCipherRepromptType,
@@ -34,6 +35,8 @@ jest.mock("../../models/view/field.view");
 jest.mock("../../models/view/password-history.view");
 
 describe("CipherView", () => {
+  const mockCiphersClient = {} as CiphersClient;
+
   beforeEach(() => {
     (LoginView as any).mockClear();
     (AttachmentView as any).mockClear();
@@ -109,6 +112,72 @@ describe("CipherView", () => {
       expect(actual.key).toBeInstanceOf(EncString);
       expect(actual.key?.toJSON()).toBe(cipherKeyObject.toJSON());
     });
+
+    it("fromJSON should always restore top-level CipherView properties", () => {
+      jest.spyOn(LoginView, "fromJSON").mockImplementation(mockFromJson);
+      // Create a fully populated CipherView instance
+      const original = new CipherView();
+      original.id = "test-id";
+      original.organizationId = "org-id";
+      original.folderId = "folder-id";
+      original.name = "test-name";
+      original.notes = "test-notes";
+      original.type = CipherType.Login;
+      original.favorite = true;
+      original.organizationUseTotp = true;
+      original.permissions = new CipherPermissionsApi();
+      original.edit = true;
+      original.viewPassword = false;
+      original.localData = { lastUsedDate: Date.now() };
+      original.login = new LoginView();
+      original.identity = new IdentityView();
+      original.card = new CardView();
+      original.secureNote = new SecureNoteView();
+      original.sshKey = new SshKeyView();
+      original.attachments = [];
+      original.fields = [];
+      original.passwordHistory = [];
+      original.collectionIds = ["collection-1"];
+      original.revisionDate = new Date("2022-01-01");
+      original.creationDate = new Date("2022-01-02");
+      original.deletedDate = new Date("2022-01-03");
+      original.archivedDate = new Date("2022-01-04");
+      original.reprompt = CipherRepromptType.Password;
+      original.key = new EncString("test-key");
+      original.decryptionFailure = true;
+
+      // Serialize and deserialize
+      const json = original.toJSON();
+      const restored = CipherView.fromJSON(json as any);
+
+      // Get all enumerable properties from the original instance
+      const originalProps = Object.keys(original);
+
+      // Check that all properties exist on the restored instance
+      for (const prop of originalProps) {
+        try {
+          expect(restored).toHaveProperty(prop);
+        } catch {
+          throw new Error(`Property '${prop}' is missing from restored instance`);
+        }
+
+        // For non-function, non-getter properties, verify the value is defined
+        const descriptor = Object.getOwnPropertyDescriptor(CipherView.prototype, prop);
+        if (!descriptor?.get && typeof (original as any)[prop] !== "function") {
+          try {
+            expect((restored as any)[prop]).toBeDefined();
+          } catch {
+            throw new Error(`Property '${prop}' is undefined in restored instance`);
+          }
+        }
+      }
+
+      // Verify restored instance has the same properties as original
+      const restoredProps = Object.keys(restored!).sort();
+      const sortedOriginalProps = originalProps.sort();
+
+      expect(restoredProps).toEqual(sortedOriginalProps);
+    });
   });
 
   describe("fromSdkCipherView", () => {
@@ -163,6 +232,7 @@ describe("CipherView", () => {
         creationDate: "2022-01-01T12:00:00.000Z",
         revisionDate: "2022-01-02T12:00:00.000Z",
         deletedDate: undefined,
+        archivedDate: undefined,
       };
     });
 
@@ -179,15 +249,12 @@ describe("CipherView", () => {
         folderId: "folderId",
         collectionIds: ["collectionId"],
         name: "name",
-        notes: null,
         type: CipherType.Login,
         favorite: true,
         edit: true,
         reprompt: CipherRepromptType.None,
         organizationUseTotp: false,
         viewPassword: true,
-        localData: undefined,
-        permissions: undefined,
         attachments: [
           {
             id: "attachmentId",
@@ -223,7 +290,6 @@ describe("CipherView", () => {
         passwordHistory: [],
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
         revisionDate: new Date("2022-01-02T12:00:00.000Z"),
-        deletedDate: null,
       });
     });
   });
@@ -282,18 +348,380 @@ describe("CipherView", () => {
           restore: true,
           delete: true,
         },
-        deletedDate: undefined,
         creationDate: "2022-01-02T12:00:00.000Z",
         revisionDate: "2022-01-02T12:00:00.000Z",
         attachments: [],
         passwordHistory: [],
-        login: undefined,
-        identity: undefined,
-        card: undefined,
-        secureNote: undefined,
-        sshKey: undefined,
         fields: [],
-      } as SdkCipherView);
+      });
+
+      // FIDO2 credentials are not set when no SDK client is provided
+      expect(sdkCipherView.login?.fido2Credentials).toBeUndefined();
+    });
+  });
+
+  // Note: These tests use jest.requireActual() because the file has jest.mock() calls
+  // at the top that mock LoginView, FieldView, etc. Those mocks are needed for other tests
+  // but interfere with these tests which need the real implementations.
+  describe("toSdkCreateCipherRequest", () => {
+    it("maps all properties correctly for a login cipher", () => {
+      const { FieldView: RealFieldView } = jest.requireActual("./field.view");
+      const { LoginView: RealLoginView } = jest.requireActual("./login.view");
+
+      const cipherView = new CipherView();
+      cipherView.organizationId = "000f2a6e-da5e-4726-87ed-1c5c77322c3c";
+      cipherView.folderId = "41b22db4-8e2a-4ed2-b568-f1186c72922f";
+      cipherView.collectionIds = ["b0473506-3c3c-4260-a734-dfaaf833ab6f"];
+      cipherView.name = "Test Login";
+      cipherView.notes = "Test notes";
+      cipherView.type = CipherType.Login;
+      cipherView.favorite = true;
+      cipherView.reprompt = CipherRepromptType.Password;
+
+      const field = new RealFieldView();
+      field.name = "testField";
+      field.value = "testValue";
+      field.type = SdkFieldType.Text;
+      cipherView.fields = [field];
+
+      cipherView.login = new RealLoginView();
+      cipherView.login.username = "testuser";
+      cipherView.login.password = "testpass";
+
+      const result = cipherView.toSdkCreateCipherRequest(mockCiphersClient);
+
+      expect(result.organizationId).toEqual(asUuid("000f2a6e-da5e-4726-87ed-1c5c77322c3c"));
+      expect(result.folderId).toEqual(asUuid("41b22db4-8e2a-4ed2-b568-f1186c72922f"));
+      expect(result.collectionIds).toEqual([asUuid("b0473506-3c3c-4260-a734-dfaaf833ab6f")]);
+      expect(result.name).toBe("Test Login");
+      expect(result.notes).toBe("Test notes");
+      expect(result.favorite).toBe(true);
+      expect(result.reprompt).toBe(CipherRepromptType.Password);
+      expect(result.fields).toHaveLength(1);
+      expect(result.fields![0]).toMatchObject({
+        name: "testField",
+        value: "testValue",
+        type: SdkFieldType.Text,
+      });
+      expect(result.type).toHaveProperty("login");
+      expect((result.type as any).login).toMatchObject({
+        username: "testuser",
+        password: "testpass",
+      });
+    });
+
+    it("handles undefined organizationId and folderId", () => {
+      const { SecureNoteView: RealSecureNoteView } = jest.requireActual("./secure-note.view");
+
+      const cipherView = new CipherView();
+      cipherView.name = "Test Cipher";
+      cipherView.type = CipherType.SecureNote;
+      cipherView.secureNote = new RealSecureNoteView();
+
+      const result = cipherView.toSdkCreateCipherRequest(mockCiphersClient);
+
+      expect(result.organizationId).toBeUndefined();
+      expect(result.folderId).toBeUndefined();
+      expect(result.name).toBe("Test Cipher");
+    });
+
+    it("handles empty collectionIds array", () => {
+      const { LoginView: RealLoginView } = jest.requireActual("./login.view");
+
+      const cipherView = new CipherView();
+      cipherView.name = "Test Cipher";
+      cipherView.collectionIds = [];
+      cipherView.type = CipherType.Login;
+      cipherView.login = new RealLoginView();
+
+      const result = cipherView.toSdkCreateCipherRequest(mockCiphersClient);
+
+      expect(result.collectionIds).toEqual([]);
+    });
+
+    it("defaults favorite to false when undefined", () => {
+      const { LoginView: RealLoginView } = jest.requireActual("./login.view");
+
+      const cipherView = new CipherView();
+      cipherView.name = "Test Cipher";
+      cipherView.favorite = undefined as any;
+      cipherView.type = CipherType.Login;
+      cipherView.login = new RealLoginView();
+
+      const result = cipherView.toSdkCreateCipherRequest(mockCiphersClient);
+
+      expect(result.favorite).toBe(false);
+    });
+
+    it("defaults reprompt to None when undefined", () => {
+      const { LoginView: RealLoginView } = jest.requireActual("./login.view");
+
+      const cipherView = new CipherView();
+      cipherView.name = "Test Cipher";
+      cipherView.reprompt = undefined as any;
+      cipherView.type = CipherType.Login;
+      cipherView.login = new RealLoginView();
+
+      const result = cipherView.toSdkCreateCipherRequest(mockCiphersClient);
+
+      expect(result.reprompt).toBe(CipherRepromptType.None);
+    });
+
+    test.each([
+      ["Login", CipherType.Login, "login.view", "LoginView"],
+      ["Card", CipherType.Card, "card.view", "CardView"],
+      ["Identity", CipherType.Identity, "identity.view", "IdentityView"],
+      ["SecureNote", CipherType.SecureNote, "secure-note.view", "SecureNoteView"],
+      ["SshKey", CipherType.SshKey, "ssh-key.view", "SshKeyView"],
+    ])(
+      "creates correct type property for %s cipher",
+      (typeName: string, cipherType: CipherType, moduleName: string, className: string) => {
+        const module = jest.requireActual(`./${moduleName}`);
+        const ViewClass = module[className];
+
+        const cipherView = new CipherView();
+        cipherView.name = `Test ${typeName}`;
+        cipherView.type = cipherType;
+
+        // Set the appropriate view property
+        const viewPropertyName = typeName.charAt(0).toLowerCase() + typeName.slice(1);
+        (cipherView as any)[viewPropertyName] = new ViewClass();
+
+        const result = cipherView.toSdkCreateCipherRequest(mockCiphersClient);
+
+        const typeKey = typeName.charAt(0).toLowerCase() + typeName.slice(1);
+        expect(result.type).toHaveProperty(typeKey);
+      },
+    );
+  });
+
+  describe("toSdkUpdateCipherRequest", () => {
+    it("maps all properties correctly for an update request", () => {
+      const { FieldView: RealFieldView } = jest.requireActual("./field.view");
+      const { LoginView: RealLoginView } = jest.requireActual("./login.view");
+
+      const cipherView = new CipherView();
+      cipherView.id = "0a54d80c-14aa-4ef8-8c3a-7ea99ce5b602";
+      cipherView.organizationId = "000f2a6e-da5e-4726-87ed-1c5c77322c3c";
+      cipherView.folderId = "41b22db4-8e2a-4ed2-b568-f1186c72922f";
+      cipherView.name = "Updated Login";
+      cipherView.notes = "Updated notes";
+      cipherView.type = CipherType.Login;
+      cipherView.favorite = true;
+      cipherView.reprompt = CipherRepromptType.Password;
+      cipherView.revisionDate = new Date("2022-01-02T12:00:00.000Z");
+      cipherView.archivedDate = new Date("2022-01-03T12:00:00.000Z");
+      cipherView.key = new EncString("cipher-key");
+
+      const mockField = new RealFieldView();
+      mockField.name = "testField";
+      mockField.value = "testValue";
+      cipherView.fields = [mockField];
+
+      cipherView.login = new RealLoginView();
+      cipherView.login.username = "testuser";
+
+      const result = cipherView.toSdkUpdateCipherRequest(mockCiphersClient);
+
+      expect(result.id).toEqual(asUuid("0a54d80c-14aa-4ef8-8c3a-7ea99ce5b602"));
+      expect(result.organizationId).toEqual(asUuid("000f2a6e-da5e-4726-87ed-1c5c77322c3c"));
+      expect(result.folderId).toEqual(asUuid("41b22db4-8e2a-4ed2-b568-f1186c72922f"));
+      expect(result.name).toBe("Updated Login");
+      expect(result.notes).toBe("Updated notes");
+      expect(result.favorite).toBe(true);
+      expect(result.reprompt).toBe(CipherRepromptType.Password);
+      expect(result.revisionDate).toBe("2022-01-02T12:00:00.000Z");
+      expect(result.archivedDate).toBe("2022-01-03T12:00:00.000Z");
+      expect(result.fields).toHaveLength(1);
+      expect(result.fields![0]).toMatchObject({
+        name: "testField",
+        value: "testValue",
+      });
+      expect(result.type).toHaveProperty("login");
+      expect((result.type as any).login).toMatchObject({
+        username: "testuser",
+      });
+      expect(result.key).toBeDefined();
+
+      // FIDO2 credentials are not included when no FIDO2 credentials are present
+      expect((result.type as any).login.fido2Credentials).toBeUndefined();
+    });
+
+    it("handles undefined optional properties", () => {
+      const { SecureNoteView: RealSecureNoteView } = jest.requireActual("./secure-note.view");
+
+      const cipherView = new CipherView();
+      cipherView.id = "0a54d80c-14aa-4ef8-8c3a-7ea99ce5b602";
+      cipherView.name = "Test Cipher";
+      cipherView.type = CipherType.SecureNote;
+      cipherView.secureNote = new RealSecureNoteView();
+      cipherView.revisionDate = new Date("2022-01-02T12:00:00.000Z");
+
+      const result = cipherView.toSdkUpdateCipherRequest(mockCiphersClient);
+
+      expect(result.organizationId).toBeUndefined();
+      expect(result.folderId).toBeUndefined();
+      expect(result.archivedDate).toBeUndefined();
+      expect(result.key).toBeUndefined();
+    });
+
+    it("converts dates to ISO strings", () => {
+      const { LoginView: RealLoginView } = jest.requireActual("./login.view");
+
+      const cipherView = new CipherView();
+      cipherView.id = "0a54d80c-14aa-4ef8-8c3a-7ea99ce5b602";
+      cipherView.name = "Test Cipher";
+      cipherView.type = CipherType.Login;
+      cipherView.login = new RealLoginView();
+      cipherView.revisionDate = new Date("2022-05-15T10:30:00.000Z");
+      cipherView.archivedDate = new Date("2022-06-20T14:45:00.000Z");
+
+      const result = cipherView.toSdkUpdateCipherRequest(mockCiphersClient);
+
+      expect(result.revisionDate).toBe("2022-05-15T10:30:00.000Z");
+      expect(result.archivedDate).toBe("2022-06-20T14:45:00.000Z");
+    });
+
+    it("includes attachments when present", () => {
+      const { LoginView: RealLoginView } = jest.requireActual("./login.view");
+      const { AttachmentView: RealAttachmentView } = jest.requireActual("./attachment.view");
+
+      const cipherView = new CipherView();
+      cipherView.id = "0a54d80c-14aa-4ef8-8c3a-7ea99ce5b602";
+      cipherView.name = "Test Cipher";
+      cipherView.type = CipherType.Login;
+      cipherView.login = new RealLoginView();
+
+      const attachment1 = new RealAttachmentView();
+      attachment1.id = "attachment-id-1";
+      attachment1.fileName = "file1.txt";
+
+      const attachment2 = new RealAttachmentView();
+      attachment2.id = "attachment-id-2";
+      attachment2.fileName = "file2.pdf";
+
+      cipherView.attachments = [attachment1, attachment2];
+
+      const result = cipherView.toSdkUpdateCipherRequest(mockCiphersClient);
+
+      expect(result.attachments).toHaveLength(2);
+    });
+
+    test.each([
+      ["Login", CipherType.Login, "login.view", "LoginView"],
+      ["Card", CipherType.Card, "card.view", "CardView"],
+      ["Identity", CipherType.Identity, "identity.view", "IdentityView"],
+      ["SecureNote", CipherType.SecureNote, "secure-note.view", "SecureNoteView"],
+      ["SshKey", CipherType.SshKey, "ssh-key.view", "SshKeyView"],
+    ])(
+      "creates correct type property for %s cipher",
+      (typeName: string, cipherType: CipherType, moduleName: string, className: string) => {
+        const module = jest.requireActual(`./${moduleName}`);
+        const ViewClass = module[className];
+
+        const cipherView = new CipherView();
+        cipherView.id = "0a54d80c-14aa-4ef8-8c3a-7ea99ce5b602";
+        cipherView.name = `Test ${typeName}`;
+        cipherView.type = cipherType;
+
+        // Set the appropriate view property
+        const viewPropertyName = typeName.charAt(0).toLowerCase() + typeName.slice(1);
+        (cipherView as any)[viewPropertyName] = new ViewClass();
+
+        const result = cipherView.toSdkUpdateCipherRequest(mockCiphersClient);
+
+        const typeKey = typeName.charAt(0).toLowerCase() + typeName.slice(1);
+        expect(result.type).toHaveProperty(typeKey);
+      },
+    );
+  });
+
+  describe("getSdkCipherViewType", () => {
+    it("returns login type for Login cipher", () => {
+      const { LoginView: RealLoginView } = jest.requireActual("./login.view");
+
+      const cipherView = new CipherView();
+      cipherView.type = CipherType.Login;
+      cipherView.login = new RealLoginView();
+      cipherView.login.username = "testuser";
+      cipherView.login.password = "testpass";
+
+      const result = cipherView.getSdkCipherViewType();
+
+      expect(result).toHaveProperty("login");
+      expect((result as any).login).toMatchObject({
+        username: "testuser",
+        password: "testpass",
+      });
+    });
+
+    it("returns card type for Card cipher", () => {
+      const { CardView: RealCardView } = jest.requireActual("./card.view");
+
+      const cipherView = new CipherView();
+      cipherView.type = CipherType.Card;
+      cipherView.card = new RealCardView();
+      cipherView.card.cardholderName = "John Doe";
+      cipherView.card.number = "4111111111111111";
+
+      const result = cipherView.getSdkCipherViewType();
+
+      expect(result).toHaveProperty("card");
+      expect((result as any).card.cardholderName).toBe("John Doe");
+      expect((result as any).card.number).toBe("4111111111111111");
+    });
+
+    it("returns identity type for Identity cipher", () => {
+      const { IdentityView: RealIdentityView } = jest.requireActual("./identity.view");
+
+      const cipherView = new CipherView();
+      cipherView.type = CipherType.Identity;
+      cipherView.identity = new RealIdentityView();
+      cipherView.identity.firstName = "John";
+      cipherView.identity.lastName = "Doe";
+
+      const result = cipherView.getSdkCipherViewType();
+
+      expect(result).toHaveProperty("identity");
+      expect((result as any).identity.firstName).toBe("John");
+      expect((result as any).identity.lastName).toBe("Doe");
+    });
+
+    it("returns secureNote type for SecureNote cipher", () => {
+      const { SecureNoteView: RealSecureNoteView } = jest.requireActual("./secure-note.view");
+
+      const cipherView = new CipherView();
+      cipherView.type = CipherType.SecureNote;
+      cipherView.secureNote = new RealSecureNoteView();
+
+      const result = cipherView.getSdkCipherViewType();
+
+      expect(result).toHaveProperty("secureNote");
+    });
+
+    it("returns sshKey type for SshKey cipher", () => {
+      const { SshKeyView: RealSshKeyView } = jest.requireActual("./ssh-key.view");
+
+      const cipherView = new CipherView();
+      cipherView.type = CipherType.SshKey;
+      cipherView.sshKey = new RealSshKeyView();
+      cipherView.sshKey.privateKey = "privateKeyData";
+      cipherView.sshKey.publicKey = "publicKeyData";
+
+      const result = cipherView.getSdkCipherViewType();
+
+      expect(result).toHaveProperty("sshKey");
+      expect((result as any).sshKey.privateKey).toBe("privateKeyData");
+      expect((result as any).sshKey.publicKey).toBe("publicKeyData");
+    });
+
+    it("defaults to empty login for unknown cipher type", () => {
+      const cipherView = new CipherView();
+      cipherView.type = 999 as CipherType;
+
+      const result = cipherView.getSdkCipherViewType();
+
+      expect(result).toHaveProperty("login");
     });
   });
 });

@@ -13,6 +13,8 @@ import { BitFormFieldComponent } from "./form-field.component";
 import { FormFieldModule } from "./form-field.module";
 import { BitPasswordInputToggleDirective } from "./password-input-toggle.directive";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "test-form-field",
   template: `
@@ -48,6 +50,7 @@ describe("PasswordInputToggle", () => {
           provide: I18nService,
           useValue: new I18nMockService({
             toggleVisibility: "Toggle visibility",
+            loading: "Loading",
           }),
         },
       ],

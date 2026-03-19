@@ -1,24 +1,8 @@
-<ng-container *ngIf="freeTrial$ | async as freeTrial">
-  <bit-banner
-    id="update-browser-banner"
-    class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
-    bannerType="premium"
-    icon="bwi-billing"
-    [showClose]="false"
-    *ngIf="!loading && freeTrial.shownBanner"
-  >
-    {{ freeTrial.message }}
-    <a
-      bitLink
-      linkType="secondary"
-      class="tw-cursor-pointer"
-      (click)="navigateToPaymentMethod()"
-      rel="noreferrer noopener"
-    >
-      {{ "clickHereToAddPaymentMethod" | i18n }}
-    </a>
-  </bit-banner>
-</ng-container>
+<app-organization-free-trial-warning
+  [organization]="organization"
+  (clicked)="navigateToPaymentMethod()"
+>
+</app-organization-free-trial-warning>
 <app-header [title]="organizationName">
   <sm-new-menu></sm-new-menu>
 </app-header>

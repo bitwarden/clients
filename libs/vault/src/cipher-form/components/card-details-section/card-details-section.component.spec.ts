@@ -4,7 +4,7 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -20,7 +20,7 @@ describe("CardDetailsSectionComponent", () => {
   let registerChildFormSpy: jest.SpyInstance;
   let patchCipherSpy: jest.SpyInstance;
 
-  const getInitialCipherView = jest.fn(() => null);
+  const getInitialCipherView = jest.fn((): any => null);
 
   beforeEach(async () => {
     cipherFormProvider = mock<CipherFormContainer>({ getInitialCipherView });
@@ -67,6 +67,7 @@ describe("CardDetailsSectionComponent", () => {
     cardView.brand = "Visa";
     cardView.expMonth = "";
     cardView.code = "";
+    cardView.expYear = "";
 
     expect(patchCipherSpy).toHaveBeenCalled();
     const patchFn = patchCipherSpy.mock.lastCall[0];
@@ -85,6 +86,7 @@ describe("CardDetailsSectionComponent", () => {
     cardView.number = "";
     cardView.expMonth = "";
     cardView.code = "";
+    cardView.brand = "";
     cardView.expYear = "2022";
 
     expect(patchCipherSpy).toHaveBeenCalled();
@@ -106,12 +108,17 @@ describe("CardDetailsSectionComponent", () => {
     const cardholderName = "Ron Burgundy";
     const number = "4242 4242 4242 4242";
     const code = "619";
+    const brand = "Maestro";
+    const expMonth = "5";
+    const expYear = "2028";
 
     const cardView = new CardView();
     cardView.cardholderName = cardholderName;
     cardView.number = number;
     cardView.code = code;
-    cardView.brand = "Visa";
+    cardView.brand = brand;
+    cardView.expMonth = expMonth;
+    cardView.expYear = expYear;
 
     getInitialCipherView.mockReturnValueOnce({ card: cardView });
 
@@ -121,9 +128,9 @@ describe("CardDetailsSectionComponent", () => {
       cardholderName,
       number,
       code,
-      brand: cardView.brand,
-      expMonth: null,
-      expYear: null,
+      brand,
+      expMonth,
+      expYear,
     });
   });
 
@@ -153,5 +160,28 @@ describe("CardDetailsSectionComponent", () => {
     fixture.detectChanges();
 
     expect(heading.nativeElement.textContent.trim()).toBe("cardDetails");
+  });
+
+  it("initializes `cardDetailsForm` from `initialValues` when provided and editing existing cipher", () => {
+    const initialCardholderName = "New Name";
+    const initialBrand = "Amex";
+
+    (cipherFormProvider as any).config = {
+      initialValues: {
+        cardholderName: initialCardholderName,
+        brand: initialBrand,
+      },
+    };
+
+    const existingCard = new CardView();
+    existingCard.cardholderName = "Old Name";
+    existingCard.brand = "Visa";
+
+    getInitialCipherView.mockReturnValueOnce({ card: existingCard });
+
+    component.ngOnInit();
+
+    expect(component.cardDetailsForm.value.cardholderName).toBe(initialCardholderName);
+    expect(component.cardDetailsForm.value.brand).toBe(initialBrand);
   });
 });

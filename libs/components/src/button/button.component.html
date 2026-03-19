@@ -1,11 +1,18 @@
-<span class="tw-relative">
-  <span [ngClass]="{ 'tw-invisible': showLoadingStyle() }">
-    <ng-content></ng-content>
+<span class="tw-relative tw-flex tw-items-center tw-justify-center">
+  <span [class.tw-invisible]="showLoadingStyle()" class="tw-flex tw-items-center tw-gap-2">
+    @if (startIcon()) {
+      <i class="{{ startIconClasses() }}"></i>
+    }
+    <div>
+      <ng-content></ng-content>
+    </div>
+    @if (endIcon()) {
+      <i class="{{ endIconClasses() }}"></i>
+    }
   </span>
-  <span
-    class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center"
-    [ngClass]="{ 'tw-invisible': !showLoadingStyle() }"
-  >
-    <i class="bwi bwi-spinner bwi-lg bwi-spin" aria-hidden="true"></i>
-  </span>
+  @if (showLoadingStyle()) {
+    <span class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center">
+      <bit-spinner size="fill" noColor></bit-spinner>
+    </span>
+  }
 </span>

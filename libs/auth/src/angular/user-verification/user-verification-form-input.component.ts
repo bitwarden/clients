@@ -28,6 +28,7 @@ import {
   CalloutModule,
   FormFieldModule,
   IconButtonModule,
+  SvgModule,
   IconModule,
   LinkModule,
 } from "@bitwarden/components";
@@ -40,6 +41,8 @@ import { ActiveClientVerificationOption } from "./active-client-verification-opt
  * This is exposed to the parent component via the ControlValueAccessor interface (e.g. bind it to a FormControl).
  * Use UserVerificationService to verify the user's input.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-user-verification-form-input",
   templateUrl: "user-verification-form-input.component.html",
@@ -63,14 +66,19 @@ import { ActiveClientVerificationOption } from "./active-client-verification-opt
     AsyncActionsModule,
     IconButtonModule,
     IconModule,
+    SvgModule,
     LinkModule,
     ButtonModule,
     CalloutModule,
   ],
 })
 export class UserVerificationFormInputComponent implements ControlValueAccessor, OnInit, OnDestroy {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() verificationType: "server" | "client" = "server"; // server represents original behavior
   private _invalidSecret = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get invalidSecret() {
     return this._invalidSecret;
@@ -88,11 +96,17 @@ export class UserVerificationFormInputComponent implements ControlValueAccessor,
     }
     this.secret.updateValueAndValidity({ emitEvent: false });
   }
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() invalidSecretChange = new EventEmitter<boolean>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() activeClientVerificationOptionChange =
     new EventEmitter<ActiveClientVerificationOption>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() biometricsVerificationResultChange = new EventEmitter<boolean>();
 
   readonly Icons = { UserVerificationBiometricsIcon };

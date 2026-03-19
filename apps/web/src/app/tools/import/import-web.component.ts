@@ -1,14 +1,33 @@
 import { Component } from "@angular/core";
 import { Router } from "@angular/router";
 
-import { ImportComponent } from "@bitwarden/importer-ui";
+import {
+  DefaultImportMetadataService,
+  ImportMetadataServiceAbstraction,
+} from "@bitwarden/importer-core";
+import {
+  ImportComponent,
+  ImporterProviders,
+  SYSTEM_SERVICE_PROVIDER,
+} from "@bitwarden/importer-ui";
+import { safeProvider } from "@bitwarden/ui-common";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 import { SharedModule } from "../../shared";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "import-web.component.html",
   imports: [SharedModule, ImportComponent, HeaderModule],
+  providers: [
+    ...ImporterProviders,
+    safeProvider({
+      provide: ImportMetadataServiceAbstraction,
+      useClass: DefaultImportMetadataService,
+      deps: [SYSTEM_SERVICE_PROVIDER],
+    }),
+  ],
 })
 export class ImportWebComponent {
   protected loading = false;

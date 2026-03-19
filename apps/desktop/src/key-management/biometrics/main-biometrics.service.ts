@@ -10,32 +10,29 @@ import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-manageme
 import { WindowMain } from "../../main/window.main";
 
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
+import { LinuxBiometricsSystem, WindowsBiometricsSystem } from "./native-v2";
 import { OsBiometricService } from "./os-biometrics.service";
 
 export class MainBiometricsService extends DesktopBiometricsService {
   private osBiometricsService: OsBiometricService;
   private shouldAutoPrompt = true;
+  private linuxV2BiometricsEnabled = false;
 
   constructor(
     private i18nService: I18nService,
     private windowMain: WindowMain,
     private logService: LogService,
-    platform: NodeJS.Platform,
+    private platform: NodeJS.Platform,
     private biometricStateService: BiometricStateService,
     private encryptService: EncryptService,
     private cryptoFunctionService: CryptoFunctionService,
   ) {
     super();
     if (platform === "win32") {
-      // eslint-disable-next-line
-      const OsBiometricsServiceWindows = require("./os-biometrics-windows.service").default;
-      this.osBiometricsService = new OsBiometricsServiceWindows(
+      this.osBiometricsService = new WindowsBiometricsSystem(
         this.i18nService,
         this.windowMain,
         this.logService,
-        this.biometricStateService,
-        this.encryptService,
-        this.cryptoFunctionService,
       );
     } else if (platform === "darwin") {
       // eslint-disable-next-line
@@ -143,5 +140,25 @@ export class MainBiometricsService extends DesktopBiometricsService {
 
   async canEnableBiometricUnlock(): Promise<boolean> {
     return true;
+  }
+
+  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
+    return await this.osBiometricsService.enrollPersistent(userId, key);
+  }
+
+  async hasPersistentKey(userId: UserId): Promise<boolean> {
+    return await this.osBiometricsService.hasPersistentKey(userId);
+  }
+
+  async enableLinuxV2Biometrics(): Promise<void> {
+    if (this.platform === "linux" && !this.linuxV2BiometricsEnabled) {
+      this.logService.info("[BiometricsMain] Loading native biometrics module v2 for linux");
+      this.osBiometricsService = new LinuxBiometricsSystem();
+      this.linuxV2BiometricsEnabled = true;
+    }
+  }
+
+  async isLinuxV2BiometricsEnabled(): Promise<boolean> {
+    return this.linuxV2BiometricsEnabled;
   }
 }

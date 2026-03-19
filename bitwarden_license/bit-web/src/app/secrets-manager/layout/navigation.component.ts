@@ -4,7 +4,6 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
-  concatMap,
   distinctUntilChanged,
   filter,
   map,
@@ -31,6 +30,8 @@ import { ServiceAccountService } from "../service-accounts/service-account.servi
 import { SecretsManagerPortingApiService } from "../settings/services/sm-porting-api.service";
 import { CountService } from "../shared/counts/count.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-navigation",
   templateUrl: "./navigation.component.html",
@@ -57,7 +58,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const org$ = this.route.params.pipe(
-      concatMap((params) =>
+      switchMap((params) =>
         getUserId(this.accountService.activeAccount$).pipe(
           switchMap((userId) =>
             this.organizationService
@@ -66,7 +67,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
           ),
         ),
       ),
-      distinctUntilChanged(),
+      distinctUntilChanged((prev, curr) => prev?.id === curr?.id),
       takeUntil(this.destroy$),
     );
 

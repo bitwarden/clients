@@ -49,7 +49,7 @@ describe("OrganizationIntegrationConfigurationApiService", () => {
     expect(result).toEqual(mockConfigurationResponses);
     expect(apiService.send).toHaveBeenCalledWith(
       "GET",
-      `organizations/${orgId}/integrations/${integrationId}/configurations`,
+      `/organizations/${orgId}/integrations/${integrationId}/configurations`,
       null,
       true,
       true,
@@ -77,7 +77,7 @@ describe("OrganizationIntegrationConfigurationApiService", () => {
     expect(result.template).toEqual(mockConfigurationResponse.template);
     expect(apiService.send).toHaveBeenCalledWith(
       "POST",
-      `organizations/${orgId}/integrations/${integrationId}/configurations`,
+      `/organizations/${orgId}/integrations/${integrationId}/configurations`,
       request,
       true,
       true,
@@ -107,7 +107,7 @@ describe("OrganizationIntegrationConfigurationApiService", () => {
     expect(result.template).toEqual(mockConfigurationResponse.template);
     expect(apiService.send).toHaveBeenCalledWith(
       "PUT",
-      `organizations/${orgId}/integrations/${integrationId}/configurations/${configurationId}`,
+      `/organizations/${orgId}/integrations/${integrationId}/configurations/${configurationId}`,
       request,
       true,
       true,
@@ -123,7 +123,7 @@ describe("OrganizationIntegrationConfigurationApiService", () => {
 
     expect(apiService.send).toHaveBeenCalledWith(
       "DELETE",
-      `organizations/${orgId}/integrations/${integrationId}/configurations/${configurationId}`,
+      `/organizations/${orgId}/integrations/${integrationId}/configurations/${configurationId}`,
       null,
       true,
       false,

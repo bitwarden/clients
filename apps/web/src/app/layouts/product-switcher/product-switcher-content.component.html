@@ -14,11 +14,14 @@
         [routerLink]="product.appRoute"
         [ngClass]="
           product.isActive
-            ? 'tw-bg-primary-600 tw-font-bold !tw-text-contrast tw-ring-offset-2 hover:tw-bg-primary-600'
+            ? 'tw-bg-primary-600 tw-font-medium !tw-text-contrast tw-ring-offset-2 hover:tw-bg-primary-600'
             : ''
         "
         class="tw-group/product-link tw-flex tw-h-24 tw-w-28 tw-flex-col tw-items-center tw-justify-center tw-rounded tw-p-1 tw-text-primary-600 tw-outline-none hover:tw-bg-background-alt hover:tw-text-primary-700 hover:tw-no-underline focus-visible:!tw-ring-2 focus-visible:!tw-ring-primary-700"
         ariaCurrentWhenActive="page"
+        [state]="{
+          focusAfterNav: 'body',
+        }"
       >
         <i class="bwi {{ product.icon }} tw-text-4xl !tw-m-0 !tw-mb-1"></i>
         <span
@@ -40,10 +43,9 @@
           *ngIf="!product.marketingRoute.external"
           bitLink
           [routerLink]="product.marketingRoute.route"
+          [startIcon]="product.icon"
         >
-          <span class="tw-flex tw-items-center tw-font-normal">
-            <i class="bwi bwi-fw {{ product.icon }} tw-m-0 !tw-mr-3"></i>{{ product.name }}
-          </span>
+          {{ product.name }}
         </a>
         <!-- <a> for when the marketing route is external -->
         <a
@@ -52,10 +54,9 @@
           [href]="product.marketingRoute.route"
           target="_blank"
           rel="noreferrer"
+          [startIcon]="product.icon"
         >
-          <span class="tw-flex tw-items-center tw-font-normal">
-            <i class="bwi bwi-fw {{ product.icon }} tw-m-0 !tw-mr-3"></i>{{ product.name }}
-          </span>
+          {{ product.name }}
         </a>
       </span>
     </section>

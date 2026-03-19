@@ -1,13 +1,18 @@
-import { Component, EventEmitter, input, Output } from "@angular/core";
+import { CurrencyPipe } from "@angular/common";
+import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 
 import {
   BadgeModule,
   BadgeVariant,
+  BitwardenIcon,
   ButtonModule,
   ButtonType,
+  CardComponent,
   IconModule,
+  SvgModule,
   TypographyModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
  * A reusable UI-only component that displays pricing information in a card format.
@@ -17,26 +22,33 @@ import {
 @Component({
   selector: "billing-pricing-card",
   templateUrl: "./pricing-card.component.html",
-  imports: [BadgeModule, ButtonModule, IconModule, TypographyModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    BadgeModule,
+    ButtonModule,
+    SvgModule,
+    IconModule,
+    TypographyModule,
+    CurrencyPipe,
+    CardComponent,
+    I18nPipe,
+  ],
 })
 export class PricingCardComponent {
-  tagline = input.required<string>();
-  price = input<{ amount: number; cadence: "monthly" | "annually"; showPerUser?: boolean }>();
-  button = input<{
+  readonly tagline = input.required<string>();
+  readonly price = input<{
+    amount: number;
+    cadence: "month" | "monthly" | "year" | "annually";
+    showPerUser?: boolean;
+  }>();
+  readonly button = input<{
     type: ButtonType;
     text: string;
     disabled?: boolean;
-    icon?: { type: string; position: "before" | "after" };
+    icon?: { type: BitwardenIcon; position: "before" | "after" };
   }>();
-  features = input<string[]>();
-  activeBadge = input<{ text: string; variant?: BadgeVariant }>();
+  readonly features = input<string[]>();
+  readonly activeBadge = input<{ text: string; variant?: BadgeVariant }>();
 
-  @Output() buttonClick = new EventEmitter<void>();
-
-  /**
-   * Handles button click events and emits the buttonClick event
-   */
-  onButtonClick(): void {
-    this.buttonClick.emit();
-  }
+  readonly buttonClick = output<void>();
 }

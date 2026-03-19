@@ -15,15 +15,19 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
-import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { trackedMerge } from "@bitwarden/common/platform/misc";
 
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { NotificationType } from "../../../enums";
+import { NotificationType, PushNotificationLogOutReasonType } from "../../../enums";
 import {
+  LogOutNotification,
   NotificationResponse,
   SyncCipherNotification,
   SyncFolderNotification,
@@ -46,6 +50,7 @@ export const DISABLED_NOTIFICATIONS_URL = "http://-";
 
 export const AllowedMultiUserNotificationTypes = new Set<NotificationType>([
   NotificationType.AuthRequest,
+  NotificationType.AutoConfirmMember,
 ]);
 
 export class DefaultServerNotificationsService implements ServerNotificationsService {
@@ -64,51 +69,25 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     private readonly signalRConnectionService: SignalRConnectionService,
     private readonly authService: AuthService,
     private readonly webPushConnectionService: WebPushConnectionService,
-    private readonly authRequestAnsweringService: AuthRequestAnsweringServiceAbstraction,
+    private readonly authRequestAnsweringService: AuthRequestAnsweringService,
     private readonly configService: ConfigService,
+    private readonly policyService: InternalPolicyService,
+    private autoConfirmService: AutomaticUserConfirmationService,
   ) {
-    this.notifications$ = this.configService
-      .getFeatureFlag$(FeatureFlag.InactiveUserServerNotification)
-      .pipe(
-        distinctUntilChanged(),
-        switchMap((inactiveUserServerNotificationEnabled) => {
-          if (inactiveUserServerNotificationEnabled) {
-            return this.accountService.accounts$.pipe(
-              map((accounts: Record<UserId, AccountInfo>): Set<UserId> => {
-                const validUserIds = Object.entries(accounts)
-                  .filter(
-                    ([_, accountInfo]) => accountInfo.email !== "" || accountInfo.emailVerified,
-                  )
-                  .map(([userId, _]) => userId as UserId);
-                return new Set(validUserIds);
-              }),
-              trackedMerge((id: UserId) => {
-                return this.userNotifications$(id as UserId).pipe(
-                  map(
-                    (notification: NotificationResponse) => [notification, id as UserId] as const,
-                  ),
-                );
-              }),
-            );
-          }
-
-          return this.accountService.activeAccount$.pipe(
-            map((account) => account?.id),
-            distinctUntilChanged(),
-            switchMap((activeAccountId) => {
-              if (activeAccountId == null) {
-                // We don't emit server-notifications for inactive accounts currently
-                return EMPTY;
-              }
-
-              return this.userNotifications$(activeAccountId).pipe(
-                map((notification) => [notification, activeAccountId] as const),
-              );
-            }),
-          );
-        }),
-        share(), // Multiple subscribers should only create a single connection to the server
-      );
+    this.notifications$ = this.accountService.accounts$.pipe(
+      map((accounts: Record<UserId, AccountInfo>): Set<UserId> => {
+        const validUserIds = Object.entries(accounts)
+          .filter(([_, accountInfo]) => accountInfo.email !== "" || accountInfo.emailVerified)
+          .map(([userId, _]) => userId as UserId);
+        return new Set(validUserIds);
+      }),
+      trackedMerge((id: UserId) => {
+        return this.userNotifications$(id as UserId).pipe(
+          map((notification: NotificationResponse) => [notification, id as UserId] as const),
+        );
+      }),
+      share(), // Multiple subscribers should only create a single connection to the server
+    );
   }
 
   /**
@@ -171,25 +150,13 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
   }
 
   private hasAccessToken$(userId: UserId) {
-    return this.configService.getFeatureFlag$(FeatureFlag.PushNotificationsWhenLocked).pipe(
+    return this.authService.authStatusFor$(userId).pipe(
+      map(
+        (authStatus) =>
+          authStatus === AuthenticationStatus.Locked ||
+          authStatus === AuthenticationStatus.Unlocked,
+      ),
       distinctUntilChanged(),
-      switchMap((featureFlagEnabled) => {
-        if (featureFlagEnabled) {
-          return this.authService.authStatusFor$(userId).pipe(
-            map(
-              (authStatus) =>
-                authStatus === AuthenticationStatus.Locked ||
-                authStatus === AuthenticationStatus.Unlocked,
-            ),
-            distinctUntilChanged(),
-          );
-        } else {
-          return this.authService.authStatusFor$(userId).pipe(
-            map((authStatus) => authStatus === AuthenticationStatus.Unlocked),
-            distinctUntilChanged(),
-          );
-        }
-      }),
     );
   }
 
@@ -204,19 +171,13 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
       return;
     }
 
-    if (
-      await firstValueFrom(
-        this.configService.getFeatureFlag$(FeatureFlag.InactiveUserServerNotification),
-      )
-    ) {
-      const activeAccountId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
+    const activeAccountId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
 
-      const isActiveUser = activeAccountId === userId;
-      if (!isActiveUser && !AllowedMultiUserNotificationTypes.has(notification.type)) {
-        return;
-      }
+    const notificationIsForActiveUser = activeAccountId === userId;
+    if (!notificationIsForActiveUser && !AllowedMultiUserNotificationTypes.has(notification.type)) {
+      return;
     }
 
     switch (notification.type) {
@@ -263,10 +224,25 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         this.activitySubject.next("inactive"); // Force a disconnect
         this.activitySubject.next("active"); // Allow a reconnect
         break;
-      case NotificationType.LogOut:
+      case NotificationType.LogOut: {
         this.logService.info("[Notifications Service] Received logout notification");
-        await this.logoutCallback("logoutNotification", userId);
+
+        const logOutNotification = notification.payload as LogOutNotification;
+        const noLogoutOnKdfChange = await firstValueFrom(
+          this.configService.getFeatureFlag$(FeatureFlag.NoLogoutOnKdfChange),
+        );
+        if (
+          noLogoutOnKdfChange &&
+          logOutNotification.reason === PushNotificationLogOutReasonType.KdfChange
+        ) {
+          this.logService.info(
+            "[Notifications Service] Skipping logout due to no logout KDF change",
+          );
+        } else {
+          await this.logoutCallback("logoutNotification", userId);
+        }
         break;
+      }
       case NotificationType.SyncSendCreate:
       case NotificationType.SyncSendUpdate:
         await this.syncService.syncUpsertSend(
@@ -277,21 +253,28 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
       case NotificationType.SyncSendDelete:
         await this.syncService.syncDeleteSend(notification.payload as SyncSendNotification);
         break;
-      case NotificationType.AuthRequest:
-        if (
-          await firstValueFrom(
-            this.configService.getFeatureFlag$(FeatureFlag.PM14938_BrowserExtensionLoginApproval),
-          )
-        ) {
-          await this.authRequestAnsweringService.receivedPendingAuthRequest(
-            notification.payload.userId,
-            notification.payload.id,
-          );
+      case NotificationType.AuthRequest: {
+        // Only Extension and Desktop implement the AuthRequestAnsweringService
+        if (this.authRequestAnsweringService.receivedPendingAuthRequest) {
+          try {
+            await this.authRequestAnsweringService.receivedPendingAuthRequest(
+              notification.payload.userId,
+              notification.payload.id,
+            );
+          } catch (error) {
+            this.logService.error(`Failed to process auth request notification: ${error}`);
+          }
+        } else {
+          // This call is necessary for Web, which uses a NoopAuthRequestAnsweringService
+          // that does not have a receivedPendingAuthRequest() method
+          this.messagingService.send("openLoginApproval", {
+            // Include the authRequestId so the DeviceManagementComponent can upsert the correct device.
+            // This will only matter if the user is on the /device-management screen when the auth request is received.
+            notificationId: notification.payload.id,
+          });
         }
-        this.messagingService.send("openLoginApproval", {
-          notificationId: notification.payload.id,
-        });
         break;
+      }
       case NotificationType.SyncOrganizationStatusChanged:
         await this.syncService.fullSync(true);
         break;
@@ -308,6 +291,17 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
           providerId: notification.payload.providerId,
           adminId: notification.payload.adminId,
         });
+        break;
+      case NotificationType.SyncPolicy:
+        await this.policyService.syncPolicy(PolicyData.fromPolicy(notification.payload.policy));
+        break;
+      case NotificationType.AutoConfirmMember:
+        await this.autoConfirmService.autoConfirmUser(
+          notification.payload.userId,
+          notification.payload.targetUserId,
+          notification.payload.targetOrganizationUserId,
+          notification.payload.organizationId,
+        );
         break;
       default:
         break;

@@ -22,7 +22,7 @@ type Result<T> =
       message: string;
     };
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class SubscriberBillingClient {
   constructor(private apiService: ApiService) {}
 
@@ -80,6 +80,24 @@ export class SubscriberBillingClient {
     const path = `${this.getEndpoint(subscriber)}/payment-method`;
     const data = await this.apiService.send("GET", path, null, true, true);
     return data ? new MaskedPaymentMethodResponse(data).value : null;
+  };
+
+  restartSubscription = async (
+    subscriber: BitwardenSubscriber,
+    paymentMethod: TokenizedPaymentMethod,
+    billingAddress: BillingAddress,
+  ): Promise<void> => {
+    const path = `${this.getEndpoint(subscriber)}/subscription/restart`;
+    await this.apiService.send(
+      "POST",
+      path,
+      {
+        paymentMethod,
+        billingAddress,
+      },
+      true,
+      false,
+    );
   };
 
   updateBillingAddress = async (

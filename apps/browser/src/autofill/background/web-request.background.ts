@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -26,7 +24,10 @@ export default class WebRequestBackground {
 
   startListening() {
     this.webRequest.onAuthRequired.addListener(
-      async (details, callback) => {
+      (async (
+        details: chrome.webRequest.OnAuthRequiredDetails,
+        callback: (response: chrome.webRequest.BlockingResponse | null) => void,
+      ) => {
         if (!details.url || this.pendingAuthRequests.has(details.requestId)) {
           if (callback) {
             callback(null);
@@ -42,24 +43,25 @@ export default class WebRequestBackground {
         } else {
           await this.resolveAuthCredentials(details.url, callback, callback);
         }
-      },
+      }) as any,
       { urls: ["http://*/*", "https://*/*"] },
       [this.isFirefox ? "blocking" : "asyncBlocking"],
     );
 
     this.webRequest.onCompleted.addListener((details) => this.completeAuthRequest(details), {
-      urls: ["http://*/*"],
+      urls: ["http://*/*", "https://*/*"],
     });
-    this.webRequest.onErrorOccurred.addListener(
-      (details: any) => this.completeAuthRequest(details),
-      {
-        urls: ["http://*/*"],
-      },
-    );
+    this.webRequest.onErrorOccurred.addListener((details) => this.completeAuthRequest(details), {
+      urls: ["http://*/*", "https://*/*"],
+    });
   }
 
-  // eslint-disable-next-line
-  private async resolveAuthCredentials(domain: string, success: Function, error: Function) {
+  private async resolveAuthCredentials(
+    domain: string,
+    success: (response: chrome.webRequest.BlockingResponse | null) => void,
+    // eslint-disable-next-line
+    error: Function,
+  ) {
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
@@ -78,7 +80,7 @@ export default class WebRequestBackground {
       const ciphers = await this.cipherService.getAllDecryptedForUrl(
         domain,
         activeUserId,
-        null,
+        undefined,
         UriMatchStrategy.Host,
       );
       if (ciphers == null || ciphers.length !== 1) {
@@ -86,10 +88,17 @@ export default class WebRequestBackground {
         return;
       }
 
+      const username = ciphers[0].login?.username;
+      const password = ciphers[0].login?.password;
+      if (username == null || password == null) {
+        error();
+        return;
+      }
+
       success({
         authCredentials: {
-          username: ciphers[0].login.username,
-          password: ciphers[0].login.password,
+          username,
+          password,
         },
       });
     } catch {
@@ -97,7 +106,7 @@ export default class WebRequestBackground {
     }
   }
 
-  private completeAuthRequest(details: chrome.webRequest.WebResponseCacheDetails) {
+  private completeAuthRequest(details: chrome.webRequest.WebRequestDetails) {
     this.pendingAuthRequests.delete(details.requestId);
   }
 }

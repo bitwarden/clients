@@ -12,6 +12,8 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
+import { CipherLike } from "../types/cipher-like";
+
 import { RestrictedItemTypesService, RestrictedCipherType } from "./restricted-item-types.service";
 
 describe("RestrictedItemTypesService", () => {
@@ -52,12 +54,7 @@ describe("RestrictedItemTypesService", () => {
     organizationService.organizations$.mockReturnValue(of([org1, org2]));
     policyService.policiesByType$.mockReturnValue(of([]));
 
-    service = new RestrictedItemTypesService(
-      configService,
-      accountService,
-      organizationService,
-      policyService,
-    );
+    service = new RestrictedItemTypesService(accountService, organizationService, policyService);
   });
 
   it("emits empty array when feature flag is disabled", async () => {
@@ -134,5 +131,171 @@ describe("RestrictedItemTypesService", () => {
       { cipherType: CipherType.Login, allowViewOrgIds: ["org2"] },
       { cipherType: CipherType.Identity, allowViewOrgIds: ["org1"] },
     ]);
+  });
+
+  describe("isCipherRestricted", () => {
+    it("returns false when cipher type is not in restricted types", () => {
+      const cipher: CipherLike = {
+        type: CipherType.Login,
+        organizationId: "Pete the Cat",
+      } as CipherLike;
+      const restrictedTypes: RestrictedCipherType[] = [
+        { cipherType: CipherType.Card, allowViewOrgIds: [] },
+      ];
+
+      const result = service.isCipherRestricted(cipher, restrictedTypes);
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false when restricted types array is empty", () => {
+      const cipher: CipherLike = { type: CipherType.Card, organizationId: "org1" } as CipherLike;
+      const restrictedTypes: RestrictedCipherType[] = [];
+
+      const result = service.isCipherRestricted(cipher, restrictedTypes);
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false when cipher type does not match any restricted types", () => {
+      const cipher: CipherLike = {
+        type: CipherType.SecureNote,
+        organizationId: "org1",
+      } as CipherLike;
+      const restrictedTypes: RestrictedCipherType[] = [
+        { cipherType: CipherType.Card, allowViewOrgIds: [] },
+        { cipherType: CipherType.Login, allowViewOrgIds: [] },
+        { cipherType: CipherType.Identity, allowViewOrgIds: [] },
+      ];
+
+      const result = service.isCipherRestricted(cipher, restrictedTypes);
+
+      expect(result).toBe(false);
+    });
+
+    it("returns true for personal cipher when type is restricted", () => {
+      const cipher: CipherLike = { type: CipherType.Card, organizationId: null } as CipherLike;
+      const restrictedTypes: RestrictedCipherType[] = [
+        { cipherType: CipherType.Card, allowViewOrgIds: ["org1"] },
+      ];
+
+      const result = service.isCipherRestricted(cipher, restrictedTypes);
+
+      expect(result).toBe(true);
+    });
+
+    it("returns true for personal cipher with undefined organizationId when type is restricted", () => {
+      const cipher: CipherLike = {
+        type: CipherType.Login,
+        organizationId: undefined,
+      } as CipherLike;
+      const restrictedTypes: RestrictedCipherType[] = [
+        { cipherType: CipherType.Login, allowViewOrgIds: ["org1", "org2"] },
+      ];
+
+      const result = service.isCipherRestricted(cipher, restrictedTypes);
+
+      expect(result).toBe(true);
+    });
+
+    it("returns true for personal cipher regardless of allowViewOrgIds content", () => {
+      const cipher: CipherLike = { type: CipherType.Identity, organizationId: null } as CipherLike;
+      const restrictedTypes: RestrictedCipherType[] = [
+        { cipherType: CipherType.Identity, allowViewOrgIds: [] },
+      ];
+
+      const result = service.isCipherRestricted(cipher, restrictedTypes);
+
+      expect(result).toBe(true);
+    });
+
+    it("returns false when organization is in allowViewOrgIds", () => {
+      const cipher: CipherLike = { type: CipherType.Card, organizationId: "org1" } as CipherLike;
+      const restrictedTypes: RestrictedCipherType[] = [
+        { cipherType: CipherType.Card, allowViewOrgIds: ["org1"] },
+      ];
+
+      const result = service.isCipherRestricted(cipher, restrictedTypes);
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false when organization is among multiple allowViewOrgIds", () => {
+      const cipher: CipherLike = { type: CipherType.Login, organizationId: "org2" } as CipherLike;
+      const restrictedTypes: RestrictedCipherType[] = [
+        { cipherType: CipherType.Login, allowViewOrgIds: ["org1", "org2", "org3"] },
+      ];
+
+      const result = service.isCipherRestricted(cipher, restrictedTypes);
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false when type is restricted globally but cipher org allows it", () => {
+      const cipher: CipherLike = { type: CipherType.Card, organizationId: "org2" } as CipherLike;
+      const restrictedTypes: RestrictedCipherType[] = [
+        { cipherType: CipherType.Card, allowViewOrgIds: ["org2"] },
+      ];
+
+      const result = service.isCipherRestricted(cipher, restrictedTypes);
+
+      expect(result).toBe(false);
+    });
+
+    it("returns true when organization is not in allowViewOrgIds", () => {
+      const cipher: CipherLike = { type: CipherType.Card, organizationId: "org3" } as CipherLike;
+      const restrictedTypes: RestrictedCipherType[] = [
+        { cipherType: CipherType.Card, allowViewOrgIds: ["org1", "org2"] },
+      ];
+
+      const result = service.isCipherRestricted(cipher, restrictedTypes);
+
+      expect(result).toBe(true);
+    });
+
+    it("returns true when allowViewOrgIds is empty for org cipher", () => {
+      const cipher: CipherLike = { type: CipherType.Login, organizationId: "org1" } as CipherLike;
+      const restrictedTypes: RestrictedCipherType[] = [
+        { cipherType: CipherType.Login, allowViewOrgIds: [] },
+      ];
+
+      const result = service.isCipherRestricted(cipher, restrictedTypes);
+
+      expect(result).toBe(true);
+    });
+
+    it("returns true when cipher org differs from all allowViewOrgIds", () => {
+      const cipher: CipherLike = {
+        type: CipherType.Identity,
+        organizationId: "org5",
+      } as CipherLike;
+      const restrictedTypes: RestrictedCipherType[] = [
+        { cipherType: CipherType.Identity, allowViewOrgIds: ["org1", "org2", "org3", "org4"] },
+      ];
+
+      const result = service.isCipherRestricted(cipher, restrictedTypes);
+
+      expect(result).toBe(true);
+    });
+  });
+
+  describe("isCipherRestricted$", () => {
+    it("returns true when cipher is restricted by policy", async () => {
+      policyService.policiesByType$.mockReturnValue(of([policyOrg1]));
+      const cipher: CipherLike = { type: CipherType.Card, organizationId: null } as CipherLike;
+
+      const result = await firstValueFrom(service.isCipherRestricted$(cipher));
+
+      expect(result).toBe(true);
+    });
+
+    it("returns false when cipher is not restricted", async () => {
+      policyService.policiesByType$.mockReturnValue(of([policyOrg1]));
+      const cipher: CipherLike = { type: CipherType.Login, organizationId: "org2" } as CipherLike;
+
+      const result = await firstValueFrom(service.isCipherRestricted$(cipher));
+
+      expect(result).toBe(false);
+    });
   });
 });

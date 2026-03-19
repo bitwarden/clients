@@ -2,20 +2,26 @@
 // @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CollectionId } from "@bitwarden/sdk-internal";
 
 import { SharedModule } from "../../../../shared/shared.module";
 import { GetCollectionNameFromIdPipe } from "../pipes";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-collection-badge",
   templateUrl: "collection-name-badge.component.html",
   imports: [SharedModule, GetCollectionNameFromIdPipe],
 })
 export class CollectionNameBadgeComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() collectionIds: CollectionId[] | string[];
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() collections: CollectionView[];
 
   get shownCollections(): string[] {

@@ -1,12 +1,12 @@
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, Params, Router } from "@angular/router";
+import { ActivatedRoute, NavigationExtras, Params, Router } from "@angular/router";
 import {
   BehaviorSubject,
   combineLatest,
   firstValueFrom,
-  from,
   lastValueFrom,
+  merge,
   Observable,
   of,
   Subject,
@@ -25,31 +25,29 @@ import {
   switchMap,
   take,
   takeUntil,
-  tap,
 } from "rxjs/operators";
 
-import {
-  CollectionAdminService,
-  CollectionAdminView,
-  CollectionService,
-  CollectionView,
-  Unassigned,
-} from "@bitwarden/admin-console/common";
+import { CollectionAdminService, CollectionService } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { NoResults } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  CollectionView,
+  CollectionAdminView,
+  Unassigned,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import {
+  getFlatCollectionTree,
+  getNestedCollectionTree,
+} from "@bitwarden/common/admin-console/utils";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -66,6 +64,7 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -85,6 +84,13 @@ import {
   CollectionAssignmentResult,
   DecryptionFailureDialogComponent,
   PasswordRepromptService,
+  VaultFilterServiceAbstraction as VaultFilterService,
+  RoutedVaultFilterBridgeService,
+  RoutedVaultFilterService,
+  createFilterFunction,
+  All,
+  RoutedVaultFilterModel,
+  VaultFilter,
 } from "@bitwarden/vault";
 import {
   OrganizationFreeTrialWarningComponent,
@@ -93,13 +99,6 @@ import {
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import { VaultItemsComponent } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-items.component";
 
-import { BillingNotificationService } from "../../../billing/services/billing-notification.service";
-import {
-  ResellerWarning,
-  ResellerWarningService,
-} from "../../../billing/services/reseller-warning.service";
-import { TrialFlowService } from "../../../billing/services/trial-flow.service";
-import { FreeTrial } from "../../../billing/types/free-trial";
 import { SharedModule } from "../../../shared";
 import { AssignCollectionsWebComponent } from "../../../vault/components/assign-collections";
 import {
@@ -113,15 +112,6 @@ import {
   BulkDeleteDialogResult,
   openBulkDeleteDialog,
 } from "../../../vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
-import { VaultFilterService } from "../../../vault/individual-vault/vault-filter/services/abstractions/vault-filter.service";
-import { RoutedVaultFilterBridgeService } from "../../../vault/individual-vault/vault-filter/services/routed-vault-filter-bridge.service";
-import { RoutedVaultFilterService } from "../../../vault/individual-vault/vault-filter/services/routed-vault-filter.service";
-import { createFilterFunction } from "../../../vault/individual-vault/vault-filter/shared/models/filter-function";
-import {
-  All,
-  RoutedVaultFilterModel,
-} from "../../../vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
-import { VaultFilter } from "../../../vault/individual-vault/vault-filter/shared/models/vault-filter.model";
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import { GroupApiService, GroupView } from "../core";
 import { openEntityEventsDialog } from "../manage/entity-events.component";
@@ -137,7 +127,6 @@ import {
   BulkCollectionsDialogResult,
 } from "./bulk-collections-dialog";
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
-import { getFlatCollectionTree, getNestedCollectionTree } from "./utils";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 
@@ -151,6 +140,8 @@ enum AddAccessStatusType {
   AddAccess = 1,
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-org-vault",
   templateUrl: "vault.component.html",
@@ -171,7 +162,7 @@ enum AddAccessStatusType {
     { provide: CipherFormConfigService, useClass: AdminConsoleCipherFormConfigService },
   ],
 })
-export class vNextVaultComponent implements OnInit, OnDestroy {
+export class VaultComponent implements OnInit, OnDestroy {
   protected Unassigned = Unassigned;
 
   trashCleanupWarning: string = this.i18nService.t(
@@ -193,10 +184,6 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
   protected showCollectionAccessRestricted$: Observable<boolean>;
 
   protected isEmpty$: Observable<boolean> = of(false);
-  private hasSubscription$ = new BehaviorSubject<boolean>(false);
-  protected useOrganizationWarningsService$: Observable<boolean>;
-  protected freeTrialWhenWarningsServiceDisabled$: Observable<FreeTrial>;
-  protected resellerWarningWhenWarningsServiceDisabled$: Observable<ResellerWarning | null>;
   protected prevCipherId: string | null = null;
   protected userId$: Observable<UserId>;
 
@@ -222,34 +209,11 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
   protected selectedCollection$: Observable<TreeNode<CollectionAdminView> | undefined>;
   private nestedCollections$: Observable<TreeNode<CollectionAdminView>[]>;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("vaultItems", { static: false }) vaultItemsComponent:
     | VaultItemsComponent<CipherView>
     | undefined;
-
-  private readonly unpaidSubscriptionDialog$ = this.accountService.activeAccount$.pipe(
-    getUserId,
-    switchMap((id) =>
-      this.organizationService.organizations$(id).pipe(
-        filter((organizations) => organizations.length === 1),
-        map(([organization]) => organization),
-        switchMap((organization) =>
-          from(this.billingApiService.getOrganizationBillingMetadata(organization.id)).pipe(
-            tap((organizationMetaData) => {
-              this.hasSubscription$.next(organizationMetaData.hasSubscription);
-            }),
-            switchMap((organizationMetaData) =>
-              from(
-                this.trialFlowService.handleUnpaidSubscriptionDialog(
-                  organization,
-                  organizationMetaData,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
 
   constructor(
     private route: ActivatedRoute,
@@ -277,17 +241,12 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     private totpService: TotpService,
     private apiService: ApiService,
     private toastService: ToastService,
-    private configService: ConfigService,
     private cipherFormConfigService: CipherFormConfigService,
-    private organizationApiService: OrganizationApiServiceAbstraction,
-    private trialFlowService: TrialFlowService,
     protected billingApiService: BillingApiServiceAbstraction,
-    private organizationBillingService: OrganizationBillingServiceAbstraction,
-    private resellerWarningService: ResellerWarningService,
     private accountService: AccountService,
-    private billingNotificationService: BillingNotificationService,
     private organizationWarningsService: OrganizationWarningsService,
     private collectionService: CollectionService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     this.userId$ = this.accountService.activeAccount$.pipe(getUserId);
     this.filter$ = this.routedVaultFilterService.filter$;
@@ -357,9 +316,10 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     this.allCiphers$ = combineLatest([
       this.organization$,
       this.userId$,
+      this.restrictedItemTypesService.restricted$,
       this.refreshingSubject$,
     ]).pipe(
-      switchMap(async ([organization, userId]) => {
+      switchMap(async ([organization, userId, restricted]) => {
         // If user swaps organization reset the addAccessToggle
         if (!this.showAddAccessToggle || organization) {
           this.addAccessToggle(0);
@@ -380,6 +340,11 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
           // Otherwise, only fetch ciphers they have access to (includes unassigned for admins).
           ciphers = await this.cipherService.getManyFromApiForOrganization(organization.id);
         }
+
+        // Filter out restricted ciphers before indexing
+        ciphers = ciphers.filter(
+          (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted),
+        );
 
         await this.searchService.indexCiphers(userId, ciphers, organization.id);
         return ciphers;
@@ -453,68 +418,17 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     );
 
     // Billing Warnings
-    this.useOrganizationWarningsService$ = this.configService.getFeatureFlag$(
-      FeatureFlag.UseOrganizationWarningsService,
-    );
-
-    const freeTrial$ = combineLatest([
-      this.organization$,
-      this.hasSubscription$.pipe(filter((hasSubscription) => hasSubscription !== null)),
-    ]).pipe(
-      filter(
-        ([org, hasSubscription]) => org.isOwner && hasSubscription && org.canViewBillingHistory,
-      ),
-      switchMap(([org]) =>
-        combineLatest([
-          of(org),
-          this.organizationApiService.getSubscription(org.id),
-          from(this.organizationBillingService.getPaymentSource(org.id)).pipe(
-            map((paymentSource) => {
-              if (paymentSource == null) {
-                throw new Error("Payment source not found.");
-              }
-              return paymentSource;
-            }),
-          ),
-        ]),
-      ),
-      map(([org, sub, paymentSource]) =>
-        this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(org, sub, paymentSource),
-      ),
-      filter((result) => result !== null),
-      catchError((error: unknown) => {
-        this.billingNotificationService.handleError(error);
-        return of();
-      }),
-    );
-
-    this.freeTrialWhenWarningsServiceDisabled$ = this.useOrganizationWarningsService$.pipe(
-      filter((enabled) => !enabled),
-      switchMap(() => freeTrial$),
-    );
-
-    this.resellerWarningWhenWarningsServiceDisabled$ = combineLatest([
-      this.organization$,
-      this.useOrganizationWarningsService$,
-    ]).pipe(
-      filter(([org, enabled]) => !enabled && org.isOwner),
-      switchMap(([org]) =>
-        from(this.billingApiService.getOrganizationBillingMetadata(org.id)).pipe(
-          map((metadata) => ({ org, metadata })),
-        ),
-      ),
-      map(({ org, metadata }) => this.resellerWarningService.getWarning(org, metadata)),
-    );
-
     this.organization$
       .pipe(
         switchMap((organization) =>
-          this.organizationWarningsService.showSubscribeBeforeFreeTrialEndsDialog$(organization),
+          merge(
+            this.organizationWarningsService.showInactiveSubscriptionDialog$(organization),
+            this.organizationWarningsService.showSubscribeBeforeFreeTrialEndsDialog$(organization),
+          ),
         ),
         takeUntilDestroyed(),
       )
       .subscribe();
-
     // End Billing Warnings
 
     this.editableCollections$ = combineLatest([
@@ -558,7 +472,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
               collections,
               filter.collectionId,
             );
-            searchableCollectionNodes = selectedCollection.children ?? [];
+            searchableCollectionNodes = selectedCollection?.children ?? [];
           }
 
           let collectionsToReturn: CollectionAdminView[] = [];
@@ -673,6 +587,9 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
           queryParams: { search: Utils.isNullOrEmpty(searchText) ? null : searchText },
           queryParamsHandling: "merge",
           replaceUrl: true,
+          state: {
+            focusAfterNav: false,
+          },
         }),
       );
 
@@ -773,17 +690,6 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
-    combineLatest([this.useOrganizationWarningsService$, this.organization$])
-      .pipe(
-        switchMap(([enabled, organization]) =>
-          enabled
-            ? this.organizationWarningsService.showInactiveSubscriptionDialog$(organization)
-            : this.unpaidSubscriptionDialog$,
-        ),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
-
     // Handle last of initial setup - workaround for some state issues where we need to manually
     // push the collections we've loaded back into the VaultFilterService.
     // FIXME: figure out how we can remove this.
@@ -808,14 +714,13 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
   }
 
   async navigateToPaymentMethod() {
-    const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
-      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
-    );
-    const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
     const organizationId = await firstValueFrom(this.organizationId$);
-    await this.router.navigate(["organizations", `${organizationId}`, "billing", route], {
-      state: { launchPaymentModalAutomatically: true },
-    });
+    await this.router.navigate(
+      ["organizations", `${organizationId}`, "billing", "payment-details"],
+      {
+        state: { launchPaymentModalAutomatically: true },
+      },
+    );
   }
 
   addAccessToggle(e: AddAccessStatusType) {
@@ -892,6 +797,9 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
         case "viewEvents":
           await this.viewEvents(event.item);
           break;
+        case "editCipher":
+          await this.editCipher(event.item);
+          break;
       }
     } finally {
       this.processingEvent$.next(false);
@@ -904,7 +812,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
 
   async editCipherAttachments(cipher: CipherView) {
     if (cipher.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
-      this.go({ cipherId: null, itemId: null });
+      this.go({ cipherId: null, itemId: null }, this.configureRouterFocusToCipher(cipher.id));
       return;
     }
 
@@ -954,14 +862,14 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
    * @param cipherView - When set, the cipher to be edited
    * @param cloneCipher - `true` when the cipher should be cloned.
    */
-  async editCipher(cipher: CipherView | undefined, cloneCipher: boolean) {
+  async editCipher(cipher: CipherView | undefined, cloneCipher?: boolean) {
     if (
       cipher &&
       cipher.reprompt !== 0 &&
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {
       // didn't pass password prompt, so don't open add / edit modal
-      this.go({ cipherId: null, itemId: null });
+      this.go({ cipherId: null, itemId: null }, this.configureRouterFocusToCipher(cipher.id));
       return;
     }
 
@@ -985,7 +893,10 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {
       // Didn't pass password prompt, so don't open add / edit modal.
-      await this.go({ cipherId: null, itemId: null, action: null });
+      await this.go(
+        { cipherId: null, itemId: null, action: null },
+        this.configureRouterFocusToCipher(cipher.id),
+      );
       return;
     }
 
@@ -1012,14 +923,9 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     cipher?: CipherView,
     activeCollectionId?: CollectionId,
   ) {
-    const organization = await firstValueFrom(this.organization$);
-    const disableForm = cipher ? !cipher.edit && !organization.canEditAllCiphers : false;
-    // If the form is disabled, force the mode into `view`
-    const dialogMode = disableForm ? "view" : mode;
     this.vaultItemDialogRef = VaultItemDialogComponent.open(this.dialogService, {
-      mode: dialogMode,
+      mode,
       formConfig,
-      disableForm,
       activeCollectionId,
       isAdminConsoleAction: true,
       restore: this.restore,
@@ -1040,7 +946,10 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     }
 
     // Clear the query params when the dialog closes
-    await this.go({ cipherId: null, itemId: null, action: null });
+    await this.go(
+      { cipherId: null, itemId: null, action: null },
+      this.configureRouterFocusToCipher(formConfig.originalCipher?.id),
+    );
   }
 
   async cloneCipher(cipher: CipherView) {
@@ -1059,10 +968,10 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     await this.editCipher(cipher, true);
   }
 
-  restore = async (c: CipherViewLike): Promise<boolean> => {
+  restore = async (c: CipherViewLike): Promise<void> => {
     const organization = await firstValueFrom(this.organization$);
     if (!CipherViewLikeUtils.isDeleted(c)) {
-      return false;
+      return;
     }
 
     if (
@@ -1071,16 +980,16 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       !organization.allowAdminAccessToAllCollectionItems
     ) {
       this.showMissingPermissionsError();
-      return false;
+      return;
     }
 
     if (!(await this.repromptCipher([c]))) {
-      return false;
+      return;
     }
 
     // Allow restore of an Unassigned Item
     try {
-      if (c.id == null) {
+      if (c.id == null || c.id === "") {
         throw new Error("Cipher must have an Id to be restored");
       }
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -1093,10 +1002,10 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
         message: this.i18nService.t("restoredItem"),
       });
       this.refresh();
-      return true;
+      return;
     } catch (e) {
       this.logService.error(e);
-      return false;
+      return;
     }
   };
 
@@ -1230,7 +1139,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       const selectedCollection = await firstValueFrom(this.selectedCollection$);
       if (selectedCollection?.node.id === collection.id) {
         void this.router.navigate([], {
-          queryParams: { collectionId: selectedCollection.parent.node.id ?? null },
+          queryParams: { collectionId: selectedCollection?.parent?.node.id ?? null },
           queryParamsHandling: "merge",
           replaceUrl: true,
         });
@@ -1313,7 +1222,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       aType = "Password";
       value = cipher.login.password;
       typeI18nKey = "password";
-    } else if (field === "totp") {
+    } else if (field === "totp" && cipher.login.totp != null) {
       aType = "TOTP";
       const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
       value = totpResponse.code;
@@ -1334,7 +1243,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!cipher.viewPassword) {
+    if (!cipher.viewPassword || value == null) {
       return;
     }
 
@@ -1410,7 +1319,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
         selectedCollection?.node.id === c.id
       ) {
         void this.router.navigate([], {
-          queryParams: { collectionId: selectedCollection.parent.node.id ?? null },
+          queryParams: { collectionId: selectedCollection.parent?.node.id ?? null },
           queryParamsHandling: "merge",
           replaceUrl: true,
         });
@@ -1519,7 +1428,25 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  private go(queryParams: any = null) {
+  /**
+   * Helper function to set up the `state.focusAfterNav` property for dialog router navigation if
+   * the cipherId exists. If it doesn't exist, returns undefined.
+   *
+   * This ensures that when the routed dialog is closed, the focus returns to the cipher button in
+   * the vault table, which allows keyboard users to continue navigating uninterrupted.
+   *
+   * @param cipherId id of cipher
+   * @returns Partial<NavigationExtras>, specifically the state.focusAfterNav property, or undefined
+   */
+  private configureRouterFocusToCipher(cipherId?: string): Partial<NavigationExtras> | undefined {
+    if (cipherId) {
+      return {
+        state: { focusAfterNav: `#cipher-btn-${cipherId}` },
+      };
+    }
+  }
+
+  private go(queryParams: any = null, navigateOptions?: NavigationExtras) {
     if (queryParams == null) {
       queryParams = {
         type: this.activeFilter.cipherType,
@@ -1533,6 +1460,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       queryParams: queryParams,
       queryParamsHandling: "merge",
       replaceUrl: true,
+      ...navigateOptions,
     });
   }
 

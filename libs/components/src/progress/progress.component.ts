@@ -20,6 +20,8 @@ const BackgroundClasses: Record<BackgroundType, string[]> = {
 /**
  * Progress indicators may be used to visually indicate progress or to visually measure some other value, such as a password strength indicator.
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-progress",
   templateUrl: "./progress.component.html",
@@ -49,7 +51,7 @@ export class ProgressComponent {
       "tw-items-center",
       "tw-whitespace-nowrap",
       "tw-text-xs",
-      "tw-font-semibold",
+      "tw-font-medium",
       "tw-text-contrast",
       "tw-transition-all",
     ]

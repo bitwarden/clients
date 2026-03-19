@@ -1,20 +1,22 @@
 import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
-import { Component, Inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { provideAnimations } from "@angular/platform-browser/animations";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
-import { getAllByRole, userEvent } from "@storybook/test";
+import { getAllByRole, userEvent } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { ButtonModule } from "../../button";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 import { DialogModule } from "../dialog.module";
-import { DialogService } from "../dialog.service";
+import { CenterPositionStrategy, DialogService } from "../dialog.service";
 
 interface Animal {
   animal: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <button type="button" bitButton (click)="openSimpleDialog()">Open Simple Dialog</button>
@@ -28,35 +30,40 @@ interface Animal {
   imports: [ButtonModule],
 })
 class StoryDialogComponent {
-  constructor(public dialogService: DialogService) {}
+  dialogService = inject(DialogService);
 
   openSimpleDialog() {
-    this.dialogService.open(SimpleDialogContent, {
+    this.dialogService.open(SimpleDialogContentComponent, {
       data: {
         animal: "panda",
       },
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 
   openNonDismissableWithPrimaryButtonDialog() {
-    this.dialogService.open(NonDismissableWithPrimaryButtonContent, {
+    this.dialogService.open(NonDismissableWithPrimaryButtonContentComponent, {
       data: {
         animal: "panda",
       },
       disableClose: true,
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 
   openNonDismissableWithNoButtonsDialog() {
-    this.dialogService.open(NonDismissableWithNoButtonsContent, {
+    this.dialogService.open(NonDismissableWithNoButtonsContentComponent, {
       data: {
         animal: "panda",
       },
       disableClose: true,
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-simple-dialog>
@@ -76,17 +83,17 @@ class StoryDialogComponent {
   `,
   imports: [ButtonModule, DialogModule],
 })
-class SimpleDialogContent {
-  constructor(
-    public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) private data: Animal,
-  ) {}
+class SimpleDialogContentComponent {
+  dialogRef = inject(DialogRef);
+  private data = inject<Animal>(DIALOG_DATA);
 
   get animal() {
     return this.data?.animal;
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-simple-dialog>
@@ -105,17 +112,17 @@ class SimpleDialogContent {
   `,
   imports: [ButtonModule, DialogModule],
 })
-class NonDismissableWithPrimaryButtonContent {
-  constructor(
-    public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) private data: Animal,
-  ) {}
+class NonDismissableWithPrimaryButtonContentComponent {
+  dialogRef = inject(DialogRef);
+  private data = inject<Animal>(DIALOG_DATA);
 
   get animal() {
     return this.data?.animal;
   }
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-simple-dialog>
@@ -129,11 +136,9 @@ class NonDismissableWithPrimaryButtonContent {
   `,
   imports: [ButtonModule, DialogModule],
 })
-class NonDismissableWithNoButtonsContent {
-  constructor(
-    public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) private data: Animal,
-  ) {}
+class NonDismissableWithNoButtonsContentComponent {
+  dialogRef = inject(DialogRef);
+  private data = inject<Animal>(DIALOG_DATA);
 
   get animal() {
     return this.data?.animal;

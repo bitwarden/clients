@@ -14,9 +14,11 @@ import { Classifier } from "./classifier";
  *  Data that cannot be serialized by JSON.stringify() should
  *  be excluded.
  */
-export class SecretClassifier<Plaintext extends object, Disclosed, Secret>
-  implements Classifier<Plaintext, Disclosed, Secret>
-{
+export class SecretClassifier<Plaintext extends object, Disclosed, Secret> implements Classifier<
+  Plaintext,
+  Disclosed,
+  Secret
+> {
   private constructor(
     disclosed: readonly (keyof Jsonify<Disclosed> & keyof Jsonify<Plaintext>)[],
     excluded: readonly (keyof Plaintext)[],

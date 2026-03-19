@@ -6,8 +6,8 @@ import {
   FormGroup,
 } from "@angular/forms";
 import { NgSelectModule } from "@ng-select/ng-select";
-import { action } from "@storybook/addon-actions";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { action } from "storybook/actions";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -15,7 +15,6 @@ import { BadgeModule } from "../badge";
 import { ButtonModule } from "../button";
 import { InputModule } from "../input/input.module";
 import { MultiSelectComponent } from "../multi-select/multi-select.component";
-import { SharedModule } from "../shared";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { FormFieldModule } from "./form-field.module";
@@ -34,7 +33,6 @@ export default {
         InputModule,
         ReactiveFormsModule,
         BadgeModule,
-        SharedModule,
       ],
       providers: [
         {
@@ -47,6 +45,7 @@ export default {
               multiSelectClearAll: "Clear all",
               required: "required",
               inputRequired: "Input is required.",
+              loading: "loading",
             });
           },
         },

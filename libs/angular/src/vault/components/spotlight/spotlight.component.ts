@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { booleanAttribute, ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 
 import { ButtonModule, IconButtonModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -8,20 +8,21 @@ import { I18nPipe } from "@bitwarden/ui-common";
   selector: "bit-spotlight",
   templateUrl: "spotlight.component.html",
   imports: [ButtonModule, CommonModule, IconButtonModule, I18nPipe, TypographyModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpotlightComponent {
   // The title of the component
-  @Input({ required: true }) title: string | null = null;
+  readonly title = input<string>();
   // The subtitle of the component
-  @Input() subtitle?: string | null = null;
+  readonly subtitle = input<string>();
   // The text to display on the button
-  @Input() buttonText?: string;
-  // Wheter the component can be dismissed, if true, the component will not show a close button
-  @Input() persistent = false;
+  readonly buttonText = input<string>();
+  // Whether the component can be dismissed, if true, the component will not show a close button
+  readonly persistent = input(false, { transform: booleanAttribute });
   // Optional icon to display on the button
-  @Input() buttonIcon: string | null = null;
-  @Output() onDismiss = new EventEmitter<void>();
-  @Output() onButtonClick = new EventEmitter();
+  readonly buttonIcon = input<string>();
+  readonly onDismiss = output<void>();
+  readonly onButtonClick = output<MouseEvent>();
 
   handleButtonClick(event: MouseEvent): void {
     this.onButtonClick.emit(event);

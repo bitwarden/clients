@@ -123,7 +123,7 @@ function displayHandoffMessage(client: string) {
       ? localeService.t("thisWindowWillCloseIn5Seconds")
       : localeService.t("youMayCloseThisWindow");
 
-  h1.className = "tw-font-semibold";
+  h1.className = "tw-font-medium";
   p.className = "tw-mb-4";
 
   content.appendChild(h1);

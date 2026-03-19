@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const DeactivatedOrg = svgIcon`
+export const DeactivatedOrg = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="4 0.5 90.32 96">
     <path class="tw-fill-illustration-bg-secondary" d="M54 8.5a8 8 0 0 1 8-8h8a8 8 0 0 1 8 8v4H54v-4Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M70 2.5h-8a6 6 0 0 0-6 6v2h20v-2a6 6 0 0 0-6-6Zm-8-2a8 8 0 0 0-8 8v4h24v-4a8 8 0 0 0-8-8h-8Z" clip-rule="evenodd"/>

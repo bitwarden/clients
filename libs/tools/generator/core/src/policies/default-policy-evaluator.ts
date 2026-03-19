@@ -2,9 +2,10 @@ import { PolicyEvaluator } from "../abstractions";
 import { NoPolicy } from "../types";
 
 /** A policy evaluator that does not apply any policy */
-export class DefaultPolicyEvaluator<PolicyTarget>
-  implements PolicyEvaluator<NoPolicy, PolicyTarget>
-{
+export class DefaultPolicyEvaluator<PolicyTarget> implements PolicyEvaluator<
+  NoPolicy,
+  PolicyTarget
+> {
   /** {@link PolicyEvaluator.policy} */
   get policy() {
     return {};

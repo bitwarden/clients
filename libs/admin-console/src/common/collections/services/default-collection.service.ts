@@ -12,6 +12,11 @@ import {
   switchMap,
 } from "rxjs";
 
+import {
+  CollectionView,
+  Collection,
+  CollectionData,
+} from "@bitwarden/common/admin-console/models/collections";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -23,7 +28,6 @@ import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { KeyService } from "@bitwarden/key-management";
 
 import { CollectionService } from "../abstractions/collection.service";
-import { Collection, CollectionData, CollectionView } from "../models";
 
 import { DECRYPTED_COLLECTION_DATA_KEY, ENCRYPTED_COLLECTION_DATA_KEY } from "./collection.state";
 
@@ -85,6 +89,17 @@ export class DefaultCollectionService implements CollectionService {
 
     this.collectionViewCache.set(userId, result$);
     return result$;
+  }
+
+  defaultUserCollection$(
+    userId: UserId,
+    orgId: OrganizationId,
+  ): Observable<CollectionView | undefined> {
+    return this.decryptedCollections$(userId).pipe(
+      map((collections) => {
+        return collections.find((c) => c.isDefaultCollection && c.organizationId === orgId);
+      }),
+    );
   }
 
   private initializeDecryptedState(userId: UserId): Observable<CollectionView[]> {
@@ -213,15 +228,30 @@ export class DefaultCollectionService implements CollectionService {
     );
   }
 
+  // Transforms the input CollectionViews into TreeNodes
   getAllNested(collections: CollectionView[]): TreeNode<CollectionView>[] {
-    const nodes: TreeNode<CollectionView>[] = [];
-    collections.forEach((c) => {
-      const collectionCopy = Object.assign(new CollectionView({ ...c, name: c.name }), c);
+    const groupedByOrg = this.groupByOrganization(collections);
 
-      const parts = c.name != null ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
-      ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, undefined, NestingDelimiter);
+    const all: TreeNode<CollectionView>[] = [];
+    for (const group of groupedByOrg.values()) {
+      const nodes: TreeNode<CollectionView>[] = [];
+      for (const c of group) {
+        const collectionCopy = Object.assign(new CollectionView({ ...c, name: c.name }), c);
+        const parts = c.name ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
+        ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, undefined, NestingDelimiter);
+      }
+      all.push(...nodes);
+    }
+    return all;
+  }
+
+  groupByOrganization(collections: CollectionView[]): Map<OrganizationId, CollectionView[]> {
+    const groupedByOrg = new Map<OrganizationId, CollectionView[]>();
+    collections.map((c) => {
+      const key = c.organizationId;
+      (groupedByOrg.get(key) ?? groupedByOrg.set(key, []).get(key)!).push(c);
     });
-    return nodes;
+    return groupedByOrg;
   }
 
   /**

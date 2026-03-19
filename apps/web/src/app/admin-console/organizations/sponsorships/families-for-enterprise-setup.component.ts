@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
@@ -15,8 +15,9 @@ import { PreValidateSponsorshipResponse } from "@bitwarden/common/admin-console/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanSponsorshipType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -28,26 +29,13 @@ import {
   openDeleteOrganizationDialog,
 } from "../settings/components";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "families-for-enterprise-setup.component.html",
   imports: [SharedModule, OrganizationPlansComponent],
 })
 export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
-  @ViewChild(OrganizationPlansComponent, { static: false })
-  set organizationPlansComponent(value: OrganizationPlansComponent) {
-    if (!value) {
-      return;
-    }
-
-    value.plan = PlanType.FamiliesAnnually;
-    value.productTier = ProductTierType.Families;
-    value.acceptingSponsorship = true;
-    value.planSponsorshipType = PlanSponsorshipType.FamiliesForEnterprise;
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    value.onSuccess.subscribe(this.onOrganizationCreateSuccess.bind(this));
-  }
-
   loading = true;
   badToken = false;
 
@@ -59,13 +47,17 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
   _selectedFamilyOrganizationId = "";
 
   private _destroy = new Subject<void>();
+  protected familyPlan: PlanType;
+  protected readonly familyProductTier = ProductTierType.Families;
+  protected readonly planSponsorshipType = PlanSponsorshipType.FamiliesForEnterprise;
+
   formGroup = this.formBuilder.group({
     selectedFamilyOrganizationId: ["", Validators.required],
   });
 
   constructor(
     private router: Router,
-    private platformUtilsService: PlatformUtilsService,
+    private configService: ConfigService,
     private i18nService: I18nService,
     private route: ActivatedRoute,
     private apiService: ApiService,
@@ -115,6 +107,13 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
       } else {
         this.badToken = !this.preValidateSponsorshipResponse.isTokenValid;
       }
+
+      const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
+        FeatureFlag.PM26462_Milestone_3,
+      );
+      this.familyPlan = milestone3FeatureEnabled
+        ? PlanType.FamiliesAnnually
+        : PlanType.FamiliesAnnually2025;
 
       this.loading = false;
     });
@@ -200,7 +199,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async onOrganizationCreateSuccess(value: any) {
+  protected async onOrganizationCreateSuccess(value: any) {
     // Use newly created organization id
     await this.doSubmit(value.organizationId);
   }

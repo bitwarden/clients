@@ -71,11 +71,19 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
     return false;
   }
 
+  isChromium(): boolean {
+    return false;
+  }
+
   isMacAppStore() {
     return false;
   }
 
   isPopupOpen() {
+    return Promise.resolve(false);
+  }
+
+  isAnyViewFocused() {
     return Promise.resolve(false);
   }
 
@@ -146,6 +154,10 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
   }
 
   getAutofillKeyboardShortcut(): Promise<string> {
+    return null;
+  }
+
+  async packageType(): Promise<string | null> {
     return null;
   }
 }

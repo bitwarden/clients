@@ -21,9 +21,7 @@ export class BrowserRouterService {
           child = child.firstChild;
         }
 
-        // TODO: Eslint upgrade. Please resolve this since the ?? does nothing
-        // eslint-disable-next-line no-constant-binary-expression
-        const updateUrl = !child?.data?.doNotSaveUrl ?? true;
+        const updateUrl = !child?.data?.doNotSaveUrl;
 
         if (updateUrl) {
           this.setPreviousUrl(event.url);

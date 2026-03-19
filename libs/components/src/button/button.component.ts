@@ -1,4 +1,3 @@
-import { NgClass } from "@angular/common";
 import {
   input,
   HostBinding,
@@ -14,6 +13,8 @@ import { debounce, interval } from "rxjs";
 
 import { AriaDisableDirective } from "../a11y";
 import { ButtonLikeAbstraction, ButtonType, ButtonSize } from "../shared/button-like.abstraction";
+import { BitwardenIcon } from "../shared/icon";
+import { SpinnerComponent } from "../spinner";
 import { ariaDisableElement } from "../utils";
 
 const focusRing = [
@@ -53,20 +54,30 @@ const buttonStyles: Record<ButtonType, string[]> = {
     "hover:!tw-text-contrast",
     ...focusRing,
   ],
+  dangerPrimary: [
+    "tw-border-danger-600",
+    "tw-bg-danger-600",
+    "!tw-text-contrast",
+    "hover:tw-bg-danger-700",
+    "hover:tw-border-danger-700",
+    ...focusRing,
+  ],
   unstyled: [],
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "button[bitButton], a[bitButton]",
   templateUrl: "button.component.html",
   providers: [{ provide: ButtonLikeAbstraction, useExisting: ButtonComponent }],
-  imports: [NgClass],
+  imports: [SpinnerComponent],
   hostDirectives: [AriaDisableDirective],
 })
 export class ButtonComponent implements ButtonLikeAbstraction {
   @HostBinding("class") get classList() {
     return [
-      "tw-font-semibold",
+      "tw-font-medium",
       "tw-rounded-full",
       "tw-transition",
       "tw-border-2",
@@ -89,14 +100,13 @@ export class ButtonComponent implements ButtonLikeAbstraction {
               "hover:!tw-text-muted",
               "aria-disabled:tw-cursor-not-allowed",
               "hover:tw-no-underline",
-              "aria-disabled:tw-pointer-events-none",
             ]
           : [],
       )
       .concat(buttonSizeStyles[this.size() || "default"]);
   }
 
-  protected disabledAttr = computed(() => {
+  protected readonly disabledAttr = computed(() => {
     const disabled = this.disabled() != null && this.disabled() !== false;
     return disabled || this.loading();
   });
@@ -109,18 +119,46 @@ export class ButtonComponent implements ButtonLikeAbstraction {
    * We can't use `disabledAttr` for this, because it returns `true` when `loading` is `true`.
    * We only want to show disabled styles during loading if `showLoadingStyles` is `true`.
    */
-  protected showDisabledStyles = computed(() => {
+  protected readonly showDisabledStyles = computed(() => {
     return this.showLoadingStyle() || (this.disabledAttr() && this.loading() === false);
   });
 
+  /**
+   * Style variant of the button.
+   */
   readonly buttonType = input<ButtonType>("secondary");
 
+  /**
+   * Bitwarden icon displayed **before** the button label.
+   * Spacing between the icon and label is handled automatically.
+   */
+  readonly startIcon = input<BitwardenIcon | undefined>(undefined);
+
+  /**
+   * Bitwarden icon (`bwi-*`) displayed **after** the button label.
+   * Spacing between the label and icon is handled automatically.
+   */
+  readonly endIcon = input<BitwardenIcon | undefined>(undefined);
+
+  /**
+   * Size variant of the button.
+   */
   readonly size = input<ButtonSize>("default");
 
+  /**
+   * When `true`, the button expands to fill the full width of its container.
+   */
   readonly block = input(false, { transform: booleanAttribute });
 
   readonly loading = model<boolean>(false);
 
+  readonly startIconClasses = computed(() => {
+    return ["bwi", this.startIcon()];
+  });
+
+  readonly endIconClasses = computed(() => {
+    return ["bwi", this.endIcon()];
+  });
   /**
    * Determine whether it is appropriate to display a loading spinner. We only want to show
    * a spinner if it's been more than 75 ms since the `loading` state began. This prevents
@@ -133,11 +171,11 @@ export class ButtonComponent implements ButtonLikeAbstraction {
    * This pattern of converting a signal to an observable and back to a signal is not
    * recommended. TODO -- find better way to use debounce with signals (CL-596)
    */
-  protected showLoadingStyle = toSignal(
+  protected readonly showLoadingStyle = toSignal(
     toObservable(this.loading).pipe(debounce((isLoading) => interval(isLoading ? 75 : 0))),
   );
 
-  disabled = model<boolean>(false);
+  readonly disabled = model<boolean>(false);
   private el = inject(ElementRef<HTMLButtonElement>);
 
   constructor() {

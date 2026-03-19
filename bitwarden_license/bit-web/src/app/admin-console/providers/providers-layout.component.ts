@@ -7,13 +7,13 @@ import { combineLatest, map, Observable, Subject, switchMap } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { BusinessUnitPortalLogo, Icon, ProviderPortalLogo } from "@bitwarden/assets/svg";
+import { BusinessUnitPortalLogo, BitSvg, ProviderPortalLogo } from "@bitwarden/assets/svg";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { ProviderStatusType, ProviderType } from "@bitwarden/common/admin-console/enums";
+import { ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { IconModule } from "@bitwarden/components";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { SvgModule } from "@bitwarden/components";
 import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
 import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";
 import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
@@ -21,6 +21,8 @@ import { WebLayoutModule } from "@bitwarden/web-vault/app/layouts/web-layout.mod
 
 import { ProviderWarningsService } from "../../billing/providers/warnings/services";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "providers-layout",
   templateUrl: "providers-layout.component.html",
@@ -29,7 +31,7 @@ import { ProviderWarningsService } from "../../billing/providers/warnings/servic
     RouterModule,
     JslibModule,
     WebLayoutModule,
-    IconModule,
+    SvgModule,
     TaxIdWarningComponent,
   ],
 })
@@ -39,14 +41,11 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected provider$: Observable<Provider>;
 
-  protected logo$: Observable<Icon>;
+  protected logo$: Observable<BitSvg>;
 
-  protected isBillable: Observable<boolean>;
   protected canAccessBilling$: Observable<boolean>;
 
   protected clientsTranslationKey$: Observable<string>;
-  protected managePaymentDetailsOutsideCheckout$: Observable<boolean>;
-  protected providerPortalTakeover$: Observable<boolean>;
 
   protected subscriber$: Observable<NonIndividualSubscriber>;
   protected getTaxIdWarning$: () => Observable<TaxIdWarningType>;
@@ -54,8 +53,8 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private providerService: ProviderService,
-    private configService: ConfigService,
     private providerWarningsService: ProviderWarningsService,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit() {
@@ -65,8 +64,11 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
       map((params) => params.providerId),
     );
 
-    this.provider$ = providerId$.pipe(
-      switchMap((providerId) => this.providerService.get$(providerId)),
+    this.provider$ = combineLatest([
+      providerId$,
+      this.accountService.activeAccount$.pipe(getUserId),
+    ]).pipe(
+      switchMap(([providerId, userId]) => this.providerService.get$(providerId, userId)),
       takeUntil(this.destroy$),
     );
 
@@ -78,24 +80,12 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
       ),
     );
 
-    this.isBillable = this.provider$.pipe(
-      map((provider) => provider?.providerStatus === ProviderStatusType.Billable),
-    );
-
-    this.canAccessBilling$ = combineLatest([this.isBillable, this.provider$]).pipe(
-      map(
-        ([hasConsolidatedBilling, provider]) => hasConsolidatedBilling && provider.isProviderAdmin,
-      ),
-    );
+    this.canAccessBilling$ = this.provider$.pipe(map((provider) => provider.isProviderAdmin));
 
     this.clientsTranslationKey$ = this.provider$.pipe(
       map((provider) =>
         provider.providerType === ProviderType.BusinessUnit ? "businessUnits" : "clients",
       ),
-    );
-
-    this.managePaymentDetailsOutsideCheckout$ = this.configService.getFeatureFlag$(
-      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
     );
 
     this.provider$
@@ -106,10 +96,6 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
-
-    this.providerPortalTakeover$ = this.configService.getFeatureFlag$(
-      FeatureFlag.PM21821_ProviderPortalTakeover,
-    );
 
     this.subscriber$ = this.provider$.pipe(
       map((provider) => ({

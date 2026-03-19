@@ -1,0 +1,48 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./berry.stories";
+
+<Meta of={stories} />
+
+```ts
+import { BerryComponent } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Usage
+
+### Status
+
+- Use a status berry to indicate a new notification of a status change that is not related to a
+  specific count.
+
+<Canvas of={stories.statusType} />
+
+### Count
+
+- Use a count berry with text to indicate item count information for multiple new notifications.
+
+<Canvas of={stories.countType} />
+
+### All Variants
+
+<Canvas of={stories.AllVariants} />
+
+## Count Behavior
+
+- Counts of **1-99**: Display in a compact circular shape
+- Counts of **100-999**: Display in a pill shape with padding
+- Counts **over 999**: Display as "999+" to prevent overflow
+
+## Accessibility
+
+- Use berries as **supplemental visual indicators** alongside descriptive text
+- Ensure sufficient color contrast with surrounding elements
+- For screen readers, provide appropriate labels on parent elements that describe the berry's
+  meaning
+- Berries are decorative; important information should not rely solely on the berry color

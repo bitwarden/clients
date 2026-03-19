@@ -8,9 +8,13 @@ import {
 } from "../../../autofill/content/components/common-types";
 
 const NotificationTypes = {
+  /** represents scenarios handling saving new ciphers after form submit */
   Add: "add",
+  /** represents scenarios handling saving updated ciphers after form submit */
   Change: "change",
+  /** represents scenarios where user has interacted with an unlock action prompt or action otherwise requiring unlock as a prerequisite */
   Unlock: "unlock",
+  /** represents scenarios where the user has security tasks after updating ciphers */
   AtRiskPassword: "at-risk-password",
 } as const;
 
@@ -21,7 +25,7 @@ const NotificationTypes = {
 type NotificationType = (typeof NotificationTypes)[keyof typeof NotificationTypes];
 
 type NotificationTaskInfo = {
-  orgName: string;
+  orgName?: string;
   remainingTasksCount: number;
 };
 
@@ -51,6 +55,7 @@ type NotificationBarWindowMessage = {
   };
   error?: string;
   initData?: NotificationBarIframeInitData;
+  parentOrigin?: string;
 };
 
 type NotificationBarWindowMessageHandlers = {
@@ -61,7 +66,7 @@ type NotificationBarWindowMessageHandlers = {
 
 type AtRiskPasswordNotificationParams = {
   passwordChangeUri?: string;
-  organizationName: string;
+  organizationName?: string;
 };
 
 export {

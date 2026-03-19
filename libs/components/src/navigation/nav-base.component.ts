@@ -1,8 +1,11 @@
-import { Directive, EventEmitter, Output, input } from "@angular/core";
+import { Directive, output, input, model } from "@angular/core";
 import { RouterLink, RouterLinkActive } from "@angular/router";
 
 /**
- * `NavGroupComponent` builds upon `NavItemComponent`. This class represents the properties that are passed down to `NavItemComponent`.
+ * Base class for navigation components in the side navigation.
+ *
+ * `NavGroupComponent` builds upon `NavItemComponent`. This class represents the properties
+ * that are passed down to `NavItemComponent`.
  */
 @Directive()
 export abstract class NavBaseComponent {
@@ -22,29 +25,42 @@ export abstract class NavBaseComponent {
   readonly icon = input<string>();
 
   /**
+   * If this item is used within a tree, set `variant` to `"tree"`
+   */
+  readonly variant = input<"default" | "tree">("default");
+
+  /**
+   * Depth level when nested inside of a `'tree'` variant
+   */
+  readonly treeDepth = model(0);
+
+  /**
    * Optional route to be passed to internal `routerLink`. If not provided, the nav component will render as a button.
    *
    * See: {@link RouterLink.routerLink}
    *
    * ---
    *
+   * @remarks
    * We can't name this "routerLink" because Angular will mount the `RouterLink` directive.
    *
-   * See: {@link https://github.com/angular/angular/issues/24482}
+   * @see {@link RouterLink.routerLink}
+   * @see {@link https://github.com/angular/angular/issues/24482}
    */
   readonly route = input<RouterLink["routerLink"]>();
 
   /**
    * Passed to internal `routerLink`
    *
-   * See {@link RouterLink.relativeTo}
+   * @see {@link RouterLink.relativeTo}
    */
   readonly relativeTo = input<RouterLink["relativeTo"]>();
 
   /**
    * Passed to internal `routerLink`
    *
-   * See {@link RouterLinkActive.routerLinkActiveOptions}
+   * @default { paths: "subset", queryParams: "ignored", fragment: "ignored", matrixParams: "ignored" }
+   * @see {@link RouterLinkActive.routerLinkActiveOptions}
    */
   readonly routerLinkActiveOptions = input<RouterLinkActive["routerLinkActiveOptions"]>({
     paths: "subset",
@@ -61,5 +77,5 @@ export abstract class NavBaseComponent {
   /**
    * Fires when main content is clicked
    */
-  @Output() mainContentClicked: EventEmitter<MouseEvent> = new EventEmitter();
+  readonly mainContentClicked = output<void>();
 }

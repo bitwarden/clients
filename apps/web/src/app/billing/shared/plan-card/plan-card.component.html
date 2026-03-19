@@ -11,7 +11,7 @@
   <div class="tw-relative">
     @if (isRecommended) {
       <div
-        class="tw-bg-secondary-100 tw-text-center !tw-border-0 tw-text-sm tw-font-bold tw-py-1"
+        class="tw-bg-secondary-100 tw-text-center !tw-border-0 tw-text-sm tw-font-medium tw-py-1"
         [ngClass]="{
           'tw-bg-primary-700 !tw-text-contrast': plan().isSelected,
           'tw-bg-secondary-100': !plan().isSelected,
@@ -28,12 +28,12 @@
       }"
     >
       <h3
-        class="tw-text-[1.25rem] tw-mt-[6px] tw-font-bold tw-mb-0 tw-leading-[2rem] tw-flex tw-items-center"
+        class="tw-text-[1.25rem] tw-mt-[6px] tw-font-medium tw-mb-0 tw-leading-[2rem] tw-flex tw-items-center"
       >
         <span class="tw-capitalize tw-whitespace-nowrap">{{ plan().title }}</span>
       </h3>
       <span>
-        <b class="tw-text-lg tw-font-semibold">{{ plan().costPerMember | currency: "$" }} </b>
+        <b class="tw-text-lg tw-font-medium">{{ plan().costPerMember | currency: "$" }} </b>
         <span class="tw-text-xs tw-px-0"> /{{ "monthPerMember" | i18n }}</span>
       </span>
     </div>

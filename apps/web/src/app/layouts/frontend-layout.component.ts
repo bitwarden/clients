@@ -7,6 +7,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { EnvironmentSelectorComponent } from "../components/environment-selector/environment-selector.component";
 import { SharedModule } from "../shared";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-frontend-layout",
   templateUrl: "frontend-layout.component.html",

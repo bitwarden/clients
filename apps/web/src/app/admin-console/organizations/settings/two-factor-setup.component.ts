@@ -5,27 +5,30 @@ import { ActivatedRoute } from "@angular/router";
 import { concatMap, takeUntil, map, lastValueFrom, firstValueFrom } from "rxjs";
 import { first, tap } from "rxjs/operators";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
 import { TwoFactorSetupDuoComponent } from "../../../auth/settings/two-factor/two-factor-setup-duo.component";
 import { TwoFactorSetupComponent as BaseTwoFactorSetupComponent } from "../../../auth/settings/two-factor/two-factor-setup.component";
 import { TwoFactorVerifyComponent } from "../../../auth/settings/two-factor/two-factor-verify.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-setup",
   templateUrl: "../../../auth/settings/two-factor/two-factor-setup.component.html",
@@ -35,7 +38,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
   tabbedHeader = false;
   constructor(
     dialogService: DialogService,
-    apiService: ApiService,
+    twoFactorService: TwoFactorService,
     messagingService: MessagingService,
     policyService: PolicyService,
     private route: ActivatedRoute,
@@ -44,16 +47,20 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
     protected accountService: AccountService,
     configService: ConfigService,
     i18nService: I18nService,
+    protected userVerificationService: UserVerificationService,
+    protected toastService: ToastService,
   ) {
     super(
       dialogService,
-      apiService,
+      twoFactorService,
       messagingService,
       policyService,
       billingAccountProfileStateService,
       accountService,
       configService,
       i18nService,
+      userVerificationService,
+      toastService,
     );
   }
 
@@ -116,7 +123,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
   }
 
   protected getTwoFactorProviders() {
-    return this.apiService.getTwoFactorOrganizationProviders(this.organizationId);
+    return this.twoFactorService.getTwoFactorOrganizationProviders(this.organizationId);
   }
 
   protected filterProvider(type: TwoFactorProviderType): boolean {

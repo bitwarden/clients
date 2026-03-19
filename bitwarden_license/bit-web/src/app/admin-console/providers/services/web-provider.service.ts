@@ -1,22 +1,17 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { firstValueFrom, map } from "rxjs";
-import { switchMap } from "rxjs/operators";
+import { combineLatest, firstValueFrom, map } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
+import { CreateProviderOrganizationRequest } from "@bitwarden/common/admin-console/models/request/create-provider-organization.request";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
-import { ProviderAddOrganizationRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-add-organization.request";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { PlanType } from "@bitwarden/common/billing/enums";
-import { CreateClientOrganizationRequest } from "@bitwarden/common/billing/models/request/create-client-organization.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { StateProvider } from "@bitwarden/common/platform/state";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { KeyService } from "@bitwarden/key-management";
@@ -29,41 +24,26 @@ export class WebProviderService {
     private apiService: ApiService,
     private i18nService: I18nService,
     private encryptService: EncryptService,
-    private billingApiService: BillingApiServiceAbstraction,
-    private stateProvider: StateProvider,
     private providerApiService: ProviderApiServiceAbstraction,
-    private accountService: AccountService,
   ) {}
 
-  async addOrganizationToProvider(providerId: string, organizationId: string) {
-    const orgKey = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(
-        getUserId,
-        switchMap((userId) => this.keyService.orgKeys$(userId)),
-        map((orgKeys) => orgKeys[organizationId as OrganizationId] ?? null),
-      ),
+  async addOrganizationToProvider(
+    providerId: string,
+    organizationId: string,
+    activeUserId: UserId,
+  ): Promise<void> {
+    const [orgKeysById, providerKeys] = await firstValueFrom(
+      combineLatest([
+        this.keyService.orgKeys$(activeUserId),
+        this.keyService.providerKeys$(activeUserId),
+      ]),
     );
-    const providerKey = await this.keyService.getProviderKey(providerId);
 
-    const encryptedOrgKey = await this.encryptService.wrapSymmetricKey(orgKey, providerKey);
+    const orgKey = orgKeysById?.[organizationId as OrganizationId];
+    const providerKey = providerKeys?.[providerId as ProviderId];
+    assertNonNullish(orgKey, "Organization key not found");
+    assertNonNullish(providerKey, "Provider key not found");
 
-    const request = new ProviderAddOrganizationRequest();
-    request.organizationId = organizationId;
-    request.key = encryptedOrgKey.encryptedString;
-
-    const response = await this.apiService.postProviderAddOrganization(providerId, request);
-    await this.syncService.fullSync(true);
-    return response;
-  }
-
-  async addOrganizationToProviderVNext(providerId: string, organizationId: string): Promise<void> {
-    const orgKey = await firstValueFrom(
-      this.stateProvider.activeUserId$.pipe(
-        switchMap((userId) => this.keyService.orgKeys$(userId)),
-        map((organizationKeysById) => organizationKeysById[organizationId as OrganizationId]),
-      ),
-    );
-    const providerKey = await this.keyService.getProviderKey(providerId);
     const encryptedOrgKey = await this.encryptService.wrapSymmetricKey(orgKey, providerKey);
     await this.providerApiService.addOrganizationToProvider(providerId, {
       key: encryptedOrgKey.encryptedString,
@@ -89,14 +69,19 @@ export class WebProviderService {
       organizationKey,
     );
 
-    const providerKey = await this.keyService.getProviderKey(providerId);
+    const providerKey = await firstValueFrom(
+      this.keyService
+        .providerKeys$(activeUserId)
+        .pipe(map((providerKeys) => providerKeys?.[providerId as ProviderId])),
+    );
+    assertNonNullish(providerKey, "Provider key not found");
 
     const encryptedProviderKey = await this.encryptService.wrapSymmetricKey(
       organizationKey,
       providerKey,
     );
 
-    const request = new CreateClientOrganizationRequest();
+    const request = new CreateProviderOrganizationRequest();
     request.name = name;
     request.ownerEmail = ownerEmail;
     request.planType = planType;
@@ -106,7 +91,7 @@ export class WebProviderService {
     request.keyPair = new OrganizationKeysRequest(publicKey, encryptedPrivateKey.encryptedString);
     request.collectionName = encryptedCollectionName.encryptedString;
 
-    await this.billingApiService.createProviderClientOrganization(providerId, request);
+    await this.providerApiService.createProviderOrganization(providerId, request);
 
     await this.apiService.refreshIdentityToken();
 

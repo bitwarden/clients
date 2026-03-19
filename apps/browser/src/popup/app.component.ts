@@ -14,16 +14,11 @@ import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
 import {
   catchError,
   concatMap,
-  distinctUntilChanged,
   filter,
   firstValueFrom,
   map,
   of,
-  pairwise,
-  startWith,
   Subject,
-  switchMap,
-  take,
   takeUntil,
   tap,
 } from "rxjs";
@@ -36,15 +31,14 @@ import {
   LogoutReason,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -60,6 +54,7 @@ import {
 } from "@bitwarden/components";
 import { BiometricsService, BiometricStateService, KeyService } from "@bitwarden/key-management";
 
+import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { PopupCompactModeService } from "../platform/popup/layout/popup-compact-mode.service";
 import { PopupSizeService } from "../platform/popup/layout/popup-size.service";
 import { initPopupClosedListener } from "../platform/services/popup-view-cache-background.service";
@@ -67,6 +62,8 @@ import { initPopupClosedListener } from "../platform/services/popup-view-cache-b
 import { routerTransition } from "./app-routing.animations";
 import { DesktopSyncVerificationDialogComponent } from "./components/desktop-sync-verification-dialog.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-root",
   styles: [],
@@ -81,8 +78,8 @@ export class AppComponent implements OnInit, OnDestroy {
   private lastActivity: Date;
   private activeUserId: UserId;
   private routerAnimations = false;
-  private processingPendingAuth = false;
-  private extensionLoginApprovalFeatureFlag = false;
+  private processingPendingAuthRequests = false;
+  private shouldRerunAuthRequestProcessing = false;
 
   private destroy$ = new Subject<void>();
 
@@ -117,8 +114,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private authRequestService: AuthRequestServiceAbstraction,
     private pendingAuthRequestsState: PendingAuthRequestsStateService,
-    private authRequestAnsweringService: AuthRequestAnsweringServiceAbstraction,
-    private readonly configService: ConfigService,
+    private authRequestAnsweringService: AuthRequestAnsweringService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -127,10 +123,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.extensionLoginApprovalFeatureFlag = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.PM14938_BrowserExtensionLoginApproval),
-    );
-
     initPopupClosedListener();
 
     this.compactModeService.init();
@@ -140,24 +132,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.activeUserId = account?.id;
     });
 
-    if (this.extensionLoginApprovalFeatureFlag) {
-      // Trigger processing auth requests when the active user is in an unlocked state. Runs once when
-      // the popup is open.
-      this.accountService.activeAccount$
-        .pipe(
-          map((a) => a?.id), // Extract active userId
-          distinctUntilChanged(), // Only when userId actually changes
-          filter((userId) => userId != null), // Require a valid userId
-          switchMap((userId) => this.authService.authStatusFor$(userId).pipe(take(1))), // Get current auth status once for new user
-          filter((status) => status === AuthenticationStatus.Unlocked), // Only when the new user is Unlocked
-          tap(() => {
-            // Trigger processing when switching users while popup is open
-            void this.authRequestAnsweringService.processPendingAuthRequests();
-          }),
-          takeUntil(this.destroy$),
-        )
-        .subscribe();
-    }
+    this.authRequestAnsweringService.setupUnlockListenersForProcessingAuthRequests(this.destroy$);
 
     this.authService.activeAccountStatus$
       .pipe(
@@ -168,25 +143,6 @@ export class AppComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
-
-    if (this.extensionLoginApprovalFeatureFlag) {
-      // When the popup is already open and the active account transitions to Unlocked,
-      // process any pending auth requests for the active user. The above subscription does not handle
-      // this case.
-      this.authService.activeAccountStatus$
-        .pipe(
-          startWith(null as unknown as AuthenticationStatus), // Seed previous value to handle initial emission
-          pairwise(), // Compare previous and current statuses
-          filter(
-            ([prev, curr]) =>
-              prev !== AuthenticationStatus.Unlocked && curr === AuthenticationStatus.Unlocked, // Fire on transitions into Unlocked (incl. initial)
-          ),
-          takeUntil(this.destroy$),
-        )
-        .subscribe(() => {
-          void this.authRequestAnsweringService.processPendingAuthRequests();
-        });
-    }
 
     this.ngZone.runOutsideAngular(() => {
       window.onmousedown = () => this.recordActivity();
@@ -241,42 +197,32 @@ export class AppComponent implements OnInit, OnDestroy {
             }
 
             await this.router.navigate(["lock"]);
-          } else if (
-            msg.command === "openLoginApproval" &&
-            this.extensionLoginApprovalFeatureFlag
-          ) {
-            if (this.processingPendingAuth) {
+          } else if (msg.command === "openLoginApproval") {
+            if (this.processingPendingAuthRequests) {
+              // If an "openLoginApproval" message is received while we are currently processing other
+              // auth requests, then set a flag so we remember to process that new auth request
+              this.shouldRerunAuthRequestProcessing = true;
               return;
             }
-            this.processingPendingAuth = true;
-            try {
-              // Always query server for all pending requests and open a dialog for each
-              const pendingList = await firstValueFrom(
-                this.authRequestService.getPendingAuthRequests$(),
-              );
-              if (Array.isArray(pendingList) && pendingList.length > 0) {
-                const respondedIds = new Set<string>();
-                for (const req of pendingList) {
-                  if (req?.id == null) {
-                    continue;
-                  }
-                  const dialogRef = LoginApprovalDialogComponent.open(this.dialogService, {
-                    notificationId: req.id,
-                  });
 
-                  const result = await firstValueFrom(dialogRef.closed);
+            /**
+             * This do/while loop allows us to:
+             * - a) call processPendingAuthRequests() once on "openLoginApproval"
+             * - b) remember to re-call processPendingAuthRequests() if another "openLoginApproval" was
+             *      received while we were processing the original auth requests
+             */
+            do {
+              this.shouldRerunAuthRequestProcessing = false;
 
-                  if (result !== undefined && typeof result === "boolean") {
-                    respondedIds.add(req.id);
-                    if (respondedIds.size === pendingList.length && this.activeUserId != null) {
-                      await this.pendingAuthRequestsState.clear(this.activeUserId);
-                    }
-                  }
-                }
+              try {
+                await this.processPendingAuthRequests();
+              } catch (error) {
+                this.logService.error(`Error processing pending auth requests: ${error}`);
+                this.shouldRerunAuthRequestProcessing = false; // Reset flag to prevent infinite loop on persistent errors
               }
-            } finally {
-              this.processingPendingAuth = false;
-            }
+              // If an "openLoginApproval" message was received while processPendingAuthRequests() was running, then
+              // shouldRerunAuthRequestProcessing will have been set to true
+            } while (this.shouldRerunAuthRequestProcessing);
           } else if (msg.command === "showDialog") {
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -301,6 +247,13 @@ export class AppComponent implements OnInit, OnDestroy {
                 await this.biometricStateService.updateLastProcessReload();
                 window.location.reload();
               }, 2000);
+            } else {
+              // Close browser action popup before extension reload to prevent zombie popup with invalidated context.
+              // This issue occurs in Chromium-based browsers (Chrome, Vivaldi, etc.) where chrome.runtime.reload()
+              // invalidates extension contexts before popup can close naturally
+              if (BrowserPopupUtils.inPopup(window)) {
+                BrowserApi.closePopup(window);
+              }
             }
           } else if (msg.command === "reloadPopup") {
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -406,5 +359,40 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     this.toastService.showToast(toastOptions);
+  }
+
+  private async processPendingAuthRequests() {
+    this.processingPendingAuthRequests = true;
+
+    try {
+      // Always query server for all pending requests and open a dialog for each
+      const pendingList = await firstValueFrom(this.authRequestService.getPendingAuthRequests$());
+
+      if (Array.isArray(pendingList) && pendingList.length > 0) {
+        const respondedIds = new Set<string>();
+
+        for (const req of pendingList) {
+          if (req?.id == null) {
+            continue;
+          }
+
+          const dialogRef = LoginApprovalDialogComponent.open(this.dialogService, {
+            notificationId: req.id,
+          });
+
+          const result = await firstValueFrom(dialogRef.closed);
+
+          if (result !== undefined && typeof result === "boolean") {
+            respondedIds.add(req.id);
+
+            if (respondedIds.size === pendingList.length && this.activeUserId != null) {
+              await this.pendingAuthRequestsState.clear(this.activeUserId);
+            }
+          }
+        }
+      }
+    } finally {
+      this.processingPendingAuthRequests = false;
+    }
   }
 }

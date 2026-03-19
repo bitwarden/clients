@@ -15,6 +15,8 @@
     "../../apps/browser/src/vault/content/*.ts",
 
     "../../libs/common/src/autofill/constants",
-    "../../libs/common/custom-matchers.d.ts"
+    "../../libs/common/custom-matchers.d.ts",
+
+    "../../bitwarden_license/bit-common/src/platform/sdk/sdk-alias.d.ts"
   ]
 }

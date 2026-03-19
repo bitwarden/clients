@@ -25,6 +25,8 @@ export interface ProjectOperation {
   projectId?: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./project-dialog.component.html",
   standalone: false,
@@ -46,7 +48,9 @@ export class ProjectDialogComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
     private toastService: ToastService,
-  ) {}
+  ) {
+    this.loading = data.operation === OperationType.Edit;
+  }
 
   async ngOnInit() {
     if (this.data.operation === OperationType.Edit && this.data.projectId) {

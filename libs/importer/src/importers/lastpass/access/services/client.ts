@@ -111,7 +111,7 @@ export class Client {
 
   private isComplete(chunks: Chunk[]): boolean {
     if (chunks.length > 0 && chunks[chunks.length - 1].id === "ENDM") {
-      const okChunk = Utils.fromBufferToUtf8(chunks[chunks.length - 1].payload);
+      const okChunk = Utils.fromArrayToUtf8(chunks[chunks.length - 1].payload);
       return okChunk === "OK";
     }
     return false;
@@ -523,7 +523,7 @@ export class Client {
       ["method", PlatformToUserAgent.get(clientInfo.platform)],
       ["xml", "2"],
       ["username", username],
-      ["hash", Utils.fromBufferToHex(hash.buffer)],
+      ["hash", Utils.fromArrayToHex(hash)],
       ["iterations", keyIterationCount],
       ["includeprivatekeyenc", "1"],
       ["outofbandsupported", "1"],

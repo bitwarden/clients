@@ -7,6 +7,11 @@ import { HecTemplate } from "@bitwarden/bit-common/dirt/organization-integration
 import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
+import {
+  IntegrationDialogResultStatus,
+  IntegrationDialogResultStatusType,
+} from "../integration-dialog-result-status";
+
 export type HecConnectDialogParams = {
   settings: Integration;
 };
@@ -17,10 +22,11 @@ export interface HecConnectDialogResult {
   bearerToken: string;
   index: string;
   service: string;
-  success: boolean;
-  error: string | null;
+  success: IntegrationDialogResultStatusType | null;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./connect-dialog-hec.component.html",
   imports: [SharedModule],
@@ -30,7 +36,7 @@ export class ConnectHecDialogComponent implements OnInit {
   hecConfig: HecConfiguration | null = null;
   hecTemplate: HecTemplate | null = null;
   formGroup = this.formBuilder.group({
-    url: ["", [Validators.required, Validators.pattern("https?://.+")]],
+    url: ["", [Validators.required, Validators.minLength(7)]],
     bearerToken: ["", Validators.required],
     index: ["", Validators.required],
     service: ["", Validators.required],
@@ -40,6 +46,7 @@ export class ConnectHecDialogComponent implements OnInit {
     @Inject(DIALOG_DATA) protected connectInfo: HecConnectDialogParams,
     protected formBuilder: FormBuilder,
     private dialogRef: DialogRef<HecConnectDialogResult>,
+    private dialogService: DialogService,
   ) {}
 
   ngOnInit(): void {
@@ -62,23 +69,51 @@ export class ConnectHecDialogComponent implements OnInit {
     return !!this.hecConfig;
   }
 
-  submit = async (): Promise<void> => {
-    const formJson = this.formGroup.getRawValue();
+  get canDelete(): boolean {
+    return !!this.hecConfig;
+  }
 
-    const result: HecConnectDialogResult = {
-      integrationSettings: this.connectInfo.settings,
-      url: formJson.url || "",
-      bearerToken: formJson.bearerToken || "",
-      index: formJson.index || "",
-      service: formJson.service || "",
-      success: true,
-      error: null,
-    };
+  submit = async (): Promise<void> => {
+    if (this.formGroup.invalid) {
+      this.formGroup.markAllAsTouched();
+      return;
+    }
+    const result = this.getHecConnectDialogResult(IntegrationDialogResultStatus.Edited);
 
     this.dialogRef.close(result);
 
     return;
   };
+
+  delete = async (): Promise<void> => {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "deleteItem" },
+      content: {
+        key: "deleteItemConfirmation",
+      },
+      type: "warning",
+    });
+
+    if (confirmed) {
+      const result = this.getHecConnectDialogResult(IntegrationDialogResultStatus.Delete);
+      this.dialogRef.close(result);
+    }
+  };
+
+  private getHecConnectDialogResult(
+    status: IntegrationDialogResultStatusType,
+  ): HecConnectDialogResult {
+    const formJson = this.formGroup.getRawValue();
+
+    return {
+      integrationSettings: this.connectInfo.settings,
+      url: formJson.url || "",
+      bearerToken: formJson.bearerToken || "",
+      index: formJson.index || "",
+      service: formJson.service || "",
+      success: status,
+    };
+  }
 }
 
 export function openHecConnectDialog(

@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { importProvidersFrom, signal } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { action } from "@storybook/addon-actions";
 import {
   applicationConfig,
   componentWrapperDecorator,
@@ -10,24 +9,24 @@ import {
   moduleMetadata,
   StoryObj,
 } from "@storybook/angular";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
+import { action } from "storybook/actions";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { CollectionView } from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { NudgeStatus, NudgesService } from "@bitwarden/angular/vault";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { ClientType } from "@bitwarden/common/enums";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { SshKeyData } from "@bitwarden/common/vault/models/data/ssh-key.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -155,6 +154,20 @@ export default {
           },
         },
         {
+          provide: CipherArchiveService,
+          useValue: {
+            userCanArchive$: of(false),
+          },
+        },
+        {
+          provide: AccountService,
+          useValue: {
+            activeAccount$: of({
+              name: "User 1",
+            }),
+          } as Partial<AccountService>,
+        },
+        {
           provide: CipherFormService,
           useClass: TestAddEditFormService,
         },
@@ -200,7 +213,9 @@ export default {
         {
           provide: DomainSettingsService,
           useValue: {
-            defaultUriMatchStrategy$: new BehaviorSubject(UriMatchStrategy.StartsWith),
+            resolvedDefaultUriMatchStrategy$: new BehaviorSubject(UriMatchStrategy.StartsWith),
+            defaultUriMatchStrategy$: new BehaviorSubject(UriMatchStrategy.Domain),
+            defaultUriMatchStrategyPolicy$: new BehaviorSubject(null),
           },
         },
         {
@@ -259,6 +274,12 @@ export default {
           provide: PolicyService,
           useValue: {
             policiesByType$: new BehaviorSubject([]),
+          },
+        },
+        {
+          provide: CipherArchiveService,
+          useValue: {
+            archiveWithServer: () => Promise.resolve(),
           },
         },
       ],

@@ -34,7 +34,8 @@
             "glob": "executors.json",
             "output": "."
           }
-        ]
+        ],
+        "rootDir": "libs/nx-plugin/src"
       }
     },
     "lint": {

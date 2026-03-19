@@ -21,14 +21,14 @@ export async function getCredentialsForAutofill(
 
       // Credentials are stored as a GUID or b64 string with `b64.` prepended,
       // but we need to return them as a URL-safe base64 string
-      const credId = Utils.fromBufferToUrlB64(parseCredentialId(credential.credentialId));
+      const credId = Utils.fromArrayToUrlB64(parseCredentialId(credential.credentialId));
 
       return {
         cipherId: cipher.id,
         credentialId: credId,
         rpId: credential.rpId,
-        userHandle: credential.userHandle,
-        userName: credential.userName,
-      };
+        userHandle: credential.userHandle!,
+        userName: credential.userName!,
+      } satisfies Fido2CredentialAutofillView;
     });
 }

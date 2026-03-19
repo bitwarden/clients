@@ -18,6 +18,8 @@ import { ValidationService } from "@bitwarden/common/platform/abstractions/valid
   standalone: false,
 })
 export class ApiActionDirective implements OnChanges {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() appApiAction: Promise<any>;
 
   constructor(

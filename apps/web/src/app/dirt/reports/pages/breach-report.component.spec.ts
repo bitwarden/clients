@@ -1,16 +1,17 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
-import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BreachAccountResponse } from "@bitwarden/common/models/response/breach-account.response";
+import { BreachAccountResponse } from "@bitwarden/common/dirt/models/response/breach-account.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { AsyncActionsModule, ButtonModule, FormFieldModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BreachReportComponent } from "./breach-report.component";
 
@@ -31,6 +32,21 @@ const breachedAccounts = [
   }),
 ];
 
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "app-header",
+  template: "<div></div>",
+  standalone: false,
+})
+class MockHeaderComponent {}
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "bit-container",
+  template: "<div></div>",
+  standalone: false,
+})
+class MockBitContainerComponent {}
+
 describe("BreachReportComponent", () => {
   let component: BreachReportComponent;
   let fixture: ComponentFixture<BreachReportComponent>;
@@ -38,9 +54,10 @@ describe("BreachReportComponent", () => {
   let accountService: MockProxy<AccountService>;
   const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>({
     id: "testId" as UserId,
-    email: "test@example.com",
-    emailVerified: true,
-    name: "Test User",
+    ...mockAccountInfoWith({
+      email: "test@example.com",
+      name: "Test User",
+    }),
   });
 
   beforeEach(async () => {
@@ -49,8 +66,8 @@ describe("BreachReportComponent", () => {
     accountService.activeAccount$ = activeAccountSubject;
 
     await TestBed.configureTestingModule({
-      declarations: [BreachReportComponent, I18nPipe],
-      imports: [ReactiveFormsModule],
+      declarations: [BreachReportComponent, MockHeaderComponent, MockBitContainerComponent],
+      imports: [ReactiveFormsModule, I18nPipe, AsyncActionsModule, ButtonModule, FormFieldModule],
       providers: [
         {
           provide: AuditService,
@@ -65,9 +82,7 @@ describe("BreachReportComponent", () => {
           useValue: mock<I18nService>(),
         },
       ],
-      // FIXME(PM-18598): Replace unknownElements and unknownProperties with actual imports
-      errorOnUnknownElements: false,
-      errorOnUnknownProperties: false,
+      schemas: [],
     }).compileComponents();
   });
 
@@ -83,38 +98,38 @@ describe("BreachReportComponent", () => {
   });
 
   it("should initialize form with account email", async () => {
-    expect(component.formGroup.get("username").value).toEqual("test@example.com");
+    expect(component.formGroup.get("email").value).toEqual("test@example.com");
   });
 
   it("should mark form as touched and show validation error if form is invalid on submit", async () => {
-    component.formGroup.get("username").setValue("");
+    component.formGroup.get("email").setValue("");
     await component.submit();
 
     expect(component.formGroup.touched).toBe(true);
     expect(component.formGroup.invalid).toBe(true);
   });
 
-  it("should call auditService.breachedAccounts with lowercase username", async () => {
+  it("should call auditService.breachedAccounts with lowercase email", async () => {
     auditService.breachedAccounts.mockResolvedValue(breachedAccounts);
-    component.formGroup.get("username").setValue("validUsername");
+    component.formGroup.get("email").setValue("ValidUser@example.com");
 
     await component.submit();
 
-    expect(auditService.breachedAccounts).toHaveBeenCalledWith("validusername");
+    expect(auditService.breachedAccounts).toHaveBeenCalledWith("validuser@example.com");
   });
 
-  it("should set breachedAccounts and checkedUsername after successful submit", async () => {
+  it("should set breachedAccounts and checkedEmail after successful submit", async () => {
     auditService.breachedAccounts.mockResolvedValue(breachedAccounts);
 
     await component.submit();
 
     expect(component.breachedAccounts).toEqual(breachedAccounts);
-    expect(component.checkedUsername).toEqual("test@example.com");
+    expect(component.checkedEmail).toEqual("test@example.com");
   });
 
   it("should set error to true if auditService.breachedAccounts throws an error", async () => {
     auditService.breachedAccounts.mockRejectedValue(new Error("test error"));
-    component.formGroup.get("username").setValue("validUsername");
+    component.formGroup.get("email").setValue("valid@example.com");
 
     await component.submit();
 
@@ -123,10 +138,32 @@ describe("BreachReportComponent", () => {
 
   it("should set loading to false after submit", async () => {
     auditService.breachedAccounts.mockResolvedValue([]);
-    component.formGroup.get("username").setValue("validUsername");
+    component.formGroup.get("email").setValue("valid@example.com");
 
     await component.submit();
 
     expect(component.loading).toBe(false);
+  });
+
+  it("should mark form as invalid when email format is invalid", () => {
+    component.formGroup.get("email").setValue("invalid-email");
+
+    expect(component.formGroup.get("email").hasError("email")).toBe(true);
+    expect(component.formGroup.invalid).toBe(true);
+  });
+
+  it("should mark form as valid when email format is valid", () => {
+    component.formGroup.get("email").setValue("valid@example.com");
+
+    expect(component.formGroup.get("email").hasError("email")).toBe(false);
+    expect(component.formGroup.invalid).toBe(false);
+  });
+
+  it("should not call auditService when email format is invalid", async () => {
+    component.formGroup.get("email").setValue("invalid-email");
+
+    await component.submit();
+
+    expect(auditService.breachedAccounts).not.toHaveBeenCalled();
   });
 });

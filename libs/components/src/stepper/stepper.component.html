@@ -18,13 +18,13 @@
           >
             @if (step.completed) {
               <span
-                class="tw-me-3.5 tw-size-9 tw-rounded-full tw-bg-primary-600 tw-font-bold tw-leading-9 tw-text-contrast"
+                class="tw-me-3.5 tw-size-9 tw-rounded-full tw-bg-primary-600 tw-font-medium tw-leading-9 tw-text-contrast"
               >
                 <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
               </span>
             } @else {
               <span
-                class="tw-me-3.5 tw-size-9 tw-rounded-full tw-font-bold tw-leading-9"
+                class="tw-me-3.5 tw-size-9 tw-rounded-full tw-font-medium tw-leading-9"
                 [ngClass]="{
                   'tw-bg-primary-600 tw-text-contrast': selectedIndex === $index,
                   'tw-bg-secondary-300 tw-text-main':
@@ -83,13 +83,13 @@
       >
         @if (step.completed) {
           <span
-            class="tw-me-3.5 tw-size-9 tw-rounded-full tw-bg-primary-600 tw-font-bold tw-leading-9 tw-text-contrast"
+            class="tw-me-3.5 tw-size-9 tw-rounded-full tw-bg-primary-600 tw-font-medium tw-leading-9 tw-text-contrast"
           >
             <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
           </span>
         } @else {
           <span
-            class="tw-me-3.5 tw-size-9 tw-rounded-full tw-font-bold tw-leading-9"
+            class="tw-me-3.5 tw-size-9 tw-rounded-full tw-font-medium tw-leading-9"
             [ngClass]="{
               'tw-bg-primary-600 tw-text-contrast': selectedIndex === $index,
               'tw-bg-secondary-300 tw-text-main':

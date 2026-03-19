@@ -1,4 +1,4 @@
-## DIRT Card
+# DIRT Card
 
 Package name: `@bitwarden/dirt-card`
 

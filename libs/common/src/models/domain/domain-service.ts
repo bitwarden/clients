@@ -1,3 +1,5 @@
+import { UriMatchType } from "@bitwarden/sdk-internal";
+
 /*
   See full documentation at:
     https://bitwarden.com/help/uri-match-detection/#match-detection-options
@@ -23,3 +25,28 @@ export type UriMatchStrategySetting = (typeof UriMatchStrategy)[keyof typeof Uri
 // using uniqueness properties of object shape over Set for ease of state storability
 export type NeverDomains = { [id: string]: null | { bannerIsDismissed?: boolean } };
 export type EquivalentDomains = string[][];
+
+/**
+ * Normalizes UriMatchStrategySetting for SDK mapping.
+ * @param value - The URI match strategy from user data
+ * @returns Valid UriMatchType or undefined if invalid
+ */
+export function normalizeUriMatchStrategyForSdk(
+  value: UriMatchStrategySetting | undefined,
+): UriMatchType | undefined {
+  if (value == null) {
+    return undefined;
+  }
+
+  switch (value) {
+    case 0: // Domain
+    case 1: // Host
+    case 2: // StartsWith
+    case 3: // Exact
+    case 4: // RegularExpression
+    case 5: // Never
+      return value;
+    default:
+      return undefined;
+  }
+}

@@ -1,7 +1,10 @@
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import { ButtonModule } from "../../button";
+import { I18nMockService } from "../../utils";
 import { DialogModule } from "../dialog.module";
 
 import { SimpleDialogComponent } from "./simple-dialog.component";
@@ -12,6 +15,16 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [ButtonModule, NoopAnimationsModule, DialogModule],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              loading: "Loading",
+            });
+          },
+        },
+      ],
     }),
   ],
   parameters: {
@@ -110,6 +123,24 @@ export const TextOverflow: Story = {
           <button type="button" bitButton buttonType="secondary">No</button>
         </ng-container>
       </bit-simple-dialog>
+    `,
+  }),
+};
+
+export const WithForm: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <form bit-simple-dialog>
+        <span bitDialogTitle>Confirm Action</span>
+        <span bitDialogContent>
+          Are you sure you want to proceed with this action? This cannot be undone.
+        </span>
+        <ng-container bitDialogFooter>
+          <button type="submit" bitButton buttonType="primary">Confirm</button>
+          <button type="button" bitButton buttonType="secondary">Cancel</button>
+        </ng-container>
+      </form>
     `,
   }),
 };

@@ -6,3 +6,4 @@ export * from "./http-status-code.enum";
 export * from "./integration-type.enum";
 export * from "./native-messaging-version.enum";
 export * from "./notification-type.enum";
+export * from "./push-notification-logout-reason.enum";

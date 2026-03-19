@@ -11,11 +11,15 @@ import { OrganizationInvite } from "@bitwarden/common/auth/services/organization
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { isId } from "@bitwarden/common/types/guid";
+import { ToastService } from "@bitwarden/components";
 
 import { BaseAcceptComponent } from "../../common/base.accept.component";
 
 import { AcceptOrganizationInviteService } from "./accept-organization.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "accept-organization.component.html",
   standalone: false,
@@ -33,12 +37,19 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
     private acceptOrganizationInviteService: AcceptOrganizationInviteService,
     private organizationInviteService: OrganizationInviteService,
     private accountService: AccountService,
+    private toastService: ToastService,
   ) {
     super(router, platformUtilsService, i18nService, route, authService);
   }
 
   async authedHandler(qParams: Params): Promise<void> {
     const invite = this.fromParams(qParams);
+    if (invite === null) {
+      // The BaseAcceptComponent handles thrown errors for the authedHandler (only),
+      // but for clarity and consistency with the unauthedHandler, opting to handle and redirect here.
+      return await this.handleInvalidInvite();
+    }
+
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const success = await this.acceptOrganizationInviteService.validateAndAcceptInvite(
       invite,
@@ -49,20 +60,24 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
       return;
     }
 
-    this.platformUtilService.showToast(
-      "success",
-      this.i18nService.t("inviteAccepted"),
-      invite.initOrganization
+    this.toastService.showToast({
+      message: invite.initOrganization
         ? this.i18nService.t("inviteInitAcceptedDesc")
-        : this.i18nService.t("inviteAcceptedDesc"),
-      { timeout: 10000 },
-    );
+        : this.i18nService.t("invitationAcceptedDesc"),
+      variant: "success",
+      timeout: 10000,
+    });
 
-    await this.router.navigate(["/vault"]);
+    await this.router.navigate(["/"]);
   }
 
   async unauthedHandler(qParams: Params): Promise<void> {
     const invite = this.fromParams(qParams);
+    if (invite === null) {
+      // If invite is null (fromParams failed to validate, etc.), we must handle that case here in full.
+      // The unauthedHandler does not account for error handling in the BaseAcceptComponent.
+      return await this.handleInvalidInvite();
+    }
 
     await this.organizationInviteService.setOrganizationInvitation(invite);
     await this.navigateInviteAcceptance(invite);
@@ -110,6 +125,10 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
       return null;
     }
 
+    if (!isId(params.organizationId) || !isId(params.organizationUserId)) {
+      return null;
+    }
+
     return Object.assign(new OrganizationInvite(), {
       email: params.email,
       initOrganization: params.initOrganization?.toLocaleLowerCase() === "true",
@@ -120,5 +139,15 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
       organizationUserId: params.organizationUserId,
       token: params.token,
     });
+  }
+
+  private async handleInvalidInvite(): Promise<void> {
+    this.toastService.showToast({
+      message: this.i18nService.t(this.failedMessage),
+      variant: "error",
+      timeout: 10000,
+    });
+    await this.router.navigate(["/"]);
+    return;
   }
 }

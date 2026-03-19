@@ -1,13 +1,10 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import {
   BehaviorSubject,
   combineLatest,
-  EMPTY,
   filter,
   firstValueFrom,
-  from,
-  map,
   merge,
   Observable,
   of,
@@ -19,14 +16,11 @@ import {
   tap,
   withLatestFrom,
 } from "rxjs";
-import { catchError } from "rxjs/operators";
 
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 import { UserId } from "@bitwarden/user-core";
 import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
@@ -49,13 +43,6 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { ProviderWarningsService } from "../warnings/services";
 
-class RedirectError {
-  constructor(
-    public path: string[],
-    public relativeTo: ActivatedRoute,
-  ) {}
-}
-
 type View = {
   activeUserId: UserId;
   provider: BitwardenSubscriber;
@@ -70,6 +57,8 @@ const BANK_ACCOUNT_VERIFIED_COMMAND = new CommandDefinition<{
   adminId: string;
 }>("providerBankAccountVerified");
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./provider-payment-details.component.html",
   imports: [
@@ -83,23 +72,15 @@ const BANK_ACCOUNT_VERIFIED_COMMAND = new CommandDefinition<{
 export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
   private viewState$ = new BehaviorSubject<View | null>(null);
 
-  private provider$ = this.activatedRoute.params.pipe(
-    switchMap(({ providerId }) => this.providerService.get$(providerId)),
+  private provider$ = combineLatest([
+    this.activatedRoute.params,
+    this.accountService.activeAccount$.pipe(getUserId),
+  ]).pipe(
+    switchMap(([{ providerId }, userId]) => this.providerService.get$(providerId, userId)),
+    filter((provider) => provider != null),
   );
 
   private load$: Observable<View> = this.provider$.pipe(
-    switchMap((provider) =>
-      this.configService
-        .getFeatureFlag$(FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout)
-        .pipe(
-          map((managePaymentDetailsOutsideCheckout) => {
-            if (!managePaymentDetailsOutsideCheckout) {
-              throw new RedirectError(["../subscription"], this.activatedRoute);
-            }
-            return provider;
-          }),
-        ),
-    ),
     mapProviderToSubscriber,
     switchMap(async (provider) => {
       const getTaxIdWarning = firstValueFrom(
@@ -127,14 +108,6 @@ export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
       };
     }),
     shareReplay({ bufferSize: 1, refCount: false }),
-    catchError((error: unknown) => {
-      if (error instanceof RedirectError) {
-        return from(this.router.navigate(error.path, { relativeTo: error.relativeTo })).pipe(
-          switchMap(() => EMPTY),
-        );
-      }
-      throw error;
-    }),
   );
 
   view$: Observable<View> = merge(
@@ -144,49 +117,39 @@ export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  protected enableTaxIdWarning!: boolean;
-
   constructor(
     private accountService: AccountService,
     private activatedRoute: ActivatedRoute,
     private billingClient: SubscriberBillingClient,
-    private configService: ConfigService,
     private messageListener: MessageListener,
     private providerService: ProviderService,
     private providerWarningsService: ProviderWarningsService,
-    private router: Router,
     private subscriberBillingClient: SubscriberBillingClient,
   ) {}
 
   async ngOnInit() {
-    this.enableTaxIdWarning = await this.configService.getFeatureFlag(
-      FeatureFlag.PM22415_TaxIDWarnings,
-    );
-
-    if (this.enableTaxIdWarning) {
-      this.providerWarningsService.taxIdWarningRefreshed$
-        .pipe(
-          switchMap((warning) =>
-            combineLatest([
-              of(warning),
-              this.provider$.pipe(take(1)).pipe(
-                mapProviderToSubscriber,
-                switchMap((provider) => this.subscriberBillingClient.getBillingAddress(provider)),
-              ),
-            ]),
-          ),
-          takeUntil(this.destroy$),
-        )
-        .subscribe(([taxIdWarning, billingAddress]) => {
-          if (this.viewState$.value) {
-            this.viewState$.next({
-              ...this.viewState$.value,
-              taxIdWarning,
-              billingAddress,
-            });
-          }
-        });
-    }
+    this.providerWarningsService.taxIdWarningRefreshed$
+      .pipe(
+        switchMap((warning) =>
+          combineLatest([
+            of(warning),
+            this.provider$.pipe(take(1)).pipe(
+              mapProviderToSubscriber,
+              switchMap((provider) => this.subscriberBillingClient.getBillingAddress(provider)),
+            ),
+          ]),
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(([taxIdWarning, billingAddress]) => {
+        if (this.viewState$.value) {
+          this.viewState$.next({
+            ...this.viewState$.value,
+            taxIdWarning,
+            billingAddress,
+          });
+        }
+      });
 
     this.messageListener
       .messages$(BANK_ACCOUNT_VERIFIED_COMMAND)
@@ -223,10 +186,7 @@ export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
 
   setBillingAddress = (billingAddress: BillingAddress) => {
     if (this.viewState$.value) {
-      if (
-        this.enableTaxIdWarning &&
-        this.viewState$.value.billingAddress?.taxId !== billingAddress.taxId
-      ) {
+      if (this.viewState$.value.billingAddress?.taxId !== billingAddress.taxId) {
         this.providerWarningsService.refreshTaxIdWarning();
       }
       this.viewState$.next({

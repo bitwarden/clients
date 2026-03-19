@@ -6,6 +6,8 @@ import { ButtonModule, NoItemsModule } from "@bitwarden/components";
 import { SharedModule } from "../../../shared";
 import { CollectionDialogTabType } from "../shared/components/collection-dialog";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "collection-access-restricted",
   imports: [SharedModule, ButtonModule, NoItemsModule],
@@ -37,9 +39,15 @@ export class CollectionAccessRestrictedComponent {
   protected icon = RestrictedView;
   protected collectionDialogTabType = CollectionDialogTabType;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() canEditCollection = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() canViewCollectionInfo = false;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() viewCollectionClicked = new EventEmitter<{
     readonly: boolean;
     tab: CollectionDialogTabType;

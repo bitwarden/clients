@@ -1,3 +1,5 @@
+# Bitwarden Web App
+
 <p align="center">
     <img src="https://raw.githubusercontent.com/bitwarden/brand/main/screenshots/web-vault.png" alt="" width="600" height="358" />
 </p>
@@ -13,9 +15,6 @@
   </a>
   <a href="https://hub.docker.com/u/bitwarden/" target="_blank">
     <img src="https://img.shields.io/docker/pulls/bitwarden/web.svg" alt="DockerHub" />
-  </a>
-  <a href="https://gitter.im/bitwarden/Lobby" target="_blank">
-    <img src="https://badges.gitter.im/bitwarden/Lobby.svg" alt="gitter chat" />
   </a>
 </p>
 

@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 
@@ -13,7 +13,9 @@ export class DisableSendPolicy extends BasePolicyEditDefinition {
 }
 
 @Component({
+  selector: "disable-send-policy-edit",
   templateUrl: "disable-send.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DisableSendPolicyComponent extends BasePolicyEditComponent {}

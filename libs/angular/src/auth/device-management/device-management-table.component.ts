@@ -7,6 +7,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import {
   BadgeModule,
   ButtonModule,
+  IconModule,
   LinkModule,
   TableDataSource,
   TableModule,
@@ -15,14 +16,28 @@ import {
 import { DeviceDisplayData } from "./device-management.component";
 
 /** Displays user devices in a sortable table view */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   standalone: true,
   selector: "auth-device-management-table",
   templateUrl: "./device-management-table.component.html",
-  imports: [BadgeModule, ButtonModule, CommonModule, JslibModule, LinkModule, TableModule],
+  imports: [
+    BadgeModule,
+    ButtonModule,
+    CommonModule,
+    IconModule,
+    JslibModule,
+    LinkModule,
+    TableModule,
+  ],
 })
 export class DeviceManagementTableComponent implements OnChanges {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() devices: DeviceDisplayData[] = [];
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onAuthRequestAnswered = new EventEmitter<DevicePendingAuthRequest>();
 
   protected tableDataSource = new TableDataSource<DeviceDisplayData>();

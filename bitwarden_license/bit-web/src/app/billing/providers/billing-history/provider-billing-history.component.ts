@@ -10,6 +10,8 @@ import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstract
 import { InvoiceResponse } from "@bitwarden/common/billing/models/response/invoices.response";
 import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./provider-billing-history.component.html",
   standalone: false,

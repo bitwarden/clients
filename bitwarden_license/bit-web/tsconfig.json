@@ -1,6 +1,8 @@
 {
   "extends": "../../apps/web/tsconfig",
   "files": [
+    "../../bitwarden_license/bit-common/src/platform/sdk/sdk-alias.d.ts",
+
     "../../apps/web/src/polyfills.ts",
     "../../apps/web/src/main.ts",
     "../../apps/web/src/theme.ts",
@@ -9,6 +11,7 @@
   ],
   "include": [
     "../../apps/web/src/connectors/*.ts",
+    "../../apps/web/src/connectors/platform/*.ts",
     "../../apps/web/src/**/*.stories.ts",
     "../../apps/web/src/**/*.spec.ts",
     "src/**/*.stories.ts",

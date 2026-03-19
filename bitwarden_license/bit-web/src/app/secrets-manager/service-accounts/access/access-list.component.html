@@ -11,8 +11,8 @@
     bitButton
     buttonType="secondary"
     (click)="newAccessTokenEvent.emit()"
+    startIcon="bwi-plus"
   >
-    <i class="bwi bwi-plus" aria-hidden="true"></i>
     {{ "createAccessToken" | i18n }}
   </button>
 </bit-no-items>
@@ -21,7 +21,7 @@
   <ng-container header>
     <tr>
       <th bitCell class="tw-w-0">
-        <label class="tw-m-0 tw-flex tw-w-fit tw-gap-2 !tw-font-bold !tw-text-muted">
+        <label class="tw-m-0 tw-flex tw-w-fit tw-gap-2 !tw-font-medium !tw-text-muted">
           <input
             type="checkbox"
             (change)="$event ? toggleAll() : null"

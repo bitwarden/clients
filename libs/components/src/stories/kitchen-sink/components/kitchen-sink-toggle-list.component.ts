@@ -2,6 +2,8 @@ import { Component } from "@angular/core";
 
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-kitchen-sink-toggle-list",
   imports: [KitchenSinkSharedModule],
@@ -26,7 +28,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
     }
   `,
 })
-export class KitchenSinkToggleList {
+export class KitchenSinkToggleListComponent {
   selectedToggle: "all" | "large" | "small" = "all";
 
   companyList = [

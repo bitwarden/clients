@@ -21,6 +21,7 @@ import {
   DialogModule,
   DialogRef,
   DialogService,
+  IconModule,
   ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -48,6 +49,8 @@ export type EmergencyAccessTakeoverDialogResultType =
  *
  * @link https://bitwarden.com/help/emergency-access/
  */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "auth-emergency-access-takeover-dialog",
   templateUrl: "./emergency-access-takeover-dialog.component.html",
@@ -57,10 +60,13 @@ export type EmergencyAccessTakeoverDialogResultType =
     CommonModule,
     DialogModule,
     I18nPipe,
+    IconModule,
     InputPasswordComponent,
   ],
 })
 export class EmergencyAccessTakeoverDialogComponent implements OnInit {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(InputPasswordComponent)
   inputPasswordComponent: InputPasswordComponent | undefined = undefined;
 

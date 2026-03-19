@@ -4,11 +4,19 @@ import { firstValueFrom } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncryptedString,
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import {
+  MasterPasswordAuthenticationData,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -45,13 +53,10 @@ import { EmergencyAccessGranteeDetailsResponse } from "../response/emergency-acc
 import { EmergencyAccessApiService } from "./emergency-access-api.service";
 
 @Injectable()
-export class EmergencyAccessService
-  implements
-    UserKeyRotationKeyRecoveryProvider<
-      EmergencyAccessWithIdRequest,
-      GranteeEmergencyAccessWithPublicKey
-    >
-{
+export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvider<
+  EmergencyAccessWithIdRequest,
+  GranteeEmergencyAccessWithPublicKey
+> {
   constructor(
     private emergencyAccessApiService: EmergencyAccessApiService,
     private apiService: ApiService,
@@ -59,6 +64,8 @@ export class EmergencyAccessService
     private encryptService: EncryptService,
     private cipherService: CipherService,
     private logService: LogService,
+    private masterPasswordService: MasterPasswordServiceAbstraction,
+    private configService: ConfigService,
   ) {}
 
   /**
@@ -175,11 +182,17 @@ export class EmergencyAccessService
    * Step 3 of the 3 step setup flow.
    * Intended for grantor.
    * @param id emergency access id
-   * @param token secret token provided in email
+   * @param granteeId id of the grantee
    * @param publicKey public key of grantee
+   * @param activeUserId the active user's id
    */
-  async confirm(id: string, granteeId: string, publicKey: Uint8Array): Promise<void> {
-    const userKey = await this.keyService.getUserKey();
+  async confirm(
+    id: string,
+    granteeId: string,
+    publicKey: Uint8Array,
+    activeUserId: UserId,
+  ): Promise<void> {
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
     if (!userKey) {
       throw new Error("No user key found");
     }
@@ -267,7 +280,7 @@ export class EmergencyAccessService
    * Intended for grantee.
    * @param id emergency access id
    * @param masterPassword new master password
-   * @param email email address of grantee (must be consistent or login will fail)
+   * @param email email address of grantor (must be consistent or login will fail)
    * @param activeUserId the user id of the active user
    */
   async takeover(id: string, masterPassword: string, email: string, activeUserId: UserId) {
@@ -304,6 +317,42 @@ export class EmergencyAccessService
           takeoverResponse.kdfParallelism,
         );
         break;
+    }
+
+    // When you unwind the flag in PM-28143, also remove the ConfigService if it is un-used.
+    const newApisWithInputPasswordFlagEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
+    );
+
+    if (newApisWithInputPasswordFlagEnabled) {
+      // Determine salt. In the Emergency Access Takeover flow, the grantee is setting a new
+      // master password for the grantor. The grantor's UserId is not available in this context
+      // (activeUserId is the grantee's), so salt is always derived from the grantor's email
+      // via emailToSalt().
+      //
+      // If/when we shift to using random entropy for the salt, this would need to be replaced.
+      const salt: MasterPasswordSalt = this.masterPasswordService.emailToSalt(email);
+
+      const authenticationData: MasterPasswordAuthenticationData =
+        await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+          masterPassword,
+          config,
+          salt,
+        );
+
+      const unlockData: MasterPasswordUnlockData =
+        await this.masterPasswordService.makeMasterPasswordUnlockData(
+          masterPassword,
+          config,
+          salt,
+          grantorUserKey,
+        );
+
+      const request = EmergencyAccessPasswordRequest.newConstructor(authenticationData, unlockData);
+
+      await this.emergencyAccessApiService.postEmergencyAccessPassword(id, request);
+
+      return; // EARLY RETURN for flagged logic
     }
 
     const masterKey = await this.keyService.makeMasterKey(masterPassword, email, config);
@@ -396,7 +445,7 @@ export class EmergencyAccessService
     for (const details of allDetails) {
       if (
         trustedPublicKeys.find(
-          (pk) => Utils.fromBufferToHex(pk) === Utils.fromBufferToHex(details.publicKey),
+          (pk) => Utils.fromArrayToHex(pk) === Utils.fromArrayToHex(details.publicKey),
         ) == null
       ) {
         this.logService.info(

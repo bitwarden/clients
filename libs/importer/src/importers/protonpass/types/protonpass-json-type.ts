@@ -27,12 +27,19 @@ export type ProtonPassItem = {
   pinned: boolean;
 };
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum ProtonPassItemState {
-  ACTIVE = 1,
-  TRASHED = 2,
-}
+/**
+ * Proton Pass item states as a const object.
+ * Represents the different states an item can be in (active or trashed).
+ */
+export const ProtonPassItemState = Object.freeze({
+  ACTIVE: 1,
+  TRASHED: 2,
+} as const);
+
+/**
+ * Type representing valid Proton Pass item state values.
+ */
+export type ProtonPassItemState = (typeof ProtonPassItemState)[keyof typeof ProtonPassItemState];
 
 export type ProtonPassItemData = {
   metadata: ProtonPassItemMetadata;

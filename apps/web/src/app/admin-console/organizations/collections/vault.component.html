@@ -5,52 +5,14 @@
 @let loading = loading$ | async;
 
 @if (organization) {
-  @if (useOrganizationWarningsService$ | async) {
+  @if (!refreshing) {
     <app-organization-free-trial-warning
       [organization]="organization"
       (clicked)="navigateToPaymentMethod()"
     >
     </app-organization-free-trial-warning>
-  }
-
-  @if (useOrganizationWarningsService$ | async) {
     <app-organization-reseller-renewal-warning [organization]="organization">
     </app-organization-reseller-renewal-warning>
-  }
-
-  @let freeTrial = freeTrialWhenWarningsServiceDisabled$ | async;
-  @if (!refreshing && freeTrial?.shownBanner) {
-    <bit-banner
-      id="free-trial-banner"
-      class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
-      icon="bwi-billing"
-      bannerType="premium"
-      [showClose]="false"
-    >
-      {{ freeTrial.message }}
-      <a
-        bitLink
-        linkType="secondary"
-        (click)="navigateToPaymentMethod()"
-        class="tw-cursor-pointer"
-        rel="noreferrer noopener"
-      >
-        {{ "clickHereToAddPaymentMethod" | i18n }}
-      </a>
-    </bit-banner>
-  }
-
-  @let resellerWarning = resellerWarningWhenWarningsServiceDisabled$ | async;
-  @if (!refreshing && resellerWarning) {
-    <bit-banner
-      id="reseller-warning-banner"
-      class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
-      icon="bwi-billing"
-      bannerType="info"
-      [showClose]="false"
-    >
-      {{ resellerWarning?.message }}
-    </bit-banner>
   }
 
   @if (filter) {
@@ -68,7 +30,7 @@
     ></app-org-vault-header>
   }
 
-  <div class="tw-flex tw-flex-row">
+  <div class="tw-flex tw-flex-row tw-flex-1">
     @let hideVaultFilters = hideVaultFilter$ | async;
     @if (!hideVaultFilters) {
       <div class="tw-w-1/4 tw-mr-5">
@@ -81,7 +43,9 @@
       </div>
     }
 
-    <div [class]="hideVaultFilters ? 'tw-w-full' : 'tw-w-3/4'">
+    <div
+      [class]="(hideVaultFilters ? 'tw-w-full' : 'tw-w-3/4') + ' tw-flex tw-flex-col tw-min-h-0'"
+    >
       @if (showAddAccessToggle && activeFilter.selectedCollectionNode) {
         <bit-toggle-group
           [selected]="addAccessStatus$ | async"
@@ -106,6 +70,7 @@
 
       @if (filter) {
         <app-vault-items
+          class="tw-flex-1 tw-min-h-0"
           #vaultItems
           [ciphers]="ciphers$ | async"
           [collections]="collections$ | async"
@@ -147,7 +112,7 @@
               filter &&
               filter.type !== "trash" &&
               filter.collectionId !== Unassigned &&
-              selectedCollection?.node?.canEditItems(organization)
+              (!selectedCollection || selectedCollection.node?.canEditItems(organization))
             ) {
               <button
                 slot="button"
@@ -155,8 +120,9 @@
                 (click)="addCipher()"
                 buttonType="primary"
                 type="button"
+                startIcon="bwi-plus"
               >
-                <i aria-hidden="true" class="bwi bwi-plus"></i> {{ "newItem" | i18n }}
+                {{ "newItem" | i18n }}
               </button>
             }
           </bit-no-items>

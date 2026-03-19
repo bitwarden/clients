@@ -1,10 +1,7 @@
 import { Injectable } from "@angular/core";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
 import { PlanInterval, ProductTierType } from "@bitwarden/common/billing/enums";
-import { TaxInformation } from "@bitwarden/common/billing/models/domain/tax-information";
-import { PreviewOrganizationInvoiceRequest } from "@bitwarden/common/billing/models/request/preview-organization-invoice.request";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 
@@ -14,17 +11,13 @@ import { PricingSummaryData } from "../shared/pricing-summary/pricing-summary.co
   providedIn: "root",
 })
 export class PricingSummaryService {
-  private estimatedTax: number = 0;
-
-  constructor(private taxService: TaxServiceAbstraction) {}
-
   async getPricingSummaryData(
     plan: PlanResponse,
     sub: OrganizationSubscriptionResponse,
     organization: Organization,
     selectedInterval: PlanInterval,
-    taxInformation: TaxInformation,
     isSecretsManagerTrial: boolean,
+    estimatedTax: number,
   ): Promise<PricingSummaryData> {
     // Calculation helpers
     const passwordManagerSeatTotal =
@@ -38,9 +31,10 @@ export class PricingSummaryService {
 
     const additionalServiceAccount = this.getAdditionalServiceAccount(plan, sub);
 
+    const storageGb = Math.max(0, (sub?.maxStorageGb ?? 0) - plan.PasswordManager.baseStorageGb);
+
     const additionalStorageTotal = plan.PasswordManager?.hasAdditionalStorageOption
-      ? plan.PasswordManager.additionalStoragePricePerGb *
-        (sub?.maxStorageGb ? sub.maxStorageGb - 1 : 0)
+      ? plan.PasswordManager.additionalStoragePricePerGb * storageGb
       : 0;
 
     const additionalStoragePriceMonthly = plan.PasswordManager?.additionalStoragePricePerGb || 0;
@@ -57,6 +51,9 @@ export class PricingSummaryService {
     if (plan.PasswordManager?.hasPremiumAccessOption) {
       passwordManagerSubtotal += plan.PasswordManager.premiumAccessOptionPrice;
     }
+    if (plan.PasswordManager?.hasAdditionalStorageOption) {
+      passwordManagerSubtotal += additionalStorageTotal;
+    }
 
     const secretsManagerSubtotal = plan.SecretsManager
       ? (plan.SecretsManager.basePrice || 0) +
@@ -70,16 +67,10 @@ export class PricingSummaryService {
       : (sub?.customerDiscount?.percentOff ?? 0);
     const discountPercentage = 20;
     const acceptingSponsorship = false;
-    const storageGb = sub?.maxStorageGb ? sub?.maxStorageGb - 1 : 0;
-
-    this.estimatedTax = await this.getEstimatedTax(organization, plan, sub, taxInformation);
 
     const total = organization?.useSecretsManager
-      ? passwordManagerSubtotal +
-        additionalStorageTotal +
-        secretsManagerSubtotal +
-        this.estimatedTax
-      : passwordManagerSubtotal + additionalStorageTotal + this.estimatedTax;
+      ? passwordManagerSubtotal + secretsManagerSubtotal + estimatedTax
+      : passwordManagerSubtotal + estimatedTax;
 
     return {
       selectedPlanInterval: selectedInterval === PlanInterval.Annually ? "year" : "month",
@@ -104,43 +95,8 @@ export class PricingSummaryService {
       additionalServiceAccount,
       storageGb,
       isSecretsManagerTrial,
-      estimatedTax: this.estimatedTax,
+      estimatedTax,
     };
-  }
-
-  async getEstimatedTax(
-    organization: Organization,
-    currentPlan: PlanResponse,
-    sub: OrganizationSubscriptionResponse,
-    taxInformation: TaxInformation,
-  ) {
-    if (!taxInformation || !taxInformation.country || !taxInformation.postalCode) {
-      return 0;
-    }
-
-    const request: PreviewOrganizationInvoiceRequest = {
-      organizationId: organization.id,
-      passwordManager: {
-        additionalStorage: 0,
-        plan: currentPlan?.type,
-        seats: sub.seats,
-      },
-      taxInformation: {
-        postalCode: taxInformation.postalCode,
-        country: taxInformation.country,
-        taxId: taxInformation.taxId,
-      },
-    };
-
-    if (organization.useSecretsManager) {
-      request.secretsManager = {
-        seats: sub.smSeats ?? 0,
-        additionalMachineAccounts:
-          (sub.smServiceAccounts ?? 0) - (sub.plan.SecretsManager?.baseServiceAccount ?? 0),
-      };
-    }
-    const invoiceResponse = await this.taxService.previewOrganizationInvoice(request);
-    return invoiceResponse.taxAmount;
   }
 
   getAdditionalServiceAccount(plan: PlanResponse, sub: OrganizationSubscriptionResponse): number {

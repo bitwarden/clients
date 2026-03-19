@@ -15,27 +15,27 @@ import {
 } from "rxjs";
 
 import {
-  CollectionAccessSelectionView,
   CollectionAdminService,
-  CollectionAdminView,
   OrganizationUserApiService,
-  CollectionView,
+  OrganizationUserService,
 } from "@bitwarden/admin-console/common";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
+import {
+  CollectionAccessSelectionView,
+  CollectionAdminView,
+  CollectionView,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -104,6 +104,8 @@ export enum MemberDialogResult {
   Restored = "restored",
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "member-dialog.component.html",
   standalone: false,
@@ -191,16 +193,20 @@ export class MemberDialogComponent implements OnDestroy {
     private accountService: AccountService,
     organizationService: OrganizationService,
     private toastService: ToastService,
-    private configService: ConfigService,
     private deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
+    private organizationUserService: OrganizationUserService,
   ) {
     this.organization$ = accountService.activeAccount$.pipe(
-      switchMap((account) =>
-        organizationService
-          .organizations$(account?.id)
-          .pipe(getOrganizationById(this.params.organizationId))
-          .pipe(shareReplay({ refCount: true, bufferSize: 1 })),
-      ),
+      getUserId,
+      switchMap((userId) => organizationService.organizations$(userId)),
+      getById(this.params.organizationId),
+      map((organization) => {
+        if (organization == null) {
+          throw new Error("Organization not found");
+        }
+        return organization;
+      }),
+      shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
     let userDetails$;
@@ -629,9 +635,12 @@ export class MemberDialogComponent implements OnDestroy {
       return;
     }
 
-    await this.organizationUserApiService.restoreOrganizationUser(
-      this.params.organizationId,
-      this.params.organizationUserId,
+    await firstValueFrom(
+      combineLatest([this.organization$, this.editParams$]).pipe(
+        switchMap(([organization, params]) =>
+          this.organizationUserService.restoreUser(organization, params.organizationUserId),
+        ),
+      ),
     );
 
     this.toastService.showToast({

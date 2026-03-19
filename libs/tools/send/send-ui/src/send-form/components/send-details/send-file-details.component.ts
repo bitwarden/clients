@@ -1,14 +1,12 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators, ReactiveFormsModule, FormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendFileView } from "@bitwarden/common/tools/send/models/view/send-file.view";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   ButtonModule,
   FormFieldModule,
@@ -19,6 +17,8 @@ import {
 import { SendFormConfig } from "../../abstractions/send-form-config.service";
 import { SendFormContainer } from "../../send-form-container";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-send-file-details",
   templateUrl: "./send-file-details.component.html",
@@ -34,8 +34,8 @@ import { SendFormContainer } from "../../send-form-container";
   ],
 })
 export class SendFileDetailsComponent implements OnInit {
-  @Input() config: SendFormConfig;
-  @Input() originalSendView?: SendView;
+  readonly config = input.required<SendFormConfig>();
+  readonly originalSendView = input<SendView>();
 
   sendFileDetailsForm = this.formBuilder.group({
     file: this.formBuilder.control<SendFileView | null>(null, Validators.required),
@@ -69,13 +69,13 @@ export class SendFileDetailsComponent implements OnInit {
   };
 
   ngOnInit() {
-    if (this.originalSendView) {
+    if (this.originalSendView()) {
       this.sendFileDetailsForm.patchValue({
-        file: this.originalSendView.file,
+        file: this.originalSendView()?.file,
       });
     }
 
-    if (!this.config.areSendsAllowed) {
+    if (!this.config().areSendsAllowed) {
       this.sendFileDetailsForm.disable();
     }
   }

@@ -35,11 +35,23 @@
   "invalidVerificationCode": {
     "message": "Invalid verification code."
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
+  },
   "masterPassRequired": {
     "message": "Master password is required."
   },
   "invalidMasterPassword": {
     "message": "Invalid master password."
+  },
+  "invalidMasterPasswordConfirmEmailAndHost": {
+    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "vault.bitwarden.com"
+      }
+    }
   },
   "sessionTimeout": {
     "message": "Your session has timed out. Please go back and try logging in again."

@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { UntypedFormBuilder } from "@angular/forms";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -14,15 +14,17 @@ export class SendOptionsPolicy extends BasePolicyEditDefinition {
 }
 
 @Component({
+  selector: "send-options-policy-edit",
   templateUrl: "send-options.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendOptionsPolicyComponent extends BasePolicyEditComponent {
-  data = this.formBuilder.group({
+  readonly data = this.formBuilder.group({
     disableHideEmail: false,
   });
 
-  constructor(private formBuilder: UntypedFormBuilder) {
+  constructor(private readonly formBuilder: UntypedFormBuilder) {
     super();
   }
 }

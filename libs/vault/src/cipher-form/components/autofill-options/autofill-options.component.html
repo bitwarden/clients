@@ -10,12 +10,12 @@
       <vault-autofill-uri-option
         *ngFor="let uri of uriControls; let i = index"
         cdkDrag
-        [cdkDragDisabled]="uriControls.length <= 1"
+        [cdkDragDisabled]="uriControls.length <= 1 || autofillOptionsForm.disabled"
         [formControlName]="i"
         (remove)="removeUri(i)"
         (onKeydown)="onUriItemKeydown($event, i)"
-        [canReorder]="uriControls.length > 1"
-        [canRemove]="uriControls.length > 1"
+        [canReorder]="uriControls.length > 1 && autofillOptionsForm.enabled"
+        [canRemove]="uriControls.length > 1 && autofillOptionsForm.enabled"
         [defaultMatchDetection]="defaultMatchDetection$ | async"
         [index]="i"
       ></vault-autofill-uri-option>
@@ -29,7 +29,7 @@
       (click)="addUri({ uri: null, matchDetection: null }, true)"
       *ngIf="autofillOptionsForm.enabled"
     >
-      <i class="bwi bwi-plus tw-font-bold" aria-hidden="true"></i>
+      <i class="bwi bwi-plus tw-font-medium" aria-hidden="true"></i>
       {{ "addWebsite" | i18n }}
     </button>
 

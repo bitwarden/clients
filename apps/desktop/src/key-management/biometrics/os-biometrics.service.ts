@@ -25,4 +25,6 @@ export interface OsBiometricService {
   setBiometricKey(userId: UserId, key: SymmetricCryptoKey): Promise<void>;
   deleteBiometricKey(userId: UserId): Promise<void>;
   getBiometricsFirstUnlockStatusForUser(userId: UserId): Promise<BiometricsStatus>;
+  enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void>;
+  hasPersistentKey(userId: UserId): Promise<boolean>;
 }

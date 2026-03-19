@@ -40,6 +40,7 @@ export function CipherItem({
   if (notificationType === NotificationTypes.Change || notificationType === NotificationTypes.Add) {
     cipherActionButton = html`<div>
       ${CipherAction({
+        cipherId: cipher.id,
         handleAction,
         i18n,
         itemName: name,

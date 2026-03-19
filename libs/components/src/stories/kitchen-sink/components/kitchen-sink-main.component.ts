@@ -1,13 +1,13 @@
 import { DialogRef } from "@angular/cdk/dialog";
-import { Component, signal } from "@angular/core";
+import { Component, inject } from "@angular/core";
 
 import { DialogService } from "../../../dialog";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
-import { KitchenSinkForm } from "./kitchen-sink-form.component";
-import { KitchenSinkTable } from "./kitchen-sink-table.component";
-import { KitchenSinkToggleList } from "./kitchen-sink-toggle-list.component";
+import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   imports: [KitchenSinkSharedModule],
   template: `
@@ -81,110 +81,86 @@ import { KitchenSinkToggleList } from "./kitchen-sink-toggle-list.component";
     </bit-dialog>
   `,
 })
-class KitchenSinkDialog {
+export class KitchenSinkDialogComponent {
   constructor(public dialogRef: DialogRef) {}
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-tab-main",
-  imports: [KitchenSinkSharedModule, KitchenSinkTable, KitchenSinkToggleList, KitchenSinkForm],
+  imports: [KitchenSinkSharedModule],
   template: `
-    <bit-banner bannerType="info" class="-tw-m-6 tw-flex tw-flex-col tw-pb-6">
-      Kitchen Sink test zone
-    </bit-banner>
-
-    <p class="tw-mt-4">
-      <bit-breadcrumbs>
+    <bit-header title="Kitchen Sink" icon="bwi-collection">
+      <bit-breadcrumbs slot="breadcrumbs">
         @for (item of navItems; track item) {
           <bit-breadcrumb [icon]="item.icon" [route]="[item.route]">
             {{ item.name }}
           </bit-breadcrumb>
         }
       </bit-breadcrumbs>
-    </p>
-
-    <div class="tw-my-6">
-      <h1 bitTypography="h1">Bitwarden Kitchen Sink<bit-avatar text="Bit Warden"></bit-avatar></h1>
-      <a bitLink linkType="primary" href="#">This is a link</a>
-      <p bitTypography="body1" class="tw-inline">
-        &nbsp;and this is a link button popover trigger:&nbsp;
-      </p>
+      <bit-search
+        [bitPopoverAnchorFor]="tourStep1"
+        [popoverOpen]="tourService.tourStep() === 1"
+        [spotlight]="true"
+        [spotlightPadding]="12"
+        [position]="'below-center'"
+      />
       <button
         bitLink
-        linkType="primary"
         [bitPopoverTriggerFor]="myPopover"
         #triggerRef="popoverTrigger"
         type="button"
-        slot="end"
         aria-label="Popover trigger link"
+        slot="secondary"
       >
-        <i class="bwi bwi-question-circle"></i>
+        <bit-icon name="bwi-question-circle" />
       </button>
-    </div>
+      <bit-avatar text="BW"></bit-avatar>
+      <bit-tab-nav-bar slot="tabs">
+        <bit-tab-link [route]="['bitwarden']">Vault</bit-tab-link>
+        <bit-tab-link [route]="['empty']">Empty</bit-tab-link>
+      </bit-tab-nav-bar>
+    </bit-header>
 
-    <bit-callout type="info" title="About the Kitchen Sink">
-      <p bitTypography="body1">
-        The purpose of this story is to compose together all of our components. When snapshot tests
-        run, we'll be able to spot-check visual changes in a more app-like environment than just the
-        isolated stories. The stories for the Kitchen Sink exist to be tested by the Chromatic UI
-        tests.
-      </p>
-    </bit-callout>
+    <router-outlet></router-outlet>
 
-    <bit-tab-group label="Main content tabs" class="tw-text-main">
-      <bit-tab label="Evaluation">
-        <bit-section>
-          <h2 bitTypography="h2" class="tw-mb-6">About</h2>
-          <bit-kitchen-sink-table></bit-kitchen-sink-table>
-
-          <button type="button" bitButton (click)="openDialog()">Open Dialog</button>
-          <button type="button" bitButton (click)="openDrawer()">Open Drawer</button>
-        </bit-section>
-        <bit-section>
-          <h2 bitTypography="h2" class="tw-mb-6">Companies using Bitwarden</h2>
-          <bit-kitchen-sink-toggle-list></bit-kitchen-sink-toggle-list>
-        </bit-section>
-        <bit-section>
-          <h2 bitTypography="h2" class="tw-mb-6">Survey</h2>
-          <bit-kitchen-sink-form></bit-kitchen-sink-form>
-        </bit-section>
-      </bit-tab>
-
-      <bit-tab label="Empty tab" data-testid="empty-tab">
-        <bit-section>
-          <h2 bitTypography="h2" class="tw-mb-6">Tab Number 2</h2>
-          <bit-no-items class="tw-text-main">
-            <ng-container slot="title">This tab is empty</ng-container>
-            <ng-container slot="description">
-              <p bitTypography="body2">Try searching for what you are looking for:</p>
-              <bit-search></bit-search>
-              <p bitTypography="helper">Note that the search bar is not functional</p>
-            </ng-container>
-          </bit-no-items>
-        </bit-section>
-      </bit-tab>
-    </bit-tab-group>
-
-    <bit-popover [title]="'Educational Popover'" #myPopover>
+    <bit-popover title="Educational Popover" #myPopover>
       <div>You can learn more things at:</div>
       <ul class="tw-mt-2 tw-mb-0 tw-ps-4">
         <li>Help center</li>
         <li>Support</li>
       </ul>
     </bit-popover>
+
+    <!-- Tour Popovers -->
+    <bit-popover [title]="'Step 1: Search'" (closed)="tourService.endTour()" #tourStep1>
+      <div>Use the <strong>search bar</strong> to quickly find any item in your vault.</div>
+      <p class="tw-mt-2 tw-mb-0">
+        Search works across all fields including usernames, URLs, and notes.
+      </p>
+      <div class="tw-flex tw-gap-2 tw-mt-4">
+        <button type="button" bitButton buttonType="primary" (click)="tourService.nextStep()">
+          Next
+        </button>
+        <button type="button" bitButton buttonType="secondary" (click)="tourService.endTour()">
+          Skip Tour
+        </button>
+      </div>
+    </bit-popover>
   `,
 })
 export class KitchenSinkMainComponent {
   constructor(public dialogService: DialogService) {}
 
-  protected drawerOpen = signal(false);
+  protected readonly tourService = inject(KitchenSinkTourService);
 
   openDialog() {
-    this.dialogService.open(KitchenSinkDialog);
+    this.dialogService.open(KitchenSinkDialogComponent);
   }
 
   openDrawer() {
-    this.dialogService.openDrawer(KitchenSinkDialog);
+    this.dialogService.openDrawer(KitchenSinkDialogComponent);
   }
 
   navItems = [

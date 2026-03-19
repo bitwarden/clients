@@ -8,16 +8,24 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { map, ReplaySubject, skip, Subject, switchAll, takeUntil, withLatestFrom } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { VendorId } from "@bitwarden/common/tools/extension";
+import {
+  FormFieldModule,
+  AriaDisableDirective,
+  TooltipDirective,
+  BitIconButtonComponent,
+} from "@bitwarden/components";
 import {
   CredentialGeneratorService,
   ForwarderOptions,
   GeneratorMetadata,
 } from "@bitwarden/generator-core";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 const Controls = Object.freeze({
   domain: "domain",
@@ -26,10 +34,20 @@ const Controls = Object.freeze({
 });
 
 /** Options group for forwarder integrations */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-forwarder-settings",
   templateUrl: "forwarder-settings.component.html",
-  standalone: false,
+  imports: [
+    ReactiveFormsModule,
+    FormFieldModule,
+    AriaDisableDirective,
+    TooltipDirective,
+    BitIconButtonComponent,
+    JslibModule,
+    I18nPipe,
+  ],
 })
 export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the component
@@ -45,11 +63,15 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
    *  @remarks this is initialized to null but since it's a required input it'll
    *     never have that value in practice.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true })
   account: Account = null!;
 
   protected account$ = new ReplaySubject<Account>(1);
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true })
   forwarder: VendorId = null!;
 
@@ -58,6 +80,8 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
    *   to receive live settings updates including the initial update,
    *   use `CredentialGeneratorService.settings$(...)` instead.
    */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   readonly onUpdated = new EventEmitter<unknown>();
 

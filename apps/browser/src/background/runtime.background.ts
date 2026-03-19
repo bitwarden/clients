@@ -145,6 +145,7 @@ export default class RuntimeBackground {
             if (totpCode != null) {
               this.platformUtilsService.copyToClipboard(totpCode);
             }
+            await this.main.updateOverlayCiphers();
             break;
           }
           case ExtensionCommand.AutofillCard: {
@@ -255,13 +256,24 @@ export default class RuntimeBackground {
       case "addToLockedVaultPendingNotifications":
         this.lockedVaultPendingNotifications.push(msg.data);
         break;
+      case "abandonAutofillPendingNotifications":
+        this.lockedVaultPendingNotifications = [];
+        break;
       case "lockVault":
-        await this.main.vaultTimeoutService.lock(msg.userId);
+        await this.lockService.lock(msg.userId);
         break;
       case "lockAll":
         {
           await this.lockService.lockAll();
           this.messagingService.send("lockAllFinished", { requestId: msg.requestId });
+        }
+        break;
+      case "lockUser":
+        {
+          await this.lockService.lock(msg.userId);
+          this.messagingService.send("lockUserFinished", {
+            requestId: msg.requestId,
+          });
         }
         break;
       case "logout":
@@ -279,16 +291,24 @@ export default class RuntimeBackground {
         }
         break;
       case "openPopup":
-        await this.openPopup();
+        await this.executeMessageActionOrOpenPopup(msg, this.openPopup.bind(this));
         break;
-      case VaultMessages.OpenAtRiskPasswords:
-        await this.main.openAtRisksPasswordsPage();
+      case VaultMessages.OpenAtRiskPasswords: {
+        await this.executeMessageActionOrOpenPopup(
+          msg,
+          this.main.openAtRisksPasswordsPage.bind(this),
+        );
         this.announcePopupOpen();
         break;
-      case VaultMessages.OpenBrowserExtensionToUrl:
-        await this.main.openTheExtensionToPage(msg.url);
+      }
+      case VaultMessages.OpenBrowserExtensionToUrl: {
+        await this.executeMessageActionOrOpenPopup(
+          msg,
+          this.main.openTheExtensionToPage.bind(this, msg.url),
+        );
         this.announcePopupOpen();
         break;
+      }
       case "bgUpdateContextMenu":
       case "editedCipher":
       case "addedCipher":
@@ -300,10 +320,7 @@ export default class RuntimeBackground {
         break;
       }
       case "authResult": {
-        const env = await firstValueFrom(this.environmentService.environment$);
-        const vaultUrl = env.getWebVaultUrl();
-
-        if (msg.referrer == null || Utils.getHostname(vaultUrl) !== msg.referrer) {
+        if (!(await this.isValidVaultReferrer(msg.referrer))) {
           return;
         }
 
@@ -322,10 +339,7 @@ export default class RuntimeBackground {
         break;
       }
       case "webAuthnResult": {
-        const env = await firstValueFrom(this.environmentService.environment$);
-        const vaultUrl = env.getWebVaultUrl();
-
-        if (msg.referrer == null || Utils.getHostname(vaultUrl) !== msg.referrer) {
+        if (!(await this.isValidVaultReferrer(msg.referrer))) {
           return;
         }
 
@@ -358,6 +372,63 @@ export default class RuntimeBackground {
         break;
       }
     }
+  }
+
+  /**
+   * For messages that can originate from a vault host page or extension, validate referrer or external
+   *
+   * @param message
+   * @returns true if message fails validation
+   */
+  private async executeMessageActionOrOpenPopup(
+    message: {
+      webExtSender: chrome.runtime.MessageSender;
+    },
+    messageAction: () => Promise<void>,
+  ): Promise<boolean> {
+    const hasAccounts = await firstValueFrom(
+      this.accountService.accounts$.pipe(map((a) => Object.keys(a).length > 0)),
+    );
+
+    // When there are no accounts associated with the extension, only allow opening the popup
+    if (!hasAccounts) {
+      await this.openPopup();
+      return;
+    }
+
+    const isValidVaultReferrer = await this.isValidVaultReferrer(
+      Utils.getHostname(message?.webExtSender?.origin),
+    );
+
+    // When the referrer is not a known vault and the message is external, reject the message
+    if (!isValidVaultReferrer && isExternalMessage(message)) {
+      return;
+    }
+
+    await messageAction();
+  }
+
+  /**
+   * Validates that a referrer hostname matches any of the available regions' and current environment web vault URLs.
+   *
+   * @param referrer - hostname from message source (should not include protocol or path)
+   * @returns true if referrer matches any known vault hostname, false otherwise
+   */
+  private async isValidVaultReferrer(referrer: string | null | undefined): Promise<boolean> {
+    if (!referrer) {
+      return false;
+    }
+
+    const environment = await firstValueFrom(this.environmentService.environment$);
+
+    const regions = this.environmentService.availableRegions();
+    const regionVaultUrls = regions.map((r) => r.urls.webVault ?? r.urls.base);
+    const environmentWebVaultUrl = environment.getWebVaultUrl();
+    const messageIsFromKnownVault = [...regionVaultUrls, environmentWebVaultUrl].some(
+      (webVaultUrl) => Utils.getHostname(webVaultUrl) === referrer,
+    );
+
+    return messageIsFromKnownVault;
   }
 
   private async autofillPage(tabToAutoFill: chrome.tabs.Tab) {

@@ -30,6 +30,8 @@ import {
 } from "./user-verification-dialog.types";
 import { UserVerificationFormInputComponent } from "./user-verification-form-input.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "user-verification-dialog.component.html",
   imports: [
@@ -275,13 +277,13 @@ export class UserVerificationDialogComponent {
           });
         }
       }
-    } catch (e) {
+    } catch {
       // Catch handles OTP and MP verification scenarios as those throw errors on verification failure instead of returning false like PIN and biometrics.
       this.invalidSecret = true;
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("error"),
-        message: e.message,
+        message: this.i18nService.t("userVerificationFailed"),
       });
       return;
     }

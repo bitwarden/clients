@@ -1,29 +1,36 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
+import { ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom, takeUntil, tap } from "rxjs";
 
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService } from "@bitwarden/components";
-import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
+import { ChipSelectComponent, DialogService } from "@bitwarden/components";
+import {
+  CipherFormConfigService,
+  PasswordRepromptService,
+  RoutedVaultFilterBridgeService,
+  RoutedVaultFilterService,
+} from "@bitwarden/vault";
 
-import { RoutedVaultFilterBridgeService } from "../../../../vault/individual-vault/vault-filter/services/routed-vault-filter-bridge.service";
-import { RoutedVaultFilterService } from "../../../../vault/individual-vault/vault-filter/services/routed-vault-filter.service";
+import { HeaderModule } from "../../../../layouts/header/header.module";
+import { SharedModule } from "../../../../shared";
+import { OrganizationBadgeModule } from "../../../../vault/individual-vault/organization-badge/organization-badge.module";
+import { PipesModule } from "../../../../vault/individual-vault/pipes/pipes.module";
 import { AdminConsoleCipherFormConfigService } from "../../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponent } from "../inactive-two-factor-report.component";
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-inactive-two-factor-report",
   templateUrl: "../inactive-two-factor-report.component.html",
   providers: [
@@ -35,14 +42,14 @@ import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponen
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
   ],
-  standalone: false,
+  imports: [SharedModule, HeaderModule, OrganizationBadgeModule, PipesModule, ChipSelectComponent],
 })
 export class InactiveTwoFactorReportComponent
   extends BaseInactiveTwoFactorReportComponent
   implements OnInit
 {
   // Contains a list of ciphers, the user running the report, can manage
-  private manageableCiphers: Cipher[];
+  private manageableCiphers: Cipher[] = [];
 
   constructor(
     cipherService: CipherService,
@@ -56,6 +63,7 @@ export class InactiveTwoFactorReportComponent
     syncService: SyncService,
     cipherFormConfigService: CipherFormConfigService,
     adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
+    protected changeDetectorRef: ChangeDetectorRef,
   ) {
     super(
       cipherService,
@@ -68,32 +76,41 @@ export class InactiveTwoFactorReportComponent
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
+      changeDetectorRef,
     );
   }
 
   async ngOnInit() {
     this.isAdminConsoleActive = true;
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    this.route.parent.parent.params.subscribe(async (params) => {
-      const userId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
-      this.organization = await firstValueFrom(
-        this.organizationService
-          .organizations$(userId)
-          .pipe(getOrganizationById(params.organizationId)),
-      );
-      this.manageableCiphers = await this.cipherService.getAll(userId);
-      await super.ngOnInit();
-    });
+
+    this.route.parent?.parent?.params
+      .pipe(
+        tap(async (params) => {
+          const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+          this.organization = await firstValueFrom(
+            this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
+          );
+          this.manageableCiphers = await this.cipherService.getAll(userId);
+          await super.ngOnInit();
+          this.changeDetectorRef.markForCheck();
+        }),
+        takeUntil(this.destroyed$),
+      )
+      .subscribe();
   }
 
-  getAllCiphers(): Promise<CipherView[]> {
-    return this.cipherService.getAllFromApiForOrganization(this.organization.id);
+  async getAllCiphers(): Promise<CipherView[]> {
+    if (this.organization) {
+      return this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
+    }
+    return [];
   }
 
   protected canManageCipher(c: CipherView): boolean {
     if (c.collectionIds.length === 0) {
+      return true;
+    }
+    if (this.organization?.allowAdminAccessToAllCollectionItems) {
       return true;
     }
     return this.manageableCiphers.some((x) => x.id === c.id);

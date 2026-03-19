@@ -1,13 +1,11 @@
 // eslint-disable-next-line no-restricted-imports
 import { KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
-import { makeEncString } from "../../../../../spec";
-
 import { MasterPasswordUnlockResponse } from "./master-password-unlock.response";
 
 describe("MasterPasswordUnlockResponse", () => {
   const salt = "test@example.com";
-  const encryptedUserKey = makeEncString("testUserKey");
+  const encryptedUserKey = "testUserKey";
   const testKdfResponse = { KdfType: KdfType.PBKDF2_SHA256, Iterations: 600_000 };
 
   it("should throw error when salt is not provided", () => {
@@ -15,7 +13,7 @@ describe("MasterPasswordUnlockResponse", () => {
       new MasterPasswordUnlockResponse({
         Salt: undefined,
         Kdf: testKdfResponse,
-        MasterKeyEncryptedUserKey: encryptedUserKey.encryptedString,
+        MasterKeyEncryptedUserKey: encryptedUserKey,
       });
     }).toThrow("MasterPasswordUnlockResponse does not contain a valid salt");
   });
@@ -36,7 +34,7 @@ describe("MasterPasswordUnlockResponse", () => {
     const response = new MasterPasswordUnlockResponse({
       Salt: salt,
       Kdf: testKdfResponse,
-      MasterKeyEncryptedUserKey: encryptedUserKey.encryptedString,
+      MasterKeyEncryptedUserKey: encryptedUserKey,
     });
 
     expect(response.salt).toBe(salt);
@@ -50,7 +48,7 @@ describe("MasterPasswordUnlockResponse", () => {
       const response = new MasterPasswordUnlockResponse({
         Salt: salt,
         Kdf: testKdfResponse,
-        MasterKeyEncryptedUserKey: encryptedUserKey.encryptedString,
+        MasterKeyEncryptedUserKey: encryptedUserKey,
       });
 
       const unlockData = response.toMasterPasswordUnlockData();

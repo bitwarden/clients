@@ -10,7 +10,7 @@ Thumbs.db
 *.launch
 .settings/
 *.sublime-workspace
-.claude
+.serena
 
 # Visual Studio Code
 .vscode/*
@@ -27,6 +27,7 @@ npm-debug.log
 # Build directories
 dist
 build
+target
 .angular/cache
 .flatpak
 .flatpak-repo

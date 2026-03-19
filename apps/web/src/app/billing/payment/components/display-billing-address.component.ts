@@ -12,6 +12,8 @@ import {
 } from "@bitwarden/web-vault/app/billing/warnings/types";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-display-billing-address",
   template: `
@@ -48,9 +50,17 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
   imports: [AddressPipe, SharedModule],
 })
 export class DisplayBillingAddressComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) subscriber!: BitwardenSubscriber;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) billingAddress!: BillingAddress | null;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() taxIdWarning?: TaxIdWarningType;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() updated = new EventEmitter<BillingAddress>();
 
   constructor(private dialogService: DialogService) {}

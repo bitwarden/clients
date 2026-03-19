@@ -8,6 +8,7 @@
 <tools-export-scope-callout
   [organizationId]="organizationId"
   [exportFormat]="format"
+  [orgExportDescription]="orgExportDescription"
 ></tools-export-scope-callout>
 
 <form [formGroup]="exportForm" [bitSubmit]="submit" id="export_form_exportForm">
@@ -19,10 +20,10 @@
           [label]="'myVault' | i18n"
           value="myVault"
           icon="bwi-user"
-          *ngIf="!(organizationDataOwnershipPolicy$ | async)"
+          *ngIf="!(organizationDataOwnershipPolicyAppliesToUser$ | async)"
         />
         <bit-option
-          *ngFor="let o of organizations$ | async"
+          *ngFor="let o of organizations"
           [value]="o.id"
           [label]="o.name"
           icon="bwi-business"
@@ -33,9 +34,11 @@
 
   <bit-form-field>
     <bit-label>{{ "fileFormat" | i18n }}</bit-label>
-    <bit-select formControlName="format">
-      <bit-option *ngFor="let f of formatOptions" [value]="f.value" [label]="f.name" />
-    </bit-select>
+    <select bitInput formControlName="format">
+      @for (f of formatOptions$ | async; track f.format) {
+        <option [value]="f.format">{{ f.name }}</option>
+      }
+    </select>
   </bit-form-field>
 
   <ng-container *ngIf="format === 'encrypted_json'">

@@ -29,14 +29,15 @@ import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/opera
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import {
+  CollectionView,
+  CollectionTypes,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -44,7 +45,9 @@ import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { isId, OrganizationId } from "@bitwarden/common/types/guid";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -68,7 +71,11 @@ import {
 
 import { ImporterMetadata, DataLoader, Loader, Instructions } from "../metadata";
 import { ImportOption, ImportResult, ImportType } from "../models";
-import { ImportCollectionServiceAbstraction, ImportServiceAbstraction } from "../services";
+import {
+  ImportCollectionServiceAbstraction,
+  ImportMetadataServiceAbstraction,
+  ImportServiceAbstraction,
+} from "../services";
 
 import { ImportChromeComponent } from "./chrome";
 import {
@@ -79,6 +86,8 @@ import {
 import { ImporterProviders } from "./importer-providers";
 import { ImportLastPassComponent } from "./lastpass";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "tools-import",
   templateUrl: "import.component.html",
@@ -103,6 +112,8 @@ import { ImportLastPassComponent } from "./lastpass";
   providers: ImporterProviders,
 })
 export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
+  DefaultCollectionType = CollectionTypes.DefaultUserCollection;
+
   featuredImportOptions: ImportOption[];
   importOptions: ImportOption[];
   format: ImportType = null;
@@ -112,21 +123,36 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   collections$: Observable<CollectionView[]>;
   organizations$: Observable<Organization[]>;
 
-  private _organizationId: string;
+  private _organizationId: OrganizationId | undefined;
 
-  get organizationId(): string {
+  get organizationId(): OrganizationId | undefined {
     return this._organizationId;
   }
 
-  @Input() set organizationId(value: string) {
+  /**
+   * Enables the hosting control to pass in an organizationId
+   * If a organizationId is provided, the organization selection is disabled.
+   */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() set organizationId(value: OrganizationId | string | undefined) {
+    if (Utils.isNullOrEmpty(value)) {
+      this._organizationId = undefined;
+      this.organization = undefined;
+      return;
+    }
+
+    if (!isId<OrganizationId>(value)) {
+      this._organizationId = undefined;
+      this.organization = undefined;
+      return;
+    }
+
     this._organizationId = value;
+
     getUserId(this.accountService.activeAccount$)
       .pipe(
-        switchMap((userId) =>
-          this.organizationService
-            .organizations$(userId)
-            .pipe(getOrganizationById(this._organizationId)),
-        ),
+        switchMap((userId) => this.organizationService.organizations$(userId).pipe(getById(value))),
       )
       .pipe(takeUntil(this.destroy$))
       .subscribe((organization) => {
@@ -135,13 +161,17 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   onLoadProfilesFromBrowser: (browser: string) => Promise<any[]>;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   onImportFromBrowser: (browser: string, profile: string) => Promise<any[]>;
 
-  protected organization: Organization;
+  protected organization: Organization | undefined = undefined;
   protected destroy$ = new Subject<void>();
 
   protected readonly isCardTypeRestricted$: Observable<boolean> =
@@ -169,15 +199,23 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     chromiumLoader: [Loader.file as DataLoader],
   });
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective)
   private bitSubmit: BitSubmitDirective;
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   formLoading = new EventEmitter<boolean>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   formDisabled = new EventEmitter<boolean>();
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   onSuccessfulImport = new EventEmitter<string>();
 
@@ -230,6 +268,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     protected accountService: AccountService,
     private restrictedItemTypesService: RestrictedItemTypesService,
     private destroyRef: DestroyRef,
+    protected importMetadataService: ImportMetadataServiceAbstraction,
   ) {}
 
   protected get importBlockedByPolicy(): boolean {
@@ -248,9 +287,11 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   async ngOnInit() {
+    await this.importMetadataService.init();
+
     this.setImportOptions();
 
-    this.importService
+    this.importMetadataService
       .metadata$(this.formGroup.controls.format.valueChanges)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -307,18 +348,24 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     this.isFromAC = true;
   }
 
+  /**
+   * Initializes the import form for personal vault imports.
+   * Sets up folder selection for personal vault and collection selection for organizations.
+   * The targetSelector control dynamically switches between folders (personal vault) and collections (organization vault) based on the vaultSelector value.
+   */
   private async handleImportInit() {
-    // Filter out the no folder-item from folderViews$
+    // Set up observable for user's personal folders (excludes the special "no folder" item)
     this.folders$ = this.activeUserId$.pipe(
       switchMap((userId) => {
         return this.folderService.folderViews$(userId);
       }),
-      map((folders) => folders.filter((f) => f.id != null)),
+      map((folders) => folders.filter((f) => !!f.id)),
     );
 
+    // Start with targetSelector disabled - it will be enabled when a vault destination is selected
     this.formGroup.controls.targetSelector.disable();
 
-    // Retrieve all organizations a user is a member of and has collections they can manage
+    // Get organizations where the user can import (has manageable collections)
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.organizations$ = this.organizationService.memberOrganizations$(userId).pipe(
       combineLatestWith(this.collectionService.decryptedCollections$(userId)),
@@ -329,15 +376,18 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       ),
     );
 
+    // React to vault destination changes (personal vault vs organization selection)
     combineLatest([this.formGroup.controls.vaultSelector.valueChanges, this.organizations$])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([value, organizations]) => {
+        // Set organizationId for org imports, undefined for personal vault
         this.organizationId = value !== "myVault" ? value : undefined;
 
-        if (!this._importBlockedByPolicy) {
-          this.formGroup.controls.targetSelector.enable();
-        }
+        // Enable targetSelector for both personal vault (folders) and org vault (collections)
+        // Note: The template switches between showing folders vs collections based on organizationId
+        this.formGroup.controls.targetSelector.enable();
 
+        // When an organization is selected, load its manageable collections
         if (value) {
           this.collections$ = this.collectionService
             .decryptedCollections$(userId)
@@ -350,31 +400,65 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
             );
         }
       });
+
+    // Set initial vault selector to personal vault
     this.formGroup.controls.vaultSelector.setValue("myVault");
   }
 
+  /**
+   * Handles the "Enforce organization data ownership" policy enforcement.
+   * When this policy is active, users cannot import to their personal vault and must
+   * select an organization. This method:
+   * 1. Forces the vault selector to the first available organization [there should only be 1, since My Items requires Single Org policy]
+   * 2. Auto-selects the user's "My Items" collection as the default import destination
+   * 3. Disables the entire form if the policy is active but no organizations are available
+   */
   private async handlePolicies() {
-    combineLatest([
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
+    // Create a shared observable combining policy status and available organizations
+    // This is reused by two subscriptions below to avoid duplicating the combineLatest logic
+    const policyAndOrgs$ = combineLatest([
       this.accountService.activeAccount$.pipe(
         getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
+        switchMap((uid) =>
+          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, uid),
         ),
       ),
       this.organizations$,
-    ])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(([policyApplies, orgs]) => {
-        this._importBlockedByPolicy = policyApplies;
-        if (policyApplies && orgs.length == 0) {
-          this.formGroup.disable();
-        }
+    ]);
 
-        // If there are orgs the user has access to import into set
-        // the default value to the first org in the collection.
-        if (policyApplies && orgs.length > 0) {
-          this.formGroup.controls.vaultSelector.setValue(orgs[0].id);
-        }
+    // Subscription 1: Handle policy enforcement on vault selection
+    policyAndOrgs$.pipe(takeUntil(this.destroy$)).subscribe(([policyApplies, orgs]) => {
+      this._importBlockedByPolicy = policyApplies;
+
+      // If policy applies but user has no organizations they can import to, disable the form
+      if (policyApplies && orgs.length == 0) {
+        this.formGroup.disable();
+      }
+
+      // If policy applies and user has organizations, force selection of the first org
+      // (personal vault is hidden when policy is active)
+      if (policyApplies && orgs.length > 0) {
+        this.formGroup.controls.vaultSelector.setValue(orgs[0].id);
+      }
+    });
+
+    // Subscription 2: Auto-select "My Items" collection when the "Enforce organization data ownership" policy is active
+    // It serves as the default landing place for imports, similar to the personal vault.
+    policyAndOrgs$
+      .pipe(
+        filter(([policyApplies, orgs]) => policyApplies && orgs.length > 0),
+        switchMap(([, orgs]) =>
+          this.collectionService.defaultUserCollection$(userId, orgs[0].id as OrganizationId),
+        ),
+        filter(Boolean),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((defaultCollection) => {
+        // Set the targetSelector to the user's My Items collection
+        // Users can still change this to a different collection if desired
+        this.formGroup.controls.targetSelector.setValue(defaultCollection);
       });
   }
 
@@ -438,7 +522,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
         importContents,
         this.organizationId,
         this.formGroup.controls.targetSelector.value,
-        (await this.canAccessImport(this.organizationId)) && this.isFromAC,
+        this.organization?.canAccessImport && this.isFromAC,
       );
 
       //No errors, display success message
@@ -456,20 +540,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       });
       this.logService.error(e);
     }
-  }
-
-  private async canAccessImport(organizationId?: string): Promise<boolean> {
-    if (!organizationId) {
-      return false;
-    }
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    return (
-      await firstValueFrom(
-        this.organizationService
-          .organizations$(userId)
-          .pipe(getOrganizationById(this.organizationId)),
-      )
-    )?.canAccessImport;
   }
 
   getFormatInstructionTitle() {
@@ -573,7 +643,11 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private async validateImport(): Promise<boolean> {
-    if (this.organization) {
+    const selectedCollection = this.formGroup.controls.targetSelector
+      .value as CollectionView | null;
+    const isImportingToMyItems = selectedCollection?.type === CollectionTypes.DefaultUserCollection;
+
+    if (this.organization && !isImportingToMyItems) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "warning" },
         content: { key: "importWarning", placeholders: [this.organization.name] },

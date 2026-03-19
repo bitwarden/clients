@@ -6,15 +6,34 @@ import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { BehaviorSubject, debounceTime, firstValueFrom, lastValueFrom } from "rxjs";
 
+import {
+  CollectionAdminService,
+  OrganizationUserApiService,
+} from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
+import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { DialogService, SearchModule, TableDataSource } from "@bitwarden/components";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import {
+  DialogService,
+  SearchModule,
+  TableDataSource,
+  IconModule,
+  ToastService,
+} from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 import { ExportHelper } from "@bitwarden/vault-export-core";
-import { CoreOrganizationModule } from "@bitwarden/web-vault/app/admin-console/organizations/core";
+import {
+  CoreOrganizationModule,
+  GroupApiService,
+} from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import {
   openUserAddEditDialog,
   MemberDialogResult,
@@ -30,15 +49,29 @@ import { MemberAccessReportService } from "./services/member-access-report.servi
 import { userReportItemHeaders } from "./view/member-access-export.view";
 import { MemberAccessReportView } from "./view/member-access-report.view";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "member-access-report",
   templateUrl: "member-access-report.component.html",
-  imports: [SharedModule, SearchModule, HeaderModule, CoreOrganizationModule],
+  imports: [SharedModule, SearchModule, HeaderModule, CoreOrganizationModule, IconModule],
   providers: [
     safeProvider({
       provide: MemberAccessReportServiceAbstraction,
       useClass: MemberAccessReportService,
-      deps: [MemberAccessReportApiService, I18nService],
+      deps: [
+        MemberAccessReportApiService,
+        I18nService,
+        EncryptService,
+        KeyService,
+        AccountService,
+        // V2 dependencies
+        CollectionAdminService,
+        OrganizationUserApiService,
+        CipherService,
+        LogService,
+        GroupApiService,
+      ],
     }),
   ],
 })
@@ -56,6 +89,10 @@ export class MemberAccessReportComponent implements OnInit {
     protected dialogService: DialogService,
     protected userNamePipe: UserNamePipe,
     protected billingApiService: BillingApiServiceAbstraction,
+    protected organizationMetadataService: OrganizationMetadataServiceAbstraction,
+    private logService: LogService,
+    private toastService: ToastService,
+    private i18nService: I18nService,
   ) {
     // Connect the search input to the table dataSource filter input
     this.searchControl.valueChanges
@@ -66,33 +103,63 @@ export class MemberAccessReportComponent implements OnInit {
   async ngOnInit() {
     this.isLoading$.next(true);
 
-    const params = await firstValueFrom(this.route.params);
-    this.organizationId = params.organizationId;
+    try {
+      const params = await firstValueFrom(this.route.params);
+      this.organizationId = params.organizationId;
 
-    const billingMetadata = await this.billingApiService.getOrganizationBillingMetadata(
-      this.organizationId,
-    );
+      // Handle billing metadata with fallback
+      try {
+        const billingMetadata = await firstValueFrom(
+          this.organizationMetadataService.getOrganizationMetadata$(this.organizationId),
+        );
+        this.orgIsOnSecretsManagerStandalone = billingMetadata.isOnSecretsManagerStandalone;
+      } catch (billingError: unknown) {
+        // Log but don't block - billing metadata is not critical for report
+        this.logService.warning(
+          "[MemberAccessReportComponent] Failed to load billing metadata, using defaults",
+          billingError,
+        );
+        this.orgIsOnSecretsManagerStandalone = false;
+      }
 
-    this.orgIsOnSecretsManagerStandalone = billingMetadata.isOnSecretsManagerStandalone;
-
-    await this.load();
-
-    this.isLoading$.next(false);
+      await this.load();
+    } catch (error: unknown) {
+      this.logService.error(
+        "[MemberAccessReportComponent] Failed to load member access report",
+        error,
+      );
+      this.toastService.showToast({
+        variant: "error",
+        title: "",
+        message: this.i18nService.t("memberAccessReportLoadError"),
+      });
+      // Set empty data so table doesn't break
+      this.dataSource.data = [];
+    } finally {
+      this.isLoading$.next(false);
+    }
   }
 
   async load() {
-    this.dataSource.data = await this.reportService.generateMemberAccessReportView(
-      this.organizationId,
-    );
+    try {
+      const reportData = await this.reportService.generateMemberAccessReportViewV2(
+        this.organizationId,
+      );
+      this.dataSource.data = reportData;
+    } catch (error) {
+      this.logService.error("[MemberAccessReportComponent] Report generation failed", error);
+      throw error;
+    }
   }
 
   exportReportAction = async (): Promise<void> => {
+    const exportItems = await this.reportService.generateUserReportExportItemsV2(
+      this.organizationId,
+    );
+
     this.fileDownloadService.download({
       fileName: ExportHelper.getFileName("member-access"),
-      blobData: exportToCSV(
-        await this.reportService.generateUserReportExportItems(this.organizationId),
-        userReportItemHeaders,
-      ),
+      blobData: exportToCSV(exportItems, userReportItemHeaders),
       blobOptions: { type: "text/plain" },
     });
   };

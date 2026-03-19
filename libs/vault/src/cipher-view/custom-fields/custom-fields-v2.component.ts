@@ -2,8 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType, FieldType, LinkedIdType } from "@bitwarden/common/vault/enums";
 import { LinkedMetadata } from "@bitwarden/common/vault/linked-field-option.decorator";
@@ -24,6 +23,8 @@ import {
 
 import { VaultAutosizeReadOnlyTextArea } from "../../directives/readonly-textarea.directive";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-custom-fields-v2",
   templateUrl: "custom-fields-v2.component.html",
@@ -42,9 +43,11 @@ import { VaultAutosizeReadOnlyTextArea } from "../../directives/readonly-textare
   ],
 })
 export class CustomFieldV2Component implements OnInit, OnChanges {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) cipher!: CipherView;
   fieldType = FieldType;
-  fieldOptions: Map<number, LinkedMetadata> | null = null;
+  fieldOptions: Map<number, LinkedMetadata> | undefined;
 
   /** Indexes of hidden fields that are revealed */
   revealedHiddenFields: number[] = [];
@@ -124,7 +127,7 @@ export class CustomFieldV2Component implements OnInit, OnChanges {
       case CipherType.Identity:
         return IdentityView.prototype.linkedFieldOptions;
       default:
-        return null;
+        return undefined;
     }
   }
 }

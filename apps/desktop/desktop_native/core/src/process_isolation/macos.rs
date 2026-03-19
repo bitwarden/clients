@@ -1,19 +1,20 @@
 use anyhow::{bail, Result};
+use tracing::info;
 
+#[allow(missing_docs)]
 pub fn disable_coredumps() -> Result<()> {
     bail!("Not implemented on Mac")
 }
 
+#[allow(missing_docs)]
 pub fn is_core_dumping_disabled() -> Result<bool> {
     bail!("Not implemented on Mac")
 }
 
+#[allow(missing_docs)]
 pub fn isolate_process() -> Result<()> {
     let pid: u32 = std::process::id();
-    println!(
-        "[Process Isolation] Disabling ptrace on main process ({}) via PT_DENY_ATTACH",
-        pid
-    );
+    info!(pid, "Disabling ptrace on main process via PT_DENY_ATTACH.");
 
     secmem_proc::harden_process().map_err(|e| {
         anyhow::anyhow!(

@@ -20,6 +20,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
@@ -91,21 +92,22 @@ export class CreateCommand {
   }
 
   private async createCipher(req: CipherExport) {
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-
-    const cipherView = CipherExport.toView(req);
-    const isCipherTypeRestricted =
-      await this.cliRestrictedItemTypesService.isCipherRestricted(cipherView);
-
-    if (isCipherTypeRestricted) {
-      return Response.error("Creating this item type is restricted by organizational policy.");
-    }
-
-    const cipher = await this.cipherService.encrypt(CipherExport.toView(req), activeUserId);
     try {
-      const newCipher = await this.cipherService.createWithServer(cipher);
-      const decCipher = await this.cipherService.decrypt(newCipher, activeUserId);
-      const res = new CipherResponse(decCipher);
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+      const cipherView = CipherExport.toView(req);
+      const isCipherTypeRestricted =
+        await this.cliRestrictedItemTypesService.isCipherRestricted(cipherView);
+
+      if (isCipherTypeRestricted) {
+        return Response.error("Creating this item type is restricted by organizational policy.");
+      }
+
+      const newCipher = await this.cipherService.createWithServer(
+        CipherExport.toView(req),
+        activeUserId,
+      );
+      const res = new CipherResponse(newCipher);
       return Response.success(res);
     } catch (e) {
       return Response.error(e);
@@ -168,7 +170,7 @@ export class CreateCommand {
       const updatedCipher = await this.cipherService.saveAttachmentRawWithServer(
         cipher,
         fileName,
-        new Uint8Array(fileBuf).buffer,
+        new Uint8Array(fileBuf),
         activeUserId,
       );
       const decCipher = await this.cipherService.decrypt(updatedCipher, activeUserId);
@@ -180,12 +182,12 @@ export class CreateCommand {
 
   private async createFolder(req: FolderExport) {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const userKey = await this.keyService.getUserKey(activeUserId);
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
     const folder = await this.folderService.encrypt(FolderExport.toView(req), userKey);
     try {
-      await this.folderApiService.save(folder, activeUserId);
-      const newFolder = await this.folderService.get(folder.id, activeUserId);
-      const decFolder = await newFolder.decrypt();
+      const folderData = await this.folderApiService.save(folder, activeUserId);
+      const newFolder = new Folder(folderData);
+      const decFolder = await newFolder.decrypt(userKey);
       const res = new FolderResponse(decFolder);
       return Response.success(res);
     } catch (e) {

@@ -13,6 +13,7 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   DialogService,
+  IconModule,
   LinkModule,
   MenuModule,
   ToastService,
@@ -20,11 +21,13 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "environment-selector",
   templateUrl: "environment-selector.component.html",
   standalone: true,
-  imports: [CommonModule, I18nPipe, MenuModule, LinkModule, TypographyModule],
+  imports: [CommonModule, I18nPipe, IconModule, LinkModule, MenuModule, TypographyModule],
 })
 export class EnvironmentSelectorComponent implements OnDestroy {
   protected ServerEnvironmentType = Region;

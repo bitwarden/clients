@@ -20,15 +20,25 @@ import { ToastService } from "@bitwarden/components";
 
 import { secretsManagerSubscribeFormFactory } from "../shared";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-subscribe-standalone",
   templateUrl: "sm-subscribe-standalone.component.html",
   standalone: false,
 })
 export class SecretsManagerSubscribeStandaloneComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() plan: PlanResponse;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() organization: Organization;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() customerDiscount: BillingCustomerDiscount;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onSubscribe = new EventEmitter<void>();
 
   formGroup = secretsManagerSubscribeFormFactory(this.formBuilder);

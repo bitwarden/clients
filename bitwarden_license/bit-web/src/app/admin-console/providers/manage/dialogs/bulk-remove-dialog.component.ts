@@ -16,9 +16,12 @@ type BulkRemoveDialogParams = {
   users: BulkUserDetails[];
 };
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl:
     "../../../../../../../../apps/web/src/app/admin-console/organizations/members/components/bulk/bulk-remove-dialog.component.html",
+  selector: "provider-bulk-remove-dialog",
   standalone: false,
 })
 export class BulkRemoveDialogComponent extends BaseBulkRemoveComponent {

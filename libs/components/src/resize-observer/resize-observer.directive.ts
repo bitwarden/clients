@@ -2,7 +2,6 @@ import { Directive, ElementRef, EventEmitter, Output, OnDestroy } from "@angular
 
 @Directive({
   selector: "[resizeObserver]",
-  standalone: true,
 })
 export class ResizeObserverDirective implements OnDestroy {
   private observer = new ResizeObserver((entries) => {
@@ -13,6 +12,8 @@ export class ResizeObserverDirective implements OnDestroy {
     }
   });
 
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   resize = new EventEmitter();
 

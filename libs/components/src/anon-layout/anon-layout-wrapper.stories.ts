@@ -1,4 +1,4 @@
-import { importProvidersFrom, Component } from "@angular/core";
+import { importProvidersFrom, Component, ChangeDetectionStrategy, signal } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import {
   Meta,
@@ -31,7 +31,6 @@ export default {
 } as Meta;
 
 const decorators = (options: {
-  components: any[];
   routes: Routes;
   applicationVersion?: string;
   clientType?: ClientType;
@@ -56,7 +55,6 @@ const decorators = (options: {
       },
     ),
     moduleMetadata({
-      declarations: options.components,
       imports: [RouterModule, ButtonModule],
       providers: [
         {
@@ -106,23 +104,30 @@ type Story = StoryObj<AnonLayoutWrapperComponent>;
 @Component({
   selector: "bit-default-primary-outlet-example-component",
   template: "<p>Primary Outlet Example: <br> your primary component goes here</p>",
-  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DefaultPrimaryOutletExampleComponent {}
 
 @Component({
   selector: "bit-default-secondary-outlet-example-component",
   template: "<p>Secondary Outlet Example: <br> your secondary component goes here</p>",
-  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DefaultSecondaryOutletExampleComponent {}
 
 @Component({
   selector: "bit-default-env-selector-outlet-example-component",
   template: "<p>Env Selector Outlet Example: <br> your env selector component goes here</p>",
-  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DefaultEnvSelectorOutletExampleComponent {}
+
+@Component({
+  selector: "bit-header-actions-outlet-example-component",
+  template: "<p>Header Actions Outlet Example: <br> your header actions component goes here</p>",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class DefaultHeaderActionsOutletExampleComponent {}
 
 export const DefaultContentExample: Story = {
   render: (args) => ({
@@ -130,11 +135,6 @@ export const DefaultContentExample: Story = {
     template: "<router-outlet></router-outlet>",
   }),
   decorators: decorators({
-    components: [
-      DefaultPrimaryOutletExampleComponent,
-      DefaultSecondaryOutletExampleComponent,
-      DefaultEnvSelectorOutletExampleComponent,
-    ],
     routes: [
       {
         path: "**",
@@ -147,7 +147,9 @@ export const DefaultContentExample: Story = {
         children: [
           {
             path: "default-example",
-            data: {},
+            data: {
+              pageIcon: LockIcon,
+            } satisfies AnonLayoutWrapperData,
             children: [
               {
                 path: "",
@@ -162,6 +164,11 @@ export const DefaultContentExample: Story = {
                 path: "",
                 component: DefaultEnvSelectorOutletExampleComponent,
                 outlet: "environment-selector",
+              },
+              {
+                path: "",
+                component: DefaultHeaderActionsOutletExampleComponent,
+                outlet: "header-actions",
               },
             ],
           },
@@ -195,21 +202,22 @@ const changedData: AnonLayoutWrapperData = {
   template: `
     <button type="button" bitButton buttonType="primary" (click)="toggleData()">Toggle Data</button>
   `,
-  standalone: false,
+  imports: [ButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DynamicContentExampleComponent {
-  initialData = true;
+  private readonly initialData = signal(true);
 
   constructor(private anonLayoutWrapperDataService: AnonLayoutWrapperDataService) {}
 
   toggleData() {
-    if (this.initialData) {
+    if (this.initialData()) {
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData(changedData);
     } else {
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData(initialData);
     }
 
-    this.initialData = !this.initialData;
+    this.initialData.update((v) => !v);
   }
 }
 
@@ -219,7 +227,6 @@ export const DynamicContentExample: Story = {
     template: "<router-outlet></router-outlet>",
   }),
   decorators: decorators({
-    components: [DynamicContentExampleComponent],
     routes: [
       {
         path: "**",

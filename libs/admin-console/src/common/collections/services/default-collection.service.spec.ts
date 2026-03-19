@@ -1,6 +1,11 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { combineLatest, first, firstValueFrom, of, ReplaySubject, takeWhile } from "rxjs";
 
+import {
+  CollectionView,
+  CollectionTypes,
+  CollectionData,
+} from "@bitwarden/common/admin-console/models/collections";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -15,9 +20,8 @@ import {
 } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
+import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
-
-import { CollectionData, CollectionView } from "../models";
 
 import { DECRYPTED_COLLECTION_DATA_KEY, ENCRYPTED_COLLECTION_DATA_KEY } from "./collection.state";
 import { DefaultCollectionService } from "./default-collection.service";
@@ -177,8 +181,7 @@ describe("DefaultCollectionService", () => {
       // Arrange dependencies
       void setEncryptedState([collection1, collection2]).then(() => {
         // Act: emit undefined
-        cryptoKeys.next(undefined);
-        keyService.activeUserOrgKeys$ = of(undefined);
+        cryptoKeys.next(null);
       });
     });
 
@@ -366,6 +369,104 @@ describe("DefaultCollectionService", () => {
 
       const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
       expect(result!.length).toEqual(0);
+    });
+  });
+
+  describe("groupByOrganization", () => {
+    it("groups collections by organization", () => {
+      const org1 = { organizationId: "org1" } as CollectionView;
+      org1.name = "Collection 1";
+
+      const org2 = { organizationId: "org1" } as CollectionView;
+      org2.name = "Collection 2";
+      const org3 = { organizationId: "org2" } as CollectionView;
+      org3.name = "Collection 3";
+      const collections = [org1, org2, org3];
+
+      const result = collectionService.groupByOrganization(collections);
+
+      expect(result.size).toBe(2);
+      expect(result.get(org1.organizationId)?.length).toBe(2);
+      expect(result.get(org1.organizationId)).toContainPartialObjects([org1, org2]);
+      expect(result.get(org3.organizationId)?.length).toBe(1);
+      expect(result.get(org3.organizationId)).toContainPartialObjects([org3]);
+    });
+  });
+
+  describe("defaultUserCollection$", () => {
+    it("returns the default collection when one exists matching the org", async () => {
+      const orgId = newGuid() as OrganizationId;
+      const defaultCollection = collectionViewDataFactory(orgId);
+      defaultCollection.type = CollectionTypes.DefaultUserCollection;
+
+      const regularCollection = collectionViewDataFactory(orgId);
+      regularCollection.type = CollectionTypes.SharedCollection;
+
+      await setDecryptedState([defaultCollection, regularCollection]);
+
+      const result = await firstValueFrom(collectionService.defaultUserCollection$(userId, orgId));
+
+      expect(result).toBeDefined();
+      expect(result?.id).toBe(defaultCollection.id);
+      expect(result?.isDefaultCollection).toBe(true);
+    });
+
+    it("returns undefined when no default collection exists", async () => {
+      const orgId = newGuid() as OrganizationId;
+      const collection1 = collectionViewDataFactory(orgId);
+      collection1.type = CollectionTypes.SharedCollection;
+
+      const collection2 = collectionViewDataFactory(orgId);
+      collection2.type = CollectionTypes.SharedCollection;
+
+      await setDecryptedState([collection1, collection2]);
+
+      const result = await firstValueFrom(collectionService.defaultUserCollection$(userId, orgId));
+
+      expect(result).toBeUndefined();
+    });
+
+    it("returns undefined when default collection exists but for different org", async () => {
+      const orgA = newGuid() as OrganizationId;
+      const orgB = newGuid() as OrganizationId;
+
+      const defaultCollectionForOrgA = collectionViewDataFactory(orgA);
+      defaultCollectionForOrgA.type = CollectionTypes.DefaultUserCollection;
+
+      await setDecryptedState([defaultCollectionForOrgA]);
+
+      const result = await firstValueFrom(collectionService.defaultUserCollection$(userId, orgB));
+
+      expect(result).toBeUndefined();
+    });
+
+    it("returns undefined when collections array is empty", async () => {
+      const orgId = newGuid() as OrganizationId;
+
+      await setDecryptedState([]);
+
+      const result = await firstValueFrom(collectionService.defaultUserCollection$(userId, orgId));
+
+      expect(result).toBeUndefined();
+    });
+
+    it("returns correct collection when multiple orgs have default collections", async () => {
+      const orgA = newGuid() as OrganizationId;
+      const orgB = newGuid() as OrganizationId;
+
+      const defaultCollectionForOrgA = collectionViewDataFactory(orgA);
+      defaultCollectionForOrgA.type = CollectionTypes.DefaultUserCollection;
+
+      const defaultCollectionForOrgB = collectionViewDataFactory(orgB);
+      defaultCollectionForOrgB.type = CollectionTypes.DefaultUserCollection;
+
+      await setDecryptedState([defaultCollectionForOrgA, defaultCollectionForOrgB]);
+
+      const result = await firstValueFrom(collectionService.defaultUserCollection$(userId, orgB));
+
+      expect(result).toBeDefined();
+      expect(result?.id).toBe(defaultCollectionForOrgB.id);
+      expect(result?.organizationId).toBe(orgB);
     });
   });
 

@@ -203,4 +203,35 @@ describe("Web Platform Utils Service", () => {
       },
     );
   });
+
+  describe("isChromium", () => {
+    const chromiumDevices = [
+      DeviceType.ChromeBrowser,
+      DeviceType.EdgeBrowser,
+      DeviceType.OperaBrowser,
+      DeviceType.VivaldiBrowser,
+    ];
+
+    const nonChromiumDevices = [
+      DeviceType.FirefoxBrowser,
+      DeviceType.SafariBrowser,
+      DeviceType.IEBrowser,
+      DeviceType.DuckDuckGoBrowser,
+      DeviceType.UnknownBrowser,
+    ];
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    test.each(chromiumDevices)("returns true when getDevice() is %s", (deviceType) => {
+      jest.spyOn(webPlatformUtilsService, "getDevice").mockReturnValue(deviceType);
+      expect(webPlatformUtilsService.isChromium()).toBe(true);
+    });
+
+    test.each(nonChromiumDevices)("returns false when getDevice() is %s", (deviceType) => {
+      jest.spyOn(webPlatformUtilsService, "getDevice").mockReturnValue(deviceType);
+      expect(webPlatformUtilsService.isChromium()).toBe(false);
+    });
+  });
 });

@@ -22,7 +22,7 @@
     {{ "resendCode" | i18n }}
   </button>
 
-  <div class="tw-flex tw-mt-4">
+  <div class="tw-grid tw-gap-3 tw-mt-4">
     <button
       bitButton
       bitFormButton
@@ -33,5 +33,13 @@
     >
       {{ "continueLoggingIn" | i18n }}
     </button>
+
+    @if (showBackButton) {
+      <div class="tw-text-center">{{ "or" | i18n }}</div>
+
+      <button type="button" bitButton block buttonType="secondary" (click)="goBack()">
+        {{ "back" | i18n }}
+      </button>
+    }
   </div>
 </form>

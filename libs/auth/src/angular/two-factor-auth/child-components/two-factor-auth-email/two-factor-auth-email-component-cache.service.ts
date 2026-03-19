@@ -36,7 +36,7 @@ export class TwoFactorAuthEmailComponentCacheService {
   /**
    * Signal for the cached email state.
    */
-  private emailCache: WritableSignal<TwoFactorAuthEmailComponentCache | null> =
+  private readonly emailCache: WritableSignal<TwoFactorAuthEmailComponentCache | null> =
     this.viewCacheService.signal<TwoFactorAuthEmailComponentCache | null>({
       key: TWO_FACTOR_AUTH_EMAIL_COMPONENT_CACHE_KEY,
       initialValue: null,

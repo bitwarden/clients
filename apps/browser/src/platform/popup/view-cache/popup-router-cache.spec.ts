@@ -13,6 +13,8 @@ import { PopupRouterCacheService, popupRouterCacheGuard } from "./popup-router-c
 
 const flushPromises = async () => await new Promise(process.nextTick);
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "",
   standalone: false,
@@ -96,11 +98,31 @@ describe("Popup router cache guard", () => {
     // wait for router events subscription
     await flushPromises();
 
-    expect(await firstValueFrom(service.history$())).toEqual(["/a", "/b"]);
+    expect(await firstValueFrom(service.history$())).toEqual([
+      {
+        options: {
+          resetRouterCacheOnTabChange: false,
+        },
+        url: "/a",
+      },
+      {
+        options: {
+          resetRouterCacheOnTabChange: false,
+        },
+        url: "/b",
+      },
+    ]);
 
     await service.back();
 
-    expect(await firstValueFrom(service.history$())).toEqual(["/a"]);
+    expect(await firstValueFrom(service.history$())).toEqual([
+      {
+        options: {
+          resetRouterCacheOnTabChange: false,
+        },
+        url: "/a",
+      },
+    ]);
   });
 
   it("does not save ignored routes", async () => {
@@ -121,6 +143,13 @@ describe("Popup router cache guard", () => {
 
     await flushPromises();
 
-    expect(await firstValueFrom(service.history$())).toEqual(["/a"]);
+    expect(await firstValueFrom(service.history$())).toEqual([
+      {
+        options: {
+          resetRouterCacheOnTabChange: false,
+        },
+        url: "/a",
+      },
+    ]);
   });
 });

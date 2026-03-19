@@ -1,25 +1,24 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { AttachmentView as SdkAttachmentView } from "@bitwarden/sdk-internal";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { DECRYPT_ERROR, EncString } from "../../../key-management/crypto/models/enc-string";
 import { View } from "../../../models/view/view";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { Attachment } from "../domain/attachment";
 
 export class AttachmentView implements View {
-  id: string = null;
-  url: string = null;
-  size: string = null;
-  sizeName: string = null;
-  fileName: string = null;
-  key: SymmetricCryptoKey = null;
+  id?: string;
+  url?: string;
+  size?: string;
+  sizeName?: string;
+  fileName?: string;
+  key?: SymmetricCryptoKey;
   /**
    * The SDK returns an encrypted key for the attachment.
    */
   encryptedKey: EncString | undefined;
+  private _hasDecryptionError?: boolean;
 
   constructor(a?: Attachment) {
     if (!a) {
@@ -35,12 +34,20 @@ export class AttachmentView implements View {
   get fileSize(): number {
     try {
       if (this.size != null) {
-        return parseInt(this.size, null);
+        return parseInt(this.size);
       }
     } catch {
       // Invalid file size.
     }
     return 0;
+  }
+
+  get hasDecryptionError(): boolean {
+    return this._hasDecryptionError || this.fileName === DECRYPT_ERROR;
+  }
+
+  set hasDecryptionError(value: boolean) {
+    this._hasDecryptionError = value;
   }
 
   static fromJSON(obj: Partial<Jsonify<AttachmentView>>): AttachmentView {
@@ -71,27 +78,31 @@ export class AttachmentView implements View {
       fileName: this.fileName,
       key: this.encryptedKey?.toSdk(),
       // TODO: PM-23005 - Temporary field, should be removed when encrypted migration is complete
-      decryptedKey: this.key ? this.key.toBase64() : null,
+      decryptedKey: this.key ? this.key.toBase64() : undefined,
     };
   }
 
   /**
    * Converts the SDK AttachmentView to a AttachmentView.
    */
-  static fromSdkAttachmentView(obj: SdkAttachmentView): AttachmentView | undefined {
+  static fromSdkAttachmentView(
+    obj: SdkAttachmentView,
+    failure = false,
+  ): AttachmentView | undefined {
     if (!obj) {
       return undefined;
     }
 
     const view = new AttachmentView();
-    view.id = obj.id ?? null;
-    view.url = obj.url ?? null;
-    view.size = obj.size ?? null;
-    view.sizeName = obj.sizeName ?? null;
-    view.fileName = obj.fileName ?? null;
+    view.id = obj.id;
+    view.url = obj.url;
+    view.size = obj.size;
+    view.sizeName = obj.sizeName;
+    view.fileName = obj.fileName;
     // TODO: PM-23005 - Temporary field, should be removed when encrypted migration is complete
-    view.key = obj.decryptedKey ? SymmetricCryptoKey.fromString(obj.decryptedKey) : null;
+    view.key = obj.decryptedKey ? SymmetricCryptoKey.fromString(obj.decryptedKey) : undefined;
     view.encryptedKey = obj.key ? new EncString(obj.key) : undefined;
+    view._hasDecryptionError = failure;
 
     return view;
   }

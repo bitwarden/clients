@@ -1,10 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import {
   FormBuilder,
   FormControl,
   FormGroup,
+  ReactiveFormsModule,
   Validators,
   AbstractControl,
   AsyncValidatorFn,
@@ -13,6 +15,7 @@ import {
 import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -24,19 +27,49 @@ import { PlanSponsorshipType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { ToastService } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  ContainerComponent,
+  FormFieldModule,
+  SelectModule,
+  TableModule,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
+import { HeaderModule } from "../../layouts/header/header.module";
 import { FreeFamiliesPolicyService } from "../services/free-families-policy.service";
+
+import { SponsoringOrgRowComponent } from "./sponsoring-org-row.component";
 
 interface RequestSponsorshipForm {
   selectedSponsorshipOrgId: FormControl<string>;
   sponsorshipEmail: FormControl<string>;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-sponsored-families",
   templateUrl: "sponsored-families.component.html",
-  standalone: false,
+  imports: [
+    JslibModule,
+
+    AsyncActionsModule,
+    ButtonModule,
+    CommonModule,
+    ContainerComponent,
+    FormFieldModule,
+    HeaderModule,
+    I18nPipe,
+    ReactiveFormsModule,
+    SelectModule,
+    SponsoringOrgRowComponent,
+    TableModule,
+    TypographyModule,
+  ],
 })
 export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
   loading = false;

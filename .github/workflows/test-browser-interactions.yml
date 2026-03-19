@@ -11,15 +11,17 @@ jobs:
   check-files:
     name: Check files
     runs-on: ubuntu-22.04
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     permissions:
       actions: write
       contents: read
       id-token: write
     steps:
     - name: Checkout code
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
         fetch-depth: 0
+        persist-credentials: false
 
     - name: Check for job requirements
       if: ${{ !github.event.workflow_run.pull_requests || !github.event.workflow_run.head_branch }}
@@ -47,7 +49,7 @@ jobs:
       uses: bitwarden/gh-actions/azure-logout@main
 
     - name: Generate GH App token
-      uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
+      uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
       id: app-token
       with:
         app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
@@ -55,6 +57,7 @@ jobs:
         owner: bitwarden
         repositories: browser-interactions-testing
         permission-actions: write
+        permission-contents: write
 
     - name: Get changed files
       id: changed-files
@@ -71,7 +74,7 @@ jobs:
 
     - name: Trigger test-all workflow in browser-interactions-testing
       if: steps.changed-files.outputs.monitored == 'true'
-      uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0 # v3.0.0
+      uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
       with:
         token: ${{ steps.app-token.outputs.token }}
         repository: "bitwarden/browser-interactions-testing"

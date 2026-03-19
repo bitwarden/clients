@@ -1,13 +1,11 @@
 import * as forge from "node-forge";
 
-import { EncryptionType } from "../../../platform/enums";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { PureCrypto } from "@bitwarden/sdk-internal";
+
 import { Utils } from "../../../platform/misc/utils";
-import {
-  CbcDecryptParameters,
-  EcbDecryptParameters,
-} from "../../../platform/models/domain/decrypt-parameters";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "../../../types/csprng";
+import { UnsignedPublicKey } from "../../types";
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
 
 export class WebCryptoFunctionService implements CryptoFunctionService {
@@ -69,9 +67,13 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
       hash: { name: this.toWebCryptoAlgorithm(algorithm) },
     };
 
-    const impKey = await this.subtle.importKey("raw", ikm, { name: "HKDF" } as any, false, [
-      "deriveBits",
-    ]);
+    const impKey = await this.subtle.importKey(
+      "raw",
+      this.toBuf(ikm),
+      { name: "HKDF" } as any,
+      false,
+      ["deriveBits"],
+    );
     const buffer = await this.subtle.deriveBits(hkdfParams as any, impKey, outputByteSize * 8);
     return new Uint8Array(buffer);
   }
@@ -131,185 +133,34 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     return new Uint8Array(buffer);
   }
 
-  async hmac(
-    value: Uint8Array,
-    key: Uint8Array,
-    algorithm: "sha1" | "sha256" | "sha512",
-  ): Promise<Uint8Array> {
-    const signingAlgorithm = {
-      name: "HMAC",
-      hash: { name: this.toWebCryptoAlgorithm(algorithm) },
-    };
-
-    const impKey = await this.subtle.importKey("raw", key, signingAlgorithm, false, ["sign"]);
-    const buffer = await this.subtle.sign(signingAlgorithm, impKey, value);
-    return new Uint8Array(buffer);
-  }
-
-  hmacFast(value: string, key: string, algorithm: "sha1" | "sha256" | "sha512"): Promise<string> {
-    const hmac = forge.hmac.create();
-    hmac.start(algorithm, key);
-    hmac.update(value);
-    const bytes = hmac.digest().getBytes();
-    return Promise.resolve(bytes);
-  }
-
-  // Safely compare two values in a way that protects against timing attacks (Double HMAC Verification).
-  // ref: https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2011/february/double-hmac-verification/
-  // ref: https://paragonie.com/blog/2015/11/preventing-timing-attacks-on-string-comparison-with-double-hmac-strategy
-  async compareFast(a: string, b: string): Promise<boolean> {
-    const rand = await this.randomBytes(32);
-    const bytes = new Uint32Array(rand);
-    const buffer = forge.util.createBuffer();
-    for (let i = 0; i < bytes.length; i++) {
-      buffer.putInt32(bytes[i]);
-    }
-    const macKey = buffer.getBytes();
-
-    const hmac = forge.hmac.create();
-    hmac.start("sha256", macKey);
-    hmac.update(a);
-    const mac1 = hmac.digest().getBytes();
-
-    hmac.start("sha256", null);
-    hmac.update(b);
-    const mac2 = hmac.digest().getBytes();
-
-    const equals = mac1 === mac2;
-    return equals;
-  }
-
-  aesDecryptFastParameters(
-    data: string,
-    iv: string,
-    mac: string | null,
-    key: SymmetricCryptoKey,
-  ): CbcDecryptParameters<string> {
-    const innerKey = key.inner();
-    if (innerKey.type === EncryptionType.AesCbc256_B64) {
-      return {
-        iv: forge.util.decode64(iv),
-        data: forge.util.decode64(data),
-        encKey: forge.util.createBuffer(innerKey.encryptionKey).getBytes(),
-      } as CbcDecryptParameters<string>;
-    } else if (innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
-      const macData = forge.util.decode64(iv) + forge.util.decode64(data);
-      return {
-        iv: forge.util.decode64(iv),
-        data: forge.util.decode64(data),
-        encKey: forge.util.createBuffer(innerKey.encryptionKey).getBytes(),
-        macKey: forge.util.createBuffer(innerKey.authenticationKey).getBytes(),
-        mac: forge.util.decode64(mac!),
-        macData,
-      } as CbcDecryptParameters<string>;
-    } else {
-      throw new Error("Unsupported encryption type.");
-    }
-  }
-
-  aesDecryptFast({
-    mode,
-    parameters,
-  }:
-    | { mode: "cbc"; parameters: CbcDecryptParameters<string> }
-    | { mode: "ecb"; parameters: EcbDecryptParameters<string> }): Promise<string> {
-    const decipher = (forge as any).cipher.createDecipher(
-      this.toWebCryptoAesMode(mode),
-      parameters.encKey,
-    );
-    const options = {} as any;
-    if (mode === "cbc") {
-      options.iv = parameters.iv;
-    }
-    const dataBuffer = (forge as any).util.createBuffer(parameters.data);
-    decipher.start(options);
-    decipher.update(dataBuffer);
-    decipher.finish();
-    const val = decipher.output.toString();
-    return Promise.resolve(val);
-  }
-
-  async aesDecrypt(
-    data: Uint8Array,
-    iv: Uint8Array | null,
-    key: Uint8Array,
-    mode: "cbc" | "ecb",
-  ): Promise<Uint8Array> {
-    if (mode === "ecb") {
-      // Web crypto does not support AES-ECB mode, so we need to do this in forge.
-      const parameters: EcbDecryptParameters<string> = {
-        data: this.toByteString(data),
-        encKey: this.toByteString(key),
-      };
-      const result = await this.aesDecryptFast({ mode: "ecb", parameters });
-      return Utils.fromByteStringToArray(result);
-    }
-    const impKey = await this.subtle.importKey("raw", key, { name: "AES-CBC" } as any, false, [
-      "decrypt",
-    ]);
-
-    // CBC
-    if (iv == null) {
-      throw new Error("IV is required for CBC mode.");
-    }
-    const buffer = await this.subtle.decrypt({ name: "AES-CBC", iv: iv }, impKey, data);
-    return new Uint8Array(buffer);
-  }
-
   async rsaEncrypt(
     data: Uint8Array,
     publicKey: Uint8Array,
-    algorithm: "sha1" | "sha256",
+    _algorithm: "sha1",
   ): Promise<Uint8Array> {
-    // Note: Edge browser requires that we specify name and hash for both key import and decrypt.
-    // We cannot use the proper types here.
-    const rsaParams = {
-      name: "RSA-OAEP",
-      hash: { name: this.toWebCryptoAlgorithm(algorithm) },
-    };
-    const impKey = await this.subtle.importKey("spki", publicKey, rsaParams, false, ["encrypt"]);
-    const buffer = await this.subtle.encrypt(rsaParams, impKey, data);
-    return new Uint8Array(buffer);
+    await SdkLoadService.Ready;
+    return PureCrypto.rsa_encrypt_data(data, publicKey);
   }
 
   async rsaDecrypt(
     data: Uint8Array,
     privateKey: Uint8Array,
-    algorithm: "sha1" | "sha256",
+    _algorithm: "sha1",
   ): Promise<Uint8Array> {
-    // Note: Edge browser requires that we specify name and hash for both key import and decrypt.
-    // We cannot use the proper types here.
-    const rsaParams = {
-      name: "RSA-OAEP",
-      hash: { name: this.toWebCryptoAlgorithm(algorithm) },
-    };
-    const impKey = await this.subtle.importKey("pkcs8", privateKey, rsaParams, false, ["decrypt"]);
-    const buffer = await this.subtle.decrypt(rsaParams, impKey, data);
-    return new Uint8Array(buffer);
+    await SdkLoadService.Ready;
+    return PureCrypto.rsa_decrypt_data(data, privateKey);
   }
 
-  async rsaExtractPublicKey(privateKey: Uint8Array): Promise<Uint8Array> {
-    const rsaParams = {
-      name: "RSA-OAEP",
-      // Have to specify some algorithm
-      hash: { name: this.toWebCryptoAlgorithm("sha1") },
-    };
-    const impPrivateKey = await this.subtle.importKey("pkcs8", privateKey, rsaParams, true, [
-      "decrypt",
-    ]);
-    const jwkPrivateKey = await this.subtle.exportKey("jwk", impPrivateKey);
-    const jwkPublicKeyParams = {
-      kty: "RSA",
-      e: jwkPrivateKey.e,
-      n: jwkPrivateKey.n,
-      alg: "RSA-OAEP",
-      ext: true,
-    };
-    const impPublicKey = await this.subtle.importKey("jwk", jwkPublicKeyParams, rsaParams, true, [
-      "encrypt",
-    ]);
-    const buffer = await this.subtle.exportKey("spki", impPublicKey);
-    return new Uint8Array(buffer);
+  async rsaExtractPublicKey(privateKey: Uint8Array): Promise<UnsignedPublicKey> {
+    await SdkLoadService.Ready;
+    return PureCrypto.rsa_extract_public_key(privateKey) as UnsignedPublicKey;
+  }
+
+  async rsaGenerateKeyPair(_length: 2048): Promise<[UnsignedPublicKey, Uint8Array]> {
+    await SdkLoadService.Ready;
+    const privateKey = PureCrypto.rsa_generate_keypair();
+    const publicKey = await this.rsaExtractPublicKey(privateKey);
+    return [publicKey, privateKey];
   }
 
   async aesGenerateKey(bitLength = 128 | 192 | 256 | 512): Promise<CsprngArray> {
@@ -329,32 +180,19 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     return new Uint8Array(rawKey) as CsprngArray;
   }
 
-  async rsaGenerateKeyPair(length: 1024 | 2048 | 4096): Promise<[Uint8Array, Uint8Array]> {
-    const rsaParams = {
-      name: "RSA-OAEP",
-      modulusLength: length,
-      publicExponent: new Uint8Array([0x01, 0x00, 0x01]), // 65537
-      // Have to specify some algorithm
-      hash: { name: this.toWebCryptoAlgorithm("sha1") },
-    };
-    const keyPair = await this.subtle.generateKey(rsaParams, true, ["encrypt", "decrypt"]);
-    const publicKey = await this.subtle.exportKey("spki", keyPair.publicKey);
-    const privateKey = await this.subtle.exportKey("pkcs8", keyPair.privateKey);
-    return [new Uint8Array(publicKey), new Uint8Array(privateKey)];
-  }
-
   randomBytes(length: number): Promise<CsprngArray> {
     const arr = new Uint8Array(length);
     this.crypto.getRandomValues(arr);
     return Promise.resolve(arr as CsprngArray);
   }
 
-  private toBuf(value: string | Uint8Array): Uint8Array {
-    let buf: Uint8Array;
+  private toBuf(value: string | Uint8Array): Uint8Array<ArrayBuffer> {
+    let buf: Uint8Array<ArrayBuffer>;
     if (typeof value === "string") {
       buf = Utils.fromUtf8ToArray(value);
     } else {
-      buf = value;
+      // Cannot really be shared array buffer, so it's ok to type assert
+      buf = value as Uint8Array<ArrayBuffer>;
     }
     return buf;
   }
@@ -364,7 +202,8 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     if (typeof value === "string") {
       bytes = forge.util.encodeUtf8(value);
     } else {
-      bytes = Utils.fromBufferToByteString(value);
+      // Null assertion is safe because this function takes a non-null value and is private.
+      bytes = Utils.fromArrayToByteString(this.toBuf(value));
     }
     return bytes;
   }
@@ -376,7 +215,20 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     return algorithm === "sha1" ? "SHA-1" : algorithm === "sha256" ? "SHA-256" : "SHA-512";
   }
 
-  private toWebCryptoAesMode(mode: "cbc" | "ecb"): string {
-    return mode === "cbc" ? "AES-CBC" : "AES-ECB";
+  private async hmac(
+    value: Uint8Array,
+    key: Uint8Array,
+    algorithm: "sha256" | "sha512",
+  ): Promise<Uint8Array<ArrayBuffer>> {
+    const signingAlgorithm = {
+      name: "HMAC",
+      hash: { name: this.toWebCryptoAlgorithm(algorithm) },
+    };
+
+    const impKey = await this.subtle.importKey("raw", this.toBuf(key), signingAlgorithm, false, [
+      "sign",
+    ]);
+    const buffer = await this.subtle.sign(signingAlgorithm, impKey, this.toBuf(value));
+    return new Uint8Array(buffer);
   }
 }

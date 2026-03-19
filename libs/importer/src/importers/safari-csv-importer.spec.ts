@@ -11,9 +11,6 @@ const CipherData = [
     title: "should parse URLs in new CSV format",
     csv: simplePasswordData,
     expected: Object.assign(new CipherView(), {
-      id: null,
-      organizationId: null,
-      folderId: null,
       name: "example.com (example_user)",
       login: Object.assign(new LoginView(), {
         username: "example_user",
@@ -33,9 +30,6 @@ const CipherData = [
     title: "should parse URLs in old CSV format",
     csv: oldSimplePasswordData,
     expected: Object.assign(new CipherView(), {
-      id: null,
-      organizationId: null,
-      folderId: null,
       name: "example.com (example_user)",
       login: Object.assign(new LoginView(), {
         username: "example_user",
@@ -45,6 +39,7 @@ const CipherData = [
             uri: "https://example.com",
           }),
         ],
+        totp: null,
       }),
       type: 1,
     }),
@@ -54,6 +49,7 @@ const CipherData = [
 describe("Safari CSV Importer", () => {
   CipherData.forEach((data) => {
     it(data.title, async () => {
+      jest.useFakeTimers().setSystemTime(data.expected.creationDate);
       const importer = new SafariCsvImporter();
       const result = await importer.parse(data.csv);
       expect(result != null).toBe(true);
