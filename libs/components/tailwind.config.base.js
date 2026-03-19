@@ -95,6 +95,7 @@ module.exports = {
         "brand-medium": "var(--color-bg-brand-medium)",
         brand: "var(--color-bg-brand)",
         "brand-strong": "var(--color-bg-brand-strong)",
+        "brand-stronger": "var(--color-bg-brand-stronger)",
         "success-soft": "var(--color-bg-success-soft)",
         "success-medium": "var(--color-bg-success-medium)",
         success: "var(--color-bg-success)",

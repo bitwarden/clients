@@ -10,7 +10,6 @@ import {
 } from "rxjs";
 import { map, pairwise, share, takeUntil } from "rxjs/operators";
 
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -26,7 +25,7 @@ import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/au
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import {
   UriMatchStrategySetting,
   UriMatchStrategy,
