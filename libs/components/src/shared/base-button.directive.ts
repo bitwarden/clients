@@ -211,7 +211,6 @@ export const getButtonColorStyles = (buttonType: ButtonType): string[] => {
   const baseStyles = [
     "tw-font-medium",
     "tw-outline-none",
-    "tw-tracking-wide",
     "tw-transition",
     "tw-border",
     "tw-border-solid",
