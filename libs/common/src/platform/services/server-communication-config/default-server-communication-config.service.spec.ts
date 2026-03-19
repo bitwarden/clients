@@ -22,6 +22,10 @@ class MockRequest {
     this.url = typeof input === "string" ? input : input.url;
     this.redirect = init?.redirect ?? "follow";
   }
+
+  clone(): MockRequest {
+    return new MockRequest(this.url, { redirect: this.redirect });
+  }
 }
 
 // Mock SdkLoadService
