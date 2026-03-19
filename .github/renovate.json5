@@ -9,7 +9,6 @@
       groupName: "Minor github-actions updates",
       matchManagers: ["github-actions"],
       matchUpdateTypes: ["minor"],
-      addLabels: ["hold"],
     },
     {
       // Enable support for Rust toolchain updates.
@@ -360,6 +359,12 @@
       description: "Key Management owned dependencies",
       commitMessagePrefix: "[deps] KM:",
       reviewers: ["team:team-key-management-dev"],
+    },
+    {
+      matchPackageNames: ["chart.js", "chartjs-adapter-date-fns"],
+      description: "DIRT owned dependencies",
+      commitMessagePrefix: "[deps] DIRT:",
+      reviewers: ["team:team-data-insights-and-reporting-dev"],
     },
 
     // ==================== Grouping Rules ====================
