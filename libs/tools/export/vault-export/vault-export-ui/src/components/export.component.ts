@@ -551,6 +551,11 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       this.exportForm.clearValidators();
     } catch (e) {
       this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("exportError"),
+      });
     }
   }
 

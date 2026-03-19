@@ -2121,6 +2121,9 @@
   "exportSuccess": {
     "message": "Vault data exported"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "passwordGenerator": {
     "message": "Password generator"
   },
