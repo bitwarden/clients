@@ -259,7 +259,6 @@ export class DefaultConfigService implements ConfigService {
         ? {
             bootstrap: {
               type: "ssoCookieVendor",
-              vaultUrl: response.environment.vault,
               idpLoginUrl: bootstrap.idpLoginUrl,
               cookieName: bootstrap.cookieName,
               cookieDomain: bootstrap.cookieDomain,
