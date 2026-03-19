@@ -80,20 +80,20 @@ export class Client {
           // containing the actual encrypted key
           const parts = session.encryptedPrivateKey.split("|");
           if (parts.length !== 2) {
-            throw new Error("Wrong lastpass private key format, no | separator");
+            throw new Error("Invalid LastPass private key format, no | separator");
           }
           if (!parts[0].startsWith("!")) {
-            throw new Error("Wrong lastpass private key format, no ! starting separator");
+            throw new Error("Invalid LastPass private key format, no ! starting separator");
           }
           // Remove the starting ! character, which is not a part of the initialization
           // vector, and then base64 decode
           initVec = Utils.fromB64ToArray(parts[0].slice(1));
           if (initVec.length !== 16) {
-            throw new Error(`Wrong lastpass private key init vector length (${initVec.length})`);
+            throw new Error(`Invalid LastPass private key init vector length (${initVec.length})`);
           }
           encryptedPrivateKey = Utils.fromB64ToArray(parts[1]);
         } else {
-          throw new Error("Unsupported lastpass login");
+          throw new Error("Unsupported LastPass login");
         }
 
         privateKey = await this.parser.parseEncryptedPrivateKey(encryptedPrivateKey, key, initVec);
