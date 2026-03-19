@@ -34,4 +34,4 @@ pub use agent::BitwardenSSHAgent;
 pub use approval::{ApprovalError, ApprovalRequester, SignApprovalRequest};
 pub use crypto::PublicKey;
 pub use server::{AuthRequest, SIGNamespace, SignRequest};
-pub use storage::keystore::InMemoryEncryptedKeyStore;
+pub use storage::keystore::{InMemoryEncryptedKeyStore, KeyStore};
