@@ -70,7 +70,7 @@ export class AccountMenu implements IMenubarMenu {
       return {
         // TODO: PM-32419 - remove "changeMasterPass" translation since we now use changeMasterPassword
         label: this.localize("changeMasterPassword"),
-        id: "changeMasterPass",
+        id: "changeMasterPassword",
         click: () => this.sendMessage("openChangePasswordDialog"),
         enabled: !this._isLocked,
       };
