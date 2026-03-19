@@ -6,14 +6,14 @@ export class ClientInfo {
   platform: Platform;
   id: string;
   description: string;
-  login: LastpassLoginType;
+  loginType: LastpassLoginType;
 
-  static createClientInfo(id: string): ClientInfo {
+  static createClientInfo(id: string, loginType: LastpassLoginType): ClientInfo {
     return {
       platform: Platform.Desktop,
       id,
       description: "Importer",
-      login: LastpassLoginType.MasterPassword,
+      loginType,
     };
   }
 }

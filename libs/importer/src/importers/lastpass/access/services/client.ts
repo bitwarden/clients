@@ -70,10 +70,10 @@ export class Client {
       if (session.encryptedPrivateKey != null && session.encryptedPrivateKey != "") {
         let encryptedPrivateKey = null;
 
-        if (clientInfo.login == LastpassLoginType.MasterPassword) {
+        if (clientInfo.loginType == LastpassLoginType.MasterPassword) {
           encryptedPrivateKey = Utils.fromHexToArray(session.encryptedPrivateKey);
           initVec = key.subarray(0, 16);
-        } else if (clientInfo.login == LastpassLoginType.Federated) {
+        } else if (clientInfo.loginType == LastpassLoginType.Federated) {
           // LastPass private key format is !<base64>|<base64>
           // Private key use AES-CBC encryption, with the first base64 string
           // being the initialization vector and the second base64 string
