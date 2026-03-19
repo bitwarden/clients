@@ -131,7 +131,7 @@ class AutofillInit implements AutofillInitInterface {
     await this.sendExtensionMessage("updateIsFieldCurrentlyFilling", {
       isFieldCurrentlyFilling: true,
     });
-    await this.insertAutofillContentService.fillForm(fillScript, showAnimations);
+    await this.insertAutofillContentService.fillForm(fillScript, showAnimations ?? true);
 
     setTimeout(
       () =>

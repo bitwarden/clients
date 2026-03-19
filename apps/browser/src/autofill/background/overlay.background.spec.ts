@@ -171,7 +171,11 @@ describe("OverlayBackground", () => {
     cipherService = mock<CipherService>({
       getAllDecryptedForUrl: jest.fn().mockResolvedValue([]),
     });
+    enableNotificationAnimationMock$ = new BehaviorSubject(true);
+    enableInlineMenuAnimationMock$ = new BehaviorSubject(true);
     autofillService = mock<AutofillService>();
+    autofillService.enableNotificationAnimation$ = enableNotificationAnimationMock$;
+    autofillService.enableInlineMenuAnimation$ = enableInlineMenuAnimationMock$;
     activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
@@ -197,10 +201,6 @@ describe("OverlayBackground", () => {
     inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
     themeStateService = mock<ThemeStateService>();
     themeStateService.selectedTheme$ = selectedThemeMock$;
-    enableNotificationAnimationMock$ = new BehaviorSubject(true);
-    enableInlineMenuAnimationMock$ = new BehaviorSubject(true);
-    autofillService.enableNotificationAnimation$ = enableNotificationAnimationMock$;
-    autofillService.enableInlineMenuAnimation$ = enableInlineMenuAnimationMock$;
     totpService = mock<TotpService>({
       getCode$: jest.fn().mockReturnValue(of(undefined)),
     });

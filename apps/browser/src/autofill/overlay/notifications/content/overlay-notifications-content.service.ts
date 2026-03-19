@@ -120,8 +120,10 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
     const closedByUser =
       typeof message.data?.closedByUser === "boolean" ? message.data.closedByUser : true;
 
-    // @TODO `fadeOutNotification` is hardcoded to true;
-    // we should remove it in favor of `showAnimations`
+    /**
+     * FIXME (PM-33879): `fadeOutNotification` is hardcoded to true;
+     * we should remove it in favor of `showAnimations`
+     */
     if (message.data?.fadeOutNotification && this.showAnimations) {
       if (this.notificationBarIframeElement) {
         setElementStyles(this.notificationBarIframeElement, { opacity: "0" }, true);

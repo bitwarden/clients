@@ -293,7 +293,10 @@ function handleCloseNotification(e: Event) {
   e.preventDefault();
   sendPlatformMessage({
     command: "bgCloseNotificationBar",
-    // @TODO This value should be replaced with the resolved user preference
+    /**
+     * FIXME (PM-33879): This value should be replaced with the resolved
+     * user preference and/or removed entirely
+     */
     fadeOutNotification: true,
   });
 }
