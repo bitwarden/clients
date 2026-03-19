@@ -77,7 +77,6 @@ export class ServerCommunicationConfigPlatformApiService implements ServerCommun
       this.pendingAcquisition = { hostname: vaultUrl, resolve, timeoutId };
 
       // Open browser to cookie redirect page
-      // FIXME: Ensure that hostname either includes the schema and remove the httpsL//-prefiox or strip it beforehand
       const url = `${vaultUrl}/proxy-cookie-redirect-connector.html`;
       this.logService.info(`Opening browser for cookie acquisition: ${url}`);
       this.platformUtilsService.launchUri(url);
