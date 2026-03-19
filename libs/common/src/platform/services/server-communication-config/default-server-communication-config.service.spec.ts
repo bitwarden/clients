@@ -161,22 +161,20 @@ describe("DefaultServerCommunicationConfigService", () => {
       expect(result).toBe(ok);
     });
 
-    it("calls acquireCookie and retries on 3xx status when bootstrap needed", async () => {
+    it("passes non-opaqueredirect responses through without bootstrap check", async () => {
       const redirect = { status: 302, type: "basic" } as Response;
-      const ok = { status: 200, type: "default" } as Response;
-      next.mockResolvedValueOnce(redirect).mockResolvedValueOnce(ok);
-      mockClientInstance.needsBootstrap.mockResolvedValue(true);
+      next.mockResolvedValueOnce(redirect);
 
-      await middleware(new Request("https://vault.acme.com/"), next);
+      const result = await middleware(new Request("https://vault.acme.com/"), next);
 
-      expect(repository.get$).toHaveBeenCalledWith("vault.acme.com");
-      expect(mockClientInstance.needsBootstrap).toHaveBeenCalledWith("vault.acme.com");
-      expect(mockClientInstance.acquireCookie).toHaveBeenCalledTimes(1);
-      expect(next).toHaveBeenCalledTimes(2);
+      expect(mockClientInstance.needsBootstrap).not.toHaveBeenCalled();
+      expect(mockClientInstance.acquireCookie).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(result).toBe(redirect);
     });
 
-    it("retries without acquireCookie on redirect when bootstrap not needed", async () => {
-      const redirect = { status: 302, type: "basic" } as Response;
+    it("retries without acquireCookie on opaqueredirect when bootstrap not needed", async () => {
+      const redirect = { status: 0, type: "opaqueredirect" } as Response;
       const ok = { status: 200, type: "default" } as Response;
       next.mockResolvedValueOnce(redirect).mockResolvedValueOnce(ok);
       mockClientInstance.needsBootstrap.mockResolvedValue(false);
@@ -190,8 +188,8 @@ describe("DefaultServerCommunicationConfigService", () => {
       expect(result).toBe(ok);
     });
 
-    it("returns redirect response without bootstrap when hostname cannot be extracted from URL", async () => {
-      const redirect = { status: 302, type: "basic" } as Response;
+    it("returns opaqueredirect response without bootstrap when hostname cannot be extracted from URL", async () => {
+      const redirect = { status: 0, type: "opaqueredirect" } as Response;
       next.mockResolvedValueOnce(redirect);
       jest.spyOn(Utils, "getHostname").mockReturnValueOnce(null);
 

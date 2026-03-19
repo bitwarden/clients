@@ -89,10 +89,7 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
       const manualRequest = new Request(request.clone(), { redirect: "manual" });
       const response = await next(manualRequest);
 
-      const isRedirect =
-        response.type === "opaqueredirect" || (response.status >= 300 && response.status < 400);
-
-      if (!isRedirect) {
+      if (response.type !== "opaqueredirect") {
         return response;
       }
 
