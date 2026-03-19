@@ -13073,6 +13073,12 @@
       }
     }
   },
+  "sendsTitleNoSearchResults": {
+    "message": "No search results returned"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Clear filters or try another search term"
+  },
   "pastMonth": {
     "message": "Past month"
   },
