@@ -480,6 +480,19 @@ export class AppComponent implements OnInit, OnDestroy {
           case "systemIdle":
             await this.checkForSystemTimeout(VaultTimeoutStringType.OnIdle);
             break;
+          case "showAcquireCookieSpeedbump": {
+            const approved = await this.dialogService.openSimpleDialog({
+              title: { key: "syncWithBrowser" },
+              content: { key: "acquireCookieSpeedbumpContent", placeholders: [message.vaultUrl] },
+              acceptButtonText: { key: "launchBrowser" },
+              cancelButtonText: { key: "later" },
+              type: "warning",
+            });
+            if (approved) {
+              this.platformUtilsService.launchUri(message.connectorUrl);
+            }
+            break;
+          }
           case "openLoginApproval":
             if (this.processingPendingAuthRequests) {
               // If an "openLoginApproval" message is received while we are currently processing other

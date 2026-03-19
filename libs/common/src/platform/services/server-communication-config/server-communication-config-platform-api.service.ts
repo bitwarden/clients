@@ -1,8 +1,11 @@
 import { Subscription } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
+import {
+  CommandDefinition,
+  MessageListener,
+  MessageSender,
+} from "@bitwarden/common/platform/messaging";
 import { AcquiredCookie, ServerCommunicationConfigPlatformApi } from "@bitwarden/sdk-internal";
 
 export const SSO_COOKIE_VENDOR_CALLBACK_COMMAND = new CommandDefinition<{ urlString: string }>(
@@ -16,7 +19,7 @@ export const SSO_COOKIE_VENDOR_CALLBACK_COMMAND = new CommandDefinition<{ urlStr
  * Uses the MessageListener to listen for deep link callbacks from app.component.ts.
  *
  * @remarks
- * - Opens browser via platformUtilsService.launchUri()
+ * - Prompts user to open browser to a specific URL for cookie acquisition
  * - Listens for callbacks via MessageListener subscribing to SSO_COOKIE_VENDOR_CALLBACK_COMMAND
  * - Deduplicates concurrent calls (single in-flight promise)
  * - 5-minute timeout for safety
@@ -40,7 +43,7 @@ export class ServerCommunicationConfigPlatformApiService implements ServerCommun
   private static readonly TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
   constructor(
-    private platformUtilsService: PlatformUtilsService,
+    private messageSender: MessageSender,
     private messageListener: MessageListener,
     private logService: LogService,
   ) {}
@@ -76,11 +79,11 @@ export class ServerCommunicationConfigPlatformApiService implements ServerCommun
 
       this.pendingAcquisition = { hostname: vaultUrl, resolve, timeoutId };
 
-      // Open browser to cookie redirect page
+      // Prompt user to open browser to cookie redirect page
       const normalizedVaultUrl = vaultUrl.startsWith("https://") ? vaultUrl : `https://${vaultUrl}`;
       const url = `${normalizedVaultUrl}/proxy-cookie-redirect-connector.html`;
-      this.logService.info(`Opening browser for cookie acquisition: ${normalizedVaultUrl}`);
-      this.platformUtilsService.launchUri(url);
+      this.logService.info(`Opening browser for cookie acquisition: ${url}`);
+      this.messageSender.send("showAcquireCookieSpeedbump", { vaultUrl, connectorUrl: url });
     });
   }
 
