@@ -214,22 +214,22 @@ export class DefaultRiskOverTimeService extends RiskOverTimeService {
   private getAtRisk(view: AccessReportSummaryView, dataView: TrendWidgetViewType): number {
     switch (dataView) {
       case TrendWidgetViewType.Applications:
-        return view.totalAtRiskApplicationCount;
+        return view.totalCriticalAtRiskApplicationCount;
       case TrendWidgetViewType.Members:
-        return view.totalAtRiskMemberCount;
+        return view.totalCriticalAtRiskMemberCount;
       case TrendWidgetViewType.Passwords:
-        return view.totalAtRiskPasswordCount;
+        return view.totalCriticalAtRiskPasswordCount;
     }
   }
 
   private getTotal(view: AccessReportSummaryView, dataView: TrendWidgetViewType): number {
     switch (dataView) {
       case TrendWidgetViewType.Applications:
-        return view.totalApplicationCount;
+        return view.totalCriticalApplicationCount;
       case TrendWidgetViewType.Members:
-        return view.totalMemberCount;
+        return view.totalCriticalMemberCount;
       case TrendWidgetViewType.Passwords:
-        return view.totalPasswordCount;
+        return view.totalCriticalPasswordCount;
     }
   }
 }
