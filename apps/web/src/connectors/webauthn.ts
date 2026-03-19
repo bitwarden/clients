@@ -1,9 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { b64Decode, buildMobileDeeplinkUriFromParam, getQsParam } from "./common";
+import { b64Decode, buildMobileDeeplinkUriFromParam, getQsParam, navigateToUrl } from "./common";
 import { buildDataString, parseWebauthnJson } from "./common-webauthn";
 
-export const mobileCallbackUri = "bitwarden://webauthn-callback";
+const mobileCallbackUri = "bitwarden://webauthn-callback";
 
 /**
  * Determines the callback URI for mobile deep-link return.
@@ -33,6 +33,7 @@ let btnReturnText: string = null;
 let parentUrl: string = null;
 let parentOrigin: string = null;
 let callbackUri: string = null;
+let mobileResponse = false;
 let stopWebAuthn = false;
 let sentSuccess = false;
 let obj: any = null;
@@ -145,8 +146,8 @@ function parseParametersV2() {
     headerText: string;
     btnText: string;
     btnReturnText: string;
-    mobile?: boolean;
     callbackUri?: string;
+    mobile?: boolean;
   } = null;
   try {
     dataObj = JSON.parse(b64Decode(getQsParam("data")));
@@ -160,6 +161,7 @@ function parseParametersV2() {
   callbackUri = resolveWebauthnCallbackUri(getQsParam("deeplinkScheme"), dataObj, () =>
     buildMobileDeeplinkUriFromParam("webauthn"),
   );
+  mobileResponse = callbackUri != null;
 
   webauthnJson = dataObj.data;
   headerText = dataObj.headerText;
@@ -201,8 +203,8 @@ function start() {
   stopWebAuthn = false;
 
   if (
-    navigator.userAgent.indexOf(" Safari/") !== -1 &&
-    navigator.userAgent.indexOf("Chrome") === -1
+    mobileResponse ||
+    (navigator.userAgent.indexOf(" Safari/") !== -1 && navigator.userAgent.indexOf("Chrome") === -1)
   ) {
     // Safari and mobile chrome blocks non-user initiated WebAuthn requests.
   } else {
@@ -243,7 +245,7 @@ function onMessage() {
 function error(message: string) {
   if (callbackUri) {
     const uri = callbackUri + "?error=" + encodeURIComponent(message);
-    document.location.replace(uri);
+    navigateToUrl(uri);
     returnButton(uri);
   } else if (parentUrl) {
     parent.postMessage("error|" + message, parentUrl);
@@ -260,7 +262,7 @@ function success(assertedCredential: PublicKeyCredential) {
 
   if (callbackUri) {
     const uri = callbackUri + "?data=" + encodeURIComponent(dataString);
-    document.location.replace(uri);
+    navigateToUrl(uri);
     returnButton(uri);
   } else if (parentUrl) {
     parent.postMessage("success|" + dataString, parentUrl);
@@ -269,7 +271,7 @@ function success(assertedCredential: PublicKeyCredential) {
 }
 
 function info(message: string) {
-  if (!parentUrl) {
+  if (mobileResponse || !parentUrl) {
     return;
   }
 
@@ -281,6 +283,6 @@ function returnButton(uri: string) {
   const button = document.getElementById("webauthn-button");
   button.innerText = decodeURI(btnReturnText);
   button.onclick = () => {
-    document.location.replace(uri);
+    navigateToUrl(uri);
   };
 }

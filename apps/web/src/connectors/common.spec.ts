@@ -38,8 +38,6 @@ describe("common connector utilities", () => {
     });
 
     it("handles spaceAsPlus replacement", () => {
-      // When the base64 string contains spaces where + should be,
-      // spaceAsPlus converts them back before decoding
       const original = btoa("test");
       const withSpaces = original.replace(/\+/g, " ");
       expect(b64Decode(withSpaces, true)).toBe("test");

@@ -29,6 +29,11 @@ export function b64Decode(str: string, spaceAsPlus = false) {
   );
 }
 
+/** Thin wrapper around document.location.replace for testability (jsdom cannot mock it). */
+export function navigateToUrl(uri: string) {
+  document.location.replace(uri);
+}
+
 function appLinkHost(): string {
   const hostName = window.location.hostname || "";
   if (hostName.endsWith("bitwarden.eu")) {
