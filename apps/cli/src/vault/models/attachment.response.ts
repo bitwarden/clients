@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 
 export class AttachmentResponse {

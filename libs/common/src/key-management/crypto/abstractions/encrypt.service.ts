@@ -162,13 +162,6 @@ export abstract class EncryptService {
   ): Promise<SymmetricCryptoKey>;
 
   /**
-   * @deprecated Use @see {@link decapsulateKeyUnsigned} instead
-   * @param data - The ciphertext to decrypt
-   * @param privateKey - The privateKey to decrypt with
-   */
-  abstract rsaDecrypt(data: EncString, privateKey: Uint8Array): Promise<Uint8Array>;
-
-  /**
    * Generates a base64-encoded hash of the given value
    * @param value The value to hash
    * @param algorithm The hashing algorithm to use

@@ -28,6 +28,7 @@ import { TaskService, SecurityTask } from "@bitwarden/common/vault/tasks";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { NotificationType } from "../enums/notification-type.enum";
+import { Fido2Background } from "../fido2/background/abstractions/fido2.background";
 import { FormData } from "../services/abstractions/autofill.service";
 import AutofillService from "../services/autofill.service";
 import { createAutofillPageDetailsMock, createChromeTabMock } from "../spec/autofill-mocks";
@@ -81,6 +82,8 @@ describe("NotificationBackground", () => {
   const configService = mock<ConfigService>();
   const accountService = mock<AccountService>();
   const organizationService = mock<OrganizationService>();
+  const fido2Background = mock<Fido2Background>();
+  fido2Background.isCredentialRequestInProgress.mockReturnValue(false);
 
   const userId = "testId" as UserId;
   const activeAccountSubject = new BehaviorSubject({
@@ -115,6 +118,7 @@ describe("NotificationBackground", () => {
       userNotificationSettingsService,
       taskService,
       messagingService,
+      fido2Background,
     );
   });
 
@@ -249,10 +253,16 @@ describe("NotificationBackground", () => {
       });
 
       it("triggers a retryHandler if the message target is `notification.background` and a handler exists", async () => {
+        const retrySender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1 } as chrome.tabs.Tab,
+        });
         const message: NotificationBackgroundExtensionMessage = {
           command: "unlockCompleted",
           data: {
-            commandToRetry: { message: { command: "bgSaveCipher" } },
+            commandToRetry: {
+              message: { command: "bgSaveCipher" },
+              sender: retrySender,
+            },
             target: "notification.background",
           } as LockedVaultPendingNotificationsData,
         };
@@ -759,7 +769,6 @@ describe("NotificationBackground", () => {
           notificationBackground as any,
           "getEnableChangedPasswordPrompt",
         );
-
         pushChangePasswordToQueueSpy = jest.spyOn(
           notificationBackground as any,
           "pushChangePasswordToQueue",
@@ -816,6 +825,22 @@ describe("NotificationBackground", () => {
 
         activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce(storedCiphersForURL);
+
+        await notificationBackground.triggerCipherNotification(formEntryData, tab);
+
+        expectSkippedCheckingNotification();
+      });
+
+      it("skips checking if a notification should trigger if a fido2 credential request is in progress for the tab", async () => {
+        const formEntryData: ModifyLoginCipherFormData = {
+          newPassword: "",
+          password: "",
+          uri: mockFormURI,
+          username: "ADent",
+        };
+
+        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+        fido2Background.isCredentialRequestInProgress.mockReturnValueOnce(true);
 
         await notificationBackground.triggerCipherNotification(formEntryData, tab);
 
@@ -2745,7 +2770,7 @@ describe("NotificationBackground", () => {
 
           expect(convertAddLoginQueueMessageToCipherViewSpy).toHaveBeenCalledWith(
             queueMessage,
-            null,
+            undefined,
           );
           expect(createWithServerSpy).toHaveBeenCalled();
           expect(tabSendMessageDataSpy).toHaveBeenCalledWith(

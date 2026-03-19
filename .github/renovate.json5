@@ -9,7 +9,6 @@
       groupName: "Minor github-actions updates",
       matchManagers: ["github-actions"],
       matchUpdateTypes: ["minor"],
-      addLabels: ["hold"],
     },
     {
       // Enable support for Rust toolchain updates.
@@ -100,6 +99,12 @@
       description: "Autofill owned dependencies",
       commitMessagePrefix: "[deps] Autofill:",
       reviewers: ["team:team-autofill-dev"],
+    },
+    {
+      matchPackageNames: ["mockall"],
+      description: "Autofill-Desktop owned dependencies",
+      commitMessagePrefix: "[deps] Autofill-Desktop:",
+      reviewers: ["team:team-autofill-desktop-dev"],
     },
     {
       matchPackageNames: ["braintree-web-drop-in"],
@@ -354,6 +359,12 @@
       description: "Key Management owned dependencies",
       commitMessagePrefix: "[deps] KM:",
       reviewers: ["team:team-key-management-dev"],
+    },
+    {
+      matchPackageNames: ["chart.js", "chartjs-adapter-date-fns"],
+      description: "DIRT owned dependencies",
+      commitMessagePrefix: "[deps] DIRT:",
+      reviewers: ["team:team-data-insights-and-reporting-dev"],
     },
 
     // ==================== Grouping Rules ====================

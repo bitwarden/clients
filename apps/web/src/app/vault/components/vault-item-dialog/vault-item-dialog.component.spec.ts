@@ -7,11 +7,11 @@ import { of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -86,7 +86,6 @@ describe("VaultItemDialogComponent", () => {
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: DIALOG_DATA, useValue: { ...baseParams } },
         { provide: DialogRef, useValue: {} },
-        { provide: DialogService, useValue: {} },
         {
           provide: ToastService,
           useValue: {
@@ -173,7 +172,9 @@ describe("VaultItemDialogComponent", () => {
         { provide: SyncService, useValue: {} },
         { provide: CipherRiskService, useValue: {} },
       ],
-    }).compileComponents();
+    })
+      .overrideProvider(DialogService, { useValue: {} })
+      .compileComponents();
 
     fixture = TestBed.createComponent(TestVaultItemDialogComponent);
     component = fixture.componentInstance;
@@ -371,6 +372,29 @@ describe("VaultItemDialogComponent", () => {
         expect(text).toBe("save");
         done();
       });
+    });
+  });
+
+  describe("disableEdit", () => {
+    it("returns false when formConfig mode is partial-edit even if canEdit is false", () => {
+      component["canEdit"] = false;
+      component.setTestFormConfig({ ...baseFormConfig, mode: "partial-edit" });
+
+      expect(component["disableEdit"]).toBe(false);
+    });
+
+    it("returns true when canEdit is false and formConfig mode is not partial-edit", () => {
+      component["canEdit"] = false;
+      component.setTestFormConfig({ ...baseFormConfig, mode: "edit" });
+
+      expect(component["disableEdit"]).toBe(true);
+    });
+
+    it("returns false when canEdit is true regardless of formConfig mode", () => {
+      component["canEdit"] = true;
+      component.setTestFormConfig({ ...baseFormConfig, mode: "edit" });
+
+      expect(component["disableEdit"]).toBe(false);
     });
   });
 

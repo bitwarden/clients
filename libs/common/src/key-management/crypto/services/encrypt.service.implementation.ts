@@ -219,24 +219,4 @@ export class EncryptServiceImplementation implements EncryptService {
     );
     return new SymmetricCryptoKey(keyBytes);
   }
-
-  async rsaDecrypt(data: EncString, privateKey: Uint8Array): Promise<Uint8Array> {
-    if (data == null) {
-      throw new Error("[Encrypt service] rsaDecrypt: No data provided for decryption.");
-    }
-
-    switch (data.encryptionType) {
-      case EncryptionType.Rsa2048_OaepSha1_B64:
-      case EncryptionType.Rsa2048_OaepSha1_HmacSha256_B64:
-        break;
-      default:
-        throw new Error("Invalid encryption type.");
-    }
-
-    if (privateKey == null) {
-      throw new Error("[Encrypt service] rsaDecrypt: No private key provided for decryption.");
-    }
-
-    return this.cryptoFunctionService.rsaDecrypt(data.dataBytes, privateKey, "sha1");
-  }
 }

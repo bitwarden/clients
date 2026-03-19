@@ -132,12 +132,15 @@ describe("Send", () => {
     encryptService.decryptBytes
       .calledWith(send.key, userKey)
       .mockResolvedValue(makeStaticByteArray(32));
-    encryptService.decryptString
-      .calledWith(send.name, "cryptoKey" as any)
-      .mockResolvedValue("name");
-    encryptService.decryptString
-      .calledWith(send.notes, "cryptoKey" as any)
-      .mockResolvedValue("notes");
+    encryptService.decryptString.mockImplementation((encString: any) => {
+      if (encString === send.name) {
+        return Promise.resolve("name");
+      }
+      if (encString === send.notes) {
+        return Promise.resolve("notes");
+      }
+      return Promise.resolve(null);
+    });
     keyService.makeSendKey.mockResolvedValue("cryptoKey" as any);
     keyService.userKey$.calledWith(userId).mockReturnValue(of(userKey));
 
@@ -146,6 +149,7 @@ describe("Send", () => {
     const view = await send.decrypt(userId);
 
     expect(text.decrypt).toHaveBeenNthCalledWith(1, "cryptoKey");
+    expect(encryptService.decryptString).toHaveBeenNthCalledWith(1, send.name, "cryptoKey");
 
     expect(view).toMatchObject({
       id: "id",

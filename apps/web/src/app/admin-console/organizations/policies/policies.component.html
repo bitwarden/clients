@@ -18,7 +18,7 @@
         @for (p of policies$ | async | policyOrder; track $index) {
           @if (p.display$(organization, configService) | async) {
             <tr bitRow>
-              <td bitCell ngPreserveWhitespaces>
+              <td bitCell>
                 <div class="tw-flex tw-items-center tw-gap-2">
                   <button type="button" bitLink (click)="edit(p, organizationId)">
                     {{ p.name | i18n }}

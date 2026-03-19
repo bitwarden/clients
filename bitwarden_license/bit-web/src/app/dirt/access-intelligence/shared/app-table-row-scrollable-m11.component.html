@@ -33,7 +33,7 @@
           bitCheckbox
           type="checkbox"
           [checked]="selectedUrls().has(row.applicationName)"
-          (change)="checkboxChange()(row.applicationName, $event)"
+          (change)="checkboxChanged($event.target, row.applicationName)"
         />
       </td>
       <td

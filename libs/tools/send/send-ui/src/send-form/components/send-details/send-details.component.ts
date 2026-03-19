@@ -11,7 +11,7 @@ import {
   ValidatorFn,
   ValidationErrors,
 } from "@angular/forms";
-import { firstValueFrom, BehaviorSubject, combineLatest, map, switchMap, tap } from "rxjs";
+import { firstValueFrom, combineLatest, map, switchMap, tap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -21,7 +21,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { pin } from "@bitwarden/common/tools/rx";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
@@ -40,9 +39,9 @@ import {
   ToastService,
   DialogService,
 } from "@bitwarden/components";
-import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/generator-core";
+import { CredentialGeneratorService } from "@bitwarden/generator-core";
+import { SendFormConfig, SendFormGenerationService } from "@bitwarden/send-ui";
 
-import { SendFormConfig } from "../../abstractions/send-form-config.service";
 import { SendFormContainer } from "../../send-form-container";
 import { SendOptionsComponent } from "../options/send-options.component";
 
@@ -182,6 +181,7 @@ export class SendDetailsComponent implements OnInit {
     private sendApiService: SendApiService,
     private dialogService: DialogService,
     private toastService: ToastService,
+    private sendFormGenerationService: SendFormGenerationService,
   ) {
     this.sendDetailsForm.valueChanges
       .pipe(
@@ -224,7 +224,10 @@ export class SendDetailsComponent implements OnInit {
         } else if (type === AuthType.Email) {
           passwordControl.setValue(null);
           passwordControl.clearValidators();
-          emailsControl.setValidators([Validators.required, this.emailListValidator()]);
+          emailsControl.setValidators([
+            this.emailsRequiredForEmailAuthValidator(),
+            this.emailListValidator(),
+          ]);
         } else {
           emailsControl.setValue(null);
           emailsControl.clearValidators();
@@ -317,18 +320,31 @@ export class SendDetailsComponent implements OnInit {
     };
   }
 
-  generatePassword = async () => {
-    const on$ = new BehaviorSubject<GenerateRequest>({ source: "send", type: Type.password });
-    const account$ = this.accountService.activeAccount$.pipe(
-      pin({ name: () => "send-details.component", distinct: (p, c) => p.id === c.id }),
-    );
-    const generatedCredential = await firstValueFrom(
-      this.generatorService.generate$({ on$, account$ }),
-    );
+  emailsRequiredForEmailAuthValidator(): ValidatorFn {
+    return (control: FormControl): ValidationErrors | null => {
+      const authType = this.sendDetailsForm?.get("authType")?.value;
+      const emails = control.value;
 
-    this.sendDetailsForm.patchValue({
-      password: generatedCredential.credential,
-    });
+      if (authType === AuthType.Email && (!emails || emails.trim() === "")) {
+        return {
+          emailsRequiredForEmailAuth: {
+            message: this.i18nService.t("emailsRequiredChangeAccessType"),
+          },
+        };
+      }
+
+      return null;
+    };
+  }
+
+  generatePassword = async () => {
+    const generatedValue = await this.sendFormGenerationService.generatePassword();
+
+    if (generatedValue) {
+      this.sendDetailsForm.patchValue({
+        password: generatedValue,
+      });
+    }
   };
 
   removePassword = async () => {

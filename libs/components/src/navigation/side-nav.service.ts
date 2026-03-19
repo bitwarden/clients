@@ -1,12 +1,10 @@
-import { computed, effect, inject, Injectable, signal } from "@angular/core";
+import { computed, inject, Injectable, signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, Observable, fromEvent, map, startWith, debounceTime, first } from "rxjs";
 
 import { BIT_SIDE_NAV_DISK, GlobalStateProvider, KeyDefinition } from "@bitwarden/state";
 
-import { BREAKPOINTS, isAtOrLargerThanBreakpoint } from "../utils/responsive-utils";
-
-type CollapsePreference = "open" | "closed" | null;
+import { getRootFontSizePx } from "../shared";
 
 const BIT_SIDE_NAV_WIDTH_KEY_DEF = new KeyDefinition<number>(BIT_SIDE_NAV_DISK, "side-nav-width", {
   deserializer: (s) => s,
@@ -26,14 +24,24 @@ export class SideNavService {
   /**
    * Whether the side navigation is open or closed.
    */
-  readonly open = signal(isAtOrLargerThanBreakpoint("md"));
+  readonly open = signal(false);
 
-  private isLargeScreen$ = media(`(min-width: ${BREAKPOINTS.md}px)`);
-  readonly isLargeScreen = toSignal(this.isLargeScreen$, { requireSync: true });
+  /**
+   * Whether the nav is in push mode (occupies its own grid column).
+   * Set by LayoutComponent via ResizeObserver.
+   */
+  readonly isPushMode = signal(false);
 
-  readonly userCollapsePreference = signal<CollapsePreference>(null);
+  /**
+   * True when the nav is open but not in push mode — it overlays the content.
+   */
+  readonly isOverlay = computed(() => this.open() && !this.isPushMode());
 
-  readonly isOverlay = computed(() => this.open() && !this.isLargeScreen());
+  /**
+   * Explicit user preference for open/closed state, set when the user manually
+   * toggles the nav. Null means no preference (auto-open when push mode allows).
+   */
+  readonly userCollapsePreference = signal<"open" | "closed" | null>(null);
 
   /**
    * Local component state width
@@ -42,6 +50,9 @@ export class SideNavService {
    */
   private readonly _width$ = new BehaviorSubject<number>(this.DEFAULT_OPEN_WIDTH);
   readonly width$ = this._width$.asObservable();
+
+  /** Current nav width as a signal, for use in grid column calculations. */
+  readonly widthRem = toSignal(this.width$, { initialValue: this.DEFAULT_OPEN_WIDTH });
 
   /**
    * State provider width
@@ -56,17 +67,7 @@ export class SideNavService {
 
   constructor() {
     // Get computed root font size to support user-defined a11y font increases
-    this.rootFontSizePx = parseFloat(getComputedStyle(document.documentElement).fontSize || "16");
-
-    // Handle open/close state
-    effect(() => {
-      if (!this.isLargeScreen()) {
-        this.open.set(false);
-      } else if (this.userCollapsePreference() !== "closed") {
-        // Auto-open when user hasn't set preference (null) or prefers open
-        this.open.set(true);
-      }
-    });
+    this.rootFontSizePx = getRootFontSizePx();
 
     // Initialize the resizable width from state provider
     this.widthState$.pipe(first()).subscribe((width: number) => {
@@ -83,9 +84,7 @@ export class SideNavService {
    * Toggle the open/close state of the side nav
    */
   toggle() {
-    // Store user's preference based on what state they're toggling TO
     this.userCollapsePreference.set(this.open() ? "closed" : "open");
-
     this.open.set(!this.open());
   }
 

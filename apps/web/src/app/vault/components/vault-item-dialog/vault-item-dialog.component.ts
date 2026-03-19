@@ -18,13 +18,12 @@ import { map } from "rxjs/operators";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -55,6 +54,7 @@ import {
 import {
   AttachmentDialogCloseResult,
   AttachmentDialogResult,
+  AttachmentsDialogParams,
   AttachmentsV2Component,
   ChangeLoginPasswordService,
   CipherFormComponent,
@@ -273,7 +273,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   protected get disableEdit() {
-    return !this.canEdit;
+    return !this.canEdit && this.formConfig.mode !== "partial-edit";
   }
 
   protected get showEdit() {
@@ -396,7 +396,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       );
 
       // If user cannot edit and dialog opened in form mode, force to view mode
-      if (!this.canEdit && this.params.mode === "form") {
+      if (!this.canEdit && this.formConfig.mode !== "partial-edit" && this.params.mode === "form") {
         this.params.mode = "view";
         this.loadForm = false;
         this.updateTitle();
@@ -525,16 +525,17 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const dialogRef = this.dialogService.open<
-      AttachmentDialogCloseResult,
-      { cipherId: CipherId; organizationId?: OrganizationId; canEditCipher?: boolean }
-    >(AttachmentsV2Component, {
-      data: {
-        cipherId: this.formConfig.originalCipher?.id as CipherId,
-        organizationId: this.formConfig.originalCipher?.organizationId as OrganizationId,
-        canEditCipher: this.formConfig.originalCipher?.edit,
+    const dialogRef = this.dialogService.open<AttachmentDialogCloseResult, AttachmentsDialogParams>(
+      AttachmentsV2Component,
+      {
+        data: {
+          cipherId: this.formConfig.originalCipher?.id as CipherId,
+          organizationId: this.formConfig.originalCipher?.organizationId as OrganizationId,
+          canEditCipher: this.formConfig.originalCipher?.edit,
+          admin: this.formConfig.admin,
+        },
       },
-    });
+    );
 
     const result = await firstValueFrom(dialogRef.closed);
 

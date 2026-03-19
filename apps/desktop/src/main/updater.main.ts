@@ -1,10 +1,14 @@
-import { dialog, shell, Notification } from "electron";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { dialog, Notification } from "electron";
 import log from "electron-log";
 import { autoUpdater, UpdateDownloadedEvent, VerifyUpdateSupport } from "electron-updater";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 import { LogService } from "@bitwarden/logging";
 
+import { SafeShell } from "../platform/main/safe-shell.main";
 import { isAppImage, isDev, isMacAppStore, isWindowsPortable, isWindowsStore } from "../utils";
 
 import { WindowMain } from "./window.main";
@@ -35,6 +39,7 @@ export class UpdaterMain {
     private i18nService: I18nService,
     private logService: LogService,
     private windowMain: WindowMain,
+    private shell: SafeShell,
   ) {
     autoUpdater.logger = log;
 
@@ -134,7 +139,10 @@ export class UpdaterMain {
 
     if (!this.canUpdate) {
       if (withFeedback) {
-        void shell.openExternal("https://github.com/bitwarden/clients/releases");
+        void this.shell.openExternal(
+          "https://github.com/bitwarden/clients/releases",
+          UrlType.WebUrl,
+        );
       }
 
       return;

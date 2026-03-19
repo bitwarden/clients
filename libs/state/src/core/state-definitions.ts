@@ -137,6 +137,10 @@ export const EXTENSION_INITIAL_INSTALL_DISK = new StateDefinition(
 export const WEB_PUSH_SUBSCRIPTION = new StateDefinition("webPushSubscription", "disk", {
   web: "disk-local",
 });
+export const SERVER_COMMUNICATION_CONFIG_DISK = new StateDefinition(
+  "serverCommunicationConfig",
+  "disk",
+);
 
 // Design System
 
@@ -212,11 +216,25 @@ export const SETUP_EXTENSION_DISMISSED_DISK = new StateDefinition(
     web: "disk-local",
   },
 );
+export const VAULT_WELCOME_DIALOG_DISK = new StateDefinition("vaultWelcomeDialog", "disk", {
+  web: "disk-local",
+});
 export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
   "vaultBrowserIntroCarousel",
   "disk",
 );
+export const VAULT_AUTOFILL_SIMPLIFIED_ICON = new StateDefinition(
+  "vaultAutofillSimplifiedIcon",
+  "disk",
+);
 export const VAULT_AT_RISK_PASSWORDS_MEMORY = new StateDefinition("vaultAtRiskPasswords", "memory");
+export const WELCOME_EXTENSION_DIALOG_DISK = new StateDefinition(
+  "vaultWelcomeExtensionDialogDismissed",
+  "disk",
+  {
+    web: "disk-local",
+  },
+);
 
 // KM
 

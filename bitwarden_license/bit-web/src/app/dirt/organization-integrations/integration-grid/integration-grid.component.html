@@ -1,10 +1,10 @@
 <ul
   class="tw-inline-grid tw-grid-cols-3 tw-gap-6 tw-m-0 tw-p-0 tw-w-full tw-auto-cols-auto tw-list-none lg:tw-grid-cols-4 lg:tw-gap-10 lg:tw-w-auto"
 >
-  @for (integration of integrations; track integration) {
+  @for (integration of integrations(); track integration) {
     <li
-      [title]="tooltipI18nKey | i18n: integration.name"
-      [attr.aria-label]="ariaI18nKey | i18n: integration.name"
+      [title]="tooltipI18nKey() | i18n: integration.name"
+      [attr.aria-label]="ariaI18nKey() | i18n: integration.name"
     >
       <app-integration-card
         [name]="integration.name"

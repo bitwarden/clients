@@ -25,8 +25,8 @@
         buttonType="primary"
         (click)="invite(organization)"
         [disabled]="!firstLoaded()"
+        startIcon="bwi-plus"
       >
-        <i class="bwi bwi-plus bwi-fw tw-me-2" aria-hidden="true"></i>
         {{ "inviteMember" | i18n }}
       </button>
     }

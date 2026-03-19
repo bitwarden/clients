@@ -2,7 +2,6 @@ import { inject, Injectable, NgZone } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
-  concatMap,
   distinctUntilChanged,
   distinctUntilKeyChanged,
   filter,
@@ -243,30 +242,11 @@ export class VaultPopupItemsService {
   );
 
   /**
-   * List of all remaining ciphers that are not currently suggested for autofill or marked as favorite.
-   * Ciphers are sorted by name.
-   */
-  remainingCiphers$: Observable<PopupCipherViewLike[]> = this.favoriteCiphers$.pipe(
-    concatMap(
-      (
-        favoriteCiphers, // concatMap->of is used to make withLatestFrom lazy to avoid race conditions with autoFillCiphers$
-      ) =>
-        of(favoriteCiphers).pipe(withLatestFrom(this._filteredCipherList$, this.autoFillCiphers$)),
-    ),
-    map(([favoriteCiphers, ciphers, autoFillCiphers]) =>
-      ciphers.filter(
-        (cipher) => !autoFillCiphers.includes(cipher) && !favoriteCiphers.includes(cipher),
-      ),
-    ),
-    shareReplay({ refCount: false, bufferSize: 1 }),
-  );
-
-  /**
    * Observable that indicates whether the service is currently loading ciphers.
    */
   loading$: Observable<boolean> = merge(
     this._ciphersLoading$.pipe(map(() => true)),
-    this.remainingCiphers$.pipe(map(() => false)),
+    this.favoriteCiphers$.pipe(map(() => false)),
   ).pipe(startWith(true), distinctUntilChanged(), shareReplay({ refCount: false, bufferSize: 1 }));
 
   /** Observable that indicates whether there is search text present.
