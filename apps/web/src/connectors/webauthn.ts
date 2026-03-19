@@ -3,7 +3,26 @@
 import { b64Decode, buildMobileDeeplinkUriFromParam, getQsParam } from "./common";
 import { buildDataString, parseWebauthnJson } from "./common-webauthn";
 
-const mobileCallbackUri = "bitwarden://webauthn-callback";
+export const mobileCallbackUri = "bitwarden://webauthn-callback";
+
+/**
+ * Determines the callback URI for mobile deep-link return.
+ *
+ * Priority: 1) deeplinkScheme query param, 2) mobile flag, 3) legacy callbackUri signal from data.
+ * The dataObj.callbackUri value is intentionally never used as the URI — only its presence
+ * signals a mobile flow. This prevents client-supplied payloads from governing the redirect target.
+ */
+export function resolveWebauthnCallbackUri(
+  deeplinkScheme: string | null,
+  dataObj: { mobile?: boolean; callbackUri?: string },
+  buildDeeplink: () => string,
+): string | null {
+  if (deeplinkScheme) {
+    return buildDeeplink();
+  }
+  const isMobileFlow = dataObj.mobile === true || dataObj.callbackUri != null;
+  return isMobileFlow ? mobileCallbackUri : null;
+}
 
 let parsed = false;
 let webauthnJson: any;
@@ -72,7 +91,7 @@ function setAwaitingInteractionWebAuthnButtonState() {
   button.classList.add(...disabledBtnClasses);
 }
 
-function init() {
+export function init() {
   start();
   onMessage();
   info("ready");
@@ -127,6 +146,7 @@ function parseParametersV2() {
     btnText: string;
     btnReturnText: string;
     mobile?: boolean;
+    callbackUri?: string;
   } = null;
   try {
     dataObj = JSON.parse(b64Decode(getQsParam("data")));
@@ -137,14 +157,9 @@ function parseParametersV2() {
     return;
   }
 
-  // Determine callback URI for mobile deep-link return
-  // Priority: 1) deeplinkScheme query param, 2) mobile flag with hardcoded URI
-  const deeplinkScheme = getQsParam("deeplinkScheme");
-  if (deeplinkScheme) {
-    callbackUri = buildMobileDeeplinkUriFromParam("webauthn");
-  } else if (dataObj.mobile === true) {
-    callbackUri = mobileCallbackUri;
-  }
+  callbackUri = resolveWebauthnCallbackUri(getQsParam("deeplinkScheme"), dataObj, () =>
+    buildMobileDeeplinkUriFromParam("webauthn"),
+  );
 
   webauthnJson = dataObj.data;
   headerText = dataObj.headerText;
