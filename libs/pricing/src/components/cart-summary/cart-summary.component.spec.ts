@@ -752,6 +752,55 @@ describe("CartSummaryComponent", () => {
     });
   });
 
+  describe("Discount Badge Visibility", () => {
+    it("should not render discount badges by default", () => {
+      // Arrange
+      const cartWithDiscounts: Cart = {
+        ...mockCart,
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 20,
+          },
+        ],
+      };
+      fixture.componentRef.setInput("cart", cartWithDiscounts);
+      fixture.detectChanges();
+
+      // Act
+      const badges = fixture.debugElement.queryAll(By.css("billing-discount-badge"));
+
+      // Assert
+      expect(badges.length).toBe(0);
+    });
+
+    it("should render discount badges when showDiscountBadges is true", () => {
+      // Arrange
+      const cartWithDiscounts: Cart = {
+        ...mockCart,
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 20,
+          },
+          {
+            type: DiscountTypes.AmountOff,
+            value: 10,
+          },
+        ],
+      };
+      fixture.componentRef.setInput("cart", cartWithDiscounts);
+      fixture.componentRef.setInput("showDiscountBadges", true);
+      fixture.detectChanges();
+
+      // Act
+      const badges = fixture.debugElement.queryAll(By.css("billing-discount-badge"));
+
+      // Assert
+      expect(badges.length).toBe(2);
+    });
+  });
+
   describe("Credit Display", () => {
     it("should not display credit section when no credit is present", () => {
       // Arrange / Act

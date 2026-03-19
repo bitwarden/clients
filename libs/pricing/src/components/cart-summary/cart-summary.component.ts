@@ -48,6 +48,9 @@ export class CartSummaryComponent {
   // Hide pricing term (e.g., "/ month" or "/ year") if true
   readonly hidePricingTerm = input<boolean>(false);
 
+  // Show discount badge chips next to the header total; use in checkout flows only
+  readonly showDiscountBadges = input<boolean>(false);
+
   // UI state
   readonly isExpanded = signal(true);
 

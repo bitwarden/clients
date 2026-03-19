@@ -318,6 +318,7 @@ export const WithPercentDiscount: Story = {
       ],
       estimatedTax: 10.4,
     } satisfies Cart,
+    showDiscountBadges: true,
   },
 };
 
@@ -347,6 +348,7 @@ export const WithAmountDiscount: Story = {
       ],
       estimatedTax: 95.0,
     } satisfies Cart,
+    showDiscountBadges: true,
   },
 };
 
@@ -438,6 +440,7 @@ export const WithDiscountAndCredit: Story = {
       },
       estimatedTax: 15.0,
     } satisfies Cart,
+    showDiscountBadges: true,
   },
 };
 
@@ -464,6 +467,17 @@ export const WithItemDiscount: Story = {
 
 export const WithCartAndItemDiscount: Story = {
   name: "With Both Cart-Level and Item-Level Discounts",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Represents the **membership card (post-purchase)** view. " +
+          "The item-level discount renders inline under its line item. " +
+          "The cart-level discount badge is intentionally hidden (`showDiscountBadges` defaults to `false`) " +
+          "because post-purchase the user's concern is billing amount and date, not promotional persuasion.",
+      },
+    },
+  },
   args: {
     cart: {
       passwordManager: {
@@ -523,6 +537,7 @@ export const WithMultipleDiscounts: Story = {
       ],
       estimatedTax: 8.64,
     } satisfies Cart,
+    showDiscountBadges: true,
   },
 };
 

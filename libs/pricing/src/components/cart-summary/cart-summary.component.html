@@ -34,8 +34,10 @@
       data-testid="toggle-purchase-summary-details"
     ></button>
 
-    @for (discount of cart.discounts; track discount) {
-      <billing-discount-badge class="tw-mr-1" [discount]="discount"></billing-discount-badge>
+    @if (showDiscountBadges()) {
+      @for (discount of cart.discounts; track discount) {
+        <billing-discount-badge class="tw-mr-1" [discount]="discount"></billing-discount-badge>
+      }
     }
   </div>
 

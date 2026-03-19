@@ -58,11 +58,12 @@ import { CartSummaryComponent, Cart } from "@bitwarden/pricing";
 
 ### Inputs
 
-| Input             | Type                     | Description                                                                                 |
-| ----------------- | ------------------------ | ------------------------------------------------------------------------------------------- |
-| `cart`            | `Cart`                   | **Required.** The cart data containing all products, discount, tax, and cadence             |
-| `header`          | `TemplateRef<{ total }>` | **Optional.** Custom header template to replace the default header                          |
-| `hidePricingTerm` | `boolean`                | **Optional.** When true, hides the billing term (e.g., "/ month", "/ year") from the header |
+| Input                | Type                     | Description                                                                                                                   |
+| -------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `cart`               | `Cart`                   | **Required.** The cart data containing all products, discount, tax, and cadence                                               |
+| `header`             | `TemplateRef<{ total }>` | **Optional.** Custom header template to replace the default header                                                            |
+| `hidePricingTerm`    | `boolean`                | **Optional.** When true, hides the billing term (e.g., "/ month", "/ year") from the header                                   |
+| `showDiscountBadges` | `boolean`                | **Optional.** When true, renders discount badge chips next to the header total. Use in checkout flows only. Default: `false`. |
 
 **Note:** Individual `CartItem` objects in the cart can include:
 
