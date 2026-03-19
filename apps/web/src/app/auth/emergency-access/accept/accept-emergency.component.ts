@@ -42,7 +42,7 @@ export class AcceptEmergencyComponent extends BaseAcceptComponent {
   }
 
   async authedHandler(qParams: Params): Promise<void> {
-    const qParamsValidated = this.validateParams(qParams);
+    const qParamsValidated = this.validateIdParam(qParams);
     if (!qParamsValidated) {
       await this.handleInvalidInvite();
       return;
@@ -62,18 +62,17 @@ export class AcceptEmergencyComponent extends BaseAcceptComponent {
   }
 
   async unauthedHandler(qParams: Params): Promise<void> {
+    const idParamValidated = this.validateIdParam(qParams);
+    if (!idParamValidated) {
+      await this.handleInvalidInvite();
+      return;
+    }
+
     this.name = qParams.name;
     if (this.name != null) {
       // Fix URL encoding of space issue with Angular
       this.name = this.name.replace(/\+/g, " ");
     }
-
-    const qParamsValidated = this.validateParams(qParams);
-    if (!qParamsValidated) {
-      await this.handleInvalidInvite();
-      return;
-    }
-
     this.emergencyAccessId = qParams.id;
     this.acceptEmergencyAccessInviteToken = qParams.token;
   }
@@ -90,12 +89,8 @@ export class AcceptEmergencyComponent extends BaseAcceptComponent {
     });
   }
 
-  private validateParams(qParams: Params): boolean {
-    if (!isId(qParams.id)) {
-      return false;
-    }
-
-    return true;
+  private validateIdParam(qParams: Params): boolean {
+    return isId(qParams.id);
   }
 
   private async handleInvalidInvite(): Promise<void> {
