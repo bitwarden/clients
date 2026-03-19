@@ -131,24 +131,26 @@ describe("Messenger", () => {
       send({ ports: [] as any });
       expect(handlerB.receive()).toHaveLength(0);
     });
-  it("should ignore messages when event.isTrusted is false", () => {
-    let listener!: (e: MessageEvent<MessageWithMetadata>) => void;
-    const channel: Channel = {
-      addEventListener: (l) => (listener = l),
-      removeEventListener: () => {},
-      postMessage: () => {},
-    };
-    messengerB = new Messenger(channel);
-    messengerB.handler = handlerB.handler;
 
-    const event = new MessageEvent<MessageWithMetadata>("message", {
-      data: { ...createRequest(), SENDER: "bitwarden-webauthn", senderId: "other" },
-      origin: "https://bitwarden.com",
-      ports: [],
+    it("should ignore messages when event.isTrusted is false", () => {
+      let listener!: (e: MessageEvent<MessageWithMetadata>) => void;
+      const channel: Channel = {
+        addEventListener: (l) => (listener = l),
+        removeEventListener: () => {},
+        postMessage: () => {},
+      };
+      messengerB = new Messenger(channel);
+      messengerB.handler = handlerB.handler;
+
+      const event = new MessageEvent<MessageWithMetadata>("message", {
+        data: { ...createRequest(), SENDER: "bitwarden-webauthn", senderId: "other" },
+        origin: "https://bitwarden.com",
+        ports: [],
+      });
+      listener(event);
+
+      expect(handlerB.receive()).toHaveLength(0);
     });
-    listener(event);
-
-    expect(handlerB.receive()).toHaveLength(0);
   });
 
   describe("destroy", () => {
