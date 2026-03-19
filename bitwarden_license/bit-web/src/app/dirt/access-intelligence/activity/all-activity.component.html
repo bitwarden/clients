@@ -16,9 +16,6 @@
       </li>
       <li class="tw-col-span-1 md:tw-col-span-2 lg:tw-col-span-1">
         <div class="tw-flex tw-flex-col tw-gap-6">
-          <dirt-password-change-metric
-            [organizationId]="this.organizationId()"
-          ></dirt-password-change-metric>
           <dirt-activity-card
             [title]="'atRiskMembers' | i18n"
             [cardMetrics]="'membersAtRiskCount' | i18n: totalCriticalAppsAtRiskMemberCount"
@@ -28,6 +25,9 @@
             (actionClick)="onViewAtRiskMembers()"
           >
           </dirt-activity-card>
+          <dirt-password-change-metric
+            [organizationId]="this.organizationId()"
+          ></dirt-password-change-metric>
         </div>
       </li>
     } @else {
