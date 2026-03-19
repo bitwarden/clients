@@ -599,19 +599,7 @@ jobs:
 
       - name: Verify helper exe thumbprint matches hardcoded value
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        run: |
-          $helperPath = Get-ChildItem -Recurse -Filter "bitwarden_chromium_import_helper.exe" ./dist | Select-Object -First 1 -ExpandProperty FullName
-          $sig = Get-AuthenticodeSignature $helperPath
-          $actual = $sig.SignerCertificate.GetCertHashString("SHA256").ToLower()
-
-          $content = Get-Content "./desktop_native/chromium_importer/src/chromium/platform/windows/signature.rs" -Raw
-          $hardcoded = [regex]::Match($content, 'EXPECTED_SIGNATURE_SHA256_THUMBPRINT[^"]*"([a-f0-9]{64})"').Groups[1].Value
-
-          if ($actual -ne $hardcoded) {
-            Write-Error "Thumbprint mismatch! Binary has '$actual' but signature.rs has '$hardcoded'. Update EXPECTED_SIGNATURE_SHA256_THUMBPRINT."
-            exit 1
-          }
-          Write-Host "Thumbprint verified: $actual"
+        run: ./scripts/validate-chromium-importer-thumbprint.ps1
 
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -878,19 +866,7 @@ jobs:
 
       - name: Verify helper exe thumbprint matches hardcoded value
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        run: |
-          $helperPath = Get-ChildItem -Recurse -Filter "bitwarden_chromium_import_helper.exe" ./dist | Select-Object -First 1 -ExpandProperty FullName
-          $sig = Get-AuthenticodeSignature $helperPath
-          $actual = $sig.SignerCertificate.GetCertHashString("SHA256").ToLower()
-
-          $content = Get-Content "./desktop_native/chromium_importer/src/chromium/platform/windows/signature.rs" -Raw
-          $hardcoded = [regex]::Match($content, 'EXPECTED_SIGNATURE_SHA256_THUMBPRINT[^"]*"([a-f0-9]{64})"').Groups[1].Value
-
-          if ($actual -ne $hardcoded) {
-            Write-Error "Thumbprint mismatch! Binary has '$actual' but signature.rs has '$hardcoded'. Update EXPECTED_SIGNATURE_SHA256_THUMBPRINT."
-            exit 1
-          }
-          Write-Host "Thumbprint verified: $actual"
+        run: ./scripts/validate-chromium-importer-thumbprint.ps1
 
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
