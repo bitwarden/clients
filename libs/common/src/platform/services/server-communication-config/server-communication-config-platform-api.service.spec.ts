@@ -2,22 +2,20 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { Subject } from "rxjs";
 
 import { LogService } from "@bitwarden/logging";
-import { MessageListener } from "@bitwarden/messaging";
+import { MessageListener, MessageSender } from "@bitwarden/messaging";
 import { AcquiredCookie } from "@bitwarden/sdk-internal";
-
-import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 
 import { ServerCommunicationConfigPlatformApiService } from "./server-communication-config-platform-api.service";
 
 describe("ServerCommunicationConfigPlatformApiService", () => {
-  let platformUtilsService: MockProxy<PlatformUtilsService>;
+  let messageSender: MockProxy<MessageSender>;
   let messageListener: MockProxy<MessageListener>;
   let logService: MockProxy<LogService>;
   let service: ServerCommunicationConfigPlatformApiService;
   let callbackSubject: Subject<{ urlString: string }>;
 
   beforeEach(() => {
-    platformUtilsService = mock<PlatformUtilsService>();
+    messageSender = mock<MessageSender>();
     messageListener = mock<MessageListener>();
     logService = mock<LogService>();
 
@@ -26,19 +24,20 @@ describe("ServerCommunicationConfigPlatformApiService", () => {
     messageListener.messages$.mockReturnValue(callbackSubject.asObservable());
 
     service = new ServerCommunicationConfigPlatformApiService(
-      platformUtilsService,
+      messageSender,
       messageListener,
       logService,
     );
   });
 
   describe("acquireCookies", () => {
-    it("opens browser to correct URL", async () => {
+    it("sends showAcquireCookieSpeedbump command with correct payload", async () => {
       const promise = service.acquireCookies("vault.acme.com");
 
-      expect(platformUtilsService.launchUri).toHaveBeenCalledWith(
-        "https://vault.acme.com/proxy-cookie-redirect-connector.html",
-      );
+      expect(messageSender.send).toHaveBeenCalledWith("showAcquireCookieSpeedbump", {
+        connectorUrl: "vault.acme.com/proxy-cookie-redirect-connector.html",
+        vaultUrl: "vault.acme.com",
+      });
 
       // Simulate callback to resolve promise
       callbackSubject.next({
@@ -131,7 +130,10 @@ describe("ServerCommunicationConfigPlatformApiService", () => {
       const promise2 = service.acquireCookies("vault.acme.com");
 
       // Should only launch browser once
-      expect(platformUtilsService.launchUri).toHaveBeenCalledTimes(1);
+      expect(messageSender.send).toHaveBeenNthCalledWith(1, "showAcquireCookieSpeedbump", {
+        connectorUrl: "vault.acme.com/proxy-cookie-redirect-connector.html",
+        vaultUrl: "vault.acme.com",
+      });
 
       // Simulate callback
       callbackSubject.next({
@@ -156,13 +158,15 @@ describe("ServerCommunicationConfigPlatformApiService", () => {
       const promise2 = service.acquireCookies("vault2.acme.com");
 
       // Should launch browser twice (once for each hostname)
-      expect(platformUtilsService.launchUri).toHaveBeenCalledTimes(2);
-      expect(platformUtilsService.launchUri).toHaveBeenCalledWith(
-        "https://vault1.acme.com/proxy-cookie-redirect-connector.html",
-      );
-      expect(platformUtilsService.launchUri).toHaveBeenCalledWith(
-        "https://vault2.acme.com/proxy-cookie-redirect-connector.html",
-      );
+      expect(messageSender.send).toHaveBeenCalledTimes(2);
+      expect(messageSender.send).toHaveBeenCalledWith("showAcquireCookieSpeedbump", {
+        connectorUrl: "vault1.acme.com/proxy-cookie-redirect-connector.html",
+        vaultUrl: "vault1.acme.com",
+      });
+      expect(messageSender.send).toHaveBeenCalledWith("showAcquireCookieSpeedbump", {
+        connectorUrl: "vault2.acme.com/proxy-cookie-redirect-connector.html",
+        vaultUrl: "vault2.acme.com",
+      });
 
       // Simulate callback for second hostname
       callbackSubject.next({
