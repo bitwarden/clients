@@ -148,7 +148,7 @@ export const AllVariants: Story = {
         </div>
         <div class="tw-flex tw-gap-4">
           <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
-            <button buttonType="danger" bitIconButton="bwi-plus" label="Danger" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
+            <button buttonType="dangerGhost" bitIconButton="bwi-plus" label="Danger" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}></button>
             <p class="tw-m-0" bitTypography="helper">danger</p>
           </div>
           <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
@@ -232,7 +232,7 @@ const sizeTemplate = /*html*/ `
         <button type="button" bitIconButton="bwi-plus" label="Subtle ghost" [disabled]="disabled" [loading]="loading" buttonType="subtleGhost" [size]="size"></button>
       </div>
       <div class="tw-flex tw-gap-4 tw-items-center">
-        <button type="button" bitIconButton="bwi-plus" label="Danger" [disabled]="disabled" [loading]="loading" buttonType="danger" [size]="size"></button>
+        <button type="button" bitIconButton="bwi-plus" label="Danger" [disabled]="disabled" [loading]="loading" buttonType="dangerGhost" [size]="size"></button>
         <button type="button" bitIconButton="bwi-plus" label="Danger outline" [disabled]="disabled" [loading]="loading" buttonType="dangerOutline" [size]="size"></button>
         <button type="button" bitIconButton="bwi-plus" label="Danger ghost" [disabled]="disabled" [loading]="loading" buttonType="dangerGhost" [size]="size"></button>
       </div>
