@@ -152,6 +152,8 @@ describe("DefaultServerCommunicationConfigService", () => {
       const request = new Request("https://vault.acme.com/api");
       const result = await middleware(request, next);
 
+      expect(repository.get$).toHaveBeenCalledWith("vault.acme.com");
+      expect(mockClientInstance.needsBootstrap).toHaveBeenCalledWith("vault.acme.com");
       expect(mockClientInstance.acquireCookie).toHaveBeenCalledWith("vault.acme.com");
       expect(next).toHaveBeenCalledTimes(2);
       expect(next.mock.calls[1][0]).toBe(request); // retry uses original
@@ -166,6 +168,8 @@ describe("DefaultServerCommunicationConfigService", () => {
 
       await middleware(new Request("https://vault.acme.com/"), next);
 
+      expect(repository.get$).toHaveBeenCalledWith("vault.acme.com");
+      expect(mockClientInstance.needsBootstrap).toHaveBeenCalledWith("vault.acme.com");
       expect(mockClientInstance.acquireCookie).toHaveBeenCalledTimes(1);
       expect(next).toHaveBeenCalledTimes(2);
     });
@@ -178,6 +182,8 @@ describe("DefaultServerCommunicationConfigService", () => {
 
       const result = await middleware(new Request("https://vault.acme.com/"), next);
 
+      expect(repository.get$).toHaveBeenCalledWith("vault.acme.com");
+      expect(mockClientInstance.needsBootstrap).toHaveBeenCalledWith("vault.acme.com");
       expect(mockClientInstance.acquireCookie).not.toHaveBeenCalled();
       expect(next).toHaveBeenCalledTimes(2);
       expect(result).toBe(ok);
