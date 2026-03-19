@@ -45,7 +45,6 @@ export enum FeatureFlag {
   LinuxBiometricsV2 = "pm-26340-linux-biometrics-v2",
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
   PasskeyUnlock = "pm-2035-passkey-unlock",
-  DataRecoveryTool = "pm-28813-data-recovery-tool",
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
@@ -63,6 +62,7 @@ export enum FeatureFlag {
   EventManagementForHuntress = "event-management-for-huntress",
   PhishingDetection = "phishing-detection",
   Milestone11AppPageImprovements = "pm-30538-dirt-milestone-11-app-page-improvements",
+  AccessIntelligenceTrendChart = "pm-26961-access-intelligence-trend-chart",
   AccessIntelligenceNewArchitecture = "pm-31936-access-intelligence-new-architecture",
 
   /* Vault */
@@ -131,6 +131,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EventManagementForHuntress]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
   [FeatureFlag.Milestone11AppPageImprovements]: FALSE,
+  [FeatureFlag.AccessIntelligenceTrendChart]: FALSE,
   [FeatureFlag.AccessIntelligenceNewArchitecture]: FALSE,
 
   /* Vault */
@@ -170,7 +171,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
   [FeatureFlag.PasskeyUnlock]: FALSE,
-  [FeatureFlag.DataRecoveryTool]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,

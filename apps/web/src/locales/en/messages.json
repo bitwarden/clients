@@ -2,8 +2,17 @@
   "allApplications": {
     "message": "All applications"
   },
+  "allMembers": {
+    "message": "All members"
+  },
+  "allPasswords": {
+    "message": "All passwords"
+  },
   "activity": {
     "message": "Activity"
+  },
+  "applicationsAtRisk": {
+    "message": "Applications at risk"
   },
   "appLogoLabel": {
     "message": "Bitwarden logo"
@@ -43,6 +52,15 @@
   },
   "passwordRisk": {
     "message": "Password Risk"
+  },
+  "passwords": {
+    "message": "Passwords"
+  },
+  "riskOverTime": {
+    "message": "Risk over time"
+  },
+  "passwordsAtRisk": {
+    "message": "Passwords at risk"
   },
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
@@ -2102,6 +2120,9 @@
   },
   "exportSuccess": {
     "message": "Vault data exported"
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
   },
   "passwordGenerator": {
     "message": "Password generator"
@@ -8310,6 +8331,9 @@
   "members": {
     "message": "Members"
   },
+  "membersAtRisk": {
+    "message": "Members at risk"
+  },
   "reporting": {
     "message": "Reporting"
   },
@@ -11054,6 +11078,9 @@
   "clientDetails": {
     "message": "Client details"
   },
+  "downloadChart": {
+    "message": "Download chart"
+  },
   "downloadCSV": {
     "message": "Download CSV"
   },
@@ -11514,6 +11541,9 @@
         "example": "First 8 characters of a GUID"
       }
     }
+  },
+  "userSelfRevokedOrganizationOwnership": {
+    "message": "Revoked for declining transfer to organization ownership."
   },
   "suspendedOrganizationTitle": {
     "message": "The $ORGANIZATION$ is suspended",
@@ -12936,9 +12966,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -13048,6 +13075,30 @@
         "example": "Jan 1, 1970"
       }
     }
+  },
+  "sendsTitleNoSearchResults": {
+    "message": "No search results returned"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Clear filters or try another search term"
+  },
+  "pastMonth": {
+    "message": "Past month"
+  },
+  "past3Months": {
+    "message": "Past 3 months"
+  },
+  "past6Months": {
+    "message": "Past 6 months"
+  },
+  "pastYear": {
+    "message": "Past year"
+  },
+  "allTime": {
+    "message": "All time"
+  },
+  "timePeriod": {
+    "message": "Time period"
   },
   "of": {
     "message": "of"
