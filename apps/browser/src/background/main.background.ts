@@ -888,8 +888,8 @@ export default class MainBackground {
       this.stateProvider,
       this.configService,
       this.registerSdkService,
-      this.securityStateService,
       this.accountCryptographicStateService,
+      this.sdkService,
       this.userDecryptionOptionsService,
     );
 

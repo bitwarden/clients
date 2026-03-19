@@ -3,7 +3,7 @@ import {
   CreateCredentialParams,
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-client.service.abstraction";
 
-import { sendExtensionMessage } from "../../../autofill/utils";
+import { currentlyInSandboxedIframe, sendExtensionMessage } from "../../../autofill/utils";
 import { Fido2PortName } from "../enums/fido2-port-name.enum";
 
 import {
@@ -22,6 +22,10 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
         globalContext.document.location.hostname === "localhost"));
 
   if (!shouldExecuteContentScript) {
+    return;
+  }
+
+  if (currentlyInSandboxedIframe()) {
     return;
   }
 

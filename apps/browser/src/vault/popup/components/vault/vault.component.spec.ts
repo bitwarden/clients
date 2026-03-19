@@ -8,7 +8,7 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, Observable, Subject, of } from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
-import { NudgeType, NudgesService } from "@bitwarden/angular/vault";
+import { NudgeType, NudgesService, PremiumUpsellService } from "@bitwarden/angular/vault";
 import {
   AutoConfirmExtensionSetupDialogComponent,
   AutomaticUserConfirmationService,
@@ -197,6 +197,7 @@ describe("VaultComponent", () => {
 
   const cipherSvc = {
     failedToDecryptCiphers$: jest.fn().mockReturnValue(of([])),
+    ciphers$: jest.fn().mockReturnValue(of({})),
   } as Partial<CipherService>;
 
   const nudgesSvc = {
@@ -234,6 +235,10 @@ describe("VaultComponent", () => {
     getFeatureFlag$: jest.fn().mockImplementation((_flag: string) => of(false)),
   };
 
+  const premiumUpsellSvc = {
+    showUpsell: jest.fn().mockReturnValue(false),
+  };
+
   const autoConfirmSvc = {
     configuration$: jest.fn().mockReturnValue(of({})),
     canManageAutoConfirm$: jest.fn().mockReturnValue(of(false)),
@@ -243,6 +248,7 @@ describe("VaultComponent", () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    premiumUpsellSvc.showUpsell.mockReturnValue(false);
     await TestBed.configureTestingModule({
       imports: [VaultComponent, RouterTestingModule],
       providers: [
@@ -301,6 +307,7 @@ describe("VaultComponent", () => {
           provide: InternalOrganizationServiceAbstraction,
           useValue: { organizations$: jest.fn().mockReturnValue(of([])) },
         },
+        { provide: PremiumUpsellService, useValue: premiumUpsellSvc },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -472,25 +479,8 @@ describe("VaultComponent", () => {
     expect(spy).toHaveBeenCalledWith(NudgeType.HasVaultItems, "user-xyz");
   }));
 
-  it("accountAgeInDays$ computes integer days since creation", (done) => {
-    activeAccount$.next({
-      id: "user-123",
-      creationDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
-    } as any);
-    getObs<number | null>(component, "accountAgeInDays$").subscribe((days) => {
-      if (days !== null) {
-        expect(days).toBeGreaterThanOrEqual(7);
-        done();
-      }
-    });
-
-    void component.ngOnInit();
-  });
-
   it("renders Premium spotlight when eligible and opens dialog on click", fakeAsync(() => {
-    itemsSvc.cipherCount$.next(10);
-
-    hasPremiumFromAnySource$.next(false);
+    premiumUpsellSvc.showUpsell.mockReturnValue(true);
 
     configSvc.getFeatureFlag$.mockImplementation((_flag: string) => of(true));
 
@@ -559,6 +549,10 @@ describe("VaultComponent", () => {
   }));
 
   it("does not render Premium spotlight when account is less than a week old", fakeAsync(() => {
+    activeAccount$.next({
+      id: "user-1",
+      creationDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+    } as any);
     itemsSvc.cipherCount$.next(10);
     hasPremiumFromAnySource$.next(false);
 
