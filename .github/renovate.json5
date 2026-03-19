@@ -360,6 +360,12 @@
       commitMessagePrefix: "[deps] KM:",
       reviewers: ["team:team-key-management-dev"],
     },
+    {
+      matchPackageNames: ["chart.js", "chartjs-adapter-date-fns"],
+      description: "DIRT owned dependencies",
+      commitMessagePrefix: "[deps] DIRT:",
+      reviewers: ["team:team-data-insights-and-reporting-dev"],
+    },
 
     // ==================== Grouping Rules ====================
     // These come after any specific team assignment rules to ensure

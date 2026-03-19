@@ -72,6 +72,7 @@ describe("DefaultServerCommunicationConfigService", () => {
           cookieName: "exampleCookie",
           cookieDomain: "example.com",
           cookieValue: undefined,
+          vaultUrl: "vault.bitwarden.com",
         },
       };
       serverCommunicationConfig$.next(config);
