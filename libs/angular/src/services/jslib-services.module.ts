@@ -1199,8 +1199,8 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       ConfigService,
       RegisterSdkService,
-      SecurityStateService,
       AccountCryptographicStateService,
+      SdkService,
       InternalUserDecryptionOptionsServiceAbstraction,
     ],
   }),
@@ -1827,6 +1827,7 @@ const safeProviders: SafeProvider[] = [
       KeyService,
       MasterPasswordApiServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
+      MasterPasswordUnlockService,
     ],
   }),
   safeProvider({
