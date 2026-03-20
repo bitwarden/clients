@@ -35,7 +35,7 @@ describe("ServerCommunicationConfigPlatformApiService", () => {
       const promise = service.acquireCookies("vault.acme.com");
 
       expect(messageSender.send).toHaveBeenCalledWith("showAcquireCookieSpeedbump", {
-        connectorUrl: "vault.acme.com/proxy-cookie-redirect-connector.html",
+        connectorUrl: "https://vault.acme.com/proxy-cookie-redirect-connector.html",
         vaultUrl: "vault.acme.com",
       });
 
@@ -131,7 +131,7 @@ describe("ServerCommunicationConfigPlatformApiService", () => {
 
       // Should only launch browser once
       expect(messageSender.send).toHaveBeenNthCalledWith(1, "showAcquireCookieSpeedbump", {
-        connectorUrl: "vault.acme.com/proxy-cookie-redirect-connector.html",
+        connectorUrl: "https://vault.acme.com/proxy-cookie-redirect-connector.html",
         vaultUrl: "vault.acme.com",
       });
 
@@ -160,11 +160,11 @@ describe("ServerCommunicationConfigPlatformApiService", () => {
       // Should launch browser twice (once for each hostname)
       expect(messageSender.send).toHaveBeenCalledTimes(2);
       expect(messageSender.send).toHaveBeenCalledWith("showAcquireCookieSpeedbump", {
-        connectorUrl: "vault1.acme.com/proxy-cookie-redirect-connector.html",
+        connectorUrl: "https://vault1.acme.com/proxy-cookie-redirect-connector.html",
         vaultUrl: "vault1.acme.com",
       });
       expect(messageSender.send).toHaveBeenCalledWith("showAcquireCookieSpeedbump", {
-        connectorUrl: "vault2.acme.com/proxy-cookie-redirect-connector.html",
+        connectorUrl: "https://vault2.acme.com/proxy-cookie-redirect-connector.html",
         vaultUrl: "vault2.acme.com",
       });
 
