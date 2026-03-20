@@ -149,21 +149,6 @@ export const Default: Story = {
 };
 
 /**
- * Empty state with no data points.
- */
-export const EmptyState: Story = {
-  args: {
-    data: {
-      timeframe: TimePeriod.PastMonth,
-      dataView: "applications",
-      dataPoints: [],
-    },
-    loading: false,
-    error: null,
-  },
-};
-
-/**
  * Loading state while data is being fetched.
  */
 export const Loading: Story = {
