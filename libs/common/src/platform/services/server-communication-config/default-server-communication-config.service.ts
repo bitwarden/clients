@@ -98,11 +98,11 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
         return response;
       }
       const needsBootstrap = await firstValueFrom(this.needsBootstrap$(hostname));
-
-      if (needsBootstrap) {
-        await this.acquireCookie(hostname);
+      if (!needsBootstrap) {
+        return response;
       }
 
+      await this.acquireCookie(hostname);
       // Retry with original request (follow redirect mode, cookies now in session)
       return next(request);
     };
