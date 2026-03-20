@@ -333,22 +333,17 @@ jobs:
             linux/arm/v7,
             linux/arm64
           push: false
-          tags: ${{ steps.image-name.outputs.name }}
+          tags: ${{ steps.image-name.outputs.tags }}
 
       - name: Push images
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         env:
-          IMAGE_NAME: ${{ steps.image-name.outputs.name }}
-        run: docker push "$IMAGE_NAME"
-
-      - name: Push GHCR image
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        env:
-          ACR_IMAGE: ${{ steps.image-name.outputs.name }}
-          GHCR_IMAGE: ${{ steps.image-name.outputs.ghcr_name }}
+          TAGS: ${{ steps.image-name.outputs.tags }}
         run: |
-          docker tag "$ACR_IMAGE" "$GHCR_IMAGE"
-          docker push "$GHCR_IMAGE"
+          IFS=',' read -r -a tags_array <<< "$TAGS"
+          for tag in "${tags_array[@]}"; do
+            docker push "$tag"
+          done
 
       - name: Zip project
         working-directory: apps/web
