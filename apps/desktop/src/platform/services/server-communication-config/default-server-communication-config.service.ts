@@ -1,18 +1,15 @@
 import { firstValueFrom, Observable, shareReplay, switchMap } from "rxjs";
 
-import {
-  ServerCommunicationConfigClient,
-  ServerCommunicationConfigPlatformApi,
-} from "@bitwarden/sdk-internal";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { FetchMiddleware, FetchFn } from "@bitwarden/common/platform/misc/fetch-middleware";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { ServerCommunicationConfigClient } from "@bitwarden/sdk-internal";
 
-import { ApiService } from "../../../abstractions/api.service";
-import { ConfigService } from "../../abstractions/config/config.service";
-import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
-import { ServerCommunicationConfigService } from "../../abstractions/server-communication-config/server-communication-config.service";
-import { FetchFn, FetchMiddleware } from "../../misc/fetch-middleware";
-import { Utils } from "../../misc/utils";
-
+import { ServerCommunicationConfigPlatformApiService } from "./server-communication-config-platform-api.service";
 import { ServerCommunicationConfigRepository } from "./server-communication-config.repository";
+import { ServerCommunicationConfigService } from "./server-communication-config.service";
 
 /**
  * Default implementation of ServerCommunicationConfigService.
@@ -38,12 +35,14 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
 
   constructor(
     protected repository: ServerCommunicationConfigRepository,
-    protected platformApi: ServerCommunicationConfigPlatformApi,
+    protected platformApi: ServerCommunicationConfigPlatformApiService,
     private configService: ConfigService,
     private apiService: ApiService,
   ) {}
 
   async init() {
+    this.platformApi.init();
+
     // This function uses classes and functions defined in the SDK, so we need to wait for the SDK to load.
     await SdkLoadService.Ready;
     // Initialize SDK client with repository and platform API

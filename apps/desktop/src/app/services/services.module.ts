@@ -94,7 +94,6 @@ import {
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { ServerCommunicationConfigService } from "@bitwarden/common/platform/abstractions/server-communication-config/server-communication-config.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
@@ -108,11 +107,6 @@ import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk
 import { DefaultSdkLoadService } from "@bitwarden/common/platform/services/sdk/default-sdk-load.service";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { NoopSdkLoadService } from "@bitwarden/common/platform/services/sdk/noop-sdk-load.service";
-import {
-  DefaultServerCommunicationConfigService,
-  ServerCommunicationConfigRepository,
-  ServerCommunicationConfigPlatformApiService,
-} from "@bitwarden/common/platform/services/server-communication-config";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -169,6 +163,12 @@ import { ElectronRendererMessageSender } from "../../platform/services/electron-
 import { ElectronRendererSecureStorageService } from "../../platform/services/electron-renderer-secure-storage.service";
 import { ElectronRendererStorageService } from "../../platform/services/electron-renderer-storage.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
+import {
+  DefaultServerCommunicationConfigService,
+  ServerCommunicationConfigPlatformApiService,
+  ServerCommunicationConfigRepository,
+} from "../../platform/services/server-communication-config";
+import { ServerCommunicationConfigService } from "../../platform/services/server-communication-config/server-communication-config.service";
 import { fromIpcMessaging } from "../../platform/utils/from-ipc-messaging";
 import { fromIpcSystemTheme } from "../../platform/utils/from-ipc-system-theme";
 import { BiometricMessageHandlerService } from "../../services/biometric-message-handler.service";
@@ -591,11 +591,12 @@ const safeProviders: SafeProvider[] = [
     provide: ServerCommunicationConfigService,
     useFactory: (
       stateProvider: StateProvider,
-      platformUtilsService: PlatformUtilsServiceAbstraction,
+      platformUtilsService: PlatformUtilsService,
       messageListener: MessageListener,
       logService: LogService,
       configService: ConfigService,
       apiService: ApiService,
+      dialogService: DialogService,
     ) =>
       new DefaultServerCommunicationConfigService(
         new ServerCommunicationConfigRepository(stateProvider),
@@ -603,17 +604,19 @@ const safeProviders: SafeProvider[] = [
           platformUtilsService,
           messageListener,
           logService,
+          dialogService,
         ),
         configService,
         apiService,
       ),
     deps: [
       StateProvider,
-      PlatformUtilsServiceAbstraction,
+      PlatformUtilsService,
       MessageListener,
       LogService,
       ConfigService,
       ApiService,
+      DialogService,
     ],
   }),
 ];

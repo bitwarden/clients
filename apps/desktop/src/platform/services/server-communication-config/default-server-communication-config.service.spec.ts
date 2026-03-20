@@ -1,16 +1,15 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { Subject, of } from "rxjs";
 
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FetchMiddleware, FetchFn } from "@bitwarden/common/platform/misc/fetch-middleware";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   ServerCommunicationConfig,
   ServerCommunicationConfigClient,
   ServerCommunicationConfigPlatformApi,
 } from "@bitwarden/sdk-internal";
-
-import { ApiService } from "../../../abstractions/api.service";
-import { ConfigService } from "../../abstractions/config/config.service";
-import { FetchFn, FetchMiddleware } from "../../misc/fetch-middleware";
-import { Utils } from "../../misc/utils";
 
 import { DefaultServerCommunicationConfigService } from "./default-server-communication-config.service";
 import { ServerCommunicationConfigRepository } from "./server-communication-config.repository";

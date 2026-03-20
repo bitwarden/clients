@@ -2,8 +2,9 @@ import { Session } from "electron";
 import { concatMap } from "rxjs/operators";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SERVER_COMMUNICATION_CONFIGS } from "@bitwarden/common/platform/services/server-communication-config/server-communication-config.state";
 import { GlobalStateProvider } from "@bitwarden/common/platform/state";
+
+import { SERVER_COMMUNICATION_CONFIGS } from "../platform/services/server-communication-config";
 
 export class SsoCookieMain {
   private activeDomains = new Set<string>();

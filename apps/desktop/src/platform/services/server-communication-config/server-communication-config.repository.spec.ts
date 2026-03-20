@@ -1,6 +1,5 @@
+import { FakeAccountService, FakeStateProvider } from "@bitwarden/common/spec";
 import { AcquiredCookie, ServerCommunicationConfig } from "@bitwarden/sdk-internal";
-
-import { FakeAccountService, FakeStateProvider } from "../../../../spec";
 
 import { ServerCommunicationConfigRepository } from "./server-communication-config.repository";
 

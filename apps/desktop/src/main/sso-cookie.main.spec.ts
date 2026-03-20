@@ -1,9 +1,10 @@
 import { BehaviorSubject } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SERVER_COMMUNICATION_CONFIGS } from "@bitwarden/common/platform/services/server-communication-config/server-communication-config.state";
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { ServerCommunicationConfig } from "@bitwarden/sdk-internal";
+
+import { SERVER_COMMUNICATION_CONFIGS } from "../platform/services/server-communication-config";
 
 import { SsoCookieMain } from "./sso-cookie.main";
 
