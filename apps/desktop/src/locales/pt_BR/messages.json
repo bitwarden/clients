@@ -12,7 +12,7 @@
     "message": "Favoritos"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Desfavoritar"
   },
   "types": {
     "message": "Tipos"
@@ -590,10 +590,10 @@
     "message": "Item salvo"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Item adicionado aos favoritos"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Item removido dos favoritos"
   },
   "deleteItem": {
     "message": "Apagar item"
@@ -1280,6 +1280,9 @@
   "changeMasterPass": {
     "message": "Alterar senha principal"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "continueToWebApp": {
     "message": "Continuar no aplicativo web?"
   },
@@ -1358,17 +1361,11 @@
   "twoStepLogin": {
     "message": "Autenticação em duas etapas"
   },
-  "vaultTimeoutHeader": {
-    "message": "Limite de tempo do cofre"
-  },
   "vaultTimeout": {
     "message": "Limite de tempo do cofre"
   },
   "vaultTimeout1": {
     "message": "Limite de tempo"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Ação do limite de tempo"
   },
   "vaultTimeoutDesc": {
     "message": "Escolha quando o seu cofre executará a ação do limite de tempo do cofre."
@@ -1565,16 +1562,16 @@
     "message": "Desconhecido"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Copiar endereço"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Copiar telefone"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Copiar anotação"
   },
   "copyVerificationCode": {
-    "message": "Copy verification code"
+    "message": "Copiar código de verificação"
   },
   "copyUsername": {
     "message": "Copiar nome de usuário"
@@ -1658,6 +1655,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "mês"
+  },
+  "monthly": {
+    "message": "Mensalmente"
+  },
+  "year": {
+    "message": "ano"
+  },
+  "annually": {
+    "message": "Anualmente"
+  },
+  "annual": {
+    "message": "Anual"
   },
   "refreshComplete": {
     "message": "Recarregamento concluído"
@@ -2089,9 +2101,6 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Reautenticação é necessária para acessar seu cofre novamente."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configure um método de desbloqueio para alterar a ação do limite de tempo do cofre."
-  },
   "lock": {
     "message": "Bloquear",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2104,22 +2113,22 @@
     "message": "Buscar na lixeira"
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Buscar no arquivo"
   },
   "searchLogin": {
-    "message": "Search login"
+    "message": "Buscar credenciais"
   },
   "searchCard": {
-    "message": "Search card"
+    "message": "Buscar cartões"
   },
   "searchIdentity": {
-    "message": "Search identity"
+    "message": "Buscar identidades"
   },
   "searchSecureNote": {
-    "message": "Search secure note"
+    "message": "Buscar anotações seguras"
   },
   "searchSshKey": {
-    "message": "Search SSH key"
+    "message": "Buscar chaves SSH"
   },
   "permanentlyDeleteItem": {
     "message": "Apagar item para sempre"
@@ -2418,7 +2427,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "me": {
-    "message": "Me"
+    "message": "Eu"
   },
   "myVault": {
     "message": "Meu cofre"
@@ -2709,9 +2718,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "O limite de tempo do seu cofre excede as restrições definidas por sua organização."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Os requisitos das políticas corporativas foram aplicados às suas opções de limite de tempo"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "As políticas da sua organização configuraram o seu máximo permitido do limite de tempo do cofre para $HOURS$ hora(s) e $MINUTES$ minuto(s).",
@@ -4129,7 +4135,7 @@
     "message": "Site ausente"
   },
   "missingPermissions": {
-    "message": "You lack the necessary permissions to perform this action."
+    "message": "Você não tem a permissão necessária para executar esta ação."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Você não pode remover conjuntos com permissões de Apenas ver: $COLLECTIONS$",
@@ -4617,8 +4623,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ exige que todos os itens sejam propriedade da organização por segurança e conformidade. Clique em aceitar para transferir a propriedade dos seus itens.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ está exigindo que todos os itens sejam propriedade da organização por segurança e conformidade.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,44 +4632,47 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Clique em aceitar para transferir a propriedade dos seus itens."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Abrir artigo de ajuda sobre a transferência de itens"
+  },
   "acceptTransfer": {
     "message": "Aceitar transferência"
   },
   "declineAndLeave": {
     "message": "Recusar e sair"
   },
-  "whyAmISeeingThis": {
-    "message": "Por que estou vendo isso?"
-  },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "A organização está suspensa"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "Itens em organizações suspensas não podem ser acessados. Contate o proprietário da sua organização para obter ajuda."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "Nenhum item na lixeira"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Os itens que você apagar aparecerão aqui, e serão apagados para sempre depois de 30 dias"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Nenhum item no cofre"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "O cofre protege mais do que só suas senhas. Armazene credenciais, identidades, cartões, e anotações com segurança aqui."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "Você não favoritou nenhum item"
   },
   "emptyFavoritesDesc": {
-    "message": "Add frequently used items to favorites for quick access."
+    "message": "Adicione itens usados frequentemente aos favoritos para acesso rápido."
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "Nenhum resultado de busca"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Limpe os filtros ou tente outro termo de busca"
   },
   "sendPasswordHelperText": {
     "message": "Os indivíduos precisarão digitar a senha para ver este Send",
@@ -4692,9 +4701,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Digite vários e-mails, separados com uma vírgula."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "A verificação de e-mail requer pelo menos um endereço de e-mail. Para remover todos, altere o tipo de acesso acima."
   },
   "emailPlaceholder": {
     "message": "usuário@bitwarden.com , usuário@acme.com"

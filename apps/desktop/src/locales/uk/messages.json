@@ -1280,6 +1280,9 @@
   "changeMasterPass": {
     "message": "Змінити головний пароль"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "continueToWebApp": {
     "message": "Продовжити у вебпрограмі?"
   },
@@ -1358,17 +1361,11 @@
   "twoStepLogin": {
     "message": "Двоетапна перевірка"
   },
-  "vaultTimeoutHeader": {
-    "message": "Час очікування сховища"
-  },
   "vaultTimeout": {
     "message": "Час очікування сховища"
   },
   "vaultTimeout1": {
     "message": "Час очікування"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Дія після часу очікування"
   },
   "vaultTimeoutDesc": {
     "message": "Оберіть дію, яка виконається після завершення часу очікування сховища."
@@ -1658,6 +1655,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "month"
+  },
+  "monthly": {
+    "message": "Monthly"
+  },
+  "year": {
+    "message": "year"
+  },
+  "annually": {
+    "message": "Annually"
+  },
+  "annual": {
+    "message": "Annual"
   },
   "refreshComplete": {
     "message": "Оновлення завершено"
@@ -2088,9 +2100,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "Щоб відновити доступ до сховища, необхідно пройти повторну автентифікацію."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Налаштуйте спосіб розблокування, щоб змінити час очікування сховища."
   },
   "lock": {
     "message": "Блокувати",
@@ -2709,9 +2718,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Час очікування сховища перевищує обмеження, встановлені вашою організацією."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "До налаштувань часу очікування застосовано вимоги політики компанії"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Політикою вашої організації встановлено максимальний дозволений час очікування сховища $HOURS$ годин, $MINUTES$ хвилин.",
@@ -4617,8 +4623,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4632,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
   },
   "organizationIsSuspended": {
     "message": "Organization is suspended"
@@ -4692,9 +4701,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"

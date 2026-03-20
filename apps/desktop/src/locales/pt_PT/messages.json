@@ -1280,6 +1280,9 @@
   "changeMasterPass": {
     "message": "Alterar palavra-passe mestra"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "continueToWebApp": {
     "message": "Continuar para a aplicação Web?"
   },
@@ -1358,17 +1361,11 @@
   "twoStepLogin": {
     "message": "Verificação de dois passos"
   },
-  "vaultTimeoutHeader": {
-    "message": "Tempo limite do cofre"
-  },
   "vaultTimeout": {
     "message": "Tempo limite do cofre"
   },
   "vaultTimeout1": {
     "message": "Tempo limite"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Ação de tempo limite"
   },
   "vaultTimeoutDesc": {
     "message": "Escolha quando é que o seu cofre executará a ação de tempo limite do cofre."
@@ -1658,6 +1655,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "mês"
+  },
+  "monthly": {
+    "message": "Mensal"
+  },
+  "year": {
+    "message": "ano"
+  },
+  "annually": {
+    "message": "Anual"
+  },
+  "annual": {
+    "message": "Anual"
   },
   "refreshComplete": {
     "message": "Atualização concluída"
@@ -2088,9 +2100,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "É necessária uma nova autenticação para aceder novamente ao seu cofre."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configure um método de desbloqueio para alterar a ação de tempo limite do seu cofre."
   },
   "lock": {
     "message": "Bloquear",
@@ -2709,9 +2718,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "O tempo limite do seu cofre excede as restrições definidas pela sua organização."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Os requisitos da política empresarial foram aplicados às suas opções de tempo limite"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "As políticas da sua organização definiram o tempo limite máximo permitido do cofre de $HOURS$ hora(s) e $MINUTES$ minuto(s).",
@@ -4490,7 +4496,7 @@
     "message": "Segurança online avançada"
   },
   "upgradeToPremium": {
-    "message": "Atualizar para o Premium"
+    "message": "Atualize para o Premium"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "A sua organização já não utiliza palavras-passe mestras para iniciar sessão no Bitwarden. Para continuar, verifique a organização e o domínio."
@@ -4617,8 +4623,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ exige que todos os itens sejam propriedade da organização por motivos de segurança e conformidade. Clique em Aceitar para transferir a propriedade dos seus itens.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ exige que todos os itens pertençam à organização por motivos de segurança e conformidade.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4632,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Clique em aceitar para transferir a titularidade dos seus itens."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Abrir artigo de ajuda sobre a transferência de itens"
+  },
   "acceptTransfer": {
     "message": "Aceitar transferência"
   },
   "declineAndLeave": {
     "message": "Recusar e sair"
-  },
-  "whyAmISeeingThis": {
-    "message": "Porque é que estou a ver isto?"
   },
   "organizationIsSuspended": {
     "message": "A organização está suspensa"
@@ -4692,9 +4701,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Introduza vários e-mails, separados por vírgula."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "A verificação por e-mail requer pelo menos um endereço de e-mail. Para remover todos os e-mails, altere o tipo de acesso acima."
   },
   "emailPlaceholder": {
     "message": "utilizador@bitwarden.com , utilizador@acme.com"

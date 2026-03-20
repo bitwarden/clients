@@ -1280,6 +1280,9 @@
   "changeMasterPass": {
     "message": "Mesterjelszó módosítása"
   },
+  "masterPasswordChanged": {
+    "message": "A mesterjelszó mentésre került."
+  },
   "continueToWebApp": {
     "message": "Tovább a webes alkalmazáshoz?"
   },
@@ -1358,17 +1361,11 @@
   "twoStepLogin": {
     "message": "Kétlépcsős bejelentkezés"
   },
-  "vaultTimeoutHeader": {
-    "message": "Széf időkifutás"
-  },
   "vaultTimeout": {
     "message": "Széf időkifutás"
   },
   "vaultTimeout1": {
     "message": "Időkifutás"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Időkifutási művelet"
   },
   "vaultTimeoutDesc": {
     "message": "Válasszuk ki, hogy a széfnél mikor legyen időkifutás és a kiválasztott művelet végrehajtása."
@@ -1658,6 +1655,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "hónap"
+  },
+  "monthly": {
+    "message": "Havi"
+  },
+  "year": {
+    "message": "év"
+  },
+  "annually": {
+    "message": "Évente"
+  },
+  "annual": {
+    "message": "Éves"
   },
   "refreshComplete": {
     "message": "A frissítés befejezésre került."
@@ -2088,9 +2100,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "A lezárt széfnél szükséges az újbóli hitelesítés az ismételt hozzáféréshez."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Állítsunk be egy feloldási módot a széf időkifutási műveletének módosításához."
   },
   "lock": {
     "message": "Lezárás",
@@ -2709,9 +2718,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "A széf időkorlátja túllépi a szervezet által beállított korlátozást."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "A vállalkozáspolitikai követelményeket alkalmazra kerültek az időkifutási opciókra.."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "A szervezeti szabályzata $HOURS$ órára és $MINUTES$ percre állította be a maximálisan megengedett széf időkifutást.",
@@ -4617,8 +4623,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ megköveteli, hogy minden elem a szervezet tulajdonában legyen a biztonság és a megfelelőség érdekében. Kattintás az elfogadásra az elemek tulajdonjogának átruházásához.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ megköveteli, hogy minden elem a szervezet tulajdonában legyen a biztonság és a megfelelőség érdekében.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4632,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Kattintsunk az elfogadás lehetőségre az elemek tulajdonjogának átruházásához."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Súgó cikk megnyitása az elemek átviteléről"
+  },
   "acceptTransfer": {
     "message": "Átvitel elfogadása"
   },
   "declineAndLeave": {
     "message": "Elutasítás és kilépés"
-  },
-  "whyAmISeeingThis": {
-    "message": "Miért látható ez?"
   },
   "organizationIsSuspended": {
     "message": "A szervezet felfüggesztésre került."
@@ -4692,9 +4701,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Írjunk be több email címet vesszővel elválasztva."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Az email cím ellenőrzéshez legalább egy email cím szükséges. Az összes email cím eltávolításához módosítsuk a fenti hozzáférési típust."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"

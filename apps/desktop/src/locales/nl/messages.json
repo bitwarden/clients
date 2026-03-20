@@ -1280,6 +1280,9 @@
   "changeMasterPass": {
     "message": "Hoofdwachtwoord wijzigen"
   },
+  "masterPasswordChanged": {
+    "message": "Hoofdwachtwoord opgeslagen"
+  },
   "continueToWebApp": {
     "message": "Doorgaan naar web-app?"
   },
@@ -1358,17 +1361,11 @@
   "twoStepLogin": {
     "message": "Tweestapsaanmelding"
   },
-  "vaultTimeoutHeader": {
-    "message": "Time-out van de kluis"
-  },
   "vaultTimeout": {
     "message": "Time-out van de kluis"
   },
   "vaultTimeout1": {
     "message": "Time-out"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Time-out actie"
   },
   "vaultTimeoutDesc": {
     "message": "Stel de time-out van de kluis en de bijbehorende actie in."
@@ -1658,6 +1655,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "maand"
+  },
+  "monthly": {
+    "message": "Maandelijks"
+  },
+  "year": {
+    "message": "jaar"
+  },
+  "annually": {
+    "message": "Jaarlijks"
+  },
+  "annual": {
+    "message": "Jaarlijks"
   },
   "refreshComplete": {
     "message": "Bijwerken voltooid"
@@ -2088,9 +2100,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "Om toegang te krijgen tot een uitgelogde kluis te krijgen moet je opnieuw inloggen."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Stel een ontgrendelingsmethode in om je kluis time-out actie te wijzigen."
   },
   "lock": {
     "message": "Vergrendelen",
@@ -2709,9 +2718,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Je kluis time-out is hoger dan het maximum van jouw organisatie."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Bedrijfsbeleidseisen zijn toegepast op je time-out instellingen"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Het beleid van je organisatie heeft invloed op de time-out van je kluis. De maximaal toegestane kluis time-out is $HOURS$ uur en $MINUTES$ minuten.",
@@ -4617,8 +4623,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en naleving. Klik op accepteren voor het overdragen van eigendom van je items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en regelgeving.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4632,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Klik op accepteren voor het overdragen van het eigendom van je items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Help-artikel openen over de overdracht van items"
+  },
   "acceptTransfer": {
     "message": "Overdacht accepteren"
   },
   "declineAndLeave": {
     "message": "Weigeren en verlaten"
-  },
-  "whyAmISeeingThis": {
-    "message": "Waarom zie ik dit?"
   },
   "organizationIsSuspended": {
     "message": "Organisatie is opgeschort"
@@ -4692,9 +4701,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Voer meerdere e-mailadressen in door te scheiden met een komma."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "E-mailverificatie vereist ten minste één e-mailadres. Om alle e-mailadressen te verwijderen, moet je het toegangstype hierboven wijzigen."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"

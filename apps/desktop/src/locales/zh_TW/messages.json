@@ -1280,6 +1280,9 @@
   "changeMasterPass": {
     "message": "變更主密碼"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "continueToWebApp": {
     "message": "前往網頁應用程式嗎？"
   },
@@ -1358,17 +1361,11 @@
   "twoStepLogin": {
     "message": "兩步驟登入"
   },
-  "vaultTimeoutHeader": {
-    "message": "密碼庫逾時時間"
-  },
   "vaultTimeout": {
     "message": "密碼庫逾時時間"
   },
   "vaultTimeout1": {
     "message": "逾時"
-  },
-  "vaultTimeoutAction1": {
-    "message": "逾時後動作"
   },
   "vaultTimeoutDesc": {
     "message": "選擇密碼庫何時執行密碼庫逾時動作。"
@@ -1658,6 +1655,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "月"
+  },
+  "monthly": {
+    "message": "每月"
+  },
+  "year": {
+    "message": "年"
+  },
+  "annually": {
+    "message": "每年"
+  },
+  "annual": {
+    "message": "每年"
   },
   "refreshComplete": {
     "message": "刷新完成"
@@ -2088,9 +2100,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "需要重新驗證才能再次存取密碼庫。"
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
   },
   "lock": {
     "message": "鎖定",
@@ -2709,9 +2718,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "您的密碼庫逾時時間超過組織設定的限制。"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "企業政策已套用至您的逾時選項中"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "您的組織政策已限定您密碼庫逾時的時間長度。密碼庫逾時時間最高可以設定到 $HOURS$ 小時 $MINUTES$ 分鐘。",
@@ -4617,8 +4623,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ 為了安全性與合規性，要求所有項目皆由組織擁有。點擊接受即可轉移您項目的擁有權。",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ 為了安全與合規要求，要求所有項目必須由組織擁有。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4632,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "點擊「接受」以轉移您項目的擁有權。"
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "開啟關於轉移項目的說明文章"
+  },
   "acceptTransfer": {
     "message": "同意轉移"
   },
   "declineAndLeave": {
     "message": "拒絕並離開"
-  },
-  "whyAmISeeingThis": {
-    "message": "為什麼我會看到此訊息？"
   },
   "organizationIsSuspended": {
     "message": "組織已停用"
@@ -4692,9 +4701,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "請以逗號分隔輸入多個電子郵件地址。"
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "電子郵件驗證至少需要一個電子郵件地址。若要移除所有電子郵件，請變更上方的存取類型。"
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
