@@ -59,15 +59,11 @@ export const FullWidth: Story = {
         aria-label="People list filter"
         [fullWidth]="fullWidth"
       >
-        <bit-toggle value="all">
-          All <bit-berry [value]="3" variant="danger"></bit-berry>
-        </bit-toggle>
+        <bit-toggle value="all"> All <bit-berry [value]="3"></bit-berry> </bit-toggle>
 
         <bit-toggle value="invited"> Invited </bit-toggle>
 
-        <bit-toggle value="accepted">
-          Accepted <bit-berry [value]="2" variant="danger"></bit-berry>
-        </bit-toggle>
+        <bit-toggle value="accepted"> Accepted <bit-berry [value]="2"></bit-berry> </bit-toggle>
 
         <bit-toggle value="deactivated"> Deactivated </bit-toggle>
       </bit-toggle-group>
