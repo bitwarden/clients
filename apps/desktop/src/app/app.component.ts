@@ -63,7 +63,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
-import { SSO_COOKIE_VENDOR_CALLBACK_COMMAND } from "@bitwarden/common/platform/services/server-communication-config/server-communication-config-platform-api.service";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -80,6 +79,7 @@ import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwar
 import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
+import { SSO_COOKIE_VENDOR_CALLBACK_COMMAND } from "../platform/services/server-communication-config/server-communication-config-platform-api.service";
 
 import { SettingsComponent } from "./accounts/settings.component";
 import { ExportDesktopComponent } from "./tools/export/export-desktop.component";
