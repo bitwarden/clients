@@ -207,7 +207,8 @@ export class LastPassCsvImporter extends BaseImporter implements Importer {
           }
 
           cipher.type = CipherType.Card;
-          cipher.card = mappedData;
+          cipher.card = new CardView();
+          Object.assign(cipher.card, mappedData);
         } else if (typeParts[1] === "Address") {
           const mappedData = this.parseSecureNoteMapping<IdentityView>(cipher, extraParts, {
             Title: "title",
@@ -226,7 +227,8 @@ export class LastPassCsvImporter extends BaseImporter implements Importer {
             Username: "username",
           });
           cipher.type = CipherType.Identity;
-          cipher.identity = mappedData;
+          cipher.identity = new IdentityView();
+          Object.assign(cipher.identity, mappedData);
         }
         processedNote = true;
       }
