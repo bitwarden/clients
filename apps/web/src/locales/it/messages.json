@@ -2,8 +2,17 @@
   "allApplications": {
     "message": "Tutte le applicazioni"
   },
+  "allMembers": {
+    "message": "All members"
+  },
+  "allPasswords": {
+    "message": "All passwords"
+  },
   "activity": {
     "message": "Attività"
+  },
+  "applicationsAtRisk": {
+    "message": "Applications at risk"
   },
   "appLogoLabel": {
     "message": "Logo Bitwarden"
@@ -33,22 +42,31 @@
     }
   },
   "criticalBadge": {
-    "message": "Critical"
+    "message": "Critico"
   },
   "accessIntelligence": {
     "message": "Intelligence sugli accessi"
   },
   "noApplicationsMatchTheseFilters": {
-    "message": "No applications match these filters"
+    "message": "Nessuna applicazione corrisponde a questi filtri"
   },
   "passwordRisk": {
     "message": "Rischio password"
+  },
+  "passwords": {
+    "message": "Passwords"
+  },
+  "riskOverTime": {
+    "message": "Risk over time"
+  },
+  "passwordsAtRisk": {
+    "message": "Passwords at risk"
   },
   "noEditPermissions": {
     "message": "Non hai il permesso per modificare questo elemento"
   },
   "reviewAccessIntelligence": {
-    "message": "Review security reports to find and fix credential risks before they escalate."
+    "message": "Rivedi i rapporti di sicurezza per trovare e correggere i rischi per la sicurezza."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Rivedi i login a rischio"
@@ -269,7 +287,7 @@
     }
   },
   "numCriticalApplicationsMarkedSuccess": {
-    "message": "$COUNT$ applications marked critical",
+    "message": "$COUNT$ applicazioni contrassegnate come critiche",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -278,7 +296,7 @@
     }
   },
   "numApplicationsUnmarkedCriticalSuccess": {
-    "message": "$COUNT$ applications marked not critical",
+    "message": "$COUNT$ applicazioni contrassegnate come non critiche",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -287,7 +305,7 @@
     }
   },
   "markAppCountAsCritical": {
-    "message": "Mark $COUNT$ as critical",
+    "message": "Segna $COUNT$ come critiche",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -296,7 +314,7 @@
     }
   },
   "markAppCountAsNotCritical": {
-    "message": "Mark $COUNT$ as not critical",
+    "message": "Segna $COUNT$ come non critiche",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1284,7 +1302,7 @@
     "message": "Seleziona tutto"
   },
   "deselectAll": {
-    "message": "Deselect all"
+    "message": "Deseleziona tutto"
   },
   "unselectAll": {
     "message": "Deseleziona tutto"
@@ -2102,6 +2120,9 @@
   },
   "exportSuccess": {
     "message": "Dati della cassaforte esportati"
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
   },
   "passwordGenerator": {
     "message": "Generatore di password"
@@ -3047,16 +3068,16 @@
   "breachDesc": {
     "message": "Gli account violati possono esporre le tue informazioni personali. Proteggi gli account violati abilitando 2FA o creando una password più sicura."
   },
-  "breachCheckUsernameEmail": {
-    "message": "Controlla ogni nome utente o indirizzi email che usi."
+  "breachCheckEmail": {
+    "message": "Controlla tutti gli indirizzi email che usi abitualmente."
   },
   "checkBreaches": {
     "message": "Verifica violazioni dei dati"
   },
-  "breachUsernameNotFound": {
-    "message": "$USERNAME$ non è stato trovato in nessuna violazione di dati conosciuta.",
+  "breachEmailNotFound": {
+    "message": "L'indirizzo $EMAIL$ non è stato trovato in nessuna violazione di dati conosciuta.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3087,10 @@
     "message": "Buone notizie",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "$USERNAME$ è stato trovato in $COUNT$ diverse violazioni di dati online.",
+  "breachEmailFound": {
+    "message": "L'indirizzo $EMAIL$ è stato trovato in $COUNT$ violazioni di dati note.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -3339,13 +3360,13 @@
     "message": "L'abbonamento è stato ripristinato."
   },
   "resubscribe": {
-    "message": "Resubscribe"
+    "message": "Abbonati di nuovo"
   },
   "yourSubscriptionIsExpired": {
-    "message": "Your subscription is expired"
+    "message": "Il tuo abbonamento è terminato"
   },
   "yourSubscriptionIsCanceled": {
-    "message": "Your subscription is canceled"
+    "message": "Il tuo abbonamento è stato cancellato"
   },
   "cancelConfirmation": {
     "message": "Sei sicuro di voler annullare il tuo abbonamento? Alla fine di questo ciclo di fatturazione perderai l'accesso a tutte le funzionalità aggiuntive date dall'abbonamento."
@@ -3857,7 +3878,7 @@
     "message": "Modifica raccolta"
   },
   "viewCollection": {
-    "message": "View collection"
+    "message": "Visualizza raccolta"
   },
   "collectionInfo": {
     "message": "Informazioni raccolta"
@@ -4338,7 +4359,7 @@
     }
   },
   "automaticallyConfirmedUserId": {
-    "message": "Automatically confirmed user $ID$.",
+    "message": "Utente $ID$ confermato automaticamente.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4609,22 +4630,22 @@
     "message": "Caricamento in corso"
   },
   "reviewingMemberData": {
-    "message": "Reviewing member data..."
+    "message": "Revisione dati..."
   },
   "analyzingPasswords": {
-    "message": "Analyzing passwords..."
+    "message": "Analisi password..."
   },
   "calculatingRisks": {
-    "message": "Calculating risks..."
+    "message": "Calcolo dei rischi..."
   },
   "generatingReports": {
-    "message": "Generating reports..."
+    "message": "Generazione report..."
   },
   "compilingInsightsProgress": {
-    "message": "Compiling insights..."
+    "message": "Generazione dei consigli per l'ottimizzazione..."
   },
   "reportGenerationDone": {
-    "message": "Done!"
+    "message": "Fatto!"
   },
   "riskInsightsRunReport": {
     "message": "Avvia report"
@@ -5446,7 +5467,7 @@
     "message": "Numero minimo di parole"
   },
   "overridePasswordTypePolicy": {
-    "message": "Password Type",
+    "message": "Tipo di password",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -5729,7 +5750,7 @@
     }
   },
   "sendCreatedDescriptionPassword": {
-    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "message": "Copia e condividi questo link di Send. Sarà disponibile a chiunque abbia link e password per $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -5739,7 +5760,7 @@
     }
   },
   "sendCreatedDescriptionEmail": {
-    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "message": "Copia e condividi questo link Send: potrà essere visualizzato dalle persone che hai specificato per $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -6055,10 +6076,10 @@
     "message": "Scopri di più sul trasferimento"
   },
   "promptUsersToMoveItems": {
-    "message": "Prompt users to move individual vault items to the organization"
+    "message": "Chiede agli utenti di spostare singoli oggetti della cassaforte nell'organizzazione"
   },
   "promptUsersToMoveItemsCallout": {
-    "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+    "message": "I membri saranno invitati a trasferire i loro articoli all'organizzazione o ad abbandonarla. Se lasciano l'organizzazione, il loro accesso è revocato, ma può essere ripristinato in qualsiasi momento."
   },
   "organizationDataOwnership": {
     "message": "Forza la proprietà dei dati dell'organizzazione"
@@ -6098,7 +6119,7 @@
     "message": "Disponibile ora"
   },
   "automaticUserConfirmation": {
-    "message": "Automatic user confirmation"
+    "message": "Conferma automatica degli utenti"
   },
   "autoConfirmDescription": {
     "message": "I nuovi utenti invitati ad accedere all'organizzazione saranno automaticamente confermati quando il dispositivo di un amministratore è sbloccato.",
@@ -6154,19 +6175,19 @@
     "message": "Accetto questi rischi e aggiornamenti sulle politiche"
   },
   "autoConfirmEnabledByAdmin": {
-    "message": "Turned on Automatic user confirmation setting"
+    "message": "Conferma automatica degli utenti attivata"
   },
   "autoConfirmDisabledByAdmin": {
-    "message": "Turned off Automatic user confirmation setting"
+    "message": "Conferma automatica degli utenti disattivata"
   },
   "autoConfirmEnabledByPortal": {
-    "message": "Added Automatic user confirmation policy"
+    "message": "Criterio di conferma automatica dell'utente aggiunto"
   },
   "autoConfirmDisabledByPortal": {
-    "message": "Removed Automatic user confirmation policy"
+    "message": "Criterio di conferma automatica dell'utente rimosso"
   },
   "system": {
-    "message": "System"
+    "message": "Sistema"
   },
   "personalOwnership": {
     "message": "Rimuovi cassaforte individuale"
@@ -6462,7 +6483,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "verifyYourEmailToViewThisSend": {
-    "message": "Verify your email to view this Send",
+    "message": "Verifica la tua email per visualizzare questo Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -6710,10 +6731,10 @@
     }
   },
   "reinviteSuccessToast": {
-    "message": "1 invitation sent"
+    "message": "Invito inviato"
   },
   "bulkReinviteSentToast": {
-    "message": "$COUNT$ invitations sent",
+    "message": "$COUNT$ inviti inviati",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6739,7 +6760,7 @@
     }
   },
   "bulkReinviteProgressTitle": {
-    "message": "$COUNT$ of $TOTAL$ invitations sent...",
+    "message": "$COUNT$ di $TOTAL$ inviti inviati...",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6752,10 +6773,10 @@
     }
   },
   "bulkReinviteProgressSubtitle": {
-    "message": "Keep this page open until all are sent."
+    "message": "Non chiudere questa pagina finché non sarà terminato l'invio di tutti gli inviti."
   },
   "bulkReinviteFailuresTitle": {
-    "message": "$COUNT$ invitations didn't send",
+    "message": "$COUNT$ inviti non inviati",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6764,10 +6785,10 @@
     }
   },
   "bulkReinviteFailureTitle": {
-    "message": "1 invitation didn't send"
+    "message": "Un invito non inviato"
   },
   "bulkReinviteFailureDescription": {
-    "message": "An error occurred while sending invitations to $COUNT$ of $TOTAL$ members. Try sending again, and if the problem continues,",
+    "message": "Si è verificato un errore durante l'invio degli inviti a $COUNT$ utenti su $TOTAL$. Prova di nuovo, e se il problema persiste",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6780,7 +6801,7 @@
     }
   },
   "bulkResendInvitations": {
-    "message": "Try sending again"
+    "message": "Riprova"
   },
   "bulkRemovedMessage": {
     "message": "Rimosso"
@@ -7424,7 +7445,7 @@
     "message": "Codice di verifica non valido"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "Codice di verifica email non valido"
   },
   "keyConnectorDomain": {
     "message": "Dominio Key Connector"
@@ -8310,6 +8331,9 @@
   "members": {
     "message": "Membri"
   },
+  "membersAtRisk": {
+    "message": "Members at risk"
+  },
   "reporting": {
     "message": "Rapporti"
   },
@@ -8580,6 +8604,14 @@
   "newProject": {
     "message": "Nuovo progetto",
     "description": "Title for creating a new project."
+  },
+  "clickToRenameProject": {
+    "message": "Clicca per rinominare questo progetto",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "Impossibile decifrare il nome del progetto - Clicca sul progetto per rinominare",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
     "message": "Eliminare segreti può influenzare le integrazioni esistenti.",
@@ -10224,7 +10256,7 @@
     "message": "Assegna attività"
   },
   "allTasksAssigned": {
-    "message": "All tasks have been assigned"
+    "message": "Tutte le attività sono state assegnate"
   },
   "assignSecurityTasksToMembers": {
     "message": "Invia notifiche ai membri per invitarli a modificare le loro password"
@@ -10631,7 +10663,7 @@
     "message": "Invia i dati dell'evento all'istanza di Huntress SIEM"
   },
   "integrationConnectedSuccessfully": {
-    "message": "$INTEGRATION$ connected successfully.",
+    "message": "$INTEGRATION$ connesso con successo.",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10643,7 +10675,7 @@
     "message": "Impossibile salvare l'integrazione. Riprova più tardi."
   },
   "mustBeOrganizationOwnerAdmin": {
-    "message": "You must be an Organization Owner or Admin to perform this action."
+    "message": "Devi essere un proprietario o amministratore dell'organizzazione per eseguire questa azione."
   },
   "mustBeOrgOwnerToPerformAction": {
     "message": "Devi essere il proprietario dell'organizzazione per eseguire questa azione."
@@ -10993,7 +11025,7 @@
     "message": "Disattivo"
   },
   "memberAccessReportLoadError": {
-    "message": "Failed to load the member access report. This may be due to a large organization size or network issue. Please try again or contact support if the problem persists."
+    "message": "Impossibile caricare il report di accesso dei membri. Potrebbe trattarsi di un problema di dimensioni enormi del file o di connettività. Riprova o contatta l'assistenza."
   },
   "kdfIterationRecommends": {
     "message": "Consigliamo 600,000 o più"
@@ -11045,6 +11077,9 @@
   },
   "clientDetails": {
     "message": "Dettagli cliente"
+  },
+  "downloadChart": {
+    "message": "Download chart"
   },
   "downloadCSV": {
     "message": "Scarica CSV"
@@ -11498,6 +11533,18 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "Utente $ID$ auto-rimosso dall'organizzazione.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "userSelfRevokedOrganizationOwnership": {
+    "message": "Revoked for declining transfer to organization ownership."
+  },
   "suspendedOrganizationTitle": {
     "message": "L'organizzazione $ORGANIZATION$ è sospesa",
     "placeholders": {
@@ -11948,10 +11995,10 @@
     "message": "Gli elementi archiviati appariranno qui e saranno esclusi dai risultati di ricerca e dall'auto-riempimento."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "Elemento archiviato"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "Elemento estratto dall'archivio"
   },
   "bulkArchiveItems": {
     "message": "Elementi archiviati"
@@ -12551,12 +12598,6 @@
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Prima di attivare questa politica è necessario attivare un dominio."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Imposta un metodo di sblocco per modificare l'azione al timeout della cassaforte."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Le impostazioni di timeout sono state impostate secondo le politiche aziendali"
-  },
   "vaultTimeoutTooLarge": {
     "message": "Il timeout della tua cassaforte supera i limiti impostati dalla tua organizzazione."
   },
@@ -12631,7 +12672,7 @@
     "message": "Vuoi davvero continuare?"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Errore: impossibile decrittare"
   },
   "userVerificationFailed": {
     "message": "Verifica dell'utente non riuscita."
@@ -12755,8 +12796,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ richiede che tutti gli elementi siano di proprietà dell'organizzazione per motivi di conformità e sicurezza. Clicca su 'Accetta' per trasferire la proprietà.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ richiede che tutti gli elementi siano di proprietà dell'organizzazione per motivi di sicurezza e di conformità alle policy.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12764,14 +12805,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Clicca su 'Accetta' per il trasferimento di proprietà."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Leggi di più sul trasferimento di proprietà degli elementi della cassaforte"
+  },
   "acceptTransfer": {
     "message": "Accetta il trasferimento"
   },
   "declineAndLeave": {
     "message": "Rifiuta e abbandona"
-  },
-  "whyAmISeeingThis": {
-    "message": "Perché vedo questo avviso?"
   },
   "youHaveBitwardenPremium": {
     "message": "Hai Bitwarden Premium"
@@ -12896,7 +12940,7 @@
     "message": "Hai usato tutti i $GB$ GB del tuo spazio di archiviazione crittografato. Per archiviare altri file, aggiungi altro spazio."
   },
   "extensionPromptHeading": {
-    "message": "Get the extension for easy vault access"
+    "message": "Installa l'estensione per un accesso facile, comodo e veloce alla cassaforte"
   },
   "extensionPromptBody": {
     "message": "With the browser extension installed, you'll take Bitwarden everywhere online. It'll fill in passwords, so you can log into your accounts with a single click."
@@ -12921,9 +12965,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Inserisci più indirizzi email separandoli con virgole."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
@@ -13032,6 +13073,70 @@
       "date": {
         "content": "$2",
         "example": "Jan 1, 1970"
+      }
+    }
+  },
+  "sendsTitleNoSearchResults": {
+    "message": "No search results returned"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Clear filters or try another search term"
+  },
+  "pastMonth": {
+    "message": "Past month"
+  },
+  "past3Months": {
+    "message": "Past 3 months"
+  },
+  "past6Months": {
+    "message": "Past 6 months"
+  },
+  "pastYear": {
+    "message": "Past year"
+  },
+  "allTime": {
+    "message": "All time"
+  },
+  "timePeriod": {
+    "message": "Time period"
+  },
+  "of": {
+    "message": "of"
+  },
+  "coachmarkImportTitle": {
+    "message": "Quickly import your passwords"
+  },
+  "coachmarkImportDescription": {
+    "message": "Did you have a password manager before? You can import a CSV of existing logins and other data into your vault."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Add an item"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Add new passwords, notes, and other info to your vault. Everything is protected with end-to-end encryption."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Safely share items with others"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "By moving an item into a collection, you can securely share it with other people in your organization."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Monitor your password security"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
+  },
+  "coachmarkStepIndicator": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
       }
     }
   }

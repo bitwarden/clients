@@ -2,8 +2,17 @@
   "allApplications": {
     "message": "Alle programmer"
   },
+  "allMembers": {
+    "message": "All members"
+  },
+  "allPasswords": {
+    "message": "All passwords"
+  },
   "activity": {
-    "message": "Activity"
+    "message": "Aktivitet"
+  },
+  "applicationsAtRisk": {
+    "message": "Applications at risk"
   },
   "appLogoLabel": {
     "message": "Bitwarden-logo"
@@ -12,10 +21,10 @@
     "message": "Kritiske programmer"
   },
   "noCriticalAppsAtRisk": {
-    "message": "No critical applications at risk"
+    "message": "Ingen kritiske applikasjoner i fare"
   },
   "critical": {
-    "message": "Critical ($COUNT$)",
+    "message": "Kritisk ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -24,7 +33,7 @@
     }
   },
   "notCritical": {
-    "message": "Not critical ($COUNT$)",
+    "message": "Ikke kritisk ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -33,28 +42,37 @@
     }
   },
   "criticalBadge": {
-    "message": "Critical"
+    "message": "Kritisk"
   },
   "accessIntelligence": {
-    "message": "Access Intelligence"
+    "message": "Tilgangsintelligens"
   },
   "noApplicationsMatchTheseFilters": {
-    "message": "No applications match these filters"
+    "message": "Ingen applikasjoner samsvarer med disse filtrene"
   },
   "passwordRisk": {
-    "message": "Password Risk"
+    "message": "Passordrisiko"
+  },
+  "passwords": {
+    "message": "Passwords"
+  },
+  "riskOverTime": {
+    "message": "Risk over time"
+  },
+  "passwordsAtRisk": {
+    "message": "Passwords at risk"
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "Du har ikke tillatelse til å redigere dette elementet"
   },
   "reviewAccessIntelligence": {
-    "message": "Review security reports to find and fix credential risks before they escalate."
+    "message": "Gå gjennom sikkerhetsrapporter for å finne og rette opp legitimasjonsrisikoer før de eskalerer."
   },
   "reviewAtRiskLoginsPrompt": {
-    "message": "Review at-risk logins"
+    "message": "Gå gjennom risikoutsatte pålogginger"
   },
   "dataLastUpdated": {
-    "message": "Data last updated: $DATE$",
+    "message": "Data sist oppdatert: $DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -63,7 +81,7 @@
     }
   },
   "noReportRan": {
-    "message": "You have not created a report yet"
+    "message": "Du har ikke opprettet en rapport ennå"
   },
   "notifiedMembers": {
     "message": "Notified members"
@@ -1369,7 +1387,7 @@
     "message": "Elementer sendt til papirkurv"
   },
   "movedItems": {
-    "message": "Flyttede elementer"
+    "message": "Elementer flyttet"
   },
   "overwritePasswordConfirmation": {
     "message": "Er du sikker på at du vil overskrive det nåværende passordet?"
@@ -1474,10 +1492,10 @@
     "message": "Logg inn med passnøkkel"
   },
   "useSingleSignOn": {
-    "message": "Bruk singulær pålogging"
+    "message": "Bruk enkel pålogging (SSO)"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Organisasjonen din krever enkel pålogging (SSO)."
   },
   "welcomeBack": {
     "message": "Velkommen tilbake"
@@ -1834,7 +1852,7 @@
     "message": "Ny organisasjon"
   },
   "noOrganizationsList": {
-    "message": "Du tilhører ikke noen organisasjoner. Organisasjoner gjør det mulig for deg å trygt dele elementer med andre brukere."
+    "message": "Du tilhører ingen organisasjoner. Organisasjoner lar deg dele elementer sikkert med andre brukere."
   },
   "notificationSentDevice": {
     "message": "Et varsel har blitt sendt til enheten din."
@@ -1976,10 +1994,10 @@
     "message": "Organisasjoner"
   },
   "moveToOrgDesc": {
-    "message": "Velg en organisasjon som du ønsker å flytte dette elementet til. Flytting til en organisasjon overfører eierskap til den aktuelle organisasjonen. Du vil ikke lenger være den direkte eieren av dette elementet når det er flyttet."
+    "message": "Velg en organisasjon du ønsker å flytte dette elementet til. Flytting til en organisasjon overfører eierskapet til elementet til den organisasjonen. Du vil ikke lenger være den direkte eieren av dette elementet etter at det er flyttet."
   },
   "collectionsDesc": {
-    "message": "Rediger samlingene som dette elementet blir delt med. Kun organisasjonsbrukere med tilgang til disse samlingene vil kunne se dette elementet."
+    "message": "Rediger samlingene som dette elementet deles med. Kun organisasjonsbrukere med tilgang til disse samlingene vil kunne se dette elementet."
   },
   "deleteSelectedItemsDesc": {
     "message": "Du har valgt $COUNT$ elementer(er) for sletting. Er du sikker på du vil slette alle disse elementene?",
@@ -2102,6 +2120,9 @@
   },
   "exportSuccess": {
     "message": "Ditt hvelvs data har blitt eksportert."
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
   },
   "passwordGenerator": {
     "message": "Passordgenerator"
@@ -2345,7 +2366,7 @@
     "message": "Hvelv tilgjengelig av leverandør."
   },
   "purgeVaultDesc": {
-    "message": "Fortsett nedenfor for å slette alle elementer og mapper i ditt hvelv. Elementer som tilhører en organisasjon som du deler med, vil ikke bli slettet."
+    "message": "Fortsett nedenfor for å slette alle elementer og mapper i hvelvet ditt. Elementer som tilhører en organisasjon du deler med, vil ikke bli slettet."
   },
   "purgeOrgVaultDesc": {
     "message": "Fortsett nedenfor for å slette alle elementer i organisasjonens hvelv."
@@ -2421,7 +2442,7 @@
     "message": "Dataene har blitt vellykket importert inn i hvelvet ditt."
   },
   "importSuccessNumberOfItems": {
-    "message": "$AMOUNT$ gjenstander totalt ble importert.",
+    "message": "Totalt ble $AMOUNT$ elementer importert.",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -3047,16 +3068,16 @@
   "breachDesc": {
     "message": "Kontoer som har blitt avslørt kan lekke personlig informasjon. Gjør kontoene tryggere ved å aktivere 2FA eller ved å lage et sterkere passord."
   },
-  "breachCheckUsernameEmail": {
-    "message": "Sjekk de brukernavnene eller E-postadressene du bruker."
+  "breachCheckEmail": {
+    "message": "Check any email addresses that you use."
   },
   "checkBreaches": {
     "message": "Sjekk databrudd"
   },
-  "breachUsernameNotFound": {
-    "message": "$USERNAME$ ble ikke funnet i noen kjente databrudd.",
+  "breachEmailNotFound": {
+    "message": "$EMAIL$ was not found in any known data breaches.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3087,10 @@
     "message": "Gode nyheter",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "$USERNAME$ ble funnet i $COUNT$ forskjellige databrudd på nettet.",
+  "breachEmailFound": {
+    "message": "$EMAIL$ was found in $COUNT$ different data breaches online.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -3785,7 +3806,7 @@
     "message": "Vilkår"
   },
   "singleSignOn": {
-    "message": "Enkelt pålogging"
+    "message": "Enkel pålogging (SSO)"
   },
   "editPolicy": {
     "message": "Endre vilkår"
@@ -3833,10 +3854,10 @@
     "message": "Den eksterne Id-en kan brukes som referanse eller for å koble denne ressursen til et eksternt system, for eksempel en brukerkatalog."
   },
   "ssoExternalId": {
-    "message": "SSO External ID"
+    "message": "Ekstern SSO-ID"
   },
   "ssoExternalIdDesc": {
-    "message": "SSO External ID is an unencrypted reference between Bitwarden and your configured SSO provider."
+    "message": "Ekstern SSO-ID er en ukryptert referanse mellom Bitwarden og den konfigurerte SSO-leverandøren din."
   },
   "nestCollectionUnder": {
     "message": "Plasser samling under"
@@ -3923,7 +3944,7 @@
     "message": "Admin"
   },
   "adminDesc": {
-    "message": "Administratorer kan få tilgang til og behandle alle elementer, samlinger og brukere i din organisasjon."
+    "message": "Administrer organisasjonstilgang, alle samlinger, medlemmer, rapportering og sikkerhetsinnstillinger"
   },
   "user": {
     "message": "Bruker"
@@ -4365,7 +4386,7 @@
     }
   },
   "unlinkedSso": {
-    "message": "Unlinked SSO."
+    "message": "Frakoblet SSO."
   },
   "unlinkedSsoUser": {
     "message": "Koblet fra SSO for brukeren $ID$.",
@@ -5566,16 +5587,16 @@
     "message": "Organisasjons identifikator"
   },
   "ssoLogInWithOrgIdentifier": {
-    "message": "Logg inn ved hjelp av din organisasjons eneste signalportal. Angi din organisasjons identifikator for å begynne."
+    "message": "Logg inn via organisasjonens portal for enkel pålogging. Skriv inn organisasjonens SSO-identifikator for å starte."
   },
   "singleSignOnEnterOrgIdentifier": {
-    "message": "Enter your organization's SSO identifier to begin"
+    "message": "Skriv inn organisasjonens SSO-identifikator for å starte"
   },
   "singleSignOnEnterOrgIdentifierText": {
-    "message": "To log in with your SSO provider, enter your organization's SSO identifier to begin. You may need to enter this SSO identifier when you log in from a new device."
+    "message": "For å logge inn med SSO-leverandøren din, skriv inn organisasjonens SSO-identifikator for å starte. Du kan måtte skrive inn denne SSO-identifikatoren når du logger inn fra en ny enhet."
   },
   "enterpriseSingleSignOn": {
-    "message": "Bedriftsinnlogging (SSO)"
+    "message": "Bedriftens enkel pålogging (SSO)"
   },
   "ssoHandOff": {
     "message": "Du kan nå lukke denne fanen og fortsette i utvidelsen."
@@ -5623,11 +5644,11 @@
     "message": "SSO-identifikator"
   },
   "ssoIdentifierHint": {
-    "message": "Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. ",
+    "message": "Gi denne ID-en til medlemmene dine slik at de kan logge inn med SSO. Medlemmer kan hoppe over å skrive inn denne identifikatoren under SSO hvis et bekreftet domene er satt opp. ",
     "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "claimedDomainsLearnMore": {
-    "message": "Learn more",
+    "message": "Finn ut mer",
     "description": "This will be used as part of a larger sentence, broken up to include a link. The full sentence will read 'Provide this ID to your members to login with SSO. Members can skip entering this identifier during SSO if a claimed domain is set up. Learn more'"
   },
   "unlinkSso": {
@@ -5655,10 +5676,10 @@
     "message": "Non-compliant members will be placed in revoked status until they leave all other organizations. Administrators are exempt and can restore members once compliance is met."
   },
   "requireSso": {
-    "message": "Single på-på-autentisering"
+    "message": "Krev enkel pålogging (SSO)"
   },
   "requireSsoPolicyDesc": {
-    "message": "Krev brukere å logge inn med Enterprise Single Sign-On metoden."
+    "message": "Krev at medlemmer logger inn med bedriftens metode for enkel pålogging (SSO)."
   },
   "prerequisite": {
     "message": "Forutsetninger"
@@ -6172,7 +6193,7 @@
     "message": "Personlig eierskap"
   },
   "personalOwnershipPolicyDesc": {
-    "message": "Krev at brukere lagrer hvelv-elementer i en organisasjon ved å fjerne den personlige eierskapsmodulen."
+    "message": "Krev at medlemmer lagrer elementer i en organisasjon ved å fjerne alternativet for personlig hvelv."
   },
   "personalOwnershipExemption": {
     "message": "Organisasjonens eiere og administratorer er unntatt fra denne policyens håndheving."
@@ -6315,7 +6336,7 @@
     "message": "Manage account recovery"
   },
   "disableRequiredError": {
-    "message": "Du må manuelt deaktivere $POLICYNAME$ policyen før denne policyen kan deaktiveres.",
+    "message": "Du må manuelt slå på policyen $POLICYNAME$ før denne policyen kan slås av.",
     "placeholders": {
       "policyName": {
         "content": "$1",
@@ -6327,7 +6348,7 @@
     "message": "En bedriftsretningslinje påvirker dine eierskapsinnstillinger."
   },
   "personalOwnershipPolicyInEffectImports": {
-    "message": "En virksomhetsregel har deaktivert import av elementer til ditt personlige hvelv."
+    "message": "En organisasjonspolicy har blokkert import av elementer til ditt personlige hvelv."
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Deaktiver personlig eierskap for organisasjonsbrukere"
@@ -6388,7 +6409,7 @@
     "message": "Strengthen business security."
   },
   "strengthenBusinessSecurityDescription": {
-    "message": "Maintain tight control over machine and human access to secrets with SSO integrations, event logs, and access rotation."
+    "message": "Oppretthold streng kontroll over maskin- og menneskelig tilgang til hemmeligheter med SSO-integrasjoner, hendelseslogger og tilgangsrotasjon."
   },
   "tryItNow": {
     "message": "Try it now"
@@ -6979,10 +7000,10 @@
     "message": "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour."
   },
   "automaticAppLoginWithSSO": {
-    "message": "Automatic login with SSO"
+    "message": "Automatisk pålogging med enkel pålogging (SSO)"
   },
   "automaticAppLoginWithSSODesc": {
-    "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
+    "message": "Utvid sikkerheten og brukervennligheten ved enkel pålogging (SSO) til uadministrerte apper. Når brukere starter en app fra identitetsleverandøren din, fylles påloggingsdetaljene automatisk ut og sendes inn, noe som skaper en sikker arbeidsflyt med ett klikk fra identitetsleverandøren til appen."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identity provider host"
@@ -7106,7 +7127,7 @@
     "message": "Remove export"
   },
   "disablePersonalVaultExportDescription": {
-    "message": "Do not allow members to export data from their individual vault."
+    "message": "Ikke tillat at medlemmer eksporterer data fra sitt personlige hvelv."
   },
   "vaultExportDisabled": {
     "message": "Hvelveksportering er skrudd av"
@@ -7223,7 +7244,7 @@
     "message": "Bindingstype"
   },
   "idpSingleSignOnServiceUrl": {
-    "message": "Single Sign-On tjeneste URL"
+    "message": "Tjenestens URL for enkel pålogging (SSO)"
   },
   "idpSingleLogoutServiceUrl": {
     "message": "Single Log Out-tjeneste URL"
@@ -7244,7 +7265,7 @@
     "message": "Signér autentiseringsforespørseler"
   },
   "ssoSettingsSaved": {
-    "message": "Single Sign-On konfigurasjon ble lagret."
+    "message": "Konfigurasjon for enkel pålogging (SSO) lagret"
   },
   "sponsoredFamilies": {
     "message": "Gratis Bitwarden Familier"
@@ -7445,15 +7466,15 @@
     "message": "Når dette er satt opp vil konfigurasjonen din lagres og medlemmer vil kunne autentiseres ved å bruke legitimasjon fra deres identitetstilbyder."
   },
   "ssoPolicyHelpStart": {
-    "message": "Skru på",
+    "message": "Bruk ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpAnchor": {
-    "message": "require single sign-on authentication policy",
+    "message": "krev autentiseringspolicy for enkel pålogging (SSO)",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpEnd": {
-    "message": "for å få alle medlemmer til å logge inn med SSO.",
+    "message": "for å kreve at alle medlemmer logger inn med enkel pålogging (SSO).",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "memberDecryptionOption": {
@@ -7466,15 +7487,15 @@
     "message": "Nøkkel Connector"
   },
   "memberDecryptionKeyConnectorDescStart": {
-    "message": "Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The",
+    "message": "Koble pålogging med SSO til din selvdriftede dekrypteringsnøkkelserver. Ved å bruke dette alternativet trenger ikke medlemmer å bruke hovedpassordene sine for å dekryptere hvelvdata. Den",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "memberDecryptionKeyConnectorDescLink": {
-    "message": "require SSO authentication and single organization policies",
+    "message": "krever SSO-autentisering og policy for én organisasjon",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "memberDecryptionKeyConnectorDescEnd": {
-    "message": "are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.",
+    "message": "er påkrevd for å konfigurere dekryptering med Key Connector. Kontakt Bitwarden Support for hjelp med oppsett.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "keyConnectorPolicyRestriction": {
@@ -7484,10 +7505,10 @@
     "message": "Skrudde på SSO"
   },
   "ssoTurnedOff": {
-    "message": "SSO turned off"
+    "message": "SSO slått av"
   },
   "emailMustLoginWithSso": {
-    "message": "$EMAIL$ must login with Single Sign-on",
+    "message": "$EMAIL$ må logge inn med enkel pålogging (SSO)",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -7710,7 +7731,7 @@
     "message": "Eksporterer organisasjonshvelv"
   },
   "exportingIndividualVaultDescription": {
-    "message": "Kun de individuelle hvelvgjenstandene som er assosiert med $EMAIL$ vil bli eksportert. Organisasjonshvelv-gjenstander vil ikke bli inkludert. Kun hvelvgjenstandsinfo vil bli eksportert og vil ikke inkludere assosierte vedlegg.",
+    "message": "Kun elementer i det personlige hvelvet som er knyttet til $EMAIL$, vil bli eksportert. Elementer i organisasjonens hvelv vil ikke bli inkludert. Kun informasjon om hvelvelementer vil bli eksportert og vil ikke omfatte tilknyttede vedlegg.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -7719,7 +7740,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "message": "Kun de individuelle hvelvoppføringene, inkludert vedlegg, som er knyttet til $EMAIL$, vil bli eksportert. Hvelvoppføringer fra organisasjonen vil ikke bli inkludert",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -7728,7 +7749,7 @@
     }
   },
   "exportingOrganizationVaultDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. Items in individual vaults or other organizations will not be included.",
+    "message": "Kun organisasjonshvelvet som er knyttet til $ORGANIZATION$, vil bli eksportert. Elementer i individuelle hvelv eller andre organisasjoner vil ikke bli inkludert.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -7737,7 +7758,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Kun organisasjonshvelvet som er knyttet til $ORGANIZATION$, vil bli eksportert.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -7746,7 +7767,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Kun organisasjonshvelvet som er knyttet til $ORGANIZATION$, vil bli eksportert. Samlinger i Mine elementer blir ikke inkludert.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -7847,7 +7868,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "message": " Bruk $RECOMMENDED$ ord eller flere for å generere en sterk passfrase.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -8310,6 +8331,9 @@
   "members": {
     "message": "Medlemmer"
   },
+  "membersAtRisk": {
+    "message": "Members at risk"
+  },
   "reporting": {
     "message": "Rapportering"
   },
@@ -8580,6 +8604,14 @@
   "newProject": {
     "message": "Nytt prosjekt",
     "description": "Title for creating a new project."
+  },
+  "clickToRenameProject": {
+    "message": "Click to rename this project",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "Cannot decrypt project name - click project to rename",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
     "message": "Sletting av hemmeligheter kan påvirke eksisterende integrasjoner.",
@@ -9579,11 +9611,11 @@
     "message": "Trusted devices"
   },
   "memberDecryptionOptionTdeDescPart1": {
-    "message": "Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The",
+    "message": "Medlemmer vil ikke trenge et hovedpassord når de logger inn med SSO. Hovedpassordet erstattes av en krypteringsnøkkel som lagres på enheten, noe som gjør enheten pålitelig. Den første enheten et medlem oppretter kontoen sin på og logger inn med, vil være pålitelig. Nye enheter må godkjennes av en eksisterende pålitelig enhet eller av en administrator. Den",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink1": {
-    "message": "single organization",
+    "message": "policy for én organisasjon",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart2": {
@@ -9591,19 +9623,19 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink2": {
-    "message": "SSO required",
+    "message": "påkrevd SSO",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart3": {
-    "message": "policy, and",
+    "message": "policy, og",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink3": {
-    "message": "account recovery administration",
+    "message": "administrasjon av kontogjenoppretting",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart4": {
-    "message": "policy will turn on when this option is used.",
+    "message": "policyene vil bli aktivert når dette alternativet brukes.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
@@ -9772,10 +9804,10 @@
     "message": "Neste"
   },
   "ssoLoginIsRequired": {
-    "message": "SSO login is required"
+    "message": "SSO-pålogging er påkrevd"
   },
   "emailRequiredForSsoLogin": {
-    "message": "Email is required for SSO"
+    "message": "E-post er påkrevd for SSO"
   },
   "selectedRegionFlag": {
     "message": "Selected region flag"
@@ -10270,7 +10302,7 @@
     "message": "Rediger felt"
   },
   "items": {
-    "message": "Gjenstander"
+    "message": "Elementer"
   },
   "assignedSeats": {
     "message": "Assigned seats"
@@ -10527,7 +10559,7 @@
     "message": "Delete provider"
   },
   "deleteProviderConfirmation": {
-    "message": "Deleting a provider is permanent and irreversible. Enter your master password to confirm the deletion of the provider and all associated data."
+    "message": "Sletting av en leverandør er permanent og kan ikke angres. Skriv inn hovedpassordet ditt for å bekrefte slettingen av leverandøren og alle tilknyttede data."
   },
   "deleteProviderName": {
     "message": "Cannot delete $ID$",
@@ -10579,14 +10611,14 @@
     "message": "SDK-er"
   },
   "sdksDesc": {
-    "message": "Use Bitwarden Secrets Manager SDK in the following programming languages to build your own applications."
+    "message": "Bruk Bitwarden Secrets Manager SDK i følgende programmeringsspråk for å bygge dine egne applikasjoner."
   },
   "ssoDescStart": {
-    "message": "Sett opp",
+    "message": "Konfigurer",
     "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
   "ssoDescEnd": {
-    "message": "for Bitwarden using the implementation guide for your Identity Provider.",
+    "message": "for Bitwarden ved bruk av implementeringsveiledningen for identitetsleverandøren din.",
     "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
   "userProvisioning": {
@@ -10826,7 +10858,7 @@
     "message": "Enter your Enterprise organization information"
   },
   "viewItemsIn": {
-    "message": "Vis gjenstander i $NAME$",
+    "message": "Vis elementer i $NAME$",
     "description": "Button to view the contents of a folder or collection",
     "placeholders": {
       "name": {
@@ -11046,6 +11078,9 @@
   "clientDetails": {
     "message": "Klientdetaljer"
   },
+  "downloadChart": {
+    "message": "Download chart"
+  },
   "downloadCSV": {
     "message": "Last ned CSV"
   },
@@ -11220,7 +11255,7 @@
     }
   },
   "includeSsoAuthenticationMessage": {
-    "message": "SSO Authentication"
+    "message": "SSO-autentisering"
   },
   "familiesPlanInvLimitReachedManageBilling": {
     "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to invite more members.",
@@ -11328,7 +11363,7 @@
     "message": "Directory integration"
   },
   "passwordLessSso": {
-    "message": "Passwordless SSO"
+    "message": "Passordfri SSO"
   },
   "accountRecovery": {
     "message": "Kontogjenoppretting"
@@ -11478,7 +11513,7 @@
     }
   },
   "organizationUserDeletedDesc": {
-    "message": "The user was removed from the organization and all associated user data has been deleted."
+    "message": "Brukeren ble fjernet fra organisasjonen, og alle tilknyttede brukerdata er slettet."
   },
   "deletedUserIdEventMessage": {
     "message": "Deleted user $ID$",
@@ -11497,6 +11532,18 @@
         "example": "First 8 Character of a GUID"
       }
     }
+  },
+  "userSelfRevokedFromOrganization": {
+    "message": "User $ID$ self-revoked from organization.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "userSelfRevokedOrganizationOwnership": {
+    "message": "Revoked for declining transfer to organization ownership."
   },
   "suspendedOrganizationTitle": {
     "message": "The $ORGANIZATION$ is suspended",
@@ -11604,7 +11651,7 @@
     "message": "Pending"
   },
   "claimedDomainsDescription": {
-    "message": "Claim a domain to own member accounts. The SSO identifier page will be skipped during login for members with claimed domains and administrators will be able to delete claimed accounts."
+    "message": "Krev eierskap til et domene for å eie medlemskontoer. Siden for SSO-identifikator blir hoppet over under pålogging for medlemmer med bekreftede domener, og administratorer vil kunne slette bekreftede kontoer."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Input is not a valid format. Format: mydomain.com. Subdomains require separate entries to be claimed."
@@ -12551,12 +12598,6 @@
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "A domain must be claimed before activating this policy."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Set up an unlock method to change your vault timeout action."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
-  },
   "vaultTimeoutTooLarge": {
     "message": "Your vault timeout exceeds the restrictions set by your organization."
   },
@@ -12755,8 +12796,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12764,14 +12805,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
   },
   "youHaveBitwardenPremium": {
     "message": "You have Bitwarden Premium"
@@ -12922,9 +12966,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -13032,6 +13073,70 @@
       "date": {
         "content": "$2",
         "example": "Jan 1, 1970"
+      }
+    }
+  },
+  "sendsTitleNoSearchResults": {
+    "message": "No search results returned"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Clear filters or try another search term"
+  },
+  "pastMonth": {
+    "message": "Past month"
+  },
+  "past3Months": {
+    "message": "Past 3 months"
+  },
+  "past6Months": {
+    "message": "Past 6 months"
+  },
+  "pastYear": {
+    "message": "Past year"
+  },
+  "allTime": {
+    "message": "All time"
+  },
+  "timePeriod": {
+    "message": "Time period"
+  },
+  "of": {
+    "message": "of"
+  },
+  "coachmarkImportTitle": {
+    "message": "Quickly import your passwords"
+  },
+  "coachmarkImportDescription": {
+    "message": "Did you have a password manager before? You can import a CSV of existing logins and other data into your vault."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Add an item"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Add new passwords, notes, and other info to your vault. Everything is protected with end-to-end encryption."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Safely share items with others"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "By moving an item into a collection, you can securely share it with other people in your organization."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Monitor your password security"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
+  },
+  "coachmarkStepIndicator": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
       }
     }
   }
