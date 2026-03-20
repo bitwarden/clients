@@ -1,11 +1,9 @@
 import { Subscription } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import {
-  CommandDefinition,
-  MessageListener,
-  MessageSender,
-} from "@bitwarden/common/platform/messaging";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
+import { DialogService } from "@bitwarden/components";
 import { AcquiredCookie, ServerCommunicationConfigPlatformApi } from "@bitwarden/sdk-internal";
 
 export const SSO_COOKIE_VENDOR_CALLBACK_COMMAND = new CommandDefinition<{ urlString: string }>(
@@ -21,14 +19,20 @@ export const SSO_COOKIE_VENDOR_CALLBACK_COMMAND = new CommandDefinition<{ urlStr
  * @remarks
  * - Prompts user to open browser to a specific URL for cookie acquisition
  * - Listens for callbacks via MessageListener subscribing to SSO_COOKIE_VENDOR_CALLBACK_COMMAND
- * - Deduplicates concurrent calls (single in-flight promise)
+ * - Deduplicates concurrent calls across both the dialog phase and callback-waiting phase
  * - 5-minute timeout for safety
  * - Returns undefined on timeout/cancellation (not error)
  *
  */
 export class ServerCommunicationConfigPlatformApiService implements ServerCommunicationConfigPlatformApi {
+  // Tracks the hostname and shared promise for the full flow (dialog + callback).
+  // Used for deduplication: a second call for the same hostname returns this promise directly.
+  private pendingHostname: string | null = null;
+  private pendingPromise: Promise<AcquiredCookie[] | undefined> | null = null;
+
+  // Tracks only the callback-waiting phase (set after the user approves the dialog).
+  // Used by handleCallback and cancelPendingAcquisition to resolve/cancel the callback wait.
   private pendingAcquisition: {
-    hostname: string;
     resolve: (cookies: AcquiredCookie[] | undefined) => void;
     timeoutId: NodeJS.Timeout;
   } | null = null;
@@ -43,48 +47,80 @@ export class ServerCommunicationConfigPlatformApiService implements ServerCommun
   private static readonly TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
   constructor(
-    private messageSender: MessageSender,
+    private platformUtilsService: PlatformUtilsService,
     private messageListener: MessageListener,
     private logService: LogService,
+    private dialogService: DialogService,
   ) {}
 
   async acquireCookies(vaultUrl: string): Promise<AcquiredCookie[] | undefined> {
-    // Deduplicate concurrent calls - return existing promise
-    if (this.pendingAcquisition) {
-      if (this.pendingAcquisition.hostname === vaultUrl) {
+    if (this.pendingHostname !== null) {
+      if (this.pendingHostname === vaultUrl && this.pendingPromise !== null) {
+        // Same hostname - return the shared in-flight promise (covers both dialog and callback phases)
         this.logService.info(
           "Cookie acquisition already in progress for hostname, returning existing promise",
         );
-        return new Promise((resolve) => {
-          const existing = this.pendingAcquisition!.resolve;
-          this.pendingAcquisition!.resolve = (cookies) => {
-            existing(cookies);
-            resolve(cookies);
-          };
-        });
-      } else {
-        // Different hostname - cancel previous and start new
-        this.logService.warning("Cancelling previous cookie acquisition for different hostname");
-        this.cleanup();
+        return this.pendingPromise;
       }
+      // Different hostname - cancel previous and start new
+      this.logService.warning("Cancelling previous cookie acquisition for different hostname");
+      this.cancelPendingAcquisition();
     }
 
-    return new Promise((resolve) => {
-      // Set 5-minute timeout
-      const timeoutId = setTimeout(() => {
-        this.logService.warning(`Cookie acquisition timeout for ${vaultUrl}`);
-        this.cleanup();
-        resolve(undefined);
-      }, ServerCommunicationConfigPlatformApiService.TIMEOUT_MS);
+    const normalizedVaultUrl = vaultUrl.startsWith("https://") ? vaultUrl : `https://${vaultUrl}`;
+    const url = `${normalizedVaultUrl}/proxy-cookie-redirect-connector.html`;
+    this.logService.info(`Opening browser for cookie acquisition: ${url}`);
 
-      this.pendingAcquisition = { hostname: vaultUrl, resolve, timeoutId };
+    this.pendingHostname = vaultUrl;
+    this.pendingPromise = this.runAcquisitionFlow(vaultUrl, url, normalizedVaultUrl);
+    return this.pendingPromise;
+  }
 
-      // Prompt user to open browser to cookie redirect page
-      const normalizedVaultUrl = vaultUrl.startsWith("https://") ? vaultUrl : `https://${vaultUrl}`;
-      const url = `${normalizedVaultUrl}/proxy-cookie-redirect-connector.html`;
-      this.logService.info(`Opening browser for cookie acquisition: ${url}`);
-      this.messageSender.send("showAcquireCookieSpeedbump", { vaultUrl, connectorUrl: url });
-    });
+  /**
+   * Runs the full acquisition flow: dialog prompt, then browser launch and callback wait.
+   * Separated from acquireCookies so the promise can be shared across concurrent callers.
+   */
+  private async runAcquisitionFlow(
+    vaultUrl: string,
+    url: string,
+    normalizedVaultUrl: string,
+  ): Promise<AcquiredCookie[] | undefined> {
+    try {
+      const approved = await this.dialogService.openSimpleDialog({
+        title: { key: "syncWithBrowser" },
+        content: { key: "acquireCookieSpeedbumpContent", placeholders: [normalizedVaultUrl] },
+        acceptButtonText: { key: "launchBrowser" },
+        cancelButtonText: { key: "later" },
+        type: "warning",
+      });
+
+      // Guard: a different-hostname call may have cancelled this flow while the dialog was open
+      if (this.pendingHostname !== vaultUrl) {
+        return undefined;
+      }
+
+      if (!approved) {
+        return undefined;
+      }
+
+      return await new Promise<AcquiredCookie[] | undefined>((resolve) => {
+        const timeoutId = setTimeout(() => {
+          this.logService.warning(`Cookie acquisition timeout for ${vaultUrl}`);
+          this.pendingAcquisition = null;
+          resolve(undefined);
+        }, ServerCommunicationConfigPlatformApiService.TIMEOUT_MS);
+
+        this.pendingAcquisition = { resolve, timeoutId };
+        this.platformUtilsService.launchUri(url);
+      });
+    } finally {
+      // Only clear shared state if this flow is still the active one
+      if (this.pendingHostname === vaultUrl) {
+        this.pendingHostname = null;
+        this.pendingPromise = null;
+        this.pendingAcquisition = null;
+      }
+    }
   }
 
   /**
@@ -117,8 +153,9 @@ export class ServerCommunicationConfigPlatformApiService implements ServerCommun
 
       this.logService.info(`Acquired ${cookies.length} cookie(s)`);
       clearTimeout(this.pendingAcquisition.timeoutId);
-      this.pendingAcquisition.resolve(cookies.length > 0 ? cookies : undefined);
-      this.cleanup();
+      const { resolve } = this.pendingAcquisition;
+      this.pendingAcquisition = null;
+      resolve(cookies.length > 0 ? cookies : undefined);
     } catch (error) {
       this.logService.error("Failed to parse cookie callback URL", error);
       this.cancelPendingAcquisition();
@@ -126,18 +163,13 @@ export class ServerCommunicationConfigPlatformApiService implements ServerCommun
   }
 
   private cancelPendingAcquisition(): void {
+    this.logService.info("Cancelling pending cookie acquisition");
     if (this.pendingAcquisition) {
-      this.logService.info("Cancelling pending cookie acquisition");
       clearTimeout(this.pendingAcquisition.timeoutId);
       this.pendingAcquisition.resolve(undefined);
-      this.cleanup();
+      this.pendingAcquisition = null;
     }
-  }
-
-  /**
-   * Cleans up pending acquisition state.
-   */
-  private cleanup(): void {
-    this.pendingAcquisition = null;
+    this.pendingHostname = null;
+    this.pendingPromise = null;
   }
 }

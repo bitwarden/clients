@@ -591,19 +591,33 @@ const safeProviders: SafeProvider[] = [
     provide: ServerCommunicationConfigService,
     useFactory: (
       stateProvider: StateProvider,
-      messageSender: MessageSender,
+      platformUtilsService: PlatformUtilsService,
       messageListener: MessageListener,
       logService: LogService,
       configService: ConfigService,
       apiService: ApiService,
+      dialogService: DialogService,
     ) =>
       new DefaultServerCommunicationConfigService(
         new ServerCommunicationConfigRepository(stateProvider),
-        new ServerCommunicationConfigPlatformApiService(messageSender, messageListener, logService),
+        new ServerCommunicationConfigPlatformApiService(
+          platformUtilsService,
+          messageListener,
+          logService,
+          dialogService,
+        ),
         configService,
         apiService,
       ),
-    deps: [StateProvider, MessageSender, MessageListener, LogService, ConfigService, ApiService],
+    deps: [
+      StateProvider,
+      PlatformUtilsService,
+      MessageListener,
+      LogService,
+      ConfigService,
+      ApiService,
+      DialogService,
+    ],
   }),
 ];
 
