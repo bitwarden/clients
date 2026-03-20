@@ -115,15 +115,15 @@ export class NavItemComponent extends NavBaseComponent {
   protected readonly focusVisibleWithin = signal(false);
   protected readonly fvwStyles = computed(() =>
     this.focusVisibleWithin()
-      ? "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-border-sidenav-focus"
+      ? "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-border-nav-focus"
       : "",
   );
 
   /* Determine start slot hover style depending on if item is active/selected */
   protected readonly startSlotHoverClass = computed(() =>
     this.showActiveStyles()
-      ? "[&>*]:hover:!tw-bg-bg-sidenav-active-arrow-hover"
-      : "[&>*]:hover:!tw-bg-bg-sidenav-arrow-hover",
+      ? "[&>*]:hover:!tw-bg-bg-nav-hover-strong"
+      : "[&>*]:hover:!tw-bg-bg-nav-hover",
   );
 
   protected onFocusIn(target: HTMLElement) {

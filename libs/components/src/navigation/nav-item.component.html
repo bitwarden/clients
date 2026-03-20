@@ -1,6 +1,6 @@
 @let open = sideNavService.open();
 @let containerClasses =
-  "tw-size-full tw-px-0 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-fg-sidenav-text hover:tw-text-fg-sidenav-text hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]";
+  "tw-size-full tw-px-0 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-fg-nav hover:tw-text-fg-nav hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]";
 
 <div class="tw-cursor-pointer tw-ps-3 tw-pe-3">
   @if (open || icon()) {
@@ -8,10 +8,9 @@
       [style.padding-inline-start]="navItemIndentationPadding()"
       class="tw-relative tw-rounded-xl tw-h-10"
       [class]="fvwStyles()"
-      [class.tw-bg-bg-sidenav-active-item]="showActiveStyles()"
-      [class.tw-bg-bg-sidenav-background]="!showActiveStyles()"
-      [class.hover:tw-bg-bg-sidenav-item-hover]="!showActiveStyles()"
-      [class.hover:tw-bg-bg-sidenav-active-item-hover]="showActiveStyles()"
+      [class.tw-bg-bg-nav-strong]="showActiveStyles()"
+      [class.hover:tw-bg-bg-nav-hover]="!showActiveStyles()"
+      [class.hover:tw-bg-bg-nav-hover-strong]="showActiveStyles()"
     >
       <div class="tw-relative tw-flex tw-items-center tw-h-full">
         @if (open) {
@@ -56,11 +55,11 @@
 
         @if (open) {
           <div
-            class="tw-flex tw-items-center tw-gap-1 tw-pe-3 [&:has(button[biticonbutton])]:tw-pe-2 [&>*]:tw-text-fg-sidenav-text empty:tw-hidden"
+            class="tw-flex tw-items-center tw-gap-1 tw-pe-3 [&:has(button[biticonbutton])]:tw-pe-2 [&>*]:tw-text-fg-nav empty:tw-hidden"
             [class]="
               showActiveStyles()
-                ? '[&_button[biticonbutton]:hover]:!tw-bg-bg-sidenav-active-item-hover'
-                : '[&_button[biticonbutton]:hover]:!tw-bg-bg-sidenav-item-hover'
+                ? '[&_button[biticonbutton]:hover]:!tw-bg-bg-nav-hover-strong'
+                : '[&_button[biticonbutton]:hover]:!tw-bg-bg-nav-hover'
             "
             (click)="$event.stopPropagation()"
           >
@@ -82,7 +81,7 @@
   >
     @if (icon()) {
       <i
-        class="!tw-m-0 tw-w-4 tw-shrink-0 bwi bwi-fw tw-text-fg-sidenav-text"
+        class="!tw-m-0 tw-w-4 tw-shrink-0 bwi bwi-fw tw-text-fg-nav"
         [class]="icon()"
         [attr.aria-hidden]="open"
         [attr.aria-label]="text()"
