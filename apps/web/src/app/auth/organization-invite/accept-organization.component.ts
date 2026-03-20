@@ -83,6 +83,15 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
     await this.navigateInviteAcceptance(invite);
   }
 
+  protected override getErrorMessage(errorMessage: string | null): string {
+    // Handle expired token specifically for org invites
+    if (errorMessage === "Expired token.") {
+      return this.i18nService.t(this.failedMessage);
+    }
+
+    return super.getErrorMessage(errorMessage);
+  }
+
   /**
    * In certain scenarios, we want to accelerate the user through the accept org invite process
    * For example, if the user has a BW account already, we want them to be taken to login instead of creation.
