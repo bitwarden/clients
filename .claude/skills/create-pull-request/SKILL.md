@@ -48,7 +48,7 @@ description: Pull request creation workflow for Bitwarden Clients. Use when crea
 git push -u origin <branch-name>
 
 # Create PR as draft by default (body follows .github/PULL_REQUEST_TEMPLATE.md)
-gh pr create --draft --title "[PM-XXXXX] feat: Short summary" --body "<fill in from PR template>"
+gh pr create --draft --title "[PM-XXXXX] Short summary" --body "<fill in from PR template>"
 ```
 
 **Default to draft PRs.** Only create a non-draft (ready for review) PR if the user explicitly requests it.
