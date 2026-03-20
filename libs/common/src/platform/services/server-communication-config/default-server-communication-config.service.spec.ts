@@ -173,10 +173,9 @@ describe("DefaultServerCommunicationConfigService", () => {
       expect(result).toBe(redirect);
     });
 
-    it("retries without acquireCookie on opaqueredirect when bootstrap not needed", async () => {
+    it("returns opaqueredirect response early without retry when bootstrap not needed", async () => {
       const redirect = { status: 0, type: "opaqueredirect" } as Response;
-      const ok = { status: 200, type: "default" } as Response;
-      next.mockResolvedValueOnce(redirect).mockResolvedValueOnce(ok);
+      next.mockResolvedValueOnce(redirect);
       mockClientInstance.needsBootstrap.mockResolvedValue(false);
 
       const result = await middleware(new Request("https://vault.acme.com/"), next);
@@ -184,8 +183,8 @@ describe("DefaultServerCommunicationConfigService", () => {
       expect(repository.get$).toHaveBeenCalledWith("vault.acme.com");
       expect(mockClientInstance.needsBootstrap).toHaveBeenCalledWith("vault.acme.com");
       expect(mockClientInstance.acquireCookie).not.toHaveBeenCalled();
-      expect(next).toHaveBeenCalledTimes(2);
-      expect(result).toBe(ok);
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(result).toBe(redirect);
     });
 
     it("returns opaqueredirect response without bootstrap when hostname cannot be extracted from URL", async () => {
