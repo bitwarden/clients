@@ -313,15 +313,15 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
       return null;
     }
 
-    const hostnameRules = rules[parsed.hostname];
+    const hostRules = rules[parsed.host];
 
-    // No rules for this hostname; fall through to heuristics
-    if (hostnameRules === undefined) {
+    // No rules for this host; fall through to heuristics
+    if (hostRules === undefined) {
       return null;
     }
 
     // Hostname blocklisted (null or empty): suppress autofill on all paths
-    if (hostnameRules === null || (!hostnameRules.forms?.length && !hostnameRules.pathnames)) {
+    if (hostRules === null || (!hostRules.forms?.length && !hostRules.pathnames)) {
       return [];
     }
 
@@ -329,10 +329,10 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     // Fall back to root path `/` to enable checking cases where
     // a rule signals a form that is ONLY on the domain's root page
     const pathname = parsed.pathname.replace(/\/+$/, "") || "/";
-    const hasPathnameKey = hostnameRules.pathnames != null && pathname in hostnameRules.pathnames;
+    const hasPathnameKey = hostRules.pathnames != null && pathname in hostRules.pathnames;
 
     if (hasPathnameKey) {
-      const pathnameEntry = hostnameRules.pathnames[pathname];
+      const pathnameEntry = hostRules.pathnames[pathname];
 
       // Pathname blocklisted (null/undefined/empty): suppress autofill on this path
       if (!pathnameEntry?.forms?.length) {
@@ -343,6 +343,6 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     }
 
     // No pathname-specific rule; fall back to hostname-level forms
-    return hostnameRules.forms?.length ? hostnameRules.forms : null;
+    return hostRules.forms?.length ? hostRules.forms : null;
   }
 }
