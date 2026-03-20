@@ -121,9 +121,7 @@ module.exports = {
         "hover-contrast": "var(--color-bg-hover-contrast)",
         overlay: "var(--color-bg-overlay)",
         nav: "var(--color-nav-bg-primary)",
-        "nav-strong": "var(--color-nav-bg-primary-strong)",
         "nav-hover": "var(--color-nav-bg-primary-hover)",
-        "nav-hover-strong": "var(--color-nav-bg-primary-hover-strong)",
       },
       hover: {
         default: "var(--color-hover-default)",

@@ -119,13 +119,6 @@ export class NavItemComponent extends NavBaseComponent {
       : "",
   );
 
-  /* Determine start slot hover style depending on if item is active/selected */
-  protected readonly startSlotHoverClass = computed(() =>
-    this.showActiveStyles()
-      ? "[&>*]:hover:!tw-bg-bg-nav-hover-strong"
-      : "[&>*]:hover:!tw-bg-bg-nav-hover",
-  );
-
   protected onFocusIn(target: HTMLElement) {
     this.focusVisibleWithin.set(target.matches("[data-fvw]:focus-visible"));
   }

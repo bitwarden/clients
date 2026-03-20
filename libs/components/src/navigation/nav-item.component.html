@@ -6,17 +6,18 @@
   @if (open || icon()) {
     <div
       [style.padding-inline-start]="navItemIndentationPadding()"
-      class="tw-relative tw-rounded-xl tw-h-10"
+      class="tw-relative tw-rounded-xl tw-h-10 tw-bg-bg-nav hover:tw-bg-bg-nav-hover"
       [class]="fvwStyles()"
-      [class.tw-bg-bg-nav-strong]="showActiveStyles()"
-      [class.hover:tw-bg-bg-nav-hover]="!showActiveStyles()"
-      [class.hover:tw-bg-bg-nav-hover-strong]="showActiveStyles()"
+      [style]="
+        showActiveStyles()
+          ? '--color-nav-bg-primary: var(--color-nav-bg-primary-strong); --color-nav-bg-secondary: var(--color-nav-bg-secondary-strong); --color-nav-bg-primary-hover: var(--color-nav-bg-primary-hover-strong); --color-nav-bg-secondary-hover: var(--color-nav-bg-secondary-hover-strong);'
+          : ''
+      "
     >
       <div class="tw-relative tw-flex tw-items-center tw-h-full">
         @if (open) {
           <div
             class="tw-absolute tw-left-[0px] tw-transform tw--translate-x-[calc(100%_+_4px)] [&>*:focus-visible::before]:!tw-ring-border-focus"
-            [class]="startSlotHoverClass()"
           >
             <ng-content select="[slot=start]"></ng-content>
           </div>
@@ -56,11 +57,6 @@
         @if (open) {
           <div
             class="tw-flex tw-items-center tw-gap-1 tw-pe-3 [&:has(button[biticonbutton])]:tw-pe-2 [&>*]:tw-text-fg-nav empty:tw-hidden"
-            [class]="
-              showActiveStyles()
-                ? '[&_button[biticonbutton]:hover]:!tw-bg-bg-nav-hover-strong'
-                : '[&_button[biticonbutton]:hover]:!tw-bg-bg-nav-hover'
-            "
             (click)="$event.stopPropagation()"
           >
             <ng-content select="[slot=end]"></ng-content>
