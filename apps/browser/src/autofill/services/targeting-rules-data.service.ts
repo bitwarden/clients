@@ -145,12 +145,17 @@ export class TargetingRulesDataService {
       return;
     }
 
-    const sourceUrl = await this._resolveSourceUrl();
+    const sourceUrl = new URL(await this._resolveSourceUrl());
 
-    this.logService.info(`[TargetingRulesDataService] Fetching targeting rules from ${sourceUrl}`);
+    // Add query for CDN cache-busting; we're already caching at intervals locally
+    sourceUrl.searchParams.set("_", Date.now().toString());
+
+    this.logService.info(
+      `[TargetingRulesDataService] Fetching targeting rules from ${sourceUrl.href}`,
+    );
 
     try {
-      const response = await this.apiService.nativeFetch(new Request(sourceUrl));
+      const response = await this.apiService.nativeFetch(new Request(sourceUrl.href));
 
       if (!response.ok) {
         throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
