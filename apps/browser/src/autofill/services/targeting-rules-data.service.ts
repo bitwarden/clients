@@ -14,7 +14,7 @@ import {
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { AutofillTargetingRulesByDomain } from "@bitwarden/common/autofill/types";
+import { TargetingRulesByDomain } from "@bitwarden/common/autofill/types";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -28,7 +28,7 @@ import {
 
 /** Fallback URI used when the server does not provide a targeting rules URI */
 const DEFAULT_TARGETING_RULES_SOURCE_URL =
-  "https://raw.githubusercontent.com/bitwarden/map-the-web/main/field-locations.json";
+  "https://raw.githubusercontent.com/bitwarden/map-the-web/refs/heads/main/maps/forms.json";
 
 type TargetingRulesDataMeta = {
   /** The last time the data set was updated  */
@@ -156,7 +156,7 @@ export class TargetingRulesDataService {
         throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
       }
 
-      const rules: AutofillTargetingRulesByDomain = await response.json();
+      const rules: TargetingRulesByDomain = await response.json();
 
       await this.domainSettingsService.setTargetingRules(rules);
       await this._metaState.update(() => ({ timestamp: Date.now() }));
