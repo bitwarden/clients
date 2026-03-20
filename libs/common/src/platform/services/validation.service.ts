@@ -20,12 +20,7 @@ export class ValidationService implements ValidationServiceAbstraction {
     } else if (data.validationErrors != null) {
       errors = errors.concat((data as ErrorResponse).getAllMessages());
     } else {
-      const extracted = this.extractErrorMessagesFromMessage(data.message);
-      if (extracted.length > 0) {
-        errors = errors.concat(extracted);
-      } else {
-        errors.push(data.message ? data.message : defaultErrorMessage);
-      }
+      errors.push(data.message ? data.message : defaultErrorMessage);
     }
 
     if (errors.length === 1) {
@@ -37,38 +32,5 @@ export class ValidationService implements ValidationServiceAbstraction {
     }
 
     return errors;
-  }
-
-  /**
-   * Attempts to extract user-friendly error messages from an error message string
-   * that may contain an embedded JSON API response (e.g., SDK errors with the format
-   * "[400 Bad Request] {json body}").
-   */
-  private extractErrorMessagesFromMessage(message: string): string[] {
-    if (!message) {
-      return [];
-    }
-
-    const jsonStart = message.indexOf("{");
-    if (jsonStart === -1) {
-      return [];
-    }
-
-    try {
-      const json = JSON.parse(message.substring(jsonStart));
-      const errorResponse = new ErrorResponse(json, 0);
-
-      if (errorResponse.validationErrors != null) {
-        return errorResponse.getAllMessages();
-      }
-
-      if (errorResponse.message) {
-        return [errorResponse.message];
-      }
-    } catch {
-      // Message did not contain valid JSON
-    }
-
-    return [];
   }
 }

@@ -85,6 +85,7 @@ import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
+import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
@@ -744,7 +745,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ChangePasswordService,
     useClass: ExtensionChangePasswordService,
-    deps: [KeyService, MasterPasswordApiService, InternalMasterPasswordServiceAbstraction, WINDOW],
+    deps: [
+      KeyService,
+      MasterPasswordApiService,
+      InternalMasterPasswordServiceAbstraction,
+      MasterPasswordUnlockService,
+      WINDOW,
+    ],
   }),
   safeProvider({
     provide: ServerNotificationsService,
