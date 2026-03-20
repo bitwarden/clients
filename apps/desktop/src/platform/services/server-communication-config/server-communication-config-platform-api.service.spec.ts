@@ -1,56 +1,98 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { Subject } from "rxjs";
 
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DialogService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { MessageListener, MessageSender } from "@bitwarden/messaging";
+import { MessageListener } from "@bitwarden/messaging";
 import { AcquiredCookie } from "@bitwarden/sdk-internal";
 
 import { ServerCommunicationConfigPlatformApiService } from "./server-communication-config-platform-api.service";
 
 describe("ServerCommunicationConfigPlatformApiService", () => {
-  let messageSender: MockProxy<MessageSender>;
+  let platformUtilsService: MockProxy<PlatformUtilsService>;
   let messageListener: MockProxy<MessageListener>;
   let logService: MockProxy<LogService>;
+  let dialogService: MockProxy<DialogService>;
   let service: ServerCommunicationConfigPlatformApiService;
   let callbackSubject: Subject<{ urlString: string }>;
 
+  // Flush all pending microtasks so the dialog mock can resolve before the callback is sent
+  const flushDialog = () => Promise.resolve();
+
   beforeEach(() => {
-    messageSender = mock<MessageSender>();
+    platformUtilsService = mock<PlatformUtilsService>();
     messageListener = mock<MessageListener>();
     logService = mock<LogService>();
+    dialogService = mock<DialogService>();
 
-    // Create a Subject to simulate message stream
+    // Default: user approves the dialog
+    dialogService.openSimpleDialog.mockResolvedValue(true);
+
     callbackSubject = new Subject<{ urlString: string }>();
     messageListener.messages$.mockReturnValue(callbackSubject.asObservable());
 
     service = new ServerCommunicationConfigPlatformApiService(
-      messageSender,
+      platformUtilsService,
       messageListener,
       logService,
+      dialogService,
     );
   });
 
   describe("acquireCookies", () => {
-    it("sends showAcquireCookieSpeedbump command with correct payload", async () => {
+    it("shows dialog with correct parameters and launches browser on approval", async () => {
       const promise = service.acquireCookies("vault.acme.com");
 
-      expect(messageSender.send).toHaveBeenCalledWith("showAcquireCookieSpeedbump", {
-        connectorUrl: "https://vault.acme.com/proxy-cookie-redirect-connector.html",
-        vaultUrl: "vault.acme.com",
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
+        title: { key: "syncWithBrowser" },
+        content: {
+          key: "acquireCookieSpeedbumpContent",
+          placeholders: ["https://vault.acme.com"],
+        },
+        acceptButtonText: { key: "launchBrowser" },
+        cancelButtonText: { key: "later" },
+        type: "warning",
       });
 
-      // Simulate callback to resolve promise
-      callbackSubject.next({
-        urlString: "bitwarden://sso-cookie-vendor?testCookie=value123",
-      });
+      await flushDialog();
 
+      expect(platformUtilsService.launchUri).toHaveBeenCalledWith(
+        "https://vault.acme.com/proxy-cookie-redirect-connector.html",
+      );
+
+      // Resolve the promise via callback
+      callbackSubject.next({ urlString: "bitwarden://sso-cookie-vendor?testCookie=value123" });
+      await promise;
+    });
+
+    it("returns undefined and does not launch browser when user cancels dialog", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+
+      const result = await service.acquireCookies("vault.acme.com");
+
+      expect(result).toBeUndefined();
+      expect(platformUtilsService.launchUri).not.toHaveBeenCalled();
+    });
+
+    it("normalizes vault URL without https:// prefix", async () => {
+      const promise = service.acquireCookies("vault.acme.com");
+
+      await flushDialog();
+
+      expect(platformUtilsService.launchUri).toHaveBeenCalledWith(
+        "https://vault.acme.com/proxy-cookie-redirect-connector.html",
+      );
+
+      callbackSubject.next({ urlString: "bitwarden://sso-cookie-vendor?cookie=val" });
       await promise;
     });
 
     it("parses single cookie from callback URL", async () => {
       const promise = service.acquireCookies("vault.acme.com");
 
-      // Simulate callback with single cookie
+      await flushDialog();
+
       callbackSubject.next({
         urlString: "bitwarden://sso-cookie-vendor?AWSELBAuthSessionCookie=abc123",
       });
@@ -63,7 +105,8 @@ describe("ServerCommunicationConfigPlatformApiService", () => {
     it("parses sharded cookies from callback URL", async () => {
       const promise = service.acquireCookies("vault.acme.com");
 
-      // Simulate callback with sharded cookies
+      await flushDialog();
+
       callbackSubject.next({
         urlString:
           "bitwarden://sso-cookie-vendor?AWSELBAuthSessionCookie-0=part1&AWSELBAuthSessionCookie-1=part2&AWSELBAuthSessionCookie-2=part3",
@@ -81,7 +124,8 @@ describe("ServerCommunicationConfigPlatformApiService", () => {
     it("excludes 'd' parameter from cookies", async () => {
       const promise = service.acquireCookies("vault.acme.com");
 
-      // Simulate callback with 'd' integrity marker
+      await flushDialog();
+
       callbackSubject.next({
         urlString:
           "bitwarden://sso-cookie-vendor?AWSELBAuthSessionCookie=abc123&d=integrity_marker_value",
@@ -89,13 +133,14 @@ describe("ServerCommunicationConfigPlatformApiService", () => {
 
       const result = await promise;
 
-      // Should only have the cookie, not the 'd' parameter
       expect(result).toEqual([{ name: "AWSELBAuthSessionCookie", value: "abc123" }]);
       expect(result?.find((c: AcquiredCookie) => c.name === "d")).toBeUndefined();
     });
 
     it("returns undefined when no cookies in callback", async () => {
       const promise = service.acquireCookies("vault.acme.com");
+
+      await flushDialog();
 
       // Simulate callback with only 'd' parameter (which is excluded)
       callbackSubject.next({
@@ -112,7 +157,9 @@ describe("ServerCommunicationConfigPlatformApiService", () => {
 
       const promise = service.acquireCookies("vault.acme.com");
 
-      // Fast-forward time by 5 minutes
+      // Flush dialog before advancing timers — timeout only starts after approval
+      await flushDialog();
+
       jest.advanceTimersByTime(5 * 60 * 1000);
 
       const result = await promise;
@@ -129,66 +176,68 @@ describe("ServerCommunicationConfigPlatformApiService", () => {
       const promise1 = service.acquireCookies("vault.acme.com");
       const promise2 = service.acquireCookies("vault.acme.com");
 
-      // Should only launch browser once
-      expect(messageSender.send).toHaveBeenNthCalledWith(1, "showAcquireCookieSpeedbump", {
-        connectorUrl: "https://vault.acme.com/proxy-cookie-redirect-connector.html",
-        vaultUrl: "vault.acme.com",
-      });
+      // Dialog should only be shown once; promise2 reuses the in-flight promise
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
 
-      // Simulate callback
+      await flushDialog();
+
       callbackSubject.next({
         urlString: "bitwarden://sso-cookie-vendor?cookie=value",
       });
 
       const [result1, result2] = await Promise.all([promise1, promise2]);
 
-      // Both promises should resolve with same result
       expect(result1).toEqual([{ name: "cookie", value: "value" }]);
       expect(result2).toEqual([{ name: "cookie", value: "value" }]);
     });
 
     it("cancels previous acquisition when different hostname requested", async () => {
-      jest.useFakeTimers();
+      // Vault1's dialog is controlled manually so it stays open during the test
+      let resolveVault1Dialog: (value: boolean) => void;
+      const vault1DialogPromise = new Promise<boolean>((resolve) => {
+        resolveVault1Dialog = resolve;
+      });
+      dialogService.openSimpleDialog
+        .mockReturnValueOnce(vault1DialogPromise) // vault1: dialog stays open
+        .mockResolvedValue(true); // vault2: dialog approves immediately
 
-      // The esline rule below is disabled, as the promise purposefully is not awaited/resolved, to test the behaviour.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       service.acquireCookies("vault1.acme.com");
 
-      // Request acquisition for different hostname
       const promise2 = service.acquireCookies("vault2.acme.com");
-
-      // Should launch browser twice (once for each hostname)
-      expect(messageSender.send).toHaveBeenCalledTimes(2);
-      expect(messageSender.send).toHaveBeenCalledWith("showAcquireCookieSpeedbump", {
-        connectorUrl: "https://vault1.acme.com/proxy-cookie-redirect-connector.html",
-        vaultUrl: "vault1.acme.com",
-      });
-      expect(messageSender.send).toHaveBeenCalledWith("showAcquireCookieSpeedbump", {
-        connectorUrl: "https://vault2.acme.com/proxy-cookie-redirect-connector.html",
-        vaultUrl: "vault2.acme.com",
-      });
-
-      // Simulate callback for second hostname
-      callbackSubject.next({
-        urlString: "bitwarden://sso-cookie-vendor?cookie=value2",
-      });
-
-      // First promise should still be pending (not resolved)
-      // Second promise should resolve
-      const result2 = await promise2;
-      expect(result2).toEqual([{ name: "cookie", value: "value2" }]);
 
       expect(logService.warning).toHaveBeenCalledWith(
         "Cancelling previous cookie acquisition for different hostname",
       );
 
-      jest.useRealTimers();
+      // Dialog was requested for both hostnames
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(2);
+
+      // Flush vault2's dialog — vault1's is still pending
+      await flushDialog();
+
+      // Browser only launched for vault2 (vault1 never got past its dialog)
+      expect(platformUtilsService.launchUri).toHaveBeenCalledTimes(1);
+      expect(platformUtilsService.launchUri).toHaveBeenCalledWith(
+        "https://vault2.acme.com/proxy-cookie-redirect-connector.html",
+      );
+
+      callbackSubject.next({
+        urlString: "bitwarden://sso-cookie-vendor?cookie=value2",
+      });
+
+      const result2 = await promise2;
+      expect(result2).toEqual([{ name: "cookie", value: "value2" }]);
+
+      // Silence the unused variable warning from the deferred promise setup
+      resolveVault1Dialog!(false);
     });
 
     it("handles invalid callback URL gracefully", async () => {
       const promise = service.acquireCookies("vault.acme.com");
 
-      // Simulate callback with invalid URL
+      await flushDialog();
+
       callbackSubject.next({
         urlString: "not-a-valid-url",
       });
@@ -203,7 +252,6 @@ describe("ServerCommunicationConfigPlatformApiService", () => {
     });
 
     it("ignores callback when no acquisition pending", () => {
-      // Simulate callback without any pending acquisition
       callbackSubject.next({
         urlString: "bitwarden://sso-cookie-vendor?cookie=value",
       });

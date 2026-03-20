@@ -135,11 +135,6 @@ export class ServerCommunicationConfigPlatformApiService implements ServerCommun
       return;
     }
 
-    if (!urlString) {
-      this.cancelPendingAcquisition();
-      return;
-    }
-
     try {
       const url = new URL(urlString);
       const cookies: AcquiredCookie[] = [];
