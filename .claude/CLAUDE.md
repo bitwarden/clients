@@ -10,8 +10,6 @@
 
 ## Critical Rules
 
-- **ALWAYS** use `.github/PULL_REQUEST_TEMPLATE.md` as the body structure when suggesting a PR description.
-
 - **NEVER** use code regions: If complexity suggests regions, refactor for better readability
 
 - **CRITICAL**: new encryption logic should not be added to this repo.
