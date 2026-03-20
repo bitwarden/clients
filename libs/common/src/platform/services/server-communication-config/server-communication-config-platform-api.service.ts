@@ -45,10 +45,10 @@ export class ServerCommunicationConfigPlatformApiService implements ServerCommun
     private logService: LogService,
   ) {}
 
-  async acquireCookies(hostname: string): Promise<AcquiredCookie[] | undefined> {
+  async acquireCookies(vaultUrl: string): Promise<AcquiredCookie[] | undefined> {
     // Deduplicate concurrent calls - return existing promise
     if (this.pendingAcquisition) {
-      if (this.pendingAcquisition.hostname === hostname) {
+      if (this.pendingAcquisition.hostname === vaultUrl) {
         this.logService.info(
           "Cookie acquisition already in progress for hostname, returning existing promise",
         );
@@ -69,17 +69,17 @@ export class ServerCommunicationConfigPlatformApiService implements ServerCommun
     return new Promise((resolve) => {
       // Set 5-minute timeout
       const timeoutId = setTimeout(() => {
-        this.logService.warning(`Cookie acquisition timeout for ${hostname}`);
+        this.logService.warning(`Cookie acquisition timeout for ${vaultUrl}`);
         this.cleanup();
         resolve(undefined);
       }, ServerCommunicationConfigPlatformApiService.TIMEOUT_MS);
 
-      this.pendingAcquisition = { hostname, resolve, timeoutId };
+      this.pendingAcquisition = { hostname: vaultUrl, resolve, timeoutId };
 
       // Open browser to cookie redirect page
-      // FIXME: Ensure that hostname either includes the schema and remove the httpsL//-prefiox or strip it beforehand
-      const url = `https://${hostname}/proxy-cookie-redirect-connector.html`;
-      this.logService.info(`Opening browser for cookie acquisition: ${url}`);
+      const normalizedVaultUrl = vaultUrl.startsWith("https://") ? vaultUrl : `https://${vaultUrl}`;
+      const url = `${normalizedVaultUrl}/proxy-cookie-redirect-connector.html`;
+      this.logService.info(`Opening browser for cookie acquisition: ${normalizedVaultUrl}`);
       this.platformUtilsService.launchUri(url);
     });
   }

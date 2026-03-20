@@ -96,6 +96,7 @@ import { AppIdService } from "../platform/abstractions/app-id.service";
 import { Environment, EnvironmentService } from "../platform/abstractions/environment.service";
 import { LogService } from "../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
+import { buildFetchPipeline, FetchMiddleware } from "../platform/misc/fetch-middleware";
 import { flagEnabled } from "../platform/misc/flags";
 import { Utils } from "../platform/misc/utils";
 import { SyncResponse } from "../platform/sync";
@@ -139,9 +140,10 @@ export class ApiService implements ApiServiceAbstraction {
     "new device verification required";
 
   /**
-   * Middlewares are functions that take a Request and return a Promise that resolves when the middleware is done processing the request. Middlewares are executed in the order they are added, and can modify the request before it is sent. This is used for things like adding cookies to requests for SSO authentication.
+   * Middlewares wrap the fetch call in a chain. Each middleware receives the request and a `next`
+   * function, and can modify requests, inspect/modify responses, retry, or short-circuit.
    */
-  private middlewares: Array<(request: Request) => Promise<void>> = [];
+  private middlewares: FetchMiddleware[] = [];
 
   constructor(
     private tokenService: TokenService,
@@ -1324,7 +1326,7 @@ export class ApiService implements ApiServiceAbstraction {
     return accessToken;
   }
 
-  addMiddleware(middleware: (request: Request) => Promise<void>): void {
+  addMiddleware(middleware: FetchMiddleware): void {
     this.middlewares.push(middleware);
   }
 
@@ -1348,13 +1350,8 @@ export class ApiService implements ApiServiceAbstraction {
       request.headers.set("Bitwarden-Package-Type", packageType);
     }
 
-    await Promise.all(
-      this.middlewares.map((middleware) => {
-        return middleware(request);
-      }),
-    );
-
-    return this.nativeFetch(request);
+    const pipeline = buildFetchPipeline(this.middlewares, (req) => this.nativeFetch(req));
+    return pipeline(request);
   }
 
   nativeFetch(request: Request): Promise<Response> {
