@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Настройки за отключване"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Задайте метод за отключване, за да може да промените действието при изтичане на времето за достъп до трезора."
-  },
   "unlockMethodNeeded": {
     "message": "Задайте метод за отключване в Настройките"
   },
   "sessionTimeoutHeader": {
     "message": "Изтичане на времето за сесията"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Време за достъп до трезора"
   },
   "otherOptions": {
     "message": "Други настройки"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Действие при изтичане на времето"
   },
-  "vaultTimeoutAction1": {
-    "message": "Действие при изтичането на времето за достъп"
-  },
   "lock": {
     "message": "Заключване",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Минути"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Изискванията на политиката за големи компании бяха приложени към настройките на времето за достъп"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Настройките на организацията Ви влияят върху времето за достъп до трезора Ви. Максималното разрешено време за достъп е $HOURS$ час(а) и $MINUTES$ минути",
@@ -6130,8 +6118,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ изисква всички елементи да станат притежание на организацията, за по-добра сигурност и съвместимост. Изберете, че приемате, за да прехвърлите собствеността на елементите си към организацията.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ изисква всички данни да бъдат притежание на организацията, с цел сигурност и съгласуваност.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6127,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Натиснете бутона за приемане, за да прехвърлите собствеността на данните си."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Отваряне на помощната информация относно прехвърлянето на данни"
+  },
   "acceptTransfer": {
     "message": "Приемане на прехвърлянето"
   },
   "declineAndLeave": {
     "message": "Отказване и напускане"
-  },
-  "whyAmISeeingThis": {
-    "message": "Защо виждам това?"
   },
   "items": {
     "message": "Елементи"
@@ -6178,9 +6169,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Можете да въведете повече е-пощи, като ги разделите със запетая."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Потвърждаването на е-пощата изисква да е наличен поне един адрес на е-поща. Ако искате да премахнете всички е-пощи, променете начина за достъп по-горе."
-  },
   "emailPlaceholder": {
     "message": "потребител@bitwarden.com , потребител@acme.com"
   },
@@ -6196,5 +6184,8 @@
   },
   "userVerificationFailed": {
     "message": "Проверката на потребителя беше неуспешна."
+  },
+  "downloadFailed": {
+    "message": "Неуспешно сваляне."
   }
 }

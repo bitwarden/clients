@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Opções de desbloqueio"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configure um método de desbloqueio para alterar a ação do limite de tempo do cofre."
-  },
   "unlockMethodNeeded": {
     "message": "Configure um método de desbloqueio nas Configurações"
   },
   "sessionTimeoutHeader": {
     "message": "Limite de tempo da sessão"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Limite de tempo do cofre"
   },
   "otherOptions": {
     "message": "Outras opções"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Ação do limite de tempo do cofre"
   },
-  "vaultTimeoutAction1": {
-    "message": "Ação do limite de tempo"
-  },
   "lock": {
     "message": "Bloquear",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Minutos"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Os requisitos de política empresarial foram aplicados às suas opções de limite de tempo"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "As políticas da sua organização configuraram o seu máximo permitido do limite de tempo do cofre para $HOURS$ hora(s) e $MINUTES$ minuto(s).",
@@ -4866,7 +4854,7 @@
     "message": "Copiar endereço"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "Meus itens"
   },
   "adminConsole": {
     "message": "Painel de administração"
@@ -6130,8 +6118,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ exige que todos os itens sejam propriedade da organização por segurança e conformidade. Clique em aceitar para transferir a propriedade dos seus itens.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ está exigindo que todos os itens sejam propriedade da organização por segurança e conformidade.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6127,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Clique em aceitar para transferir a propriedade dos seus itens."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Abrir artigo de ajuda sobre a transferência de itens"
+  },
   "acceptTransfer": {
     "message": "Aceitar transferência"
   },
   "declineAndLeave": {
     "message": "Recusar e sair"
-  },
-  "whyAmISeeingThis": {
-    "message": "Por que estou vendo isso?"
   },
   "items": {
     "message": "Itens"
@@ -6155,13 +6146,13 @@
     "message": "Resultados da busca"
   },
   "simplifiedAutofill": {
-    "message": "Simplified autofill"
+    "message": "Preenchimento simplificado"
   },
   "simplifiedAutofillDescription": {
-    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+    "message": "Ao clicar em um item sugerido para preencher, será preenchido em vez de te levar aos detalhes. Você pode ver esses itens no menu de Mais."
   },
   "openSimplifiedAutofillPopover": {
-    "message": "Open simplified autofill popover"
+    "message": "Abrir sobreposição de preenchimento simplificado"
   },
   "resizeSideNavigation": {
     "message": "Redimensionar navegação lateral"
@@ -6178,9 +6169,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Digite vários e-mails, separados com uma vírgula."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "A verificação de e-mail requer pelo menos um endereço de e-mail. Para remover todos, altere o tipo de acesso acima."
-  },
   "emailPlaceholder": {
     "message": "usuário@bitwarden.com , usuário@acme.com"
   },
@@ -6196,5 +6184,8 @@
   },
   "userVerificationFailed": {
     "message": "Falha na verificação do usuário."
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }
