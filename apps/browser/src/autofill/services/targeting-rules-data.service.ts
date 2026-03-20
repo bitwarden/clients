@@ -175,7 +175,6 @@ export class TargetingRulesDataService {
         error,
       );
       await this.domainSettingsService.setTargetingRules({});
-      await this._metaState.update(() => ({ timestamp: Date.now() }));
     }
   }
 
