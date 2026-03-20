@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, from, map, merge, Observable, of, shareReplay, switchMap } from "rxjs";
+import { from, map, merge, Observable, of, shareReplay, Subject, switchMap } from "rxjs";
 
 import { DiscountTierType } from "@bitwarden/common/billing/enums";
 import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
@@ -14,7 +14,7 @@ const DISCOUNT_EXPIRED_MESSAGE = "Discount expired. Please review your cart tota
 
 @Injectable({ providedIn: "root" })
 export class SubscriptionDiscountService {
-  private readonly refreshTrigger = new BehaviorSubject<void>(undefined);
+  private readonly refreshTrigger = new Subject<void>();
 
   constructor(
     private accountBillingClient: AccountBillingClient,

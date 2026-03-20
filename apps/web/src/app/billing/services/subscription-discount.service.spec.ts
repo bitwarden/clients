@@ -60,21 +60,17 @@ describe("SubscriptionDiscountService", () => {
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
       mockAccountBillingClient.getApplicableDiscounts.mockResolvedValue(discounts);
 
-      // First subscription: cache miss on initial fetch + BehaviorSubject = 2 API calls
+      // First subscription: cache miss → 1 API call
       const sub1 = sut.getEligibleDiscounts$().subscribe();
       await new Promise((r) => setTimeout(r));
       sub1.unsubscribe();
-      const callsAfterFirst = (mockAccountBillingClient.getApplicableDiscounts as jest.Mock).mock
-        .calls.length;
 
-      // Second subscription: cache hit on initial fetch (no call) + BehaviorSubject = 1 API call
+      // Second subscription: cache hit → 0 additional API calls
       const sub2 = sut.getEligibleDiscounts$().subscribe();
       await new Promise((r) => setTimeout(r));
       sub2.unsubscribe();
 
-      expect(mockAccountBillingClient.getApplicableDiscounts).toHaveBeenCalledTimes(
-        callsAfterFirst + 1,
-      );
+      expect(mockAccountBillingClient.getApplicableDiscounts).toHaveBeenCalledTimes(1);
     });
 
     it("re-fetches from the API when refresh() is called and emits the updated discounts", async () => {
@@ -103,22 +99,22 @@ describe("SubscriptionDiscountService", () => {
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
       mockAccountBillingClient.getApplicableDiscounts.mockResolvedValue([makeDiscount()]);
 
-      // Keep a live subscription so the refreshTrigger is active
+      // Keep a live subscription and call refresh
       const sub = sut.getEligibleDiscounts$().subscribe();
-      await new Promise((r) => setTimeout(r)); // let initial fetches settle
+      await new Promise((r) => setTimeout(r)); // let initial fetch settle
       sut.refresh();
       await new Promise((r) => setTimeout(r)); // let refresh fetch settle
       sub.unsubscribe();
       const callsAfterRefresh = (mockAccountBillingClient.getApplicableDiscounts as jest.Mock).mock
         .calls.length;
 
-      // New subscription: cache hit on initial fetch (no call) + BehaviorSubject = 1 API call
+      // New subscription: cache hit → no additional API calls
       const sub2 = sut.getEligibleDiscounts$().subscribe();
       await new Promise((r) => setTimeout(r));
       sub2.unsubscribe();
 
       expect(mockAccountBillingClient.getApplicableDiscounts).toHaveBeenCalledTimes(
-        callsAfterRefresh + 1,
+        callsAfterRefresh,
       );
     });
 

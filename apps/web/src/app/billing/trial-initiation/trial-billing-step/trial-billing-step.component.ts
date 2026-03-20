@@ -144,7 +144,7 @@ export class TrialBillingStepComponent implements OnInit, OnDestroy {
       this.eligibleDiscounts$,
     ]).pipe(
       debounceTime(500),
-      switchMap(([cadence, billingAddress, discounts]) =>
+      switchMap(([cadence, billingAddress]) =>
         this.trialBillingStepService.getCosts(
           product,
           tier,
