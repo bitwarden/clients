@@ -936,6 +936,56 @@ describe("OrganizationPlansComponent", () => {
         mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
       ).not.toHaveBeenCalled();
     }));
+
+    it("should not calculate tax when creating Free organization", fakeAsync(() => {
+      // User selects a Free organization from the start
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Free);
+      component["formGroup"].controls.plan.setValue(PlanType.Free);
+      component.changedProduct();
+
+      component["billingFormGroup"].controls.billingAddress.patchValue({
+        country: "US",
+        postalCode: "12345",
+      });
+
+      tick(1500); // Wait for debounce
+
+      // Tax should NOT be called for Free plan
+      expect(
+        mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
+      ).not.toHaveBeenCalled();
+      expect(mockPreviewInvoiceClient.previewProrationForPremiumUpgrade).not.toHaveBeenCalled();
+    }));
+
+    it("should not calculate tax when premium user switches from paid plan to Free", fakeAsync(() => {
+      // Simulate user has premium from personal subscription
+      hasPremiumPersonallySubject.next(true);
+
+      // Start with a paid plan (Teams) and enter valid billing address
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+      component["formGroup"].controls.plan.setValue(PlanType.TeamsAnnually);
+      component.changedProduct();
+
+      component["billingFormGroup"].controls.billingAddress.patchValue({
+        country: "US",
+        postalCode: "12345",
+      });
+
+      tick(1500); // Wait for debounce - tax should be calculated
+
+      // Now change to Free plan - billing address remains filled in
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Free);
+      component["formGroup"].controls.plan.setValue(PlanType.Free);
+      component.changedProduct();
+
+      tick(1500); // Wait for debounce again
+
+      // Tax should only be calculated for the initial paid plan selection, not when switching to Free
+      expect(mockPreviewInvoiceClient.previewProrationForPremiumUpgrade).toHaveBeenCalledTimes(1);
+      expect(
+        mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
+      ).not.toHaveBeenCalled();
+    }));
   });
 
   describe("submit", () => {
@@ -1210,6 +1260,13 @@ describe("OrganizationPlansComponent", () => {
       nonFreeBusinessPlans.forEach((plan) => {
         expect(plan.canBeUsedByBusiness).toBe(true);
       });
+    });
+
+    it("should include Free plan even when canUpgradeFromPremium is true", async () => {
+      hasPremiumPersonallySubject.next(true);
+      const products = component.selectableProducts();
+      expect(products.find((p) => p.type === PlanType.Free)).toBeDefined();
+      expect(products.find((p) => p.productTier === ProductTierType.Families)).toBeDefined();
     });
   });
 
@@ -2371,6 +2428,37 @@ describe("OrganizationPlansComponent", () => {
         await component.submit();
 
         expect(mockPremiumOrgUpgradeService.upgradeToOrganization).not.toHaveBeenCalled();
+      });
+
+      it("should use createCloudHosted instead of upgradeFromPremiumToOrganization when upgrading to Free Org", async () => {
+        // Change the plan to Free (beforeEach set it to Teams)
+        patchOrganizationForm(component, {
+          name: "Free Org",
+          billingEmail: "test@example.com",
+          productTier: ProductTierType.Free,
+          plan: PlanType.Free,
+        });
+
+        mockOrganizationApiService.create.mockResolvedValue({
+          id: "free-org-id",
+        } as any);
+
+        await component.submit();
+
+        // Should call generateOrganizationEncryptionData and create (via createCloudHosted)
+        expect(
+          mockPremiumOrgUpgradeService.generateOrganizationEncryptionData,
+        ).toHaveBeenCalledWith("user-id");
+        expect(mockOrganizationApiService.create).toHaveBeenCalled();
+
+        // Should NOT call upgradeToOrganization
+        expect(mockPremiumOrgUpgradeService.upgradeToOrganization).not.toHaveBeenCalled();
+
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "success",
+          title: "organizationCreated",
+          message: "organizationReadyToGo",
+        });
       });
     });
 

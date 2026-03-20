@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Unlock options"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Set up an unlock method to change your vault timeout action."
-  },
   "unlockMethodNeeded": {
     "message": "Set up an unlock method in Settings"
   },
   "sessionTimeoutHeader": {
     "message": "Session timeout"
-  },
-  "vaultTimeoutHeader": {
-    "message": "तिजोरी टाइमआउट"
   },
   "otherOptions": {
     "message": "Other options"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "वॉल्ट मध्यांतर कार्रवाई"
   },
-  "vaultTimeoutAction1": {
-    "message": "टाइमआउट कार्रवाई"
-  },
   "lock": {
     "message": "लॉक",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "मिनट"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "एंटरप्राइज़ नीति आवश्यकताएँ आपके टाइमआउट विकल्पों पर लागू की गई हैं"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "आपकी संगठन नीतियां आपके तिजोरी टाइमआउट को प्रभावित कर रही हैं। अधिकतम अनुमत तिजोरी टाइमआउट $HOURS$ घंटे और $MINUTES$ मिनट है",
@@ -6130,8 +6118,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6127,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
   },
   "items": {
     "message": "Items"
@@ -6178,9 +6169,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6184,8 @@
   },
   "userVerificationFailed": {
     "message": "उपयोगकर्ता सत्यापन विफल रहा।"
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }

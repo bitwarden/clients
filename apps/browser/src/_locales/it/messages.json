@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Opzioni di sblocco"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Imposta un metodo di sblocco per modificare l'azione timeout cassaforte."
-  },
   "unlockMethodNeeded": {
     "message": "Imposta un metodo di sblocco in Impostazioni"
   },
   "sessionTimeoutHeader": {
     "message": "Timeout della sessione"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Timeout cassaforte"
   },
   "otherOptions": {
     "message": "Altre opzioni"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Azione timeout cassaforte"
   },
-  "vaultTimeoutAction1": {
-    "message": "Azione al timeout"
-  },
   "lock": {
     "message": "Blocca",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Minuti"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "I requisiti di politica aziendale sono stati applicati alle opzioni di timeout"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Le politiche della tua organizzazione hanno impostato il timeout massimo consentito della tua cassaforte su $HOURS$ ore e $MINUTES$ minuti.",
@@ -6130,8 +6118,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ richiede che tutti gli elementi siano di proprietà dell'organizzazione per motivi di conformità e sicurezza. Clicca su 'Accetta' per trasferire la proprietà.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ richiede che tutti gli elementi siano di proprietà dell'organizzazione per motivi di sicurezza e di conformità alle policy.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6127,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Clicca su 'Accetta' per il trasferimento di proprietà."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Leggi di più sul trasferimento di proprietà degli elementi della cassaforte"
+  },
   "acceptTransfer": {
     "message": "Accetta il trasferimento"
   },
   "declineAndLeave": {
     "message": "Rifiuta e abbandona"
-  },
-  "whyAmISeeingThis": {
-    "message": "Perché vedo questo avviso?"
   },
   "items": {
     "message": "Elementi"
@@ -6178,9 +6169,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Inserisci più indirizzi email separandoli con virgole."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "La verifica via email richiede almeno un indirizzo email. Per rimuovere tutte le email, modifica il tipo di accesso qui sopra."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6184,8 @@
   },
   "userVerificationFailed": {
     "message": "Verifica dell'utente non riuscita."
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }
