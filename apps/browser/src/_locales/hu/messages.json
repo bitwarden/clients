@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Feloldási opciók"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Állítsunk be egy feloldási módot a széf időkifutási műveletének módosításához."
-  },
   "unlockMethodNeeded": {
     "message": "Feloldási mód beállítása a Beállításokban"
   },
   "sessionTimeoutHeader": {
     "message": "Munkamenet időkifutás"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Széf időkifutás"
   },
   "otherOptions": {
     "message": "Egyéb opciók"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Széf időkifutás művelet"
   },
-  "vaultTimeoutAction1": {
-    "message": "Időkifutási művelet"
-  },
   "lock": {
     "message": "Lezárás",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Perc"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Erre a beállításra a vállalkozás rendszabály követelmények lettek alkalmazva."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "A szervezeti szabályzata $HOURS$ órára és $MINUTES$ percre állította be a maximálisan megengedett széf időtúllépést.",
@@ -6130,8 +6118,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ megköveteli, hogy minden elem a szervezet tulajdonában legyen a biztonság és a megfelelőség érdekében. Kattintás az elfogadásra az elemek tulajdonjogának átruházásához.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ megköveteli, hogy minden elem a szervezet tulajdonában legyen a biztonság és a megfelelőség érdekében.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6127,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Kattintsunk az elfogadás lehetőségre az elemek tulajdonjogának átruházásához."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Súgó cikk megnyitása az elemek átviteléről"
+  },
   "acceptTransfer": {
     "message": "Átvitel elfogadása"
   },
   "declineAndLeave": {
     "message": "Elutasítás és kilépés"
-  },
-  "whyAmISeeingThis": {
-    "message": "Miért látható ez?"
   },
   "items": {
     "message": "Elemek"
@@ -6178,9 +6169,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Írjunk be több email címet vesszővel elválasztva."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Az email cím ellenőrzéshez legalább egy email cím szükséges. Az összes email cím eltávolításához módosítsuk a fenti hozzáférési típust."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6184,8 @@
   },
   "userVerificationFailed": {
     "message": "A felhasználó ellenőrzése sikertelen volt."
+  },
+  "downloadFailed": {
+    "message": "A letöltés sikertelen volt."
   }
 }

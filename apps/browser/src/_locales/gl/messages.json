@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Opcións de desbloqueo"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configura un método de desbloqueo para cambiar a acción do temporizador da caixa forte."
-  },
   "unlockMethodNeeded": {
     "message": "Configura un método de desbloqueo nos axustes"
   },
   "sessionTimeoutHeader": {
     "message": "Temporizador da sesión esgotado"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Temporizador da caixa forte"
   },
   "otherOptions": {
     "message": "Outras opcións"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Acción do temporizador da caixa forte"
   },
-  "vaultTimeoutAction1": {
-    "message": "Acción do temporizador"
-  },
   "lock": {
     "message": "Bloquear",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Minutos"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Directivas da empresa foron aplicadas ás opcións do temporizador da túa Caixa forte"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Directivas da empresa restrinxen o temporizador da túa Caixa forte a un máximo de $HOURS$ hora(s) e $MINUTES$ minuto(s).",
@@ -6130,8 +6118,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6127,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
   },
   "items": {
     "message": "Items"
@@ -6178,9 +6169,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6184,8 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }

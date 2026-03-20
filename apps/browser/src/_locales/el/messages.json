@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Επιλογές ξεκλειδώματος"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Ορίστε μια μέθοδο ξεκλειδώματος για να αλλάξετε την ενέργεια χρονικού ορίου λήξης θησαυ/κίου."
-  },
   "unlockMethodNeeded": {
     "message": "Ορίστε μία μέθοδο ξεκλειδώματος στις Ρυθμίσεις"
   },
   "sessionTimeoutHeader": {
     "message": "Χρονικό όριο λήξης συνεδρίας"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Χρονικό όριο κρύπτης"
   },
   "otherOptions": {
     "message": "Άλλες επιλογές"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Ενέργεια Χρόνου Λήξης Vault"
   },
-  "vaultTimeoutAction1": {
-    "message": "Ενέργεια κατά τη λήξη χρονικού ορίου"
-  },
   "lock": {
     "message": "Κλείδωμα",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Λεπτά"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Οι απαιτήσεις της εταιρικής πολιτικής έχουν εφαρμοστεί στις επιλογές χρονικού ορίου σας"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Οι πολιτικές του οργανισμού σας επηρεάζουν το χρονικό όριο vault σας. Το μέγιστο επιτρεπόμενο Χρονικό όριο Vault είναι $HOURS$ ώρα(ες) και $MINUTES$ λεπτό(ά)",
@@ -6130,8 +6118,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6127,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Αποδοχή μεταφοράς"
   },
   "declineAndLeave": {
     "message": "Απόρριψη και αποχώρηση"
-  },
-  "whyAmISeeingThis": {
-    "message": "Γιατί το βλέπω αυτό;"
   },
   "items": {
     "message": "Στοιχεία"
@@ -6178,9 +6169,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6184,8 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }

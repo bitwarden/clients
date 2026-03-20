@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "திறக்கும் விருப்பத்தேர்வுகள்"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "உங்கள் வால்ட் காலக்கெடு செயலை மாற்ற ஒரு திறக்கும் முறையை அமைக்கவும்."
-  },
   "unlockMethodNeeded": {
     "message": "அமைப்புகளில் ஒரு திறக்கும் முறையை அமைக்கவும்"
   },
   "sessionTimeoutHeader": {
     "message": "அமர்வு காலக்கெடு"
-  },
-  "vaultTimeoutHeader": {
-    "message": "வால்ட் காலக்கெடு"
   },
   "otherOptions": {
     "message": "பிற விருப்பத்தேர்வுகள்"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "பெட்டக காலக்கெடு நடவடிக்கை"
   },
-  "vaultTimeoutAction1": {
-    "message": "காலக்கெடு நடவடிக்கை"
-  },
   "lock": {
     "message": "பூட்டு",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "நிமிடங்கள்"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "நிறுவன கொள்கை தேவைகள் உங்கள் காலக்கெடு விருப்பங்களுக்குப் பயன்படுத்தப்பட்டுள்ளன"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "உங்கள் நிறுவன கொள்கைகள் உங்கள் அதிகபட்ச அனுமதிக்கப்பட்ட பெட்டக காலக்கெடுவை $HOURS$ மணிநேரம் மற்றும் $MINUTES$ நிமிடங்களாக அமைத்துள்ளன.",
@@ -6130,8 +6118,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6127,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
   },
   "items": {
     "message": "Items"
@@ -6178,9 +6169,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6184,8 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }
