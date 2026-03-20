@@ -2,8 +2,17 @@
   "allApplications": {
     "message": "Všechny aplikace"
   },
+  "allMembers": {
+    "message": "Všichni členové"
+  },
+  "allPasswords": {
+    "message": "Všechna hesla"
+  },
   "activity": {
     "message": "Aktivita"
+  },
+  "applicationsAtRisk": {
+    "message": "Ohrožené aplikace"
   },
   "appLogoLabel": {
     "message": "Logo Bitwarden"
@@ -12,7 +21,7 @@
     "message": "Kritické aplikace"
   },
   "noCriticalAppsAtRisk": {
-    "message": "Žádné ohrožené kritické aplikace"
+    "message": "Žádné zranitelné kritické aplikace"
   },
   "critical": {
     "message": "Kritické ($COUNT$)",
@@ -36,13 +45,22 @@
     "message": "Kritické"
   },
   "accessIntelligence": {
-    "message": "Přístup k inteligenci"
+    "message": "Access Intelligence"
   },
   "noApplicationsMatchTheseFilters": {
     "message": "Těmto filtrům neodpovídají žádné aplikace"
   },
   "passwordRisk": {
     "message": "Rizikové heslo"
+  },
+  "passwords": {
+    "message": "Hesla"
+  },
+  "riskOverTime": {
+    "message": "Ohrožení v průběhu času"
+  },
+  "passwordsAtRisk": {
+    "message": "Ohrožená hesla"
   },
   "noEditPermissions": {
     "message": "Nemáte oprávnění upravit tuto položku"
@@ -51,7 +69,7 @@
     "message": "Prohlédněte si bezpečnostní zprávy, abyste odhalili a opravili rizika související s přihlašovacími údaji, než se zhorší."
   },
   "reviewAtRiskLoginsPrompt": {
-    "message": "Zkontrolovat ohrožená přihlášení"
+    "message": "Zkontrolovat zranitelná přihlášení"
   },
   "dataLastUpdated": {
     "message": "Data naposledy aktualizována: $DATE$",
@@ -66,7 +84,7 @@
     "message": "Zatím jste nevytvořili hlášení"
   },
   "notifiedMembers": {
-    "message": "Obeznámení členové"
+    "message": "Informovaní členové"
   },
   "revokeMembers": {
     "message": "Odvolat členy"
@@ -127,13 +145,13 @@
     "message": "Jakmile označíte aplikace jako kritické, zobrazí se zde."
   },
   "viewAtRiskMembers": {
-    "message": "Zobrazit ohrožené členy"
+    "message": "Zobrazit zranitelné členy"
   },
   "viewAtRiskApplications": {
-    "message": "Zobrazit ohrožené aplikace"
+    "message": "Zobrazit zranitelné aplikace"
   },
   "criticalApplicationsAreAtRisk": {
-    "message": "$COUNT$ z $TOTAL$ kritických aplikací je ohrožených kvůli ohroženým heslům",
+    "message": "$COUNT$ z $TOTAL$ kritických aplikací je zranitelných kvůli zranitelným heslům",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -167,7 +185,7 @@
     }
   },
   "countOfApplicationsAtRisk": {
-    "message": "$COUNT$ ohrožených aplikací",
+    "message": "$COUNT$ zranitelných aplikací",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -176,7 +194,7 @@
     }
   },
   "countOfAtRiskPasswords": {
-    "message": "$COUNT$ ohrožených hesel",
+    "message": "$COUNT$ zranitelných hesel",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -185,7 +203,7 @@
     }
   },
   "newPasswordsAtRisk": {
-    "message": "$COUNT$ nových ohrožených hesel",
+    "message": "$COUNT$ nových zranitelných hesel",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -194,7 +212,7 @@
     }
   },
   "notifiedMembersWithCount": {
-    "message": "Obeznámení členové ($COUNT$)",
+    "message": "Informovaní členové ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -218,7 +236,7 @@
     "message": "Pomoci členům zlepšit jejich zabezpečení"
   },
   "feature2Description": {
-    "message": "Přiřaďte ohroženým členům řízené bezpečnostní úkoly k aktualizaci přihlašovacích údajů."
+    "message": "Přiřaďte zranitelným členům řízené bezpečnostní úkoly k aktualizaci přihlašovacích údajů."
   },
   "feature3Title": {
     "message": "Sledovat průběh"
@@ -236,7 +254,7 @@
     "message": "Neoznačili jste žádné aplikace jako kritické"
   },
   "noCriticalApplicationsDescription": {
-    "message": "Vyberte nejdůležitější aplikace a stanovte priority bezpečnostních opatření, která mají uživatelé provést, aby vyřešili problém rizikových hesel."
+    "message": "Vyberte nejdůležitější aplikace a stanovte priority bezpečnostních opatření, která mají uživatelé provést, aby vyřešili problém zranitelných hesel."
   },
   "markCriticalApplications": {
     "message": "Vyberte kritické aplikace"
@@ -314,7 +332,7 @@
     "message": "Aplikace"
   },
   "atRiskPasswords": {
-    "message": "Ohrožená hesla"
+    "message": "Zranitelná hesla"
   },
   "requestPasswordChange": {
     "message": "Vyžádat změnu hesla"
@@ -326,19 +344,19 @@
     "message": "Prohledat aplikace"
   },
   "atRiskMembers": {
-    "message": "Ohrožení členové"
+    "message": "Zranitelní členové"
   },
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
     "message": "Tito členové mají přístup k zranitelným položkám pro kritické aplikace."
   },
   "membersWithAtRiskPasswords": {
-    "message": "Členové s ohroženými hesly"
+    "message": "Členové se zranitelnými hesly"
   },
   "membersWillReceiveSecurityTask": {
-    "message": "Členům Vaší organizace bude přiřazen úkol ke změně zranitelných hesel. Obdrželi oznámení v rámci jejich rozšíření prohlížeče Bitwarden."
+    "message": "Členům Vaší organizace bude přiřazen úkol ke změně zranitelných hesel. Obdrží oznámení v rámci jejich rozšíření prohlížeče Bitwarden."
   },
   "membersAtRiskCount": {
-    "message": "$COUNT$ členů v ohrožení",
+    "message": "$COUNT$ zranitelných členů",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -347,7 +365,7 @@
     }
   },
   "atRiskMembersWithCount": {
-    "message": "Ohrožení členové ($COUNT$)",
+    "message": "Zranitelní členové ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -356,7 +374,7 @@
     }
   },
   "atRiskApplicationsWithCount": {
-    "message": "Ohrožené aplikace ($COUNT$)",
+    "message": "Zranitelné aplikace ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -374,7 +392,7 @@
     "message": "Tyto aplikace mají slabá, odhalená nebo opakovaně používaná hesla."
   },
   "atRiskApplicationsDescriptionNone": {
-    "message": "Žádné aplikace, které mají slabá, odhalená nebo opakovaně používaná hesla."
+    "message": "Žádné aplikace nemají slabá, odhalená ani opakovaně používaná hesla."
   },
   "atRiskMembersDescriptionWithApp": {
     "message": "Tito členové se přihlašují do $APPNAME$ se slabými, odhalenými nebo znovu použitými hesly.",
@@ -386,7 +404,7 @@
     }
   },
   "atRiskMembersDescriptionWithAppNone": {
-    "message": "Žádní ohrožení členové pro $APPNAME$.",
+    "message": "Žádní zranitelní členové pro $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -398,7 +416,7 @@
     "message": "Celkem členů"
   },
   "atRiskApplications": {
-    "message": "Ohrožené aplikace"
+    "message": "Zranitelné aplikace"
   },
   "totalApplications": {
     "message": "Celkem aplikací"
@@ -419,7 +437,7 @@
     }
   },
   "newApplicationsDescription": {
-    "message": "Zkontrolujte nové aplikace a označte je jako kritické a udržujte v bezpečí Vaši organizaci"
+    "message": "Zkontrolujte nové aplikace a označte je jako kritické, aby byla Vaše organizace v bezpečí"
   },
   "reviewNow": {
     "message": "Zkontrolovat nyní"
@@ -440,7 +458,7 @@
     }
   },
   "reviewApplicationsToSecureItems": {
-    "message": "Zkontrolujte aplikace pro zabezpečení položek nejkritičtějších pro bezpečnost Vaší organizace"
+    "message": "Zkontrolujte aplikace a zabezpečte položky nejdůležitější pro Vaši organizaci"
   },
   "reviewApplications": {
     "message": "Zkontrolovat aplikace"
@@ -749,7 +767,7 @@
     "message": "Skryté"
   },
   "cfTypeBoolean": {
-    "message": "Boolean"
+    "message": "Logická hodnota"
   },
   "cfTypeCheckbox": {
     "message": "Zaškrtávací políčko"
@@ -1396,7 +1414,7 @@
     "message": "Úroveň přístupu"
   },
   "accessing": {
-    "message": "Přístup k"
+    "message": "Přistupujete na"
   },
   "loggedOut": {
     "message": "Odhlášení"
@@ -1486,13 +1504,13 @@
     "message": "Neplatný přístupový klíč. Zkuste to znovu."
   },
   "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
-    "message": "Dvoufaktorové ověření pro přístupový klíč není povoleno. Aktualizujte aplikaci pro přihlášení."
+    "message": "Dvoufaktorové ověření pro přístupové klíče není podporováno. Aktualizujte aplikaci pro přihlášení."
   },
   "loginWithPasskeyInfo": {
     "message": "Použijte vygenerovaný přístupový klíč, který Vás automaticky přihlásí bez hesla. Biometriky, jako je rozpoznávání obličeje, otisky prstů nebo jiná bezpečnostní metoda FIDO2 ověří Vaši totožnost."
   },
   "newPasskey": {
-    "message": "Nové přístupový klíč"
+    "message": "Nový přístupový klíč"
   },
   "learnMoreAboutPasswordless": {
     "message": "Další informace o přihlášení bez hesla"
@@ -2103,6 +2121,9 @@
   "exportSuccess": {
     "message": "Data trezoru byla exportována"
   },
+  "exportError": {
+    "message": "Při exportu dat Vašeho trezoru se vyskytla chyba"
+  },
   "passwordGenerator": {
     "message": "Generátor hesla"
   },
@@ -2197,7 +2218,7 @@
     "message": "Změnit e-mail"
   },
   "changeEmailTwoFactorWarning": {
-    "message": "Pokračováním se změní e-mailová adresa vašeho účtu. E-mailová adresa používaná pro dvoufázové ověření se nezmění. Tuto e-mailovou adresu můžete změnit v nastavení dvoufázového přihlášení."
+    "message": "Pokračováním se změní e-mailová adresa Vašeho účtu. E-mailová adresa používaná pro dvoufázové ověření se nezmění. Tuto e-mailovou adresu můžete změnit v nastavení dvoufázového přihlášení."
   },
   "newEmail": {
     "message": "Nový e-mail"
@@ -2946,7 +2967,7 @@
     "message": "Nalezena odhalená hesla"
   },
   "exposedPasswordsFoundReportDesc": {
-    "message": "Našli jsme $COUNT$ položek ve Vašem trezoru $VAULT$, která mají hesla, které byly odhaleny ve známých únicích dat. Měli byste je změnit tak, aby používaly nové heslo.",
+    "message": "Našli jsme $COUNT$ položek ve Vašem trezoru $VAULT$, která mají hesla, jež byla odhalena ve známých únicích dat. Měli byste je změnit tak, aby používaly nové heslo.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3047,16 +3068,16 @@
   "breachDesc": {
     "message": "\"Únik\" je incident, při kterém se podařilo hackerům nelegální cestou získat údaje z webových stránek a následně je také zveřejnit. Zkontrolujte dotčená data (e-mailové adresy, hesla, kreditní karty, …) a povolte dvoufázové ověření nebo vytvořte silnější heslo."
   },
-  "breachCheckUsernameEmail": {
-    "message": "Zkontrolujte všechna uživatelská jména nebo e-mailové adresy, které používáte."
+  "breachCheckEmail": {
+    "message": "Zkontrolujte všechny e-mailové adresy, které používáte."
   },
   "checkBreaches": {
     "message": "Zkontrolovat"
   },
-  "breachUsernameNotFound": {
-    "message": "Uživatelské jméno $USERNAME$ nebylo nalezeno v žádném známém úniku dat.",
+  "breachEmailNotFound": {
+    "message": "$EMAIL$ nebyl nalezen v žádném známém úniku dat.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3087,10 @@
     "message": "Dobré zprávy",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "Uživatelské jméno $USERNAME$ bylo nalezeno celkem $COUNT$x.",
+  "breachEmailFound": {
+    "message": "$EMAIL$ byl nalezen celkem $COUNT$x.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -5395,7 +5416,7 @@
     "message": "Členové organizace, kteří nejsou vlastníky nebo správci a kteří nemají povoleno dvoufázové přihlášení pro svůj osobní účet, budou odebráni z organizace a obdrží e-mail, který je o změně informuje."
   },
   "twoStepLoginPolicyUserWarning": {
-    "message": "Jste členem organizace, která vyžaduje použití dvoufázové přihlášení na Vašem uživatelském účtu. Pokud zakážete všechny poskytovatele dvoufázového přihlášení, budete z takovýchto organizací automaticky odebráni."
+    "message": "Jste členem organizace, která vyžaduje použití dvoufázového přihlášení na Vašem uživatelském účtu. Pokud zakážete všechny poskytovatele dvoufázového přihlášení, budete z takovýchto organizací automaticky odebráni."
   },
   "passwordGeneratorPolicyDesc": {
     "message": "Nastaví požadavky pro generátor hesel."
@@ -6931,7 +6952,7 @@
     "message": "Poskytovatel byl uložen"
   },
   "yourProviderIs": {
-    "message": "Váš poskytovatel je $PROVIDER$. Ma administrátorská a fakturační oprávnění pro Vaši organizaci.",
+    "message": "Váš poskytovatel je $PROVIDER$. Má administrátorská a fakturační oprávnění pro Vaši organizaci.",
     "placeholders": {
       "provider": {
         "content": "$1",
@@ -7259,7 +7280,7 @@
     "message": "Zde se zobrazí sponzorované plány rodin, které nejsou členy"
   },
   "sponsorshipFreeBitwardenFamilies": {
-    "message": "Členové vaší organizace mají nárok na bezplatné rodiny Bitwarden. Můžete sponzorovat zdarma rodiny Bitwarden pro zaměstnance, kteří nejsou členy Vaší organizace Bitwarden. Sponzorování nečlena vyžaduje dostupné místo ve Vaší organizaci."
+    "message": "Členové Vaší organizace mají nárok na bezplatné rodiny Bitwarden. Můžete sponzorovat zdarma rodiny Bitwarden pro zaměstnance, kteří nejsou členy Vaší organizace Bitwarden. Sponzorování nečlena vyžaduje dostupné místo ve Vaší organizaci."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Pokud odeberete aktivní sponzorství, bude po datu obnovení sponzorované organizace k dispozici volný uživatel ve Vaší organizaci."
@@ -7568,7 +7589,7 @@
     "message": "Měnění fakturačního synchronizačního tokenu zruší platnost předchozího tokenu."
   },
   "selfHostedServer": {
-    "message": "vlastní hosting"
+    "message": "vlastní server"
   },
   "customEnvironment": {
     "message": "Vlastní prostředí"
@@ -7604,7 +7625,7 @@
     "message": "URL adresy prostředí uloženy"
   },
   "selfHostingTitle": {
-    "message": "Vlastní hosting"
+    "message": "Vlastní server"
   },
   "selfHostingEnterpriseOrganizationSectionCopy": {
     "message": "Pro nastavení organizace na vlastním serveru musíte nahrát licenční soubor. Chcete-li podporovat plány Rodina zdarma a pokročilé možnosti fakturace pro Vaši organizaci na vlastním serveru, budete muset nastavit synchronizaci fakturace."
@@ -7952,7 +7973,7 @@
     "description": "Used as a prefix to indicate the last time a sync occurred. Example \"Last sync 1968-11-16 00:00:00\""
   },
   "sponsorshipsSynced": {
-    "message": "Sponzoringy na vlastním hostingu byly synchronizovány."
+    "message": "Sponzoringy na vlastním serveru byly synchronizovány."
   },
   "billingManagedByProvider": {
     "message": "Spravováno poskytovatelem $PROVIDER$",
@@ -8310,6 +8331,9 @@
   "members": {
     "message": "Členové"
   },
+  "membersAtRisk": {
+    "message": "Ohrožení členové"
+  },
   "reporting": {
     "message": "Hlášení"
   },
@@ -8580,6 +8604,14 @@
   "newProject": {
     "message": "Nový projekt",
     "description": "Title for creating a new project."
+  },
+  "clickToRenameProject": {
+    "message": "Klepněte pro přejmenování tohoto projektu",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "Nelze dešifrovat název projektu - klepněte na projekt pro přejmenování",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
     "message": "Smazání tajných klíčů může ovlivnit existující integrace.",
@@ -9945,7 +9977,7 @@
     "message": "URL serveru"
   },
   "selfHostBaseUrl": {
-    "message": "Adresa URL serveru vlastního hostování",
+    "message": "Adresa URL vlastního serveru",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
   "alreadyHaveAccount": {
@@ -11046,6 +11078,9 @@
   "clientDetails": {
     "message": "Detaily klienta"
   },
+  "downloadChart": {
+    "message": "Stáhnout graf"
+  },
   "downloadCSV": {
     "message": "Stáhnout CSV"
   },
@@ -11053,7 +11088,7 @@
     "message": "Úpravy předplatného budou mít za následek poměrné účtování celkových částek v dalším zúčtovacím období. "
   },
   "annualSubscriptionUserSeatsMessage": {
-    "message": "Úpravy vašeho předplatného budou mít za následek poměrné poplatky v měsíčním zúčtovacím cyklu. "
+    "message": "Úpravy Vašeho předplatného budou mít za následek poměrné poplatky v měsíčním zúčtovacím cyklu. "
   },
   "billingHistoryDescription": {
     "message": "Stáhněte si soubor CSV a získejte údaje o klientovi pro každé datum fakturace. Proporcionální poplatky nejsou v CSV zahrnuty a mohou se lišit od propojené faktury. Nejpřesnější údaje o vyúčtování naleznete v měsíčních fakturách.",
@@ -11075,7 +11110,7 @@
     "message": "Sponzorováno"
   },
   "licenseAndBillingManagementDesc": {
-    "message": "Po provedení aktualizací na cloudovém serveru Bitwardenu nahrajte váš licenční soubor pro použití nejnovějších změn."
+    "message": "Po provedení aktualizací na cloudovém serveru Bitwardenu nahrajte Váš licenční soubor pro použití nejnovějších změn."
   },
   "addToFolder": {
     "message": "Přidat do složky"
@@ -11436,7 +11471,7 @@
     "message": "Chcete-li hostovat Bitwarden na vlastním serveru, musíte nahrát licenční soubor. Chcete-li podporovat plány Free Families a pokročilé možnosti účtování pro Vaši vlastní hostovanou organizaci, budete muset nastavit automatickou synchronizaci ve Vaší vlastní hostované organizaci."
   },
   "selfHostingTitleProper": {
-    "message": "Vlastní hosting"
+    "message": "Vlastní server"
   },
   "claim-domain-single-org-warning": {
     "message": "Uplatněním domény se zapnou zásady jediné organizace."
@@ -11497,6 +11532,18 @@
         "example": "First 8 Character of a GUID"
       }
     }
+  },
+  "userSelfRevokedFromOrganization": {
+    "message": "Uživatel $ID$ se sám odhlásil z organizace.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "userSelfRevokedOrganizationOwnership": {
+    "message": "Zrušeno z důvodu odmítnutí převodu do vlastnictví organizace."
   },
   "suspendedOrganizationTitle": {
     "message": "$ORGANIZATION$ je pozastaven",
@@ -11749,7 +11796,7 @@
     "message": "Otevřeno rozšíření prohlížeče"
   },
   "openedExtensionViewAtRiskPasswords": {
-    "message": "Rozšíření Bitwarden pro prohlížeč bylo úspěšně otevřeno. Nyní můžete zkontrolovat Vaše ohrožená hesla."
+    "message": "Rozšíření Bitwarden pro prohlížeč bylo úspěšně otevřeno. Nyní můžete zkontrolovat Vaše zranitelná hesla."
   },
   "resellerRenewalWarningMsg": {
     "message": "Vaše předplatné se brzy obnoví. Chcete-li zajistit nepřerušenou službu, kontaktujte $RESELLER$ pro potvrzení obnovení před $RENEWAL_DATE$.",
@@ -11883,10 +11930,10 @@
     "message": "Nedůvěryhodné šifrovací klíče"
   },
   "changeAtRiskPassword": {
-    "message": "Změnit ohrožené heslo"
+    "message": "Změnit zranitelné heslo"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
+    "message": "Tyto přihlašovací údaje jsou zranitelné a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
   },
   "vulnerablePassword": {
     "message": "Zranitelné heslo."
@@ -12444,7 +12491,7 @@
     "message": "Bezpečnosti zásady podniků"
   },
   "selfHostOption": {
-    "message": "Volba vlastního hostitele"
+    "message": "Volba vlastního serveru"
   },
   "complimentaryFamiliesPlan": {
     "message": "Bezplatný rodinný plán pro všechny uživatele"
@@ -12477,7 +12524,7 @@
     "message": "Vítejte v Bitwardenu"
   },
   "individualUpgradeDescriptionMessage": {
-    "message": "Odemkněte více bezpečnostních funkcí s lidencí Premium, nebo začněte sdílet položky s Rodinami"
+    "message": "Odemkněte více bezpečnostních funkcí s licencí Premium, nebo začněte sdílet položky s Rodinami"
   },
   "individualUpgradeTaxInformationMessage": {
     "message": "Ceny nezahrnují daň a účtují se každoročně."
@@ -12550,12 +12597,6 @@
   },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Před aktivací této zásady musí být nárokována doména."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Nastavte metodu odemknutí, abyste změnili časový limit Vašeho trezoru."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Na volby časového limitu byly uplatněny požadavky podnikových zásad"
   },
   "vaultTimeoutTooLarge": {
     "message": "Časový limit Vašeho trezoru překračuje omezení stanovená Vaší organizací."
@@ -12755,8 +12796,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ vyžaduje, aby byly všechny položky vlastněny organizací z důvodu bezpečnosti a shody. Klepnutím na tlačítko pro převod vlastnictví Vašich položek.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ vyžaduje, aby byly všechny položky vlastněny organizací z důvodu bezpečnosti a shody.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12764,14 +12805,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Klepněte na tlačítko Přijmout pro převod vlastnictví Vašich položek."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Otevřít článek nápovědy o přenosu položek"
+  },
   "acceptTransfer": {
     "message": "Přijmout převod"
   },
   "declineAndLeave": {
     "message": "Odmítnout a opustit"
-  },
-  "whyAmISeeingThis": {
-    "message": "Proč se mi toto zobrazuje?"
   },
   "youHaveBitwardenPremium": {
     "message": "Máte Bitwarden Premium"
@@ -12922,11 +12966,8 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Zadejte více e-mailů oddělených čárkou."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Ověření e-mailu vyžaduje alespoň jednu e-mailovou adresu. Chcete-li odebrat všechny emaily, změňte výše uvedený typ přístupu."
-  },
   "emailPlaceholder": {
-    "message": "user@bitwarden.com , user@acme.com"
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "whenYouRemoveStorage": {
     "message": "Když odeberete úložiště, obdržíte kredit, který bude automaticky převeden do Vašeho dalšího vyúčtování."
@@ -13032,6 +13073,70 @@
       "date": {
         "content": "$2",
         "example": "Jan 1, 1970"
+      }
+    }
+  },
+  "sendsTitleNoSearchResults": {
+    "message": "Nebyly vráceny žádné výsledky hledání"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Vymažte filtry nebo zkuste jiný hledaný výraz"
+  },
+  "pastMonth": {
+    "message": "Poslední měsíc"
+  },
+  "past3Months": {
+    "message": "Poslední 3 měsíce"
+  },
+  "past6Months": {
+    "message": "Posledních 6 měsíců"
+  },
+  "pastYear": {
+    "message": "Poslední rok"
+  },
+  "allTime": {
+    "message": "Za celou dobu"
+  },
+  "timePeriod": {
+    "message": "Časové období"
+  },
+  "of": {
+    "message": "z"
+  },
+  "coachmarkImportTitle": {
+    "message": "Rychle importovat Vaše hesla"
+  },
+  "coachmarkImportDescription": {
+    "message": "Měli jste předtím správce hesel? Můžete importovat CSV stávajících přihlášení a dalších dat do Vašeho trezoru."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Přidat položku"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Přidejte do Vašeho trezoru nová hesla, poznámky a další informace. Všechno je chráněno koncovým šifrováním."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Bezpečně sdílet předměty s ostatními"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "Přesunutím položky do sbírky ji můžete bezpečně sdílet s ostatními lidmi ve Vaší organizaci."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Sledovat zabezpečení Vašeho hesla"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Zachovejte bezpečnost Vašich položek v trezoru silnou kontrolou slabých míst."
+  },
+  "coachmarkStepIndicator": {
+    "message": "Krok $CURRENT$ z $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
       }
     }
   }
