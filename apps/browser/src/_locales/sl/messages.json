@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Unlock options"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Da spremenite časovne omejitve trezorja, nastavite metodo odklepanja."
-  },
   "unlockMethodNeeded": {
     "message": "Set up an unlock method in Settings"
   },
   "sessionTimeoutHeader": {
     "message": "Session timeout"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Vault timeout"
   },
   "otherOptions": {
     "message": "Ostale možnosti"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Dejanje ob poteku roka"
   },
-  "vaultTimeoutAction1": {
-    "message": "Timeout action"
-  },
   "lock": {
     "message": "Zaklepanje",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Minut"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
@@ -6130,8 +6118,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6127,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Sprejmi prenos"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Zakaj se mi to prikazuje?"
   },
   "items": {
     "message": "Elementi"
@@ -6178,9 +6169,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "uporabnik@bitwarden.com , uporabnik@acme.com"
   },
@@ -6196,5 +6184,8 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }

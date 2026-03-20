@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Kilit açma seçenekleri"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Kasa zaman aşımı eyleminizi değiştirmek için kilit açma yönteminizi ayarlayın."
-  },
   "unlockMethodNeeded": {
     "message": "Ayarlar'da bir kilit açma yöntemi ayarlayın"
   },
   "sessionTimeoutHeader": {
     "message": "Oturum zaman aşımı"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Kasa zaman aşımı"
   },
   "otherOptions": {
     "message": "Diğer seçenekler"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Kasa zaman aşımı eylemi"
   },
-  "vaultTimeoutAction1": {
-    "message": "Zaman aşımı eylemi"
-  },
   "lock": {
     "message": "Kilitle",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Dakika"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Zaman aşımı ayarlarınıza kurumsal ilke gereksinimleri uygulandı"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Kuruluş ilkeleriniz izin verilen maksimum kasa zaman aşımını $HOURS$ saat $MINUTES$ dakika olarak belirlemiş.",
@@ -5390,7 +5378,7 @@
     }
   },
   "reorderFieldDown": {
-    "message": "$LABEL$ aşağı taşındı, konum: $LENGTH$'in $INDEX$'i",
+    "message": "$LABEL$ aşağı taşındı. Konum: $LENGTH$/$INDEX$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -5536,10 +5524,10 @@
     "message": "Kasanıza daha hızlı ulaşmak için kilit açma ve zaman aşımı ayarlarınızı özelleştirebilirsiniz."
   },
   "unlockPinSet": {
-    "message": "Kilit açma PIN seti"
+    "message": "Unlock PIN set"
   },
   "unlockWithBiometricSet": {
-    "message": "Biyometrik set ile kilidi aç"
+    "message": "Unlock with biometrics set"
   },
   "authenticating": {
     "message": "Kimlik doğrulanıyor"
@@ -6039,7 +6027,7 @@
     "message": "If you don't verify your organization, your access to the organization will be revoked."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Şimdi ayrıl"
   },
   "verifyYourDomainToLogin": {
     "message": "Verify your domain to log in"
@@ -6130,8 +6118,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$, güvenlik ve mevzuata uyum amacıyla tüm kayıtların kuruluşa ait olmasını zorunlu kılıyor. Kayıtlarınızın sahipliğini devretmek için \"Kabul et\"e tıklayın.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6127,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Aktarımı kabul et"
   },
   "declineAndLeave": {
     "message": "Reddet ve ayrıl"
-  },
-  "whyAmISeeingThis": {
-    "message": "Bunu neden görüyorum?"
   },
   "items": {
     "message": "Kayıtlar"
@@ -6178,9 +6169,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "E-posta adreslerini virgülle ayırarak yazın."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "E-posta doğrulaması için en az bir e-posta adresi gerekir. Tüm e-postaları silmek için yukarıdan erişim türünü değiştirin."
-  },
   "emailPlaceholder": {
     "message": "kullanici@bitwarden.com , kullanici@acme.com"
   },
@@ -6188,7 +6176,7 @@
     "message": "Bitwarden uygulamalarını indir"
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "E-posta korumalı"
   },
   "sendPasswordHelperText": {
     "message": "Bu Send'i görmek isteyen kişilerin parola girmesi gerekecektir",
@@ -6196,5 +6184,8 @@
   },
   "userVerificationFailed": {
     "message": "Kullanıcı doğrulaması başarısız oldu."
+  },
+  "downloadFailed": {
+    "message": "İndirilemedi."
   }
 }

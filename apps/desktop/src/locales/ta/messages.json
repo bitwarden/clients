@@ -1280,6 +1280,9 @@
   "changeMasterPass": {
     "message": "முதன்மை கடவுச்சொல்லை மாற்றவும்"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "continueToWebApp": {
     "message": "இணைய செயலிக்குத் தொடரவா?"
   },
@@ -1358,17 +1361,11 @@
   "twoStepLogin": {
     "message": "இரண்டு-படி உள்நுழைவு"
   },
-  "vaultTimeoutHeader": {
-    "message": "பெட்டக காலாவதி"
-  },
   "vaultTimeout": {
     "message": "பெட்டக காலாவதி"
   },
   "vaultTimeout1": {
     "message": "காலாவதி"
-  },
-  "vaultTimeoutAction1": {
-    "message": "காலாவதி செயல்"
   },
   "vaultTimeoutDesc": {
     "message": "உங்கள் பெட்டகம் எப்போது பெட்டக காலாவதி செயலை எடுக்கும் என்பதைத் தேர்ந்தெடுக்கவும்."
@@ -1658,6 +1655,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "month"
+  },
+  "monthly": {
+    "message": "Monthly"
+  },
+  "year": {
+    "message": "year"
+  },
+  "annually": {
+    "message": "Annually"
+  },
+  "annual": {
+    "message": "Annual"
   },
   "refreshComplete": {
     "message": "புதுப்பித்தல் நிறைவடைந்தது"
@@ -2088,9 +2100,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "உங்கள் பெட்டகத்தை மீண்டும் அணுக மீண்டும் அங்கீகாரம் தேவை."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "உங்கள் பெட்டக காலாவதி செயலை மாற்ற ஒரு திறக்கும் முறையை அமைக்கவும்."
   },
   "lock": {
     "message": "பூட்டு",
@@ -2709,9 +2718,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "உங்கள் வால்ட் காலக்கெடு உங்கள் நிறுவனத்தால் அமைக்கப்பட்ட கட்டுப்பாடுகளை மீறுகிறது."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "உங்கள் காலக்கெடு விருப்பங்களுக்கு நிறுவன கொள்கை தேவைகள் பயன்படுத்தப்பட்டுள்ளன"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "உங்கள் நிறுவனத்தின் கொள்கைகள் உங்கள் அதிகபட்ச அனுமதிக்கப்பட்ட வால்ட் காலக்கெடுவை $HOURS$ மணிநேரம் மற்றும் $MINUTES$ நிமிடங்கள் என அமைத்துள்ளன.",
@@ -4617,8 +4623,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4632,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
   },
   "organizationIsSuspended": {
     "message": "Organization is suspended"
@@ -4692,9 +4701,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"

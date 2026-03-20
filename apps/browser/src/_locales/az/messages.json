@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Kilid açma seçimləri"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Seyf vaxt bitmə əməliyyatınızı dəyişdirmək üçün bir kilid açma üsulu qurun."
-  },
   "unlockMethodNeeded": {
     "message": "Ayarlarda bir kilid açma üsulu qurun"
   },
   "sessionTimeoutHeader": {
     "message": "Sessiya vaxt bitməsi"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Seyf vaxtının bitməsi"
   },
   "otherOptions": {
     "message": "Digər seçimlər"
@@ -897,7 +891,7 @@
     "message": "Yararsız doğrulama kodu"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "Yararsız e-poçt və ya doğrulama kodu"
   },
   "valueCopied": {
     "message": "$VALUE$ kopyalandı",
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Seyf vaxtının bitmə əməliyyatı"
   },
-  "vaultTimeoutAction1": {
-    "message": "Vaxt bitmə əməliyyatı"
-  },
   "lock": {
     "message": "Kilidlə",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2861,7 +2852,7 @@
     "message": "Risk altındakı girişlərin olduğu siyahının təsviri."
   },
   "welcomeDialogGraphicAlt": {
-    "message": "Illustration of the layout of the Bitwarden vault page."
+    "message": "Bitwarden seyf səhifəsinin düzümünün illüstrasiyası."
   },
   "generatePasswordSlideDesc": {
     "message": "Risk altında olan saytda Bitwarden avto-doldurma menyusu ilə güclü, unikal parolları cəld yaradın.",
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Dəqiqə"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Müəssisə siyasət tələbləri, vaxt bitmə seçimlərinizə tətbiq edildi"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Təşkilatınızın siyasətləri, icazə verilən maksimum seyf bitmə vaxtını $HOURS$ saat $MINUTES$ dəqiqə olaraq ayarladı.",
@@ -4866,7 +4854,7 @@
     "message": "Ünvanı kopyala"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "Elementlərim"
   },
   "adminConsole": {
     "message": "Admin Konsolu"
@@ -6009,7 +5997,7 @@
     "message": "Kart nömrəsi"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Xəta: Şifrəsi açıla bilmir"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Təşkilatınız, artıq Bitwarden-ə giriş etmək üçün ana parol istifadə etmir. Davam etmək üçün təşkilatı və domeni doğrulayın."
@@ -6130,8 +6118,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$, təhlükəsizlik və riayətlilik üçün bütün elementlərin təşkilata aid olmasını tələb edir. Elementlərinizin sahibliyini transfer etmək üçün qəbul edin.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$, təhlükəsizlik və riayətlilik üçün bütün elementlərin təşkilata məxsus olmasını tələb edir.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6127,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Elementlərinizin sahibliyini transfer etmək üçün \"Qəbul et\"ə klikləyin."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Elementlərin köçürülməsi üzrə kömək məqaləsini aç"
+  },
   "acceptTransfer": {
     "message": "Transferi qəbul et"
   },
   "declineAndLeave": {
     "message": "Rədd et və tərk et"
-  },
-  "whyAmISeeingThis": {
-    "message": "Bunu niyə görürəm?"
   },
   "items": {
     "message": "Elementlər"
@@ -6178,14 +6169,11 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Birdən çox e-poçtu daxil edərkən vergül istifadə edin."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
   "downloadBitwardenApps": {
-    "message": "Download Bitwarden apps"
+    "message": "Bitwarden tətbiqini endir"
   },
   "emailProtected": {
     "message": "E-poçt qorunur"
@@ -6195,6 +6183,9 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "İstifadəçi doğrulaması uğursuz oldu."
+  },
+  "downloadFailed": {
+    "message": "Endirmə uğursuz oldu."
   }
 }
