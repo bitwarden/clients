@@ -13,11 +13,16 @@ import {
  */
 export type TargetingRulesByDomain = {
   /**
+   * Keys are `host` values (hostname, or hostname:port when a non-default
+   * port is used). `example.com` and `example.com:8443` are distinct entries
+   * with no fallback between them. Default ports (e.g. `:443` for HTTPS)
+   * are omitted per `URL.host` normalization.
+   *
    * The presence of a key with a `null`, `undefined`, or empty value
-   * indicates all pages belonging to the hostname should be ignored
+   * indicates all pages belonging to the host should be ignored
    * (e.g. Autofill should not be used).
    */
-  [hostname: string]: TargetingRules | null; // @TODO improve `hostname` typing
+  [host: string]: TargetingRules | null; // FIXME improve `host` typing
 };
 
 type TargetingRules = {
@@ -43,7 +48,7 @@ type TargetingRules = {
        * testing), multi-step flows at a single URI (e.g. SPAs), etc
        */
       forms: FormContent[];
-    } | null; // @TODO improve `pathname` typing
+    } | null; // FIXME improve `pathname` typing
   };
 };
 
@@ -92,7 +97,7 @@ export type FormContent = {
  * a CSS selector which can optionally include the `>>>` combinator to
  * represent a Shadow boundary between a Shadow host and a Shadow root
  */
-type DeepSelector = string; // @TODO improve typing
+type DeepSelector = string; // FIXME improve typing
 
 export type ClearClipboardDelaySetting =
   (typeof ClearClipboardDelay)[keyof typeof ClearClipboardDelay];
