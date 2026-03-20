@@ -16,6 +16,7 @@ on:
 
 env:
   _AZ_REGISTRY: bitwardenprod.azurecr.io
+  _GHCR_REGISTRY: ghcr.io/bitwarden
 
 jobs:
   setup:
@@ -60,6 +61,7 @@ jobs:
       id-token: write
       contents: read
       deployments: write
+      packages: write
     env:
       _BRANCH_NAME: ${{ github.ref_name }}
       _RELEASE_VERSION: ${{ needs.setup.outputs.release_version }}
@@ -89,6 +91,13 @@ jobs:
       - name: Login to Azure ACR
         run: az acr login -n bitwardenprod
 
+      - name: Log in to GHCR
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create GitHub deployment
         if: ${{ inputs.publish_type != 'Dry Run' }}
         uses: chrnorm/deployment-action@55729fcebec3d284f60f5bcabbd8376437d696b1 # v2.0.7
@@ -114,11 +123,17 @@ jobs:
           if [[ "${{ inputs.publish_type }}" == "Dry Run" ]]; then
             docker tag "$_AZ_REGISTRY/web:latest" "$_AZ_REGISTRY/web:dryrun"
             docker tag "$_AZ_REGISTRY/web:latest" "$_AZ_REGISTRY/web-sh:dryrun"
+            docker tag "$_AZ_REGISTRY/web:latest" "$_GHCR_REGISTRY/web:dryrun"
+            docker tag "$_AZ_REGISTRY/web:latest" "$_GHCR_REGISTRY/web-sh:dryrun"
           else
             docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web:$_RELEASE_VERSION"
             docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web-sh:$_RELEASE_VERSION"
             docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web:latest"
             docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web-sh:latest"
+            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_GHCR_REGISTRY/web:$_RELEASE_VERSION"
+            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_GHCR_REGISTRY/web-sh:$_RELEASE_VERSION"
+            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_GHCR_REGISTRY/web:latest"
+            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_GHCR_REGISTRY/web-sh:latest"
           fi
 
       - name: Push version
@@ -126,11 +141,17 @@ jobs:
           if [[ "${{ inputs.publish_type }}" == "Dry Run" ]]; then
             docker push "$_AZ_REGISTRY/web:dryrun"
             docker push "$_AZ_REGISTRY/web-sh:dryrun"
+            docker push "$_GHCR_REGISTRY/web:dryrun"
+            docker push "$_GHCR_REGISTRY/web-sh:dryrun"
           else
             docker push "$_AZ_REGISTRY/web:$_RELEASE_VERSION"
             docker push "$_AZ_REGISTRY/web-sh:$_RELEASE_VERSION"
             docker push "$_AZ_REGISTRY/web:latest"
             docker push "$_AZ_REGISTRY/web-sh:latest"
+            docker push "$_GHCR_REGISTRY/web:$_RELEASE_VERSION"
+            docker push "$_GHCR_REGISTRY/web-sh:$_RELEASE_VERSION"
+            docker push "$_GHCR_REGISTRY/web:latest"
+            docker push "$_GHCR_REGISTRY/web-sh:latest"
           fi
 
       - name: Log out from Azure
@@ -155,7 +176,9 @@ jobs:
           deployment-id: ${{ steps.deployment.outputs.deployment_id }}
 
       - name: Log out of Docker
-        run: docker logout
+        run: |
+          docker logout "$_AZ_REGISTRY"
+          docker logout ghcr.io
 
   bitwarden-lite-build:
     name: Trigger Bitwarden lite build
