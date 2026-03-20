@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Tùy chọn mở khóa"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Thiết lập phương thức mở khóa để thay đổi hành động sau khi đóng kho."
-  },
   "unlockMethodNeeded": {
     "message": "Thiết lập phương pháp mở khóa trong Cài đặt"
   },
   "sessionTimeoutHeader": {
     "message": "Thời gian hết phiên"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Thời gian mở kho"
   },
   "otherOptions": {
     "message": "Tùy chọn khác"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Hành động sau khi đóng kho"
   },
-  "vaultTimeoutAction1": {
-    "message": "Hành động sau khi đóng kho"
-  },
   "lock": {
     "message": "Khóa",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Phút"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Các yêu cầu chính sách của doanh nghiệp đã được áp dụng cho các tùy chọn thời gian mở kho của bạn"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Tổ chức của bạn đã đặt thời gian mở kho tối đa là $HOURS$ giờ và $MINUTES$ phút.",
@@ -6130,8 +6118,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ yêu cầu tất cả các mục phải thuộc sở hữu của tổ chức để đảm bảo an ninh và tuân thủ. Nhấp chấp nhận để chuyển quyền sở hữu các mục của bạn.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6127,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Chấp nhận chuyển"
   },
   "declineAndLeave": {
     "message": "Từ chối và rời đi"
-  },
-  "whyAmISeeingThis": {
-    "message": "Tại sao tôi thấy điều này?"
   },
   "items": {
     "message": "Items"
@@ -6178,9 +6169,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6184,8 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }

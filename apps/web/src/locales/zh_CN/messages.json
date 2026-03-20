@@ -2,8 +2,17 @@
   "allApplications": {
     "message": "所有应用程序"
   },
+  "allMembers": {
+    "message": "所有成员"
+  },
+  "allPasswords": {
+    "message": "所有密码"
+  },
   "activity": {
     "message": "活动"
+  },
+  "applicationsAtRisk": {
+    "message": "应用程序存在风险"
   },
   "appLogoLabel": {
     "message": "Bitwarden logo"
@@ -43,6 +52,15 @@
   },
   "passwordRisk": {
     "message": "密码风险"
+  },
+  "passwords": {
+    "message": "密码"
+  },
+  "riskOverTime": {
+    "message": "随时间变化的风险"
+  },
+  "passwordsAtRisk": {
+    "message": "密码存在风险"
   },
   "noEditPermissions": {
     "message": "您没有编辑此项目的权限"
@@ -1435,7 +1453,7 @@
     "message": "否"
   },
   "noAuth": {
-    "message": "拥有此链接的任何人"
+    "message": "拥有链接的任何人"
   },
   "anyOneWithPassword": {
     "message": "拥有您设置的密码的任何人"
@@ -1834,7 +1852,7 @@
     "message": "新增组织"
   },
   "noOrganizationsList": {
-    "message": "您没有加入任何组织。同一组织的用户可以安全地与其他用户共享项目。"
+    "message": "您没有加入任何组织。组织允许您与其他用户安全地共享项目。"
   },
   "notificationSentDevice": {
     "message": "通知已发送到您的设备。"
@@ -1901,7 +1919,7 @@
     "message": "将您的安全密钥插入计算机的 USB 端口。如果它有按钮，请触摸它。"
   },
   "loginUnavailable": {
-    "message": "登录不可用"
+    "message": "登录功能不可用"
   },
   "noTwoStepProviders": {
     "message": "此账户已设置两步登录，但此浏览器不支持任何已配置的两步登录提供程序。"
@@ -2102,6 +2120,9 @@
   },
   "exportSuccess": {
     "message": "密码库数据已导出"
+  },
+  "exportError": {
+    "message": "导出您的密码库数据时发生错误"
   },
   "passwordGenerator": {
     "message": "密码生成器"
@@ -2626,13 +2647,13 @@
     "description": "Premium membership"
   },
   "premiumMembership": {
-    "message": "高级会员"
+    "message": "高级版成员"
   },
   "premiumRequired": {
     "message": "需要高级版"
   },
   "premiumRequiredDesc": {
-    "message": "需要高级会员才能使用此功能。"
+    "message": "需要高级版成员才能使用此功能。"
   },
   "youHavePremiumAccess": {
     "message": "您拥有高级版访问权限"
@@ -3047,16 +3068,16 @@
   "breachDesc": {
     "message": "泄露的账户可能会暴露您的个人信息。通过启用 2FA 或创建更强大的密码来保护被泄露的账户。"
   },
-  "breachCheckUsernameEmail": {
-    "message": "检查您使用的任何用户名或电子邮箱地址。"
+  "breachCheckEmail": {
+    "message": "检查您使用的任何电子邮箱地址。"
   },
   "checkBreaches": {
     "message": "检查泄漏情况"
   },
-  "breachUsernameNotFound": {
-    "message": "在任何已知的数据泄露中均未发现 $USERNAME$。",
+  "breachEmailNotFound": {
+    "message": "在任何已知的数据泄露中均未发现 $EMAIL$。",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3087,10 @@
     "message": "好消息",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "在 $COUNT$ 个不同的在线数据泄露中发现了 $USERNAME$。",
+  "breachEmailFound": {
+    "message": "在 $COUNT$ 次不同的在线数据泄露中发现了 $EMAIL$。",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -3145,7 +3166,7 @@
     "message": "您已升级为高级版。"
   },
   "premiumUpgradeUnlockFeatures": {
-    "message": "将您的账户升级为高级会员，将解锁一些强大的附加功能。"
+    "message": "将您的账户升级为高级版成员，将解锁一些强大的附加功能。"
   },
   "premiumSignUpStorage": {
     "message": "1 GB 文件附件加密存储空间。"
@@ -3405,7 +3426,7 @@
     "message": "移除存储空间"
   },
   "subscriptionStorage": {
-    "message": "您的订阅一共有 $MAX_STORAGE$ GB 的加密存储空间。您目前已使用 $USED_STORAGE$ 。",
+    "message": "您的订阅一共有 $MAX_STORAGE$ GB 的加密存储空间。您目前已使用 $USED_STORAGE$。",
     "placeholders": {
       "max_storage": {
         "content": "$1",
@@ -3516,10 +3537,10 @@
     }
   },
   "uploadLicenseFilePremium": {
-    "message": "要将您的账户升级为高级会员，您需要上传有效的许可证文件。"
+    "message": "要将您的账户升级为高级版成员，您需要上传有效的许可证文件。"
   },
   "uploadLicenseFileOrg": {
-    "message": "若要创建基于本地托管的组织，您需要上传有效的许可证文件。"
+    "message": "要创建基于本地托管的组织，您需要上传有效的许可证文件。"
   },
   "accountEmailMustBeVerified": {
     "message": "必须验证您的账户电子邮箱地址。"
@@ -3929,7 +3950,7 @@
     "message": "用户"
   },
   "userDesc": {
-    "message": "访问项目和将项目添加到已分配的集合"
+    "message": "访问并将项目添加到已分配的集合"
   },
   "all": {
     "message": "全部"
@@ -4949,7 +4970,7 @@
     "message": "附加选项"
   },
   "additionalOptionsDesc": {
-    "message": "如需更多管理您的订阅的帮助，请联系客户支持。"
+    "message": "如需获得管理订阅的进一步的帮助，请联系客户支持。"
   },
   "subscriptionUserSeatsUnlimitedAutoscale": {
     "message": "调整订阅将导致按比例调整您的计费总金额。如果新邀请的成员超过了您的订阅席位，您将立即收到按比例的附加成员费用。"
@@ -6058,7 +6079,7 @@
     "message": "提示用户将个人密码库项目移动到组织"
   },
   "promptUsersToMoveItemsCallout": {
-    "message": "将提示成员选择将项目转移到组织，或者选择退出。如果选择退出，其访问权限将被撤销，但可以随时恢复。"
+    "message": "成员将被提示选择将项目转移到组织，或者选择退出。如果选择退出，其访问权限将被撤销，但可以随时恢复。"
   },
   "organizationDataOwnership": {
     "message": "强制组织数据所有权"
@@ -6710,10 +6731,10 @@
     }
   },
   "reinviteSuccessToast": {
-    "message": "已发送 1 份邀请"
+    "message": "1 份邀请已发送"
   },
   "bulkReinviteSentToast": {
-    "message": "已发送 $COUNT$ 份邀请",
+    "message": "$COUNT$ 份邀请已发送",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6739,7 +6760,7 @@
     }
   },
   "bulkReinviteProgressTitle": {
-    "message": "已发送 $TOTAL$ 份邀请中的 $COUNT$ 份...",
+    "message": "$COUNT$ / $TOTAL$ 份邀请已发送...",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6767,7 +6788,7 @@
     "message": "1 份邀请未发送"
   },
   "bulkReinviteFailureDescription": {
-    "message": "向 $TOTAL$ 位成员中的 $COUNT$ 位发送邀请时发生错误。请尝试再次发送，如果问题仍然存在，",
+    "message": "向 $COUNT$ / $TOTAL$ 位成员发送邀请时发生错误。请尝试再次发送，如果问题仍然存在，",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7304,7 +7325,7 @@
     "message": "链接已失效。请让赞助方重新发送邀请。"
   },
   "reclaimedFreePlan": {
-    "message": "已恢复为免费版方案"
+    "message": "重新申领了免费方案"
   },
   "redeem": {
     "message": "兑换"
@@ -8310,6 +8331,9 @@
   "members": {
     "message": "成员"
   },
+  "membersAtRisk": {
+    "message": "成员存在风险"
+  },
   "reporting": {
     "message": "报告"
   },
@@ -8580,6 +8604,14 @@
   "newProject": {
     "message": "新增工程",
     "description": "Title for creating a new project."
+  },
+  "clickToRenameProject": {
+    "message": "点击以重命名该工程",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "无法解密工程名称 - 点击工程以重命名",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
     "message": "删除机密可能会影响现有的集成。",
@@ -9177,7 +9209,7 @@
     "message": "查看全部"
   },
   "showingPortionOfTotal": {
-    "message": "显示 $TOTAL$ 中的 $PORTION$",
+    "message": "显示 $PORTION$ / $TOTAL$",
     "placeholders": {
       "portion": {
         "content": "$1",
@@ -9615,7 +9647,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
-    "message": "满分 $TOTAL$",
+    "message": "总计 $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -11046,6 +11078,9 @@
   "clientDetails": {
     "message": "客户详细信息"
   },
+  "downloadChart": {
+    "message": "下载图表"
+  },
   "downloadCSV": {
     "message": "下载 CSV"
   },
@@ -11498,6 +11533,18 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "用户 $ID$ 从组织中自行撤销。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "userSelfRevokedOrganizationOwnership": {
+    "message": "因拒绝转移至组织所有权而被撤销。"
+  },
   "suspendedOrganizationTitle": {
     "message": "$ORGANIZATION$ 已暂停",
     "placeholders": {
@@ -11819,7 +11866,7 @@
     "message": "「删除」是一个新的操作！"
   },
   "seatsRemaining": {
-    "message": "该组织已分配 $TOTAL$ 个席位，您还剩余 $REMAINING$ 个席位。请联系提供商管理您的订阅。",
+    "message": "该组织总计分配了 $TOTAL$ 个席位，您还剩余 $REMAINING$ 个席位。请联系提供商管理您的订阅。",
     "placeholders": {
       "remaining": {
         "content": "$1",
@@ -11945,7 +11992,7 @@
     "message": "归档中没有项目"
   },
   "noItemsInArchiveDesc": {
-    "message": "已归档的项目将显示在此处，并将被排除在一般搜索结果和自动填充建议之外。"
+    "message": "已归档的项目将显示在这里，并将被排除在一般搜索结果和自动填充建议之外。"
   },
   "itemArchiveToast": {
     "message": "项目已归档"
@@ -11987,7 +12034,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "在任何平台上安全地与任何人共享文件和数据。您的信息将在限制曝光的同时保持端到端加密。",
+    "message": "在任何平台上与任何人安全地分享文件和数据。您的信息将在限制曝光的同时保持端到端加密。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "generatorNudgeTitle": {
@@ -12345,7 +12392,7 @@
     "message": "折叠购买详细信息"
   },
   "familiesMembership": {
-    "message": "家庭成员"
+    "message": "家庭版成员"
   },
   "advancedOnlineSecurity": {
     "message": "高级在线安全防护"
@@ -12477,7 +12524,7 @@
     "message": "欢迎使用 Bitwarden"
   },
   "individualUpgradeDescriptionMessage": {
-    "message": "使用高级版解锁更多安全功能，或使用家庭版开始分享项目"
+    "message": "使用高级版解锁更多安全功能，或使用家庭版开始共享项目"
   },
   "individualUpgradeTaxInformationMessage": {
     "message": "价格不含税，按年计费。"
@@ -12550,12 +12597,6 @@
   },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "必须先声明域名，然后才能激活此策略。"
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "设置一个解锁方式以更改您的密码库超时动作。"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "企业策略要求已应用到您的超时选项中"
   },
   "vaultTimeoutTooLarge": {
     "message": "您的密码库超时超出了您组织设置的限制。"
@@ -12755,8 +12796,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "出于安全和合规考虑，$ORGANIZATION$ 要求所有项目归组织所有。点击「接受」以转移您的项目的所有权。",
+  "transferItemsToOrganizationDescription": {
+    "message": "出于安全和合规要求，$ORGANIZATION$ 要求所有项目必须归组织所有。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12764,14 +12805,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "点击「接受」以转移您的项目的所有权。"
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "打开有关转移项目的帮助文章"
+  },
   "acceptTransfer": {
     "message": "接受转移"
   },
   "declineAndLeave": {
     "message": "拒绝并退出"
-  },
-  "whyAmISeeingThis": {
-    "message": "为什么我会看到这个？"
   },
   "youHaveBitwardenPremium": {
     "message": "您有 Bitwarden 高级版"
@@ -12880,7 +12924,7 @@
     "message": "存储空间已满"
   },
   "storageUsedDescription": {
-    "message": "总计 $AVAILABLE$ GB 加密文件存储空间，您已使用 $USED$ GB。",
+    "message": "总计 $AVAILABLE$ GB 加密文件存储空间，您已使用 $USED$。",
     "placeholders": {
       "used": {
         "content": "$1",
@@ -12896,13 +12940,13 @@
     "message": "您已使用了全部的 $GB$ GB 加密存储空间。要继续存储文件，请添加更多存储空间。"
   },
   "extensionPromptHeading": {
-    "message": "获取扩展以便轻松访问密码库"
+    "message": "获取扩展以轻松访问密码库"
   },
   "extensionPromptBody": {
-    "message": "安装浏览器扩展后，您可以随时随地在线使用 Bitwarden。它会自动填写密码，只需单击一下即可登录您的账户。"
+    "message": "安装浏览器扩展后，您可以随时随地在线使用 Bitwarden。它会自动填写密码，让您只需单击一下即可登录您的账户。"
   },
   "extensionPromptImageAlt": {
-    "message": "一个网页浏览器显示着 Bitwarden 扩展程序，该程序带有当前网页的自动填充项目。"
+    "message": "一个显示 Bitwarden 扩展的网页浏览器，该扩展为当前网页提供了自动填充项目。"
   },
   "skip": {
     "message": "跳过"
@@ -12914,16 +12958,13 @@
     "message": "谁可以查看"
   },
   "specificPeople": {
-    "message": "指定人员"
+    "message": "指定的人员"
   },
   "emailVerificationDesc": {
     "message": "分享此 Send 链接后，个人需要使用验证码验证他们的电子邮箱才能查看此 Send。"
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "输入多个电子邮箱（使用逗号分隔）。"
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "电子邮箱验证要求至少有一个电子邮箱地址。要移除所有电子邮箱，请更改上面的访问类型。"
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com, user@acme.com"
@@ -12984,7 +13025,7 @@
     "message": "生成账单预览时遇到错误。"
   },
   "planProratedMembershipInMonths": {
-    "message": "按比例计费的 $PLAN$ 成员资格（$NUMOFMONTHS$）",
+    "message": "按比例分配的 $PLAN$ 成员（$NUMOFMONTHS$）",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -13000,10 +13041,10 @@
     "message": "高级版订阅信用额度"
   },
   "enterpriseMembership": {
-    "message": "企业版成员资格"
+    "message": "企业版成员"
   },
   "teamsMembership": {
-    "message": "团队版成员资格"
+    "message": "团队版成员"
   },
   "plansUpdated": {
     "message": "您已升级为 $PLAN$！",
@@ -13032,6 +13073,70 @@
       "date": {
         "content": "$2",
         "example": "Jan 1, 1970"
+      }
+    }
+  },
+  "sendsTitleNoSearchResults": {
+    "message": "未返回搜索结果"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "清除筛选或尝试其他搜索词"
+  },
+  "pastMonth": {
+    "message": "上个月"
+  },
+  "past3Months": {
+    "message": "过去 3 个月"
+  },
+  "past6Months": {
+    "message": "过去 6 个月"
+  },
+  "pastYear": {
+    "message": "去年"
+  },
+  "allTime": {
+    "message": "所有时间"
+  },
+  "timePeriod": {
+    "message": "时间段"
+  },
+  "of": {
+    "message": "of"
+  },
+  "coachmarkImportTitle": {
+    "message": "快速导入您的密码"
+  },
+  "coachmarkImportDescription": {
+    "message": "您以前用过密码管理器吗？您可以将现有的登录信息和其他数据的 CSV 文件导入到您的密码库中。"
+  },
+  "coachmarkAddItemTitle": {
+    "message": "添加项目"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "将新的密码、笔记及其他信息添加到您的密码库。所有内容均受到端到端加密的保护。"
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "安全地与他人共享项目"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "通过将项目移入集合，您可以与组织中的其他人安全地共享该项目。"
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "监测您的密码安全性"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "通过检查漏洞报告，来保持您的密码库项目的安全。"
+  },
+  "coachmarkStepIndicator": {
+    "message": "步骤 $CURRENT$ / $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
       }
     }
   }

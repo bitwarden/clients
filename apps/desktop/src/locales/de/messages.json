@@ -1280,6 +1280,9 @@
   "changeMasterPass": {
     "message": "Master-Passwort ändern"
   },
+  "masterPasswordChanged": {
+    "message": "Master-Passwort gespeichert"
+  },
   "continueToWebApp": {
     "message": "Weiter zur Web-App?"
   },
@@ -1358,17 +1361,11 @@
   "twoStepLogin": {
     "message": "Zwei-Faktor-Authentifizierung"
   },
-  "vaultTimeoutHeader": {
-    "message": "Tresor-Timeout"
-  },
   "vaultTimeout": {
     "message": "Tresor-Timeout"
   },
   "vaultTimeout1": {
     "message": "Timeout"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Timeout-Aktion"
   },
   "vaultTimeoutDesc": {
     "message": "Wähle, wann der Timeout deines Tresors aktiviert werden soll und welche Aktion er bewirken soll."
@@ -1658,6 +1655,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "Monat"
+  },
+  "monthly": {
+    "message": "Monatlich"
+  },
+  "year": {
+    "message": "Jahr"
+  },
+  "annually": {
+    "message": "Jährlich"
+  },
+  "annual": {
+    "message": "Jährlich"
   },
   "refreshComplete": {
     "message": "Aktualisierung abgeschlossen"
@@ -2088,9 +2100,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "Um wieder auf deinen Tresor zugreifen zu können, ist eine erneute Authentifizierung erforderlich."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Richte eine Entsperrmethode ein, um deine Aktion bei Timeout-Timeout zu ändern."
   },
   "lock": {
     "message": "Sperren",
@@ -2709,9 +2718,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Dein Tresor-Timeout überschreitet die von deinem Unternehmen festgelegten Beschränkungen."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Die Unternehmens-Richtlinienanforderungen wurden auf deine Timeout-Optionen angewendet"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Deine Unternehmensrichtlinien haben das maximal zulässige Tresor-Timeout auf $HOURS$ Stunde(n) und $MINUTES$ Minute(n) festgelegt.",
@@ -4617,8 +4623,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ erfordert zur Sicherheit und Compliance, dass alle Einträge der Organisation gehören. Klicke auf Akzeptieren, um den Besitz deiner Einträge zu übertragen.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ verlangt, dass alle Einträge aus Sicherheits- und Compliance-Gründen der Organisation gehören.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4632,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Klicke auf Akzeptieren, um das Eigentum an deinen Einträgen zu übertragen."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Hilfe-Artikel über das Übertragen von Einträgen öffnen"
+  },
   "acceptTransfer": {
     "message": "Übertragung annehmen"
   },
   "declineAndLeave": {
     "message": "Ablehnen und verlassen"
-  },
-  "whyAmISeeingThis": {
-    "message": "Warum wird mir das angezeigt?"
   },
   "organizationIsSuspended": {
     "message": "Organisation ist deaktiviert"
@@ -4663,7 +4672,7 @@
     "message": "Keine Suchergebnisse gefunden"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Lösche Filter oder versuche es mit einem anderen Suchbegriff"
+    "message": "Filter löschen oder es mit einem anderen Suchbegriff versuchen"
   },
   "sendPasswordHelperText": {
     "message": "Personen müssen das Passwort eingeben, um dieses Send anzusehen",
@@ -4692,9 +4701,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Gib mehrere E-Mail-Adressen ein, indem du sie mit einem Komma trennst."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Die E-Mail-Verifizierung erfordert mindestens eine E-Mail-Adresse. Ändere den Zugriffstyp oben, um alle E-Mails zu entfernen."
   },
   "emailPlaceholder": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"

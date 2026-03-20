@@ -1280,6 +1280,9 @@
   "changeMasterPass": {
     "message": "Zmeniť hlavné heslo"
   },
+  "masterPasswordChanged": {
+    "message": "Hlavné heslo uložené"
+  },
   "continueToWebApp": {
     "message": "Pokračovať vo webovej aplikácii?"
   },
@@ -1358,17 +1361,11 @@
   "twoStepLogin": {
     "message": "Dvojstupňové prihlásenie"
   },
-  "vaultTimeoutHeader": {
-    "message": "Časový limit pre trezor"
-  },
   "vaultTimeout": {
     "message": "Časový limit pre trezor"
   },
   "vaultTimeout1": {
     "message": "Časový limit"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Akcia pri vypršaní časového limitu"
   },
   "vaultTimeoutDesc": {
     "message": "Vyberte, kedy vyprší časový limit trezora a vykoná sa zvolená akcia."
@@ -1658,6 +1655,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "mesiac"
+  },
+  "monthly": {
+    "message": "Mesačne"
+  },
+  "year": {
+    "message": "rok"
+  },
+  "annually": {
+    "message": "Ročne"
+  },
+  "annual": {
+    "message": "Ročné"
   },
   "refreshComplete": {
     "message": "Obnova bola dokončená"
@@ -2088,9 +2100,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "Odhlásený trezor bude vyžadovať opätovné prihlásenie aby ste k nemu mohli pristupovať."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Nastavte metódu odomknutia, aby ste zmenili akciu pri vypršaní času trezoru."
   },
   "lock": {
     "message": "Uzamknúť",
@@ -2709,9 +2718,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Časový limit vášho trezora prekračuje obmedzenia nastavené vašou organizáciou."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Na možnosti pri vypršaní časového limitu boli uplatnené požiadavky pravidiel spoločnosti"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Pravidlá organizácie nastavili maximálny povolený časový limit trezoru na $HOURS$ hod. a $MINUTES$ min.",
@@ -4617,8 +4623,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ vyžaduje, aby všetky položky boli vo vlastníctve organizácie z dôvodu bezpečnosti a dodržiavania predpisov. Ak chcete previesť vlastníctvo položiek, kliknite na tlačidlo Prijať.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ vyžaduje, aby všetky položky boli vo vlastníctve organizácie z dôvodu bezpečnosti a dodržiavania predpisov.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4632,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Kliknutím na tlačidlo Prijať prenesiete vlastníctvo svojich položiek."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Otvoriť článok pomocníka o prenose položiek"
+  },
   "acceptTransfer": {
     "message": "Prijať prenos"
   },
   "declineAndLeave": {
     "message": "Zamietnuť a odísť"
-  },
-  "whyAmISeeingThis": {
-    "message": "Prečo to vidím?"
   },
   "organizationIsSuspended": {
     "message": "Organizácia je pozastavená"
@@ -4692,9 +4701,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Zadajte viacero e-mailových adries oddelených čiarkou."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Overenie e-mailu vyžaduje aspoň jednu e-mailovú adresu. Ak chcete odstrániť všetky e-maily, zmeňte typ prístupu vyššie."
   },
   "emailPlaceholder": {
     "message": "pouzivate@bitwarden.com, pouzivatel@acme.com"

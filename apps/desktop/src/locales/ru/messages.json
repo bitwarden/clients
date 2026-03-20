@@ -1280,6 +1280,9 @@
   "changeMasterPass": {
     "message": "Изменить мастер-пароль"
   },
+  "masterPasswordChanged": {
+    "message": "Мастер-пароль сохранен"
+  },
   "continueToWebApp": {
     "message": "Перейти к веб-приложению?"
   },
@@ -1358,17 +1361,11 @@
   "twoStepLogin": {
     "message": "Двухэтапная аутентификация"
   },
-  "vaultTimeoutHeader": {
-    "message": "Тайм-аут хранилища"
-  },
   "vaultTimeout": {
     "message": "Тайм-аут хранилища"
   },
   "vaultTimeout1": {
     "message": "Тайм-аут"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Тайм-аут действия"
   },
   "vaultTimeoutDesc": {
     "message": "Выберите тайм-аут для хранилища и действие, которое необходимо предпринять."
@@ -1658,6 +1655,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "месяц"
+  },
+  "monthly": {
+    "message": "Ежемесячный"
+  },
+  "year": {
+    "message": "год"
+  },
+  "annually": {
+    "message": "Ежегодно"
+  },
+  "annual": {
+    "message": "Ежегодный"
   },
   "refreshComplete": {
     "message": "Обновление завершено"
@@ -2088,9 +2100,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "Чтобы получить доступ к хранилищу после выхода из него требуется повторная авторизация."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Настройте способ разблокировки для изменения действия по тайм-ауту хранилища."
   },
   "lock": {
     "message": "Блокировка",
@@ -2709,9 +2718,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Тайм-аут вашего хранилища превышает ограничения, установленные вашей организацией."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "К настройкам тайм-аута были применены требования корпоративной политики"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "В соответствии с политиками вашей организации максимально допустимый тайм-аут хранилища составляет $HOURS$ час. и $MINUTES$ мин.",
@@ -4617,8 +4623,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации для обеспечения безопасности и соответствия требованиям. Нажмите Принять, чтобы передать собственность на ваши элементы.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации в целях безопасности и соблюдения нормативных требований.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4632,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Нажмите Принять, чтобы передать право собственности на ваши элементы."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Открыть статью помощь по передаче элементов"
+  },
   "acceptTransfer": {
     "message": "Принять передачу"
   },
   "declineAndLeave": {
     "message": "Отклонить и покинуть"
-  },
-  "whyAmISeeingThis": {
-    "message": "Почему я это вижу?"
   },
   "organizationIsSuspended": {
     "message": "Организация приостановлена"
@@ -4692,9 +4701,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Введите несколько email, разделяя их запятой."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Для проверки электронной почты требуется как минимум один адрес email. Чтобы удалить все адреса электронной почты, измените тип доступа выше."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"

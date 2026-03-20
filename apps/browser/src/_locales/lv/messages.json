@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Atslēgšanas iespējas"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Jāuzstāda atslēgšanas veids, lai mainītu glabātavas noildzes darbību."
-  },
   "unlockMethodNeeded": {
     "message": "Jāuzstāda atslēgšanas veids iestatījumos"
   },
   "sessionTimeoutHeader": {
     "message": "Sesijas noildze"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Glabātavas noildze"
   },
   "otherOptions": {
     "message": "Citas iespējas"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Glabātavas noildzes darbība"
   },
-  "vaultTimeoutAction1": {
-    "message": "Noildzes darbība"
-  },
   "lock": {
     "message": "Slēgt",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Minūtes"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Noildzes iespējām tika piemērotas uzņēmējdarbības nosacījumu prasības"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Apvienības nosacījumi ietekmē glabātavas noildzi. Lielākā atļautā glabātavas noildze ir $HOURS$ stunda(s) un $MINUTES$ minūte(s)",
@@ -6130,8 +6118,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6127,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
   },
   "items": {
     "message": "Vienumi"
@@ -6178,9 +6169,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "E-pasta apliecināšanai ir nepieciešama vismaz viena e-pasta adrese. Lai noņemtu visas e-pasta adreses, augstāk jānomaina piekļūšanas veids."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6184,8 @@
   },
   "userVerificationFailed": {
     "message": "Lietotāja apliecināšana neizdevās."
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }
