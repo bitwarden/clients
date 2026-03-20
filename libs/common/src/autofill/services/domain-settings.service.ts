@@ -26,7 +26,7 @@ import {
   UserKeyDefinition,
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
-import { AutofillTargetingRules, AutofillTargetingRulesByDomain } from "../types";
+import { FormContent, TargetingRulesByDomain } from "../types";
 
 const SHOW_FAVICONS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "showFavicons", {
   deserializer: (value: boolean) => value ?? true,
@@ -60,11 +60,11 @@ const DEFAULT_URI_MATCH_STRATEGY = new UserKeyDefinition(
   },
 );
 
-const TARGETING_RULES = new KeyDefinition<AutofillTargetingRulesByDomain>(
+const TARGETING_RULES = new KeyDefinition<TargetingRulesByDomain>(
   DOMAIN_SETTINGS_DISK,
   "fillAssistTargetingRules",
   {
-    deserializer: (value: AutofillTargetingRulesByDomain) => value ?? null,
+    deserializer: (value: TargetingRulesByDomain) => value ?? null,
   },
 );
 
@@ -135,18 +135,22 @@ export abstract class DomainSettingsService {
   /**
    * Observable of all cached autofill targeting rules, keyed by normalized URL
    */
-  targetingRules$: Observable<AutofillTargetingRulesByDomain | null>;
+  targetingRules$: Observable<TargetingRulesByDomain | null>;
 
   /**
    * Update the cached targeting rules
    */
-  setTargetingRules: (rules: AutofillTargetingRulesByDomain) => Promise<void>;
+  setTargetingRules: (rules: TargetingRulesByDomain) => Promise<void>;
 
   /**
-   * Look up targeting rules for a given URL, returning null if none exist.
-   * Performs exact match first (hostname + path), then hostname-only fallback.
+   * Look up targeting rules for a given URL. Checks pathname-specific
+   * rules first, then falls back to hostname-level forms.
+   *
+   * @returns `FormContent[]` with entries for targeted fill,
+   *          `[]` (empty) if the URL is blocklisted (suppress autofill),
+   *          `null` if no rules exist (fall through to heuristics)
    */
-  getTargetingRulesForUrl: (url: string) => Promise<AutofillTargetingRules | null>;
+  getTargetingRulesForUrl: (url: string) => Promise<FormContent[] | null>;
 }
 
 export class DefaultDomainSettingsService implements DomainSettingsService {
@@ -172,8 +176,8 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
   private enableFillAssistState: GlobalState<boolean>;
   readonly enableFillAssist$: Observable<boolean>;
 
-  private targetingRulesState: GlobalState<AutofillTargetingRulesByDomain>;
-  readonly targetingRules$: Observable<AutofillTargetingRulesByDomain | null>;
+  private targetingRulesState: GlobalState<TargetingRulesByDomain>;
+  readonly targetingRules$: Observable<TargetingRulesByDomain | null>;
 
   constructor(
     private stateProvider: StateProvider,
@@ -274,11 +278,11 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     await this.enableFillAssistState.update(() => newValue);
   }
 
-  async setTargetingRules(rules: AutofillTargetingRulesByDomain): Promise<void> {
+  async setTargetingRules(rules: TargetingRulesByDomain): Promise<void> {
     await this.targetingRulesState.update(() => rules);
   }
 
-  async getTargetingRulesForUrl(url: URL["href"]): Promise<AutofillTargetingRules | null> {
+  async getTargetingRulesForUrl(url: URL["href"]): Promise<FormContent[] | null> {
     const fillAssistFeatureEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.FillAssistTargetingRules,
     );
@@ -302,37 +306,43 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
       return null;
     }
 
-    const normalizedURL = this.normalizeTargetingRulesUrl(url);
-    if (!normalizedURL) {
-      return null;
-    }
-
-    // Exact match first (hostname + path)
-    if (rules[normalizedURL]) {
-      return rules[normalizedURL];
-    }
-
-    // Fallback to hostname-only match
-    const hostnameOnly = new URL(url).hostname;
-    if (hostnameOnly && rules[hostnameOnly]) {
-      return rules[hostnameOnly];
-    }
-
-    return null;
-  }
-
-  private normalizeTargetingRulesUrl(url: string): string | null {
-    if (!url) {
-      return null;
-    }
-
+    let parsed: URL;
     try {
-      const parsed = new URL(url);
-      // remove trailing slash
-      const path = parsed.pathname.replace(/\/+$/, "") || "";
-      return `${parsed.hostname}${path}`;
+      parsed = new URL(url);
     } catch {
       return null;
     }
+
+    const hostnameRules = rules[parsed.hostname];
+
+    // No rules for this hostname; fall through to heuristics
+    if (hostnameRules === undefined) {
+      return null;
+    }
+
+    // Hostname blocklisted (null or empty): suppress autofill on all paths
+    if (hostnameRules === null || (!hostnameRules.forms?.length && !hostnameRules.pathnames)) {
+      return [];
+    }
+
+    // Check for pathname-specific rules
+    // Fall back to root path `/` to enable checking cases where
+    // a rule signals a form that is ONLY on the domain's root page
+    const pathname = parsed.pathname.replace(/\/+$/, "") || "/";
+    const hasPathnameKey = hostnameRules.pathnames != null && pathname in hostnameRules.pathnames;
+
+    if (hasPathnameKey) {
+      const pathnameEntry = hostnameRules.pathnames[pathname];
+
+      // Pathname blocklisted (null/undefined/empty): suppress autofill on this path
+      if (!pathnameEntry?.forms?.length) {
+        return [];
+      }
+
+      return pathnameEntry.forms;
+    }
+
+    // No pathname-specific rule; fall back to hostname-level forms
+    return hostnameRules.forms?.length ? hostnameRules.forms : null;
   }
 }

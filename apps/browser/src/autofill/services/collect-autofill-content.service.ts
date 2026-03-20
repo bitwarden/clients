@@ -1,8 +1,5 @@
 import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
-import {
-  AutofillTargetingRules,
-  AutofillTargetingRuleType,
-} from "@bitwarden/common/autofill/types";
+import { AutofillTargetingRuleType, FormContent } from "@bitwarden/common/autofill/types";
 
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
@@ -46,7 +43,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly getPropertyOrAttribute = getPropertyOrAttribute;
   private noFieldsFound = false;
   private domRecentlyMutated = true;
-  private pageTargetingRules: AutofillTargetingRules | null = null;
+  /**
+   * undefined = not yet fetched, null = no rules (use heuristics),
+   * [] = blocklisted (suppress autofill), [...] = use targeted fill
+   */
+  private pageTargetingRules: FormContent[] | null | undefined = undefined;
   private _autofillFormElements: AutofillFormElements = new Map();
   private autofillFieldElements: AutofillFieldElements = new Map();
   private autofillFieldsByOpid: Map<string, FormFieldElement> = new Map();
@@ -129,12 +130,16 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     // Check for targeting rules before running heuristic collection
-    if (this.pageTargetingRules === null) {
+    if (this.pageTargetingRules === undefined) {
       this.pageTargetingRules =
-        (await this.sendExtensionMessage("getUrlAutofillTargetingRules")).result ?? undefined;
+        (await this.sendExtensionMessage("getUrlAutofillTargetingRules")).result ?? null;
     }
 
-    if (this.pageTargetingRules && Object.keys(this.pageTargetingRules).length > 0) {
+    if (this.pageTargetingRules !== null) {
+      if (this.pageTargetingRules.length === 0) {
+        // Blocklisted; return empty page details, skip heuristics
+        return this.getFormattedPageDetails({}, []);
+      }
       return this.getTargetedPageDetails(this.pageTargetingRules);
     }
 
@@ -248,34 +253,53 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
-   * Builds page details using targeting rule selectors instead of heuristic detection.
-   * Each rule maps a field type to a selector; matching elements get synthetic opids.
+   * Builds page details using targeting rule selectors instead of heuristic
+   * detection. Iterates through form definitions, resolving each field type's
+   * selector array by trying each `DeepSelector` in order and stopping at the
+   * first DOM match.
    */
-  private getTargetedPageDetails(rules: AutofillTargetingRules): AutofillPageDetails {
+  private getTargetedPageDetails(forms: FormContent[]): AutofillPageDetails {
     const fields: AutofillField[] = [];
 
-    for (const [fieldType, selector] of Object.entries(rules)) {
-      if (!selector) {
-        continue;
+    for (let formIndex = 0; formIndex < forms.length; formIndex++) {
+      const form = forms[formIndex];
+
+      for (const [fieldType, selectors] of Object.entries(form.selectors)) {
+        if (!selectors?.length) {
+          continue;
+        }
+
+        // FIXME location of the form tag; presently unused
+        if (fieldType === "form") {
+          continue;
+        }
+
+        // Try each selector in order, use the first match found
+        let matchedElement: Element | null = null;
+        for (const selector of selectors) {
+          matchedElement = this.domQueryService.queryDeepSelector(selector);
+          if (matchedElement) {
+            break;
+          }
+        }
+
+        if (!matchedElement) {
+          continue;
+        }
+
+        const fieldId = `targeted_field_${formIndex}_${fieldType}`;
+        const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
+        formFieldElement.opid = fieldId;
+
+        const autofillField = this.buildTargetedAutofillField(
+          formFieldElement,
+          fieldType as AutofillTargetingRuleType,
+          fields.length,
+        );
+
+        fields.push(autofillField);
+        this.autofillFieldElements.set(formFieldElement, autofillField);
       }
-
-      const element = this.domQueryService.queryDeepSelector(selector);
-      if (!element) {
-        continue;
-      }
-
-      const opid = `targeted_field_${fieldType}`;
-      const formFieldElement = element as ElementWithOpId<FormFieldElement>;
-      formFieldElement.opid = opid;
-
-      const autofillField = this.buildTargetedAutofillField(
-        formFieldElement,
-        fieldType as AutofillTargetingRuleType,
-        fields.length,
-      );
-
-      fields.push(autofillField);
-      this.autofillFieldElements.set(formFieldElement, autofillField);
     }
 
     this.domRecentlyMutated = false;
