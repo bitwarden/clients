@@ -129,4 +129,5 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   z-index: 2;
+  word-break: break-word;
 }
