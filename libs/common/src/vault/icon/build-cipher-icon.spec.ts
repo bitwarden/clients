@@ -34,7 +34,7 @@ describe("buildCipherIcon", () => {
       const iconDetails = buildCipherIcon(iconServerUrl, cipher, true);
 
       expect(iconDetails).toEqual({
-        icon: "bwi-globe",
+        icon: "bwi-login",
         image: "https://icons.example/test.androidapp/icon.png",
         fallbackImage: "images/bwi-globe.png",
         imageEnabled: true,
@@ -61,7 +61,7 @@ describe("buildCipherIcon", () => {
       const iconDetails = buildCipherIcon(iconServerUrl, cipher, true);
 
       expect(iconDetails).toEqual({
-        icon: "bwi-globe",
+        icon: "bwi-login",
         image: "https://icons.example/test.iosapp/icon.png",
         fallbackImage: "images/bwi-globe.png",
         imageEnabled: true,
@@ -76,7 +76,7 @@ describe("buildCipherIcon", () => {
       const iconDetails = buildCipherIcon(iconServerUrl, cipher, true);
 
       expect(iconDetails).toEqual({
-        icon: "bwi-globe",
+        icon: "bwi-login",
         image: "https://icons.example/test.example/icon.png",
         fallbackImage: "images/bwi-globe.png",
         imageEnabled: true,
@@ -89,7 +89,7 @@ describe("buildCipherIcon", () => {
       const iconDetails = buildCipherIcon(iconServerUrl, cipher, false);
 
       expect(iconDetails).toEqual({
-        icon: "bwi-globe",
+        icon: "bwi-login",
         image: null,
         fallbackImage: "",
         imageEnabled: false,
@@ -102,7 +102,7 @@ describe("buildCipherIcon", () => {
       const iconDetails = buildCipherIcon(iconServerUrl, cipher, true);
 
       expect(iconDetails).toEqual({
-        icon: "bwi-globe",
+        icon: "bwi-login",
         image: null,
         fallbackImage: "",
         imageEnabled: true,
@@ -115,7 +115,7 @@ describe("buildCipherIcon", () => {
       const iconDetails = buildCipherIcon(iconServerUrl, cipher, true);
 
       expect(iconDetails).toEqual({
-        icon: "bwi-globe",
+        icon: "bwi-login",
         image: null,
         fallbackImage: "images/bwi-globe.png",
         imageEnabled: true,
@@ -128,7 +128,7 @@ describe("buildCipherIcon", () => {
       const iconDetails = buildCipherIcon(iconServerUrl, cipher, true);
 
       expect(iconDetails).toEqual({
-        icon: "bwi-globe",
+        icon: "bwi-login",
         image: null,
         fallbackImage: "",
         imageEnabled: true,

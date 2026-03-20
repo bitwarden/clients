@@ -182,7 +182,7 @@ export const WithTitleSuffixComponent: Story = {
     props: args,
     template: /*html*/ `
     <bit-header title="Foobar" icon="bwi-bug" class="tw-text-main">
-      <ng-container slot="title-suffix"><i class="bwi bwi-spinner bwi-spin"></i></ng-container>
+      <ng-container slot="title-suffix"><i class="bwi bwi-loading bwi-spin"></i></ng-container>
     </bit-header>
   `,
   }),

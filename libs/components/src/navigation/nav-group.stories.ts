@@ -151,14 +151,14 @@ export const NestedGroups: StoryObj<NavGroupComponent> = {
     props: args,
     template: /*html*/ `
       <bit-side-nav>
-        <bit-nav-group text="Nested groups example" icon="bwi-collection-shared" [open]="true">
-          <bit-nav-item text="Level 1 - no children" route="t2" icon="bwi-collection-shared"></bit-nav-item>
-          <bit-nav-group text="Level 1 - with children" route="t3" icon="bwi-collection-shared" [open]="true">
-            <bit-nav-group text="Level 2 - with children" route="t4" icon="bwi-collection-shared" [open]="true">
+        <bit-nav-group text="Nested groups example" icon="bwi-collection" [open]="true">
+          <bit-nav-item text="Level 1 - no children" route="t2" icon="bwi-collection"></bit-nav-item>
+          <bit-nav-group text="Level 1 - with children" route="t3" icon="bwi-collection" [open]="true">
+            <bit-nav-group text="Level 2 - with children" route="t4" icon="bwi-collection" [open]="true">
               <bit-nav-item text="Level 3 - no children, no icon" route="t5"></bit-nav-item>
-              <bit-nav-group text="Level 3 - with children" route="t6" icon="bwi-collection-shared" [open]="true">
+              <bit-nav-group text="Level 3 - with children" route="t6" icon="bwi-collection" [open]="true">
                 <bit-nav-item text="Level 4 - no children, no icon" route="t7"></bit-nav-item>
-                <bit-nav-group text="Level 4 - with children" route="t8" icon="bwi-collection-shared" [open]="true">
+                <bit-nav-group text="Level 4 - with children" route="t8" icon="bwi-collection" [open]="true">
                   <bit-nav-item text="Level 5 - no children, no icon" route="t9"></bit-nav-item>
                 </bit-nav-group>
               </bit-nav-group>
@@ -206,7 +206,7 @@ export const WithTrailingElements: StoryObj<NavGroupComponent> = {
             type="button"
             slot="end"
             class="tw-ms-auto"
-            bitIconButton="bwi-pencil-square"
+            bitIconButton="bwi-edit"
             buttonType="side-nav"
             size="xsmall"
             label="Edit"

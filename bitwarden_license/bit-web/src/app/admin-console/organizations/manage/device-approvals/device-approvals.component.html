@@ -1,7 +1,7 @@
 <app-header>
   <ng-container slot="title-suffix" *ngIf="loading || actionInProgress">
     <i
-      class="bwi bwi-spinner bwi-spin tw-text-muted"
+      class="bwi bwi-loading bwi-spin tw-text-muted"
       title="{{ 'loading' | i18n }}"
       aria-hidden="true"
     ></i>
@@ -22,7 +22,7 @@
       <th bitCell class="tw-w-10">
         <button
           [bitMenuTriggerFor]="headerMenu"
-          bitIconButton="bwi-ellipsis-v"
+          bitIconButton="bwi-more-vertical"
           size="small"
           type="button"
           label="{{ 'options' | i18n }}"
@@ -68,7 +68,7 @@
       <td bitCell class="tw-align-middle">
         <button
           [bitMenuTriggerFor]="rowMenu"
-          bitIconButton="bwi-ellipsis-v"
+          bitIconButton="bwi-more-vertical"
           size="small"
           type="button"
           label="{{ 'options' | i18n }}"

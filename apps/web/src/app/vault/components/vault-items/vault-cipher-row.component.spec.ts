@@ -110,7 +110,7 @@ describe("VaultCipherRowComponent", () => {
       fixture.detectChanges();
 
       const menuTrigger = fixture.nativeElement.querySelector(
-        'button[biticonbutton="bwi-ellipsis-v"]',
+        'button[biticonbutton="bwi-more-vertical"]',
       ) as HTMLButtonElement;
       expect(menuTrigger).toBeTruthy();
 

@@ -1,5 +1,5 @@
 <button bitButton [bitMenuTriggerFor]="itemOptions" [buttonType]="buttonType" type="button">
-  <i *ngIf="!hideIcon" class="bwi bwi-plus tw-me-2" aria-hidden="true"></i>
+  <i *ngIf="!hideIcon" class="bwi bwi-add tw-me-2" aria-hidden="true"></i>
   {{ (hideIcon ? "createSend" : "new") | i18n }}
 </button>
 <bit-menu #itemOptions>
@@ -14,6 +14,6 @@
       <app-premium-badge></app-premium-badge>
     </div>
     <span class="tw-sr-only">{{ "popOutNewWindow" | i18n }}</span>
-    <i class="bwi bwi-popout tw-text-muted" slot="end" aria-hidden="true"></i>
+    <i class="bwi bwi-new-window tw-text-muted" slot="end" aria-hidden="true"></i>
   </a>
 </bit-menu>

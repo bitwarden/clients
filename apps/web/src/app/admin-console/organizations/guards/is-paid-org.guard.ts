@@ -58,7 +58,7 @@ export function isPaidOrgGuard(): CanActivateFn {
           content: { key: "upgradeOrganizationCloseSecurityGapsDesc" },
           acceptButtonText: { key: "upgradeOrganization" },
           type: "info",
-          icon: "bwi-plus-circle",
+          icon: "bwi-add-circle",
         });
         if (upgradeConfirmed) {
           await router.navigate(["organizations", org.id, "billing", "subscription"], {

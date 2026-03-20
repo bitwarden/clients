@@ -15,7 +15,7 @@ import { NotPremiumDirective } from "../../directives/not-premium.directive";
       type="button"
       *appNotPremium
       bit-chip-action
-      startIcon="bwi-premium"
+      startIcon="bwi-diamond"
       [variant]="'accent-primary'"
       (click)="promptForPremium($event)"
       [label]="'upgrade' | i18n"

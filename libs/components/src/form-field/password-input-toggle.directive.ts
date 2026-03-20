@@ -51,7 +51,7 @@ export class BitPasswordInputToggleDirective implements AfterContentInit, OnChan
   ) {}
 
   get icon() {
-    return this.toggled() ? "bwi-eye-slash" : "bwi-eye";
+    return this.toggled() ? "bwi-visibility-off" : "bwi-visibility";
   }
 
   ngOnChanges(): void {

@@ -1,7 +1,7 @@
 @if (loading) {
   <div class="tw-text-center">
     <i
-      class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
+      class="bwi bwi-loading bwi-spin bwi-2x tw-text-muted"
       title="{{ 'loading' | i18n }}"
       aria-hidden="true"
     ></i>
@@ -23,7 +23,7 @@
       type="button"
       [label]="'keyConnectorDomainTooltip' | i18n"
       tooltipPosition="above-center"
-      bitIconButton="bwi-info-circle"
+      bitIconButton="bwi-info"
       size="small"
     ></button>
   </p>

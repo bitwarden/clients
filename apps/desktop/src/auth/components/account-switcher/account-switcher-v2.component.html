@@ -25,7 +25,7 @@
           class="account-switcher-v2 !tw-rounded-full"
           type="button"
           buttonType="contrast"
-          bitIconButton="bwi-ellipsis-h"
+          bitIconButton="bwi-more-horizontal"
           [label]="'switchAccount' | i18n"
           (click)="toggle()"
           [disabled]="disabled"
@@ -100,7 +100,7 @@
         <div class="border" *ngIf="view.numberOfAccounts > 0"></div>
         <ng-container *ngIf="view.numberOfAccounts < 4">
           <button type="button" class="add" (click)="addAccount()">
-            <i class="bwi bwi-plus" aria-hidden="true"></i> {{ "addAccount" | i18n }}
+            <i class="bwi bwi-add" aria-hidden="true"></i> {{ "addAccount" | i18n }}
           </button>
         </ng-container>
         <ng-container *ngIf="view.numberOfAccounts === 4">

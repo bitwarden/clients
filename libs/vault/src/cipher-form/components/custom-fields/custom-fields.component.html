@@ -91,7 +91,7 @@
           type="button"
           (click)="openAddEditCustomFieldDialog({ index: i, label: field.value.name })"
           [label]="'editFieldLabel' | i18n: field.value.name"
-          bitIconButton="bwi-pencil-square"
+          bitIconButton="bwi-edit"
           class="tw-self-center tw-mt-2"
           data-testid="edit-custom-field-button"
           [disabled]="parentFormDisabled"
@@ -100,7 +100,7 @@
 
         <button
           type="button"
-          bitIconButton="bwi-drag-and-drop"
+          bitIconButton="bwi-drag"
           class="tw-self-center tw-mt-2"
           cdkDragHandle
           [label]="'reorderToggleButton' | i18n: field.value.name"
@@ -119,7 +119,7 @@
         data-testid="add-field-button"
         *ngIf="!isPartialEdit && !parentFormDisabled"
       >
-        <i class="bwi bwi-plus tw-font-medium" aria-hidden="true"></i>
+        <i class="bwi bwi-add tw-font-medium" aria-hidden="true"></i>
         {{ "addField" | i18n }}
       </button>
     </bit-card>

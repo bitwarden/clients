@@ -73,7 +73,7 @@ class ExtensionPoppedContainerComponent {}
       <bit-item-group aria-label="Mock Vault Items">
         <bit-item *ngFor="let item of data; index as i">
           <button type="button" bit-item-content>
-            <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
+            <i slot="start" class="bwi bwi-login tw-text-3xl tw-text-muted" aria-hidden="true"></i>
             {{ i }} of {{ data.length - 1 }}
             <span slot="secondary">Bar</span>
           </button>
@@ -83,10 +83,10 @@ class ExtensionPoppedContainerComponent {}
               <button type="button" bit-chip-action variant="primary" label="Fill"></button>
             </bit-item-action>
             <bit-item-action>
-              <button type="button" bitIconButton="bwi-clone" label="Copy item"></button>
+              <button type="button" bitIconButton="bwi-copy" label="Copy item"></button>
             </bit-item-action>
             <bit-item-action>
-              <button type="button" bitIconButton="bwi-ellipsis-v" label="More options"></button>
+              <button type="button" bitIconButton="bwi-more-vertical" label="More options"></button>
             </bit-item-action>
           </ng-container>
         </bit-item>
@@ -105,7 +105,7 @@ class VaultComponent {
   selector: "mock-add-button",
   template: `
     <button bitButton size="small" buttonType="primary" type="button">
-      <i class="bwi bwi-plus" aria-hidden="true"></i>
+      <i class="bwi bwi-add" aria-hidden="true"></i>
       Add
     </button>
   `,
@@ -118,7 +118,7 @@ class MockAddButtonComponent {}
 @Component({
   selector: "mock-popout-button",
   template: `
-    <button bitIconButton="bwi-popout" size="small" type="button" label="Pop out"></button>
+    <button bitIconButton="bwi-new-window" size="small" type="button" label="Pop out"></button>
   `,
   imports: [IconButtonModule],
 })
@@ -310,7 +310,7 @@ class MockSettingsPageComponent {}
           slot="end"
           type="button"
           buttonType="danger"
-          bitIconButton="bwi-trash"
+          bitIconButton="bwi-delete"
           label="Delete"
         ></button>
       </popup-footer>
@@ -710,7 +710,7 @@ export const WithVirtualScrollChild: Story = {
                   <button type="button" bit-item-content>
                     <i
                       slot="start"
-                      class="bwi bwi-globe tw-text-3xl tw-text-muted"
+                      class="bwi bwi-login tw-text-3xl tw-text-muted"
                       aria-hidden="true"
                     ></i>
                     {{ i }} of {{ data.length - 1 }}
@@ -722,12 +722,12 @@ export const WithVirtualScrollChild: Story = {
                       <button type="button" bit-chip-action variant="primary" label="Fill"></button>
                     </bit-item-action>
                     <bit-item-action>
-                      <button type="button" bitIconButton="bwi-clone" label="Copy item"></button>
+                      <button type="button" bitIconButton="bwi-copy" label="Copy item"></button>
                     </bit-item-action>
                     <bit-item-action>
                       <button
                         type="button"
-                        bitIconButton="bwi-ellipsis-v"
+                        bitIconButton="bwi-more-vertical"
                         label="More options"
                       ></button>
                     </bit-item-action>

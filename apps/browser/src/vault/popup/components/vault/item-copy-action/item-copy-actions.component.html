@@ -38,7 +38,7 @@
       <button
         *ngIf="singleCopyableLogin"
         type="button"
-        bitIconButton="bwi-clone"
+        bitIconButton="bwi-copy"
         size="small"
         [label]="'copyFieldCipherName' | i18n: singleCopyableLogin.key : cipher.name"
         [appCopyField]="singleCopyableLogin.field"
@@ -47,7 +47,7 @@
       <ng-container *ngIf="!singleCopyableLogin">
         <button
           type="button"
-          bitIconButton="bwi-clone"
+          bitIconButton="bwi-copy"
           size="small"
           [label]="
             hasLoginValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
@@ -105,7 +105,7 @@
       <button
         *ngIf="singleCopyableCard"
         type="button"
-        bitIconButton="bwi-clone"
+        bitIconButton="bwi-copy"
         size="small"
         [label]="'copyFieldCipherName' | i18n: singleCopyableCard.key : cipher.name"
         [appCopyField]="singleCopyableCard.field"
@@ -115,7 +115,7 @@
       <ng-container *ngIf="!singleCopyableCard">
         <button
           type="button"
-          bitIconButton="bwi-clone"
+          bitIconButton="bwi-copy"
           size="small"
           [label]="
             hasCardValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
@@ -140,7 +140,7 @@
   <button
     *ngIf="singleCopyableIdentity"
     type="button"
-    bitIconButton="bwi-clone"
+    bitIconButton="bwi-copy"
     size="small"
     [label]="'copyFieldCipherName' | i18n: singleCopyableIdentity.key : cipher.name"
     [appCopyField]="singleCopyableIdentity.field"
@@ -150,7 +150,7 @@
   <ng-container *ngIf="!singleCopyableIdentity">
     <button
       type="button"
-      bitIconButton="bwi-clone"
+      bitIconButton="bwi-copy"
       size="small"
       [label]="
         hasIdentityValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
@@ -178,7 +178,7 @@
 <bit-item-action *ngIf="CipherViewLikeUtils.getType(cipher) === CipherType.SecureNote">
   <button
     type="button"
-    bitIconButton="bwi-clone"
+    bitIconButton="bwi-copy"
     size="small"
     [label]="hasSecureNoteValue ? ('copyNoteTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)"
     appCopyField="secureNote"
@@ -189,7 +189,7 @@
 <bit-item-action *ngIf="CipherViewLikeUtils.getType(cipher) === CipherType.SshKey">
   <button
     type="button"
-    bitIconButton="bwi-clone"
+    bitIconButton="bwi-copy"
     size="small"
     [label]="hasSshKeyValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)"
     [disabled]="!hasSshKeyValues"

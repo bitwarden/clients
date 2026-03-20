@@ -6,7 +6,7 @@
     <h2 bitTypography="h2">{{ "customEqDomains" | i18n }}</h2>
     <p bitTypography="body1" *ngIf="loading">
       <i
-        class="bwi bwi-spinner bwi-spin tw-text-muted"
+        class="bwi bwi-loading bwi-spin tw-text-muted"
         title="{{ 'loading' | i18n }}"
         aria-hidden="true"
       ></i>
@@ -28,7 +28,7 @@
           ></textarea>
         </bit-form-field>
         <button
-          bitIconButton="bwi-minus-circle"
+          bitIconButton="bwi-subtract-circle"
           type="button"
           buttonType="danger"
           (click)="remove(i)"
@@ -41,7 +41,7 @@
         (click)="add()"
         buttonType="secondary"
         class="tw-mb-2"
-        startIcon="bwi-plus"
+        startIcon="bwi-add"
       >
         {{ "newCustomDomain" | i18n }}
       </button>
@@ -53,7 +53,7 @@
     <h2 bitTypography="h2" class="tw-mt-16">{{ "globalEqDomains" | i18n }}</h2>
     <p bitTypography="body1" *ngIf="loading">
       <i
-        class="bwi bwi-spinner bwi-spin tw-text-muted"
+        class="bwi bwi-loading bwi-spin tw-text-muted"
         title="{{ 'loading' | i18n }}"
         aria-hidden="true"
       ></i>
@@ -66,22 +66,22 @@
           <td bitCell>
             <button
               type="button"
-              bitIconButton="bwi-ellipsis-v"
+              bitIconButton="bwi-more-vertical"
               [bitMenuTriggerFor]="appListDropdown"
               class="tw-border-0 tw-bg-transparent tw-p-0"
               [label]="'editDomain' | i18n"
             ></button>
             <bit-menu #appListDropdown>
               <a href="#" bitMenuItem appStopClick (click)="toggleExcluded(d)" *ngIf="!d.excluded">
-                <i class="bwi bwi-fw bwi-minus-circle" aria-hidden="true"></i>
+                <i class="bwi bwi-fw bwi-subtract-circle" aria-hidden="true"></i>
                 {{ "exclude" | i18n }}
               </a>
               <a href="#" bitMenuItem appStopClick (click)="toggleExcluded(d)" *ngIf="d.excluded">
-                <i class="bwi bwi-fw bwi-plus-circle" aria-hidden="true"></i>
+                <i class="bwi bwi-fw bwi-add-circle" aria-hidden="true"></i>
                 {{ "include" | i18n }}
               </a>
               <a href="#" bitMenuItem appStopClick (click)="customize(d)">
-                <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+                <i class="bwi bwi-fw bwi-edit" aria-hidden="true"></i>
                 {{ "customize" | i18n }}
               </a>
             </bit-menu>

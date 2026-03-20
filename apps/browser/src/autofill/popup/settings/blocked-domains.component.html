@@ -31,7 +31,7 @@
         <button
           *ngIf="i < fieldsEditThreshold"
           label="{{ 'remove' | i18n }}"
-          bitIconButton="bwi-minus-circle"
+          bitIconButton="bwi-subtract-circle"
           buttonType="danger"
           size="small"
           slot="end"
@@ -61,7 +61,7 @@
           </bit-form-field>
         </bit-card>
         <button bitLink class="tw-pt-2" type="button" linkType="primary" (click)="addNewDomain()">
-          <i class="bwi bwi-plus-circle bwi-fw" aria-hidden="true"></i> {{ "addDomain" | i18n }}
+          <i class="bwi bwi-add-circle bwi-fw" aria-hidden="true"></i> {{ "addDomain" | i18n }}
         </button>
       </form>
     </bit-section>

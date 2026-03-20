@@ -10,7 +10,7 @@ import { PopoverAnchorForDirective } from "./popover-anchor-for.directive";
  * @example
  * ```html
  * <button [bitPopoverTriggerFor]="helpPopover">
- *   <i class="bwi bwi-question-circle"></i>
+ *   <i class="bwi bwi-help"></i>
  * </button>
  * <bit-popover #helpPopover [title]="'Help'">
  *   Help content here

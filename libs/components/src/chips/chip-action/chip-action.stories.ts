@@ -80,12 +80,12 @@ export const AllVariants: Story = {
 
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Accent Primary</h3>
-          <button bit-chip-action label="Accent Primary" variant="accent-primary" startIcon="bwi-info-circle"></button>
+          <button bit-chip-action label="Accent Primary" variant="accent-primary" startIcon="bwi-info"></button>
         </div>
 
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Accent Secondary</h3>
-          <button bit-chip-action label="Accent Secondary" variant="accent-secondary" startIcon="bwi-exclamation-triangle"></button>
+          <button bit-chip-action label="Accent Secondary" variant="accent-secondary" startIcon="bwi-warning"></button>
         </div>
       </div>
     `,

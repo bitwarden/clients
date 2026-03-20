@@ -4,7 +4,10 @@
 <div class="tw-mb-3">
   @if (send.text.hidden) {
     <button bitButton type="button" buttonType="secondary" [block]="true" (click)="toggleText()">
-      <bit-icon class="bwi-lg" [name]="showText ? 'bwi-eye' : 'bwi-eye-slash'"></bit-icon>
+      <bit-icon
+        class="bwi-lg"
+        [name]="showText ? 'bwi-visibility' : 'bwi-visibility-off'"
+      ></bit-icon>
       {{ "toggleVisibility" | i18n }}
     </button>
   }
@@ -16,7 +19,7 @@
     buttonType="primary"
     [block]="true"
     (click)="copyText()"
-    startIcon="bwi-clone"
+    startIcon="bwi-copy"
   >
     {{ "copyValue" | i18n }}
   </button>

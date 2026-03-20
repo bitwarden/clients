@@ -92,7 +92,7 @@ export const Default: Story = {
           title="Open popover"
           bitLink
         >
-          <i class="bwi bwi-question-circle"></i>
+          <i class="bwi bwi-help"></i>
         </button>
       </div>
       ${popoverContent}
@@ -120,7 +120,7 @@ export const OpenLongTitle: Story = {
           title="Open popover"
           bitLink
         >
-          <i class="bwi bwi-question-circle"></i>
+          <i class="bwi bwi-help"></i>
         </button>
       </div>
 
@@ -161,7 +161,7 @@ export const RightStart: Story = {
           title="Open popover"
           bitLink
         >
-          <i class="bwi bwi-question-circle"></i>
+          <i class="bwi bwi-help"></i>
         </button>
       </div>
       ${popoverContent}
@@ -193,7 +193,7 @@ export const RightCenter: Story = {
           title="Open popover"
           bitLink
         >
-          <i class="bwi bwi-question-circle"></i>
+          <i class="bwi bwi-help"></i>
         </button>
       </div>
       ${popoverContent}
@@ -225,7 +225,7 @@ export const RightEnd: Story = {
           title="Open popover"
           bitLink
         >
-          <i class="bwi bwi-question-circle"></i>
+          <i class="bwi bwi-help"></i>
         </button>
       </div>
       ${popoverContent}
@@ -258,7 +258,7 @@ export const LeftStart: Story = {
             title="Open popover"
             bitLink
           >
-            <i class="bwi bwi-question-circle"></i>
+            <i class="bwi bwi-help"></i>
           </button>
         </div>
       </div>
@@ -292,7 +292,7 @@ export const LeftCenter: Story = {
             title="Open popover"
             bitLink
           >
-            <i class="bwi bwi-question-circle"></i>
+            <i class="bwi bwi-help"></i>
           </button>
         </div>
       </div>
@@ -325,7 +325,7 @@ export const LeftEnd: Story = {
             title="Open popover"
             bitLink
           >
-            <i class="bwi bwi-question-circle"></i>
+            <i class="bwi bwi-help"></i>
           </button>
         </div>
       </div>
@@ -359,7 +359,7 @@ export const BelowStart: Story = {
             title="Open popover"
             bitLink
           >
-            <i class="bwi bwi-question-circle"></i>
+            <i class="bwi bwi-help"></i>
           </button>
         </div>
       </div>
@@ -393,7 +393,7 @@ export const BelowCenter: Story = {
             title="Open popover"
             bitLink
           >
-            <i class="bwi bwi-question-circle"></i>
+            <i class="bwi bwi-help"></i>
           </button>
         </div>
       </div>
@@ -427,7 +427,7 @@ export const BelowEnd: Story = {
             title="Open popover"
             bitLink
           >
-            <i class="bwi bwi-question-circle"></i>
+            <i class="bwi bwi-help"></i>
           </button>
         </div>
       </div>
@@ -461,7 +461,7 @@ export const AboveStart: Story = {
             title="Open popover"
             bitLink
           >
-            <i class="bwi bwi-question-circle"></i>
+            <i class="bwi bwi-help"></i>
           </button>
         </div>
       </div>
@@ -495,7 +495,7 @@ export const AboveCenter: Story = {
             title="Open popover"
             bitLink
           >
-            <i class="bwi bwi-question-circle"></i>
+            <i class="bwi bwi-help"></i>
           </button>
         </div>
       </div>
@@ -529,7 +529,7 @@ export const AboveEnd: Story = {
             title="Open popover"
             bitLink
           >
-            <i class="bwi bwi-question-circle"></i>
+            <i class="bwi bwi-help"></i>
           </button>
         </div>
       </div>
@@ -581,7 +581,7 @@ export const SpotlightTour: Story = {
             [position]="'below-center'"
             #step1Ref="popoverAnchor"
           >
-            <i class="bwi bwi-plus-circle tw-text-4xl tw-text-primary-600 tw-mb-3"></i>
+            <i class="bwi bwi-add-circle tw-text-4xl tw-text-primary-600 tw-mb-3"></i>
             <h3 class="tw-text-base tw-font-semibold tw-mb-2">Create</h3>
             <p class="tw-text-sm tw-text-muted tw-mb-0">Add new items</p>
           </div>
@@ -609,7 +609,7 @@ export const SpotlightTour: Story = {
             [position]="'below-center'"
             #step3Ref="popoverAnchor"
           >
-            <i class="bwi bwi-cog tw-text-4xl tw-text-primary-600 tw-mb-3"></i>
+            <i class="bwi bwi-settings tw-text-4xl tw-text-primary-600 tw-mb-3"></i>
             <h3 class="tw-text-base tw-font-semibold tw-mb-2">Settings</h3>
             <p class="tw-text-sm tw-text-muted tw-mb-0">Configure options</p>
           </div>

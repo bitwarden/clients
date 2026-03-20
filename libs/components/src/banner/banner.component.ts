@@ -8,8 +8,8 @@ type BannerType = "premium" | "info" | "warning" | "danger";
 
 const defaultIcon: Record<BannerType, string> = {
   premium: "bwi-star",
-  info: "bwi-info-circle",
-  warning: "bwi-exclamation-triangle",
+  info: "bwi-info",
+  warning: "bwi-warning",
   danger: "bwi-error",
 };
 

@@ -11,7 +11,7 @@
       [disabled]="isSuspensionActive"
       [title]="isSuspensionActive ? ('providerIsDisabled' | i18n) : ''"
       appA11yTitle="{{ 'add' | i18n }}"
-      startIcon="bwi-plus"
+      startIcon="bwi-add"
     >
       {{ "add" | i18n }}
     </button>
@@ -42,7 +42,7 @@
 
 <ng-container *ngIf="loading">
   <i
-    class="bwi bwi-spinner bwi-spin tw-text-muted"
+    class="bwi bwi-loading bwi-spin tw-text-muted"
     title="{{ 'loading' | i18n }}"
     aria-hidden="true"
   ></i>
@@ -86,7 +86,7 @@
         <button
           [bitMenuTriggerFor]="rowMenu"
           type="button"
-          bitIconButton="bwi-ellipsis-v"
+          bitIconButton="bwi-more-vertical"
           size="small"
           label="{{ 'options' | i18n }}"
         ></button>
@@ -98,7 +98,7 @@
             [title]="isSuspensionActive ? ('providerIsDisabled' | i18n) : ''"
             (click)="manageClientName(row)"
           >
-            <i aria-hidden="true" class="bwi bwi-pencil-square"></i>
+            <i aria-hidden="true" class="bwi bwi-edit"></i>
             {{ "updateName" | i18n }}
           </button>
           <button

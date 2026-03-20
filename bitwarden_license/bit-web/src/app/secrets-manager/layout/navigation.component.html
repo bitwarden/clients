@@ -38,14 +38,14 @@
     [relativeTo]="route.parent"
   ></bit-nav-item>
   <bit-nav-item
-    icon="bwi-trash"
+    icon="bwi-delete"
     [text]="'trash' | i18n"
     route="trash"
     [relativeTo]="route.parent"
     *ngIf="isAdmin$ | async"
   ></bit-nav-item>
   <bit-nav-group
-    icon="bwi-cog"
+    icon="bwi-settings"
     [text]="'settings' | i18n"
     *ngIf="isAdmin$ | async"
     route="settings/import"

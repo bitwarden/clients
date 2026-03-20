@@ -1,7 +1,7 @@
 <bit-dialog dialogSize="large" [title]="'customizeAvatar' | i18n">
   <ng-container bitDialogContent>
     <div class="tw-text-center" *ngIf="loading">
-      <bit-icon name="bwi-spinner" class="bwi-spin" [ariaLabel]="'loading' | i18n"></bit-icon>
+      <bit-icon name="bwi-loading" class="bwi-spin" [ariaLabel]="'loading' | i18n"></bit-icon>
       {{ "loading" | i18n }}
     </div>
     <p class="tw-text-lg">{{ "pickAnAvatarColor" | i18n }}</p>
@@ -32,7 +32,7 @@
           [style.background-color]="customColor$ | async"
         >
           <bit-icon
-            name="bwi-pencil"
+            name="bwi-edit-alt"
             [style.color]="customTextColor$ | async"
             class="!tw-text-muted tw-m-auto tw-text-3xl"
           ></bit-icon>

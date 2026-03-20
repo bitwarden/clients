@@ -706,7 +706,7 @@ export class EventService {
 
   private getAppInfo(ev: EventResponse): [string, string] {
     if (ev.serviceAccountId) {
-      return ["bwi-globe", this.i18nService.t("sdk")];
+      return ["bwi-login", this.i18nService.t("sdk")];
     }
 
     switch (ev.deviceType) {
@@ -717,17 +717,17 @@ export class EventService {
       case DeviceType.UWP:
         return ["bwi-mobile", this.i18nService.t("mobile") + " - Windows"];
       case DeviceType.ChromeExtension:
-        return ["bwi-puzzle", this.i18nService.t("extension") + " - Chrome"];
+        return ["bwi-extension", this.i18nService.t("extension") + " - Chrome"];
       case DeviceType.FirefoxExtension:
-        return ["bwi-puzzle", this.i18nService.t("extension") + " - Firefox"];
+        return ["bwi-extension", this.i18nService.t("extension") + " - Firefox"];
       case DeviceType.OperaExtension:
-        return ["bwi-puzzle", this.i18nService.t("extension") + " - Opera"];
+        return ["bwi-extension", this.i18nService.t("extension") + " - Opera"];
       case DeviceType.EdgeExtension:
-        return ["bwi-puzzle", this.i18nService.t("extension") + " - Edge"];
+        return ["bwi-extension", this.i18nService.t("extension") + " - Edge"];
       case DeviceType.VivaldiExtension:
-        return ["bwi-puzzle", this.i18nService.t("extension") + " - Vivaldi"];
+        return ["bwi-extension", this.i18nService.t("extension") + " - Vivaldi"];
       case DeviceType.SafariExtension:
-        return ["bwi-puzzle", this.i18nService.t("extension") + " - Safari"];
+        return ["bwi-extension", this.i18nService.t("extension") + " - Safari"];
       case DeviceType.WindowsDesktop:
         return ["bwi-desktop", this.i18nService.t("desktop") + " - Windows"];
       case DeviceType.MacOsDesktop:
@@ -751,20 +751,20 @@ export class EventService {
       case DeviceType.DuckDuckGoBrowser:
         return ["bwi-browser", this.i18nService.t("webVault") + " - DuckDuckGo"];
       case DeviceType.Server:
-        return ["bwi-user-monitor", this.i18nService.t("server")];
+        return ["bwi-desktop-user", this.i18nService.t("server")];
       case DeviceType.WindowsCLI:
-        return ["bwi-cli", this.i18nService.t("cli") + " - Windows"];
+        return ["bwi-terminal", this.i18nService.t("cli") + " - Windows"];
       case DeviceType.MacOsCLI:
-        return ["bwi-cli", this.i18nService.t("cli") + " - macOS"];
+        return ["bwi-terminal", this.i18nService.t("cli") + " - macOS"];
       case DeviceType.LinuxCLI:
-        return ["bwi-cli", this.i18nService.t("cli") + " - Linux"];
+        return ["bwi-terminal", this.i18nService.t("cli") + " - Linux"];
       case DeviceType.UnknownBrowser:
         return [
           "bwi-browser",
           this.i18nService.t("webVault") + " - " + this.i18nService.t("unknown"),
         ];
       default:
-        return ["bwi-globe", this.i18nService.t("unknown")];
+        return ["bwi-login", this.i18nService.t("unknown")];
     }
   }
 

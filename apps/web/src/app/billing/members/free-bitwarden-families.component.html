@@ -1,6 +1,6 @@
 <app-header>
   <button type="button" (click)="addSponsorship()" bitButton buttonType="primary">
-    <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+    <i class="bwi bwi-add bwi-fw" aria-hidden="true"></i>
     {{ "addSponsorship" | i18n }}
   </button>
 </app-header>
@@ -22,7 +22,7 @@
 
     @if (loading()) {
       <ng-container>
-        <i class="bwi bwi-spinner bwi-spin tw-text-muted" title="{{ 'loading' | i18n }}"></i>
+        <i class="bwi bwi-loading bwi-spin tw-text-muted" title="{{ 'loading' | i18n }}"></i>
         <span class="tw-sr-only">{{ "loading" | i18n }}</span>
       </ng-container>
     }
@@ -50,7 +50,7 @@
                   <td bitCell>
                     <button
                       type="button"
-                      bitIconButton="bwi-ellipsis-v"
+                      bitIconButton="bwi-more-vertical"
                       buttonType="primaryGhost"
                       [bitMenuTriggerFor]="appListDropdown"
                       label="{{ 'options' | i18n }}"
@@ -63,7 +63,7 @@
                           [attr.aria-label]="'resendEmailLabel' | i18n"
                           (click)="resendEmail(sponsoredFamily)"
                         >
-                          <i aria-hidden="true" class="bwi bwi-envelope"></i>
+                          <i aria-hidden="true" class="bwi bwi-mail"></i>
                           {{ "resendInvitation" | i18n }}
                         </button>
                       }

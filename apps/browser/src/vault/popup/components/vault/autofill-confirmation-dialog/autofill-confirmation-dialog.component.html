@@ -7,7 +7,7 @@
       <p class="tw-text-muted tw-text-xs tw-uppercase tw-mt-4 tw-font-medium">
         {{ "savedWebsite" | i18n }}
       </p>
-      <bit-callout [title]="null" type="success" icon="bwi-globe">
+      <bit-callout [title]="null" type="success" icon="bwi-login">
         <div class="tw-font-mono tw-line-clamp-1 tw-break-all" [appA11yTitle]="savedUrls()[0]">
           {{ savedUrls()[0] }}
         </div>
@@ -30,7 +30,7 @@
       <div class="tw-pt-2" [ngClass]="savedUrlsListClass()">
         @for (url of savedUrls(); track url) {
           <div class="-tw-mt-2">
-            <bit-callout [title]="null" type="success" icon="bwi-globe">
+            <bit-callout [title]="null" type="success" icon="bwi-login">
               <div class="tw-font-mono tw-line-clamp-1 tw-break-all" [appA11yTitle]="url">
                 {{ url }}
               </div>
@@ -42,7 +42,7 @@
     <p class="tw-text-muted tw-text-xs tw-uppercase tw-mt-5 tw-font-medium">
       {{ "currentWebsite" | i18n }}
     </p>
-    <bit-callout [title]="null" type="warning" icon="bwi-globe">
+    <bit-callout [title]="null" type="warning" icon="bwi-login">
       <div [appA11yTitle]="currentUrl()" class="tw-font-mono tw-line-clamp-1 tw-break-all">
         {{ currentUrl() }}
       </div>

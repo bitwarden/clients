@@ -79,7 +79,7 @@ const defaultIconMap: Record<BadgeVariant, BitwardenIcon | null> = {
   secondary: null,
   primary: null,
   success: "bwi-check-circle",
-  warning: "bwi-exclamation-triangle",
+  warning: "bwi-warning",
   danger: "bwi-error",
   "accent-primary": null,
 };

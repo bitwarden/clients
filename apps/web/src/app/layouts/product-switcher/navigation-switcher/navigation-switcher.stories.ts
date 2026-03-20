@@ -207,27 +207,27 @@ const Template: Story = {
             <bit-nav-item text="Export"></bit-nav-item>
           </bit-nav-group>
           <bit-nav-group text="Organizations" icon="bwi-business" [open]="true">
-            <bit-nav-item text="Acme Corp" icon="bwi-collection-shared"></bit-nav-item>
+            <bit-nav-item text="Acme Corp" icon="bwi-collection"></bit-nav-item>
             <bit-nav-item text="Acme Corp — Vault"></bit-nav-item>
             <bit-nav-item text="Acme Corp — Members"></bit-nav-item>
             <bit-nav-item text="Acme Corp — Settings"></bit-nav-item>
-            <bit-nav-item text="My Family" icon="bwi-collection-shared"></bit-nav-item>
+            <bit-nav-item text="My Family" icon="bwi-collection"></bit-nav-item>
             <bit-nav-item text="My Family — Vault"></bit-nav-item>
             <bit-nav-item text="My Family — Members"></bit-nav-item>
-            <bit-nav-item text="Initech" icon="bwi-collection-shared"></bit-nav-item>
+            <bit-nav-item text="Initech" icon="bwi-collection"></bit-nav-item>
             <bit-nav-item text="Initech — Vault"></bit-nav-item>
             <bit-nav-item text="Initech — Members"></bit-nav-item>
             <bit-nav-item text="Initech — Settings"></bit-nav-item>
-            <bit-nav-item text="Umbrella Corp" icon="bwi-collection-shared"></bit-nav-item>
+            <bit-nav-item text="Umbrella Corp" icon="bwi-collection"></bit-nav-item>
             <bit-nav-item text="Umbrella Corp — Vault"></bit-nav-item>
             <bit-nav-item text="Umbrella Corp — Members"></bit-nav-item>
             <bit-nav-item text="Umbrella Corp — Settings"></bit-nav-item>
-            <bit-nav-item text="Stark Industries" icon="bwi-collection-shared"></bit-nav-item>
+            <bit-nav-item text="Stark Industries" icon="bwi-collection"></bit-nav-item>
             <bit-nav-item text="Stark Industries — Vault"></bit-nav-item>
             <bit-nav-item text="Stark Industries — Members"></bit-nav-item>
             <bit-nav-item text="Stark Industries — Settings"></bit-nav-item>
           </bit-nav-group>
-          <bit-nav-item text="Settings" icon="bwi-cog"></bit-nav-item>
+          <bit-nav-item text="Settings" icon="bwi-settings"></bit-nav-item>
           <ng-container slot="product-switcher">
             <bit-nav-divider></bit-nav-divider>
             <navigation-product-switcher [mockOrgs]="mockOrgs" [mockProviders]="mockProviders"></navigation-product-switcher>

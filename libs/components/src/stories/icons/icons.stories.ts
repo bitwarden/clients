@@ -151,7 +151,7 @@ export const SizeVariants = {
         <ng-template body let-rows$>
           @for (row of rows$ | async; track row.size) {
             <tr bitRow alignContent="middle">
-              <td bitCell><i class="bwi bwi-plus" [ngClass]="row.size"></i> </td>
+              <td bitCell><i class="bwi bwi-add" [ngClass]="row.size"></i> </td>
               <td bitCell><code class="tw-text-danger-700">{{row.size}}</code></td>
               <td bitCell>{{row.usage}}</td>
             </tr>

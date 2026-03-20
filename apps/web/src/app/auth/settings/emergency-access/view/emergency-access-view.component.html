@@ -19,7 +19,7 @@
             >
             <ng-container *ngIf="currentCipher.organizationId">
               <bit-icon
-                name="bwi-collection-shared"
+                name="bwi-collection"
                 class="tw-ml-1"
                 appStopProp
                 [ariaLabel]="'shared' | i18n"
@@ -27,7 +27,7 @@
             </ng-container>
             <ng-container *ngIf="currentCipher.hasAttachments">
               <bit-icon
-                name="bwi-paperclip"
+                name="bwi-attach"
                 class="tw-ml-1"
                 appStopProp
                 [ariaLabel]="'attachments' | i18n"
@@ -42,7 +42,7 @@
   </ng-container>
   <ng-container *ngIf="!loaded">
     <bit-icon
-      name="bwi-spinner"
+      name="bwi-loading"
       class="bwi-spin tw-text-muted"
       [ariaLabel]="'loading' | i18n"
     ></bit-icon>

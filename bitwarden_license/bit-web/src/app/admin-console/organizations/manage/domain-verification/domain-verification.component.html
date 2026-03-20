@@ -5,7 +5,7 @@
     buttonType="primary"
     bitButton
     (click)="addDomain()"
-    startIcon="bwi-plus"
+    startIcon="bwi-add"
   >
     {{ "newDomain" | i18n }}
   </button>
@@ -20,13 +20,13 @@
     appA11yTitle="{{ 'learnMore' | i18n }}"
     href="https://bitwarden.com/help/claimed-accounts/"
     slot="end"
-    startIcon="bwi-question-circle"
+    startIcon="bwi-help"
   ></a>
 </p>
 
 <ng-container *ngIf="loading">
   <i
-    class="bwi bwi-spinner bwi-spin tw-text-muted"
+    class="bwi bwi-loading bwi-spin tw-text-muted"
     title="{{ 'loading' | i18n }}"
     aria-hidden="true"
   ></i>
@@ -77,11 +77,11 @@
                 type="button"
                 appA11yTitle="{{ 'options' | i18n }}"
               >
-                <i class="bwi bwi-ellipsis-v bwi-lg" aria-hidden="true"></i>
+                <i class="bwi bwi-more-vertical bwi-lg" aria-hidden="true"></i>
               </button>
               <bit-menu #orgDomainOptions>
                 <button bitMenuItem (click)="copyDnsTxt(orgDomain.txt)" type="button">
-                  <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+                  <i class="bwi bwi-fw bwi-copy" aria-hidden="true"></i>
                   {{ "copyDnsTxtRecord" | i18n }}
                 </button>
                 <button
@@ -118,7 +118,7 @@
           buttonType="secondary"
           bitButton
           (click)="addDomain()"
-          startIcon="bwi-plus"
+          startIcon="bwi-add"
         >
           {{ "newDomain" | i18n }}
         </button>

@@ -35,7 +35,7 @@ import { ChangePaymentMethodDialogComponent } from "./change-payment-method-dial
             }
 
             <p>
-              <i class="bwi bwi-fw bwi-billing"></i>
+              <i class="bwi bwi-fw bwi-receipt"></i>
               {{ paymentMethod.bankName }}, *{{ paymentMethod.last4 }}
               @if (paymentMethod.hostedVerificationUrl) {
                 <span>- {{ "unverified" | i18n }}</span>

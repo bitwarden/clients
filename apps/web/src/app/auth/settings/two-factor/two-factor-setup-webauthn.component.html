@@ -29,7 +29,7 @@
             </ng-container>
             <ng-container *ngIf="keysConfiguredCount > 1 && k.configured">
               <bit-icon
-                name="bwi-spinner"
+                name="bwi-loading"
                 class="bwi-spin tw-text-muted bwi-fw"
                 [ariaLabel]="'loading' | i18n"
                 *ngIf="$any(removeKeyBtn).loading"
@@ -70,7 +70,7 @@
       </button>
       <ng-container *ngIf="$any(readKeyBtn).loading()">
         <bit-icon
-          name="bwi-spinner"
+          name="bwi-loading"
           class="bwi-spin tw-text-muted"
           [ariaLabel]="'loading' | i18n"
         ></bit-icon>
@@ -78,7 +78,7 @@
       <ng-container *ngIf="!$any(readKeyBtn).loading()">
         <ng-container *ngIf="webAuthnListening">
           <bit-icon
-            name="bwi-spinner"
+            name="bwi-loading"
             class="bwi-spin tw-text-muted"
             [ariaLabel]="'loading' | i18n"
           ></bit-icon>
@@ -89,7 +89,7 @@
           {{ "twoFactorU2fClickSave" | i18n }}
         </ng-container>
         <ng-container *ngIf="webAuthnError">
-          <bit-icon name="bwi-exclamation-triangle" class="tw-text-danger"></bit-icon>
+          <bit-icon name="bwi-warning" class="tw-text-danger"></bit-icon>
           {{ "twoFactorU2fProblemReadingTryAgain" | i18n }}
         </ng-container>
       </ng-container>

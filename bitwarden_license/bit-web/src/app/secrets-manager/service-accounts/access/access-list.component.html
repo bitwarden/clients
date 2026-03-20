@@ -1,5 +1,5 @@
 <div *ngIf="!tokens" class="tw-items-center tw-justify-center tw-pt-64 tw-text-center">
-  <i class="bwi bwi-spinner bwi-spin bwi-3x"></i>
+  <i class="bwi bwi-loading bwi-spin bwi-3x"></i>
 </div>
 
 <bit-no-items *ngIf="tokens?.length == 0">
@@ -11,7 +11,7 @@
     bitButton
     buttonType="secondary"
     (click)="newAccessTokenEvent.emit()"
-    startIcon="bwi-plus"
+    startIcon="bwi-add"
   >
     {{ "createAccessToken" | i18n }}
   </button>
@@ -37,7 +37,7 @@
       <th bitCell class="tw-w-0">
         <button
           type="button"
-          bitIconButton="bwi-ellipsis-v"
+          bitIconButton="bwi-more-vertical"
           buttonType="primaryGhost"
           [bitMenuTriggerFor]="tableMenu"
           [label]="'options' | i18n"
@@ -62,7 +62,7 @@
       <td bitCell>
         <button
           type="button"
-          bitIconButton="bwi-ellipsis-v"
+          bitIconButton="bwi-more-vertical"
           buttonType="primaryGhost"
           [label]="'options' | i18n"
           [bitMenuTriggerFor]="tokenMenu"
@@ -72,7 +72,7 @@
       <bit-menu #tokenMenu>
         <button type="button" bitMenuItem (click)="revokeAccessTokensEvent.emit([token])">
           <span class="tw-text-danger">
-            <i class="bwi bwi-fw bwi-minus-circle" aria-hidden="true"></i>
+            <i class="bwi bwi-fw bwi-subtract-circle" aria-hidden="true"></i>
             {{ "revokeAccessToken" | i18n }}
           </span>
         </button>
@@ -84,7 +84,7 @@
 <bit-menu #tableMenu>
   <button type="button" bitMenuItem (click)="revokeSelected()">
     <span class="tw-text-danger">
-      <i class="bwi bwi-fw bwi-minus-circle" aria-hidden="true"></i>
+      <i class="bwi bwi-fw bwi-subtract-circle" aria-hidden="true"></i>
       {{ "revokeAccessTokens" | i18n }}
     </span>
   </button>

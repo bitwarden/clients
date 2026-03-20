@@ -143,11 +143,7 @@ type Scenario =
               @let hint = taxIdWarningHint;
               @if (hint) {
                 <bit-hint
-                  ><i
-                    class="bwi bwi-exclamation-triangle tw-mr-1"
-                    title="{{ hint }}"
-                    aria-hidden="true"
-                  ></i
+                  ><i class="bwi bwi-warning tw-mr-1" title="{{ hint }}" aria-hidden="true"></i
                   >{{ hint }}</bit-hint
                 >
               }

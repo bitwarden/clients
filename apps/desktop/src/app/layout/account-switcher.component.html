@@ -94,7 +94,7 @@
         <div class="border" *ngIf="view.numberOfAccounts > 0"></div>
         <ng-container *ngIf="view.numberOfAccounts < 4">
           <button type="button" class="add" (click)="addAccount()">
-            <bit-icon name="bwi-plus"></bit-icon> {{ "addAccount" | i18n }}
+            <bit-icon name="bwi-add"></bit-icon> {{ "addAccount" | i18n }}
           </button>
         </ng-container>
         <ng-container *ngIf="view.numberOfAccounts === 4">

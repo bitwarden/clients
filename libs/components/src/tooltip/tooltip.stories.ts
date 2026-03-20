@@ -86,7 +86,7 @@ export const Default: Story = {
     template: `
       <div class="tw-p-4">
         <button
-          bitIconButton="bwi-ellipsis-v"
+          bitIconButton="bwi-more-vertical"
           label="Your tooltip content here"
           ${formatArgsForCodeSnippet<TooltipDirective>(args)}
         >
@@ -143,7 +143,7 @@ export const LongContent: Story = {
     template: `
       <div class="tw-p-16 tw-flex tw-items-center tw-justify-center">
         <button
-          bitIconButton="bwi-ellipsis-v"
+          bitIconButton="bwi-more-vertical"
           label="This is a very long tooltip that will wrap to multiple lines to demonstrate how the tooltip handles long content. This is not recommended for usability."
         ></button>
       </div>
@@ -159,7 +159,7 @@ export const OnDisabledButton: Story = {
     template: `
       <div class="tw-p-16 tw-flex tw-items-center tw-justify-center">
         <button
-          bitIconButton="bwi-ellipsis-v"
+          bitIconButton="bwi-more-vertical"
           label="Tooltip on disabled button"
           [disabled]="true"
         ></button>

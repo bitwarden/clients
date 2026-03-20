@@ -109,11 +109,11 @@
               (click)="onEdit(f)"
               appA11yTitle="{{ 'editWithName' | i18n: editInfo.filterName : f.node.name }}"
             >
-              <i class="bwi bwi-pencil bwi-fw" aria-hidden="true"></i>
+              <i class="bwi bwi-edit-alt bwi-fw" aria-hidden="true"></i>
             </button>
             <i
               *ngIf="isOrganizationFilter && !f.node.enabled"
-              class="org-options bwi bwi-fw bwi-exclamation-triangle text-danger"
+              class="org-options bwi bwi-fw bwi-warning text-danger"
               [attr.aria-label]="'organizationIsDisabled' | i18n"
               appA11yTitle="{{ 'organizationIsDisabled' | i18n }}"
             ></i>
@@ -143,7 +143,7 @@
     <li class="filter-option" *ngIf="showAddLink">
       <span class="filter-buttons">
         <a href="#" routerLink="{{ addInfo.route }}" class="filter-button tw-truncate">
-          <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+          <i class="bwi bwi-add bwi-fw" aria-hidden="true"></i>
           &nbsp;{{ addInfo.text | i18n }}
         </a>
       </span>

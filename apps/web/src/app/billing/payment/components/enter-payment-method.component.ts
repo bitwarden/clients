@@ -57,7 +57,7 @@ type PaymentMethodFormGroup = FormGroup<{
           @if (showBankAccount$ | async) {
             <bit-radio-button id="bank-payment-method" [value]="'bankAccount'">
               <bit-label>
-                <i class="bwi bwi-fw bwi-billing" aria-hidden="true"></i>
+                <i class="bwi bwi-fw bwi-receipt" aria-hidden="true"></i>
                 {{ "bankAccount" | i18n }}
               </bit-label>
             </bit-radio-button>
@@ -111,7 +111,7 @@ type PaymentMethodFormGroup = FormGroup<{
                   class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-pr-1"
                   [position]="'above-end'"
                 >
-                  <i class="bwi bwi-question-circle tw-text-sm" aria-hidden="true"></i>
+                  <i class="bwi bwi-help tw-text-sm" aria-hidden="true"></i>
                 </button>
                 <bit-popover [title]="'cardSecurityCode' | i18n" #cardSecurityCodePopover>
                   <p class="tw-mb-0">{{ "cardSecurityCodeDescription" | i18n }}</p>

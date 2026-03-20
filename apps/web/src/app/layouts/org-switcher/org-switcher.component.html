@@ -10,7 +10,7 @@
   <bit-icon
     slot="end"
     *ngIf="!activeOrganization.enabled"
-    name="bwi-exclamation-triangle"
+    name="bwi-warning"
     class="tw-my-auto"
     [ariaLabel]="'organizationIsDisabled' | i18n"
     appA11yTitle="{{ 'organizationIsDisabled' | i18n }}"
@@ -27,7 +27,7 @@
       <bit-icon
         slot="end"
         *ngIf="org.enabled == false"
-        name="bwi-exclamation-triangle"
+        name="bwi-warning"
         [ariaLabel]="'organizationIsDisabled' | i18n"
         appA11yTitle="{{ 'organizationIsDisabled' | i18n }}"
       ></bit-icon>
@@ -35,7 +35,7 @@
   </ng-container>
   <bit-nav-item
     *ngIf="!hideNewButton"
-    icon="bwi-plus"
+    icon="bwi-add"
     [text]="'newOrganization' | i18n"
     route="/create-organization"
   ></bit-nav-item>

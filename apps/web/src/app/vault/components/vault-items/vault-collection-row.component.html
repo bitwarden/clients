@@ -16,7 +16,7 @@
     <i
       [class]="
         'bwi bwi-fw bwi-lg ' +
-        (collection.type === DefaultCollectionType ? 'bwi-user' : 'bwi-collection-shared')
+        (collection.type === DefaultCollectionType ? 'bwi-user' : 'bwi-collection')
       "
     ></i>
   </div>
@@ -77,7 +77,7 @@
       [disabled]="disabled"
       [bitMenuTriggerFor]="collectionOptions"
       size="small"
-      bitIconButton="bwi-ellipsis-v"
+      bitIconButton="bwi-more-vertical"
       type="button"
       label="{{ 'options' | i18n }}"
       appStopProp
@@ -86,27 +86,27 @@
   <bit-menu #collectionOptions>
     <ng-container *ngIf="canEditCollection">
       <button type="button" bitMenuItem (click)="edit(false)">
-        <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+        <i class="bwi bwi-fw bwi-edit" aria-hidden="true"></i>
         {{ "editInfo" | i18n }}
       </button>
       <button type="button" bitMenuItem (click)="access(false)">
-        <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
+        <i class="bwi bwi-fw bwi-groups" aria-hidden="true"></i>
         {{ "editAccess" | i18n }}
       </button>
     </ng-container>
     <ng-container *ngIf="!canEditCollection && canViewCollectionInfo">
       <button type="button" bitMenuItem (click)="edit(true)">
-        <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+        <i class="bwi bwi-fw bwi-edit" aria-hidden="true"></i>
         {{ "viewInfo" | i18n }}
       </button>
       <button type="button" bitMenuItem (click)="access(true)">
-        <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
+        <i class="bwi bwi-fw bwi-groups" aria-hidden="true"></i>
         {{ "viewAccess" | i18n }}
       </button>
     </ng-container>
     <button *ngIf="canDeleteCollection" type="button" bitMenuItem (click)="deleteCollection()">
       <span class="tw-text-danger">
-        <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+        <i class="bwi bwi-fw bwi-delete" aria-hidden="true"></i>
         {{ "delete" | i18n }}
       </span>
     </button>

@@ -6,7 +6,7 @@ export interface CipherIconDetails {
   imageEnabled: boolean;
   image: string | null;
   /**
-   * @deprecated Fallback to `icon` instead which will default to "bwi-globe" if no other icon is applicable.
+   * @deprecated Fallback to `icon` instead which will default to "bwi-login" if no other icon is applicable.
    */
   fallbackImage: string;
   icon: string;
@@ -17,7 +17,7 @@ export function buildCipherIcon(
   cipher: CipherViewLike,
   showFavicon: boolean,
 ): CipherIconDetails {
-  let icon: string = "bwi-globe";
+  let icon: string = "bwi-login";
   let image: string | null = null;
   let fallbackImage = "";
   const cardIcons: Record<string, string> = {
@@ -42,7 +42,7 @@ export function buildCipherIcon(
 
   switch (cipherType) {
     case CipherType.Login:
-      icon = "bwi-globe";
+      icon = "bwi-login";
 
       if (uri) {
         let hostnameUri = uri;
@@ -86,7 +86,7 @@ export function buildCipherIcon(
       }
       break;
     case CipherType.SecureNote:
-      icon = "bwi-sticky-note";
+      icon = "bwi-note";
       break;
     case CipherType.Card:
       icon = "bwi-credit-card";
@@ -95,7 +95,7 @@ export function buildCipherIcon(
       }
       break;
     case CipherType.Identity:
-      icon = "bwi-id-card";
+      icon = "bwi-identity";
       break;
     case CipherType.SshKey:
       icon = "bwi-key";

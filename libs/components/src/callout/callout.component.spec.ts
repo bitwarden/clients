@@ -41,14 +41,14 @@ describe("Callout", () => {
       fixture.componentRef.setInput("type", "info");
       fixture.detectChanges();
       expect(component.titleComputed()).toBeUndefined();
-      expect(component.iconComputed()).toBe("bwi-info-circle");
+      expect(component.iconComputed()).toBe("bwi-info");
     });
 
     it("warning", () => {
       fixture.componentRef.setInput("type", "warning");
       fixture.detectChanges();
       expect(component.titleComputed()).toBe("Warning");
-      expect(component.iconComputed()).toBe("bwi-exclamation-triangle");
+      expect(component.iconComputed()).toBe("bwi-warning");
     });
 
     it("danger", () => {
@@ -62,7 +62,7 @@ describe("Callout", () => {
       fixture.componentRef.setInput("type", "subtle");
       fixture.detectChanges();
       expect(component.titleComputed()).toBeUndefined();
-      expect(component.iconComputed()).toBe("bwi-info-circle");
+      expect(component.iconComputed()).toBe("bwi-info");
     });
   });
 });

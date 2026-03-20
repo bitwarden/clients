@@ -12,7 +12,7 @@
     <div bitDialogContent>
       <ng-container *ngIf="loading">
         <i
-          class="bwi bwi-spinner bwi-spin tw-text-muted"
+          class="bwi bwi-loading bwi-spin tw-text-muted"
           title="{{ 'loading' | i18n }}"
           aria-hidden="true"
         ></i>
@@ -50,7 +50,7 @@
                 appA11yTitle="{{ 'learnMoreAboutMemberRoles' | i18n }}"
                 href="https://bitwarden.com/help/user-types-access-control/"
                 slot="end"
-                startIcon="bwi-question-circle"
+                startIcon="bwi-help"
               ></a>
             </bit-label>
             <bit-radio-button id="userTypeUser" [value]="organizationUserType.User">
@@ -153,7 +153,7 @@
                 rel="noreferrer"
                 appA11yTitle="{{ 'learnMore' | i18n }}"
                 href="https://bitwarden.com/help/manage-your-organization/#access-to-secrets-manager"
-                startIcon="bwi-question-circle"
+                startIcon="bwi-help"
               ></a>
             </h3>
             <p class="tw-text-muted">{{ "secretsManagerAccessDescription" | i18n }}</p>

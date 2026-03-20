@@ -9,7 +9,7 @@
           bitSuffix
           type="button"
           type="button"
-          bitIconButton="bwi-clone"
+          bitIconButton="bwi-copy"
           [bitAction]="copyIdentityUrl"
           [label]="'copyCustomField' | i18n: identityUrl"
         ></button>
@@ -20,7 +20,7 @@
         <button
           bitSuffix
           type="button"
-          bitIconButton="bwi-clone"
+          bitIconButton="bwi-copy"
           [bitAction]="copyApiUrl"
           [label]="'copyCustomField' | i18n: apiUrl"
         ></button>
@@ -32,7 +32,7 @@
       <button
         bitSuffix
         type="button"
-        bitIconButton="bwi-clone"
+        bitIconButton="bwi-copy"
         [bitAction]="copyOrganizationId"
         [label]="'copyCustomField' | i18n: organizationId"
       ></button>
@@ -51,5 +51,5 @@
   </div>
 </div>
 <div *ngIf="loading" class="tw-items-center tw-justify-center tw-pt-64 tw-text-center">
-  <i class="bwi bwi-spinner bwi-spin bwi-3x"></i>
+  <i class="bwi bwi-loading bwi-spin bwi-3x"></i>
 </div>

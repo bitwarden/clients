@@ -25,7 +25,7 @@
             href="https://bitwarden.com/help/emergency-access/#user-access"
             slot="end"
           >
-            <bit-icon name="bwi-question-circle"></bit-icon>
+            <bit-icon name="bwi-help"></bit-icon>
           </a>
         </bit-label>
         <bit-radio-button id="emergencyTypeView" [value]="emergencyAccessType.View">
@@ -58,7 +58,7 @@
         type="button"
         bitFormButton
         class="tw-ml-auto"
-        bitIconButton="bwi-trash"
+        bitIconButton="bwi-delete"
         buttonType="danger"
         [bitAction]="delete"
         *ngIf="editMode"

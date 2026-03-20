@@ -69,7 +69,7 @@ describe("PasswordInputToggle", () => {
 
   describe("initial state", () => {
     it("has correct icon", () => {
-      expect(button.icon()).toBe("bwi-eye");
+      expect(button.icon()).toBe("bwi-visibility");
     });
 
     it("input is type password", () => {
@@ -87,7 +87,7 @@ describe("PasswordInputToggle", () => {
     });
 
     it("has correct icon", () => {
-      expect(button.icon()).toBe("bwi-eye-slash");
+      expect(button.icon()).toBe("bwi-visibility-off");
     });
 
     it("input is type text", () => {
@@ -106,7 +106,7 @@ describe("PasswordInputToggle", () => {
     });
 
     it("has correct icon", () => {
-      expect(button.icon()).toBe("bwi-eye");
+      expect(button.icon()).toBe("bwi-visibility");
     });
 
     it("input is type password", () => {

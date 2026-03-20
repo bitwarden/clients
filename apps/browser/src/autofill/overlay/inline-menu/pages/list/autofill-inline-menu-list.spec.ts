@@ -271,7 +271,7 @@ describe("AutofillInlineMenuList", () => {
                 login: null,
                 icon: {
                   imageEnabled: true,
-                  icon: "bwi-id-card",
+                  icon: "bwi-identity",
                 },
               }),
             ],
@@ -581,7 +581,7 @@ describe("AutofillInlineMenuList", () => {
                   login: null,
                   icon: {
                     imageEnabled: true,
-                    icon: "bwi-id-card",
+                    icon: "bwi-identity",
                   },
                 }),
               ],

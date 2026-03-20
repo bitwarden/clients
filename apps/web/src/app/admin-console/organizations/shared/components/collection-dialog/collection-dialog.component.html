@@ -13,7 +13,7 @@
     </span>
     <div bitDialogContent>
       <ng-container *ngIf="loading" #spinner>
-        <i class="bwi bwi-spinner bwi-lg bwi-spin" aria-hidden="true"></i>
+        <i class="bwi bwi-loading bwi-lg bwi-spin" aria-hidden="true"></i>
       </ng-container>
       <bit-tab-group *ngIf="!loading" [(selectedIndex)]="tabIndex">
         <bit-tab label="{{ 'collectionInfo' | i18n }}">
@@ -48,14 +48,14 @@
               <bit-option
                 *ngIf="deletedParentName"
                 disabled
-                icon="bwi-collection-shared"
+                icon="bwi-collection"
                 [value]="deletedParentName"
                 label="{{ deletedParentName }} ({{ 'deleted' | i18n }})"
               >
               </bit-option>
               <bit-option
                 *ngFor="let collection of nestOptions"
-                icon="bwi-collection-shared"
+                icon="bwi-collection"
                 [value]="collection.name"
                 [label]="collection.name"
               >
@@ -140,7 +140,7 @@
       <button
         *ngIf="showDeleteButton"
         type="button"
-        bitIconButton="bwi-trash"
+        bitIconButton="bwi-delete"
         buttonType="danger"
         class="tw-ml-auto"
         bitFormButton

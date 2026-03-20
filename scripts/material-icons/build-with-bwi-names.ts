@@ -76,7 +76,9 @@ function buildIconFont(): void {
         if (!glyph) {
           return [];
         } // Skip if Figma name not in glyphMap
-        return legacyNames.map((legacy) => ({ legacy, glyph }));
+        return legacyNames
+          .filter((legacy) => !(legacy in glyphMap)) // Skip if already a direct glyph (e.g. variants)
+          .map((legacy) => ({ legacy, glyph }));
       })
       .sort((a, b) => a.legacy.localeCompare(b.legacy))
       .map(({ legacy, glyph }) => {

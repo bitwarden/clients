@@ -931,7 +931,7 @@ describe("OverlayBackground", () => {
             favorite: loginCipher1.favorite,
             icon: {
               fallbackImage: "images/bwi-globe.png",
-              icon: "bwi-globe",
+              icon: "bwi-login",
               image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
               imageEnabled: true,
             },
@@ -1010,7 +1010,7 @@ describe("OverlayBackground", () => {
               favorite: identityCipher.favorite,
               icon: {
                 fallbackImage: "",
-                icon: "bwi-id-card",
+                icon: "bwi-identity",
                 image: null,
                 imageEnabled: true,
               },
@@ -1051,7 +1051,7 @@ describe("OverlayBackground", () => {
               favorite: identityCipher.favorite,
               icon: {
                 fallbackImage: "",
-                icon: "bwi-id-card",
+                icon: "bwi-identity",
                 image: null,
                 imageEnabled: true,
               },
@@ -1069,7 +1069,7 @@ describe("OverlayBackground", () => {
               favorite: loginCipher1.favorite,
               icon: {
                 fallbackImage: "images/bwi-globe.png",
-                icon: "bwi-globe",
+                icon: "bwi-login",
                 image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
                 imageEnabled: true,
               },
@@ -1123,7 +1123,7 @@ describe("OverlayBackground", () => {
               favorite: identityCipher.favorite,
               icon: {
                 fallbackImage: "",
-                icon: "bwi-id-card",
+                icon: "bwi-identity",
                 image: null,
                 imageEnabled: true,
               },
@@ -1191,7 +1191,7 @@ describe("OverlayBackground", () => {
             favorite: passkeyCipher.favorite,
             icon: {
               fallbackImage: "images/bwi-globe.png",
-              icon: "bwi-globe",
+              icon: "bwi-login",
               image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
               imageEnabled: true,
             },
@@ -1213,7 +1213,7 @@ describe("OverlayBackground", () => {
             favorite: passkeyCipher.favorite,
             icon: {
               fallbackImage: "images/bwi-globe.png",
-              icon: "bwi-globe",
+              icon: "bwi-login",
               image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
               imageEnabled: true,
             },
@@ -1232,7 +1232,7 @@ describe("OverlayBackground", () => {
             favorite: loginCipher1.favorite,
             icon: {
               fallbackImage: "images/bwi-globe.png",
-              icon: "bwi-globe",
+              icon: "bwi-login",
               image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
               imageEnabled: true,
             },
@@ -1280,7 +1280,7 @@ describe("OverlayBackground", () => {
             favorite: passkeyCipher.favorite,
             icon: {
               fallbackImage: "images/bwi-globe.png",
-              icon: "bwi-globe",
+              icon: "bwi-login",
               image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
               imageEnabled: true,
             },
@@ -1299,7 +1299,7 @@ describe("OverlayBackground", () => {
             favorite: loginCipher1.favorite,
             icon: {
               fallbackImage: "images/bwi-globe.png",
-              icon: "bwi-globe",
+              icon: "bwi-login",
               image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
               imageEnabled: true,
             },
@@ -1347,7 +1347,7 @@ describe("OverlayBackground", () => {
             favorite: passkeyCipher.favorite,
             icon: {
               fallbackImage: "images/bwi-globe.png",
-              icon: "bwi-globe",
+              icon: "bwi-login",
               image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
               imageEnabled: true,
             },
@@ -1366,7 +1366,7 @@ describe("OverlayBackground", () => {
             favorite: loginCipher1.favorite,
             icon: {
               fallbackImage: "images/bwi-globe.png",
-              icon: "bwi-globe",
+              icon: "bwi-login",
               image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
               imageEnabled: true,
             },
@@ -1412,7 +1412,7 @@ describe("OverlayBackground", () => {
               favorite: loginCipher1.favorite,
               icon: {
                 fallbackImage: "images/bwi-globe.png",
-                icon: "bwi-globe",
+                icon: "bwi-login",
                 image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
                 imageEnabled: true,
               },
@@ -1431,7 +1431,7 @@ describe("OverlayBackground", () => {
               favorite: loginCipher2.favorite,
               icon: {
                 fallbackImage: "images/bwi-globe.png",
-                icon: "bwi-globe",
+                icon: "bwi-login",
                 image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
                 imageEnabled: true,
               },

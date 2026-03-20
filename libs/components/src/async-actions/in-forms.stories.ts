@@ -36,7 +36,7 @@ const template = `
     <button class="tw-me-2" type="button" buttonType="secondary" bitButton bitFormButton>Cancel</button>
     <button class="tw-me-2" type="button" buttonType="danger" bitButton bitFormButton [bitAction]="delete">Delete</button>
     <button class="tw-me-2" type="button" buttonType="secondary" bitButton bitFormButton [disabled]="true">Inactive</button>
-    <button class="tw-me-2" type="button" buttonType="primaryGhost" bitIconButton="bwi-trash" label="Delete" bitFormButton [bitAction]="delete"></button>
+    <button class="tw-me-2" type="button" buttonType="primaryGhost" bitIconButton="bwi-delete" label="Delete" bitFormButton [bitAction]="delete"></button>
   </form>`;
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush

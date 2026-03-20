@@ -47,7 +47,7 @@ const render: Story["render"] = (args) => ({
         <button bitButton buttonType="secondary">Cancel</button>
         <button
           class="tw-ml-auto"
-          bitIconButton="bwi-trash"
+          bitIconButton="bwi-delete"
           buttonType="danger"
           size="default"
           title="Delete"

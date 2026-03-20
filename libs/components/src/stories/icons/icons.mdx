@@ -104,10 +104,10 @@ const FIGMA_TO_BWI: Record<string, string | string[]> = {
 
 ```typescript
 // Single mapping
-help: "question-circle", // help.svg → bwi-question-circle
+help: "question-circle", // help.svg → bwi-help
 
 // Multiple mappings (one SVG, multiple class names)
-collection: ["collection", "collection-shared"], // collection.svg → bwi-collection + bwi-collection-shared
+collection: ["collection", "collection-shared"], // collection.svg → bwi-collection + bwi-collection
 ```
 
 ### 3. Generate the Icon Font
@@ -260,7 +260,7 @@ const FIGMA_TO_BWI: Record<string, string | string[]> = {
 };
 ```
 
-This generates both `.bwi-collection:before` and `.bwi-collection-shared:before` using the same
+This generates both `.bwi-collection:before` and `.bwi-collection:before` using the same
 glyph from `collection.svg`.
 
 ---

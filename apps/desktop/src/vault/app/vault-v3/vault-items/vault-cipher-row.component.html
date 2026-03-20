@@ -16,7 +16,7 @@
       </button>
       @if (hasAttachments()) {
         <i
-          class="bwi bwi-paperclip tw-ml-2 tw-leading-normal"
+          class="bwi bwi-attach tw-ml-2 tw-leading-normal"
           appStopProp
           title="{{ 'attachments' | i18n }}"
           aria-hidden="true"
@@ -24,7 +24,7 @@
         <span class="tw-sr-only">{{ "attachments" | i18n }}</span>
         @if (showFixOldAttachments()) {
           <i
-            class="bwi bwi-exclamation-triangle tw-ml-2 tw-leading-normal tw-text-warning"
+            class="bwi bwi-warning tw-ml-2 tw-leading-normal tw-text-warning"
             appStopProp
             title="{{ 'attachmentsNeedFix' | i18n }}"
             aria-hidden="true"
@@ -54,7 +54,7 @@
       [disabled]="disabled() || !canManageCollection()"
       [bitMenuTriggerFor]="corruptedCipherOptions"
       size="small"
-      bitIconButton="bwi-ellipsis-v"
+      bitIconButton="bwi-more-vertical"
       type="button"
       label="{{ 'options' | i18n }}"
       appStopProp
@@ -63,7 +63,7 @@
       @if (canDeleteCipher()) {
         <button bitMenuItem (click)="deleteCipher()" type="button">
           <span class="tw-text-danger">
-            <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+            <i class="bwi bwi-fw bwi-delete" aria-hidden="true"></i>
             {{ (isDeleted() ? "permanentlyDelete" : "delete") | i18n }}
           </span>
         </button>
@@ -84,7 +84,7 @@
       <button
         [bitMenuTriggerFor]="copyOptions"
         [disabled]="disabled()"
-        bitIconButton="bwi-clone"
+        bitIconButton="bwi-copy"
         type="button"
         appStopProp
         label="{{ 'copyValue' | i18n }}"
@@ -92,7 +92,7 @@
       <bit-menu #copyOptions>
         @for (copyField of copyFields(); track copyField.field) {
           <button type="button" bitMenuItem [appCopyField]="copyField.field" [cipher]="cipher()">
-            <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+            <i class="bwi bwi-fw bwi-copy" aria-hidden="true"></i>
             {{ copyField.title | i18n }}
           </button>
         }
@@ -102,7 +102,7 @@
     <button
       [bitMenuTriggerFor]="cipherOptions"
       [disabled]="disabled()"
-      bitIconButton="bwi-ellipsis-v"
+      bitIconButton="bwi-more-vertical"
       type="button"
       appStopProp
       label="{{ 'options' | i18n }}"
@@ -116,7 +116,7 @@
       }
       @for (copyField of copyFields(); track copyField.field) {
         <button type="button" bitMenuItem [appCopyField]="copyField.field" [cipher]="cipher()">
-          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+          <i class="bwi bwi-fw bwi-copy" aria-hidden="true"></i>
           {{ copyField.title | i18n }}
         </button>
       }
@@ -131,25 +131,25 @@
       }
       @if (canEditCipher()) {
         <button bitMenuItem type="button" (click)="editCipher()">
-          <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+          <i class="bwi bwi-fw bwi-edit" aria-hidden="true"></i>
           {{ "edit" | i18n }}
         </button>
       }
       @if (showAttachments()) {
         <button bitMenuItem type="button" (click)="attachments()">
-          <i class="bwi bwi-fw bwi-paperclip" aria-hidden="true"></i>
+          <i class="bwi bwi-fw bwi-attach" aria-hidden="true"></i>
           {{ "attachments" | i18n }}
         </button>
       }
       @if (showClone()) {
         <button bitMenuItem type="button" (click)="clone()">
-          <i class="bwi bwi-fw bwi-files" aria-hidden="true"></i>
+          <i class="bwi bwi-fw bwi-duplicate" aria-hidden="true"></i>
           {{ "clone" | i18n }}
         </button>
       }
       @if (showAssignToCollections()) {
         <button bitMenuItem type="button" (click)="assignToCollections()">
-          <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
+          <i class="bwi bwi-fw bwi-collection" aria-hidden="true"></i>
           {{ "assignToCollections" | i18n }}
         </button>
       }
@@ -188,7 +188,7 @@
       @if (canDeleteCipher()) {
         <button bitMenuItem (click)="deleteCipher()" type="button">
           <span class="tw-text-danger">
-            <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+            <i class="bwi bwi-fw bwi-delete" aria-hidden="true"></i>
             {{ (isDeleted() ? "permanentlyDelete" : "delete") | i18n }}
           </span>
         </button>

@@ -103,7 +103,7 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
 
     <div id="container">
       <div class="loading" *ngIf="loading">
-        <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
+        <i class="bwi bwi-loading bwi-spin bwi-3x" aria-hidden="true"></i>
       </div>
       <router-outlet *ngIf="!loading"></router-outlet>
     </div>

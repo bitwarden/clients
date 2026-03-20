@@ -1,0 +1,3986 @@
+[
+  {
+    "file": "apps/web/src/app/admin-console/organizations/members/components/member-dialog/member-dialog.component.html",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/account/profile.component.html",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/emergency-access/emergency-access-add-edit.component.html",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/organizations/download-license.component.html",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/organizations/organization-subscription-selfhost.component.html",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/billing/payment/components/enter-payment-method.component.ts",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/key-management/account-fingerprint/account-fingerprint.component.html",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/key-management/change-kdf/change-kdf.component.html",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/layouts/header/account-menu.component.html",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/settings/appearance.component.html",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-filter/components/vault-filter.component.html",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/angular/src/auth/device-management/device-management.component.html",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/auth/src/angular/input-password/input-password.component.html",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/form/forms.mdx",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/form-field/form-field.stories.ts",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 3
+  },
+  {
+    "file": "libs/components/src/icon-tile/icon-tile.stories.ts",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/popover/popover-trigger-for.directive.ts",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/popover/popover.stories.ts",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 14
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icons.mdx",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/kitchen-sink/components/kitchen-sink-form.component.ts",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/kitchen-sink/components/kitchen-sink-main.component.ts",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-form/components/login-details-section/login-details-section.component.html",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/components/permit-cipher-details-popover/permit-cipher-details-popover.component.html",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/organizations/manage/domain-verification/domain-verification.component.html",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/organizations/manage/scim.component.html",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/manage/dialogs/add-edit-member-dialog.component.html",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/auth/sso/sso-manage.component.html",
+    "oldName": "bwi-question-circle",
+    "newName": "bwi-help",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/tools/popup/settings/settings-v2.component.html",
+    "oldName": "bwi-info-circle",
+    "newName": "bwi-info",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/vault/popup/settings/archive.component.html",
+    "oldName": "bwi-info-circle",
+    "newName": "bwi-info",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/shared/components/onboarding/onboarding-task.component.ts",
+    "oldName": "bwi-info-circle",
+    "newName": "bwi-info",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/components/setup-extension/add-extension-later-dialog.component.html",
+    "oldName": "bwi-info-circle",
+    "newName": "bwi-info",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-banners/vault-banners.component.html",
+    "oldName": "bwi-info-circle",
+    "newName": "bwi-info",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/auth/src/angular/fingerprint-dialog/fingerprint-dialog.component.html",
+    "oldName": "bwi-info-circle",
+    "newName": "bwi-info",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/banner/banner.component.ts",
+    "oldName": "bwi-info-circle",
+    "newName": "bwi-info",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/callout/callout.component.spec.ts",
+    "oldName": "bwi-info-circle",
+    "newName": "bwi-info",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/components/src/callout/callout.component.ts",
+    "oldName": "bwi-info-circle",
+    "newName": "bwi-info",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/components/src/chips/chip-action/chip-action.stories.ts",
+    "oldName": "bwi-info-circle",
+    "newName": "bwi-info",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/dialog/simple-dialog/simple-configurable-dialog/simple-configurable-dialog.component.ts",
+    "oldName": "bwi-info-circle",
+    "newName": "bwi-info",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/dialog/simple-dialog/simple-dialog.mdx",
+    "oldName": "bwi-info-circle",
+    "newName": "bwi-info",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-info-circle",
+    "newName": "bwi-info",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-info-circle",
+    "newName": "bwi-info",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/toast/toast.component.ts",
+    "oldName": "bwi-info-circle",
+    "newName": "bwi-info",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/key-management-ui/src/key-connector/confirm-key-connector-domain.component.html",
+    "oldName": "bwi-info-circle",
+    "newName": "bwi-info",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/key-management-ui/src/key-connector/remove-password.component.html",
+    "oldName": "bwi-info-circle",
+    "newName": "bwi-info",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/billing/popup/settings/premium-v2.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/platform/popup/layout/popup-page.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/app/app.component.ts",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/app/tools/import/import-desktop.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/billing/app/accounts/premium.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/index.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/scss/buttons.scss",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/desktop/src/vault/app/vault/vault-items-v2.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/vault/app/vault-v3/vault-filter/vault-filter.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/collections/vault-header/vault-header.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/collections/vault.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/manage/group-add-edit.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/manage/groups.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/members/components/bulk/bulk-status.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/members/components/member-dialog/member-dialog.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/members/members.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/policies/policies.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/policies/policy-edit-dialog.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/policies/policy-edit-dialogs/auto-confirm-edit-policy-dialog.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/policies/policy-edit-dialogs/organization-data-ownership-edit-policy-dialog.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/settings/account.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/shared/components/collection-dialog/collection-dialog.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/sponsorships/accept-family-sponsorship.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/sponsorships/families-for-enterprise-setup.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/app.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/auth/emergency-access/accept/accept-emergency.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/auth/organization-invite/accept-organization.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/account/change-avatar-dialog.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/account/profile.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/emergency-access/emergency-access.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/emergency-access/takeover/emergency-access-takeover-dialog.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/emergency-access/view/emergency-access-view.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/two-factor/two-factor-setup-webauthn.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 3
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/two-factor/two-factor-setup.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/webauthn-login-settings/delete-credential-dialog/delete-credential-dialog.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/webauthn-login-settings/enable-encryption-dialog/enable-encryption-dialog.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/webauthn-login-settings/webauthn-login-settings.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/auth/verify-email-token.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/individual/billing-history-view.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/individual/payment-details/account-payment-details.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/individual/subscription/cloud-hosted-account-subscription.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/individual/subscription/self-hosted-account-subscription.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/individual/user-subscription.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/members/free-bitwarden-families.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/organizations/organization-billing-history-view.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/organizations/organization-plans.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/organizations/organization-subscription-cloud.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/organizations/organization-subscription-selfhost.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/organizations/payment-details/organization-payment-details.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/settings/sponsored-families.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/trial-initiation/complete-trial-initiation/complete-trial-initiation.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/trial-initiation/trial-billing-step/trial-billing-step.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/dirt/event-logs/components/organization-events/events.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/dirt/reports/pages/inactive-two-factor-report.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/dirt/reports/pages/reused-passwords-report.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/dirt/reports/pages/unsecured-websites-report.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/dirt/reports/pages/weak-passwords-report.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/key-management/data-recovery/data-recovery.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/settings/domain-rules.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/shared/components/onboarding/onboarding.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/tools/send/send.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 3
+  },
+  {
+    "file": "apps/web/src/app/vault/components/browser-extension-prompt/browser-extension-prompt.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/components/setup-extension/setup-extension.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-filter/components/organization-options.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-filter/components/vault-filter.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-header/vault-header.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/connectors/duo-redirect.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/connectors/platform/proxy-cookie-redirect.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/connectors/redirect.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/connectors/sso.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/index.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/angular/src/auth/device-management/device-management.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/angular/src/auth/login-approval/login-approval-dialog.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/angular/src/auth/password-management/change-password/change-password.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/angular/src/auth/password-management/set-initial-password/set-initial-password.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/angular/src/billing/components/premium-upgrade-dialog/premium-upgrade-dialog.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/auth/src/angular/login-decryption-options/login-decryption-options.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/auth/src/angular/login-via-auth-request/login-via-auth-request.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/auth/src/angular/registration/registration-finish/registration-finish.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/auth/src/angular/sso/sso.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/auth/src/angular/two-factor-auth/child-components/two-factor-auth-webauthn/two-factor-auth-webauthn.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/auth/src/angular/two-factor-auth/two-factor-auth.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/auth/src/angular/user-verification/user-verification-form-input.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/components/src/header/header.stories.ts",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/migration.mdx",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/key-management-ui/src/key-connector/confirm-key-connector-domain.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/key-management-ui/src/key-connector/remove-password.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/key-management-ui/src/lock/components/lock.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/organizations/manage/device-approvals/device-approvals.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/organizations/manage/domain-verification/domain-verification.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/organizations/manage/scim.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/clients/manage-clients.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/manage/accept-provider.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/manage/members.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/providers.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/settings/account.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/setup/setup-provider.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/setup/setup.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/auth/sso/sso-manage.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 2
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/billing/providers/billing-history/invoices.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/billing/providers/payment-details/provider-payment-details.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/billing/providers/setup/setup-business-unit.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/billing/providers/subscription/provider-subscription.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/organization-integrations/integration-dialog/connect-dialog/connect-dialog-datadog.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/organization-integrations/integration-dialog/connect-dialog/connect-dialog-hec.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/organization-integrations/integration-dialog/connect-dialog/connect-dialog-huntress.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/provider-events/events.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 2
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/reports/member-access-report/member-access-report.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/overview/overview.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/projects/dialog/project-dialog.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/projects/project/project-people.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/projects/project/project-secrets.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/projects/project/project-service-accounts.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/service-accounts/access/access-list.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/service-accounts/config/config.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/service-accounts/dialog/service-account-dialog.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/service-accounts/event-logs/service-accounts-events.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/service-accounts/people/service-account-people.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/service-accounts/projects/service-account-projects.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/service-accounts/service-accounts-list.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/shared/access-policies/access-policy-selector/access-policy-selector.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/shared/projects-list.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/shared/secrets-list.component.html",
+    "oldName": "bwi-spinner",
+    "newName": "bwi-loading",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-star-f",
+    "newName": "bwi-star-filled",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-star-f",
+    "newName": "bwi-star-filled",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-form/components/item-details/item-details-section.component.spec.ts",
+    "oldName": "bwi-star-f",
+    "newName": "bwi-star-filled",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-form/components/item-details/item-details-section.component.ts",
+    "oldName": "bwi-star-f",
+    "newName": "bwi-star-filled",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/access-intelligence/activity/application-review-dialog/new-applications-dialog.component.html",
+    "oldName": "bwi-star-f",
+    "newName": "bwi-star-filled",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/access-intelligence/activity/application-review-dialog/review-applications-view.component.html",
+    "oldName": "bwi-star-f",
+    "newName": "bwi-star-filled",
+    "occurrences": 2
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/access-intelligence/all-applications/all-applications.component.html",
+    "oldName": "bwi-star-f",
+    "newName": "bwi-star-filled",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/access-intelligence/shared/app-table-row-scrollable.component.html",
+    "oldName": "bwi-star-f",
+    "newName": "bwi-star-filled",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/browser/src/auth/popup/account-switching/account.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/autofill/popup/fido2/fido2.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/platform/popup/layout/popup-layout.stories.ts",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/vault/popup/components/vault/new-item-dropdown/new-item-dropdown.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/vault/popup/settings/folders.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/desktop/src/app/layout/account-switcher.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/auth/components/account-switcher/account-switcher-v2.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/vault/app/vault/vault-items-v2.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/collections/vault.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/manage/groups.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/members/members.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/emergency-access/emergency-access.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/members/free-bitwarden-families.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/layouts/org-switcher/org-switcher.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/settings/domain-rules.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/tools/send/new-send/new-send-dropdown.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-filter/shared/components/vault-filter-section.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/button/button.mdx",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/button/button.stories.ts",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/components/src/chips/chip-action/chip-action.mdx",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/icon-button/icon-button.stories.ts",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 36
+  },
+  {
+    "file": "libs/components/src/no-items/no-items.stories.ts",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icons.stories.ts",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/pricing/src/components/pricing-card/pricing-card.component.mdx",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/pricing/src/components/pricing-card/pricing-card.component.stories.ts",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/tools/send/send-ui/src/new-send-dropdown/new-send-dropdown.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/tools/send/send-ui/src/new-send-dropdown-v2/new-send-dropdown-v2.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-form/components/additional-options/additional-options-section.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-form/components/autofill-options/autofill-options.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-form/components/custom-fields/custom-fields.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/components/new-cipher-menu/new-cipher-menu.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/organizations/manage/domain-verification/domain-verification.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 2
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/clients/manage-clients.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/clients/no-clients.component.ts",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/manage/members.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/projects/project/project-secrets.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/service-accounts/access/access-list.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/service-accounts/service-account.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/service-accounts/service-accounts-list.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/shared/new-menu.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/shared/projects-list.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/shared/secrets-list.component.html",
+    "oldName": "bwi-plus",
+    "newName": "bwi-add",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/autofill/popup/settings/blocked-domains.component.html",
+    "oldName": "bwi-plus-circle",
+    "newName": "bwi-add-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/autofill/popup/settings/excluded-domains.component.html",
+    "oldName": "bwi-plus-circle",
+    "newName": "bwi-add-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/guards/is-enterprise-org.guard.ts",
+    "oldName": "bwi-plus-circle",
+    "newName": "bwi-add-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/guards/is-paid-org.guard.ts",
+    "oldName": "bwi-plus-circle",
+    "newName": "bwi-add-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/members/members.component.html",
+    "oldName": "bwi-plus-circle",
+    "newName": "bwi-add-circle",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/settings/domain-rules.component.html",
+    "oldName": "bwi-plus-circle",
+    "newName": "bwi-add-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-filter/components/organization-options.component.html",
+    "oldName": "bwi-plus-circle",
+    "newName": "bwi-add-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/link/link.mdx",
+    "oldName": "bwi-plus-circle",
+    "newName": "bwi-add-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/link/link.stories.ts",
+    "oldName": "bwi-plus-circle",
+    "newName": "bwi-add-circle",
+    "occurrences": 3
+  },
+  {
+    "file": "libs/components/src/popover/popover.stories.ts",
+    "oldName": "bwi-plus-circle",
+    "newName": "bwi-add-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-plus-circle",
+    "newName": "bwi-add-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-plus-circle",
+    "newName": "bwi-add-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/secrets/dialog/secret-dialog.component.html",
+    "oldName": "bwi-plus-circle",
+    "newName": "bwi-add-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/platform/popup/layout/popup-layout.stories.ts",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/browser/src/vault/popup/components/vault/item-copy-action/item-copy-actions.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 8
+  },
+  {
+    "file": "apps/desktop/src/vault/app/vault-v3/vault-items/vault-cipher-row.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 3
+  },
+  {
+    "file": "apps/web/src/app/billing/organizations/billing-sync-api-key.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/tools/send/send-access/send-access-text.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/tools/send/shared/send-success-drawer-dialog.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/components/vault-items/vault-cipher-row.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 10
+  },
+  {
+    "file": "libs/auth/src/angular/input-password/input-password.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/copy-click/copy-click.stories.ts",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 4
+  },
+  {
+    "file": "libs/components/src/form-field/form-field.stories.ts",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 5
+  },
+  {
+    "file": "libs/components/src/item/item.mdx",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/item/item.stories.ts",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 11
+  },
+  {
+    "file": "libs/components/src/menu/menu.stories.ts",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/tools/export/vault-export/vault-export-ui/src/components/export.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/tools/generator/components/src/credential-generator-history.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/tools/generator/components/src/credential-generator.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/tools/generator/components/src/password-generator.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/tools/generator/components/src/username-generator.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/tools/send/send-ui/src/send-form/components/send-details/send-details.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/tools/send/send-ui/src/send-list-items-container/send-list-items-container.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/tools/send/send-ui/src/send-table/send-table.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-view/additional-options/additional-options.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-view/autofill-options/autofill-options-view.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-view/card-details/card-details-view.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/vault/src/cipher-view/custom-fields/custom-fields-v2.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/vault/src/cipher-view/login-credentials/login-credentials-view.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 3
+  },
+  {
+    "file": "libs/vault/src/cipher-view/sshkey-sections/sshkey-view.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 3
+  },
+  {
+    "file": "libs/vault/src/cipher-view/view-identity-sections/view-identity-sections.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 9
+  },
+  {
+    "file": "libs/vault/src/components/password-history-view/password-history-view.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/organizations/manage/domain-verification/domain-add-edit-dialog/domain-add-edit-dialog.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/organizations/manage/domain-verification/domain-verification.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/organizations/manage/scim.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 2
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/auth/sso/sso-manage.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 6
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/service-accounts/access/dialogs/access-token-dialog.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/service-accounts/config/config.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 3
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/shared/projects-list.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/shared/secrets-list.component.html",
+    "oldName": "bwi-clone",
+    "newName": "bwi-copy",
+    "occurrences": 3
+  },
+  {
+    "file": "apps/browser/src/vault/popup/settings/folders.component.html",
+    "oldName": "bwi-pencil-square",
+    "newName": "bwi-edit",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/vault/app/vault-v3/vault-items/vault-cipher-row.component.html",
+    "oldName": "bwi-pencil-square",
+    "newName": "bwi-edit",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/collections/collection-access-restricted.component.ts",
+    "oldName": "bwi-pencil-square",
+    "newName": "bwi-edit",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/collections/vault-header/vault-header.component.html",
+    "oldName": "bwi-pencil-square",
+    "newName": "bwi-edit",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/manage/groups.component.html",
+    "oldName": "bwi-pencil-square",
+    "newName": "bwi-edit",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/account/profile.component.html",
+    "oldName": "bwi-pencil-square",
+    "newName": "bwi-edit",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/settings/domain-rules.component.html",
+    "oldName": "bwi-pencil-square",
+    "newName": "bwi-edit",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/components/vault-items/vault-cipher-row.component.html",
+    "oldName": "bwi-pencil-square",
+    "newName": "bwi-edit",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/components/vault-items/vault-collection-row.component.html",
+    "oldName": "bwi-pencil-square",
+    "newName": "bwi-edit",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-header/vault-header.component.html",
+    "oldName": "bwi-pencil-square",
+    "newName": "bwi-edit",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/navigation/nav-group.stories.ts",
+    "oldName": "bwi-pencil-square",
+    "newName": "bwi-edit",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/navigation/nav-item.stories.ts",
+    "oldName": "bwi-pencil-square",
+    "newName": "bwi-edit",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-pencil-square",
+    "newName": "bwi-edit",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-pencil-square",
+    "newName": "bwi-edit",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-form/components/custom-fields/custom-fields.component.html",
+    "oldName": "bwi-pencil-square",
+    "newName": "bwi-edit",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/clients/manage-clients.component.html",
+    "oldName": "bwi-pencil-square",
+    "newName": "bwi-edit",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/shared/projects-list.component.html",
+    "oldName": "bwi-pencil-square",
+    "newName": "bwi-edit",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/vault/app/vault/item-footer.component.html",
+    "oldName": "bwi-pencil",
+    "newName": "bwi-edit-alt",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/vault/app/vault-v3/vault-filter/filters/folder-filter.component.html",
+    "oldName": "bwi-pencil",
+    "newName": "bwi-edit-alt",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/account/change-avatar-dialog.component.html",
+    "oldName": "bwi-pencil",
+    "newName": "bwi-edit-alt",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-filter/shared/components/vault-filter-section.component.html",
+    "oldName": "bwi-pencil",
+    "newName": "bwi-edit-alt",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-pencil",
+    "newName": "bwi-edit-alt",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-pencil",
+    "newName": "bwi-edit-alt",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/service-accounts/service-accounts-list.component.html",
+    "oldName": "bwi-pencil",
+    "newName": "bwi-edit-alt",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/shared/projects-list.component.html",
+    "oldName": "bwi-pencil",
+    "newName": "bwi-edit-alt",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/shared/secrets-list.component.html",
+    "oldName": "bwi-pencil",
+    "newName": "bwi-edit-alt",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/vault/app/vault/item-footer.component.html",
+    "oldName": "bwi-files",
+    "newName": "bwi-duplicate",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/vault/app/vault-v3/vault-items/vault-cipher-row.component.html",
+    "oldName": "bwi-files",
+    "newName": "bwi-duplicate",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/components/vault-items/vault-cipher-row.component.html",
+    "oldName": "bwi-files",
+    "newName": "bwi-duplicate",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-files",
+    "newName": "bwi-duplicate",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-files",
+    "newName": "bwi-duplicate",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/app/layout/desktop-layout.component.html",
+    "oldName": "bwi-import",
+    "newName": "bwi-upload",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/shared/components/onboarding/onboarding.stories.ts",
+    "oldName": "bwi-import",
+    "newName": "bwi-upload",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-onboarding/vault-onboarding.component.html",
+    "oldName": "bwi-import",
+    "newName": "bwi-upload",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-import",
+    "newName": "bwi-upload",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-import",
+    "newName": "bwi-upload",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-form/components/sshkey-section/sshkey-section.component.html",
+    "oldName": "bwi-import",
+    "newName": "bwi-upload",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/overview/overview.component.html",
+    "oldName": "bwi-import",
+    "newName": "bwi-upload",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/members/members.component.html",
+    "oldName": "bwi-envelope",
+    "newName": "bwi-mail",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/emergency-access/emergency-access.component.html",
+    "oldName": "bwi-envelope",
+    "newName": "bwi-mail",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/billing/members/free-bitwarden-families.component.html",
+    "oldName": "bwi-envelope",
+    "newName": "bwi-mail",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-envelope",
+    "newName": "bwi-mail",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-envelope",
+    "newName": "bwi-mail",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/manage/members.component.html",
+    "oldName": "bwi-envelope",
+    "newName": "bwi-mail",
+    "occurrences": 2
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/access-intelligence/activity/activity-cards/password-change-metric.component.html",
+    "oldName": "bwi-envelope",
+    "newName": "bwi-mail",
+    "occurrences": 2
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/access-intelligence/all-applications/applications.component.html",
+    "oldName": "bwi-envelope",
+    "newName": "bwi-mail",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/access-intelligence/critical-applications/critical-applications.component.html",
+    "oldName": "bwi-envelope",
+    "newName": "bwi-mail",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/platform/popup/components/pop-out.component.html",
+    "oldName": "bwi-popout",
+    "newName": "bwi-new-window",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/platform/popup/layout/popup-layout.stories.ts",
+    "oldName": "bwi-popout",
+    "newName": "bwi-new-window",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/vault/popup/components/vault/attachments/open-attachments/open-attachments.component.html",
+    "oldName": "bwi-popout",
+    "newName": "bwi-new-window",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/vault/popup/settings/vault-settings.component.html",
+    "oldName": "bwi-popout",
+    "newName": "bwi-new-window",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-popout",
+    "newName": "bwi-new-window",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-popout",
+    "newName": "bwi-new-window",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/tools/send/send-ui/src/new-send-dropdown/new-send-dropdown.component.html",
+    "oldName": "bwi-popout",
+    "newName": "bwi-new-window",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/layouts/organization-layout.component.html",
+    "oldName": "bwi-cog",
+    "newName": "bwi-settings",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/layouts/product-switcher/navigation-switcher/navigation-switcher.stories.ts",
+    "oldName": "bwi-cog",
+    "newName": "bwi-settings",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/layouts/user-layout.component.html",
+    "oldName": "bwi-cog",
+    "newName": "bwi-settings",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/popover/popover.stories.ts",
+    "oldName": "bwi-cog",
+    "newName": "bwi-settings",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-cog",
+    "newName": "bwi-settings",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-cog",
+    "newName": "bwi-settings",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/kitchen-sink/components/kitchen-sink-app.component.ts",
+    "oldName": "bwi-cog",
+    "newName": "bwi-settings",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-form/components/autofill-options/uri-option.component.html",
+    "oldName": "bwi-cog",
+    "newName": "bwi-settings",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/providers-layout.component.html",
+    "oldName": "bwi-cog",
+    "newName": "bwi-settings",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/layout/navigation.component.html",
+    "oldName": "bwi-cog",
+    "newName": "bwi-settings",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-cog-f",
+    "newName": "bwi-settings-filled",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-cog-f",
+    "newName": "bwi-settings-filled",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-form/components/autofill-options/uri-option.component.html",
+    "oldName": "bwi-cog-f",
+    "newName": "bwi-settings-filled",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/autofill/popup/settings/blocked-domains.component.html",
+    "oldName": "bwi-minus-circle",
+    "newName": "bwi-subtract-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/autofill/popup/settings/excluded-domains.component.html",
+    "oldName": "bwi-minus-circle",
+    "newName": "bwi-subtract-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/members/members.component.html",
+    "oldName": "bwi-minus-circle",
+    "newName": "bwi-subtract-circle",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/two-factor/two-factor-setup-yubikey.component.html",
+    "oldName": "bwi-minus-circle",
+    "newName": "bwi-subtract-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/settings/domain-rules.component.html",
+    "oldName": "bwi-minus-circle",
+    "newName": "bwi-subtract-circle",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-filter/components/organization-options.component.html",
+    "oldName": "bwi-minus-circle",
+    "newName": "bwi-subtract-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/form-field/form-field.stories.ts",
+    "oldName": "bwi-minus-circle",
+    "newName": "bwi-subtract-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-minus-circle",
+    "newName": "bwi-subtract-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-minus-circle",
+    "newName": "bwi-subtract-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/tools/send/send-ui/src/send-form/components/send-details/send-details.component.html",
+    "oldName": "bwi-minus-circle",
+    "newName": "bwi-subtract-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-form/components/autofill-options/uri-option.component.html",
+    "oldName": "bwi-minus-circle",
+    "newName": "bwi-subtract-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-form/components/login-details-section/login-details-section.component.html",
+    "oldName": "bwi-minus-circle",
+    "newName": "bwi-subtract-circle",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/service-accounts/access/access-list.component.html",
+    "oldName": "bwi-minus-circle",
+    "newName": "bwi-subtract-circle",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/emergency-access/emergency-access.component.html",
+    "oldName": "bwi-eye",
+    "newName": "bwi-visibility",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/tools/send/send-access/send-access-text.component.html",
+    "oldName": "bwi-eye",
+    "newName": "bwi-visibility",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/form-field/form-field.stories.ts",
+    "oldName": "bwi-eye",
+    "newName": "bwi-visibility",
+    "occurrences": 3
+  },
+  {
+    "file": "libs/components/src/form-field/password-input-toggle.directive.ts",
+    "oldName": "bwi-eye",
+    "newName": "bwi-visibility",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/form-field/password-input-toggle.spec.ts",
+    "oldName": "bwi-eye",
+    "newName": "bwi-visibility",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/components/src/icon/icon.stories.ts",
+    "oldName": "bwi-eye",
+    "newName": "bwi-visibility",
+    "occurrences": 4
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-eye",
+    "newName": "bwi-visibility",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-eye",
+    "newName": "bwi-visibility",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/organizations/manage/scim.component.html",
+    "oldName": "bwi-eye",
+    "newName": "bwi-visibility",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/service-accounts/service-accounts-list.component.html",
+    "oldName": "bwi-eye",
+    "newName": "bwi-visibility",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/shared/projects-list.component.html",
+    "oldName": "bwi-eye",
+    "newName": "bwi-visibility",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/tools/send/send-access/send-access-text.component.html",
+    "oldName": "bwi-eye-slash",
+    "newName": "bwi-visibility-off",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/form-field/password-input-toggle.directive.ts",
+    "oldName": "bwi-eye-slash",
+    "newName": "bwi-visibility-off",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/form-field/password-input-toggle.spec.ts",
+    "oldName": "bwi-eye-slash",
+    "newName": "bwi-visibility-off",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-eye-slash",
+    "newName": "bwi-visibility-off",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-eye-slash",
+    "newName": "bwi-visibility-off",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/organizations/manage/scim.component.html",
+    "oldName": "bwi-eye-slash",
+    "newName": "bwi-visibility-off",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/platform/popup/layout/popup-layout.stories.ts",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/tools/popup/send-v2/add-edit/send-add-edit.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/vault/popup/components/vault/add-edit/add-edit.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/vault/popup/components/vault/view/view.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/vault/app/vault/item-footer.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/vault/app/vault-v3/vault-filter/filters/status-filter.component.ts",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/vault/app/vault-v3/vault-items/vault-cipher-row.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/collections/vault-header/vault-header.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/manage/group-add-edit.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/manage/groups.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/members/members.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/shared/components/access-selector/access-selector-dialog.stories.ts",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/shared/components/collection-dialog/collection-dialog.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/emergency-access/emergency-access-add-edit.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/organizations/billing-sync-key.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/components/vault-item-dialog/vault-item-dialog.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/components/vault-items/vault-cipher-row.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/vault/components/vault-items/vault-collection-row.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/components/vault-items/vault-items.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-filter/components/vault-filter.component.ts",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-header/vault-header.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/async-actions/in-forms.stories.ts",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/async-actions/standalone.mdx",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/async-actions/standalone.stories.ts",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/dialog/dialog/dialog.stories.ts",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 3
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/tools/send/send-ui/src/add-edit/send-add-edit-dialog.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/tools/send/send-ui/src/send-list-items-container/send-list-items-container.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/tools/send/send-ui/src/send-table/send-table.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/vault/src/cipher-form/components/attachments/delete-attachment/delete-attachment.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-form/components/custom-fields/add-edit-custom-field-dialog/add-edit-custom-field-dialog.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/components/add-edit-folder-dialog/add-edit-folder-dialog.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/models/vault-filter.model.spec.ts",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/organizations/manage/domain-verification/domain-add-edit-dialog/domain-add-edit-dialog.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/manage/dialogs/add-edit-member-dialog.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/organization-integrations/integration-dialog/connect-dialog/connect-dialog-datadog.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/organization-integrations/integration-dialog/connect-dialog/connect-dialog-hec.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/organization-integrations/integration-dialog/connect-dialog/connect-dialog-huntress.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/layout/navigation.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/secrets/dialog/secret-dialog.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/service-accounts/service-accounts-list.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 2
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/shared/projects-list.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 2
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/shared/secrets-list.component.html",
+    "oldName": "bwi-trash",
+    "newName": "bwi-delete",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-up-down-btn",
+    "newName": "bwi-angle-up-down",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-up-down-btn",
+    "newName": "bwi-angle-up-down",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/table/sortable.component.ts",
+    "oldName": "bwi-up-down-btn",
+    "newName": "bwi-angle-up-down",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/navigation/nav-group.component.html",
+    "oldName": "bwi-down-solid",
+    "newName": "bwi-arrow-filled-down",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-down-solid",
+    "newName": "bwi-arrow-filled-down",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-down-solid",
+    "newName": "bwi-arrow-filled-down",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/table/sortable.component.ts",
+    "oldName": "bwi-down-solid",
+    "newName": "bwi-arrow-filled-down",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-up-solid",
+    "newName": "bwi-arrow-filled-up",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-up-solid",
+    "newName": "bwi-arrow-filled-up",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/table/sortable.component.ts",
+    "oldName": "bwi-up-solid",
+    "newName": "bwi-arrow-filled-up",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-drag-and-drop",
+    "newName": "bwi-drag",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-drag-and-drop",
+    "newName": "bwi-drag",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-form/components/autofill-options/uri-option.component.html",
+    "oldName": "bwi-drag-and-drop",
+    "newName": "bwi-drag",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-form/components/custom-fields/custom-fields.component.html",
+    "oldName": "bwi-drag-and-drop",
+    "newName": "bwi-drag",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/auth/components/account-switcher/account-switcher-v2.component.html",
+    "oldName": "bwi-ellipsis-h",
+    "newName": "bwi-more-horizontal",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/breadcrumbs/breadcrumbs.component.html",
+    "oldName": "bwi-ellipsis-h",
+    "newName": "bwi-more-horizontal",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/breadcrumbs/breadcrumbs.mdx",
+    "oldName": "bwi-ellipsis-h",
+    "newName": "bwi-more-horizontal",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-ellipsis-h",
+    "newName": "bwi-more-horizontal",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-ellipsis-h",
+    "newName": "bwi-more-horizontal",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/platform/popup/layout/popup-layout.stories.ts",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/browser/src/vault/popup/components/vault/item-more-options/item-more-options.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/vault/popup/settings/archive.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/vault/popup/settings/trash-list-items-container/trash-list-items-container.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/vault/app/vault-v3/vault-items/vault-cipher-row.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/manage/groups.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/members/members.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/emergency-access/emergency-access.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/billing/members/free-bitwarden-families.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/settings/sponsoring-org-row.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/settings/domain-rules.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/components/vault-items/vault-cipher-row.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/vault/components/vault-items/vault-cipher-row.component.spec.ts",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/components/vault-items/vault-collection-row.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/components/vault-items/vault-items.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-filter/components/organization-options.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/form-field/form-field.stories.ts",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 3
+  },
+  {
+    "file": "libs/components/src/item/item.mdx",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/item/item.stories.ts",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 11
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/kitchen-sink/components/dialog-virtual-scroll-block.component.ts",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/kitchen-sink/components/kitchen-sink-table.component.ts",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/components/src/tooltip/tooltip.stories.ts",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 3
+  },
+  {
+    "file": "libs/tools/send/send-ui/src/send-table/send-table.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/organizations/manage/device-approvals/device-approvals.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 2
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/organizations/manage/domain-verification/domain-verification.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/clients/manage-clients.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/manage/members.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 2
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/access-intelligence/shared/app-table-row-scrollable.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/service-accounts/access/access-list.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 2
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/service-accounts/service-accounts-list.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 2
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/shared/projects-list.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 2
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/shared/secrets-list.component.html",
+    "oldName": "bwi-ellipsis-v",
+    "newName": "bwi-more-vertical",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/browser/src/dirt/phishing-detection/popup/phishing-warning.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/vault/popup/services/vault-popup-list-filters.service.spec.ts",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/vault/popup/services/vault-popup-list-filters.service.ts",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/vault/app/vault-v3/vault-filter/filters/organization-filter.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/vault/app/vault-v3/vault-items/vault-cipher-row.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/members/components/bulk/bulk-remove-dialog.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/members/components/bulk/bulk-restore-revoke.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/members/services/delete-managed-member/delete-managed-member-warning.service.ts",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/two-factor/two-factor-setup-webauthn.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/payment/components/enter-billing-address.component.ts",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/layouts/org-switcher/org-switcher.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/vault/components/vault-items/vault-cipher-row.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-filter/shared/components/vault-filter-section.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/badge/badge.component.ts",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/banner/banner.component.ts",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/callout/callout.component.spec.ts",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/callout/callout.component.ts",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/chips/chip-action/chip-action.stories.ts",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/chips/chip-filter/chip-filter.mdx",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/chips/chip-filter/chip-filter.stories.ts",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 3
+  },
+  {
+    "file": "libs/components/src/dialog/simple-dialog/simple-configurable-dialog/simple-configurable-dialog.component.ts",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/dialog/simple-dialog/simple-dialog.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/dialog/simple-dialog/simple-dialog.mdx",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/components/src/icon-tile/icon-tile.stories.ts",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/toast/toast.component.ts",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/tools/send/send-ui/src/send-list-items-container/send-list-items-container.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/tools/send/send-ui/src/send-table/send-table.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/vault/src/cipher-form/components/attachments/cipher-attachments.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-form/components/autofill-options/advanced-uri-option-dialog.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-view/login-credentials/login-credentials-view.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/components/decryption-failure-dialog/decryption-failure-dialog.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/components/vault-items-transfer/leave-confirmation-dialog.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/providers-layout.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/providers.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/access-intelligence/activity/activity-card.component.ts",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/access-intelligence/activity/all-activity.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 2
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/access-intelligence/risk-insights.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/key-management/policies/session-timeout-confirmation-never.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/shared/secrets-list.component.html",
+    "oldName": "bwi-exclamation-triangle",
+    "newName": "bwi-warning",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/autofill/popup/fido2/fido2-cipher-row.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/vault/popup/components/vault/vault-list-filters/vault-list-filters.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/vault/popup/services/vault-popup-list-filters.service.spec.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/vault/popup/services/vault-popup-list-filters.service.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/vault/app/vault-v3/vault-items/vault-cipher-row.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/vault/app/vault-v3/vault-items/vault-collection-row.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/collections/vault-filter/vault-filter.component.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/collections/vault-header/vault-header.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/collections/vault-header/vault-header.component.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/layouts/organization-layout.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/manage/groups.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/members/members.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/shared/components/access-selector/access-selector.component.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/shared/components/collection-dialog/collection-dialog.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/emergency-access/view/emergency-access-view.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/dirt/reports/pages/exposed-passwords-report.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/dirt/reports/pages/inactive-two-factor-report.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/dirt/reports/pages/reused-passwords-report.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/dirt/reports/pages/unsecured-websites-report.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/dirt/reports/pages/weak-passwords-report.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/layouts/product-switcher/navigation-switcher/navigation-switcher.stories.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 5
+  },
+  {
+    "file": "apps/web/src/app/shared/components/onboarding/onboarding.stories.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/components/vault-items/vault-cipher-row.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/components/vault-items/vault-collection-row.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/components/vault-items/vault-items.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-header/vault-header.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-header/vault-header.component.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/breadcrumbs/breadcrumbs.stories.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 7
+  },
+  {
+    "file": "libs/components/src/form-field/multi-select.stories.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 11
+  },
+  {
+    "file": "libs/components/src/navigation/nav-base.component.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/navigation/nav-group.stories.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 6
+  },
+  {
+    "file": "libs/components/src/navigation/nav-item.stories.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 7
+  },
+  {
+    "file": "libs/components/src/select/select.stories.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 4
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icons.mdx",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/components/src/stories/kitchen-sink/components/kitchen-sink-main.component.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/importer/src/components/import.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/cipher-view/item-details/item-details-v2.component.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/components/assign-collections.component.spec.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/components/assign-collections.component.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 3
+  },
+  {
+    "file": "libs/vault/src/components/new-cipher-menu/new-cipher-menu.component.html",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/services/vault-filter.service.ts",
+    "oldName": "bwi-collection-shared",
+    "newName": "bwi-collection",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/collections/collection-access-restricted.component.ts",
+    "oldName": "bwi-users",
+    "newName": "bwi-groups",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/collections/vault-header/vault-header.component.html",
+    "oldName": "bwi-users",
+    "newName": "bwi-groups",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/layouts/organization-layout.component.html",
+    "oldName": "bwi-users",
+    "newName": "bwi-groups",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/members/members.component.html",
+    "oldName": "bwi-users",
+    "newName": "bwi-groups",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/shared/components/access-selector/access-selector.component.ts",
+    "oldName": "bwi-users",
+    "newName": "bwi-groups",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/components/vault-items/vault-collection-row.component.html",
+    "oldName": "bwi-users",
+    "newName": "bwi-groups",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/vault/components/vault-items/vault-items.component.html",
+    "oldName": "bwi-users",
+    "newName": "bwi-groups",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-header/vault-header.component.html",
+    "oldName": "bwi-users",
+    "newName": "bwi-groups",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-users",
+    "newName": "bwi-groups",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-users",
+    "newName": "bwi-groups",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/access-intelligence/activity/application-review-dialog/assign-tasks-view.component.html",
+    "oldName": "bwi-users",
+    "newName": "bwi-groups",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/autofill/background/overlay.background.spec.ts",
+    "oldName": "bwi-id-card",
+    "newName": "bwi-identity",
+    "occurrences": 3
+  },
+  {
+    "file": "apps/browser/src/autofill/overlay/inline-menu/pages/list/autofill-inline-menu-list.spec.ts",
+    "oldName": "bwi-id-card",
+    "newName": "bwi-identity",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/browser/src/autofill/overlay/inline-menu/pages/list/autofill-inline-menu-list.ts",
+    "oldName": "bwi-id-card",
+    "newName": "bwi-identity",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-filter/components/vault-filter.component.ts",
+    "oldName": "bwi-id-card",
+    "newName": "bwi-identity",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/common/src/vault/icon/build-cipher-icon.ts",
+    "oldName": "bwi-id-card",
+    "newName": "bwi-identity",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/common/src/vault/types/cipher-menu-items.ts",
+    "oldName": "bwi-id-card",
+    "newName": "bwi-identity",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-id-card",
+    "newName": "bwi-identity",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-id-card",
+    "newName": "bwi-identity",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/models/vault-filter.model.spec.ts",
+    "oldName": "bwi-id-card",
+    "newName": "bwi-identity",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/services/vault-filter.service.ts",
+    "oldName": "bwi-id-card",
+    "newName": "bwi-identity",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/autofill/background/overlay.background.spec.ts",
+    "oldName": "bwi-globe",
+    "newName": "bwi-login",
+    "occurrences": 11
+  },
+  {
+    "file": "apps/browser/src/dirt/phishing-detection/popup/phishing-warning.component.html",
+    "oldName": "bwi-globe",
+    "newName": "bwi-login",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/platform/popup/layout/popup-layout.stories.ts",
+    "oldName": "bwi-globe",
+    "newName": "bwi-login",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/browser/src/vault/popup/components/vault/autofill-confirmation-dialog/autofill-confirmation-dialog.component.html",
+    "oldName": "bwi-globe",
+    "newName": "bwi-login",
+    "occurrences": 3
+  },
+  {
+    "file": "apps/web/src/app/dirt/event-logs/services/event.service.ts",
+    "oldName": "bwi-globe",
+    "newName": "bwi-login",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-filter/components/vault-filter.component.ts",
+    "oldName": "bwi-globe",
+    "newName": "bwi-login",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/common/src/vault/icon/build-cipher-icon.spec.ts",
+    "oldName": "bwi-globe",
+    "newName": "bwi-login",
+    "occurrences": 7
+  },
+  {
+    "file": "libs/common/src/vault/icon/build-cipher-icon.ts",
+    "oldName": "bwi-globe",
+    "newName": "bwi-login",
+    "occurrences": 3
+  },
+  {
+    "file": "libs/common/src/vault/types/cipher-menu-items.ts",
+    "oldName": "bwi-globe",
+    "newName": "bwi-login",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/components/src/item/item.stories.ts",
+    "oldName": "bwi-globe",
+    "newName": "bwi-login",
+    "occurrences": 11
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-globe",
+    "newName": "bwi-login",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-globe",
+    "newName": "bwi-login",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/services/vault-filter.service.ts",
+    "oldName": "bwi-globe",
+    "newName": "bwi-login",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/dirt/access-intelligence/activity/application-review-dialog/review-applications-view.component.html",
+    "oldName": "bwi-globe",
+    "newName": "bwi-login",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-filter/components/vault-filter.component.ts",
+    "oldName": "bwi-sticky-note",
+    "newName": "bwi-note",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/common/src/vault/icon/build-cipher-icon.ts",
+    "oldName": "bwi-sticky-note",
+    "newName": "bwi-note",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/common/src/vault/types/cipher-menu-items.ts",
+    "oldName": "bwi-sticky-note",
+    "newName": "bwi-note",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-sticky-note",
+    "newName": "bwi-note",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-sticky-note",
+    "newName": "bwi-note",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/vault/src/services/vault-filter.service.ts",
+    "oldName": "bwi-sticky-note",
+    "newName": "bwi-note",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/vault/popup/components/at-risk-passwords/at-risk-passwords.component.html",
+    "oldName": "bwi-paperclip",
+    "newName": "bwi-attach",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/vault/popup/components/vault/vault-list-items-container/vault-list-items-container.component.html",
+    "oldName": "bwi-paperclip",
+    "newName": "bwi-attach",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/vault/popup/settings/archive.component.html",
+    "oldName": "bwi-paperclip",
+    "newName": "bwi-attach",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/vault/popup/settings/trash-list-items-container/trash-list-items-container.component.html",
+    "oldName": "bwi-paperclip",
+    "newName": "bwi-attach",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/vault/app/vault/vault-items-v2.component.html",
+    "oldName": "bwi-paperclip",
+    "newName": "bwi-attach",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/desktop/src/vault/app/vault-v3/vault-items/vault-cipher-row.component.html",
+    "oldName": "bwi-paperclip",
+    "newName": "bwi-attach",
+    "occurrences": 2
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/emergency-access/view/emergency-access-view.component.html",
+    "oldName": "bwi-paperclip",
+    "newName": "bwi-attach",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/dirt/reports/pages/exposed-passwords-report.component.html",
+    "oldName": "bwi-paperclip",
+    "newName": "bwi-attach",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/dirt/reports/pages/inactive-two-factor-report.component.html",
+    "oldName": "bwi-paperclip",
+    "newName": "bwi-attach",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/dirt/reports/pages/reused-passwords-report.component.html",
+    "oldName": "bwi-paperclip",
+    "newName": "bwi-attach",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/dirt/reports/pages/unsecured-websites-report.component.html",
+    "oldName": "bwi-paperclip",
+    "newName": "bwi-attach",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/dirt/reports/pages/weak-passwords-report.component.html",
+    "oldName": "bwi-paperclip",
+    "newName": "bwi-attach",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/components/vault-items/vault-cipher-row.component.html",
+    "oldName": "bwi-paperclip",
+    "newName": "bwi-attach",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-paperclip",
+    "newName": "bwi-attach",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-paperclip",
+    "newName": "bwi-attach",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/dirt/event-logs/services/event.service.ts",
+    "oldName": "bwi-user-monitor",
+    "newName": "bwi-desktop-user",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-user-monitor",
+    "newName": "bwi-desktop-user",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-user-monitor",
+    "newName": "bwi-desktop-user",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/individual/upgrade/upgrade-nav-button/upgrade-nav-button/upgrade-nav-button.component.html",
+    "oldName": "bwi-premium",
+    "newName": "bwi-diamond",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/angular/src/billing/components/premium-badge/premium-badge.component.ts",
+    "oldName": "bwi-premium",
+    "newName": "bwi-diamond",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-premium",
+    "newName": "bwi-diamond",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-premium",
+    "newName": "bwi-diamond",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-universal-access",
+    "newName": "bwi-accessibility",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-universal-access",
+    "newName": "bwi-accessibility",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/tools/popup/settings/about-dialog/about-dialog.component.html",
+    "oldName": "bwi-shield",
+    "newName": "bwi-bitwarden-shield",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-shield",
+    "newName": "bwi-bitwarden-shield",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-shield",
+    "newName": "bwi-bitwarden-shield",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-bell",
+    "newName": "bwi-notifications",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-bell",
+    "newName": "bwi-notifications",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/browser/src/tools/popup/settings/settings-v2.component.html",
+    "oldName": "bwi-brush",
+    "newName": "bwi-palette",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-brush",
+    "newName": "bwi-palette",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-brush",
+    "newName": "bwi-palette",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/admin-console/organizations/layouts/organization-layout.component.html",
+    "oldName": "bwi-billing",
+    "newName": "bwi-receipt",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/organizations/change-plan-dialog.component.html",
+    "oldName": "bwi-billing",
+    "newName": "bwi-receipt",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/organizations/warnings/components/organization-free-trial-warning.component.ts",
+    "oldName": "bwi-billing",
+    "newName": "bwi-receipt",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/organizations/warnings/components/organization-reseller-renewal-warning.component.ts",
+    "oldName": "bwi-billing",
+    "newName": "bwi-receipt",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/payment/components/display-payment-method-inline.component.ts",
+    "oldName": "bwi-billing",
+    "newName": "bwi-receipt",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/payment/components/display-payment-method.component.ts",
+    "oldName": "bwi-billing",
+    "newName": "bwi-receipt",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/payment/components/enter-payment-method.component.ts",
+    "oldName": "bwi-billing",
+    "newName": "bwi-receipt",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/billing/shared/billing-history.component.ts",
+    "oldName": "bwi-billing",
+    "newName": "bwi-receipt",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-billing",
+    "newName": "bwi-receipt",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-billing",
+    "newName": "bwi-receipt",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/providers-layout.component.html",
+    "oldName": "bwi-billing",
+    "newName": "bwi-receipt",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/service-accounts/service-accounts-list.component.html",
+    "oldName": "bwi-billing",
+    "newName": "bwi-receipt",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/shared/projects-list.component.html",
+    "oldName": "bwi-billing",
+    "newName": "bwi-receipt",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/shared/secrets-list.component.html",
+    "oldName": "bwi-billing",
+    "newName": "bwi-receipt",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/dirt/event-logs/services/event.service.ts",
+    "oldName": "bwi-puzzle",
+    "newName": "bwi-extension",
+    "occurrences": 6
+  },
+  {
+    "file": "libs/angular/src/auth/device-management/device-management.component.ts",
+    "oldName": "bwi-puzzle",
+    "newName": "bwi-extension",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-puzzle",
+    "newName": "bwi-extension",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-puzzle",
+    "newName": "bwi-extension",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/layouts/product-switcher/shared/product-switcher.service.ts",
+    "oldName": "bwi-provider",
+    "newName": "bwi-handshake",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/auth/src/angular/login/login.component.html",
+    "oldName": "bwi-provider",
+    "newName": "bwi-handshake",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-provider",
+    "newName": "bwi-handshake",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-provider",
+    "newName": "bwi-handshake",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/admin-console/providers/providers-layout.component.html",
+    "oldName": "bwi-provider",
+    "newName": "bwi-handshake",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/auth/settings/webauthn-login-settings/webauthn-login-settings.component.html",
+    "oldName": "bwi-lock-encrypted",
+    "newName": "bwi-encrypted",
+    "occurrences": 2
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-lock-encrypted",
+    "newName": "bwi-encrypted",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-lock-encrypted",
+    "newName": "bwi-encrypted",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-lock-f",
+    "newName": "bwi-lock-filled",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-lock-f",
+    "newName": "bwi-lock-filled",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/dirt/event-logs/services/event.service.ts",
+    "oldName": "bwi-cli",
+    "newName": "bwi-terminal",
+    "occurrences": 3
+  },
+  {
+    "file": "apps/web/src/app/layouts/product-switcher/shared/product-switcher.service.ts",
+    "oldName": "bwi-cli",
+    "newName": "bwi-terminal",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/shared/components/onboarding/onboarding.stories.ts",
+    "oldName": "bwi-cli",
+    "newName": "bwi-terminal",
+    "occurrences": 1
+  },
+  {
+    "file": "apps/web/src/app/vault/individual-vault/vault-onboarding/vault-onboarding.component.html",
+    "oldName": "bwi-cli",
+    "newName": "bwi-terminal",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/angular/src/auth/device-management/device-management.component.ts",
+    "oldName": "bwi-cli",
+    "newName": "bwi-terminal",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/shared/icon.ts",
+    "oldName": "bwi-cli",
+    "newName": "bwi-terminal",
+    "occurrences": 1
+  },
+  {
+    "file": "libs/components/src/stories/icons/icon-data.ts",
+    "oldName": "bwi-cli",
+    "newName": "bwi-terminal",
+    "occurrences": 1
+  },
+  {
+    "file": "bitwarden_license/bit-web/src/app/secrets-manager/overview/overview.component.html",
+    "oldName": "bwi-cli",
+    "newName": "bwi-terminal",
+    "occurrences": 1
+  }
+]

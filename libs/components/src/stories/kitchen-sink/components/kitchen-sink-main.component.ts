@@ -114,7 +114,7 @@ export class KitchenSinkDialogComponent {
         aria-label="Popover trigger link"
         slot="secondary"
       >
-        <bit-icon name="bwi-question-circle" />
+        <bit-icon name="bwi-help" />
       </button>
       <bit-avatar text="BW"></bit-avatar>
       <bit-tab-nav-bar slot="tabs">
@@ -164,7 +164,7 @@ export class KitchenSinkMainComponent {
   }
 
   navItems = [
-    { icon: "bwi-collection-shared", name: "Password Managers", route: "/" },
-    { icon: "bwi-collection-shared", name: "Favorites", route: "/" },
+    { icon: "bwi-collection", name: "Password Managers", route: "/" },
+    { icon: "bwi-collection", name: "Favorites", route: "/" },
   ];
 }

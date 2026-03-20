@@ -139,7 +139,7 @@ export class VaultHeaderComponent {
   }
 
   get icon() {
-    return this.filter.collectionId !== undefined ? "bwi-collection-shared" : "";
+    return this.filter.collectionId !== undefined ? "bwi-collection" : "";
   }
 
   protected get showBreadcrumbs() {

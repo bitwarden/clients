@@ -12,7 +12,7 @@
     }
 
     <bit-nav-item
-      icon="bwi-collection-shared"
+      icon="bwi-collection"
       [text]="'collections' | i18n"
       route="vault"
       *ngIf="canShowVaultTab(organization)"
@@ -39,7 +39,7 @@
     </ng-container>
 
     <bit-nav-item
-      icon="bwi-users"
+      icon="bwi-groups"
       [text]="'groups' | i18n"
       route="groups"
       *ngIf="canShowGroupsTab(organization)"
@@ -62,7 +62,7 @@
       ></bit-nav-item>
     </bit-nav-group>
     <bit-nav-group
-      icon="bwi-billing"
+      icon="bwi-receipt"
       [text]="'billing' | i18n"
       route="billing"
       *ngIf="canShowBillingTab(organization)"
@@ -83,7 +83,7 @@
       *ngIf="integrationPageEnabled$ | async"
     ></bit-nav-item>
     <bit-nav-group
-      icon="bwi-cog"
+      icon="bwi-settings"
       [text]="'settings' | i18n"
       route="settings"
       *ngIf="canShowSettingsTab(organization)"

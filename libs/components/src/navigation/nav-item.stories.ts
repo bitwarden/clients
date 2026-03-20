@@ -90,7 +90,7 @@ export const WithLongText: Story = {
 export const WithoutRoute: Story = {
   render: () => ({
     template: `
-        <bit-nav-item text="Hello World" icon="bwi-collection-shared"></bit-nav-item>
+        <bit-nav-item text="Hello World" icon="bwi-collection"></bit-nav-item>
       `,
   }),
 };
@@ -99,12 +99,12 @@ export const WithChildButtons: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-nav-item text="Hello World Very Cool World" [route]="['']" icon="bwi-collection-shared">
+      <bit-nav-item text="Hello World Very Cool World" [route]="['']" icon="bwi-collection">
         <button
           type="button"
           slot="end"
           class="tw-ms-auto"
-          bitIconButton="bwi-pencil-square"
+          bitIconButton="bwi-edit"
           buttonType="side-nav"
           size="xsmall"
           label="Edit"
@@ -130,8 +130,8 @@ export const MultipleItemsWithDivider: Story = {
       <bit-nav-item text="Hello World"></bit-nav-item>
       <bit-nav-item text="Hello World Long Text Long"></bit-nav-item>
       <bit-nav-divider></bit-nav-divider>
-      <bit-nav-item text="Hello World" icon="bwi-collection-shared"></bit-nav-item>
-      <bit-nav-item text="Hello World" icon="bwi-collection-shared"></bit-nav-item>
+      <bit-nav-item text="Hello World" icon="bwi-collection"></bit-nav-item>
+      <bit-nav-item text="Hello World" icon="bwi-collection"></bit-nav-item>
     `,
   }),
 };
@@ -140,9 +140,9 @@ export const ForceActiveStyles: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <bit-nav-item text="First Nav" icon="bwi-collection-shared"></bit-nav-item>
-      <bit-nav-item text="Active Nav" icon="bwi-collection-shared" [forceActiveStyles]="true"></bit-nav-item>
-      <bit-nav-item text="Third Nav" icon="bwi-collection-shared"></bit-nav-item>
+      <bit-nav-item text="First Nav" icon="bwi-collection"></bit-nav-item>
+      <bit-nav-item text="Active Nav" icon="bwi-collection" [forceActiveStyles]="true"></bit-nav-item>
+      <bit-nav-item text="Third Nav" icon="bwi-collection"></bit-nav-item>
     `,
   }),
 };

@@ -181,7 +181,7 @@ export const Buttons: Story = {
         <button type="button" bitLink [linkType]="linkType">Button</button>
       </div>
       <div class="tw-block tw-p-2">
-        <button type="button" bitLink [linkType]="linkType" startIcon="bwi-plus-circle">
+        <button type="button" bitLink [linkType]="linkType" startIcon="bwi-add-circle">
           Add Icon Button
         </button>
       </div>
@@ -218,7 +218,7 @@ export const Anchors: StoryObj<LinkComponent> = {
         <a bitLink [linkType]="linkType" href="#">Anchor</a>
       </div>
       <div class="tw-block tw-p-2">
-        <a bitLink [linkType]="linkType" href="#" startIcon="bwi-plus-circle">
+        <a bitLink [linkType]="linkType" href="#" startIcon="bwi-add-circle">
           Add Icon Anchor
         </a>
       </div>
@@ -264,7 +264,7 @@ export const WithIcons: Story = {
         <a bitLink [linkType]="linkType" href="#" startIcon="bwi-angle-left" endIcon="bwi-angle-right">Both icons</a>
       </div>
       <div class="tw-block tw-p-2">
-        <button type="button" bitLink [linkType]="linkType" startIcon="bwi-plus-circle">Add item</button>
+        <button type="button" bitLink [linkType]="linkType" startIcon="bwi-add-circle">Add item</button>
       </div>
       <div class="tw-block tw-p-2">
         <button type="button" bitLink [linkType]="linkType" endIcon="bwi-angle-right">Next</button>

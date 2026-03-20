@@ -13,7 +13,7 @@
     </button>
     @if (!cipher.isDeleted && action === "view") {
       <button type="button" class="primary" (click)="edit()" appA11yTitle="{{ 'edit' | i18n }}">
-        <i class="bwi bwi-pencil bwi-fw bwi-lg" aria-hidden="true" style="pointer-events: none">
+        <i class="bwi bwi-edit-alt bwi-fw bwi-lg" aria-hidden="true" style="pointer-events: none">
         </i>
       </button>
     }
@@ -37,7 +37,11 @@
 
     @if (showCloneOption) {
       <button type="button" class="primary" (click)="clone()" appA11yTitle="{{ 'clone' | i18n }}">
-        <i class="bwi bwi-files bwi-fw bwi-lg" aria-hidden="true" style="pointer-events: none"></i>
+        <i
+          class="bwi bwi-duplicate bwi-fw bwi-lg"
+          aria-hidden="true"
+          style="pointer-events: none"
+        ></i>
       </button>
     }
   </ng-container>
@@ -72,7 +76,7 @@
           data-test-id="footer-delete-button"
         >
           <i
-            class="bwi bwi-trash bwi-lg bwi-fw"
+            class="bwi bwi-delete bwi-lg bwi-fw"
             aria-hidden="true"
             style="pointer-events: none"
           ></i>

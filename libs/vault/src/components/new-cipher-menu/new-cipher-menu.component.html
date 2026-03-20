@@ -14,7 +14,7 @@
       [spotlight]="!!coachmarkPopover()"
       [closeOnBackdropClick]="false"
     >
-      <i class="bwi bwi-plus tw-me-2" aria-hidden="true"></i>
+      <i class="bwi bwi-add tw-me-2" aria-hidden="true"></i>
       {{ getButtonLabel() | i18n }}
     </button>
     <bit-menu #addOptions aria-labelledby="newItemDropdown">
@@ -35,7 +35,7 @@
         bitMenuItem
         (click)="collectionAdded.emit()"
       >
-        <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
+        <i class="bwi bwi-fw bwi-collection" aria-hidden="true"></i>
         {{ "collection" | i18n }}
       </button>
     </bit-menu>

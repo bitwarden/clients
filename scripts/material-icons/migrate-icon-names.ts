@@ -94,7 +94,7 @@ function migrateIconNames(): void {
         // Use word boundaries to prevent partial matches (e.g., don't match "bwi-star-f" inside "bwi-star-filled")
         // Use negative lookahead to skip replacements when followed by a file extension
         const escapedPattern = oldPattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-        const regex = new RegExp(`\\b${escapedPattern}\\b(?!\\.[a-zA-Z]+)`, "g");
+        const regex = new RegExp(`\\b${escapedPattern}(?![-a-zA-Z0-9_])(?!\\.[a-zA-Z]+)`, "g");
         const matches = content.match(regex);
         const occurrences = matches ? matches.length : 0;
 
@@ -124,7 +124,16 @@ function migrateIconNames(): void {
   }
 
   // Save detailed report
-  if (!DRY_RUN && replacements.length > 0) {
+  if (DRY_RUN) {
+    if (replacements.length === 0) {
+      process.stdout.write("Dry run: no replacements found.\n");
+    } else {
+      process.stdout.write(`Dry run: ${replacements.length} replacement(s) would be made:\n\n`);
+      for (const r of replacements) {
+        process.stdout.write(`  ${r.file}: ${r.oldName} → ${r.newName} (${r.occurrences}x)\n`);
+      }
+    }
+  } else if (replacements.length > 0) {
     const reportPath = path.join(__dirname, "migration-report.json");
     fs.writeFileSync(reportPath, JSON.stringify(replacements, null, 2), "utf-8");
   }

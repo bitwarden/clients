@@ -38,7 +38,7 @@ export default {
       <app-onboarding title="Get started">
         <app-onboarding-task
           [title]="'createMachineAccount' | i18n"
-          icon="bwi-cli"
+          icon="bwi-terminal"
           [completed]="createServiceAccount"
         >
           <span>
@@ -47,12 +47,12 @@ export default {
         </app-onboarding-task>
         <app-onboarding-task
           [title]="'createProject' | i18n"
-          icon="bwi-collection-shared"
+          icon="bwi-collection"
           [completed]="createProject"
         ></app-onboarding-task>
         <app-onboarding-task
           [title]="'importSecrets' | i18n"
-          icon="bwi-import"
+          icon="bwi-upload"
           [completed]="importSecrets$ | async"
         ></app-onboarding-task>
         <app-onboarding-task

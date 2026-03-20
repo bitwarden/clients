@@ -61,7 +61,7 @@
               <span class="tw-block tw-lowercase tw-text-muted">
                 <ng-container *ngIf="user.hasMasterPassword === true"> - </ng-container>
                 <ng-container *ngIf="user.hasMasterPassword === false">
-                  <i class="bwi bwi-exclamation-triangle" aria-hidden="true"></i>
+                  <i class="bwi bwi-warning" aria-hidden="true"></i>
                   {{ "noMasterPassword" | i18n }}
                 </ng-container>
               </span>

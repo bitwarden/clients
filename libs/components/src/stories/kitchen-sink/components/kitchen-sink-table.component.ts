@@ -23,7 +23,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
           <td bitCell>
             <button
               type="button"
-              bitIconButton="bwi-ellipsis-v"
+              bitIconButton="bwi-more-vertical"
               [bitMenuTriggerFor]="menu1"
               label="Options"
             ></button>
@@ -41,7 +41,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
           <td bitCell>
             <button
               type="button"
-              bitIconButton="bwi-ellipsis-v"
+              bitIconButton="bwi-more-vertical"
               [bitMenuTriggerFor]="menu2"
               label="Options"
             ></button>

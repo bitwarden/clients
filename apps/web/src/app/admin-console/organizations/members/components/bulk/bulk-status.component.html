@@ -1,7 +1,7 @@
 <bit-dialog dialogSize="large" [title]="'bulkConfirmStatus' | i18n">
   <ng-container bitDialogContent>
     <div class="tw-text-center" *ngIf="loading">
-      <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+      <i class="bwi bwi-loading bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
       {{ "loading" | i18n }}
     </div>
     <bit-table *ngIf="!loading">

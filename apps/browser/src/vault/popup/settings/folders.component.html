@@ -8,7 +8,7 @@
         type="button"
         (click)="openAddEditFolderDialog()"
       >
-        <i class="bwi bwi-plus" aria-hidden="true"></i>
+        <i class="bwi bwi-add" aria-hidden="true"></i>
         {{ "new" | i18n }}
       </button>
       <app-pop-out></app-pop-out>
@@ -26,7 +26,7 @@
               type="button"
               (click)="openAddEditFolderDialog(folder)"
               [label]="'editFolderWithName' | i18n: folder.name"
-              bitIconButton="bwi-pencil-square"
+              bitIconButton="bwi-edit"
               class="tw-self-end"
               data-testid="edit-folder-button"
             ></button>
@@ -47,7 +47,7 @@
           (click)="openAddEditFolderDialog()"
           data-testid="empty-new-folder-button"
         >
-          <i class="bwi bwi-plus" aria-hidden="true"></i>
+          <i class="bwi bwi-add" aria-hidden="true"></i>
           {{ "newFolder" | i18n }}
         </button>
       </bit-no-items>

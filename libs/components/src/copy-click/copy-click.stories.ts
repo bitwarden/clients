@@ -63,7 +63,7 @@ export const Default: Story = {
         <button
           type="button"
           bitSuffix
-          bitIconButton="bwi-clone"
+          bitIconButton="bwi-copy"
           label="Copy"
           [appCopyClick]="value"
         ></button>
@@ -85,7 +85,7 @@ export const WithDefaultToast: Story = {
         <button
           type="button"
           bitSuffix
-          bitIconButton="bwi-clone"
+          bitIconButton="bwi-copy"
           label="Copy"
           [appCopyClick]="value"
           showToast
@@ -108,7 +108,7 @@ export const WithCustomToastVariant: Story = {
         <button
           type="button"
           bitSuffix
-          bitIconButton="bwi-clone"
+          bitIconButton="bwi-copy"
           label="Copy"
           [appCopyClick]="value"
           showToast="info"
@@ -131,7 +131,7 @@ export const WithCustomValueLabel: Story = {
         <button
           type="button"
           bitSuffix
-          bitIconButton="bwi-clone"
+          bitIconButton="bwi-copy"
           label="Copy"
           [appCopyClick]="value"
           showToast

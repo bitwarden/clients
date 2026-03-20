@@ -14,10 +14,10 @@ export type CalloutTypes = "success" | "info" | "warning" | "danger" | "subtle";
 
 const defaultIcon: Record<CalloutTypes, BitwardenIcon> = {
   success: "bwi-check-circle",
-  info: "bwi-info-circle",
-  warning: "bwi-exclamation-triangle",
+  info: "bwi-info",
+  warning: "bwi-warning",
   danger: "bwi-error",
-  subtle: "bwi-info-circle",
+  subtle: "bwi-info",
 };
 
 const defaultI18n: Partial<Record<CalloutTypes, string>> = {

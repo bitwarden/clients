@@ -43,7 +43,7 @@
             </button>
             @if (s.disabled) {
               <i
-                class="bwi bwi-exclamation-triangle"
+                class="bwi bwi-warning"
                 appStopProp
                 title="{{ 'disabled' | i18n }}"
                 aria-hidden="true"
@@ -61,7 +61,7 @@
             }
             @if (s.maxAccessCountReached) {
               <i
-                class="bwi bwi-exclamation-triangle"
+                class="bwi bwi-warning"
                 appStopProp
                 title="{{ 'maxAccessCountReached' | i18n }}"
                 aria-hidden="true"
@@ -77,7 +77,7 @@
             }
             @if (s.pendingDelete) {
               <i
-                class="bwi bwi-trash"
+                class="bwi bwi-delete"
                 appStopProp
                 title="{{ 'pendingDeletion' | i18n }}"
                 aria-hidden="true"
@@ -99,12 +99,12 @@
             type="button"
             size="small"
             [bitMenuTriggerFor]="sendOptions"
-            bitIconButton="bwi-ellipsis-v"
+            bitIconButton="bwi-more-vertical"
             label="{{ 'options' | i18n }}"
           ></button>
           <bit-menu #sendOptions>
             <button type="button" bitMenuItem (click)="onCopy(s)">
-              <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+              <i class="bwi bwi-fw bwi-copy" aria-hidden="true"></i>
               {{ "copySendLink" | i18n }}
             </button>
             @if (s.password && !disableSend()) {
@@ -115,7 +115,7 @@
             }
             <button type="button" bitMenuItem (click)="onDelete(s)">
               <span class="tw-text-danger">
-                <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+                <i class="bwi bwi-fw bwi-delete" aria-hidden="true"></i>
                 {{ "delete" | i18n }}
               </span>
             </button>

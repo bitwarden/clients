@@ -76,7 +76,7 @@ export const Default: Story = {
       {
         label: "Bar",
         value: "bar",
-        icon: "bwi-exclamation-triangle",
+        icon: "bwi-warning",
         iconClass: "tw-text-danger",
       },
       {
@@ -113,7 +113,7 @@ export const MenuOpen: Story = {
       {
         label: "Bar",
         value: "bar",
-        icon: "bwi-exclamation-triangle",
+        icon: "bwi-warning",
         iconClass: "tw-text-danger",
       },
       {
@@ -155,7 +155,7 @@ export const FullWidth: Story = {
       {
         label: "Bar",
         value: "bar",
-        icon: "bwi-exclamation-triangle",
+        icon: "bwi-warning",
         iconClass: "tw-text-danger",
       },
       {
