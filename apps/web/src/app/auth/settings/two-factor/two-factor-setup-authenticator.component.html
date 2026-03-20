@@ -84,7 +84,14 @@
       </p>
       <bit-form-field *ngIf="!enabled" [disableMargin]="true">
         <bit-label>{{ "twoStepAuthenticatorEnterCodeV2" | i18n }}</bit-label>
-        <input bitInput type="text" formControlName="token" appInputVerbatim />
+        <input
+          bitInput
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          formControlName="token"
+          appInputVerbatim
+        />
       </bit-form-field>
     </ng-container>
     <ng-container bitDialogFooter>

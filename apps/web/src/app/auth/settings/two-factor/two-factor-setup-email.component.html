@@ -33,7 +33,14 @@
         </div>
         <bit-form-field>
           <bit-label>2. {{ "twoFactorEmailEnterCode" | i18n }}</bit-label>
-          <input bitInput type="text" formControlName="token" appInputVerbatim />
+          <input
+            bitInput
+            type="text"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            formControlName="token"
+            appInputVerbatim
+          />
         </bit-form-field>
       </ng-container>
     </ng-container>

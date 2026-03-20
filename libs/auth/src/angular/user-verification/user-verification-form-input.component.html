@@ -139,6 +139,9 @@
       <input
         bitInput
         type="text"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        autocomplete="one-time-code"
         id="verificationCode"
         name="verificationCode"
         [formControl]="secret"
