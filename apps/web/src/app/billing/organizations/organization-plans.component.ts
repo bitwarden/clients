@@ -182,22 +182,36 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     }
 
     const businessOwnedIsChecked = this.formValues().businessOwned;
+    const currentPlan = this.currentPlan();
 
     const result = this.passwordManagerPlans.filter((plan) => {
-      const currentPlan = this.currentPlan();
+      const isNotCustomPlan = plan.type !== PlanType.Custom;
+      const isBusinessCompatible = !businessOwnedIsChecked || plan.canBeUsedByBusiness;
+      const isPlanAllowed = plan.productTier !== ProductTierType.Free || this.showFree();
+      const isAnnualOrOtherEligibleCase =
+        plan.isAnnual ||
+        plan.productTier === ProductTierType.Free ||
+        plan.productTier === ProductTierType.TeamsStarter;
+      const isUpgradeFromCurrent =
+        !currentPlan || currentPlan.upgradeSortOrder < plan.upgradeSortOrder;
+      const isTeamsStarterAllowed =
+        !this.hasProvider() || plan.productTier !== ProductTierType.TeamsStarter;
+      const isCorrectFamilyPlanVariant =
+        plan.productTier !== ProductTierType.Families || plan.type === this._familyPlan;
+      const meetsProviderPlanRequirements =
+        (!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
+        (this.isProviderQualifiedFor2020Plan() &&
+          Allowed2020PlansForLegacyProviders.includes(plan.type));
+
       return (
-        plan.type !== PlanType.Custom &&
-        (!businessOwnedIsChecked || plan.canBeUsedByBusiness) &&
-        (this.showFree() || plan.productTier !== ProductTierType.Free) &&
-        (plan.isAnnual ||
-          plan.productTier === ProductTierType.Free ||
-          plan.productTier === ProductTierType.TeamsStarter) &&
-        (!currentPlan || currentPlan.upgradeSortOrder < plan.upgradeSortOrder) &&
-        (!this.hasProvider() || plan.productTier !== ProductTierType.TeamsStarter) &&
-        (plan.productTier !== ProductTierType.Families || plan.type === this._familyPlan) &&
-        ((!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
-          (this.isProviderQualifiedFor2020Plan() &&
-            Allowed2020PlansForLegacyProviders.includes(plan.type)))
+        isNotCustomPlan &&
+        isBusinessCompatible &&
+        isPlanAllowed &&
+        isAnnualOrOtherEligibleCase &&
+        isUpgradeFromCurrent &&
+        isTeamsStarterAllowed &&
+        isCorrectFamilyPlanVariant &&
+        meetsProviderPlanRequirements
       );
     });
 
@@ -209,14 +223,17 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   readonly selectablePlans = computed(() => {
     const selectedProductTierType = this.formValues().productTier;
     const result =
-      this.passwordManagerPlans?.filter(
-        (plan) =>
-          plan.productTier === selectedProductTierType &&
-          (plan.productTier !== ProductTierType.Families || plan.type === this._familyPlan) &&
-          ((!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
-            (this.isProviderQualifiedFor2020Plan() &&
-              Allowed2020PlansForLegacyProviders.includes(plan.type))),
-      ) || [];
+      this.passwordManagerPlans?.filter((plan) => {
+        const matchesSelectedTier = plan.productTier === selectedProductTierType;
+        const isCorrectFamilyPlan =
+          plan.productTier !== ProductTierType.Families || plan.type === this._familyPlan;
+        const meetsProviderPlanRequirements =
+          (!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
+          (this.isProviderQualifiedFor2020Plan() &&
+            Allowed2020PlansForLegacyProviders.includes(plan.type));
+
+        return matchesSelectedTier && isCorrectFamilyPlan && meetsProviderPlanRequirements;
+      }) || [];
 
     result.sort((planA, planB) => planA.displaySortOrder - planB.displaySortOrder);
     return result;
@@ -517,23 +534,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         this.singleOrgPolicyAppliesToActiveUser = policyAppliesToActiveUser;
       });
 
-    // Set initial values from inputs, allowing preSelectedProductTier to take precedence if higher
-    const initialPlan = this.initialPlan();
-    const initialProductTier = this.initialProductTier();
-    const preSelectedProductTier = this.preSelectedProductTier();
-    if (initialPlan !== PlanType.Free) {
-      this.formGroup.controls.plan.setValue(initialPlan);
-    }
-    if (initialProductTier !== ProductTierType.Free) {
-      this.formGroup.controls.productTier.setValue(initialProductTier);
-    }
-
-    if (
-      preSelectedProductTier != null &&
-      (this.formGroup.controls.productTier.value ?? 0) < preSelectedProductTier
-    ) {
-      this.formGroup.controls.productTier.setValue(preSelectedProductTier);
-    }
+    this.setInitialPlanSelection();
 
     if (!this.selfHosted) {
       this.changedProduct();
@@ -817,7 +818,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       if (this.createOrganization()) {
         const canUpgradeFromPremium = this.canUpgradeFromPremium();
         const account = await firstValueFrom(this.accountService.activeAccount$);
-        if (canUpgradeFromPremium) {
+        if (canUpgradeFromPremium && this.selectedPlan()?.type !== PlanType.Free) {
           orgId = await this.upgradeFromPremiumToOrganization(account!);
         } else {
           const encryptionData =
@@ -914,7 +915,10 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   private async refreshSalesTax(): Promise<void> {
-    if (this.billingFormGroup.controls.billingAddress.invalid) {
+    if (
+      this.billingFormGroup.controls.billingAddress.invalid ||
+      this.selectedPlan()?.type === PlanType.Free
+    ) {
       return;
     }
 
@@ -1266,6 +1270,34 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     if (providerDefaultPlan) {
       this.formGroup.controls.plan.setValue(providerDefaultPlan.type);
       this.formGroup.controls.productTier.setValue(providerDefaultPlan.productTier);
+    }
+  }
+
+  /**
+   * Sets the initial plan selection based on whether the user is upgrading from premium
+   * or using standard initialization logic.
+   */
+  private setInitialPlanSelection(): void {
+    // Set initial values from inputs, allowing preSelectedProductTier to take precedence
+    const initialPlan = this.initialPlan();
+    const initialProductTier = this.initialProductTier();
+    const preSelectedProductTier = this.preSelectedProductTier();
+
+    // Set plan
+    if (initialPlan !== PlanType.Free) {
+      this.formGroup.controls.plan.setValue(initialPlan);
+    }
+    // Set product tier
+    if (initialProductTier !== ProductTierType.Free) {
+      this.formGroup.controls.productTier.setValue(initialProductTier);
+    }
+
+    // Allow preSelectedProductTier to override if it's higher
+    if (
+      preSelectedProductTier != null &&
+      (this.formGroup.controls.productTier.value ?? 0) < preSelectedProductTier
+    ) {
+      this.formGroup.controls.productTier.setValue(preSelectedProductTier);
     }
   }
 
