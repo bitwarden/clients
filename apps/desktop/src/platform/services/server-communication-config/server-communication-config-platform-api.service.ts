@@ -37,12 +37,7 @@ export class ServerCommunicationConfigPlatformApiService implements ServerCommun
     timeoutId: NodeJS.Timeout;
   } | null = null;
 
-  // Listen for callback messages from app.component.ts
-  private callbackSubscription: Subscription | null = this.messageListener
-    .messages$(SSO_COOKIE_VENDOR_CALLBACK_COMMAND)
-    .subscribe((msg) => {
-      this.handleCallback(msg.urlString);
-    });
+  private callbackSubscription: Subscription | null = null;
 
   private static readonly TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
@@ -52,6 +47,15 @@ export class ServerCommunicationConfigPlatformApiService implements ServerCommun
     private logService: LogService,
     private dialogService: DialogService,
   ) {}
+
+  // Listen for callback messages from app.component.ts
+  init() {
+    this.callbackSubscription = this.messageListener
+      .messages$(SSO_COOKIE_VENDOR_CALLBACK_COMMAND)
+      .subscribe((msg) => {
+        this.handleCallback(msg.urlString);
+      });
+  }
 
   async acquireCookies(vaultUrl: string): Promise<AcquiredCookie[] | undefined> {
     if (this.pendingHostname !== null) {

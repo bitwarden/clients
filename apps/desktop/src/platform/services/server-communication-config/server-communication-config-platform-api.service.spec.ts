@@ -38,6 +38,7 @@ describe("ServerCommunicationConfigPlatformApiService", () => {
       logService,
       dialogService,
     );
+    service.init();
   });
 
   describe("acquireCookies", () => {
