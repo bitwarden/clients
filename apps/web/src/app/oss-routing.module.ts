@@ -753,6 +753,16 @@ const routes: Routes = [
             component: CredentialGeneratorComponent,
             data: { titleId: "generator" } satisfies RouteDataProperties,
           },
+          {
+            path: "agent-access-test",
+            loadComponent: () =>
+              import("./tools/agent-access-test/agent-access-test.component").then(
+                (mod) => mod.AgentAccessTestComponent,
+              ),
+            data: {
+              titleId: "Agent Access Test",
+            } satisfies RouteDataProperties,
+          },
         ],
       },
       {

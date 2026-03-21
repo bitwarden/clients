@@ -23,7 +23,12 @@ export interface AuditLogEntry {
   connectionId: string;
   connectionName: string;
   timestamp: number;
-  action: "credential_approved" | "credential_denied" | "connected" | "disconnected";
+  action:
+    | "credential_approved"
+    | "credential_denied"
+    | "credential_auto_approved"
+    | "connected"
+    | "disconnected";
   domain?: string;
   fields?: string[];
 }
@@ -32,6 +37,48 @@ export interface AuditLogEntry {
 export function parseIdentityFingerprint(raw: string): string {
   const match = raw.match(/IdentityFingerprint\(([0-9a-f]+)\)/);
   return match ? match[1] : raw;
+}
+
+/** Build a cache key for auto-approval lookup: identity + query uniquely identify a request source. */
+export function buildApprovalCacheKey(identityHex: string, query: any): string {
+  return `${identityHex}:${JSON.stringify(query)}`;
+}
+
+/** Extract a human-readable domain string from a credential query object. */
+export function extractDomainFromQuery(
+  query: { domain: string } | { id: string } | { search: string },
+): string {
+  if ("domain" in query) {
+    return query.domain;
+  }
+  if ("search" in query) {
+    return query.search;
+  }
+  return query.id;
+}
+
+/** Filter a credential to only include the specified fields (username, password, totp). */
+export function filterCredentialByFields(
+  credential: CredentialLookupResult,
+  fields: Set<string>,
+): CredentialLookupResult {
+  return {
+    credentialId: credential.credentialId,
+    username: fields.has("username") ? credential.username : undefined,
+    password: fields.has("password") ? credential.password : undefined,
+    totp: fields.has("totp") ? credential.totp : undefined,
+    uri: credential.uri,
+    domain: credential.domain,
+  };
+}
+
+/** Parameters for recording an auto-approval in the background cache. */
+export interface AutoApproveParams {
+  identityHex: string;
+  query: any;
+  cipherId: string;
+  fields: string[];
+  durationMinutes: number;
 }
 
 export interface CredentialRequestData {

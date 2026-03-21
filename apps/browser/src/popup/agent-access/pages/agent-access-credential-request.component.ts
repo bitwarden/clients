@@ -189,6 +189,29 @@ import { AgentAccessService } from "../agent-access.service";
             <p class="tw-text-muted tw-text-xs tw-mb-0">
               Your <strong>{{ fieldSummary() }}</strong> will be shared with this connection.
             </p>
+
+            <!-- Auto-approve option -->
+            <label class="tw-flex tw-items-center tw-gap-2 tw-cursor-pointer tw-mb-0">
+              <input
+                type="checkbox"
+                [checked]="autoApproveEnabled()"
+                (change)="autoApproveEnabled.set(!autoApproveEnabled())"
+              />
+              <span class="tw-text-muted tw-text-xs">Auto-approve matching requests for</span>
+              <select
+                class="tw-text-xs tw-border tw-border-solid tw-border-secondary-500 tw-rounded tw-px-1.5 tw-py-0.5 tw-bg-background tw-text-main focus:tw-outline-none focus:tw-ring focus:tw-ring-primary-600"
+                [value]="autoApproveMinutes()"
+                (change)="autoApproveMinutes.set(+$any($event.target).value)"
+                [disabled]="!autoApproveEnabled()"
+              >
+                <option value="1">1 min</option>
+                <option value="5">5 min</option>
+                <option value="10">10 min</option>
+                <option value="15">15 min</option>
+                <option value="30">30 min</option>
+                <option value="60">60 min</option>
+              </select>
+            </label>
           }
 
           <div class="tw-flex tw-gap-2">
@@ -229,8 +252,15 @@ import { AgentAccessService } from "../agent-access.service";
 export class AgentAccessCredentialRequestComponent implements OnInit {
   readonly request = input.required<CredentialRequestData | null>();
 
-  readonly approved = output<{ cipherId: string; fields: Set<string> }>();
+  readonly approved = output<{
+    cipherId: string;
+    fields: Set<string>;
+    autoApprove?: { durationMinutes: number };
+  }>();
   readonly denied = output<void>();
+
+  protected readonly autoApproveEnabled = signal(false);
+  protected readonly autoApproveMinutes = signal(10);
 
   protected readonly expandedMatch = signal<CredentialMatch | null>(null);
   protected readonly selectedFields = signal<Set<string>>(new Set(["username", "password"]));
@@ -320,7 +350,13 @@ export class AgentAccessCredentialRequestComponent implements OnInit {
   onApprove(): void {
     const match = this.expandedMatch();
     if (match && this.selectedFields().size > 0) {
-      this.approved.emit({ cipherId: match.cipherId, fields: new Set(this.selectedFields()) });
+      this.approved.emit({
+        cipherId: match.cipherId,
+        fields: new Set(this.selectedFields()),
+        autoApprove: this.autoApproveEnabled()
+          ? { durationMinutes: this.autoApproveMinutes() }
+          : undefined,
+      });
     }
   }
 

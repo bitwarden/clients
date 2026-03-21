@@ -19,12 +19,13 @@ import type { UserClientEvent } from "@bitwarden/sdk-internal";
 import {
   type AuditLogEntry,
   type CredentialRequestData,
+  extractDomainFromQuery,
+  filterCredentialByFields,
   parseIdentityFingerprint,
 } from "../../agent-access/agent-access.types";
 import { type SessionRecord } from "../../agent-access/session-repository";
 import { PopupHeaderComponent } from "../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../platform/popup/layout/popup-page.component";
-
 
 import { AgentAccessService } from "./agent-access.service";
 import { AgentAccessAuditLogComponent } from "./pages/agent-access-audit-log.component";
@@ -299,7 +300,11 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
 
   // --- Credential request actions ---
 
-  async onCredentialApproved(selection: { cipherId: string; fields: Set<string> }): Promise<void> {
+  async onCredentialApproved(selection: {
+    cipherId: string;
+    fields: Set<string>;
+    autoApprove?: { durationMinutes: number };
+  }): Promise<void> {
     const request = this.currentRequest();
     if (!request) {
       return;
@@ -307,23 +312,30 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
 
     const credential = await this.service.getCredentialById(selection.cipherId);
     const filtered = credential
+      ? filterCredentialByFields(credential, selection.fields)
+      : undefined;
+
+    const autoApprove = selection.autoApprove
       ? {
-          credentialId: credential.credentialId,
-          username: selection.fields.has("username") ? credential.username : undefined,
-          password: selection.fields.has("password") ? credential.password : undefined,
-          totp: selection.fields.has("totp") ? credential.totp : undefined,
-          uri: credential.uri,
-          domain: credential.domain,
+          identityHex: parseIdentityFingerprint(request.identity),
+          query: request.query,
+          cipherId: selection.cipherId,
+          fields: Array.from(selection.fields),
+          durationMinutes: selection.autoApprove.durationMinutes,
         }
       : undefined;
-    await this.service.respondToCredential(request.requestId, true, filtered);
+
+    await this.service.respondToCredential(request.requestId, true, filtered, autoApprove);
 
     this.clearPendingRequest(request.identity);
 
+    const autoMsg = selection.autoApprove
+      ? ` (auto-approving for ${selection.autoApprove.durationMinutes}m)`
+      : "";
     this.toastService.showToast({
       variant: "success",
       title: null,
-      message: `Credentials sent for ${request.domain}`,
+      message: `Credentials sent for ${request.domain}${autoMsg}`,
     });
     this.goHome();
   }
@@ -510,6 +522,16 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
         void this.handleCredentialRequest(event);
         break;
 
+      case "credential_auto_approved": {
+        const autoEvent = event as any;
+        this.toastService.showToast({
+          variant: "info",
+          title: null,
+          message: `Auto-approved credential for ${autoEvent.domain}`,
+        });
+        break;
+      }
+
       case "client_disconnected":
         if (this.view() === AgentAccessView.Pairing) {
           this.view.set(AgentAccessView.Disconnected);
@@ -563,12 +585,7 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
     event: Extract<UserClientEvent, { type: "credential_request" }>,
   ): Promise<void> {
     await this.handlePendingRequest({
-      domain:
-        "domain" in event.query
-          ? event.query.domain
-          : "search" in event.query
-            ? event.query.search
-            : event.query.id,
+      domain: extractDomainFromQuery(event.query),
       requestId: event.request_id,
       identity: (event as any).identity as string,
       query: event.query,

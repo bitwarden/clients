@@ -14,6 +14,7 @@ import {
 import {
   AUDIT_LOG_KEY,
   type AuditLogEntry,
+  type AutoApproveParams,
   type CredentialLookupResult,
   type CredentialMatch,
   LISTENING_ENABLED_KEY,
@@ -121,11 +122,13 @@ export class AgentAccessService implements OnDestroy {
     requestId: string,
     approved: boolean,
     credential?: CredentialLookupResult,
+    autoApprove?: AutoApproveParams,
   ): Promise<void> {
     await this.sendCommand("respondToCredential", {
       sdkRequestId: requestId,
       approved,
       credential,
+      autoApprove,
     });
   }
 

@@ -23,8 +23,12 @@ import {
   AUDIT_LOG_KEY,
   AUDIT_LOG_MAX_ENTRIES,
   type AuditLogEntry,
+  type AutoApproveParams,
   type CredentialLookupResult,
   LISTENING_ENABLED_KEY,
+  buildApprovalCacheKey,
+  extractDomainFromQuery,
+  filterCredentialByFields,
   parseIdentityFingerprint,
 } from "../../agent-access/agent-access.types";
 import { BrowserProxyClient } from "../../agent-access/proxy-client";
@@ -33,6 +37,54 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 
 /** Default proxy URL — should eventually come from environment config */
 const DEFAULT_PROXY_URL = "wss://rat1.lesspassword.dev";
+
+interface ApprovalCacheEntry {
+  approvedAt: number;
+  durationMs: number;
+  cipherId: string;
+  fields: Set<string>;
+}
+
+class ApprovalCache {
+  private entries = new Map<string, ApprovalCacheEntry>();
+
+  isApproved(identityHex: string, query: any): ApprovalCacheEntry | null {
+    const key = buildApprovalCacheKey(identityHex, query);
+    const entry = this.entries.get(key);
+    if (!entry) {
+      return null;
+    }
+    if (Date.now() - entry.approvedAt > entry.durationMs) {
+      this.entries.delete(key);
+      return null;
+    }
+    return entry;
+  }
+
+  approve(
+    identityHex: string,
+    query: any,
+    cipherId: string,
+    fields: Set<string>,
+    durationMinutes: number,
+  ): void {
+    const key = buildApprovalCacheKey(identityHex, query);
+    this.entries.set(key, {
+      approvedAt: Date.now(),
+      durationMs: durationMinutes * 60_000,
+      cipherId,
+      fields,
+    });
+  }
+
+  remove(identityHex: string, query: any): void {
+    this.entries.delete(buildApprovalCacheKey(identityHex, query));
+  }
+
+  clear(): void {
+    this.entries.clear();
+  }
+}
 
 /**
  * Background listener that owns the WASM UserClient, WebSocket proxy connection,
@@ -47,6 +99,8 @@ export class AgentAccessListener {
   private identityCose: Uint8Array | null = null;
   private sessionRepository: ChromeSessionRepository | null = null;
   private identityService: AgentAccessIdentity;
+
+  private approvalCache = new ApprovalCache();
 
   /** Pending credential requests keyed by SDK request_id, for badge count + popup query. */
   private pendingRequests = new Map<
@@ -131,6 +185,7 @@ export class AgentAccessListener {
             params["sdkRequestId"],
             params["approved"],
             params["credential"],
+            params["autoApprove"],
           );
           break;
         case "lookupCredentials":
@@ -222,14 +277,19 @@ export class AgentAccessListener {
     this.client.set_audit_callback(this.createAuditCallback());
 
     const eventCallback = (event: UserClientEvent) => {
-      this.messageSender.send(AGENT_ACCESS_EVENT, { event });
-
-      // Track pending credential requests and update badge
+      // Check auto-approval cache before forwarding credential requests to popup
       if (event.type === "credential_request") {
         const reqEvent = event as any;
         const query = reqEvent.query;
-        const domain =
-          "domain" in query ? query.domain : "search" in query ? query.search : query.id;
+        const identityHex = parseIdentityFingerprint(reqEvent.identity ?? "");
+        const cached = this.approvalCache.isApproved(identityHex, query);
+        if (cached) {
+          void this.handleAutoApproval(reqEvent.request_id, identityHex, query, cached);
+          return;
+        }
+
+        // Not cached — forward to popup and track as pending
+        const domain = extractDomainFromQuery(query);
         this.pendingRequests.set(reqEvent.request_id, {
           domain,
           identity: reqEvent.identity ?? "",
@@ -238,6 +298,8 @@ export class AgentAccessListener {
         });
         void this.updateBadge();
       }
+
+      this.messageSender.send(AGENT_ACCESS_EVENT, { event });
     };
 
     await this.client.connect(this.proxyClient, eventCallback);
@@ -288,6 +350,7 @@ export class AgentAccessListener {
     requestId: string,
     approved: boolean,
     credential?: CredentialLookupResult,
+    autoApprove?: AutoApproveParams,
   ): Promise<void> {
     if (!this.client) {
       return;
@@ -299,6 +362,16 @@ export class AgentAccessListener {
       credential: approved ? credential : undefined,
       credential_id: approved ? credential?.credentialId : undefined,
     });
+
+    if (approved && autoApprove) {
+      this.approvalCache.approve(
+        autoApprove.identityHex,
+        autoApprove.query,
+        autoApprove.cipherId,
+        new Set(autoApprove.fields),
+        autoApprove.durationMinutes,
+      );
+    }
 
     this.pendingRequests.delete(requestId);
     void this.updateBadge();
@@ -376,6 +449,45 @@ export class AgentAccessListener {
     }
   }
 
+  private async handleAutoApproval(
+    requestId: string,
+    identityHex: string,
+    query: any,
+    cached: ApprovalCacheEntry,
+  ): Promise<void> {
+    try {
+      const credential = await this.getCredentialById(cached.cipherId);
+      if (!credential) {
+        this.logService.warning(
+          "[AgentAccess] Auto-approval: credential no longer exists, denying",
+        );
+        this.approvalCache.remove(identityHex, query);
+        void this.respondToCredential(requestId, false);
+        return;
+      }
+
+      const filtered = filterCredentialByFields(credential, cached.fields);
+      await this.respondToCredential(requestId, true, filtered);
+
+      const domain = extractDomainFromQuery(query);
+      await this.enrichAndAppendAuditEntry({
+        connectionId: identityHex,
+        connectionName: "",
+        timestamp: Date.now(),
+        action: "credential_auto_approved",
+        domain,
+        fields: Array.from(cached.fields),
+      });
+
+      this.messageSender.send(AGENT_ACCESS_EVENT, {
+        event: { type: "credential_auto_approved", domain, identity: identityHex },
+      });
+    } catch (err) {
+      this.logService.warning("[AgentAccess] Auto-approval failed", err);
+      await this.respondToCredential(requestId, false);
+    }
+  }
+
   private async disconnect(): Promise<void> {
     if (this.proxyClient) {
       try {
@@ -387,6 +499,7 @@ export class AgentAccessListener {
     }
     this.client = null;
     this.pendingRequests.clear();
+    this.approvalCache.clear();
     void this.updateBadge();
   }
 
