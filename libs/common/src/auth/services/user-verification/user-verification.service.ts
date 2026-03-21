@@ -191,6 +191,15 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       throw new Error("KDF config is required. Cannot verify user by master password.");
     }
 
+    let masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
+    if (!masterKey) {
+      masterKey = await this.keyService.makeMasterKey(verification.secret, email, kdfConfig);
+    }
+
+    if (!masterKey) {
+      throw new Error("Master key could not be created to verify the master password.");
+    }
+
     let policyOptions: MasterPasswordPolicyResponse | null;
     // Client-side verification
     if (await this.hasMasterPassword(userId)) {
@@ -221,7 +230,8 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       }
     }
 
-    return { policyOptions, email };
+    await this.masterPasswordService.setMasterKey(masterKey, userId);
+    return { policyOptions, masterKey, email };
   }
 
   private async verifyUserByPIN(verification: PinVerification, userId: UserId): Promise<boolean> {

@@ -1,3 +1,4 @@
+import { MasterKey } from "../../types/key";
 import { VerificationType } from "../enums/verification-type";
 import { MasterPasswordPolicyResponse } from "../models/response/master-password-policy.response";
 
@@ -24,6 +25,8 @@ export function verificationHasSecret(
 export type ServerSideVerification = OtpVerification | MasterPasswordVerification;
 
 export type MasterPasswordVerificationResponse = {
+  /** @deprecated */
+  masterKey: MasterKey;
   email: string;
   policyOptions: MasterPasswordPolicyResponse | null;
 };
