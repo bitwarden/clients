@@ -309,7 +309,7 @@ class MockSettingsPageComponent {}
         <button
           slot="end"
           type="button"
-          buttonType="danger"
+          buttonType="dangerGhost"
           bitIconButton="bwi-trash"
           label="Delete"
         ></button>

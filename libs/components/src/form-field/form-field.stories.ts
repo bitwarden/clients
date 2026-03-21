@@ -325,7 +325,7 @@ export const DangerButtonInputGroup: Story = {
       <bit-form-field>
         <bit-label>Label</bit-label>
         <input bitInput placeholder="Placeholder" />
-        <button type="button" bitSuffix bitIconButton="bwi-minus-circle" buttonType="danger" label="Remove"></button>
+        <button type="button" bitSuffix bitIconButton="bwi-minus-circle" buttonType="dangerGhost" label="Remove"></button>
       </bit-form-field>
     `,
   }),
