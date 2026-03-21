@@ -56,7 +56,7 @@
 
         @if (open) {
           <div
-            class="tw-flex tw-items-center tw-gap-1 tw-pe-3 [&:has(button[biticonbutton])]:tw-pe-2 empty:tw-hidden"
+            class="tw-flex tw-items-center tw-gap-1 tw-pe-3 [&:has(button)]:tw-pe-2 empty:tw-hidden"
             (click)="$event.stopPropagation()"
           >
             <ng-content select="[slot=end]"></ng-content>
