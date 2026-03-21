@@ -1280,6 +1280,9 @@
   "changeMasterPass": {
     "message": "Cambiar contraseña maestra"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "continueToWebApp": {
     "message": "¿Continuar a la aplicación web?"
   },
@@ -1358,17 +1361,11 @@
   "twoStepLogin": {
     "message": "Autenticación en dos pasos"
   },
-  "vaultTimeoutHeader": {
-    "message": "Tiempo de espera de la caja fuerte"
-  },
   "vaultTimeout": {
     "message": "Tiempo de espera de la caja fuerte excedido"
   },
   "vaultTimeout1": {
     "message": "Tiempo de espera"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Acción de tiempo de espera"
   },
   "vaultTimeoutDesc": {
     "message": "Elige cuando se agotará el tiempo de espera de tu caja fuerte y se ejecutará la acción seleccionada."
@@ -1658,6 +1655,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "mes"
+  },
+  "monthly": {
+    "message": "Mensual"
+  },
+  "year": {
+    "message": "año"
+  },
+  "annually": {
+    "message": "Anualmente"
+  },
+  "annual": {
+    "message": "Anual"
   },
   "refreshComplete": {
     "message": "Actualización completada"
@@ -2088,9 +2100,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "Cerrar sesión en la caja fuerte requiere que vuelvas a autenticarte para acceder nuevamente a ella."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configura un método de desbloqueo para cambiar el tiempo de espera de tu caja fuerte."
   },
   "lock": {
     "message": "Bloquear",
@@ -2709,9 +2718,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "El tiempo de espera de tu caja fuerte excede las restricciones establecidas por tu organización."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Se han aplicado los requisitos de la política de empresa a sus opciones de tiempo de espera"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Las políticas de su organización han establecido el tiempo de espera máximo permitido para la caja fuerte en $HOURS$ hora(s) y $MINUTES$ minuto(s).",
@@ -4617,8 +4623,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ exige que todos los elementos sean propiedad de la organización por motivos de seguridad y cumplimiento normativo. Haga clic en Aceptar para transferir la propiedad de sus elementos.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ exige que todos los elementos sean propiedad de la organización por motivos de seguridad y cumplimiento normativo.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4632,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Haz clic en Aceptar para transferir la propiedad de tus elementos."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Abrir el artículo de ayuda sobre cómo transferir elementos"
+  },
   "acceptTransfer": {
     "message": "Aceptar transferencia"
   },
   "declineAndLeave": {
     "message": "Rechazar y salir"
-  },
-  "whyAmISeeingThis": {
-    "message": "¿Por qué estoy viendo esto?"
   },
   "organizationIsSuspended": {
     "message": "La organización está suspendida"
@@ -4692,9 +4701,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Introduce varios correos electrónicos separándolos con una coma."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "La verificación del correo electrónico requiere al menos una dirección de correo electrónico. Para eliminar todos los correos electrónicos, cambia el tipo de acceso arriba."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"

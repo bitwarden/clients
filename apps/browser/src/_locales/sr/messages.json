@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Опције деблокирања"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Подесите метод откључавања да бисте променили радњу временског ограничења сефа."
-  },
   "unlockMethodNeeded": {
     "message": "Подесите метод откључавања у подешавањима"
   },
   "sessionTimeoutHeader": {
     "message": "Истек сесије"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Тајмаут сефа"
   },
   "otherOptions": {
     "message": "Остале опције"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Акција на тајмаут сефа"
   },
-  "vaultTimeoutAction1": {
-    "message": "Акција тајмаута"
-  },
   "lock": {
     "message": "Закључај",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Минута"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Захтеви политике предузећа су примењени на опције тајмаута"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Полиса ваше организације утиче на време истека сефа. Максимално дозвољено време истека је $HOURS$ сат(и) и $MINUTES$ minut(а)",
@@ -6130,8 +6118,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ захтева да све ставке буду у власништву организације ради безбедности и усклађености. Кликните на прихвати да бисте пренели власништво над својим ставкама.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6127,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Прихвати трансфер"
   },
   "declineAndLeave": {
     "message": "Одбиј и напусти"
-  },
-  "whyAmISeeingThis": {
-    "message": "Зашто видите ово?"
   },
   "items": {
     "message": "Items"
@@ -6178,9 +6169,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6184,8 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }

@@ -1280,6 +1280,9 @@
   "changeMasterPass": {
     "message": "Промени главну лозинку"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "continueToWebApp": {
     "message": "Ићи на веб апликацију?"
   },
@@ -1358,17 +1361,11 @@
   "twoStepLogin": {
     "message": "Дво-коракна лозинка"
   },
-  "vaultTimeoutHeader": {
-    "message": "Тајмаут сефа"
-  },
   "vaultTimeout": {
     "message": "Тајмаут сефа"
   },
   "vaultTimeout1": {
     "message": "Време трајања"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Акција тајмаута"
   },
   "vaultTimeoutDesc": {
     "message": "Изаберите када ће сеф истећи и извршити одабрану радњу."
@@ -1658,6 +1655,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "month"
+  },
+  "monthly": {
+    "message": "Monthly"
+  },
+  "year": {
+    "message": "year"
+  },
+  "annually": {
+    "message": "Annually"
+  },
+  "annual": {
+    "message": "Annual"
   },
   "refreshComplete": {
     "message": "Освежавање је завршено"
@@ -2088,9 +2100,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "Одјављени сеф захтева да поново потврдите идентитет да бисте му поново приступили."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Подесите метод откључавања да бисте променили радњу временског ограничења сефа."
   },
   "lock": {
     "message": "Закључај",
@@ -2709,9 +2718,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Време истека вашег сефа је премашило дозвољена ограничења од стране ваше организације."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Захтеви политике предузећа су примењени на опције тајмаута"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Ваше организационе политике су поставиле максимално дозвољено време трајања сефа на $HOURS$ сат(и) и $MINUTES$ минут(а).",
@@ -4617,8 +4623,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ захтева да све ставке буду у власништву организације ради безбедности и усклађености. Кликните на прихвати да бисте пренели власништво над својим ставкама.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4632,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Прихвати трансфер"
   },
   "declineAndLeave": {
     "message": "Одбиј и напусти"
-  },
-  "whyAmISeeingThis": {
-    "message": "Зашто видите ово?"
   },
   "organizationIsSuspended": {
     "message": "Organization is suspended"
@@ -4692,9 +4701,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
