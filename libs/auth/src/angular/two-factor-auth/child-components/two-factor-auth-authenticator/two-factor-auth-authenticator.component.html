@@ -5,6 +5,9 @@
       bitInput
       type="text"
       appAutofocus
+      autocomplete="one-time-code"
+      inputmode="numeric"
+      pattern="[0-9]*"
       appInputVerbatim
       [formControl]="tokenFormControl"
       (keyup)="onTokenChange($event)"

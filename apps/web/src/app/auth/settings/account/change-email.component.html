@@ -34,7 +34,14 @@
     <div class="tw-w-1/2 tw-pr-2">
       <bit-form-field>
         <bit-label>{{ "code" | i18n }}</bit-label>
-        <input id="change-email_input_token" bitInput type="text" formControlName="token" />
+        <input
+          id="change-email_input_token"
+          bitInput
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          formControlName="token"
+        />
       </bit-form-field>
     </div>
   </ng-container>
