@@ -79,6 +79,7 @@ import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwar
 import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
+import { SSO_COOKIE_VENDOR_CALLBACK_COMMAND } from "../platform/services/server-communication-config/server-communication-config-platform-api.service";
 
 import { SettingsComponent } from "./accounts/settings.component";
 import { ExportDesktopComponent } from "./tools/export/export-desktop.component";
@@ -839,6 +840,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Process the sso callback links
   private processDeepLink(urlString: string) {
+    // Handle SSO cookie vendor callback
+    if (urlString.indexOf("bitwarden://sso-cookie-vendor") === 0) {
+      this.messagingService.send(SSO_COOKIE_VENDOR_CALLBACK_COMMAND, { urlString });
+      return;
+    }
+
     const url = new URL(urlString);
     const code = url.searchParams.get("code");
     const receivedState = url.searchParams.get("state");

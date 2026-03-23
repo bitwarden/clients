@@ -69,7 +69,11 @@ import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-managemen
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
+import {
+  InternalMasterPasswordServiceAbstraction,
+  MasterPasswordServiceAbstraction,
+} from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   VaultTimeout,
@@ -286,6 +290,8 @@ const safeProviders: SafeProvider[] = [
     deps: [
       KeyServiceAbstraction,
       AccountApiServiceAbstraction,
+      MasterPasswordServiceAbstraction,
+      ConfigService,
       OrganizationInviteService,
       PolicyApiServiceAbstraction,
       LogService,
@@ -433,6 +439,8 @@ const safeProviders: SafeProvider[] = [
       KeyServiceAbstraction,
       MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
+      MasterPasswordUnlockService,
+      SyncService,
       UserKeyRotationService,
       RouterService,
     ],

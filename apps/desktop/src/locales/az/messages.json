@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Bu özəlliyi istifadə etmək üçün premium üzvlük lazımdır."
   },
+  "syncWithBrowser": {
+    "message": "Sync with browser"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Launch browser"
+  },
   "errorOccurred": {
     "message": "Bir xəta baş verdi."
   },
@@ -1033,7 +1049,7 @@
     "message": "Yararsız doğrulama kodu"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "Yararsız e-poçt və ya doğrulama kodu"
   },
   "continue": {
     "message": "Davam"
@@ -1280,6 +1296,9 @@
   "changeMasterPass": {
     "message": "Ana parolu dəyişdir"
   },
+  "masterPasswordChanged": {
+    "message": "Ana parol saxlanıldı"
+  },
   "continueToWebApp": {
     "message": "Veb tətbiqlə davam edilsin?"
   },
@@ -1358,17 +1377,11 @@
   "twoStepLogin": {
     "message": "İki mərhələli giriş"
   },
-  "vaultTimeoutHeader": {
-    "message": "Seyf vaxtının bitməsi"
-  },
   "vaultTimeout": {
     "message": "Seyf vaxtının bitməsi"
   },
   "vaultTimeout1": {
     "message": "Vaxt bitmə"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Vaxt bitmə əməliyyatı"
   },
   "vaultTimeoutDesc": {
     "message": "Seyfinizin vaxt bitmə əməliyyatını nə vaxt icra edəcəyini seçin."
@@ -1658,6 +1671,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "ay"
+  },
+  "monthly": {
+    "message": "Aylıq"
+  },
+  "year": {
+    "message": "il"
+  },
+  "annually": {
+    "message": "İllik"
+  },
+  "annual": {
+    "message": "İllik"
   },
   "refreshComplete": {
     "message": "Təzələmə tamamlandı"
@@ -2088,9 +2116,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "Seyfinizə təkrar erişmək üçün təkrar kimlik doğrulama tələb olunur."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Seyf vaxt bitmə əməliyyatınızı dəyişdirmək üçün bir kilid açma üsulu qurun."
   },
   "lock": {
     "message": "Kilidlə",
@@ -2709,9 +2734,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Seyfin bitmə vaxtı, təşkilatınız tərəfindən ayarlanan məhdudiyyətləri aşır."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Müəssisə siyasət tələbləri, vaxt bitmə seçimlərinizə tətbiq edildi"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Təşkilatınızın siyasətləri, icazə verilən maksimum seyf bitmə vaxtını $HOURS$ saat $MINUTES$ dəqiqə olaraq ayarladı.",
@@ -3745,6 +3767,9 @@
   "exportSuccess": {
     "message": "Seyf veriləri xaricə köçürüldü"
   },
+  "exportError": {
+    "message": "Seyf verilərinizi xaricə köçürərkən bir xəta baş verdi"
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Çox faktorlu kimlik doğrulama ləğv edildi"
   },
@@ -4617,8 +4642,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$, təhlükəsizlik və riayətlilik üçün bütün elementlərin təşkilata aid olmasını tələb edir. Elementlərinizin sahibliyini transfer etmək üçün qəbul edin.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$, təhlükəsizlik və riayətlilik üçün bütün elementlərin təşkilata məxsus olmasını tələb edir.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4651,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Elementlərinizin sahibliyini transfer etmək üçün \"Qəbul et\"ə klikləyin."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Elementlərin köçürülməsi üzrə kömək məqaləsini aç"
+  },
   "acceptTransfer": {
     "message": "Transferi qəbul et"
   },
   "declineAndLeave": {
     "message": "Rədd et və tərk et"
-  },
-  "whyAmISeeingThis": {
-    "message": "Bunu niyə görürəm?"
   },
   "organizationIsSuspended": {
     "message": "Təşkilatın fəaliyyəti dayandırılıb"
@@ -4693,13 +4721,10 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Birdən çox e-poçtu daxil edərkən vergül istifadə edin."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "İstifadəçi doğrulaması uğursuz oldu."
   }
 }

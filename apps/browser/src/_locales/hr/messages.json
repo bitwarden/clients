@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Mogućnosti otključavanja"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Za promjenu vremena isteka trezora, odredi način otključavanja."
-  },
   "unlockMethodNeeded": {
     "message": "Postavi način otključavanja u Postavkama"
   },
   "sessionTimeoutHeader": {
     "message": "Istek sesije"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Istek trezora"
   },
   "otherOptions": {
     "message": "Ostale postavke"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Nakon isteka trezora"
   },
-  "vaultTimeoutAction1": {
-    "message": "Radnja nakon isteka "
-  },
   "lock": {
     "message": "Zaključaj",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "minuta"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Pravila tvrtke primijenjena su na vrijeme isteka"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Pravilo tvoje organizacije podesilo je najveće dozvoljeno vrijeme isteka trezora na $HOURS$:$MINUTES$ h.",
@@ -4435,6 +4423,9 @@
   },
   "exportSuccess": {
     "message": "Podaci iz trezora su izvezeni"
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
   },
   "typePasskey": {
     "message": "Pristupni ključ"
@@ -6130,8 +6121,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6130,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Prihvati prijenos"
   },
   "declineAndLeave": {
     "message": "Odbij i napusti"
-  },
-  "whyAmISeeingThis": {
-    "message": "Zašto ovo vidim?"
   },
   "items": {
     "message": "Items"
@@ -6178,9 +6172,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6187,8 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }
