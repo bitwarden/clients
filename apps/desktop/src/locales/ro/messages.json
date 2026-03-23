@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Pentru a utiliza această funcție este necesar un abonament Premium."
   },
+  "syncWithBrowser": {
+    "message": "Sync with browser"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Launch browser"
+  },
   "errorOccurred": {
     "message": "S-a produs o eroare."
   },
@@ -3750,6 +3766,9 @@
   },
   "exportSuccess": {
     "message": "Vault data exported"
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Multifactor authentication cancelled"

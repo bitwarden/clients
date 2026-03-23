@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "இந்த அம்சத்தைப் பயன்படுத்த பிரீமியம் உறுப்பினர் தேவை."
   },
+  "syncWithBrowser": {
+    "message": "Sync with browser"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Launch browser"
+  },
   "errorOccurred": {
     "message": "ஒரு பிழை ஏற்பட்டது."
   },
@@ -3750,6 +3766,9 @@
   },
   "exportSuccess": {
     "message": "சேமிப்பகத் தரவு ஏற்றுமதி செய்யப்பட்டது"
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
   },
   "multifactorAuthenticationCancelled": {
     "message": "பன்-காரணி அங்கீகாரம் ரத்துசெய்யப்பட்டது"

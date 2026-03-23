@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "За да се възползвате от тази възможност, трябва да ползвате платен абонамент."
   },
+  "syncWithBrowser": {
+    "message": "Синхронизиране с браузъра"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "За да се свържете с $VAULTURL$, трябва да синхронизирате браузъра си по подразбиране с приложението на Битуорден. След като синхронизацията приключи, ще бъдете прехвърлени обратно в това приложение.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Стартиране на браузъра"
+  },
   "errorOccurred": {
     "message": "Възникна грешка."
   },
@@ -3750,6 +3766,9 @@
   },
   "exportSuccess": {
     "message": "Данните от трезора са изнесени"
+  },
+  "exportError": {
+    "message": "Възникна грешка при изнасянето на данните от трезора"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Многостъпковото удостоверяване е отменено"

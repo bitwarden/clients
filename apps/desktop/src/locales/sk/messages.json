@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Na použitie tejto funkcie je potrebné prémiové členstvo."
   },
+  "syncWithBrowser": {
+    "message": "Synchronizácia s prehliadačom"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "Ak sa chcete pripojiť na $VAULTURL$, musíte synchronizovať predvolený prehliadač s aplikáciou Bitwarden. Po synchronizácii prehliadača budete presmerovaní späť do tejto aplikácie.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Spustiť prehliadač"
+  },
   "errorOccurred": {
     "message": "Vyskytla sa chyba."
   },
@@ -3750,6 +3766,9 @@
   },
   "exportSuccess": {
     "message": "Údaje z trezora boli exportované"
+  },
+  "exportError": {
+    "message": "Pri exportovaní údajov trezora sa vyskytla chyba"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Viacfaktorové overenie zrušené"

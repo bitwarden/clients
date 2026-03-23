@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Um plano Premium é necessário para usar esse recurso."
   },
+  "syncWithBrowser": {
+    "message": "Sincronizar com o navegador"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "Para se conectar a $VAULTURL$, você precisa sincronizar o seu navegador padrão com o aplicativo do Bitwarden. Você será redirecionado ao aplicativo assim que o seu navegador for sincronizado.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Abrir navegador"
+  },
   "errorOccurred": {
     "message": "Ocorreu um erro."
   },
@@ -1281,7 +1297,7 @@
     "message": "Alterar senha principal"
   },
   "masterPasswordChanged": {
-    "message": "Master password saved"
+    "message": "Senha principal salva"
   },
   "continueToWebApp": {
     "message": "Continuar no aplicativo web?"
@@ -3750,6 +3766,9 @@
   },
   "exportSuccess": {
     "message": "Dados do cofre exportados"
+  },
+  "exportError": {
+    "message": "Ocorreu um erro ao exportar os dados do seu cofre"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Autenticação de múltiplos fatores cancelada"

@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Voor deze functionaliteit heb je een Premium-abonnement nodig."
   },
+  "syncWithBrowser": {
+    "message": "Synchroniseren met browser"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "Om verbinding te maken met $VAULTURL$ moet je je standaardbrowser synchroniseren met de Bitwarden-app. Je wordt teruggestuurd naar deze app zodra je browser is gesynchroniseerd.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Browser starten"
+  },
   "errorOccurred": {
     "message": "Er is een fout opgetreden."
   },
@@ -3750,6 +3766,9 @@
   },
   "exportSuccess": {
     "message": "Kluisgegevens geëxporteerd"
+  },
+  "exportError": {
+    "message": "Er is een fout opgetreden tijdens het exporteren van je kluisgegevens"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Multifactor-authenticatie geannuleerd"
