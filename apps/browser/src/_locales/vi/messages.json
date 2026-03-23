@@ -4424,6 +4424,9 @@
   "exportSuccess": {
     "message": "Đã xuất dữ liệu kho của bạn"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "typePasskey": {
     "message": "Mã khoá"
   },

@@ -4424,6 +4424,9 @@
   "exportSuccess": {
     "message": "Údaje z trezora boli exportované"
   },
+  "exportError": {
+    "message": "Pri exportovaní údajov trezora sa vyskytla chyba"
+  },
   "typePasskey": {
     "message": "Prístupový kľúč"
   },
