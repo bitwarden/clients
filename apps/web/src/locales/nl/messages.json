@@ -11929,6 +11929,9 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Niet-vertrouwde encryptiesleutels"
   },
+  "atRiskPassword": {
+    "message": "Risicovolle wachtwoorden"
+  },
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
   },

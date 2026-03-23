@@ -4424,6 +4424,9 @@
   "exportSuccess": {
     "message": "Tresor-Daten exportiert"
   },
+  "exportError": {
+    "message": "Beim Exportieren deiner Tresordaten ist ein Fehler aufgetreten"
+  },
   "typePasskey": {
     "message": "Passkey"
   },

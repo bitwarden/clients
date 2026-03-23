@@ -4424,6 +4424,9 @@
   "exportSuccess": {
     "message": "S'han exportat les dades de la caixa forta"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "typePasskey": {
     "message": "Clau de pas"
   },

@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Pro použití této funkce je potřebné členství Premium."
   },
+  "syncWithBrowser": {
+    "message": "Synchronizovat s prohlížečem"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "Chcete-li se připojit k $VAULTURL$, musíte synchronizovat svůj výchozí prohlížeč s aplikací Bitwarden. Po synchronizaci prohlížeče budete přesměrováni zpět do této aplikace.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Otevřít prohlížeč"
+  },
   "errorOccurred": {
     "message": "Došlo k chybě."
   },
@@ -3750,6 +3766,9 @@
   },
   "exportSuccess": {
     "message": "Data trezoru byla exportována"
+  },
+  "exportError": {
+    "message": "Při exportu dat Vašeho trezoru se vyskytla chyba"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Vícefázové ověření zrušeno"
