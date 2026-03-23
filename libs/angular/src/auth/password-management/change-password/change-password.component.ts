@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, output } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -58,6 +58,8 @@ export class ChangePasswordComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() inputPasswordFlow: InputPasswordFlow = InputPasswordFlow.ChangePassword;
+
+  passwordChanged = output<void>();
 
   activeAccount: Account | null = null;
   email?: string;
@@ -162,6 +164,7 @@ export class ChangePasswordComponent implements OnInit {
             passwordInputResult,
             this.activeAccount,
           );
+          this.passwordChanged.emit();
           return; // EARLY RETURN for flagged logic
         }
 
@@ -180,6 +183,8 @@ export class ChangePasswordComponent implements OnInit {
           this.activeAccount,
           passwordInputResult.newPasswordHint,
         );
+
+        this.passwordChanged.emit();
       } else {
         if (!this.userId) {
           throw new Error("userId not found");
@@ -202,6 +207,8 @@ export class ChangePasswordComponent implements OnInit {
           variant: "success",
           message: this.i18nService.t("masterPasswordChanged"),
         });
+
+        this.passwordChanged.emit();
 
         if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
           // TODO: investigate refactoring logout and follow-up routing in https://bitwarden.atlassian.net/browse/PM-32660
