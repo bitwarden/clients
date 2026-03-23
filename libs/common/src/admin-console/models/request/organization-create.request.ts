@@ -7,4 +7,5 @@ export class OrganizationCreateRequest extends OrganizationNoPaymentMethodCreate
   paymentMethodType: PaymentMethodType;
   paymentToken: string;
   skipTrial?: boolean;
+  coupons?: string[];
 }

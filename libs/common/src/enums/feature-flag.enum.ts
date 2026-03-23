@@ -29,6 +29,7 @@ export enum FeatureFlag {
   SSHAgentV2 = "ssh-agent-v2",
 
   /* Billing */
+  PM29108_EnablePersonalDiscounts = "pm-29108-enable-personal-discounts",
   TrialPaymentOptional = "PM-8163-trial-payment",
   PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
   PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
@@ -155,6 +156,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
 
   /* Billing */
+  [FeatureFlag.PM29108_EnablePersonalDiscounts]: FALSE,
   [FeatureFlag.TrialPaymentOptional]: FALSE,
   [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
   [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,

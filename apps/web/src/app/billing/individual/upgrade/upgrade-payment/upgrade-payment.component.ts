@@ -9,24 +9,27 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import {
-  debounceTime,
-  Observable,
-  switchMap,
-  startWith,
-  from,
   catchError,
-  of,
   combineLatest,
-  map,
-  shareReplay,
+  debounceTime,
   defer,
+  from,
+  map,
+  merge,
+  Observable,
+  of,
+  shareReplay,
+  startWith,
+  switchMap,
 } from "rxjs";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
+import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-type.enum";
+import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
 import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierId,
@@ -36,7 +39,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { ButtonModule, DialogModule, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { Cart, CartSummaryComponent } from "@bitwarden/pricing";
+import { Cart, CartSummaryComponent, Discount } from "@bitwarden/pricing";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import {
@@ -51,6 +54,7 @@ import {
   TokenizedPaymentMethod,
 } from "../../../payment/types";
 import { BillingServicesModule } from "../../../services";
+import { SubscriptionDiscountService } from "../../../services/subscription-discount.service";
 import { BitwardenSubscriber } from "../../../types";
 
 import {
@@ -122,10 +126,43 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
   protected hasEnoughAccountCredit$!: Observable<boolean>;
   private pricingTiers$!: Observable<PersonalSubscriptionPricingTier[]>;
 
+  protected readonly isFamiliesPlan = computed<boolean>(
+    () => this.selectedPlanId() === PersonalSubscriptionPricingTierIds.Families,
+  );
+
+  protected readonly discountTierType = computed<DiscountTierType>(() =>
+    this.isFamiliesPlan() ? DiscountTierType.Families : DiscountTierType.Premium,
+  );
+
+  private readonly eligibleDiscounts$ = toObservable(this.discountTierType).pipe(
+    switchMap((tier) =>
+      this.subscriptionDiscountService
+        .getEligibleDiscountsForTier$(tier)
+        .pipe(catchError(() => of([]))),
+    ),
+    shareReplay({ bufferSize: 1, refCount: false }),
+  );
+
+  protected readonly eligibleDiscounts = toSignal(this.eligibleDiscounts$, { initialValue: [] });
+
+  protected readonly cartDiscounts = computed<Discount[]>(() =>
+    this.eligibleDiscounts()
+      .map((discount) => this.subscriptionDiscountService.mapToCartDiscount(discount))
+      .filter((discount) => !!discount),
+  );
+
+  private readonly eligibleCouponIds = computed<string[]>(() =>
+    this.eligibleDiscounts().map((d: SubscriptionDiscount) => d.stripeCouponId),
+  );
+
   // Use defer to lazily create the observable when subscribed to
   protected estimatedTax$ = defer(() =>
-    this.formGroup.controls.billingAddress.valueChanges.pipe(
-      startWith(this.formGroup.controls.billingAddress.value),
+    merge(
+      this.formGroup.controls.billingAddress.valueChanges.pipe(
+        startWith(this.formGroup.controls.billingAddress.value),
+      ),
+      this.eligibleDiscounts$,
+    ).pipe(
       debounceTime(1000),
       switchMap(() => this.refreshSalesTax$()),
     ),
@@ -151,13 +188,14 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     return {
       passwordManager: {
         seats: {
-          translationKey: this.isFamiliesPlan ? "familiesMembership" : "premiumMembership",
+          translationKey: this.isFamiliesPlan() ? "familiesMembership" : "premiumMembership",
           cost: this.selectedPlan()!.details.passwordManager.annualPrice ?? 0,
           quantity: 1,
         },
       },
       cadence: "annually",
       estimatedTax: this.estimatedTax() ?? 0,
+      discounts: this.cartDiscounts().length > 0 ? this.cartDiscounts() : undefined,
     };
   });
 
@@ -168,14 +206,15 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     private logService: LogService,
     private destroyRef: DestroyRef,
     private upgradePaymentService: UpgradePaymentService,
+    private subscriptionDiscountService: SubscriptionDiscountService,
   ) {}
 
   protected userIsOwnerOfFreeOrg$ = this.upgradePaymentService.userIsOwnerOfFreeOrg$;
   protected adminConsoleRouteForOwnedOrganization$ =
     this.upgradePaymentService.adminConsoleRouteForOwnedOrganization$;
 
-  async ngOnInit(): Promise<void> {
-    if (!this.isFamiliesPlan) {
+  ngOnInit(): void {
+    if (!this.isFamiliesPlan()) {
       this.formGroup.controls.organizationName.disable();
     }
 
@@ -203,7 +242,9 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
           });
 
           this.upgradeToMessage.set(
-            this.i18nService.t(this.isFamiliesPlan ? "startFreeFamiliesTrial" : "upgradeToPremium"),
+            this.i18nService.t(
+              this.isFamiliesPlan() ? "startFreeFamiliesTrial" : "upgradeToPremium",
+            ),
           );
         } else {
           this.complete.emit({ status: UpgradePaymentStatus.Closed, organizationId: null });
@@ -236,14 +277,6 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     );
   }
 
-  protected get isPremiumPlan(): boolean {
-    return this.selectedPlanId() === PersonalSubscriptionPricingTierIds.Premium;
-  }
-
-  protected get isFamiliesPlan(): boolean {
-    return this.selectedPlanId() === PersonalSubscriptionPricingTierIds.Families;
-  }
-
   protected submit = async (): Promise<void> => {
     if (!this.isFormValid()) {
       this.formGroup.markAllAsTouched();
@@ -270,6 +303,14 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
       this.complete.emit(result);
     } catch (error: unknown) {
       this.logService.error("Upgrade failed:", error);
+      if (this.subscriptionDiscountService.isDiscountExpiredError(error)) {
+        this.subscriptionDiscountService.refresh();
+        this.toastService.showToast({
+          variant: "warning",
+          message: this.i18nService.t("discountExpiredOnPurchase"),
+        });
+        return;
+      }
       this.toastService.showToast({
         variant: "error",
         message: this.i18nService.t("upgradeErrorMessage"),
@@ -293,7 +334,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
       throw new Error("Billing address is incomplete");
     }
 
-    if (this.isFamiliesPlan && !organizationName) {
+    if (this.isFamiliesPlan() && !organizationName) {
       throw new Error("Organization name is required");
     }
 
@@ -305,11 +346,11 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
 
     const isTokenizedPayment = "token" in paymentMethod;
 
-    if (!isTokenizedPayment && this.isFamiliesPlan) {
+    if (!isTokenizedPayment && this.isFamiliesPlan()) {
       throw new Error("Tokenized payment is required for families plan");
     }
 
-    return this.isFamiliesPlan
+    return this.isFamiliesPlan()
       ? this.processFamiliesUpgrade(
           organizationName!,
           billingAddress,
@@ -333,6 +374,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
       this.selectedPlan()!,
       paymentMethod,
       paymentFormValues,
+      this.eligibleCouponIds(),
     );
 
     return { status: UpgradePaymentStatus.UpgradedToFamilies, organizationId: response.id };
@@ -342,7 +384,11 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     paymentMethod: NonTokenizedPaymentMethod | TokenizedPaymentMethod,
     billingAddress: BillingAddress,
   ): Promise<UpgradePaymentResult> {
-    await this.upgradePaymentService.upgradeToPremium(paymentMethod, billingAddress);
+    await this.upgradePaymentService.upgradeToPremium(
+      paymentMethod,
+      billingAddress,
+      this.eligibleCouponIds(),
+    );
     return { status: UpgradePaymentStatus.UpgradedToPremium, organizationId: null };
   }
 
@@ -375,7 +421,11 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
       return of(this.INITIAL_TAX_VALUE);
     }
     return from(
-      this.upgradePaymentService.calculateEstimatedTax(this.selectedPlan()!, billingAddress),
+      this.upgradePaymentService.calculateEstimatedTax(
+        this.selectedPlan()!,
+        billingAddress,
+        this.eligibleCouponIds(),
+      ),
     ).pipe(
       catchError((error: unknown) => {
         this.logService.error("Tax calculation failed:", error);
