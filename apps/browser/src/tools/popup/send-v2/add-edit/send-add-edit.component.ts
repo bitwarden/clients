@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule, Location } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, inject, viewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
@@ -25,6 +25,7 @@ import {
   DefaultSendFormConfigService,
   SendFormConfig,
   SendFormConfigService,
+  SendFormComponent,
   SendFormGenerationService,
   SendFormMode,
   SendFormModule,
@@ -101,6 +102,9 @@ export class SendAddEditComponent {
    */
   config: SendFormConfig;
 
+  private sendFormGenerationService = inject(SendFormGenerationService);
+  private readonly sendFormComponent = viewChild(SendFormComponent);
+
   constructor(
     private route: ActivatedRoute,
     private location: Location,
@@ -161,6 +165,16 @@ export class SendAddEditComponent {
       message: this.i18nService.t("deletedSend"),
     });
   };
+
+  /**
+   * Opens the password generator dialog and sets the generated value on the password field.
+   */
+  async openGenerator() {
+    const password = await this.sendFormGenerationService.generatePassword();
+    if (password) {
+      this.sendFormComponent()?.sendDetailsComponent()?.setGeneratedPassword(password);
+    }
+  }
 
   /**
    * Subscribes to the route query parameters and builds the configuration based on the parameters.

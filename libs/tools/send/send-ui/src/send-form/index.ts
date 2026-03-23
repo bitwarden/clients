@@ -1,3 +1,4 @@
+export { SendFormComponent } from "./components/send-form.component";
 export { SendFormModule } from "./send-form.module";
 export {
   SendFormConfigService,
