@@ -4424,6 +4424,9 @@
   "exportSuccess": {
     "message": "Vault data exported"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "typePasskey": {
     "message": "Passkey"
   },
@@ -6168,9 +6171,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"

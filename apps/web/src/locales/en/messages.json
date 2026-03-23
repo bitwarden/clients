@@ -2121,6 +2121,9 @@
   "exportSuccess": {
     "message": "Vault data exported"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "passwordGenerator": {
     "message": "Password generator"
   },
@@ -11539,6 +11542,9 @@
       }
     }
   },
+  "userSelfRevokedOrganizationOwnership": {
+    "message": "Revoked for declining transfer to organization ownership."
+  },
   "suspendedOrganizationTitle": {
     "message": "The $ORGANIZATION$ is suspended",
     "placeholders": {
@@ -11922,6 +11928,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Untrusted encryption keys"
+  },
+  "atRiskPassword": {
+    "message": "At-risk password"
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
@@ -12960,9 +12969,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -13072,6 +13078,12 @@
         "example": "Jan 1, 1970"
       }
     }
+  },
+  "sendsTitleNoSearchResults": {
+    "message": "No search results returned"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Clear filters or try another search term"
   },
   "pastMonth": {
     "message": "Past month"
