@@ -21,6 +21,7 @@
           [formGroup]="sendAccessForm"
           [enterOtp]="enterOtp()"
           [loading]="loading()"
+          (resendCode)="onResendCode()"
           (backToEmail)="onBackToEmail()"
         ></app-send-access-email>
       }

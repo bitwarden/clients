@@ -23,7 +23,7 @@
   "noCriticalAppsAtRisk": {
     "message": "No critical applications at risk"
   },
-  "critical":{
+  "critical": {
     "message": "Critical ($COUNT$)",
     "placeholders": {
       "count": {
@@ -41,7 +41,7 @@
       }
     }
   },
-  "criticalBadge":{
+  "criticalBadge": {
     "message": "Critical"
   },
   "accessIntelligence": {
@@ -6044,26 +6044,26 @@
       }
     }
   },
-  "centralizeDataOwnership":{
+  "centralizeDataOwnership": {
     "message": "Centralize organization ownership"
   },
-  "centralizeDataOwnershipDesc":{
+  "centralizeDataOwnershipDesc": {
     "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "Learn more about centralized ownership",
     "description": "This will be used as a hyperlink"
   },
-  "benefits":{
+  "benefits": {
     "message": "Benefits"
   },
-  "centralizeDataOwnershipBenefit1":{
+  "centralizeDataOwnershipBenefit1": {
     "message": "Gain full visibility into credential health, including shared and unshared items."
   },
-  "centralizeDataOwnershipBenefit2":{
+  "centralizeDataOwnershipBenefit2": {
     "message": "Easily transfer items during member offboarding and succession, ensuring there are no access gaps."
   },
-  "centralizeDataOwnershipBenefit3":{
+  "centralizeDataOwnershipBenefit3": {
     "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
   },
   "centralizeDataOwnershipWarningTitle": {
@@ -6486,6 +6486,14 @@
     "message": "Verify your email to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Didn't receive a code? Contact the sender to confirm your email address or ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Resent verification code",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "The Bitwarden user who created this Send has chosen to hide their email address. You should ensure you trust the source of this link before using or downloading its content.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6730,7 +6738,7 @@
       }
     }
   },
-  "reinviteSuccessToast":{
+  "reinviteSuccessToast": {
     "message": "1 invitation sent"
   },
   "bulkReinviteSentToast": {
@@ -6763,12 +6771,12 @@
     "message": "$COUNT$ of $TOTAL$ invitations sent...",
     "placeholders": {
       "count": {
-	"content": "$1",
-	"example": "1,000"
+        "content": "$1",
+        "example": "1,000"
       },
       "total": {
-	"content": "$2",
-	"example": "2,000"
+        "content": "$2",
+        "example": "2,000"
       }
     }
   },
@@ -6779,24 +6787,24 @@
     "message": "$COUNT$ invitations didn't send",
     "placeholders": {
       "count": {
-	"content": "$1",
-	"example": "1,000"
+        "content": "$1",
+        "example": "1,000"
       }
     }
   },
   "bulkReinviteFailureTitle": {
     "message": "1 invitation didn't send"
   },
-  "bulkReinviteFailureDescription":{
+  "bulkReinviteFailureDescription": {
     "message": "An error occurred while sending invitations to $COUNT$ of $TOTAL$ members. Try sending again, and if the problem continues,",
     "placeholders": {
       "count": {
-	"content": "$1",
-	"example": "1,000"
+        "content": "$1",
+        "example": "1,000"
       },
       "total": {
-	"content": "$2",
-	"example": "2,000"
+        "content": "$2",
+        "example": "2,000"
       }
     }
   },
@@ -11938,7 +11946,7 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
   },
-   "vulnerablePassword": {
+  "vulnerablePassword": {
     "message": "Vulnerable password."
   },
   "changeNow": {
@@ -12975,9 +12983,9 @@
   "whenYouRemoveStorage": {
     "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
   },
-  "ownerBadgeA11yDescription":{
+  "ownerBadgeA11yDescription": {
     "message": "Owner, $OWNER$, show all items owned by $OWNER$",
-    "placeholders":{
+    "placeholders": {
       "owner": {
         "content": "$1",
         "example": "My Org Name"
