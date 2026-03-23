@@ -4424,6 +4424,9 @@
   "exportSuccess": {
     "message": "보관함 데이터 내보내짐"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "typePasskey": {
     "message": "패스키"
   },

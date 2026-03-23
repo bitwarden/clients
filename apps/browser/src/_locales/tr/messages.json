@@ -4424,6 +4424,9 @@
   "exportSuccess": {
     "message": "Kasa verileri dışa aktarıldı"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "typePasskey": {
     "message": "Geçiş anahtarı"
   },

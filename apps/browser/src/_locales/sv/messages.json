@@ -4424,6 +4424,9 @@
   "exportSuccess": {
     "message": "Valvdata exporteras"
   },
+  "exportError": {
+    "message": "Ett fel inträffade vid export av ditt valvdata"
+  },
   "typePasskey": {
     "message": "Nyckel"
   },

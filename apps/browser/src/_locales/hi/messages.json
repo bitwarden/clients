@@ -4424,6 +4424,9 @@
   "exportSuccess": {
     "message": "वॉल्ट डेटा निर्यात किया गया"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "typePasskey": {
     "message": "Passkey"
   },

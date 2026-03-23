@@ -4424,6 +4424,9 @@
   "exportSuccess": {
     "message": "Podaci iz trezora su izvezeni"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "typePasskey": {
     "message": "Pristupni ključ"
   },

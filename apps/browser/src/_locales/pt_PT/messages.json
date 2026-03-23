@@ -1849,10 +1849,10 @@
     "message": "Os sites comprometidos ou não confiáveis podem explorar o preenchimento automático ao carregar a página."
   },
   "learnMoreAboutAutofillOnPageLoadLinkText": {
-    "message": "Saber mais sobre os riscos"
+    "message": "Saiba mais sobre os riscos"
   },
   "learnMoreAboutAutofill": {
-    "message": "Saber mais sobre o preenchimento automático"
+    "message": "Saiba mais sobre o preenchimento automático"
   },
   "defaultAutoFillOnPageLoad": {
     "message": "Definição de preenchimento automático predefinido para itens de início de sessão"
@@ -4423,6 +4423,9 @@
   },
   "exportSuccess": {
     "message": "Dados do cofre exportados"
+  },
+  "exportError": {
+    "message": "Ocorreu um erro ao exportar os dados do seu cofre"
   },
   "typePasskey": {
     "message": "Chave de acesso"

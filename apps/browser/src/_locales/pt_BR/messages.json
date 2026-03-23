@@ -3107,7 +3107,7 @@
     }
   },
   "sendCreatedDescriptionEmail": {
-    "message": "Copie e compartilhe este link do Send. Ele pode ser visto pelas pessoas que você especificou pelos próximos $TIME$.",
+    "message": "Copie e compartilhe este link do Send. Ele pode ser visto pelas pessoas que você especificou por $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -4423,6 +4423,9 @@
   },
   "exportSuccess": {
     "message": "Dados do cofre exportados"
+  },
+  "exportError": {
+    "message": "Ocorreu um erro ao exportar os dados do seu cofre"
   },
   "typePasskey": {
     "message": "Chave de acesso"
@@ -6186,6 +6189,6 @@
     "message": "Falha na verificação do usuário."
   },
   "downloadFailed": {
-    "message": "Failed to download."
+    "message": "Falha no download."
   }
 }

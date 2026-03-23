@@ -4424,6 +4424,9 @@
   "exportSuccess": {
     "message": "密码库数据已导出"
   },
+  "exportError": {
+    "message": "导出密码库数据时发生错误"
+  },
   "typePasskey": {
     "message": "通行密钥"
   },
