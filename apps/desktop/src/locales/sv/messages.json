@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Ett premium-medlemskap krävs för att använda den här funktionen."
   },
+  "syncWithBrowser": {
+    "message": "Synkronisera med webbläsaren"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "För att ansluta till $VAULTURL$ måste du synkronisera din standardwebbläsare med Bitwarden-appen. Du kommer att omdirigeras tillbaka till denna app när din webbläsare är synkroniserad.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Starta webbläsaren"
+  },
   "errorOccurred": {
     "message": "Ett fel har inträffat."
   },
@@ -3750,6 +3766,9 @@
   },
   "exportSuccess": {
     "message": "Valvdata exporteras"
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Flerfaktorsautentisering avbruten"

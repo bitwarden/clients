@@ -586,7 +586,7 @@
     "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archived": {
-    "message": "Archived"
+    "message": "เก็บ"
   },
   "unarchiveAndSave": {
     "message": "Unarchive and save"
@@ -4424,6 +4424,9 @@
   "exportSuccess": {
     "message": "ส่งออกข้อมูลตู้นิรภัยแล้ว"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "typePasskey": {
     "message": "พาสคีย์"
   },
@@ -4854,13 +4857,13 @@
     "message": "คัดลอกที่อยู่"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "รายการของฉัน"
   },
   "adminConsole": {
     "message": "คอนโซลผู้ดูแลระบบ"
   },
   "admin": {
-    "message": "Admin"
+    "message": "แอดมิน"
   },
   "automaticUserConfirmation": {
     "message": "Automatic user confirmation"

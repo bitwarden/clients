@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "A funkció használatához prémium tagság szükséges."
   },
+  "syncWithBrowser": {
+    "message": "Szinkronizálás böngészővel"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "$VAULTURL$ szolgáltatáshoz kapcsolódáshoz szinkronizálni kell alapértelmezett böngészőt a Bitwarden alkalmazással. A böngésző szinkronizálása után visszakerülünk ebbe az alkalmazásba.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Böngésző indítása"
+  },
   "errorOccurred": {
     "message": "Valamilyen hiba történt."
   },
@@ -3750,6 +3766,9 @@
   },
   "exportSuccess": {
     "message": "A széfadatok exportálásra kerültek."
+  },
+  "exportError": {
+    "message": "Hiba történt a széf adatainak exportálása közben."
   },
   "multifactorAuthenticationCancelled": {
     "message": "A többtényezős hitelesítés megszakításra került."

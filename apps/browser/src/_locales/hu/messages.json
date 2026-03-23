@@ -4424,6 +4424,9 @@
   "exportSuccess": {
     "message": "A széfadatok exportálásra kerültek."
   },
+  "exportError": {
+    "message": "Hiba történt a széf adatainak exportálása közben."
+  },
   "typePasskey": {
     "message": "Hozzáférési kulcs"
   },

@@ -1,21 +1,21 @@
 {
   "allApplications": {
-    "message": "All applications"
+    "message": "แอปพลิเคชันทั้งหมด"
   },
   "allMembers": {
-    "message": "All members"
+    "message": "สมาชิกทุกคน"
   },
   "allPasswords": {
-    "message": "All passwords"
+    "message": "รหัสผ่านทั้งหมด"
   },
   "activity": {
-    "message": "Activity"
+    "message": "กิจกรรม"
   },
   "applicationsAtRisk": {
     "message": "Applications at risk"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "โลโก้ Bitwarden"
   },
   "criticalApplications": {
     "message": "Critical applications"
@@ -54,7 +54,7 @@
     "message": "Password Risk"
   },
   "passwords": {
-    "message": "Passwords"
+    "message": "รหัสผ่าน"
   },
   "riskOverTime": {
     "message": "Risk over time"
@@ -11928,6 +11928,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Untrusted encryption keys"
+  },
+  "atRiskPassword": {
+    "message": "At-risk password"
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"

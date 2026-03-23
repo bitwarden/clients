@@ -3,16 +3,16 @@
     "message": "Всі програми"
   },
   "allMembers": {
-    "message": "All members"
+    "message": "Всі учасники"
   },
   "allPasswords": {
-    "message": "All passwords"
+    "message": "Всі паролі"
   },
   "activity": {
     "message": "Активність"
   },
   "applicationsAtRisk": {
-    "message": "Applications at risk"
+    "message": "Ризиковані програми"
   },
   "appLogoLabel": {
     "message": "Логотип Bitwarden"
@@ -24,7 +24,7 @@
     "message": "Немає критичних програм із ризиком"
   },
   "critical": {
-    "message": "Critical ($COUNT$)",
+    "message": "Критичні ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -33,7 +33,7 @@
     }
   },
   "notCritical": {
-    "message": "Not critical ($COUNT$)",
+    "message": "Не критичні ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -42,31 +42,31 @@
     }
   },
   "criticalBadge": {
-    "message": "Critical"
+    "message": "Критично"
   },
   "accessIntelligence": {
-    "message": "Управління доступом"
+    "message": "Access Intelligence"
   },
   "noApplicationsMatchTheseFilters": {
-    "message": "No applications match these filters"
+    "message": "Немає програм, що відповідають цим фільтрам"
   },
   "passwordRisk": {
     "message": "Ризиковані паролі"
   },
   "passwords": {
-    "message": "Passwords"
+    "message": "Паролі"
   },
   "riskOverTime": {
-    "message": "Risk over time"
+    "message": "Ризик з часом"
   },
   "passwordsAtRisk": {
-    "message": "Passwords at risk"
+    "message": "Ризиковані паролі"
   },
   "noEditPermissions": {
     "message": "Вам не дозволено редагувати цей запис"
   },
   "reviewAccessIntelligence": {
-    "message": "Review security reports to find and fix credential risks before they escalate."
+    "message": "Перегляньте звіти безпеки, щоб виправити облікові дані перш ніж вони стануть критичними."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Переглянути записи з ризиком"
@@ -108,7 +108,7 @@
     "message": "Створити новий запис"
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "$PERCENT$% виконано",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -117,7 +117,7 @@
     }
   },
   "securityTasksCompleted": {
-    "message": "$COUNT$ out of $TOTAL$ security tasks completed",
+    "message": "Виконано $COUNT$ з $TOTAL$ завдань із безпеки",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -130,28 +130,28 @@
     }
   },
   "passwordChangeProgress": {
-    "message": "Password change progress"
+    "message": "Перебіг зміни пароля"
   },
   "assignMembersTasksToMonitorProgress": {
-    "message": "Assign members tasks to monitor progress"
+    "message": "Призначити завдання учасникам, щоб відстежувати перебіг"
   },
   "onceYouReviewApplications": {
-    "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
+    "message": "Після перевірки програм і позначення критичності призначте завдання своїм учасникам, щоб змінити їхні паролі."
   },
   "sendReminders": {
-    "message": "Send reminders"
+    "message": "Надіслати нагадування"
   },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Once you mark applications critical, they will display here."
+    "message": "Після позначення критичних програм вони з'являться тут."
   },
   "viewAtRiskMembers": {
-    "message": "View at-risk members"
+    "message": "Переглянути учасників з ризиком"
   },
   "viewAtRiskApplications": {
-    "message": "View at-risk applications"
+    "message": "Переглянути програми з ризиком"
   },
   "criticalApplicationsAreAtRisk": {
-    "message": "$COUNT$ out of $TOTAL$ critical applications are at-risk due to at-risk passwords",
+    "message": "$COUNT$ з $TOTAL$ критичних програм із ризикованим паролем",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -173,7 +173,7 @@
     }
   },
   "criticalApplicationsMarked": {
-    "message": "critical applications marked"
+    "message": "позначені критичні програми"
   },
   "countOfCriticalApplications": {
     "message": "$COUNT$ критичних програм",
@@ -185,7 +185,7 @@
     }
   },
   "countOfApplicationsAtRisk": {
-    "message": "$COUNT$ програм під загрозою",
+    "message": "$COUNT$ програм з ризиком",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -194,7 +194,7 @@
     }
   },
   "countOfAtRiskPasswords": {
-    "message": "$COUNT$ паролів під загрозою",
+    "message": "$COUNT$ ризикованих паролів",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -203,7 +203,7 @@
     }
   },
   "newPasswordsAtRisk": {
-    "message": "$COUNT$ нових паролів під загрозою",
+    "message": "$COUNT$ нових ризикованих паролів",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -224,37 +224,37 @@
     "message": "Дані не знайдено"
   },
   "noDataInOrgDescription": {
-    "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
+    "message": "Щоб розпочати роботу з Access Intelligence, імпортуйте облікові дані своєї організації. Виконавши це, ви зможете:"
   },
   "feature1Title": {
     "message": "Позначити програми як критичні"
   },
   "feature1Description": {
-    "message": "This will help you remove risks to your most important applications first."
+    "message": "Це допоможе вам усунути ризики для ваших найважливіших програм."
   },
   "feature2Title": {
-    "message": "Help members improve their security"
+    "message": "Допоможіть учасникам покращити їхню безпеку"
   },
   "feature2Description": {
-    "message": "Assign at-risk members guided security tasks to update credentials."
+    "message": "Призначте учасникам, які мають ризиковані паролі, завдання з інструкціями для оновлення облікових даних."
   },
   "feature3Title": {
-    "message": "Monitor progress"
+    "message": "Моніторинг прогресу"
   },
   "feature3Description": {
-    "message": "Track changes over time to show security improvements."
+    "message": "Відстеження змін щодо вдосконалення безпеки протягом часу."
   },
   "noReportsRunTitle": {
-    "message": "Generate report"
+    "message": "Створити звіт"
   },
   "noReportsRunDescription": {
-    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
+    "message": "Все готово до створення звітів. Після завершення ви зможете:"
   },
   "noCriticalApplicationsTitle": {
-    "message": "Ви не позначили жодної програми в якості критичної"
+    "message": "Ви не позначили жодної програми як критичної"
   },
   "noCriticalApplicationsDescription": {
-    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
+    "message": "Оберіть найбільш критичні програми, щоб вказати пріоритетні дії щодо безпеки для усунення ризикованих паролів."
   },
   "markCriticalApplications": {
     "message": "Вибрати критичні програми"
@@ -263,13 +263,13 @@
     "message": "Позначити програму критичною"
   },
   "markAsCritical": {
-    "message": "Позначити як критичне"
+    "message": "Позначити критичною"
   },
   "applicationsSelected": {
-    "message": "програм обрано"
+    "message": "програм вибрано"
   },
   "selectApplication": {
-    "message": "Обрати програму"
+    "message": "Вибрати програму"
   },
   "unselectApplication": {
     "message": "Скасувати вибір програми"
@@ -344,19 +344,19 @@
     "message": "Пошук програм"
   },
   "atRiskMembers": {
-    "message": "Ризиковані учасники"
+    "message": "Учасники з ризиком"
   },
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
     "message": "These members have access to vulnerable items for critical applications."
   },
   "membersWithAtRiskPasswords": {
-    "message": "Members with at-risk passwords"
+    "message": "Учасники з ризикованими паролями"
   },
   "membersWillReceiveSecurityTask": {
     "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
   },
   "membersAtRiskCount": {
-    "message": "$COUNT$ учасників під загрозою",
+    "message": "$COUNT$ учасників з ризиком",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -416,7 +416,7 @@
     "message": "Всього учасників"
   },
   "atRiskApplications": {
-    "message": "Ризиковані програми"
+    "message": "Програми з ризиком"
   },
   "totalApplications": {
     "message": "Всього програм"
@@ -503,7 +503,7 @@
     "message": "Який це тип запису?"
   },
   "name": {
-    "message": "Назва"
+    "message": "Ім'я"
   },
   "uri": {
     "message": "URI"
@@ -668,7 +668,7 @@
     "message": "Е-пошта"
   },
   "emails": {
-    "message": "Е-пошти"
+    "message": "Адреси е-пошти"
   },
   "phone": {
     "message": "Телефон"
@@ -1495,7 +1495,7 @@
     "message": "Використати єдиний вхід"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Ваша організація вимагає єдиний вхід (Sso)."
+    "message": "Ваша організація вимагає єдиний вхід (SSO)."
   },
   "welcomeBack": {
     "message": "З поверненням"
@@ -2737,7 +2737,7 @@
     "message": "Ключ"
   },
   "unnamedKey": {
-    "message": "Неназваний ключ"
+    "message": "Ключ без назви"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Код підтвердження"
@@ -3243,7 +3243,7 @@
     }
   },
   "premiumSubscriptionEnded": {
-    "message": "Ваша передплата Premium завершилася"
+    "message": "Ваша передплата Premium завершилась"
   },
   "premiumSubscriptionEndedDesc": {
     "message": "Щоб відновити доступ до архіву, поновіть передплату Premium. Якщо ви редагуєте архівований запис перед поновленням, його буде повернуто назад у ваше сховище."
@@ -4624,7 +4624,7 @@
     "message": "Оновити браузер"
   },
   "generatingYourAccessIntelligence": {
-    "message": "Generating your Access Intelligence..."
+    "message": "Створення Access Intelligence..."
   },
   "loadingProgress": {
     "message": "Loading progress"
@@ -6132,7 +6132,7 @@
     "message": "Відкрийте своє розширення Bitwarden"
   },
   "autoConfirmExtension2": {
-    "message": "Обрати",
+    "message": "Виберіть",
     "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtension3": {
@@ -7024,7 +7024,7 @@
     "message": "Максимальний час очікування"
   },
   "maximumAllowedTimeoutRequired": {
-    "message": "Необхідний максимальний час очікування."
+    "message": "Необхідно вказати максимальний час очікування."
   },
   "sessionTimeoutPolicyInvalidTime": {
     "message": "Time is invalid. Change at least one value."
@@ -7604,7 +7604,7 @@
     "message": "Необхідно додати URL-адресу основного сервера, або принаймні одне користувацьке середовище."
   },
   "selfHostedEnvMustUseHttps": {
-    "message": "URL-адреси повинні використовувати HTTPS."
+    "message": "URL-адреси повинні бути HTTPS."
   },
   "apiUrl": {
     "message": "URL-адреса сервера API"
@@ -9807,7 +9807,7 @@
     "message": "Потрібно увійти через SSO"
   },
   "emailRequiredForSsoLogin": {
-    "message": "Е-пошта необхідна для SSO"
+    "message": "Для використання SSO потрібна е-пошта"
   },
   "selectedRegionFlag": {
     "message": "Прапор вибраного регіону"
@@ -11929,11 +11929,14 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Недовірені ключі шифрування"
   },
+  "atRiskPassword": {
+    "message": "Ризикований пароль"
+  },
   "changeAtRiskPassword": {
     "message": "Змінити ризикований пароль"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Цей запис ризикований і не має адреси вебсайту. Додайте адресу вебсайту та змініть пароль для вдосконалення безпеки."
+    "message": "Цей запис ризикований, і не має адреси вебсайту. Додайте адресу вебсайту і змініть пароль для вдосконалення безпеки."
   },
   "vulnerablePassword": {
     "message": "Вразливий пароль."
@@ -11977,13 +11980,13 @@
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Розархівувати"
+    "message": "Видобути"
   },
   "archived": {
     "message": "Архівовано"
   },
   "unArchiveAndSave": {
-    "message": "Розархівувати та зберегти"
+    "message": "Видобути й зберегти"
   },
   "itemsInArchive": {
     "message": "Записи в архіві"
@@ -12985,7 +12988,7 @@
     "message": "You have Premium"
   },
   "emailProtected": {
-    "message": "Е-пошту захищено"
+    "message": "Захищено е-поштою"
   },
   "invalidSendPassword": {
     "message": "Invalid Send password"

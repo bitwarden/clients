@@ -2122,7 +2122,7 @@
     "message": "Dados do cofre exportados"
   },
   "exportError": {
-    "message": "An error occurred while exporting your vault data"
+    "message": "Ocorreu um erro ao exportar os dados do seu cofre"
   },
   "passwordGenerator": {
     "message": "Gerador de palavras-passe"
@@ -7145,7 +7145,7 @@
     "message": "Os sites comprometidos ou não confiáveis podem explorar o preenchimento automático ao carregar a página."
   },
   "learnMoreAboutAutofillPolicy": {
-    "message": "Saber mais sobre o preenchimento automático"
+    "message": "Saiba mais sobre o preenchimento automático"
   },
   "selectType": {
     "message": "Selecionar o tipo de SSO"
@@ -11543,7 +11543,7 @@
     }
   },
   "userSelfRevokedOrganizationOwnership": {
-    "message": "Revoked for declining transfer to organization ownership."
+    "message": "Revogado por recusa de transferência para propriedade da organização."
   },
   "suspendedOrganizationTitle": {
     "message": "A $ORGANIZATION$ está suspensa",
@@ -11928,6 +11928,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Chaves de encriptação não fiáveis"
+  },
+  "atRiskPassword": {
+    "message": "Palavra-passe em risco"
   },
   "changeAtRiskPassword": {
     "message": "Alterar palavra-passe em risco"
@@ -13077,10 +13080,10 @@
     }
   },
   "sendsTitleNoSearchResults": {
-    "message": "No search results returned"
+    "message": "Não foram apresentados resultados de pesquisa"
   },
   "sendsBodyNoSearchResults": {
-    "message": "Clear filters or try another search term"
+    "message": "Limpe os filtros ou tente outro termo de pesquisa"
   },
   "pastMonth": {
     "message": "Último mês"

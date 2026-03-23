@@ -353,10 +353,10 @@
     "message": "您可以使用 Bitwarden 驗證器儲存驗證器金鑰，並為兩步驟驗證流程產生 TOTP 代碼。前往 bitwarden.com 網站以了解更多資訊。"
   },
   "bitwardenSecretsManager": {
-    "message": "Bitwarden 密鑰管理"
+    "message": "Bitwarden 機密管理器"
   },
   "continueToSecretsManagerPageDesc": {
-    "message": "使用 Bitwarden 密鑰管理來安全儲存、管理並分享開發人員密鑰。在 bitwarden.com 網站上了解更多。"
+    "message": "透過 Bitwarden 機密管理器安全地儲存、管理並分享開發人員機密。請前往 bitwarden.com 網站了解更多。"
   },
   "passwordlessDotDev": {
     "message": "Passwordless.dev"
@@ -1822,7 +1822,7 @@
     "message": "關閉您的瀏覽器內建密碼管理器設定以避免衝突。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
-    "message": "編輯瀏覽器設定"
+    "message": "編輯瀏覽器設定。"
   },
   "autofillOverlayVisibilityOff": {
     "message": "關閉",
@@ -2434,7 +2434,7 @@
     "message": "使用此密碼"
   },
   "useThisPassphrase": {
-    "message": "使用此密碼"
+    "message": "使用此密碼短語"
   },
   "useThisUsername": {
     "message": "使用此使用者名稱"
@@ -2621,7 +2621,7 @@
     "message": "存取權杖更新失敗"
   },
   "errorRefreshingAccessTokenDesc": {
-    "message": "未找到存取權杖或 API 密鑰。請重試登出再登入。"
+    "message": "未找到重新整理權杖或 API 金鑰。請先登出再重新登入。"
   },
   "desktopSyncVerificationTitle": {
     "message": "桌面應用程式同步驗證"
@@ -3436,7 +3436,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " 使用 $RECOMMENDED$ 或更多個單字產生強的密碼短語。",
+    "message": " 使用至少 $RECOMMENDED$ 個詞彙來建立更強的密碼短語。",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -4424,6 +4424,9 @@
   "exportSuccess": {
     "message": "密碼庫資料已匯出"
   },
+  "exportError": {
+    "message": "匯出密碼庫資料時發生錯誤"
+  },
   "typePasskey": {
     "message": "密碼金鑰"
   },
@@ -4953,7 +4956,7 @@
     "message": "不在任何資料夾中的項目"
   },
   "itemDetails": {
-    "message": "項目詳細資訊"
+    "message": "項目詳細資料"
   },
   "itemName": {
     "message": "項目名稱"
@@ -5174,7 +5177,7 @@
     "message": "如果您已續期，請更新信用卡資訊"
   },
   "cardDetails": {
-    "message": "信用卡詳細資料"
+    "message": "付款卡詳細資料"
   },
   "cardBrandDetails": {
     "message": "$BRAND$ 詳細資訊",
@@ -5719,16 +5722,16 @@
     "message": "請輸入密碼"
   },
   "invalidSshKey": {
-    "message": "SSH 密鑰不正確"
+    "message": "SSH 金鑰無效"
   },
   "sshKeyTypeUnsupported": {
-    "message": "SSH 密鑰類型不支援"
+    "message": "不支援此 SSH 金鑰類型"
   },
   "importSshKeyFromClipboard": {
-    "message": "從剪貼簿中匯入密鑰"
+    "message": "從剪貼簿匯入金鑰"
   },
   "sshKeyImported": {
-    "message": "SSH 密鑰成功匯入"
+    "message": "SSH 金鑰已成功匯入"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "若您只有檢視權限，無法移除集合 $COLLECTIONS$。",
