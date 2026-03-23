@@ -120,12 +120,8 @@ module.exports = {
         hover: "var(--color-bg-hover)",
         "hover-contrast": "var(--color-bg-hover-contrast)",
         overlay: "var(--color-bg-overlay)",
-        sidenav: "var(--color-sidenav-background)",
-        "sidenav-active-item": "var(--color-sidenav-active-item)",
-        "sidenav-item-hover": "var(--color-sidenav-item-hover)",
-        "sidenav-active-item-hover": "var(--color-sidenav-active-item-hover)",
-        "sidenav-arrow-hover": "var(--color-sidenav-arrow-hover)",
-        "sidenav-active-arrow-hover": "var(--color-sidenav-active-arrow-hover)",
+        nav: "var(--color-nav-bg-primary)",
+        "nav-hover": "var(--color-nav-bg-primary-hover)",
       },
       hover: {
         default: "var(--color-hover-default)",
@@ -168,7 +164,7 @@ module.exports = {
         "accent-tertiary-soft": "var(--color-fg-accent-tertiary-soft)",
         "accent-tertiary": "var(--color-fg-accent-tertiary)",
         "accent-tertiary-strong": "var(--color-fg-accent-tertiary-strong)",
-        "sidenav-text": "var(--color-sidenav-text)",
+        nav: "var(--color-nav-fg-primary)",
       },
       border: {
         muted: "var(--color-border-muted)",
@@ -196,7 +192,8 @@ module.exports = {
         "accent-tertiary": "var(--color-border-accent-tertiary)",
         focus: "var(--color-border-focus)",
         "focus-contrast": "var(--color-border-focus-contrast)",
-        "sidenav-focus": "var(--color-sidenav-focus)",
+        "nav-focus": "var(--color-nav-border-primary-focus)",
+        "nav-divider": "var(--color-nav-border-primary)",
       },
     },
     textColor: () => ({
@@ -265,7 +262,7 @@ module.exports = {
       "fg-accent-tertiary-soft": "var(--color-fg-accent-tertiary-soft)",
       "fg-accent-tertiary": "var(--color-fg-accent-tertiary)",
       "fg-accent-tertiary-strong": "var(--color-fg-accent-tertiary-strong)",
-      "fg-sidenav-text": "var(--color-sidenav-text)",
+      "fg-nav": "var(--color-nav-fg-primary)",
     }),
     borderColor: ({ theme }) => ({
       ...theme("colors"),

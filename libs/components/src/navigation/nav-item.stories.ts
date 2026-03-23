@@ -84,6 +84,7 @@ export const WithLongText: Story = {
   ...Default,
   args: {
     text: "Hello World This Is a Cool Item",
+    icon: "bwi-grid",
   },
 };
 

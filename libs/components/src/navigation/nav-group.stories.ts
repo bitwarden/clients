@@ -6,6 +6,8 @@ import { StoryObj, Meta, moduleMetadata, applicationConfig } from "@storybook/an
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
 
+import { BerryComponent } from "../berry";
+import { ChipActionComponent } from "../chips";
 import { IconButtonModule } from "../icon-button";
 import { LayoutComponent } from "../layout";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
@@ -34,6 +36,8 @@ export default {
         DummyContentComponent,
         LayoutComponent,
         IconButtonModule,
+        BerryComponent,
+        ChipActionComponent,
       ],
       providers: [
         {
@@ -198,10 +202,9 @@ export const WithTrailingElements: StoryObj<NavGroupComponent> = {
     },
     template: /*html*/ `
       <bit-side-nav>
-        <bit-nav-group text="With Interactive Element" [route]="['a']" icon="bwi-filter">
-          <bit-nav-item text="Child A" route="a"></bit-nav-item>
-          <bit-nav-item text="Child B" route="b"></bit-nav-item>
-          <bit-nav-item text="Child C" route="c"></bit-nav-item>
+        <bit-nav-group text="With Nav Button" [route]="['a']" icon="bwi-filter">
+          <bit-nav-item text="Child A" route="aa"></bit-nav-item>
+          <bit-nav-item text="Child B" route="ab"></bit-nav-item>
           <button
             type="button"
             slot="end"
@@ -213,10 +216,19 @@ export const WithTrailingElements: StoryObj<NavGroupComponent> = {
             (click)="handleEditClick()"
           ></button>
         </bit-nav-group>
-        <bit-nav-group text="With Trailing Text" [route]="['aa']" icon="bwi-filter">
-          <bit-nav-item text="Child A" route="aa"></bit-nav-item>
-          <bit-nav-item text="Child B" route="bb"></bit-nav-item>
-          <bit-nav-item text="Child C" route="cc"></bit-nav-item>
+        <bit-nav-group text="With Chip" [route]="['d']" icon="bwi-filter">
+          <bit-nav-item text="Child A" route="da"></bit-nav-item>
+          <bit-nav-item text="Child B" route="db"></bit-nav-item>
+          <button slot="end" bit-chip-action startIcon="bwi-diamond" label="Premium" size="small"></button>
+        </bit-nav-group>
+        <bit-nav-group text="With Berry" [route]="['e']" icon="bwi-filter">
+          <bit-nav-item text="Child A" route="ea"></bit-nav-item>
+          <bit-nav-item text="Child B" route="eb"></bit-nav-item>
+          <bit-berry slot="end" variant="danger" [value]="1" />
+        </bit-nav-group>
+        <bit-nav-group text="With Text" [route]="['f']" icon="bwi-filter">
+          <bit-nav-item text="Child A" route="fa"></bit-nav-item>
+          <bit-nav-item text="Child B" route="fb"></bit-nav-item>
           <span slot="end"> 12 </span>
         </bit-nav-group>
       </bit-side-nav>
