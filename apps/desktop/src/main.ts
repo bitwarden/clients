@@ -44,6 +44,7 @@ import { MenuMain } from "./main/menu/menu.main";
 import { MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
+import { SsoCookieMain } from "./main/sso-cookie.main";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
@@ -93,6 +94,7 @@ export class Main {
   sshAgentService: MainSshAgentService;
   sdkLoadService: SdkLoadService;
   mainDesktopAutotypeService: MainDesktopAutotypeService;
+  ssoCookieMain: SsoCookieMain;
 
   constructor() {
     // Set paths for portable builds
@@ -140,6 +142,8 @@ export class Main {
       storageServiceProvider,
       this.logService,
     );
+
+    this.ssoCookieMain = new SsoCookieMain(globalStateProvider, this.logService);
 
     this.i18nService = new I18nMainService("en", "./locales/", globalStateProvider);
 
@@ -332,6 +336,7 @@ export class Main {
         // Reset modal mode to make sure main window is displayed correctly
         await this.desktopSettingsService.resetModalMode();
         await this.windowMain.init();
+        this.ssoCookieMain.init(this.windowMain.session);
         await this.i18nService.init();
         await this.messagingMain.init();
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.

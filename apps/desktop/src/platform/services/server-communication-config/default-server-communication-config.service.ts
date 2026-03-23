@@ -1,15 +1,15 @@
-import { Observable, shareReplay, switchMap } from "rxjs";
+import { firstValueFrom, Observable, shareReplay, switchMap } from "rxjs";
 
-import {
-  ServerCommunicationConfigClient,
-  ServerCommunicationConfigPlatformApi,
-} from "@bitwarden/sdk-internal";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { FetchMiddleware, FetchFn } from "@bitwarden/common/platform/misc/fetch-middleware";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { ServerCommunicationConfigClient } from "@bitwarden/sdk-internal";
 
-import { ConfigService } from "../../abstractions/config/config.service";
-import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
-import { ServerCommunicationConfigService } from "../../abstractions/server-communication-config/server-communication-config.service";
-
+import { ServerCommunicationConfigPlatformApiService } from "./server-communication-config-platform-api.service";
 import { ServerCommunicationConfigRepository } from "./server-communication-config.repository";
+import { ServerCommunicationConfigService } from "./server-communication-config.service";
 
 /**
  * Default implementation of ServerCommunicationConfigService.
@@ -35,11 +35,14 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
 
   constructor(
     protected repository: ServerCommunicationConfigRepository,
-    protected platformApi: ServerCommunicationConfigPlatformApi,
+    protected platformApi: ServerCommunicationConfigPlatformApiService,
     private configService: ConfigService,
+    private apiService: ApiService,
   ) {}
 
   async init() {
+    this.platformApi.init();
+
     // This function uses classes and functions defined in the SDK, so we need to wait for the SDK to load.
     await SdkLoadService.Ready;
     // Initialize SDK client with repository and platform API
@@ -53,6 +56,7 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
       // FIXME The requirement on a hostname will be removed in the sdk, but the bindings need to be updated. Andreas is working on this.
       void this.client.setCommunicationType(config.bootstrap.cookieDomain!, config);
     });
+    this.apiService.addMiddleware(this.buildRedirectMiddleware());
   }
 
   needsBootstrap$(hostname: string): Observable<boolean> {
@@ -74,5 +78,32 @@ export class DefaultServerCommunicationConfigService implements ServerCommunicat
     // 3. Saving validated cookies to repository
     // 4. Throwing appropriate AcquireCookieError on failure
     await this.client.acquireCookie(url);
+
+    // Small delay to ensure cookies are saved before retrying request
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  private buildRedirectMiddleware(): FetchMiddleware {
+    return async (request: Request, next: FetchFn): Promise<Response> => {
+      const manualRequest = new Request(request.clone(), { redirect: "manual" });
+      const response = await next(manualRequest);
+
+      if (response.type !== "opaqueredirect") {
+        return response;
+      }
+
+      const hostname = Utils.getHostname(request.url);
+      if (Utils.isNullOrWhitespace(hostname)) {
+        return response;
+      }
+      const needsBootstrap = await firstValueFrom(this.needsBootstrap$(hostname));
+      if (!needsBootstrap) {
+        return response;
+      }
+
+      await this.acquireCookie(hostname);
+      // Retry with original request (follow redirect mode, cookies now in session)
+      return next(request);
+    };
   }
 }

@@ -48,6 +48,7 @@ export class SendGeneratorDialogComponent {
    * The currently generated value.
    * @protected
    */
+
   protected readonly generatedValue = signal<string>("");
 
   protected readonly uri: string | undefined;
