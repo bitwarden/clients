@@ -1,6 +1,6 @@
 @if (label()) {
   <fieldset class="tw-border-none tw-m-0 tw-p-0">
-    <legend class="tw-mb-2 tw-block tw-text-sm tw-font-medium tw-text-main tw-w-full">
+    <legend class="tw-mb-2 tw-block">
       <ng-content select="bit-label"></ng-content>
     </legend>
     <ng-container *ngTemplateOutlet="cardStack"></ng-container>
@@ -12,8 +12,10 @@
 }
 
 <ng-template #cardStack>
-  <div class="tw-flex tw-flex-col tw-gap-2">
+  <div class="tw-flex tw-flex-col tw-gap-2 [&_bit-form-control-card]:!tw-mb-0">
     <ng-content></ng-content>
   </div>
-  <ng-content select="bit-hint" ngProjectAs="bit-hint"></ng-content>
+  <div class="tw-mt-2">
+    <ng-content select="bit-hint" ngProjectAs="bit-hint"></ng-content>
+  </div>
 </ng-template>
