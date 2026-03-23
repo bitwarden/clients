@@ -11929,6 +11929,9 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Otillförlitliga krypteringsnycklar"
   },
+  "atRiskPassword": {
+    "message": "Lösenord med risk"
+  },
   "changeAtRiskPassword": {
     "message": "Ändra lösenord för riskgrupper"
   },

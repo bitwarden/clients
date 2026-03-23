@@ -11929,6 +11929,9 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Neuzticamas šifrēšanas atslēgas"
   },
+  "atRiskPassword": {
+    "message": "At-risk password"
+  },
   "changeAtRiskPassword": {
     "message": "Mainīt riskam pakļautu paroli"
   },
