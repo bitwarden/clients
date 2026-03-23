@@ -359,8 +359,8 @@ dependencies = [
  "mockall",
  "serial_test",
  "tracing",
- "windows 0.61.1",
- "windows-core 0.61.0",
+ "windows 0.62.2",
+ "windows-core 0.62.2",
 ]
 
 [[package]]
@@ -454,7 +454,7 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-subscriber",
- "windows 0.61.1",
+ "windows 0.62.2",
 ]
 
 [[package]]
@@ -649,7 +649,7 @@ dependencies = [
  "tokio",
  "tracing",
  "verifysign",
- "windows 0.61.1",
+ "windows 0.62.2",
 ]
 
 [[package]]
@@ -957,8 +957,8 @@ dependencies = [
  "tracing",
  "typenum",
  "widestring",
- "windows 0.61.1",
- "windows-future 0.2.0",
+ "windows 0.62.2",
+ "windows-future 0.3.2",
  "zbus",
  "zbus_polkit",
  "zeroizing-alloc",
@@ -4709,8 +4709,8 @@ name = "windows_plugin_authenticator"
 version = "0.0.0"
 dependencies = [
  "hex",
- "windows 0.61.1",
- "windows-core 0.61.0",
+ "windows 0.62.2",
+ "windows-core 0.62.2",
 ]
 
 [[package]]
