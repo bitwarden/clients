@@ -589,7 +589,7 @@
     "message": "Архівовано"
   },
   "unarchiveAndSave": {
-    "message": "Розархівувати й зберегти"
+    "message": "Видобути й зберегти"
   },
   "upgradeToUseArchive": {
     "message": "Для використання архіву необхідна передплата Premium."
@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Налаштування розблокування"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Налаштуйте спосіб розблокування, щоб змінити час очікування сховища."
-  },
   "unlockMethodNeeded": {
     "message": "Встановіть спосіб розблокування в налаштуваннях"
   },
   "sessionTimeoutHeader": {
     "message": "Час очікування сеансу"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Час очікування сховища"
   },
   "otherOptions": {
     "message": "Інші налаштування"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Дія після часу очікування сховища"
   },
-  "vaultTimeoutAction1": {
-    "message": "Дія після часу очікування"
-  },
   "lock": {
     "message": "Блокувати",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Хвилин"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "До налаштувань часу очікування застосовано вимоги політики компанії"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Політикою вашої організації встановлено максимальний дозволений час очікування сховища $HOURS$ годин, $MINUTES$ хвилин.",
@@ -4436,6 +4424,9 @@
   "exportSuccess": {
     "message": "Дані сховища експортовано"
   },
+  "exportError": {
+    "message": "Виникла помилка під час експорту даних вашого сховища"
+  },
   "typePasskey": {
     "message": "Ключ доступу"
   },
@@ -4866,7 +4857,7 @@
     "message": "Копіювати адресу"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "Мої записи"
   },
   "adminConsole": {
     "message": "консолі адміністратора,"
@@ -6012,7 +6003,7 @@
     "message": "Помилка: неможливо розшифрувати"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Ваша організація більше не використовує головні паролі для входу в Bitwarden. Щоб продовжити, підтвердіть організацію та домен."
+    "message": "Ваша організація більше не використовує головні паролі для входу в Bitwarden. Щоб продовжити, підтвердьте організацію та домен."
   },
   "continueWithLogIn": {
     "message": "Перейти до входу"
@@ -6130,8 +6121,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "З міркувань безпеки та для забезпечення відповідності $ORGANIZATION$ вимагає, щоб власником всіх елементів була організація. Натисніть кнопку \"прийняти\", щоб передати права власності на ваші елементи.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ вимагає, щоб усіма записами володіла організація з міркувань безпеки та відповідності.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6130,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Натисніть \"Погодитись\", щоб передати право власності на ваші записи."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Відкрити статтю з довідки про перенесення записів"
+  },
   "acceptTransfer": {
     "message": "Схвалити переміщення"
   },
   "declineAndLeave": {
     "message": "Відхилити і покинути"
-  },
-  "whyAmISeeingThis": {
-    "message": "Чому я це бачу?"
   },
   "items": {
     "message": "Записи"
@@ -6178,9 +6172,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Введіть декілька адрес е-пошти, розділяючи їх комою."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Для підтвердження адреси електронної пошти потрібна щонайменше одна адреса. Щоб вилучити всі адреси електронної пошти, змініть тип доступу вище."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6187,8 @@
   },
   "userVerificationFailed": {
     "message": "Не вдалося перевірити користувача."
+  },
+  "downloadFailed": {
+    "message": "Не вдалося завантажити."
   }
 }

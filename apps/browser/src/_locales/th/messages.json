@@ -586,7 +586,7 @@
     "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archived": {
-    "message": "Archived"
+    "message": "เก็บ"
   },
   "unarchiveAndSave": {
     "message": "Unarchive and save"
@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "ตัวเลือกการปลดล็อก"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "ตั้งค่าวิธีการปลดล็อกเพื่อเปลี่ยนการดำเนินการเมื่อตู้นิรภัยหมดเวลา"
-  },
   "unlockMethodNeeded": {
     "message": "ตั้งค่าวิธีการปลดล็อกในการตั้งค่า"
   },
   "sessionTimeoutHeader": {
     "message": "เซสชันหมดเวลา"
-  },
-  "vaultTimeoutHeader": {
-    "message": "ตู้นิรภัยหมดเวลา"
   },
   "otherOptions": {
     "message": "ตัวเลือกอื่น ๆ"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "การดำเนินการเมื่อตู้นิรภัยหมดเวลา"
   },
-  "vaultTimeoutAction1": {
-    "message": "การดำเนินการเมื่อหมดเวลา"
-  },
   "lock": {
     "message": "ล็อก",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "นาที"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "ข้อกำหนดนโยบายองค์กรถูกนำไปใช้กับตัวเลือกเวลาหมดเวลาของคุณแล้ว"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "นโยบายองค์กรกำหนดระยะเวลาหมดเวลาของตู้นิรภัยสูงสุดไว้ที่ $HOURS$ ชั่วโมง $MINUTES$ นาที",
@@ -4436,6 +4424,9 @@
   "exportSuccess": {
     "message": "ส่งออกข้อมูลตู้นิรภัยแล้ว"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "typePasskey": {
     "message": "พาสคีย์"
   },
@@ -4866,13 +4857,13 @@
     "message": "คัดลอกที่อยู่"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "รายการของฉัน"
   },
   "adminConsole": {
     "message": "คอนโซลผู้ดูแลระบบ"
   },
   "admin": {
-    "message": "Admin"
+    "message": "แอดมิน"
   },
   "automaticUserConfirmation": {
     "message": "Automatic user confirmation"
@@ -6130,8 +6121,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ กำหนดให้รายการทั้งหมดต้องเป็นขององค์กรเพื่อความปลอดภัยและการปฏิบัติตามข้อกำหนด คลิกยอมรับเพื่อโอนกรรมสิทธิ์รายการของคุณ",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6130,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "ยอมรับการโอนย้าย"
   },
   "declineAndLeave": {
     "message": "ปฏิเสธและออก"
-  },
-  "whyAmISeeingThis": {
-    "message": "ทำไมฉันจึงเห็นสิ่งนี้"
   },
   "items": {
     "message": "Items"
@@ -6178,9 +6172,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6187,8 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }

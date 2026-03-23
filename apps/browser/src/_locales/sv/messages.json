@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Upplåsningsalternativ"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Konfigurera en upplåsningsmetod för att ändra timeout-åtgärden för valvet."
-  },
   "unlockMethodNeeded": {
     "message": "Ställ in en upplåsningsmetod i Inställningar"
   },
   "sessionTimeoutHeader": {
     "message": "Timeout för session"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Timeout för valv"
   },
   "otherOptions": {
     "message": "Andra alternativ"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Åtgärd när valvets tidsgräns överskrids"
   },
-  "vaultTimeoutAction1": {
-    "message": "Åtgärd vid timeout"
-  },
   "lock": {
     "message": "Lås",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Minuter"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Företagets policykrav har tillämpats på dina timeout-alternativ"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Dina organisationsprinciper påverkar ditt valvs tid för timeout. Maximal tillåten tid innan timeout är $HOURS$ timmar och $MINUTES$ minuter.",
@@ -4435,6 +4423,9 @@
   },
   "exportSuccess": {
     "message": "Valvdata exporteras"
+  },
+  "exportError": {
+    "message": "Ett fel inträffade vid export av ditt valvdata"
   },
   "typePasskey": {
     "message": "Nyckel"
@@ -6130,8 +6121,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ kräver att alla objekt ägs av organisationen för säkerhet och efterlevnad. Klicka på godkänn för att överföra ägarskapet för dina objekt.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6130,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Godkänn överföring"
   },
   "declineAndLeave": {
     "message": "Avböj och lämna"
-  },
-  "whyAmISeeingThis": {
-    "message": "Varför ser jag det här?"
   },
   "items": {
     "message": "Objekt"
@@ -6178,9 +6172,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Ange flera e-postadresser genom att separera dem med kommatecken."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "användare@bitwarden.com , användare@acme.com"
   },
@@ -6196,5 +6187,8 @@
   },
   "userVerificationFailed": {
     "message": "Verifiering av användare misslyckades."
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }

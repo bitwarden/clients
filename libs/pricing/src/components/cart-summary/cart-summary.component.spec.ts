@@ -413,7 +413,7 @@ describe("CartSummaryComponent", () => {
   });
 
   describe("Discount Display", () => {
-    it("should not display discount section when no discount is present", () => {
+    it("should not display discount section when no discounts are present", () => {
       // Arrange / Act
       const discountSection = fixture.debugElement.query(
         By.css('[data-testid="discount-section"]'),
@@ -427,10 +427,12 @@ describe("CartSummaryComponent", () => {
       // Arrange
       const cartWithDiscount: Cart = {
         ...mockCart,
-        discount: {
-          type: DiscountTypes.PercentOff,
-          value: 20,
-        },
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 20,
+          },
+        ],
       };
       fixture.componentRef.setInput("cart", cartWithDiscount);
       fixture.detectChanges();
@@ -452,10 +454,12 @@ describe("CartSummaryComponent", () => {
       // Arrange
       const cartWithDiscount: Cart = {
         ...mockCart,
-        discount: {
-          type: DiscountTypes.AmountOff,
-          value: 50.0,
-        },
+        discounts: [
+          {
+            type: DiscountTypes.AmountOff,
+            value: 50.0,
+          },
+        ],
       };
       fixture.componentRef.setInput("cart", cartWithDiscount);
       fixture.detectChanges();
@@ -476,10 +480,12 @@ describe("CartSummaryComponent", () => {
       // Arrange
       const cartWithDiscount: Cart = {
         ...mockCart,
-        discount: {
-          type: DiscountTypes.PercentOff,
-          value: 20,
-        },
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 20,
+          },
+        ],
       };
       fixture.componentRef.setInput("cart", cartWithDiscount);
       fixture.detectChanges();
@@ -493,6 +499,72 @@ describe("CartSummaryComponent", () => {
       // Act / Assert
       expect(topTotal.nativeElement.textContent).toContain(expectedTotal);
       expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
+    });
+
+    it("should display multiple discounts as separate line items", () => {
+      // Arrange
+      const cartWithMultipleDiscounts: Cart = {
+        ...mockCart,
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 20,
+          },
+          {
+            type: DiscountTypes.AmountOff,
+            value: 10.0,
+          },
+        ],
+      };
+      fixture.componentRef.setInput("cart", cartWithMultipleDiscounts);
+      fixture.detectChanges();
+
+      const discountSections = fixture.debugElement.queryAll(
+        By.css('[data-testid="discount-section"]'),
+      );
+
+      // Act / Assert
+      expect(discountSections.length).toBe(2);
+      // First discount: 20% of 372 = 74.4
+      expect(
+        discountSections[0].query(By.css('[data-testid="discount-amount"]')).nativeElement
+          .textContent,
+      ).toContain("-$74.40");
+      // Second discount: $10.00 off (flat amount, unaffected by cascading)
+      expect(
+        discountSections[1].query(By.css('[data-testid="discount-amount"]')).nativeElement
+          .textContent,
+      ).toContain("-$10.00");
+    });
+
+    it("should apply cascading subtotal when multiple percent-off discounts are stacked", () => {
+      // Arrange
+      const cartWithStackedPercents: Cart = {
+        ...mockCart,
+        discounts: [
+          { type: DiscountTypes.PercentOff, value: 10 },
+          { type: DiscountTypes.PercentOff, value: 10 },
+        ],
+      };
+      fixture.componentRef.setInput("cart", cartWithStackedPercents);
+      fixture.detectChanges();
+
+      const discountSections = fixture.debugElement.queryAll(
+        By.css('[data-testid="discount-section"]'),
+      );
+
+      // Act / Assert
+      expect(discountSections.length).toBe(2);
+      // Subtotal = 372; first 10% → 37.2 off, running subtotal = 334.8
+      expect(
+        discountSections[0].query(By.css('[data-testid="discount-amount"]')).nativeElement
+          .textContent,
+      ).toContain("-$37.20");
+      // Second 10% applied to 334.8 → 33.48 off (not 37.2)
+      expect(
+        discountSections[1].query(By.css('[data-testid="discount-amount"]')).nativeElement
+          .textContent,
+      ).toContain("-$33.48");
     });
   });
 
@@ -634,10 +706,12 @@ describe("CartSummaryComponent", () => {
             },
           },
         },
-        discount: {
-          type: DiscountTypes.PercentOff,
-          value: 10,
-        },
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 10,
+          },
+        ],
       };
       fixture.componentRef.setInput("cart", cartWithBothDiscounts);
       fixture.detectChanges();
@@ -675,6 +749,55 @@ describe("CartSummaryComponent", () => {
 
       // Assert
       expect(discountRow).toBeFalsy();
+    });
+  });
+
+  describe("Discount Badge Visibility", () => {
+    it("should not render discount badges by default", () => {
+      // Arrange
+      const cartWithDiscounts: Cart = {
+        ...mockCart,
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 20,
+          },
+        ],
+      };
+      fixture.componentRef.setInput("cart", cartWithDiscounts);
+      fixture.detectChanges();
+
+      // Act
+      const badges = fixture.debugElement.queryAll(By.css("billing-discount-badge"));
+
+      // Assert
+      expect(badges.length).toBe(0);
+    });
+
+    it("should render discount badges when showDiscountBadges is true", () => {
+      // Arrange
+      const cartWithDiscounts: Cart = {
+        ...mockCart,
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 20,
+          },
+          {
+            type: DiscountTypes.AmountOff,
+            value: 10,
+          },
+        ],
+      };
+      fixture.componentRef.setInput("cart", cartWithDiscounts);
+      fixture.componentRef.setInput("showDiscountBadges", true);
+      fixture.detectChanges();
+
+      // Act
+      const badges = fixture.debugElement.queryAll(By.css("billing-discount-badge"));
+
+      // Assert
+      expect(badges.length).toBe(2);
     });
   });
 
@@ -736,10 +859,12 @@ describe("CartSummaryComponent", () => {
       // Arrange
       const cartWithBoth: Cart = {
         ...mockCart,
-        discount: {
-          type: DiscountTypes.PercentOff,
-          value: 10,
-        },
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 10,
+          },
+        ],
         credit: {
           translationKey: "accountCredit",
           value: 30.0,
