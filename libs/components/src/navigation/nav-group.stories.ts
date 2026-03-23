@@ -216,34 +216,6 @@ export const WithTrailingElements: StoryObj<NavGroupComponent> = {
             (click)="handleEditClick()"
           ></button>
         </bit-nav-group>
-        <bit-nav-group text="With Danger Button" [route]="['b']" icon="bwi-filter">
-          <bit-nav-item text="Child A" route="ba"></bit-nav-item>
-          <bit-nav-item text="Child B" route="bb"></bit-nav-item>
-          <button
-            type="button"
-            slot="end"
-            class="tw-ms-auto"
-            bitIconButton="bwi-pencil-square"
-            buttonType="danger"
-            size="xsmall"
-            label="Edit"
-            (click)="handleEditClick()"
-          ></button>
-        </bit-nav-group>
-        <bit-nav-group text="With DangerGhost Button" [route]="['c']" icon="bwi-filter">
-          <bit-nav-item text="Child A" route="ca"></bit-nav-item>
-          <bit-nav-item text="Child B" route="cb"></bit-nav-item>
-          <button
-            type="button"
-            slot="end"
-            class="tw-ms-auto"
-            bitIconButton="bwi-pencil-square"
-            buttonType="dangerGhost"
-            size="xsmall"
-            label="Edit"
-            (click)="handleEditClick()"
-          ></button>
-        </bit-nav-group>
         <bit-nav-group text="With Chip" [route]="['d']" icon="bwi-filter">
           <bit-nav-item text="Child A" route="da"></bit-nav-item>
           <bit-nav-item text="Child B" route="db"></bit-nav-item>
