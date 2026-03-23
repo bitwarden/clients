@@ -1033,7 +1033,7 @@ describe("ViewComponent", () => {
       expect(AutofillConfirmationDialogComponent.open).toHaveBeenCalledWith(dialogService, {
         data: {
           currentUrl: "https://example.com",
-          savedUrls: ["https://example.com"],
+          savedUris: component.cipher.login.uris,
           viewOnly: false,
         },
       });
@@ -1101,7 +1101,7 @@ describe("ViewComponent", () => {
       expect(openSpy).toHaveBeenCalledWith(dialogService, {
         data: {
           currentUrl: "https://example.com",
-          savedUrls: ["https://example.com"],
+          savedUris: component.cipher.login.uris,
           viewOnly: true,
         },
       });
@@ -1128,7 +1128,7 @@ describe("ViewComponent", () => {
       expect(openSpy).toHaveBeenCalledWith(dialogService, {
         data: {
           currentUrl: "https://example.com",
-          savedUrls: ["https://example.com", "https://example2.com"],
+          savedUris: component.cipher.login.uris.filter((u) => u.uri),
           viewOnly: false,
         },
       });
@@ -1151,7 +1151,7 @@ describe("ViewComponent", () => {
       expect(openSpy).toHaveBeenCalledWith(dialogService, {
         data: {
           currentUrl: "https://example.com",
-          savedUrls: [],
+          savedUris: [],
           viewOnly: false,
         },
       });

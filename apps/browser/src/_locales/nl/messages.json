@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Ontgrendelopties"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Stel een ontgrendelingsmethode in om je kluis time-out actie te wijzigen."
-  },
   "unlockMethodNeeded": {
     "message": "Stel je ontgrendelingsmethode in in de instellingen"
   },
   "sessionTimeoutHeader": {
     "message": "Sessietime-out"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Time-out van de kluis"
   },
   "otherOptions": {
     "message": "Andere opties"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Actie bij time-out"
   },
-  "vaultTimeoutAction1": {
-    "message": "Time-out actie"
-  },
   "lock": {
     "message": "Vergrendelen",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Minuten"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Bedrijfsbeleidseisen zijn toegepast op je time-out instellingen"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Het beleid van je organisatie heeft invloed op de time-out van je kluis. De maximaal toegestane kluis time-out is $HOURS$ uur en $MINUTES$ minuten.",
@@ -4435,6 +4423,9 @@
   },
   "exportSuccess": {
     "message": "Kluisgegevens geëxporteerd"
+  },
+  "exportError": {
+    "message": "Er is een fout opgetreden tijdens het exporteren van je kluisgegevens"
   },
   "typePasskey": {
     "message": "Passkey"
@@ -6130,8 +6121,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en naleving. Klik op accepteren voor het overdragen van eigendom van je items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en regelgeving.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6130,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Klik op accepteren voor het overdragen van het eigendom van je items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Help-artikel openen over de overdracht van items"
+  },
   "acceptTransfer": {
     "message": "Overdacht accepteren"
   },
   "declineAndLeave": {
     "message": "Weigeren en verlaten"
-  },
-  "whyAmISeeingThis": {
-    "message": "Waarom zie ik dit?"
   },
   "items": {
     "message": "Items"
@@ -6178,9 +6172,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Voer meerdere e-mailadressen in door te scheiden met een komma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "E-mailverificatie vereist ten minste één e-mailadres. Om alle e-mailadressen te verwijderen, moet je het toegangstype hierboven wijzigen."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6187,8 @@
   },
   "userVerificationFailed": {
     "message": "Gebruikersverificatie is mislukt."
+  },
+  "downloadFailed": {
+    "message": "Downloaden mislukt."
   }
 }

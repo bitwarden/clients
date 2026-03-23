@@ -26,7 +26,6 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
@@ -210,8 +209,8 @@ describe("UserApiLoginStrategy", () => {
   });
 
   it("decrypts and sets the user key if Key Connector is enabled", async () => {
-    const userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
-    const masterKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey;
+    const userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
+    const masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
 
     const tokenResponse = identityTokenResponseFactory();
     tokenResponse.apiUseKeyConnector = true;

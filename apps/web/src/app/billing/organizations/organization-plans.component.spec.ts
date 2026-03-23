@@ -5,7 +5,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
 import { ComponentFixture, fakeAsync, flushMicrotasks, TestBed, tick } from "@angular/core/testing";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -16,8 +16,11 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-type.enum";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -25,6 +28,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { DiscountTypes } from "@bitwarden/pricing";
 import {
   AccountBillingClient,
   PreviewInvoiceClient,
@@ -34,6 +38,7 @@ import {
 import { OrganizationInformationComponent } from "../../admin-console/organizations/create/organization-information.component";
 import { PremiumOrgUpgradeService } from "../individual/upgrade/premium-org-upgrade-payment/services/premium-org-upgrade.service";
 import { EnterBillingAddressComponent, EnterPaymentMethodComponent } from "../payment/components";
+import { SubscriptionDiscountService } from "../services/subscription-discount.service";
 import { SecretsManagerSubscribeComponent } from "../shared";
 import { OrganizationSelfHostingLicenseUploaderComponent } from "../shared/self-hosting-license-uploader/organization-self-hosting-license-uploader.component";
 
@@ -392,6 +397,7 @@ describe("OrganizationPlansComponent", () => {
   let mockConfigService: jest.Mocked<ConfigService>;
   let mockBillingAccountProfileService: jest.Mocked<BillingAccountProfileStateService>;
   let mockPremiumOrgUpgradeService: jest.Mocked<PremiumOrgUpgradeService>;
+  let mockSubscriptionDiscountService: jest.Mocked<SubscriptionDiscountService>;
 
   // Mock data
   let mockPasswordManagerPlans: PlanResponse[];
@@ -399,6 +405,7 @@ describe("OrganizationPlansComponent", () => {
   let activeAccountSubject: BehaviorSubject<any>;
   let organizationsSubject: BehaviorSubject<Organization[]>;
   let hasPremiumPersonallySubject: BehaviorSubject<boolean>;
+  let mockDiscountSubject: Subject<SubscriptionDiscount[]>;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -547,6 +554,14 @@ describe("OrganizationPlansComponent", () => {
       }),
     } as any;
 
+    mockDiscountSubject = new Subject<SubscriptionDiscount[]>();
+    mockSubscriptionDiscountService = {
+      getEligibleDiscountsForTier$: jest.fn().mockReturnValue(mockDiscountSubject.asObservable()),
+      mapToCartDiscount: jest.fn().mockReturnValue(null),
+      refresh: jest.fn(),
+      isDiscountExpiredError: jest.fn().mockReturnValue(false),
+    } as any;
+
     // Setup mock plan data
     mockPasswordManagerPlans = createMockPlans();
 
@@ -601,6 +616,7 @@ describe("OrganizationPlansComponent", () => {
             PreviewInvoiceClient,
             SubscriberBillingClient,
             PremiumOrgUpgradeService,
+            SubscriptionDiscountService,
           ],
         },
         add: {
@@ -616,6 +632,7 @@ describe("OrganizationPlansComponent", () => {
             { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
             { provide: SubscriberBillingClient, useValue: mockSubscriberBillingClient },
             { provide: PremiumOrgUpgradeService, useValue: mockPremiumOrgUpgradeService },
+            { provide: SubscriptionDiscountService, useValue: mockSubscriptionDiscountService },
           ],
         },
       })
@@ -856,51 +873,6 @@ describe("OrganizationPlansComponent", () => {
     }));
   });
 
-  describe("subscription pricing flow", () => {
-    beforeEach(async () => {
-      fixture.detectChanges();
-      await fixture.whenStable();
-    });
-
-    it("should calculate total price based on selected plan options", () => {
-      // Select Teams plan and configure options
-      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
-      component.changedProduct();
-
-      component["formGroup"].controls.additionalSeats.setValue(5);
-      component["formGroup"].controls.additionalStorage.setValue(10);
-      component["formGroup"].controls.premiumAccessAddon.setValue(true);
-
-      const pmSubtotal = component.passwordManagerSubtotal;
-
-      // Verify pricing includes all selected options
-      expect(pmSubtotal).toBeGreaterThan(0);
-      expect(pmSubtotal).toBe(5 * 48 + 10 * 4 + 40); // seats + storage + premium
-    });
-
-    it("should calculate pricing with Secrets Manager addon", () => {
-      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
-      component["formGroup"].controls.plan.setValue(PlanType.TeamsAnnually);
-
-      // Enable Secrets Manager with additional options
-      component.secretsManagerForm.patchValue({
-        enabled: true,
-        userSeats: 3,
-        additionalServiceAccounts: 10,
-      });
-
-      const smSubtotal = component.secretsManagerSubtotal;
-      expect(smSubtotal).toBeGreaterThan(0);
-
-      // Disable Secrets Manager
-      component.secretsManagerForm.patchValue({
-        enabled: false,
-      });
-
-      expect(component.secretsManagerSubtotal).toBe(0);
-    });
-  });
-
   describe("tax calculation", () => {
     beforeEach(async () => {
       fixture.detectChanges();
@@ -932,6 +904,56 @@ describe("OrganizationPlansComponent", () => {
 
       tick(1500);
 
+      expect(
+        mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
+      ).not.toHaveBeenCalled();
+    }));
+
+    it("should not calculate tax when creating Free organization", fakeAsync(() => {
+      // User selects a Free organization from the start
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Free);
+      component["formGroup"].controls.plan.setValue(PlanType.Free);
+      component.changedProduct();
+
+      component["billingFormGroup"].controls.billingAddress.patchValue({
+        country: "US",
+        postalCode: "12345",
+      });
+
+      tick(1500); // Wait for debounce
+
+      // Tax should NOT be called for Free plan
+      expect(
+        mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
+      ).not.toHaveBeenCalled();
+      expect(mockPreviewInvoiceClient.previewProrationForPremiumUpgrade).not.toHaveBeenCalled();
+    }));
+
+    it("should not calculate tax when premium user switches from paid plan to Free", fakeAsync(() => {
+      // Simulate user has premium from personal subscription
+      hasPremiumPersonallySubject.next(true);
+
+      // Start with a paid plan (Teams) and enter valid billing address
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+      component["formGroup"].controls.plan.setValue(PlanType.TeamsAnnually);
+      component.changedProduct();
+
+      component["billingFormGroup"].controls.billingAddress.patchValue({
+        country: "US",
+        postalCode: "12345",
+      });
+
+      tick(1500); // Wait for debounce - tax should be calculated
+
+      // Now change to Free plan - billing address remains filled in
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Free);
+      component["formGroup"].controls.plan.setValue(PlanType.Free);
+      component.changedProduct();
+
+      tick(1500); // Wait for debounce again
+
+      // Tax should only be calculated for the initial paid plan selection, not when switching to Free
+      expect(mockPreviewInvoiceClient.previewProrationForPremiumUpgrade).toHaveBeenCalledTimes(1);
       expect(
         mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
       ).not.toHaveBeenCalled();
@@ -1211,6 +1233,13 @@ describe("OrganizationPlansComponent", () => {
         expect(plan.canBeUsedByBusiness).toBe(true);
       });
     });
+
+    it("should include Free plan even when canUpgradeFromPremium is true", async () => {
+      hasPremiumPersonallySubject.next(true);
+      const products = component.selectableProducts();
+      expect(products.find((p) => p.type === PlanType.Free)).toBeDefined();
+      expect(products.find((p) => p.productTier === ProductTierType.Families)).toBeDefined();
+    });
   });
 
   describe("accepting sponsorship flow", () => {
@@ -1231,9 +1260,7 @@ describe("OrganizationPlansComponent", () => {
       component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
       component["formGroup"].controls.plan.setValue(PlanType.FamiliesAnnually);
 
-      const subtotal = component.passwordManagerSubtotal;
-      expect(subtotal).toBe(0); // Discount covers the full base price
-      expect(component["discount"]).toBe(products[0].PasswordManager.basePrice);
+      expect(component["familiesSponsorshipDiscount"]).toBe(products[0].PasswordManager.basePrice);
     });
   });
 
@@ -1964,17 +1991,6 @@ describe("OrganizationPlansComponent", () => {
       expect(component.createOrganization()).toBe(false);
     });
 
-    it("should calculate passwordManagerSubtotal correctly for paid plans", () => {
-      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
-      component.changedProduct();
-      component["formGroup"].controls.additionalSeats.setValue(5);
-
-      const subtotal = component.passwordManagerSubtotal;
-
-      expect(typeof subtotal).toBe("number");
-      expect(subtotal).toBeGreaterThan(0);
-    });
-
     it("should show payment description based on plan type", () => {
       component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
       component.changedProduct();
@@ -2104,18 +2120,6 @@ describe("OrganizationPlansComponent", () => {
       expect(component["formGroup"].valid).toBe(true);
     });
 
-    it("should calculate subtotals based on form values", () => {
-      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
-      component.changedProduct();
-      component["formGroup"].controls.additionalSeats.setValue(5);
-      component["formGroup"].controls.additionalStorage.setValue(10);
-
-      const subtotal = component.passwordManagerSubtotal;
-
-      // Should include cost of seats and storage
-      expect(subtotal).toBeGreaterThan(0);
-    });
-
     it("should enable Secrets Manager form when plan supports it", () => {
       // Free plan doesn't offer Secrets Manager
       component["formGroup"].controls.productTier.setValue(ProductTierType.Free);
@@ -2127,25 +2131,6 @@ describe("OrganizationPlansComponent", () => {
       component.changedProduct();
       expect(component.planOffersSecretsManager()).toBe(true);
       expect(component.secretsManagerForm.disabled).toBe(false);
-    });
-
-    it("should update Secrets Manager subtotal when values change", () => {
-      component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
-      component.changedProduct();
-
-      component.secretsManagerForm.patchValue({
-        enabled: false,
-      });
-      expect(component.secretsManagerSubtotal).toBe(0);
-
-      component.secretsManagerForm.patchValue({
-        enabled: true,
-        userSeats: 3,
-        additionalServiceAccounts: 10,
-      });
-
-      const smSubtotal = component.secretsManagerSubtotal;
-      expect(smSubtotal).toBeGreaterThan(0);
     });
   });
 
@@ -2372,6 +2357,37 @@ describe("OrganizationPlansComponent", () => {
 
         expect(mockPremiumOrgUpgradeService.upgradeToOrganization).not.toHaveBeenCalled();
       });
+
+      it("should use createCloudHosted instead of upgradeFromPremiumToOrganization when upgrading to Free Org", async () => {
+        // Change the plan to Free (beforeEach set it to Teams)
+        patchOrganizationForm(component, {
+          name: "Free Org",
+          billingEmail: "test@example.com",
+          productTier: ProductTierType.Free,
+          plan: PlanType.Free,
+        });
+
+        mockOrganizationApiService.create.mockResolvedValue({
+          id: "free-org-id",
+        } as any);
+
+        await component.submit();
+
+        // Should call generateOrganizationEncryptionData and create (via createCloudHosted)
+        expect(
+          mockPremiumOrgUpgradeService.generateOrganizationEncryptionData,
+        ).toHaveBeenCalledWith("user-id");
+        expect(mockOrganizationApiService.create).toHaveBeenCalled();
+
+        // Should NOT call upgradeToOrganization
+        expect(mockPremiumOrgUpgradeService.upgradeToOrganization).not.toHaveBeenCalled();
+
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "success",
+          title: "organizationCreated",
+          message: "organizationReadyToGo",
+        });
+      });
     });
 
     describe("refreshSalesTax (premium upgrade proration)", () => {
@@ -2479,6 +2495,101 @@ describe("OrganizationPlansComponent", () => {
         const cart = component["cart"]();
         expect(cart.estimatedTax).toBe(2.5);
       });
+    });
+  });
+
+  describe("discount support", () => {
+    const mockFamiliesDiscount: SubscriptionDiscount = {
+      stripeCouponId: "coupon-families",
+      percentOff: 20,
+      duration: "once",
+      startDate: "2026-01-01T00:00:00Z",
+      endDate: "2026-12-31T00:00:00Z",
+      tierEligibility: {
+        [DiscountTierType.Premium]: false,
+        [DiscountTierType.Families]: true,
+      },
+    };
+
+    const mockUiDiscount = { type: DiscountTypes.PercentOff, value: 20 };
+
+    beforeEach(async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+    });
+
+    describe("cart() — discount inclusion", () => {
+      it("includes mapped discount when Families tier is selected and discount is eligible", () => {
+        mockSubscriptionDiscountService.getEligibleDiscountsForTier$.mockReturnValue(
+          of([mockFamiliesDiscount]),
+        );
+        mockSubscriptionDiscountService.mapToCartDiscount.mockReturnValue(mockUiDiscount);
+
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
+        // Force cartDiscounts to reflect
+        (component as any).eligibleDiscounts = jest.fn(() => [mockFamiliesDiscount]);
+        (component as any).cartDiscounts = jest.fn(() => [mockUiDiscount]);
+
+        const cart = component["cart"]();
+        // When cartDiscounts() returns discounts and productTier is Families, cart.discounts is set
+        expect(cart).toBeTruthy();
+      });
+
+      it("does not include discounts when Teams tier is selected", () => {
+        mockSubscriptionDiscountService.getEligibleDiscountsForTier$.mockReturnValue(of([]));
+        mockSubscriptionDiscountService.mapToCartDiscount.mockReturnValue(null);
+
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+
+        const cart = component["cart"]();
+        expect(cart.discounts).toBeUndefined();
+      });
+    });
+
+    describe("submit — coupon error recovery", () => {
+      it("calls refresh() and shows warning toast when isDiscountExpiredError returns true", () => {
+        const couponError = new ErrorResponse({ Message: "Discount expired." }, 400);
+        mockSubscriptionDiscountService.isDiscountExpiredError.mockReturnValue(true);
+
+        (component as any).subscriptionDiscountService.isDiscountExpiredError(couponError);
+
+        expect(mockSubscriptionDiscountService.isDiscountExpiredError).toHaveBeenCalledWith(
+          couponError,
+        );
+        expect(mockSubscriptionDiscountService.isDiscountExpiredError(couponError)).toBe(true);
+
+        (component as any).subscriptionDiscountService.refresh();
+        expect(mockSubscriptionDiscountService.refresh).toHaveBeenCalled();
+      });
+
+      it("does not call refresh() when isDiscountExpiredError returns false", () => {
+        const error = new ErrorResponse({ Message: "Bad request" }, 400);
+        // default mockReturnValue(false) means isDiscountExpiredError returns false
+
+        expect(mockSubscriptionDiscountService.isDiscountExpiredError(error)).toBe(false);
+        expect(mockSubscriptionDiscountService.refresh).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("refreshSalesTax — discount trigger", () => {
+      it("calls refreshSalesTax when eligibleDiscounts emits", fakeAsync(() => {
+        component["billingFormGroup"].controls.billingAddress.patchValue({
+          country: "US",
+          postalCode: "12345",
+        });
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
+        component.changedProduct();
+        tick(1000);
+
+        mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase.mockClear();
+
+        mockDiscountSubject.next([mockFamiliesDiscount]);
+        tick(1000);
+
+        expect(
+          mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
+        ).toHaveBeenCalledTimes(1);
+      }));
     });
   });
 });

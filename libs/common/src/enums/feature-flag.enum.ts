@@ -28,6 +28,7 @@ export enum FeatureFlag {
   SSHAgentV2 = "ssh-agent-v2",
 
   /* Billing */
+  PM29108_EnablePersonalDiscounts = "pm-29108-enable-personal-discounts",
   TrialPaymentOptional = "PM-8163-trial-payment",
   PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
   PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
@@ -44,7 +45,6 @@ export enum FeatureFlag {
   LinuxBiometricsV2 = "pm-26340-linux-biometrics-v2",
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
   PasskeyUnlock = "pm-2035-passkey-unlock",
-  DataRecoveryTool = "pm-28813-data-recovery-tool",
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
@@ -154,6 +154,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
 
   /* Billing */
+  [FeatureFlag.PM29108_EnablePersonalDiscounts]: FALSE,
   [FeatureFlag.TrialPaymentOptional]: FALSE,
   [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
   [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,
@@ -170,7 +171,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
   [FeatureFlag.PasskeyUnlock]: FALSE,
-  [FeatureFlag.DataRecoveryTool]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
