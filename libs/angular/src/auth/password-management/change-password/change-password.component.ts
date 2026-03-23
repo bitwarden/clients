@@ -164,6 +164,7 @@ export class ChangePasswordComponent implements OnInit {
             passwordInputResult,
             this.activeAccount,
           );
+          this.passwordChanged.emit();
           return; // EARLY RETURN for flagged logic
         }
 
