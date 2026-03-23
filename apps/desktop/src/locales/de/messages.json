@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Für diese Funktion ist eine Premium-Mitgliedschaft notwendig."
   },
+  "syncWithBrowser": {
+    "message": "Mit Browser synchronisieren"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "Um dich mit $VAULTURL$ zu verbinden, musst du deinen Standardbrowser mit der Bitwarden-App synchronisieren. Sobald die Synchronisierung abgeschlossen ist, wirst du zurück zu dieser App geleitet.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Browser starten"
+  },
   "errorOccurred": {
     "message": "Ein Fehler ist aufgetreten."
   },
@@ -3750,6 +3766,9 @@
   },
   "exportSuccess": {
     "message": "Tresor-Daten exportiert"
+  },
+  "exportError": {
+    "message": "Beim Exportieren deiner Tresordaten ist ein Fehler aufgetreten"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Multifaktor-Authentifizierung abgebrochen"

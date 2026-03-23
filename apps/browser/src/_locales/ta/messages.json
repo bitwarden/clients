@@ -4424,6 +4424,9 @@
   "exportSuccess": {
     "message": "வால்ட் தரவு ஏற்றுமதி செய்யப்பட்டது"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "typePasskey": {
     "message": "பாஸ்கி"
   },

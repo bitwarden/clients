@@ -11929,6 +11929,9 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Nepouzdani ključevi za šifriranje"
   },
+  "atRiskPassword": {
+    "message": "At-risk password"
+  },
   "changeAtRiskPassword": {
     "message": "Promijeni rizičnu lozinku"
   },

@@ -11929,6 +11929,9 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Chiavi di crittografia non attendibili"
   },
+  "atRiskPassword": {
+    "message": "At-risk password"
+  },
   "changeAtRiskPassword": {
     "message": "Cambia parola d'accesso a rischio"
   },

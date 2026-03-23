@@ -4424,6 +4424,9 @@
   "exportSuccess": {
     "message": "Seyf veriləri xaricə köçürüldü"
   },
+  "exportError": {
+    "message": "Seyf verilərinizi xaricə köçürərkən bir xəta baş verdi"
+  },
   "typePasskey": {
     "message": "Keçid açarı"
   },

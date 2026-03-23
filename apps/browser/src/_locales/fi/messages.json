@@ -4424,6 +4424,9 @@
   "exportSuccess": {
     "message": "Holvin tiedot on viety"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "typePasskey": {
     "message": "Pääsyavain"
   },

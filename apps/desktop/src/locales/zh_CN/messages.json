@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "需要高级版成员才能使用此功能。"
   },
+  "syncWithBrowser": {
+    "message": "与浏览器同步"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "要连接到 $VAULTURL$，您需要将您的默认浏览器与 Bitwarden App 同步。浏览器同步后，您将被重定向回此 App。",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "启动浏览器"
+  },
   "errorOccurred": {
     "message": "发生错误。"
   },
@@ -3750,6 +3766,9 @@
   },
   "exportSuccess": {
     "message": "密码库数据已导出"
+  },
+  "exportError": {
+    "message": "导出密码库数据时发生错误"
   },
   "multifactorAuthenticationCancelled": {
     "message": "多重身份验证已取消"

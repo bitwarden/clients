@@ -4424,6 +4424,9 @@
   "exportSuccess": {
     "message": "保管庫データをエクスポートしました"
   },
+  "exportError": {
+    "message": "保管庫データのエクスポート中にエラーが発生しました"
+  },
   "typePasskey": {
     "message": "パスキー"
   },

@@ -589,7 +589,7 @@
     "message": "Архівовано"
   },
   "unarchiveAndSave": {
-    "message": "Розархівувати й зберегти"
+    "message": "Видобути й зберегти"
   },
   "upgradeToUseArchive": {
     "message": "Для використання архіву необхідна передплата Premium."
@@ -4424,6 +4424,9 @@
   "exportSuccess": {
     "message": "Дані сховища експортовано"
   },
+  "exportError": {
+    "message": "Виникла помилка під час експорту даних вашого сховища"
+  },
   "typePasskey": {
     "message": "Ключ доступу"
   },
@@ -4854,7 +4857,7 @@
     "message": "Копіювати адресу"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "Мої записи"
   },
   "adminConsole": {
     "message": "консолі адміністратора,"
@@ -6000,7 +6003,7 @@
     "message": "Помилка: неможливо розшифрувати"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Ваша організація більше не використовує головні паролі для входу в Bitwarden. Щоб продовжити, підтвердіть організацію та домен."
+    "message": "Ваша організація більше не використовує головні паролі для входу в Bitwarden. Щоб продовжити, підтвердьте організацію та домен."
   },
   "continueWithLogIn": {
     "message": "Перейти до входу"
@@ -6119,7 +6122,7 @@
     }
   },
   "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
+    "message": "$ORGANIZATION$ вимагає, щоб усіма записами володіла організація з міркувань безпеки та відповідності.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6128,10 +6131,10 @@
     }
   },
   "transferItemsToOrganizationAction": {
-    "message": "Click accept to transfer ownership of your items."
+    "message": "Натисніть \"Погодитись\", щоб передати право власності на ваші записи."
   },
   "openTransferItemsHelpArticle": {
-    "message": "Open help article on transferring items"
+    "message": "Відкрити статтю з довідки про перенесення записів"
   },
   "acceptTransfer": {
     "message": "Схвалити переміщення"
@@ -6186,6 +6189,6 @@
     "message": "Не вдалося перевірити користувача."
   },
   "downloadFailed": {
-    "message": "Failed to download."
+    "message": "Не вдалося завантажити."
   }
 }

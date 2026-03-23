@@ -6,9 +6,11 @@ import {
   ElementRef,
   EventEmitter,
   inject,
+  input,
   Input,
   OnChanges,
   Output,
+  ResourceRef,
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
@@ -71,6 +73,7 @@ export class LoginCredentialsViewComponent implements OnChanges {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showChangePasswordLink: boolean;
+  readonly changePasswordUrl = input<ResourceRef<string>>();
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() handleChangePassword = new EventEmitter<void>();

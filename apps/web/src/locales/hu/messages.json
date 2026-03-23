@@ -11929,6 +11929,9 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Megbízhatatlan titkosítási kulcsok"
   },
+  "atRiskPassword": {
+    "message": "Veszélyes jelszó"
+  },
   "changeAtRiskPassword": {
     "message": "Kockázatos jelszó megváltoztatása"
   },
