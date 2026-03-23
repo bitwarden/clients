@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Options de déverrouillage"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configurez une méthode de déverrouillage pour changer le délai d'expiration de votre coffre."
-  },
   "unlockMethodNeeded": {
     "message": "Configurer une méthode de déverrouillage dans les Paramètres"
   },
   "sessionTimeoutHeader": {
     "message": "Expiration de la session"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Délai d'expiration du coffre"
   },
   "otherOptions": {
     "message": "Autres options"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Action après délai d'expiration du coffre"
   },
-  "vaultTimeoutAction1": {
-    "message": "Expiration de l'action"
-  },
   "lock": {
     "message": "Verrouiller",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Minutes"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Les exigences de la politique de sécurité d'Entreprise ont été appliquées à vos options de délai d'expiration"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Les politiques de sécurité de votre organisation ont défini le délai d'expiration de votre coffre à $HOURS$ heure(s) et $MINUTES$ minute(s) maximum.",
@@ -4435,6 +4423,9 @@
   },
   "exportSuccess": {
     "message": "Données du coffre exportées"
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
   },
   "typePasskey": {
     "message": "Clé d'accès"
@@ -6130,8 +6121,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ exige que tous les éléments soient détenus par l’organisation pour des raisons de sécurité et de conformité. Cliquez sur Accepter pour transférer la propriété de vos éléments.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6130,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accepter le transfert"
   },
   "declineAndLeave": {
     "message": "Refuser et quitter"
-  },
-  "whyAmISeeingThis": {
-    "message": "Pourquoi vois-je ceci ?"
   },
   "items": {
     "message": "Éléments"
@@ -6178,9 +6172,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Entrez plusieurs courriels en les séparant d'une virgule."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "La vérification de courriel requiert au moins une adresse courriel. Pour retirer toutes les adresses, changez le type d'accès ci-dessus."
-  },
   "emailPlaceholder": {
     "message": "utilisateur@bitwarden.com , utilisateur@acme.com"
   },
@@ -6196,5 +6187,8 @@
   },
   "userVerificationFailed": {
     "message": "Échec de la vérification d'utilisateur."
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }
