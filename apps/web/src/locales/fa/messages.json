@@ -11929,6 +11929,9 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "کلیدهای رمزنگاری غیرقابل اعتماد"
   },
+  "atRiskPassword": {
+    "message": "At-risk password"
+  },
   "changeAtRiskPassword": {
     "message": "تغییر کلمه عبور در معرض خطر"
   },

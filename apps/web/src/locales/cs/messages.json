@@ -11929,6 +11929,9 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Nedůvěryhodné šifrovací klíče"
   },
+  "atRiskPassword": {
+    "message": "Zranitelné heslo"
+  },
   "changeAtRiskPassword": {
     "message": "Změnit zranitelné heslo"
   },

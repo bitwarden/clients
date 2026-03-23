@@ -2122,7 +2122,7 @@
     "message": "密码库数据已导出"
   },
   "exportError": {
-    "message": "导出您的密码库数据时发生错误"
+    "message": "导出密码库数据时发生错误"
   },
   "passwordGenerator": {
     "message": "密码生成器"
@@ -5383,7 +5383,7 @@
     "message": "您必须至少选择一个集合。"
   },
   "couldNotChargeCardPayInvoice": {
-    "message": "我们无法从您的支付卡中扣款。请查看并支付下面列出的未支付账单。"
+    "message": "我们无法从您的支付卡中扣款。请查看并支付下面列出的未支付的账单。"
   },
   "minLength": {
     "message": "最小长度"
@@ -11929,6 +11929,9 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "未信任的加密密钥"
   },
+  "atRiskPassword": {
+    "message": "存在风险的密码"
+  },
   "changeAtRiskPassword": {
     "message": "更改存在风险的密码"
   },
@@ -12240,7 +12243,7 @@
     }
   },
   "unpaidInvoices": {
-    "message": "未付款账单"
+    "message": "未支付的账单"
   },
   "unpaidInvoicesForServiceUser": {
     "message": "您的订阅尚未支付。请联系您的提供商管理员，以恢复对您和您客户的服务。",

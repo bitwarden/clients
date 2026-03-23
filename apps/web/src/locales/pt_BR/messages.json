@@ -3,16 +3,16 @@
     "message": "Todos os aplicativos"
   },
   "allMembers": {
-    "message": "All members"
+    "message": "Todos os membros"
   },
   "allPasswords": {
-    "message": "All passwords"
+    "message": "Todas as senhas"
   },
   "activity": {
     "message": "Atividade"
   },
   "applicationsAtRisk": {
-    "message": "Applications at risk"
+    "message": "Aplicativos em risco"
   },
   "appLogoLabel": {
     "message": "Logo do Bitwarden"
@@ -54,13 +54,13 @@
     "message": "Risco de senhas"
   },
   "passwords": {
-    "message": "Passwords"
+    "message": "Senhas"
   },
   "riskOverTime": {
-    "message": "Risk over time"
+    "message": "Risco ao longo do tempo"
   },
   "passwordsAtRisk": {
-    "message": "Passwords at risk"
+    "message": "Senhas em risco"
   },
   "noEditPermissions": {
     "message": "Você não tem permissão para editar este item"
@@ -2122,7 +2122,7 @@
     "message": "Dados do cofre exportados"
   },
   "exportError": {
-    "message": "An error occurred while exporting your vault data"
+    "message": "Ocorreu um erro ao exportar os dados do seu cofre"
   },
   "passwordGenerator": {
     "message": "Gerador de senhas"
@@ -3387,7 +3387,7 @@
     "message": "Próxima cobrança"
   },
   "nextChargeDate": {
-    "message": "Próxima cobrança"
+    "message": "Data da próxima cobrança"
   },
   "plan": {
     "message": "Plano"
@@ -5760,7 +5760,7 @@
     }
   },
   "sendCreatedDescriptionEmail": {
-    "message": "Copie e compartilhe este link do Send. Ele pode ser visto pelas pessoas que você especificou pelos próximos $TIME$.",
+    "message": "Copie e compartilhe este link do Send. Ele pode ser visto pelas pessoas que você especificou por $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -6048,7 +6048,7 @@
     "message": "Centralizar propriedade da organização"
   },
   "centralizeDataOwnershipDesc": {
-    "message": "Todos os itens dos membros serão propriedade e gerenciados pela organização. Os administradores e proprietários estão isentos. "
+    "message": "Todos os itens dos membros serão propriedade e gerenciados pela organização. Os administradores e proprietários são isentos. "
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "Saiba mais sobre a propriedade centralizada",
@@ -7166,7 +7166,7 @@
     "message": "Caminho de callback"
   },
   "signedOutCallbackPath": {
-    "message": "Caminho de callback desconectado"
+    "message": "Caminho de callback de desconexão"
   },
   "authority": {
     "message": "Autoridade"
@@ -8332,7 +8332,7 @@
     "message": "Membros"
   },
   "membersAtRisk": {
-    "message": "Members at risk"
+    "message": "Membros em risco"
   },
   "reporting": {
     "message": "Relatórios"
@@ -11079,7 +11079,7 @@
     "message": "Detalhes do cliente"
   },
   "downloadChart": {
-    "message": "Download chart"
+    "message": "Baixar gráfico"
   },
   "downloadCSV": {
     "message": "Baixar CSV"
@@ -11543,7 +11543,7 @@
     }
   },
   "userSelfRevokedOrganizationOwnership": {
-    "message": "Revoked for declining transfer to organization ownership."
+    "message": "Revogado por não aceitar a transferência da propriedade da organização."
   },
   "suspendedOrganizationTitle": {
     "message": "A $ORGANIZATION$ está suspensa",
@@ -11928,6 +11928,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Chaves criptográficas não confiadas"
+  },
+  "atRiskPassword": {
+    "message": "Senha em risco"
   },
   "changeAtRiskPassword": {
     "message": "Alterar senhas em risco"
@@ -12967,7 +12970,7 @@
     "message": "Digite vários e-mails, separados com uma vírgula."
   },
   "emailPlaceholder": {
-    "message": "user@bitwarden.com , user@acme.com"
+    "message": "usuário@bitwarden.com , usuário@acme.com"
   },
   "whenYouRemoveStorage": {
     "message": "Quando você remover o armazenamento, você receberá um crédito de conta proporcional que irá automaticamente para sua próxima fatura."
@@ -13010,10 +13013,10 @@
     "message": "por usuário"
   },
   "upgradeToTeams": {
-    "message": "Fazer upgrade para o Equipes"
+    "message": "Fazer upgrade ao Equipes"
   },
   "upgradeToEnterprise": {
-    "message": "Fazer upgrade para o Empresarial"
+    "message": "Fazer upgrade ao Empresarial"
   },
   "upgradeShareEvenMore": {
     "message": "Compartilhe ainda mais com o Famílias, ou receba segurança poderosa e confiável de senhas com o Equipes ou o Empresarial"
@@ -13041,7 +13044,7 @@
     "message": "Crédito da assinatura Premium"
   },
   "enterpriseMembership": {
-    "message": "Assinatura Empresarial"
+    "message": "Assinatura do Empresarial"
   },
   "teamsMembership": {
     "message": "Assinatura do Equipes"
@@ -13077,28 +13080,28 @@
     }
   },
   "sendsTitleNoSearchResults": {
-    "message": "No search results returned"
+    "message": "Nenhum resultado de busca"
   },
   "sendsBodyNoSearchResults": {
-    "message": "Clear filters or try another search term"
+    "message": "Limpe os filtros ou tente outro termo de busca"
   },
   "pastMonth": {
-    "message": "Past month"
+    "message": "Últimos 30 dias"
   },
   "past3Months": {
-    "message": "Past 3 months"
+    "message": "Últimos 3 meses"
   },
   "past6Months": {
-    "message": "Past 6 months"
+    "message": "Últimos 6 meses"
   },
   "pastYear": {
-    "message": "Past year"
+    "message": "Último ano"
   },
   "allTime": {
-    "message": "All time"
+    "message": "Desde o início"
   },
   "timePeriod": {
-    "message": "Time period"
+    "message": "Intervalo de tempo"
   },
   "of": {
     "message": "de"

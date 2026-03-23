@@ -11929,6 +11929,9 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Güvenilmeyen şifreleme anahtarları"
   },
+  "atRiskPassword": {
+    "message": "Riskli parolalar"
+  },
   "changeAtRiskPassword": {
     "message": "Risk altındaki parolayı değiştirin"
   },

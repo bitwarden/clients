@@ -11929,6 +11929,9 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "நம்பத்தகாத குறியாக்க விசைகள்"
   },
+  "atRiskPassword": {
+    "message": "At-risk password"
+  },
   "changeAtRiskPassword": {
     "message": "அபாயகரமான கடவுச்சொல்லை மாற்றவும்"
   },

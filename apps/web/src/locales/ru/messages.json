@@ -11929,6 +11929,9 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Недоверенные ключи шифрования"
   },
+  "atRiskPassword": {
+    "message": "Пароль, подверженный риску"
+  },
   "changeAtRiskPassword": {
     "message": "Изменить пароль, подверженный риску"
   },

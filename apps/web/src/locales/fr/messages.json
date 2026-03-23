@@ -11929,6 +11929,9 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Clés de chiffrement non fiables"
   },
+  "atRiskPassword": {
+    "message": "Mot de passe à risque"
+  },
   "changeAtRiskPassword": {
     "message": "Changer le mot de passe à risque"
   },

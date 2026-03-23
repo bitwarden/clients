@@ -12,7 +12,7 @@
     "message": "Aktivität"
   },
   "applicationsAtRisk": {
-    "message": "Applications at risk"
+    "message": "Gefährdete Anwendungen"
   },
   "appLogoLabel": {
     "message": "Bitwarden-Logo"
@@ -57,10 +57,10 @@
     "message": "Passwörter"
   },
   "riskOverTime": {
-    "message": "Risk over time"
+    "message": "Gefährdung im Zeitverlauf"
   },
   "passwordsAtRisk": {
-    "message": "Passwords at risk"
+    "message": "Gefährdete Passwörter"
   },
   "noEditPermissions": {
     "message": "Du bist nicht berechtigt, diesen Eintrag zu bearbeiten"
@@ -8332,7 +8332,7 @@
     "message": "Mitglieder"
   },
   "membersAtRisk": {
-    "message": "Members at risk"
+    "message": "Gefährdete Mitglieder"
   },
   "reporting": {
     "message": "Berichte"
@@ -11079,7 +11079,7 @@
     "message": "Kundendetails"
   },
   "downloadChart": {
-    "message": "Download chart"
+    "message": "Diagramm herunterladen"
   },
   "downloadCSV": {
     "message": "CSV-Datei herunterladen"
@@ -11928,6 +11928,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Nicht vertrauenswürdige Verschlüsselungsschlüssel"
+  },
+  "atRiskPassword": {
+    "message": "Gefährdetes Passwort"
   },
   "changeAtRiskPassword": {
     "message": "Gefährdetes Passwort ändern"
@@ -13083,22 +13086,22 @@
     "message": "Filter löschen oder es mit einem anderen Suchbegriff versuchen"
   },
   "pastMonth": {
-    "message": "Past month"
+    "message": "Letzter Monat"
   },
   "past3Months": {
-    "message": "Past 3 months"
+    "message": "Letzte 3 Monate"
   },
   "past6Months": {
-    "message": "Past 6 months"
+    "message": "Letzte 6 Monate"
   },
   "pastYear": {
-    "message": "Past year"
+    "message": "Letztes Jahr"
   },
   "allTime": {
-    "message": "All time"
+    "message": "Gesamte Zeit"
   },
   "timePeriod": {
-    "message": "Time period"
+    "message": "Zeitraum"
   },
   "of": {
     "message": "of"
