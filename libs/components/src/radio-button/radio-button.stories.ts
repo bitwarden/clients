@@ -247,6 +247,8 @@ export const FormControlCard: Story = {
     template: /* HTML */ `
       <form [formGroup]="formObj">
         <bit-radio-group formControlName="radio" aria-label="Example radio group">
+          <bit-label>Select an option</bit-label>
+
           <bit-radio-button-card [value]="0">
             <bit-label>Option A</bit-label>
           </bit-radio-button-card>
@@ -256,6 +258,8 @@ export const FormControlCard: Story = {
           <bit-radio-button-card [value]="2">
             <bit-label>Option C</bit-label>
           </bit-radio-button-card>
+
+          <bit-hint>Choose one of the options above.</bit-hint>
         </bit-radio-group>
       </form>
     `,
