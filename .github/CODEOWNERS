@@ -145,6 +145,8 @@ apps/web/src/translation-constants.ts @bitwarden/team-platform-dev
 .github/workflows/stale-bot.yml @bitwarden/team-platform-dev
 .github/workflows/test.yml @bitwarden/team-platform-dev
 .github/workflows/version-auto-bump.yml @bitwarden/team-platform-dev
+.github/workflows/cherry-pick.yml @bitwarden/team-platform-dev
+
 # ESLint custom rules
 libs/eslint @bitwarden/team-platform-dev
 libs/eslint/components @bitwarden/team-ui-foundation
@@ -167,6 +169,7 @@ apps/desktop/desktop_native/ssh_agent @bitwarden/team-autofill-desktop-dev @bitw
 apps/desktop/desktop_native/napi/src/autofill.rs @bitwarden/team-autofill-desktop-dev
 apps/desktop/desktop_native/napi/src/autotype.rs @bitwarden/team-autofill-desktop-dev
 apps/desktop/desktop_native/napi/src/sshagent.rs @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/napi/src/sshagent_v2.rs @bitwarden/team-autofill-desktop-dev
 # DuckDuckGo integration
 apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-desktop-dev
 apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-desktop-dev

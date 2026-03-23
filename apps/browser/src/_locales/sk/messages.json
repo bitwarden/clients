@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Možnosti odomknutia"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Nastavte metódu odomknutia, aby ste zmenili akciu pri vypršaní času trezoru."
-  },
   "unlockMethodNeeded": {
     "message": "Nastavte metódu odomknutia v nastaveniach"
   },
   "sessionTimeoutHeader": {
     "message": "Časový limit relácie"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Časový limit pre trezor"
   },
   "otherOptions": {
     "message": "Ďalšie možnosti"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Akcia pri vypršaní časového limitu pre trezor"
   },
-  "vaultTimeoutAction1": {
-    "message": "Akcia pri vypršaní časového limitu"
-  },
   "lock": {
     "message": "Uzamknúť",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Minúty"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Na možnosti pri vypršaní časového limitu boli uplatnené požiadavky pravidiel spoločnosti"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Zásady vašej organizácie ovplyvňujú časový limit trezoru. Maximálny povolený časový limit trezoru je $HOURS$ h a $MINUTES$ m.",
@@ -4435,6 +4423,9 @@
   },
   "exportSuccess": {
     "message": "Údaje z trezora boli exportované"
+  },
+  "exportError": {
+    "message": "Pri exportovaní údajov trezora sa vyskytla chyba"
   },
   "typePasskey": {
     "message": "Prístupový kľúč"
@@ -6130,8 +6121,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ vyžaduje, aby všetky položky boli vo vlastníctve organizácie z dôvodu bezpečnosti a dodržiavania predpisov. Ak chcete previesť vlastníctvo položiek, kliknite na tlačidlo Prijať.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ vyžaduje, aby všetky položky boli vo vlastníctve organizácie z dôvodu bezpečnosti a dodržiavania predpisov.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6130,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Kliknutím na tlačidlo Prijať prenesiete vlastníctvo svojich položiek."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Otvoriť článok pomocníka o prenose položiek"
+  },
   "acceptTransfer": {
     "message": "Prijať prenos"
   },
   "declineAndLeave": {
     "message": "Zamietnuť a odísť"
-  },
-  "whyAmISeeingThis": {
-    "message": "Prečo to vidím?"
   },
   "items": {
     "message": "Položky"
@@ -6178,9 +6172,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Zadajte viacero e-mailových adries oddelených čiarkou."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Overenie e-mailu vyžaduje aspoň jednu e-mailovú adresu. Ak chcete odstrániť všetky e-maily, zmeňte typ prístupu vyššie."
-  },
   "emailPlaceholder": {
     "message": "pouzivate@bitwarden.com, pouzivatel@acme.com"
   },
@@ -6196,5 +6187,8 @@
   },
   "userVerificationFailed": {
     "message": "Overenie používateľa zlyhalo."
+  },
+  "downloadFailed": {
+    "message": "Sťahovanie zlyhalo."
   }
 }

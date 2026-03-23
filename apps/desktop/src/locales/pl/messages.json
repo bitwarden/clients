@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Konto Premium jest wymagane, aby skorzystać z tej funkcji."
   },
+  "syncWithBrowser": {
+    "message": "Sync with browser"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Launch browser"
+  },
   "errorOccurred": {
     "message": "Wystąpił błąd."
   },
@@ -1280,6 +1296,9 @@
   "changeMasterPass": {
     "message": "Zmień hasło główne"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "continueToWebApp": {
     "message": "Kontynuować przejście do aplikacji internetowej?"
   },
@@ -1358,17 +1377,11 @@
   "twoStepLogin": {
     "message": "Logowanie dwustopniowe"
   },
-  "vaultTimeoutHeader": {
-    "message": "Blokowanie sejfu"
-  },
   "vaultTimeout": {
     "message": "Blokowanie sejfu"
   },
   "vaultTimeout1": {
     "message": "Blokada aplikacji"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Sposób blokady"
   },
   "vaultTimeoutDesc": {
     "message": "Wybierz, kiedy sejf zostanie zablokowany i wykonaj następującą akcję."
@@ -1658,6 +1671,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "miesiąc"
+  },
+  "monthly": {
+    "message": "Miesięcznie"
+  },
+  "year": {
+    "message": "rok"
+  },
+  "annually": {
+    "message": "Rocznie"
+  },
+  "annual": {
+    "message": "Rocznie"
   },
   "refreshComplete": {
     "message": "Odświeżanie zostało zakończone"
@@ -2088,9 +2116,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "Zaloguj się ponownie, aby uzyskać dostęp do sejfu."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Ustaw metodę odblokowania, aby zmienić sposób blokowania sejfu."
   },
   "lock": {
     "message": "Zablokuj",
@@ -2709,9 +2734,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Czas blokowania aplikacji przekracza limit określony przez organizację."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Zasady organizacji zostały zastosowane do opcji blokowania sejfu"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Zasady organizacji mają wpływ na czas blokowania sejfu. Maksymalny dozwolony czas wynosi $HOURS$ godz. i $MINUTES$ min.",
@@ -3745,6 +3767,9 @@
   "exportSuccess": {
     "message": "Dane sejfu zostały wyeksportowane"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Logowanie dwustopniowe zostało anulowane"
   },
@@ -4617,8 +4642,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "Organizacja $ORGANIZATION$ wymaga, aby wszystkie elementy były ich własnością.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4651,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Kliknij akceptuj, aby przenieść własność elementów."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Otwórz artykuł pomocy dotyczący przenoszenia elementów"
+  },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "Akceptuj"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Dlaczego to widzę?"
   },
   "organizationIsSuspended": {
     "message": "Organizacja została zawieszona"
@@ -4692,9 +4720,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"

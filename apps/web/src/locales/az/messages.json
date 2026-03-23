@@ -2,8 +2,17 @@
   "allApplications": {
     "message": "Bütün tətbiqlər"
   },
+  "allMembers": {
+    "message": "Bütün üzvlər"
+  },
+  "allPasswords": {
+    "message": "Bütün parollar"
+  },
   "activity": {
     "message": "Fəaliyyət"
+  },
+  "applicationsAtRisk": {
+    "message": "Riskli tətbiqlər"
   },
   "appLogoLabel": {
     "message": "Bitwarden loqosu"
@@ -43,6 +52,15 @@
   },
   "passwordRisk": {
     "message": "Parol riski"
+  },
+  "passwords": {
+    "message": "Parollar"
+  },
+  "riskOverTime": {
+    "message": "Vaxtla risk"
+  },
+  "passwordsAtRisk": {
+    "message": "Riskli parollar"
   },
   "noEditPermissions": {
     "message": "Bu elementə düzəliş etmə icazəniz yoxdur"
@@ -2103,6 +2121,9 @@
   "exportSuccess": {
     "message": "Seyf veriləri xaricə köçürüldü"
   },
+  "exportError": {
+    "message": "Seyf verilərinizi xaricə köçürərkən bir xəta baş verdi"
+  },
   "passwordGenerator": {
     "message": "Parol yaradıcı"
   },
@@ -3047,16 +3068,16 @@
   "breachDesc": {
     "message": "Hesabların pozuntusu zamanı, fərdi məlumatlar ifşa oluna bilər. 2FA-nı fəallaşdıraraq və ya daha güclü bir parol yaradaraq pozuntuya daxil olmuş hesabların güvənliyini artırın."
   },
-  "breachCheckUsernameEmail": {
-    "message": "İstifadə etdiyiniz istifadəçi adlarını və ya e-poçt ünvanlarını yoxlayın."
+  "breachCheckEmail": {
+    "message": "İstifadə etdiyiniz bütün e-poçt ünvanlarını yoxlayın."
   },
   "checkBreaches": {
     "message": "Pozuntuları yoxla"
   },
-  "breachUsernameNotFound": {
-    "message": "$USERNAME$ bilinən heç bir veri pozuntusunda tapılmadı.",
+  "breachEmailNotFound": {
+    "message": "$EMAIL$ bilinən heç bir veri pozuntusunda tapılmadı.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3087,10 @@
     "message": "Xəbərlər yaxşıdır",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "$USERNAME$ $COUNT$ fərqli onlayn veri pozuntusunda tapıldı.",
+  "breachEmailFound": {
+    "message": "$EMAIL$ $COUNT$ fərqli onlayn veri pozuntusunda tapıldı.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -6055,10 +6076,10 @@
     "message": "Köçürmə barədə daha ətraflı"
   },
   "promptUsersToMoveItems": {
-    "message": "Prompt users to move individual vault items to the organization"
+    "message": "İstifadəçilərdən fərdi seyf elementlərini təşkilata daşımasını istəyin"
   },
   "promptUsersToMoveItemsCallout": {
-    "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+    "message": "Üzvlərdən elementləri təşkilata köçürməsi, ya da tərk etməsi soruşulacaq. Əgər tərk etsələr, erişimləri ləğv ediləcək, ancaq istənilən vaxt bərpa edə biləcəklər."
   },
   "organizationDataOwnership": {
     "message": "Təşkilata veri üzərində məcburi sahiblik ver"
@@ -8310,6 +8331,9 @@
   "members": {
     "message": "Üzvlər"
   },
+  "membersAtRisk": {
+    "message": "Riskli üzvlər"
+  },
   "reporting": {
     "message": "Hesabat göndərmə"
   },
@@ -8580,6 +8604,14 @@
   "newProject": {
     "message": "Yeni layihə",
     "description": "Title for creating a new project."
+  },
+  "clickToRenameProject": {
+    "message": "Bu layihəni yenidən adlandırmaq üçün kliklə",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "Layihə adının şifrəsi açıla bilmir - yenidən adlandırmaq üçün layihəyə kliklə",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
     "message": "\"Sirr\"ləri silmək, mövcud inteqrasiyalara təsir edə bilər.",
@@ -11046,6 +11078,9 @@
   "clientDetails": {
     "message": "Client detalları"
   },
+  "downloadChart": {
+    "message": "Diaqramı endir"
+  },
   "downloadCSV": {
     "message": "CSV-ni endir"
   },
@@ -11498,6 +11533,18 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "$ID$ istifadəçisi, özünü təşkilatdan çıxartdı.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "userSelfRevokedOrganizationOwnership": {
+    "message": "Təşkilatın sahibliyinə ötürülməyə rədd cavabı verildiyi üçün ləğv edildi."
+  },
   "suspendedOrganizationTitle": {
     "message": "$ORGANIZATION$ fəaliyyəti dayandırıldı",
     "placeholders": {
@@ -11881,6 +11928,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Güvənilməyən şifrələmə açarları"
+  },
+  "atRiskPassword": {
+    "message": "At-risk password"
   },
   "changeAtRiskPassword": {
     "message": "Riskli parolları dəyişdir"
@@ -12551,12 +12601,6 @@
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Bu siyasət aktivləşdirilməzdən əvvəl bir domen götürülməlidir."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Seyf vaxt bitmə əməliyyatınızı dəyişdirmək üçün bir kilid açma üsulu qurun."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Müəssisə siyasət tələbləri, vaxt bitmə seçimlərinizə tətbiq edildi"
-  },
   "vaultTimeoutTooLarge": {
     "message": "Seyfin bitmə vaxtı, təşkilatınız tərəfindən ayarlanan məhdudiyyətləri aşır."
   },
@@ -12755,8 +12799,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$, təhlükəsizlik və riayətlilik üçün bütün elementlərin təşkilata aid olmasını tələb edir. Elementlərinizin sahibliyini transfer etmək üçün qəbul edin.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$, təhlükəsizlik və riayətlilik üçün bütün elementlərin təşkilata məxsus olmasını tələb edir.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12764,14 +12808,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Elementlərinizin sahibliyini transfer etmək üçün \"Qəbul et\"ə klikləyin."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Elementlərin köçürülməsi üzrə kömək məqaləsini aç"
+  },
   "acceptTransfer": {
     "message": "Transferi qəbul et"
   },
   "declineAndLeave": {
     "message": "Rədd et və tərk et"
-  },
-  "whyAmISeeingThis": {
-    "message": "Bunu niyə görürəm?"
   },
   "youHaveBitwardenPremium": {
     "message": "Sizdə Bitwarden Premium var"
@@ -12922,9 +12969,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Birdən çox e-poçtu daxil edərkən vergül istifadə edin."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "E-poçt doğrulama, ən azı bir e-poçt ünvanı tələb edir. Bütün e-poçtlar silmək üçün yuxarıdan erişim növünü dəyişdirin."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -13032,6 +13076,70 @@
       "date": {
         "content": "$2",
         "example": "Jan 1, 1970"
+      }
+    }
+  },
+  "sendsTitleNoSearchResults": {
+    "message": "Heç bir axtarış nəticəsi qayıtmadı"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Filtrləri təmizləyin və ya başqa bir axtarış terminini sınayın"
+  },
+  "pastMonth": {
+    "message": "Keçən ay"
+  },
+  "past3Months": {
+    "message": "Son 3 ay"
+  },
+  "past6Months": {
+    "message": "Son 6 ay"
+  },
+  "pastYear": {
+    "message": "Keçən il"
+  },
+  "allTime": {
+    "message": "Bütün vaxtlar"
+  },
+  "timePeriod": {
+    "message": "Vaxt periodu"
+  },
+  "of": {
+    "message": "/"
+  },
+  "coachmarkImportTitle": {
+    "message": "Parollarınızı sürətlə daxilə köçürün"
+  },
+  "coachmarkImportDescription": {
+    "message": "Daha əvvəl parol meneceri istifadə etmisiniz? Mövcud giriş məlumatlarını və digər veriləri ehtiva edən CSV faylını seyfinizə köçürə bilərsiniz."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Bir element əlavə et"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Yeni parolları, notları və digər məlumatları seyfinizə əlavə edin. Hər şey, ucdan-uca şifrələmə ilə qorunur."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Elementləri başqaları ilə güvənlə paylaşın"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "Bir elementi bir kolleksiyaya daşıyaraq, onu təşkilatınızdakı digər insanlarla güvənli şəkildə paylaşa bilərsiniz."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Parolunuzun təhlükəsizliyini izləyin"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Zəiflik hesabatları vasitəsilə seyfinizdəki elementlərin təhlükəsizliyini gücləndirin."
+  },
+  "coachmarkStepIndicator": {
+    "message": "Addım $CURRENT$/$TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
       }
     }
   }

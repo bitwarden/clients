@@ -3,7 +3,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit, signal } from "@angular/core";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { RouterModule } from "@angular/router";
+import { Router, RouterModule } from "@angular/router";
 import {
   BehaviorSubject,
   concatMap,
@@ -30,8 +30,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -71,6 +73,7 @@ import { PopOutComponent } from "../../../platform/popup/components/pop-out.comp
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { SetPinComponent } from "../components/set-pin.component";
+import { AuthExtensionRoute } from "../constants/auth-extension-route.constant";
 
 import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
 
@@ -128,6 +131,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     );
 
   protected readonly phishingDetectionAvailable$: Observable<boolean>;
+  protected readonly multiClientPasswordManagement$: Observable<boolean>;
 
   protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
@@ -136,6 +140,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   constructor(
     private accountService: AccountService,
     private pinService: PinServiceAbstraction,
+    private configService: ConfigService,
+    private router: Router,
     private policyService: PolicyService,
     private formBuilder: FormBuilder,
     private platformUtilsService: PlatformUtilsService,
@@ -155,6 +161,10 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
   ) {
+    this.multiClientPasswordManagement$ = this.configService.getFeatureFlag$(
+      FeatureFlag.PM32413_MultiClientPasswordManagement,
+    );
+
     // Check if user phishing detection available
     this.phishingDetectionAvailable$ = this.phishingDetectionSettingsService.available$;
   }
@@ -491,6 +501,15 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   }
 
   async changePassword() {
+    const multiClientPasswordManagementFlagEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM32413_MultiClientPasswordManagement,
+    );
+
+    if (multiClientPasswordManagementFlagEnabled) {
+      await this.router.navigate(["/" + AuthExtensionRoute.ChangePassword]);
+      return;
+    }
+
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "continueToWebApp" },
       content: { key: "changeMasterPasswordOnWebConfirmation" },

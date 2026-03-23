@@ -423,7 +423,7 @@ describe("UpgradePaymentService", () => {
       expect(result).toEqual(2.5);
       expect(
         mockPreviewInvoiceClient.previewTaxForPremiumSubscriptionPurchase,
-      ).toHaveBeenCalledWith(0, mockBillingAddress);
+      ).toHaveBeenCalledWith(0, mockBillingAddress, undefined);
     });
 
     it("should calculate tax for families plan", async () => {
@@ -453,6 +453,81 @@ describe("UpgradePaymentService", () => {
           },
         },
         mockBillingAddress,
+        undefined,
+      );
+    });
+
+    it("should pass coupons to premium preview when provided", async () => {
+      // Arrange
+      const mockResponse = mock<TaxAmounts>();
+      mockResponse.tax = 2.0;
+      mockPreviewInvoiceClient.previewTaxForPremiumSubscriptionPurchase.mockResolvedValue(
+        mockResponse,
+      );
+
+      // Act
+      await sut.calculateEstimatedTax(mockPremiumPlanDetails, mockBillingAddress, ["coupon-abc"]);
+
+      // Assert
+      expect(
+        mockPreviewInvoiceClient.previewTaxForPremiumSubscriptionPurchase,
+      ).toHaveBeenCalledWith(0, mockBillingAddress, ["coupon-abc"]);
+    });
+
+    it("should omit coupons from premium preview when undefined", async () => {
+      // Arrange
+      const mockResponse = mock<TaxAmounts>();
+      mockResponse.tax = 2.5;
+      mockPreviewInvoiceClient.previewTaxForPremiumSubscriptionPurchase.mockResolvedValue(
+        mockResponse,
+      );
+
+      // Act
+      await sut.calculateEstimatedTax(mockPremiumPlanDetails, mockBillingAddress, undefined);
+
+      // Assert
+      expect(
+        mockPreviewInvoiceClient.previewTaxForPremiumSubscriptionPurchase,
+      ).toHaveBeenCalledWith(0, mockBillingAddress, undefined);
+    });
+
+    it("should pass coupons to families preview when provided", async () => {
+      // Arrange
+      const mockResponse = mock<TaxAmounts>();
+      mockResponse.tax = 4.0;
+      mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase.mockResolvedValue(
+        mockResponse,
+      );
+
+      // Act
+      await sut.calculateEstimatedTax(mockFamiliesPlanDetails, mockBillingAddress, ["coupon-xyz"]);
+
+      // Assert
+      expect(
+        mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
+      ).toHaveBeenCalledWith(expect.objectContaining({ tier: "families" }), mockBillingAddress, [
+        "coupon-xyz",
+      ]);
+    });
+
+    it("should omit coupons from families preview when undefined", async () => {
+      // Arrange
+      const mockResponse = mock<TaxAmounts>();
+      mockResponse.tax = 5.0;
+      mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase.mockResolvedValue(
+        mockResponse,
+      );
+
+      // Act
+      await sut.calculateEstimatedTax(mockFamiliesPlanDetails, mockBillingAddress, undefined);
+
+      // Assert
+      expect(
+        mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({ tier: "families" }),
+        mockBillingAddress,
+        undefined,
       );
     });
 
@@ -494,6 +569,7 @@ describe("UpgradePaymentService", () => {
       expect(mockAccountBillingClient.purchaseSubscription).toHaveBeenCalledWith(
         mockTokenizedPaymentMethod,
         mockBillingAddress,
+        undefined,
       );
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
     });
@@ -512,8 +588,39 @@ describe("UpgradePaymentService", () => {
       expect(mockAccountBillingClient.purchaseSubscription).toHaveBeenCalledWith(
         accountCreditPaymentMethod,
         mockBillingAddress,
+        undefined,
       );
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
+    });
+
+    it("passes coupons to purchaseSubscription when provided", async () => {
+      // Arrange
+      mockAccountBillingClient.purchaseSubscription.mockResolvedValue();
+
+      // Act
+      await sut.upgradeToPremium(mockTokenizedPaymentMethod, mockBillingAddress, ["coupon-abc"]);
+
+      // Assert
+      expect(mockAccountBillingClient.purchaseSubscription).toHaveBeenCalledWith(
+        mockTokenizedPaymentMethod,
+        mockBillingAddress,
+        ["coupon-abc"],
+      );
+    });
+
+    it("calls purchaseSubscription without coupons when undefined", async () => {
+      // Arrange
+      mockAccountBillingClient.purchaseSubscription.mockResolvedValue();
+
+      // Act
+      await sut.upgradeToPremium(mockTokenizedPaymentMethod, mockBillingAddress, undefined);
+
+      // Assert
+      expect(mockAccountBillingClient.purchaseSubscription).toHaveBeenCalledWith(
+        mockTokenizedPaymentMethod,
+        mockBillingAddress,
+        undefined,
+      );
     });
 
     it("should validate payment method type and token", async () => {
@@ -710,6 +817,57 @@ describe("UpgradePaymentService", () => {
           billingAddress: mockBillingAddress,
         }),
       ).rejects.toThrow("Organization name is required for families upgrade");
+    });
+
+    it("includes coupons in SubscriptionInformation when provided", async () => {
+      // Arrange
+      mockOrganizationBillingService.purchaseSubscription.mockResolvedValue({
+        id: "org-id",
+        name: "Test Organization",
+        billingEmail: "test@example.com",
+      } as OrganizationResponse);
+
+      // Act
+      await sut.upgradeToFamilies(
+        mockAccount,
+        mockFamiliesPlanDetails,
+        mockTokenizedPaymentMethod,
+        {
+          organizationName: "Test Organization",
+          billingAddress: mockBillingAddress,
+        },
+        ["coupon-xyz"],
+      );
+
+      // Assert
+      expect(mockOrganizationBillingService.purchaseSubscription).toHaveBeenCalledWith(
+        expect.objectContaining({ coupons: ["coupon-xyz"] }),
+        "user-id",
+      );
+    });
+
+    it("omits coupons from SubscriptionInformation when not provided", async () => {
+      // Arrange
+      mockOrganizationBillingService.purchaseSubscription.mockResolvedValue({
+        id: "org-id",
+        name: "Test Organization",
+        billingEmail: "test@example.com",
+      } as OrganizationResponse);
+
+      // Act
+      await sut.upgradeToFamilies(
+        mockAccount,
+        mockFamiliesPlanDetails,
+        mockTokenizedPaymentMethod,
+        {
+          organizationName: "Test Organization",
+          billingAddress: mockBillingAddress,
+        },
+      );
+
+      // Assert
+      const call = mockOrganizationBillingService.purchaseSubscription.mock.calls[0][0];
+      expect(call).not.toHaveProperty("coupons");
     });
   });
 });
