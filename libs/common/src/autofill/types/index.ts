@@ -22,7 +22,7 @@ export type TargetingRulesByDomain = {
    * indicates all pages belonging to the host should be ignored
    * (e.g. Autofill should not be used).
    */
-  [host: string]: TargetingRules | null; // FIXME improve `host` typing
+  [host: string]: TargetingRules | null;
 };
 
 type TargetingRules = {
@@ -41,14 +41,14 @@ type TargetingRules = {
      * The presence of a key with a `null`, `undefined`, or empty value
      * indicates the page should be ignored (e.g. Autofill should not be used).
      */
-    [pathname: string]: {
+    [pathname: Pathname]: {
       /**
        * Multiple form definitions for a given page allows for mixed for types
        * (e.g. a billing / shipping combo), unpredictable renders (e.g. multivariate
        * testing), multi-step flows at a single URI (e.g. SPAs), etc
        */
       forms: FormContent[];
-    } | null; // FIXME improve `pathname` typing
+    } | null;
   };
 };
 
@@ -61,7 +61,6 @@ type FormPurposeCategory =
   | "identity"
   | "payment-card"
   | "search"
-  | "shipping"
   | "subscribe";
 
 export type AutofillTargetingRuleType =
@@ -93,10 +92,16 @@ export type FormContent = {
 };
 
 /**
- * a CSS selector which can optionally include the `>>>` combinator to
- * represent a Shadow boundary between a Shadow host and a Shadow root
+ * A CSS selector which can optionally include the `>>>` combinator to
+ * represent a boundary that standard CSS selectors cannot cross.
+ * The boundary type is determined by the preceding selector segment:
+ * - Shadow DOM boundary (default): `#host >>> input`
+ * - Iframe boundary: `iframe#login >>> input`
  */
-type DeepSelector = string; // FIXME improve typing
+/** A URL pathname; must start with `/` */
+export type Pathname = `/${string}`;
+
+type DeepSelector = string;
 
 export type ClearClipboardDelaySetting =
   (typeof ClearClipboardDelay)[keyof typeof ClearClipboardDelay];

@@ -28,11 +28,19 @@ import {
 
 /** Fallback URI used when the server does not provide a targeting rules URI */
 const DEFAULT_TARGETING_RULES_SOURCE_URL =
-  "https://raw.githubusercontent.com/bitwarden/map-the-web/refs/heads/main/maps/forms.json";
+  "https://github.com/bitwarden/map-the-web/releases/latest/download/forms.v1.json";
 
 type TargetingRulesDataMeta = {
   /** The last time the data set was updated  */
   timestamp: number;
+};
+
+/**
+ * Format of the Forms Map resource.
+ */
+type FormsMapResource = {
+  version: string;
+  hosts: TargetingRulesByDomain;
 };
 
 const TARGETING_RULES_META_KEY = new KeyDefinition<TargetingRulesDataMeta>(
@@ -161,7 +169,14 @@ export class TargetingRulesDataService {
         throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
       }
 
-      const rules: TargetingRulesByDomain = await response.json();
+      const resource: FormsMapResource = await response.json();
+      const rules: TargetingRulesByDomain = resource?.hosts ?? {};
+
+      if (resource?.version) {
+        this.logService.debug(
+          `[TargetingRulesDataService] Resource schema version: ${resource.version}`,
+        );
+      }
 
       await this.domainSettingsService.setTargetingRules(rules);
       await this._metaState.update(() => ({ timestamp: Date.now() }));

@@ -26,7 +26,7 @@ import {
   UserKeyDefinition,
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
-import { FormContent, TargetingRulesByDomain } from "../types";
+import { FormContent, Pathname, TargetingRulesByDomain } from "../types";
 
 const SHOW_FAVICONS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "showFavicons", {
   deserializer: (value: boolean) => value ?? true,
@@ -313,7 +313,12 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
       return null;
     }
 
-    const hostRules = rules[parsed.host];
+    let hostRules = rules[parsed.host];
+
+    // www subdomain equivalence: if no entry for www.example.com, try example.com
+    if (hostRules === undefined && parsed.host.startsWith("www.")) {
+      hostRules = rules[parsed.host.slice(4)];
+    }
 
     // No rules for this host; fall through to heuristics
     if (hostRules === undefined) {
@@ -328,10 +333,8 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     // Check for pathname-specific rules
     // Fall back to root path `/` to enable checking cases where
     // a rule signals a form that is ONLY on the domain's root page
-    const pathname = parsed.pathname.replace(/\/+$/, "") || "/";
-    const hasPathnameKey = hostRules.pathnames != null && pathname in hostRules.pathnames;
-
-    if (hasPathnameKey) {
+    const pathname = (parsed.pathname.replace(/\/+$/, "") || "/") as Pathname;
+    if (hostRules.pathnames != null && pathname in hostRules.pathnames) {
       const pathnameEntry = hostRules.pathnames[pathname];
 
       // Pathname blocklisted (null/undefined/empty): suppress autofill on this path

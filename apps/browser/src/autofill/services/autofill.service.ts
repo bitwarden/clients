@@ -875,7 +875,9 @@ export default class AutofillService implements AutofillServiceInterface {
     const cipher = options.cipher;
 
     fillScript.savedUrls =
-      cipher.login?.uris?.filter((u) => u.match != UriMatchStrategy.Never).map((u) => u.uri) ?? [];
+      cipher.login?.uris
+        ?.filter((u) => u.match != UriMatchStrategy.Never && u.uri != null)
+        .map((u) => u.uri!) ?? [];
 
     // Note; targeted fields intentionally skip the untrusted iframe check. The
     // presence of targeting rules represents explicit expectations of the target
@@ -906,27 +908,27 @@ export default class AutofillService implements AutofillServiceInterface {
   private getValueForTargetedFieldType(fieldType: string, cipher: CipherView): string | null {
     // Login fields
     if (fieldType === "username") {
-      return cipher.login?.username;
+      return cipher.login?.username ?? null;
     }
     if (fieldType === "password" || fieldType === "newPassword") {
-      return cipher.login?.password;
+      return cipher.login?.password ?? null;
     }
     if (fieldType === "totp") {
-      return cipher.login?.totp;
+      return cipher.login?.totp ?? null;
     }
 
     // Card fields
     if (fieldType === "cardholderName") {
-      return cipher.card?.cardholderName;
+      return cipher.card?.cardholderName ?? null;
     }
     if (fieldType === "cardNumber") {
-      return cipher.card?.number;
+      return cipher.card?.number ?? null;
     }
     if (fieldType === "cardExpirationMonth") {
-      return cipher.card?.expMonth;
+      return cipher.card?.expMonth ?? null;
     }
     if (fieldType === "cardExpirationYear") {
-      return cipher.card?.expYear;
+      return cipher.card?.expYear ?? null;
     }
     if (fieldType === "cardExpirationDate") {
       return cipher.card?.expMonth && cipher.card?.expYear
@@ -934,57 +936,57 @@ export default class AutofillService implements AutofillServiceInterface {
         : null;
     }
     if (fieldType === "cardCvv") {
-      return cipher.card?.code;
+      return cipher.card?.code ?? null;
     }
 
     // Identity fields
     if (fieldType === "identityTitle") {
-      return cipher.identity?.title;
+      return cipher.identity?.title ?? null;
     }
     if (fieldType === "identityFirstName") {
-      return cipher.identity?.firstName;
+      return cipher.identity?.firstName ?? null;
     }
     if (fieldType === "identityMiddleName") {
-      return cipher.identity?.middleName;
+      return cipher.identity?.middleName ?? null;
     }
     if (fieldType === "identityLastName") {
-      return cipher.identity?.lastName;
+      return cipher.identity?.lastName ?? null;
     }
     if (fieldType === "identityFullName") {
-      return cipher.identity?.fullName;
+      return cipher.identity?.fullName ?? null;
     }
     if (fieldType === "identityAddress1") {
-      return cipher.identity?.address1;
+      return cipher.identity?.address1 ?? null;
     }
     if (fieldType === "identityAddress2") {
-      return cipher.identity?.address2;
+      return cipher.identity?.address2 ?? null;
     }
     if (fieldType === "identityAddress3") {
-      return cipher.identity?.address3;
+      return cipher.identity?.address3 ?? null;
     }
     if (fieldType === "identityCity") {
-      return cipher.identity?.city;
+      return cipher.identity?.city ?? null;
     }
     if (fieldType === "identityState") {
-      return cipher.identity?.state;
+      return cipher.identity?.state ?? null;
     }
     if (fieldType === "identityPostalCode") {
-      return cipher.identity?.postalCode;
+      return cipher.identity?.postalCode ?? null;
     }
     if (fieldType === "identityCountry") {
-      return cipher.identity?.country;
+      return cipher.identity?.country ?? null;
     }
     if (fieldType === "identityCompany") {
-      return cipher.identity?.company;
+      return cipher.identity?.company ?? null;
     }
     if (fieldType === "identityPhone") {
-      return cipher.identity?.phone;
+      return cipher.identity?.phone ?? null;
     }
     if (fieldType === "identityEmail") {
-      return cipher.identity?.email;
+      return cipher.identity?.email ?? null;
     }
     if (fieldType === "identityUsername") {
-      return cipher.identity?.username;
+      return cipher.identity?.username ?? null;
     }
 
     return null;
