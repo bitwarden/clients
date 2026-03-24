@@ -426,6 +426,7 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       UserNotificationSettingsServiceAbstraction,
       MessageListener,
+      AnimationControlService,
     ],
   }),
   safeProvider({

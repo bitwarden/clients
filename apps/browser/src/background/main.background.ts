@@ -126,6 +126,10 @@ import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
+import {
+  AnimationControlService,
+  DefaultAnimationControlService,
+} from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -477,6 +481,7 @@ export default class MainBackground {
   accountCryptographicStateService: AccountCryptographicStateService;
 
   webPushConnectionService: WorkerWebPushConnectionService | UnsupportedWebPushConnectionService;
+  animationControlService: AnimationControlService;
   themeStateService: DefaultThemeStateService;
   autoSubmitLoginBackground: AutoSubmitLoginBackground;
   sdkService: SdkService;
@@ -988,6 +993,7 @@ export default class MainBackground {
     );
 
     this.themeStateService = new DefaultThemeStateService(this.globalStateProvider);
+    this.animationControlService = new DefaultAnimationControlService(this.globalStateProvider);
 
     this.cipherEncryptionService = new DefaultCipherEncryptionService(
       this.sdkService,
@@ -1136,6 +1142,7 @@ export default class MainBackground {
       this.configService,
       this.userNotificationSettingsService,
       messageListener,
+      this.animationControlService,
     );
     this.auditService = new AuditService(
       this.cryptoFunctionService,

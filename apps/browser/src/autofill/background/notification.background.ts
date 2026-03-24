@@ -471,6 +471,8 @@ export default class NotificationBackground {
       isVaultLocked,
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       launchTimestamp,
+      showAnimations:
+        (await firstValueFrom(this.autofillService.enableNotificationAnimation$)) ?? true,
     };
 
     switch (notificationType) {
