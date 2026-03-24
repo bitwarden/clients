@@ -23,6 +23,7 @@ import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
+import { DesktopMagnifyService } from "../../autofill/services/desktop-magnify.service";
 import { SshAgentService } from "../../autofill/services/ssh-agent.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
 import { ServerCommunicationConfigService } from "../../platform/services/server-communication-config/server-communication-config.service";
@@ -52,6 +53,7 @@ export class InitService {
     private sshAgentService: SshAgentService,
     private autofillService: DesktopAutofillService,
     private autotypeService: DesktopAutotypeService,
+    private magnifyService: DesktopMagnifyService,
     private sdkLoadService: SdkLoadService,
     private biometricMessageHandlerService: BiometricMessageHandlerService,
     @Inject(DOCUMENT) private document: Document,
@@ -99,6 +101,7 @@ export class InitService {
       await this.biometricMessageHandlerService.init();
       await this.autofillService.init();
       await this.autotypeService.init();
+      await this.magnifyService.init();
     };
   }
 }

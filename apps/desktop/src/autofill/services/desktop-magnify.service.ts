@@ -64,7 +64,8 @@ export class DesktopMagnifyService implements OnDestroy {
   }
 
   async init() {
-    console.log("Is magnify enabled? -> ", firstValueFrom(this.magnifyEnabledState.state$));
+    let v = await firstValueFrom(this.magnifyEnabledState.state$);
+    console.log("Is magnify enabled? -> ", v);
     // this.magnifyFeatureEnabled$
     //   .pipe(
     //     concatMap(async (enabled) => {
