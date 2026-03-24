@@ -320,9 +320,10 @@ describe("BrowserApi", () => {
   });
 
   describe("isPopupOpen", () => {
-    describe("when chrome.runtime.getContexts is available", () => {
+    describe("when MV3 and chrome.runtime.getContexts is available", () => {
       beforeEach(() => {
         (chrome.runtime as any).getContexts = jest.fn();
+        jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(3);
       });
 
       afterEach(() => {
@@ -352,9 +353,9 @@ describe("BrowserApi", () => {
       });
     });
 
-    describe("when chrome.runtime.getContexts is not available (MV2/Safari)", () => {
+    describe("when MV2, falls back to getExtensionViews", () => {
       beforeEach(() => {
-        delete (chrome.runtime as any).getContexts;
+        jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(2);
       });
 
       it("returns true if the popup is open", async () => {
@@ -368,13 +369,30 @@ describe("BrowserApi", () => {
 
         expect(await BrowserApi.isPopupOpen()).toBe(false);
       });
+
+      it("ignores getContexts even when available (Firefox MV2 background page bug)", async () => {
+        // Firefox 128+ exposes getContexts in MV2, but classifies the persistent
+        // background page as contextType "POPUP". Without the MV3 guard, this would
+        // cause isPopupOpen() to always return true and prevent vault timeout.
+        (chrome.runtime as any).getContexts = jest
+          .fn()
+          .mockResolvedValue([
+            { contextType: "POPUP", documentUrl: "chrome-extension://id/background.html" },
+          ]);
+        chrome.extension.getViews = jest.fn().mockReturnValue([]);
+
+        expect(await BrowserApi.isPopupOpen()).toBe(false);
+
+        delete (chrome.runtime as any).getContexts;
+      });
     });
   });
 
   describe("isAnyViewFocused", () => {
-    describe("when chrome.runtime.getContexts is available", () => {
+    describe("when MV3 and chrome.runtime.getContexts is available", () => {
       beforeEach(() => {
         (chrome.runtime as any).getContexts = jest.fn();
+        jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(3);
       });
 
       afterEach(() => {
@@ -434,8 +452,25 @@ describe("BrowserApi", () => {
       });
     });
 
-    describe("when chrome.runtime.getContexts is not available (MV2/Safari)", () => {
+    describe("when MV2, falls back to getExtensionViews", () => {
       beforeEach(() => {
+        jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(2);
+        delete (chrome.runtime as any).getContexts;
+      });
+
+      it("ignores getContexts even when available (Firefox MV2 background page bug)", async () => {
+        // Firefox 128+ exposes getContexts in MV2, but classifies the persistent
+        // background page as contextType "POPUP". Without the MV3 guard, this would
+        // cause isAnyViewFocused() to permanently return true and block vault timeout.
+        (chrome.runtime as any).getContexts = jest
+          .fn()
+          .mockResolvedValue([
+            { contextType: "POPUP", documentUrl: "chrome-extension://id/background.html" },
+          ]);
+        chrome.extension.getViews = jest.fn().mockReturnValue([]);
+
+        expect(await BrowserApi.isAnyViewFocused()).toBe(false);
+
         delete (chrome.runtime as any).getContexts;
       });
 
