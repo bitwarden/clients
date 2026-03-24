@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Et Premium-medlemskap er påkrevd for å bruke denne funksjonen."
   },
+  "syncWithBrowser": {
+    "message": "Sync with browser"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Launch browser"
+  },
   "errorOccurred": {
     "message": "En feil har oppstått."
   },
@@ -1280,6 +1296,9 @@
   "changeMasterPass": {
     "message": "Endre hovedpassordet"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "continueToWebApp": {
     "message": "Vil du fortsette til nettappen?"
   },
@@ -1358,17 +1377,11 @@
   "twoStepLogin": {
     "message": "2-trinnsinnlogging"
   },
-  "vaultTimeoutHeader": {
-    "message": "Vault timeout"
-  },
   "vaultTimeout": {
     "message": "Tidsavbrudd i hvelvet"
   },
   "vaultTimeout1": {
     "message": "Tidsavbrudd"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "Velg når hvelvet ditt skal tidsavbrytes og utføre den valgte handlingen."
@@ -1658,6 +1671,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "month"
+  },
+  "monthly": {
+    "message": "Monthly"
+  },
+  "year": {
+    "message": "year"
+  },
+  "annually": {
+    "message": "Annually"
+  },
+  "annual": {
+    "message": "Annual"
   },
   "refreshComplete": {
     "message": "Oppfriskning fullført"
@@ -2088,9 +2116,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "Et utlogget hvelv krever at du autentiserer deg selv på nytt for å få tilgang til det igjen."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Sett opp en opplåsingsmetode for å endre tidsavbruddshandlingen for hvelvet."
   },
   "lock": {
     "message": "Lås",
@@ -2709,9 +2734,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Tidsavbruddet ditt for hvelvet overstiger begrensningene som er satt av organisasjonen din."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
@@ -3745,6 +3767,9 @@
   "exportSuccess": {
     "message": "Hvelvdataen ble eksportert"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Multifaktorautentisering ble avbrutt"
   },
@@ -4617,8 +4642,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4651,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
   },
   "organizationIsSuspended": {
     "message": "Organization is suspended"
@@ -4692,9 +4720,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"

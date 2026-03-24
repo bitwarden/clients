@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "이 기능을 사용하려면 프리미엄 멤버십이 필요합니다."
   },
+  "syncWithBrowser": {
+    "message": "Sync with browser"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Launch browser"
+  },
   "errorOccurred": {
     "message": "오류가 발생했습니다."
   },
@@ -1280,6 +1296,9 @@
   "changeMasterPass": {
     "message": "마스터 비밀번호 변경"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "continueToWebApp": {
     "message": "웹 앱에서 진행할까요?"
   },
@@ -1358,17 +1377,11 @@
   "twoStepLogin": {
     "message": "2단계 인증"
   },
-  "vaultTimeoutHeader": {
-    "message": "보관함 시간 제한"
-  },
   "vaultTimeout": {
     "message": "보관함 시간 제한"
   },
   "vaultTimeout1": {
     "message": "시간 제한"
-  },
-  "vaultTimeoutAction1": {
-    "message": "시간 제한 초과 시 동작"
   },
   "vaultTimeoutDesc": {
     "message": "보관함이 언제까지 시간을 제한하고 선택된 행동을 수행하지 선택해주세요."
@@ -1658,6 +1671,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "month"
+  },
+  "monthly": {
+    "message": "Monthly"
+  },
+  "year": {
+    "message": "year"
+  },
+  "annually": {
+    "message": "Annually"
+  },
+  "annual": {
+    "message": "Annual"
   },
   "refreshComplete": {
     "message": "새로 고침 완료"
@@ -2088,9 +2116,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "로그아웃한 보관함에 다시 접근하려면 다시 인증해야 합니다."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Set up an unlock method to change your vault timeout action."
   },
   "lock": {
     "message": "잠금",
@@ -2709,9 +2734,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "볼트 제한 시간이 조직에서 설정한 제한을 초과합니다."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
@@ -3745,6 +3767,9 @@
   "exportSuccess": {
     "message": "Vault data exported"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Multifactor authentication cancelled"
   },
@@ -4617,8 +4642,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4651,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
   },
   "organizationIsSuspended": {
     "message": "Organization is suspended"
@@ -4692,9 +4720,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "여러 이메일을 쉼표로 구분해 입력하세요."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "이메일 주소가 최소 하나 이상 있어야 이메일 인증 방식을 이용할 수 있습니다. 모든 이메일을 제거하려면, 위에서 접속 유형을 바꾸세요."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"

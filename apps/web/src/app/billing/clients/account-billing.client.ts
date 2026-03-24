@@ -3,6 +3,10 @@ import { Injectable } from "@angular/core";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { BitwardenSubscriptionResponse } from "@bitwarden/common/billing/models/response/bitwarden-subscription.response";
+import {
+  SubscriptionDiscount,
+  SubscriptionDiscountResponse,
+} from "@bitwarden/common/billing/models/response/subscription-discount.response";
 import { SubscriptionCadence } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { Maybe } from "@bitwarden/pricing";
@@ -22,10 +26,10 @@ export type UpgradePremiumToOrganizationRequest = {
   encryptedPrivateKey: string;
   planTier: ProductTierType;
   cadence: SubscriptionCadence;
-  billingAddress: Pick<BillingAddress, "country" | "postalCode">;
+  billingAddress: Pick<BillingAddress, "country" | "postalCode" | "taxId">;
 };
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class AccountBillingClient {
   private endpoint = "/account/billing/vnext";
 
@@ -53,15 +57,20 @@ export class AccountBillingClient {
   purchaseSubscription = async (
     paymentMethod: TokenizedPaymentMethod | NonTokenizedPaymentMethod,
     billingAddress: Pick<BillingAddress, "country" | "postalCode">,
+    coupons?: string[],
   ): Promise<void> => {
     const path = `${this.endpoint}/subscription`;
 
-    // Determine the request payload based on the payment method type
     const isTokenizedPayment = "token" in paymentMethod;
 
-    const request = isTokenizedPayment
-      ? { tokenizedPaymentMethod: paymentMethod, billingAddress: billingAddress }
-      : { nonTokenizedPaymentMethod: paymentMethod, billingAddress: billingAddress };
+    const base = isTokenizedPayment
+      ? { tokenizedPaymentMethod: paymentMethod, billingAddress }
+      : { nonTokenizedPaymentMethod: paymentMethod, billingAddress };
+
+    const request = {
+      ...base,
+      ...(coupons?.length ? { coupons } : {}),
+    };
 
     await this.apiService.send("POST", path, request, true, true);
   };
@@ -74,6 +83,15 @@ export class AccountBillingClient {
   updateSubscriptionStorage = async (additionalStorageGb: number): Promise<void> => {
     const path = `${this.endpoint}/subscription/storage`;
     await this.apiService.send("PUT", path, { additionalStorageGb }, true, false);
+  };
+
+  getApplicableDiscounts = async (): Promise<SubscriptionDiscount[]> => {
+    const path = `${this.endpoint}/discounts`;
+    const json = await this.apiService.send("GET", path, null, true, true);
+    if (!Array.isArray(json)) {
+      return [];
+    }
+    return json.map((item: any) => new SubscriptionDiscountResponse(item));
   };
 
   upgradePremiumToOrganization = async (

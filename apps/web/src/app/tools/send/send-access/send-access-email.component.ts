@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import {
   ChangeDetectionStrategy,
   Component,
@@ -25,10 +27,10 @@ export class SendAccessEmailComponent implements OnInit, OnDestroy {
   protected email: FormControl;
   protected otp: FormControl;
 
+  readonly resendCode = output<void>();
+
   readonly loading = input.required<boolean>();
   readonly backToEmail = output<void>();
-
-  constructor() {}
 
   ngOnInit() {
     this.email = new FormControl("", Validators.required);
@@ -36,31 +38,29 @@ export class SendAccessEmailComponent implements OnInit, OnDestroy {
     this.formGroup().addControl("email", this.email);
     this.formGroup().addControl("otp", this.otp);
 
-    // Update validators when enterOtp changes
     effect(() => {
       const isOtpMode = this.enterOtp();
       if (isOtpMode) {
-        // In OTP mode: email is not required (already entered), otp is required
         this.email.clearValidators();
-        this.otp.setValidators([Validators.required]);
       } else {
-        // In email mode: email is required, otp is not required
         this.email.setValidators([Validators.required]);
-        this.otp.clearValidators();
       }
       this.email.updateValueAndValidity();
-      this.otp.updateValueAndValidity();
     });
   }
+
   ngOnDestroy() {
     this.formGroup().removeControl("email");
     this.formGroup().removeControl("otp");
   }
 
+  onResendCode() {
+    this.resendCode.emit();
+  }
+
   onBackClick() {
     this.backToEmail.emit();
     if (this.otp) {
-      this.otp.clearValidators();
       this.otp.setValue("");
       this.otp.setErrors(null);
       this.otp.markAsUntouched();

@@ -173,6 +173,12 @@ export default tseslint.config(
     },
   },
   {
+    files: ["**/*.component.ts", "**/*.directive.ts", "**/*.service.ts"],
+    rules: {
+      "@bitwarden/components/enforce-readonly-angular-properties": ["error", { onlyOnPush: true }],
+    },
+  },
+  {
     // Everything in this config object targets our HTML files (external templates,
     // and inline templates as long as we have the `processor` set on our TypeScript config above)
     files: ["**/*.html"],
@@ -244,6 +250,22 @@ export default tseslint.config(
     files: ["**/src/**/*.ts"],
     rules: {
       "no-restricted-imports": buildNoRestrictedImports(),
+    },
+  },
+
+  // Desktop app overrides
+  {
+    files: ["apps/desktop/src/**/*.ts"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "CallExpression[callee.type='MemberExpression'][callee.object.name='shell'][callee.property.name='openExternal']",
+          message:
+            "Do not call shell.openExternal() directly. Use SafeShell.openExternal() instead.",
+        },
+      ],
     },
   },
 

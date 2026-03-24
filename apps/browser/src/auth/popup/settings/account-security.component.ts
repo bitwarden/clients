@@ -1,20 +1,17 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, signal } from "@angular/core";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { RouterModule } from "@angular/router";
+import { Router, RouterModule } from "@angular/router";
 import {
   BehaviorSubject,
-  combineLatest,
   concatMap,
   distinctUntilChanged,
   firstValueFrom,
   map,
   Observable,
   of,
-  pairwise,
-  startWith,
   Subject,
   switchMap,
   takeUntil,
@@ -35,13 +32,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
-import {
-  VaultTimeout,
-  VaultTimeoutAction,
-  VaultTimeoutOption,
-  VaultTimeoutSettingsService,
-  VaultTimeoutStringType,
-} from "@bitwarden/common/key-management/vault-timeout";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -65,6 +56,7 @@ import {
   TypographyModule,
   ToastService,
   SwitchComponent,
+  SpinnerComponent,
 } from "@bitwarden/components";
 import {
   KeyService,
@@ -72,10 +64,7 @@ import {
   BiometricStateService,
   BiometricsStatus,
 } from "@bitwarden/key-management";
-import {
-  SessionTimeoutInputLegacyComponent,
-  SessionTimeoutSettingsComponent,
-} from "@bitwarden/key-management-ui";
+import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -84,6 +73,7 @@ import { PopOutComponent } from "../../../platform/popup/components/pop-out.comp
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { SetPinComponent } from "../components/set-pin.component";
+import { AuthExtensionRoute } from "../constants/auth-extension-route.constant";
 
 import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
 
@@ -113,24 +103,18 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     SessionTimeoutSettingsComponent,
     SpotlightComponent,
     TypographyModule,
-    SessionTimeoutInputLegacyComponent,
     SwitchComponent,
+    SpinnerComponent,
   ],
 })
 export class AccountSecurityComponent implements OnInit, OnDestroy {
-  protected readonly VaultTimeoutAction = VaultTimeoutAction;
-
   showMasterPasswordOnClientRestartOption = true;
-  availableVaultTimeoutActions: VaultTimeoutAction[] = [];
-  vaultTimeoutOptions: VaultTimeoutOption[] = [];
-  hasVaultTimeoutPolicy = false;
   biometricUnavailabilityReason: string;
   showChangeMasterPass = true;
   pinEnabled$: Observable<boolean> = of(true);
+  protected readonly loading = signal(true);
 
   form = this.formBuilder.group({
-    vaultTimeout: [null as VaultTimeout | null],
-    vaultTimeoutAction: [VaultTimeoutAction.Lock],
     pin: [null as boolean | null],
     pinLockWithMasterPassword: false,
     biometric: false,
@@ -146,8 +130,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       ),
     );
 
-  protected readonly consolidatedSessionTimeoutComponent$: Observable<boolean>;
   protected readonly phishingDetectionAvailable$: Observable<boolean>;
+  protected readonly multiClientPasswordManagement$: Observable<boolean>;
 
   protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
@@ -155,8 +139,9 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
   constructor(
     private accountService: AccountService,
-    private configService: ConfigService,
     private pinService: PinServiceAbstraction,
+    private configService: ConfigService,
+    private router: Router,
     private policyService: PolicyService,
     private formBuilder: FormBuilder,
     private platformUtilsService: PlatformUtilsService,
@@ -168,7 +153,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private keyService: KeyService,
     private userVerificationService: UserVerificationService,
     private dialogService: DialogService,
-    private changeDetectorRef: ChangeDetectorRef,
     private biometricStateService: BiometricStateService,
     private toastService: ToastService,
     private biometricsService: BiometricsService,
@@ -177,8 +161,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
   ) {
-    this.consolidatedSessionTimeoutComponent$ = this.configService.getFeatureFlag$(
-      FeatureFlag.ConsolidatedSessionTimeoutComponent,
+    this.multiClientPasswordManagement$ = this.configService.getFeatureFlag$(
+      FeatureFlag.PM32413_MultiClientPasswordManagement,
     );
 
     // Check if user phishing detection available
@@ -188,57 +172,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     const hasMasterPassword = await this.userVerificationService.hasMasterPassword();
     this.showMasterPasswordOnClientRestartOption = hasMasterPassword;
-    const maximumVaultTimeoutPolicy = this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) =>
-        this.policyService.policiesByType$(PolicyType.MaximumVaultTimeout, userId),
-      ),
-      getFirstPolicy,
-    );
-    if ((await firstValueFrom(maximumVaultTimeoutPolicy)) != null) {
-      this.hasVaultTimeoutPolicy = true;
-    }
-
-    // Determine platform-specific timeout options
-    const showOnLocked =
-      !this.platformUtilsService.isFirefox() &&
-      !this.platformUtilsService.isSafari() &&
-      !(this.platformUtilsService.isOpera() && navigator.platform === "MacIntel");
-
-    this.vaultTimeoutOptions = [
-      { name: this.i18nService.t("immediately"), value: 0 },
-      { name: this.i18nService.t("oneMinute"), value: 1 },
-      { name: this.i18nService.t("fiveMinutes"), value: 5 },
-      { name: this.i18nService.t("fifteenMinutes"), value: 15 },
-      { name: this.i18nService.t("thirtyMinutes"), value: 30 },
-      { name: this.i18nService.t("oneHour"), value: 60 },
-      { name: this.i18nService.t("fourHours"), value: 240 },
-    ];
-
-    if (showOnLocked) {
-      this.vaultTimeoutOptions.push({
-        name: this.i18nService.t("onLocked"),
-        value: VaultTimeoutStringType.OnLocked,
-      });
-    }
-
-    this.vaultTimeoutOptions.push({
-      name: this.i18nService.t("onRestart"),
-      value: VaultTimeoutStringType.OnRestart,
-    });
-    this.vaultTimeoutOptions.push({
-      name: this.i18nService.t("never"),
-      value: VaultTimeoutStringType.Never,
-    });
 
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-
-    let timeout = await firstValueFrom(
-      this.vaultTimeoutSettingsService.getVaultTimeoutByUserId$(activeAccount.id),
-    );
-    if (timeout === VaultTimeoutStringType.OnLocked && !showOnLocked) {
-      timeout = VaultTimeoutStringType.OnRestart;
-    }
 
     this.pinEnabled$ = this.accountService.activeAccount$.pipe(
       getUserId,
@@ -252,10 +187,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     );
 
     const initialValues = {
-      vaultTimeout: timeout,
-      vaultTimeoutAction: await firstValueFrom(
-        this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(activeAccount.id),
-      ),
       pin: await this.pinService.isPinSet(activeAccount.id),
       pinLockWithMasterPassword:
         (await this.pinService.getPinLockType(activeAccount.id)) == "EPHEMERAL",
@@ -266,6 +197,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       enablePhishingDetection: await firstValueFrom(this.phishingDetectionSettingsService.enabled$),
     };
     this.form.patchValue(initialValues, { emitEvent: false });
+    this.loading.set(false);
 
     timer(0, this.BIOMETRICS_POLLING_INTERVAL)
       .pipe(
@@ -314,26 +246,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       .subscribe();
 
     this.showChangeMasterPass = await this.userVerificationService.hasMasterPassword();
-
-    this.form.controls.vaultTimeout.valueChanges
-      .pipe(
-        startWith(initialValues.vaultTimeout), // emit to init pairwise
-        pairwise(),
-        concatMap(async ([previousValue, newValue]) => {
-          await this.saveVaultTimeout(previousValue, newValue);
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
-
-    this.form.controls.vaultTimeoutAction.valueChanges
-      .pipe(
-        map(async (value) => {
-          await this.saveVaultTimeoutAction(value);
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
 
     this.form.controls.pin.valueChanges
       .pipe(
@@ -391,74 +303,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
-
-    this.refreshTimeoutSettings$
-      .pipe(
-        switchMap(() =>
-          combineLatest([
-            this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(),
-            this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(activeAccount.id),
-          ]),
-        ),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(([availableActions, action]) => {
-        this.availableVaultTimeoutActions = availableActions;
-        this.form.controls.vaultTimeoutAction.setValue(action, { emitEvent: false });
-        // NOTE: The UI doesn't properly update without detect changes.
-        // I've even tried using an async pipe, but it still doesn't work. I'm not sure why.
-        // Using an async pipe means that we can't call `detectChanges` AFTER the data has change
-        // meaning that we are forced to use regular class variables instead of observables.
-        this.changeDetectorRef.detectChanges();
-      });
-
-    this.refreshTimeoutSettings$
-      .pipe(
-        switchMap(() =>
-          combineLatest([
-            this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(),
-            maximumVaultTimeoutPolicy,
-          ]),
-        ),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(([availableActions, policy]) => {
-        if (policy?.data?.action || availableActions.length <= 1) {
-          this.form.controls.vaultTimeoutAction.disable({ emitEvent: false });
-        } else {
-          this.form.controls.vaultTimeoutAction.enable({ emitEvent: false });
-        }
-      });
-  }
-
-  async saveVaultTimeout(previousValue: VaultTimeout, newValue: VaultTimeout) {
-    if (newValue === VaultTimeoutStringType.Never) {
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "warning" },
-        content: { key: "neverLockWarning" },
-        type: "warning",
-      });
-
-      if (!confirmed) {
-        this.form.controls.vaultTimeout.setValue(previousValue, { emitEvent: false });
-        return;
-      }
-    }
-
-    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-
-    const vaultTimeoutAction = await firstValueFrom(
-      this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(activeAccount.id),
-    );
-
-    await this.vaultTimeoutSettingsService.setVaultTimeoutOptions(
-      activeAccount.id,
-      newValue,
-      vaultTimeoutAction,
-    );
-    if (newValue === VaultTimeoutStringType.Never) {
-      this.messagingService.send("bgReseedStorage");
-    }
   }
 
   protected async dismissAccountSecurityNudge() {
@@ -467,41 +311,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       return;
     }
     await this.vaultNudgesService.dismissNudge(NudgeType.AccountSecurity, activeAccount.id);
-  }
-
-  async saveVaultTimeoutAction(value: VaultTimeoutAction) {
-    if (value === VaultTimeoutAction.LogOut) {
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "vaultTimeoutLogOutConfirmationTitle" },
-        content: { key: "vaultTimeoutLogOutConfirmation" },
-        type: "warning",
-      });
-
-      if (!confirmed) {
-        this.form.controls.vaultTimeoutAction.setValue(VaultTimeoutAction.Lock, {
-          emitEvent: false,
-        });
-        return;
-      }
-    }
-
-    if (this.form.controls.vaultTimeout.hasError("policyError")) {
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("vaultTimeoutTooLarge"),
-      });
-      return;
-    }
-
-    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-
-    await this.vaultTimeoutSettingsService.setVaultTimeoutOptions(
-      activeAccount.id,
-      this.form.value.vaultTimeout,
-      value,
-    );
-    this.refreshTimeoutSettings$.next();
   }
 
   async updatePin(value: boolean) {
@@ -692,6 +501,15 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   }
 
   async changePassword() {
+    const multiClientPasswordManagementFlagEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM32413_MultiClientPasswordManagement,
+    );
+
+    if (multiClientPasswordManagementFlagEnabled) {
+      await this.router.navigate(["/" + AuthExtensionRoute.ChangePassword]);
+      return;
+    }
+
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "continueToWebApp" },
       content: { key: "changeMasterPasswordOnWebConfirmation" },
