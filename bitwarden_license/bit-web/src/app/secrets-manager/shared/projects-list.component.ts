@@ -15,7 +15,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogRef, DialogService, TableDataSource, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { openEntityEventsDialog } from "@bitwarden/web-vault/app/admin-console/organizations/manage/entity-events.component";
+import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 
 import { ProjectListView } from "../models/view/project-list.view";
 import { ProjectView } from "../models/view/project.view";

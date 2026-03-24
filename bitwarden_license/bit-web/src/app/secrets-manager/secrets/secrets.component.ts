@@ -19,7 +19,7 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
-import { openEntityEventsDialog } from "@bitwarden/web-vault/app/admin-console/organizations/manage/entity-events.component";
+import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 
 import { SecretListView } from "../models/view/secret-list.view";
 import { SecretsListComponent } from "../shared/secrets-list.component";

@@ -156,6 +156,7 @@ import { WebPremiumInterestStateService } from "../billing/services/premium-inte
 import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
 import { WebFileDownloadService } from "../core/web-file-download.service";
+import { EventService } from "../dirt/event-logs";
 import { UserKeyRotationService } from "../key-management/key-rotation/user-key-rotation.service";
 import { WebLockComponentService } from "../key-management/lock/services/web-lock-component.service";
 import { WebProcessReloadService } from "../key-management/services/web-process-reload.service";
@@ -168,7 +169,6 @@ import { WebSdkLoadService } from "../platform/web-sdk-load.service";
 import { WebStorageServiceProvider } from "../platform/web-storage-service.provider";
 import { WebSystemService } from "../platform/web-system.service";
 
-import { EventService } from "./event.service";
 import { InitService } from "./init.service";
 import { ENV_URLS } from "./injection-tokens";
 import { RouterService } from "./router.service";

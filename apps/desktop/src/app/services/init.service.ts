@@ -3,9 +3,10 @@ import { firstValueFrom } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
-import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
+import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/dirt/event-logs";
+import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -17,7 +18,6 @@ import { ContainerService } from "@bitwarden/common/platform/services/container.
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
-import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 

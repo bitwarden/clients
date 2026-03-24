@@ -71,13 +71,13 @@ import { BillingHistoryResponse } from "../billing/models/response/billing-histo
 import { PaymentResponse } from "../billing/models/response/payment.response";
 import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
+import { EventRequest, EventResponse } from "../dirt/event-logs";
 import { ClientType, DeviceType, HttpStatusCode } from "../enums";
 import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
 import { VaultTimeoutAction } from "../key-management/vault-timeout/enums/vault-timeout-action.enum";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
-import { EventRequest } from "../models/request/event.request";
 import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
 import { PreloginRequest } from "../models/request/prelogin.request";
@@ -88,7 +88,6 @@ import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-reco
 import { VerifyEmailRequest } from "../models/request/verify-email.request";
 import { DomainsResponse } from "../models/response/domains.response";
 import { ErrorResponse } from "../models/response/error.response";
-import { EventResponse } from "../models/response/event.response";
 import { ListResponse } from "../models/response/list.response";
 import { ProfileResponse } from "../models/response/profile.response";
 import { UserKeyResponse } from "../models/response/user-key.response";
