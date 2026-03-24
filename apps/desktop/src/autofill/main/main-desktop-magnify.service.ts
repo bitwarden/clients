@@ -24,7 +24,7 @@ export class MainDesktopMagnifyService {
       }
     });
   }
- 
+
   // Deregister the keyboard shortcut if registered.
   disableMagnify() {
     if (globalShortcut.isRegistered(this.MAGNIFY_KEYBOARD_SHORTCUT)) {
@@ -51,12 +51,9 @@ export class MainDesktopMagnifyService {
       return;
     }
 
-    const result = globalShortcut.register(
-      this.MAGNIFY_KEYBOARD_SHORTCUT,
-      () => {
-        this.openMagnify();
-      },
-    );
+    const result = globalShortcut.register(this.MAGNIFY_KEYBOARD_SHORTCUT, () => {
+      this.openMagnify();
+    });
 
     result
       ? this.logService.debug("Magnify enabled.")
@@ -65,6 +62,6 @@ export class MainDesktopMagnifyService {
 
   // Open the magnify window, which is its own project
   private openMagnify() {
-    console.log("----- OPEN MAGNIFY -----");
+    //console.log("----- OPEN MAGNIFY -----");
   }
 }

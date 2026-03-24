@@ -108,7 +108,11 @@ import { DefaultSdkLoadService } from "@bitwarden/common/platform/services/sdk/d
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { NoopSdkLoadService } from "@bitwarden/common/platform/services/sdk/noop-sdk-load.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
-import { ActiveUserStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
+import {
+  ActiveUserStateProvider,
+  GlobalStateProvider,
+  StateProvider,
+} from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -146,8 +150,8 @@ import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/desktop-autotype-policy.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
-import { DesktopMagnifyService } from "../../autofill/services/desktop-magnify.service";
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
+import { DesktopMagnifyService } from "../../autofill/services/desktop-magnify.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
 import { ElectronKeyService } from "../../key-management/electron-key.service";
