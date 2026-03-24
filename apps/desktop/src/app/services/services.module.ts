@@ -108,7 +108,7 @@ import { DefaultSdkLoadService } from "@bitwarden/common/platform/services/sdk/d
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { NoopSdkLoadService } from "@bitwarden/common/platform/services/sdk/noop-sdk-load.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
-import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
+import { ActiveUserStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -540,7 +540,7 @@ const safeProviders: SafeProvider[] = [
       AuthService,
       CipherServiceAbstraction,
       ConfigService,
-      GlobalStateProvider,
+      ActiveUserStateProvider,
       PlatformUtilsServiceAbstraction,
       LogService,
     ],

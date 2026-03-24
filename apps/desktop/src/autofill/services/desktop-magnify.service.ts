@@ -21,26 +21,29 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
-  GlobalStateProvider,
+  ActiveUserStateProvider,
   MAGNIFY_SETTINGS_DISK,
-  KeyDefinition,
+  UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LogService } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
-export const MAGNIFY_ENABLED = new KeyDefinition<boolean | null>(
+export const MAGNIFY_ENABLED = new UserKeyDefinition<boolean | null>(
   MAGNIFY_SETTINGS_DISK,
   "magnifyEnabled",
-  { deserializer: (b) => b },
+  {
+    deserializer: (value: boolean) => value,
+    clearOn: [],
+  },
 );
 
 @Injectable({
   providedIn: "root",
 })
 export class DesktopMagnifyService implements OnDestroy {
-  private readonly magnifyEnabledState = this.globalStateProvider.get(MAGNIFY_ENABLED);
+  private readonly magnifyEnabledState = this.activeUserStateProvider.get(MAGNIFY_ENABLED);
 
   // The enabled/disabled state from the user settings menu
   magnifyEnabledUserSetting$: Observable<boolean> = of(false);
@@ -52,7 +55,7 @@ export class DesktopMagnifyService implements OnDestroy {
     private authService: AuthService,
     private cipherService: CipherService,
     private configService: ConfigService,
-    private globalStateProvider: GlobalStateProvider,
+    private activeUserStateProvider: ActiveUserStateProvider,
     private platformUtilsService: PlatformUtilsService,
     private logService: LogService,
   ) {
@@ -64,16 +67,14 @@ export class DesktopMagnifyService implements OnDestroy {
   }
 
   async init() {
-    let v = await firstValueFrom(this.magnifyEnabledState.state$);
-    console.log("Is magnify enabled? -> ", v);
-    // this.magnifyFeatureEnabled$
-    //   .pipe(
-    //     concatMap(async (enabled) => {
-    //       ipc.autofill.toggleAutotype(enabled);
-    //     }),
-    //     takeUntil(this.destroy$),
-    //   )
-    //   .subscribe();
+    this.magnifyEnabledUserSetting$
+      .pipe(
+        concatMap(async (enabled) => {
+          ipc.autofill.toggleMagnify(enabled);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
   }
 
   async setMagnifyEnabledState(enabled: boolean): Promise<void> {

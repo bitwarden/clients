@@ -35,6 +35,7 @@ import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitward
 
 import { ChromiumImporterService } from "./app/tools/import/chromium-importer.service";
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
+import { MainDesktopMagnifyService } from "./autofill/main/main-desktop-magnify.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
@@ -94,6 +95,7 @@ export class Main {
   sshAgentService: MainSshAgentService;
   sdkLoadService: SdkLoadService;
   mainDesktopAutotypeService: MainDesktopAutotypeService;
+  mainDesktopMagnifyService: MainDesktopMagnifyService;
   ssoCookieMain: SsoCookieMain;
 
   constructor() {
@@ -321,8 +323,14 @@ export class Main {
       this.windowMain,
     );
 
+    this.mainDesktopMagnifyService = new MainDesktopMagnifyService(
+      this.logService,
+      this.windowMain,
+    );
+
     app.on("will-quit", () => {
       this.mainDesktopAutotypeService.dispose();
+      this.mainDesktopMagnifyService.dispose();
     });
   }
 
