@@ -305,6 +305,35 @@ export class AccessReportView implements View {
     summary.totalCriticalMemberCount = criticalMemberIds.size;
     summary.totalCriticalAtRiskMemberCount = criticalAtRiskMemberIds.size;
 
+    // Password counts — aggregate from cipher refs across all reports
+    const criticalAppNames = new Set(
+      this.applications.filter((a) => a.isCritical).map((a) => a.applicationName),
+    );
+
+    let totalPasswordCount = 0;
+    let totalAtRiskPasswordCount = 0;
+    let totalCriticalPasswordCount = 0;
+    let totalCriticalAtRiskPasswordCount = 0;
+
+    this.reports.forEach((report) => {
+      const isCritical = criticalAppNames.has(report.applicationName);
+      const passwordCount = Object.keys(report.cipherRefs).length;
+      const atRiskCount = report.getAtRiskCipherIds().length;
+
+      totalPasswordCount += passwordCount;
+      totalAtRiskPasswordCount += atRiskCount;
+
+      if (isCritical) {
+        totalCriticalPasswordCount += passwordCount;
+        totalCriticalAtRiskPasswordCount += atRiskCount;
+      }
+    });
+
+    summary.totalPasswordCount = totalPasswordCount;
+    summary.totalAtRiskPasswordCount = totalAtRiskPasswordCount;
+    summary.totalCriticalPasswordCount = totalCriticalPasswordCount;
+    summary.totalCriticalAtRiskPasswordCount = totalCriticalAtRiskPasswordCount;
+
     this.summary = summary;
   }
 

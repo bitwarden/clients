@@ -3,10 +3,10 @@ import { firstValueFrom, of } from "rxjs";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { makeEncString } from "@bitwarden/common/spec";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
-import { DecryptedReportData, EncryptedDataWithKey } from "../../models";
+import { DecryptedReportData, EncryptedDataWithKey, MemberDetails } from "../../models";
 import {
   GetRiskInsightsReportResponse,
   SaveRiskInsightsReportResponse,
@@ -182,6 +182,10 @@ describe("RiskInsightsReportService", () => {
           totalCriticalAtRiskMemberCount: 1,
           totalCriticalApplicationCount: 1,
           totalCriticalAtRiskApplicationCount: 1,
+          totalPasswordCount: 0,
+          totalAtRiskPasswordCount: 0,
+          totalCriticalPasswordCount: 0,
+          totalCriticalAtRiskPasswordCount: 0,
         },
         applicationData: [],
       };
@@ -242,6 +246,83 @@ describe("RiskInsightsReportService", () => {
         creationDate: mockResponse.creationDate,
         contentEncryptionKey: mockEncryptedKey,
       });
+    });
+  });
+
+  describe("getApplicationsSummary", () => {
+    const baseApp = {
+      memberDetails: [] as MemberDetails[],
+      atRiskMemberDetails: [] as MemberDetails[],
+      memberCount: 0,
+      atRiskMemberCount: 0,
+      atRiskPasswordCount: 0,
+    };
+
+    it("should include password counts aggregated from all reports", () => {
+      const reports = [
+        {
+          ...baseApp,
+          applicationName: "app1.com",
+          passwordCount: 3,
+          atRiskPasswordCount: 1,
+          cipherIds: ["c1", "c2", "c3"] as CipherId[],
+          atRiskCipherIds: ["c1"] as CipherId[],
+        },
+        {
+          ...baseApp,
+          applicationName: "app2.com",
+          passwordCount: 2,
+          atRiskPasswordCount: 2,
+          cipherIds: ["c4", "c5"] as CipherId[],
+          atRiskCipherIds: ["c4", "c5"] as CipherId[],
+        },
+      ];
+      const applications = [
+        { applicationName: "app1.com", isCritical: false, reviewedDate: null as Date | null },
+      ];
+
+      const result = service.getApplicationsSummary(reports, applications, 5);
+      expect(result.totalPasswordCount).toBe(5);
+      expect(result.totalAtRiskPasswordCount).toBe(3);
+    });
+
+    it("should include only critical app password counts in critical totals", () => {
+      const reports = [
+        {
+          ...baseApp,
+          applicationName: "critical.com",
+          passwordCount: 4,
+          atRiskPasswordCount: 2,
+          cipherIds: ["c1", "c2", "c3", "c4"] as CipherId[],
+          atRiskCipherIds: ["c1", "c2"] as CipherId[],
+        },
+        {
+          ...baseApp,
+          applicationName: "normal.com",
+          passwordCount: 3,
+          atRiskPasswordCount: 1,
+          cipherIds: ["c5", "c6", "c7"] as CipherId[],
+          atRiskCipherIds: ["c5"] as CipherId[],
+        },
+      ];
+      const applications = [
+        { applicationName: "critical.com", isCritical: true, reviewedDate: null as Date | null },
+        { applicationName: "normal.com", isCritical: false, reviewedDate: null as Date | null },
+      ];
+
+      const result = service.getApplicationsSummary(reports, applications, 10);
+      expect(result.totalPasswordCount).toBe(7);
+      expect(result.totalAtRiskPasswordCount).toBe(3);
+      expect(result.totalCriticalPasswordCount).toBe(4);
+      expect(result.totalCriticalAtRiskPasswordCount).toBe(2);
+    });
+
+    it("should return 0 for all password counts when reports is empty", () => {
+      const result = service.getApplicationsSummary([], [], 0);
+      expect(result.totalPasswordCount).toBe(0);
+      expect(result.totalAtRiskPasswordCount).toBe(0);
+      expect(result.totalCriticalPasswordCount).toBe(0);
+      expect(result.totalCriticalAtRiskPasswordCount).toBe(0);
     });
   });
 });

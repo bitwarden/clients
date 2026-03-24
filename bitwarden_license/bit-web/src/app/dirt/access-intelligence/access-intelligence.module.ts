@@ -1,6 +1,13 @@
 import { NgModule } from "@angular/core";
 
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
+import {
+  AccessReportEncryptionService,
+  DefaultAccessReportEncryptionService,
+  ApplicationVersioningService,
+  ReportVersioningService,
+  SummaryVersioningService,
+} from "@bitwarden/bit-common/dirt/access-intelligence/services";
 import { CriticalAppsService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import {
   AllActivitiesService,
@@ -30,6 +37,8 @@ import { DefaultAdminTaskService } from "../../vault/services/default-admin-task
 import { AccessIntelligenceRoutingModule } from "./access-intelligence-routing.module";
 import { NewApplicationsDialogComponent } from "./activity/application-review-dialog/new-applications-dialog.component";
 import { RiskInsightsComponent } from "./risk-insights.component";
+import { DefaultRiskOverTimeService } from "./services/default-risk-over-time.service";
+import { RiskOverTimeService } from "./services/risk-over-time.service";
 import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.service";
 
 @NgModule({
@@ -103,6 +112,41 @@ import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.
       provide: AllActivitiesService,
       useClass: AllActivitiesService,
       deps: [RiskInsightsDataService],
+    }),
+    safeProvider({
+      provide: ReportVersioningService,
+      deps: [LogService],
+    }),
+    safeProvider({
+      provide: ApplicationVersioningService,
+      deps: [LogService],
+    }),
+    safeProvider({
+      provide: SummaryVersioningService,
+      deps: [LogService],
+    }),
+    safeProvider({
+      provide: AccessReportEncryptionService,
+      useClass: DefaultAccessReportEncryptionService,
+      deps: [
+        KeyService,
+        EncryptService,
+        KeyGenerationService,
+        ReportVersioningService,
+        ApplicationVersioningService,
+        SummaryVersioningService,
+        LogService,
+      ],
+    }),
+    safeProvider({
+      provide: RiskOverTimeService,
+      useClass: DefaultRiskOverTimeService,
+      deps: [
+        RiskInsightsApiService,
+        AccessReportEncryptionService,
+        AccountServiceAbstraction,
+        LogService,
+      ],
     }),
   ],
 })

@@ -9,6 +9,7 @@ import { LogService } from "@bitwarden/logging";
 import {
   AccessReport,
   AccessReportSettingsView,
+  AccessReportSummaryView,
   AccessReportView,
 } from "../../../../access-intelligence/models";
 import {
@@ -313,7 +314,7 @@ describe("DefaultReportPersistenceService", () => {
             "member-1": { id: "member-1", userName: "John Doe", email: "john@example.com" },
           },
         },
-        summaryData: {
+        summaryData: AccessReportSummaryView.fromJSON({
           totalMemberCount: 10,
           totalAtRiskMemberCount: 3,
           totalApplicationCount: 5,
@@ -322,7 +323,11 @@ describe("DefaultReportPersistenceService", () => {
           totalCriticalAtRiskMemberCount: 1,
           totalCriticalApplicationCount: 1,
           totalCriticalAtRiskApplicationCount: 1,
-        },
+          totalPasswordCount: 0,
+          totalAtRiskPasswordCount: 0,
+          totalCriticalPasswordCount: 0,
+          totalCriticalAtRiskPasswordCount: 0,
+        }),
         applicationData: [
           {
             applicationName: "github.com",
@@ -435,7 +440,7 @@ describe("DefaultReportPersistenceService", () => {
             m2: { id: "m2", userName: "Bob", email: "bob@example.com" },
           },
         },
-        summaryData: {
+        summaryData: AccessReportSummaryView.fromJSON({
           totalMemberCount: 20,
           totalAtRiskMemberCount: 5,
           totalApplicationCount: 10,
@@ -444,7 +449,11 @@ describe("DefaultReportPersistenceService", () => {
           totalCriticalAtRiskMemberCount: 2,
           totalCriticalApplicationCount: 2,
           totalCriticalAtRiskApplicationCount: 1,
-        },
+          totalPasswordCount: 0,
+          totalAtRiskPasswordCount: 0,
+          totalCriticalPasswordCount: 0,
+          totalCriticalAtRiskPasswordCount: 0,
+        }),
         applicationData: [
           {
             applicationName: "gitlab.com",

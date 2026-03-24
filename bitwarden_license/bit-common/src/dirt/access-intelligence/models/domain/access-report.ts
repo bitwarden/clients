@@ -87,7 +87,7 @@ export class AccessReport extends Domain {
           );
 
           view.applications = decryptedData.applicationData.map(AccessReportSettingsView.fromData);
-          view.summary = AccessReportSummaryView.fromData(decryptedData.summaryData);
+          view.summary = decryptedData.summaryData;
 
           return { view, hadLegacyBlobs: decryptedData.hadLegacyBlobs === true };
         }),
@@ -150,7 +150,7 @@ export class AccessReport extends Domain {
 
     const payload: DecryptedAccessReportData = {
       reportData: reportPayload,
-      summaryData: {
+      summaryData: AccessReportSummaryView.fromJSON({
         totalMemberCount: view.summary.totalMemberCount,
         totalAtRiskMemberCount: view.summary.totalAtRiskMemberCount,
         totalApplicationCount: view.summary.totalApplicationCount,
@@ -159,7 +159,11 @@ export class AccessReport extends Domain {
         totalCriticalAtRiskMemberCount: view.summary.totalCriticalAtRiskMemberCount,
         totalCriticalApplicationCount: view.summary.totalCriticalApplicationCount,
         totalCriticalAtRiskApplicationCount: view.summary.totalCriticalAtRiskApplicationCount,
-      },
+        totalPasswordCount: view.summary.totalPasswordCount,
+        totalAtRiskPasswordCount: view.summary.totalAtRiskPasswordCount,
+        totalCriticalPasswordCount: view.summary.totalCriticalPasswordCount,
+        totalCriticalAtRiskPasswordCount: view.summary.totalCriticalAtRiskPasswordCount,
+      }),
       applicationData: view.applications.map((app) => ({
         applicationName: app.applicationName,
         isCritical: app.isCritical,

@@ -81,6 +81,10 @@ export const mockSummaryData: OrganizationReportSummary = {
   totalCriticalAtRiskMemberCount: 1,
   totalCriticalApplicationCount: 1,
   totalCriticalAtRiskApplicationCount: 1,
+  totalPasswordCount: 0,
+  totalAtRiskPasswordCount: 0,
+  totalCriticalPasswordCount: 0,
+  totalCriticalAtRiskPasswordCount: 0,
 };
 export const mockApplicationData: OrganizationReportApplication[] = [
   {
