@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "ロック解除オプション"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "保管庫のタイムアウト動作を変更するには、ロック解除方法を設定してください。"
-  },
   "unlockMethodNeeded": {
     "message": "設定でロック解除方法をセットアップ"
   },
   "sessionTimeoutHeader": {
     "message": "セッションタイムアウト"
-  },
-  "vaultTimeoutHeader": {
-    "message": "保管庫のタイムアウト"
   },
   "otherOptions": {
     "message": "その他のオプション"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "保管庫タイムアウト時のアクション"
   },
-  "vaultTimeoutAction1": {
-    "message": "タイムアウト時のアクション"
-  },
   "lock": {
     "message": "ロック",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "分"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "タイムアウトオプションにエンタープライズポリシー要件を適用しました"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "あなたの組織ポリシーは保管庫のタイムアウトに影響を与えています。最大保管庫のタイムアウト時間は $HOURS$ 時間 $MINUTES$ 分です。",
@@ -4435,6 +4423,9 @@
   },
   "exportSuccess": {
     "message": "保管庫データをエクスポートしました"
+  },
+  "exportError": {
+    "message": "保管庫データのエクスポート中にエラーが発生しました"
   },
   "typePasskey": {
     "message": "パスキー"
@@ -6130,8 +6121,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ は、セキュリティとコンプライアンスのために組織が所有しているすべてのアイテムを必要としています。アイテムの所有権を譲渡するには、承認をクリックしてください。",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ は、セキュリティとコンプライアンスのためにすべてのアイテムを組織が所有することを必要としています。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6130,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "転送を承認するボタンを押すとアイテムの所有権を譲渡します。"
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "アイテムの転送に関するヘルプ記事を開く"
+  },
   "acceptTransfer": {
     "message": "転送を承認する"
   },
   "declineAndLeave": {
     "message": "拒否する"
-  },
-  "whyAmISeeingThis": {
-    "message": "なぜこれが表示されているのですか？"
   },
   "items": {
     "message": "アイテム"
@@ -6178,9 +6172,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "コンマで区切ると複数のメールアドレスを入力できます。"
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "メールアドレス認証には少なくとも1つのメールアドレスが必要です。すべてのメールを削除するには、アクセスタイプを変更してください。"
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6187,8 @@
   },
   "userVerificationFailed": {
     "message": "ユーザー認証に失敗しました。"
+  },
+  "downloadFailed": {
+    "message": "ダウンロードできませんでした。"
   }
 }

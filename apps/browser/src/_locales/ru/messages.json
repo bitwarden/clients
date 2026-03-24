@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Настройки разблокировки"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Настройте способ разблокировки для изменения действия по тайм-ауту хранилища."
-  },
   "unlockMethodNeeded": {
     "message": "Установите способ разблокировки в настройках"
   },
   "sessionTimeoutHeader": {
     "message": "Тайм-аут сессии"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Тайм-аут хранилища"
   },
   "otherOptions": {
     "message": "Прочие настройки"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Действие по тайм-ауту хранилища"
   },
-  "vaultTimeoutAction1": {
-    "message": "Тайм-аут действия"
-  },
   "lock": {
     "message": "Блокировка",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Мин."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "К настройкам тайм-аута были применены требования корпоративной политики"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "В соответствии с политиками вашей организации максимально допустимый тайм-аут хранилища составляет $HOURS$ час. и $MINUTES$ мин.",
@@ -4435,6 +4423,9 @@
   },
   "exportSuccess": {
     "message": "Данные хранилища экспортированы"
+  },
+  "exportError": {
+    "message": "При экспорте данных хранилища произошла ошибка"
   },
   "typePasskey": {
     "message": "Passkey"
@@ -6130,8 +6121,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации для обеспечения безопасности и соответствия требованиям. Нажмите Принять, чтобы передать собственность на ваши элементы.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации в целях безопасности и соблюдения нормативных требований.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6130,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Нажмите Принять, чтобы передать право собственности на ваши элементы."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Открыть статью помощь по передаче элементов"
+  },
   "acceptTransfer": {
     "message": "Принять передачу"
   },
   "declineAndLeave": {
     "message": "Отклонить и покинуть"
-  },
-  "whyAmISeeingThis": {
-    "message": "Почему я это вижу?"
   },
   "items": {
     "message": "Элементы"
@@ -6178,9 +6172,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Введите несколько email, разделяя их запятой."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Для проверки электронной почты требуется как минимум один адрес email. Чтобы удалить все адреса электронной почты, измените тип доступа выше."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6187,8 @@
   },
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
+  },
+  "downloadFailed": {
+    "message": "Не удалось загрузить."
   }
 }

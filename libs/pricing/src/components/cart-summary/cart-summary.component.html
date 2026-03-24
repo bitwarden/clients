@@ -33,6 +33,12 @@
       [attr.aria-controls]="'purchase-summary-details'"
       data-testid="toggle-purchase-summary-details"
     ></button>
+
+    @if (showDiscountBadges()) {
+      @for (discount of cart.discounts; track discount) {
+        <billing-discount-badge class="tw-mr-1" [discount]="discount"></billing-discount-badge>
+      }
+    }
   </div>
 
   @if (isExpanded()) {
@@ -75,6 +81,26 @@
             {{ passwordManagerSeatsTotal() | currency: "USD" : "symbol" }}
           </div>
         </div>
+
+        <!-- Password Manager Seats Discount -->
+        @if (passwordManagerSeatsDiscountAmount() > 0) {
+          <div class="tw-flex tw-justify-between" data-testid="password-manager-seats-discount">
+            <div
+              bitTypography="body1"
+              class="tw-text-success-600"
+              data-testid="password-manager-seats-discount-label"
+            >
+              {{ passwordManagerSeatsDiscountLabel() }}
+            </div>
+            <div
+              bitTypography="body1"
+              class="tw-text-success-600"
+              data-testid="password-manager-seats-discount-amount"
+            >
+              -{{ passwordManagerSeatsDiscountAmount() | currency: "USD" : "symbol" }}
+            </div>
+          </div>
+        }
 
         <!-- Additional Storage -->
         @let additionalStorage = cart.passwordManager.additionalStorage;
@@ -180,18 +206,19 @@
         </div>
       }
 
-      <!-- Discount -->
-      @if (discountAmount() > 0) {
-        <div
-          id="discount-section"
-          class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-py-2"
-          data-testid="discount-section"
-        >
-          <div bitTypography="body1" class="tw-text-success-600">{{ discountLabel() }}</div>
-          <div bitTypography="body1" class="tw-text-success-600" data-testid="discount-amount">
-            -{{ discountAmount() | currency: "USD" : "symbol" }}
+      <!-- Discounts -->
+      @for (discountItem of discountLineItems(); track discountItem.label) {
+        @if (discountItem.amount > 0) {
+          <div
+            class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-py-2"
+            data-testid="discount-section"
+          >
+            <div bitTypography="body1" class="tw-text-success-600">{{ discountItem.label }}</div>
+            <div bitTypography="body1" class="tw-text-success-600" data-testid="discount-amount">
+              -{{ discountItem.amount | currency: "USD" : "symbol" }}
+            </div>
           </div>
-        </div>
+        }
       }
 
       <!-- Credit -->

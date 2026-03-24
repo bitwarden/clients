@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Cần là thành viên Cao cấp để sử dụng tính năng này."
   },
+  "syncWithBrowser": {
+    "message": "Sync with browser"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Launch browser"
+  },
   "errorOccurred": {
     "message": "Đã xảy ra lỗi."
   },
@@ -1280,6 +1296,9 @@
   "changeMasterPass": {
     "message": "Thay đổi mật khẩu chính"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "continueToWebApp": {
     "message": "Tiếp tục tới ứng dụng web?"
   },
@@ -1358,17 +1377,11 @@
   "twoStepLogin": {
     "message": "Đăng nhập hai bước"
   },
-  "vaultTimeoutHeader": {
-    "message": "Thời gian mở kho"
-  },
   "vaultTimeout": {
     "message": "Đóng kho sau"
   },
   "vaultTimeout1": {
     "message": "Thời gian chờ"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Hành động sau khi đóng kho"
   },
   "vaultTimeoutDesc": {
     "message": "Chọn thời điểm đóng kho của bạn và thực hiện hành động đã được chọn."
@@ -1658,6 +1671,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "month"
+  },
+  "monthly": {
+    "message": "Monthly"
+  },
+  "year": {
+    "message": "year"
+  },
+  "annually": {
+    "message": "Annually"
+  },
+  "annual": {
+    "message": "Annual"
   },
   "refreshComplete": {
     "message": "Làm mới hoàn tất"
@@ -2088,9 +2116,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "Bạn cần xác thực lại để mở khóa kho lưu trữ."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Thiết lập phương thức mở khóa để thay đổi hành động sau khi đóng kho."
   },
   "lock": {
     "message": "Khóa",
@@ -2709,9 +2734,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Thời gian mở kho vượt quá giới hạn do tổ chức của bạn đặt ra."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Các yêu cầu chính sách của doanh nghiệp đã được áp dụng cho các tùy chọn thời gian mở kho của bạn"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Tổ chức của bạn đã đặt thời gian mở kho tối đa là $HOURS$ giờ và $MINUTES$ phút.",
@@ -3745,6 +3767,9 @@
   "exportSuccess": {
     "message": "Đã xuất dữ liệu kho của bạn"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Đã hủy xác thực đa yếu tố"
   },
@@ -4617,8 +4642,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ yêu cầu tất cả các mục phải thuộc sở hữu của tổ chức để đảm bảo an ninh và tuân thủ. Nhấp chấp nhận để chuyển quyền sở hữu các mục của bạn.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4651,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Chấp nhận chuyển"
   },
   "declineAndLeave": {
     "message": "Từ chối và rời đi"
-  },
-  "whyAmISeeingThis": {
-    "message": "Tại sao tôi thấy điều này?"
   },
   "organizationIsSuspended": {
     "message": "Organization is suspended"
@@ -4692,9 +4720,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
