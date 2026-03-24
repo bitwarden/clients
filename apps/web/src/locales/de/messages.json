@@ -2,8 +2,17 @@
   "allApplications": {
     "message": "Alle Anwendungen"
   },
+  "allMembers": {
+    "message": "Alle Mitglieder"
+  },
+  "allPasswords": {
+    "message": "Alle Passwörter"
+  },
   "activity": {
     "message": "Aktivität"
+  },
+  "applicationsAtRisk": {
+    "message": "Gefährdete Anwendungen"
   },
   "appLogoLabel": {
     "message": "Bitwarden-Logo"
@@ -43,6 +52,15 @@
   },
   "passwordRisk": {
     "message": "Passwort-Risiko"
+  },
+  "passwords": {
+    "message": "Passwörter"
+  },
+  "riskOverTime": {
+    "message": "Gefährdung im Zeitverlauf"
+  },
+  "passwordsAtRisk": {
+    "message": "Gefährdete Passwörter"
   },
   "noEditPermissions": {
     "message": "Du bist nicht berechtigt, diesen Eintrag zu bearbeiten"
@@ -2103,6 +2121,9 @@
   "exportSuccess": {
     "message": "Tresor-Daten exportiert"
   },
+  "exportError": {
+    "message": "Beim Exportieren deiner Tresordaten ist ein Fehler aufgetreten"
+  },
   "passwordGenerator": {
     "message": "Passwort-Generator"
   },
@@ -3047,16 +3068,16 @@
   "breachDesc": {
     "message": "Kompromittierte Konten können deine persönlichen Daten preisgeben. Sichere kompromittierte Konten, indem du 2FA aktivierst oder ein sicheres Passwort erstellst."
   },
-  "breachCheckUsernameEmail": {
-    "message": "Prüfen Sie alle Benutzernamen und E-Mail-Adressen, die Sie verwenden."
+  "breachCheckEmail": {
+    "message": "Überprüfe alle von dir verwendeten E-Mail-Adressen."
   },
   "checkBreaches": {
     "message": "Auf Datendiebstähle prüfen"
   },
-  "breachUsernameNotFound": {
-    "message": "$USERNAME$ wurde in keinem der bekannten Datendiebstahlvorfällen gefunden.",
+  "breachEmailNotFound": {
+    "message": "$EMAIL$ wurde in keinem bekannten Datendiebstahlvorfall gefunden.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3087,10 @@
     "message": "Gute Neuigkeiten",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "$USERNAME$ wurde in $COUNT$ Datendiebstahlvorfällen gefunden.",
+  "breachEmailFound": {
+    "message": "$EMAIL$ wurde in $COUNT$ Datendiebstahlvorfällen gefunden.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -8310,6 +8331,9 @@
   "members": {
     "message": "Mitglieder"
   },
+  "membersAtRisk": {
+    "message": "Gefährdete Mitglieder"
+  },
   "reporting": {
     "message": "Berichte"
   },
@@ -8580,6 +8604,14 @@
   "newProject": {
     "message": "Neues Projekt",
     "description": "Title for creating a new project."
+  },
+  "clickToRenameProject": {
+    "message": "Klicke auf dieses Projekt, um es umzubenennen",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "Der Projektname kann nicht entschlüsselt werden - zum Umbenennen auf das Projekt klicken",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
     "message": "Das Löschen von Geheimnissen kann bestehende Integrationen beeinflussen.",
@@ -11046,6 +11078,9 @@
   "clientDetails": {
     "message": "Kundendetails"
   },
+  "downloadChart": {
+    "message": "Diagramm herunterladen"
+  },
   "downloadCSV": {
     "message": "CSV-Datei herunterladen"
   },
@@ -11498,6 +11533,18 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "Benutzer $ID$ hat sich selbst aus Organisation widerrufen.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "userSelfRevokedOrganizationOwnership": {
+    "message": "Widerrufen wegen Ablehnung der Übertragung an die Organisation."
+  },
   "suspendedOrganizationTitle": {
     "message": "$ORGANIZATION$ ist gesperrt",
     "placeholders": {
@@ -11881,6 +11928,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Nicht vertrauenswürdige Verschlüsselungsschlüssel"
+  },
+  "atRiskPassword": {
+    "message": "Gefährdetes Passwort"
   },
   "changeAtRiskPassword": {
     "message": "Gefährdetes Passwort ändern"
@@ -12551,12 +12601,6 @@
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Vor der Aktivierung dieser Richtlinie muss eine Domain beansprucht werden."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Richte eine Entsperrmethode ein, um deine Aktion bei Tresor-Timeout zu ändern."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Die Unternehmens-Richtlinienanforderungen wurden auf deine Timeout-Optionen angewendet"
-  },
   "vaultTimeoutTooLarge": {
     "message": "Dein Tresor-Timeout überschreitet die von deinem Unternehmen festgelegten Beschränkungen."
   },
@@ -12755,8 +12799,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ erfordert zur Sicherheit und Compliance, dass alle Einträge der Organisation gehören. Klicke auf Akzeptieren, um den Besitz deiner Einträge zu übertragen.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ verlangt, dass alle Einträge aus Sicherheits- und Compliance-Gründen der Organisation gehören.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12764,14 +12808,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Klicke auf Akzeptieren, um das Eigentum an deinen Einträgen zu übertragen."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Hilfe-Artikel über das Übertragen von Einträgen öffnen"
+  },
   "acceptTransfer": {
     "message": "Übertragung annehmen"
   },
   "declineAndLeave": {
     "message": "Ablehnen und verlassen"
-  },
-  "whyAmISeeingThis": {
-    "message": "Warum wird mir das angezeigt?"
   },
   "youHaveBitwardenPremium": {
     "message": "Du hast Bitwarden Premium"
@@ -12922,9 +12969,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Gib mehrere E-Mail-Adressen ein, indem du sie mit einem Komma trennst."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Die E-Mail-Verifizierung erfordert mindestens eine E-Mail-Adresse. Ändere den Zugriffstyp oben, um alle E-Mails zu entfernen."
-  },
   "emailPlaceholder": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"
   },
@@ -13032,6 +13076,70 @@
       "date": {
         "content": "$2",
         "example": "Jan 1, 1970"
+      }
+    }
+  },
+  "sendsTitleNoSearchResults": {
+    "message": "Keine Suchergebnisse gefunden"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Filter löschen oder es mit einem anderen Suchbegriff versuchen"
+  },
+  "pastMonth": {
+    "message": "Letzter Monat"
+  },
+  "past3Months": {
+    "message": "Letzte 3 Monate"
+  },
+  "past6Months": {
+    "message": "Letzte 6 Monate"
+  },
+  "pastYear": {
+    "message": "Letztes Jahr"
+  },
+  "allTime": {
+    "message": "Gesamte Zeit"
+  },
+  "timePeriod": {
+    "message": "Zeitraum"
+  },
+  "of": {
+    "message": "of"
+  },
+  "coachmarkImportTitle": {
+    "message": "Importiere schnell deine Passwörter"
+  },
+  "coachmarkImportDescription": {
+    "message": "Hattest du schon einmal einen Passwortmanager? Du kannst eine CSV-Datei mit bestehenden Zugangsdaten und anderen Daten in deinen Tresor importieren."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Eintrag hinzufügen"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Füge neue Passwörter, Notizen und andere Informationen zu deinem Tresor hinzu. Alles ist mit Ende-zu-Ende-Verschlüsselung geschützt."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Einträge sicher mit anderen teilen"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "Wenn du einen Eintrag in eine Sammlung verschiebst, kannst du ihn sicher mit anderen Personen in deiner Organisation teilen."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Überwache deine Passwort-Sicherheit"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Sorge für die Sicherheit deiner Tresor-Einträge, indem du Berichte auf Schwachstellen überprüfst."
+  },
+  "coachmarkStepIndicator": {
+    "message": "Schritt $CURRENT$ von $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
       }
     }
   }

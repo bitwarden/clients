@@ -353,10 +353,10 @@
     "message": "您可以使用 Bitwarden 驗證器儲存驗證器金鑰，並為兩步驟驗證流程產生 TOTP 代碼。前往 bitwarden.com 網站以了解更多資訊。"
   },
   "bitwardenSecretsManager": {
-    "message": "Bitwarden 密鑰管理"
+    "message": "Bitwarden 機密管理器"
   },
   "continueToSecretsManagerPageDesc": {
-    "message": "使用 Bitwarden 密鑰管理來安全儲存、管理並分享開發人員密鑰。在 bitwarden.com 網站上了解更多。"
+    "message": "透過 Bitwarden 機密管理器安全地儲存、管理並分享開發人員機密。請前往 bitwarden.com 網站了解更多。"
   },
   "passwordlessDotDev": {
     "message": "Passwordless.dev"
@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "解鎖選項"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "設定解鎖方法來變更您的密碼庫逾時動作。"
-  },
   "unlockMethodNeeded": {
     "message": "在設定中設定一個解鎖方式"
   },
   "sessionTimeoutHeader": {
     "message": "工作階段逾時"
-  },
-  "vaultTimeoutHeader": {
-    "message": "密碼庫逾時時間"
   },
   "otherOptions": {
     "message": "其它選項"
@@ -1828,7 +1822,7 @@
     "message": "關閉您的瀏覽器內建密碼管理器設定以避免衝突。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
-    "message": "編輯瀏覽器設定"
+    "message": "編輯瀏覽器設定。"
   },
   "autofillOverlayVisibilityOff": {
     "message": "關閉",
@@ -2440,7 +2434,7 @@
     "message": "使用此密碼"
   },
   "useThisPassphrase": {
-    "message": "使用此密碼"
+    "message": "使用此密碼短語"
   },
   "useThisUsername": {
     "message": "使用此使用者名稱"
@@ -2461,9 +2455,6 @@
   },
   "vaultTimeoutAction": {
     "message": "密碼庫逾時動作"
-  },
-  "vaultTimeoutAction1": {
-    "message": "逾時後動作"
   },
   "lock": {
     "message": "鎖定",
@@ -2630,7 +2621,7 @@
     "message": "存取權杖更新失敗"
   },
   "errorRefreshingAccessTokenDesc": {
-    "message": "未找到存取權杖或 API 密鑰。請重試登出再登入。"
+    "message": "未找到重新整理權杖或 API 金鑰。請先登出再重新登入。"
   },
   "desktopSyncVerificationTitle": {
     "message": "桌面應用程式同步驗證"
@@ -3230,9 +3221,6 @@
   "minutes": {
     "message": "分鐘"
   },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "企業政策已套用至您的逾時選項中"
-  },
   "vaultTimeoutPolicyInEffect": {
     "message": "您的組織政策已限定您密碼庫逾時的時間長度。密碼庫逾時時間最高可以設定到 $HOURS$ 小時 $MINUTES$ 分鐘。",
     "placeholders": {
@@ -3448,7 +3436,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " 使用 $RECOMMENDED$ 或更多個單字產生強的密碼短語。",
+    "message": " 使用至少 $RECOMMENDED$ 個詞彙來建立更強的密碼短語。",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -4436,6 +4424,9 @@
   "exportSuccess": {
     "message": "密碼庫資料已匯出"
   },
+  "exportError": {
+    "message": "匯出密碼庫資料時發生錯誤"
+  },
   "typePasskey": {
     "message": "密碼金鑰"
   },
@@ -4965,7 +4956,7 @@
     "message": "不在任何資料夾中的項目"
   },
   "itemDetails": {
-    "message": "項目詳細資訊"
+    "message": "項目詳細資料"
   },
   "itemName": {
     "message": "項目名稱"
@@ -5186,7 +5177,7 @@
     "message": "如果您已續期，請更新信用卡資訊"
   },
   "cardDetails": {
-    "message": "信用卡詳細資料"
+    "message": "付款卡詳細資料"
   },
   "cardBrandDetails": {
     "message": "$BRAND$ 詳細資訊",
@@ -5731,16 +5722,16 @@
     "message": "請輸入密碼"
   },
   "invalidSshKey": {
-    "message": "SSH 密鑰不正確"
+    "message": "SSH 金鑰無效"
   },
   "sshKeyTypeUnsupported": {
-    "message": "SSH 密鑰類型不支援"
+    "message": "不支援此 SSH 金鑰類型"
   },
   "importSshKeyFromClipboard": {
-    "message": "從剪貼簿中匯入密鑰"
+    "message": "從剪貼簿匯入金鑰"
   },
   "sshKeyImported": {
-    "message": "SSH 密鑰成功匯入"
+    "message": "SSH 金鑰已成功匯入"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "若您只有檢視權限，無法移除集合 $COLLECTIONS$。",
@@ -6130,8 +6121,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ 為了安全性與合規性，要求所有項目皆由組織擁有。點擊接受即可轉移您項目的擁有權。",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ 為了安全與合規要求，要求所有項目必須由組織擁有。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6130,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "點擊「接受」以轉移您項目的擁有權。"
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "開啟關於轉移項目的說明文章"
+  },
   "acceptTransfer": {
     "message": "同意轉移"
   },
   "declineAndLeave": {
     "message": "拒絕並離開"
-  },
-  "whyAmISeeingThis": {
-    "message": "為什麼我會看到此訊息？"
   },
   "items": {
     "message": "項目"
@@ -6178,9 +6172,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "請以逗號分隔輸入多個電子郵件地址。"
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "電子郵件驗證至少需要一個電子郵件地址。若要移除所有電子郵件，請變更上方的存取類型。"
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6187,8 @@
   },
   "userVerificationFailed": {
     "message": "使用者驗證失敗。"
+  },
+  "downloadFailed": {
+    "message": "下載失敗"
   }
 }

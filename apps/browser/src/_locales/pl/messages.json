@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Opcje odblokowania"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Ustaw metodę odblokowania, aby zmienić sposób blokowania sejfu."
-  },
   "unlockMethodNeeded": {
     "message": "Ustaw metodę odblokowania w ustawieniach"
   },
   "sessionTimeoutHeader": {
     "message": "Blokada aplikacji"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Blokowanie sejfu"
   },
   "otherOptions": {
     "message": "Inne opcje"
@@ -2462,9 +2456,6 @@
   "vaultTimeoutAction": {
     "message": "Sposób blokowania sejfu"
   },
-  "vaultTimeoutAction1": {
-    "message": "Sposób blokady"
-  },
   "lock": {
     "message": "Zablokuj",
     "description": "Verb form: to make secure or inaccessible by"
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Minuty"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Zasady organizacji zostały zastosowane do opcji blokowania sejfu"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Zasady organizacji mają wpływ na czas blokowania sejfu. Maksymalny dozwolony czas wynosi $HOURS$ godz. i $MINUTES$ min.",
@@ -4435,6 +4423,9 @@
   },
   "exportSuccess": {
     "message": "Dane sejfu zostały wyeksportowane"
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
   },
   "typePasskey": {
     "message": "Klucz dostępu"
@@ -6130,8 +6121,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "Organizacja $ORGANIZATION$ wymaga, aby wszystkie elementy były ich własnością.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6130,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Kliknij akceptuj, aby przenieść własność elementów."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Otwórz artykuł pomocy dotyczący przenoszenia elementów"
+  },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "Akceptuj"
   },
   "declineAndLeave": {
     "message": "Odrzuć i wyjdź"
-  },
-  "whyAmISeeingThis": {
-    "message": "Dlaczego to widzę?"
   },
   "items": {
     "message": "Elementy"
@@ -6178,9 +6172,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Wpisz wiele adresów e-mail, oddzielając je przecinkami."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com, user@acme.com"
   },
@@ -6196,5 +6187,8 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "downloadFailed": {
+    "message": "Pobieranie nie powiodło się."
   }
 }
