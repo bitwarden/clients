@@ -135,12 +135,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         (await this.sendExtensionMessage("getUrlAutofillTargetingRules")).result ?? null;
     }
 
-    if (this.pageTargetingRules !== null) {
-      if (this.pageTargetingRules.length === 0) {
+    const targetingRules = this.pageTargetingRules;
+    if (targetingRules != null) {
+      if (targetingRules.length === 0) {
         // Blocklisted; return empty page details, skip heuristics
         return this.getFormattedPageDetails({}, []);
       }
-      return this.getTargetedPageDetails(this.pageTargetingRules);
+      return this.getTargetedPageDetails(targetingRules);
     }
 
     if (!this.domRecentlyMutated && this.noFieldsFound) {
@@ -332,7 +333,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     field.tabindex = element.getAttribute("tabindex");
     field.title = element.getAttribute("title");
     field.tagName = element.tagName?.toLowerCase();
-    field.type = (element as HTMLInputElement).type?.toLowerCase() || null;
+    field.type = (element as HTMLInputElement).type?.toLowerCase() || undefined;
     field.fieldQualifier = fieldType as AutofillField["fieldQualifier"];
     field.targeted = true;
     return field;
