@@ -73,10 +73,14 @@ describe("UserApiLoginStrategy", () => {
   const apiClientSecret = "API_CLIENT_SECRET";
 
   beforeEach(async () => {
+    cache = new UserApiLoginStrategyData();
+
     accountService = mockAccountServiceWith(userId);
     masterPasswordService = new FakeMasterPasswordService();
 
     keyService = mock<KeyService>();
+    encryptService = mock<EncryptService>();
+
     apiService = mock<ApiService>();
     tokenService = mock<TokenService>();
     appIdService = mock<AppIdService>();

@@ -28,8 +28,8 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
+import { PasswordPreloginService } from "@bitwarden/common/auth/password-prelogin";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -148,6 +148,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private ssoLoginService: SsoLoginServiceAbstraction,
     private environmentService: EnvironmentService,
+    private passwordPreloginService: PasswordPreloginService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -299,11 +300,20 @@ export class LoginComponent implements OnInit, OnDestroy {
     const orgMasterPasswordPolicyOptions =
       this.orgPoliciesFromInvite?.enforcedPasswordPolicyOptions;
 
+    // This was kicked off when the user hit continue to the MP entry
+    // so await the result before continuing to login to ensure we
+    // don't call to get password prelogin data twice.
+    // Other MP login flows in the app don't prefetch this data.
+    const preFetchedPreloginData = await firstValueFrom(
+      this.passwordPreloginService.getPreloginData$(email),
+    );
+
     const credentials = new PasswordLoginCredentials(
       email,
       masterPassword,
       undefined,
       orgMasterPasswordPolicyOptions,
+      preFetchedPreloginData,
     );
 
     try {
@@ -565,7 +575,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     const isEmailValid = this.validateEmail();
 
     if (isEmailValid) {
-      await this.makePasswordPreloginCall();
+      this.prefetchPasswordPreloginData();
 
       await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY);
     }
@@ -669,20 +679,18 @@ export class LoginComponent implements OnInit, OnDestroy {
     history.back();
   }
 
-  private async makePasswordPreloginCall() {
-    // Prefetch prelogin KDF config when enabled
-    try {
-      const flagEnabled = await this.configService.getFeatureFlag(
-        FeatureFlag.PM23801_PrefetchPasswordPrelogin,
-      );
-      if (flagEnabled) {
-        const email = this.formGroup.value.email;
-        if (email) {
-          void this.loginStrategyService.getPasswordPrelogin(email);
-        }
-      }
-    } catch (error) {
-      this.logService.error("Failed to prefetch prelogin data.", error);
+  /**
+   * Prefetches the password prelogin data for the entered email
+   * so that it is available by the time the user submits the password.
+   * If it is not available by the time the user submits, the login strategy will still work
+   * as it will wait for the prelogin data to be available before proceeding.
+   */
+  private prefetchPasswordPreloginData() {
+    const email = this.formGroup.value.email;
+    if (email) {
+      // Don't await this call as we don't want to delay the UI transition to the master password entry
+      // Errors are deferred to the subscriber in submit().
+      void this.passwordPreloginService.getPreloginData$(email);
     }
   }
 

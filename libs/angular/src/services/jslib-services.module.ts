@@ -110,6 +110,11 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
+import {
+  DefaultPasswordPreloginService,
+  PasswordPreloginApiService,
+  PasswordPreloginService,
+} from "@bitwarden/common/auth/password-prelogin";
 import { DefaultSendTokenService, SendTokenService } from "@bitwarden/common/auth/send-access";
 import { AccountApiServiceImplementation } from "@bitwarden/common/auth/services/account-api.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
@@ -582,6 +587,7 @@ const safeProviders: SafeProvider[] = [
       TaskSchedulerService,
       ConfigService,
       AccountCryptographicStateService,
+      PasswordPreloginService,
     ],
   }),
   safeProvider({
@@ -1831,6 +1837,16 @@ const safeProviders: SafeProvider[] = [
       InternalMasterPasswordServiceAbstraction,
       MasterPasswordUnlockService,
     ],
+  }),
+  safeProvider({
+    provide: PasswordPreloginApiService,
+    useClass: PasswordPreloginApiService,
+    deps: [ApiServiceAbstraction, EnvironmentService],
+  }),
+  safeProvider({
+    provide: PasswordPreloginService,
+    useClass: DefaultPasswordPreloginService,
+    deps: [PasswordPreloginApiService],
   }),
   safeProvider({
     provide: EncryptedMigrationsSchedulerService,

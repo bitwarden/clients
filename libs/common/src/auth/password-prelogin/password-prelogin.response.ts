@@ -2,9 +2,9 @@
 // eslint-disable-next-line no-restricted-imports
 import { KdfType } from "@bitwarden/key-management";
 
-import { BaseResponse } from "../../../models/response/base.response";
+import { BaseResponse } from "../../models/response/base.response";
 
-export class PreloginResponse extends BaseResponse {
+export class PasswordPreloginResponse extends BaseResponse {
   kdf: KdfType;
   kdfIterations: number;
   kdfMemory?: number;

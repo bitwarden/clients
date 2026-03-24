@@ -51,7 +51,6 @@ import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-ss
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
-import { PreloginResponse } from "../auth/models/response/prelogin.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
 import { BillingHistoryResponse } from "../billing/models/response/billing-history.response";
@@ -64,7 +63,6 @@ import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/model
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
-import { PreloginRequest } from "../models/request/prelogin.request";
 import { StorageRequest } from "../models/request/storage.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
@@ -150,7 +148,6 @@ export abstract class ApiService {
   abstract getUserSubscription(): Promise<SubscriptionResponse>;
   abstract putProfile(request: UpdateProfileRequest): Promise<ProfileResponse>;
   abstract putAvatar(request: UpdateAvatarRequest): Promise<ProfileResponse>;
-  abstract postPrelogin(request: PreloginRequest): Promise<PreloginResponse>;
   abstract postSetKeyConnectorKey(request: SetKeyConnectorKeyRequest): Promise<any>;
   abstract postSecurityStamp(request: SecretVerificationRequest): Promise<any>;
   abstract getAccountRevisionDate(): Promise<number>;

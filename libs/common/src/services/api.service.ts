@@ -64,7 +64,6 @@ import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-ss
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
-import { PreloginResponse } from "../auth/models/response/prelogin.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
 import { BillingHistoryResponse } from "../billing/models/response/billing-history.response";
@@ -80,7 +79,6 @@ import { VaultTimeoutAction } from "../key-management/vault-timeout/enums/vault-
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
-import { PreloginRequest } from "../models/request/prelogin.request";
 import { StorageRequest } from "../models/request/storage.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
@@ -291,18 +289,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new ProfileResponse(r);
   }
 
-  async postPrelogin(request: PreloginRequest): Promise<PreloginResponse> {
-    const env = await firstValueFrom(this.environmentService.environment$);
-    const r = await this.send(
-      "POST",
-      "/accounts/prelogin",
-      request,
-      false,
-      true,
-      env.getIdentityUrl(),
-    );
-    return new PreloginResponse(r);
-  }
   postSetKeyConnectorKey(request: SetKeyConnectorKeyRequest): Promise<any> {
     return this.send("POST", "/accounts/set-key-connector-key", request, true, false);
   }
