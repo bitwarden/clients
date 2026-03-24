@@ -597,6 +597,10 @@ jobs:
         run: |
           npm run pack:win
 
+      - name: Verify helper exe thumbprint matches hardcoded value
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        run: ./scripts/validate-chromium-importer-thumbprint.ps1
+
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
@@ -859,6 +863,10 @@ jobs:
           SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
           SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
         run: npm run pack:win:beta
+
+      - name: Verify helper exe thumbprint matches hardcoded value
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        run: ./scripts/validate-chromium-importer-thumbprint.ps1
 
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
