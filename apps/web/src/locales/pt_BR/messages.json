@@ -2,8 +2,17 @@
   "allApplications": {
     "message": "Todos os aplicativos"
   },
+  "allMembers": {
+    "message": "Todos os membros"
+  },
+  "allPasswords": {
+    "message": "Todas as senhas"
+  },
   "activity": {
     "message": "Atividade"
+  },
+  "applicationsAtRisk": {
+    "message": "Aplicativos em risco"
   },
   "appLogoLabel": {
     "message": "Logo do Bitwarden"
@@ -43,6 +52,15 @@
   },
   "passwordRisk": {
     "message": "Risco de senhas"
+  },
+  "passwords": {
+    "message": "Senhas"
+  },
+  "riskOverTime": {
+    "message": "Risco ao longo do tempo"
+  },
+  "passwordsAtRisk": {
+    "message": "Senhas em risco"
   },
   "noEditPermissions": {
     "message": "Você não tem permissão para editar este item"
@@ -2103,6 +2121,9 @@
   "exportSuccess": {
     "message": "Dados do cofre exportados"
   },
+  "exportError": {
+    "message": "Ocorreu um erro ao exportar os dados do seu cofre"
+  },
   "passwordGenerator": {
     "message": "Gerador de senhas"
   },
@@ -3047,16 +3068,16 @@
   "breachDesc": {
     "message": "Contas comprometidas podem expor sua informação pessoal. Proteja as contas vazadas ativando o 2FA ou criando uma senha mais forte."
   },
-  "breachCheckUsernameEmail": {
-    "message": "Confira quaisquer nomes de usuário ou endereços de e-mail que você usa."
+  "breachCheckEmail": {
+    "message": "Confira quaisquer endereços de e-mail que usa."
   },
   "checkBreaches": {
     "message": "Conferir vazamentos"
   },
-  "breachUsernameNotFound": {
-    "message": "$USERNAME$ não foi encontrado em nenhum vazamento de dados conhecido.",
+  "breachEmailNotFound": {
+    "message": "$EMAIL$ não foi encontrado em nenhum vazamento de dados conhecido.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3087,10 @@
     "message": "Boas notícias",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "$USERNAME$ foi encontrado em $COUNT$ vazamentos de dados diferentes on-line.",
+  "breachEmailFound": {
+    "message": "$EMAIL$ foi encontrado em $COUNT$ vazamentos de dados diferentes on-line.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -3366,7 +3387,7 @@
     "message": "Próxima cobrança"
   },
   "nextChargeDate": {
-    "message": "Próxima cobrança"
+    "message": "Data da próxima cobrança"
   },
   "plan": {
     "message": "Plano"
@@ -5446,7 +5467,7 @@
     "message": "Número mínimo de palavras"
   },
   "overridePasswordTypePolicy": {
-    "message": "Password Type",
+    "message": "Tipo de senha",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -5739,7 +5760,7 @@
     }
   },
   "sendCreatedDescriptionEmail": {
-    "message": "Copie e compartilhe este link do Send. Ele pode ser visto pelas pessoas que você especificou pelos próximos $TIME$.",
+    "message": "Copie e compartilhe este link do Send. Ele pode ser visto pelas pessoas que você especificou por $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -6027,7 +6048,7 @@
     "message": "Centralizar propriedade da organização"
   },
   "centralizeDataOwnershipDesc": {
-    "message": "Todos os itens dos membros serão propriedade e gerenciados pela organização. Os administradores e proprietários estão isentos. "
+    "message": "Todos os itens dos membros serão propriedade e gerenciados pela organização. Os administradores e proprietários são isentos. "
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "Saiba mais sobre a propriedade centralizada",
@@ -6055,10 +6076,10 @@
     "message": "Saiba mais sobre a transferência"
   },
   "promptUsersToMoveItems": {
-    "message": "Prompt users to move individual vault items to the organization"
+    "message": "Solicitar aos usuários para mover itens de cofre individuais para a organização"
   },
   "promptUsersToMoveItemsCallout": {
-    "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+    "message": "Os membros serão solicitados a transferir seus itens para a organização ou sair. Se saírem, o seu acesso será revogado mas pode ser restaurado a qualquer momento."
   },
   "organizationDataOwnership": {
     "message": "Aplicar propriedade de dados da organização"
@@ -6098,7 +6119,7 @@
     "message": "Disponível agora"
   },
   "automaticUserConfirmation": {
-    "message": "Automatic user confirmation"
+    "message": "Confirmação automática de usuários"
   },
   "autoConfirmDescription": {
     "message": "Novos usuários convidados para a organização serão confirmados automaticamente quando o dispositivo de um administrador for desbloqueado.",
@@ -7145,7 +7166,7 @@
     "message": "Caminho de callback"
   },
   "signedOutCallbackPath": {
-    "message": "Caminho de callback desconectado"
+    "message": "Caminho de callback de desconexão"
   },
   "authority": {
     "message": "Autoridade"
@@ -8310,6 +8331,9 @@
   "members": {
     "message": "Membros"
   },
+  "membersAtRisk": {
+    "message": "Membros em risco"
+  },
   "reporting": {
     "message": "Relatórios"
   },
@@ -8580,6 +8604,14 @@
   "newProject": {
     "message": "Novo projeto",
     "description": "Title for creating a new project."
+  },
+  "clickToRenameProject": {
+    "message": "Clique para renomear este projeto",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "Não é possível descriptografar o nome do projeto - clique no projeto para renomear",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
     "message": "Apagar segredos pode afetar integrações existentes.",
@@ -10631,7 +10663,7 @@
     "message": "Envie dados de eventos para sua instância do Huntress SIEM"
   },
   "integrationConnectedSuccessfully": {
-    "message": "$INTEGRATION$ connected successfully.",
+    "message": "$INTEGRATION$ conectado com sucesso.",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10993,7 +11025,7 @@
     "message": "Desativada"
   },
   "memberAccessReportLoadError": {
-    "message": "Failed to load the member access report. This may be due to a large organization size or network issue. Please try again or contact support if the problem persists."
+    "message": "Falha ao carregar o relatório de acesso dos membros. Isso pode ser devido a uma organização muito grande, ou um problema de rede. Tente novamente ou entre em contato com o suporte caso o problema persistir."
   },
   "kdfIterationRecommends": {
     "message": "Recomendamos 600.000 ou mais"
@@ -11045,6 +11077,9 @@
   },
   "clientDetails": {
     "message": "Detalhes do cliente"
+  },
+  "downloadChart": {
+    "message": "Baixar gráfico"
   },
   "downloadCSV": {
     "message": "Baixar CSV"
@@ -11498,6 +11533,18 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "Usuário $ID$ se revogou da organização.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "userSelfRevokedOrganizationOwnership": {
+    "message": "Revogado por não aceitar a transferência da propriedade da organização."
+  },
   "suspendedOrganizationTitle": {
     "message": "A $ORGANIZATION$ está suspensa",
     "placeholders": {
@@ -11881,6 +11928,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Chaves criptográficas não confiadas"
+  },
+  "atRiskPassword": {
+    "message": "Senha em risco"
   },
   "changeAtRiskPassword": {
     "message": "Alterar senhas em risco"
@@ -12551,12 +12601,6 @@
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Um domínio deve ser reivindicado antes de ativar esta política."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configure um método de desbloqueio para alterar a ação do limite de tempo do cofre."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Os requisitos de política empresarial foram aplicados às suas opções de limite de tempo"
-  },
   "vaultTimeoutTooLarge": {
     "message": "O limite de tempo do seu cofre excede as restrições estabelecidas pela sua organização."
   },
@@ -12755,8 +12799,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ exige que todos os itens sejam propriedade da organização por segurança e conformidade. Clique em aceitar para transferir a propriedade dos seus itens.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ está exigindo que todos os itens sejam propriedade da organização por segurança e conformidade.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12764,14 +12808,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Clique em aceitar para transferir a propriedade dos seus itens."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Abrir artigo de ajuda sobre a transferência de itens"
+  },
   "acceptTransfer": {
     "message": "Aceitar transferência"
   },
   "declineAndLeave": {
     "message": "Recusar e sair"
-  },
-  "whyAmISeeingThis": {
-    "message": "Por que estou vendo isso?"
   },
   "youHaveBitwardenPremium": {
     "message": "Você tem o Bitwarden Premium"
@@ -12896,19 +12943,19 @@
     "message": "Você usou todos os $GB$ GB do seu armazenamento criptografado. Para continuar armazenando arquivos, adicione mais armazenamento."
   },
   "extensionPromptHeading": {
-    "message": "Get the extension for easy vault access"
+    "message": "Instale a extensão para acesso fácil ao cofre"
   },
   "extensionPromptBody": {
-    "message": "With the browser extension installed, you'll take Bitwarden everywhere online. It'll fill in passwords, so you can log into your accounts with a single click."
+    "message": "Com a extensão de navegador instalada, você levará o Bitwarden a todos os lugares. Ele preencherá senhas, e poderá entrar nas suas contas com um só clique."
   },
   "extensionPromptImageAlt": {
-    "message": "A web browser showing the Bitwarden extension with autofill items for the current webpage."
+    "message": "Um navegador da web mostrando a extensão do Bitwarden com itens para preenchimento na página atual."
   },
   "skip": {
-    "message": "Skip"
+    "message": "Pular"
   },
   "downloadExtension": {
-    "message": "Download extension"
+    "message": "Baixar extensão"
   },
   "whoCanView": {
     "message": "Quem pode visualizar"
@@ -12922,11 +12969,8 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Digite vários e-mails, separados com uma vírgula."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "A verificação de e-mail requer pelo menos um endereço de e-mail. Para remover todos, altere o tipo de acesso acima."
-  },
   "emailPlaceholder": {
-    "message": "user@bitwarden.com , user@acme.com"
+    "message": "usuário@bitwarden.com , usuário@acme.com"
   },
   "whenYouRemoveStorage": {
     "message": "Quando você remover o armazenamento, você receberá um crédito de conta proporcional que irá automaticamente para sua próxima fatura."
@@ -12969,10 +13013,10 @@
     "message": "por usuário"
   },
   "upgradeToTeams": {
-    "message": "Fazer upgrade para o Equipes"
+    "message": "Fazer upgrade ao Equipes"
   },
   "upgradeToEnterprise": {
-    "message": "Fazer upgrade para o Empresarial"
+    "message": "Fazer upgrade ao Empresarial"
   },
   "upgradeShareEvenMore": {
     "message": "Compartilhe ainda mais com o Famílias, ou receba segurança poderosa e confiável de senhas com o Equipes ou o Empresarial"
@@ -13000,7 +13044,7 @@
     "message": "Crédito da assinatura Premium"
   },
   "enterpriseMembership": {
-    "message": "Assinatura Empresarial"
+    "message": "Assinatura do Empresarial"
   },
   "teamsMembership": {
     "message": "Assinatura do Equipes"
@@ -13032,6 +13076,70 @@
       "date": {
         "content": "$2",
         "example": "Jan 1, 1970"
+      }
+    }
+  },
+  "sendsTitleNoSearchResults": {
+    "message": "Nenhum resultado de busca"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Limpe os filtros ou tente outro termo de busca"
+  },
+  "pastMonth": {
+    "message": "Últimos 30 dias"
+  },
+  "past3Months": {
+    "message": "Últimos 3 meses"
+  },
+  "past6Months": {
+    "message": "Últimos 6 meses"
+  },
+  "pastYear": {
+    "message": "Último ano"
+  },
+  "allTime": {
+    "message": "Desde o início"
+  },
+  "timePeriod": {
+    "message": "Intervalo de tempo"
+  },
+  "of": {
+    "message": "de"
+  },
+  "coachmarkImportTitle": {
+    "message": "Importe suas senhas rapidinho"
+  },
+  "coachmarkImportDescription": {
+    "message": "Você já tinha um gerenciador de senhas antes? Você pode importar um CSV de credenciais existentes e outros dados no seu cofre."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Adicionar um item"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Adicione senhas, anotações e outras informações no seu cofre. Tudo será protegido com criptografia de ponta a ponta."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Compartilhe itens com segurança"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "Movendo um item para um conjunto, você pode compartilhá-lo com outras pessoas na sua organização, com segurança."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Monitore a segurança das suas senhas"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Mantenha a segurança dos itens do seu cofre, conferindo os relatórios por vulnerabilidades."
+  },
+  "coachmarkStepIndicator": {
+    "message": "$CURRENT$º de $TOTAL$ passos",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
       }
     }
   }

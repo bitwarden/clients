@@ -75,6 +75,9 @@ export class Menubar {
       !isLocked && updateRequest?.accounts?.[updateRequest.activeUserId]?.isLockable;
     const hasMasterPassword =
       updateRequest?.accounts?.[updateRequest.activeUserId]?.hasMasterPassword ?? false;
+    // TODO: PM-32419 - remove feature flag check once fully rolled out
+    const multiClientPasswordManagement =
+      updateRequest?.accounts?.[updateRequest.activeUserId]?.multiClientPasswordManagement ?? false;
 
     this.items = [
       new FileMenu(
@@ -96,6 +99,7 @@ export class Menubar {
         windowMain.win,
         isLocked,
         hasMasterPassword,
+        multiClientPasswordManagement,
         shell,
       ),
       new WindowMenu(i18nService, messagingService, windowMain),
