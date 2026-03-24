@@ -15,7 +15,52 @@
   <ng-content select="[bitSuffix]"></ng-content>
 </ng-template>
 
-@if (!readOnly) {
+<div
+  class="tw-flex tw-flex-col tw-gap-2 has-[input:disabled]:!tw-text-fg-inactive [&_bit-hint]:tw-m-0"
+>
+  <label
+    class="tw-flex tw-items-center tw-gap-0.5 tw-text-sm/5 tw-font-medium tw-max-w-full"
+    [attr.for]="input().labelForId"
+  >
+    <ng-container *ngTemplateOutlet="labelContent"></ng-container>
+    @if (input().required) {
+      <sup class="tw-text-sm tw-text-fg-danger tw-relative tw-top-[-1px]">*</sup>
+      <span class="tw-sr-only"> ({{ "required" | i18n }})</span>
+    }
+  </label>
+  <div
+    class="tw-flex tw-min-h-10 tw-border tw-rounded-xl tw-border-solid tw-border-border-strong tw-bg-bg-secondary [&_input]:tw-bg-bg-secondary [&_textarea]:tw-bg-bg-secondary has-[input:focus-visible]:!tw-border-border-brand has-[input:focus-visible]:!tw-ring-border-brand has-[input:focus-visible]:!tw-ring-1 has-[input:disabled]:!tw-border-border-base"
+  >
+    <div
+      #prefixContainer
+      [hidden]="!prefixHasChildren()"
+      class="tw-flex tw-items-center tw-border-e tw-border-e-border-base tw-px-3 tw-bg-bg-quaternary tw-rounded-s-[11px] !tw-text-fg-body-subtle"
+    >
+      <ng-container *ngTemplateOutlet="prefixContent"></ng-container>
+    </div>
+    <div class="tw-flex tw-w-full tw-items-center tw-pe-3 has-[[biticonbutton]:last-child]:tw-pe-1">
+      <div
+        class="tw-px-3 tw-py-[calc(theme(spacing.2)_-_1px)] tw-w-full tw-min-w-0 tw-relative [&>*]:tw-p-0 [&>*::selection]:tw-bg-primary-700 [&>*::selection]:tw-text-contrast"
+        data-default-content
+      >
+        <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
+      </div>
+      <div #suffixContainer [hidden]="!suffixHasChildren()" class="tw-flex tw-items-center">
+        <ng-container *ngTemplateOutlet="suffixContent"></ng-container>
+      </div>
+    </div>
+  </div>
+  @switch (input().hasError) {
+    @case (false) {
+      <ng-content select="bit-hint"></ng-content>
+    }
+    @case (true) {
+      <bit-error [error]="input().error"></bit-error>
+    }
+  }
+</div>
+
+<!-- @if (!readOnly) {
   <div class="tw-w-full tw-relative tw-group/bit-form-field">
     <div class="tw-absolute tw-size-full tw-top-0 tw-pointer-events-none tw-z-20">
       <div class="tw-size-full tw-flex">
@@ -101,13 +146,4 @@
       </div>
     </div>
   </div>
-}
-
-@switch (input().hasError) {
-  @case (false) {
-    <ng-content select="bit-hint"></ng-content>
-  }
-  @case (true) {
-    <bit-error [error]="input().error"></bit-error>
-  }
-}
+} -->

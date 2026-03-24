@@ -18,6 +18,7 @@ import { BadgeModule } from "../badge";
 import { ButtonModule } from "../button";
 import { CardComponent } from "../card";
 import { CheckboxModule } from "../checkbox";
+import { IconComponent } from "../icon";
 import { IconButtonModule } from "../icon-button";
 import { InputModule } from "../input/input.module";
 import { LinkModule } from "../link";
@@ -41,6 +42,7 @@ export default {
         FormFieldModule,
         InputModule,
         ButtonModule,
+        IconComponent,
         IconButtonModule,
         AsyncActionsModule,
         CheckboxModule,
@@ -213,7 +215,7 @@ export const Hint: Story = {
   }),
 };
 
-export const Disabled: Story = {
+export const Inactive: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
@@ -307,7 +309,7 @@ export const ButtonInputGroup: Story = {
           <a href="#" slot="end" startIcon="bwi-question-circle" bitLink [appA11yTitle]="'More info'">
           </a>
         </bit-label>
-        <button type="button" bitPrefix bitIconButton="bwi-star" label="Favorite Label"></button>
+        <bit-icon bitPrefix name="bwi-star" label="Favorite Label"></bit-icon>
         <input bitInput placeholder="Placeholder" />
         <button type="button" bitSuffix bitIconButton="bwi-eye" label="Hide Label"></button>
         <button type="button" bitSuffix bitIconButton="bwi-clone" label="Clone Label"></button>
@@ -332,7 +334,7 @@ export const DangerButtonInputGroup: Story = {
   args: {},
 };
 
-export const DisabledButtonInputGroup: Story = {
+export const InactiveButtonInputGroup: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
@@ -349,7 +351,7 @@ export const DisabledButtonInputGroup: Story = {
   args: {},
 };
 
-export const PartiallyDisabledButtonInputGroup: Story = {
+export const PartiallyInactiveButtonInputGroup: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
