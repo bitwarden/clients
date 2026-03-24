@@ -96,9 +96,9 @@ export default class AutofillField {
    */
   readonly?: boolean;
   /**
-   * The `opid` attribute value of the form that contains the field
+   * The `opid` attribute value of the form that contains the field, null if no form or opid is absent
    */
-  form?: string;
+  form?: string | null;
   /**
    * The `x-autocompletetype`, `autocompletetype`, or `autocomplete` attribute for the field
    */
