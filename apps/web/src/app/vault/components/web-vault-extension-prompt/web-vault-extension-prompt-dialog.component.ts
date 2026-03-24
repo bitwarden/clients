@@ -4,6 +4,7 @@ import { CommonModule } from "@angular/common";
 import { Component, ChangeDetectionStrategy, OnInit } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
+import { ExtensionMockLogin } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -14,6 +15,7 @@ import {
   DialogRef,
   DialogService,
   IconComponent,
+  SvgComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -22,7 +24,7 @@ import { WebVaultExtensionPromptService } from "../../services/web-vault-extensi
 @Component({
   selector: "web-vault-extension-prompt-dialog",
   templateUrl: "./web-vault-extension-prompt-dialog.component.html",
-  imports: [CommonModule, ButtonModule, DialogModule, I18nPipe, IconComponent],
+  imports: [CommonModule, ButtonModule, DialogModule, I18nPipe, IconComponent, SvgComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WebVaultExtensionPromptDialogComponent implements OnInit {
@@ -35,6 +37,8 @@ export class WebVaultExtensionPromptDialogComponent implements OnInit {
 
   /** Download Url for the extension based on the browser */
   protected webStoreUrl: string = "";
+
+  protected extensionMockLogin = ExtensionMockLogin;
 
   ngOnInit(): void {
     this.webStoreUrl = getWebStoreUrl(this.platformUtilsService.getDevice());
