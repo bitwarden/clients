@@ -347,6 +347,19 @@
               </div>
               <div class="form-group">
                 <div class="checkbox">
+                  <label for="enableMagnify">
+                    <input
+                      id="enableMagnify"
+                      type="checkbox"
+                      formControlName="enableMagnify"
+                      (change)="saveEnableMagnify()"
+                    />
+                    {{ "enableMagnify" | i18n }}
+                  </label>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="checkbox">
                   <label for="enableHardwareAcceleration">
                     <input
                       id="enableHardwareAcceleration"

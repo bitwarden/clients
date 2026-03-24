@@ -4753,5 +4753,8 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "enableMagnify": {
+    "message": "Enable Magnify"
   }
 }

@@ -56,6 +56,7 @@ import { AutotypeShortcutComponent } from "../../autofill/components/autotype-sh
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
+import { DesktopMagnifyService } from "../../autofill/services/desktop-magnify.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { DesktopPremiumUpgradePromptService } from "../../services/desktop-premium-upgrade-prompt.service";
@@ -165,6 +166,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       disabled: true,
     }),
     autotypeShortcut: [null as string | null],
+    enableMagnify: false,
     theme: [null as Theme | null],
     locale: [null as string | null],
   });
@@ -189,6 +191,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private userVerificationService: UserVerificationServiceAbstraction,
     private desktopSettingsService: DesktopSettingsService,
     private desktopAutotypeService: DesktopAutotypeService,
+    private desktopMagnifyService: DesktopMagnifyService,
     private biometricStateService: BiometricStateService,
     private biometricsService: DesktopBiometricsService,
     private desktopAutofillSettingsService: DesktopAutofillSettingsService,
@@ -337,6 +340,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       autotypeShortcut: this.getFormattedAutotypeShortcutText(
         (await firstValueFrom(this.desktopAutotypeService.autotypeKeyboardShortcut$)) ?? [],
       ),
+      enableMagnify: await firstValueFrom(this.desktopMagnifyService.magnifyEnabledUserSetting$),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
@@ -810,6 +814,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.getFormattedAutotypeShortcutText(newShortcutArray),
     );
     await this.desktopAutotypeService.setAutotypeKeyboardShortcutState(newShortcutArray);
+  }
+
+  async saveEnableMagnify() {
+    await this.desktopMagnifyService.setMagnifyEnabledState(this.form.value.enableMagnify);
   }
 
   ngOnDestroy() {
