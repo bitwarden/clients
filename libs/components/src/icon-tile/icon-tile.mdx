@@ -1,0 +1,98 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./icon-tile.stories";
+
+<Meta of={stories} />
+
+```ts
+import { IconTileComponent } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Variants
+
+Icon tiles support 7 color variants
+
+<Canvas of={stories.AllVariants} />
+
+### Primary
+
+Used for brand-colored indicators and primary visual elements.
+
+### Success
+
+Indicates successful operations, positive status, or completed states.
+
+### Danger
+
+Represents errors, destructive actions, or critical warnings.
+
+### Warning
+
+Used for caution states, alerts, or situations requiring attention.
+
+### Subtle
+
+Low-emphasis indicators on standard backgrounds, used for secondary or muted content.
+
+### Dark
+
+High-contrast indicators on light backgrounds, used for emphasis or navigation elements.
+
+### Contrast
+
+Used on colored or contrasting backgrounds to maintain visibility.
+
+## Sizes
+
+Icon tiles are available in 5 sizes to accommodate different layout contexts and visual hierarchies:
+
+- **xs** (16px) - Compact indicators for dense layouts or inline text
+- **sm** (24px) - Small indicators for list items or compact cards
+- **base** (36px) - Default size for most use cases
+- **lg** (48px) - Larger indicators for prominent features or cards
+- **xl** (64px) - Extra large for hero sections or feature highlights
+
+<Canvas of={stories.AllSizes} />
+
+## All Combinations
+
+View all variant and size combinations:
+
+<Canvas of={stories.AllCombinations} />
+
+## Accessibility
+
+Icon tiles are presentational elements and do not require interactive accessibility features.
+However, when an icon tile conveys semantic meaning (such as status or category), provide an
+`ariaLabel` to ensure screen reader users receive the same information.
+
+### When to use ariaLabel
+
+- Status indicators (success, error, warning states)
+- Category or type representations
+- Any icon tile that conveys information not otherwise available in text
+
+### When ariaLabel is not needed
+
+- Purely decorative icon tiles
+- Icon tiles adjacent to descriptive text that provides the same information
+- Icon tiles used only for visual styling or spacing
+
+### Example
+
+```html
+<!-- Semantic icon tile with aria-label -->
+<bit-icon-tile icon="bwi-check-circle" variant="success" ariaLabel="Payment successful" />
+
+<!-- Decorative icon tile without aria-label -->
+<bit-icon-tile icon="bwi-star" variant="primary" />
+```
+
+When `ariaLabel` is provided, the component automatically sets `role="img"` and ensures the inner
+icon element has `aria-hidden="true"` to prevent duplicate announcements.
