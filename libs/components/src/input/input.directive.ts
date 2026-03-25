@@ -53,6 +53,10 @@ export class BitInputDirective implements BitFormFieldControl {
       "[&:is(input,textarea):disabled]:tw-bg-bg-secondary",
       "[&:is(input,textarea):disabled]:!tw-placeholder-fg-inactive",
       "[&:is(input,textarea):disabled]:!tw-text-fg-inactive",
+      "[&:-webkit-autofill]:tw-shadow-[inset_0_0_0_1000px_var(--color-bg-secondary)]",
+      "group-hover/form-field:[&:-webkit-autofill]:tw-shadow-[inset_0_0_0_1000px_var(--color-bg-quaternary)]",
+      "[&:-webkit-autofill]:[-webkit-text-fill-color:theme(colors.fg.heading)]",
+      "tw-transition-shadow",
     ];
 
     if (this.parentFormField === null) {
