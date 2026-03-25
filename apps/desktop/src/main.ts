@@ -563,6 +563,12 @@ export class Main {
         return { success: false, error: String(error) };
       }
     });
+
+    // NOTE: PQP password derivation uses temporal scoping pattern (W50-266, W50-273).
+    // Renderer calls PqpAuthService.buildPqpLoginCredentials() or withDerivedPassword(),
+    // which delegate to authenticationService.withPassword(callback). Password is derived
+    // on-demand, passed to callback, and immediately discarded. No IPC handler needed
+    // since context isolation is disabled for PQP.
   }
 
   private setupWebRtcHandlers(): void {
