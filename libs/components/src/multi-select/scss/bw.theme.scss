@@ -5,7 +5,7 @@
   }
 }
 
-$ng-select-highlight: rgb(var(--color-primary-700)) !default;
+$ng-select-highlight: var(--color-bg-brand-medium) !default;
 $ng-select-primary-text: var(--color-fg-heading) !default;
 $ng-select-disabled-text: var(--color-fg-inactive) !default;
 $ng-select-border: rgb(var(--color-border-light)) !default;
