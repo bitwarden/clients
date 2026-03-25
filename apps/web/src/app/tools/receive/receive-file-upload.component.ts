@@ -25,10 +25,10 @@ import {
 })
 export class ReceiveFileUploadComponent implements OnInit {
   readonly files: Array<File> = [];
-  readonly fileName = signal<string>(null);
-  readonly receiveId = signal<string>(null);
-  readonly secretB64 = signal<string>(null);
-  readonly sharedContentEncryptionKeyB64 = signal<string>(null);
+  readonly fileName = signal<string>("");
+  readonly receiveId = signal<string>("");
+  readonly secretB64 = signal<string>("");
+  readonly sharedContentEncryptionKeyB64 = signal<string>("");
   readonly showUploadFilesButton = signal<boolean>(false);
 
   constructor(route: ActivatedRoute) {
@@ -59,7 +59,7 @@ export class ReceiveFileUploadComponent implements OnInit {
 
   removeFiles() {
     this.files.length = 0;
-    this.fileName.set(null);
+    this.fileName.set("");
     this.showUploadFilesButton.set(false);
   }
 
