@@ -1,8 +1,9 @@
 import { Subscription } from "rxjs";
 
-import { LogService } from "../abstractions/log.service";
-import { ScheduledTaskName } from "../scheduling/scheduled-task-name.enum";
-import { TaskSchedulerService } from "../scheduling/task-scheduler.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+
+import { ScheduledTaskName } from "./scheduled-task-name.enum";
+import { TaskSchedulerService } from "./task-scheduler.service";
 
 export class DefaultTaskSchedulerService extends TaskSchedulerService {
   constructor(protected logService: LogService) {
