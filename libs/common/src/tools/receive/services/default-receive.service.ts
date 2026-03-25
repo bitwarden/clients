@@ -2,13 +2,13 @@ import { firstValueFrom } from "rxjs";
 
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { Guid } from "@bitwarden/common/types/guid";
 import { newGuid } from "@bitwarden/guid";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { EncString } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { Receive } from "../models/receive";
@@ -55,17 +55,20 @@ export class DefaultReceiveService implements ReceiveService {
       receiveKeys.sharedContentEncryptionKey,
     );
     return {
-      name: encryptedName.encryptedString,
-      scekWrappedPublicKey: receiveKeys.scekWrappedPublicKey.encryptedString,
+      name: encryptedName.encryptedString!,
+      scekWrappedPublicKey: receiveKeys.scekWrappedPublicKey,
       userKeyWrappedSharedContentEncryptionKey:
-        receiveKeys.userKeyWrappedSharedContentEncryptionKey.encryptedString,
-      userKeyWrappedPrivateKey: receiveKeys.userKeyWrappedPrivateKey.encryptedString,
+        receiveKeys.userKeyWrappedSharedContentEncryptionKey,
+      userKeyWrappedPrivateKey: receiveKeys.userKeyWrappedPrivateKey,
       expirationDate: input.expirationDate.toISOString(),
     };
   }
 
   private async makeReceiveKeys(userId: UserId): Promise<ReceiveKeys> {
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    if (!userKey) {
+      throw new Error("User key not found for user: " + userId);
+    }
 
     const sharedContentEncryptionKey = await this.keyGenerationService.createKey(512);
     const [b64PublicKey, userKeyWrappedPrivateKey] = await this.keyService.makeKeyPair(userKey);
@@ -79,11 +82,20 @@ export class DefaultReceiveService implements ReceiveService {
       userKey,
     );
 
+    if (
+      !scekWrappedPublicKey.encryptedString ||
+      !userKeyWrappedSharedContentEncryptionKey.encryptedString ||
+      !userKeyWrappedPrivateKey.encryptedString
+    ) {
+      throw new Error("Failed to produce encrypted strings for receive keys");
+    }
+
     return {
       sharedContentEncryptionKey,
-      scekWrappedPublicKey,
-      userKeyWrappedSharedContentEncryptionKey,
-      userKeyWrappedPrivateKey,
+      scekWrappedPublicKey: scekWrappedPublicKey.encryptedString,
+      userKeyWrappedSharedContentEncryptionKey:
+        userKeyWrappedSharedContentEncryptionKey.encryptedString,
+      userKeyWrappedPrivateKey: userKeyWrappedPrivateKey.encryptedString,
     };
   }
 }

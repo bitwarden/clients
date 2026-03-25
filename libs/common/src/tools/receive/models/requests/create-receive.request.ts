@@ -1,4 +1,4 @@
-export class CreateReceiveRequest {
+export interface CreateReceiveRequest {
   name: string;
   scekWrappedPublicKey: string;
   userKeyWrappedSharedContentEncryptionKey: string;

@@ -1,4 +1,4 @@
-export class ReceiveCreateInput {
+export interface ReceiveCreateInput {
   name: string;
   expirationDate: Date;
 }

@@ -47,13 +47,52 @@ describe("DefaultReceiveService", () => {
   });
 
   describe("create", () => {
-    it("generates all receive keys and encrypts the request payload", async () => {
-      const mockInput: ReceiveCreateInput = {
-        name: "Test Receive",
-        expirationDate: new Date("2026-12-31"),
-      };
+    const mockInput: ReceiveCreateInput = {
+      name: "Test Receive",
+      expirationDate: new Date("2026-12-31"),
+    };
 
-      const result = await sut.create(mockInput, mockUserId);
+    it("throws an error if user key is not found for the user", async () => {
+      keyService.userKey$.mockReturnValue(of(null));
+
+      await expect(sut.create(mockInput, mockUserId)).rejects.toThrowError(
+        "User key not found for user: " + mockUserId,
+      );
+    });
+
+    it("throws if scekWrappedPublicKey has no encryptedString", async () => {
+      encryptService.wrapEncapsulationKey.mockResolvedValue({
+        encryptedString: undefined,
+      } as EncString);
+
+      await expect(sut.create(mockInput, mockUserId)).rejects.toThrowError(
+        "Failed to produce encrypted strings for receive keys",
+      );
+    });
+
+    it("throws if userKeyWrappedSharedContentEncryptionKey has no encryptedString", async () => {
+      encryptService.wrapSymmetricKey.mockResolvedValue({
+        encryptedString: undefined,
+      } as EncString);
+
+      await expect(sut.create(mockInput, mockUserId)).rejects.toThrowError(
+        "Failed to produce encrypted strings for receive keys",
+      );
+    });
+
+    it("throws if userKeyWrappedPrivateKey has no encryptedString", async () => {
+      keyService.makeKeyPair.mockResolvedValue([
+        mockB64PublicKey,
+        { encryptedString: undefined } as EncString,
+      ]);
+
+      await expect(sut.create(mockInput, mockUserId)).rejects.toThrowError(
+        "Failed to produce encrypted strings for receive keys",
+      );
+    });
+
+    it("generates all receive keys and encrypts the request payload", async () => {
+      await sut.create(mockInput, mockUserId);
 
       expect(keyService.userKey$).toHaveBeenCalledWith(mockUserId);
       expect(keyGenerationService.createKey).toHaveBeenCalledWith(512);
@@ -64,7 +103,6 @@ describe("DefaultReceiveService", () => {
       );
       expect(encryptService.wrapSymmetricKey).toHaveBeenCalledWith(mockScek, mockUserKey);
       expect(encryptService.encryptString).toHaveBeenCalledWith(mockInput.name, mockScek);
-      expect(result.id).toBeDefined();
     });
   });
 });
