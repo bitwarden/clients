@@ -51,9 +51,8 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
         box-shadow: $ng-select-box-shadow;
       }
       .ng-arrow {
-        top: -2px;
-        border-color: transparent transparent $ng-select-arrow-hover;
-        border-width: 0 5px 5px;
+        transform: translateY(0) rotate(-135deg);
+        transition: transform 250ms;
         &:hover {
           border-color: transparent transparent $ng-select-arrow-hover;
         }
@@ -244,13 +243,14 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
       // }
     }
     .ng-arrow {
-      bottom: 2px;
+      // bottom: 2px;
       width: 8px !important;
       height: 8px !important;
       border-color: $ng-select-placeholder;
       border-style: solid;
       border-width: 2px;
-      transform: rotate(45deg);
+      transform: translateY(-2px) rotate(45deg);
+      transition: transform 250ms;
       border-radius: 1px;
       border-top: 0;
       border-left: 0;
