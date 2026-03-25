@@ -1,13 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule, Location } from "@angular/common";
-import { Component, inject, viewChild } from "@angular/core";
+import { Component, inject, signal, viewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { map, switchMap } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -30,6 +29,7 @@ import {
   SendFormMode,
   SendFormModule,
 } from "@bitwarden/send-ui";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { PopupBackBrowserDirective } from "../../../../platform/popup/layout/popup-back.directive";
 import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-footer.component";
@@ -79,7 +79,7 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
   imports: [
     CommonModule,
     SearchModule,
-    JslibModule,
+    I18nPipe,
     FormsModule,
     ButtonModule,
     IconButtonModule,
@@ -101,6 +101,11 @@ export class SendAddEditComponent {
    * The configuration for the send form.
    */
   config: SendFormConfig;
+
+  /**
+   * Whether the Send is actively being edited
+   */
+  protected readonly editing = signal(false);
 
   private sendFormGenerationService = inject(SendFormGenerationService);
   private readonly sendFormComponent = viewChild(SendFormComponent);
@@ -201,6 +206,7 @@ export class SendAddEditComponent {
       )
       .subscribe((config) => {
         this.config = config;
+        this.editing.set(config.mode === "add");
         this.headerText = this.getHeaderText(config.mode, config.sendType);
       });
   }
@@ -218,5 +224,13 @@ export class SendAddEditComponent {
       [SendType.File]: isEditMode ? "editItemHeaderFileSend" : "newItemHeaderFileSend",
     };
     return this.i18nService.t(translation[type]);
+  }
+
+  protected editSend() {
+    this.editing.set(true);
+  }
+
+  protected async cancelEditSend() {
+    this.editing.set(false);
   }
 }

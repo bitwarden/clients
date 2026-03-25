@@ -7,26 +7,38 @@
     (onSendCreated)="onSendCreated($event)"
     (onSendUpdated)="onSendUpdated($event)"
     (openPasswordGenerator)="openGenerator()"
-    [submitBtn]="submitBtn"
-    [editing]="true"
+    [editing]="editing()"
   >
   </tools-send-form>
 
   <popup-footer slot="footer">
-    <button bitButton type="submit" form="sendForm" buttonType="primary" #submitBtn>
-      {{ "save" | i18n }}
-    </button>
-    <button bitButton type="button" buttonType="secondary" [popupBackAction]>
-      {{ "cancel" | i18n }}
-    </button>
-    <button
-      *ngIf="config?.mode !== 'add'"
-      type="button"
-      buttonType="danger"
-      slot="end"
-      bitIconButton="bwi-trash"
-      [bitAction]="deleteSend"
-      label="{{ 'delete' | i18n }}"
-    ></button>
+    @if (editing()) {
+      <button bitButton type="submit" form="sendForm" buttonType="primary" #submitBtn>
+        {{ "save" | i18n }}
+      </button>
+      @if (config?.mode !== "add") {
+        <button bitButton type="button" buttonType="secondary" (click)="cancelEditSend()">
+          {{ "cancel" | i18n }}
+        </button>
+      } @else {
+        <button bitButton type="button" buttonType="secondary" [popupBackAction]>
+          {{ "cancel" | i18n }}
+        </button>
+      }
+    } @else {
+      <button bitButton type="button" buttonType="secondary" (click)="editSend()">
+        {{ "edit" | i18n }}
+      </button>
+    }
+    @if (config?.mode !== "add") {
+      <button
+        type="button"
+        buttonType="danger"
+        slot="end"
+        bitIconButton="bwi-trash"
+        [bitAction]="deleteSend"
+        label="{{ 'delete' | i18n }}"
+      ></button>
+    }
   </popup-footer>
 </popup-page>
