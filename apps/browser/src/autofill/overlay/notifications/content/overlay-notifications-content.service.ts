@@ -19,6 +19,7 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
   private notificationBarIframeElement: HTMLIFrameElement | null = null;
   private notificationBarShadowRoot: ShadowRoot | null = null;
   private currentNotificationBarType: NotificationType | null = null;
+  private showAnimations: boolean = true;
   private readonly extensionOrigin: string;
   private notificationBarContainerStyles: Partial<CSSStyleDeclaration> = {
     height: "400px",
@@ -97,6 +98,7 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
       removeIndividualVault: typeData.removeIndividualVault,
       importType: typeData.importType,
       launchTimestamp: typeData.launchTimestamp,
+      showAnimations: typeData.showAnimations,
       params,
     };
 
@@ -117,7 +119,10 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
   private handleCloseNotificationBarMessage(message: NotificationsExtensionMessage) {
     const closedByUser =
       typeof message.data?.closedByUser === "boolean" ? message.data.closedByUser : true;
-    if (message.data?.fadeOutNotification) {
+
+    // FIXME (PM-33879): `fadeOutNotification` is hardcoded to true;
+    // we should remove it in favor of `showAnimations`
+    if (message.data?.fadeOutNotification && this.showAnimations) {
       if (this.notificationBarIframeElement) {
         setElementStyles(this.notificationBarIframeElement, { opacity: "0" }, true);
       }
@@ -165,6 +170,7 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
    * @private
    */
   private openNotificationBar(initData: NotificationBarIframeInitData) {
+    this.showAnimations = initData.showAnimations ?? true;
     if (!this.notificationBarRootElement && !this.notificationBarIframeElement) {
       this.createNotificationBarIframeElement(initData);
       this.createNotificationBarElement();
@@ -193,12 +199,14 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
     iframeUrl.searchParams.set("parentOrigin", parentOrigin);
     this.notificationBarIframeElement.src = iframeUrl.toString();
     this.notificationBarIframeElement.setAttribute("credentialless", "");
+    const skipAnimation = !this.showAnimations;
     setElementStyles(
       this.notificationBarIframeElement,
       {
         ...this.notificationBarIframeElementStyles,
-        transform: isNotificationFresh ? "translateX(100%)" : "translateX(0)",
-        opacity: isNotificationFresh ? "1" : "0",
+        ...(skipAnimation ? { transition: "none" } : {}),
+        transform: isNotificationFresh && !skipAnimation ? "translateX(100%)" : "translateX(0)",
+        opacity: skipAnimation ? "1" : isNotificationFresh ? "1" : "0",
       },
       true,
     );
@@ -244,7 +252,12 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
       this.notificationBarElement = globalThis.document.createElement("div");
       this.notificationBarElement.id = "bit-notification-bar";
 
-      setElementStyles(this.notificationBarElement, this.notificationBarContainerStyles, true);
+      const containerStyles = { ...this.notificationBarContainerStyles };
+      if (!this.showAnimations) {
+        delete containerStyles.transition;
+        delete containerStyles.transitionDelay;
+      }
+      setElementStyles(this.notificationBarElement, containerStyles, true);
 
       this.notificationBarShadowRoot.appendChild(this.notificationBarElement);
       this.notificationBarElement.appendChild(this.notificationBarIframeElement);
