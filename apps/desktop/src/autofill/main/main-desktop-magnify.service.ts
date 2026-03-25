@@ -1,4 +1,4 @@
-import { ipcMain, globalShortcut } from "electron";
+import { ipcMain, globalShortcut, BrowserWindow } from "electron";
 
 import { LogService } from "@bitwarden/logging";
 
@@ -11,14 +11,16 @@ export class MainDesktopMagnifyService {
   constructor(
     private logService: LogService,
     private windowMain: WindowMain,
-  ) {
-    this.registerIpcListeners();
+  ) {}
+
+  async init(): Promise<void> {
+    await this.registerIpcListeners();
   }
 
-  registerIpcListeners() {
-    ipcMain.on(MAGNIFY_IPC_CHANNELS.TOGGLE, (_event, enable: boolean) => {
+  async registerIpcListeners() {
+    ipcMain.on(MAGNIFY_IPC_CHANNELS.TOGGLE, async (_event, enable: boolean) => {
       if (enable) {
-        this.enableMagnify();
+        await this.enableMagnify();
       } else {
         this.disableMagnify();
       }
@@ -43,7 +45,7 @@ export class MainDesktopMagnifyService {
   }
 
   // Register the current keyboard shortcut if not already registered
-  private enableMagnify() {
+  private async enableMagnify() {
     if (globalShortcut.isRegistered(this.MAGNIFY_KEYBOARD_SHORTCUT)) {
       this.logService.debug(
         "Magnify is already enabled with this keyboard shortcut: " + this.MAGNIFY_KEYBOARD_SHORTCUT,
@@ -51,8 +53,8 @@ export class MainDesktopMagnifyService {
       return;
     }
 
-    const result = globalShortcut.register(this.MAGNIFY_KEYBOARD_SHORTCUT, () => {
-      this.openMagnify();
+    const result = globalShortcut.register(this.MAGNIFY_KEYBOARD_SHORTCUT, async () => {
+      await this.openMagnify();
     });
 
     result
@@ -61,7 +63,8 @@ export class MainDesktopMagnifyService {
   }
 
   // Open the magnify window, which is its own project
-  private openMagnify() {
-    //console.log("----- OPEN MAGNIFY -----");
+  private async openMagnify() {
+    const win = new BrowserWindow({ width: 800, height: 600 });
+    await win.loadFile("magnify/index.html");
   }
 }

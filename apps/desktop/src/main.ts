@@ -415,6 +415,7 @@ export class Main {
         });
 
         await this.sdkLoadService.loadAndInit();
+        await this.mainDesktopMagnifyService.init();
       },
       (e: any) => {
         this.logService.error("Error while running migrations:", e);
