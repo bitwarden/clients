@@ -50,6 +50,7 @@ export class BitInputDirective implements BitFormFieldControl {
       "focus:tw-outline-none",
       "tw-bg-transparent",
       "tw-text-fg-heading",
+      "[&:is(textarea)]:tw-resize-none",
       "[&:is(input,textarea):disabled]:tw-bg-bg-secondary",
       "[&:is(input,textarea):disabled]:!tw-placeholder-fg-inactive",
       "[&:is(input,textarea):disabled]:!tw-text-fg-inactive",

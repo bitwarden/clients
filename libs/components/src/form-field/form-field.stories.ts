@@ -443,6 +443,7 @@ export const Textarea: Story = {
       <bit-form-field>
         <bit-label>Textarea</bit-label>
         <textarea bitInput rows="4"></textarea>
+        <button type="button" bitSuffix bitIconButton="bwi-clone" label="Clone Label"></button>
       </bit-form-field>
     `,
   }),
