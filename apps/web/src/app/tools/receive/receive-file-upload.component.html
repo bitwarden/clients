@@ -1,0 +1,38 @@
+<bit-section>
+  <bit-form-field>
+    <bit-label for="file">{{ "file" | i18n }}</bit-label>
+    <div class="tw-flex tw-mt-2 tw-mb-1">
+      <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
+        {{ "chooseFile" | i18n }}
+      </button>
+      <span
+        class="tw-flex tw-items-center tw-pl-3"
+        [ngClass]="fileName ? 'tw-text-main' : 'tw-text-muted'"
+      >
+        {{ fileName() || ("noFileChosen" | i18n) }}</span
+      >
+    </div>
+    <input
+      bitInput
+      #fileSelector
+      type="file"
+      formControlName="file"
+      hidden
+      label="File..."
+      (change)="addFile($event)"
+    />
+    <bit-hint>
+      {{ "maxFileSize" | i18n }}
+    </bit-hint>
+  </bit-form-field>
+  @if (showUploadFilesButton()) {
+    <div class="tw-flex tw-flex-row tw-items-center tw-gap-2 tw-flex-1">
+      <button bitButton type="button" buttonType="primary" (click)="uploadFiles()">
+        <b>{{ "upload" | i18n }}</b>
+      </button>
+      <button bitButton type="button" buttonType="secondary" (click)="removeFiles()">
+        <b>{{ "cancel" | i18n }}</b>
+      </button>
+    </div>
+  }
+</bit-section>
