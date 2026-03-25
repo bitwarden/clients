@@ -25,15 +25,56 @@ tables.
 
 ```html
 <button type="button" bitMenuItem>
-  <i class="bwi bwi-key" slot="start"></i>
+  <bit-icon class="bwi-key" slot="start" />
   Menu item with icons
-  <i class="bwi bwi-angle-right" slot="end"></i>
+  <bit-icon class="bwi-angle-right" slot="end" />
 </button>
 ```
 
+## Action Menus
+
+- Buttons like “new”
+- Overflow buttons
+- Selecting a menu item performs an action
+- Can have a leading icon if it helps reinforce the meaning of the action
+- If one item has a leading icon, all should have a leading icon. That means if one item in the menu
+  doesn’t have a good reinforcing icon, don’t use them at all
+
+<Canvas of={stories.ActionMenu} />
+
+## Input Menus
+
+- Single and multi-select input fields
+- Selecting a menu item makes an input
+- Display checkmark and highlight on selected item(s)
+- Parents of nested selections like folders and collections are not themselves selectable
+
+<Canvas of={stories.InputMenu} />
+
+## Filter Menus
+
+<Canvas of={stories.FilterMenu} />
+
+## Why do we have different affordances for filter menus and input menus?
+
+Filter menus refine the data visible in the current view, while input menus set the value of a form
+input.
+
+Because filters directly affect visible content and are often adjusted iteratively, they benefit
+from explicit selection affordances. Radio buttons and checkboxes clearly communicate selection
+rules and active state.
+
+Input menus, on the other hand, display selected values in the field itself and do not typically
+require iterative in-menu scanning. Subtle checkmarks and background highlights reinforce the
+field’s value rather than compete with it.
+
+## Nested Menu Items
+
+<Canvas of={stories.NestedMenu} />
+
 ## Accessibility
 
-Follow WCAG AA best practices. Example: Insure the triggering element has `aria-haspopup="true"`
+Follow WCAG AA best practices. Example: Ensure the triggering element has `aria-haspopup="menu"`
 prior to being clicked and `aria-expanded="true"` after the user clicks the element.
 
 User should be able to navigate the opened menu via the up and down arrow keys and close the menu

@@ -1,13 +1,19 @@
 <ng-template>
   <div
     (click)="closed.emit()"
-    class="tw-flex tw-shrink-0 tw-flex-col tw-rounded-lg tw-border tw-border-solid tw-border-secondary-100 tw-bg-background tw-shadow-md tw-bg-clip-padding tw-py-1 tw-overflow-y-auto"
+    class="tw-flex tw-shrink-0 tw-flex-col tw-rounded-lg tw-border tw-border-solid tw-border-secondary-100 tw-bg-background tw-shadow-md tw-bg-clip-padding tw-p-2 tw-overflow-y-auto"
     [attr.role]="ariaRole()"
     [attr.aria-label]="ariaLabel()"
     cdkTrapFocus
     [cdkTrapFocusAutoCapture]="ariaRole() === 'dialog'"
     tabindex="0"
   >
+    <div class="tw-px-2 tw-pt-1 tw-pb-2 tw-text-lg tw-font-medium empty:tw-hidden">
+      <ng-content select="[slot=header]"></ng-content>
+    </div>
     <ng-content></ng-content>
+    <div class="tw-flex tw-justify-center tw-items-center tw-px-4 tw-py-3 tw-gap-3 empty:tw-hidden">
+      <ng-content select="[slot=footer]"></ng-content>
+    </div>
   </div>
 </ng-template>
