@@ -7,20 +7,12 @@
       </button>
       <span
         class="tw-flex tw-items-center tw-pl-3"
-        [ngClass]="fileName ? 'tw-text-main' : 'tw-text-muted'"
+        [ngClass]="fileName() ? 'tw-text-main' : 'tw-text-muted'"
       >
         {{ fileName() || ("noFileChosen" | i18n) }}</span
       >
     </div>
-    <input
-      bitInput
-      #fileSelector
-      type="file"
-      formControlName="file"
-      hidden
-      label="File..."
-      (change)="addFile($event)"
-    />
+    <input bitInput #fileSelector type="file" hidden label="File..." (change)="addFile($event)" />
     <bit-hint>
       {{ "maxFileSize" | i18n }}
     </bit-hint>

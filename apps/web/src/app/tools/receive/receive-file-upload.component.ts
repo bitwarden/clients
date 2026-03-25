@@ -33,9 +33,9 @@ export class ReceiveFileUploadComponent implements OnInit {
 
   constructor(route: ActivatedRoute) {
     const params = route.snapshot.paramMap;
-    this.receiveId.set(params.get("receiveId"));
-    this.secretB64.set(params.get("secretB64"));
-    this.sharedContentEncryptionKeyB64.set(params.get("sharedContentEncryptionKeyB64"));
+    this.receiveId.set(params.get("receiveId") || "");
+    this.secretB64.set(params.get("secretB64") || "");
+    this.sharedContentEncryptionKeyB64.set(params.get("sharedContentEncryptionKeyB64") || "");
   }
 
   ngOnInit() {
