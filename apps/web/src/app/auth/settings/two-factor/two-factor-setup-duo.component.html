@@ -2,7 +2,7 @@
   <bit-dialog [title]="'twoStepLogin' | i18n" [subtitle]="'Duo'">
     <ng-container bitDialogContent>
       <ng-container *ngIf="enabled">
-        <bit-callout type="success" [title]="'enabled' | i18n" icon="bwi bwi-check-circle">
+        <bit-callout type="success" [title]="'enabled' | i18n" icon="bwi-check-circle">
           {{ "twoStepLoginProviderEnabled" | i18n }}
         </bit-callout>
         <!-- TODO: PM-33167 - replace with auth-two-factor-icon -->

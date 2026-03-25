@@ -16,14 +16,13 @@
       <button type="button" bit-item-content (click)="import()" [title]="'popOutNewWindow' | i18n">
         <div class="tw-flex tw-items-center tw-justify-center tw-gap-2">
           <p>{{ "importNoun" | i18n }}</p>
-          <span
+          <bit-berry
             *ngIf="emptyVaultImportBadge$ | async"
-            bitBadge
-            variant="notification"
+            variant="danger"
             [attr.aria-label]="'nudgeBadgeAria' | i18n"
+            [value]="1"
           >
-            1
-          </span>
+          </bit-berry>
         </div>
         <ng-container slot="end">
           <span class="tw-sr-only">{{ "popOutNewWindow" | i18n }}</span>

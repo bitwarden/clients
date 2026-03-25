@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -15,6 +15,10 @@ import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/id
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/response/master-password-policy.response";
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
+import {
+  PasswordPreloginData,
+  PasswordPreloginService,
+} from "@bitwarden/common/auth/password-prelogin";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
@@ -45,7 +49,6 @@ import {
 import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
-import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { PasswordLoginCredentials } from "../models";
 import { UserDecryptionOptions } from "../models/domain/user-decryption-options";
@@ -120,7 +123,7 @@ describe("LoginStrategy", () => {
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
 
-  let loginStrategyService: MockProxy<LoginStrategyServiceAbstraction>;
+  let passwordPreloginService: MockProxy<PasswordPreloginService>;
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let apiService: MockProxy<ApiService>;
@@ -148,7 +151,7 @@ describe("LoginStrategy", () => {
     accountService = mockAccountServiceWith(userId);
     masterPasswordService = new FakeMasterPasswordService();
 
-    loginStrategyService = mock<LoginStrategyServiceAbstraction>();
+    passwordPreloginService = mock<PasswordPreloginService>();
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     apiService = mock<ApiService>();
@@ -173,12 +176,17 @@ describe("LoginStrategy", () => {
     appIdService.getAppId.mockResolvedValue(deviceId);
     tokenService.decodeAccessToken.calledWith(accessToken).mockResolvedValue(decodedToken);
 
+    passwordPreloginService.getPreloginData$.mockReturnValue(
+      of(new PasswordPreloginData(new PBKDF2KdfConfig())),
+    );
+    keyService.makeMasterKey.mockResolvedValue({} as any);
+
     // The base class is abstract so we test it via PasswordLoginStrategy
     passwordLoginStrategy = new PasswordLoginStrategy(
       cache,
       passwordStrengthService,
       policyService,
-      loginStrategyService,
+      passwordPreloginService,
       accountService as unknown as AccountService,
       masterPasswordService,
       keyService,
@@ -302,7 +310,6 @@ describe("LoginStrategy", () => {
       const expected = new AuthResult();
       expected.masterPassword = "password";
       expected.userId = userId;
-      expected.twoFactorProviders = null;
       expect(result).toEqual(expected);
     });
 
@@ -317,7 +324,6 @@ describe("LoginStrategy", () => {
       const expected = new AuthResult();
       expected.masterPassword = "password";
       expected.userId = userId;
-      expected.twoFactorProviders = null;
       expect(result).toEqual(expected);
 
       expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
@@ -460,7 +466,7 @@ describe("LoginStrategy", () => {
         cache,
         passwordStrengthService,
         policyService,
-        loginStrategyService,
+        passwordPreloginService,
         accountService as AccountService,
         masterPasswordService,
         keyService,
@@ -522,7 +528,7 @@ describe("LoginStrategy", () => {
         cache,
         passwordStrengthService,
         policyService,
-        loginStrategyService,
+        passwordPreloginService,
         accountService as AccountService,
         masterPasswordService,
         keyService,
