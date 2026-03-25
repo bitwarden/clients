@@ -12,12 +12,11 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { DrawerContentData } from "../../models/drawer-content-data.types";
 
 /**
- * V2 Drawer Component - Pure Presentation
+ * Displays a contextual drawer panel for Access Intelligence report data.
  *
- * Key Difference from V1:
- * - Takes pre-computed DrawerContentData via DIALOG_DATA injection
- * - No service dependencies for content (parent derives content from report$ + drawerState)
- * - Content automatically updates when parent re-derives from report changes
+ * Renders one of five views depending on the drawer type: org-wide at-risk members,
+ * app-specific at-risk members, org-wide at-risk applications, critical at-risk members,
+ * or critical at-risk applications. Content is provided by the parent via DIALOG_DATA.
  */
 @Component({
   selector: "dirt-access-intelligence-drawer-v2",

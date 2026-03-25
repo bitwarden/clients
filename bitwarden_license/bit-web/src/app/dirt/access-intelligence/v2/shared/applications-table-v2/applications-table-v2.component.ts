@@ -24,16 +24,8 @@ export type ApplicationTableRowV2 = {
 };
 
 /**
- * ApplicationsTableV2Component - Table component for V2 architecture
- *
- * Displays applications table using V2 data models.
- * Replaces app-table-row-scrollable-m11 for V2 components.
- *
- * Key V2 patterns:
- * - Uses ApplicationTableRowV2 (simple V2 type, no V1 dependencies)
- * - OnPush change detection
- * - Signal inputs
- * - Standalone component
+ * Displays a virtualized, scrollable table of applications with at-risk password
+ * and member counts, critical badges, and per-row actions.
  */
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

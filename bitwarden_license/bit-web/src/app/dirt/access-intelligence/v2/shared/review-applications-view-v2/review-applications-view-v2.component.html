@@ -16,11 +16,10 @@
               (click)="toggleAll()"
               [attr.aria-label]="isAllSelected() ? ('unselectAll' | i18n) : ('selectAll' | i18n)"
             >
-              <i
-                class="bwi tw-text-muted"
-                [ngClass]="isAllSelected() ? 'bwi-star-f' : 'bwi-star'"
-                aria-hidden="true"
-              ></i>
+              <bit-icon
+                [name]="isAllSelected() ? 'bwi-star-f' : 'bwi-star'"
+                class="tw-text-2xl tw-text-muted"
+              ></bit-icon>
             </button>
           </th>
           <th bitTypography="body2" class="tw-text-left tw-py-3 tw-px-2 tw-font-medium">
@@ -51,13 +50,12 @@
                     : ('selectApplication' | i18n)
                 "
               >
-                <i
-                  class="bwi tw-text-muted"
-                  [ngClass]="
+                <bit-icon
+                  [name]="
                     selectedApplications().has(app.applicationName) ? 'bwi-star-f' : 'bwi-star'
                   "
-                  aria-hidden="true"
-                ></i>
+                  class="tw-text-2xl tw-text-muted"
+                ></bit-icon>
               </button>
             </td>
             <td bitTypography="body1" class="tw-py-3 tw-px-2">
@@ -65,7 +63,7 @@
                 @if (getIconCipher(app); as iconCipher) {
                   <app-vault-icon [cipher]="iconCipher"></app-vault-icon>
                 } @else {
-                  <i class="bwi bwi-globe tw-text-muted" aria-hidden="true"></i>
+                  <bit-icon name="bwi-globe" class="tw-text-2xl tw-text-muted"></bit-icon>
                 }
                 <span>{{ app.applicationName }}</span>
               </div>

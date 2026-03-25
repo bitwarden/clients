@@ -1,8 +1,21 @@
-import { Meta, StoryObj, moduleMetadata, applicationConfig } from "@storybook/angular";
+import {
+  Meta,
+  StoryObj,
+  moduleMetadata,
+  applicationConfig,
+  componentWrapperDecorator,
+} from "@storybook/angular";
+import { BehaviorSubject } from "rxjs";
+import { action } from "storybook/actions";
 
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import {
+  Environment,
+  EnvironmentService,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { TableDataSource, I18nMockService } from "@bitwarden/components";
+import { ScrollLayoutHostDirective, TableDataSource, I18nMockService } from "@bitwarden/components";
 
 import { createApplicationHandlers } from "../test-helpers/story-callbacks";
 
@@ -50,11 +63,15 @@ const createSampleData = (): ApplicationTableRowV2[] => [
 ];
 
 export default {
-  title: "Access Intelligence/V2/ApplicationsTableV2",
+  title: "DIRT/Access Intelligence/Applications Table",
   component: ApplicationsTableV2Component,
   decorators: [
+    componentWrapperDecorator(
+      (story) =>
+        `<div bitScrollLayoutHost class="tw-flex tw-flex-col tw-h-screen tw-overflow-auto">${story}</div>`,
+    ),
     moduleMetadata({
-      imports: [ApplicationsTableV2Component],
+      imports: [ApplicationsTableV2Component, ScrollLayoutHostDirective],
       providers: [
         {
           provide: I18nService,
@@ -75,15 +92,25 @@ export default {
       ],
     }),
     applicationConfig({
-      providers: [],
+      providers: [
+        {
+          provide: EnvironmentService,
+          useValue: {
+            environment$: new BehaviorSubject({
+              getIconsUrl: () => "",
+            } as Environment).asObservable(),
+          } as Partial<EnvironmentService>,
+        },
+        {
+          provide: DomainSettingsService,
+          useValue: {
+            showFavicons$: new BehaviorSubject(true).asObservable(),
+            getShowFavicon: () => true,
+          } as Partial<DomainSettingsService>,
+        },
+      ],
     }),
   ],
-  parameters: {
-    design: {
-      type: "figma",
-      url: "https://www.figma.com/design/ACCESS_INTELLIGENCE_FIGMA_URL",
-    },
-  },
 } as Meta<ApplicationsTableV2Component>;
 
 type Story = StoryObj<ApplicationsTableV2Component>;
@@ -129,8 +156,8 @@ export const Empty: Story = {
     dataSource.data = [];
 
     const selectedUrls = new Set<string>();
-    const showAppAtRiskMembers = (appName: string) => {};
-    const checkboxChange = (_payload: { applicationName: string; checked: boolean }) => {};
+    const showAppAtRiskMembers = action("showAppAtRiskMembers");
+    const checkboxChange = action("checkboxChange");
 
     return {
       props: {
@@ -256,7 +283,6 @@ export const CriticalOnly: Story = {
 export const WithoutIcons: Story = {
   render: (args) => {
     const dataSource = new TableDataSource<ApplicationTableRowV2>();
-    // Create data without iconCipher (undefined)
     const dataWithoutIcons = createSampleData().map((row) => ({
       ...row,
       iconCipher: undefined as CipherView | undefined,
@@ -324,7 +350,7 @@ export const LargeDataset: Story = {
         checkboxChange,
       },
       template: `
-        <div style="height: 600px;">
+        <div class="tw-h-[600px]">
           <app-applications-table-v2
             [dataSource]="dataSource"
             [selectedUrls]="selectedUrls"

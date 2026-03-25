@@ -1,8 +1,14 @@
 import { signal } from "@angular/core";
 import { Meta, StoryObj, moduleMetadata, applicationConfig } from "@storybook/angular";
+import { BehaviorSubject } from "rxjs";
 import { action } from "storybook/actions";
 
 import { createReport } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import {
+  Environment,
+  EnvironmentService,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { I18nMockService } from "@bitwarden/components";
@@ -33,12 +39,12 @@ const sampleApplications = [
 ];
 
 // Update the sample applications to include iconCipherId
-sampleApplications[0].iconCipherId = "cipher-github" as any;
-sampleApplications[1].iconCipherId = "cipher-gitlab" as any;
-sampleApplications[2].iconCipherId = "cipher-bitbucket" as any;
-sampleApplications[3].iconCipherId = "cipher-aws" as any;
-sampleApplications[4].iconCipherId = "cipher-azure" as any;
-sampleApplications[5].iconCipherId = "cipher-salesforce" as any;
+sampleApplications[0].iconCipherId = "cipher-github";
+sampleApplications[1].iconCipherId = "cipher-gitlab";
+sampleApplications[2].iconCipherId = "cipher-bitbucket";
+sampleApplications[3].iconCipherId = "cipher-aws";
+sampleApplications[4].iconCipherId = "cipher-azure";
+sampleApplications[5].iconCipherId = "cipher-salesforce";
 
 // Mock ciphers
 const mockCiphers = [
@@ -51,7 +57,7 @@ const mockCiphers = [
 ];
 
 export default {
-  title: "Access Intelligence/V2/ReviewApplicationsViewV2",
+  title: "DIRT/Access Intelligence/Review Applications",
   component: ReviewApplicationsViewV2Component,
   decorators: [
     moduleMetadata({
@@ -65,6 +71,8 @@ export default {
               atRiskPasswords: "At-Risk Passwords",
               totalPasswords: "Total Passwords",
               atRiskMembers: "At-Risk Members",
+              search: "Search",
+              resetSearch: "Reset search",
               searchApps: "Search applications",
               selectAll: "Select all",
               unselectAll: "Unselect all",
@@ -76,15 +84,25 @@ export default {
       ],
     }),
     applicationConfig({
-      providers: [],
+      providers: [
+        {
+          provide: EnvironmentService,
+          useValue: {
+            environment$: new BehaviorSubject({
+              getIconsUrl: () => "",
+            } as Environment).asObservable(),
+          } as Partial<EnvironmentService>,
+        },
+        {
+          provide: DomainSettingsService,
+          useValue: {
+            showFavicons$: new BehaviorSubject(true).asObservable(),
+            getShowFavicon: () => true,
+          } as Partial<DomainSettingsService>,
+        },
+      ],
     }),
   ],
-  parameters: {
-    design: {
-      type: "figma",
-      url: "https://www.figma.com/design/ACCESS_INTELLIGENCE_FIGMA_URL",
-    },
-  },
 } as Meta<ReviewApplicationsViewV2Component>;
 
 type Story = StoryObj<ReviewApplicationsViewV2Component>;
@@ -370,7 +388,7 @@ export const LargeList: Story = {
         },
       },
       template: `
-        <div style="max-height: 600px; overflow-y: auto;">
+        <div class="tw-max-h-[600px] tw-overflow-y-auto">
           <dirt-review-applications-view-v2
             [applications]="applications"
             [ciphers]="ciphers"

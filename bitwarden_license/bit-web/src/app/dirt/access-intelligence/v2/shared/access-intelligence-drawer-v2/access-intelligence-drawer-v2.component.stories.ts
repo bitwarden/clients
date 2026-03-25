@@ -4,7 +4,7 @@ import { action } from "storybook/actions";
 import { DrawerType } from "@bitwarden/bit-common/dirt/access-intelligence/services";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { I18nMockService } from "@bitwarden/components";
+import { DIALOG_DATA, I18nMockService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 
 import {
@@ -74,7 +74,7 @@ const mockLogService = {
 };
 
 export default {
-  title: "Access Intelligence/V2/AccessIntelligenceDrawerV2",
+  title: "DIRT/Access Intelligence/Access Intelligence Drawer",
   component: AccessIntelligenceDrawerV2Component,
   decorators: [
     moduleMetadata({
@@ -84,17 +84,28 @@ export default {
           provide: I18nService,
           useFactory: () => {
             return new I18nMockService({
-              atRiskMembers: "At-Risk Members",
-              atRiskMembersForApp: "At-Risk Members for {{app}}",
-              criticalAtRiskMembers: "Critical Applications - At-Risk Members",
-              atRiskApplications: "At-Risk Applications",
-              criticalAtRiskApplications: "Critical Applications - At Risk",
+              atRiskMembersWithCount: "At-Risk Members (__$1__)",
+              atRiskMemberDescription: "Members with at-risk passwords across the organization.",
+              atRiskMembersDescriptionNone: "No at-risk members found.",
+              atRiskMembersDescriptionWithApp: "Members with at-risk passwords for __$1__.",
+              atRiskMembersDescriptionWithAppNone: "No at-risk members found for __$1__.",
+              atRiskApplicationsWithCount: "At-Risk Applications (__$1__)",
+              atRiskApplicationsDescription: "Applications with at-risk passwords.",
+              atRiskApplicationsDescriptionNone: "No at-risk applications found.",
+              criticalAtRiskMembersWithCount: "Critical At-Risk Members (__$1__)",
+              criticalAtRiskMembersDescription:
+                "Members with at-risk passwords in critical applications.",
+              criticalAtRiskMembersDescriptionNone:
+                "No at-risk members found in critical applications.",
+              criticalAtRiskApplicationsWithCount: "Critical At-Risk Applications (__$1__)",
+              criticalAtRiskApplicationsDescription:
+                "Critical applications with at-risk passwords.",
+              criticalAtRiskApplicationsDescriptionNone: "No at-risk critical applications found.",
+              downloadCSV: "Download CSV",
               email: "Email",
               atRiskPasswords: "At-Risk Passwords",
               application: "Application",
-              download: "Download",
-              noMembersFound: "No at-risk members found",
-              noApplicationsFound: "No at-risk applications found",
+              close: "Close",
             });
           },
         },
@@ -106,38 +117,35 @@ export default {
       providers: [],
     }),
   ],
-  parameters: {
-    design: {
-      type: "figma",
-      url: "https://www.figma.com/design/ACCESS_INTELLIGENCE_FIGMA_URL",
-    },
-  },
 } as Meta<AccessIntelligenceDrawerV2Component>;
 
 type Story = StoryObj<AccessIntelligenceDrawerV2Component>;
+
+const drawerTemplate = `
+  <div class="tw-max-w-[400px] tw-border tw-border-secondary-300 tw-p-5">
+    <dirt-access-intelligence-drawer-v2></dirt-access-intelligence-drawer-v2>
+  </div>
+`;
 
 /**
  * Organization-wide At-Risk Members Drawer
  * Shows all members across the organization with at-risk passwords.
  */
 export const OrgAtRiskMembers: Story = {
-  render: (args) => {
-    const data: OrgAtRiskMembersData = {
-      type: DrawerType.OrgAtRiskMembers,
-      members: sampleMembers,
-    };
-
-    return {
-      props: {
-        data,
-      },
-      template: `
-        <div style="max-width: 400px; border: 1px solid #ccc; padding: 20px;">
-          <dirt-access-intelligence-drawer-v2 [data]="data"></dirt-access-intelligence-drawer-v2>
-        </div>
-      `,
-    };
-  },
+  decorators: [
+    applicationConfig({
+      providers: [
+        {
+          provide: DIALOG_DATA,
+          useValue: {
+            type: DrawerType.OrgAtRiskMembers,
+            members: sampleMembers,
+          } as OrgAtRiskMembersData,
+        },
+      ],
+    }),
+  ],
+  render: () => ({ template: drawerTemplate }),
 };
 
 /**
@@ -145,24 +153,21 @@ export const OrgAtRiskMembers: Story = {
  * Shows members with at-risk passwords for a specific application.
  */
 export const AppAtRiskMembers: Story = {
-  render: (args) => {
-    const data: AppAtRiskMembersData = {
-      type: DrawerType.AppAtRiskMembers,
-      applicationName: "github.com",
-      members: sampleMembers.slice(0, 3), // Subset of members
-    };
-
-    return {
-      props: {
-        data,
-      },
-      template: `
-        <div style="max-width: 400px; border: 1px solid #ccc; padding: 20px;">
-          <dirt-access-intelligence-drawer-v2 [data]="data"></dirt-access-intelligence-drawer-v2>
-        </div>
-      `,
-    };
-  },
+  decorators: [
+    applicationConfig({
+      providers: [
+        {
+          provide: DIALOG_DATA,
+          useValue: {
+            type: DrawerType.AppAtRiskMembers,
+            applicationName: "github.com",
+            members: sampleMembers.slice(0, 3),
+          } as AppAtRiskMembersData,
+        },
+      ],
+    }),
+  ],
+  render: () => ({ template: drawerTemplate }),
 };
 
 /**
@@ -170,23 +175,20 @@ export const AppAtRiskMembers: Story = {
  * Shows all applications with at-risk passwords.
  */
 export const OrgAtRiskApps: Story = {
-  render: (args) => {
-    const data: OrgAtRiskAppsData = {
-      type: DrawerType.OrgAtRiskApps,
-      applications: sampleApplications,
-    };
-
-    return {
-      props: {
-        data,
-      },
-      template: `
-        <div style="max-width: 400px; border: 1px solid #ccc; padding: 20px;">
-          <dirt-access-intelligence-drawer-v2 [data]="data"></dirt-access-intelligence-drawer-v2>
-        </div>
-      `,
-    };
-  },
+  decorators: [
+    applicationConfig({
+      providers: [
+        {
+          provide: DIALOG_DATA,
+          useValue: {
+            type: DrawerType.OrgAtRiskApps,
+            applications: sampleApplications,
+          } as OrgAtRiskAppsData,
+        },
+      ],
+    }),
+  ],
+  render: () => ({ template: drawerTemplate }),
 };
 
 /**
@@ -194,23 +196,20 @@ export const OrgAtRiskApps: Story = {
  * Shows members with at-risk passwords across all critical applications.
  */
 export const CriticalAtRiskMembers: Story = {
-  render: (args) => {
-    const data: CriticalAtRiskMembersData = {
-      type: DrawerType.CriticalAtRiskMembers,
-      members: sampleMembers,
-    };
-
-    return {
-      props: {
-        data,
-      },
-      template: `
-        <div style="max-width: 400px; border: 1px solid #ccc; padding: 20px;">
-          <dirt-access-intelligence-drawer-v2 [data]="data"></dirt-access-intelligence-drawer-v2>
-        </div>
-      `,
-    };
-  },
+  decorators: [
+    applicationConfig({
+      providers: [
+        {
+          provide: DIALOG_DATA,
+          useValue: {
+            type: DrawerType.CriticalAtRiskMembers,
+            members: sampleMembers,
+          } as CriticalAtRiskMembersData,
+        },
+      ],
+    }),
+  ],
+  render: () => ({ template: drawerTemplate }),
 };
 
 /**
@@ -218,173 +217,89 @@ export const CriticalAtRiskMembers: Story = {
  * Shows critical applications that have at-risk passwords.
  */
 export const CriticalAtRiskApps: Story = {
-  render: (args) => {
-    const data: CriticalAtRiskAppsData = {
-      type: DrawerType.CriticalAtRiskApps,
-      applications: sampleApplications.slice(0, 3), // Subset of critical apps
-    };
-
-    return {
-      props: {
-        data,
-      },
-      template: `
-        <div style="max-width: 400px; border: 1px solid #ccc; padding: 20px;">
-          <dirt-access-intelligence-drawer-v2 [data]="data"></dirt-access-intelligence-drawer-v2>
-        </div>
-      `,
-    };
-  },
-};
-
-/**
- * Kitchen Sink - All Drawer Types
- * Shows all 5 drawer types side-by-side for comparison.
- */
-export const AllDrawerTypes: Story = {
-  render: (args) => {
-    const orgAtRiskMembersData: OrgAtRiskMembersData = {
-      type: DrawerType.OrgAtRiskMembers,
-      members: sampleMembers,
-    };
-
-    const appAtRiskMembersData: AppAtRiskMembersData = {
-      type: DrawerType.AppAtRiskMembers,
-      applicationName: "github.com",
-      members: sampleMembers.slice(0, 3),
-    };
-
-    const orgAtRiskAppsData: OrgAtRiskAppsData = {
-      type: DrawerType.OrgAtRiskApps,
-      applications: sampleApplications,
-    };
-
-    const criticalAtRiskMembersData: CriticalAtRiskMembersData = {
-      type: DrawerType.CriticalAtRiskMembers,
-      members: sampleMembers.slice(0, 4),
-    };
-
-    const criticalAtRiskAppsData: CriticalAtRiskAppsData = {
-      type: DrawerType.CriticalAtRiskApps,
-      applications: sampleApplications.slice(0, 3),
-    };
-
-    return {
-      props: {
-        orgAtRiskMembersData,
-        appAtRiskMembersData,
-        orgAtRiskAppsData,
-        criticalAtRiskMembersData,
-        criticalAtRiskAppsData,
-      },
-      template: `
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; padding: 20px;">
-          <div style="border: 1px solid #ccc; padding: 15px;">
-            <h3 style="margin-top: 0;">1. Org At-Risk Members</h3>
-            <dirt-access-intelligence-drawer-v2 [data]="orgAtRiskMembersData"></dirt-access-intelligence-drawer-v2>
-          </div>
-
-          <div style="border: 1px solid #ccc; padding: 15px;">
-            <h3 style="margin-top: 0;">2. App At-Risk Members</h3>
-            <dirt-access-intelligence-drawer-v2 [data]="appAtRiskMembersData"></dirt-access-intelligence-drawer-v2>
-          </div>
-
-          <div style="border: 1px solid #ccc; padding: 15px;">
-            <h3 style="margin-top: 0;">3. Org At-Risk Apps</h3>
-            <dirt-access-intelligence-drawer-v2 [data]="orgAtRiskAppsData"></dirt-access-intelligence-drawer-v2>
-          </div>
-
-          <div style="border: 1px solid #ccc; padding: 15px;">
-            <h3 style="margin-top: 0;">4. Critical At-Risk Members</h3>
-            <dirt-access-intelligence-drawer-v2 [data]="criticalAtRiskMembersData"></dirt-access-intelligence-drawer-v2>
-          </div>
-
-          <div style="border: 1px solid #ccc; padding: 15px;">
-            <h3 style="margin-top: 0;">5. Critical At-Risk Apps</h3>
-            <dirt-access-intelligence-drawer-v2 [data]="criticalAtRiskAppsData"></dirt-access-intelligence-drawer-v2>
-          </div>
-        </div>
-      `,
-    };
-  },
+  decorators: [
+    applicationConfig({
+      providers: [
+        {
+          provide: DIALOG_DATA,
+          useValue: {
+            type: DrawerType.CriticalAtRiskApps,
+            applications: sampleApplications.slice(0, 3),
+          } as CriticalAtRiskAppsData,
+        },
+      ],
+    }),
+  ],
+  render: () => ({ template: drawerTemplate }),
 };
 
 /**
  * Empty Members State
  */
 export const EmptyMembers: Story = {
-  render: (args) => {
-    const data: OrgAtRiskMembersData = {
-      type: DrawerType.OrgAtRiskMembers,
-      members: [],
-    };
-
-    return {
-      props: {
-        data,
-      },
-      template: `
-        <div style="max-width: 400px; border: 1px solid #ccc; padding: 20px;">
-          <dirt-access-intelligence-drawer-v2 [data]="data"></dirt-access-intelligence-drawer-v2>
-        </div>
-      `,
-    };
-  },
+  decorators: [
+    applicationConfig({
+      providers: [
+        {
+          provide: DIALOG_DATA,
+          useValue: {
+            type: DrawerType.OrgAtRiskMembers,
+            members: [],
+          } as OrgAtRiskMembersData,
+        },
+      ],
+    }),
+  ],
+  render: () => ({ template: drawerTemplate }),
 };
 
 /**
  * Empty Applications State
  */
 export const EmptyApplications: Story = {
-  render: (args) => {
-    const data: OrgAtRiskAppsData = {
-      type: DrawerType.OrgAtRiskApps,
-      applications: [],
-    };
-
-    return {
-      props: {
-        data,
-      },
-      template: `
-        <div style="max-width: 400px; border: 1px solid #ccc; padding: 20px;">
-          <dirt-access-intelligence-drawer-v2 [data]="data"></dirt-access-intelligence-drawer-v2>
-        </div>
-      `,
-    };
-  },
+  decorators: [
+    applicationConfig({
+      providers: [
+        {
+          provide: DIALOG_DATA,
+          useValue: {
+            type: DrawerType.OrgAtRiskApps,
+            applications: [],
+          } as OrgAtRiskAppsData,
+        },
+      ],
+    }),
+  ],
+  render: () => ({ template: drawerTemplate }),
 };
 
 /**
  * Large Dataset - Many Members
  */
 export const LargeDataset: Story = {
-  render: (args) => {
-    const largeMembers: DrawerMemberData[] = [];
-    for (let i = 0; i < 50; i++) {
-      largeMembers.push({
-        email: `user${i}@example.com`,
-        userName: `User ${i}`,
-        userGuid: `user-${i}`,
-        // Deterministic pattern for Chromatic: cycles 1-25
-        atRiskPasswordCount: (i % 25) + 1,
-      });
-    }
-
-    const data: OrgAtRiskMembersData = {
-      type: DrawerType.OrgAtRiskMembers,
-      members: largeMembers,
-    };
-
-    return {
-      props: {
-        data,
-      },
-      template: `
-        <div style="max-width: 400px; max-height: 600px; border: 1px solid #ccc; padding: 20px; overflow-y: auto;">
-          <dirt-access-intelligence-drawer-v2 [data]="data"></dirt-access-intelligence-drawer-v2>
-        </div>
-      `,
-    };
-  },
+  decorators: [
+    applicationConfig({
+      providers: [
+        {
+          provide: DIALOG_DATA,
+          useValue: {
+            type: DrawerType.OrgAtRiskMembers,
+            members: Array.from({ length: 50 }, (_, i) => ({
+              email: `user${i}@example.com`,
+              userName: `User ${i}`,
+              userGuid: `user-${i}`,
+              atRiskPasswordCount: (i % 25) + 1,
+            })),
+          } as OrgAtRiskMembersData,
+        },
+      ],
+    }),
+  ],
+  render: () => ({
+    template: `
+      <div class="tw-max-w-[400px] tw-max-h-[600px] tw-border tw-border-secondary-300 tw-p-5 tw-overflow-y-auto">
+        <dirt-access-intelligence-drawer-v2></dirt-access-intelligence-drawer-v2>
+      </div>
+    `,
+  }),
 };

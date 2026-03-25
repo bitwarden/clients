@@ -8,17 +8,8 @@ import { ButtonModule, DialogModule, SearchModule, TypographyModule } from "@bit
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 /**
- * ReviewApplicationsViewV2Component - V2 subcomponent for new applications review dialog
- *
- * Displays a searchable, selectable table of new applications with health metrics.
- * Works directly with V2 models (ApplicationHealthView).
- *
- * Key V2 patterns:
- * - Uses ApplicationHealthView instead of ApplicationHealthReportDetail
- * - OnPush change detection
- * - Signal inputs/outputs
- * - Standalone component
- * - Uses report.getIconCipherId() for efficient icon lookups
+ * Displays a searchable, selectable list of applications with health metrics
+ * for reviewing newly detected applications in an Access Intelligence report.
  */
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
