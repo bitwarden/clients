@@ -13,7 +13,10 @@ import { UserId } from "@bitwarden/user-core";
 
 import { Receive } from "../models/receive";
 import { ReceiveCreateInput } from "../models/receive-create-input";
+import { ReceiveSharedData } from "../models/receive-shared-data";
+import { ReceiveUrlData } from "../models/receive-url-data";
 import { CreateReceiveRequest } from "../models/requests/create-receive.request";
+import { ReceiveSharedDataResponse } from "../models/response/receive-shared-data.response";
 
 import { ReceiveService } from "./receive.service";
 
@@ -44,6 +47,36 @@ export class DefaultReceiveService implements ReceiveService {
       id: newGuid() as Guid,
     };
     return receive;
+  }
+
+  async getSharedData(urlData: ReceiveUrlData): Promise<ReceiveSharedData> {
+    // TODO call an API endpoint to get receive shared data.
+    // const response = this.receiveApiService.getReceiveSharedData(urlData.receiveId);
+
+    // Fake response for now
+    const response = new ReceiveSharedDataResponse({
+      name: "encryptedName",
+      scekWrappedPublicKey: "seckWrappedPublicKey",
+    });
+
+    return await this.decryptResponse(response, urlData);
+  }
+
+  private async decryptResponse(
+    response: ReceiveSharedDataResponse,
+    urlData: ReceiveUrlData,
+  ): Promise<ReceiveSharedData> {
+    const sharedContentEncryptionKey = SymmetricCryptoKey.fromString(
+      urlData.sharedContentEncryptionKeyB64,
+    );
+
+    return {
+      name: await this.encryptService.decryptString(response.name, sharedContentEncryptionKey),
+      publicKey: await this.encryptService.unwrapEncapsulationKey(
+        response.scekWrappedPublicKey,
+        sharedContentEncryptionKey,
+      ),
+    };
   }
 
   private async getCreateReceiveRequest(
