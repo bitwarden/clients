@@ -27,6 +27,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ChipComponent } from "../chips";
 import { BitFormFieldControl } from "../form-field/form-field-control";
+import { IconComponent } from "../icon";
 import { SpinnerComponent } from "../spinner";
 
 import { SelectItemView } from "./models/select-item-view";
@@ -41,6 +42,7 @@ let nextId = 0;
   templateUrl: "./multi-select.component.html",
   providers: [{ provide: BitFormFieldControl, useExisting: MultiSelectComponent }],
   imports: [
+    IconComponent,
     NgSelectModule,
     ReactiveFormsModule,
     FormsModule,
