@@ -1,6 +1,6 @@
 import { Subscription } from "rxjs";
 
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { LogService } from "@bitwarden/logging";
 
 import { ScheduledTaskName } from "./scheduled-task-name.enum";
 import { TaskSchedulerService } from "./task-scheduler.service";
