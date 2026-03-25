@@ -13,6 +13,11 @@ import { DefaultAdminTaskService } from "../../../vault/services/default-admin-t
 
 /**
  * Service for managing security tasks related to Access Intelligence features
+ *
+ * @deprecated Use {@link AccessSecurityTasksService} instead.
+ * This service will be removed when V1 components are updated to inject
+ * the abstract token and the module wiring switches to {@link LegacyAccessSecurityTasksService}
+ * which exposes observables instead of promises.
  */
 export class AccessIntelligenceSecurityTasksService {
   private _tasksSubject$ = new BehaviorSubject<SecurityTask[]>([]);
