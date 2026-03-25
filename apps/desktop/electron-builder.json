@@ -262,7 +262,7 @@
     "fpm": ["--rpm-rpmbuild-define", "_build_id_links none"]
   },
   "snap": {
-    "summary": "Securely create, save, and autofill logins and sensitive information.",
+    "summary": "Securely create, save, and manage logins and sensitive information.",
     "description": "**Installation**\nBitwarden requires access to the `password-manager-service`. Please enable it through permissions or by running `sudo snap connect bitwarden:password-manager-service` after installation. See https://btwrdn.com/install-snap for details.",
     "autoStart": true,
     "base": "core22",

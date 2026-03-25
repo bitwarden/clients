@@ -1,6 +1,6 @@
 name: bw
 version: __version__
-summary: Bitwarden CLI - Securely create, save, and autofill logins and sensitive information.
+summary: Bitwarden CLI - Securely create, save, and manage logins and sensitive information.
 license: Proprietary
 description: |
   Bitwarden, Inc. is the parent company of 8bit Solutions LLC.

@@ -1,6 +1,6 @@
 {
   "name": "@bitwarden/cli",
-  "description": "Securely create, save, and autofill logins and sensitive information.",
+  "description": "Securely create, save, and manage logins and sensitive information.",
   "version": "2026.3.0",
   "keywords": [
     "bitwarden",

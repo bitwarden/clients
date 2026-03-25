@@ -1,7 +1,7 @@
 {
   "name": "@bitwarden/desktop",
   "productName": "Bitwarden",
-  "description": "Securely create, save, and autofill logins and sensitive information.",
+  "description": "Securely create, save, and manage logins and sensitive information.",
   "version": "2026.4.0",
   "author": "Bitwarden Inc. <hello@bitwarden.com> (https://bitwarden.com)",
   "homepage": "https://bitwarden.com",
