@@ -1,3 +1,5 @@
+import * as path from "path";
+
 import { ipcMain, globalShortcut, BrowserWindow } from "electron";
 
 import { LogService } from "@bitwarden/logging";
@@ -64,7 +66,16 @@ export class MainDesktopMagnifyService {
 
   // Open the magnify window, which is its own project
   private async openMagnify() {
-    const win = new BrowserWindow({ width: 800, height: 600 });
-    await win.loadFile("magnify/index.html");
+    const win = new BrowserWindow({
+      width: 800,
+      height: 600,
+      webPreferences: {
+        preload: path.join(__dirname, "magnify", "preload.js"),
+        sandbox: true,
+        contextIsolation: true,
+      },
+    });
+
+    await win.loadFile(path.join(__dirname, "magnify", "index.html"));
   }
 }

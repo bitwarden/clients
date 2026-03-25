@@ -60,6 +60,22 @@
         }
       }
     },
+    "build-magnify-preload": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/apps/desktop/build/magnify"],
+      "options": {
+        "command": "cross-env NODE_ENV=production webpack --config webpack.config.js --config-name magnify-preload",
+        "cwd": "apps/desktop"
+      },
+      "configurations": {
+        "development": {
+          "command": "cross-env NODE_ENV=development webpack --config webpack.config.js --config-name magnify-preload"
+        },
+        "production": {
+          "command": "cross-env NODE_ENV=production webpack --config webpack.config.js --config-name magnify-preload"
+        }
+      }
+    },
     "build-magnify": {
       "executor": "nx:run-commands",
       "outputs": ["{workspaceRoot}/apps/desktop/build/magnify"],
@@ -102,7 +118,8 @@
           "nx run desktop:build-main",
           "nx run desktop:build-preload",
           "nx run desktop:build-renderer",
-          "nx run desktop:build-magnify"
+          "nx run desktop:build-magnify",
+          "nx run desktop:build-magnify-preload"
         ]
       },
       "configurations": {
@@ -111,7 +128,8 @@
             "nx run desktop:build-main --configuration=development",
             "nx run desktop:build-preload --configuration=development",
             "nx run desktop:build-renderer --configuration=development",
-            "nx run desktop:build-magnify --configuration=development"
+            "nx run desktop:build-magnify --configuration=development",
+            "nx run desktop:build-magnify-preload --configuration=development"
           ]
         },
         "production": {
@@ -119,7 +137,8 @@
             "nx run desktop:build-main --configuration=production",
             "nx run desktop:build-preload --configuration=production",
             "nx run desktop:build-renderer --configuration=production",
-            "nx run desktop:build-magnify --configuration=production"
+            "nx run desktop:build-magnify --configuration=production",
+            "nx run desktop:build-magnify-preload --configuration=production"
           ]
         }
       }

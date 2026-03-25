@@ -345,7 +345,7 @@ module.exports.buildConfig = function buildConfig(params) {
     mainConfig,
     rendererConfig,
     preloadConfig,
-    module.exports.buildMagnifyConfig({
+    ...module.exports.buildMagnifyConfig({
       entry: params.magnify.entry,
       tsConfig: params.magnify.tsConfig,
       htmlTemplate: params.magnify.htmlTemplate,
@@ -512,5 +512,46 @@ module.exports.buildMagnifyConfig = function buildMagnifyConfig(params) {
     ],
   };
 
-  return magnifyConfig;
+  const magnifyPreloadConfig = {
+    name: "magnify-preload",
+    mode: NODE_ENV,
+    target: "electron-preload",
+    node: { __dirname: false, __filename: false },
+    entry: {
+      preload: path.resolve(__dirname, "src/magnify/preload.ts"),
+    },
+    output: {
+      filename: "[name].js",
+      path: params.outputPath,
+    },
+    optimization: { minimize: false },
+    devtool: NODE_ENV === "development" ? "cheap-source-map" : false,
+    module: {
+      rules: [
+        {
+          test: /\.tsx?$/,
+          use: {
+            loader: "ts-loader",
+            options: { configFile: path.resolve(__dirname, "tsconfig.magnify.preload.json") },
+          },
+          exclude: /node_modules\/(?!(@bitwarden)\/).*/,
+        },
+      ],
+    },
+    resolve: {
+      extensions: [".tsx", ".ts", ".js"],
+      symlinks: false,
+      modules: [
+        path.resolve(__dirname, "../../node_modules"),
+        path.resolve(process.cwd(), "node_modules"),
+      ],
+    },
+    plugins: [
+      new webpack.DefinePlugin({
+        BIT_ENVIRONMENT: JSON.stringify(NODE_ENV),
+      }),
+    ],
+  };
+
+  return [magnifyConfig, magnifyPreloadConfig];
 };

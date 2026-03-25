@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig",
+  "include": ["src/magnify/preload.ts", "src/magnify/global.d.ts"]
+}

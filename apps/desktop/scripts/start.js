@@ -8,45 +8,76 @@ const args = process.argv.splice(2);
 
 rimraf.sync("build");
 
-exec("nx run desktop:build-magnify --configuration=development", (err, output) => {
-  if (err) {
+function buildMagnify() {
+  return new Promise((resolve, reject) => {
+    exec("nx run desktop:build-magnify --configuration=development", (err, output) => {
+      if (err) {
+        // eslint-disable-next-line no-console
+        console.error("Could not build Magnify: ", err);
+        reject(err);
+        return;
+      }
+
+      // eslint-disable-next-line no-console
+      console.log("Magnify built successfully: \n", output);
+      resolve();
+    });
+  });
+}
+
+function buildMagnifyPreload() {
+  return new Promise((resolve, reject) => {
+    exec("nx run desktop:build-magnify-preload --configuration=development", (err, output) => {
+      if (err) {
+        // eslint-disable-next-line no-console
+        console.error("Could not build Magnify preload: ", err);
+        reject(err);
+        return;
+      }
+
+      // eslint-disable-next-line no-console
+      console.log("Magnify preload built successfully: \n", output);
+      resolve();
+    });
+  });
+}
+
+Promise.all([buildMagnify(), buildMagnifyPreload()])
+  .then(() => {
+    concurrently(
+      [
+        {
+          name: "Main",
+          command: "npm run build:main:watch",
+          prefixColor: "yellow",
+        },
+        {
+          name: "Prel",
+          command: "npm run build:preload:watch",
+          prefixColor: "magenta",
+        },
+        {
+          name: "Rend",
+          command: "npm run build:renderer:watch",
+          prefixColor: "cyan",
+        },
+        {
+          name: "Elec",
+          command: `npx wait-on ./build/main.js && npx electron --no-sandbox --inspect=5858 ${args.join(
+            " ",
+          )} ./build --watch`,
+          prefixColor: "green",
+        },
+      ],
+      {
+        prefix: "name",
+        outputStream: process.stdout,
+        killOthersOn: ["success", "failure"],
+      },
+    );
+  })
+  .catch((err) => {
     // eslint-disable-next-line no-console
-    console.error("Could not build Magnify: ", err);
-    return;
-  }
-
-  // eslint-disable-next-line no-console
-  console.log("Magnify built successfully: \n", output);
-});
-
-concurrently(
-  [
-    {
-      name: "Main",
-      command: "npm run build:main:watch",
-      prefixColor: "yellow",
-    },
-    {
-      name: "Prel",
-      command: "npm run build:preload:watch",
-      prefixColor: "magenta",
-    },
-    {
-      name: "Rend",
-      command: "npm run build:renderer:watch",
-      prefixColor: "cyan",
-    },
-    {
-      name: "Elec",
-      command: `npx wait-on ./build/main.js && npx electron --no-sandbox --inspect=5858 ${args.join(
-        " ",
-      )} ./build --watch`,
-      prefixColor: "green",
-    },
-  ],
-  {
-    prefix: "name",
-    outputStream: process.stdout,
-    killOthersOn: ["success", "failure"],
-  },
-);
+    console.error("Could not start: ", err);
+    process.exit(1);
+  });

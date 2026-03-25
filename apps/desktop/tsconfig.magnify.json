@@ -3,5 +3,5 @@
   "angularCompilerOptions": {
     "strictTemplates": true
   },
-  "include": ["src/magnify/main.ts", "src/magnify/global.d.ts"]
+  "include": ["src/magnify/main.ts", "src/magnify/global.d.ts", "src/magnify/preload.ts"]
 }

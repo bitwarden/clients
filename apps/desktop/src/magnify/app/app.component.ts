@@ -5,4 +5,9 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
   template: `<p>Magnify</p>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent {}
+export class AppComponent {
+  constructor() {
+    // eslint-disable-next-line no-console
+    console.log("chrome version" + window.ipc.chrome());
+  }
+}
