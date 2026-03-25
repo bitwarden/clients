@@ -286,11 +286,14 @@ Row3</textarea>
 
 export const InputGroup: Story = {
   render: (args) => ({
-    props: args,
+    props: {
+      formObj: formObj,
+      ...args,
+    },
     template: /*html*/ `
-      <bit-form-field>
+      <bit-form-field [formGroup]="formObj">
         <bit-label>Label</bit-label>
-        <input bitInput placeholder="Placeholder" />
+        <input required formControlName="required" bitInput placeholder="Placeholder" />
         <span bitPrefix>$</span>
         <span bitSuffix>USD</span>
       </bit-form-field>

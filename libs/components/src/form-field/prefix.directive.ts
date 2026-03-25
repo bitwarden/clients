@@ -10,8 +10,10 @@ import { BitIconButtonComponent } from "../icon-button/icon-button.component";
 })
 export class BitPrefixDirective implements OnInit {
   readonly classList = [
-    "tw-transition-colors tw-text-fg-body-subtle",
+    "tw-transition-colors",
+    "tw-text-fg-body-subtle",
     "group-hover/form-field:tw-text-fg-brand",
+    "group-has-[:focus-visible]/form-field:!tw-text-fg-body-subtle",
   ];
 
   constructor(@Optional() private iconButtonComponent: BitIconButtonComponent) {}
