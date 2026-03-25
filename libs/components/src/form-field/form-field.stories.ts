@@ -387,7 +387,7 @@ export const AdvancedSelect: Story = {
   render: (args) => ({
     props: {
       formObj: fb.group({
-        select: "value1",
+        select: "",
       }),
       ...args,
     },
@@ -395,8 +395,8 @@ export const AdvancedSelect: Story = {
       <bit-form-field [formGroup]="formObj">
         <bit-label>Label</bit-label>
         <bit-select formControlName="select">
-          <bit-option label="Select" value="value1"></bit-option>
-          <bit-option label="Other" value="value2"></bit-option>
+          <bit-option label="Option 1" value="value1"></bit-option>
+          <bit-option label="Option 2" value="value2"></bit-option>
         </bit-select>
       </bit-form-field>
     `,

@@ -38,9 +38,11 @@
     >
       <ng-container *ngTemplateOutlet="prefixContent"></ng-container>
     </div>
-    <div class="tw-flex tw-w-full tw-items-center tw-pe-3 has-[[biticonbutton]:last-child]:tw-pe-1">
+    <div
+      class="tw-flex tw-w-full tw-items-center tw-pe-3 has-[[biticonbutton]:last-child]:tw-pe-1 has-[bit-select]:tw-pe-0 has-[bit-multi-select]:tw-pe-0"
+    >
       <div
-        class="tw-px-3 tw-py-[calc(theme(spacing.2)_-_1px)] tw-w-full tw-min-w-0 tw-relative [&>*]:tw-p-0 [&>*::selection]:tw-bg-primary-700 [&>*::selection]:tw-text-contrast"
+        class="tw-px-3 tw-py-[calc(theme(spacing.2)_-_1px)] tw-w-full tw-min-w-0 tw-relative [&>*]:tw-p-0 [&>*::selection]:tw-bg-primary-700 [&>*::selection]:tw-text-contrast has-[bit-select]:tw-p-0 has-[bit-multi-select]:tw-p-0"
         data-default-content
       >
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
