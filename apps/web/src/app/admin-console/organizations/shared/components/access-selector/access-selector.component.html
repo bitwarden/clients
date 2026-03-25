@@ -121,7 +121,7 @@
           *ngIf="!disabled && !item.readonly"
           type="button"
           bitIconButton="bwi-close"
-          buttonType="muted"
+          buttonType="primaryGhost"
           label="{{ 'remove' | i18n }} {{ item.labelName }}"
           [disabled]="disabled"
           (click)="selectionList.deselectItem(item.id); handleBlur()"

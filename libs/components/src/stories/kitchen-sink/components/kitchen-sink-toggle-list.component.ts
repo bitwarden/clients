@@ -10,11 +10,11 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
   template: `
     <div class="tw-my-6">
       <bit-toggle-group [(selected)]="selectedToggle" aria-label="Company list filter">
-        <bit-toggle value="all"> All <span bitBadge variant="info">3</span> </bit-toggle>
+        <bit-toggle value="all"> All <bit-berry [value]="3"></bit-berry> </bit-toggle>
 
-        <bit-toggle value="large"> Enterprise <span bitBadge variant="info">2</span> </bit-toggle>
+        <bit-toggle value="large"> Enterprise <bit-berry [value]="2"></bit-berry> </bit-toggle>
 
-        <bit-toggle value="small"> Mid-sized <span bitBadge variant="info">1</span> </bit-toggle>
+        <bit-toggle value="small"> Mid-sized <bit-berry [value]="1"></bit-berry> </bit-toggle>
       </bit-toggle-group>
     </div>
     @for (company of companyList; track company) {

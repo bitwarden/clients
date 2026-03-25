@@ -100,20 +100,22 @@
   --color-brand-800: #0d43af;
   --color-brand-900: #0c3276;
   --color-brand-950: #162455;
+  --color-brand-950-rgb: 22, 36, 85;
 
   /* Gray Colors */
-  --color-gray-050: #f9fafb;
-  --color-gray-100: #f3f4f6;
-  --color-gray-200: #e5e7eb;
-  --color-gray-300: #d1d5dc;
-  --color-gray-400: #99a1af;
-  --color-gray-500: #6a7282;
-  --color-gray-600: #4a5565;
-  --color-gray-700: #333e4f;
-  --color-gray-800: #1e2939;
-  --color-gray-900: #101828;
-  --color-gray-950: #070b18;
-  --color-gray-950-rgb: 7, 11, 24;
+  --color-gray-050: #f5f7fa;
+  --color-gray-100: #e6ebf2;
+  --color-gray-200: #d5dde8;
+  --color-gray-300: #b4c2d4;
+  --color-gray-400: #8496b0;
+  --color-gray-400-rgb: 132, 150, 176;
+  --color-gray-500: #62748e;
+  --color-gray-600: #45556c;
+  --color-gray-700: #314158;
+  --color-gray-800: #1d293d;
+  --color-gray-900: #0f172b;
+  --color-gray-950: #020618;
+  --color-gray-950-rgb: 2, 6, 24;
 
   /* Red Colors */
   --color-red-050: #fef2f2;
@@ -133,13 +135,13 @@
   --color-orange-100: #feecdc;
   --color-orange-200: #fcd9bd;
   --color-orange-300: #fdba8c;
-  --color-orange-400: #ff8a4c;
-  --color-orange-500: #ff5a1f;
-  --color-orange-600: #d03801;
-  --color-orange-700: #b43403;
-  --color-orange-800: #8a2c0d;
-  --color-orange-900: #70240b;
-  --color-orange-950: #441306;
+  --color-orange-400: #ff894a;
+  --color-orange-500: #fa6216;
+  --color-orange-600: #cc4400;
+  --color-orange-700: #b23300;
+  --color-orange-800: #8a2203;
+  --color-orange-900: #631c04;
+  --color-orange-950: #441600;
 
   /* Yellow Colors */
   --color-yellow-050: #fefce8;
@@ -223,6 +225,7 @@
   --color-white: #ffffff;
   --color-white-rgb: 255, 255, 255;
   --color-black: #000000;
+  --color-black-rgb: 0, 0, 0;
 
   /* ========================================
    * SEMANTIC FOREGROUND COLORS (Light Mode)
@@ -234,6 +237,7 @@
   --color-fg-white: var(--color-white);
   --color-fg-dark: var(--color-gray-900);
   --color-fg-contrast: var(--color-white);
+  --color-fg-contrast-strong: var(--color-gray-200);
   --color-fg-heading: var(--color-gray-900);
   --color-fg-body: var(--color-gray-600);
   --color-fg-body-subtle: var(--color-gray-500);
@@ -242,15 +246,15 @@
   /* Brand Foreground */
   --color-fg-brand-soft: var(--color-brand-200);
   --color-fg-brand: var(--color-brand-700);
-  --color-fg-brand-strong: var(--color-brand-900);
+  --color-fg-brand-strong: var(--color-brand-800);
 
   /* Status Foreground */
   --color-fg-success: var(--color-green-700);
-  --color-fg-success-strong: var(--color-green-900);
+  --color-fg-success-strong: var(--color-green-800);
   --color-fg-danger: var(--color-red-700);
-  --color-fg-danger-strong: var(--color-red-900);
+  --color-fg-danger-strong: var(--color-red-800);
   --color-fg-warning: var(--color-orange-600);
-  --color-fg-warning-strong: var(--color-orange-900);
+  --color-fg-warning-strong: var(--color-orange-700);
   --color-fg-sensitive: var(--color-pink-600);
 
   /* Accent Foreground */
@@ -271,14 +275,20 @@
   /* Neutral Background */
   --color-bg-white: var(--color-white);
   --color-bg-dark: var(--color-gray-800);
-  --color-bg-contrast: var(--color-gray-800);
-  --color-bg-contrast-strong: var(--color-gray-950);
   --color-bg-primary: var(--color-white);
   --color-bg-secondary: var(--color-gray-050);
   --color-bg-tertiary: var(--color-gray-050);
   --color-bg-quaternary: var(--color-gray-200);
-  --color-bg-gray: var(--color-gray-300);
   --color-bg-disabled: var(--color-gray-100);
+
+  /* Gray Background */
+  --color-bg-gray: var(--color-gray-300);
+  --color-bg-gray-strong: var(--color-gray-500);
+
+  /* Contrast Background */
+  --color-bg-contrast-soft: var(--color-gray-700);
+  --color-bg-contrast: var(--color-gray-800);
+  --color-bg-contrast-strong: var(--color-gray-950);
 
   /* Brand Background */
   --color-bg-brand-softer: var(--color-brand-050);
@@ -286,6 +296,7 @@
   --color-bg-brand-medium: var(--color-brand-200);
   --color-bg-brand: var(--color-brand-700);
   --color-bg-brand-strong: var(--color-brand-800);
+  --color-bg-brand-stronger: var(--color-brand-900);
 
   /* Status Background */
   --color-bg-success-soft: var(--color-green-050);
@@ -305,6 +316,7 @@
   --color-bg-accent-primary-soft: var(--color-teal-050);
   --color-bg-accent-primary-medium: var(--color-teal-100);
   --color-bg-accent-primary: var(--color-teal-400);
+  --color-bg-accent-primary-strong: var(--color-teal-700);
   --color-bg-accent-secondary-soft: var(--color-coral-050);
   --color-bg-accent-secondary-medium: var(--color-coral-100);
   --color-bg-accent-secondary: var(--color-coral-400);
@@ -314,6 +326,7 @@
 
   /* Hover & Overlay */
   --color-bg-hover: rgba(var(--color-gray-950-rgb), 0.05);
+  --color-bg-hover-contrast: rgba(var(--color-white-rgb), 0.05);
   --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.3);
 
   /* ========================================
@@ -324,7 +337,8 @@
   --color-border-muted: var(--color-gray-050);
   --color-border-light: var(--color-gray-100);
   --color-border-base: var(--color-gray-200);
-  --color-border-strong: var(--color-gray-800);
+  --color-border-strong: var(--color-gray-400);
+  --color-border-stronger: var(--color-gray-800);
   --color-border-buffer: var(--color-white);
 
   /* Brand Border */
@@ -338,10 +352,10 @@
   --color-border-success-strong: var(--color-green-900);
   --color-border-danger-soft: var(--color-red-200);
   --color-border-danger: var(--color-red-700);
-  --color-border-danger-strong: var(--color-red-900);
+  --color-border-danger-strong: var(--color-red-800);
   --color-border-warning-soft: var(--color-orange-200);
   --color-border-warning: var(--color-orange-600);
-  --color-border-warning-strong: var(--color-orange-900);
+  --color-border-warning-strong: var(--color-orange-700);
 
   /* Accent Border */
   --color-border-accent-primary-soft: var(--color-teal-200);
@@ -353,19 +367,33 @@
 
   /* Focus Border */
   --color-border-focus: var(--color-black);
+  --color-border-focus-contrast: var(--color-white);
 
   /**========================================
-   * SIDENAV BACKGROUND COLORS (Light mode)
+   * SIDENAV CUSTOM COLORS (Light mode)
    * ======================================== */
-  --color-sidenav-background: var(--color-brand-800);
-  --color-sidenav-text: var(--color-white);
-  --color-sidenav-active-item: var(--color-brand-900);
-  --color-sidenav-item-hover: var(--color-brand-900);
 
-  --color-admin-sidenav-background: var(--color-gray-100);
-  --color-admin-sidenav-text: var(--color-gray-900);
-  --color-admin-sidenav-active-item: var(--color-gray-300);
-  --color-admin-sidenav-item-hover: var(--color-gray-300);
+  /* Sidenav Foreground */
+  --color-nav-fg-primary: var(--color-white);
+  --color-nav-fg-secondary: var(--color-gray-900);
+
+  /* Sidenav Background */
+  --color-nav-bg-primary: var(--color-brand-800);
+  --color-nav-bg-secondary: var(--color-gray-100);
+  --color-nav-bg-primary-strong: var(--color-brand-900);
+  --color-nav-bg-secondary-strong: var(--color-gray-300);
+
+  /* Sidenav Hover */
+  --color-nav-bg-primary-hover: rgba(var(--color-black-rgb), 0.2);
+  --color-nav-bg-secondary-hover: rgba(var(--color-brand-950-rgb), 0.1);
+  --color-nav-bg-primary-hover-strong: rgba(var(--color-black-rgb), 0.45);
+  --color-nav-bg-secondary-hover-strong: rgba(var(--color-brand-950-rgb), 0.25);
+
+  /* Sidenav Border */
+  --color-nav-border-primary: var(--color-brand-700);
+  --color-nav-border-secondary: var(--color-gray-200);
+  --color-nav-border-primary-focus: var(--color-white);
+  --color-nav-border-secondary-focus: var(--color-black);
 }
 
 .theme_light {
@@ -439,6 +467,7 @@
 
   /* Neutral Foreground */
   --color-fg-contrast: var(--color-gray-900);
+  --color-fg-contrast-strong: var(--color-gray-600);
   --color-fg-heading: var(--color-gray-050);
   --color-fg-body: var(--color-gray-200);
   --color-fg-body-subtle: var(--color-gray-400);
@@ -451,11 +480,11 @@
 
   /* Status Foreground */
   --color-fg-success: var(--color-green-400);
-  --color-fg-success-strong: var(--color-green-100);
+  --color-fg-success-strong: var(--color-green-200);
   --color-fg-danger: var(--color-red-400);
-  --color-fg-danger-strong: var(--color-red-100);
+  --color-fg-danger-strong: var(--color-red-200);
   --color-fg-warning: var(--color-orange-400);
-  --color-fg-warning-strong: var(--color-orange-100);
+  --color-fg-warning-strong: var(--color-orange-200);
   --color-fg-sensitive: var(--color-pink-300);
 
   /* Accent Foreground */
@@ -474,40 +503,48 @@
    * ======================================== */
 
   /* Neutral Background */
-  --color-bg-contrast: var(--color-gray-050);
-  --color-bg-contrast-strong: var(--color-gray-050);
   --color-bg-primary: var(--color-gray-900);
   --color-bg-secondary: var(--color-gray-800);
   --color-bg-tertiary: var(--color-gray-950);
   --color-bg-quaternary: var(--color-gray-700);
-  --color-bg-gray: var(--color-gray-600);
   --color-bg-disabled: var(--color-gray-950);
+
+  /* Gray Background */
+  --color-bg-gray: var(--color-gray-500);
+  --color-bg-gray-strong: var(--color-gray-400);
+
+  /* Contrast Background */
+  --color-bg-contrast-soft: var(--color-gray-200);
+  --color-bg-contrast: var(--color-gray-100);
+  --color-bg-contrast-strong: var(--color-white);
 
   /* Brand Background */
   --color-bg-brand-softer: var(--color-brand-950);
   --color-bg-brand-soft: var(--color-brand-900);
   --color-bg-brand-medium: var(--color-brand-800);
   --color-bg-brand: var(--color-brand-400);
-  --color-bg-brand-strong: var(--color-brand-300);
+  --color-bg-brand-strong: var(--color-brand-200);
+  --color-bg-brand-stronger: var(--color-brand-100);
 
   /* Status Background */
   --color-bg-success-soft: var(--color-green-950);
   --color-bg-success-medium: var(--color-green-900);
   --color-bg-success: var(--color-green-400);
-  --color-bg-success-strong: var(--color-green-300);
+  --color-bg-success-strong: var(--color-green-200);
   --color-bg-danger-soft: var(--color-red-950);
   --color-bg-danger-medium: var(--color-red-900);
   --color-bg-danger: var(--color-red-400);
-  --color-bg-danger-strong: var(--color-red-300);
+  --color-bg-danger-strong: var(--color-red-200);
   --color-bg-warning-soft: var(--color-orange-950);
   --color-bg-warning-medium: var(--color-orange-900);
   --color-bg-warning: var(--color-orange-400);
-  --color-bg-warning-strong: var(--color-orange-300);
+  --color-bg-warning-strong: var(--color-orange-200);
 
   /* Accent Background */
   --color-bg-accent-primary-soft: var(--color-teal-950);
   --color-bg-accent-primary-medium: var(--color-teal-900);
   --color-bg-accent-primary: var(--color-teal-400);
+  --color-bg-accent-primary-strong: var(--color-teal-200);
   --color-bg-accent-secondary-soft: var(--color-coral-950);
   --color-bg-accent-secondary-medium: var(--color-coral-900);
   --color-bg-accent-secondary: var(--color-coral-400);
@@ -517,7 +554,8 @@
 
   /* Hover & Overlay */
   --color-bg-hover: rgba(var(--color-white-rgb), 0.05);
-  --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.65);
+  --color-bg-hover-contrast: rgba(var(--color-gray-950-rgb), 0.05);
+  --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.85);
 
   /* ========================================
    * SEMANTIC BORDER COLORS (Dark Mode Overrides)
@@ -527,7 +565,8 @@
   --color-border-muted: var(--color-gray-900);
   --color-border-light: var(--color-gray-800);
   --color-border-base: var(--color-gray-700);
-  --color-border-strong: var(--color-gray-400);
+  --color-border-strong: var(--color-gray-500);
+  --color-border-stronger: var(--color-gray-400);
   --color-border-buffer: var(--color-gray-950);
 
   /* Brand Border */
@@ -555,19 +594,33 @@
 
   /* Focus Border */
   --color-border-focus: var(--color-white);
+  --color-border-focus-contrast: var(--color-black);
 
   /**========================================
-    * SIDENAV BACKGROUND COLORS (Dark mode)
+    * SIDENAV CUSTOM COLORS (Dark mode)
     * ======================================== */
-  --color-sidenav-background: var(--color-gray-800);
-  --color-sidenav-text: var(--color-white);
-  --color-sidenav-active-item: var(--color-gray-900);
-  --color-sidenav-item-hover: var(--color-gray-900);
 
-  --color-admin-sidenav-background: var(--color-gray-800);
-  --color-admin-sidenav-text: var(--color-white);
-  --color-admin-sidenav-active-item: var(--color-gray-900);
-  --color-admin-sidenav-item-hover: var(--color-gray-900);
+  /* Sidenav Foreground */
+  --color-nav-fg-primary: var(--color-white);
+  --color-nav-fg-secondary: var(--color-white);
+
+  /* Sidenav Background */
+  --color-nav-bg-primary: var(--color-gray-800);
+  --color-nav-bg-secondary: var(--color-gray-800);
+  --color-nav-bg-primary-strong: var(--color-gray-600);
+  --color-nav-bg-secondary-strong: var(--color-gray-600);
+
+  /* Sidenav Hover */
+  --color-nav-bg-primary-hover: rgba(var(--color-gray-400-rgb), 0.2);
+  --color-nav-bg-secondary-hover: rgba(var(--color-gray-400-rgb), 0.2);
+  --color-nav-bg-primary-hover-strong: rgba(var(--color-gray-400-rgb), 0.6);
+  --color-nav-bg-secondary-hover-strong: rgba(var(--color-gray-400-rgb), 0.6);
+
+  /* Sidenav Border */
+  --color-nav-border-primary: var(--color-gray-700);
+  --color-nav-border-secondary: var(--color-gray-700);
+  --color-nav-border-primary-focus: var(--color-white);
+  --color-nav-border-secondary-focus: var(--color-white);
 }
 
 @layer components {

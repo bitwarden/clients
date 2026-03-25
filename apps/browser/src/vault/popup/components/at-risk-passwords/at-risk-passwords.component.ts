@@ -38,7 +38,6 @@ import { EndUserNotificationService } from "@bitwarden/common/vault/notification
 import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
-  BadgeModule,
   ButtonModule,
   CalloutModule,
   DialogModule,
@@ -76,7 +75,6 @@ import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
     TypographyModule,
     CalloutModule,
     ButtonModule,
-    BadgeModule,
     DialogModule,
     VaultCarouselModule,
   ],
@@ -108,8 +106,7 @@ export class AtRiskPasswordsComponent implements OnInit {
   private readonly atRiskPasswordCalloutService = inject(AtRiskPasswordCalloutService);
 
   /**
-   * The cipher that is currently being launched. Used to show a loading spinner on the badge button.
-   * The UI utilize a bitBadge which does not support async actions (like bitButton does).
+   * The cipher that is currently being launched.
    * @protected
    */
   protected readonly launchingCipher = signal<CipherView | null>(null);

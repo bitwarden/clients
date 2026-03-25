@@ -10,7 +10,7 @@
         [formControl]="searchControl"
       ></bit-search>
 
-      <bit-chip-select
+      <bit-chip-filter
         [placeholderText]="'filter' | i18n"
         placeholderIcon="bwi-sliders"
         [options]="filterOptions()"
@@ -19,7 +19,7 @@
         fullWidth="false"
         class="tw-min-w-48"
       >
-      </bit-chip-select>
+      </bit-chip-filter>
 
       <div class="tw-ml-auto tw-gap-4 tw-flex">
         @if (visibleSelectedApps().size > 0) {
@@ -67,7 +67,7 @@
         <button
           type="button"
           bitIconButton="bwi-download"
-          buttonType="main"
+          buttonType="subtleGhost"
           [label]="'downloadCSV' | i18n"
           [disabled]="!dataSource.filteredData.length"
           (click)="downloadApplicationsCSV()"

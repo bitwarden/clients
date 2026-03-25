@@ -3,7 +3,7 @@ import { NgModule } from "@angular/core";
 
 import { PasswordStrengthV2Component } from "@bitwarden/angular/tools/password-strength/password-strength-v2.component";
 import { PasswordCalloutComponent } from "@bitwarden/auth/angular";
-import { IconModule, ScrollLayoutDirective } from "@bitwarden/components";
+import { BerryComponent, IconModule, ScrollLayoutDirective } from "@bitwarden/components";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
 
@@ -41,6 +41,7 @@ import {
     ScrollLayoutDirective,
     OrganizationFreeTrialWarningComponent,
     IconModule,
+    BerryComponent,
   ],
   declarations: [
     BulkConfirmDialogComponent,

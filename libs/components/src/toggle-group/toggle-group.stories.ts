@@ -1,6 +1,6 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
-import { BadgeModule } from "../badge";
+import { BerryComponent } from "../berry";
 
 import { ToggleGroupComponent } from "./toggle-group.component";
 import { ToggleComponent } from "./toggle.component";
@@ -13,7 +13,7 @@ export default {
   },
   decorators: [
     moduleMetadata({
-      imports: [BadgeModule, ToggleGroupComponent, ToggleComponent],
+      imports: [BerryComponent, ToggleGroupComponent, ToggleComponent],
     }),
   ],
   parameters: {
@@ -31,11 +31,15 @@ export const Default: Story = {
     props: args,
     template: /* HTML */ `
       <bit-toggle-group [(selected)]="selected" aria-label="People list filter">
-        <bit-toggle value="all"> All <span bitBadge variant="info">3</span> </bit-toggle>
+        <bit-toggle value="all">
+          All <bit-berry [value]="3" variant="danger"></bit-berry>
+        </bit-toggle>
 
         <bit-toggle value="invited"> Invited </bit-toggle>
 
-        <bit-toggle value="accepted"> Accepted <span bitBadge variant="info">2</span> </bit-toggle>
+        <bit-toggle value="accepted">
+          Accepted <bit-berry [value]="2" variant="danger"></bit-berry>
+        </bit-toggle>
 
         <bit-toggle value="deactivated"> Deactivated </bit-toggle>
       </bit-toggle-group>
@@ -55,11 +59,11 @@ export const FullWidth: Story = {
         aria-label="People list filter"
         [fullWidth]="fullWidth"
       >
-        <bit-toggle value="all"> All <span bitBadge variant="info">3</span> </bit-toggle>
+        <bit-toggle value="all"> All <bit-berry [value]="3"></bit-berry> </bit-toggle>
 
         <bit-toggle value="invited"> Invited </bit-toggle>
 
-        <bit-toggle value="accepted"> Accepted <span bitBadge variant="info">2</span> </bit-toggle>
+        <bit-toggle value="accepted"> Accepted <bit-berry [value]="2"></bit-berry> </bit-toggle>
 
         <bit-toggle value="deactivated"> Deactivated </bit-toggle>
       </bit-toggle-group>
@@ -86,7 +90,7 @@ export const LabelWrap: Story = {
         <bit-toggle value="invited"> Invited to a cool party with cool people </bit-toggle>
 
         <bit-toggle value="accepted">
-          Accepted the invitation<span bitBadge variant="info">2</span>
+          Accepted the invitation<bit-berry [value]="2" variant="danger"></bit-berry>
         </bit-toggle>
 
         <bit-toggle value="deactivated">Deactivatedinvitationswraplabel</bit-toggle>
@@ -104,7 +108,7 @@ export const LabelWrap: Story = {
         <bit-toggle value="invited"> Invited to a cool party with cool people </bit-toggle>
 
         <bit-toggle value="accepted">
-          Accepted the invitation<span bitBadge variant="info">2</span>
+          Accepted the invitation<bit-berry [value]="2" variant="danger"></bit-berry>
         </bit-toggle>
 
         <bit-toggle value="deactivated">Deactivatedinvitationswraplabel</bit-toggle>

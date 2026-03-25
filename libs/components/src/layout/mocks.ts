@@ -6,4 +6,5 @@ export const mockLayoutI18n = {
   toggleCollapse: "toggle collapse",
   loading: "Loading",
   resizeSideNavigation: "Resize side navigation",
+  close: "Close",
 };

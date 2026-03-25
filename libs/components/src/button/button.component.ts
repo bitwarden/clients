@@ -1,69 +1,13 @@
-import {
-  input,
-  HostBinding,
-  Component,
-  model,
-  computed,
-  booleanAttribute,
-  inject,
-  ElementRef,
-} from "@angular/core";
-import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { debounce, interval } from "rxjs";
+import { Component, inject, ElementRef, computed, input, model } from "@angular/core";
 
 import { AriaDisableDirective } from "../a11y";
-import { ButtonLikeAbstraction, ButtonType, ButtonSize } from "../shared/button-like.abstraction";
+import { BaseButtonDirective } from "../shared/base-button.directive";
+import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
 import { BitwardenIcon } from "../shared/icon";
 import { SpinnerComponent } from "../spinner";
 import { ariaDisableElement } from "../utils";
 
-const focusRing = [
-  "focus-visible:tw-ring-2",
-  "focus-visible:tw-ring-offset-2",
-  "focus-visible:tw-ring-primary-600",
-  "focus-visible:tw-z-10",
-];
-
-const buttonSizeStyles: Record<ButtonSize, string[]> = {
-  small: ["tw-py-1", "tw-px-3", "tw-text-sm"],
-  default: ["tw-py-1.5", "tw-px-3"],
-};
-
-const buttonStyles: Record<ButtonType, string[]> = {
-  primary: [
-    "tw-border-primary-600",
-    "tw-bg-primary-600",
-    "!tw-text-contrast",
-    "hover:tw-bg-primary-700",
-    "hover:tw-border-primary-700",
-    ...focusRing,
-  ],
-  secondary: [
-    "tw-bg-transparent",
-    "tw-border-primary-600",
-    "!tw-text-primary-600",
-    "hover:tw-bg-hover-default",
-    ...focusRing,
-  ],
-  danger: [
-    "tw-bg-transparent",
-    "tw-border-danger-600",
-    "!tw-text-danger",
-    "hover:tw-bg-danger-600",
-    "hover:tw-border-danger-600",
-    "hover:!tw-text-contrast",
-    ...focusRing,
-  ],
-  dangerPrimary: [
-    "tw-border-danger-600",
-    "tw-bg-danger-600",
-    "!tw-text-contrast",
-    "hover:tw-bg-danger-700",
-    "hover:tw-border-danger-700",
-    ...focusRing,
-  ],
-  unstyled: [],
-};
+export type ButtonSize = "default" | "small" | "large";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -72,61 +16,24 @@ const buttonStyles: Record<ButtonType, string[]> = {
   templateUrl: "button.component.html",
   providers: [{ provide: ButtonLikeAbstraction, useExisting: ButtonComponent }],
   imports: [SpinnerComponent],
-  hostDirectives: [AriaDisableDirective],
+  host: {
+    "[class]": "classList()",
+  },
+  hostDirectives: [
+    AriaDisableDirective,
+    {
+      directive: BaseButtonDirective,
+      inputs: ["loading", "disabled", "buttonType", "block"],
+    },
+  ],
 })
 export class ButtonComponent implements ButtonLikeAbstraction {
-  @HostBinding("class") get classList() {
-    return [
-      "tw-font-medium",
-      "tw-rounded-full",
-      "tw-transition",
-      "tw-border-2",
-      "tw-border-solid",
-      "tw-text-center",
-      "tw-no-underline",
-      "hover:tw-no-underline",
-      "focus:tw-outline-none",
-    ]
-      .concat(this.block() ? ["tw-w-full", "tw-block"] : ["tw-inline-block"])
-      .concat(buttonStyles[this.buttonType() ?? "secondary"])
-      .concat(
-        this.showDisabledStyles() || this.disabled()
-          ? [
-              "aria-disabled:!tw-bg-secondary-300",
-              "hover:tw-bg-secondary-300",
-              "aria-disabled:tw-border-secondary-300",
-              "hover:tw-border-secondary-300",
-              "aria-disabled:!tw-text-muted",
-              "hover:!tw-text-muted",
-              "aria-disabled:tw-cursor-not-allowed",
-              "hover:tw-no-underline",
-            ]
-          : [],
-      )
-      .concat(buttonSizeStyles[this.size() || "default"]);
-  }
+  private baseButton = inject(BaseButtonDirective);
+  private el = inject(ElementRef<HTMLButtonElement>);
 
-  protected readonly disabledAttr = computed(() => {
-    const disabled = this.disabled() != null && this.disabled() !== false;
-    return disabled || this.loading();
-  });
-
-  /**
-   * Determine whether it is appropriate to display the disabled styles. We only want to show
-   * the disabled styles if the button is truly disabled, or if the loading styles are also
-   * visible.
-   *
-   * We can't use `disabledAttr` for this, because it returns `true` when `loading` is `true`.
-   * We only want to show disabled styles during loading if `showLoadingStyles` is `true`.
-   */
-  protected readonly showDisabledStyles = computed(() => {
-    return this.showLoadingStyle() || (this.disabledAttr() && this.loading() === false);
-  });
-
-  /**
-   * Style variant of the button.
-   */
-  readonly buttonType = input<ButtonType>("secondary");
+  // Expose loading and disabled from base directive for ButtonLikeAbstraction
+  readonly loading = this.baseButton.loading;
+  readonly disabled = this.baseButton.disabled;
 
   /**
    * Bitwarden icon displayed **before** the button label.
@@ -139,18 +46,7 @@ export class ButtonComponent implements ButtonLikeAbstraction {
    * Spacing between the label and icon is handled automatically.
    */
   readonly endIcon = input<BitwardenIcon | undefined>(undefined);
-
-  /**
-   * Size variant of the button.
-   */
-  readonly size = input<ButtonSize>("default");
-
-  /**
-   * When `true`, the button expands to fill the full width of its container.
-   */
-  readonly block = input(false, { transform: booleanAttribute });
-
-  readonly loading = model<boolean>(false);
+  readonly size = model<ButtonSize>("default");
 
   readonly startIconClasses = computed(() => {
     return ["bwi", this.startIcon()];
@@ -159,26 +55,58 @@ export class ButtonComponent implements ButtonLikeAbstraction {
   readonly endIconClasses = computed(() => {
     return ["bwi", this.endIcon()];
   });
-  /**
-   * Determine whether it is appropriate to display a loading spinner. We only want to show
-   * a spinner if it's been more than 75 ms since the `loading` state began. This prevents
-   * a spinner "flash" for actions that are synchronous/nearly synchronous.
-   *
-   * We can't use `loading` for this, because we still need to disable the button during
-   * the full `loading` state. I.e. we only want the spinner to be debounced, not the
-   * loading state.
-   *
-   * This pattern of converting a signal to an observable and back to a signal is not
-   * recommended. TODO -- find better way to use debounce with signals (CL-596)
-   */
-  protected readonly showLoadingStyle = toSignal(
-    toObservable(this.loading).pipe(debounce((isLoading) => interval(isLoading ? 75 : 0))),
-  );
 
-  readonly disabled = model<boolean>(false);
-  private el = inject(ElementRef<HTMLButtonElement>);
+  protected get showLoadingStyle() {
+    return this.baseButton.showLoadingStyle;
+  }
+
+  protected readonly classList = computed(() => {
+    const classes: string[] = [];
+
+    // Add border-radius style
+    classes.push("tw-rounded-xl");
+
+    // Add block/inline styles
+    if (this.baseButton.block()) {
+      classes.push("tw-w-full", "tw-block");
+    } else {
+      classes.push("tw-inline-block");
+    }
+
+    // Add size styles (color and disabled styles are applied by BaseButtonDirective)
+    classes.push(...getButtonSizeStyles(this.size()));
+
+    return classes.join(" ");
+  });
 
   constructor() {
-    ariaDisableElement(this.el.nativeElement, this.disabledAttr);
+    ariaDisableElement(this.el.nativeElement, this.baseButton.disabledAttr);
   }
 }
+
+const getButtonSizeStyles = (size: ButtonSize): string[] => {
+  const buttonSizeStyles: Record<ButtonSize, string[]> = {
+    // 1px to account for 1px border. This ensures the overall size of the button remains consistent with icon buttons
+    small: [
+      "tw-pt-[calc(theme(spacing.2)_-_1px)]",
+      "tw-pb-[calc(theme(spacing.2)_-_1px)]",
+      "tw-px-3",
+      "tw-text-xs/4",
+    ],
+    // 625rem = spacing2.5. I could not use the value directly in the calc
+    default: [
+      "tw-pt-[calc(0.625rem_-_1px)]",
+      "tw-pb-[calc(0.625rem_-_1px)]",
+      "tw-px-4",
+      "tw-text-sm/5",
+    ],
+    large: [
+      "tw-pt-[calc(theme(spacing.3)_-_1px)]",
+      "tw-pb-[calc(theme(spacing.3)_-_1px)]",
+      "tw-px-4",
+      "tw-text-base/6",
+    ],
+  };
+
+  return buttonSizeStyles[size] || buttonSizeStyles.default;
+};

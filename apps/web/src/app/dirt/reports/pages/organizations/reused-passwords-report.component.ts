@@ -11,7 +11,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ChipSelectComponent, DialogService } from "@bitwarden/components";
+import { BerryComponent, ChipFilterComponent, DialogService } from "@bitwarden/components";
 import {
   CipherFormConfigService,
   PasswordRepromptService,
@@ -40,7 +40,14 @@ import { ReusedPasswordsReportComponent as BaseReusedPasswordsReportComponent } 
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
   ],
-  imports: [SharedModule, HeaderModule, OrganizationBadgeModule, PipesModule, ChipSelectComponent],
+  imports: [
+    SharedModule,
+    HeaderModule,
+    OrganizationBadgeModule,
+    PipesModule,
+    ChipFilterComponent,
+    BerryComponent,
+  ],
 })
 export class ReusedPasswordsReportComponent
   extends BaseReusedPasswordsReportComponent

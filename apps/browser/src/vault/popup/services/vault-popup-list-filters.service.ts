@@ -47,7 +47,7 @@ import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { ChipSelectOption } from "@bitwarden/components";
+import { BitwardenIcon, ChipFilterOption } from "@bitwarden/components";
 
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
@@ -175,7 +175,7 @@ export class VaultPopupListFiltersService {
       });
   }
 
-  private flattenOptions<T>(option: ChipSelectOption<T>): ChipSelectOption<T>[] {
+  private flattenOptions<T>(option: ChipFilterOption<T>): ChipFilterOption<T>[] {
     return [option, ...(option.children?.flatMap((c) => this.flattenOptions(c)) || [])];
   }
 
@@ -271,7 +271,7 @@ export class VaultPopupListFiltersService {
   /**
    * All available cipher types (filtered by policy restrictions)
    */
-  readonly cipherTypes$: Observable<ChipSelectOption<CipherType>[]> =
+  readonly cipherTypes$: Observable<ChipFilterOption<CipherType>[]> =
     this.restrictedItemTypesService.restricted$.pipe(
       map((restrictedTypes) => {
         return CIPHER_MENU_ITEMS.filter((item) => {
@@ -292,10 +292,10 @@ export class VaultPopupListFiltersService {
   }
 
   /**
-   * Organization array structured to be directly passed to `ChipSelectComponent`
+   * Organization array structured to be directly passed to `ChipFilterComponent`
    */
 
-  organizations$: Observable<ChipSelectOption<Organization>[]> =
+  organizations$: Observable<ChipFilterOption<Organization>[]> =
     this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
@@ -321,7 +321,7 @@ export class VaultPopupListFiltersService {
           return [];
         }
 
-        const myVaultOrg: ChipSelectOption<Organization>[] = [];
+        const myVaultOrg: ChipFilterOption<Organization>[] = [];
 
         // Only add "My vault" if organization data ownership policy does not apply
         if (!organizationDataOwnership) {
@@ -335,11 +335,13 @@ export class VaultPopupListFiltersService {
         return [
           ...myVaultOrg,
           ...orgs.map((org) => {
-            let icon = "bwi-business";
+            let icon: BitwardenIcon = "bwi-business";
+            let iconClass: string | undefined = undefined;
 
             if (!org.enabled) {
               // Show a warning icon if the organization is deactivated
-              icon = "bwi-exclamation-triangle tw-text-danger";
+              icon = "bwi-exclamation-triangle";
+              iconClass = "tw-text-danger";
             } else if (
               org.productTierType === ProductTierType.Families ||
               org.productTierType === ProductTierType.Free
@@ -352,6 +354,7 @@ export class VaultPopupListFiltersService {
               value: org,
               label: org.name,
               icon,
+              iconClass,
             };
           }),
         ];
@@ -360,9 +363,9 @@ export class VaultPopupListFiltersService {
     );
 
   /**
-   * Folder array structured to be directly passed to `ChipSelectComponent`
+   * Folder array structured to be directly passed to `ChipFilterComponent`
    */
-  folders$: Observable<ChipSelectOption<FolderView>[]> = this.activeUserId$.pipe(
+  folders$: Observable<ChipFilterOption<FolderView>[]> = this.activeUserId$.pipe(
     switchMap((userId) => {
       // Observable of cipher views
       const cipherViews$ = this.cipherService.cipherListViews$(userId).pipe(
@@ -434,7 +437,7 @@ export class VaultPopupListFiltersService {
           });
         }),
         map((folders) =>
-          folders.nestedList.map((f) => this.convertToChipSelectOption(f, "bwi-folder")),
+          folders.nestedList.map((f) => this.convertToChipFilterOption(f, "bwi-folder")),
         ),
       );
     }),
@@ -442,9 +445,9 @@ export class VaultPopupListFiltersService {
   );
 
   /**
-   * Collection array structured to be directly passed to `ChipSelectComponent`
+   * Collection array structured to be directly passed to `ChipFilterComponent`
    */
-  collections$: Observable<ChipSelectOption<CollectionView>[]> =
+  collections$: Observable<ChipFilterOption<CollectionView>[]> =
     this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
@@ -473,7 +476,7 @@ export class VaultPopupListFiltersService {
       }),
       map((tree) =>
         tree.nestedList.map((c) =>
-          this.convertToChipSelectOption(
+          this.convertToChipFilterOption(
             c,
             c.node.type === CollectionTypes.DefaultUserCollection
               ? "bwi-user"
@@ -493,18 +496,18 @@ export class VaultPopupListFiltersService {
   }
 
   /**
-   * Converts the given item into the `ChipSelectOption` structure
+   * Converts the given item into the `ChipFilterOption` structure
    */
-  private convertToChipSelectOption<T extends ITreeNodeObject>(
+  private convertToChipFilterOption<T extends ITreeNodeObject>(
     item: TreeNode<T>,
-    icon: string,
-  ): ChipSelectOption<T> {
+    icon: BitwardenIcon,
+  ): ChipFilterOption<T> {
     return {
       value: item.node,
       label: item.node.name,
       icon,
       children: item.children
-        ? item.children.map((i) => this.convertToChipSelectOption(i, icon))
+        ? item.children.map((i) => this.convertToChipFilterOption(i, icon))
         : undefined,
     };
   }

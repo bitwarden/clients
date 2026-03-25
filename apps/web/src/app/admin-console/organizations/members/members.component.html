@@ -41,30 +41,22 @@
       >
         <bit-toggle [value]="undefined">
           {{ "all" | i18n }}
-          @if (dataSource.activeUserCount; as allCount) {
-            <span bitBadge variant="info">{{ allCount }}</span>
-          }
+          <bit-berry [value]="dataSource.activeUserCount"></bit-berry>
         </bit-toggle>
 
         <bit-toggle [value]="userStatusType.Invited">
           {{ "invited" | i18n }}
-          @if (dataSource.invitedUserCount; as invitedCount) {
-            <span bitBadge variant="info">{{ invitedCount }}</span>
-          }
+          <bit-berry [value]="dataSource.invitedUserCount"></bit-berry>
         </bit-toggle>
 
         <bit-toggle [value]="userStatusType.Accepted">
           {{ "needsConfirmation" | i18n }}
-          @if (dataSource.acceptedUserCount; as acceptedUserCount) {
-            <span bitBadge variant="info">{{ acceptedUserCount }}</span>
-          }
+          <bit-berry [value]="dataSource.acceptedUserCount"></bit-berry>
         </bit-toggle>
 
         <bit-toggle [value]="userStatusType.Revoked">
           {{ "revoked" | i18n }}
-          @if (dataSource.revokedUserCount; as revokedCount) {
-            <span bitBadge variant="info">{{ revokedCount }}</span>
-          }
+          <bit-berry [value]="dataSource.revokedUserCount"></bit-berry>
         </bit-toggle>
       </bit-toggle-group>
     }

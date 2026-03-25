@@ -4,7 +4,12 @@ import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { CardComponent, ScrollLayoutDirective, SearchModule } from "@bitwarden/components";
+import {
+  BerryComponent,
+  CardComponent,
+  ScrollLayoutDirective,
+  SearchModule,
+} from "@bitwarden/components";
 import { MemberActionsService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.service";
 import { MemberDialogManagerService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-dialog-manager/member-dialog-manager.service";
 import { DangerZoneComponent } from "@bitwarden/web-vault/app/auth/settings/account/danger-zone.component";
@@ -58,6 +63,7 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     ScrollLayoutDirective,
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
+    BerryComponent,
   ],
   declarations: [
     AcceptProviderComponent,

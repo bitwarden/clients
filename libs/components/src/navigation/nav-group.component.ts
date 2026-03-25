@@ -1,4 +1,3 @@
-import { NgTemplateOutlet } from "@angular/common";
 import {
   booleanAttribute,
   Component,
@@ -26,7 +25,7 @@ import { SideNavService } from "./side-nav.service";
     { provide: NavBaseComponent, useExisting: NavGroupComponent },
     { provide: NavGroupAbstraction, useExisting: NavGroupComponent },
   ],
-  imports: [NgTemplateOutlet, NavItemComponent, IconButtonModule, I18nPipe],
+  imports: [NavItemComponent, IconButtonModule, I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavGroupComponent extends NavBaseComponent {
@@ -45,18 +44,6 @@ export class NavGroupComponent extends NavBaseComponent {
   /** When the side nav is open, the parent nav item should not show active styles when open. */
   protected readonly parentHideActiveStyles = computed(() => {
     return this.hideActiveStyles() || this.sideNavAndGroupOpen();
-  });
-
-  /**
-   * Determines the appropriate icon for the toggle button based on variant and open state.
-   * - Tree variant: Always uses 'bwi-up-solid'
-   * - Default variant: Uses 'bwi-angle-up' when open, 'bwi-angle-down' when closed
-   */
-  readonly toggleButtonIcon = computed(() => {
-    if (this.variant() === "tree") {
-      return "bwi-up-solid";
-    }
-    return this.open() ? "bwi-angle-up" : "bwi-angle-down";
   });
 
   /**

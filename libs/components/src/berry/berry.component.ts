@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, model } from "@angular/core";
 
 export type BerryVariant =
   | "primary"
@@ -23,7 +23,7 @@ export type BerryVariant =
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BerryComponent {
-  protected readonly variant = input<BerryVariant>("primary");
+  readonly variant = model<BerryVariant>("primary");
   protected readonly value = input<number>();
   protected readonly type = input<"status" | "count">("count");
 

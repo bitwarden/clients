@@ -6,7 +6,7 @@ import { Observable, of, switchMap } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { ChipSelectComponent } from "@bitwarden/components";
+import { ChipFilterComponent } from "@bitwarden/components";
 
 import { SendListFiltersService } from "../services/send-list-filters.service";
 
@@ -15,7 +15,7 @@ import { SendListFiltersService } from "../services/send-list-filters.service";
 @Component({
   selector: "app-send-list-filters",
   templateUrl: "./send-list-filters.component.html",
-  imports: [CommonModule, JslibModule, ChipSelectComponent, ReactiveFormsModule],
+  imports: [CommonModule, JslibModule, ChipFilterComponent, ReactiveFormsModule],
 })
 export class SendListFiltersComponent implements OnDestroy {
   protected filterForm = this.sendListFiltersService.filterForm;

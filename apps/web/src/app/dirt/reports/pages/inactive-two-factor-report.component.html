@@ -31,18 +31,18 @@
               @for (status of filterStatus; track status) {
                 <bit-toggle [value]="status">
                   {{ getName(status) }}
-                  <span bitBadge variant="info"> {{ getCount(status) }} </span>
+                  <bit-berry [value]="getCount(status)"></bit-berry>
                 </bit-toggle>
               }
             </bit-toggle-group>
           } @else {
-            <bit-chip-select
+            <bit-chip-filter
               [placeholderText]="chipSelectOptions[0].label"
               [options]="chipSelectOptions"
               [ngModel]="selectedFilterChip"
               (ngModelChange)="filterOrgToggleChipSelect($event)"
               fullWidth="true"
-            ></bit-chip-select>
+            ></bit-chip-filter>
           }
         }
         <bit-table-scroll [dataSource]="dataSource" [rowSize]="75" layout="fixed">
@@ -108,9 +108,13 @@
             }
             <td bitCell class="tw-text-right">
               @if (cipherDocs.has(row.id)) {
-                <a bitBadge href="{{ cipherDocs.get(row.id) }}" target="_blank" rel="noreferrer">
-                  {{ "instructions" | i18n }}</a
-                >
+                <a
+                  bit-chip-action
+                  [href]="cipherDocs.get(row.id)"
+                  [label]="'instructions' | i18n"
+                  target="_blank"
+                  rel="noreferrer"
+                ></a>
               }
             </td>
           </ng-template>

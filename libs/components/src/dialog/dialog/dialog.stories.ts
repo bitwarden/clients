@@ -102,7 +102,7 @@ export const Default: Story = {
             [disabled]="loading"
             class="tw-ms-auto"
             bitIconButton="bwi-trash"
-            buttonType="danger"
+            buttonType="dangerGhost"
             size="default"
             label="Delete"></button>
         </ng-container>
@@ -274,7 +274,7 @@ export const WithCards: Story = {
             [disabled]="loading"
             class="tw-ms-auto"
             bitIconButton="bwi-trash"
-            buttonType="danger"
+            buttonType="dangerGhost"
             size="default"
             label="Delete"></button>
         </ng-container>
@@ -315,7 +315,7 @@ export const HeaderEnd: Story = {
             [disabled]="loading"
             class="tw-ms-auto"
             bitIconButton="bwi-trash"
-            buttonType="danger"
+            buttonType="dangerGhost"
             size="default"
             label="Delete"></button>
         </ng-container>

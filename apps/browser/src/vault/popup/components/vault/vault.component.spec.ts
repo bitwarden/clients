@@ -168,7 +168,7 @@ describe("VaultComponent", () => {
   }
 
   function queryAllSpotlights(fixture: any): HTMLElement[] {
-    return Array.from(fixture.nativeElement.querySelectorAll("bit-spotlight")) as HTMLElement[];
+    return Array.from(fixture.nativeElement.querySelectorAll("bit-callout")) as HTMLElement[];
   }
 
   const itemsSvc: any = {
@@ -480,6 +480,14 @@ describe("VaultComponent", () => {
   }));
 
   it("renders Premium spotlight when eligible and opens dialog on click", fakeAsync(() => {
+    activeAccount$.next({
+      id: "user-1",
+      creationDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+    } as any);
+
+    itemsSvc.cipherCount$.next(10);
+
+    hasPremiumFromAnySource$.next(false);
     premiumUpsellSvc.showUpsell.mockReturnValue(true);
 
     configSvc.getFeatureFlag$.mockImplementation((_flag: string) => of(true));
@@ -499,14 +507,16 @@ describe("VaultComponent", () => {
     fixture.detectChanges();
 
     const spotlights = Array.from(
-      fixture.nativeElement.querySelectorAll("bit-spotlight"),
+      fixture.nativeElement.querySelectorAll("bit-callout"),
     ) as HTMLElement[];
     expect(spotlights.length).toBe(1);
 
-    const spotDe = fixture.debugElement.query(By.css("bit-spotlight"));
+    const spotDe = fixture.debugElement.query(By.css("bit-callout"));
     expect(spotDe).toBeTruthy();
 
-    spotDe.triggerEventHandler("onButtonClick", undefined);
+    const button = spotDe.query(By.css("[slot='end']"));
+    button.nativeElement.click();
+
     fixture.detectChanges();
 
     expect(PremiumUpgradeDialogComponent.open).toHaveBeenCalledTimes(1);

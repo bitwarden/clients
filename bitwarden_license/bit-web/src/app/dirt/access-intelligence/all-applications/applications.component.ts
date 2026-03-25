@@ -6,6 +6,7 @@ import {
   ChangeDetectionStrategy,
   signal,
   computed,
+  Signal,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
@@ -33,8 +34,9 @@ import {
   ToastService,
   TooltipDirective,
   TypographyModule,
-  ChipSelectComponent,
+  ChipFilterComponent,
   IconComponent,
+  ChipFilterOption,
 } from "@bitwarden/components";
 import { ExportHelper } from "@bitwarden/vault-export-core";
 import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils";
@@ -73,7 +75,7 @@ export type ApplicationFilterOption =
     TypographyModule,
     ButtonModule,
     ReactiveFormsModule,
-    ChipSelectComponent,
+    ChipFilterComponent,
     IconComponent,
     TooltipDirective,
   ],
@@ -108,16 +110,14 @@ export class ApplicationsComponent implements OnInit {
   protected readonly selectedFilter = signal<ApplicationFilterOption>(ApplicationFilterOption.All);
   protected readonly selectedFilterObservable = toObservable(this.selectedFilter);
   protected readonly ApplicationFilterOption = ApplicationFilterOption;
-  protected readonly filterOptions = computed(() => [
+  protected readonly filterOptions: Signal<ChipFilterOption<string>[]> = computed(() => [
     {
       label: this.i18nService.t("critical", this.criticalApplicationsCount()),
       value: ApplicationFilterOption.Critical,
-      icon: " ",
     },
     {
       label: this.i18nService.t("notCritical", this.nonCriticalApplicationsCount()),
       value: ApplicationFilterOption.NonCritical,
-      icon: " ",
     },
   ]);
 

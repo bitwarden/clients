@@ -4,11 +4,11 @@ import { toObservable } from "@angular/core/rxjs-interop";
 import { combineLatest, firstValueFrom, map, of, switchMap } from "rxjs";
 
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
-import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CalloutModule } from "@bitwarden/components";
 import { CipherType } from "@bitwarden/sdk-internal";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -16,7 +16,7 @@ import { CipherType } from "@bitwarden/sdk-internal";
 @Component({
   selector: "vault-new-item-nudge",
   templateUrl: "./new-item-nudge.component.html",
-  imports: [SpotlightComponent, AsyncPipe],
+  imports: [CalloutModule, AsyncPipe],
 })
 export class NewItemNudgeComponent {
   readonly configType = input.required<CipherType | null>();

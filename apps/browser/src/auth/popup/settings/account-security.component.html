@@ -5,13 +5,16 @@
     </ng-container>
   </popup-header>
 
-  <bit-spotlight
-    *ngIf="showAccountSecurityNudge$ | async"
-    [title]="'unlockVault' | i18n"
-    [subtitle]="'unlockVaultDesc' | i18n"
-    (onDismiss)="dismissAccountSecurityNudge()"
-    class="tw-mb-6"
-  ></bit-spotlight>
+  @if (showAccountSecurityNudge$ | async) {
+    <bit-callout
+      [title]="'unlockVault' | i18n"
+      [icon]="null"
+      (dismiss)="dismissAccountSecurityNudge()"
+      class="tw-mb-6"
+    >
+      {{ "unlockVaultDesc" | i18n }}
+    </bit-callout>
+  }
   @if (loading()) {
     <div class="tw-h-full tw-place-content-center"><bit-spinner></bit-spinner></div>
   } @else {

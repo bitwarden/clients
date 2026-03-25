@@ -17,69 +17,130 @@ import { IconButtonModule } from "@bitwarden/components";
 ## Usage
 
 Icon buttons can be found in other components such as: the
-[banner](?path=/docs/component-library-banner--docs)
+[banner](?path=/docs/component-library-banner--docs),
 [dialog](?path=/docs/component-library-dialogs--docs), and
 [table](?path=/docs/component-library-table--docs).
 
-## Styles
+## Button Types
 
-### Main
+### Understanding Style Patterns
 
-Used for general icon buttons appearing on the theme’s main `background`
+Most button types come in three style variants, each with different visual weight:
 
-<Canvas of={stories.Main} />
+- **Solid variants** (e.g., `primary`, `danger`): Filled background with border - highest visual
+  weight
+- **Outline variants** (e.g., `primaryOutline`, `dangerOutline`): Transparent background with
+  colored border and text - medium visual weight
+- **Ghost variants** (e.g., `primaryGhost`, `dangerGhost`): Transparent background and border with
+  only text color - lowest visual weight
 
-### Muted
+Use these patterns to create visual hierarchy within your interface. Solid variants draw the most
+attention, while ghost variants provide the subtlest presence.
 
-Used for low emphasis icon buttons appearing on the theme’s main `background`
-
-<Canvas of={stories.Muted} />
-
-### Contrast
-
-Used on a theme’s colored or contrasting backgrounds such as in the navigation or on toasts and
-banners.
-
-<Canvas of={stories.Contrast} />
-
-### Danger
-
-Danger is used for “trash” actions throughout the experience, most commonly in the bottom right of
-the dialog component.
-
-<Canvas of={stories.Danger} />
+<Canvas of={stories.AllVariants} />
 
 ### Primary
 
-Used in place of the main button component if no text is used. This allows the button to display
-square.
+Use primary variants for the highest emphasis actions. These are the most visually prominent buttons
+and should be used sparingly for the main action on a page or in a section.
 
-<Canvas of={stories.Primary} />
+- **`primary`**: Solid filled button for primary actions
+- **`primaryOutline`**: Outlined version for secondary primary actions
+- **`primaryGhost`**: Text-only version for tertiary primary actions
 
-### Nav Contrast
+### Secondary
 
-Used on the side nav background that is dark in both light theme and dark theme.
+The default variant for standard actions on main backgrounds. This is the most commonly used button
+type and should be your go-to choice for most icon buttons.
 
-<Canvas of={stories.NavContrast} />
+- **`secondary`**: Standard button with subtle styling
+
+### Subtle
+
+Use subtle variants for lower emphasis actions and supporting interactions. These create a softer
+visual hierarchy than primary variants and work well for actions that don't need to command
+attention.
+
+- **`subtle`**: Solid filled button with muted colors
+- **`subtleOutline`**: Outlined version for secondary subtle actions
+- **`subtleGhost`**: Text-only version for tertiary subtle actions
+
+### Danger
+
+Use danger variants for destructive actions like delete or trash. These are commonly used for
+removing items, clearing data, or other actions that cannot be easily undone.
+
+Common use case: Bottom right of dialog components for delete/remove actions.
+
+- **`danger`**: Solid filled button for destructive actions
+- **`dangerOutline`**: Outlined version for secondary destructive actions
+- **`dangerGhost`**: Text-only version for tertiary destructive actions
+
+### Warning
+
+Use warning variants for cautionary actions that need user attention before proceeding. These signal
+that an action may have consequences or requires careful consideration.
+
+- **`warning`**: Solid filled button for warning actions
+- **`warningOutline`**: Outlined version for secondary warning actions
+- **`warningGhost`**: Text-only version for tertiary warning actions
+
+### Success
+
+Use success variants for positive actions or confirmations. These work well for completion states,
+confirmations, or actions that have a positive outcome.
+
+- **`success`**: Solid filled button for positive actions
+- **`successOutline`**: Outlined version for secondary positive actions
+- **`successGhost`**: Text-only version for tertiary positive actions
+
+### Contrast
+
+Use contrast variants on colored or contrasting backgrounds such as in toasts, banners, or colored
+sections. These variants ensure visibility and proper contrast against non-standard background
+colors.
+
+- **`contrast`**: Solid filled button for contrasting backgrounds
+- **`contrastOutline`**: Outlined version for contrasting backgrounds
+- **`contrastGhost`**: Text-only version for contrasting backgrounds
 
 ## Sizes
 
-There are 2 sizes for the icon button: `small` and `default`.
+There are 3 sizes for the icon button: `small`, `default`, and `large`.
 
-Default is typically used for most instances. Small is used if the implementation needs a variant
-with less padding around the icon, such as in the navigation component.
+**Default** is typically used for most instances. **Small** is used if the implementation needs a
+variant with less padding around the icon, such as in the navigation component. **Large** is used
+for icon buttons that need more visual prominence.
 
 ### Small
 
 <Canvas of={stories.Small} />
 
-### Default
+### Large
 
-<Canvas of={stories.Default} />
+<Canvas of={stories.Large} />
+
+## States
+
+Icon buttons support loading and disabled states across all variants.
+
+### Loading
+
+When in a loading state, the icon is replaced with a spinner. The spinner appearance is debounced by
+75ms to prevent flash for nearly instantaneous operations.
+
+<Canvas of={stories.Loading} />
+
+### Disabled
+
+When disabled, the button receives disabled styling and cannot be interacted with.
+
+<Canvas of={stories.Inactive} />
 
 ## Accessibility
 
 Follow guidelines outlined in the [Button docs](?path=/docs/component-library-button--doc)
 
-label input will be used to set the `aria-label` attributes on the button. This is for accessibility
-purposes, as it provides a text alternative for the icon button.
+The `label` input is required and will be used to set the `aria-label` attribute on the button. This
+is for accessibility purposes, as it provides a text alternative for the icon button. The label also
+populates the tooltip that appears on hover.
