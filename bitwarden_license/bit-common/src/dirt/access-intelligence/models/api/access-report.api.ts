@@ -24,6 +24,8 @@ export class AccessReportApi extends BaseResponse {
   memberRegistry: string = "";
   creationDate: string = "";
   contentEncryptionKey: string = "";
+  reportFile?: string;
+  reportFileDownloadUrl?: string;
 
   constructor(data: any = null) {
     super(data);
@@ -39,6 +41,8 @@ export class AccessReportApi extends BaseResponse {
     this.summary = this.getResponseProperty("summaryData");
     this.memberRegistry = this.getResponseProperty("memberRegistry") ?? "";
     this.contentEncryptionKey = this.getResponseProperty("contentEncryptionKey");
+    this.reportFile = this.getResponseProperty("reportFile") ?? undefined;
+    this.reportFileDownloadUrl = this.getResponseProperty("reportFileDownloadUrl") ?? undefined;
 
     // Use when individual values are encrypted
     // const summary = this.getResponseProperty("summaryData");
