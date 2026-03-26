@@ -1,9 +1,14 @@
-<button class="tw-flex tw-justify-between tw-items-center tw-h-8 tw-w-full tw-p-2 tw-gap-2">
+<div class="tw-flex tw-justify-between tw-items-center tw-h-8 tw-w-full tw-p-2 tw-gap-2">
   <div class="tw-text-xs tw-font-medium tw-text-fg-body">
     <ng-content select="[slot=title]"></ng-content>
   </div>
   <div class="tw-flex tw-gap-2">
     <ng-content select="[slot=end]"></ng-content>
-    <button type="button" bitIconButton="bwi-angle-up" size="large"></button>
+    <button
+      type="button"
+      bitIconButton="bwi-angle-up"
+      size="small"
+      [label]="'toggleCollapse' | i18n"
+    ></button>
   </div>
-</button>
+</div>
