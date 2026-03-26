@@ -4,7 +4,7 @@ import {
   MemberRegistryEntryData,
   AccessReportSettingsData,
   ApplicationHealthData,
-  AccessReportSummaryData,
+  AccessReportSummaryView,
 } from "../../../../access-intelligence/models";
 import { AccessReportPayload } from "../../../../access-intelligence/services";
 import {
@@ -25,6 +25,7 @@ import {
   isBoundedStringOrNull,
   isBoundedStringOrUndefined,
   isBoundedPositiveNumber,
+  isBoundedPositiveNumberOrUndefined,
   BOUNDED_ARRAY_MAX_LENGTH,
   isDate,
   isDateString,
@@ -110,6 +111,13 @@ export const isOrganizationReportSummary = createValidator<OrganizationReportSum
   totalCriticalMemberCount: isBoundedPositiveNumber,
   totalCriticalAtRiskMemberCount: isBoundedPositiveNumber,
   totalCriticalAtRiskApplicationCount: isBoundedPositiveNumber,
+  // Optional in old blobs — absent keys are accepted and normalized to 0 in validateOrganizationReportSummary
+  totalPasswordCount: isBoundedPositiveNumberOrUndefined as (v: unknown) => v is number,
+  totalAtRiskPasswordCount: isBoundedPositiveNumberOrUndefined as (v: unknown) => v is number,
+  totalCriticalPasswordCount: isBoundedPositiveNumberOrUndefined as (v: unknown) => v is number,
+  totalCriticalAtRiskPasswordCount: isBoundedPositiveNumberOrUndefined as (
+    v: unknown,
+  ) => v is number,
 });
 
 // Adding to support reviewedDate casting for mapping until the date is saved as a string
@@ -190,10 +198,35 @@ export function validateOrganizationReportSummary(data: unknown): OrganizationRe
     throw new Error("Invalid report summary");
   }
 
-  return data;
+  // Normalize: password fields absent from old blobs default to 0
+  return {
+    ...data,
+    totalPasswordCount: data.totalPasswordCount ?? 0,
+    totalAtRiskPasswordCount: data.totalAtRiskPasswordCount ?? 0,
+    totalCriticalPasswordCount: data.totalCriticalPasswordCount ?? 0,
+    totalCriticalAtRiskPasswordCount: data.totalCriticalAtRiskPasswordCount ?? 0,
+  };
 }
 
-export const isAccessReportSummaryData = createValidator<AccessReportSummaryData>({
+// Local type representing only the count fields stored in the encrypted summary blob.
+// `date` is not part of the blob — it comes from the API envelope and is set after decryption.
+type SummaryBlobPayload = Pick<
+  AccessReportSummaryView,
+  | "totalMemberCount"
+  | "totalApplicationCount"
+  | "totalAtRiskMemberCount"
+  | "totalAtRiskApplicationCount"
+  | "totalCriticalApplicationCount"
+  | "totalCriticalMemberCount"
+  | "totalCriticalAtRiskMemberCount"
+  | "totalCriticalAtRiskApplicationCount"
+  | "totalPasswordCount"
+  | "totalAtRiskPasswordCount"
+  | "totalCriticalPasswordCount"
+  | "totalCriticalAtRiskPasswordCount"
+>;
+
+export const isAccessReportSummaryView = createValidator<SummaryBlobPayload>({
   totalMemberCount: isBoundedPositiveNumber,
   totalApplicationCount: isBoundedPositiveNumber,
   totalAtRiskMemberCount: isBoundedPositiveNumber,
@@ -202,17 +235,24 @@ export const isAccessReportSummaryData = createValidator<AccessReportSummaryData
   totalCriticalMemberCount: isBoundedPositiveNumber,
   totalCriticalAtRiskMemberCount: isBoundedPositiveNumber,
   totalCriticalAtRiskApplicationCount: isBoundedPositiveNumber,
+  // Optional — absent in blobs written before password counts were added; default to 0 in fromJSON
+  totalPasswordCount: isBoundedPositiveNumberOrUndefined as (v: unknown) => v is number,
+  totalAtRiskPasswordCount: isBoundedPositiveNumberOrUndefined as (v: unknown) => v is number,
+  totalCriticalPasswordCount: isBoundedPositiveNumberOrUndefined as (v: unknown) => v is number,
+  totalCriticalAtRiskPasswordCount: isBoundedPositiveNumberOrUndefined as (
+    v: unknown,
+  ) => v is number,
 });
 
 /**
- * Validates and returns AccessReportSummaryData
+ * Validates the raw blob payload and constructs an {@link AccessReportSummaryView}.
  * @throws Error if validation fails
  */
-export function validateAccessReportSummaryData(data: unknown): AccessReportSummaryData {
-  if (!isAccessReportSummaryData(data)) {
+export function validateAccessReportSummaryView(data: unknown): AccessReportSummaryView {
+  if (!isAccessReportSummaryView(data)) {
     throw new Error("Invalid report summary");
   }
-  return data;
+  return AccessReportSummaryView.fromJSON(data);
 }
 
 /**
