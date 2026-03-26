@@ -126,6 +126,31 @@ export const Default: Story = {
   }),
 };
 
+export const Large: Story = {
+  render: (args) => ({
+    props: {
+      formObj: formObj,
+      submit: submit,
+      ...args,
+    },
+    template: /*html*/ `
+      <form [formGroup]="formObj">
+        <bit-form-field size="large">
+          <bit-label>Label</bit-label>
+          <input bitInput formControlName="test" />
+          <bit-hint>Optional Hint</bit-hint>
+        </bit-form-field>
+        <bit-form-field size="large" [formGroup]="formObj">
+          <bit-label>Label</bit-label>
+          <input required formControlName="required" bitInput placeholder="Placeholder" />
+          <span bitPrefix>$</span>
+          <span bitSuffix>USD</span>
+      </bit-form-field>
+      </form>
+    `,
+  }),
+};
+
 export const LabelWithIcon: Story = {
   render: (args) => ({
     props: {
@@ -396,6 +421,26 @@ export const AdvancedSelect: Story = {
     },
     template: /*html*/ `
       <bit-form-field [formGroup]="formObj">
+        <bit-label>Label</bit-label>
+        <bit-select formControlName="select">
+          <bit-option label="Option 1" value="value1"></bit-option>
+          <bit-option label="Option 2" value="value2"></bit-option>
+        </bit-select>
+      </bit-form-field>
+    `,
+  }),
+};
+
+export const LargeAdvancedSelect: Story = {
+  render: (args) => ({
+    props: {
+      formObj: fb.group({
+        select: "",
+      }),
+      ...args,
+    },
+    template: /*html*/ `
+      <bit-form-field size="large" [formGroup]="formObj">
         <bit-label>Label</bit-label>
         <bit-select formControlName="select">
           <bit-option label="Option 1" value="value1"></bit-option>

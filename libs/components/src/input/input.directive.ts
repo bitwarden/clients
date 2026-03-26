@@ -54,7 +54,6 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
       "[&:is(textarea)]:tw-min-h-[80px]",
       "[&:is(textarea)]:tw-overflow-hidden",
       "tw-px-1",
-      "tw-text-sm/5",
       "tw-placeholder-fg-body-subtle",
       "tw-border-none",
       "focus:tw-outline-none",
