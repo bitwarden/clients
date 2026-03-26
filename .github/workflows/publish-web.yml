@@ -122,36 +122,24 @@ jobs:
         run: |
           if [[ "${{ inputs.publish_type }}" == "Dry Run" ]]; then
             docker tag "$_AZ_REGISTRY/web:latest" "$_AZ_REGISTRY/web:dryrun"
-            docker tag "$_AZ_REGISTRY/web:latest" "$_AZ_REGISTRY/web-sh:dryrun"
             docker tag "$_AZ_REGISTRY/web:latest" "$_GHCR_REGISTRY/web:dryrun"
-            docker tag "$_AZ_REGISTRY/web:latest" "$_GHCR_REGISTRY/web-sh:dryrun"
           else
             docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web:$_RELEASE_VERSION"
-            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web-sh:$_RELEASE_VERSION"
             docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web:latest"
-            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web-sh:latest"
             docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_GHCR_REGISTRY/web:$_RELEASE_VERSION"
-            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_GHCR_REGISTRY/web-sh:$_RELEASE_VERSION"
             docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_GHCR_REGISTRY/web:latest"
-            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_GHCR_REGISTRY/web-sh:latest"
           fi
 
       - name: Push version
         run: |
           if [[ "${{ inputs.publish_type }}" == "Dry Run" ]]; then
             docker push "$_AZ_REGISTRY/web:dryrun"
-            docker push "$_AZ_REGISTRY/web-sh:dryrun"
             docker push "$_GHCR_REGISTRY/web:dryrun"
-            docker push "$_GHCR_REGISTRY/web-sh:dryrun"
           else
             docker push "$_AZ_REGISTRY/web:$_RELEASE_VERSION"
-            docker push "$_AZ_REGISTRY/web-sh:$_RELEASE_VERSION"
             docker push "$_AZ_REGISTRY/web:latest"
-            docker push "$_AZ_REGISTRY/web-sh:latest"
             docker push "$_GHCR_REGISTRY/web:$_RELEASE_VERSION"
-            docker push "$_GHCR_REGISTRY/web-sh:$_RELEASE_VERSION"
             docker push "$_GHCR_REGISTRY/web:latest"
-            docker push "$_GHCR_REGISTRY/web-sh:latest"
           fi
 
       - name: Log out from Azure
