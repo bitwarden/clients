@@ -3808,6 +3808,15 @@
   "policies": {
     "message": "Policies"
   },
+  "dataControls": {
+    "message": "Data controls"
+  },
+  "authentication": {
+    "message": "Authentication"
+  },
+  "vaultManagement": {
+    "message": "Vault management"
+  },
   "singleSignOn": {
     "message": "Single sign-on"
   },

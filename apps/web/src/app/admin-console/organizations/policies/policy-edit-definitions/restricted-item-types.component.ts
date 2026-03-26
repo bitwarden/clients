@@ -4,11 +4,14 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 export class RestrictedItemTypesPolicy extends BasePolicyEditDefinition {
   name = "restrictedItemTypePolicy";
   description = "restrictedItemTypePolicyDesc";
   type = PolicyType.RestrictedItemTypes;
+  category = PolicyCategory.VaultManagement;
+  priority = 50;
   component = RestrictedItemTypesPolicyComponent;
 }
 

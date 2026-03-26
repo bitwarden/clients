@@ -1,11 +1,11 @@
 <app-header></app-header>
 
-@let organization = organization$ | async;
+@let policySections = policySections$ | async;
 @let policiesEnabledMap = policiesEnabledMap$ | async;
 @let organizationId = organizationId$ | async;
 
 <bit-container>
-  @if (!organization || !policiesEnabledMap || !organizationId) {
+  @if (!policySections || !policiesEnabledMap || !organizationId) {
     <i
       class="bwi bwi-spinner bwi-spin tw-text-muted"
       title="{{ 'loading' | i18n }}"
@@ -13,26 +13,27 @@
     ></i>
     <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   } @else {
-    <bit-table>
-      <ng-template body>
-        @for (p of policies$ | async | policyOrder; track $index) {
-          @if (p.display$(organization, configService) | async) {
-            <tr bitRow>
-              <td bitCell>
-                <div class="tw-flex tw-items-center tw-gap-2">
-                  <button type="button" bitLink (click)="edit(p, organizationId)">
-                    {{ p.name | i18n }}
-                  </button>
-                  @if (policiesEnabledMap.get(p.type)) {
-                    <span bitBadge variant="success">{{ "on" | i18n }}</span>
-                  }
-                </div>
-                <small class="tw-text-muted tw-block">{{ p.description | i18n }}</small>
-              </td>
-            </tr>
+    @for (section of policySections; track section.category) {
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h2">{{ section.labelKey | i18n }}</h2>
+        </bit-section-header>
+        <bit-item-group [attr.aria-label]="section.labelKey | i18n">
+          @for (p of section.policies; track p.type) {
+            <bit-item>
+              <button type="button" bit-item-content (click)="edit(p, organizationId)">
+                {{ p.name | i18n }}
+                <span slot="secondary">{{ p.description | i18n }}</span>
+                @if (policiesEnabledMap.get(p.type)) {
+                  <span bitBadge variant="success" slot="end">{{ "on" | i18n }}</span>
+                } @else {
+                  <span bitBadge variant="secondary" slot="end">{{ "off" | i18n }}</span>
+                }
+              </button>
+            </bit-item>
           }
-        }
-      </ng-template>
-    </bit-table>
+        </bit-item-group>
+      </bit-section>
+    }
   }
 </bit-container>
