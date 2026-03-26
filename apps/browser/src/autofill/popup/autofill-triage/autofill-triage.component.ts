@@ -59,7 +59,7 @@ export class AutofillTriageComponent implements OnInit {
     if (!result) {
       return 0;
     }
-    return result.fields.filter((f) => f.eligible).length;
+    return result.fields.filter((f: AutofillTriageFieldResult) => f.eligible).length;
   });
 
   constructor(

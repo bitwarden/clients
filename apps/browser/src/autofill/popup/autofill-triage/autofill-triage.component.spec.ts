@@ -20,7 +20,6 @@ describe("AutofillTriageComponent", () => {
   let toastService: MockProxy<ToastService>;
 
   const mockTriageResult: AutofillTriagePageResult = {
-    tabId: 123,
     pageUrl: "https://example.com/login",
     analyzedAt: "2026-03-26T10:30:00.000Z",
     targetElementRef: "username",

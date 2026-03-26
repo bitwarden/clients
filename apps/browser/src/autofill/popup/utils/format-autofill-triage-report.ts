@@ -17,7 +17,7 @@ export function formatAutofillTriageReport(result: AutofillTriagePageResult): st
   lines.push(`Analyzed: ${result.analyzedAt}`);
 
   // Calculate eligible count
-  const eligibleCount = result.fields.filter((f) => f.eligible).length;
+  const eligibleCount = result.fields.filter((f: { eligible: boolean }) => f.eligible).length;
   lines.push(`Eligible: ${eligibleCount} of ${result.fields.length} fields`);
 
   // Target element info if present
