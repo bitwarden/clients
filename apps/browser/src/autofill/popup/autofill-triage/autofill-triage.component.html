@@ -1,0 +1,125 @@
+<popup-page>
+  <popup-header slot="header" [pageTitle]="'Autofill Triage'" [showBackButton]="true" />
+
+  @if (!triageResult()) {
+    <bit-callout type="info" [title]="'noTriageResults' | i18n">
+      {{ "noTriageResultsDesc" | i18n }}
+    </bit-callout>
+  }
+
+  @if (triageResult(); as result) {
+    <!-- Summary Section -->
+    <bit-section>
+      <p class="tw-mb-2">
+        <strong>{{ "url" | i18n }}:</strong>
+        <span class="tw-ml-2">{{ result.pageUrl }}</span>
+      </p>
+      <p class="tw-mb-2">
+        <strong>{{ "analyzed" | i18n }}:</strong>
+        <span class="tw-ml-2">{{ result.analyzedAt | date: "medium" }}</span>
+      </p>
+      <p class="tw-mb-2">
+        <strong>{{ "eligible" | i18n }}:</strong>
+        <span class="tw-ml-2">{{ eligibleCount() }} of {{ result.fields.length }} fields</span>
+      </p>
+      @if (result.targetElementRef) {
+        <p class="tw-mb-2">
+          <strong>{{ "targetElement" | i18n }}:</strong>
+          <span class="tw-ml-2">{{ result.targetElementRef }}</span>
+        </p>
+      }
+    </bit-section>
+
+    <!-- Fields List -->
+    <div class="tw-mt-4">
+      <h2 class="tw-text-lg tw-font-semibold tw-mb-3">{{ "fields" | i18n }}</h2>
+
+      @for (field of result.fields; track $index) {
+        <bit-section class="tw-mb-3">
+          <!-- Field Header (clickable to expand/collapse) -->
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            class="tw-w-full tw-flex tw-justify-between tw-items-center"
+            (click)="toggleField($index)"
+          >
+            <span class="tw-flex tw-items-center tw-gap-2">
+              <bit-icon
+                [name]="isFieldExpanded($index) ? 'bwi-angle-down' : 'bwi-angle-right'"
+              ></bit-icon>
+              <span>{{ getFieldLabel(field) }}</span>
+            </span>
+            <span
+              bitBadge
+              [variant]="getFieldBadgeVariant(field.eligible)"
+              class="tw-flex tw-items-center tw-gap-1"
+            >
+              <span>{{ getFieldStatusIcon(field.eligible) }}</span>
+              <span>{{ field.qualifiedAs }}</span>
+            </span>
+          </button>
+
+          <!-- Expandable Field Details -->
+          @if (isFieldExpanded($index)) {
+            <div class="tw-mt-3 tw-pl-4 tw-border-l-2 tw-border-secondary-300">
+              <!-- Field Attributes -->
+              <div class="tw-mb-3 tw-text-sm tw-text-muted">
+                @if (field.htmlId) {
+                  <p><strong>ID:</strong> {{ field.htmlId }}</p>
+                }
+                @if (field.htmlName) {
+                  <p><strong>Name:</strong> {{ field.htmlName }}</p>
+                }
+                @if (field.htmlType) {
+                  <p><strong>Type:</strong> {{ field.htmlType }}</p>
+                }
+                @if (field.placeholder) {
+                  <p><strong>Placeholder:</strong> {{ field.placeholder }}</p>
+                }
+                @if (field.autocomplete) {
+                  <p><strong>Autocomplete:</strong> {{ field.autocomplete }}</p>
+                }
+                @if (field.ariaLabel) {
+                  <p><strong>ARIA Label:</strong> {{ field.ariaLabel }}</p>
+                }
+                @if (field.formIndex !== undefined) {
+                  <p><strong>Form Index:</strong> {{ field.formIndex }}</p>
+                }
+              </div>
+
+              <!-- Conditions List -->
+              <div class="tw-mb-2">
+                <h3 class="tw-text-sm tw-font-semibold tw-mb-2">{{ "conditions" | i18n }}</h3>
+                @for (condition of field.conditions; track condition.description) {
+                  <div class="tw-flex tw-items-start tw-gap-2 tw-mb-1 tw-text-sm">
+                    <span class="tw-shrink-0">{{ getConditionIcon(condition.passed) }}</span>
+                    <span
+                      [class.tw-text-success-600]="condition.passed"
+                      [class.tw-text-secondary-600]="!condition.passed"
+                    >
+                      {{ condition.description }}
+                    </span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </bit-section>
+      }
+    </div>
+
+    <!-- Copy Report Button -->
+    <div class="tw-mt-6 tw-flex tw-justify-center">
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        startIcon="bwi-clone"
+        (click)="copyReport()"
+      >
+        {{ "copyReport" | i18n }}
+      </button>
+    </div>
+  }
+</popup-page>

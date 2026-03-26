@@ -56,6 +56,7 @@ import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
 import { platformPopoutGuard } from "../auth/popup/guards/platform-popout.guard";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { ExtensionDeviceManagementComponent } from "../auth/popup/settings/extension-device-management.component";
+import { AutofillTriageComponent } from "../autofill/popup/autofill-triage/autofill-triage.component";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-domains.component";
@@ -363,6 +364,11 @@ const routes: Routes = [
     path: "send-created",
     component: SendCreatedComponent,
     canActivate: [authGuard],
+    data: { elevation: 1 } satisfies RouteDataProperties,
+  },
+  {
+    path: "autofill-triage",
+    component: AutofillTriageComponent,
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
