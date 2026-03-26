@@ -263,6 +263,27 @@ describe("ApplicationsComponent", () => {
     });
   });
 
+  describe("showAppAtRiskMembers", () => {
+    it("should call dataService.setDrawerForAppAtRiskMembers with the application name", async () => {
+      mockDataService.setDrawerForAppAtRiskMembers.mockResolvedValue(undefined);
+
+      await component.showAppAtRiskMembers("GitHub");
+
+      expect(mockDataService.setDrawerForAppAtRiskMembers).toHaveBeenCalledWith("GitHub");
+    });
+
+    it("should preserve this context when invoked as a standalone function", async () => {
+      mockDataService.setDrawerForAppAtRiskMembers.mockResolvedValue(undefined);
+
+      // Simulate how the child component invokes this callback:
+      // it receives the function reference and calls it without this binding
+      const callbackRef = component.showAppAtRiskMembers;
+      await callbackRef("Slack");
+
+      expect(mockDataService.setDrawerForAppAtRiskMembers).toHaveBeenCalledWith("Slack");
+    });
+  });
+
   describe("checkbox selection", () => {
     const mockApplicationData: ApplicationTableDataSource[] = [
       {

@@ -7,6 +7,7 @@ import { AsyncActionsModule } from "../../async-actions";
 import { AvatarModule } from "../../avatar";
 import { BadgeModule } from "../../badge";
 import { BannerModule } from "../../banner";
+import { BerryComponent } from "../../berry";
 import { BreadcrumbsModule } from "../../breadcrumbs";
 import { ButtonModule } from "../../button";
 import { CalloutModule } from "../../callout";
@@ -43,6 +44,7 @@ import { TypographyModule } from "../../typography";
     AvatarModule,
     BadgeModule,
     BannerModule,
+    BerryComponent,
     BreadcrumbsModule,
     ButtonModule,
     CalloutModule,
@@ -82,6 +84,7 @@ import { TypographyModule } from "../../typography";
     AvatarModule,
     BadgeModule,
     BannerModule,
+    BerryComponent,
     BreadcrumbsModule,
     ButtonModule,
     CalloutModule,
