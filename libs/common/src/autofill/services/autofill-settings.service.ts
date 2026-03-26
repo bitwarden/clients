@@ -21,12 +21,16 @@ import {
 import { ClearClipboardDelay, AutofillOverlayVisibility } from "../constants";
 import { ClearClipboardDelaySetting, InlineMenuVisibilitySetting } from "../types";
 
-const AUTOFILL_ON_PAGE_LOAD = new UserKeyDefinition(AUTOFILL_SETTINGS_DISK, "autofillOnPageLoad", {
-  deserializer: (value: boolean) => value ?? false,
-  clearOn: [],
-});
+export const AUTOFILL_ON_PAGE_LOAD = new UserKeyDefinition(
+  AUTOFILL_SETTINGS_DISK,
+  "autofillOnPageLoad",
+  {
+    deserializer: (value: boolean) => value ?? false,
+    clearOn: [],
+  },
+);
 
-const AUTOFILL_ON_PAGE_LOAD_DEFAULT = new UserKeyDefinition(
+export const AUTOFILL_ON_PAGE_LOAD_DEFAULT = new UserKeyDefinition(
   AUTOFILL_SETTINGS_DISK,
   "autofillOnPageLoadDefault",
   {
@@ -53,7 +57,7 @@ const AUTOFILL_ON_PAGE_LOAD_POLICY_TOAST_HAS_DISPLAYED = new UserKeyDefinition(
   },
 );
 
-const AUTO_COPY_TOTP = new UserKeyDefinition(AUTOFILL_SETTINGS_DISK, "autoCopyTotp", {
+export const AUTO_COPY_TOTP = new UserKeyDefinition(AUTOFILL_SETTINGS_DISK, "autoCopyTotp", {
   deserializer: (value: boolean) => value ?? true,
   clearOn: [],
 });
@@ -66,7 +70,7 @@ const INLINE_MENU_VISIBILITY = new KeyDefinition(
   },
 );
 
-const SHOW_INLINE_MENU_IDENTITIES = new UserKeyDefinition(
+export const SHOW_INLINE_MENU_IDENTITIES = new UserKeyDefinition(
   AUTOFILL_SETTINGS_DISK,
   "showInlineMenuIdentities",
   {
@@ -75,7 +79,7 @@ const SHOW_INLINE_MENU_IDENTITIES = new UserKeyDefinition(
   },
 );
 
-const SHOW_INLINE_MENU_CARDS = new UserKeyDefinition(
+export const SHOW_INLINE_MENU_CARDS = new UserKeyDefinition(
   AUTOFILL_SETTINGS_DISK,
   "showInlineMenuCards",
   {
