@@ -51,7 +51,7 @@ const TARGETING_RULES_META_KEY = new KeyDefinition<TargetingRulesDataMeta>(
  * refreshes them in the background.
  */
 export class TargetingRulesDataService {
-  static readonly UPDATE_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
+  static readonly UPDATE_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours
 
   // guard against accidental leaks.
   private _destroy$ = new Subject<void>();
