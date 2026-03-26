@@ -316,16 +316,22 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
 
     let hostRules = rules[parsed.host];
 
+    // www subdomain equivalence: if no entry for www.example.com, try example.com
+    if (hostRules === undefined && parsed.host.startsWith("www.")) {
+      hostRules = rules[parsed.host.slice(4)];
+    }
+
     // If the direct punycode lookup missed, try the unicode form of the host.
     // This handles rule providers that use unicode host keys (e.g. "münchen.de"
     // instead of "xn--mnchen-3ya.de").
     if (hostRules === undefined && parsed.host.includes("xn--")) {
-      hostRules = rules[punycodeToUnicode(parsed.host)];
-    }
+      const unicodeHost = punycodeToUnicode(parsed.host);
+      hostRules = rules[unicodeHost];
 
-    // www subdomain equivalence: if no entry for www.example.com, try example.com
-    if (hostRules === undefined && parsed.host.startsWith("www.")) {
-      hostRules = rules[parsed.host.slice(4)];
+      // www subdomain equivalence on the unicode form
+      if (hostRules === undefined && unicodeHost.startsWith("www.")) {
+        hostRules = rules[unicodeHost.slice(4)];
+      }
     }
 
     // No rules for this host; fall through to heuristics
