@@ -897,7 +897,7 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
-   * Maps a targeting rule field type to the cooresponding cipher value
+   * Maps a targeting rule field type to the corresponding cipher value
    */
   private getValueForTargetedFieldType(fieldType: string, cipher: CipherView): string | null {
     // Login fields

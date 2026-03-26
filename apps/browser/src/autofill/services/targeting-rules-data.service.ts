@@ -14,7 +14,7 @@ import {
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { TargetingRulesByDomain } from "@bitwarden/common/autofill/types";
+import { FormsMapResource, TargetingRulesByDomain } from "@bitwarden/common/autofill/types";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -33,14 +33,6 @@ const DEFAULT_TARGETING_RULES_SOURCE_URL =
 type TargetingRulesDataMeta = {
   /** The last time the data set was updated  */
   timestamp: number;
-};
-
-/**
- * Format of the Forms Map resource.
- */
-type FormsMapResource = {
-  version: string;
-  hosts: TargetingRulesByDomain;
 };
 
 const TARGETING_RULES_META_KEY = new KeyDefinition<TargetingRulesDataMeta>(
@@ -189,6 +181,10 @@ export class TargetingRulesDataService {
         "[TargetingRulesDataService] Resource unavailable, storing empty rules.",
         error,
       );
+      // Intentionally clear cached rules on failure rather than retaining
+      // potentially stale/invalid data. The risk of acting on outdated rules
+      // (e.g. filling wrong fields after a site redesign) outweighs the impact of
+      // temporarily falling back to heuristics until the next successful fetch.
       await this.domainSettingsService.setTargetingRules({});
     }
   }
