@@ -113,15 +113,19 @@
               <app-vault-icon [cipher]="cipher"></app-vault-icon>
             </div>
             <span data-testid="item-name">{{ cipher.name }}</span>
-            <div slot="default-trailing" class="tw-flex tw-gap-1.5">
-              <i
-                *ngIf="cipher.organizationId"
-                slot="default-trailing"
-                appOrgIcon
-                [tierType]="cipher.organization!.productTierType"
-                [size]="'small'"
-                [appA11yTitle]="orgIconTooltip(cipher)"
-              ></i>
+            <div slot="default-trailing" class="tw-flex tw-items-center tw-gap-1.5">
+              <ng-container *ngIf="cipher.organizationId && cipher.organization">
+                <i
+                  slot="default-trailing"
+                  appOrgIcon
+                  [tierType]="cipher.organization.productTierType"
+                  [size]="'small'"
+                  [appA11yTitle]="orgIconTooltip(cipher)"
+                ></i>
+                <span class="tw-text-xs tw-text-muted tw-truncate tw-max-w-24">{{
+                  cipher.organization.name
+                }}</span>
+              </ng-container>
               <i
                 *ngIf="CipherViewLikeUtils.hasAttachments(cipher)"
                 class="bwi bwi-paperclip bwi-sm"

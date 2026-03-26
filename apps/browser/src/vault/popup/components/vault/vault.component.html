@@ -128,7 +128,7 @@
           <!--If there is search text fold all the filtered ciphers into one container-->
           @if (hasSearchText$ | async) {
             <app-vault-list-items-container
-              [title]="'searchResults' | i18n"
+              [title]="(activeAccountSearchLabel$ | async) ?? ('searchResults' | i18n)"
               [ciphers]="(filteredCiphers$ | async) || []"
               id="allItems"
               disableSectionMargin
@@ -150,6 +150,19 @@
               disableSectionMargin
               collapsibleKey="allItems"
             ></app-vault-list-items-container>
+          }
+          <!--Cross-account search results from other unlocked accounts-->
+          @if (hasSearchText$ | async) {
+            @for (accountResult of otherAccountResults$ | async; track accountResult.userId) {
+              @if (accountResult.ciphers.length > 0) {
+                <app-vault-list-items-container
+                  [title]="accountResult.label"
+                  [ciphers]="accountResult.ciphers"
+                  [ownerAccountId]="accountResult.userId"
+                  disableSectionMargin
+                ></app-vault-list-items-container>
+              }
+            }
           }
         }
       </vault-fade-in-out>
