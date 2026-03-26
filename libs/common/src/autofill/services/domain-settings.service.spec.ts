@@ -440,9 +440,9 @@ describe("DefaultDomainSettingsService", () => {
         expect(result).toEqual(mockForms);
       });
 
-      it("does not match unicode host key against punycode URL", async () => {
-        // Note, rules are not expected to have unicode host keys,
-        // but we handle those cases defensively
+      it("matches unicode host key against punycode URL", async () => {
+        // Note, rules from the default provider are not expected to have
+        // unicode host keys, but we handle those cases defensively
         await setupRules({
           "münchen.de": { forms: mockForms },
         });
@@ -451,12 +451,12 @@ describe("DefaultDomainSettingsService", () => {
           "https://xn--mnchen-3ya.de/login",
         );
 
-        expect(result).toEqual(null);
+        expect(result).toEqual(mockForms);
       });
 
-      it("does not match unicode host key against URL containing a unicode hostname", async () => {
-        // Note, rules are not expected to have unicode host keys,
-        // but we handle those cases defensively
+      it("matches unicode host key against URL containing a unicode hostname", async () => {
+        // Note, rules from the default provider are not expected to have
+        // unicode host keys, but we handle those cases defensively
         await setupRules({
           "münchen.de": { forms: mockForms },
         });
@@ -465,7 +465,7 @@ describe("DefaultDomainSettingsService", () => {
           "https://münchen.de/login",
         );
 
-        expect(result).toEqual(null);
+        expect(result).toEqual(mockForms);
       });
 
       it("matches punycode host key against punycode URL", async () => {
