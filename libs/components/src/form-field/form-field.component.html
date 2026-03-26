@@ -28,12 +28,7 @@
       <span class="tw-sr-only"> ({{ "required" | i18n }})</span>
     }
   </label>
-  <div
-    class="tw-group/form-field tw-flex tw-min-h-10 tw-border tw-rounded-xl tw-border-solid tw-border-border-strong tw-bg-bg-secondary has-[:focus-visible]:[&_#prefixContainer]:!tw-text-fg-body-subtle has-[:focus-visible]:!tw-border-border-brand has-[:focus-visible]:!tw-ring-border-brand has-[:focus-visible]:!tw-ring-1 has-[input:disabled]:!tw-border-border-base [&:not(:has(:focus-visible)):hover]:tw-bg-bg-quaternary tw-transition-colors"
-    [class.!tw-ring-border-danger]="input().hasError"
-    [class.!tw-ring-1]="input().hasError"
-    [class.!tw-border-border-danger]="input().hasError"
-  >
+  <div [class]="inputContainerClasses">
     <div
       #prefixContainer
       [hidden]="!prefixHasChildren()"

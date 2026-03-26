@@ -110,7 +110,7 @@ type Story = StoryObj<BitFormFieldComponent>;
 export const Default: Story = {
   render: (args) => ({
     props: {
-      formObj: defaultFormObj,
+      formObj: formObj,
       submit: submit,
       ...args,
     },
@@ -118,7 +118,7 @@ export const Default: Story = {
       <form [formGroup]="formObj">
         <bit-form-field>
           <bit-label>Label</bit-label>
-          <input bitInput formControlName="name" />
+          <input bitInput formControlName="test" />
           <bit-hint>Optional Hint</bit-hint>
         </bit-form-field>
       </form>
