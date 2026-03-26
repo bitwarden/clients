@@ -94,7 +94,6 @@ export class BitFormFieldComponent implements AfterContentChecked {
       "tw-border-border-strong",
       "tw-bg-bg-secondary",
       "has-[input:disabled]:tw-border-border-base",
-      "[&:not(:has(:focus-visible)):hover]:tw-bg-bg-quaternary",
       "tw-transition-colors",
       "has-[:focus-visible]:tw-border-border-brand",
       "has-[:focus-visible]:tw-ring-border-brand",
@@ -115,7 +114,7 @@ export class BitFormFieldComponent implements AfterContentChecked {
             "has-[:focus-visible]:!tw-border-border-focus",
             "has-[:focus-visible]:!tw-ring-border-focus",
           ]
-        : []),
+        : ["[&:not(:has(:focus-visible)):hover]:tw-bg-bg-quaternary"]),
     ].join(" ");
   }
 
