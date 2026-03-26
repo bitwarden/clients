@@ -2,19 +2,20 @@ import { firstValueFrom } from "rxjs";
 
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { Guid } from "@bitwarden/common/types/guid";
 import { newGuid } from "@bitwarden/guid";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
-import { EncString } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
-import { Receive } from "../models/receive";
+import { Receive, ReceiveFile } from "../models/receive";
 import { ReceiveCreateInput } from "../models/receive-create-input";
 import { ReceiveSharedData } from "../models/receive-shared-data";
 import { ReceiveUrlData } from "../models/receive-url-data";
+import { ReceiveFileView, ReceiveView } from "../models/receive.view";
 import { CreateReceiveRequest } from "../models/requests/create-receive.request";
 import { ReceiveSharedDataResponse } from "../models/response/receive-shared-data.response";
 
@@ -45,7 +46,7 @@ export class DefaultReceiveService implements ReceiveService {
     // TODO return the created receive from the API instead of making a fake one here.
     const receive: Receive = {
       id: newGuid() as Guid,
-    };
+    } as Receive;
     return receive;
   }
 
@@ -56,7 +57,7 @@ export class DefaultReceiveService implements ReceiveService {
     // Fake response for now
     const response = new ReceiveSharedDataResponse({
       name: "encryptedName",
-      scekWrappedPublicKey: "seckWrappedPublicKey",
+      scekWrappedPublicKey: "scekWrappedPublicKey",
     });
 
     return await this.decryptResponse(response, urlData);
@@ -87,14 +88,14 @@ export class DefaultReceiveService implements ReceiveService {
       input.name,
       receiveKeys.sharedContentEncryptionKey,
     );
-    return {
-      name: encryptedName.encryptedString!,
-      scekWrappedPublicKey: receiveKeys.scekWrappedPublicKey,
-      userKeyWrappedSharedContentEncryptionKey:
-        receiveKeys.userKeyWrappedSharedContentEncryptionKey,
-      userKeyWrappedPrivateKey: receiveKeys.userKeyWrappedPrivateKey,
-      expirationDate: input.expirationDate.toISOString(),
-    };
+
+    return new CreateReceiveRequest(
+      encryptedName,
+      receiveKeys.scekWrappedPublicKey,
+      receiveKeys.userKeyWrappedSharedContentEncryptionKey,
+      receiveKeys.userKeyWrappedPrivateKey,
+      input.expirationDate,
+    );
   }
 
   private async makeReceiveKeys(userId: UserId): Promise<ReceiveKeys> {
@@ -125,10 +126,67 @@ export class DefaultReceiveService implements ReceiveService {
 
     return {
       sharedContentEncryptionKey,
-      scekWrappedPublicKey: scekWrappedPublicKey.encryptedString,
-      userKeyWrappedSharedContentEncryptionKey:
-        userKeyWrappedSharedContentEncryptionKey.encryptedString,
-      userKeyWrappedPrivateKey: userKeyWrappedPrivateKey.encryptedString,
+      scekWrappedPublicKey: scekWrappedPublicKey,
+      userKeyWrappedSharedContentEncryptionKey: userKeyWrappedSharedContentEncryptionKey,
+      userKeyWrappedPrivateKey: userKeyWrappedPrivateKey,
     };
+  }
+
+  // TODO call this method when getting a receive from the API to return a ReceiveView.
+  private async decryptReceive(receive: Receive, userId: UserId): Promise<ReceiveView> {
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    if (!userKey) {
+      throw new Error("User key not found for user: " + userId);
+    }
+
+    const sharedContentEncryptionKey = await this.encryptService.unwrapSymmetricKey(
+      receive.userKeyWrappedSharedContentEncryptionKey,
+      userKey,
+    );
+
+    const view: ReceiveView = {
+      id: receive.id,
+      secret: receive.secret,
+      expirationDate: receive.expirationDate,
+      name: await this.encryptService.decryptString(receive.name, sharedContentEncryptionKey),
+      publicKey: await this.encryptService.unwrapEncapsulationKey(
+        receive.scekWrappedPublicKey,
+        sharedContentEncryptionKey,
+      ),
+      sharedContentEncryptionKey,
+    };
+
+    if (receive.fileData) {
+      const privateKey = await this.encryptService.unwrapDecapsulationKey(
+        receive.userKeyWrappedPrivateKey,
+        userKey,
+      );
+      view.fileData = await this.decryptReceiveFiles(receive.fileData, privateKey);
+    }
+
+    return view;
+  }
+
+  private async decryptReceiveFiles(
+    receiveFiles: ReceiveFile[],
+    privateKey: Uint8Array,
+  ): Promise<ReceiveFileView[]> {
+    return await Promise.all(
+      receiveFiles.map(async (file) => {
+        const fileContentEncryptionKey = await this.encryptService.decapsulateKeyUnsigned(
+          file.encapsulatedFileContentEncryptionKey,
+          privateKey,
+        );
+        return {
+          id: file.id,
+          size: file.size,
+          fileName: await this.encryptService.decryptString(
+            file.fileName,
+            fileContentEncryptionKey,
+          ),
+          fileContentEncryptionKey,
+        };
+      }),
+    );
   }
 }
