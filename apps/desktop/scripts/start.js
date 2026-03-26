@@ -4,13 +4,19 @@ const { exec } = require("node:child_process");
 const concurrently = require("concurrently");
 const rimraf = require("rimraf");
 
+const BUILD_MAGNIFY = "nx run desktop:build-magnify";
+const BUILD_MAGNIFY_PRELOAD = "nx run desktop:build-magnify-preload";
+const BUILD_MAGNIFY_DEV_CONFIG_FLAG = "--configuration=development";
+
 const args = process.argv.splice(2);
 
 rimraf.sync("build");
 
 function buildMagnify() {
+  const command = [BUILD_MAGNIFY, BUILD_MAGNIFY_DEV_CONFIG_FLAG];
+
   return new Promise((resolve, reject) => {
-    exec("nx run desktop:build-magnify --configuration=development", (err, output) => {
+    exec(command.join(" "), (err, output) => {
       if (err) {
         // eslint-disable-next-line no-console
         console.error("Could not build Magnify: ", err);
@@ -26,8 +32,10 @@ function buildMagnify() {
 }
 
 function buildMagnifyPreload() {
+  const command = [BUILD_MAGNIFY_PRELOAD, BUILD_MAGNIFY_DEV_CONFIG_FLAG];
+
   return new Promise((resolve, reject) => {
-    exec("nx run desktop:build-magnify-preload --configuration=development", (err, output) => {
+    exec(command.join(" "), (err, output) => {
       if (err) {
         // eslint-disable-next-line no-console
         console.error("Could not build Magnify preload: ", err);
