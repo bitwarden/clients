@@ -352,7 +352,7 @@ export class VaultPopupItemsService {
                       ...cipher,
                       organization: orgMap[cipher.organizationId as OrganizationId],
                       collections: cipher.collectionIds?.map(
-                        (colId) => collectionMap[colId as CollectionId],
+                        (colId: string) => collectionMap[colId as CollectionId],
                       ),
                     }) as PopupCipherViewLike,
                 );
