@@ -21,6 +21,15 @@ export abstract class VaultSettingsService {
    * for Autofill suggestions.
    */
   abstract clickItemsToAutofillVaultView$: Observable<boolean>;
+  /**
+   * An observable monitoring the state of the visibility of at-risk password
+   * notifications.
+   *
+   * This setting is only applicable for risk insights for premium users. Ciphers
+   * that are marked as at-risk from an organization will always been shown
+   * to users.
+   */
+  abstract showAtRiskPasswordNotifications$: Observable<boolean>;
 
   /**
    * Saves the enable passkeys setting to disk.
@@ -43,4 +52,9 @@ export abstract class VaultSettingsService {
    * Autofill suggestions setting.
    */
   abstract setClickItemsToAutofillVaultView(value: boolean): Promise<void>;
+  /**
+   * Saves the visibility state of at-risk password notifications to disk.
+   * @param value The new value for the visibility of at-risk password notifications.
+   */
+  abstract setShowAtRiskPasswordNotifications(value: boolean): Promise<void>;
 }
