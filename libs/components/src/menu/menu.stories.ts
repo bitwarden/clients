@@ -3,14 +3,14 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { ButtonModule } from "../button/button.module";
+import { BerryComponent } from "../berry";
+import { ButtonModule } from "../button";
 import { IconModule } from "../icon";
 import { I18nMockService } from "../utils";
 
+import { FilterMenuHeaderComponent } from "./filter-menu-header.component";
 import { MenuTriggerForDirective } from "./menu-trigger-for.directive";
 import { MenuModule } from "./menu.module";
-import { FilterMenuHeaderComponent } from "./filter-menu-header.component";
-import { BerryComponent } from "../berry";
 
 export default {
   title: "Component Library/Menu",

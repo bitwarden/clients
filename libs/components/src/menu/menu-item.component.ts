@@ -1,6 +1,7 @@
 import { FocusableOption } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { Component, ElementRef, HostBinding, Input, input, computed, signal } from "@angular/core";
+
 import { IconComponent } from "../icon";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
