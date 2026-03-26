@@ -26,6 +26,7 @@ export class AccessReportApi extends BaseResponse {
   contentEncryptionKey: string = "";
   reportFile?: string;
   reportFileDownloadUrl?: string;
+  fileSize?: number;
 
   constructor(data: any = null) {
     super(data);
@@ -43,6 +44,7 @@ export class AccessReportApi extends BaseResponse {
     this.contentEncryptionKey = this.getResponseProperty("contentEncryptionKey");
     this.reportFile = this.getResponseProperty("reportFile") ?? undefined;
     this.reportFileDownloadUrl = this.getResponseProperty("reportFileDownloadUrl") ?? undefined;
+    this.fileSize = this.getResponseProperty("fileSize") ?? undefined;
 
     // Use when individual values are encrypted
     // const summary = this.getResponseProperty("summaryData");
