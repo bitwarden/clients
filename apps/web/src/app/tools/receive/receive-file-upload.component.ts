@@ -1,48 +1,55 @@
 import { CommonModule } from "@angular/common";
-import { Component, ChangeDetectionStrategy, OnInit, signal } from "@angular/core";
+import {
+  Component,
+  ChangeDetectionStrategy,
+  OnInit,
+  ElementRef,
+  inject,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
   ButtonModule,
   FormFieldModule,
   SectionComponent,
-  TypographyModule,
+  ToastService,
 } from "@bitwarden/components";
 
 @Component({
   selector: "app-receive-upload",
   templateUrl: "receive-file-upload.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    ButtonModule,
-    CommonModule,
-    FormFieldModule,
-    JslibModule,
-    SectionComponent,
-    TypographyModule,
-  ],
+  imports: [ButtonModule, CommonModule, FormFieldModule, JslibModule, SectionComponent],
 })
 export class ReceiveFileUploadComponent implements OnInit {
-  readonly files: Array<File> = [];
   readonly fileName = signal<string>("");
-  readonly receiveId = signal<string>("");
-  readonly secretB64 = signal<string>("");
-  readonly sharedContentEncryptionKeyB64 = signal<string>("");
-  readonly showUploadFilesButton = signal<boolean>(false);
+  readonly showUploadFileButton = signal<boolean>(false);
+  private readonly receiveId: string;
+  private readonly secretB64: string;
+  private readonly sharedContentEncryptionKeyB64: string;
+  private readonly file = signal<File | null>(null);
+  private readonly fileSelectorRef = viewChild<ElementRef<HTMLInputElement>>("fileSelector");
+  private readonly toastService = inject(ToastService);
+  private readonly i18nService = inject(I18nService);
+  private readonly logService = inject(LogService);
 
   constructor(route: ActivatedRoute) {
     const params = route.snapshot.paramMap;
-    this.receiveId.set(params.get("receiveId") || "");
-    this.secretB64.set(params.get("secretB64") || "");
-    this.sharedContentEncryptionKeyB64.set(params.get("sharedContentEncryptionKeyB64") || "");
+    this.receiveId = params.get("receiveId") ?? "";
+    this.secretB64 = params.get("secretB64") ?? "";
+    this.sharedContentEncryptionKeyB64 = params.get("sharedContentEncryptionKeyB64") ?? "";
   }
 
   ngOnInit() {
     void this.loadContent();
   }
 
-  loadContent() {
+  private loadContent() {
     // 1. Call api server with receive id and secret
     // 2. Update content on page (e.g. receive name + email of owner)
   }
@@ -52,25 +59,55 @@ export class ReceiveFileUploadComponent implements OnInit {
     if (!file) {
       return;
     }
-    this.files.push(file);
-    this.fileName.set(file.name);
-    this.showUploadFilesButton.set(true);
-  }
-
-  removeFiles() {
-    this.files.length = 0;
-    this.fileName.set("");
-    this.showUploadFilesButton.set(false);
-  }
-
-  uploadFiles() {
-    if (this.files.length == 0) {
+    if (!this.isFileSizeValid(file)) {
+      this.removeFile();
       return;
     }
-    this.files.forEach((file, idx) => {
+    this.file.set(file);
+    this.fileName.set(file.name);
+    this.showUploadFileButton.set(true);
+  }
+
+  private isFileSizeValid(file: File) {
+    const MAX_SIZE_BYTES = 500 * 1024 * 1024; // 500 MB
+    if (file.size > MAX_SIZE_BYTES) {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("maxFileSize"),
+      });
+      return false;
+    }
+    return true;
+  }
+
+  removeFile() {
+    this.file.set(null);
+    this.fileName.set("");
+    this.showUploadFileButton.set(false);
+    const fileSelectorElem = this.fileSelectorRef()?.nativeElement;
+    if (fileSelectorElem) {
+      fileSelectorElem.value = "";
+    }
+  }
+
+  async uploadFile() {
+    const file = this.file();
+    if (!file) {
+      return;
+    }
+    try {
+      // const arrayBuff = await file.arrayBuffer();
       // 1. Encrypt file
       // 2. Call api server with enough info to obtain upload URL
       // 3. Upload file
-    });
+    } catch (e) {
+      this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("fileReadError"),
+      });
+    }
   }
 }
