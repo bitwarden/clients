@@ -4,7 +4,7 @@ import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { Guid } from "@bitwarden/common/types/guid";
 import { newGuid } from "@bitwarden/guid";
 
-import { buildReceiveUrl, parseReceiveUrl } from "./receive-url-data";
+import { buildReceiveUrl } from "./receive-url-data";
 import { ReceiveView } from "./receive.view";
 
 describe("buildReceiveUrl", () => {
@@ -48,32 +48,5 @@ describe("buildReceiveUrl", () => {
     const url = buildReceiveUrl(mockView, customBaseUrl);
 
     expect(url.startsWith(customBaseUrl + "/")).toBe(true);
-  });
-});
-
-describe("parseReceiveUrl", () => {
-  const mockId = newGuid() as Guid;
-  const mockSecret = "my-secret";
-  const mockScek = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray);
-  const baseUrl = "https://vault.bitwarden.com/#/receive";
-
-  const mockView: ReceiveView = {
-    id: mockId,
-    secret: mockSecret,
-    expirationDate: new Date(),
-    name: "Test Receive",
-    publicKey: new Uint8Array(32),
-    sharedContentEncryptionKey: mockScek,
-  };
-
-  it("parses the properties from the URL", () => {
-    const url = buildReceiveUrl(mockView, baseUrl);
-    const result = parseReceiveUrl(url);
-
-    expect(result.receiveId).toBe(mockId);
-    expect(result.secretB64).toBe(Utils.fromUtf8ToUrlB64(mockSecret));
-    expect(result.sharedContentEncryptionKeyB64).toBe(
-      Utils.fromArrayToUrlB64(mockScek.toEncoded()),
-    );
   });
 });

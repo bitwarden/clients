@@ -23,14 +23,3 @@ export function buildReceiveUrl(view: ReceiveView, baseUrl: string): string {
   const scekB64 = Utils.fromArrayToUrlB64(view.sharedContentEncryptionKey.toEncoded());
   return `${baseUrl}/${view.id}/${secretB64}/${scekB64}`;
 }
-
-export function parseReceiveUrl(url: string): ReceiveUrlData {
-  const parsed = new URL(url);
-  // Hash format: "#/receive/{id}/{secretB64}/{scekB64}"
-  const parts = parsed.hash.slice(1).split("/");
-  const receiveId = parts[parts.length - 3] as Guid;
-  const secretB64 = parts[parts.length - 2];
-  const sharedContentEncryptionKeyB64 = parts[parts.length - 1];
-
-  return { receiveId, secretB64, sharedContentEncryptionKeyB64 };
-}
