@@ -6,6 +6,7 @@ import {
   AUTOFILL_CARD_ID,
   AUTOFILL_ID,
   AUTOFILL_IDENTITY_ID,
+  AUTOFILL_TRIAGE_ID,
   COPY_IDENTIFIER_ID,
   COPY_PASSWORD_ID,
   COPY_USERNAME_ID,
@@ -20,6 +21,8 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -93,6 +96,18 @@ export class MainContextMenuHandler {
       title: this.i18nService.t("copyElementIdentifier"),
       requiresUnblockedUri: true,
     },
+    {
+      id: SEPARATOR_ID + 3,
+      type: "separator",
+      parentId: ROOT_ID,
+      requiresFeatureFlagKey: FeatureFlag.EnableAutofillTriage,
+    },
+    {
+      id: AUTOFILL_TRIAGE_ID,
+      parentId: ROOT_ID,
+      title: this.i18nService.t("triageAutofill"),
+      requiresFeatureFlagKey: FeatureFlag.EnableAutofillTriage,
+    },
   ];
   private noCardsContextMenuItems: chrome.contextMenus.CreateProperties[] = [
     {
@@ -157,6 +172,7 @@ export class MainContextMenuHandler {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private accountService: AccountService,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private configService: ConfigService,
   ) {}
 
   /**
@@ -192,6 +208,7 @@ export class MainContextMenuHandler {
           requiresPremiumAccess,
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           requiresUnblockedUri, // destructuring this out of being passed to `create`
+          requiresFeatureFlagKey,
           ...otherOptions
         } = menuItem;
 
@@ -199,6 +216,12 @@ export class MainContextMenuHandler {
           continue;
         }
         if (menuItem.id?.startsWith(AUTOFILL_CARD_ID) && isCardRestricted) {
+          continue;
+        }
+        if (
+          requiresFeatureFlagKey &&
+          !(await this.configService.getFeatureFlag(requiresFeatureFlagKey))
+        ) {
           continue;
         }
 

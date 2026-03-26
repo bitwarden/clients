@@ -8,7 +8,9 @@ import { DomElementVisibilityService } from "../services/abstractions/dom-elemen
 import { DomQueryService } from "../services/abstractions/dom-query.service";
 import { CollectAutofillContentService } from "../services/collect-autofill-content.service";
 import InsertAutofillContentService from "../services/insert-autofill-content.service";
+import { AutofillTriageResponse } from "../types/autofill-triage";
 import { sendExtensionMessage } from "../utils";
+import { EventSecurity } from "../utils/event-security";
 
 import {
   AutofillExtensionMessage,
@@ -21,9 +23,11 @@ class AutofillInit implements AutofillInitInterface {
   private readonly collectAutofillContentService: CollectAutofillContentService;
   private readonly insertAutofillContentService: InsertAutofillContentService;
   private collectPageDetailsOnLoadTimeout: number | NodeJS.Timeout | undefined;
+  private lastContextMenuClickedElement: HTMLElement | null = null;
   private readonly extensionMessageHandlers: AutofillExtensionMessageHandlers = {
     collectPageDetails: ({ message }) => this.collectPageDetails(message),
     collectPageDetailsImmediately: ({ message }) => this.collectPageDetails(message, true),
+    collectAutofillTriage: () => this.collectPageDetailsForTriage(),
     fillForm: ({ message }) => this.fillForm(message),
   };
 
@@ -118,6 +122,26 @@ class AutofillInit implements AutofillInitInterface {
   }
 
   /**
+   * Collects page details and returns them directly in the response for autofill triage.
+   */
+  private async collectPageDetailsForTriage(): Promise<AutofillTriageResponse> {
+    const pageDetails = await this.collectAutofillContentService.getPageDetails();
+
+    let targetFieldRef: string | undefined;
+    const el = this.lastContextMenuClickedElement;
+    if (el) {
+      const htmlId = el.id;
+      const htmlName = (el as HTMLInputElement)?.name;
+      const match = pageDetails.fields.find(
+        (f) => (htmlId && f.htmlID === htmlId) || (htmlName && f.htmlName === htmlName),
+      );
+      targetFieldRef = match?.htmlID ?? match?.htmlName ?? undefined;
+    }
+
+    return { pageDetails, targetFieldRef };
+  }
+
+  /**
    * Fills the form with the given fill script.
    *
    * @param {AutofillExtensionMessage} message
@@ -165,7 +189,18 @@ class AutofillInit implements AutofillInitInterface {
    */
   private setupExtensionMessageListeners() {
     chrome.runtime.onMessage.addListener(this.handleExtensionMessage);
+    globalThis.document.addEventListener("contextmenu", this.handleContextMenuClick);
   }
+
+  /**
+   * Saves a local copy of the last element that was clicked to create the context menu.
+   * @param event - The mouse click event.
+   */
+  private readonly handleContextMenuClick = (event: MouseEvent) => {
+    if (EventSecurity.isEventTrusted(event)) {
+      this.lastContextMenuClickedElement = event.target as HTMLElement;
+    }
+  };
 
   /**
    * Handles the extension messages sent to the content script.
@@ -222,6 +257,7 @@ class AutofillInit implements AutofillInitInterface {
   destroy() {
     this.clearCollectPageDetailsOnLoadTimeout();
     globalThis.removeEventListener(EVENTS.LOAD, this.sendCollectDetailsMessage);
+    globalThis.document.removeEventListener("contextmenu", this.handleContextMenuClick);
     chrome.runtime.onMessage.removeListener(this.handleExtensionMessage);
     this.collectAutofillContentService.destroy();
     this.autofillOverlayContentService?.destroy();

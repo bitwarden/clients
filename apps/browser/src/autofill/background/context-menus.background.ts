@@ -26,6 +26,7 @@ export default class ContextMenusBackground {
       (
         msg: { command: string; data: LockedVaultPendingNotificationsData },
         sender: chrome.runtime.MessageSender,
+        sendResponse: (response: unknown) => void,
       ) => {
         if (msg.command === "unlockCompleted" && msg.data.target === "contextmenus.background") {
           const onClickData = msg.data.commandToRetry.message.contextMenuOnClickData;
@@ -38,6 +39,12 @@ export default class ContextMenusBackground {
               }
             });
           }
+        }
+
+        // the autofill triage popout component calls this to fetch the triage result
+        if (msg.command === "getAutofillTriageResult") {
+          sendResponse(this.contextMenuClickedHandler.latestTriageResult ?? null);
+          return true;
         }
       },
     );

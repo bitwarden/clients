@@ -310,6 +310,7 @@ import {
 } from "../autofill/fido2/services/browser-fido2-user-interface.service";
 import { AutofillService as AutofillServiceAbstraction } from "../autofill/services/abstractions/autofill.service";
 import { AutofillBadgeUpdaterService } from "../autofill/services/autofill-badge-updater.service";
+import { AutofillTriageService } from "../autofill/services/autofill-triage.service";
 import AutofillService from "../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { SafariApp } from "../browser/safariApp";
@@ -485,6 +486,7 @@ export default class MainBackground {
   cipherAuthorizationService: CipherAuthorizationService;
   endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
+  autofillTriageService: AutofillTriageService;
   taskService: TaskService;
   cipherEncryptionService: CipherEncryptionService;
   private restrictedItemTypesService: RestrictedItemTypesService;
@@ -1434,6 +1436,11 @@ export default class MainBackground {
       this.accountService,
     );
 
+    this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+    this.autofillTriageService = new AutofillTriageService(
+      this.inlineMenuFieldQualificationService,
+    );
+
     const contextMenuClickedHandler = new ContextMenuClickedHandler(
       (options) => this.platformUtilsService.copyToClipboard(options.text),
       async (_tab) => {
@@ -1464,6 +1471,7 @@ export default class MainBackground {
       this.eventCollectionService,
       this.userVerificationService,
       this.accountService,
+      this.autofillTriageService,
     );
 
     this.contextMenusBackground = new ContextMenusBackground(contextMenuClickedHandler);
@@ -1495,6 +1503,7 @@ export default class MainBackground {
       this.billingAccountProfileStateService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.configService,
     );
 
     this.cipherContextMenuHandler = new CipherContextMenuHandler(
@@ -1521,8 +1530,6 @@ export default class MainBackground {
       this.organizationService,
       this.accountService,
     );
-
-    this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
 
     this.phishingDataService = new PhishingDataService(
       this.apiService,

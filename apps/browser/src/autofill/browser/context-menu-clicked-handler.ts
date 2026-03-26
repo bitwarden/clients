@@ -9,6 +9,7 @@ import {
   AUTOFILL_CARD_ID,
   AUTOFILL_ID,
   AUTOFILL_IDENTITY_ID,
+  AUTOFILL_TRIAGE_ID,
   COPY_IDENTIFIER_ID,
   COPY_PASSWORD_ID,
   COPY_USERNAME_ID,
@@ -31,6 +32,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 // eslint-disable-next-line no-restricted-imports
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -38,7 +40,9 @@ import {
   openVaultItemPasswordRepromptPopout,
 } from "../../vault/popup/utils/vault-popout-window";
 import { LockedVaultPendingNotificationsData } from "../background/abstractions/notification.background";
+import { AutofillTriageService } from "../services/abstractions/autofill-triage.service";
 import { AutofillCipherTypeId } from "../types";
+import { AutofillTriagePageResult, AutofillTriageResponse } from "../types/autofill-triage";
 
 export type CopyToClipboardOptions = { text: string; tab: chrome.tabs.Tab };
 export type CopyToClipboardAction = (options: CopyToClipboardOptions) => void;
@@ -47,6 +51,8 @@ export type AutofillAction = (tab: chrome.tabs.Tab, cipher: CipherView) => Promi
 export type GeneratePasswordToClipboardAction = (tab: chrome.tabs.Tab) => Promise<void>;
 
 export class ContextMenuClickedHandler {
+  latestTriageResult: AutofillTriagePageResult | undefined;
+
   constructor(
     private copyToClipboard: CopyToClipboardAction,
     private generatePasswordToClipboard: GeneratePasswordToClipboardAction,
@@ -57,6 +63,7 @@ export class ContextMenuClickedHandler {
     private eventCollectionService: EventCollectionService,
     private userVerificationService: UserVerificationService,
     private accountService: AccountService,
+    private triageService: AutofillTriageService,
   ) {}
 
   async run(info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) {
@@ -74,6 +81,9 @@ export class ContextMenuClickedHandler {
         }
 
         this.copyToClipboard({ text: await this.getIdentifier(tab, info), tab: tab });
+        break;
+      case AUTOFILL_TRIAGE_ID:
+        await this.autofillTriageAction(info, tab);
         break;
       default:
         await this.cipherAction(info, tab);
@@ -241,6 +251,54 @@ export class ContextMenuClickedHandler {
 
         break;
     }
+  }
+
+  private async autofillTriageAction(info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) {
+    if (!tab.id) {
+      return;
+    }
+
+    const response = await this.collectPageDetailsForTriage(tab, info);
+    if (!response) {
+      return;
+    }
+
+    const fields = response.pageDetails.fields.map((field) =>
+      this.triageService.triageField(field, response.pageDetails),
+    );
+
+    this.latestTriageResult = {
+      tabId: tab.id,
+      pageUrl: tab.url ?? "",
+      analyzedAt: new Date().toISOString(),
+      targetElementRef: response.targetFieldRef,
+      fields,
+    };
+
+    await BrowserPopupUtils.openPopout("popup/index.html#/autofill-triage", {
+      singleActionKey: AUTOFILL_TRIAGE_ID,
+      senderWindowId: tab.windowId,
+    });
+  }
+
+  private collectPageDetailsForTriage(
+    tab: chrome.tabs.Tab,
+    info: chrome.contextMenus.OnClickData,
+  ): Promise<AutofillTriageResponse | null> {
+    return new Promise<AutofillTriageResponse | null>((resolve) => {
+      BrowserApi.sendTabsMessage<AutofillTriageResponse>(
+        tab.id!,
+        { command: "collectAutofillTriage" },
+        { frameId: info.frameId },
+        (response) => {
+          if (chrome.runtime.lastError) {
+            resolve(null);
+            return;
+          }
+          resolve(response ?? null);
+        },
+      );
+    });
   }
 
   private async isPasswordRepromptRequired(cipher: CipherView): Promise<boolean> {

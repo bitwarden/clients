@@ -7,6 +7,7 @@ import {
   AUTOFILL_CARD_ID,
   AUTOFILL_ID,
   AUTOFILL_IDENTITY_ID,
+  AUTOFILL_TRIAGE_ID,
   COPY_IDENTIFIER_ID,
   COPY_PASSWORD_ID,
   COPY_USERNAME_ID,
@@ -16,6 +17,8 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
@@ -74,6 +77,7 @@ describe("context-menu", () => {
   let logService: MockProxy<LogService>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let accountService: MockProxy<AccountService>;
+  let configService: MockProxy<ConfigService>;
   let restricted$: BehaviorSubject<RestrictedCipherType[]>;
   let restrictedItemTypesService: RestrictedItemTypesService;
 
@@ -92,6 +96,7 @@ describe("context-menu", () => {
     logService = mock();
     billingAccountProfileStateService = mock();
     accountService = mock();
+    configService = mock();
     restricted$ = new BehaviorSubject<RestrictedCipherType[]>([]);
     restrictedItemTypesService = {
       restricted$,
@@ -108,6 +113,9 @@ describe("context-menu", () => {
       return props.id;
     });
 
+    // Feature flag disabled by default so existing menu item counts are unchanged
+    configService.getFeatureFlag.mockResolvedValue(false);
+
     i18nService.t.mockImplementation((key) => key);
     sut = new MainContextMenuHandler(
       tokenService,
@@ -117,6 +125,7 @@ describe("context-menu", () => {
       billingAccountProfileStateService,
       accountService,
       restrictedItemTypesService,
+      configService,
     );
 
     jest.spyOn(MainContextMenuHandler, "remove");
@@ -177,6 +186,35 @@ describe("context-menu", () => {
       const createdMenu = await sut.init();
       expect(createdMenu).toBeTruthy();
       expect(createSpy).toHaveBeenCalledTimes(9);
+    });
+
+    it("adds triage separator and menu item when EnableAutofillTriage flag is enabled", async () => {
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+      configService.getFeatureFlag.mockImplementation((flag) =>
+        Promise.resolve(flag === FeatureFlag.EnableAutofillTriage ? true : false),
+      );
+
+      const createdMenu = await sut.init();
+      expect(createdMenu).toBeTruthy();
+      // 10 base items + 1 separator + 1 triage item = 12
+      expect(createSpy).toHaveBeenCalledTimes(12);
+      expect(createSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ id: AUTOFILL_TRIAGE_ID }),
+        expect.any(Function),
+      );
+    });
+
+    it("does not add triage item when EnableAutofillTriage flag is disabled", async () => {
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+      configService.getFeatureFlag.mockResolvedValue(false);
+
+      const createdMenu = await sut.init();
+      expect(createdMenu).toBeTruthy();
+      expect(createSpy).toHaveBeenCalledTimes(10);
+      expect(createSpy).not.toHaveBeenCalledWith(
+        expect.objectContaining({ id: AUTOFILL_TRIAGE_ID }),
+        expect.any(Function),
+      );
     });
   });
 
