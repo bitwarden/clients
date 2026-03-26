@@ -57,6 +57,32 @@ export class BitFormFieldComponent implements AfterContentChecked {
   protected readonly prefixHasChildren = computed(() => this.prefixChildren().length > 0);
   protected readonly suffixHasChildren = computed(() => this.suffixChildren().length > 0);
 
+  protected get fieldContainerClasses(): string {
+    return [
+      "tw-flex",
+      "tw-flex-col",
+      "has-[input:disabled]:!tw-text-fg-inactive",
+      "[&_bit-hint]:tw-m-0",
+      "[&_bit-error]:tw-m-0",
+      ...(this.readOnly ? [] : ["tw-gap-2"]),
+    ].join(" ");
+  }
+
+  protected get contentContainerClasses(): string {
+    return [
+      "tw-size-full",
+      "tw-min-w-0",
+      "tw-relative",
+      "[&>*]:tw-p-0",
+      "[&>*::selection]:tw-bg-bg-brand-medium",
+      "[&>*::selection]:tw-text-fg-heading",
+      "has-[bit-select]:tw-p-0",
+      "has-[bit-multi-select]:tw-p-0",
+      "has-[textarea]:tw-pe-0",
+      ...(this.readOnly ? [] : ["tw-py-[calc(theme(spacing.2)_-_1px)]", "tw-px-3"]),
+    ].join(" ");
+  }
+
   protected get inputContainerClasses(): string {
     return [
       "tw-group/form-field",
@@ -80,6 +106,14 @@ export class BitFormFieldComponent implements AfterContentChecked {
             "!tw-border-border-danger",
             "has-[:focus-visible]:!tw-border-border-brand",
             "has-[:focus-visible]:!tw-ring-border-brand",
+          ]
+        : []),
+      ...(this.readOnly
+        ? [
+            "tw-bg-transparent",
+            "tw-border-transparent",
+            "has-[:focus-visible]:!tw-border-border-focus",
+            "has-[:focus-visible]:!tw-ring-border-focus",
           ]
         : []),
     ].join(" ");
