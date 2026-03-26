@@ -27,6 +27,7 @@ import {
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { FormContent, Pathname, TargetingRulesByDomain } from "../types";
+import { punycodeToUnicode } from "../utils/punycode";
 
 const SHOW_FAVICONS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "showFavicons", {
   deserializer: (value: boolean) => value ?? true,
@@ -314,6 +315,13 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     }
 
     let hostRules = rules[parsed.host];
+
+    // If the direct punycode lookup missed, try the unicode form of the host.
+    // This handles rule providers that use unicode host keys (e.g. "münchen.de"
+    // instead of "xn--mnchen-3ya.de").
+    if (hostRules === undefined && parsed.host.includes("xn--")) {
+      hostRules = rules[punycodeToUnicode(parsed.host)];
+    }
 
     // www subdomain equivalence: if no entry for www.example.com, try example.com
     if (hostRules === undefined && parsed.host.startsWith("www.")) {
