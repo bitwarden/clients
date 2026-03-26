@@ -50,7 +50,11 @@
       >
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
       </div>
-      <div #suffixContainer [hidden]="!suffixHasChildren()" class="tw-flex tw-items-center">
+      <div
+        #suffixContainer
+        [hidden]="!suffixHasChildren()"
+        class="tw-flex tw-items-center group-has-[textarea]/form-field:tw-pt-1"
+      >
         <ng-container *ngTemplateOutlet="suffixContent"></ng-container>
       </div>
     </div>
