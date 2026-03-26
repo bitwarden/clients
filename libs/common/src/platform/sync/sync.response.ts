@@ -9,6 +9,8 @@ import { SendResponse } from "../../tools/send/models/response/send.response";
 import { CipherResponse } from "../../vault/models/response/cipher.response";
 import { FolderResponse } from "../../vault/models/response/folder.response";
 
+import { UserPreferencesResponse } from "./preferences/user-preferences.response";
+
 export class SyncResponse extends BaseResponse {
   profile?: ProfileResponse;
   folders: FolderResponse[] = [];
@@ -18,6 +20,7 @@ export class SyncResponse extends BaseResponse {
   policies?: PolicyResponse[] = [];
   sends: SendResponse[] = [];
   userDecryption?: UserDecryptionResponse;
+  userPreferences?: UserPreferencesResponse;
 
   constructor(response: any) {
     super(response);
@@ -60,6 +63,11 @@ export class SyncResponse extends BaseResponse {
     const userDecryption = this.getResponseProperty("UserDecryption");
     if (userDecryption != null && typeof userDecryption === "object") {
       this.userDecryption = new UserDecryptionResponse(userDecryption);
+    }
+
+    const userPreferences = this.getResponseProperty("UserPreferences");
+    if (userPreferences != null) {
+      this.userPreferences = new UserPreferencesResponse(userPreferences);
     }
   }
 }

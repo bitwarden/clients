@@ -213,6 +213,7 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
       case NotificationType.SyncVault:
       case NotificationType.SyncCiphers:
       case NotificationType.SyncSettings:
+      case NotificationType.SyncUserPreferences:
         await this.syncService.fullSync(false);
         break;
       case NotificationType.SyncOrganizations:
