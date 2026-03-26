@@ -2,8 +2,17 @@
   "allApplications": {
     "message": "Toutes les applications"
   },
+  "allMembers": {
+    "message": "Tous les membres"
+  },
+  "allPasswords": {
+    "message": "Tous les mots de passe"
+  },
   "activity": {
     "message": "Activité"
+  },
+  "applicationsAtRisk": {
+    "message": "Applications à risque"
   },
   "appLogoLabel": {
     "message": "Logo Bitwarden"
@@ -43,6 +52,15 @@
   },
   "passwordRisk": {
     "message": "Risque du mot de passe"
+  },
+  "passwords": {
+    "message": "Mots de passe"
+  },
+  "riskOverTime": {
+    "message": "Risque au fil du temps"
+  },
+  "passwordsAtRisk": {
+    "message": "Mots de passe à risque"
   },
   "noEditPermissions": {
     "message": "Vous n'avez pas l'autorisation de modifier cet élément"
@@ -2103,6 +2121,9 @@
   "exportSuccess": {
     "message": "Les données de votre coffre-fort ont été exportées."
   },
+  "exportError": {
+    "message": "Une erreur s'est produite lors de l'exportation des données de votre coffre"
+  },
   "passwordGenerator": {
     "message": "Générateur de mot de passe"
   },
@@ -3047,16 +3068,16 @@
   "breachDesc": {
     "message": "Les comptes ayant fait l'objet d'une brèche de données peuvent exposer vos informations personnelles. Sécurisez les comptes ayant fait l'objet d'une brèche de données en activant le 2FA ou en créant un mot de passe plus robuste."
   },
-  "breachCheckUsernameEmail": {
-    "message": "Vérifiez tous les noms d'utilisateur ou adresses électroniques que vous utilisez."
+  "breachCheckEmail": {
+    "message": "Vérifiez toutes les adresses courriels que vous utilisez."
   },
   "checkBreaches": {
     "message": "Vérifier les fuites"
   },
-  "breachUsernameNotFound": {
-    "message": "$USERNAME$ n'a été trouvé dans aucune fuite de données.",
+  "breachEmailNotFound": {
+    "message": "$EMAIL$ n'a pas été trouvée dans toutes les fuites de données connues.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3087,10 @@
     "message": "Bonne nouvelle",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "$USERNAME$ a été trouvé dans $COUNT$ fuites de données différentes en ligne.",
+  "breachEmailFound": {
+    "message": "$EMAIL$ a été trouvée dans $COUNT$ différentes fuites de données en ligne.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -8310,6 +8331,9 @@
   "members": {
     "message": "Membres"
   },
+  "membersAtRisk": {
+    "message": "Membres à risque"
+  },
   "reporting": {
     "message": "Compte Rendu"
   },
@@ -8580,6 +8604,14 @@
   "newProject": {
     "message": "Nouveau Projet",
     "description": "Title for creating a new project."
+  },
+  "clickToRenameProject": {
+    "message": "Cliquez pour renommer ce projet",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "Impossible de déchiffrer le nom du projet - cliquez sur le projet pour le renommer",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
     "message": "La suppression de secrets peut affecter les intégrations existantes.",
@@ -11046,6 +11078,9 @@
   "clientDetails": {
     "message": "Détails Du Client"
   },
+  "downloadChart": {
+    "message": "Télécharger le graphique"
+  },
   "downloadCSV": {
     "message": "Télécharger le fichier CSV"
   },
@@ -11498,6 +11533,18 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "L'utilisateur $ID$ s'est révoqué lui-même de l'organisation.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "userSelfRevokedOrganizationOwnership": {
+    "message": "Révoqué pour avoir refusé le transfert de la propriété à l'organisation."
+  },
   "suspendedOrganizationTitle": {
     "message": "$ORGANIZATION$ est suspendue",
     "placeholders": {
@@ -11881,6 +11928,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Clés de chiffrement non fiables"
+  },
+  "atRiskPassword": {
+    "message": "Mot de passe à risque"
   },
   "changeAtRiskPassword": {
     "message": "Changer le mot de passe à risque"
@@ -12551,12 +12601,6 @@
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Un domaine doit être réclamé avant d'activer cette politique de sécurité."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configurez une méthode de déverrouillage pour changer le délai d'expiration de votre coffre."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Les exigences de la politique de sécurité d'Entreprise ont été appliquées à vos options de délai d'expiration"
-  },
   "vaultTimeoutTooLarge": {
     "message": "Le délai d'expiration de votre coffre dépasse les restrictions définies par votre organisation."
   },
@@ -12755,8 +12799,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ exige que tous les éléments soient détenus par l’organisation pour des raisons de sécurité et de conformité. Cliquez sur Accepter pour transférer la propriété de vos éléments.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ exige que tous les éléments soient la propriété de l'organisation pour la sécurité et la conformité.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12764,14 +12808,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Cliquez sur accepter pour transférer la propriété de vos éléments."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Ouvrir un article d'aide sur le transfert d'éléments"
+  },
   "acceptTransfer": {
     "message": "Accepter le transfert"
   },
   "declineAndLeave": {
     "message": "Refuser et quitter"
-  },
-  "whyAmISeeingThis": {
-    "message": "Pourquoi est-ce que je vois ça ?"
   },
   "youHaveBitwardenPremium": {
     "message": "Vous avez Bitwarden Premium"
@@ -12922,9 +12969,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Entrez plusieurs courriels en les séparant avec une virgule."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "La vérification de courriel requiert au moins une adresse courriel. Pour retirer tous les courriels, changez le type d'accès ci-dessus."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -13032,6 +13076,70 @@
       "date": {
         "content": "$2",
         "example": "Jan 1, 1970"
+      }
+    }
+  },
+  "sendsTitleNoSearchResults": {
+    "message": "Aucun résultat de recherche retourné"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Effacer les filtres ou essayer un autre terme de recherche"
+  },
+  "pastMonth": {
+    "message": "Dernier mois"
+  },
+  "past3Months": {
+    "message": "Les 3 derniers mois"
+  },
+  "past6Months": {
+    "message": "Les 6 derniers mois"
+  },
+  "pastYear": {
+    "message": "La dernière année"
+  },
+  "allTime": {
+    "message": "Depuis le début"
+  },
+  "timePeriod": {
+    "message": "Période de temps"
+  },
+  "of": {
+    "message": "de"
+  },
+  "coachmarkImportTitle": {
+    "message": "Importez rapidement vos mots de passe"
+  },
+  "coachmarkImportDescription": {
+    "message": "Avez-vous déjà eu un gestionnaire de mots de passe auparavant ? Vous pouvez importer un CSV de connexions existantes et d'autres données dans votre coffre."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Ajouter un élément"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Ajoutez de nouveaux mots de passe, notes et autres informations à votre coffre. Tout est protégé par un chiffrement de bout en bout."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Partagez des éléments avec d'autres personnes en toute sécurité"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "En déplaçant un élément dans une collection, vous pouvez le partager en toute sécurité avec d'autres personnes de votre organisation."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Surveiller la sécurité de votre mot de passe"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Conservez une forte sécurité des éléments de votre coffre-fort en vérifiant les rapports de vulnérabilités."
+  },
+  "coachmarkStepIndicator": {
+    "message": "Étape $CURRENT$ de $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
       }
     }
   }

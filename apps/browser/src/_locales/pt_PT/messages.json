@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Opções de desbloqueio"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configure um método de desbloqueio para alterar a ação de tempo limite do seu cofre."
-  },
   "unlockMethodNeeded": {
     "message": "Definir um método de desbloqueio nas Definições"
   },
   "sessionTimeoutHeader": {
     "message": "Tempo limite da sessão"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Tempo limite do cofre"
   },
   "otherOptions": {
     "message": "Outras opções"
@@ -1855,10 +1849,10 @@
     "message": "Os sites comprometidos ou não confiáveis podem explorar o preenchimento automático ao carregar a página."
   },
   "learnMoreAboutAutofillOnPageLoadLinkText": {
-    "message": "Saber mais sobre os riscos"
+    "message": "Saiba mais sobre os riscos"
   },
   "learnMoreAboutAutofill": {
-    "message": "Saber mais sobre o preenchimento automático"
+    "message": "Saiba mais sobre o preenchimento automático"
   },
   "defaultAutoFillOnPageLoad": {
     "message": "Definição de preenchimento automático predefinido para itens de início de sessão"
@@ -2461,9 +2455,6 @@
   },
   "vaultTimeoutAction": {
     "message": "Ação de tempo limite do cofre"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Ação de tempo limite"
   },
   "lock": {
     "message": "Bloquear",
@@ -3229,9 +3220,6 @@
   },
   "minutes": {
     "message": "Minutos"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Os requisitos da política empresarial foram aplicados às suas opções de tempo limite"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "As políticas da sua organização definiram o tempo limite máximo permitido do cofre de $HOURS$ hora(s) e $MINUTES$ minuto(s).",
@@ -4435,6 +4423,9 @@
   },
   "exportSuccess": {
     "message": "Dados do cofre exportados"
+  },
+  "exportError": {
+    "message": "Ocorreu um erro ao exportar os dados do seu cofre"
   },
   "typePasskey": {
     "message": "Chave de acesso"
@@ -5981,7 +5972,7 @@
     "message": "Segurança online avançada"
   },
   "upgradeToPremium": {
-    "message": "Atualizar para o Premium"
+    "message": "Atualize para o Premium"
   },
   "unlockAdvancedSecurity": {
     "message": "Desbloqueie funcionalidades de segurança avançadas"
@@ -6130,8 +6121,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ exige que todos os itens sejam propriedade da organização por motivos de segurança e conformidade. Clique em Aceitar para transferir a propriedade dos seus itens.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ exige que todos os itens pertençam à organização por motivos de segurança e conformidade.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6130,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Clique em aceitar para transferir a titularidade dos seus itens."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Abrir artigo de ajuda sobre a transferência de itens"
+  },
   "acceptTransfer": {
     "message": "Aceitar transferência"
   },
   "declineAndLeave": {
     "message": "Recusar e sair"
-  },
-  "whyAmISeeingThis": {
-    "message": "Porque é que estou a ver isto?"
   },
   "items": {
     "message": "Itens"
@@ -6178,9 +6172,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Introduza vários e-mails, separados por vírgula."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "A verificação por e-mail requer pelo menos um endereço de e-mail. Para remover todos os e-mails, altere o tipo de acesso acima."
-  },
   "emailPlaceholder": {
     "message": "utilizador@bitwarden.com , utilizador@acme.com"
   },
@@ -6196,5 +6187,8 @@
   },
   "userVerificationFailed": {
     "message": "Falha na verificação do utilizador."
+  },
+  "downloadFailed": {
+    "message": "Falha na transferência."
   }
 }

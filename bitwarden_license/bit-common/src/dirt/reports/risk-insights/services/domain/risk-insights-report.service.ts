@@ -93,6 +93,21 @@ export class RiskInsightsReportService {
       criticalReports.flatMap((x) => x.atRiskMemberDetails),
     );
 
+    const criticalAppNames = new Set(criticalReports.map((r) => r.applicationName));
+    let totalPasswordCount = 0;
+    let totalAtRiskPasswordCount = 0;
+    let totalCriticalPasswordCount = 0;
+    let totalCriticalAtRiskPasswordCount = 0;
+
+    reports.forEach((report) => {
+      totalPasswordCount += report.cipherIds.length;
+      totalAtRiskPasswordCount += report.atRiskCipherIds.length;
+      if (criticalAppNames.has(report.applicationName)) {
+        totalCriticalPasswordCount += report.cipherIds.length;
+        totalCriticalAtRiskPasswordCount += report.atRiskCipherIds.length;
+      }
+    });
+
     return {
       totalMemberCount: totalMemberCount,
       totalAtRiskMemberCount: atRiskUniqueMembers.length,
@@ -104,6 +119,10 @@ export class RiskInsightsReportService {
       totalCriticalAtRiskApplicationCount: criticalReports.filter(
         (app) => app.atRiskPasswordCount > 0,
       ).length,
+      totalPasswordCount,
+      totalAtRiskPasswordCount,
+      totalCriticalPasswordCount,
+      totalCriticalAtRiskPasswordCount,
     };
   }
 

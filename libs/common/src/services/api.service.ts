@@ -64,23 +64,21 @@ import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-ss
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
-import { PreloginResponse } from "../auth/models/response/prelogin.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
 import { BillingHistoryResponse } from "../billing/models/response/billing-history.response";
 import { PaymentResponse } from "../billing/models/response/payment.response";
 import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
+import { EventRequest, EventResponse } from "../dirt/event-logs";
 import { ClientType, DeviceType, HttpStatusCode } from "../enums";
 import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
 import { VaultTimeoutAction } from "../key-management/vault-timeout/enums/vault-timeout-action.enum";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
-import { EventRequest } from "../models/request/event.request";
 import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
-import { PreloginRequest } from "../models/request/prelogin.request";
 import { StorageRequest } from "../models/request/storage.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
@@ -88,7 +86,6 @@ import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-reco
 import { VerifyEmailRequest } from "../models/request/verify-email.request";
 import { DomainsResponse } from "../models/response/domains.response";
 import { ErrorResponse } from "../models/response/error.response";
-import { EventResponse } from "../models/response/event.response";
 import { ListResponse } from "../models/response/list.response";
 import { ProfileResponse } from "../models/response/profile.response";
 import { UserKeyResponse } from "../models/response/user-key.response";
@@ -96,6 +93,7 @@ import { AppIdService } from "../platform/abstractions/app-id.service";
 import { Environment, EnvironmentService } from "../platform/abstractions/environment.service";
 import { LogService } from "../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
+import { buildFetchPipeline, FetchMiddleware } from "../platform/misc/fetch-middleware";
 import { flagEnabled } from "../platform/misc/flags";
 import { Utils } from "../platform/misc/utils";
 import { SyncResponse } from "../platform/sync";
@@ -139,9 +137,10 @@ export class ApiService implements ApiServiceAbstraction {
     "new device verification required";
 
   /**
-   * Middlewares are functions that take a Request and return a Promise that resolves when the middleware is done processing the request. Middlewares are executed in the order they are added, and can modify the request before it is sent. This is used for things like adding cookies to requests for SSO authentication.
+   * Middlewares wrap the fetch call in a chain. Each middleware receives the request and a `next`
+   * function, and can modify requests, inspect/modify responses, retry, or short-circuit.
    */
-  private middlewares: Array<(request: Request) => Promise<void>> = [];
+  private middlewares: FetchMiddleware[] = [];
 
   constructor(
     private tokenService: TokenService,
@@ -290,18 +289,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new ProfileResponse(r);
   }
 
-  async postPrelogin(request: PreloginRequest): Promise<PreloginResponse> {
-    const env = await firstValueFrom(this.environmentService.environment$);
-    const r = await this.send(
-      "POST",
-      "/accounts/prelogin",
-      request,
-      false,
-      true,
-      env.getIdentityUrl(),
-    );
-    return new PreloginResponse(r);
-  }
   postSetKeyConnectorKey(request: SetKeyConnectorKeyRequest): Promise<any> {
     return this.send("POST", "/accounts/set-key-connector-key", request, true, false);
   }
@@ -1324,7 +1311,7 @@ export class ApiService implements ApiServiceAbstraction {
     return accessToken;
   }
 
-  addMiddleware(middleware: (request: Request) => Promise<void>): void {
+  addMiddleware(middleware: FetchMiddleware): void {
     this.middlewares.push(middleware);
   }
 
@@ -1348,13 +1335,8 @@ export class ApiService implements ApiServiceAbstraction {
       request.headers.set("Bitwarden-Package-Type", packageType);
     }
 
-    await Promise.all(
-      this.middlewares.map((middleware) => {
-        return middleware(request);
-      }),
-    );
-
-    return this.nativeFetch(request);
+    const pipeline = buildFetchPipeline(this.middlewares, (req) => this.nativeFetch(req));
+    return pipeline(request);
   }
 
   nativeFetch(request: Request): Promise<Response> {
@@ -1666,12 +1648,10 @@ export class ApiService implements ApiServiceAbstraction {
   private buildSafeApiRequestUrl(apiUrl: string, path: string): string {
     const pathParts = path.split("?");
 
-    // Check for path traversal patterns from any URL.
+    // Supplementary heuristic: detect common traversal indicators before normalization.
     const fullUrlPath = apiUrl + pathParts[0] + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
-
-    const isInvalidUrl = Utils.invalidUrlPatterns(fullUrlPath);
-    if (isInvalidUrl) {
-      throw new Error("The request URL contains dangerous patterns.");
+    if (Utils.containsTraversalIndicators(fullUrlPath)) {
+      throw new Error("The request URL contains unexpected patterns.");
     }
 
     const requestUrl =

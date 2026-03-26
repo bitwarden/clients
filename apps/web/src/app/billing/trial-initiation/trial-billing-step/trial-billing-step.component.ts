@@ -1,11 +1,14 @@
-import { Component, input, OnDestroy, OnInit, output, ViewChild } from "@angular/core";
+import { Component, computed, input, OnDestroy, OnInit, output, ViewChild } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup } from "@angular/forms";
 import {
+  catchError,
   combineLatest,
   debounceTime,
   filter,
   map,
   Observable,
+  of,
   shareReplay,
   startWith,
   switchMap,
@@ -13,13 +16,17 @@ import {
   firstValueFrom,
 } from "rxjs";
 
+import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-type.enum";
+import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
+import { Discount, DiscountBadgeComponent } from "@bitwarden/pricing";
 import {
   BillingAddressControls,
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
 } from "@bitwarden/web-vault/app/billing/payment/components";
+import { SubscriptionDiscountService } from "@bitwarden/web-vault/app/billing/services/subscription-discount.service";
 import {
   Cadence,
   Cadences,
@@ -39,7 +46,12 @@ export interface OrganizationCreatedEvent {
 @Component({
   selector: "app-trial-billing-step",
   templateUrl: "./trial-billing-step.component.html",
-  imports: [EnterPaymentMethodComponent, EnterBillingAddressComponent, SharedModule],
+  imports: [
+    EnterPaymentMethodComponent,
+    EnterBillingAddressComponent,
+    SharedModule,
+    DiscountBadgeComponent,
+  ],
 })
 export class TrialBillingStepComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -71,10 +83,40 @@ export class TrialBillingStepComponent implements OnInit, OnDestroy {
     billingAddress: EnterBillingAddressComponent.getFormGroup(),
   });
 
+  protected readonly discountTierType = computed<DiscountTierType | null>(() =>
+    this.trial().tier === "families" ? DiscountTierType.Families : null,
+  );
+
+  protected readonly eligibleDiscounts = toSignal(
+    toObservable(this.discountTierType).pipe(
+      switchMap((tier) =>
+        tier
+          ? this.subscriptionDiscountService
+              .getEligibleDiscountsForTier$(tier)
+              .pipe(catchError(() => of([])))
+          : of([]),
+      ),
+    ),
+    { initialValue: [] },
+  );
+
+  protected readonly cartDiscounts = computed<Discount[]>(() =>
+    this.eligibleDiscounts()
+      .map((d) => this.subscriptionDiscountService.mapToCartDiscount(d))
+      .filter((d): d is Discount => d !== null),
+  );
+
+  private readonly eligibleCouponIds = computed<string[]>(() =>
+    this.eligibleDiscounts().map((d: SubscriptionDiscount) => d.stripeCouponId),
+  );
+
+  private readonly eligibleDiscounts$ = toObservable(this.eligibleDiscounts);
+
   constructor(
     private i18nService: I18nService,
     private toastService: ToastService,
     private trialBillingStepService: TrialBillingStepService,
+    private subscriptionDiscountService: SubscriptionDiscountService,
   ) {}
 
   async ngOnInit() {
@@ -99,10 +141,17 @@ export class TrialBillingStepComponent implements OnInit, OnDestroy {
             !!billingAddress.country && !!billingAddress.postalCode,
         ),
       ),
+      this.eligibleDiscounts$,
     ]).pipe(
       debounceTime(500),
       switchMap(([cadence, billingAddress]) =>
-        this.trialBillingStepService.getCosts(product, tier, cadence, billingAddress),
+        this.trialBillingStepService.getCosts(
+          product,
+          tier,
+          cadence,
+          billingAddress,
+          this.eligibleCouponIds(),
+        ),
       ),
       startWith({
         tax: 0,
@@ -141,23 +190,37 @@ export class TrialBillingStepComponent implements OnInit, OnDestroy {
 
     const billingAddress = this.formGroup.controls.billingAddress.getRawValue();
 
-    const organization = await this.trialBillingStepService.startTrial(
-      this.trial(),
-      this.formGroup.value.cadence!,
-      billingAddress,
-      paymentMethod,
-    );
+    try {
+      const organization = await this.trialBillingStepService.startTrial(
+        this.trial(),
+        this.formGroup.value.cadence!,
+        billingAddress,
+        paymentMethod,
+        this.eligibleCouponIds(),
+      );
 
-    this.toastService.showToast({
-      variant: "success",
-      title: this.i18nService.t("organizationCreated"),
-      message: this.i18nService.t("organizationReadyToGo"),
-    });
+      this.toastService.showToast({
+        variant: "success",
+        title: this.i18nService.t("organizationCreated"),
+        message: this.i18nService.t("organizationReadyToGo"),
+      });
 
-    this.organizationCreated.emit({
-      organizationId: organization.id,
-      planDescription: await firstValueFrom(this.selectionDescription$),
-    });
+      this.organizationCreated.emit({
+        organizationId: organization.id,
+        planDescription: await firstValueFrom(this.selectionDescription$),
+      });
+    } catch (e: unknown) {
+      if (this.subscriptionDiscountService.isDiscountExpiredError(e)) {
+        this.subscriptionDiscountService.refresh();
+        this.toastService.showToast({
+          variant: "warning",
+          title: "",
+          message: this.i18nService.t("discountExpiredOnPurchase"),
+        });
+      } else {
+        throw e;
+      }
+    }
   };
 
   protected stepBack = () => this.steppedBack.emit();

@@ -62,8 +62,6 @@ import {
 } from "@bitwarden/auto-confirm";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
-import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   InternalOrganizationServiceAbstraction,
@@ -112,6 +110,11 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
+import {
+  DefaultPasswordPreloginService,
+  PasswordPreloginApiService,
+  PasswordPreloginService,
+} from "@bitwarden/common/auth/password-prelogin";
 import { DefaultSendTokenService, SendTokenService } from "@bitwarden/common/auth/send-access";
 import { AccountApiServiceImplementation } from "@bitwarden/common/auth/services/account-api.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
@@ -170,6 +173,12 @@ import { DefaultOrganizationMetadataService } from "@bitwarden/common/billing/se
 import { OrganizationSponsorshipApiService } from "@bitwarden/common/billing/services/organization/organization-sponsorship-api.service";
 import { OrganizationBillingService } from "@bitwarden/common/billing/services/organization-billing.service";
 import { DefaultSubscriptionPricingService } from "@bitwarden/common/billing/services/subscription-pricing.service";
+import {
+  EventUploadService as EventUploadServiceAbstraction,
+  EventCollectionService as EventCollectionServiceAbstraction,
+} from "@bitwarden/common/dirt/event-logs";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs/services/event-collection.service";
+import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
@@ -289,8 +298,6 @@ import {
 } from "@bitwarden/common/platform/theming/theme-state.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
-import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
-import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
 import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
@@ -580,6 +587,7 @@ const safeProviders: SafeProvider[] = [
       TaskSchedulerService,
       ConfigService,
       AccountCryptographicStateService,
+      PasswordPreloginService,
     ],
   }),
   safeProvider({
@@ -1199,8 +1207,8 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       ConfigService,
       RegisterSdkService,
-      SecurityStateService,
       AccountCryptographicStateService,
+      SdkService,
       InternalUserDecryptionOptionsServiceAbstraction,
     ],
   }),
@@ -1648,7 +1656,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: RegistrationFinishServiceAbstraction,
     useClass: DefaultRegistrationFinishService,
-    deps: [KeyService, AccountApiServiceAbstraction],
+    deps: [
+      KeyService,
+      AccountApiServiceAbstraction,
+      MasterPasswordServiceAbstraction,
+      ConfigService,
+    ],
   }),
   safeProvider({
     provide: TwoFactorAuthComponentService,
@@ -1822,7 +1835,18 @@ const safeProviders: SafeProvider[] = [
       KeyService,
       MasterPasswordApiServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
+      MasterPasswordUnlockService,
     ],
+  }),
+  safeProvider({
+    provide: PasswordPreloginApiService,
+    useClass: PasswordPreloginApiService,
+    deps: [ApiServiceAbstraction, EnvironmentService],
+  }),
+  safeProvider({
+    provide: PasswordPreloginService,
+    useClass: DefaultPasswordPreloginService,
+    deps: [PasswordPreloginApiService],
   }),
   safeProvider({
     provide: EncryptedMigrationsSchedulerService,

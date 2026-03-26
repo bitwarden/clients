@@ -19,8 +19,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import {
   AvatarModule,
-  BadgeModule,
   BannerModule,
+  ChipActionComponent,
   ButtonModule,
   I18nMockService,
   IconButtonModule,
@@ -80,7 +80,7 @@ class ExtensionPoppedContainerComponent {}
 
           <ng-container slot="end">
             <bit-item-action>
-              <button type="button" bitBadge variant="primary">Fill</button>
+              <button type="button" bit-chip-action variant="primary" label="Fill"></button>
             </bit-item-action>
             <bit-item-action>
               <button type="button" bitIconButton="bwi-clone" label="Copy item"></button>
@@ -93,7 +93,7 @@ class ExtensionPoppedContainerComponent {}
       </bit-item-group>
     </bit-section>
   `,
-  imports: [CommonModule, ItemModule, BadgeModule, IconButtonModule, SectionComponent],
+  imports: [CommonModule, ItemModule, ChipActionComponent, IconButtonModule, SectionComponent],
 })
 class VaultComponent {
   protected data = Array.from(Array(20).keys());
@@ -309,7 +309,7 @@ class MockSettingsPageComponent {}
         <button
           slot="end"
           type="button"
-          buttonType="danger"
+          buttonType="dangerGhost"
           bitIconButton="bwi-trash"
           label="Delete"
         ></button>
@@ -363,7 +363,7 @@ export default {
         ItemModule,
         SectionComponent,
         IconButtonModule,
-        BadgeModule,
+        ChipActionComponent,
         VaultLoadingSkeletonComponent,
       ],
       providers: [
@@ -719,7 +719,7 @@ export const WithVirtualScrollChild: Story = {
 
                   <ng-container slot="end">
                     <bit-item-action>
-                      <button type="button" bitBadge variant="primary">Fill</button>
+                      <button type="button" bit-chip-action variant="primary" label="Fill"></button>
                     </bit-item-action>
                     <bit-item-action>
                       <button type="button" bitIconButton="bwi-clone" label="Copy item"></button>
