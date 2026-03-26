@@ -288,7 +288,7 @@ export class CipherViewComponent {
       }
       try {
         return await this.changeLoginPasswordService.getChangePasswordUrl(params.cipher);
-      } catch (e) {
+      } catch (e: any) {
         this.logService.error(e.message);
         return undefined;
       }
