@@ -3,11 +3,9 @@ import {
   Directive,
   ElementRef,
   HostBinding,
-  HostListener,
   Input,
   NgZone,
-  Optional,
-  Self,
+  inject,
   input,
   model,
 } from "@angular/core";
@@ -36,10 +34,18 @@ export function inputBorderClasses(error: boolean) {
     "[id]": "id()",
     "[attr.type]": "type()",
     "[attr.spellcheck]": "spellcheck()",
+    "(input)": "onInput()",
+    "[attr.aria-describedby]": "ariaDescribedBy",
+    "[attr.aria-invalid]": "ariaInvalid",
   },
 })
 export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
-  classList() {
+  private ngControl = inject(NgControl, { optional: true, self: true });
+  private ngZone = inject(NgZone);
+  private elementRef = inject<ElementRef<HTMLInputElement>>(ElementRef);
+  private parentFormField = inject(BitFormFieldComponent, { optional: true });
+
+  protected classList() {
     const classes = [
       "tw-block",
       "tw-w-full",
@@ -74,9 +80,9 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
 
   readonly id = input(`bit-input-${nextId++}`);
 
-  @HostBinding("attr.aria-describedby") ariaDescribedBy?: string;
+  ariaDescribedBy?: string;
 
-  @HostBinding("attr.aria-invalid") get ariaInvalid() {
+  protected get ariaInvalid() {
     return this.hasError ? true : undefined;
   }
 
@@ -98,10 +104,10 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
   }
   private _required?: boolean;
 
-  readonly hasPrefix = input(false);
-  readonly hasSuffix = input(false);
+  protected readonly hasPrefix = input(false);
+  protected readonly hasSuffix = input(false);
 
-  readonly showErrorsWhenDisabled = input<boolean>(false);
+  protected readonly showErrorsWhenDisabled = input<boolean>(false);
 
   get labelForId(): string {
     return this.id();
@@ -111,8 +117,7 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
     this.adjustTextareaHeight();
   }
 
-  @HostListener("input")
-  onInput() {
+  protected onInput() {
     this.ngControl?.control?.markAsUntouched();
     this.adjustTextareaHeight();
   }
@@ -145,13 +150,6 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
     return [key, errors[key]];
   }
 
-  constructor(
-    @Optional() @Self() private ngControl: NgControl,
-    private ngZone: NgZone,
-    private elementRef: ElementRef<HTMLInputElement>,
-    @Optional() private parentFormField: BitFormFieldComponent,
-  ) {}
-
   focus() {
     this.ngZone.runOutsideAngular(() => {
       const end = this.elementRef.nativeElement.value.length;
@@ -164,7 +162,7 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
     return this.elementRef.nativeElement.readOnly;
   }
 
-  get standaloneInputClasses() {
+  protected get standaloneInputClasses() {
     return [
       "tw-px-3",
       "tw-py-2",
