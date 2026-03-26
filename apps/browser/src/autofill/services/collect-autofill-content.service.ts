@@ -326,6 +326,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const field = new AutofillField();
     field.opid = element.opid;
     field.elementNumber = index;
+    // Targeted fields are always treated as viewable regardless of actual
+    // visibility. Targeting rules may deliberately select hidden fields
+    // (e.g. tabbed forms, fields revealed by user interaction).
     field.viewable = true;
     field.htmlID = element.id || null;
     field.htmlName = (element as HTMLInputElement).name || null;

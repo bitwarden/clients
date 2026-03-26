@@ -8,6 +8,14 @@ import {
 } from "../constants";
 
 /**
+ * Format of the Forms Map resource.
+ */
+export type FormsMapResource = {
+  version: string;
+  hosts: TargetingRulesByDomain;
+};
+
+/**
  * Descriptors of web domains, their pages, and page content.
  * Rules do not prescribe or imply behaviour of consuming contexts.
  */
@@ -91,6 +99,9 @@ export type FormContent = {
   selectors: FormTargetingRules;
 };
 
+/** A URL pathname; must start with `/` */
+export type Pathname = `/${string}`;
+
 /**
  * A CSS selector which can optionally include the `>>>` combinator to
  * represent a boundary that standard CSS selectors cannot cross.
@@ -98,9 +109,6 @@ export type FormContent = {
  * - Shadow DOM boundary (default): `#host >>> input`
  * - Iframe boundary: `iframe#login >>> input`
  */
-/** A URL pathname; must start with `/` */
-export type Pathname = `/${string}`;
-
 type DeepSelector = string;
 
 export type ClearClipboardDelaySetting =

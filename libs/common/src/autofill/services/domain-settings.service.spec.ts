@@ -616,7 +616,7 @@ describe("DefaultDomainSettingsService", () => {
 
       it("returns null when no rules exist in state", async () => {
         configService.getFeatureFlag.mockImplementation(() => Promise.resolve(true));
-        await domainSettingsService.setEnableFillAssist(false);
+        await domainSettingsService.setEnableFillAssist(true);
         await domainSettingsService.setTargetingRules({});
 
         const result = await domainSettingsService.getTargetingRulesForUrl(
