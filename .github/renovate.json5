@@ -118,6 +118,7 @@
         "@babel/preset-env",
         "@bitwarden/sdk-internal",
         "@bitwarden/commercial-sdk-internal",
+        "@bitwarden/desktop-napi",
         "@electron/fuses",
         "@electron/notarize",
         "@electron/rebuild",
