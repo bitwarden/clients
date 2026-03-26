@@ -6193,5 +6193,38 @@
   },
   "triageAutofill": {
     "message": "Triage Autofill Issues"
+  },
+  "autofillTriage": {
+    "message": "Autofill Triage"
+  },
+  "noTriageResults": {
+    "message": "No Triage Results"
+  },
+  "noTriageResultsDesc": {
+    "message": "No triage results are available for this page. Please right-click on a form field and select 'Triage Autofill Issues' to analyze the page."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "analyzed": {
+    "message": "Analyzed"
+  },
+  "eligible": {
+    "message": "Eligible"
+  },
+  "targetElement": {
+    "message": "Target Element"
+  },
+  "fields": {
+    "message": "Fields"
+  },
+  "conditions": {
+    "message": "Conditions"
+  },
+  "copyReport": {
+    "message": "Copy Report"
+  },
+  "triageReportCopied": {
+    "message": "Triage report copied to clipboard"
   }
 }

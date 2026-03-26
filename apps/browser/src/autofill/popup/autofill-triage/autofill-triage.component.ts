@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { DatePipe, CommonModule } from "@angular/common";
-import { Component, OnInit, signal, computed } from "@angular/core";
+import { Component, OnInit, signal, computed, ChangeDetectionStrategy } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -21,11 +21,10 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 import { AutofillTriagePageResult, AutofillTriageFieldResult } from "../../types/autofill-triage";
 import { formatAutofillTriageReport } from "../utils/format-autofill-triage-report";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-autofill-triage",
   templateUrl: "autofill-triage.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     JslibModule,
@@ -62,10 +61,18 @@ export class AutofillTriageComponent implements OnInit {
     return result.fields.filter((f: AutofillTriageFieldResult) => f.eligible).length;
   });
 
+  /**
+   * Computed signal that creates a function to check if a field is expanded.
+   */
+  readonly isFieldExpanded = computed(() => {
+    const expanded = this.expandedFields();
+    return (index: number) => expanded.has(index);
+  });
+
   constructor(
-    private platformUtilsService: PlatformUtilsService,
-    private i18nService: I18nService,
-    private toastService: ToastService,
+    private readonly platformUtilsService: PlatformUtilsService,
+    private readonly i18nService: I18nService,
+    private readonly toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -89,13 +96,6 @@ export class AutofillTriageComponent implements OnInit {
       current.add(index);
     }
     this.expandedFields.set(current);
-  }
-
-  /**
-   * Checks if a field is currently expanded.
-   */
-  isFieldExpanded(index: number): boolean {
-    return this.expandedFields().has(index);
   }
 
   /**
@@ -131,26 +131,5 @@ export class AutofillTriageComponent implements OnInit {
       title: this.i18nService.t("copiedToClipboard"),
       message: this.i18nService.t("triageReportCopied"),
     });
-  }
-
-  /**
-   * Gets the appropriate badge variant for a field's eligibility status.
-   */
-  getFieldBadgeVariant(eligible: boolean): "success" | "secondary" {
-    return eligible ? "success" : "secondary";
-  }
-
-  /**
-   * Gets the appropriate icon for a field's eligibility status.
-   */
-  getFieldStatusIcon(eligible: boolean): string {
-    return eligible ? "✅" : "❌";
-  }
-
-  /**
-   * Gets the appropriate icon for a condition's passed status.
-   */
-  getConditionIcon(passed: boolean): string {
-    return passed ? "✅" : "❌";
   }
 }

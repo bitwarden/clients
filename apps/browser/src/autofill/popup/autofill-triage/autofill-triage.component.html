@@ -1,5 +1,5 @@
 <popup-page>
-  <popup-header slot="header" [pageTitle]="'Autofill Triage'" [showBackButton]="true" />
+  <popup-header slot="header" [pageTitle]="'autofillTriage' | i18n" [showBackButton]="true" />
 
   @if (!triageResult()) {
     <bit-callout type="info" [title]="'noTriageResults' | i18n">
@@ -46,22 +46,26 @@
           >
             <span class="tw-flex tw-items-center tw-gap-2">
               <bit-icon
-                [name]="isFieldExpanded($index) ? 'bwi-angle-down' : 'bwi-angle-right'"
+                [name]="isFieldExpanded()($index) ? 'bwi-angle-down' : 'bwi-angle-right'"
               ></bit-icon>
               <span>{{ getFieldLabel(field) }}</span>
             </span>
             <span
               bitBadge
-              [variant]="getFieldBadgeVariant(field.eligible)"
+              [variant]="field.eligible ? 'success' : 'secondary'"
               class="tw-flex tw-items-center tw-gap-1"
             >
-              <span>{{ getFieldStatusIcon(field.eligible) }}</span>
+              @if (field.eligible) {
+                <bit-icon name="bwi-check" aria-hidden="true"></bit-icon>
+              } @else {
+                <bit-icon name="bwi-close" aria-hidden="true"></bit-icon>
+              }
               <span>{{ field.qualifiedAs }}</span>
             </span>
           </button>
 
           <!-- Expandable Field Details -->
-          @if (isFieldExpanded($index)) {
+          @if (isFieldExpanded()($index)) {
             <div class="tw-mt-3 tw-pl-4 tw-border-l-2 tw-border-secondary-300">
               <!-- Field Attributes -->
               <div class="tw-mb-3 tw-text-sm tw-text-muted">
@@ -93,7 +97,13 @@
                 <h3 class="tw-text-sm tw-font-semibold tw-mb-2">{{ "conditions" | i18n }}</h3>
                 @for (condition of field.conditions; track condition.description) {
                   <div class="tw-flex tw-items-start tw-gap-2 tw-mb-1 tw-text-sm">
-                    <span class="tw-shrink-0">{{ getConditionIcon(condition.passed) }}</span>
+                    <span class="tw-shrink-0">
+                      @if (condition.passed) {
+                        <bit-icon name="bwi-check" aria-hidden="true"></bit-icon>
+                      } @else {
+                        <bit-icon name="bwi-close" aria-hidden="true"></bit-icon>
+                      }
+                    </span>
                     <span
                       [class.tw-text-success-600]="condition.passed"
                       [class.tw-text-secondary-600]="!condition.passed"

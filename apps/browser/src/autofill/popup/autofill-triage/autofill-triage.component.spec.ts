@@ -23,6 +23,7 @@ describe("AutofillTriageComponent", () => {
     pageUrl: "https://example.com/login",
     analyzedAt: "2026-03-26T10:30:00.000Z",
     targetElementRef: "username",
+    tabId: 123,
     fields: [
       {
         htmlId: "username",
@@ -171,12 +172,12 @@ describe("AutofillTriageComponent", () => {
   describe("isFieldExpanded", () => {
     it("should return true when field is expanded", () => {
       component.expandedFields.set(new Set([1]));
-      expect(component.isFieldExpanded(1)).toBe(true);
+      expect(component.isFieldExpanded()(1)).toBe(true);
     });
 
     it("should return false when field is not expanded", () => {
       component.expandedFields.set(new Set([1]));
-      expect(component.isFieldExpanded(0)).toBe(false);
+      expect(component.isFieldExpanded()(0)).toBe(false);
     });
   });
 
@@ -234,36 +235,6 @@ describe("AutofillTriageComponent", () => {
         title: "copiedToClipboard",
         message: "triageReportCopied",
       });
-    });
-  });
-
-  describe("getFieldBadgeVariant", () => {
-    it("should return 'success' for eligible fields", () => {
-      expect(component.getFieldBadgeVariant(true)).toBe("success");
-    });
-
-    it("should return 'secondary' for ineligible fields", () => {
-      expect(component.getFieldBadgeVariant(false)).toBe("secondary");
-    });
-  });
-
-  describe("getFieldStatusIcon", () => {
-    it("should return ✅ for eligible fields", () => {
-      expect(component.getFieldStatusIcon(true)).toBe("✅");
-    });
-
-    it("should return ❌ for ineligible fields", () => {
-      expect(component.getFieldStatusIcon(false)).toBe("❌");
-    });
-  });
-
-  describe("getConditionIcon", () => {
-    it("should return ✅ for passed conditions", () => {
-      expect(component.getConditionIcon(true)).toBe("✅");
-    });
-
-    it("should return ❌ for failed conditions", () => {
-      expect(component.getConditionIcon(false)).toBe("❌");
     });
   });
 });
