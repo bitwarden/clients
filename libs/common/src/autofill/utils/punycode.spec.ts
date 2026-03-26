@@ -114,5 +114,49 @@ describe("punycodeToUnicode", () => {
       // "xn--" followed by invalid encoding should fall back gracefully
       expect(punycodeToUnicode("xn--invalid!!!.com")).toBe("xn--invalid!!!.com");
     });
+
+    it("decodes labels with uppercase characters in the encoded body", () => {
+      // RFC 3492 Section 5: decoding is case-insensitive
+      expect(punycodeToUnicode("xn--Mnchen-3ya.de")).toBe("münchen.de");
+      expect(punycodeToUnicode("XN--MNCHEN-3YA.de")).toBe("münchen.de");
+    });
+
+    it("returns labels with code points beyond Unicode range as-is", () => {
+      // Crafted label that would decode to a code point > U+10FFFF
+      // "xn--" + a long run of 'z' chars forces n to accumulate past 0x10FFFF
+      const crafted = "xn--" + "z".repeat(200);
+      expect(punycodeToUnicode(crafted + ".com")).toBe(crafted + ".com");
+    });
+
+    it("returns labels exceeding DNS label length limit as-is", () => {
+      const longLabel = "xn--" + "a".repeat(60);
+      expect(punycodeToUnicode(longLabel + ".com")).toBe(longLabel + ".com");
+    });
+
+    it("returns xn-- with empty body as-is", () => {
+      expect(punycodeToUnicode("xn--.com")).toBe("xn--.com");
+    });
+
+    it("handles trailing dot (DNS root form)", () => {
+      expect(punycodeToUnicode("xn--mnchen-3ya.de.")).toBe("münchen.de.");
+    });
+
+    it("handles non-numeric port-like suffix without misinterpreting it", () => {
+      expect(punycodeToUnicode("example.com:abc")).toBe("example.com:abc");
+    });
+  });
+
+  describe("IPv6 passthrough", () => {
+    it("passes through bracketed IPv6 addresses unchanged", () => {
+      expect(punycodeToUnicode("[::1]")).toBe("[::1]");
+    });
+
+    it("passes through bracketed IPv6 with port unchanged", () => {
+      expect(punycodeToUnicode("[::1]:8443")).toBe("[::1]:8443");
+    });
+
+    it("passes through full IPv6 address unchanged", () => {
+      expect(punycodeToUnicode("[2001:db8::1]:443")).toBe("[2001:db8::1]:443");
+    });
   });
 });

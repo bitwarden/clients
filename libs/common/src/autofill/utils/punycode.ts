@@ -2,7 +2,15 @@
  * Decodes a single punycode-encoded label (without the "xn--" prefix)
  * back to its unicode representation per RFC 3492.
  */
-function decodePunycodeLabel(encoded: string): string {
+function decodePunycodeLabel(rawEncoded: string): string {
+  // Reject empty and overlong inputs. DNS labels are limited to 63 octets;
+  // the "xn--" prefix consumes 4, leaving at most 59 for the encoded body.
+  if (rawEncoded.length === 0 || rawEncoded.length > 59) {
+    throw new Error("Invalid punycode: label length out of range");
+  }
+
+  // RFC 3492 Section 5: decoding is case-insensitive
+  const encoded = rawEncoded.toLowerCase();
   const base = 36;
   const tMin = 1;
   const tMax = 26;
@@ -43,19 +51,31 @@ function decodePunycodeLabel(encoded: string): string {
         throw new Error("Invalid punycode character");
       }
 
+      // Check overflow BEFORE mutation to avoid IEEE 754 precision loss
+      if (digit > Math.floor((Number.MAX_SAFE_INTEGER - i) / w)) {
+        throw new Error("Invalid punycode: overflow");
+      }
       i += digit * w;
 
       const t = k <= bias ? tMin : k >= bias + tMax ? tMax : k - bias;
       if (digit < t) {
         break;
       }
-      w *= base - t;
+
+      const baseMinusT = base - t;
+      if (w > Math.floor(Number.MAX_SAFE_INTEGER / baseMinusT)) {
+        throw new Error("Invalid punycode: overflow");
+      }
+      w *= baseMinusT;
     }
 
     const out = output.length + 1;
     bias = adapt(i - oldi, out, oldi === 0);
 
     n += Math.floor(i / out);
+    if (n > 0x10ffff) {
+      throw new Error("Invalid punycode: code point out of range");
+    }
     i %= out;
 
     output.splice(i, 0, n);
@@ -78,7 +98,7 @@ function adapt(rawDelta: number, numPoints: number, firstTime: boolean): number 
   const skew = 38;
   const damp = 700;
 
-  let delta = firstTime ? Math.floor(rawDelta / damp) : rawDelta >> 1;
+  let delta = firstTime ? Math.floor(rawDelta / damp) : Math.floor(rawDelta / 2);
   delta += Math.floor(delta / numPoints);
 
   let k = 0;
@@ -100,6 +120,12 @@ function adapt(rawDelta: number, numPoints: number, firstTime: boolean): number 
  * punycodeToUnicode("example.com:8443")   // "example.com:8443"
  */
 export function punycodeToUnicode(host: string): string {
+  // IPv6 addresses (e.g. "[::1]:8443") cannot contain punycode labels;
+  // return as-is to avoid misinterpreting colons as port separators.
+  if (host.startsWith("[")) {
+    return host;
+  }
+
   // Separate port if present (e.g. "xn--mnchen-3ya.de:8443")
   const colonIndex = host.lastIndexOf(":");
   let hostname = host;
