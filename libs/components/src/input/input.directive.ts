@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   Directive,
   ElementRef,
   HostBinding,
@@ -37,12 +38,15 @@ export function inputBorderClasses(error: boolean) {
     "[attr.spellcheck]": "spellcheck()",
   },
 })
-export class BitInputDirective implements BitFormFieldControl {
+export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
   classList() {
     const classes = [
       "tw-block",
       "tw-w-full",
-      "tw-h-full",
+      "[&:is(input,select)]:tw-h-full",
+      "[&:is(textarea)]:tw-h-auto",
+      "[&:is(textarea)]:tw-min-h-[80px]",
+      "[&:is(textarea)]:tw-overflow-hidden",
       "tw-px-1",
       "tw-text-sm/5",
       "tw-placeholder-fg-body-subtle",
@@ -103,9 +107,24 @@ export class BitInputDirective implements BitFormFieldControl {
     return this.id();
   }
 
+  ngAfterViewInit() {
+    this.adjustTextareaHeight();
+  }
+
   @HostListener("input")
   onInput() {
     this.ngControl?.control?.markAsUntouched();
+    this.adjustTextareaHeight();
+  }
+
+  private adjustTextareaHeight() {
+    const el = this.elementRef.nativeElement;
+    if (el.tagName.toLowerCase() !== "textarea") {
+      return;
+    }
+    const textarea = el;
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
   }
 
   get hasError() {
