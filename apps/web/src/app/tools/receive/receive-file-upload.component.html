@@ -6,8 +6,7 @@
         {{ "chooseFile" | i18n }}
       </button>
       <span
-        class="tw-flex tw-items-center tw-pl-3"
-        [ngClass]="fileName() ? 'tw-text-main' : 'tw-text-muted'"
+        class="{{ fileName() ? 'tw-text-main' : 'tw-text-muted' }} tw-flex tw-items-center tw-pl-3"
       >
         {{ fileName() || ("noFileChosen" | i18n) }}</span
       >

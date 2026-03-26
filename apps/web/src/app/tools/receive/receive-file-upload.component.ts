@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import {
   Component,
   ChangeDetectionStrategy,
@@ -10,7 +9,6 @@ import {
 } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
@@ -19,12 +17,13 @@ import {
   SectionComponent,
   ToastService,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 @Component({
   selector: "app-receive-upload",
   templateUrl: "receive-file-upload.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonModule, CommonModule, FormFieldModule, JslibModule, SectionComponent],
+  imports: [ButtonModule, FormFieldModule, I18nPipe, SectionComponent],
 })
 export class ReceiveFileUploadComponent implements OnInit {
   readonly fileName = signal<string>("");
@@ -73,7 +72,6 @@ export class ReceiveFileUploadComponent implements OnInit {
     if (file.size > MAX_SIZE_BYTES) {
       this.toastService.showToast({
         variant: "error",
-        title: null,
         message: this.i18nService.t("maxFileSize"),
       });
       return false;
@@ -105,7 +103,6 @@ export class ReceiveFileUploadComponent implements OnInit {
       this.logService.error(e);
       this.toastService.showToast({
         variant: "error",
-        title: null,
         message: this.i18nService.t("fileReadError"),
       });
     }
