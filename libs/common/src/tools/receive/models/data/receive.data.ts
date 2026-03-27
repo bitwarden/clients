@@ -5,7 +5,7 @@ import { ReceiveFileData } from "./receive-file.data";
 export class ReceiveData {
   id: string;
   name: string;
-  file?: ReceiveFileData;
+  files: ReceiveFileData[] = [];
   userKeyWrappedSharedContentEncryptionKey: string;
   userKeyWrappedPrivateKey: string;
   scekWrappedPublicKey: string;
@@ -28,8 +28,6 @@ export class ReceiveData {
     this.revisionDate = response.revisionDate;
     this.expirationDate = response.expirationDate;
 
-    if (response.file != null) {
-      this.file = new ReceiveFileData(response.file);
-    }
+    this.files = response.files.map((f) => new ReceiveFileData(f));
   }
 }

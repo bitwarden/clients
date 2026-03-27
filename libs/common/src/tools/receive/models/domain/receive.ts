@@ -15,7 +15,7 @@ export class Receive {
   userKeyWrappedSharedContentEncryptionKey: EncString;
   userKeyWrappedPrivateKey: EncString;
 
-  file?: ReceiveFile[];
+  files: ReceiveFile[] = [];
   secret: string;
   uploadCount: number;
   creationDate: Date;

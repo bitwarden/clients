@@ -4,7 +4,7 @@ import { ReceiveFileApi } from "../api/receive-file.api";
 export class ReceiveResponse extends BaseResponse {
   id: string;
   name: string;
-  file?: ReceiveFileApi;
+  files: ReceiveFileApi[] = [];
   userKeyWrappedSharedContentEncryptionKey: string;
   userKeyWrappedPrivateKey: string;
   scekWrappedPublicKey: string;
@@ -30,7 +30,7 @@ export class ReceiveResponse extends BaseResponse {
     this.revisionDate = this.getResponseProperty("RevisionDate");
     this.expirationDate = this.getResponseProperty("ExpirationDate");
 
-    const file = this.getResponseProperty("File");
-    this.file = file != null ? new ReceiveFileApi(file) : undefined;
+    const files = this.getResponseProperty("Files");
+    this.files = files != null ? files.map((f: any) => new ReceiveFileApi(f)) : [];
   }
 }

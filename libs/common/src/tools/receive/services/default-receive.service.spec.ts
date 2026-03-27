@@ -49,7 +49,7 @@ describe("DefaultReceiveService", () => {
     receiveApiService.postReceive.mockResolvedValue({
       id: "mock-receive-id",
       name: "mockEncryptedName",
-      file: null,
+      files: [],
       userKeyWrappedSharedContentEncryptionKey: "mockUserKeyWrappedScek",
       userKeyWrappedPrivateKey: "mockWrappedPrivateKey",
       scekWrappedPublicKey: "mockScekWrappedPublicKey",

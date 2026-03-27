@@ -149,12 +149,12 @@ export class DefaultReceiveService implements ReceiveService {
       sharedContentEncryptionKey,
     };
 
-    if (receive.file) {
+    if (receive.files.length > 0) {
       const privateKey = await this.encryptService.unwrapDecapsulationKey(
         receive.userKeyWrappedPrivateKey,
         userKey,
       );
-      view.fileData = await this.decryptReceiveFiles(receive.file, privateKey);
+      view.fileData = await this.decryptReceiveFiles(receive.files, privateKey);
     }
 
     return view;
