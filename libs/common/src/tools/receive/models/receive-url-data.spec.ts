@@ -1,14 +1,14 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
-import { Guid } from "@bitwarden/common/types/guid";
+import { ReceiveId } from "@bitwarden/common/types/guid";
 import { newGuid } from "@bitwarden/guid";
 
 import { buildReceiveUrl } from "./receive-url-data";
 import { ReceiveView } from "./view/receive.view";
 
 describe("buildReceiveUrl", () => {
-  const mockId = newGuid() as Guid;
+  const mockId = newGuid() as ReceiveId;
   const mockSecret = "my-secret";
   const mockScek = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray);
   const baseUrl = "https://vault.bitwarden.com/#/receive";
