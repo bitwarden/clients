@@ -16,7 +16,7 @@ export default {
   component: BannerComponent,
   decorators: [
     moduleMetadata({
-      imports: [IconButtonModule, LinkModule],
+      imports: [BadgeModule, ButtonModule, BannerTitleDirective, IconButtonModule, LinkModule],
       providers: [
         {
           provide: I18nService,
