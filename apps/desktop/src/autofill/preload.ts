@@ -202,16 +202,16 @@ export default {
     ) => void,
   ) => {
     ipcRenderer.on(
-      MAGNIFY_IPC_CHANNELS.BW_RENDER_PROCESS_COMMANDS_FROM_MAIN_PROCESS_LISTENER,
+      MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND_RELAY,
       (_event, request: MagnifyCommandRequest) => {
         fn(request, (error, response) => {
           if (error) {
-            // eslint-disable-next-line no-console
-            console.log("uh, something broke");
+            ipcRenderer.send(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND_RELAY_ERROR, error.message);
+            return;
           }
 
           if (response !== null) {
-            ipcRenderer.send(MAGNIFY_IPC_CHANNELS.MAIN_PROCESS_COMMANDS_FROM_BW_LISTENER, response);
+            ipcRenderer.send(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND_RESPONSE, response);
           }
         });
       },

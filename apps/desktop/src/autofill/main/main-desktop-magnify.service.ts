@@ -23,10 +23,11 @@ export class MainDesktopMagnifyService {
   /*
     Register various IPC listeners
 
+    Before changing IPC, please read:
     https://www.electronjs.org/docs/latest/tutorial/ipc
   */
   async registerIpcListeners() {
-    // From bw render process -> main process, 1 way Electron IPC
+    // BW render process -> main process: toggle magnify on/off
     ipcMain.on(MAGNIFY_IPC_CHANNELS.TOGGLE, async (_event, enable: boolean) => {
       if (enable) {
         await this.enableMagnify();
@@ -35,31 +36,10 @@ export class MainDesktopMagnifyService {
       }
     });
 
-    // From
-    ipcMain.on(
-      MAGNIFY_IPC_CHANNELS.MAIN_PROCESS_COMMANDS_FROM_BW_LISTENER,
-      (_event, response: MagnifyCommandResponse) => {
-        // eslint-disable-next-line no-console
-        console.log("FROM THE MAIN DESKTOP MAGNIFY PROCESS");
-        // eslint-disable-next-line no-console
-        console.log("RECEIVED THE: MagnifyCommandResponse");
-        // eslint-disable-next-line no-console
-        console.log(response);
-
-        /*
-        // this needs to be sent to the magnify window
-        this.windowMain.win.webContents.send(
-          MAGNIFY_IPC_CHANNELS.BW_RENDER_PROCESS_COMMANDS_FROM_MAIN_PROCESS_LISTENER,
-          command,
-        );
-         */
-      },
-    );
-
-    // From magnify render process -> main process
-    ipcMain.handle(
-      MAGNIFY_IPC_CHANNELS.MAIN_PROCESS_COMMANDS_FROM_MAGNIFY_LISTENER,
-      (event, command) => this.commandHandler(event, command),
+    // Magnify render process -> main process -> BW render process ->
+    // main process -> Magnify render process
+    ipcMain.handle(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND, (event, command) =>
+      this.commandHandler(event, command),
     );
   }
 
@@ -75,6 +55,7 @@ export class MainDesktopMagnifyService {
 
   dispose() {
     ipcMain.removeAllListeners(MAGNIFY_IPC_CHANNELS.TOGGLE);
+    ipcMain.removeHandler(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND);
 
     // Also unregister the global shortcut
     this.disableMagnify();
@@ -114,18 +95,32 @@ export class MainDesktopMagnifyService {
   }
 
   /*
-    commandHandler() sends Magnify commands from the Magnify render process
-    to the Bitwarden render process.
+    Receives a command from the magnify render process, relays it
+    to the BW render process, waits for the response, and returns it
+    back to the magnify render process via the resolved invoke Promise.
   */
   private async commandHandler(
     _event: Electron.IpcMainInvokeEvent,
     command: MagnifyCommandRequest,
-  ) {
-    // eslint-disable-next-line no-console
-    console.log("HIT COMMAND HANDLER");
-    this.windowMain.win.webContents.send(
-      MAGNIFY_IPC_CHANNELS.BW_RENDER_PROCESS_COMMANDS_FROM_MAIN_PROCESS_LISTENER,
-      command,
-    );
+  ): Promise<MagnifyCommandResponse> {
+    return new Promise<MagnifyCommandResponse>((resolve, reject) => {
+      const onResponse = (
+        _responseEvent: Electron.IpcMainEvent,
+        response: MagnifyCommandResponse,
+      ) => {
+        ipcMain.removeListener(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND_RELAY_ERROR, onError);
+        resolve(response);
+      };
+
+      const onError = (_responseEvent: Electron.IpcMainEvent, errorMessage: string) => {
+        ipcMain.removeListener(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND_RESPONSE, onResponse);
+        reject(new Error(errorMessage));
+      };
+
+      ipcMain.once(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND_RESPONSE, onResponse);
+      ipcMain.once(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND_RELAY_ERROR, onError);
+
+      this.windowMain.win.webContents.send(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND_RELAY, command);
+    });
   }
 }

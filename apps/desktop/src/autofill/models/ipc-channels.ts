@@ -10,9 +10,12 @@ export const AUTOTYPE_IPC_CHANNELS = {
 
 export const MAGNIFY_IPC_CHANNELS = {
   TOGGLE: "autofill.toggleMagnify",
-  MAIN_PROCESS_COMMANDS_FROM_MAGNIFY_LISTENER: "autofill.mainProcessCommandsFromMagnifyListener",
-  MAIN_PROCESS_COMMANDS_FROM_BW_LISTENER: "autofill.mainProcessCommandsFromBwListener",
-  BW_RENDER_PROCESS_COMMANDS_FROM_MAIN_PROCESS_LISTENER:
-    "autofill.bwRenderProcessCommandsFromMainProcessListener",
-  //BW_RENDER_PROCESS_COMMAND_RESPONDER: "autofill.bwRenderProcessCommandResponder",
+  // Magnify render process -> Main process
+  MAGNIFY_COMMAND: "autofill.magnifyCommand",
+  // Main process -> BW render process
+  MAGNIFY_COMMAND_RELAY: "autofill.magnifyCommandRelay",
+  // BW render process -> Main process (for errors)
+  MAGNIFY_COMMAND_RELAY_ERROR: "autofill.magnifyCommandRelayError",
+  // BW render process -> Main process
+  MAGNIFY_COMMAND_RESPONSE: "autofill.magnifyCommandResponse",
 } as const;

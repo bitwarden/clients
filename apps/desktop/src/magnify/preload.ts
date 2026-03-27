@@ -17,10 +17,7 @@ import { MagnifyCommandRequest, MagnifyCommandResponse } from "../autofill/model
 
 const ipc = {
   sendCommand: async (command: MagnifyCommandRequest): Promise<MagnifyCommandResponse> => {
-    return await ipcRenderer.invoke(
-      MAGNIFY_IPC_CHANNELS.MAIN_PROCESS_COMMANDS_FROM_MAGNIFY_LISTENER,
-      command,
-    );
+    return await ipcRenderer.invoke(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND, command);
   },
 };
 
