@@ -18,19 +18,8 @@
               @if (r.disabled) {
                 <span class="tw-sr-only">, {{ "disabled" | i18n }}</span>
               }
-              @if (r.authType !== authType.None) {
-                @let titleKey =
-                  r.authType === authType.Email ? "emailProtected" : "passwordProtected";
-                <span class="tw-sr-only">, {{ titleKey | i18n }}</span>
-              }
-              @if (r.maxAccessCountReached) {
-                <span class="tw-sr-only">, {{ "maxAccessCountReached" | i18n }}</span>
-              }
               @if (r.expired) {
                 <span class="tw-sr-only">, {{ "expired" | i18n }}</span>
-              }
-              @if (r.pendingDelete) {
-                <span class="tw-sr-only">, {{ "pendingDeletion" | i18n }}</span>
               }
             </button>
             @if (r.disabled) {
@@ -41,37 +30,11 @@
                 aria-hidden="true"
               ></i>
             }
-            @if (r.authType !== authType.None) {
-              @let titleKey =
-                r.authType === authType.Email ? "emailProtected" : "passwordProtected";
-              <i
-                class="bwi bwi-lock"
-                appStopProp
-                title="{{ titleKey | i18n }}"
-                aria-hidden="true"
-              ></i>
-            }
-            @if (r.maxAccessCountReached) {
-              <i
-                class="bwi bwi-exclamation-triangle"
-                appStopProp
-                title="{{ 'maxAccessCountReached' | i18n }}"
-                aria-hidden="true"
-              ></i>
-            }
             @if (r.expired) {
               <i
                 class="bwi bwi-clock"
                 appStopProp
                 title="{{ 'expired' | i18n }}"
-                aria-hidden="true"
-              ></i>
-            }
-            @if (r.pendingDelete) {
-              <i
-                class="bwi bwi-trash"
-                appStopProp
-                title="{{ 'pendingDeletion' | i18n }}"
                 aria-hidden="true"
               ></i>
             }
@@ -99,12 +62,6 @@
               <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
               {{ "copyReceiveLink" | i18n }}
             </button>
-            @if (r.password && !disableReceive()) {
-              <button type="button" bitMenuItem (click)="onRemovePassword(r)">
-                <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
-                {{ "removePassword" | i18n }}
-              </button>
-            }
             <button type="button" bitMenuItem (click)="onDelete(r)">
               <span class="tw-text-danger">
                 <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
