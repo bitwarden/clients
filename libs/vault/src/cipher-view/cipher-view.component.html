@@ -12,10 +12,10 @@
   </bit-callout>
 
   <bit-callout *ngIf="showChangePasswordLink()" type="warning" [title]="''">
-    @if (changePasswordUrl?.value()) {
+    @if (changePasswordLink()) {
       <a
         bitLink
-        [href]="changePasswordUrl?.value()"
+        [href]="changePasswordLink()"
         appStopClick
         (click)="launchChangePassword()"
         linkType="secondary"
@@ -50,7 +50,7 @@
     [cipher]="cipher()"
     [activeUserId]="activeUserId$ | async"
     [showChangePasswordLink]="showChangePasswordLink()"
-    [changePasswordUrl]="changePasswordUrl"
+    [changePasswordLink]="changePasswordLink()"
     (handleChangePassword)="launchChangePassword()"
   ></app-login-credentials-view>
 
