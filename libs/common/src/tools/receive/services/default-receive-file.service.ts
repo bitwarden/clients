@@ -1,7 +1,7 @@
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
-import { EncString } from "@bitwarden/sdk-internal";
 
 import { ReceiveFileUploadInput } from "../models/receive-file-upload-input";
 
@@ -44,8 +44,8 @@ export class DefaultReceiveFileService implements ReceiveFileService {
 
     return {
       encryptedFile,
-      fileName: fileName.encryptedString,
-      encapsulatedFileContentEncryptionKey: encapsulatedFileContentEncryptionKey.encryptedString,
+      fileName: fileName,
+      encapsulatedFileContentEncryptionKey: encapsulatedFileContentEncryptionKey,
     };
   }
 }
