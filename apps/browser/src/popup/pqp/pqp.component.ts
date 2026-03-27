@@ -545,5 +545,47 @@ export class PqpComponent implements AfterViewInit, OnDestroy {
         console.error(err);
       }
     });
+
+    // Key Rotation
+    const rotateKeysBtn = document.getElementById("rotateKeysBtn") as HTMLButtonElement | null;
+    const rotateKeysStatus = document.getElementById("rotateKeysStatus") as HTMLDivElement | null;
+
+    rotateKeysBtn?.addEventListener("click", async () => {
+      if (
+        !confirm(
+          "Are you sure you want to rotate your keys? In-flight messages encrypted with the old key will be lost.",
+        )
+      ) {
+        return;
+      }
+
+      rotateKeysBtn.disabled = true;
+      if (rotateKeysStatus) {
+        rotateKeysStatus.textContent = "Rotating keys...";
+        rotateKeysStatus.style.color = "#1976d2";
+      }
+
+      try {
+        const resp = await chrome.runtime.sendMessage({ type: "ROTATE_KEYS" });
+        if (resp?.success) {
+          if (rotateKeysStatus) {
+            rotateKeysStatus.textContent = "Keys rotated successfully!";
+            rotateKeysStatus.style.color = "#4caf50";
+          }
+        } else {
+          if (rotateKeysStatus) {
+            rotateKeysStatus.textContent = "Error: " + (resp?.error || "Unknown error");
+            rotateKeysStatus.style.color = "#f44336";
+          }
+        }
+      } catch (err) {
+        if (rotateKeysStatus) {
+          rotateKeysStatus.textContent = "Error: " + err;
+          rotateKeysStatus.style.color = "#f44336";
+        }
+      } finally {
+        rotateKeysBtn.disabled = false;
+      }
+    });
   }
 }
