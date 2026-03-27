@@ -1,6 +1,7 @@
 import { Component, inject } from "@angular/core";
 
 import { DialogService } from "../../../dialog";
+import { ToastService } from "../../../toast";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
 import { KitchenSinkFormComponent } from "./kitchen-sink-form.component";
@@ -38,6 +39,7 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
       </button>
       <button type="button" bitButton (click)="openDrawer()">Open Drawer</button>
       <button bitButton type="button" (click)="tourService.startTour()">Start Tour</button>
+      <button type="button" bitButton (click)="showToast()">Show Toast</button>
     </bit-section>
     <bit-section>
       <h2 bitTypography="h2" class="tw-mb-6">Companies using Bitwarden</h2>
@@ -87,7 +89,10 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
   `,
 })
 export class KitchenSinkVaultComponent {
-  constructor(public dialogService: DialogService) {}
+  constructor(
+    public dialogService: DialogService,
+    private toastService: ToastService,
+  ) {}
 
   protected readonly tourService = inject(KitchenSinkTourService);
 
@@ -97,5 +102,9 @@ export class KitchenSinkVaultComponent {
 
   openDrawer() {
     this.dialogService.openDrawer(KitchenSinkDialogComponent);
+  }
+
+  showToast() {
+    this.toastService.showToast({ variant: "success", message: "Action completed successfully." });
   }
 }

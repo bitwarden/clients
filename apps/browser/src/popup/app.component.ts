@@ -346,7 +346,6 @@ export class AppComponent implements OnInit, OnDestroy {
       case "sessionExpired": {
         toastOptions = {
           variant: "warning",
-          title: this.i18nService.t("loggedOut"),
           message: this.i18nService.t("loginExpired"),
         };
         break;

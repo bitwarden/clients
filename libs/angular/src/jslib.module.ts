@@ -17,7 +17,6 @@ import {
   RadioButtonModule,
   SelectModule,
   TableModule,
-  ToastModule,
   TypographyModule,
   CopyClickDirective,
   A11yTitleDirective,
@@ -51,11 +50,6 @@ import { IconComponent } from "./vault/components/icon.component";
  */
 @NgModule({
   imports: [
-    ToastModule.forRoot({
-      maxOpened: 5,
-      autoDismiss: true,
-      closeButton: true,
-    }),
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
@@ -95,7 +89,6 @@ import { IconComponent } from "./vault/components/icon.component";
     A11yTitleDirective,
     ApiActionDirective,
     AutofocusDirective,
-    ToastModule,
     BoxRowDirective,
     EllipsisPipe,
     I18nPipe,

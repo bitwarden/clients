@@ -64,7 +64,11 @@ export default {
           useFactory: () => {
             return new I18nMockService({
               close: "Close",
+              error: "Error",
+              info: "Info",
               search: "Search",
+              success: "Success",
+              warning: "Warning",
               selectPlaceholder: "-- Select --",
               skipToContent: "Skip to content",
               submenu: "submenu",
@@ -230,6 +234,26 @@ export const DrawerOpenBeforeSideNavOpen: Story = {
   },
   parameters: {
     chromatic: { viewports: [640, 1024, 1280, 1440] },
+  },
+};
+
+export const ToastVisible: Story = {
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    await navigateTo("/bitwarden");
+    const toastButton = getByRole(canvas, "button", { name: "Show Toast" });
+    await userEvent.click(toastButton);
+  },
+};
+
+export const DrawerOpenWithToast: Story = {
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    await navigateTo("/bitwarden");
+
+    // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
+    await fireEvent.click(getByRole(canvas, "button", { name: "Open Drawer" }));
+    await fireEvent.click(getByRole(canvas, "button", { name: "Show Toast" }));
   },
 };
 

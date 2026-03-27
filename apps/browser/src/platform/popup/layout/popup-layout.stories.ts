@@ -1,8 +1,9 @@
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { Component, importProvidersFrom } from "@angular/core";
+import { Component, inject, importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
+import { userEvent, getByRole } from "storybook/test";
 
 import {
   GeneratorActive,
@@ -29,6 +30,7 @@ import {
   SearchModule,
   SectionComponent,
   ScrollLayoutDirective,
+  ToastService,
 } from "@bitwarden/components";
 
 import { VaultLoadingSkeletonComponent } from "../../../vault/popup/components/vault-loading-skeleton/vault-loading-skeleton.component";
@@ -44,7 +46,9 @@ import { PopupTabNavigationComponent } from "./popup-tab-navigation.component";
 @Component({
   selector: "extension-container",
   template: `
-    <div class="tw-h-[640px] tw-w-[480px] tw-border tw-border-solid tw-border-secondary-300">
+    <div
+      class="tw-scale-100 tw-h-[640px] tw-w-[480px] tw-border tw-border-solid tw-border-secondary-300"
+    >
       <ng-content></ng-content>
     </div>
   `,
@@ -294,6 +298,25 @@ class MockSettingsPageComponent {}
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  selector: "mock-show-toast-button",
+  template: `
+    <button bitButton buttonType="primary" size="small" type="button" (click)="showToast()">
+      Show Toast
+    </button>
+  `,
+  imports: [ButtonModule],
+})
+class MockShowToastButtonComponent {
+  private toastService = inject(ToastService);
+
+  showToast() {
+    this.toastService.showToast({ message: "Item saved.", variant: "success" });
+  }
+}
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
   selector: "mock-vault-subpage",
   template: `
     <popup-page>
@@ -357,6 +380,7 @@ export default {
         MockGeneratorPageComponent,
         MockSettingsPageComponent,
         MockVaultPagePoppedComponent,
+        MockShowToastButtonComponent,
         NoItemsModule,
         VaultComponent,
         ScrollingModule,
@@ -372,12 +396,17 @@ export default {
           useFactory: () => {
             return new I18nMockService({
               back: "Back",
+              close: "Close",
+              error: "Error",
+              info: "Info",
               loading: "Loading",
               search: "Search",
+              success: "Success",
               vault: "Vault",
               generator: "Generator",
               send: "Send",
               settings: "Settings",
+              warning: "Warning",
               labelWithNotification: (label: string | undefined) => `${label}: New Notification`,
             });
           },
@@ -741,4 +770,29 @@ export const WithVirtualScrollChild: Story = {
       </extension-popped-container>
     `,
   }),
+};
+
+export const ToastVisible: PopupTabNavigationStory = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <extension-container>
+        <popup-tab-navigation [navButtons]="navButtons">
+          <popup-page>
+            <popup-header slot="header" pageTitle="Vault"></popup-header>
+            <div class="tw-p-4">
+              <mock-show-toast-button></mock-show-toast-button>
+            </div>
+          </popup-page>
+        </popup-tab-navigation>
+      </extension-container>`,
+  }),
+  args: {
+    navButtons: navButtons(),
+  },
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    const toastButton = getByRole(canvas, "button", { name: "Show Toast" });
+    await userEvent.click(toastButton);
+  },
 };

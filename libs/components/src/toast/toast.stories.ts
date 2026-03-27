@@ -1,5 +1,4 @@
-import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { action } from "storybook/actions";
@@ -10,27 +9,52 @@ import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for
 import { ButtonModule } from "../button";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
+import { ToastContainerComponent } from "./toast-container.component";
 import { ToastComponent } from "./toast.component";
-import { BitwardenToastrGlobalConfig, ToastModule } from "./toast.module";
 import { ToastOptions, ToastService } from "./toast.service";
 
-const toastServiceExampleTemplate = `
+const docsSourceTemplate = `
   <button bitButton type="button" (click)="toastService.showToast(toastOptions)">Show Toast</button>
 `;
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+
+const cyclingToasts = [
+  { variant: "success", message: "Item added to your vault." },
+  {
+    variant: "error",
+    title: "Connection failed",
+    message: "Failed to save changes. Please try again.",
+  },
+  {
+    variant: "warning",
+    message: ["Your session will expire in 5 minutes.", "Save your work before it ends."],
+  },
+  {
+    variant: "info",
+    title: "Update available",
+    message: ["Bitwarden has a new version ready.", "Restart the app to apply the update."],
+  },
+  { variant: "success", title: "Import complete", message: "153 items were added to your vault." },
+  {
+    variant: "error",
+    message: ["An unexpected error occurred.", "If this keeps happening, contact support."],
+  },
+] as ToastOptions[];
+
 @Component({
   selector: "toast-service-example",
-  template: toastServiceExampleTemplate,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: ` <button bitButton type="button" (click)="showNext()">Show Toast</button> `,
   imports: [ButtonModule],
 })
 export class ToastServiceExampleComponent {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  toastOptions?: ToastOptions;
+  private readonly index = signal(0);
+  protected readonly toastService = inject(ToastService);
 
-  constructor(protected toastService: ToastService) {}
+  showNext() {
+    const i = this.index();
+    this.toastService.showToast(cyclingToasts[i % cyclingToasts.length]);
+    this.index.set(i + 1);
+  }
 }
 
 export default {
@@ -40,16 +64,14 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [
-        CommonModule,
         BrowserAnimationsModule,
         ButtonModule,
-        ToastModule,
+        ToastContainerComponent,
         ToastServiceExampleComponent,
       ],
     }),
     applicationConfig({
       providers: [
-        ToastModule.forRoot().providers!,
         {
           provide: I18nService,
           useFactory: () => {
@@ -69,7 +91,6 @@ export default {
   args: {
     onClose: action("emit onClose"),
     variant: "info",
-    progressWidth: 50,
     title: "",
     message: "Hello Bitwarden!",
   },
@@ -87,7 +108,7 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-min-w tw-max-w-[--bit-toast-width]">
+      <div class="tw-min-w tw-max-w-[19rem]">
         <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)}></bit-toast>
       </div>
     `,
@@ -98,7 +119,7 @@ export const Variants: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-flex tw-flex-col tw-min-w tw-max-w-[--bit-toast-width] tw-gap-2">
+      <div class="tw-flex tw-flex-col tw-min-w tw-max-w-[19rem] tw-gap-2">
         <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)} variant="success"></bit-toast>
         <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)} variant="info"></bit-toast>
         <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)} variant="warning"></bit-toast>
@@ -122,28 +143,31 @@ export const LongContent: Story = {
   },
 };
 
+/**
+ * Callers that still pass the deprecated `title` field will have it prepended as the first line of the message.
+ */
+export const DeprecatedTitle: Story = {
+  ...Default,
+  args: {
+    title: "Vault locked",
+    message: "Your session has timed out.",
+    variant: "info",
+  } as ToastOptions,
+};
+
 export const Service: Story = {
-  render: (args) => ({
-    props: {
-      toastOptions: args,
-    },
+  render: () => ({
     template: /*html*/ `
       <!-- Toast container is used here to more closely align with how toasts are used in the clients, which allows for more accurate SR testing in storybook -->
       <bit-toast-container></bit-toast-container>
-      <toast-service-example [toastOptions]="toastOptions"></toast-service-example>
+      <toast-service-example></toast-service-example>
     `,
   }),
-  args: {
-    title: "",
-    message: "Hello Bitwarden!",
-    variant: "error",
-    timeout: BitwardenToastrGlobalConfig.timeOut,
-  } as ToastOptions,
   parameters: {
     chromatic: { disableSnapshot: true },
     docs: {
       source: {
-        code: toastServiceExampleTemplate,
+        code: docsSourceTemplate,
       },
     },
   },

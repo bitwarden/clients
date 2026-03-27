@@ -16,7 +16,6 @@ import {
   AvatarModule,
   ButtonModule,
   FormFieldModule,
-  ToastModule,
   CalloutModule,
   LinkModule,
 } from "@bitwarden/components";
@@ -47,12 +46,6 @@ import "../platform/popup/locales";
     AppRoutingModule,
     AutofillComponent,
     AccountSecurityComponent,
-    ToastModule.forRoot({
-      maxOpened: 2,
-      autoDismiss: true,
-      closeButton: true,
-      positionClass: "toast-top-full-width",
-    }),
     BrowserAnimationsModule,
     BrowserModule,
     DragDropModule,
