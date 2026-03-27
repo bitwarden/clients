@@ -9,6 +9,7 @@ import { AutotypeConfig } from "./models/autotype-config";
 import { AutotypeMatchError } from "./models/autotype-errors";
 import { AutotypeVaultData } from "./models/autotype-vault-data";
 import { AUTOTYPE_IPC_CHANNELS, MAGNIFY_IPC_CHANNELS } from "./models/ipc-channels";
+import { MagnifyCommandRequest, MagnifyCommandResponse } from "./models/magnify-commands";
 
 export default {
   runCommand: <C extends Command>(params: RunCommandParams<C>): Promise<RunCommandResult<C>> =>
@@ -193,5 +194,27 @@ export default {
   },
   toggleMagnify: (enable: boolean) => {
     ipcRenderer.send(MAGNIFY_IPC_CHANNELS.TOGGLE, enable);
+  },
+  listenMagnifyCommand: (
+    fn: (
+      request: MagnifyCommandRequest,
+      completeCallback: (error: Error | null, response: MagnifyCommandResponse | null) => void,
+    ) => void,
+  ) => {
+    ipcRenderer.on(
+      MAGNIFY_IPC_CHANNELS.BW_RENDER_PROCESS_COMMANDS_FROM_MAIN_PROCESS_LISTENER,
+      (_event, request: MagnifyCommandRequest) => {
+        fn(request, (error, response) => {
+          if (error) {
+            // eslint-disable-next-line no-console
+            console.log("uh, something broke");
+          }
+
+          if (response !== null) {
+            ipcRenderer.send(MAGNIFY_IPC_CHANNELS.MAIN_PROCESS_COMMANDS_FROM_BW_LISTENER, response);
+          }
+        });
+      },
+    );
   },
 };

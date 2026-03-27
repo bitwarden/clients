@@ -7,6 +7,8 @@ import {
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
 
+import { MagnifyCommand, MagnifyCommandResponse } from "../models/magnify-commands";
+
 export const MAGNIFY_ENABLED = new UserKeyDefinition<boolean | null>(
   MAGNIFY_SETTINGS_DISK,
   "magnifyEnabled",
@@ -15,6 +17,8 @@ export const MAGNIFY_ENABLED = new UserKeyDefinition<boolean | null>(
     clearOn: [],
   },
 );
+
+export type Result<T, E = Error> = [E, null] | [null, T];
 
 @Injectable({
   providedIn: "root",
@@ -44,12 +48,72 @@ export class DesktopMagnifyService implements OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
+
+    ipc.autofill.listenMagnifyCommand(async (request, callback) => {
+      switch (request.type) {
+        case MagnifyCommand.SearchVault: {
+          const [error, result] = await this.searchVault(request.input);
+          callback(error, result);
+          break;
+        }
+
+        case MagnifyCommand.CopyPassword: {
+          const [error, result] = await this.copyPassword(request.id);
+          callback(error, result);
+          break;
+        }
+      }
+    });
   }
 
   async setMagnifyEnabledState(enabled: boolean): Promise<void> {
     await this.magnifyEnabledState.update(() => enabled, {
       shouldUpdate: (currentlyEnabled) => currentlyEnabled !== enabled,
     });
+  }
+
+  /*
+    This function searches the vault using an input string
+    and returns the relevant MagnifyCommandResponse. This is based
+    on the searchVault Magnify Command.
+
+    Check the getAutotypeVaultData() fn in:
+    apps/desktop/src/autofill/services/desktop-autotype.service.ts
+    for examples of returning this Result type.
+  */
+  private async searchVault(input: string): Promise<Result<MagnifyCommandResponse>> {
+    // Returning dummy data for now
+    // TODO: IMPLEMENT ACTUAL VAULT SEARCH HERE
+    const response: MagnifyCommandResponse = {
+      type: MagnifyCommand.SearchVault,
+      results: [
+        { id: "a1b2c3", name: "Netflix", email: "user@gmail.com" },
+        { id: "d4e5f6", name: "Netflix Family", email: "family@gmail.com" },
+        { id: "g7h8i9", name: "Netflix Work", email: "user@company.com" },
+      ],
+    };
+
+    return [null, response];
+  }
+
+  /*
+    This function returns the password for a specific Login cipher
+    based on the copyPassword Magnify Command.
+
+    Check the getAutotypeVaultData() fn in:
+    apps/desktop/src/autofill/services/desktop-autotype.service.ts
+    for examples of returning this Result type.
+
+  */
+  private async copyPassword(id: string): Promise<Result<MagnifyCommandResponse>> {
+    // Returning dummy data for now
+    // TODO: IMPLEMENT ACTUAL COPY PASSWORD LOGIC HERE
+    const response: MagnifyCommandResponse = {
+      type: MagnifyCommand.CopyPassword,
+      result: "PasswordIsHere!",
+    };
+
+    return [null, response];
   }
 
   ngOnDestroy() {

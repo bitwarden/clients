@@ -9,11 +9,10 @@ export const AUTOTYPE_IPC_CHANNELS = {
 } as const;
 
 export const MAGNIFY_IPC_CHANNELS = {
-  //INIT: "autofill.initMagnify",
-  //INITIALIZED: "autofill.magnifyIsInitialized",
   TOGGLE: "autofill.toggleMagnify",
-  //CONFIGURE: "autofill.configureMagnify",
-  //LISTEN: "autofill.listenMagnifyRequest",
-  //EXECUTION_ERROR: "autofill.magnifyExecutionError",
-  //OPEN: "autofill.openMagnify",
+  MAIN_PROCESS_COMMANDS_FROM_MAGNIFY_LISTENER: "autofill.mainProcessCommandsFromMagnifyListener",
+  MAIN_PROCESS_COMMANDS_FROM_BW_LISTENER: "autofill.mainProcessCommandsFromBwListener",
+  BW_RENDER_PROCESS_COMMANDS_FROM_MAIN_PROCESS_LISTENER:
+    "autofill.bwRenderProcessCommandsFromMainProcessListener",
+  //BW_RENDER_PROCESS_COMMAND_RESPONDER: "autofill.bwRenderProcessCommandResponder",
 } as const;

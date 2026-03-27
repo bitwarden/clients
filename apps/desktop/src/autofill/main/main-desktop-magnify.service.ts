@@ -6,6 +6,7 @@ import { LogService } from "@bitwarden/logging";
 
 import { WindowMain } from "../../main/window.main";
 import { MAGNIFY_IPC_CHANNELS } from "../models/ipc-channels";
+import { MagnifyCommandRequest, MagnifyCommandResponse } from "../models/magnify-commands";
 
 export class MainDesktopMagnifyService {
   private MAGNIFY_KEYBOARD_SHORTCUT = "CommandOrControl+Shift+Space";
@@ -19,7 +20,13 @@ export class MainDesktopMagnifyService {
     await this.registerIpcListeners();
   }
 
+  /*
+    Register various IPC listeners
+
+    https://www.electronjs.org/docs/latest/tutorial/ipc
+  */
   async registerIpcListeners() {
+    // From bw render process -> main process, 1 way Electron IPC
     ipcMain.on(MAGNIFY_IPC_CHANNELS.TOGGLE, async (_event, enable: boolean) => {
       if (enable) {
         await this.enableMagnify();
@@ -27,6 +34,33 @@ export class MainDesktopMagnifyService {
         this.disableMagnify();
       }
     });
+
+    // From
+    /*ipcMain.on(
+      MAGNIFY_IPC_CHANNELS.MAIN_PROCESS_COMMANDS_FROM_BW_LISTENER,
+      (_event, response: MagnifyCommandResponse) => {
+        // eslint-disable-next-line no-console
+        console.log("FROM THE MAIN DESKTOP MAGNIFY PROCESS");
+        // eslint-disable-next-line no-console
+        console.log("RECEIVED THE: MagnifyCommandResponse");
+        // eslint-disable-next-line no-console
+        console.log(response);
+
+        /*
+        // this needs to be sent to the magnify window
+        this.windowMain.win.webContents.send(
+          MAGNIFY_IPC_CHANNELS.BW_RENDER_PROCESS_COMMANDS_FROM_MAIN_PROCESS_LISTENER,
+          command,
+        );
+         */
+    //},
+    //);
+
+    // From magnify render process -> main process
+    ipcMain.handle(
+      MAGNIFY_IPC_CHANNELS.MAIN_PROCESS_COMMANDS_FROM_MAGNIFY_LISTENER,
+      (event, command) => this.commandHandler(event, command),
+    );
   }
 
   // Deregister the keyboard shortcut if registered.
@@ -77,5 +111,31 @@ export class MainDesktopMagnifyService {
     });
 
     await win.loadFile(path.join(__dirname, "magnify", "index.html"));
+  }
+
+  /*
+    commandHandler() sends Magnify commands from the Magnify render process
+    to the Bitwarden render process.
+  */
+  private async commandHandler(
+    _event: Electron.IpcMainInvokeEvent,
+    command: MagnifyCommandRequest,
+  ) {
+    return new Promise<MagnifyCommandResponse>((resolve) => {
+      // Set up a listener to retrieve the first message on
+      // MAGNIFY_IPC_CHANNELS.MAIN_PROCESS_COMMANDS_FROM_BW_LISTENER
+      ipcMain.once(
+        MAGNIFY_IPC_CHANNELS.MAIN_PROCESS_COMMANDS_FROM_BW_LISTENER,
+        (_event, response: MagnifyCommandResponse) => {
+          resolve(response);
+        },
+      );
+
+      // Send the command to the render process
+      this.windowMain.win.webContents.send(
+        MAGNIFY_IPC_CHANNELS.BW_RENDER_PROCESS_COMMANDS_FROM_MAIN_PROCESS_LISTENER,
+        command,
+      );
+    });
   }
 }
