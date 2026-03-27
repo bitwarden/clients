@@ -1,6 +1,6 @@
 import { UserId } from "@bitwarden/user-core";
 
-import { Receive } from "../models/receive";
+import { Receive } from "../models/domain/receive";
 import { ReceiveCreateInput } from "../models/receive-create-input";
 import { ReceiveSharedData } from "../models/receive-shared-data";
 import { ReceiveUrlData } from "../models/receive-url-data";

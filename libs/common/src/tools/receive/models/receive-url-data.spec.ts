@@ -5,7 +5,7 @@ import { Guid } from "@bitwarden/common/types/guid";
 import { newGuid } from "@bitwarden/guid";
 
 import { buildReceiveUrl } from "./receive-url-data";
-import { ReceiveView } from "./receive.view";
+import { ReceiveView } from "./view/receive.view";
 
 describe("buildReceiveUrl", () => {
   const mockId = newGuid() as Guid;

@@ -10,13 +10,15 @@ import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 
 import { ReceiveData } from "../models/data/receive.data";
-import { Receive, ReceiveFile } from "../models/receive";
+import { Receive } from "../models/domain/receive";
+import { ReceiveFile } from "../models/domain/receive-file";
 import { ReceiveCreateInput } from "../models/receive-create-input";
 import { ReceiveSharedData } from "../models/receive-shared-data";
 import { ReceiveUrlData } from "../models/receive-url-data";
-import { ReceiveFileView, ReceiveView } from "../models/receive.view";
 import { CreateReceiveRequest } from "../models/requests/create-receive.request";
 import { ReceiveSharedDataResponse } from "../models/response/receive-shared-data.response";
+import { ReceiveFileView } from "../models/view/receive-file.view";
+import { ReceiveView } from "../models/view/receive.view";
 
 import { ReceiveApiService } from "./receive-api.service.abstraction";
 import { ReceiveService } from "./receive.service";
@@ -147,12 +149,12 @@ export class DefaultReceiveService implements ReceiveService {
       sharedContentEncryptionKey,
     };
 
-    if (receive.fileData) {
+    if (receive.file) {
       const privateKey = await this.encryptService.unwrapDecapsulationKey(
         receive.userKeyWrappedPrivateKey,
         userKey,
       );
-      view.fileData = await this.decryptReceiveFiles(receive.fileData, privateKey);
+      view.fileData = await this.decryptReceiveFiles(receive.file, privateKey);
     }
 
     return view;

@@ -5,6 +5,7 @@ export class ReceiveFileApi extends BaseResponse {
   fileName: string;
   size: string;
   sizeName: string;
+  encapsulatedFileContentEncryptionKey: string;
 
   constructor(data: any) {
     super(data);
@@ -13,5 +14,8 @@ export class ReceiveFileApi extends BaseResponse {
     this.fileName = this.getResponseProperty("FileName");
     this.size = this.getResponseProperty("Size");
     this.sizeName = this.getResponseProperty("SizeName");
+    this.encapsulatedFileContentEncryptionKey = this.getResponseProperty(
+      "EncapsulatedFileContentEncryptionKey",
+    );
   }
 }

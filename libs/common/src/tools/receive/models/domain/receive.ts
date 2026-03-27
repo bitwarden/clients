@@ -1,11 +1,12 @@
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { Guid } from "@bitwarden/common/types/guid";
+import { ReceiveId } from "@bitwarden/common/types/guid";
 
-import { ReceiveFileData } from "./data/receive-file.data";
-import { ReceiveData } from "./data/receive.data";
+import { ReceiveData } from "../data/receive.data";
+
+import { ReceiveFile } from "./receive-file";
 
 export class Receive {
-  id: Guid;
+  id: ReceiveId;
 
   // Encrypted shared content, encrypted by the sharedContentEncryptionKey (SCEK).
   name: EncString;
@@ -14,7 +15,7 @@ export class Receive {
   userKeyWrappedSharedContentEncryptionKey: EncString;
   userKeyWrappedPrivateKey: EncString;
 
-  file?: ReceiveFileData[];
+  file?: ReceiveFile[];
   secret: string;
   uploadCount: number;
   creationDate: Date;
@@ -22,7 +23,7 @@ export class Receive {
   expirationDate: Date;
 
   constructor(data: ReceiveData) {
-    this.id = data.id as Guid;
+    this.id = data.id as ReceiveId;
     this.name = new EncString(data.name);
     this.userKeyWrappedSharedContentEncryptionKey = new EncString(
       data.userKeyWrappedSharedContentEncryptionKey,
