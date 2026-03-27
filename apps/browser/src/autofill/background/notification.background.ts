@@ -1018,13 +1018,15 @@ export default class NotificationBackground {
     // involves all ciphers, making it mutually exclusive from any other scenario)
     if (noFieldMatches.length === ciphersForURL.length) {
       // trigger a new cipher notification in these input scenarios
+      // Note: username-only is excluded because a username with no password is insufficient
+      // signal to assume a new login is being created. Multistep login forms accumulate
+      // username + password across steps, so the combined data will trigger on form submission.
       if (
         (
           [
             inputScenarios.usernamePasswordNewPassword,
             inputScenarios.usernameNewPassword,
             inputScenarios.usernamePassword,
-            inputScenarios.username,
             inputScenarios.passwordNewPassword,
           ] as InputScenario[]
         ).includes(inputScenario) &&
