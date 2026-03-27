@@ -27,7 +27,12 @@ import { LogService } from "@bitwarden/logging";
 import { GlobalStateProvider, KeyDefinition, PHISHING_DETECTION_DISK } from "@bitwarden/state";
 
 import { PhishingManifest } from "../phishing-manifest.types";
-import { getPhishingResources, PhishingResourceType } from "../phishing-resources";
+import {
+  PHISHING_CHECKSUM_URL,
+  PHISHING_MANIFEST_URL,
+  PHISHING_PATCH_BASE_URL,
+  PHISHING_PRIMARY_URL,
+} from "../phishing-resources";
 
 import { PhishingIndexedDbService } from "./phishing-indexeddb.service";
 
@@ -82,10 +87,6 @@ export const PHISHING_DOMAINS_BLOB_KEY = new KeyDefinition<string>(
 
 /** Coordinates fetching, caching, and patching of known phishing web addresses */
 export class PhishingDataService {
-  // Cursor-based search is disabled due to performance (6+ minutes on large databases)
-  // Enable when performance is optimized via indexing or other improvements
-  private static readonly USE_CUSTOM_MATCHER = false;
-
   // While background scripts do not necessarily need destroying,
   // processes in PhishingDataService are memory intensive.
   // We are adding the destroy to guard against accidental leaks.
@@ -127,7 +128,6 @@ export class PhishingDataService {
     private globalStateProvider: GlobalStateProvider,
     private logService: LogService,
     private platformUtilsService: PlatformUtilsService,
-    private resourceType: PhishingResourceType = PhishingResourceType.Links,
   ) {
     this.logService.debug("[PhishingDataService] Initializing service...");
     this.indexedDbService = new PhishingIndexedDbService(this.logService);
@@ -172,8 +172,6 @@ export class PhishingDataService {
       return true;
     }
 
-    const resource = getPhishingResources(this.resourceType);
-
     try {
       // Quick lookup: check direct presence of href in IndexedDB
       // Also check without trailing slash since browsers add it but DB entries may not have it
@@ -211,23 +209,6 @@ export class PhishingDataService {
       this.logService.error("[PhishingDataService] IndexedDB lookup failed", err);
     }
 
-    // Custom matcher is disabled for performance (see USE_CUSTOM_MATCHER)
-    if (resource && resource.match && PhishingDataService.USE_CUSTOM_MATCHER) {
-      try {
-        const found = await this.indexedDbService.findMatchingUrl((entry) =>
-          resource.match(url, entry),
-        );
-
-        if (found) {
-          this.logService.info("[PhishingDataService] Found phishing URL via matcher: " + url.href);
-        }
-        return found;
-      } catch (err) {
-        this.logService.error("[PhishingDataService] Custom matcher failed", err);
-        return false;
-      }
-    }
-
     return false;
   }
 
@@ -246,12 +227,11 @@ export class PhishingDataService {
   }
 
   // [FIXME] Pull fetches into api service
-  private async fetchPhishingChecksum(type: PhishingResourceType = PhishingResourceType.Domains) {
-    const checksumUrl = getPhishingResources(type)!.checksumUrl;
-    this.logService.debug(`[PhishingDataService] Fetching checksum from: ${checksumUrl}`);
+  private async fetchPhishingChecksum() {
+    this.logService.debug(`[PhishingDataService] Fetching checksum from: ${PHISHING_CHECKSUM_URL}`);
 
     try {
-      const response = await this.apiService.nativeFetch(new Request(checksumUrl));
+      const response = await this.apiService.nativeFetch(new Request(PHISHING_CHECKSUM_URL));
       if (!response.ok) {
         throw new Error(
           `[PhishingDataService] Failed to fetch checksum: ${response.status} ${response.statusText}`,
@@ -261,7 +241,7 @@ export class PhishingDataService {
       return await response.text();
     } catch (error) {
       this.logService.error(
-        `[PhishingDataService] Checksum fetch failed from ${checksumUrl}`,
+        `[PhishingDataService] Checksum fetch failed from ${PHISHING_CHECKSUM_URL}`,
         error,
       );
       throw error;
@@ -334,15 +314,10 @@ export class PhishingDataService {
    * Fetch and parse manifest.json from assets.bitwarden.com.
    */
   private async fetchManifest(): Promise<PhishingManifest> {
-    const resource = getPhishingResources(this.resourceType);
-    if (!resource?.manifestUrl) {
-      throw new Error("Manifest URL missing from phishing resources");
-    }
-
-    this.logService.info(`[PhishingDataService] Fetching manifest from ${resource.manifestUrl}`);
+    this.logService.info(`[PhishingDataService] Fetching manifest from ${PHISHING_MANIFEST_URL}`);
 
     const response = await this.apiService.nativeFetch(
-      new Request(resource.manifestUrl, {
+      new Request(PHISHING_MANIFEST_URL, {
         headers: { "Accept-Encoding": "gzip" },
       }),
     );
@@ -360,12 +335,7 @@ export class PhishingDataService {
   private async fetchPatch(
     patchPath: string,
   ): Promise<{ additions: string[]; removals: string[] }> {
-    const resource = getPhishingResources(this.resourceType);
-    if (!resource?.patchBaseUrl) {
-      throw new Error("Patch base URL missing from phishing resources");
-    }
-
-    const url = resource.patchBaseUrl + patchPath;
+    const url = PHISHING_PATCH_BASE_URL + patchPath;
     this.logService.info(`[PhishingDataService] Fetching patch from ${url}`);
 
     const response = await this.apiService.nativeFetch(
@@ -582,15 +552,12 @@ export class PhishingDataService {
       // Manifest unavailable — proceed without verification
     }
 
-    const resource = getPhishingResources(this.resourceType);
-    if (!resource?.primaryUrl) {
-      throw new Error("Primary URL missing from phishing resources");
-    }
-
-    this.logService.info(`[PhishingDataService] Starting FULL update using ${resource.primaryUrl}`);
+    this.logService.info(
+      `[PhishingDataService] Starting FULL update using ${PHISHING_PRIMARY_URL}`,
+    );
 
     const response = await this.apiService.nativeFetch(
-      new Request(resource.primaryUrl, {
+      new Request(PHISHING_PRIMARY_URL, {
         headers: { "Accept-Encoding": "gzip" },
       }),
     );
@@ -643,15 +610,12 @@ export class PhishingDataService {
     manifest: PhishingManifest,
     applicationVersion: string,
   ): Promise<{ meta: PhishingDataMeta; updated: boolean }> {
-    const resource = getPhishingResources(this.resourceType);
-    if (!resource?.primaryUrl) {
-      throw new Error("Primary URL missing from phishing resources");
-    }
-
-    this.logService.info(`[PhishingDataService] Starting FULL update using ${resource.primaryUrl}`);
+    this.logService.info(
+      `[PhishingDataService] Starting FULL update using ${PHISHING_PRIMARY_URL}`,
+    );
 
     const response = await this.apiService.nativeFetch(
-      new Request(resource.primaryUrl, {
+      new Request(PHISHING_PRIMARY_URL, {
         headers: { "Accept-Encoding": "gzip" },
       }),
     );
@@ -689,7 +653,7 @@ export class PhishingDataService {
     previous: PhishingDataMeta | null,
     applicationVersion: string,
   ): Promise<{ meta: PhishingDataMeta; updated: boolean }> {
-    const remoteChecksum = await this.fetchPhishingChecksum(this.resourceType);
+    const remoteChecksum = await this.fetchPhishingChecksum();
 
     if (remoteChecksum === previous?.checksum) {
       return {
@@ -698,16 +662,11 @@ export class PhishingDataService {
       };
     }
 
-    const resource = getPhishingResources(this.resourceType);
-    if (!resource?.primaryUrl) {
-      throw new Error("Primary URL missing from phishing resources");
-    }
-
     this.logService.info(
-      `[PhishingDataService] Legacy sync: checksum changed — full update from ${resource.primaryUrl}`,
+      `[PhishingDataService] Legacy sync: checksum changed — full update from ${PHISHING_PRIMARY_URL}`,
     );
 
-    const response = await this.apiService.nativeFetch(new Request(resource.primaryUrl));
+    const response = await this.apiService.nativeFetch(new Request(PHISHING_PRIMARY_URL));
 
     if (!response.ok || !response.body) {
       throw new Error(`Full update failed: ${response.status}`);
