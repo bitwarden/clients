@@ -1,9 +1,11 @@
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 
 import { ReceiveFileUploadInput } from "../models/receive-file-upload-input";
+import { ReceiveFileView } from "../models/view/receive-file.view";
 
 import { ReceiveFileService } from "./receive-file.service";
 
@@ -17,13 +19,33 @@ export class DefaultReceiveFileService implements ReceiveFileService {
   constructor(
     private readonly keyGenerationService: KeyGenerationService,
     private readonly encryptService: EncryptService,
+    private fileDownloadService: FileDownloadService,
   ) {}
-
   async uploadFile(input: ReceiveFileUploadInput): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const encryptedFileData = await this.encryptFile(input);
 
     // TODO upload the encrypted file data to the server associated with the receive url data in the input
+  }
+
+  async downloadFile(fileView: ReceiveFileView): Promise<void> {
+    // TODO get the encrypted file data from the server using the fileView data
+    // fetch ID and URL from server for the file storage.
+    // Fetch the encrypted file from the URL
+
+    // Fake data place holder
+    const encFileData = new EncArrayBuffer(new Uint8Array(0));
+
+    const decryptedBuffer = await this.encryptService.decryptFileData(
+      encFileData,
+      fileView.fileContentEncryptionKey,
+    );
+
+    this.fileDownloadService.download({
+      fileName: fileView.fileName,
+      blobData: decryptedBuffer as BlobPart,
+      downloadMethod: "save",
+    });
   }
 
   private async encryptFile(input: ReceiveFileUploadInput): Promise<EncryptFileResult> {
