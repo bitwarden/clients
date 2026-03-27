@@ -1,9 +1,10 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/logging";
-import { ScheduledTaskNames } from "@bitwarden/scheduling";
 
 import { DefaultTaskSchedulerService } from "./default-task-scheduler.service";
+import { ScheduledTaskNames } from "./scheduled-task-name.enum";
+
 
 describe("DefaultTaskSchedulerService", () => {
   const callback = jest.fn();
