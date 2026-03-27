@@ -2,7 +2,6 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import {
   BadgeModule,
   ButtonModule,
@@ -33,14 +32,11 @@ import { ReceiveView } from "./receive-view";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReceiveTableComponent {
-  protected readonly authType = AuthType;
-
   readonly dataSource = input<TableDataSource<ReceiveView>>();
   readonly disableReceive = input(false);
 
   readonly editReceive = output<ReceiveView>();
   readonly copyReceive = output<ReceiveView>();
-  readonly removePassword = output<ReceiveView>();
   readonly deleteReceive = output<ReceiveView>();
 
   protected onEditReceive(receive: ReceiveView): void {
@@ -49,10 +45,6 @@ export class ReceiveTableComponent {
 
   protected onCopy(receive: ReceiveView): void {
     this.copyReceive.emit(receive);
-  }
-
-  protected onRemovePassword(receive: ReceiveView): void {
-    this.removePassword.emit(receive);
   }
 
   protected onDelete(receive: ReceiveView): void {
