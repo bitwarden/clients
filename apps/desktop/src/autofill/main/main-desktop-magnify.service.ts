@@ -11,6 +11,9 @@ import { MagnifyCommandRequest, MagnifyCommandResponse } from "../models/magnify
 export class MainDesktopMagnifyService {
   private MAGNIFY_KEYBOARD_SHORTCUT = "CommandOrControl+Shift+Space";
 
+  // allows only a single instance of the window to be opened regardless of how many times the hotkey to open it is pressed.
+  private magnifyWindow: BrowserWindow | null = null;
+
   constructor(
     private logService: LogService,
     private windowMain: WindowMain,
@@ -81,6 +84,13 @@ export class MainDesktopMagnifyService {
 
   // Open the magnify window, which is its own project
   private async openMagnify() {
+    // surface the existing window if the window has already been created
+    if (this.magnifyWindow != null && !this.magnifyWindow.isDestroyed()) {
+      this.magnifyWindow.focus();
+      return;
+    }
+
+    // otherwise create the window
     const win = new BrowserWindow({
       width: 800,
       height: 600,
@@ -90,6 +100,11 @@ export class MainDesktopMagnifyService {
         contextIsolation: true,
       },
     });
+
+    win.on("closed", () => {
+      this.magnifyWindow = null;
+    });
+    this.magnifyWindow = win;
 
     await win.loadFile(path.join(__dirname, "magnify", "index.html"));
   }
