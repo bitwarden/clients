@@ -3398,6 +3398,9 @@
   "discount": {
     "message": "korting"
   },
+  "discountExpiredOnPurchase": {
+    "message": "Korting verlopen. Controleer je winkelwagentotaal en probeer het opnieuw."
+  },
   "downloadLicense": {
     "message": "Licentie downloaden"
   },
@@ -3804,6 +3807,15 @@
   },
   "policies": {
     "message": "Beleidseisen"
+  },
+  "dataControls": {
+    "message": "Gegevensbeheer"
+  },
+  "authentication": {
+    "message": "Authenticatie"
+  },
+  "vaultManagement": {
+    "message": "Kluisbeheer"
   },
   "singleSignOn": {
     "message": "Single sign-on"
@@ -6485,6 +6497,14 @@
   "verifyYourEmailToViewThisSend": {
     "message": "Verifieer je e-mailadres om deze Send te bekijken",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Heeft je geen code ontvangen? Neem contact op met de verzender om je e-mailadres te bevestigen of ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Verificatiecode opnieuw verzenden",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "De Bitwarden-gebruiker die deze Send heeft gemaakt heeft ervoor gekozen het e-mailadres te verbergen. Je moet je ervan verzekeren dat je de bron van deze link vertrouwt voordat je de inhoud gebruikt of downloadt.",
