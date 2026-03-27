@@ -17,7 +17,7 @@ export class CommandService {
       input,
     };
 
-    const response: MagnifyCommandResponse = await window.ipc.send(request);
+    const response: MagnifyCommandResponse = await window.ipc.sendCommand(request);
 
     if (
       response !== undefined &&
