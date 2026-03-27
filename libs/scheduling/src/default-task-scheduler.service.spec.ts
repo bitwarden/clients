@@ -5,7 +5,6 @@ import { LogService } from "@bitwarden/logging";
 import { DefaultTaskSchedulerService } from "./default-task-scheduler.service";
 import { ScheduledTaskNames } from "./scheduled-task-name.enum";
 
-
 describe("DefaultTaskSchedulerService", () => {
   const callback = jest.fn();
   const delayInMs = 1000;
