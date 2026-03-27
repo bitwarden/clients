@@ -239,7 +239,7 @@ export class ItemDetailsSectionComponent implements OnInit {
         collectionIds: [],
         favorite: false,
       });
-      await this.updateCollectionOptions(this.initialValues?.collectionIds);
+      await this.updateCollectionOptions(this.initialValues?.collectionIds ?? []);
     }
 
     this.setFormState();
@@ -473,7 +473,7 @@ export class ItemDetailsSectionComponent implements OnInit {
       return;
     }
 
-    if (startingSelection.filter(Boolean).length > 0) {
+    if (startingSelection?.filter(Boolean).length > 0) {
       collectionsControl.setValue(
         this.collectionOptions.filter((c) => startingSelection.includes(c.id as CollectionId)),
       );
