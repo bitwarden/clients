@@ -271,10 +271,22 @@ export class CipherViewComponent {
     params: () => ({ cipher: this.cipher(), showPwLink: this.showChangePasswordLink() }),
     loader: async ({ params }) => {
       if (!params.showPwLink) {
-        return "";
+        return undefined;
       }
-      return await this.changeLoginPasswordService.getChangePasswordUrl(params.cipher);
+      try {
+        return await this.changeLoginPasswordService.getChangePasswordUrl(params.cipher);
+      } catch (e: any) {
+        this.logService.error(e.message);
+        return undefined;
+      }
     },
+  });
+
+  readonly changePasswordLink = computed(() => {
+    if (this.changePasswordUrl.hasValue()) {
+      return this.changePasswordUrl.value();
+    }
+    return undefined;
   });
 
   launchChangePassword = async () => {
