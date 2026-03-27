@@ -34,16 +34,16 @@ export class DefaultReceiveFileService implements ReceiveFileService {
     // Fetch the encrypted file from the URL
 
     // Fake data place holder
-    const encFileData = new EncArrayBuffer(new Uint8Array(0));
+    const encryptedFileData = new EncArrayBuffer(new Uint8Array(0));
 
-    const decryptedBuffer = await this.encryptService.decryptFileData(
-      encFileData,
+    const fileData = await this.encryptService.decryptFileData(
+      encryptedFileData,
       fileView.fileContentEncryptionKey,
     );
 
     this.fileDownloadService.download({
       fileName: fileView.fileName,
-      blobData: decryptedBuffer as BlobPart,
+      blobData: fileData as BlobPart,
       downloadMethod: "save",
     });
   }
