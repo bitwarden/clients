@@ -1,8 +1,17 @@
-import { init as initPqp, initLogging, login, logout, isLoggedIn } from "@ovrlab/pqp-network";
+import { init as initPqp, initLogging, login, logout, isLoggedIn, rotateKeypair } from "@ovrlab/pqp-network";
 
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 
 import MainBackground from "../background/main.background";
+
+import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master-password/master-password-api.service.implementation";
+import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
+import { firstValueFrom } from "rxjs";
+
+// Type for rotateKeypair with options (until pqp-network types are updated in node_modules)
+type RotateKeypairFn = (options?: {
+  onBeforeFinalize?: (oldDerivedPw: string, newDerivedPw: string) => Promise<void>;
+}) => Promise<{ publicKey: string; privateKey: string }>;
 
 const logService = new ConsoleLogService(false);
 
@@ -24,7 +33,7 @@ void initLogging("chrome", { offscreenIdentifier: "offscreen-document/index.html
 
 // Register message handlers for popup commands
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  const handledTypes = ["LOGIN", "LOGIN_MICROSOFT", "LOGOUT", "CHECK_STATUS"];
+  const handledTypes = ["LOGIN", "LOGIN_MICROSOFT", "LOGOUT", "CHECK_STATUS", "ROTATE_KEYS"];
 
   if (!message?.type || !handledTypes.includes(message.type)) {
     return false;
@@ -73,6 +82,67 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       if (message.type === "CHECK_STATUS") {
         const loggedIn = await isLoggedIn();
         sendResponse({ success: true, loggedIn });
+        return;
+      }
+
+      if (message.type === "ROTATE_KEYS") {
+        try {
+          const main = (self as any).bitwardenMain as MainBackground;
+
+          await (rotateKeypair as RotateKeypairFn)({
+            onBeforeFinalize: async (oldDerivedPw: string, newDerivedPw: string) => {
+              // Get active user context
+              const activeUser = await firstValueFrom(main.accountService.activeAccount$);
+              if (!activeUser) {
+                throw new Error("No active Bitwarden user — cannot update password");
+              }
+              const userId = activeUser.id;
+              const email = activeUser.email;
+              const kdfConfig = await firstValueFrom(
+                main.kdfConfigService.getKdfConfig$(userId),
+              );
+
+              // Derive old + new master keys
+              const oldMasterKey = await main.keyService.makeMasterKey(oldDerivedPw, email, kdfConfig);
+              const newMasterKey = await main.keyService.makeMasterKey(newDerivedPw, email, kdfConfig);
+
+              // Hash for server verification
+              const oldServerHash = await main.keyService.hashMasterKey(oldDerivedPw, oldMasterKey);
+              const newServerHash = await main.keyService.hashMasterKey(newDerivedPw, newMasterKey);
+
+              // Re-wrap user key with new master key
+              const decryptedUserKey = await main.masterPasswordService.decryptUserKeyWithMasterKey(
+                oldMasterKey,
+                userId,
+              );
+              if (!decryptedUserKey) {
+                throw new Error("Could not decrypt user key — cannot update Bitwarden password");
+              }
+              const [, newEncryptedUserKey] = await main.keyService.encryptUserKeyWithMasterKey(
+                newMasterKey,
+                decryptedUserKey,
+              );
+
+              // Send password change to Bitwarden server
+              const masterPwApi = new MasterPasswordApiService(main.apiService, main.logService);
+              const request = new PasswordRequest();
+              request.masterPasswordHash = oldServerHash;
+              request.newMasterPasswordHash = newServerHash;
+              request.key = newEncryptedUserKey.encryptedString as string;
+              request.masterPasswordHint = "";
+              await masterPwApi.postPassword(request);
+            },
+          });
+          sendResponse({ success: true });
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error("[PQP] Key rotation failed:", error);
+          try {
+            sendResponse({ error: (error as Error).message || "Key rotation failed" });
+          } catch {
+            /* ignore */
+          }
+        }
         return;
       }
     } catch (error) {
