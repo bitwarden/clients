@@ -104,6 +104,12 @@ export class MainDesktopMagnifyService {
     win.on("closed", () => {
       this.magnifyWindow = null;
     });
+
+    // emitted when the window loses focus
+    win.on("blur", () => {
+      win.close();
+    });
+
     this.magnifyWindow = win;
 
     await win.loadFile(path.join(__dirname, "magnify", "index.html"));
