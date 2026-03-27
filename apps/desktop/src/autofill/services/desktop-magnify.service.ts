@@ -87,9 +87,9 @@ export class DesktopMagnifyService implements OnDestroy {
     const response: MagnifyCommandResponse = {
       type: MagnifyCommand.SearchVault,
       results: [
-        { id: "a1b2c3", name: "Netflix", email: "user@gmail.com" },
-        { id: "d4e5f6", name: "Netflix Family", email: "family@gmail.com" },
-        { id: "g7h8i9", name: "Netflix Work", email: "user@company.com" },
+        { id: "a1b2c3", name: "Netflix", username: "user@gmail.com" },
+        { id: "d4e5f6", name: "Netflix Family", username: "family@gmail.com" },
+        { id: "g7h8i9", name: "Netflix Work", username: "user@company.com" },
       ],
     };
 

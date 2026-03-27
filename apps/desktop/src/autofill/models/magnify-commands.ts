@@ -35,5 +35,5 @@ export type MagnifyCommandResponse =
 export type MagnifyLoginItem = {
   id: string;
   name: string;
-  email: string;
+  username: string;
 };
