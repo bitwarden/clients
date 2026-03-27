@@ -921,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Mesterjelszó emlékeztető"
   },
+  "masterPasswordChanged": {
+    "message": "A mesterjelszó mentésre került."
+  },
   "passwordStrengthScore": {
     "message": "A jelszó erősségi pontszáma $SCORE$",
     "placeholders": {
@@ -1212,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Az új ajánlott titkosítási beállítások javítják a fiók biztonságát. Adjuk meg a mesterjelszót a frissítéshez most."
   },
+  "rotateAccountEncKey": {
+    "message": "A felhasználói fiókom titkosítókódját is cseréljük le"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "A titkosítási kulcs cseréjének hattása"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "A széfben régi mellékletek vannak, amelyeket javítani kell a fiók titkosító kulcsának fordítása előtt."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Titkosító kulcs cseréje"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Biztosan cserére kerüljön a fiók titkosító kulcsa?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "A titkosítási kulcs frissítése után ki kell jelentkezni és vissza kell jelentkezni az összes jelenleg használt Bitwarden alkalmazásba (például a mobilalkalmazás vagy a böngésző bővítmények). A kijelentkezés és a bejelentkezés elmulasztása (amely letölti az új titkosítási kulcsot) adatvesztést okozhat. Megkíséreljük az automatikusan kijelentkeztetést, azonban ez késhet."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "A fiókhoz korlátozottan mentett exportálások érvénytelenek lesznek."
+  },
   "confirmIdentityToContinue": {
     "message": "A folytatáshoz meg kell erősíteni a személyazonosságot."
   },
@@ -1296,8 +1320,8 @@
   "changeMasterPass": {
     "message": "Mesterjelszó módosítása"
   },
-  "masterPasswordChanged": {
-    "message": "A mesterjelszó mentésre került."
+  "changeMasterPassword": {
+    "message": "Mesterjelszó módosítása"
   },
   "continueToWebApp": {
     "message": "Tovább a webes alkalmazáshoz?"
@@ -2299,6 +2323,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Az új mesterjelszó nem felel meg a szabály követelményeknek."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Egy vagy több szervezeti rendszabályhoz mesterjelszó szükséges a következő követelmények megfeleléséhez:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Tanácsokat, bejelentéseket és kutatási lehetőségeket kaphatunk a Bitwardentől a postaládába."

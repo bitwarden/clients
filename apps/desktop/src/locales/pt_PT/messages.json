@@ -921,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Dica da palavra-passe mestra"
   },
+  "masterPasswordChanged": {
+    "message": "Palavra-passe mestra guardada"
+  },
   "passwordStrengthScore": {
     "message": "Pontuação da força da palavra-passe: $SCORE$",
     "placeholders": {
@@ -1212,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "As novas definições de encriptação recomendadas irão melhorar a segurança da sua conta. Introduza a sua palavra-passe mestra para atualizar agora."
   },
+  "rotateAccountEncKey": {
+    "message": "Regenerar também a chave de encriptação da minha conta"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impacto da regeneração da sua chave de encriptação"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Existem anexos de ficheiros antigos no seu cofre que têm de ser corrigidos antes de poder regenerar a chave de encriptação da sua conta."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Regenerar chave de encriptação"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Tem a certeza de que pretende regenerar a chave de encriptação da sua conta?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Após atualizar a sua chave de encriptação, terá de terminar a sessão e iniciar sessão novamente em todas as aplicações Bitwarden que está atualmente a utilizar (como a aplicação móvel ou as extensões do navegador). Não o fazer (o que permite descarregar a nova chave de encriptação) pode resultar em corrupção de dados. Tentaremos terminar a sua sessão automaticamente, no entanto, poderá sofrer algum atraso."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Todas as exportações com restrições de conta que tenha guardado tornar-se-ão inválidas."
+  },
   "confirmIdentityToContinue": {
     "message": "Confirme a sua identidade para continuar"
   },
@@ -1296,8 +1320,8 @@
   "changeMasterPass": {
     "message": "Alterar palavra-passe mestra"
   },
-  "masterPasswordChanged": {
-    "message": "Palavra-passe mestra guardada"
+  "changeMasterPassword": {
+    "message": "Alterar palavra-passe mestra"
   },
   "continueToWebApp": {
     "message": "Continuar para a aplicação Web?"
@@ -2299,6 +2323,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "A sua nova palavra-passe mestra não cumpre os requisitos da política."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Uma ou mais políticas da organização exigem que a palavra-passe mestra cumpra os seguintes requisitos:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Receba conselhos, anúncios e oportunidades de investigação do Bitwarden na sua caixa de entrada."
