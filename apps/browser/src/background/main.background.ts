@@ -296,6 +296,8 @@ import { AutoSubmitLoginBackground } from "../autofill/background/auto-submit-lo
 import ContextMenusBackground from "../autofill/background/context-menus.background";
 import NotificationBackground from "../autofill/background/notification.background";
 import { OAuthDetectionBackground } from "../autofill/background/oauth-detection.background";
+import { AppleOAuthProvider } from "../autofill/background/oauth-providers/apple-oauth.provider";
+import { GoogleOAuthProvider } from "../autofill/background/oauth-providers/google-oauth.provider";
 import { OverlayNotificationsBackground } from "../autofill/background/overlay-notifications.background";
 import { OverlayBackground } from "../autofill/background/overlay.background";
 import TabsBackground from "../autofill/background/tabs.background";
@@ -1424,6 +1426,7 @@ export default class MainBackground {
     this.oauthDetectionBackground = new OAuthDetectionBackground(
       this.logService,
       this.notificationBackground,
+      [new GoogleOAuthProvider(), new AppleOAuthProvider()],
     );
 
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(
