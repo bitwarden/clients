@@ -16,7 +16,10 @@ import { DialogVirtualScrollBlockComponent } from "./components/dialog-virtual-s
 import { KitchenSinkAppComponent } from "./components/kitchen-sink-app.component";
 import { KitchenSinkEmptyComponent } from "./components/kitchen-sink-empty.component";
 import { KitchenSinkFormComponent } from "./components/kitchen-sink-form.component";
-import { KitchenSinkMainComponent } from "./components/kitchen-sink-main.component";
+import {
+  KitchenSinkDialogWithAutofocusComponent,
+  KitchenSinkMainComponent,
+} from "./components/kitchen-sink-main.component";
 import { KitchenSinkTableComponent } from "./components/kitchen-sink-table.component";
 import { KitchenSinkToggleListComponent } from "./components/kitchen-sink-toggle-list.component";
 import { KitchenSinkVaultComponent } from "./components/kitchen-sink-vault.component";
@@ -31,6 +34,7 @@ export default {
       imports: [
         KitchenSinkSharedModule,
         KitchenSinkAppComponent,
+        KitchenSinkDialogWithAutofocusComponent,
         KitchenSinkEmptyComponent,
         KitchenSinkFormComponent,
         KitchenSinkMainComponent,
