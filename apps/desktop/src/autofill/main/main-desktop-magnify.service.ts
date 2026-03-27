@@ -36,7 +36,7 @@ export class MainDesktopMagnifyService {
     });
 
     // From
-    /*ipcMain.on(
+    ipcMain.on(
       MAGNIFY_IPC_CHANNELS.MAIN_PROCESS_COMMANDS_FROM_BW_LISTENER,
       (_event, response: MagnifyCommandResponse) => {
         // eslint-disable-next-line no-console
@@ -53,8 +53,8 @@ export class MainDesktopMagnifyService {
           command,
         );
          */
-    //},
-    //);
+      },
+    );
 
     // From magnify render process -> main process
     ipcMain.handle(
@@ -121,21 +121,11 @@ export class MainDesktopMagnifyService {
     _event: Electron.IpcMainInvokeEvent,
     command: MagnifyCommandRequest,
   ) {
-    return new Promise<MagnifyCommandResponse>((resolve) => {
-      // Set up a listener to retrieve the first message on
-      // MAGNIFY_IPC_CHANNELS.MAIN_PROCESS_COMMANDS_FROM_BW_LISTENER
-      ipcMain.once(
-        MAGNIFY_IPC_CHANNELS.MAIN_PROCESS_COMMANDS_FROM_BW_LISTENER,
-        (_event, response: MagnifyCommandResponse) => {
-          resolve(response);
-        },
-      );
-
-      // Send the command to the render process
-      this.windowMain.win.webContents.send(
-        MAGNIFY_IPC_CHANNELS.BW_RENDER_PROCESS_COMMANDS_FROM_MAIN_PROCESS_LISTENER,
-        command,
-      );
-    });
+    // eslint-disable-next-line no-console
+    console.log("HIT COMMAND HANDLER");
+    this.windowMain.win.webContents.send(
+      MAGNIFY_IPC_CHANNELS.BW_RENDER_PROCESS_COMMANDS_FROM_MAIN_PROCESS_LISTENER,
+      command,
+    );
   }
 }

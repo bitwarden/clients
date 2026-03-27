@@ -19,7 +19,11 @@ export class CommandService {
 
     const response: MagnifyCommandResponse = await window.ipc.send(request);
 
-    if (response.type === MagnifyCommand.SearchVault) {
+    if (
+      response !== undefined &&
+      response !== null &&
+      response.type === MagnifyCommand.SearchVault
+    ) {
       // eslint-disable-next-line no-console
       console.log("search vault results: ", response.results);
 
