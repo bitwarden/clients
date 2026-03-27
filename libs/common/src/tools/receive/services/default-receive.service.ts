@@ -5,7 +5,6 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { Guid } from "@bitwarden/common/types/guid";
-import { newGuid } from "@bitwarden/guid";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 import { EncString } from "@bitwarden/sdk-internal";
@@ -16,8 +15,8 @@ import { ReceiveCreateInput } from "../models/receive-create-input";
 import { ReceiveSharedData } from "../models/receive-shared-data";
 import { ReceiveUrlData } from "../models/receive-url-data";
 import { CreateReceiveRequest } from "../models/requests/create-receive.request";
-import { ReceiveSharedDataResponse } from "../models/response/receive-shared-data.response";
 
+import { ReceiveApiService } from "./receive-api.service.abstraction";
 import { ReceiveService } from "./receive.service";
 
 interface ReceiveKeys {
@@ -32,32 +31,35 @@ export class DefaultReceiveService implements ReceiveService {
     private encryptService: EncryptService,
     private keyService: KeyService,
     private keyGenerationService: KeyGenerationService,
+    private receiveApiService: ReceiveApiService,
   ) {}
 
   async create(input: ReceiveCreateInput, userId: UserId): Promise<Receive> {
     const receiveKeys = await this.makeReceiveKeys(userId);
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const requestPayload = await this.getCreateReceiveRequest(input, receiveKeys);
 
-    // TODO call an API endpoint to create the receive and return the result.
+    const response = await this.receiveApiService.postReceive(requestPayload);
 
-    // TODO return the created receive from the API instead of making a fake one here.
-    const receive: Receive = {
-      id: newGuid() as Guid,
+    return {
+      id: response.id as Guid,
+      name: response.name,
+      file: response.file ?? null,
+      userKeyWrappedSharedContentEncryptionKey: response.userKeyWrappedSharedContentEncryptionKey,
+      userKeyWrappedPrivateKey: response.userKeyWrappedPrivateKey,
+      scekWrappedPublicKey: response.scekWrappedPublicKey,
+      secret: response.secret,
+      uploadCount: response.uploadCount,
+      creationDate: response.creationDate,
+      revisionDate: response.revisionDate,
+      expirationDate: response.expirationDate ?? null,
     };
-    return receive;
   }
 
   async getSharedData(urlData: ReceiveUrlData): Promise<ReceiveSharedData> {
-    // TODO call an API endpoint to get receive shared data.
-    // const response = this.receiveApiService.getReceiveSharedData(urlData.receiveId);
-
-    // Fake response for now
-    const response = new ReceiveSharedDataResponse({
-      name: "encryptedName",
-      scekWrappedPublicKey: "seckWrappedPublicKey",
-    });
+    const response = await this.receiveApiService.getReceiveSharedData(
+      urlData.receiveId,
+      urlData.secretB64,
+    );
 
     return await this.decryptResponse(response, urlData);
   }
