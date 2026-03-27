@@ -20,7 +20,6 @@
       [routerLink]="[]"
       [queryParams]="{ collectionId: collection().id }"
       queryParamsHandling="merge"
-      appStopProp
     >
       <span class="tw-truncate tw-mr-1">{{ collection().name }}</span>
     </button>
@@ -32,7 +31,6 @@
       [disabled]="disabled()"
       [organizationId]="collection().organizationId"
       [organizationName]="collection().organizationId | orgNameFromId: organizations()"
-      appStopProp
     >
     </app-org-badge>
   </td>

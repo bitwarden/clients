@@ -19,6 +19,7 @@ import {
   MenuTriggerForDirective,
   TooltipDirective,
   TableModule,
+  LinkModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
@@ -54,6 +55,7 @@ interface CopyFieldConfig {
     PremiumBadgeComponent,
     GetOrgNameFromIdPipe,
     IconComponent,
+    LinkModule,
   ],
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> {
