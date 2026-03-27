@@ -1,11 +1,12 @@
 import { Guid } from "@bitwarden/common/types/guid";
 
-import { ReceiveFileApi } from "./api/receive-file.api";
+import { ReceiveFileData } from "./data/receive-file.data";
+import { ReceiveData } from "./data/receive.data";
 
-export interface Receive {
+export class Receive {
   id: Guid;
   name: string;
-  file: ReceiveFileApi | null;
+  file?: ReceiveFileData;
   userKeyWrappedSharedContentEncryptionKey: string;
   userKeyWrappedPrivateKey: string;
   scekWrappedPublicKey: string;
@@ -13,5 +14,19 @@ export interface Receive {
   uploadCount: number;
   creationDate: string;
   revisionDate: string;
-  expirationDate: string | null;
+  expirationDate: string;
+
+  constructor(data: ReceiveData) {
+    this.id = data.id as Guid;
+    this.name = data.name;
+    this.file = data.file;
+    this.userKeyWrappedSharedContentEncryptionKey = data.userKeyWrappedSharedContentEncryptionKey;
+    this.userKeyWrappedPrivateKey = data.userKeyWrappedPrivateKey;
+    this.scekWrappedPublicKey = data.scekWrappedPublicKey;
+    this.secret = data.secret;
+    this.uploadCount = data.uploadCount;
+    this.creationDate = data.creationDate;
+    this.revisionDate = data.revisionDate;
+    this.expirationDate = data.expirationDate;
+  }
 }

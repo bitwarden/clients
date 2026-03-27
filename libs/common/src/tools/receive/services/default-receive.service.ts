@@ -4,12 +4,12 @@ import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { Guid } from "@bitwarden/common/types/guid";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 import { EncString } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
+import { ReceiveData } from "../models/data/receive.data";
 import { Receive } from "../models/receive";
 import { ReceiveCreateInput } from "../models/receive-create-input";
 import { ReceiveSharedData } from "../models/receive-shared-data";
@@ -39,24 +39,12 @@ export class DefaultReceiveService implements ReceiveService {
     const requestPayload = await this.getCreateReceiveRequest(input, receiveKeys);
 
     const response = await this.receiveApiService.postReceive(requestPayload);
-
-    return {
-      id: response.id as Guid,
-      name: response.name,
-      file: response.file ?? null,
-      userKeyWrappedSharedContentEncryptionKey: response.userKeyWrappedSharedContentEncryptionKey,
-      userKeyWrappedPrivateKey: response.userKeyWrappedPrivateKey,
-      scekWrappedPublicKey: response.scekWrappedPublicKey,
-      secret: response.secret,
-      uploadCount: response.uploadCount,
-      creationDate: response.creationDate,
-      revisionDate: response.revisionDate,
-      expirationDate: response.expirationDate ?? null,
-    };
+    const data = new ReceiveData(response);
+    return new Receive(data);
   }
 
   async getSharedData(urlData: ReceiveUrlData): Promise<ReceiveSharedData> {
-    const response = await this.receiveApiService.getReceiveSharedData(
+    const response = await this.receiveApiService.postReceiveAccess(
       urlData.receiveId,
       urlData.secretB64,
     );
