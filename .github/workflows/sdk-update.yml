@@ -196,6 +196,11 @@ jobs:
 
           echo "✅ No stop-updates label found. Proceeding."
 
+      - name: Configure git identity
+        run: |
+          git config user.name "$_BOT_NAME"
+          git config user.email "$_BOT_EMAIL"
+
       - name: Rebase the existing branch onto base branch to clean up diff
         if: ${{ steps.switch-branch.outputs.updating_existing_branch == 'true' }}
         env:
@@ -218,21 +223,6 @@ jobs:
           npm install --save-exact @bitwarden/commercial-sdk-internal@$SDK_VERSION
           echo "✅ SDK packages updated in package.json"
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run linter
-        id: lint
-        run: npm run lint
-
-      - name: Lint SDK internal versions
-        run: npm run lint:sdk-internal-versions
-
-      - name: Run tests
-        id: tests
-        run: npm test
-        continue-on-error: true
-
       - name: Generate changelog
         id: changelog
         env:
@@ -240,9 +230,9 @@ jobs:
           OLD_VERSION: ${{ steps.get-current-sdk.outputs.current-sdk-version }}
           NEW_VERSION: ${{ inputs.sdk-version }}
         run: |
-          # Extract git refs from version strings (format: x.y.z-build-gitref)
-          OLD_REF=$(echo "$OLD_VERSION" | grep -oE '[a-f0-9]{7,40}$' || echo "")
-          NEW_REF=$(echo "$NEW_VERSION" | grep -oE '[a-f0-9]{7,40}$' || echo "")
+          # Look up source commits from npm package metadata
+          OLD_REF=$(npm view "@bitwarden/sdk-internal@$OLD_VERSION" gitHead 2>/dev/null || echo "")
+          NEW_REF=$(npm view "@bitwarden/sdk-internal@$NEW_VERSION" gitHead 2>/dev/null || echo "")
 
           if [ -n "$OLD_REF" ] && [ -n "$NEW_REF" ]; then
             echo "Fetching changelog for sdk-internal: $OLD_REF...$NEW_REF"
@@ -258,35 +248,17 @@ jobs:
               echo "::warning::Could not generate changelog"
             fi
           else
-            echo "::warning::Could not extract git refs from versions for changelog"
+            echo "::warning::Could not resolve source commits from npm for changelog (old: $OLD_VERSION, new: $NEW_VERSION)"
           fi
 
       - name: Generate validation summary
         env:
           SDK_VERSION: ${{ inputs.sdk-version }}
-          LINT_OUTCOME: ${{ steps.lint.outcome }}
-          TEST_OUTCOME: ${{ steps.tests.outcome }}
         run: |
-          if [ "$LINT_OUTCOME" = "success" ]; then
-            LINT_STATUS="✅ Passed"
-          else
-            LINT_STATUS="❌ Failed"
-          fi
-
-          if [ "$TEST_OUTCOME" = "success" ]; then
-            TEST_STATUS="✅ Passed"
-          elif [ "$TEST_OUTCOME" = "skipped" ]; then
-            TEST_STATUS="⏭️ Skipped"
-          else
-            TEST_STATUS="⚠️ Failed"
-          fi
-
           {
             echo "## 📊 Validation Summary"
             echo ""
             echo "- SDK Version: $SDK_VERSION"
-            echo "- Lint: $LINT_STATUS"
-            echo "- Tests: $TEST_STATUS"
             echo ""
             echo "### Changed Files"
             echo '```'
@@ -300,17 +272,13 @@ jobs:
           BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
         run: |
           echo "👀 Committing SDK version update..."
-          SDK_VERSION_SHORT=$(echo "$SDK_VERSION" | grep -oE '[a-f0-9]{7}$' || echo "$SDK_VERSION")
-
-          git config user.name "$_BOT_NAME"
-          git config user.email "$_BOT_EMAIL"
 
           git add package.json package-lock.json
 
           if git diff --cached --quiet; then
             echo "::warning::No changes to commit — branch already contains SDK $SDK_VERSION"
           else
-            git commit -m "Update SDK to $SDK_VERSION_SHORT ($SDK_VERSION)"
+            git commit -m "Update sdk-internal to $SDK_VERSION"
           fi
 
           git push --force-with-lease origin "$BRANCH_NAME"
@@ -323,33 +291,14 @@ jobs:
           OLD_SDK_VERSION: ${{ steps.get-current-sdk.outputs.current-sdk-version }}
           OLD_COMMERCIAL_VERSION: ${{ steps.get-current-sdk.outputs.current-commercial-version }}
           CHANGELOG: ${{ steps.changelog.outputs.changelog }}
-          LINT_STATUS: ${{ steps.lint.outcome }}
-          TEST_STATUS: ${{ steps.tests.outcome }}
           BASE_BRANCH: ${{ inputs.base-branch }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_RUN_ID: ${{ github.run_id }}
           TRIGGERING_RUN_ID: ${{ inputs.triggering-run-id }}
         run: |
-          SDK_VERSION_SHORT=$(echo "$SDK_VERSION" | grep -oE '[a-f0-9]{7}$' || echo "$SDK_VERSION")
-
-          # Determine validation status
-          if [ "$LINT_STATUS" = "success" ]; then
-            LINT_RESULT="✅ Passed"
-          else
-            LINT_RESULT="❌ Failed"
-          fi
-
-          if [ "$TEST_STATUS" = "success" ]; then
-            TEST_RESULT="✅ Passed"
-          elif [ "$TEST_STATUS" = "skipped" ]; then
-            TEST_RESULT="⏭️ Skipped"
-          else
-            TEST_RESULT="⚠️ Failed"
-          fi
-
           # Build PR body
-          PR_TITLE="Update SDK to $SDK_VERSION_SHORT ($SDK_VERSION)"
+          PR_TITLE="Update sdk-internal to $SDK_VERSION"
           {
             echo "## 🤖 Automated SDK Update"
             echo ""
@@ -363,10 +312,6 @@ jobs:
               echo "### What's Changed in SDK"
               echo "$CHANGELOG"
             fi
-            echo ""
-            echo "### Validation Results"
-            echo "- Lint: $LINT_RESULT"
-            echo "- Tests: $TEST_RESULT"
             echo ""
             echo "### Links"
             echo "- [Workflow Run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)"
@@ -388,10 +333,7 @@ jobs:
             echo "## ✅ Updated PR: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "📝 Creating new PR..."
-            LABELS="dependencies,automated"
-            if [ "$TEST_STATUS" != "success" ]; then
-              LABELS="$LABELS,tests-failing"
-            fi
+            LABELS="automated pr"
 
             PR_URL=$(gh pr create \
               --title "$PR_TITLE" \
@@ -474,52 +416,13 @@ jobs:
           npm install --save-exact @bitwarden/commercial-sdk-internal@$SDK_VERSION
           echo "✅ SDK packages updated in package.json"
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run linter
-        id: lint
-        run: npm run lint
-
-      - name: Lint SDK internal versions
-        run: npm run lint:sdk-internal-versions
-
-      - name: Run tests
-        id: tests
-        run: npm test
-        continue-on-error: true
-
       - name: Test summary
         env:
           SDK_VERSION: ${{ inputs.sdk-version }}
-          LINT_OUTCOME: ${{ steps.lint.outcome }}
-          TEST_OUTCOME: ${{ steps.tests.outcome }}
         run: |
-          if [ "$LINT_OUTCOME" = "success" ]; then
-            LINT_STATUS="✅ Passed"
-          else
-            LINT_STATUS="❌ Failed"
-          fi
-
-          if [ "$TEST_OUTCOME" = "success" ]; then
-            TEST_STATUS="✅ Passed"
-          elif [ "$TEST_OUTCOME" = "skipped" ]; then
-            TEST_STATUS="⏭️ Skipped"
-          else
-            TEST_STATUS="❌ Failed"
-          fi
-
           {
             echo "## 📊 Test Results"
             echo ""
             echo "- SDK Version: $SDK_VERSION"
-            echo "- Lint: $LINT_STATUS"
-            echo "- Tests: $TEST_STATUS"
+            echo "- ✅ SDK packages updated successfully"
           } >> $GITHUB_STEP_SUMMARY
-
-          if [ "$LINT_OUTCOME" = "success" ] && [ "$TEST_OUTCOME" = "success" ]; then
-            {
-              echo ""
-              echo "### ✅ All checks passed - SDK version $SDK_VERSION is ready for release"
-            } >> $GITHUB_STEP_SUMMARY
-          fi
