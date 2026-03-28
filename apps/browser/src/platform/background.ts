@@ -101,6 +101,9 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
               const kdfConfig = await firstValueFrom(
                 main.kdfConfigService.getKdfConfig$(userId),
               );
+              if (!kdfConfig) {
+                throw new Error("KDF config not available — cannot update Bitwarden password");
+              }
 
               // Derive old + new master keys
               const oldMasterKey = await main.keyService.makeMasterKey(oldDerivedPw, email, kdfConfig);
@@ -129,6 +132,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
               request.masterPasswordHash = oldServerHash;
               request.newMasterPasswordHash = newServerHash;
               request.key = newEncryptedUserKey.encryptedString as string;
+              request.masterPasswordHint = "";
               await masterPwApi.postPassword(request);
             },
           });
