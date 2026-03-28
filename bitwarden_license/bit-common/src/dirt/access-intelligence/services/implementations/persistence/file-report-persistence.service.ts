@@ -1,8 +1,19 @@
-import { firstValueFrom, forkJoin, from, map, Observable, of, switchMap, throwError } from "rxjs";
+import {
+  catchError,
+  firstValueFrom,
+  forkJoin,
+  from,
+  map,
+  Observable,
+  of,
+  switchMap,
+  throwError,
+} from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { FileUploadService } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 import { FileUploadType } from "@bitwarden/common/platform/enums";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
@@ -161,7 +172,6 @@ export class FileReportPersistenceService extends ReportPersistenceService {
     );
   }
 
-  // TODO Rename to loadLastReport$
   loadReport$(
     organizationId: OrganizationId,
   ): Observable<{ report: AccessReportView; hadLegacyBlobs: boolean } | null> {
@@ -173,36 +183,63 @@ export class FileReportPersistenceService extends ReportPersistenceService {
           throw new Error("User ID not found");
         }
 
-        return this.riskInsightsApiService.getRiskInsightsReport$(organizationId).pipe(
+        return this.accessIntelligenceApiService.getLatestReport$(organizationId).pipe(
+          catchError((error: unknown) => {
+            if (error instanceof ErrorResponse && error.statusCode === 404) {
+              return of(null);
+            }
+            return throwError(() => error);
+          }),
           switchMap((apiResponse) => {
             if (!apiResponse) {
               return of(null);
             }
 
-            if (
-              !apiResponse.contentEncryptionKey ||
-              !apiResponse.contentEncryptionKey.encryptedString ||
-              apiResponse.contentEncryptionKey.encryptedString === ""
-            ) {
+            if (!apiResponse.contentEncryptionKey || apiResponse.contentEncryptionKey === "") {
               throw new Error("Report encryption key not found");
             }
 
-            // Convert API → Data → Domain → View (following 4-layer architecture)
-            const data = new AccessReportData();
-            data.id = apiResponse.id;
-            data.organizationId = apiResponse.organizationId;
-            data.reports = apiResponse.reportData.encryptedString ?? "";
-            data.summary = apiResponse.summaryData.encryptedString ?? "";
-            data.applications = apiResponse.applicationData.encryptedString ?? "";
-            data.creationDate = apiResponse.creationDate.toISOString();
-            data.contentEncryptionKey = apiResponse.contentEncryptionKey.encryptedString ?? "";
+            // V2: reportData lives in a file. Determine download strategy from the URL:
+            //   - Azure blob URL → unauthenticated GET (SAS token in URL handles auth)
+            //   - Server URL → authenticated API call
+            // V1 fallback: reportData is inline in the response.
+            let reportData$: Observable<string>;
+            if (apiResponse.reportFileDownloadUrl) {
+              const isAzure = new URL(apiResponse.reportFileDownloadUrl).hostname.includes(
+                "blob.core.windows.net",
+              );
+              reportData$ = isAzure
+                ? this.accessIntelligenceApiService.downloadReportFile$(
+                    apiResponse.reportFileDownloadUrl,
+                  )
+                : this.accessIntelligenceApiService.getReportFileData$(
+                    organizationId,
+                    apiResponse.id,
+                  );
+            } else {
+              reportData$ = of(apiResponse.reportData);
+            }
 
-            const domain = new AccessReport(data);
+            return reportData$.pipe(
+              switchMap((reportData) => {
+                // Convert API → Data → Domain → View (following 4-layer architecture)
+                const data = new AccessReportData();
+                data.id = apiResponse.id;
+                data.organizationId = apiResponse.organizationId;
+                data.reports = reportData;
+                data.summary = apiResponse.summaryData;
+                data.applications = apiResponse.applicationData;
+                data.creationDate = apiResponse.creationDate;
+                data.contentEncryptionKey = apiResponse.contentEncryptionKey;
 
-            // Domain handles its own decryption
-            return from(
-              domain.decrypt(this.riskInsightsEncryptionService, { organizationId, userId }),
-            ).pipe(map(({ view, hadLegacyBlobs }) => ({ report: view, hadLegacyBlobs })));
+                const domain = new AccessReport(data);
+
+                // Domain handles its own decryption
+                return from(
+                  domain.decrypt(this.riskInsightsEncryptionService, { organizationId, userId }),
+                ).pipe(map(({ view, hadLegacyBlobs }) => ({ report: view, hadLegacyBlobs })));
+              }),
+            );
           }),
         );
       }),

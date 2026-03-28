@@ -122,4 +122,30 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
 
     return from(response);
   }
+
+  downloadReportFile$(url: string): Observable<string> {
+    return from(
+      this.apiService
+        .nativeFetch(new Request(url, { cache: "no-store" }))
+        .then(async (response) => {
+          if (response.status !== 200) {
+            throw new Error(`Failed to download report file: ${response.status}`);
+          }
+          const buffer = await response.arrayBuffer();
+          return new TextDecoder().decode(buffer);
+        }),
+    );
+  }
+
+  getReportFileData$(orgId: OrganizationId, reportId: string): Observable<string> {
+    return from(
+      this.apiService.send(
+        "GET",
+        `/reports/organizations/${orgId}/${reportId}/file/download`,
+        null,
+        true,
+        true,
+      ) as Promise<string>,
+    );
+  }
 }
