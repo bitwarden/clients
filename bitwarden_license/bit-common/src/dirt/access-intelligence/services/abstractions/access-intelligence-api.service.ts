@@ -33,6 +33,12 @@ export abstract class AccessIntelligenceApiService {
     reportFileId: string,
   ): Observable<void>;
 
+  /** GET report data file from a blob storage download URL. Returns raw file text. */
+  abstract downloadReportFile$(url: string): Observable<string>;
+
+  /** GET /reports/organizations/{orgId}/{reportId}/file/download — Direct-upload file retrieval. */
+  abstract getReportFileData$(orgId: OrganizationId, reportId: string): Observable<string>;
+
   /** GET /reports/organizations/{orgId}/data/summary?startDate=&endDate= */
   abstract getSummaryDataByDateRange$(
     orgId: OrganizationId,
