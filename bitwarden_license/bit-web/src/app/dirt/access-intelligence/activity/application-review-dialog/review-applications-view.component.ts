@@ -1,9 +1,27 @@
 import { CommonModule } from "@angular/common";
-import { Component, input, output, ChangeDetectionStrategy, signal, computed } from "@angular/core";
+import {
+  Component,
+  input,
+  output,
+  ChangeDetectionStrategy,
+  signal,
+  computed,
+  effect,
+} from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
 import { ApplicationHealthReportDetail } from "@bitwarden/bit-common/dirt/reports/risk-insights";
-import { ButtonModule, DialogModule, SearchModule, TypographyModule } from "@bitwarden/components";
+import {
+  ButtonModule,
+  DialogModule,
+  SearchModule,
+  TypographyModule,
+  IconComponent,
+  TableDataSource,
+  ScrollLayoutHostDirective,
+  Sort,
+  ScrollLayoutService,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
@@ -13,6 +31,7 @@ import { CipherIcon } from "../../shared/app-table-row-scrollable.component";
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "dirt-review-applications-view",
   templateUrl: "./review-applications-view.component.html",
+  providers: [ScrollLayoutService], // need a local instance of ScrollLayoutService for the scrollable table
   imports: [
     CommonModule,
     ButtonModule,
@@ -22,6 +41,8 @@ import { CipherIcon } from "../../shared/app-table-row-scrollable.component";
     TypographyModule,
     I18nPipe,
     SharedModule,
+    IconComponent,
+    ScrollLayoutHostDirective,
   ],
 })
 export class ReviewApplicationsViewComponent {
@@ -31,14 +52,31 @@ export class ReviewApplicationsViewComponent {
 
   protected readonly searchText = signal<string>("");
 
-  // Filter applications based on search text
+  protected readonly dataSource = new TableDataSource<
+    ApplicationHealthReportDetail & { iconCipher: CipherIcon }
+  >();
+
+  // Filter applications based on search text (pure computation)
   protected readonly filteredApplications = computed(() => {
     const search = this.searchText().toLowerCase();
-    if (!search) {
-      return this.applications();
+    let data = this.applications();
+
+    if (search) {
+      data = this.applications().filter((app) =>
+        app.applicationName.toLowerCase().includes(search),
+      );
     }
-    return this.applications().filter((app) => app.applicationName.toLowerCase().includes(search));
+
+    return data;
   });
+
+  constructor() {
+    effect(() => {
+      // update the TableDataSource with the results of the filtered applications
+      this.dataSource.data = this.filteredApplications();
+      this.dataSource.sort = { column: "atRiskPasswordCount", direction: "desc" } as Sort;
+    });
+  }
 
   // Return the selected applications from the view
   readonly onToggleSelection = output<string>();
