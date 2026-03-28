@@ -172,6 +172,7 @@
     "@microsoft/signalr": "8.0.7",
     "@microsoft/signalr-protocol-msgpack": "8.0.7",
     "@ng-select/ng-select": "20.7.0",
+    "@ovrlab/pqp-network": "0.1.117",
     "big-integer": "1.6.52",
     "braintree-web-drop-in": "1.46.0",
     "buffer": "6.0.3",
@@ -208,8 +209,7 @@
     "utf-8-validate": "6.0.5",
     "vite-tsconfig-paths": "5.1.4",
     "zone.js": "0.15.1",
-    "zxcvbn": "4.4.2",
-    "@ovrlab/pqp-network": "0.1.104"
+    "zxcvbn": "4.4.2"
   },
   "overrides": {
     "eslint-plugin-rxjs": {
