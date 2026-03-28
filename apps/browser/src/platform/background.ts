@@ -129,7 +129,6 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
               request.masterPasswordHash = oldServerHash;
               request.newMasterPasswordHash = newServerHash;
               request.key = newEncryptedUserKey.encryptedString as string;
-              request.masterPasswordHint = "";
               await masterPwApi.postPassword(request);
             },
           });
