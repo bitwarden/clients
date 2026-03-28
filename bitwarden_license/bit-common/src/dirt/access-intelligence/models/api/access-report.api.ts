@@ -18,9 +18,9 @@ import { AccessReportView } from "../view/access-report.view";
 export class AccessReportApi extends BaseResponse {
   id: string = "";
   organizationId: string = "";
-  reports: string = "";
-  applications: string = "";
-  summary: string = "";
+  reportData: string = "";
+  applicationData: string = "";
+  summaryData: string = "";
   memberRegistry: string = "";
   creationDate: string = "";
   contentEncryptionKey: string = "";
@@ -37,9 +37,9 @@ export class AccessReportApi extends BaseResponse {
     this.id = this.getResponseProperty("id");
     this.organizationId = this.getResponseProperty("organizationId");
     this.creationDate = this.getResponseProperty("creationDate");
-    this.reports = this.getResponseProperty("reportData");
-    this.applications = this.getResponseProperty("applicationData");
-    this.summary = this.getResponseProperty("summaryData");
+    this.reportData = this.getResponseProperty("reportData");
+    this.applicationData = this.getResponseProperty("applicationData");
+    this.summaryData = this.getResponseProperty("summaryData");
     this.memberRegistry = this.getResponseProperty("memberRegistry") ?? "";
     this.contentEncryptionKey = this.getResponseProperty("contentEncryptionKey");
     this.reportFile = this.getResponseProperty("reportFile") ?? undefined;

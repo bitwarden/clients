@@ -2,11 +2,12 @@ import { catchError, from, map, Observable, of, throwError } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { OrganizationId } from "@bitwarden/sdk-internal";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import {
   AccessReportApi,
   AccessReportFileResponseApi,
+  AccessReportMetricsApi,
   AccessReportSummaryApi,
 } from "../../../models";
 import { AccessIntelligenceApiService } from "../../abstractions/access-intelligence-api.service";
@@ -30,7 +31,7 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
   createReport$(
     orgId: OrganizationId,
     request: AccessReportApi,
-  ): Observable<AccessReportFileResponseApi | AccessReportApi> {
+  ): Observable<AccessReportFileResponseApi> {
     const response = this.apiService.send(
       "GET",
       `/reports/organizations/${orgId.toString()}/latest`,
@@ -38,25 +39,14 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
       true,
       true,
     );
-    return from(response).pipe(
-      map((res) => {
-        const fileResponse = new AccessReportFileResponseApi(res);
-
-        // response for file upload requests
-        if (fileResponse.reportFileUploadUrl != "") {
-          return fileResponse;
-        }
-
-        return new AccessReportApi(res);
-      }),
-    );
+    return from(response).pipe(map((res) => new AccessReportFileResponseApi(res)));
   }
 
   updateSummaryData$(
     orgId: OrganizationId,
     reportId: string,
     summaryData: string | null,
-    metrics?: Record<string, number>,
+    metrics?: AccessReportMetricsApi,
   ): Observable<AccessReportApi> {
     const response = this.apiService.send(
       "PATCH",
