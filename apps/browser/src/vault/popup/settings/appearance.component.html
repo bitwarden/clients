@@ -27,10 +27,12 @@
 
       <bit-form-control>
         <input bitCheckbox formControlName="enableCompactMode" type="checkbox" />
-        <bit-label
-          >{{ "compactMode" | i18n }}
-          <span bitBadge variant="warning">{{ "beta" | i18n }}</span></bit-label
-        >
+        <bit-label>
+          <span class="tw-inline-flex tw-items-center tw-gap-1">
+            {{ "compactMode" | i18n }}
+            <span bitBadge variant="warning">{{ "beta" | i18n }}</span>
+          </span>
+        </bit-label>
       </bit-form-control>
 
       <bit-form-control>
