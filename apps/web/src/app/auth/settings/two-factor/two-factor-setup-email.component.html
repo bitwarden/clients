@@ -8,9 +8,7 @@
         <strong>{{ "email" | i18n }}:</strong> {{ email }}
       </ng-container>
       <ng-container *ngIf="!enabled">
-        <p class="tw-flex">
-          <span class="tw-mr-3">{{ "twoFactorEmailDesc" | i18n }}</span>
-        </p>
+        <p>{{ "twoFactorEmailDesc" | i18n }}</p>
         <bit-form-field>
           <bit-label>1. {{ "twoFactorEmailEnterEmail" | i18n }}</bit-label>
           <input
