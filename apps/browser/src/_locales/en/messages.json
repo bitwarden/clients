@@ -6233,9 +6233,6 @@
   "reportAutofillIssue": {
     "message": "Report Autofill Issue"
   },
-  "autofillReportTitle": {
-    "message": "Report Autofill Problem"
-  },
   "autofillReportDescription": {
     "message": "This will send a report to Bitwarden that you are having an issue with autofill on this page. This information will contain:"
   },

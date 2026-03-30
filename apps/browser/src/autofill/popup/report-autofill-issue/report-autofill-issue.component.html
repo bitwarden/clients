@@ -1,9 +1,9 @@
 <popup-page>
-  <popup-header slot="header" [pageTitle]="'autofillReportTitle' | i18n" [showBackButton]="false" />
+  <popup-header slot="header" [pageTitle]="'reportAutofillIssue' | i18n" [showBackButton]="false" />
 
   @if (!triageResult()) {
     <div class="tw-flex tw-justify-center tw-p-6">
-      <i class="bwi bwi-spinner bwi-spin tw-text-2xl" aria-hidden="true"></i>
+      <bit-icon name="bwi-spinner" class="bwi-lg bwi-spin" aria-hidden="true"></bit-icon>
     </div>
   } @else {
     <div class="tw-p-4">
@@ -78,9 +78,17 @@
                     <td class="tw-p-2 tw-border tw-border-secondary-300">{{ field.htmlType }}</td>
                     <td class="tw-p-2 tw-border tw-border-secondary-300">
                       @if (field.eligible) {
-                        <i class="bwi bwi-check tw-text-success-600" aria-hidden="true"></i>
+                        <bit-icon
+                          name="bwi-check"
+                          class="tw-text-success-600"
+                          aria-hidden="true"
+                        ></bit-icon>
                       } @else {
-                        <i class="bwi bwi-close tw-text-muted" aria-hidden="true"></i>
+                        <bit-icon
+                          name="bwi-close"
+                          class="tw-text-muted"
+                          aria-hidden="true"
+                        ></bit-icon>
                       }
                     </td>
                     <td class="tw-p-2 tw-border tw-border-secondary-300">
@@ -112,7 +120,7 @@
             (click)="sendReport()"
           >
             @if (isSending()) {
-              <i class="bwi bwi-spinner bwi-spin" aria-hidden="true"></i>
+              <bit-icon name="bwi-spinner" class="bwi-spin" aria-hidden="true"></bit-icon>
             }
             {{ "sendReport" | i18n }}
           </button>
