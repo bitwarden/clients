@@ -3398,6 +3398,9 @@
   "discount": {
     "message": "отстъпка"
   },
+  "discountExpiredOnPurchase": {
+    "message": "Отстъпката е изтекла. Моля, прегледайте крайната цена в количката си и опитайте отново."
+  },
   "downloadLicense": {
     "message": "Изтегляне на лиценз"
   },
@@ -3804,6 +3807,15 @@
   },
   "policies": {
     "message": "Политики"
+  },
+  "dataControls": {
+    "message": "Управление на данните"
+  },
+  "authentication": {
+    "message": "Удостоверяване"
+  },
+  "vaultManagement": {
+    "message": "Управление на трезора"
   },
   "singleSignOn": {
     "message": "Еднократна идентификация"
@@ -6485,6 +6497,14 @@
   "verifyYourEmailToViewThisSend": {
     "message": "Потвърдете е-пощата си, за да видите това Изпращане",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Не получихте код? Свържете се с подателя, за да потвърдите адреса на е-пощата си или ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Повторно пращане на кода за потвърждаване",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "Потребителят, който е създал това изпращане, е избрал да скрие адреса на своята е-поща. Уверете се, че източникът на тази връзка е достоверен, преди да я последвате или да свалите съдържание чрез нея.",
@@ -11928,6 +11948,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Недоверени шифроващи ключове"
+  },
+  "atRiskPassword": {
+    "message": "Парола в риск"
   },
   "changeAtRiskPassword": {
     "message": "Промяна на парола в риск"

@@ -24,8 +24,6 @@ import {
   DefaultLogoutService,
   LockService,
 } from "@bitwarden/auth/common";
-import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
@@ -39,6 +37,11 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { MasterPasswordApiService as MasterPasswordApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import {
+  DefaultPasswordPreloginService,
+  PasswordPreloginApiService,
+  PasswordPreloginService,
+} from "@bitwarden/common/auth/password-prelogin";
 import { SendTokenService, DefaultSendTokenService } from "@bitwarden/common/auth/send-access";
 import {
   AccountServiceImplementation,
@@ -68,6 +71,12 @@ import {
 } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
+import {
+  EventUploadService as EventUploadServiceAbstraction,
+  EventCollectionService as EventCollectionServiceAbstraction,
+} from "@bitwarden/common/dirt/event-logs";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs/services/event-collection.service";
+import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
@@ -135,8 +144,6 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for service construction
 import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
 import { AuditService } from "@bitwarden/common/services/audit.service";
-import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
-import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
 import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/key-service-legacy-encryptor-provider";
 import { buildExtensionRegistry } from "@bitwarden/common/tools/extension/factory";
 import {
@@ -324,6 +331,7 @@ export class ServiceContainer {
   activeUserStateProvider: ActiveUserStateProvider;
   derivedStateProvider: DerivedStateProvider;
   stateProvider: StateProvider;
+  passwordPreloginService: PasswordPreloginService;
   loginStrategyService: LoginStrategyServiceAbstraction;
   avatarService: AvatarServiceAbstraction;
   stateEventRunnerService: StateEventRunnerService;
@@ -775,6 +783,12 @@ export class ServiceContainer {
       this.accountService,
     );
 
+    const passwordPreloginApiService = new PasswordPreloginApiService(
+      this.apiService,
+      this.environmentService,
+    );
+    this.passwordPreloginService = new DefaultPasswordPreloginService(passwordPreloginApiService);
+
     this.loginStrategyService = new LoginStrategyService(
       this.accountService,
       this.masterPasswordService,
@@ -803,6 +817,7 @@ export class ServiceContainer {
       this.taskSchedulerService,
       this.configService,
       this.accountCryptographicStateService,
+      this.passwordPreloginService,
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(

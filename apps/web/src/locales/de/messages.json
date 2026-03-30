@@ -12,7 +12,7 @@
     "message": "Aktivität"
   },
   "applicationsAtRisk": {
-    "message": "Applications at risk"
+    "message": "Gefährdete Anwendungen"
   },
   "appLogoLabel": {
     "message": "Bitwarden-Logo"
@@ -57,10 +57,10 @@
     "message": "Passwörter"
   },
   "riskOverTime": {
-    "message": "Risk over time"
+    "message": "Gefährdung im Zeitverlauf"
   },
   "passwordsAtRisk": {
-    "message": "Passwords at risk"
+    "message": "Gefährdete Passwörter"
   },
   "noEditPermissions": {
     "message": "Du bist nicht berechtigt, diesen Eintrag zu bearbeiten"
@@ -3398,6 +3398,9 @@
   "discount": {
     "message": "Rabatt"
   },
+  "discountExpiredOnPurchase": {
+    "message": "Rabatt abgelaufen. Bitte überprüfe den Warenkorb und versuche es erneut."
+  },
   "downloadLicense": {
     "message": "Lizenz herunterladen"
   },
@@ -3804,6 +3807,15 @@
   },
   "policies": {
     "message": "Richtlinien"
+  },
+  "dataControls": {
+    "message": "Dateneinstellungen"
+  },
+  "authentication": {
+    "message": "Authentifizierung"
+  },
+  "vaultManagement": {
+    "message": "Tresor-Verwaltung"
   },
   "singleSignOn": {
     "message": "Single Sign-On"
@@ -6486,6 +6498,14 @@
     "message": "Verifiziere deine E-Mail-Adresse, um dieses Send anzuzeigen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Kein Code erhalten? Kontaktiere den Absender, um deine E-Mail-Adresse zu bestätigen oder ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Verifizierungscode erneut senden",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "Der Bitwarden Benutzer, der dieses Send erstellt hat, hat sich entschieden, seine E-Mail-Adresse zu verstecken. Du solltest sicherstellen, dass du der Quelle dieses Links vertraust, bevor du dessen Inhalt verwendest oder herunterlädst.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -8332,7 +8352,7 @@
     "message": "Mitglieder"
   },
   "membersAtRisk": {
-    "message": "Members at risk"
+    "message": "Gefährdete Mitglieder"
   },
   "reporting": {
     "message": "Berichte"
@@ -11079,7 +11099,7 @@
     "message": "Kundendetails"
   },
   "downloadChart": {
-    "message": "Download chart"
+    "message": "Diagramm herunterladen"
   },
   "downloadCSV": {
     "message": "CSV-Datei herunterladen"
@@ -11928,6 +11948,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Nicht vertrauenswürdige Verschlüsselungsschlüssel"
+  },
+  "atRiskPassword": {
+    "message": "Gefährdetes Passwort"
   },
   "changeAtRiskPassword": {
     "message": "Gefährdetes Passwort ändern"
@@ -13083,22 +13106,22 @@
     "message": "Filter löschen oder es mit einem anderen Suchbegriff versuchen"
   },
   "pastMonth": {
-    "message": "Past month"
+    "message": "Letzter Monat"
   },
   "past3Months": {
-    "message": "Past 3 months"
+    "message": "Letzte 3 Monate"
   },
   "past6Months": {
-    "message": "Past 6 months"
+    "message": "Letzte 6 Monate"
   },
   "pastYear": {
-    "message": "Past year"
+    "message": "Letztes Jahr"
   },
   "allTime": {
-    "message": "All time"
+    "message": "Gesamte Zeit"
   },
   "timePeriod": {
-    "message": "Time period"
+    "message": "Zeitraum"
   },
   "of": {
     "message": "of"

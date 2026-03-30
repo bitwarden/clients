@@ -335,7 +335,23 @@
     "message": "需要高级版"
   },
   "premiumRequiredDesc": {
-    "message": "需要高级版成员才能使用此功能。"
+    "message": "使用此功能需要高级会员资格。"
+  },
+  "syncWithBrowser": {
+    "message": "与浏览器同步"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "要连接到 $VAULTURL$，您需要将您的默认浏览器与 Bitwarden App 同步。浏览器同步后，您将被重定向回此 App。",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "启动浏览器"
   },
   "errorOccurred": {
     "message": "发生错误。"
@@ -905,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "主密码提示"
   },
+  "masterPasswordChanged": {
+    "message": "主密码已保存"
+  },
   "passwordStrengthScore": {
     "message": "密码强度评分 $SCORE$",
     "placeholders": {
@@ -1196,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "新推荐的加密设置将提高您的账户安全性。输入您的主密码以立即更新。"
   },
+  "rotateAccountEncKey": {
+    "message": "同时轮换我的账户加密密钥"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "轮换加密密钥的影响"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "需要先修复您的密码库中的旧文件附件，然后才能轮换您账户的加密密钥。"
+  },
+  "rotateEncKeyTitle": {
+    "message": "轮换加密密钥"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "确定要轮换账户的加密密钥吗？"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "更新加密密钥后，您需要注销所有当前使用的 Bitwarden 应用程序（例如移动 App 或浏览器扩展）然后重新登录。注销或者重新登录（这将下载新的加密密钥）失败可能会导致数据损坏。我们会尝试自动为您注销，但可能会有所延迟。"
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "所有您已保存的账户限制的导出文件将失效。"
+  },
   "confirmIdentityToContinue": {
     "message": "确认您的身份以继续"
   },
@@ -1280,8 +1320,8 @@
   "changeMasterPass": {
     "message": "修改主密码"
   },
-  "masterPasswordChanged": {
-    "message": "主密码已保存"
+  "changeMasterPassword": {
+    "message": "修改主密码"
   },
   "continueToWebApp": {
     "message": "前往网页 App 吗？"
@@ -2283,6 +2323,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "您的新主密码不符合策略要求。"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "一个或多个组织策略要求主密码满足以下要求："
   },
   "receiveMarketingEmailsV2": {
     "message": "获取来自 Bitwarden 的建议、公告和调研电子邮件。"
@@ -3750,6 +3793,9 @@
   },
   "exportSuccess": {
     "message": "密码库数据已导出"
+  },
+  "exportError": {
+    "message": "导出密码库数据时发生错误"
   },
   "multifactorAuthenticationCancelled": {
     "message": "多重身份验证已取消"

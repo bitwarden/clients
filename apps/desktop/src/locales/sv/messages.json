@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Ett premium-medlemskap krävs för att använda den här funktionen."
   },
+  "syncWithBrowser": {
+    "message": "Synkronisera med webbläsaren"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "För att ansluta till $VAULTURL$ måste du synkronisera din standardwebbläsare med Bitwarden-appen. Du kommer att omdirigeras tillbaka till denna app när din webbläsare är synkroniserad.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Starta webbläsaren"
+  },
   "errorOccurred": {
     "message": "Ett fel har inträffat."
   },
@@ -905,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Huvudlösenordsledtråd"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "passwordStrengthScore": {
     "message": "Lösenordsstyrka $SCORE$",
     "placeholders": {
@@ -1196,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "De nya rekommenderade krypteringsinställningarna kommer att förbättra säkerheten för ditt konto. Ange ditt huvudlösenord för att uppdatera nu."
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
   "confirmIdentityToContinue": {
     "message": "Bekräfta din identitet för att fortsätta"
   },
@@ -1280,8 +1320,8 @@
   "changeMasterPass": {
     "message": "Ändra huvudlösenord"
   },
-  "masterPasswordChanged": {
-    "message": "Master password saved"
+  "changeMasterPassword": {
+    "message": "Change master password"
   },
   "continueToWebApp": {
     "message": "Fortsätt till webapp?"
@@ -2283,6 +2323,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Ditt nya huvudlösenord uppfyller inte kraven i policyn."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Få råd, tillkännagivanden och forskningsmöjligheter från Bitwarden i din inkorg."
@@ -3750,6 +3793,9 @@
   },
   "exportSuccess": {
     "message": "Valvdata exporteras"
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Flerfaktorsautentisering avbruten"

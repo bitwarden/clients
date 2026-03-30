@@ -3398,6 +3398,9 @@
   "discount": {
     "message": "kedvezmény"
   },
+  "discountExpiredOnPurchase": {
+    "message": "A kedvezmény lejárt. Tekintsük át a kosár végösszegét és próbáljuk újra."
+  },
   "downloadLicense": {
     "message": "Licensz letöltése"
   },
@@ -3804,6 +3807,15 @@
   },
   "policies": {
     "message": "Szabályok"
+  },
+  "dataControls": {
+    "message": "Adat vezérlők"
+  },
+  "authentication": {
+    "message": "Hitelesítés"
+  },
+  "vaultManagement": {
+    "message": "Széf kezelés"
   },
   "singleSignOn": {
     "message": "Egyszeri bejelentkezés"
@@ -6485,6 +6497,14 @@
   "verifyYourEmailToViewThisSend": {
     "message": "Ellenőrizzük az email címet a Send elem megtekintéséhez.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Nem érkezett meg a kód? Lépjünk kapcsolatba a feladóval a saját email címünk megerősítéséhez vagy ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Az ellenőrző kód ismét elküldésre került.",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "Az ezt a Send elemet létrehozó Bitwarden felhasználó úgy döntött, hogy elrejti email címét. Mielőtt felhasználnánk vagy letöltenénk a tartalmát, ellenőrizzük a hivatkozás megbízhatóságát.",
@@ -11928,6 +11948,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Megbízhatatlan titkosítási kulcsok"
+  },
+  "atRiskPassword": {
+    "message": "Veszélyes jelszó"
   },
   "changeAtRiskPassword": {
     "message": "Kockázatos jelszó megváltoztatása"

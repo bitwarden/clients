@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Pro použití této funkce je potřebné členství Premium."
   },
+  "syncWithBrowser": {
+    "message": "Synchronizovat s prohlížečem"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "Chcete-li se připojit k $VAULTURL$, musíte synchronizovat svůj výchozí prohlížeč s aplikací Bitwarden. Po synchronizaci prohlížeče budete přesměrováni zpět do této aplikace.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Otevřít prohlížeč"
+  },
   "errorOccurred": {
     "message": "Došlo k chybě."
   },
@@ -905,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Nápověda k hlavnímu heslu"
   },
+  "masterPasswordChanged": {
+    "message": "Hlavní heslo bylo uloženo"
+  },
   "passwordStrengthScore": {
     "message": "Skóre síly hesla: $SCORE$",
     "placeholders": {
@@ -1196,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Nové doporučené nastavení šifrování zlepší bezpečnost Vašeho účtu. Pokud chcete aktualizovat nyní, zadejte hlavní heslo."
   },
+  "rotateAccountEncKey": {
+    "message": "Měnit také šifrovací klíč k mému účtu"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Dopad rotace Vašeho šifrovacího klíče"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Ve Vašem trezoru jsou staré přílohy vyžadující opravu před změnou šifrovacího klíče k Vašemu účtu."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Měnit šifrovací klíč"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Opravdu chcete měnit šifrovací klíč k Vašemu účtu?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Po aktualizace šifrovacího klíče dojde k odhlášení a budete se muset opětovně přihlásit do všech aplikací Bitwardenu, které aktuálně používáte (např. mobilní aplikace či rozšíření pro prohlížeč). Nezdaří-li se odhlášení a opětovné přihlášení (během něhož bude stažen nový šifrovací klíč), může dojít k poškození dat. Pokusíme se Vás automaticky odhlásit, nicméně, může to chvíli trvat."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Všechny uložené exporty s omezením účtu se stanou neplatnými."
+  },
   "confirmIdentityToContinue": {
     "message": "Pro pokračování potvrďte svou identitu"
   },
@@ -1280,8 +1320,8 @@
   "changeMasterPass": {
     "message": "Změnit hlavní heslo"
   },
-  "masterPasswordChanged": {
-    "message": "Hlavní heslo bylo uloženo"
+  "changeMasterPassword": {
+    "message": "Změnit hlavní heslo"
   },
   "continueToWebApp": {
     "message": "Pokračovat do webové aplikace?"
@@ -2283,6 +2323,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Vaše nové hlavní heslo nesplňuje požadavky zásad."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Jedna nebo více zásad organizace vyžaduje, aby hlavní heslo splňovalo následující požadavky:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Dostávejte do své e-mailové schránky rady, oznámení a příležitosti k výzkumu od společnosti Bitwarden."
@@ -3750,6 +3793,9 @@
   },
   "exportSuccess": {
     "message": "Data trezoru byla exportována"
+  },
+  "exportError": {
+    "message": "Při exportu dat Vašeho trezoru se vyskytla chyba"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Vícefázové ověření zrušeno"

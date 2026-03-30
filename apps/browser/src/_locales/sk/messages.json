@@ -2366,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "Hlavné heslo, ktoré ste zadali, je slabé. Mali by ste použiť silné heslo (alebo frázu), aby ste spoľahlivo ochránili váš Bitwarden účet. Naozaj chcete použiť toto heslo?"
   },
+  "rotateAccountEncKey": {
+    "message": "Rotovať aj šifrovací kľúč účtu"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotovať šifrovací kľúč"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Naozaj chcete rotovať šifrovací kľúč k účtu?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Po aktualizácii šifrovacieho kľúča budete požiadaný o opätovné prihlásenie sa do všetkých aplikácií Bitwardenu, ktoré momentálne používate (napríklad mobilné aplikácie, alebo rozšírenia v prehliadači). Ak sa opätovne neodhlásite (stiahnu sa nové šifrovacie kľúče), mohlo by to viesť k poškodeniu uložených údajov. Pokúsime sa vás odhlásiť automaticky, ale môže to chvíľu trvať."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Všetky exporty s obmedzeným prístupom, ktoré ste uložili, sa stanú neplatnými."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "V trezore máte staré prílohy ktoré musia byť opravené pred tým, než budete môcť rotovať šifrovací kľúč k účtu."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Vplyv rotovania šifrovacieho kľúča"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Jedno alebo viac pravidiel organizácie požadujú, aby hlavné heslo spĺňalo nasledujúce požiadavky:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2455,6 +2479,9 @@
   },
   "vaultTimeoutAction": {
     "message": "Akcia pri vypršaní časového limitu pre trezor"
+  },
+  "showAtRiskPasswordNotifications": {
+    "message": "Zobraziť upozornenia na ohrozené heslá"
   },
   "lock": {
     "message": "Uzamknúť",
@@ -4423,6 +4450,9 @@
   },
   "exportSuccess": {
     "message": "Údaje z trezora boli exportované"
+  },
+  "exportError": {
+    "message": "Pri exportovaní údajov trezora sa vyskytla chyba"
   },
   "typePasskey": {
     "message": "Prístupový kľúč"

@@ -3398,6 +3398,9 @@
   "discount": {
     "message": "скидка"
   },
+  "discountExpiredOnPurchase": {
+    "message": "Срок действия скидки истек. Просмотрите сумму корзины и повторите попытку."
+  },
   "downloadLicense": {
     "message": "Загрузить лицензию"
   },
@@ -3804,6 +3807,15 @@
   },
   "policies": {
     "message": "Политики"
+  },
+  "dataControls": {
+    "message": "Data controls"
+  },
+  "authentication": {
+    "message": "Authentication"
+  },
+  "vaultManagement": {
+    "message": "Vault management"
   },
   "singleSignOn": {
     "message": "Единый вход"
@@ -6485,6 +6497,14 @@
   "verifyYourEmailToViewThisSend": {
     "message": "Подтвердите свой адрес email, чтобы просмотреть эту Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Не получили код? Свяжитесь с отправителем, чтобы подтвердить свой адрес электронной почты, или ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "повторно отправьте код подтверждения",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "Пользователь Bitwarden, создавший эту Send, решил скрыть свой адрес email. Вы должны убедиться, что доверяете источнику этой ссылки, прежде чем использовать или скачивать ее содержимое.",
@@ -11928,6 +11948,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Недоверенные ключи шифрования"
+  },
+  "atRiskPassword": {
+    "message": "Пароль, подверженный риску"
   },
   "changeAtRiskPassword": {
     "message": "Изменить пароль, подверженный риску"

@@ -3398,6 +3398,9 @@
   "discount": {
     "message": "discount"
   },
+  "discountExpiredOnPurchase": {
+    "message": "Discount expired. Please review your cart total and try again."
+  },
   "downloadLicense": {
     "message": "دانلود مجوز"
   },
@@ -3804,6 +3807,15 @@
   },
   "policies": {
     "message": "سیاست‌ها"
+  },
+  "dataControls": {
+    "message": "Data controls"
+  },
+  "authentication": {
+    "message": "Authentication"
+  },
+  "vaultManagement": {
+    "message": "Vault management"
   },
   "singleSignOn": {
     "message": "ورود یکپارچه به سیستم"
@@ -6485,6 +6497,14 @@
   "verifyYourEmailToViewThisSend": {
     "message": "Verify your email to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Didn't receive a code? Contact the sender to confirm your email address or ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Resent verification code",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "کاربر Bitwarden که این ارسال را ایجاد کرده است انتخاب کرده که نشانی ایمیل خود را پنهان کند. قبل از استفاده یا دانلود محتوای این پیوند، باید مطمئن شوید که به منبع این پیوند اعتماد دارید.",
@@ -11928,6 +11948,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "کلیدهای رمزنگاری غیرقابل اعتماد"
+  },
+  "atRiskPassword": {
+    "message": "At-risk password"
   },
   "changeAtRiskPassword": {
     "message": "تغییر کلمه عبور در معرض خطر"

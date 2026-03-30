@@ -3398,6 +3398,9 @@
   "discount": {
     "message": "discount"
   },
+  "discountExpiredOnPurchase": {
+    "message": "Discount expired. Please review your cart total and try again."
+  },
   "downloadLicense": {
     "message": "லைசன்ஸ் கோப்பைப் பதிவிறக்கவும்"
   },
@@ -3804,6 +3807,15 @@
   },
   "policies": {
     "message": "கொள்கைகள்"
+  },
+  "dataControls": {
+    "message": "Data controls"
+  },
+  "authentication": {
+    "message": "Authentication"
+  },
+  "vaultManagement": {
+    "message": "Vault management"
   },
   "singleSignOn": {
     "message": "ஒற்றை உள்நுழைவு"
@@ -6485,6 +6497,14 @@
   "verifyYourEmailToViewThisSend": {
     "message": "Verify your email to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Didn't receive a code? Contact the sender to confirm your email address or ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Resent verification code",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "இந்த Send-ஐ உருவாக்கிய Bitwarden பயனர் தங்கள் மின்னஞ்சல் முகவரியை மறைக்கத் தேர்ந்தெடுத்துள்ளார். இதன் உள்ளடக்கத்தைப் பயன்படுத்துவதற்கு அல்லது பதிவிறக்குவதற்கு முன், இந்த இணைப்பின் மூலத்தை நீங்கள் நம்புகிறீர்கள் என்பதை உறுதிப்படுத்த வேண்டும்.",
@@ -11928,6 +11948,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "நம்பத்தகாத குறியாக்க விசைகள்"
+  },
+  "atRiskPassword": {
+    "message": "At-risk password"
   },
   "changeAtRiskPassword": {
     "message": "அபாயகரமான கடவுச்சொல்லை மாற்றவும்"

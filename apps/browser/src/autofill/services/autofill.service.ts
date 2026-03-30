@@ -30,6 +30,7 @@ import {
   UriMatchStrategySetting,
   UriMatchStrategy,
 } from "@bitwarden/common/models/domain/domain-service";
+import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
@@ -76,6 +77,8 @@ export default class AutofillService implements AutofillServiceInterface {
   private currentlyOpeningPasswordRepromptPopout = false;
   private autofillScriptPortsSet = new Set<chrome.runtime.Port>();
   static searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
+  enableInlineMenuAnimation$: Observable<boolean>;
+  enableNotificationAnimation$: Observable<boolean>;
 
   constructor(
     private cipherService: CipherService,
@@ -92,7 +95,11 @@ export default class AutofillService implements AutofillServiceInterface {
     private configService: ConfigService,
     private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
     private messageListener: MessageListener,
-  ) {}
+    private animationControlService: AnimationControlService,
+  ) {
+    this.enableInlineMenuAnimation$ = this.animationControlService.enableInlineMenuAnimation$;
+    this.enableNotificationAnimation$ = this.animationControlService.enableNotificationAnimation$;
+  }
 
   /**
    * Collects page details from the specific tab. This method returns an observable that can
@@ -485,6 +492,9 @@ export default class AutofillService implements AutofillServiceInterface {
           await this.cipherService.updateLastUsedDate(options.cipher.id, activeAccount.id);
         }
 
+        const showAnimations =
+          (await firstValueFrom(this.animationControlService.enableAutofillAnimation$)) ?? true;
+
         void BrowserApi.tabSendMessage(
           tab,
           {
@@ -492,6 +502,7 @@ export default class AutofillService implements AutofillServiceInterface {
             fillScript: fillScript,
             url: tab.url,
             pageDetailsUrl: pd.details.url,
+            showAnimations,
           },
           { frameId: pd.frameId },
         );

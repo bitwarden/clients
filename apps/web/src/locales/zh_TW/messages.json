@@ -2122,7 +2122,7 @@
     "message": "已匯出密碼庫資料"
   },
   "exportError": {
-    "message": "An error occurred while exporting your vault data"
+    "message": "匯出密碼庫資料時發生錯誤"
   },
   "passwordGenerator": {
     "message": "密碼產生器"
@@ -3069,13 +3069,13 @@
     "message": "外洩的帳戶可能會暴露您的個人資訊。透過啟用 2FA 或建立更強的密碼來保護被外洩的帳戶。"
   },
   "breachCheckEmail": {
-    "message": "檢查您使用的任何電子郵件地址。"
+    "message": "請檢查您使用的電子郵件地址。"
   },
   "checkBreaches": {
     "message": "檢查外洩情況"
   },
   "breachEmailNotFound": {
-    "message": "在任何已知的資料外洩事件中都未發現 $EMAIL$。",
+    "message": "在任何已知的外洩密碼資料庫中都找不到 $EMAIL$。",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3088,7 +3088,7 @@
     "description": "ex. Good News, No Breached Accounts Found!"
   },
   "breachEmailFound": {
-    "message": "$EMAIL$ 在 $COUNT$ 個不同的線上資料外洩事件中被發現。",
+    "message": "$EMAIL$ 在不同的外洩密碼資料庫中找到了 $COUNT$ 次。",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3397,6 +3397,9 @@
   },
   "discount": {
     "message": "折扣"
+  },
+  "discountExpiredOnPurchase": {
+    "message": "Discount expired. Please review your cart total and try again."
   },
   "downloadLicense": {
     "message": "下載授權證"
@@ -3804,6 +3807,15 @@
   },
   "policies": {
     "message": "原則"
+  },
+  "dataControls": {
+    "message": "Data controls"
+  },
+  "authentication": {
+    "message": "Authentication"
+  },
+  "vaultManagement": {
+    "message": "Vault management"
   },
   "singleSignOn": {
     "message": "單一登入"
@@ -6485,6 +6497,14 @@
   "verifyYourEmailToViewThisSend": {
     "message": "驗證您的電子郵件以檢視此 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Didn't receive a code? Contact the sender to confirm your email address or ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Resent verification code",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "建立此 Send 的 Bitwarden 使用者已選擇隱藏他們的電子郵件地址。在使用或下載此連結的內容之前，應確保您信任此連結的來源。",
@@ -11543,7 +11563,7 @@
     }
   },
   "userSelfRevokedOrganizationOwnership": {
-    "message": "Revoked for declining transfer to organization ownership."
+    "message": "因拒絕轉移至組織擁有權而遭撤銷。"
   },
   "suspendedOrganizationTitle": {
     "message": "$ORGANIZATION$ 已被停用",
@@ -11928,6 +11948,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "未受信任的加密金鑰"
+  },
+  "atRiskPassword": {
+    "message": "有風險的密碼"
   },
   "changeAtRiskPassword": {
     "message": "變更有風險的密碼"
@@ -13077,10 +13100,10 @@
     }
   },
   "sendsTitleNoSearchResults": {
-    "message": "No search results returned"
+    "message": "沒有搜尋結果"
   },
   "sendsBodyNoSearchResults": {
-    "message": "Clear filters or try another search term"
+    "message": "清除過濾器或更換另一個搜尋條件"
   },
   "pastMonth": {
     "message": "過去一個月"
