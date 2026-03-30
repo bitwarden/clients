@@ -125,7 +125,6 @@ describe("VaultItemDialogComponent", () => {
           provide: CipherArchiveService,
           useValue: {
             userCanArchive$: jest.fn().mockReturnValue(of(true)),
-            hasArchiveFlagEnabled$: of(true),
             archiveWithServer: jest.fn().mockResolvedValue({}),
             unarchiveWithServer: jest.fn().mockResolvedValue({}),
           },
@@ -411,7 +410,7 @@ describe("VaultItemDialogComponent", () => {
     });
 
     it("refocuses the dialog header", async () => {
-      const focusOnHeaderSpy = jest.spyOn(component["dialogComponent"](), "handleAutofocus");
+      const focusOnHeaderSpy = jest.spyOn(component["dialogComponent"](), "focusHeader");
 
       await component["changeMode"]("view");
 
