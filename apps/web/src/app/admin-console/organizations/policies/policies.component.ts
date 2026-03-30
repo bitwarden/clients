@@ -132,9 +132,9 @@ export class PoliciesComponent {
 
   // Handle policies component launch from Event message
   private handleLaunchEvent() {
-    combineLatest([this.route.queryParams.pipe(first()), this.organizationId$, this.orgPolicies$])
+    combineLatest([this.route.queryParams.pipe(first()), this.orgPolicies$, this.organization$])
       .pipe(
-        map(([qParams, organizationId, orgPolicies]) => {
+        map(([qParams, orgPolicies, organization]) => {
           if (qParams.policyId != null) {
             const policyIdFromEvents: string = qParams.policyId;
             const policies = this.policyListService.getPolicies();
@@ -142,7 +142,7 @@ export class PoliciesComponent {
               if (orgPolicy.id === policyIdFromEvents) {
                 for (const policy of policies) {
                   if (policy.type === orgPolicy.type) {
-                    this.edit(policy, organizationId);
+                    this.edit(policy, organization);
                     break;
                   }
                 }
@@ -156,13 +156,13 @@ export class PoliciesComponent {
       .subscribe();
   }
 
-  edit(policy: BasePolicyEditDefinition, organizationId: OrganizationId) {
+  edit(policy: BasePolicyEditDefinition, organization: Organization) {
     const dialogComponent: PolicyDialogComponent =
       policy.editDialogComponent ?? PolicyEditDialogComponent;
     dialogComponent.open(this.dialogService, {
       data: {
         policy: policy,
-        organizationId: organizationId,
+        organization: organization,
       },
     });
   }

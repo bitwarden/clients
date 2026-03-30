@@ -44,6 +44,11 @@ export class MainDesktopMagnifyService {
     ipcMain.handle(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND, (event, command) =>
       this.commandHandler(event, command),
     );
+
+    // Close the magnify window if the main BW window is closed
+    this.windowMain.win.on("closed", () => {
+      this.magnifyWindow?.close();
+    });
   }
 
   // Deregister the keyboard shortcut if registered.
@@ -74,7 +79,7 @@ export class MainDesktopMagnifyService {
     }
 
     const result = globalShortcut.register(this.MAGNIFY_KEYBOARD_SHORTCUT, async () => {
-      await this.openMagnify();
+      await this.triggerMagnify();
     });
 
     result
@@ -82,11 +87,10 @@ export class MainDesktopMagnifyService {
       : this.logService.error("Failed to enable Magnify.");
   }
 
-  // Open the magnify window, which is its own project
-  private async openMagnify() {
-    // surface the existing window if the window has already been created
+  private async triggerMagnify() {
+    // if already open: close the window
     if (this.magnifyWindow != null && !this.magnifyWindow.isDestroyed()) {
-      this.magnifyWindow.focus();
+      this.magnifyWindow.close();
       return;
     }
 
@@ -122,6 +126,13 @@ export class MainDesktopMagnifyService {
     // emitted when the window loses focus
     win.on("blur", () => {
       win.close();
+    });
+
+    // close the window when ESC pressed
+    win.webContents.on("before-input-event", (_event, input) => {
+      if (input.type === "keyDown" && input.key === "Escape") {
+        win.close();
+      }
     });
 
     this.magnifyWindow = win;
