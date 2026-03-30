@@ -79,7 +79,7 @@ export class MainDesktopMagnifyService {
     }
 
     const result = globalShortcut.register(this.MAGNIFY_KEYBOARD_SHORTCUT, async () => {
-      await this.openMagnify();
+      await this.triggerMagnify();
     });
 
     result
@@ -87,15 +87,14 @@ export class MainDesktopMagnifyService {
       : this.logService.error("Failed to enable Magnify.");
   }
 
-  // Open the magnify window, which is its own project
-  private async openMagnify() {
-    // surface the existing window if the window has already been created
+  private async triggerMagnify() {
+    // if already open: close the window
     if (this.magnifyWindow != null && !this.magnifyWindow.isDestroyed()) {
-      this.magnifyWindow.focus();
+      this.magnifyWindow.close();
       return;
     }
 
-    // otherwise create the window
+    // otherwise: create the window
     const win = new BrowserWindow({
       width: 800,
       height: 600,
@@ -113,6 +112,13 @@ export class MainDesktopMagnifyService {
     // emitted when the window loses focus
     win.on("blur", () => {
       win.close();
+    });
+
+    // close the window when ESC pressed
+    win.webContents.on("before-input-event", (_event, input) => {
+      if (input.type === "keyDown" && input.key === "Escape") {
+        win.close();
+      }
     });
 
     this.magnifyWindow = win;
