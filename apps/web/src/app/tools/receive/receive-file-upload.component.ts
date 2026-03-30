@@ -39,7 +39,7 @@ export class ReceiveFileUploadComponent implements OnInit {
   private readonly secretB64: string;
   private readonly sharedContentEncryptionKeyB64: string;
   private readonly file = signal<File | null>(null);
-  private readonly publicKey = signal<Uint8Array | null>(null);
+  private readonly publicKey = signal<Uint8Array>(new Uint8Array());
   private readonly fileSelectorRef = viewChild<ElementRef<HTMLInputElement>>("fileSelector");
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
@@ -120,7 +120,8 @@ export class ReceiveFileUploadComponent implements OnInit {
 
   async uploadFile() {
     const file = this.file();
-    if (!file) {
+    const publicKey = this.publicKey();
+    if (!file || publicKey.byteLength == 0) {
       return;
     }
     try {
