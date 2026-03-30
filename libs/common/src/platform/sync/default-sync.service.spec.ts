@@ -37,6 +37,7 @@ import {
   MasterPasswordUnlockData,
 } from "../../key-management/master-password/types/master-password.types";
 import { SecurityStateService } from "../../key-management/security-state/abstractions/security-state.service";
+import { InternalReceiveService } from "../../tools/receive/services/receive.service";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { UserId } from "../../types/guid";
@@ -62,6 +63,7 @@ describe("DefaultSyncService", () => {
   let messageSender: MockProxy<MessageSender>;
   let policyService: MockProxy<InternalPolicyService>;
   let sendService: MockProxy<InternalSendService>;
+  let receiveService: MockProxy<InternalReceiveService>;
   let logService: MockProxy<LogService>;
   let keyConnectorService: MockProxy<KeyConnectorService>;
   let providerService: MockProxy<ProviderService>;
@@ -93,6 +95,7 @@ describe("DefaultSyncService", () => {
     messageSender = mock();
     policyService = mock();
     sendService = mock();
+    receiveService = mock();
     logService = mock();
     keyConnectorService = mock();
     keyConnectorService.convertAccountRequired$ = of(false);
@@ -123,6 +126,7 @@ describe("DefaultSyncService", () => {
       messageSender,
       policyService,
       sendService,
+      receiveService,
       logService,
       keyConnectorService,
       providerService,
