@@ -11501,6 +11501,9 @@
   "addAttachment": {
     "message": "Add attachment"
   },
+  "fileReadError": {
+    "message": "File could not be read"
+  },
   "maxFileSizeSansPunctuation": {
     "message": "Maximum file size is 500 MB"
   },

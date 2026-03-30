@@ -13,13 +13,16 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { CsprngArray } from "../../../types/csprng";
 import { UserKey } from "../../../types/key";
 import { ReceiveCreateInput } from "../models/receive-create-input";
+import { ReceiveResponse } from "../models/response/receive.response";
 
 import { DefaultReceiveService } from "./default-receive.service";
+import { ReceiveApiService } from "./receive-api.service.abstraction";
 
 describe("DefaultReceiveService", () => {
   const encryptService = mock<EncryptService>();
   const keyService = mock<KeyService>();
   const keyGenerationService = mock<KeyGenerationService>();
+  const receiveApiService = mock<ReceiveApiService>();
 
   const mockUserId = Utils.newGuid() as UserId;
   const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as UserKey;
@@ -43,7 +46,26 @@ describe("DefaultReceiveService", () => {
       encryptedString: "mockEncryptedName",
     } as EncString);
 
-    sut = new DefaultReceiveService(encryptService, keyService, keyGenerationService);
+    receiveApiService.postReceive.mockResolvedValue({
+      id: "mock-receive-id",
+      name: "mockEncryptedName",
+      files: [],
+      userKeyWrappedSharedContentEncryptionKey: "mockUserKeyWrappedScek",
+      userKeyWrappedPrivateKey: "mockWrappedPrivateKey",
+      scekWrappedPublicKey: "mockScekWrappedPublicKey",
+      secret: "mockSecret",
+      uploadCount: 0,
+      creationDate: "2026-01-01T00:00:00Z",
+      revisionDate: "2026-01-01T00:00:00Z",
+      expirationDate: "2026-12-31T00:00:00Z",
+    } as unknown as ReceiveResponse);
+
+    sut = new DefaultReceiveService(
+      encryptService,
+      keyService,
+      keyGenerationService,
+      receiveApiService,
+    );
   });
 
   describe("create", () => {
