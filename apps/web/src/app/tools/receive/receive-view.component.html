@@ -1,0 +1,17 @@
+<bit-dialog>
+  <ng-container bitDialogTitle>{{ receive.name }}</ng-container>
+  <ng-container bitDialogContent>
+    <dl>
+      <dt bitTypography="body2" class="tw-text-muted">{{ "deletionDate" | i18n }}</dt>
+      <dd>{{ receive.deletionDate | date: "medium" }}</dd>
+    </dl>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button type="button" bitButton buttonType="primary" (click)="openEdit()">
+      {{ "edit" | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" bitDialogClose>
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>
