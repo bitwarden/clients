@@ -1,3 +1,7 @@
+/**
+ * Styling to override Braintree's default styles.
+ */
+
 #bt-dropin-container {
   min-height: 50px;
   &:is(.theme_light *) {

@@ -1,3 +1,7 @@
+/**
+ * Old styling for vault filters, this should be replaced with Tailwind!
+ */
+
 .filter {
   padding-bottom: 10px;
 }
