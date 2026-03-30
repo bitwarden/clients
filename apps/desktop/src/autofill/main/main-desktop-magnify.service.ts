@@ -44,6 +44,11 @@ export class MainDesktopMagnifyService {
     ipcMain.handle(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND, (event, command) =>
       this.commandHandler(event, command),
     );
+
+    // Close the magnify window if the main BW window is closed
+    this.windowMain.win.on("closed", () => {
+      this.magnifyWindow?.close();
+    });
   }
 
   // Deregister the keyboard shortcut if registered.

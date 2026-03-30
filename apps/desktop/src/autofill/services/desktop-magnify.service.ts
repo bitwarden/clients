@@ -1,6 +1,17 @@
 import { Injectable, OnDestroy } from "@angular/core";
-import { concatMap, distinctUntilChanged, map, Observable, of, Subject, takeUntil } from "rxjs";
+import {
+  combineLatest,
+  concatMap,
+  distinctUntilChanged,
+  map,
+  Observable,
+  of,
+  Subject,
+  takeUntil,
+} from "rxjs";
 
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import {
   ActiveUserStateProvider,
   MAGNIFY_SETTINGS_DISK,
@@ -29,18 +40,36 @@ export class DesktopMagnifyService implements OnDestroy {
   // The enabled/disabled state from the user settings menu
   magnifyEnabledUserSetting$: Observable<boolean> = of(false);
 
+  // Magnify is only active when the user has the setting enabled and the vault is unlocked
+  private magnifyFeatureEnabled$: Observable<boolean> = of(false);
+
   private destroy$ = new Subject<void>();
 
-  constructor(private activeUserStateProvider: ActiveUserStateProvider) {
+  constructor(
+    private activeUserStateProvider: ActiveUserStateProvider,
+    private authService: AuthService,
+  ) {
     this.magnifyEnabledUserSetting$ = this.magnifyEnabledState.state$.pipe(
       map((enabled) => enabled ?? false),
-      distinctUntilChanged(), // Only emit when the boolean result changes
+      distinctUntilChanged(),
+      takeUntil(this.destroy$),
+    );
+
+    this.magnifyFeatureEnabled$ = combineLatest([
+      this.magnifyEnabledUserSetting$,
+      this.authService.activeAccountStatus$,
+    ]).pipe(
+      map(
+        ([settingEnabled, authStatus]) =>
+          settingEnabled && authStatus === AuthenticationStatus.Unlocked,
+      ),
+      distinctUntilChanged(),
       takeUntil(this.destroy$),
     );
   }
 
   async init() {
-    this.magnifyEnabledUserSetting$
+    this.magnifyFeatureEnabled$
       .pipe(
         concatMap(async (enabled) => {
           ipc.autofill.toggleMagnify(enabled);
