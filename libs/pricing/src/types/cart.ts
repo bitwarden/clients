@@ -21,7 +21,7 @@ export type Cart = {
     additionalServiceAccounts?: CartItem;
   };
   cadence: "annually" | "monthly";
-  discount?: Discount;
+  discounts?: Discount[];
   credit?: Credit;
   estimatedTax: number;
 };

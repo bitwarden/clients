@@ -2366,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "設定されたマスターパスワードの強度は脆弱です。Bitwarden アカウントを適切に保護するために、強力なマスターパスワード（またはパスフレーズ）を使用すべきです。本当にこのマスターパスワードを使用しますか？"
   },
+  "rotateAccountEncKey": {
+    "message": "アカウントの暗号化キーをローテーションする"
+  },
+  "rotateEncKeyTitle": {
+    "message": "暗号化キーをローテーションする"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "暗号化キーをローテーションしてよろしいですか？"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "暗号化キーの更新後は、モバイルアプリやブラウザ拡張機能など現在利用中のすべての Bitwarden アプリで再ログインが必要となります。再ログインしないと(新しい暗号化キーをダウンロードすると)データが破損する可能性があります。自動的にログアウトを試みますが、遅延することがあります。"
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "保存済みのアカウント制限付きエクスポートは無効になります。"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "暗号化キーのローテーションを行う前に、保管庫内の古い添付ファイルを修正する必要があります。"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "暗号化キーのローテーションによる影響"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "組織ポリシーの要件を満たすためにマスターパスワードが必要です:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2455,6 +2479,9 @@
   },
   "vaultTimeoutAction": {
     "message": "保管庫タイムアウト時のアクション"
+  },
+  "showAtRiskPasswordNotifications": {
+    "message": "Show at-risk password notifications"
   },
   "lock": {
     "message": "ロック",

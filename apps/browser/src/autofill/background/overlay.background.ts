@@ -3250,6 +3250,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         isInlineMenuListPort ? "bitwardenVault" : "bitwardenOverlayButton",
       ),
       styleSheetUrl,
+      showAnimations: await firstValueFrom(this.autofillService.enableInlineMenuAnimation$),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       translations: this.getInlineMenuTranslations(),
       ciphers: isInlineMenuListPort ? await this.getInlineMenuCipherData() : null,
