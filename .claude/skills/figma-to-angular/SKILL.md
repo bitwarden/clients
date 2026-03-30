@@ -224,5 +224,7 @@ needed. Common refinements:
   element pointing at a hidden `<input type="file">` rather than programmatic `.click()`. The
   codebase has an `AriaDisabledClickCaptureService` that intercepts programmatic clicks on certain
   elements, causing silent failures.
+- **No NgModules.** All new components must be standalone (`imports: [...]` in the `@Component`
+  decorator). Do not create `*.module.ts` files. The codebase is moving away from NgModules.
 - **Plan before you code.** The plan step catches API design issues early. It's cheaper to fix a
   plan than to rewrite files.
