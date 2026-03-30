@@ -258,6 +258,21 @@ export class ContextMenuClickedHandler {
       return;
     }
 
+    // Open the UI immediately to preserve the user gesture required by sidePanel.open()
+    if (BrowserApi.isSidePanelApiSupported) {
+      await BrowserApi.setSidePanelOptions({
+        path: "popup/index.html?uilocation=sidepanel#/autofill-triage",
+        tabId: tab.id,
+        enabled: true,
+      });
+      await BrowserApi.openSidePanel({ tabId: tab.id });
+    } else {
+      await BrowserPopupUtils.openPopout("popup/index.html#/autofill-triage", {
+        singleActionKey: AUTOFILL_TRIAGE_ID,
+        senderWindowId: tab.windowId,
+      });
+    }
+
     const response = await this.collectPageDetailsForTriage(tab, info);
     if (!response) {
       return;
@@ -275,10 +290,7 @@ export class ContextMenuClickedHandler {
       fields,
     };
 
-    await BrowserPopupUtils.openPopout("popup/index.html#/autofill-triage", {
-      singleActionKey: AUTOFILL_TRIAGE_ID,
-      senderWindowId: tab.windowId,
-    });
+    await chrome.runtime.sendMessage({ command: "triageResultReady", tabId: tab.id });
   }
 
   private collectPageDetailsForTriage(
