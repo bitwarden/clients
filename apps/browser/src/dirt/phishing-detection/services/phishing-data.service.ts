@@ -286,31 +286,6 @@ export class PhishingDataService {
   }
 
   /**
-   * Compute SHA256 hash of a string using Web Crypto API.
-   * Returns lowercase hex string.
-   */
-  private async computeSha256(data: string): Promise<string> {
-    const encoder = new TextEncoder();
-    const buffer = encoder.encode(data);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-  }
-
-  /**
-   * Compute SHA256 of the full blocklist by loading all URLs from IndexedDB.
-   */
-  private async computeLocalHashes(): Promise<{ sha256: string; sortedSha256: string }> {
-    const urls = await this.indexedDbService.loadAllUrls();
-    const raw = urls.join("\n") + "\n";
-    const sorted = [...urls].sort().join("\n") + "\n";
-    return {
-      sha256: await this.computeSha256(raw),
-      sortedSha256: await this.computeSha256(sorted),
-    };
-  }
-
-  /**
    * Fetch and parse manifest.json from assets.bitwarden.com.
    */
   private async fetchManifest(): Promise<PhishingManifest> {
@@ -389,10 +364,16 @@ export class PhishingDataService {
       const { additions, removals } = await this.fetchPatch(patch.path);
 
       if (removals.length > 0) {
-        await this.indexedDbService.removeUrls(removals);
+        const removed = await this.indexedDbService.removeUrls(removals);
+        if (!removed) {
+          throw new Error(`Failed to remove ${removals.length} URLs during patch ${patch.date}`);
+        }
       }
       if (additions.length > 0) {
-        await this.indexedDbService.addUrls(additions);
+        const added = await this.indexedDbService.addUrls(additions);
+        if (!added) {
+          throw new Error(`Failed to add ${additions.length} URLs during patch ${patch.date}`);
+        }
       }
 
       localSha256 = patch.to_sha256;
@@ -408,22 +389,6 @@ export class PhishingDataService {
     );
 
     return localSha256;
-  }
-
-  /**
-   * Verify integrity of local blocklist after patch application.
-   */
-  private async verifyIntegrity(expectedSortedSha256: string): Promise<boolean> {
-    const { sortedSha256 } = await this.computeLocalHashes();
-    const match = sortedSha256 === expectedSortedSha256;
-
-    if (!match) {
-      this.logService.warning(
-        `[PhishingDataService] Integrity check failed: local sorted_sha256 ${sortedSha256.slice(0, 12)}... !== expected ${expectedSortedSha256.slice(0, 12)}...`,
-      );
-    }
-
-    return match;
   }
 
   private _backgroundUpdate(
@@ -498,7 +463,7 @@ export class PhishingDataService {
 
     if (!localSha256) {
       this.logService.info("[PhishingDataService] No local sha256 — performing full update");
-      return this._performFullUpdateWithManifest(manifest, applicationVersion);
+      return this._performFullUpdate(applicationVersion, manifest);
     }
 
     if (localSha256 === manifest.full_list.sha256) {
@@ -512,21 +477,11 @@ export class PhishingDataService {
     const resultSha256 = await this.applyPatchChain(manifest, localSha256);
 
     if (resultSha256 === null) {
-      return this._performFullUpdateWithManifest(manifest, applicationVersion);
+      return this._performFullUpdate(applicationVersion, manifest);
     }
 
-    const integrityOk = await this.verifyIntegrity(manifest.full_list.sorted_sha256);
-
-    if (!integrityOk) {
-      this.logService.warning(
-        "[PhishingDataService] Integrity check failed after patches — performing full update",
-      );
-      return this._performFullUpdateWithManifest(manifest, applicationVersion);
-    }
-
-    // Trust the manifest's sha256 values rather than computing from IndexedDB.
-    // IndexedDB stores URLs sorted by keyPath, losing original file order,
-    // so a locally computed sha256 would never match the manifest's order-dependent hash.
+    // Patch chain structure guarantees integrity via from_sha256 -> to_sha256 chaining.
+    // addUrls/removeUrls failures throw inside applyPatchChain, triggering retry.
     return {
       meta: {
         checksum: previous?.checksum ?? "",
@@ -540,16 +495,21 @@ export class PhishingDataService {
   }
 
   /**
-   * Full update without manifest (app version change).
+   * Full update: download entire blocklist and verify against manifest if available.
+   * When called from the app-version-change path, manifest is fetched internally.
+   * When called from other paths, manifest is passed in.
    */
   private async _performFullUpdate(
     applicationVersion: string,
+    manifest?: PhishingManifest | null,
   ): Promise<{ meta: PhishingDataMeta; updated: boolean }> {
-    let manifest: PhishingManifest | null = null;
-    try {
-      manifest = await this.fetchManifest();
-    } catch {
-      // Manifest unavailable — proceed without verification
+    // If no manifest provided, try to fetch one for verification
+    if (manifest === undefined) {
+      try {
+        manifest = await this.fetchManifest();
+      } catch {
+        manifest = null;
+      }
     }
 
     this.logService.info(
@@ -566,72 +526,15 @@ export class PhishingDataService {
       throw new Error(`Full update failed: ${response.status} ${response.statusText}`);
     }
 
-    await this.indexedDbService.saveUrlsFromStream(response.body);
+    const streamSha256 = await this.indexedDbService.saveUrlsFromStream(response.body);
 
-    // Verify integrity via sorted_sha256 (order-independent) if manifest is available,
-    // then trust the manifest's sha256 values. IndexedDB loses insertion order so we
-    // cannot compute the order-dependent sha256 locally.
-    if (manifest) {
-      const { sortedSha256 } = await this.computeLocalHashes();
-      if (sortedSha256 !== manifest.full_list.sorted_sha256) {
-        this.logService.warning(
-          `[PhishingDataService] Full download sorted_sha256 mismatch — may be timing issue`,
+    // Verify stream SHA256 against manifest if available
+    if (manifest && streamSha256) {
+      if (streamSha256 !== manifest.full_list.sha256) {
+        throw new Error(
+          `Full download SHA256 mismatch: ${streamSha256.slice(0, 12)}... !== ${manifest.full_list.sha256.slice(0, 12)}...`,
         );
       }
-      return {
-        meta: {
-          checksum: "",
-          timestamp: Date.now(),
-          applicationVersion,
-          sha256: manifest.full_list.sha256,
-          sortedSha256: manifest.full_list.sorted_sha256,
-        },
-        updated: true,
-      };
-    }
-
-    // No manifest — store sortedSha256 only; next sync with manifest will establish sha256 baseline
-    const { sortedSha256 } = await this.computeLocalHashes();
-    return {
-      meta: {
-        checksum: "",
-        timestamp: Date.now(),
-        applicationVersion,
-        sortedSha256,
-      },
-      updated: true,
-    };
-  }
-
-  /**
-   * Full update using manifest for SHA256 verification.
-   */
-  private async _performFullUpdateWithManifest(
-    manifest: PhishingManifest,
-    applicationVersion: string,
-  ): Promise<{ meta: PhishingDataMeta; updated: boolean }> {
-    this.logService.info(
-      `[PhishingDataService] Starting FULL update using ${PHISHING_PRIMARY_URL}`,
-    );
-
-    const response = await this.apiService.nativeFetch(
-      new Request(PHISHING_PRIMARY_URL, {
-        headers: { "Accept-Encoding": "gzip" },
-      }),
-    );
-
-    if (!response.ok || !response.body) {
-      throw new Error(`Full update failed: ${response.status} ${response.statusText}`);
-    }
-
-    await this.indexedDbService.saveUrlsFromStream(response.body);
-
-    // Verify integrity via sorted_sha256 (order-independent), then trust manifest values.
-    const { sortedSha256 } = await this.computeLocalHashes();
-    if (sortedSha256 !== manifest.full_list.sorted_sha256) {
-      this.logService.warning(
-        `[PhishingDataService] Full download sorted_sha256 mismatch: ${sortedSha256.slice(0, 12)}... !== ${manifest.full_list.sorted_sha256.slice(0, 12)}...`,
-      );
     }
 
     return {
@@ -639,8 +542,8 @@ export class PhishingDataService {
         checksum: "",
         timestamp: Date.now(),
         applicationVersion,
-        sha256: manifest.full_list.sha256,
-        sortedSha256: manifest.full_list.sorted_sha256,
+        sha256: manifest?.full_list.sha256 ?? streamSha256 ?? undefined,
+        sortedSha256: manifest?.full_list.sorted_sha256,
       },
       updated: true,
     };

@@ -282,11 +282,11 @@ describe("PhishingDataService", () => {
     };
 
     let fetchManifestSpy: jest.SpyInstance;
-    let computeLocalHashesSpy: jest.SpyInstance;
 
     beforeEach(() => {
       fetchManifestSpy = jest.spyOn(service as any, "fetchManifest");
-      computeLocalHashesSpy = jest.spyOn(service as any, "computeLocalHashes");
+      // saveUrlsFromStream now returns a sha256 string
+      mockIndexedDbService.saveUrlsFromStream.mockResolvedValue("current-full-sha256");
     });
 
     it("should no-op when local sha256 matches manifest", async () => {
@@ -319,10 +319,6 @@ describe("PhishingDataService", () => {
 
       platformUtilsService.getApplicationVersion.mockResolvedValue("2.0.0");
       fetchManifestSpy.mockResolvedValue(mockManifest);
-      computeLocalHashesSpy.mockResolvedValue({
-        sha256: "new-sha256",
-        sortedSha256: "new-sorted-sha256",
-      });
 
       const mockResponse = {
         ok: true,
@@ -345,10 +341,6 @@ describe("PhishingDataService", () => {
       };
 
       fetchManifestSpy.mockResolvedValue(mockManifest);
-      computeLocalHashesSpy.mockResolvedValue({
-        sha256: "current-full-sha256",
-        sortedSha256: "current-sorted-sha256",
-      });
 
       const mockResponse = {
         ok: true,

@@ -288,25 +288,26 @@ export class PhishingIndexedDbService {
   /**
    * Saves phishing URLs directly from a stream.
    * Processes data incrementally to minimize memory usage.
+   * Computes SHA256 of the raw stream bytes for integrity verification.
    *
    * @param stream - ReadableStream of newline-delimited URLs
-   * @returns `true` if save succeeded, `false` on error
+   * @returns hex SHA256 of the raw stream bytes, or empty string on error
    */
-  async saveUrlsFromStream(stream: ReadableStream<Uint8Array>): Promise<boolean> {
+  async saveUrlsFromStream(stream: ReadableStream<Uint8Array>): Promise<string> {
     this.logService.debug("[PhishingIndexedDbService] Saving urls to the store from stream...");
 
     let db: IDBDatabase | null = null;
     try {
       db = await this.openDatabase();
       await this.clearStore(db);
-      await this.processStream(db, stream);
+      const sha256 = await this.processStream(db, stream);
       this.logService.info(
         "[PhishingIndexedDbService] Finished saving urls to the store from stream.",
       );
-      return true;
+      return sha256;
     } catch (error) {
       this.logService.error("[PhishingIndexedDbService] Stream save failed", error);
-      return false;
+      return "";
     } finally {
       db?.close();
     }
@@ -314,16 +315,28 @@ export class PhishingIndexedDbService {
 
   /**
    * Processes a stream of URL data, parsing lines and saving in chunks.
+   * Accumulates raw byte chunks for SHA256 computation after stream completes.
+   *
+   * @returns hex SHA256 of the raw stream bytes
    */
-  private async processStream(db: IDBDatabase, stream: ReadableStream<Uint8Array>): Promise<void> {
+  private async processStream(
+    db: IDBDatabase,
+    stream: ReadableStream<Uint8Array>,
+  ): Promise<string> {
     const reader = stream.getReader();
     const decoder = new TextDecoder();
     let buffer = "";
     let urls: string[] = [];
+    const rawChunks: Uint8Array[] = [];
 
     try {
       while (true) {
         const { done, value } = await reader.read();
+
+        // Accumulate raw bytes for SHA256 computation
+        if (value) {
+          rawChunks.push(value);
+        }
 
         // Decode BEFORE done check; stream: !done flushes on final call
         buffer += decoder.decode(value, { stream: !done });
@@ -362,5 +375,18 @@ export class PhishingIndexedDbService {
     } finally {
       reader.releaseLock();
     }
+
+    // Compute SHA256 of raw stream bytes
+    const totalLength = rawChunks.reduce((sum, chunk) => sum + chunk.length, 0);
+    const combined = new Uint8Array(totalLength);
+    let offset = 0;
+    for (const chunk of rawChunks) {
+      combined.set(chunk, offset);
+      offset += chunk.length;
+    }
+
+    const hashBuffer = await crypto.subtle.digest("SHA-256", combined);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
   }
 }
