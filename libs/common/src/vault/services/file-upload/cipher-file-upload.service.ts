@@ -2,8 +2,10 @@
 // @ts-strict-ignore
 
 import { ApiService } from "../../../abstractions/api.service";
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { ErrorResponse } from "../../../models/response/error.response";
+import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import {
   FileUploadApiMethods,
   FileUploadService,
@@ -21,6 +23,7 @@ export class CipherFileUploadService implements CipherFileUploadServiceAbstracti
   constructor(
     private apiService: ApiService,
     private fileUploadService: FileUploadService,
+    private configService: ConfigService,
   ) {}
 
   async upload(
@@ -39,6 +42,11 @@ export class CipherFileUploadService implements CipherFileUploadServiceAbstracti
       lastKnownRevisionDate: cipher.revisionDate,
     };
 
+    const progressEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM34410AttachmentUploadProgress,
+    );
+    const opts = progressEnabled ? options : undefined;
+
     let response: CipherResponse;
     try {
       const uploadDataResponse = await this.apiService.postCipherAttachment(cipher.id, request);
@@ -47,8 +55,8 @@ export class CipherFileUploadService implements CipherFileUploadServiceAbstracti
         uploadDataResponse,
         encFileName,
         encData,
-        this.generateMethods(uploadDataResponse, response, request.adminRequest, options),
-        options,
+        this.generateMethods(uploadDataResponse, response, request.adminRequest, opts),
+        opts,
       );
     } catch (e) {
       if (e instanceof ErrorResponse) {

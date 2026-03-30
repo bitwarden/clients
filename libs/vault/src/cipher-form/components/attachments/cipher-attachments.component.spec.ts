@@ -387,6 +387,9 @@ describe("CipherAttachmentsComponent", () => {
 
     describe("uploadProgress", () => {
       beforeEach(async () => {
+        const configService = TestBed.inject(ConfigService);
+        (configService.getFeatureFlag as jest.Mock).mockResolvedValue(true);
+
         fixture = TestBed.createComponent(CipherAttachmentsComponent);
         component = fixture.componentInstance;
         fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);

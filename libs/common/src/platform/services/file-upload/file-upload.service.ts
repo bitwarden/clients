@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { ApiService } from "../../../abstractions/api.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { ConfigService } from "../../abstractions/config/config.service";
 import {
   FileUploadApiMethods,
   FileUploadService as FileUploadServiceAbstraction,
@@ -21,8 +22,9 @@ export class FileUploadService implements FileUploadServiceAbstraction {
   constructor(
     protected logService: LogService,
     apiService: ApiService,
+    configService: ConfigService,
   ) {
-    this.azureFileUploadService = new AzureFileUploadService(logService, apiService);
+    this.azureFileUploadService = new AzureFileUploadService(logService, apiService, configService);
     this.bitwardenFileUploadService = new BitwardenFileUploadService();
   }
 
