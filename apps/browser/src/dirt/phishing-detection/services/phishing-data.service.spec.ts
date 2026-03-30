@@ -390,5 +390,211 @@ describe("PhishingDataService", () => {
 
       expect(mockIndexedDbService.saveUrlsFromStream).not.toHaveBeenCalled();
     });
+
+    it("should apply single patch when one patch behind", async () => {
+      const existingMeta = {
+        checksum: "",
+        timestamp: Date.now() - 1000,
+        applicationVersion: "1.0.0",
+        sha256: "old-sha256",
+        sortedSha256: "old-sorted",
+      };
+
+      fetchManifestSpy.mockResolvedValue(mockManifest);
+      mockIndexedDbService.addUrls.mockResolvedValue(true);
+      mockIndexedDbService.removeUrls.mockResolvedValue(true);
+
+      const fetchPatchSpy = jest.spyOn(service as any, "fetchPatch");
+      fetchPatchSpy.mockResolvedValue({
+        additions: ["http://new-phish.com"],
+        removals: ["http://old-false-positive.com"],
+      });
+
+      const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      expect(fetchPatchSpy).toHaveBeenCalledWith("patches/2026-03-10.patch");
+      expect(mockIndexedDbService.addUrls).toHaveBeenCalledWith(["http://new-phish.com"]);
+      expect(mockIndexedDbService.removeUrls).toHaveBeenCalledWith([
+        "http://old-false-positive.com",
+      ]);
+      expect(result?.sha256).toBe("current-full-sha256");
+    });
+
+    it("should apply multiple patches in chain order", async () => {
+      const multiPatchManifest = {
+        ...mockManifest,
+        patches: [
+          {
+            date: "2026-03-11",
+            path: "patches/day2.patch",
+            from_sha256: "mid-sha",
+            to_sha256: "current-full-sha256",
+          },
+          {
+            date: "2026-03-10",
+            path: "patches/day1.patch",
+            from_sha256: "old-sha",
+            to_sha256: "mid-sha",
+          },
+        ],
+      };
+
+      const existingMeta = {
+        checksum: "",
+        timestamp: Date.now() - 1000,
+        applicationVersion: "1.0.0",
+        sha256: "old-sha",
+        sortedSha256: "old-sorted",
+      };
+
+      fetchManifestSpy.mockResolvedValue(multiPatchManifest);
+      mockIndexedDbService.addUrls.mockResolvedValue(true);
+      mockIndexedDbService.removeUrls.mockResolvedValue(true);
+
+      const fetchPatchSpy = jest.spyOn(service as any, "fetchPatch");
+      fetchPatchSpy
+        .mockResolvedValueOnce({ additions: ["http://day1.com"], removals: [] })
+        .mockResolvedValueOnce({ additions: ["http://day2.com"], removals: [] });
+
+      const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      expect(fetchPatchSpy).toHaveBeenCalledTimes(2);
+      expect(mockIndexedDbService.addUrls).toHaveBeenCalledTimes(2);
+      expect(result?.sha256).toBe("current-full-sha256");
+    });
+
+    it("should apply patch with only additions (no removals)", async () => {
+      const existingMeta = {
+        checksum: "",
+        timestamp: Date.now() - 1000,
+        applicationVersion: "1.0.0",
+        sha256: "old-sha256",
+        sortedSha256: "old-sorted",
+      };
+
+      fetchManifestSpy.mockResolvedValue(mockManifest);
+      mockIndexedDbService.addUrls.mockResolvedValue(true);
+
+      const fetchPatchSpy = jest.spyOn(service as any, "fetchPatch");
+      fetchPatchSpy.mockResolvedValue({
+        additions: ["http://new1.com", "http://new2.com"],
+        removals: [],
+      });
+
+      await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      expect(mockIndexedDbService.addUrls).toHaveBeenCalledWith([
+        "http://new1.com",
+        "http://new2.com",
+      ]);
+      expect(mockIndexedDbService.removeUrls).not.toHaveBeenCalled();
+    });
+
+    it("should apply patch with only removals (no additions)", async () => {
+      const existingMeta = {
+        checksum: "",
+        timestamp: Date.now() - 1000,
+        applicationVersion: "1.0.0",
+        sha256: "old-sha256",
+        sortedSha256: "old-sorted",
+      };
+
+      fetchManifestSpy.mockResolvedValue(mockManifest);
+      mockIndexedDbService.removeUrls.mockResolvedValue(true);
+
+      const fetchPatchSpy = jest.spyOn(service as any, "fetchPatch");
+      fetchPatchSpy.mockResolvedValue({
+        additions: [],
+        removals: ["http://removed1.com", "http://removed2.com"],
+      });
+
+      await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      expect(mockIndexedDbService.removeUrls).toHaveBeenCalledWith([
+        "http://removed1.com",
+        "http://removed2.com",
+      ]);
+      expect(mockIndexedDbService.addUrls).not.toHaveBeenCalled();
+    });
+
+    it("should throw when addUrls fails during patch application", async () => {
+      mockIndexedDbService.addUrls.mockResolvedValue(false);
+
+      const fetchPatchSpy = jest.spyOn(service as any, "fetchPatch");
+      fetchPatchSpy.mockResolvedValue({
+        additions: ["http://new.com"],
+        removals: [],
+      });
+
+      // applyPatchChain should throw when addUrls returns false
+      await expect(service["applyPatchChain"](mockManifest, "old-sha256")).rejects.toThrow(
+        "Failed to add",
+      );
+
+      expect(mockIndexedDbService.addUrls).toHaveBeenCalled();
+    });
+
+    it("should throw when removeUrls fails during patch application", async () => {
+      mockIndexedDbService.removeUrls.mockResolvedValue(false);
+
+      const fetchPatchSpy = jest.spyOn(service as any, "fetchPatch");
+      fetchPatchSpy.mockResolvedValue({
+        additions: [],
+        removals: ["http://old.com"],
+      });
+
+      await expect(service["applyPatchChain"](mockManifest, "old-sha256")).rejects.toThrow(
+        "Failed to remove",
+      );
+
+      expect(mockIndexedDbService.removeUrls).toHaveBeenCalled();
+    });
+
+    it("should fall back to full download when no matching patch exists (stale client)", async () => {
+      const existingMeta = {
+        checksum: "",
+        timestamp: Date.now() - 1000,
+        applicationVersion: "1.0.0",
+        sha256: "very-old-sha256-not-in-any-patch",
+        sortedSha256: "old-sorted",
+      };
+
+      fetchManifestSpy.mockResolvedValue(mockManifest);
+
+      const mockResponse = {
+        ok: true,
+        body: {} as ReadableStream,
+      } as Response;
+      apiService.nativeFetch.mockResolvedValue(mockResponse);
+
+      const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      // No matching patch → falls back to full download
+      expect(mockIndexedDbService.saveUrlsFromStream).toHaveBeenCalled();
+      expect(result?.sha256).toBe("current-full-sha256");
+    });
+
+    it("should fall back to legacy sync when manifest returns malformed data", async () => {
+      const existingMeta = {
+        checksum: "old-checksum",
+        timestamp: Date.now() - 1000,
+        applicationVersion: "1.0.0",
+      };
+
+      // Manifest fetch succeeds but returns data that causes an error downstream
+      fetchManifestSpy.mockRejectedValue(new TypeError("Cannot read properties of undefined"));
+      fetchChecksumSpy.mockResolvedValue("new-checksum");
+
+      const mockResponse = {
+        ok: true,
+        body: {} as ReadableStream,
+      } as Response;
+      apiService.nativeFetch.mockResolvedValue(mockResponse);
+
+      const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      expect(result?.checksum).toBe("new-checksum");
+      expect(mockIndexedDbService.saveUrlsFromStream).toHaveBeenCalled();
+    });
   });
 });
