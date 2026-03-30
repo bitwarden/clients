@@ -12,8 +12,9 @@ export const recentlyActiveSortFn: SortFn = (
   direction: SortDirection = "asc",
 ): number => {
   // Pin the current session to the top only when sorting newest-first (desc), so it stays
-  // visible at the top. Sentinel is inverted (+1 not -1) so that after the framework multiplies
-  // by directionModifier (-1), the net result is negative (a first).
+  // visible at the top. The framework multiplies our result by -1 when direction is "desc",
+  // so we return +1 here (not -1). After the framework negates it: +1 * -1 = -1, which puts
+  // the current device (a) first.
   if (direction === "desc") {
     if (a.isCurrentDevice) {
       return 1;
