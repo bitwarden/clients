@@ -22,6 +22,8 @@
         <span slot="secondary" class="tw-text-sm">
           @if (device.isTrusted) {
             <span>{{ "trusted" | i18n }}</span>
+          } @else {
+            <br />
           }
 
           <div>
