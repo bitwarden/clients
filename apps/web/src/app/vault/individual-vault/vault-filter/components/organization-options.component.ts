@@ -227,7 +227,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     }
 
     const env = await firstValueFrom(this.environmentService.getEnvironment$(activeAccount.id));
-    const webVaultUrl = env.getWebVaultUrl().replace(/\/$/, "");
+    const webVaultUrl = env.getWebVaultUrl();
 
     await this.ssoLoginService.removeFromSsoRequiredCacheIfPresent(
       activeAccount.email,

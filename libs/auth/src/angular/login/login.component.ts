@@ -246,7 +246,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     // Only perform initial update and setup a subscription if there is actually a populated ssoRequiredCache
     if (ssoRequiredCache != null && ssoRequiredCache.length > 0) {
       const env = await firstValueFrom(this.environmentService.environment$);
-      const webVaultUrl = env.getWebVaultUrl().replace(/\/$/, "");
+      const webVaultUrl = env.getWebVaultUrl();
 
       // If the pre-filled/remembered email field value exists in the cache, set to true
       if (

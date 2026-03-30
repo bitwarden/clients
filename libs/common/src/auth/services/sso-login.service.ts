@@ -205,7 +205,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     );
 
     const env = await firstValueFrom(this.environmentService.getEnvironment$(userId));
-    const webVaultUrl = env.getWebVaultUrl().replace(/\/$/, "");
+    const webVaultUrl = env.getWebVaultUrl();
 
     if (ssoRequired) {
       await this.addToSsoRequiredCache(ssoLoginEmail.toLowerCase(), webVaultUrl);
