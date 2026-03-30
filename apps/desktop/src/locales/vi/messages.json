@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Cần là thành viên Cao cấp để sử dụng tính năng này."
   },
+  "syncWithBrowser": {
+    "message": "Sync with browser"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Launch browser"
+  },
   "errorOccurred": {
     "message": "Đã xảy ra lỗi."
   },
@@ -905,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Gợi ý mật khẩu chính"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "passwordStrengthScore": {
     "message": "Độ mạnh của mật khẩu $SCORE$",
     "placeholders": {
@@ -1196,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Cài đặt mã hóa được khuyến nghị sẽ cải thiện bảo mật cho tài khoản của bạn. Nhập mật khẩu chính để cập nhật ngay."
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
   "confirmIdentityToContinue": {
     "message": "Xác minh danh tính để tiếp tục"
   },
@@ -1280,6 +1320,9 @@
   "changeMasterPass": {
     "message": "Thay đổi mật khẩu chính"
   },
+  "changeMasterPassword": {
+    "message": "Change master password"
+  },
   "continueToWebApp": {
     "message": "Tiếp tục tới ứng dụng web?"
   },
@@ -1358,17 +1401,11 @@
   "twoStepLogin": {
     "message": "Đăng nhập hai bước"
   },
-  "vaultTimeoutHeader": {
-    "message": "Thời gian mở kho"
-  },
   "vaultTimeout": {
     "message": "Đóng kho sau"
   },
   "vaultTimeout1": {
     "message": "Thời gian chờ"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Hành động sau khi đóng kho"
   },
   "vaultTimeoutDesc": {
     "message": "Chọn thời điểm đóng kho của bạn và thực hiện hành động đã được chọn."
@@ -1658,6 +1695,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "month"
+  },
+  "monthly": {
+    "message": "Monthly"
+  },
+  "year": {
+    "message": "year"
+  },
+  "annually": {
+    "message": "Annually"
+  },
+  "annual": {
+    "message": "Annual"
   },
   "refreshComplete": {
     "message": "Làm mới hoàn tất"
@@ -2089,9 +2141,6 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Bạn cần xác thực lại để mở khóa kho lưu trữ."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Thiết lập phương thức mở khóa để thay đổi hành động sau khi đóng kho."
-  },
   "lock": {
     "message": "Khóa",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2274,6 +2323,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Mật khẩu chính bạn chọn không đáp ứng yêu cầu."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Nhận đề xuất, thông báo và cơ hội nghiên cứu từ Bitwarden trong hộp thư đến của bạn."
@@ -2709,9 +2761,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Thời gian mở kho vượt quá giới hạn do tổ chức của bạn đặt ra."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Các yêu cầu chính sách của doanh nghiệp đã được áp dụng cho các tùy chọn thời gian mở kho của bạn"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Tổ chức của bạn đã đặt thời gian mở kho tối đa là $HOURS$ giờ và $MINUTES$ phút.",
@@ -3745,6 +3794,9 @@
   "exportSuccess": {
     "message": "Đã xuất dữ liệu kho của bạn"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Đã hủy xác thực đa yếu tố"
   },
@@ -4617,8 +4669,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ yêu cầu tất cả các mục phải thuộc sở hữu của tổ chức để đảm bảo an ninh và tuân thủ. Nhấp chấp nhận để chuyển quyền sở hữu các mục của bạn.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4678,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Chấp nhận chuyển"
   },
   "declineAndLeave": {
     "message": "Từ chối và rời đi"
-  },
-  "whyAmISeeingThis": {
-    "message": "Tại sao tôi thấy điều này?"
   },
   "organizationIsSuspended": {
     "message": "Organization is suspended"
@@ -4692,9 +4747,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"

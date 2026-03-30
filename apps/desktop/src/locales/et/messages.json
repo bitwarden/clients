@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Selle funktsiooni kasutamiseks on vajalik tasulist kontot omada."
   },
+  "syncWithBrowser": {
+    "message": "Sync with browser"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Launch browser"
+  },
   "errorOccurred": {
     "message": "Ilmnes tõrge."
   },
@@ -905,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Ülemparooli vihje"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "passwordStrengthScore": {
     "message": "Parooli tugevuse aste: $SCORE$",
     "placeholders": {
@@ -1196,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
   "confirmIdentityToContinue": {
     "message": "Confirm your identity to continue"
   },
@@ -1280,6 +1320,9 @@
   "changeMasterPass": {
     "message": "Muuda ülemparooli"
   },
+  "changeMasterPassword": {
+    "message": "Change master password"
+  },
   "continueToWebApp": {
     "message": "Jätka veebibrauseris?"
   },
@@ -1358,17 +1401,11 @@
   "twoStepLogin": {
     "message": "Kaheastmeline kinnitamine"
   },
-  "vaultTimeoutHeader": {
-    "message": "Vault timeout"
-  },
   "vaultTimeout": {
     "message": "Hoidla ajalõpp"
   },
   "vaultTimeout1": {
     "message": "Aegumine"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "Vali millal saabub hoidla ajalõpp ning sooritatakse valitud tegevus."
@@ -1658,6 +1695,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "month"
+  },
+  "monthly": {
+    "message": "Monthly"
+  },
+  "year": {
+    "message": "year"
+  },
+  "annually": {
+    "message": "Annually"
+  },
+  "annual": {
+    "message": "Annual"
   },
   "refreshComplete": {
     "message": "Värskendamine lõpetatud"
@@ -2089,9 +2141,6 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Hoidlast väljalogimine nõuab taaskordseks ligipääsuks uut autentimist."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Hoidla ajalõpu muutmiseks vali esmalt lahtilukustamise meetod."
-  },
   "lock": {
     "message": "Lukusta",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2274,6 +2323,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Uus ülemparool ei vasta eeskirjades väljatoodud tingimustele."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Soovin saada nõuandeid, uudiseid ja pakkumisi Bitwardenilt oma postkasti."
@@ -2709,9 +2761,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Valitud hoidla ajalõpp ei ole organisatsiooni poolt määratud reeglitega kooskõlas."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
@@ -3745,6 +3794,9 @@
   "exportSuccess": {
     "message": "Hoidla sisu edukalt eksporditud"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Mitmeastmeline autentiteerimine tühistatud"
   },
@@ -4617,8 +4669,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4678,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
   },
   "organizationIsSuspended": {
     "message": "Organization is suspended"
@@ -4692,9 +4747,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"

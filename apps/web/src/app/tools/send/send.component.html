@@ -1,75 +1,42 @@
 <app-header>
-  <ng-container slot="title-suffix">
-    <small #actionSpinner [appApiAction]="actionPromise">
-      <ng-container *ngIf="$any(actionSpinner).loading">
-        <i
-          class="bwi bwi-spinner bwi-spin tw-text-muted"
-          title="{{ 'loading' | i18n }}"
-          aria-hidden="true"
-        ></i>
-        <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-      </ng-container>
-    </small>
-  </ng-container>
-  <tools-new-send-dropdown *ngIf="!disableSend"></tools-new-send-dropdown>
+  @if (!disableSend()) {
+    <tools-new-send-dropdown></tools-new-send-dropdown>
+  }
 </app-header>
 
-<bit-callout type="warning" title="{{ 'sendDisabled' | i18n }}" *ngIf="disableSend">
-  {{ "sendDisabledWarning" | i18n }}
-</bit-callout>
+@if (disableSend()) {
+  <bit-callout type="warning" title="{{ 'sendDisabled' | i18n }}">
+    {{ "sendDisabledWarning" | i18n }}
+  </bit-callout>
+}
 
 @if (SendUIRefresh$ | async) {
-  <div class="tw-mb-4">
-    <bit-search
-      [(ngModel)]="searchText"
-      [placeholder]="'searchSends' | i18n"
-      (ngModelChange)="searchTextChanged()"
-      appAutofocus
-    />
-  </div>
-
-  <div class="tw-mb-4">
-    <bit-toggle-group [selected]="selectedToggleValue" (selectedChange)="onToggleChange($event)">
-      <bit-toggle [value]="'all'">{{ "allSends" | i18n }}</bit-toggle>
-      <bit-toggle [value]="'text'">{{ "sendTypeText" | i18n }}</bit-toggle>
-      <bit-toggle [value]="'file'">{{ "sendTypeFile" | i18n }}</bit-toggle>
-    </bit-toggle-group>
-  </div>
-
   <div>
-    <div class="tw-@container/send-table">
-      <tools-send-table
-        *ngIf="filteredSends && filteredSends.length"
-        [dataSource]="dataSource"
-        [disableSend]="disableSend"
-        (editSend)="editSend($event)"
-        (copySend)="copy($event)"
-        (removePassword)="removePassword($event)"
-        (deleteSend)="delete($event)"
-      />
-
-      <div *ngIf="filteredSends && !filteredSends.length">
-        <ng-container *ngIf="!loaded">
-          <i
-            class="bwi bwi-spinner bwi-spin tw-text-muted"
-            title="{{ 'loading' | i18n }}"
-            aria-hidden="true"
-          ></i>
-          <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-        </ng-container>
-        <ng-container *ngIf="loaded">
-          <bit-no-items [icon]="noItemIcon" class="tw-text-main">
-            <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
-            <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
-            <tools-new-send-dropdown
-              [hideIcon]="true"
-              *ngIf="!disableSend"
-              slot="button"
-            ></tools-new-send-dropdown>
-          </bit-no-items>
-        </ng-container>
+    <tools-send-list
+      [sends]="filteredSends()"
+      [loading]="loading()"
+      [disableSend]="disableSend()"
+      [listState]="listState()"
+      [searchText]="currentSearchText()"
+      (editSend)="editSend($event)"
+      (copySend)="onCopySend($event)"
+      (deleteSend)="deleteSend($event)"
+      (removePassword)="onRemovePassword($event)"
+    >
+      <div class="tw-mt-4" slot="filters">
+        <bit-toggle-group
+          [selected]="selectedToggleValue"
+          (selectedChange)="onToggleChange($event)"
+        >
+          <bit-toggle [value]="'all'">{{ "allSends" | i18n }}</bit-toggle>
+          <bit-toggle [value]="'text'">{{ "sendTypeText" | i18n }}</bit-toggle>
+          <bit-toggle [value]="'file'">{{ "sendTypeFile" | i18n }}</bit-toggle>
+        </bit-toggle-group>
       </div>
-    </div>
+      @if (!disableSend()) {
+        <tools-new-send-dropdown [hideIcon]="true" slot="empty-button"></tools-new-send-dropdown>
+      }
+    </tools-send-list>
   </div>
 } @else {
   <div class="tw-grid tw-grid-cols-12 tw-gap-4">
@@ -87,18 +54,23 @@
         <div class="tw-p-5" data-testid="filters-body">
           <div class="tw-mb-4">
             <bit-search
-              [(ngModel)]="searchText"
+              [ngModel]="currentSearchText()"
+              (ngModelChange)="searchTextChanged($event)"
               [placeholder]="'searchSends' | i18n"
-              (input)="searchTextChanged()"
               appAutofocus
             />
           </div>
           <div class="filter">
             <ul class="filter-options">
-              <li class="filter-option" [ngClass]="{ active: selectedAll }">
+              <li class="filter-option" [class.active]="selectedToggleValue === SendFilterType.All">
                 <span class="filter-buttons">
-                  <button type="button" class="filter-button" appStopClick (click)="selectAll()">
-                    <i class="bwi bwi-fw bwi-filter"></i>{{ "allSends" | i18n }}
+                  <button
+                    type="button"
+                    class="filter-button"
+                    appStopClick
+                    (click)="onToggleChange(SendFilterType.All)"
+                  >
+                    <bit-icon name="bwi-grid" fixedWidth></bit-icon>{{ "allSends" | i18n }}
                   </button>
                 </span>
               </li>
@@ -109,27 +81,33 @@
               <h3>{{ "types" | i18n }}</h3>
             </div>
             <ul class="filter-options">
-              <li class="filter-option" [ngClass]="{ active: selectedType === sendType.Text }">
+              <li
+                class="filter-option"
+                [class.active]="selectedToggleValue === SendFilterType.Text"
+              >
                 <span class="filter-buttons">
                   <button
                     type="button"
                     class="filter-button"
                     appStopClick
-                    (click)="selectType(sendType.Text)"
+                    (click)="onToggleChange(SendFilterType.Text)"
                   >
-                    <i class="bwi bwi-fw bwi-file-text"></i>{{ "sendTypeText" | i18n }}
+                    <bit-icon name="bwi-file-text" fixedWidth></bit-icon>{{ "sendTypeText" | i18n }}
                   </button>
                 </span>
               </li>
-              <li class="filter-option" [ngClass]="{ active: selectedType === sendType.File }">
+              <li
+                class="filter-option"
+                [class.active]="selectedToggleValue === SendFilterType.File"
+              >
                 <span class="filter-buttons">
                   <button
                     type="button"
                     class="filter-button"
                     appStopClick
-                    (click)="selectType(sendType.File)"
+                    (click)="onToggleChange(SendFilterType.File)"
                   >
-                    <i class="bwi bwi-fw bwi-file"></i>{{ "sendTypeFile" | i18n }}
+                    <bit-icon name="bwi-file" fixedWidth></bit-icon>{{ "sendTypeFile" | i18n }}
                   </button>
                 </span>
               </li>
@@ -138,38 +116,23 @@
         </div>
       </div>
     </div>
-    <div class="tw-col-span-9 tw-@container/send-table">
-      <!--Listing Table-->
-      <tools-send-table
-        *ngIf="filteredSends && filteredSends.length"
-        [dataSource]="dataSource"
-        [disableSend]="disableSend"
+    <div class="tw-col-span-9">
+      <tools-send-list
+        [sends]="filteredSends()"
+        [loading]="loading()"
+        [disableSend]="disableSend()"
+        [listState]="listState()"
+        [searchText]="currentSearchText()"
         (editSend)="editSend($event)"
-        (copySend)="copy($event)"
-        (removePassword)="removePassword($event)"
-        (deleteSend)="delete($event)"
-      />
-      <div *ngIf="filteredSends && !filteredSends.length">
-        <ng-container *ngIf="!loaded">
-          <i
-            class="bwi bwi-spinner bwi-spin tw-text-muted"
-            title="{{ 'loading' | i18n }}"
-            aria-hidden="true"
-          ></i>
-          <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-        </ng-container>
-        <ng-container *ngIf="loaded">
-          <bit-no-items [icon]="noItemIcon" class="tw-text-main">
-            <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
-            <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
-            <tools-new-send-dropdown
-              [hideIcon]="true"
-              *ngIf="!disableSend"
-              slot="button"
-            ></tools-new-send-dropdown>
-          </bit-no-items>
-        </ng-container>
-      </div>
+        (copySend)="onCopySend($event)"
+        (deleteSend)="deleteSend($event)"
+        (removePassword)="onRemovePassword($event)"
+        [hideSearchBar]="true"
+      >
+        @if (!disableSend()) {
+          <tools-new-send-dropdown [hideIcon]="true" slot="empty-button"></tools-new-send-dropdown>
+        }
+      </tools-send-list>
     </div>
   </div>
 }

@@ -571,7 +571,7 @@
     "message": "归档中没有项目"
   },
   "noItemsInArchiveDesc": {
-    "message": "已归档的项目将显示在此处，并将被排除在一般搜索结果和自动填充建议之外。"
+    "message": "已归档的项目将显示在这里，并将被排除在一般搜索结果和自动填充建议之外。"
   },
   "itemArchiveToast": {
     "message": "项目已归档"
@@ -592,7 +592,7 @@
     "message": "取消归档并保存"
   },
   "upgradeToUseArchive": {
-    "message": "需要高级会员才能使用归档。"
+    "message": "需要高级版成员才能使用归档功能。"
   },
   "itemRestored": {
     "message": "项目已恢复"
@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "解锁选项"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "设置一个解锁方式以更改您的密码库超时动作。"
-  },
   "unlockMethodNeeded": {
     "message": "在设置中设置一个解锁方式"
   },
   "sessionTimeoutHeader": {
     "message": "会话超时"
-  },
-  "vaultTimeoutHeader": {
-    "message": "密码库超时"
   },
   "otherOptions": {
     "message": "其他选项"
@@ -715,7 +709,7 @@
     "message": "为本扩展打分"
   },
   "browserNotSupportClipboard": {
-    "message": "您的浏览器不支持剪贴板简单复制，请手动复制。"
+    "message": "您的网页浏览器不支持简单剪贴板复制，请手动复制。"
   },
   "verifyYourIdentity": {
     "message": "验证您的身份"
@@ -910,7 +904,7 @@
     }
   },
   "autofillError": {
-    "message": "无法在此页面上自动填充所选项目。请手动复制并粘贴。"
+    "message": "无法在此页面上自动填充所选项目。请手动复制然后粘贴。"
   },
   "totpCaptureError": {
     "message": "无法从当前网页扫描二维码"
@@ -991,7 +985,7 @@
     "message": "否"
   },
   "noAuth": {
-    "message": "拥有此链接的任何人"
+    "message": "拥有链接的任何人"
   },
   "anyOneWithPassword": {
     "message": "拥有您设置的密码的任何人"
@@ -1519,22 +1513,22 @@
     "message": "旧版加密方式已不再受支持。请联系客服恢复您的账户。"
   },
   "premiumMembership": {
-    "message": "高级会员"
+    "message": "高级版成员"
   },
   "premiumManage": {
-    "message": "管理会员资格"
+    "message": "管理成员资格"
   },
   "premiumManageAlert": {
-    "message": "您可以在 bitwarden.com 网页版密码库管理您的会员资格。现在要访问此网站吗？"
+    "message": "您可以在 bitwarden.com 网页版密码库管理您的成员资格。现在要访问此网站吗？"
   },
   "premiumRefresh": {
-    "message": "刷新会员资格"
+    "message": "刷新成员资格"
   },
   "premiumNotCurrentMember": {
-    "message": "您目前不是高级会员。"
+    "message": "您目前不是高级版成员。"
   },
   "premiumSignUpAndGet": {
-    "message": "注册高级会员将获得："
+    "message": "注册高级版成员将获得："
   },
   "ppremiumSignUpStorage": {
     "message": "1 GB 文件附件加密存储空间。"
@@ -1582,7 +1576,7 @@
     "message": "您可以在 Bitwarden 网页 App 的账户设置中购买高级版。"
   },
   "premiumCurrentMember": {
-    "message": "您目前是高级会员！"
+    "message": "您是高级版成员！"
   },
   "premiumCurrentMemberThanks": {
     "message": "感谢您支持 Bitwarden。"
@@ -1670,7 +1664,7 @@
     "message": "等待安全密钥交互..."
   },
   "loginUnavailable": {
-    "message": "登录不可用"
+    "message": "登录功能不可用"
   },
   "noTwoStepProviders": {
     "message": "此账户已设置两步登录，但此浏览器不支持任何已配置的两步登录提供程序。"
@@ -2372,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "您选择的主密码较弱。您应该使用强密码（或密码短语）来正确保护您的 Bitwarden 账户。确定要使用这个主密码吗？"
   },
+  "rotateAccountEncKey": {
+    "message": "同时轮换我的账户加密密钥"
+  },
+  "rotateEncKeyTitle": {
+    "message": "轮换加密密钥"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "确定要轮换账户的加密密钥吗？"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "更新加密密钥后，您需要注销所有当前使用的 Bitwarden 应用程序（例如移动 App 或浏览器扩展）然后重新登录。注销或者重新登录（这将下载新的加密密钥）失败可能会导致数据损坏。我们会尝试自动为您注销，但可能会有所延迟。"
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "所有您已保存的账户限制的导出文件将失效。"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "需要先修复您的密码库中的旧文件附件，然后才能轮换您账户的加密密钥。"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "轮换加密密钥的影响"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "一个或多个组织策略要求主密码满足以下要求："
+  },
   "pin": {
     "message": "PIN 码",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2480,8 @@
   "vaultTimeoutAction": {
     "message": "密码库超时动作"
   },
-  "vaultTimeoutAction1": {
-    "message": "超时动作"
+  "showAtRiskPasswordNotifications": {
+    "message": "Show at-risk password notifications"
   },
   "lock": {
     "message": "锁定",
@@ -3230,9 +3248,6 @@
   "minutes": {
     "message": "分钟"
   },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "企业策略要求已应用到您的超时选项中"
-  },
   "vaultTimeoutPolicyInEffect": {
     "message": "您的组织策略已将您最大允许的密码库超时设置为 $HOURS$ 小时 $MINUTES$ 分钟。",
     "placeholders": {
@@ -3302,7 +3317,7 @@
     "message": "您的密码库超时超出了您组织设置的限制。"
   },
   "vaultExportDisabled": {
-    "message": "密码库导出已禁用"
+    "message": "密码库导出功能不可用"
   },
   "personalVaultExportPolicyInEffect": {
     "message": "一个或多个组织策略禁止您导出个人密码库。"
@@ -4051,7 +4066,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "在任何平台上安全地与任何人共享文件和数据。您的信息将在限制曝光的同时保持端到端加密。",
+    "message": "在任何平台上与任何人安全地分享文件和数据。您的信息将在限制曝光的同时保持端到端加密。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -4435,6 +4450,9 @@
   },
   "exportSuccess": {
     "message": "密码库数据已导出"
+  },
+  "exportError": {
+    "message": "导出密码库数据时发生错误"
   },
   "typePasskey": {
     "message": "通行密钥"
@@ -6130,8 +6148,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "出于安全和合规考虑，$ORGANIZATION$ 要求所有项目归组织所有。点击「接受」以转移您的项目的所有权。",
+  "transferItemsToOrganizationDescription": {
+    "message": "出于安全和合规要求，$ORGANIZATION$ 要求所有项目必须归组织所有。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6157,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "点击「接受」以转移您的项目的所有权。"
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "打开有关转移项目的帮助文章"
+  },
   "acceptTransfer": {
     "message": "接受转移"
   },
   "declineAndLeave": {
     "message": "拒绝并退出"
-  },
-  "whyAmISeeingThis": {
-    "message": "为什么我会看到这个？"
   },
   "items": {
     "message": "项目"
@@ -6158,7 +6179,7 @@
     "message": "简化的自动填充"
   },
   "simplifiedAutofillDescription": {
-    "message": "当您点击一个建议的自动填充项目时，它会直接填充而不是带您查看详细信息。您仍然可以通过「更多」菜单查看这些项目。"
+    "message": "当您点击建议的自动填充项目时，它会直接填充而不是带您进入详细信息。您仍然可以通过「更多」菜单查看这些项目。"
   },
   "openSimplifiedAutofillPopover": {
     "message": "打开简化的自动填充弹窗"
@@ -6170,16 +6191,13 @@
     "message": "谁可以查看"
   },
   "specificPeople": {
-    "message": "指定人员"
+    "message": "指定的人员"
   },
   "emailVerificationDesc": {
     "message": "分享此 Send 链接后，个人需要使用验证码验证他们的电子邮箱才能查看此 Send。"
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "输入多个电子邮箱（使用逗号分隔）。"
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "电子邮箱验证要求至少有一个电子邮箱地址。要移除所有电子邮箱，请更改上面的访问类型。"
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com, user@acme.com"
@@ -6196,5 +6214,8 @@
   },
   "userVerificationFailed": {
     "message": "用户验证失败。"
+  },
+  "downloadFailed": {
+    "message": "下载失败。"
   }
 }
