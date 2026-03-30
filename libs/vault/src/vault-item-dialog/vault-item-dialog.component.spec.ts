@@ -57,7 +57,7 @@ class TestVaultItemDialogComponent extends VaultItemDialogComponent {
       configurable: true,
     });
     Object.defineProperty(this, "dialogComponent", {
-      value: () => ({ handleAutofocus: jest.fn() }),
+      value: () => ({ handleAutofocus: jest.fn(), focusHeader: jest.fn() }),
       configurable: true,
     });
   }
@@ -336,15 +336,15 @@ describe("VaultItemDialogComponent", () => {
     });
 
     it("refocuses the dialog header", async () => {
-      const handleAutofocus = jest.fn();
+      const focusHeader = jest.fn();
       Object.defineProperty(component, "dialogComponent", {
-        value: () => ({ handleAutofocus }),
+        value: () => ({ focusHeader }),
         configurable: true,
       });
 
       await component["changeMode"]("view");
 
-      expect(handleAutofocus).toHaveBeenCalled();
+      expect(focusHeader).toHaveBeenCalled();
     });
 
     describe("to view", () => {
