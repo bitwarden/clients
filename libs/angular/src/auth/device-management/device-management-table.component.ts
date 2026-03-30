@@ -23,14 +23,7 @@ import {
 } from "@bitwarden/components";
 
 import { DeviceDisplayData } from "./device-management.component";
-
-// Unlike sortDevicesWithActivity (which pins the current device/pending requests),
-// this is a pure chronological sort for when a user explicitly clicks the column header.
-const recentlyActiveSortFn: SortFn = (a: DeviceDisplayData, b: DeviceDisplayData): number => {
-  const dateA = (a.lastActivityDate ?? a.firstLogin).getTime();
-  const dateB = (b.lastActivityDate ?? b.firstLogin).getTime();
-  return dateA - dateB;
-};
+import { recentlyActiveSortFn } from "./utils/device-sort.utils";
 
 /** Displays user devices in a sortable table view */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush

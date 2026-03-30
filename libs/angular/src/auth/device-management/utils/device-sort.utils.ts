@@ -1,6 +1,37 @@
 import { DevicePendingAuthRequest } from "@bitwarden/common/auth/abstractions/devices/responses/device.response";
+import { SortDirection, SortFn } from "@bitwarden/components";
 
 import { DeviceDisplayData } from "../device-management.component";
+
+// Chronological sort for when a user explicitly clicks the column header.
+// Null activity dates are treated as epoch 0 (very old), so they naturally sort to the bottom
+// when sorting newest-first (desc) and to the top when sorting oldest-first (asc).
+export const recentlyActiveSortFn: SortFn = (
+  a: DeviceDisplayData,
+  b: DeviceDisplayData,
+  direction: SortDirection = "asc",
+): number => {
+  // Pin the current session to the top only when sorting newest-first (desc), so it stays
+  // visible at the top. Sentinel is inverted (+1 not -1) so that after the framework multiplies
+  // by directionModifier (-1), the net result is negative (a first).
+  if (direction === "desc") {
+    if (a.isCurrentDevice) {
+      return 1;
+    }
+    if (b.isCurrentDevice) {
+      return -1;
+    }
+  }
+
+  // If both devices have a lastActivityDate, sort by it.
+  // Otherwise, treat null as epoch 0 so they sort to the bottom.
+  const aTime = a.lastActivityDate?.getTime() ?? 0;
+  const bTime = b.lastActivityDate?.getTime() ?? 0;
+
+  // The framework (table-data-source.ts) handles direction by multiplying by directionModifier,
+  // so we intentionally do not apply direction here to avoid a double-reversal.
+  return aTime - bTime;
+};
 
 export function clearAuthRequestAndSortDevices(
   devices: DeviceDisplayData[],

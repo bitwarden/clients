@@ -2,6 +2,7 @@ import { DeviceDisplayData } from "../device-management.component";
 
 import {
   clearAuthRequestAndSortDevices,
+  recentlyActiveSortFn,
   sortDevices,
   sortDevicesWithActivity,
 } from "./device-sort.utils";
@@ -23,6 +24,121 @@ function makeDevice(overrides: Partial<DeviceDisplayData> = {}): DeviceDisplayDa
     ...overrides,
   };
 }
+
+describe("recentlyActiveSortFn", () => {
+  // Mirrors what table-data-source.ts does: fn(a, b, direction) * directionModifier
+  const sortAsc = (a: DeviceDisplayData, b: DeviceDisplayData) =>
+    recentlyActiveSortFn(a, b, "asc") * 1;
+  const sortDesc = (a: DeviceDisplayData, b: DeviceDisplayData) =>
+    recentlyActiveSortFn(a, b, "desc") * -1;
+
+  const older = () => makeDevice({ lastActivityDate: new Date("2026-01-01T00:00:00Z") });
+  const newer = () => makeDevice({ lastActivityDate: new Date("2026-03-25T00:00:00Z") });
+
+  describe("ascending (oldest first)", () => {
+    it("sorts older activity date before newer", () => {
+      const a = older();
+      const b = newer();
+
+      const result = [b, a].sort(sortAsc);
+
+      expect(result[0]).toBe(a);
+      expect(result[1]).toBe(b);
+    });
+
+    it("sorts null activity date before devices with a date (treats null as oldest)", () => {
+      const withDate = older();
+      const withoutDate = makeDevice({ lastActivityDate: null });
+
+      const result = [withDate, withoutDate].sort(sortAsc);
+
+      expect(result[0]).toBe(withoutDate);
+      expect(result[1]).toBe(withDate);
+    });
+
+    it("preserves relative order when both devices have no activity date", () => {
+      expect(recentlyActiveSortFn(makeDevice(), makeDevice(), "asc")).toBe(0);
+    });
+
+    it("does not pin current session — sorts by date like any other device", () => {
+      const current = makeDevice({
+        isCurrentDevice: true,
+        lastActivityDate: new Date("2026-01-01T00:00:00Z"),
+      });
+      const other = newer();
+
+      const result = [current, other].sort(sortAsc);
+
+      // current has an older date, so it sorts first in ascending — but only because of the date
+      expect(result[0]).toBe(current);
+      expect(result[1]).toBe(other);
+    });
+
+    it("sorts current session after a device with a newer date when not pinned", () => {
+      const current = makeDevice({
+        isCurrentDevice: true,
+        lastActivityDate: new Date("2026-01-01T00:00:00Z"),
+      });
+      const other = makeDevice({ lastActivityDate: new Date("2026-02-01T00:00:00Z") });
+      const mostRecent = newer();
+
+      const result = [mostRecent, other, current].sort(sortAsc);
+
+      expect(result[0]).toBe(current);
+      expect(result[1]).toBe(other);
+      expect(result[2]).toBe(mostRecent);
+    });
+  });
+
+  describe("descending (newest first)", () => {
+    it("sorts newer activity date before older", () => {
+      const a = older();
+      const b = newer();
+
+      const result = [a, b].sort(sortDesc);
+
+      expect(result[0]).toBe(b);
+      expect(result[1]).toBe(a);
+    });
+
+    it("sorts null activity date after devices with a date (treats null as oldest, so it sinks to the bottom when newest-first)", () => {
+      const withDate = older();
+      const withoutDate = makeDevice({ lastActivityDate: null });
+
+      const result = [withoutDate, withDate].sort(sortDesc);
+
+      expect(result[0]).toBe(withDate);
+      expect(result[1]).toBe(withoutDate);
+    });
+
+    it("preserves relative order when both devices have no activity date", () => {
+      expect(recentlyActiveSortFn(makeDevice(), makeDevice(), "desc")).toBe(0);
+    });
+
+    it("pins current session to the top even when it has an older activity date", () => {
+      const current = makeDevice({
+        isCurrentDevice: true,
+        lastActivityDate: new Date("2026-01-01T00:00:00Z"),
+      });
+      const other = newer();
+
+      const result = [other, current].sort(sortDesc);
+
+      expect(result[0]).toBe(current);
+      expect(result[1]).toBe(other);
+    });
+
+    it("pins current session above null-activity devices", () => {
+      const current = makeDevice({ isCurrentDevice: true, lastActivityDate: null });
+      const withoutDate = makeDevice({ lastActivityDate: null });
+
+      const result = [withoutDate, current].sort(sortDesc);
+
+      expect(result[0]).toBe(current);
+      expect(result[1]).toBe(withoutDate);
+    });
+  });
+});
 
 // TODO: PM-34091 - Delete this entire describe block; sortDevices is being removed.
 describe("sortDevices", () => {
