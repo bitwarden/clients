@@ -96,13 +96,13 @@ export abstract class SsoLoginServiceAbstraction {
   ) => Promise<void>;
 
   /**
-   * A cache list of user emails for whom the `PolicyType.RequireSso` policy is applied (that is, a list
+   * A cache list of users for whom the `PolicyType.RequireSso` policy is applied (that is, a list
    * of users who are required to authenticate via SSO only). The cache lives on the current device only.
    */
   abstract ssoRequiredCache$: Observable<SsoRequiredCacheEntry[] | null>;
 
   /**
-   * Remove an email from the cached list of emails that must authenticate via SSO.
+   * Remove the user from the cached list of users who must authenticate via SSO (if an entry is present for the user)
    */
   abstract removeFromSsoRequiredCacheIfPresent: (
     email: string,
@@ -110,11 +110,11 @@ export abstract class SsoLoginServiceAbstraction {
   ) => Promise<void>;
 
   /**
-   * Check if the user is required to authenticate via SSO. If so, add their email to a cache list.
-   * We'll use this cache list to display ONLY the "Use single sign-on" button to the
-   * user the next time they are on the /login page.
+   * Check if the user is required to authenticate via SSO. If so, add their email + webVaultUrl to a cache list.
+   * We'll use this cache list to enable only the "Use single sign-on" button to the user the next time they are
+   * on the `/login` page (and disable the alternate login option buttons).
    *
-   * If the user is not required to authenticate via SSO, remove their email from the cache list if it is present.
+   * If the user is not required to authenticate via SSO, remove their entry from the cache list if it is present.
    */
   abstract updateSsoRequiredCache: (ssoLoginEmail: string, userId: UserId) => Promise<void>;
 }

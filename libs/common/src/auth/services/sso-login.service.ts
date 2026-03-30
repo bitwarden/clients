@@ -167,7 +167,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
   }
 
   /**
-   * Add an email to the cached list of emails that must authenticate via SSO.
+   * Add an entry to the cached list of users who must authenticate via SSO.
    */
   private async addToSsoRequiredCache(email: string, webVaultUrl: string): Promise<void> {
     const entry: SsoRequiredCacheEntry = { email, webVaultUrl };
@@ -211,7 +211,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
       await this.addToSsoRequiredCache(ssoLoginEmail.toLowerCase(), webVaultUrl);
     } else {
       /**
-       * If user is not required to authenticate via SSO, remove email from the cache
+       * If user is not required to authenticate via SSO, remove their entry from the cache
        * list (if it was on the list). This is necessary because the user may have been
        * required to authenticate via SSO at some point in the past, but now their org
        * no longer requires SSO authenticaiton.

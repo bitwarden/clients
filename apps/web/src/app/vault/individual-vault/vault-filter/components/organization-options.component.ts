@@ -218,6 +218,9 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Remove the user from the cached list of users who must authenticate via SSO (if an entry is present for the user)
+   */
   private async removeEmailFromSsoRequiredCacheIfPresent() {
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
 
