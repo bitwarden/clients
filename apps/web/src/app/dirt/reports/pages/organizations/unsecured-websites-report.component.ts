@@ -94,7 +94,7 @@ export class UnsecuredWebsitesReportComponent
             this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
           );
           const manageableCiphers = await this.cipherService.getAll(userId);
-          this.manageableCipherIds = new Set(manageableCiphers.map((c) => c.id as string));
+          this.manageableCipherIds = new Set(manageableCiphers.map((c) => c.id));
           const collections = await firstValueFrom(
             this.collectionService.decryptedCollections$(userId),
           );
