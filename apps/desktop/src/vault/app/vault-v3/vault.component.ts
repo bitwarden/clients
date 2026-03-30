@@ -121,6 +121,7 @@ import {
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
+import { MagnifyNavigationService } from "../../../autofill/services/magnify-navigation.service";
 import { DesktopCredentialGenerationService } from "../../../services/desktop-cipher-form-generator.service";
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
@@ -222,6 +223,7 @@ export class VaultComponent<C extends CipherViewLike>
   private routedVaultFilterService = inject(RoutedVaultFilterService);
   private vaultItemTransferService: VaultItemsTransferService = inject(VaultItemsTransferService);
   private searchBarService = inject(SearchBarService);
+  private magnifyNavigationService = inject(MagnifyNavigationService);
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -416,6 +418,18 @@ export class VaultComponent<C extends CipherViewLike>
         }
       });
     });
+
+    this.magnifyNavigationService.viewInBitwarden$
+      .pipe(
+        concatMap(async (itemId) => {
+          const cipher = this.ciphers.find((c) => c.id === itemId);
+          if (cipher) {
+            await this.viewCipher(cipher);
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
 
     this.routedVaultFilterBridgeService.activeFilter$
       .pipe(takeUntil(this.destroy$))
