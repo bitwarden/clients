@@ -1,56 +1,3 @@
-#web-authn-frame {
-  height: 40px;
-
-  iframe {
-    border: none;
-    height: 100%;
-    width: 100%;
-  }
-}
-
-// MFA Types for logo styling with no dark theme alternative
-$mfaTypes: 0, 2, 3, 4, 6;
-
-@each $mfaType in $mfaTypes {
-  .mfaType#{$mfaType} {
-    content: url("../images/two-factor/" + $mfaType + ".png");
-    max-width: 120px;
-  }
-}
-
-.mfaType0 {
-  content: url("../images/two-factor/0.png");
-  max-width: 120px;
-  max-height: 62px;
-}
-
-.mfaType1 {
-  max-width: 120px;
-  max-height: 62px;
-
-  &:is(.theme_light *) {
-    content: url("../images/two-factor/1.png");
-  }
-
-  &:is(.theme_dark *) {
-    content: url("../images/two-factor/1-w.png");
-  }
-}
-
-.mfaType7 {
-  max-width: 120px;
-
-  &:is(.theme_light *) {
-    content: url("../images/two-factor/7.png");
-  }
-
-  &:is(.theme_dark *) {
-    content: url("../images/two-factor/7-w.png");
-  }
-}
-
-// Braintree
-
 #bt-dropin-container {
   min-height: 50px;
   &:is(.theme_light *) {
@@ -81,7 +28,7 @@ $mfaTypes: 0, 2, 3, 4, 6;
   border: none;
 }
 
-// hide duplicate paypal iframe
+/* hide duplicate paypal iframe */
 .braintree-sheet__content--button
   .braintree-sheet__button--paypal
   iframe.zoid-prerender-frame.zoid-invisible {

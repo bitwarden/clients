@@ -1,4 +1,6 @@
 @import "../../../../libs/components/src/tw-theme-preflight.css";
+@import "@angular/cdk/overlay-prebuilt.css";
+@import "@angular/cdk/text-field-prebuilt.css";
 
 /*
  * Web specific global styling.
@@ -79,6 +81,14 @@
   .theme_dark img.new-logo-themed {
     content: url("../images/logo-white.svg");
   }
+
+  @import "./braintree.css";
+  @import "./old-mfa.css";
+  @import "./vault-filters.css";
+
+  @import "../../../../libs/angular/src/scss/bwicons/styles/style.css";
+  @import "../../../../libs/angular/src/scss/icons.css";
+  @import "../../../../libs/components/src/multi-select/scss/bw.theme.css";
 }
 
 /**

@@ -1,3 +1,9 @@
+/**
+ * This is the source file, use it to generate `style.css`.
+ *
+ * npx sass ./libs/angular/src/scss/bwicons/styles/style.scss ./libs/angular/src/scss/bwicons/styles/style.css --no-source-map 2>&1
+ */
+
 $icomoon-font-family: "bwi-font" !default;
 $icomoon-font-path: "~@bitwarden/angular/src/scss/bwicons/fonts/" !default;
 
