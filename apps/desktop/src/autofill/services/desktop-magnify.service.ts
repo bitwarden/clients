@@ -19,6 +19,7 @@ import {
 } from "@bitwarden/common/platform/state";
 
 import { MagnifyCommand, MagnifyCommandResponse } from "../models/magnify-commands";
+
 import { MagnifyNavigationService } from "./magnify-navigation.service";
 
 export const MAGNIFY_ENABLED = new UserKeyDefinition<boolean | null>(
