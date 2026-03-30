@@ -14,6 +14,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   BerryComponent,
   ChipActionComponent,
@@ -120,8 +121,8 @@ export class InactiveTwoFactorReportComponent
   }
 
   protected canManageCipher(c: CipherView): boolean {
-    if (c.collectionIds.length === 0) {
-      return true;
+    if (CipherViewLikeUtils.isUnassigned(c)) {
+      return false;
     }
     if (this.organization?.allowAdminAccessToAllCollectionItems) {
       return true;
