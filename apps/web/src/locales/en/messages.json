@@ -11504,6 +11504,9 @@
   "fileReadError": {
     "message": "File could not be read"
   },
+  "receiveLoadError": {
+    "message": "Could not load this receive"
+  },
   "maxFileSizeSansPunctuation": {
     "message": "Maximum file size is 500 MB"
   },

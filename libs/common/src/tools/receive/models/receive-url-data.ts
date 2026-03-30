@@ -1,10 +1,10 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { Guid } from "@bitwarden/common/types/guid";
+import { ReceiveId } from "@bitwarden/common/types/guid";
 
 import { ReceiveView } from "./view/receive.view";
 
 export interface ReceiveUrlData {
-  receiveId: Guid;
+  receiveId: ReceiveId;
   secretB64: string;
   sharedContentEncryptionKeyB64: string;
 }
