@@ -3,6 +3,7 @@ import { Component, EventEmitter, Inject, OnInit, Output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom, map } from "rxjs";
 
+import { TwoFactorIconComponent } from "@bitwarden/angular/auth/components/two-factor-icon.component";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
@@ -50,6 +51,7 @@ import { TwoFactorSetupMethodBaseComponent } from "./two-factor-setup-method-bas
     InputModule,
     ReactiveFormsModule,
     TypographyModule,
+    TwoFactorIconComponent,
   ],
 })
 export class TwoFactorSetupEmailComponent

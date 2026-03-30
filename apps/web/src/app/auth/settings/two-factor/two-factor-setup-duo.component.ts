@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Inject, OnInit, Output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
+import { TwoFactorIconComponent } from "@bitwarden/angular/auth/components/two-factor-icon.component";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { UpdateTwoFactorDuoRequest } from "@bitwarden/common/auth/models/request/update-two-factor-duo.request";
@@ -47,6 +48,7 @@ import { TwoFactorSetupMethodBaseComponent } from "./two-factor-setup-method-bas
     ReactiveFormsModule,
     AsyncActionsModule,
     CalloutModule,
+    TwoFactorIconComponent,
   ],
 })
 export class TwoFactorSetupDuoComponent

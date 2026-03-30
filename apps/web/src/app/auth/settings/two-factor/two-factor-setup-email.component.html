@@ -10,8 +10,11 @@
       <ng-container *ngIf="!enabled">
         <p class="tw-flex">
           <span class="tw-mr-3">{{ "twoFactorEmailDesc" | i18n }}</span>
-          <!-- TODO: PM-33167 - replace with auth-two-factor-icon -->
-          <img class="tw-float-right tw-ml-auto mfaType1" alt="Email logo" />
+          <auth-two-factor-icon
+            [provider]="type"
+            name="Email logo"
+            class="tw-float-right tw-ml-auto"
+          />
         </p>
         <bit-form-field>
           <bit-label>1. {{ "twoFactorEmailEnterEmail" | i18n }}</bit-label>
