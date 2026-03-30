@@ -321,8 +321,8 @@ export class CipherService implements CipherServiceAbstraction {
 
     if (
       // prevent unprivileged users from migrating to cipher key encryption
-      (model.viewPassword || originalCipher?.key) &&
-      (await this.getCipherKeyEncryptionEnabled())
+      (model.viewPassword && (await this.getCipherKeyEncryptionEnabled())) ||
+      originalCipher?.key
     ) {
       cipher.key = originalCipher?.key ?? null;
       const userOrOrgKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
