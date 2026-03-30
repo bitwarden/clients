@@ -147,7 +147,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis]: FALSE,
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
   [FeatureFlag.PM32413_MultiClientPasswordManagement]: FALSE,
-  [FeatureFlag.PM34210_DesktopAddDevices]: true,
+  [FeatureFlag.PM34210_DesktopAddDevices]: FALSE,
 
   /* Billing */
   [FeatureFlag.PM29108_EnablePersonalDiscounts]: FALSE,
