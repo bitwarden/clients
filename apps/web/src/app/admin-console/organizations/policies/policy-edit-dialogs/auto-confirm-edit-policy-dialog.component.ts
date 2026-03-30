@@ -86,7 +86,7 @@ export class AutoConfirmPolicyDialogComponent
   protected managePoliciesOnly$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) => this.organizationService.organizations$(userId)),
-    getById(this.data.organizationId),
+    getById(this.data.organization.id),
     map((organization) => (!organization?.isAdmin && organization?.canManagePolicies) ?? false),
   );
 
@@ -98,7 +98,12 @@ export class AutoConfirmPolicyDialogComponent
   private readonly openExtensionTitle: Signal<TemplateRef<unknown> | undefined> =
     viewChild("step1Title");
 
-  override policyComponent: AutoConfirmPolicyEditComponent | undefined;
+  protected saveDisabled$: Observable<boolean> | undefined;
+
+  private get typedPolicyComponent(): AutoConfirmPolicyEditComponent | undefined {
+    const component = this.policyComponent();
+    return component instanceof AutoConfirmPolicyEditComponent ? component : undefined;
+  }
 
   constructor(
     @Inject(DIALOG_DATA) protected data: AutoConfirmPolicyDialogData,
@@ -136,12 +141,11 @@ export class AutoConfirmPolicyDialogComponent
   async ngAfterViewInit() {
     await super.ngAfterViewInit();
 
-    if (this.policyComponent) {
+    const typedComponent = this.typedPolicyComponent;
+    if (typedComponent) {
       this.saveDisabled$ = combineLatest([
         this.autoConfirmEnabled$,
-        this.policyComponent.enabled.valueChanges.pipe(
-          startWith(this.policyComponent.enabled.value),
-        ),
+        typedComponent.enabled.valueChanges.pipe(startWith(typedComponent.enabled.value)),
       ]).pipe(map(([policyEnabled, value]) => !policyEnabled && !value));
     }
 
@@ -150,7 +154,7 @@ export class AutoConfirmPolicyDialogComponent
       switchMap((userId) => this.policyService.policies$(userId)),
       map((policies) => policies.find((p) => p.type === PolicyType.SingleOrg)?.enabled ?? false),
       tap((singleOrgPolicyEnabled) =>
-        this.policyComponent?.setSingleOrgEnabled(singleOrgPolicyEnabled),
+        this.typedPolicyComponent?.setSingleOrgEnabled(singleOrgPolicyEnabled),
       ),
       switchMap((singleOrgPolicyEnabled) => this.buildMultiStepSubmit(singleOrgPolicyEnabled)),
       shareReplay({ bufferSize: 1, refCount: true }),
@@ -203,13 +207,14 @@ export class AutoConfirmPolicyDialogComponent
    *  @returns boolean: true if multi-submit workflow should continue, false otherwise.
    */
   private async submitAutoConfirm() {
-    if (!this.policyComponent) {
+    const typedComponent = this.typedPolicyComponent;
+    if (!typedComponent) {
       throw new Error("PolicyComponent not initialized.");
     }
 
-    const autoConfirmRequest = await this.policyComponent.buildRequest();
+    const autoConfirmRequest = await typedComponent.buildRequest();
 
-    await this.policyApiService.putPolicyVNext(this.data.organizationId, this.data.policy.type, {
+    await this.policyApiService.putPolicyVNext(this.data.organization.id, this.data.policy.type, {
       policy: autoConfirmRequest,
     });
 
@@ -229,7 +234,7 @@ export class AutoConfirmPolicyDialogComponent
       message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
     });
 
-    if (!this.policyComponent.enabled.value) {
+    if (!typedComponent.enabled.value) {
       this.dialogRef.close("saved");
     }
   }
@@ -240,7 +245,7 @@ export class AutoConfirmPolicyDialogComponent
       data: null,
     };
 
-    await this.policyApiService.putPolicyVNext(this.data.organizationId, PolicyType.SingleOrg, {
+    await this.policyApiService.putPolicyVNext(this.data.organization.id, PolicyType.SingleOrg, {
       policy: singleOrgRequest,
     });
   }
@@ -252,11 +257,12 @@ export class AutoConfirmPolicyDialogComponent
   }
 
   submit = async () => {
-    if (!this.policyComponent) {
+    const typedComponent = this.typedPolicyComponent;
+    if (!typedComponent) {
       throw new Error("PolicyComponent not initialized.");
     }
 
-    if ((await this.policyComponent.confirm()) == false) {
+    if ((await typedComponent.confirm()) == false) {
       this.dialogRef.close();
       return;
     }
@@ -274,7 +280,7 @@ export class AutoConfirmPolicyDialogComponent
       }
 
       this.currentStep.update((value) => value + 1);
-      this.policyComponent.setStep(this.currentStep());
+      typedComponent.setStep(this.currentStep());
     } catch (error: any) {
       this.toastService.showToast({
         variant: "error",

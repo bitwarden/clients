@@ -147,7 +147,7 @@ describe("WebVaultPromptService", () => {
       expect(openSpy).toHaveBeenCalledWith(expect.anything(), {
         data: {
           policy: expect.any(Object),
-          organizationId: mockOrganizationId,
+          organization: expect.objectContaining({ id: mockOrganizationId }),
           firstTimeDialog: true,
         },
       });
