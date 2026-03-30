@@ -134,7 +134,6 @@ describe("ViewComponent", () => {
     showPasswordPrompt.mockClear();
     getFeatureFlag.mockClear();
     autofillAllowed$.next(true);
-    cipherArchiveService.hasArchiveFlagEnabled$ = of(true);
     cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
     cipherArchiveService.archiveWithServer.mockResolvedValue({ id: "122-333-444" } as CipherData);
     cipherArchiveService.unarchiveWithServer.mockResolvedValue({ id: "122-333-444" } as CipherData);

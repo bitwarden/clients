@@ -8,7 +8,6 @@ import {
   OnInit,
   Output,
   ViewChild,
-  input,
 } from "@angular/core";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -102,8 +101,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() userCanArchive: boolean;
-  /** Archive feature is enabled */
-  readonly archiveEnabled = input.required<boolean>();
   /**
    * Enforce Org Data Ownership Policy Status
    */
@@ -146,7 +143,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   // Archive button will not show in Admin Console
   protected get showArchiveButton() {
-    if (!this.archiveEnabled() || this.viewingOrgVault) {
+    if (this.viewingOrgVault) {
       return false;
     }
 
@@ -157,7 +154,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   // If item is archived always show unarchive button, even if user is not premium
   protected get showUnArchiveButton() {
-    if (!this.archiveEnabled() || this.viewingOrgVault) {
+    if (this.viewingOrgVault) {
       return false;
     }
 

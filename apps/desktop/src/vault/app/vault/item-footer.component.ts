@@ -10,7 +10,7 @@ import {
   SimpleChanges,
   input,
 } from "@angular/core";
-import { combineLatest, firstValueFrom, switchMap } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -248,15 +248,10 @@ export class ItemFooterComponent implements OnInit, OnChanges {
 
   private async checkArchiveState() {
     const cipherCanBeArchived = !this.cipher.isDeleted;
-    const [userCanArchive, hasArchiveFlagEnabled] = await firstValueFrom(
+    const userCanArchive = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
         getUserId,
-        switchMap((id) =>
-          combineLatest([
-            this.cipherArchiveService.userCanArchive$(id),
-            this.cipherArchiveService.hasArchiveFlagEnabled$,
-          ]),
-        ),
+        switchMap((id) => this.cipherArchiveService.userCanArchive$(id)),
       ),
     );
 
@@ -267,9 +262,6 @@ export class ItemFooterComponent implements OnInit, OnChanges {
 
     // A user should always be able to unarchive an archived item
     this.showUnarchiveButton =
-      hasArchiveFlagEnabled &&
-      this.action === "view" &&
-      this.cipher.isArchived &&
-      !this.cipher.isDeleted;
+      this.action === "view" && this.cipher.isArchived && !this.cipher.isDeleted;
   }
 }

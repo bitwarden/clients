@@ -11,13 +11,11 @@ import {
   of,
   shareReplay,
   switchMap,
-  take,
 } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
@@ -87,8 +85,6 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
     this._filter$.next(value);
   }
 
-  private archiveFeatureEnabled = false;
-
   constructor(
     protected searchService: SearchService,
     protected cipherService: CipherService,
@@ -97,14 +93,6 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
     protected configService: ConfigService,
   ) {
     this.subscribeToCiphers();
-
-    // Check if archive feature flag is enabled
-    this.configService
-      .getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive)
-      .pipe(takeUntilDestroyed(), take(1))
-      .subscribe((isEnabled) => {
-        this.archiveFeatureEnabled = isEnabled;
-      });
   }
 
   ngOnDestroy(): void {
@@ -151,15 +139,8 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
   protected deletedFilter: (cipher: C) => boolean = (c) =>
     CipherViewLikeUtils.isDeleted(c) === this.deleted;
 
-  protected archivedFilter: (cipher: C) => boolean = (c) => {
-    // When the archive feature is not enabled,
-    // always return true to avoid filtering out any items.
-    if (!this.archiveFeatureEnabled) {
-      return true;
-    }
-
-    return CipherViewLikeUtils.isArchived(c) === this.archived;
-  };
+  protected archivedFilter: (cipher: C) => boolean = (c) =>
+    CipherViewLikeUtils.isArchived(c) === this.archived;
 
   /**
    * Creates stream of dependencies that results in the list of ciphers to display

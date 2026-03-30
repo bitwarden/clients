@@ -9,13 +9,11 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { mockAccountServiceWith, ObservableTracker } from "@bitwarden/common/spec";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
-import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
@@ -67,9 +65,6 @@ describe("VaultPopupItemsService", () => {
   const inlineMenuFieldQualificationServiceMock = mock<InlineMenuFieldQualificationService>();
   const userId = Utils.newGuid() as UserId;
   const accountServiceMock = mockAccountServiceWith(userId);
-  const configServiceMock = mock<ConfigService>();
-  const cipherArchiveServiceMock = mock<CipherArchiveService>();
-  cipherArchiveServiceMock.hasArchiveFlagEnabled$ = of(true);
 
   const restrictedItemTypesService = {
     restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
@@ -150,7 +145,6 @@ describe("VaultPopupItemsService", () => {
 
     activeUserLastSync$ = new BehaviorSubject<Date | null>(new Date());
     syncServiceMock.activeUserLastSync$.mockReturnValue(activeUserLastSync$);
-    configServiceMock.getFeatureFlag$.mockReturnValue(of(true));
 
     const testSearchSignal = createMockSignal<string | null>("");
     viewCacheService = {
@@ -175,14 +169,9 @@ describe("VaultPopupItemsService", () => {
           useValue: inlineMenuFieldQualificationServiceMock,
         },
         { provide: PopupViewCacheService, useValue: viewCacheService },
-        { provide: ConfigService, useValue: configServiceMock },
         {
           provide: RestrictedItemTypesService,
           useValue: restrictedItemTypesService,
-        },
-        {
-          provide: CipherArchiveService,
-          useValue: cipherArchiveServiceMock,
         },
       ],
     });

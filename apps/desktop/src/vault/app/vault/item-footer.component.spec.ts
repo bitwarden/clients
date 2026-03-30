@@ -31,7 +31,6 @@ describe("ItemFooterComponent", () => {
 
     const cipherArchiveService = {
       userCanArchive$: jest.fn().mockReturnValue(of(false)),
-      hasArchiveFlagEnabled$: of(false),
     };
 
     await TestBed.configureTestingModule({

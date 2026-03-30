@@ -774,7 +774,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherArchiveService,
     useClass: DefaultCipherArchiveService,
-    deps: [CipherService, ApiService, BillingAccountProfileStateService, ConfigService],
+    deps: [CipherService, ApiService, BillingAccountProfileStateService],
   }),
   safeProvider({
     provide: NewDeviceVerificationComponentService,

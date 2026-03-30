@@ -225,11 +225,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     ),
   );
 
-  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
-  private readonly archiveFlagEnabled = toSignal(this.archiveFlagEnabled$, {
-    initialValue: false,
-  });
-
   protected userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   /**
@@ -299,9 +294,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   protected get showArchiveOptions(): boolean {
-    return (
-      this.archiveFlagEnabled() && !this.params.isAdminConsoleAction && this.params.mode === "view"
-    );
+    return !this.params.isAdminConsoleAction && this.params.mode === "view";
   }
 
   protected get showArchiveBtn(): boolean {

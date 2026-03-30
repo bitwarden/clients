@@ -224,9 +224,10 @@ describe("VaultComponent", () => {
         {
           provide: CipherArchiveService,
           useValue: {
-            hasArchiveFlagEnabled$: of(false),
             userCanArchive$: jest.fn().mockReturnValue(of(false)),
             showSubscriptionEndedMessaging$: jest.fn().mockReturnValue(of(false)),
+            archivedCiphers$: jest.fn().mockReturnValue(of([])),
+            userHasPremium$: jest.fn().mockReturnValue(of([])),
           },
         },
         {

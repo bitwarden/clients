@@ -867,7 +867,6 @@ export class ServiceContainer {
       this.cipherService,
       this.apiService,
       this.billingAccountProfileStateService,
-      this.configService,
     );
 
     this.folderService = new FolderService(
