@@ -30,6 +30,7 @@ export class ReportAutofillIssueComponent implements OnInit {
   protected readonly MAX_REPORT_DATA_BYTES = 51200;
 
   readonly triageResult = signal<AutofillTriagePageResult | null>(null);
+  readonly isLoading = signal(true);
   readonly showDetail = signal(false);
   readonly userMessage = signal("");
   readonly isSending = signal(false);
@@ -44,9 +45,10 @@ export class ReportAutofillIssueComponent implements OnInit {
       (response: AutofillTriagePageResult | null) => {
         if (chrome.runtime.lastError) {
           this.errorMessage.set("autofillReportLoadError");
-          return;
+        } else {
+          this.triageResult.set(response);
         }
-        this.triageResult.set(response);
+        this.isLoading.set(false);
       },
     );
   }
@@ -76,10 +78,12 @@ export class ReportAutofillIssueComponent implements OnInit {
     this.errorMessage.set(null);
 
     try {
+      const extensionVersion = chrome.runtime.getManifest().version;
       const request = new AutofillTriageReportRequest(
         result.pageUrl,
         this.userMessage(),
         reportData,
+        extensionVersion,
         result.targetElementRef,
       );
       await this.apiService.postAutofillTriageReport(request);

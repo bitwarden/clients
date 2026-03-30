@@ -36,6 +36,7 @@ describe("ReportAutofillIssueComponent", () => {
       runtime: {
         sendMessage: jest.fn(),
         lastError: undefined,
+        getManifest: jest.fn().mockReturnValue({ version: "2025.3.0" }),
       },
     } as any;
 
@@ -73,7 +74,7 @@ describe("ReportAutofillIssueComponent", () => {
       );
     });
 
-    it("sets triageResult when background responds with data", fakeAsync(() => {
+    it("sets triageResult and clears isLoading when background responds with data", fakeAsync(() => {
       jest
         .spyOn(chrome.runtime, "sendMessage")
         .mockImplementation((message: any, callback: any) => {
@@ -85,9 +86,10 @@ describe("ReportAutofillIssueComponent", () => {
       tick();
 
       expect(component.triageResult()).toEqual(mockTriageResult);
+      expect(component.isLoading()).toBe(false);
     }));
 
-    it("sets errorMessage when chrome.runtime.lastError is set", fakeAsync(() => {
+    it("sets errorMessage and clears isLoading when chrome.runtime.lastError is set", fakeAsync(() => {
       jest
         .spyOn(chrome.runtime, "sendMessage")
         .mockImplementation((message: any, callback: any) => {
@@ -108,6 +110,7 @@ describe("ReportAutofillIssueComponent", () => {
 
       expect(component.triageResult()).toBeNull();
       expect(component.errorMessage()).toBe("autofillReportLoadError");
+      expect(component.isLoading()).toBe(false);
     }));
 
     it("does not set triageResult when lastError is set", fakeAsync(() => {
@@ -131,6 +134,10 @@ describe("ReportAutofillIssueComponent", () => {
 
       expect(component.triageResult()).toBeNull();
     }));
+
+    it("starts with isLoading true", () => {
+      expect(component.isLoading()).toBe(true);
+    });
   });
 
   describe("toggleDetail", () => {
@@ -193,6 +200,7 @@ describe("ReportAutofillIssueComponent", () => {
           pageUrl: mockTriageResult.pageUrl,
           userMessage: "my message",
           targetElementRef: mockTriageResult.targetElementRef,
+          extensionVersion: "2025.3.0",
         }),
       );
     });

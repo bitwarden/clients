@@ -1,9 +1,13 @@
 <popup-page>
   <popup-header slot="header" [pageTitle]="'reportAutofillIssue' | i18n" [showBackButton]="false" />
 
-  @if (!triageResult()) {
+  @if (isLoading()) {
     <div class="tw-flex tw-justify-center tw-p-6">
       <bit-icon name="bwi-spinner" class="bwi-lg bwi-spin" aria-hidden="true"></bit-icon>
+    </div>
+  } @else if (errorMessage() && !triageResult()) {
+    <div class="tw-p-4">
+      <p class="tw-text-danger-600 tw-mb-3">{{ errorMessage() | i18n }}</p>
     </div>
   } @else {
     <div class="tw-p-4">
