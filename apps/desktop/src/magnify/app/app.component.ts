@@ -11,24 +11,20 @@ export class AppComponent implements OnInit {
   constructor(private readonly commandService: CommandService) {}
 
   async ngOnInit(): Promise<void> {
-    // 0 = LoggedOut, 1 = Locked, 2 = Unlocked
-    const authStatus = await this.commandService.getAuthStatus();
+    try {
+      const r = await this.commandService.searchVault("Netfli");
 
-    if (authStatus === 0) {
-      // eslint-disable-next-line no-console
-      console.log("User is logged out");
-      return;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const r2 = await this.commandService.copyPassword(r[0].id);
+    } catch (error: unknown) {
+      const authError = this.commandService.getAuthError(error);
+      if (authError != null) {
+        // eslint-disable-next-line no-console
+        console.log("Auth error:", authError);
+        // TODO: navigate user to unlock/login in the desktop app
+        return;
+      }
+      throw error;
     }
-
-    if (authStatus === 1) {
-      // eslint-disable-next-line no-console
-      console.log("Vault is locked");
-      return;
-    }
-
-    const r = await this.commandService.searchVault("Netfli");
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const r2 = await this.commandService.copyPassword(r[0].id);
   }
 }

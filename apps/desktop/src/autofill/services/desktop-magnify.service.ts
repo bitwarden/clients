@@ -1,7 +1,5 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import {
-  concatMap,
-  distinctUntilChanged,
   firstValueFrom,
   combineLatest,
   concatMap,
@@ -21,7 +19,11 @@ import {
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
 
-import { MagnifyCommand, MagnifyCommandResponse } from "../models/magnify-commands";
+import {
+  MagnifyCommand,
+  MagnifyCommandResponse,
+  MagnifyErrorCode,
+} from "../models/magnify-commands";
 
 export const MAGNIFY_ENABLED = new UserKeyDefinition<boolean | null>(
   MAGNIFY_SETTINGS_DISK,
@@ -82,6 +84,18 @@ export class DesktopMagnifyService implements OnDestroy {
       .subscribe();
 
     ipc.autofill.listenMagnifyCommand(async (request, callback) => {
+      const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
+
+      if (authStatus === AuthenticationStatus.LoggedOut) {
+        callback(new Error(MagnifyErrorCode.LoggedOut), null);
+        return;
+      }
+
+      if (authStatus === AuthenticationStatus.Locked) {
+        callback(new Error(MagnifyErrorCode.VaultLocked), null);
+        return;
+      }
+
       switch (request.type) {
         case MagnifyCommand.SearchVault: {
           const [error, result] = await this.searchVault(request.input);
@@ -91,12 +105,6 @@ export class DesktopMagnifyService implements OnDestroy {
 
         case MagnifyCommand.CopyPassword: {
           const [error, result] = await this.copyPassword(request.id);
-          callback(error, result);
-          break;
-        }
-
-        case MagnifyCommand.GetAuthStatus: {
-          const [error, result] = await this.getAuthStatus();
           callback(error, result);
           break;
         }
@@ -152,11 +160,6 @@ export class DesktopMagnifyService implements OnDestroy {
     };
 
     return [null, response];
-  }
-
-  private async getAuthStatus(): Promise<Result<MagnifyCommandResponse>> {
-    const status = await firstValueFrom(this.authService.activeAccountStatus$);
-    return [null, { type: MagnifyCommand.GetAuthStatus, status }];
   }
 
   ngOnDestroy() {

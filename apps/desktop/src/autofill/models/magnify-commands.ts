@@ -10,9 +10,18 @@
 export const MagnifyCommand = Object.freeze({
   SearchVault: "SearchVault",
   CopyPassword: "CopyPassword",
-  GetAuthStatus: "GetAuthStatus",
 } as const);
 export type MagnifyCommand = (typeof MagnifyCommand)[keyof typeof MagnifyCommand];
+
+/*
+  Error codes returned through the IPC error channel.
+  Magnify can match on these to determine the cause of a failure.
+*/
+export const MagnifyErrorCode = Object.freeze({
+  VaultLocked: "VAULT_LOCKED",
+  LoggedOut: "LOGGED_OUT",
+} as const);
+export type MagnifyErrorCode = (typeof MagnifyErrorCode)[keyof typeof MagnifyErrorCode];
 
 /*
   The MagnifyCommandRequest type represents the possible values
@@ -20,8 +29,7 @@ export type MagnifyCommand = (typeof MagnifyCommand)[keyof typeof MagnifyCommand
 */
 export type MagnifyCommandRequest =
   | { type: typeof MagnifyCommand.SearchVault; input: string }
-  | { type: typeof MagnifyCommand.CopyPassword; id: string }
-  | { type: typeof MagnifyCommand.GetAuthStatus };
+  | { type: typeof MagnifyCommand.CopyPassword; id: string };
 
 /*
   The MagnifyCommandResponse type represents the possible values
@@ -29,8 +37,7 @@ export type MagnifyCommandRequest =
 */
 export type MagnifyCommandResponse =
   | { type: typeof MagnifyCommand.SearchVault; results: MagnifyLoginItem[] }
-  | { type: typeof MagnifyCommand.CopyPassword; result: string }
-  | { type: typeof MagnifyCommand.GetAuthStatus; status: number };
+  | { type: typeof MagnifyCommand.CopyPassword; result: string };
 
 /*
   Magnify Item: Login
