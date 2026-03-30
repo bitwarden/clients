@@ -5,6 +5,7 @@ import {
   Component,
   DestroyRef,
   Inject,
+  Signal,
   ViewContainerRef,
   inject,
   signal,
@@ -61,7 +62,8 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   protected readonly policyType = PolicyType;
   protected readonly loading = signal(true);
   protected readonly enabled = false;
-  protected readonly saveDisabled = signal(false);
+  private readonly _saveDisabled = signal(false);
+  protected readonly saveDisabled: Signal<boolean> = this._saveDisabled;
   protected readonly policyComponent = signal<BasePolicyEditComponent | undefined>(undefined);
 
   readonly formGroup = this.formBuilder.group({
@@ -118,7 +120,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
           map((status) => status !== "VALID" || !policyResponse.canToggleState),
           takeUntilDestroyed(this.destroyRef),
         )
-        .subscribe((disabled) => this.saveDisabled.set(disabled));
+        .subscribe((disabled) => this._saveDisabled.set(disabled));
     }
 
     this.cdr.detectChanges();
