@@ -11,6 +11,9 @@ export class AppComponent implements OnInit {
   constructor(private readonly commandService: CommandService) {}
 
   async ngOnInit(): Promise<void> {
-    await this.commandService.searchVault("Netfli");
+    const r = await this.commandService.searchVault("Netfli");
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const r2 = await this.commandService.copyPassword(r[0].id);
   }
 }
