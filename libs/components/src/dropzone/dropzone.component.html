@@ -1,11 +1,9 @@
 <ng-content select="bit-label"></ng-content>
 
 <input
-  #fileInput
   [id]="inputId"
   type="file"
-  class="tw-sr-only"
-  tabindex="-1"
+  class="tw-peer/dropzone-input tw-sr-only"
   [accept]="accept()"
   [multiple]="multiple()"
   (change)="onFileInputChange($event)"
@@ -13,9 +11,7 @@
 
 <label
   [attr.for]="inputId"
-  class="tw-flex tw-flex-col tw-items-center tw-gap-4 tw-py-10 tw-mt-1 tw-border tw-border-dashed tw-border-border-strong tw-rounded-xl tw-bg-bg-secondary tw-cursor-pointer tw-transition-colors hover:tw-border-primary-600 hover:tw-bg-primary-100"
-  [class.tw-border-primary-600]="isDragOver()"
-  [class.tw-bg-primary-100]="isDragOver()"
+  [class]="containerClasses()"
   (dragenter)="onDragEnter($event)"
   (dragover)="onDragOver($event)"
   (dragleave)="onDragLeave($event)"
@@ -30,13 +26,7 @@
     </span>
   </div>
 
-  <button
-    type="button"
-    bitButton
-    buttonType="primary"
-    size="small"
-    (click)="openFileBrowser($event)"
-  >
+  <button type="button" bitButton buttonType="primary" size="small" tabindex="-1">
     {{ "chooseFiles" | i18n }}
   </button>
 </label>

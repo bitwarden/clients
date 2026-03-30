@@ -2,11 +2,10 @@ import {
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
+  computed,
   input,
   output,
   signal,
-  viewChild,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -34,18 +33,49 @@ export class DropzoneComponent {
   /** Allow multiple file selection */
   readonly multiple = input(false, { transform: booleanAttribute });
 
+  /** Error state — shows danger border */
+  readonly hasError = input(false, { transform: booleanAttribute });
+
   /** Emits when files are selected or dropped */
   readonly filesSelected = output<File[]>();
 
   protected readonly inputId = `bit-dropzone-input-${nextId++}`;
   protected readonly isDragOver = signal(false);
-  protected readonly fileInput = viewChild.required<ElementRef<HTMLInputElement>>("fileInput");
 
   /**
    * Track drag enter/leave depth to prevent flicker when dragging over child elements.
    * Each child element triggers its own dragenter/dragleave pair on the parent.
    */
   private readonly dragDepth = signal(0);
+
+  protected readonly containerClasses = computed(() => {
+    const base = [
+      "tw-flex",
+      "tw-flex-col",
+      "tw-items-center",
+      "tw-gap-4",
+      "tw-py-10",
+      "tw-mt-1",
+      "tw-border",
+      "tw-border-dashed",
+      "tw-rounded-xl",
+      "tw-cursor-pointer",
+      "tw-transition-colors",
+      "peer-focus-visible/dropzone-input:tw-ring",
+      "peer-focus-visible/dropzone-input:tw-ring-offset-2",
+      "peer-focus-visible/dropzone-input:tw-ring-primary-600",
+    ];
+
+    if (this.hasError()) {
+      base.push("tw-bg-bg-secondary", "tw-border-border-danger");
+    } else if (this.isDragOver()) {
+      base.push("tw-bg-bg-quaternary", "tw-border-border-strong");
+    } else {
+      base.push("tw-bg-bg-secondary", "tw-border-border-strong", "hover:tw-bg-bg-quaternary");
+    }
+
+    return base.join(" ");
+  });
 
   protected onDragEnter(event: DragEvent): void {
     event.preventDefault();
@@ -81,12 +111,6 @@ export class DropzoneComponent {
 
     const files = Array.from(event.dataTransfer.files);
     this.emitFiles(files);
-  }
-
-  protected openFileBrowser(event: MouseEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.fileInput().nativeElement.click();
   }
 
   protected onFileInputChange(event: Event): void {

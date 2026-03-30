@@ -56,6 +56,7 @@ export const Default: Story = {
         [maxFileSize]="maxFileSize"
         [multiple]="multiple"
         [accept]="accept"
+        [hasError]="hasError"
         (filesSelected)="onFilesSelected($event)"
       >
         <bit-label>Upload file</bit-label>
@@ -63,6 +64,13 @@ export const Default: Story = {
       </bit-dropzone>
     `,
   }),
+};
+
+export const Error: Story = {
+  ...Default,
+  args: {
+    hasError: true,
+  },
 };
 
 export const MultipleFiles: Story = {
