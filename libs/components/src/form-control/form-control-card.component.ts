@@ -57,8 +57,8 @@ export class FormControlCardComponent {
       if (this.switch()) {
         // For SwitchComponent, use signals to set ARIA directly on the inner input,
         // avoiding a querySelector race with Angular's property binding rendering cycle
-        this.switch().ariaLabelledBy.set(this.labelId);
-        this.switch().ariaDescribedBy.set(describedBy ?? undefined);
+        this.switch()?.ariaLabelledBy.set(this.labelId);
+        this.switch()?.ariaDescribedBy.set(describedBy ?? undefined);
         hostEl.removeAttribute("aria-labelledby");
         hostEl.removeAttribute("aria-describedby");
       } else {
