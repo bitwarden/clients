@@ -591,7 +591,7 @@ export class AppComponent implements OnInit, OnDestroy {
             multiClientPasswordManagement: await firstValueFrom(
               this.configService.getFeatureFlag$(FeatureFlag.PM32413_MultiClientPasswordManagement),
             ),
-            // TODO: PM-34210 - remove desktopAddDevices flag read and MenuAccount field population
+            // TODO: PM-34438 - remove desktopAddDevices flag read and MenuAccount field population
             desktopAddDevices: await firstValueFrom(
               this.configService.getFeatureFlag$(FeatureFlag.PM34210_DesktopAddDevices),
             ),

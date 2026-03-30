@@ -7,7 +7,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
  * Temporary dialog wrapper for device management until desktop UI refresh adds proper settings routes.
- * TODO: PM-34210 - Remove this dialog once desktop has a dedicated settings section in the new UI
+ * TODO: PM-34438 - Remove this dialog once desktop has a dedicated settings section in the new UI
  */
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({

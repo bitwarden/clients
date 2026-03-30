@@ -78,7 +78,7 @@ export class Menubar {
     // TODO: PM-32419 - remove feature flag check once fully rolled out
     const multiClientPasswordManagement =
       updateRequest?.accounts?.[updateRequest.activeUserId]?.multiClientPasswordManagement ?? false;
-    // TODO: PM-34210 - remove desktopAddDevices variable and the parameter passed to AccountMenu
+    // TODO: PM-34438 - remove desktopAddDevices variable and the parameter passed to AccountMenu
     const desktopAddDevices =
       updateRequest?.accounts?.[updateRequest.activeUserId]?.desktopAddDevices ?? false;
 

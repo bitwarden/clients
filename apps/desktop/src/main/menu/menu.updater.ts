@@ -16,6 +16,6 @@ export class MenuAccount {
   hasMasterPassword: boolean;
   // TODO: PM-32419 - remove feature flag check once fully rolled out
   multiClientPasswordManagement: boolean;
-  // TODO: PM-34210 - remove desktopAddDevices from MenuAccount
+  // TODO: PM-34438 - remove desktopAddDevices from MenuAccount
   desktopAddDevices: boolean;
 }

@@ -19,7 +19,6 @@ export enum FeatureFlag {
   PM30811_ChangeEmailNewAuthenticationApis = "pm-30811-change-email-new-authentication-apis",
   PM31088_MasterPasswordServiceEmitSalt = "pm-31088-master-password-service-emit-salt",
   PM32413_MultiClientPasswordManagement = "pm-32413-multi-client-password-management",
-  // TODO: PM-34210 - remove this flag entry once desktop devices is fully rolled out
   PM34210_DesktopAddDevices = "pm-34210-desktop-add-devices",
 
   /* Autofill */

@@ -21,7 +21,7 @@ export class AccountMenu implements IMenubarMenu {
     if (this._hasMasterPassword) {
       items.push(this.changeMasterPassword);
     }
-    // TODO: PM-34210 - remove flag check and always push this.devices
+    // TODO: PM-34438 - remove flag check and always push this.devices
     if (this._desktopAddDevices) {
       items.push(this.devices);
     }
@@ -40,7 +40,7 @@ export class AccountMenu implements IMenubarMenu {
   private readonly _hasMasterPassword: boolean;
   // TODO: PM-32419 - remove once multi client password management is fully rolled out
   private readonly _multiClientPasswordManagement: boolean;
-  // TODO: PM-34210 - remove _desktopAddDevices field and desktopAddDevices constructor param
+  // TODO: PM-34438 - remove _desktopAddDevices field and desktopAddDevices constructor param
   private readonly _desktopAddDevices: boolean;
 
   constructor(
@@ -62,7 +62,7 @@ export class AccountMenu implements IMenubarMenu {
     this._hasMasterPassword = hasMasterPassword;
     // TODO: PM-32419 - remove once multi client password management is fully rolled out
     this._multiClientPasswordManagement = multiClientPasswordManagement;
-    // TODO: PM-34210 - remove this assignment
+    // TODO: PM-34438 - remove this assignment
     this._desktopAddDevices = desktopAddDevices;
   }
 
