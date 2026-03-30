@@ -1,5 +1,7 @@
 <app-header>
-  <button type="button" bitButton buttonType="primary">{{ "new" | i18n }}</button>
+  <button type="button" bitButton buttonType="primary" (click)="openNewReceiveDrawer()">
+    {{ "new" | i18n }}
+  </button>
 </app-header>
 
 <div>

@@ -5,6 +5,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NoResults, NoSendsIcon } from "@bitwarden/assets/svg";
 import {
   ButtonModule,
+  DialogService,
   NoItemsModule,
   SearchModule,
   SpinnerComponent,
@@ -15,6 +16,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 
+import { ReceiveAddEditComponent } from "./receive-add-edit.component";
 import { ReceiveTableComponent } from "./receive-table.component";
 import { ReceiveListState, ReceiveView } from "./receive-view";
 
@@ -37,6 +39,12 @@ import { ReceiveListState, ReceiveView } from "./receive-view";
   ],
 })
 export class ReceiveComponent {
+  constructor(private readonly dialogService: DialogService) {}
+
+  openNewReceiveDrawer(): void {
+    this.dialogService.openDrawer(ReceiveAddEditComponent, { closeOnNavigation: true });
+  }
+
   protected readonly noItemIcon = NoSendsIcon;
   protected readonly noResultsIcon = NoResults;
   protected readonly ReceiveListState = ReceiveListState;

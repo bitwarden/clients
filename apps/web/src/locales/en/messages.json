@@ -6381,6 +6381,18 @@
   "receivesBodyNoSearchResults": {
     "message": "Clear filters or try another search term"
   },
+  "newReceive": {
+    "message": "New Receive"
+  },
+  "expirationDays": {
+    "message": "Expiration (days)"
+  },
+  "expirationDaysDescV2": {
+    "message": "The Receive will expire after the specified number of days. After expiration, uploads will no longer be allowed."
+  },
+  "generateLink": {
+    "message": "Generate Link"
+  },
   "sendAccessTaglineProductDesc": {
     "message": "Bitwarden Send transmits sensitive, temporary information to others easily and securely.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
