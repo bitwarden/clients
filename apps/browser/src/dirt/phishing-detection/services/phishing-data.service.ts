@@ -569,7 +569,11 @@ export class PhishingDataService {
       `[PhishingDataService] Legacy sync: checksum changed — full update from ${PHISHING_PRIMARY_URL}`,
     );
 
-    const response = await this.apiService.nativeFetch(new Request(PHISHING_PRIMARY_URL));
+    const response = await this.apiService.nativeFetch(
+      new Request(PHISHING_PRIMARY_URL, {
+        headers: { "Accept-Encoding": "gzip" },
+      }),
+    );
 
     if (!response.ok || !response.body) {
       throw new Error(`Full update failed: ${response.status}`);

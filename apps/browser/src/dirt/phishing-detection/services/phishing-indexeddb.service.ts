@@ -98,22 +98,21 @@ export class PhishingIndexedDbService {
    * Processes in chunks to prevent transaction timeouts.
    */
   async removeUrls(urls: string[]): Promise<boolean> {
+    let db: IDBDatabase | null = null;
     try {
-      const db = await this.openDatabase();
-      try {
-        const cleaned = urls.map((u) => u.trim()).filter(Boolean);
-        for (let i = 0; i < cleaned.length; i += this.CHUNK_SIZE) {
-          const chunk = cleaned.slice(i, i + this.CHUNK_SIZE);
-          await this.removeChunk(db, chunk);
-          await new Promise((r) => setTimeout(r, 0));
-        }
-        return true;
-      } finally {
-        db.close();
+      db = await this.openDatabase();
+      const cleaned = urls.map((u) => u.trim()).filter(Boolean);
+      for (let i = 0; i < cleaned.length; i += this.CHUNK_SIZE) {
+        const chunk = cleaned.slice(i, i + this.CHUNK_SIZE);
+        await this.removeChunk(db, chunk);
+        await new Promise((r) => setTimeout(r, 0));
       }
+      return true;
     } catch (e) {
-      this.logService.error("[PhishingIndexedDbService] Error removing URLs:", e);
+      this.logService.error("[PhishingIndexedDbService] Remove failed", e);
       return false;
+    } finally {
+      db?.close();
     }
   }
 
