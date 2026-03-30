@@ -100,6 +100,10 @@ export class DeviceManagementTableComponent implements OnChanges, OnInit {
     }
   }
 
+  resetSort(): void {
+    this.tableDataSource.sort = { direction: "asc" };
+  }
+
   protected answerAuthRequest(pendingAuthRequest: DevicePendingAuthRequest | null) {
     if (pendingAuthRequest == null) {
       return;

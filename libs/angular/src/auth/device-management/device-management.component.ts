@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, OnInit } from "@angular/core";
+import { Component, DestroyRef, OnInit, viewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { firstValueFrom } from "rxjs";
 
@@ -76,6 +76,8 @@ export interface DeviceDisplayData {
   ],
 })
 export class DeviceManagementComponent implements OnInit {
+  private readonly tableComponent = viewChild(DeviceManagementTableComponent);
+
   protected devices: DeviceDisplayData[] = [];
   protected initializing = true;
   protected showHeaderInfo = false;
@@ -235,6 +237,15 @@ export class DeviceManagementComponent implements OnInit {
     const existingDeviceIndex = this.devices.findIndex(
       (device) => device.identifier === upsertDevice.identifier,
     );
+
+    // TODO: PM-34091 - Remove this flag check; always call resetSort().
+    if (this.showRecentlyActive) {
+      // Reset any user-applied column sort so the default sort order is reflected
+      // after the pending auth request is inserted. This ensures the device
+      // with the pending auth request goes to the top of the list, instead of
+      // potentially being sorted to the middle or bottom of the list.
+      this.tableComponent()?.resetSort();
+    }
 
     if (existingDeviceIndex >= 0) {
       // Update existing device in device list
