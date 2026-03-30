@@ -4301,6 +4301,9 @@
       }
     }
   },
+  "revokedEmailError": {
+    "message": "1 or more emails belong to revoked members. Restore their access to reinvite."
+  },
   "restoredUserId": {
     "message": "Restored organization access for $ID$.",
     "placeholders": {
