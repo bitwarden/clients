@@ -24,7 +24,6 @@ export class StatusFilterComponent {
   private accountService: AccountService = inject(AccountService);
   private cipherArchiveService: CipherArchiveService = inject(CipherArchiveService);
 
-  protected readonly hideArchive = input(false);
   protected readonly activeFilter = input.required<VaultFilter>();
 
   private readonly premiumBadgeComponent = viewChild(PremiumBadgeComponent);

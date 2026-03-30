@@ -200,9 +200,6 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     ),
     { initialValue: false },
   );
-  readonly archiveFlagEnabled = toSignal(this.cipherArchiveService.hasArchiveFlagEnabled$, {
-    initialValue: false,
-  });
   protected itemTypesIcon = ItemTypes;
 
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
@@ -212,9 +209,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   );
 
   protected readonly submitButtonText = computed(() => {
-    return this.cipher()?.isArchived &&
-      !this.userHasPremium() &&
-      this.cipherArchiveService.hasArchiveFlagEnabled$
+    return this.cipher()?.isArchived && !this.userHasPremium()
       ? this.i18nService.t("unArchiveAndSave")
       : this.i18nService.t("save");
   });
@@ -266,15 +261,13 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
 
   async ngOnInit() {
     // Subscribe to filter changes from router params via the bridge service
-    // Use combineLatest to react to changes in both the filter and archive flag
     combineLatest([
       this.routedVaultFilterBridgeService.activeFilter$,
       this.routedVaultFilterService.filter$,
-      this.cipherArchiveService.hasArchiveFlagEnabled$,
     ])
       .pipe(
-        switchMap(([vaultFilter, routedFilter, archiveEnabled]) =>
-          from(this.applyVaultFilter(vaultFilter, routedFilter, archiveEnabled)),
+        switchMap(([vaultFilter, routedFilter]) =>
+          from(this.applyVaultFilter(vaultFilter, routedFilter)),
         ),
         takeUntil(this.componentIsDestroyed$),
       )
@@ -603,7 +596,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       }
     }
 
-    if (this.archiveFlagEnabled() && !cipher.isDeleted && !cipher.isArchived) {
+    if (!cipher.isDeleted && !cipher.isArchived) {
       menu.push({
         label: this.i18nService.t("archiveVerb"),
         click: async () => {
@@ -842,14 +835,13 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   async applyVaultFilter(
     vaultFilter: VaultFilter,
     routedFilter: Parameters<typeof createFilterFunction>[0],
-    archiveEnabled: boolean,
   ) {
     this.searchBarService.setPlaceholderText(
       this.i18nService.t(this.calculateSearchBarLocalizationString(vaultFilter)),
     );
     this.activeFilter = vaultFilter;
 
-    const filterFn = createFilterFunction(routedFilter, archiveEnabled);
+    const filterFn = createFilterFunction(routedFilter);
 
     await this.vaultItemsComponent?.reload(filterFn, vaultFilter.isDeleted, vaultFilter.isArchived);
   }

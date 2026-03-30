@@ -68,7 +68,7 @@ export class WebVaultPromptService {
     AutoConfirmPolicyDialogComponent.open(this.dialogService, {
       data: {
         policy: new AutoConfirmPolicy(),
-        organizationId: organization.id,
+        organization: organization,
         firstTimeDialog: true,
       },
     });
