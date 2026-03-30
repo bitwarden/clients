@@ -465,8 +465,16 @@
       } @else {
         <bit-form-field>
           <bit-label>{{ "selectImportFile" | i18n }}</bit-label>
-          <div class="file-selector tw-pt-2 tw-pb-1 tw-break-words">
-            <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
+          <div
+            class="file-selector tw-text-main tw-flex tw-items-center tw-h-full tw-gap-2 tw-break-words"
+          >
+            <button
+              bitButton
+              type="button"
+              size="small"
+              buttonType="secondary"
+              (click)="fileSelector.click()"
+            >
               {{ "chooseFile" | i18n }}
             </button>
             {{ this.fileSelected ? this.fileSelected.name : ("noFileChosen" | i18n) }}

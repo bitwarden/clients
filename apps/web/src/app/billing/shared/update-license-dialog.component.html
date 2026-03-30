@@ -10,17 +10,18 @@
           (fromUserSubscriptionPage ? "uploadYourPremiumLicenseFile" : "uploadYourLicenseFile")
             | i18n
         }}</label>
-        <div class="tw-mb-2">
+        <div class="tw-text-main tw-flex tw-items-center tw-h-full tw-gap-2">
           <button
             bitButton
             type="button"
             buttonType="unstyled"
+            size="small"
             class="tw-text-primary-600 tw-p-0 tw-border-0 tw-bg-transparent hover:tw-underline tw-cursor-pointer"
             (click)="fileSelector.click()"
           >
             {{ "chooseFile" | i18n }}
           </button>
-          <span class="tw-ml-2 tw-text-muted">{{
+          <span class="tw-text-muted">{{
             licenseFile ? licenseFile.name : ("noFileChosen" | i18n)
           }}</span>
         </div>
