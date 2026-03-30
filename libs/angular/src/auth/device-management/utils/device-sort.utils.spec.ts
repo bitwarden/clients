@@ -12,7 +12,7 @@ function makeDevice(overrides: Partial<DeviceDisplayData> = {}): DeviceDisplayDa
     creationDate: "2026-01-01T00:00:00Z",
     displayName: "Test Device",
     firstLogin: new Date("2026-01-01T00:00:00Z"),
-    icon: "bwi bwi-desktop",
+    icon: "bwi-desktop",
     id: "device-id",
     identifier: "device-identifier",
     isCurrentDevice: false,

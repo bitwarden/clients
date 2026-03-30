@@ -3,7 +3,7 @@ import { View } from "../../../../models/view/view";
 import { DevicePendingAuthRequest, DeviceResponse } from "../responses/device.response";
 
 // TODO: tech debt - this view should map response model properties into useful display
-// properties such as actual dates vs strings.6
+// properties such as actual dates vs strings.
 export class DeviceView implements View {
   id: string | undefined;
   userId: string | undefined;
