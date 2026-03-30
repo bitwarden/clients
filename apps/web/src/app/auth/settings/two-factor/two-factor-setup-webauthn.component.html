@@ -13,11 +13,6 @@
       >
         {{ "twoStepLoginProviderEnabled" | i18n }}
       </bit-callout>
-      <auth-two-factor-icon
-        [provider]="type"
-        name="FIDO2 WebAuthn logo"
-        class="tw-float-right tw-ml-5"
-      />
       <ul class="bwi-ul">
         <li *ngFor="let k of keys; let i = index" #removeKeyBtn [appApiAction]="k.removePromise">
           <ng-container *ngIf="k.configured">

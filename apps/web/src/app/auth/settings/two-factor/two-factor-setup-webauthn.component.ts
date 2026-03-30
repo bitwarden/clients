@@ -2,7 +2,6 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject, NgZone } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 
-import { TwoFactorIconComponent } from "@bitwarden/angular/auth/components/two-factor-icon.component";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
@@ -63,7 +62,6 @@ interface Key {
     LinkModule,
     ReactiveFormsModule,
     TypographyModule,
-    TwoFactorIconComponent,
   ],
 })
 export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseComponent {
