@@ -318,6 +318,7 @@ export class CipherService implements CipherServiceAbstraction {
     cipher.archivedDate = model.archivedDate;
     cipher.reprompt = model.reprompt;
     cipher.edit = model.edit;
+    cipher.viewPassword = model.viewPassword;
 
     if (
       // prevent unprivileged users from migrating to cipher key encryption
