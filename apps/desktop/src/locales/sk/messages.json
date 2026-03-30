@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Na použitie tejto funkcie je potrebné prémiové členstvo."
   },
+  "syncWithBrowser": {
+    "message": "Synchronizácia s prehliadačom"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "Ak sa chcete pripojiť na $VAULTURL$, musíte synchronizovať predvolený prehliadač s aplikáciou Bitwarden. Po synchronizácii prehliadača budete presmerovaní späť do tejto aplikácie.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Spustiť prehliadač"
+  },
   "errorOccurred": {
     "message": "Vyskytla sa chyba."
   },
@@ -905,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Nápoveď k hlavnému heslu"
   },
+  "masterPasswordChanged": {
+    "message": "Hlavné heslo uložené"
+  },
   "passwordStrengthScore": {
     "message": "Sila hesla $SCORE$",
     "placeholders": {
@@ -1196,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Nové odporúčané nastavenia šifrovania zlepšia bezpečnosť vášho účtu. Ak ich chcete aktualizovať teraz, zadajte hlavné heslo."
   },
+  "rotateAccountEncKey": {
+    "message": "Rotovať aj šifrovací kľúč účtu"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Vplyv rotovania šifrovacieho kľúča"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "V trezore máte staré prílohy ktoré musia byť opravené pred tým, než budete môcť rotovať šifrovací kľúč k účtu."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotovať šifrovací kľúč"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Naozaj chcete rotovať šifrovací kľúč k účtu?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Po aktualizácii šifrovacieho kľúča budete požiadaný o opätovné prihlásenie sa do všetkých aplikácií Bitwardenu, ktoré momentálne používate (napríklad mobilné aplikácie, alebo rozšírenia v prehliadači). Ak sa opätovne neodhlásite (stiahnu sa nové šifrovacie kľúče), mohlo by to viesť k poškodeniu uložených údajov. Pokúsime sa vás odhlásiť automaticky, ale môže to chvíľu trvať."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Všetky exporty s obmedzeným prístupom, ktoré ste uložili, sa stanú neplatnými."
+  },
   "confirmIdentityToContinue": {
     "message": "Ak chcete pokračovať, potvrďte svoju identitu"
   },
@@ -1280,8 +1320,8 @@
   "changeMasterPass": {
     "message": "Zmeniť hlavné heslo"
   },
-  "masterPasswordChanged": {
-    "message": "Hlavné heslo uložené"
+  "changeMasterPassword": {
+    "message": "Zmeniť hlavné heslo"
   },
   "continueToWebApp": {
     "message": "Pokračovať vo webovej aplikácii?"
@@ -2283,6 +2323,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Vaše nové hlavné heslo nespĺňa pravidlá."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Jedno alebo viac pravidiel organizácie požadujú, aby hlavné heslo spĺňalo nasledujúce požiadavky:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Dostávajte do schránky rady, oznámenia a príležitosti na výskum od spoločnosti Bitwarden."
@@ -3750,6 +3793,9 @@
   },
   "exportSuccess": {
     "message": "Údaje z trezora boli exportované"
+  },
+  "exportError": {
+    "message": "Pri exportovaní údajov trezora sa vyskytla chyba"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Viacfaktorové overenie zrušené"

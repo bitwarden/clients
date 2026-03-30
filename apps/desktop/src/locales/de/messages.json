@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Für diese Funktion ist eine Premium-Mitgliedschaft notwendig."
   },
+  "syncWithBrowser": {
+    "message": "Mit Browser synchronisieren"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "Um dich mit $VAULTURL$ zu verbinden, musst du deinen Standardbrowser mit der Bitwarden-App synchronisieren. Sobald die Synchronisierung abgeschlossen ist, wirst du zurück zu dieser App geleitet.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Browser starten"
+  },
   "errorOccurred": {
     "message": "Ein Fehler ist aufgetreten."
   },
@@ -905,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Master-Passwort-Hinweis"
   },
+  "masterPasswordChanged": {
+    "message": "Master-Passwort gespeichert"
+  },
   "passwordStrengthScore": {
     "message": "Bewertung der Passwortstärke $SCORE$",
     "placeholders": {
@@ -1196,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Die neuen empfohlenen Verschlüsselungseinstellungen verbessern deine Kontosicherheit. Gib dein Master-Passwort ein, um sie zu aktualisieren."
   },
+  "rotateAccountEncKey": {
+    "message": "Auch den Verschlüsselungsschlüssel meines Kontos erneuern"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Auswirkungen der Erneuerung deines Verschlüsselungsschlüssels"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Es gibt alte Dateianhänge in deinem Tresor, die repariert werden müssen, bevor du deinen Verschlüsselungsschlüssel erneuern kannst."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Verschlüsselungsschlüssel erneuern"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Bist du sicher, dass du deinen Verschlüsselungsschlüssel erneuern möchtest?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Nach der Aktualisierung deines Verschlüsselungsschlüssels musst du dich bei allen Bitwarden-Anwendungen, die du momentan benutzt, erneut anmelden (wie z.B. die mobile App oder die Browser-Erweiterungen). Fehler bei Ab- und Anmeldung (die deinen neuen Verschlüsselungsschlüssel herunterlädt) könnte zu einer Beschädigung der Daten führen. Wir werden versuchen dich automatisch abzumelden, was jedoch verzögert geschehen kann."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Alle von dir gespeicherten Exporte mit Konto-Beschränkungen werden ungültig."
+  },
   "confirmIdentityToContinue": {
     "message": "Bestätige deine Identität, um fortzufahren"
   },
@@ -1280,8 +1320,8 @@
   "changeMasterPass": {
     "message": "Master-Passwort ändern"
   },
-  "masterPasswordChanged": {
-    "message": "Master-Passwort gespeichert"
+  "changeMasterPassword": {
+    "message": "Master-Passwort ändern"
   },
   "continueToWebApp": {
     "message": "Weiter zur Web-App?"
@@ -2283,6 +2323,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Dein neues Masterpasswort entspricht nicht den Anforderungen der Richtlinie."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Eine oder mehrere Organisationsrichtlinien erfordern, dass dein Master-Passwort die folgenden Anforderungen erfüllt:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Erhalte Ratschläge, Ankündigungen und Marktforschungsumfragen von Bitwarden in deinem Posteingang."
@@ -3750,6 +3793,9 @@
   },
   "exportSuccess": {
     "message": "Tresor-Daten exportiert"
+  },
+  "exportError": {
+    "message": "Beim Exportieren deiner Tresordaten ist ein Fehler aufgetreten"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Multifaktor-Authentifizierung abgebrochen"

@@ -2366,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "Вы выбрали слабый мастер-пароль. Для надежной защиты аккаунта Bitwarden следует использовать сильный мастер-пароль (или парольную фразу). Вы действительно хотите использовать этот мастер-пароль?"
   },
+  "rotateAccountEncKey": {
+    "message": "Также сменить ключ шифрования моего аккаунта"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Сменить ключ шифрования"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Вы уверены, что хотите сменить ключ шифрования вашего аккаунта?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "После обновления ключа шифрования необходимо выйти из всех приложений Bitwarden, которые вы используете (например, из мобильного приложения или расширения браузера). Если этого не сделать, могут повредиться данные (так как при выходе и последующем входе загружается ваш новый ключ шифрования). Мы попытаемся автоматически осуществить завершение ваших сессий, однако это может произойти с задержкой."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Любые сохраненные вами настройки ограничения экспорта для аккаунта утратят силу."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "В вашем хранилище есть старые вложения файлов, которые необходимо исправить, прежде чем вы сможете сменить ключ шифрования вашего аккаунта."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Последствия смены ключа шифрования"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Одна или несколько политик организации требуют, чтобы мастер-пароль соответствовал следующим требованиям:"
+  },
   "pin": {
     "message": "PIN-код",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2455,6 +2479,9 @@
   },
   "vaultTimeoutAction": {
     "message": "Действие по тайм-ауту хранилища"
+  },
+  "showAtRiskPasswordNotifications": {
+    "message": "Show at-risk password notifications"
   },
   "lock": {
     "message": "Блокировка",
@@ -4423,6 +4450,9 @@
   },
   "exportSuccess": {
     "message": "Данные хранилища экспортированы"
+  },
+  "exportError": {
+    "message": "При экспорте данных хранилища произошла ошибка"
   },
   "typePasskey": {
     "message": "Passkey"

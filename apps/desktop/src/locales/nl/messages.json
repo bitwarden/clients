@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Voor deze functionaliteit heb je een Premium-abonnement nodig."
   },
+  "syncWithBrowser": {
+    "message": "Synchroniseren met browser"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "Om verbinding te maken met $VAULTURL$ moet je je standaardbrowser synchroniseren met de Bitwarden-app. Je wordt teruggestuurd naar deze app zodra je browser is gesynchroniseerd.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Browser starten"
+  },
   "errorOccurred": {
     "message": "Er is een fout opgetreden."
   },
@@ -905,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Hoofdwachtwoordhint"
   },
+  "masterPasswordChanged": {
+    "message": "Hoofdwachtwoord opgeslagen"
+  },
   "passwordStrengthScore": {
     "message": "Score wachtwoordsterkte $SCORE$",
     "placeholders": {
@@ -1196,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "De nieuwe aanbevolen versleutelingsinstellingen verbeteren de beveiliging van je account. Voer je hoofdwachtwoord in om nu bij te werken."
   },
+  "rotateAccountEncKey": {
+    "message": "De encryptiesleutel van mijn account ook roteren"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact van het roteren van je encryptiesleutel"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Er zijn oude bestandsbijlagen in je kluis die aangepast moeten worden voordat je je encryptiesleutels kunt roteren."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Encryptiesleutel roteren"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Weet je zeker dat je de encryptiesleutel van je account wilt roteren?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Na het bijwerken van je encryptiesleutel moet je je afmelden en weer aanmelden bij alle Bitwarden-applicaties die je gebruikt (zoals de mobiele app of browserextensies). Als je niet opnieuw inlogt (wat je nieuwe encryptiesleutel downloadt), kan dit gegevensbeschadiging tot gevolg hebben. We proberen je automatisch uit te loggen, maar het kan zijn dat dit met enige vertraging gebeurt."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Alle account-beperkte bewaarde exports die je hebt opgeslagen worden ongeldig."
+  },
   "confirmIdentityToContinue": {
     "message": "Bevestig je identiteit om door te gaan"
   },
@@ -1280,8 +1320,8 @@
   "changeMasterPass": {
     "message": "Hoofdwachtwoord wijzigen"
   },
-  "masterPasswordChanged": {
-    "message": "Hoofdwachtwoord opgeslagen"
+  "changeMasterPassword": {
+    "message": "Hoofdwachtwoord wijzigen"
   },
   "continueToWebApp": {
     "message": "Doorgaan naar web-app?"
@@ -2283,6 +2323,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Je nieuwe hoofdwachtwoord voldoet niet aan de beleidseisen."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Een of meer organisatiebeleidseisen stelt de volgende eisen aan je hoofdwachtwoord:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Krijg advies, aankondigingen en onderzoeksmogelijkheden van Bitwarden in je inbox."
@@ -3750,6 +3793,9 @@
   },
   "exportSuccess": {
     "message": "Kluisgegevens geëxporteerd"
+  },
+  "exportError": {
+    "message": "Er is een fout opgetreden tijdens het exporteren van je kluisgegevens"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Multifactor-authenticatie geannuleerd"

@@ -2122,7 +2122,7 @@
     "message": "Dados do cofre exportados"
   },
   "exportError": {
-    "message": "An error occurred while exporting your vault data"
+    "message": "Ocorreu um erro ao exportar os dados do seu cofre"
   },
   "passwordGenerator": {
     "message": "Gerador de palavras-passe"
@@ -3398,6 +3398,9 @@
   "discount": {
     "message": "desconto"
   },
+  "discountExpiredOnPurchase": {
+    "message": "O desconto expirou. Por favor, reveja o total do seu carrinho e tente novamente."
+  },
   "downloadLicense": {
     "message": "Transferir licença"
   },
@@ -3804,6 +3807,15 @@
   },
   "policies": {
     "message": "Políticas"
+  },
+  "dataControls": {
+    "message": "Controlos de dados"
+  },
+  "authentication": {
+    "message": "Autenticação"
+  },
+  "vaultManagement": {
+    "message": "Gestão do cofre"
   },
   "singleSignOn": {
     "message": "Início de sessão único"
@@ -5118,7 +5130,7 @@
     }
   },
   "updateEncryptionKeyWarning": {
-    "message": "Depois de atualizar a sua chave de encriptação, é necessário terminar sessão e voltar a iniciar em todas as aplicações Bitwarden que está a utilizar atualmente (como a aplicação móvel ou as extensões do navegador). A falha em terminar sessão e voltar a iniciar (que descarrega a sua nova chave de encriptação) pode resultar em corrupção de dados. Tentaremos terminar a sua sessão automaticamente, no entanto, pode demorar."
+    "message": "Após atualizar a sua chave de encriptação, terá de terminar a sessão e iniciar sessão novamente em todas as aplicações Bitwarden que está atualmente a utilizar (como a aplicação móvel ou as extensões do navegador). Não o fazer (o que permite descarregar a nova chave de encriptação) pode resultar em corrupção de dados. Tentaremos terminar a sua sessão automaticamente, no entanto, poderá sofrer algum atraso."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Todas as exportações com restrições de conta que tenha guardado tornar-se-ão inválidas."
@@ -6486,6 +6498,14 @@
     "message": "Confirme o seu e-mail para ver este Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Não recebeu um código? Contacte o remetente para confirmar o seu endereço de e-mail ou ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Reenviar código de verificação",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "O utilizador Bitwarden que criou este Send optou por ocultar o seu endereço de e-mail. Deve certificar-se de que confia na fonte deste link antes de utilizar ou descarregar o seu conteúdo.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7145,7 +7165,7 @@
     "message": "Os sites comprometidos ou não confiáveis podem explorar o preenchimento automático ao carregar a página."
   },
   "learnMoreAboutAutofillPolicy": {
-    "message": "Saber mais sobre o preenchimento automático"
+    "message": "Saiba mais sobre o preenchimento automático"
   },
   "selectType": {
     "message": "Selecionar o tipo de SSO"
@@ -11543,7 +11563,7 @@
     }
   },
   "userSelfRevokedOrganizationOwnership": {
-    "message": "Revoked for declining transfer to organization ownership."
+    "message": "Revogado por recusa de transferência para propriedade da organização."
   },
   "suspendedOrganizationTitle": {
     "message": "A $ORGANIZATION$ está suspensa",
@@ -11928,6 +11948,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Chaves de encriptação não fiáveis"
+  },
+  "atRiskPassword": {
+    "message": "Palavra-passe em risco"
   },
   "changeAtRiskPassword": {
     "message": "Alterar palavra-passe em risco"
@@ -13077,10 +13100,10 @@
     }
   },
   "sendsTitleNoSearchResults": {
-    "message": "No search results returned"
+    "message": "Não foram apresentados resultados de pesquisa"
   },
   "sendsBodyNoSearchResults": {
-    "message": "Clear filters or try another search term"
+    "message": "Limpe os filtros ou tente outro termo de pesquisa"
   },
   "pastMonth": {
     "message": "Último mês"

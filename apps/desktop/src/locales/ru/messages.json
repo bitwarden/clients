@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Для использования этой функции требуется Премиум."
   },
+  "syncWithBrowser": {
+    "message": "Синхронизация с браузером"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "Чтобы подключиться к $VAULTURL$, необходимо синхронизировать ваш браузер по умолчанию с приложением Bitwarden. После синхронизации вы будете перенаправлены обратно в это приложение.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Запустить браузер"
+  },
   "errorOccurred": {
     "message": "Произошла ошибка."
   },
@@ -905,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Подсказка к мастер-паролю"
   },
+  "masterPasswordChanged": {
+    "message": "Мастер-пароль сохранен"
+  },
   "passwordStrengthScore": {
     "message": "Оценка надежности пароля $SCORE$",
     "placeholders": {
@@ -1196,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Новые рекомендуемые настройки шифрования повысят безопасность вашего аккаунта. Введите мастер-пароль, чтобы обновить сейчас."
   },
+  "rotateAccountEncKey": {
+    "message": "Также сменить ключ шифрования моего аккаунта"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Последствия смены ключа шифрования"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "В вашем хранилище есть старые вложения файлов, которые необходимо исправить, прежде чем вы сможете сменить ключ шифрования вашего аккаунта."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Сменить ключ шифрования"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Вы уверены, что хотите сменить ключ шифрования вашего аккаунта?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "После обновления ключа шифрования необходимо выйти из всех приложений Bitwarden, которые вы используете (например, из мобильного приложения или расширения браузера). Если этого не сделать, могут повредиться данные (так как при выходе и последующем входе загружается ваш новый ключ шифрования). Мы попытаемся автоматически осуществить завершение ваших сессий, однако это может произойти с задержкой."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Любые сохраненные вами настройки ограничения экспорта для аккаунта утратят силу."
+  },
   "confirmIdentityToContinue": {
     "message": "Подтвердите вашу личность, чтобы продолжить"
   },
@@ -1280,8 +1320,8 @@
   "changeMasterPass": {
     "message": "Изменить мастер-пароль"
   },
-  "masterPasswordChanged": {
-    "message": "Мастер-пароль сохранен"
+  "changeMasterPassword": {
+    "message": "Изменить мастер-пароль"
   },
   "continueToWebApp": {
     "message": "Перейти к веб-приложению?"
@@ -2283,6 +2323,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Ваш новый мастер-пароль не соответствует требованиям политики."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Одна или несколько политик организации требуют, чтобы мастер-пароль соответствовал следующим требованиям:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Получайте советы, анонсы и возможности для исследований от Bitwarden на свой email."
@@ -3750,6 +3793,9 @@
   },
   "exportSuccess": {
     "message": "Данные хранилища экспортированы"
+  },
+  "exportError": {
+    "message": "При экспорте данных хранилища произошла ошибка"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Многофакторная аутентификация отменена"

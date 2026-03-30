@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Bu özelliği kullanmak için premium üyelik gereklidir."
   },
+  "syncWithBrowser": {
+    "message": "Tarayıcıyla eşitleyin"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Tarayıcıyı aç"
+  },
   "errorOccurred": {
     "message": "Bir hata oluştu."
   },
@@ -905,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Ana parola ipucu"
   },
+  "masterPasswordChanged": {
+    "message": "Ana parola kaydedildi"
+  },
   "passwordStrengthScore": {
     "message": "Parola gücü puanı: $SCORE$",
     "placeholders": {
@@ -1196,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Önerilen yeni şifreleme ayarları hesap güvenliğinizi artıracaktır. Şimdi güncellemek için ana parolanızı girin."
   },
+  "rotateAccountEncKey": {
+    "message": "Hesabımın şifreleme anahtarını da yenile"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Şifreleme anahtarınızı yenilemenin etkisi"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Hesabınızın şifreleme anahtarını yenilemeden önce kasanızdaki eski dosya eklerini düzeltmeniz gerekiyor."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Şifreleme anahtarını yenile"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Hesabınızın şifreleme anahtarını yenilemek istediğinizden emin misiniz?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
   "confirmIdentityToContinue": {
     "message": "Devam etmek için kimliğinizi doğrulayın"
   },
@@ -1280,8 +1320,8 @@
   "changeMasterPass": {
     "message": "Ana parolayı değiştir"
   },
-  "masterPasswordChanged": {
-    "message": "Ana parola kaydedildi"
+  "changeMasterPassword": {
+    "message": "Ana parolayı değiştir"
   },
   "continueToWebApp": {
     "message": "Web uygulamasına devam edilsin mi?"
@@ -2283,6 +2323,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Yeni ana parolanız ilke gereksinimlerini karşılamıyor."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Bir veya daha fazla kuruluş ilkesi gereğince ana parola aşağıdaki gereksinimleri karşılamalıdır:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Bitwarden'dan öneriler, duyurular ve araştırma fırsatları e-posta adresinize gelsin."
@@ -3750,6 +3793,9 @@
   },
   "exportSuccess": {
     "message": "Kasa verileri dışa aktarıldı"
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Çok faktörlü kimlik doğrulama iptal edildi"

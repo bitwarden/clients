@@ -11,11 +11,14 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 export class UriMatchDefaultPolicy extends BasePolicyEditDefinition {
   name = "uriMatchDetectionPolicy";
   description = "uriMatchDetectionPolicyDesc";
   type = PolicyType.UriMatchDefaults;
+  category = PolicyCategory.VaultManagement;
+  priority = 20;
   component = UriMatchDefaultPolicyComponent;
 }
 @Component({
