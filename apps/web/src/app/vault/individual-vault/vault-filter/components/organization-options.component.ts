@@ -185,7 +185,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
         message: this.i18nService.t("unlinkedSso"),
       });
 
-      await this.removeFromSsoRequiredCacheIfPresent();
+      await this.removeUserFromSsoRequiredCacheIfPresent();
     } catch (e) {
       this.logService.error(e);
     }
@@ -212,7 +212,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
         message: this.i18nService.t("leftOrganization"),
       });
 
-      await this.removeFromSsoRequiredCacheIfPresent();
+      await this.removeUserFromSsoRequiredCacheIfPresent();
     } catch (e) {
       this.logService.error(e);
     }
@@ -221,7 +221,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
   /**
    * Remove the user from the cached list of users who must authenticate via SSO (if an entry is present for the user)
    */
-  private async removeFromSsoRequiredCacheIfPresent() {
+  private async removeUserFromSsoRequiredCacheIfPresent() {
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
 
     if (!activeAccount) {
