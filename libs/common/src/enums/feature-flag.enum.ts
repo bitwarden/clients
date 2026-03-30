@@ -85,15 +85,9 @@ export enum FeatureFlag {
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
   WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
 
-  /* Innovation */
-  PM19148_InnovationArchive = "pm-19148-innovation-archive",
-
   /* Desktop */
   DesktopUiMigrationMilestone3 = "desktop-ui-migration-milestone-3",
   DesktopUiMigrationMilestone4 = "desktop-ui-migration-milestone-4",
-
-  /* UIF */
-  RouterFocusManagement = "router-focus-management",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -154,6 +148,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis]: FALSE,
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
   [FeatureFlag.PM32413_MultiClientPasswordManagement]: FALSE,
+  [FeatureFlag.PM34210_DesktopAddDevices]: true,
 
   /* Billing */
   [FeatureFlag.PM29108_EnablePersonalDiscounts]: FALSE,
@@ -183,17 +178,9 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
   [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
 
-  /* Innovation */
-  [FeatureFlag.PM19148_InnovationArchive]: FALSE,
-
   /* Desktop */
   [FeatureFlag.DesktopUiMigrationMilestone3]: FALSE,
   [FeatureFlag.DesktopUiMigrationMilestone4]: FALSE,
-  // TODO: PM-34210 - remove this default value entry
-  [FeatureFlag.PM34210_DesktopAddDevices]: true,
-
-  /* UIF */
-  [FeatureFlag.RouterFocusManagement]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
