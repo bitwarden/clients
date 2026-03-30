@@ -1,4 +1,4 @@
-import { Component, computed, OnDestroy, signal } from "@angular/core";
+import { Component, computed, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -38,16 +38,11 @@ import { ReceiveListState, ReceiveView } from "./receive-view";
     ReceiveTableComponent,
   ],
 })
-export class ReceiveComponent implements OnDestroy {
+export class ReceiveComponent {
   constructor(private readonly dialogService: DialogService) {}
 
-  ngOnDestroy(): void {
-    this.dialogService.closeAll();
-    this.dialogService.closeDrawer();
-  }
-
   openNewReceiveDrawer(): void {
-    this.dialogService.openDrawer(ReceiveAddEditComponent);
+    this.dialogService.openDrawer(ReceiveAddEditComponent, { closeOnNavigation: true });
   }
 
   protected readonly noItemIcon = NoSendsIcon;
