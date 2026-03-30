@@ -5,7 +5,7 @@
         *ngIf="enabled"
         type="success"
         title="{{ 'enabled' | i18n }}"
-        icon="bwi bwi-check-circle"
+        icon="bwi-check-circle"
       >
         {{ "twoStepLoginProviderEnabled" | i18n }}
       </bit-callout>
@@ -16,6 +16,7 @@
           <li>{{ "twoFactorYubikeySupportMobile" | i18n }}</li>
         </ul>
       </bit-callout>
+      <!-- TODO: PM-33167 - replace with auth-two-factor-icon -->
       <img class="tw-float-right mfaType3" alt="YubiKey OTP security key logo" />
       <p bitTypography="body1">{{ "twoFactorYubikeyAdd" | i18n }}:</p>
       <ol bitTypography="body1">
@@ -36,7 +37,7 @@
             <button
               bitIconButton="bwi-minus-circle"
               type="button"
-              buttonType="danger"
+              buttonType="dangerGhost"
               (click)="remove(i)"
               label="{{ 'remove' | i18n }}"
             ></button>

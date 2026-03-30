@@ -13,10 +13,9 @@ import {
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
-import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
+import { AuthRequestServiceAbstraction, LockService, LogoutService } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -25,6 +24,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -167,6 +167,8 @@ describe("VaultComponent", () => {
         { provide: CollectionAdminService, useValue: mock<CollectionAdminService>() },
         { provide: CipherAuthorizationService, useValue: mock<CipherAuthorizationService>() },
         { provide: ProviderService, useValue: mock<ProviderService>() },
+        { provide: LogoutService, useValue: mock<LogoutService>() },
+        { provide: LockService, useValue: mock<LockService>() },
         {
           provide: AvatarService,
           useValue: { ...mock<AvatarService>(), avatarColor$: of(null) },
@@ -222,9 +224,10 @@ describe("VaultComponent", () => {
         {
           provide: CipherArchiveService,
           useValue: {
-            hasArchiveFlagEnabled$: of(false),
             userCanArchive$: jest.fn().mockReturnValue(of(false)),
             showSubscriptionEndedMessaging$: jest.fn().mockReturnValue(of(false)),
+            archivedCiphers$: jest.fn().mockReturnValue(of([])),
+            userHasPremium$: jest.fn().mockReturnValue(of([])),
           },
         },
         {

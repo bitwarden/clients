@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Na použitie tejto funkcie je potrebné prémiové členstvo."
   },
+  "syncWithBrowser": {
+    "message": "Synchronizácia s prehliadačom"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "Ak sa chcete pripojiť na $VAULTURL$, musíte synchronizovať predvolený prehliadač s aplikáciou Bitwarden. Po synchronizácii prehliadača budete presmerovaní späť do tejto aplikácie.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Spustiť prehliadač"
+  },
   "errorOccurred": {
     "message": "Vyskytla sa chyba."
   },
@@ -905,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Nápoveď k hlavnému heslu"
   },
+  "masterPasswordChanged": {
+    "message": "Hlavné heslo uložené"
+  },
   "passwordStrengthScore": {
     "message": "Sila hesla $SCORE$",
     "placeholders": {
@@ -1196,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Nové odporúčané nastavenia šifrovania zlepšia bezpečnosť vášho účtu. Ak ich chcete aktualizovať teraz, zadajte hlavné heslo."
   },
+  "rotateAccountEncKey": {
+    "message": "Rotovať aj šifrovací kľúč účtu"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Vplyv rotovania šifrovacieho kľúča"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "V trezore máte staré prílohy ktoré musia byť opravené pred tým, než budete môcť rotovať šifrovací kľúč k účtu."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotovať šifrovací kľúč"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Naozaj chcete rotovať šifrovací kľúč k účtu?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Po aktualizácii šifrovacieho kľúča budete požiadaný o opätovné prihlásenie sa do všetkých aplikácií Bitwardenu, ktoré momentálne používate (napríklad mobilné aplikácie, alebo rozšírenia v prehliadači). Ak sa opätovne neodhlásite (stiahnu sa nové šifrovacie kľúče), mohlo by to viesť k poškodeniu uložených údajov. Pokúsime sa vás odhlásiť automaticky, ale môže to chvíľu trvať."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Všetky exporty s obmedzeným prístupom, ktoré ste uložili, sa stanú neplatnými."
+  },
   "confirmIdentityToContinue": {
     "message": "Ak chcete pokračovať, potvrďte svoju identitu"
   },
@@ -1280,6 +1320,9 @@
   "changeMasterPass": {
     "message": "Zmeniť hlavné heslo"
   },
+  "changeMasterPassword": {
+    "message": "Zmeniť hlavné heslo"
+  },
   "continueToWebApp": {
     "message": "Pokračovať vo webovej aplikácii?"
   },
@@ -1358,17 +1401,11 @@
   "twoStepLogin": {
     "message": "Dvojstupňové prihlásenie"
   },
-  "vaultTimeoutHeader": {
-    "message": "Časový limit pre trezor"
-  },
   "vaultTimeout": {
     "message": "Časový limit pre trezor"
   },
   "vaultTimeout1": {
     "message": "Časový limit"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Akcia pri vypršaní časového limitu"
   },
   "vaultTimeoutDesc": {
     "message": "Vyberte, kedy vyprší časový limit trezora a vykoná sa zvolená akcia."
@@ -1658,6 +1695,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "mesiac"
+  },
+  "monthly": {
+    "message": "Mesačne"
+  },
+  "year": {
+    "message": "rok"
+  },
+  "annually": {
+    "message": "Ročne"
+  },
+  "annual": {
+    "message": "Ročné"
   },
   "refreshComplete": {
     "message": "Obnova bola dokončená"
@@ -2089,9 +2141,6 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Odhlásený trezor bude vyžadovať opätovné prihlásenie aby ste k nemu mohli pristupovať."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Nastavte metódu odomknutia, aby ste zmenili akciu pri vypršaní času trezoru."
-  },
   "lock": {
     "message": "Uzamknúť",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2274,6 +2323,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Vaše nové hlavné heslo nespĺňa pravidlá."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Jedno alebo viac pravidiel organizácie požadujú, aby hlavné heslo spĺňalo nasledujúce požiadavky:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Dostávajte do schránky rady, oznámenia a príležitosti na výskum od spoločnosti Bitwarden."
@@ -2709,9 +2761,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Časový limit vášho trezora prekračuje obmedzenia nastavené vašou organizáciou."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Na možnosti pri vypršaní časového limitu boli uplatnené požiadavky pravidiel spoločnosti"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Pravidlá organizácie nastavili maximálny povolený časový limit trezoru na $HOURS$ hod. a $MINUTES$ min.",
@@ -3745,6 +3794,9 @@
   "exportSuccess": {
     "message": "Údaje z trezora boli exportované"
   },
+  "exportError": {
+    "message": "Pri exportovaní údajov trezora sa vyskytla chyba"
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Viacfaktorové overenie zrušené"
   },
@@ -4617,8 +4669,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ vyžaduje, aby všetky položky boli vo vlastníctve organizácie z dôvodu bezpečnosti a dodržiavania predpisov. Ak chcete previesť vlastníctvo položiek, kliknite na tlačidlo Prijať.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ vyžaduje, aby všetky položky boli vo vlastníctve organizácie z dôvodu bezpečnosti a dodržiavania predpisov.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4678,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Kliknutím na tlačidlo Prijať prenesiete vlastníctvo svojich položiek."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Otvoriť článok pomocníka o prenose položiek"
+  },
   "acceptTransfer": {
     "message": "Prijať prenos"
   },
   "declineAndLeave": {
     "message": "Zamietnuť a odísť"
-  },
-  "whyAmISeeingThis": {
-    "message": "Prečo to vidím?"
   },
   "organizationIsSuspended": {
     "message": "Organizácia je pozastavená"
@@ -4692,9 +4747,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Zadajte viacero e-mailových adries oddelených čiarkou."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Overenie e-mailu vyžaduje aspoň jednu e-mailovú adresu. Ak chcete odstrániť všetky e-maily, zmeňte typ prístupu vyššie."
   },
   "emailPlaceholder": {
     "message": "pouzivate@bitwarden.com, pouzivatel@acme.com"

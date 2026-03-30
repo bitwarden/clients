@@ -8,6 +8,11 @@
       (click)="handleButtonClick()"
       id="newItemDropdown"
       [appA11yTitle]="getButtonLabel() | i18n"
+      [bitPopoverAnchorFor]="coachmarkPopover()"
+      [popoverOpen]="coachmarkPopoverOpen()"
+      [position]="coachmarkPosition()"
+      [spotlight]="!!coachmarkPopover()"
+      [closeOnBackdropClick]="false"
     >
       <i class="bwi bwi-plus tw-me-2" aria-hidden="true"></i>
       {{ getButtonLabel() | i18n }}

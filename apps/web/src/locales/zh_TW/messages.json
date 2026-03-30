@@ -2,8 +2,17 @@
   "allApplications": {
     "message": "所有應用程式"
   },
+  "allMembers": {
+    "message": "所有成員"
+  },
+  "allPasswords": {
+    "message": "所有密碼"
+  },
   "activity": {
     "message": "活動"
+  },
+  "applicationsAtRisk": {
+    "message": "高風險應用程式"
   },
   "appLogoLabel": {
     "message": "Bitwarden logo"
@@ -43,6 +52,15 @@
   },
   "passwordRisk": {
     "message": "密碼風險"
+  },
+  "passwords": {
+    "message": "密碼"
+  },
+  "riskOverTime": {
+    "message": "風險趨勢"
+  },
+  "passwordsAtRisk": {
+    "message": "高風險密碼"
   },
   "noEditPermissions": {
     "message": "您沒有權限編輯此項目"
@@ -2103,6 +2121,9 @@
   "exportSuccess": {
     "message": "已匯出密碼庫資料"
   },
+  "exportError": {
+    "message": "匯出密碼庫資料時發生錯誤"
+  },
   "passwordGenerator": {
     "message": "密碼產生器"
   },
@@ -3047,16 +3068,16 @@
   "breachDesc": {
     "message": "外洩的帳戶可能會暴露您的個人資訊。透過啟用 2FA 或建立更強的密碼來保護被外洩的帳戶。"
   },
-  "breachCheckUsernameEmail": {
-    "message": "請檢查您使用的使用者名稱或電子郵件地址。"
+  "breachCheckEmail": {
+    "message": "請檢查您使用的電子郵件地址。"
   },
   "checkBreaches": {
     "message": "檢查外洩情況"
   },
-  "breachUsernameNotFound": {
-    "message": "在任何已知的外洩密碼資料庫中都找不到 $USERNAME$。",
+  "breachEmailNotFound": {
+    "message": "在任何已知的外洩密碼資料庫中都找不到 $EMAIL$。",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3087,10 @@
     "message": "好消息！",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "$USERNAME$ 在不同的外洩密碼資料庫中找到了 $COUNT$ 次。",
+  "breachEmailFound": {
+    "message": "$EMAIL$ 在不同的外洩密碼資料庫中找到了 $COUNT$ 次。",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -3376,6 +3397,9 @@
   },
   "discount": {
     "message": "折扣"
+  },
+  "discountExpiredOnPurchase": {
+    "message": "Discount expired. Please review your cart total and try again."
   },
   "downloadLicense": {
     "message": "下載授權證"
@@ -3783,6 +3807,15 @@
   },
   "policies": {
     "message": "原則"
+  },
+  "dataControls": {
+    "message": "Data controls"
+  },
+  "authentication": {
+    "message": "Authentication"
+  },
+  "vaultManagement": {
+    "message": "Vault management"
   },
   "singleSignOn": {
     "message": "單一登入"
@@ -6465,6 +6498,14 @@
     "message": "驗證您的電子郵件以檢視此 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Didn't receive a code? Contact the sender to confirm your email address or ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Resent verification code",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "建立此 Send 的 Bitwarden 使用者已選擇隱藏他們的電子郵件地址。在使用或下載此連結的內容之前，應確保您信任此連結的來源。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -8310,6 +8351,9 @@
   "members": {
     "message": "成員"
   },
+  "membersAtRisk": {
+    "message": "高風險成員"
+  },
   "reporting": {
     "message": "回報"
   },
@@ -8580,6 +8624,14 @@
   "newProject": {
     "message": "新增專案",
     "description": "Title for creating a new project."
+  },
+  "clickToRenameProject": {
+    "message": "點擊以重新命名此專案",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "無法解密專案名稱 — 點擊專案以重新命名",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
     "message": "刪除機密可能會影響現有的整合。",
@@ -11046,6 +11098,9 @@
   "clientDetails": {
     "message": "客戶端詳細資訊"
   },
+  "downloadChart": {
+    "message": "下載圖表"
+  },
   "downloadCSV": {
     "message": "下載 CSV"
   },
@@ -11498,6 +11553,18 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "使用者 $ID$ 已自行撤銷其組織存取權。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "userSelfRevokedOrganizationOwnership": {
+    "message": "因拒絕轉移至組織擁有權而遭撤銷。"
+  },
   "suspendedOrganizationTitle": {
     "message": "$ORGANIZATION$ 已被停用",
     "placeholders": {
@@ -11881,6 +11948,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "未受信任的加密金鑰"
+  },
+  "atRiskPassword": {
+    "message": "有風險的密碼"
   },
   "changeAtRiskPassword": {
     "message": "變更有風險的密碼"
@@ -12551,12 +12621,6 @@
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "在啟用此原則前，必須先宣告網域。"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "設定解鎖方式以變更您的密碼庫逾時行為。"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "企業政策已套用至您的逾時選項中"
-  },
   "vaultTimeoutTooLarge": {
     "message": "您的密碼庫逾時時間超過組織設定的限制。"
   },
@@ -12755,8 +12819,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ 為了安全性與合規性，要求所有項目皆由組織擁有。點擊接受即可轉移您項目的擁有權。",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ 為了安全與合規要求，要求所有項目必須由組織擁有。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12764,14 +12828,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "點擊「接受」以轉移您項目的擁有權。"
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "開啟關於轉移項目的說明文章"
+  },
   "acceptTransfer": {
     "message": "同意轉移"
   },
   "declineAndLeave": {
     "message": "拒絕並離開"
-  },
-  "whyAmISeeingThis": {
-    "message": "為什麼我會看到此訊息？"
   },
   "youHaveBitwardenPremium": {
     "message": "您已擁有 Bitwarden 進階版"
@@ -12922,9 +12989,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "請以逗號分隔輸入多個電子郵件地址。"
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "電子郵件驗證至少需要一個電子郵件地址。若要移除所有電子郵件，請變更上方的存取類型。"
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -13032,6 +13096,70 @@
       "date": {
         "content": "$2",
         "example": "Jan 1, 1970"
+      }
+    }
+  },
+  "sendsTitleNoSearchResults": {
+    "message": "沒有搜尋結果"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "清除過濾器或更換另一個搜尋條件"
+  },
+  "pastMonth": {
+    "message": "過去一個月"
+  },
+  "past3Months": {
+    "message": "過去三個月"
+  },
+  "past6Months": {
+    "message": "過去六個月"
+  },
+  "pastYear": {
+    "message": "過去一年"
+  },
+  "allTime": {
+    "message": "全部時間"
+  },
+  "timePeriod": {
+    "message": "時間區間"
+  },
+  "of": {
+    "message": "／"
+  },
+  "coachmarkImportTitle": {
+    "message": "快速匯入您的密碼"
+  },
+  "coachmarkImportDescription": {
+    "message": "您之前是否使用過密碼管理器？您可以將包含現有登入資訊及其他資料的 CSV 匯入到您的保管庫中。"
+  },
+  "coachmarkAddItemTitle": {
+    "message": "新增項目"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "將新的密碼、筆記及其他資訊加入您的保管庫。所有資料皆由端對端加密保護。"
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "安全地與他人分享項目"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "將項目移入集合後，您可以安全地與組織中的其他人共享該項目。"
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "監控您的密碼安全"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "透過檢查報告中的漏洞來保持您的保管庫項目安全。"
+  },
+  "coachmarkStepIndicator": {
+    "message": "步驟 $CURRENT$ / $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
       }
     }
   }

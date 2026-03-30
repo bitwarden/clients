@@ -7,11 +7,11 @@ import { of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -24,6 +24,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { TaskService } from "@bitwarden/common/vault/tasks";
@@ -95,6 +96,12 @@ describe("VaultItemDialogComponent", () => {
         { provide: MessagingService, useValue: {} },
         { provide: LogService, useValue: {} },
         { provide: CipherService, useValue: {} },
+        {
+          provide: VaultSettingsService,
+          useValue: mock<VaultSettingsService>({
+            showAtRiskPasswordNotifications$: of(true),
+          }),
+        },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "UserId" }) } },
         {
           provide: ConfigService,
@@ -118,7 +125,6 @@ describe("VaultItemDialogComponent", () => {
           provide: CipherArchiveService,
           useValue: {
             userCanArchive$: jest.fn().mockReturnValue(of(true)),
-            hasArchiveFlagEnabled$: of(true),
             archiveWithServer: jest.fn().mockResolvedValue({}),
             unarchiveWithServer: jest.fn().mockResolvedValue({}),
           },
@@ -404,7 +410,7 @@ describe("VaultItemDialogComponent", () => {
     });
 
     it("refocuses the dialog header", async () => {
-      const focusOnHeaderSpy = jest.spyOn(component["dialogComponent"](), "handleAutofocus");
+      const focusOnHeaderSpy = jest.spyOn(component["dialogComponent"](), "focusHeader");
 
       await component["changeMode"]("view");
 

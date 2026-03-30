@@ -1,11 +1,10 @@
 @if (show()) {
   <bit-nav-group
-    icon="bwi-filter"
+    icon="bwi-grid"
     (click)="applyAllVaultsFilter()"
     [text]="'allVaults' | i18n"
     [attr.aria-pressed]="!activeFilter()?.selectedOrganizationNode"
     [appA11yTitle]="'allVaults' | i18n"
-    variant="tree"
     [open]="true"
     [forceActiveStyles]="!activeFilter()?.selectedOrganizationNode"
     [disableToggleOnClick]="true"

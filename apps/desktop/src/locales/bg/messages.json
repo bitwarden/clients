@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "За да се възползвате от тази възможност, трябва да ползвате платен абонамент."
   },
+  "syncWithBrowser": {
+    "message": "Синхронизиране с браузъра"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "За да се свържете с $VAULTURL$, трябва да синхронизирате браузъра си по подразбиране с приложението на Битуорден. След като синхронизацията приключи, ще бъдете прехвърлени обратно в това приложение.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Стартиране на браузъра"
+  },
   "errorOccurred": {
     "message": "Възникна грешка."
   },
@@ -905,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Подсказка за главната парола"
   },
+  "masterPasswordChanged": {
+    "message": "Главната парола е запазена"
+  },
   "passwordStrengthScore": {
     "message": "Оценка на сложността на паролата: $SCORE$",
     "placeholders": {
@@ -1196,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Новите препоръчани настройки за шифроване ще подобрят сигурността на акаунта Ви. Въведете главната си парола, за да ги обновите сега."
   },
+  "rotateAccountEncKey": {
+    "message": "Ключът за шифриране на акаунта ми също да се смени"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Последствия от обновяването на ключа за шифриране"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "В трезора ви има стари прикачени файлове. Те трябва да бъдат поправени, за да можете да смените ключа за шифриране на акаунта си."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Смяна на ключа за шифриране"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Наистина ли искате да смените ключа за шифрирането на акаунта си?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "След смяната на ключа за шифриране ще трябва да се отпишете и след това да се впишете отново във всички приложения на Битуорден, които ползвате (като мобилното приложение и разширенията за браузъри). Ако не се отпишете и впишете повторно (за да получите достъп до новия ключ), рискувате да повредите записите си. Сега ще се направи опит да бъдете отписан(а) автоматично. Това, обаче, може да стане малко по-бавно."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Всички изнасяния ограничени от акаунта, които сте запазили, ще станат невалидни."
+  },
   "confirmIdentityToContinue": {
     "message": "Потвърдете самоличността си, за да продължите"
   },
@@ -1280,6 +1320,9 @@
   "changeMasterPass": {
     "message": "Промяна на главната парола"
   },
+  "changeMasterPassword": {
+    "message": "Промяна на главната парола"
+  },
   "continueToWebApp": {
     "message": "Продължаване към уеб приложението?"
   },
@@ -1358,17 +1401,11 @@
   "twoStepLogin": {
     "message": "Двустепенно удостоверяване"
   },
-  "vaultTimeoutHeader": {
-    "message": "Време за достъп до трезора"
-  },
   "vaultTimeout": {
     "message": "Време за достъп"
   },
   "vaultTimeout1": {
     "message": "Време за достъп"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Действие при изтичането на времето за достъп"
   },
   "vaultTimeoutDesc": {
     "message": "Изберете колко да е времето за достъп и какво ще е действието след това."
@@ -1658,6 +1695,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "месец"
+  },
+  "monthly": {
+    "message": "Месечно"
+  },
+  "year": {
+    "message": "година"
+  },
+  "annually": {
+    "message": "Годишно"
+  },
+  "annual": {
+    "message": "Годишно"
   },
   "refreshComplete": {
     "message": "Абонаментът е опреснен"
@@ -2089,9 +2141,6 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "При изход от трезора ще ви се наложи отново да се идентифицирате, за да го достъпите."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Задайте метод за отключване, за да може да промените действието при изтичане на времето за достъп до трезора."
-  },
   "lock": {
     "message": "Заключване",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2274,6 +2323,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Паролата ви не отговаря на политиките."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Поне една политика на организация има следните изисквания към главната парола:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Получавайте съвети, обявления и предложения за участие в проучвания от Битуорден в пощенската си кутия."
@@ -2709,9 +2761,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Времето за достъп до трезора Ви превишава ограничението, определено от организацията Ви."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Изискванията на политиката за големи компании бяха приложени към настройките на времето за достъп"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Настройките на организацията Ви са задали максималното разрешено време за достъп до трезора на $HOURS$ час(а) и $MINUTES$ минута/и.",
@@ -3745,6 +3794,9 @@
   "exportSuccess": {
     "message": "Данните от трезора са изнесени"
   },
+  "exportError": {
+    "message": "Възникна грешка при изнасянето на данните от трезора"
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Многостъпковото удостоверяване е отменено"
   },
@@ -4617,8 +4669,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ изисква всички елементи да станат притежание на организацията, за по-добра сигурност и съвместимост. Изберете, че приемате, за да прехвърлите собствеността на елементите си към организацията.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ изисква всички данни да бъдат притежание на организацията, с цел сигурност и съгласуваност.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4678,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Натиснете бутона за приемане, за да прехвърлите собствеността на данните си."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Отваряне на помощната информация относно прехвърлянето на данни"
+  },
   "acceptTransfer": {
     "message": "Приемане на прехвърлянето"
   },
   "declineAndLeave": {
     "message": "Отказване и напускане"
-  },
-  "whyAmISeeingThis": {
-    "message": "Защо виждам това?"
   },
   "organizationIsSuspended": {
     "message": "Организацията е с преустановен достъп"
@@ -4692,9 +4747,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Можете да въведете повече е-пощи, като ги разделите със запетая."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Потвърждаването на е-пощата изисква да е наличен поне един адрес на е-поща. Ако искате да премахнете всички е-пощи, променете начина за достъп по-горе."
   },
   "emailPlaceholder": {
     "message": "потребител@bitwarden.com , потребител@acme.com"

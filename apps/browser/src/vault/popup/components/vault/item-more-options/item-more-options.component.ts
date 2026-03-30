@@ -129,8 +129,6 @@ export class ItemMoreOptionsComponent {
     }),
   );
 
-  protected showArchive$: Observable<boolean> = this.cipherArchiveService.hasArchiveFlagEnabled$;
-
   protected canArchive$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId)),
@@ -234,7 +232,7 @@ export class ItemMoreOptionsComponent {
     const ref = AutofillConfirmationDialogComponent.open(this.dialogService, {
       data: {
         currentUrl: currentTab?.url || "",
-        savedUrls: cipher.login?.uris?.filter((u) => u.uri).map((u) => u.uri!) ?? [],
+        savedUris: cipher.login?.uris?.filter((u) => u.uri) ?? [],
         viewOnly: !this.cipher.edit,
       },
     });

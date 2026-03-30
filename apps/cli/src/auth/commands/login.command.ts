@@ -5,7 +5,7 @@ import * as http from "http";
 import { OptionValues } from "commander";
 import * as inquirer from "inquirer";
 import Separator from "inquirer/lib/objects/separator";
-import { firstValueFrom, map } from "rxjs";
+import { filter, firstValueFrom } from "rxjs";
 
 import {
   LoginStrategyServiceAbstraction,
@@ -15,23 +15,20 @@ import {
   UserApiLoginCredentials,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
-import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import {
+  isTwoFactorProviderType,
+  TwoFactorProviderType,
+} from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
-import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
 import { TwoFactorService, TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
 import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -40,17 +37,15 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
 import { ConfirmKeyConnectorDomainCommand } from "../../key-management/confirm-key-connector-domain.command";
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
+import { firstValueFromOrNull } from "../../utils";
 
 export class LoginCommand {
   protected canInteract: boolean;
@@ -64,22 +59,15 @@ export class LoginCommand {
     protected loginStrategyService: LoginStrategyServiceAbstraction,
     protected authService: AuthService,
     protected twoFactorApiService: TwoFactorApiService,
-    protected masterPasswordApiService: MasterPasswordApiService,
     protected cryptoFunctionService: CryptoFunctionService,
     protected environmentService: EnvironmentService,
     protected passwordGenerationService: PasswordGenerationServiceAbstraction,
-    protected passwordStrengthService: PasswordStrengthServiceAbstraction,
     protected platformUtilsService: PlatformUtilsService,
     protected accountService: AccountService,
-    protected keyService: KeyService,
-    protected policyService: PolicyService,
     protected twoFactorService: TwoFactorService,
     protected syncService: SyncService,
     protected keyConnectorService: KeyConnectorService,
-    protected policyApiService: PolicyApiServiceAbstraction,
-    protected orgService: OrganizationService,
     protected logoutCallback: () => Promise<void>,
-    protected kdfConfigService: KdfConfigService,
     protected ssoUrlService: SsoUrlService,
     protected i18nService: I18nService,
     protected masterPasswordService: MasterPasswordServiceAbstraction,
@@ -173,7 +161,12 @@ export class LoginCommand {
     let twoFactorMethod: TwoFactorProviderType = null;
     try {
       if (options.method != null) {
-        twoFactorMethod = parseInt(options.method, null);
+        const parsed = parseInt(options.method, 10);
+        if (isTwoFactorProviderType(parsed)) {
+          twoFactorMethod = parsed;
+        } else {
+          return Response.error("Invalid two-step login method.");
+        }
       }
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -390,19 +383,38 @@ export class LoginCommand {
         }
       }
 
+      // Guard against race condition: active account and auth state observables may lag
+      // behind state writes. Await them here to let state propagate before fullSync reads them.
+      await firstValueFromOrNull(
+        this.accountService.activeAccount$.pipe(
+          filter((account) => account?.id === response.userId),
+        ),
+      );
+      await firstValueFromOrNull(
+        this.authService
+          .authStatusFor$(response.userId)
+          .pipe(filter((status) => status !== AuthenticationStatus.LoggedOut)),
+      );
+
       // Run full sync before handling success response or password reset flows (to get Master Password Policies)
       await this.syncService.fullSync(true, { skipTokenRefresh: true });
 
-      // Handle updating passwords if NOT using an API Key for authentication
+      // If the user's password is out of compliance, log them out and direct them to the web app.
       if (clientId == null && clientSecret == null) {
         const forceSetPasswordReason = await firstValueFrom(
           this.masterPasswordService.forceSetPasswordReason$(response.userId),
         );
 
         if (forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset) {
-          return await this.updateTempPassword(response.userId);
+          await this.logoutCallback();
+          return Response.error(
+            "An organization administrator recently changed your master password. In order to access the vault, you must update your master password now via the web app. You have been logged out.",
+          );
         } else if (forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) {
-          return await this.updateWeakPassword(response.userId, password);
+          await this.logoutCallback();
+          return Response.error(
+            "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now via the web app. You have been logged out.",
+          );
         }
       }
 
@@ -459,217 +471,6 @@ export class LoginCommand {
     );
     res.raw = process.env.BW_SESSION;
     return Response.success(res);
-  }
-
-  private async handleUpdatePasswordSuccessResponse(): Promise<Response> {
-    await this.logoutCallback();
-    this.authService.logOut(() => {
-      /* Do nothing */
-    });
-
-    const res = new MessageResponse(
-      "Your master password has been updated!",
-      "\n" + "You have been logged out and must log in again to access the vault.",
-    );
-
-    return Response.success(res);
-  }
-
-  private async updateWeakPassword(userId: UserId, currentPassword: string) {
-    // If no interaction available, alert user to use web vault
-    if (!this.canInteract) {
-      await this.logoutCallback();
-      this.authService.logOut(() => {
-        /* Do nothing */
-      });
-      return Response.error(
-        new MessageResponse(
-          "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now via the web vault. You have been logged out.",
-          null,
-        ),
-      );
-    }
-
-    try {
-      const { newPasswordHash, newUserKey, hint } = await this.collectNewMasterPasswordDetails(
-        userId,
-        "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now.",
-      );
-
-      const request = new PasswordRequest();
-      const masterKey = await this.keyService.getOrDeriveMasterKey(currentPassword, userId);
-      request.masterPasswordHash = await this.keyService.hashMasterKey(currentPassword, masterKey);
-      request.masterPasswordHint = hint;
-      request.newMasterPasswordHash = newPasswordHash;
-      request.key = newUserKey[1].encryptedString;
-
-      await this.masterPasswordApiService.postPassword(request);
-
-      return await this.handleUpdatePasswordSuccessResponse();
-    } catch (e) {
-      await this.logoutCallback();
-      this.authService.logOut(() => {
-        /* Do nothing */
-      });
-      return Response.error(e);
-    }
-  }
-
-  private async updateTempPassword(userId: UserId) {
-    // If no interaction available, alert user to use web vault
-    if (!this.canInteract) {
-      await this.logoutCallback();
-      this.authService.logOut(() => {
-        /* Do nothing */
-      });
-      return Response.error(
-        new MessageResponse(
-          "An organization administrator recently changed your master password. In order to access the vault, you must update your master password now via the web vault. You have been logged out.",
-          null,
-        ),
-      );
-    }
-
-    try {
-      const { newPasswordHash, newUserKey, hint } = await this.collectNewMasterPasswordDetails(
-        userId,
-        "An organization administrator recently changed your master password. In order to access the vault, you must update your master password now.",
-      );
-
-      const request = new UpdateTempPasswordRequest();
-      request.key = newUserKey[1].encryptedString;
-      request.newMasterPasswordHash = newPasswordHash;
-      request.masterPasswordHint = hint;
-
-      await this.masterPasswordApiService.putUpdateTempPassword(request);
-
-      return await this.handleUpdatePasswordSuccessResponse();
-    } catch (e) {
-      await this.logoutCallback();
-      this.authService.logOut(() => {
-        /* Do nothing */
-      });
-      return Response.error(e);
-    }
-  }
-
-  /**
-   * Collect new master password and hint from the CLI. The collected password
-   * is validated against any applicable master password policies, a new master
-   * key is generated, and we use it to re-encrypt the user key
-   * @param userId - User ID of the account
-   * @param prompt - Message that is displayed during the initial prompt
-   * @param error
-   */
-  private async collectNewMasterPasswordDetails(
-    userId: UserId,
-    prompt: string,
-    error?: string,
-  ): Promise<{
-    newPasswordHash: string;
-    newUserKey: [SymmetricCryptoKey, EncString];
-    hint?: string;
-  }> {
-    if (this.email == null || this.email === "undefined") {
-      this.email = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.email)),
-      );
-    }
-
-    // Get New Master Password
-    const baseMessage = `${prompt}\n` + "Master password: ";
-    const firstMessage = error != null ? error + baseMessage : baseMessage;
-    const mp: inquirer.Answers = await inquirer.createPromptModule({ output: process.stderr })({
-      type: "password",
-      name: "password",
-      message: firstMessage,
-    });
-    const masterPassword = mp.password;
-
-    // Master Password Validation
-    if (masterPassword == null || masterPassword === "") {
-      return this.collectNewMasterPasswordDetails(userId, prompt, "Master password is required.\n");
-    }
-
-    if (masterPassword.length < Utils.minimumPasswordLength) {
-      return this.collectNewMasterPasswordDetails(
-        userId,
-        prompt,
-        `Master password must be at least ${Utils.minimumPasswordLength} characters long.\n`,
-      );
-    }
-
-    // Strength & Policy Validation
-    const strengthResult = this.passwordStrengthService.getPasswordStrength(
-      masterPassword,
-      this.email,
-    );
-
-    const enforcedPolicyOptions = await firstValueFrom(
-      this.policyService.masterPasswordPolicyOptions$(userId),
-    );
-
-    // Verify master password meets policy requirements
-    if (
-      enforcedPolicyOptions != null &&
-      !this.policyService.evaluateMasterPassword(
-        strengthResult.score,
-        masterPassword,
-        enforcedPolicyOptions,
-      )
-    ) {
-      return this.collectNewMasterPasswordDetails(
-        userId,
-        prompt,
-        "Your new master password does not meet the policy requirements.\n",
-      );
-    }
-
-    // Get New Master Password Re-type
-    const reTypeMessage = "Re-type New Master password (Strength: " + strengthResult.score + ")";
-    const retype: inquirer.Answers = await inquirer.createPromptModule({ output: process.stderr })({
-      type: "password",
-      name: "password",
-      message: reTypeMessage,
-    });
-    const masterPasswordRetype = retype.password;
-
-    // Re-type Validation
-    if (masterPassword !== masterPasswordRetype) {
-      return this.collectNewMasterPasswordDetails(
-        userId,
-        prompt,
-        "Master password confirmation does not match.\n",
-      );
-    }
-
-    // Get Hint (optional)
-    const hint: inquirer.Answers = await inquirer.createPromptModule({ output: process.stderr })({
-      type: "input",
-      name: "input",
-      message: "Master Password Hint (optional):",
-    });
-    const masterPasswordHint = hint.input;
-    const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
-
-    // Create new key and hash new password
-    const newMasterKey = await this.keyService.makeMasterKey(
-      masterPassword,
-      this.email.trim().toLowerCase(),
-      kdfConfig,
-    );
-    const newPasswordHash = await this.keyService.hashMasterKey(masterPassword, newMasterKey);
-
-    // Grab user key
-    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-    if (!userKey) {
-      throw new Error("User key not found.");
-    }
-
-    // Re-encrypt user key with new master key
-    const newUserKey = await this.keyService.encryptUserKeyWithMasterKey(newMasterKey, userKey);
-
-    return { newPasswordHash, newUserKey: newUserKey, hint: masterPasswordHint };
   }
 
   private async apiClientId(): Promise<string> {
