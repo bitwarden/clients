@@ -123,7 +123,6 @@ describe("VaultItemDialogComponent", () => {
           provide: CipherArchiveService,
           useValue: {
             userCanArchive$: jest.fn().mockReturnValue(of(true)),
-            hasArchiveFlagEnabled$: of(true),
             archiveWithServer: jest.fn().mockResolvedValue({}),
             unarchiveWithServer: jest.fn().mockResolvedValue({}),
           },
