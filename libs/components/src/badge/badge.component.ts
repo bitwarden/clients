@@ -128,7 +128,7 @@ export class BadgeComponent {
   readonly truncate = input(true);
 
   /**
-   * Tailwind max-width class to apply to constrain badge width.
+   * Tailwind max-width class to apply to constrain badge content width.
    * Must be a valid Tailwind max-width utility class (e.g., "tw-max-w-40", "tw-max-w-xs").
    *
    * @default `tw-max-w-[calc(25ch_-_theme(spacing.2))]`
