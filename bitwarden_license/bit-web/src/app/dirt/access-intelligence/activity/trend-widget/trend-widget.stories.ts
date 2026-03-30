@@ -27,7 +27,7 @@ const selectedTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
 const systemTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
 
 export default {
-  title: "Web/Access Intelligence/Trend Widget",
+  title: "DIRT/Access Intelligence/Trend Widget",
   component: TrendWidgetComponent,
   decorators: [
     componentWrapperDecorator(

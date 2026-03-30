@@ -24,7 +24,10 @@
           {{ "downloadCSV" | i18n }}
         </button>
         <ng-container>
-          <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
+          <div
+            class="tw-flex tw-justify-between tw-mt-2 tw-text-muted"
+            data-testid="at-risk-header"
+          >
             <div bitTypography="body2" class="tw-text-sm tw-font-bold">
               {{ "email" | i18n }}
             </div>
@@ -33,7 +36,10 @@
             </div>
           </div>
           @for (member of drawerDetails.atRiskMemberDetails; track member.email) {
-            <div class="tw-flex tw-justify-between tw-mt-2">
+            <div
+              class="tw-flex tw-justify-between tw-mt-2"
+              [attr.data-testid]="'at-risk-row-' + $index"
+            >
               <div>{{ member.email }}</div>
               <div>{{ member.atRiskPasswordCount }}</div>
             </div>
@@ -63,7 +69,7 @@
       </div>
       <div class="tw-mt-1">
         @for (member of drawerDetails.appAtRiskMembers?.members; track $index) {
-          <div>{{ member.email }}</div>
+          <div [attr.data-testid]="'at-risk-row-' + $index">{{ member.email }}</div>
         }
       </div>
     </ng-container>
@@ -95,7 +101,10 @@
             <i class="bwi bwi-download tw-mr-1"></i>
             {{ "downloadCSV" | i18n }}
           </button>
-          <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
+          <div
+            class="tw-flex tw-justify-between tw-mt-2 tw-text-muted"
+            data-testid="at-risk-header"
+          >
             <div bitTypography="body2" class="tw-text-sm tw-font-bold">
               {{ "application" | i18n }}
             </div>
@@ -104,7 +113,10 @@
             </div>
           </div>
           @for (app of drawerDetails.atRiskAppDetails; track app.applicationName) {
-            <div class="tw-flex tw-justify-between tw-mt-2">
+            <div
+              class="tw-flex tw-justify-between tw-mt-2"
+              [attr.data-testid]="'at-risk-row-' + $index"
+            >
               <div>{{ app.applicationName }}</div>
               <div>{{ app.atRiskPasswordCount }}</div>
             </div>
