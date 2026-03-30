@@ -29,12 +29,12 @@ export class ReportAutofillIssueComponent implements OnInit {
   protected readonly MAX_USER_MESSAGE_LENGTH = 200;
   protected readonly MAX_REPORT_DATA_BYTES = 51200;
 
-  protected readonly triageResult = signal<AutofillTriagePageResult | null>(null);
-  protected readonly showDetail = signal(false);
-  protected readonly userMessage = signal("");
-  protected readonly isSending = signal(false);
-  protected readonly errorMessage = signal<string | null>(null);
-  protected readonly isSuccess = signal(false);
+  readonly triageResult = signal<AutofillTriagePageResult | null>(null);
+  readonly showDetail = signal(false);
+  readonly userMessage = signal("");
+  readonly isSending = signal(false);
+  readonly errorMessage = signal<string | null>(null);
+  readonly isSuccess = signal(false);
 
   private readonly apiService = inject(ApiService);
 
@@ -42,21 +42,25 @@ export class ReportAutofillIssueComponent implements OnInit {
     chrome.runtime.sendMessage(
       { command: "getAutofillIssueReportResult" },
       (response: AutofillTriagePageResult | null) => {
+        if (chrome.runtime.lastError) {
+          this.errorMessage.set("autofillReportLoadError");
+          return;
+        }
         this.triageResult.set(response);
       },
     );
   }
 
-  protected toggleDetail() {
+  toggleDetail() {
     this.showDetail.update((v) => !v);
   }
 
-  protected onUserMessageInput(event: Event) {
+  onUserMessageInput(event: Event) {
     const value = (event.target as HTMLTextAreaElement).value;
     this.userMessage.set(value);
   }
 
-  protected async sendReport() {
+  async sendReport() {
     const result = this.triageResult();
     if (!result) {
       return;
@@ -88,7 +92,7 @@ export class ReportAutofillIssueComponent implements OnInit {
     }
   }
 
-  protected cancel() {
+  cancel() {
     window.close();
   }
 }

@@ -13,6 +13,7 @@ import {
   COPY_VERIFICATION_CODE_ID,
   GENERATE_PASSWORD_ID,
   NOOP_COMMAND_SUFFIX,
+  REPORT_AUTOFILL_ISSUE_ID,
 } from "@bitwarden/common/autofill/constants";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -396,6 +397,77 @@ describe("ContextMenuClickedHandler", () => {
         await sut.run(createData(AUTOFILL_TRIAGE_ID), mockTab);
 
         expect(BrowserPopupUtils.openPopout).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("report autofill issue", () => {
+      const mockTab = { id: 42, url: "https://example.com", windowId: 1 } as chrome.tabs.Tab;
+      const mockPageDetails = { fields: [] } as unknown as AutofillPageDetails;
+      const mockTriageResult: AutofillTriageFieldResult = {
+        htmlId: "test-field",
+        eligible: true,
+        qualifiedAs: "login",
+        conditions: [],
+      };
+
+      beforeEach(() => {
+        jest
+          .spyOn(BrowserApi, "sendTabsMessage")
+          .mockImplementation((_tabId, _message, _options, callback?: (response: any) => void) => {
+            callback?.({ pageDetails: mockPageDetails });
+          });
+        jest.spyOn(BrowserPopupUtils, "openPopout").mockResolvedValue(undefined);
+        triageService.triageField.mockReturnValue(mockTriageResult);
+      });
+
+      it("sends collectAutofillTriage to the tab and stores the result", async () => {
+        await sut.run(createData(REPORT_AUTOFILL_ISSUE_ID), mockTab);
+
+        expect(BrowserApi.sendTabsMessage).toHaveBeenCalledWith(
+          mockTab.id,
+          { command: "collectAutofillTriage", targetElementId: undefined },
+          { frameId: undefined },
+          expect.any(Function),
+        );
+        expect(sut.latestIssueReportResult).not.toBeUndefined();
+        expect(sut.latestIssueReportResult?.tabId).toBe(mockTab.id);
+        expect(sut.latestIssueReportResult?.pageUrl).toBe(mockTab.url);
+      });
+
+      it("opens the report autofill issue popout after collecting results", async () => {
+        await sut.run(createData(REPORT_AUTOFILL_ISSUE_ID), mockTab);
+
+        expect(BrowserPopupUtils.openPopout).toHaveBeenCalledWith(
+          "popup/index.html#/report-autofill-issue",
+          expect.objectContaining({ singleActionKey: REPORT_AUTOFILL_ISSUE_ID }),
+        );
+      });
+
+      it("does not open popout when tab has no id", async () => {
+        const tabWithoutId = { url: "https://example.com" } as chrome.tabs.Tab;
+
+        await sut.run(createData(REPORT_AUTOFILL_ISSUE_ID), tabWithoutId);
+
+        expect(BrowserPopupUtils.openPopout).not.toHaveBeenCalled();
+      });
+
+      it("does not open popout when page details collection fails", async () => {
+        jest
+          .spyOn(BrowserApi, "sendTabsMessage")
+          .mockImplementation((_tabId, _message, _options, callback?: (response: any) => void) => {
+            callback?.(null);
+          });
+
+        await sut.run(createData(REPORT_AUTOFILL_ISSUE_ID), mockTab);
+
+        expect(BrowserPopupUtils.openPopout).not.toHaveBeenCalled();
+      });
+
+      it("stores result to latestIssueReportResult independently from latestTriageResult", async () => {
+        await sut.run(createData(REPORT_AUTOFILL_ISSUE_ID), mockTab);
+
+        expect(sut.latestIssueReportResult).not.toBeUndefined();
+        expect(sut.latestTriageResult).toBeUndefined();
       });
     });
   });

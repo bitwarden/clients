@@ -6279,6 +6279,9 @@
   "autofillReportSuccess": {
     "message": "Report sent. Thank you!"
   },
+  "autofillReportLoadError": {
+    "message": "Unable to load autofill report data. Please try again."
+  },
   "autofillReportError": {
     "message": "Failed to send report. Please try again."
   },

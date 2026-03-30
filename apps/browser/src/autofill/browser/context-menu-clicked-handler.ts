@@ -259,26 +259,12 @@ export class ContextMenuClickedHandler {
   }
 
   private async autofillTriageAction(info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) {
-    if (!tab.id) {
+    const result = await this.buildTriagePageResult(info, tab);
+    if (!result) {
       return;
     }
 
-    const response = await this.collectPageDetailsForTriage(tab, info);
-    if (!response) {
-      return;
-    }
-
-    const fields = response.pageDetails.fields.map((field) =>
-      this.triageService.triageField(field, response.pageDetails),
-    );
-
-    this.latestTriageResult = {
-      tabId: tab.id,
-      pageUrl: tab.url ?? "",
-      analyzedAt: new Date().toISOString(),
-      targetElementRef: response.targetFieldRef,
-      fields,
-    };
+    this.latestTriageResult = result;
 
     await BrowserPopupUtils.openPopout("popup/index.html#/autofill-triage", {
       singleActionKey: AUTOFILL_TRIAGE_ID,
@@ -290,31 +276,43 @@ export class ContextMenuClickedHandler {
     info: chrome.contextMenus.OnClickData,
     tab: chrome.tabs.Tab,
   ) {
-    if (!tab.id) {
+    const result = await this.buildTriagePageResult(info, tab);
+    if (!result) {
       return;
+    }
+
+    this.latestIssueReportResult = result;
+
+    await BrowserPopupUtils.openPopout("popup/index.html#/report-autofill-issue", {
+      singleActionKey: REPORT_AUTOFILL_ISSUE_ID,
+      senderWindowId: tab.windowId,
+    });
+  }
+
+  private async buildTriagePageResult(
+    info: chrome.contextMenus.OnClickData,
+    tab: chrome.tabs.Tab,
+  ): Promise<AutofillTriagePageResult | null> {
+    if (!tab.id) {
+      return null;
     }
 
     const response = await this.collectPageDetailsForTriage(tab, info);
     if (!response) {
-      return;
+      return null;
     }
 
     const fields = response.pageDetails.fields.map((field) =>
       this.triageService.triageField(field, response.pageDetails),
     );
 
-    this.latestIssueReportResult = {
+    return {
       tabId: tab.id,
       pageUrl: tab.url ?? "",
       analyzedAt: new Date().toISOString(),
       targetElementRef: response.targetFieldRef,
       fields,
     };
-
-    await BrowserPopupUtils.openPopout("popup/index.html#/report-autofill-issue", {
-      singleActionKey: REPORT_AUTOFILL_ISSUE_ID,
-      senderWindowId: tab.windowId,
-    });
   }
 
   private collectPageDetailsForTriage(
