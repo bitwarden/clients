@@ -6200,7 +6200,7 @@
     "message": "Enter multiple emails by separating with a comma."
   },
   "emailPlaceholder": {
-    "message": "user@bitwarden.com , user@acme.com"
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Download Bitwarden apps"
