@@ -218,6 +218,36 @@ describe("OverlayNotificationsContentService", () => {
         overlayNotificationsContentService["extensionOrigin"],
       );
     });
+
+    it("re-initializes an already open notification bar with fresh init data", async () => {
+      const openChangeNotificationBar = (cipherId: string) =>
+        sendMockExtensionMessage({
+          command: "openNotificationBar",
+          data: {
+            type: NotificationType.ChangePassword,
+            typeData: mock<NotificationTypeData>(),
+            params: { cipherId },
+          },
+        });
+
+      openChangeNotificationBar("site-a-cipher");
+      await flushPromises();
+
+      postMessageSpy.mockClear();
+
+      openChangeNotificationBar("site-b-cipher");
+      await flushPromises();
+
+      expect(postMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          command: "initNotificationBar",
+          initData: expect.objectContaining({
+            params: expect.objectContaining({ cipherId: "site-b-cipher" }),
+          }),
+        }),
+        overlayNotificationsContentService["extensionOrigin"],
+      );
+    });
   });
 
   describe("closing the notification bar", () => {
