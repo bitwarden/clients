@@ -68,7 +68,7 @@ export class WebVaultPromptService {
     MultiStepPolicyEditDialogComponent.open(this.dialogService, {
       data: {
         policy: new AutoConfirmPolicy(true),
-        organizationId: organization.id,
+        organization: organization,
       },
     });
   }

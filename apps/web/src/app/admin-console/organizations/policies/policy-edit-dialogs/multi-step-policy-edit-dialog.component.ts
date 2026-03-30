@@ -62,9 +62,10 @@ export class MultiStepPolicyEditDialogComponent
         if (stepConfig?.disableSave) {
           return stepConfig.disableSave;
         }
-        if (this.policyComponent?.data) {
-          return this.policyComponent.data.statusChanges.pipe(
-            startWith(this.policyComponent.data.status),
+        const policyComponent = this.policyComponent();
+        if (policyComponent?.data) {
+          return policyComponent.data.statusChanges.pipe(
+            startWith(policyComponent.data.status),
             map((status) => status !== "VALID"),
           );
         }
@@ -100,7 +101,7 @@ export class MultiStepPolicyEditDialogComponent
 
   override async ngAfterViewInit() {
     const policyResponse = await this.load();
-    this.loading = false;
+    this.loading.set(false);
 
     const policyFormRef = this.policyFormViewRef();
     if (!policyFormRef) {
@@ -108,22 +109,21 @@ export class MultiStepPolicyEditDialogComponent
     }
 
     // Create the policy component instance
-    const policyComponentRef = policyFormRef.createComponent(this.data.policy.component);
-    this.policyComponent = policyComponentRef.instance;
-
-    // Set inputs using ComponentRef API
-    policyComponentRef.setInput("policyResponse", policyResponse);
-    policyComponentRef.setInput("policy", this.data.policy);
-    policyComponentRef.setInput("currentStep", this.currentStep);
-    policyComponentRef.setInput("organizationId", this.data.organizationId);
+    const componentRef = policyFormRef.createComponent(this.data.policy.component);
+    componentRef.setInput("policyResponse", policyResponse);
+    componentRef.setInput("policy", this.data.policy);
+    componentRef.setInput("currentStep", this.currentStep);
+    componentRef.setInput("organizationId", this.data.organization.id);
+    const component = componentRef.instance;
+    this.policyComponent.set(component);
 
     // Read step configuration from child component.
     // Setting policySteps triggers currentStepConfig to recompute, which re-evaluates saveDisabled.
-    this.policySteps.set(this.policyComponent.policySteps ?? []);
+    this.policySteps.set(component.policySteps ?? []);
   }
 
   override readonly submit = async () => {
-    if (!this.policyComponent) {
+    if (!this.policyComponent()) {
       throw new Error("PolicyComponent not initialized.");
     }
 
