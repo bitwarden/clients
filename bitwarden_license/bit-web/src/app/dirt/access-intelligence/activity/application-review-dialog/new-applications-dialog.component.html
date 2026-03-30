@@ -1,4 +1,4 @@
-<bit-dialog [dialogSize]="'large'">
+<bit-dialog [dialogSize]="'large'" data-testid="new-applications-dialog">
   <span bitDialogTitle>
     {{
       currentView() === DialogView.SelectApplications
@@ -47,7 +47,7 @@
   </div>
 
   @if (currentView() === DialogView.SelectApplications) {
-    <ng-container bitDialogFooter>
+    <ng-container bitDialogFooter data-testid="select-applications-footer">
       <button
         type="button"
         bitButton
@@ -74,7 +74,7 @@
   }
   @if (currentView() == DialogView.AssignTasks) {
     <!-- Footer: Action Buttons -->
-    <ng-container bitDialogFooter>
+    <ng-container bitDialogFooter data-testid="assign-tasks-footer">
       <button
         type="button"
         bitButton
