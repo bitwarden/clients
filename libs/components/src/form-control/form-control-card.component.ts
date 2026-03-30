@@ -9,6 +9,7 @@ import {
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { IconComponent } from "../icon";
 import { IconTileComponent } from "../icon-tile";
 import { BitwardenIcon } from "../shared/icon";
 import { SwitchComponent } from "../switch";
@@ -30,7 +31,7 @@ import { BitHintDirective } from "./hint.directive";
   host: {
     class: "[&_bit-hint]:tw-leading-4 [&_bit-hint]:tw-mt-0",
   },
-  imports: [TypographyDirective, I18nPipe, IconTileComponent],
+  imports: [TypographyDirective, I18nPipe, IconTileComponent, IconComponent],
 })
 export class FormControlCardComponent {
   protected readonly icon = input<BitwardenIcon>();
