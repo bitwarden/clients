@@ -6,7 +6,9 @@ import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { Observable, of } from "rxjs";
 
+import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   SessionTimeoutAction,
   SessionTimeoutType,
@@ -14,6 +16,7 @@ import {
 import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogRef, DialogService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { SessionTimeoutConfirmationNeverComponent } from "./session-timeout-confirmation-never.component";
 import { SessionTimeoutPolicyComponent } from "./session-timeout.component";
@@ -47,7 +50,13 @@ describe("SessionTimeoutPolicyComponent", () => {
 
     const testBed = TestBed.configureTestingModule({
       imports: [SessionTimeoutPolicyComponent, ReactiveFormsModule],
-      providers: [FormBuilder, { provide: I18nService, useValue: mockI18nService }],
+      providers: [
+        FormBuilder,
+        { provide: I18nService, useValue: mockI18nService },
+        { provide: AccountService, useValue: mock<AccountService>() },
+        { provide: KeyService, useValue: mock<KeyService>() },
+        { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
+      ],
     });
 
     // Override DialogService provided from SharedModule (which includes DialogModule)
