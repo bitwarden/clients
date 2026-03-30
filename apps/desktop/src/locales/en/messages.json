@@ -2235,6 +2235,9 @@
   "copyTOTP": {
     "message": "Copy Authenticator key (TOTP)"
   },
+  "copyNotes": {
+    "message": "Copy notes"
+  },
   "totpHelperTitle": {
     "message": "Make 2-step verification seamless"
   },
