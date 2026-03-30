@@ -462,8 +462,8 @@ export const FileInput: Story = {
       <form [formGroup]="formObj">
         <bit-form-field>
           <bit-label>File</bit-label>
-          <div class="tw-text-main">
-            <button bitButton type="button" buttonType="secondary">
+          <div class="tw-text-main tw-flex tw-items-center tw-h-full tw-gap-2">
+            <button bitButton size="small" type="button" buttonType="secondary">
               Choose File
             </button>
             No file chosen
