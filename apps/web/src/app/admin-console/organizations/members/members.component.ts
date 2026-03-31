@@ -324,12 +324,12 @@ export class MembersComponent {
       return;
     }
 
-    const allUserEmails = this.dataSource().data?.map((user) => user.email) ?? [];
+    const allUsers = this.dataSource().data ?? [];
 
     const result = await this.memberDialogManager.openInviteDialog(
       organization,
       billingMetadata,
-      allUserEmails,
+      allUsers,
     );
 
     if (result === MemberDialogResult.Saved) {

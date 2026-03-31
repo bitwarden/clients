@@ -102,7 +102,7 @@ describe("ItemMoreOptionsComponent", () => {
         { provide: RestrictedItemTypesService, useValue: { restricted$: of([]) } },
         {
           provide: CipherArchiveService,
-          useValue: { userCanArchive$: () => of(true), hasArchiveFlagEnabled$: of(true) },
+          useValue: { userCanArchive$: () => of(true) },
         },
         { provide: ToastService, useValue: { showToast: () => {} } },
         { provide: Router, useValue: { navigate: () => Promise.resolve(true) } },
