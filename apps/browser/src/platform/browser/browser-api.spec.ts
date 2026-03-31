@@ -386,29 +386,6 @@ describe("BrowserApi", () => {
         delete (chrome.runtime as any).getContexts;
       });
     });
-
-    describe("when chrome.runtime.getContexts exists but returns undefined (Firefox MV2)", () => {
-      beforeEach(() => {
-        // Firefox MV2 exposes getContexts as a function but returns undefined
-        // because it is a MV3-only API, causing the typeof check to pass incorrectly.
-        (chrome.runtime as any).getContexts = jest.fn().mockReturnValue(undefined);
-        chrome.extension.getViews = jest.fn().mockReturnValue([window]);
-      });
-
-      afterEach(() => {
-        delete (chrome.runtime as any).getContexts;
-      });
-
-      it("falls back to getExtensionViews and returns true if the popup is open", async () => {
-        expect(await BrowserApi.isPopupOpen()).toBe(true);
-      });
-
-      it("falls back to getExtensionViews and returns false if the popup is not open", async () => {
-        chrome.extension.getViews = jest.fn().mockReturnValue([]);
-
-        expect(await BrowserApi.isPopupOpen()).toBe(false);
-      });
-    });
   });
 
   describe("isAnyViewFocused", () => {
@@ -568,34 +545,6 @@ describe("BrowserApi", () => {
           .mockReturnValueOnce([popoutView]);
 
         expect(await BrowserApi.isAnyViewFocused()).toBe(true);
-      });
-    });
-
-    describe("when chrome.runtime.getContexts exists but returns undefined (Firefox MV2)", () => {
-      beforeEach(() => {
-        // Firefox MV2 exposes getContexts as a function but returns undefined
-        // because it is a MV3-only API, causing the typeof check to pass incorrectly.
-        (chrome.runtime as any).getContexts = jest.fn().mockReturnValue(undefined);
-      });
-
-      afterEach(() => {
-        delete (chrome.runtime as any).getContexts;
-      });
-
-      it("falls back to getExtensionViews and returns true if the main popup is open", async () => {
-        const mainPopupView = { location: { href: "chrome-extension://id/popup/index.html" } };
-        chrome.extension.getViews = jest
-          .fn()
-          .mockReturnValueOnce([mainPopupView])
-          .mockReturnValueOnce([]);
-
-        expect(await BrowserApi.isAnyViewFocused()).toBe(true);
-      });
-
-      it("falls back to getExtensionViews and returns false if no views are open", async () => {
-        chrome.extension.getViews = jest.fn().mockReturnValue([]);
-
-        expect(await BrowserApi.isAnyViewFocused()).toBe(false);
       });
     });
   });
