@@ -19,7 +19,7 @@ export * from "./container";
 export * from "./copy-click";
 export * from "./dialog";
 export * from "./disclosure";
-export * from "./dropzone";
+export * from "./file-upload";
 export * from "./form-field";
 export * from "./header";
 export * from "./icon-button";

@@ -10,7 +10,7 @@ import { I18nMockService } from "../utils/i18n-mock.service";
 import { DropzoneComponent } from "./dropzone.component";
 
 export default {
-  title: "Component Library/Dropzone",
+  title: "Component Library/File Upload/Dropzone",
   component: DropzoneComponent,
   decorators: [
     moduleMetadata({
