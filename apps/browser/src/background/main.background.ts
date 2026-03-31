@@ -984,6 +984,7 @@ export default class MainBackground {
       this.stateProvider,
       this.logService,
       this.policyService,
+      this.environmentService,
     );
 
     this.userVerificationApiService = new UserVerificationApiService(this.apiService);
