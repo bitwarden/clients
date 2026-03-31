@@ -2327,6 +2327,11 @@ describe("OrganizationPlansComponent", () => {
 
         await component.submit();
 
+        expect(mockSubscriberBillingClient.updatePaymentMethod).toHaveBeenCalledWith(
+          expect.objectContaining({ type: "account" }),
+          { token: "mock_token", type: "card" },
+          expect.objectContaining({ country: "US", postalCode: "12345" }),
+        );
         expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenCalledWith(
           expect.objectContaining({ id: "user-id" }),
           newOrgName,
@@ -2339,6 +2344,14 @@ describe("OrganizationPlansComponent", () => {
           title: "organizationCreated",
           message: "organizationReadyToGo",
         });
+      });
+
+      it("should not call upgradeToOrganization when tokenization fails", async () => {
+        setupMockPaymentMethodComponent(component); // Simulates tokenization failure (returns null)
+
+        await component.submit();
+
+        expect(mockPremiumOrgUpgradeService.upgradeToOrganization).not.toHaveBeenCalled();
       });
 
       it("should show an error toast when the service rejects an unverified bank account payment method", async () => {
