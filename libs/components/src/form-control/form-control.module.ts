@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 
-import { FormControlCardGroupComponent } from "./form-control-card-group.component";
 import { FormControlCardComponent } from "./form-control-card.component";
+import { FormControlGroupComponent } from "./form-control-group.component";
 import { FormControlComponent } from "./form-control.component";
 import { BitHintDirective } from "./hint.directive";
 import { BitLabelComponent } from "./label.component";
@@ -12,14 +12,14 @@ import { BitLabelComponent } from "./label.component";
     FormControlComponent,
     BitHintDirective,
     FormControlCardComponent,
-    FormControlCardGroupComponent,
+    FormControlGroupComponent,
   ],
   exports: [
     FormControlComponent,
     BitLabelComponent,
     BitHintDirective,
     FormControlCardComponent,
-    FormControlCardGroupComponent,
+    FormControlGroupComponent,
   ],
 })
 export class FormControlModule {}

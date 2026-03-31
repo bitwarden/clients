@@ -14,6 +14,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { BadgeModule } from "../badge";
 import { FormControlModule } from "../form-control";
 import { FormControlCardComponent } from "../form-control/form-control-card.component";
+import { FormControlGroupComponent } from "../form-control/form-control-group.component";
 import { FormFieldModule } from "../form-field";
 import { TableModule } from "../table";
 import { I18nMockService } from "../utils/i18n-mock.service";
@@ -69,6 +70,7 @@ export default {
         FormsModule,
         ReactiveFormsModule,
         FormControlModule,
+        FormControlGroupComponent,
         FormControlCardComponent,
         CheckboxModule,
         TableModule,
@@ -303,39 +305,74 @@ export const FormControlCard: Story = {
 };
 
 export const FormControlCardGroup: Story = {
-  render: () => ({
-    props: {
-      formObj: new FormGroup({
-        featureA: new FormControl(false),
-        featureB: new FormControl(true),
-        featureC: new FormControl(false),
-      }),
-    },
-    template: /* HTML */ `
-      <form [formGroup]="formObj">
-        <bit-form-control-card-group>
-          <bit-label>Checkbox group</bit-label>
+  render: () => {
+    const formObj = new FormGroup({
+      features: new FormControl<string[]>([], Validators.required),
+    });
+    return {
+      props: { formObj },
+      template: /* HTML */ `
+        <form [formGroup]="formObj">
+          <bit-form-control-group formControlName="features">
+            <bit-label>Checkbox group</bit-label>
 
-          <bit-form-control-card>
-            <input type="checkbox" bitCheckbox formControlName="featureA" />
-            <bit-label>Feature A</bit-label>
-            <bit-hint>Enables Feature A for your account</bit-hint>
-          </bit-form-control-card>
+            <bit-form-control-card [value]="'featureA'">
+              <input type="checkbox" bitCheckbox />
+              <bit-label>Feature A</bit-label>
+              <bit-hint>Enables Feature A for your account</bit-hint>
+            </bit-form-control-card>
 
-          <bit-form-control-card>
-            <input type="checkbox" bitCheckbox formControlName="featureB" />
-            <bit-label>Feature B</bit-label>
-            <bit-hint>Enables Feature B for your account</bit-hint>
-          </bit-form-control-card>
+            <bit-form-control-card [value]="'featureB'">
+              <input type="checkbox" bitCheckbox />
+              <bit-label>Feature B</bit-label>
+              <bit-hint>Enables Feature B for your account</bit-hint>
+            </bit-form-control-card>
 
-          <bit-form-control-card>
-            <input type="checkbox" bitCheckbox formControlName="featureC" />
-            <bit-label>Feature C</bit-label>
-          </bit-form-control-card>
+            <bit-form-control-card [value]="'featureC'">
+              <input type="checkbox" bitCheckbox />
+              <bit-label>Feature C</bit-label>
+            </bit-form-control-card>
+            <bit-hint>Choose which features to enable.</bit-hint>
+          </bit-form-control-group>
+        </form>
+      `,
+    };
+  },
+};
 
-          <bit-hint>Choose which features to enable.</bit-hint>
-        </bit-form-control-card-group>
-      </form>
-    `,
-  }),
+export const FormControlCardGroupWithValidation: Story = {
+  render: () => {
+    const formObj = new FormGroup({
+      features: new FormControl<string[]>([], Validators.required),
+    });
+    formObj.markAllAsTouched();
+    return {
+      props: { formObj },
+      template: /* HTML */ `
+        <form [formGroup]="formObj">
+          <bit-form-control-group formControlName="features">
+            <bit-label>Checkbox group</bit-label>
+
+            <bit-form-control-card [value]="'featureA'">
+              <input type="checkbox" bitCheckbox />
+              <bit-label>Feature A</bit-label>
+              <bit-hint>Enables Feature A for your account</bit-hint>
+            </bit-form-control-card>
+
+            <bit-form-control-card [value]="'featureB'">
+              <input type="checkbox" bitCheckbox />
+              <bit-label>Feature B</bit-label>
+              <bit-hint>Enables Feature B for your account</bit-hint>
+            </bit-form-control-card>
+
+            <bit-form-control-card [value]="'featureC'">
+              <input type="checkbox" bitCheckbox />
+              <bit-label>Feature C</bit-label>
+            </bit-form-control-card>
+            <bit-hint>Choose which features to enable.</bit-hint>
+          </bit-form-control-group>
+        </form>
+      `,
+    };
+  },
 };

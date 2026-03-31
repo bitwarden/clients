@@ -1,16 +1,20 @@
 import { booleanAttribute, Directive, inject, input } from "@angular/core";
 
-import { RadioGroupComponent } from "./radio-group.component";
+import { FormControlGroupComponent } from "../form-control/form-control-group.component";
 
 let nextId = 0;
 
 @Directive()
 export class RadioButtonBaseDirective {
-  private groupComponent = inject(RadioGroupComponent);
+  private groupComponent = inject(FormControlGroupComponent);
 
   readonly id = input(`bit-radio-button-${nextId++}`);
   readonly value = input<unknown>();
   readonly disabled = input(false, { transform: booleanAttribute });
+
+  constructor() {
+    this.groupComponent.registerRadioChild();
+  }
 
   get inputId() {
     return `${this.id()}-input`;
@@ -21,11 +25,11 @@ export class RadioButtonBaseDirective {
   }
 
   get selected() {
-    return this.groupComponent.selected === this.value();
+    return this.groupComponent.selectedValues().has(this.value());
   }
 
   get groupDisabled() {
-    return this.groupComponent.disabled;
+    return this.groupComponent.groupDisabled();
   }
 
   get block() {
@@ -33,7 +37,7 @@ export class RadioButtonBaseDirective {
   }
 
   onInputChange() {
-    this.groupComponent.onInputChange(this.value());
+    this.groupComponent.onItemChange(this.value());
   }
 
   onBlur() {

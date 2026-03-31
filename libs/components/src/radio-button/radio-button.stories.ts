@@ -10,15 +10,15 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { FormControlCardComponent } from "../form-control/form-control-card.component";
+import { FormControlGroupComponent } from "../form-control/form-control-group.component";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { RadioButtonCardComponent } from "./radio-button-card.component";
 import { RadioButtonModule } from "./radio-button.module";
-import { RadioGroupComponent } from "./radio-group.component";
 
 export default {
   title: "Component Library/Form/Radio Button",
-  component: RadioGroupComponent,
+  component: FormControlGroupComponent,
   decorators: [
     moduleMetadata({
       imports: [
@@ -48,9 +48,9 @@ export default {
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-35836&t=b5tDKylm5sWm2yKo-4",
     },
   },
-} as Meta<RadioGroupComponent>;
+} as Meta<FormControlGroupComponent>;
 
-type Story = StoryObj<RadioGroupComponent>;
+type Story = StoryObj<FormControlGroupComponent>;
 
 export const Inline: Story = {
   render: () => ({
@@ -246,21 +246,24 @@ export const FormControlCard: Story = {
     },
     template: /* HTML */ `
       <form [formGroup]="formObj">
-        <bit-radio-group formControlName="radio" aria-label="Example radio group">
+        <bit-form-control-group formControlName="radio" aria-label="Example radio group">
           <bit-label>Select an option</bit-label>
 
-          <bit-radio-button-card [value]="0">
+          <bit-form-control-card [value]="0">
+            <input type="radio" bitRadio />
             <bit-label>Option A</bit-label>
-          </bit-radio-button-card>
-          <bit-radio-button-card [value]="1">
+          </bit-form-control-card>
+          <bit-form-control-card [value]="1">
+            <input type="radio" bitRadio />
             <bit-label>Option B</bit-label>
-          </bit-radio-button-card>
-          <bit-radio-button-card [value]="2">
+          </bit-form-control-card>
+          <bit-form-control-card [value]="2">
+            <input type="radio" bitRadio />
             <bit-label>Option C</bit-label>
-          </bit-radio-button-card>
+          </bit-form-control-card>
 
           <bit-hint>Choose one of the options above.</bit-hint>
-        </bit-radio-group>
+        </bit-form-control-group>
       </form>
     `,
   }),
