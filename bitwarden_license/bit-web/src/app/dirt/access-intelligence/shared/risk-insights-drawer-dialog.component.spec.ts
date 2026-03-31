@@ -52,7 +52,7 @@ describe("RiskInsightsDrawerDialogComponent", () => {
   const mockI18nService = mock<I18nService>();
   const mockFileDownloadService = mock<FileDownloadService>();
   const mocklogService = mock<LogService>();
-  const drawerDetails: DrawerDetails = {
+  const defaultDrawerDetails: DrawerDetails = {
     open: true,
     invokerId: "test-invoker",
     activeDrawerType: DrawerType.None,
@@ -62,11 +62,30 @@ describe("RiskInsightsDrawerDialogComponent", () => {
   };
   mockI18nService.t.mockImplementation((key: string) => key);
 
+  function setupDrawerDetails(overrides: Partial<DrawerDetails>) {
+    TestBed.resetTestingModule();
+
+    TestBed.configureTestingModule({
+      imports: [RiskInsightsDrawerDialogComponent, BrowserAnimationsModule],
+      providers: [
+        { provide: DIALOG_DATA, useValue: { ...defaultDrawerDetails, ...overrides } },
+        { provide: I18nPipe, useValue: mock<I18nPipe>() },
+        { provide: I18nService, useValue: mockI18nService },
+        { provide: FileDownloadService, useValue: mockFileDownloadService },
+        { provide: LogService, useValue: mocklogService },
+      ],
+    });
+
+    fixture = TestBed.createComponent(RiskInsightsDrawerDialogComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [RiskInsightsDrawerDialogComponent, BrowserAnimationsModule],
       providers: [
-        { provide: DIALOG_DATA, useValue: drawerDetails },
+        { provide: DIALOG_DATA, useValue: defaultDrawerDetails },
         { provide: I18nPipe, useValue: mock<I18nPipe>() },
         { provide: I18nService, useValue: mockI18nService },
         { provide: FileDownloadService, useValue: mockFileDownloadService },
@@ -91,12 +110,12 @@ describe("RiskInsightsDrawerDialogComponent", () => {
 
   describe("isActiveDrawerType", () => {
     it("should return true if type matches activeDrawerType", () => {
-      component.drawerDetails.activeDrawerType = DrawerType.None;
+      setupDrawerDetails({ activeDrawerType: DrawerType.None });
       expect(component.isActiveDrawerType(DrawerType.None)).toBeTruthy();
     });
 
     it("should return false if type does not match activeDrawerType", () => {
-      component.drawerDetails.activeDrawerType = DrawerType.None;
+      setupDrawerDetails({ activeDrawerType: DrawerType.None });
       expect(component.isActiveDrawerType(DrawerType.AppAtRiskMembers)).toBeFalsy();
     });
   });
@@ -106,17 +125,13 @@ describe("RiskInsightsDrawerDialogComponent", () => {
     });
 
     it("should download CSV when drawer is open with correct type and has data", async () => {
-      component.drawerDetails = {
-        open: true,
-        invokerId: "test-invoker",
+      setupDrawerDetails({
         activeDrawerType: DrawerType.OrgAtRiskMembers,
         atRiskMemberDetails: [
           { email: "user@example.com", atRiskPasswordCount: 5 },
           { email: "admin@example.com", atRiskPasswordCount: 3 },
         ],
-        appAtRiskMembers: null,
-        atRiskAppDetails: null,
-      };
+      });
 
       mockI18nService.t.mockImplementation((key: string) => key);
 
@@ -130,14 +145,11 @@ describe("RiskInsightsDrawerDialogComponent", () => {
     });
 
     it("should not download when drawer is closed", async () => {
-      component.drawerDetails = {
+      setupDrawerDetails({
         open: false,
-        invokerId: "test-invoker",
         activeDrawerType: DrawerType.OrgAtRiskMembers,
         atRiskMemberDetails: [{ email: "user@example.com", atRiskPasswordCount: 5 }],
-        appAtRiskMembers: null,
-        atRiskAppDetails: null,
-      };
+      });
 
       await component.downloadAtRiskMembers();
 
@@ -145,29 +157,21 @@ describe("RiskInsightsDrawerDialogComponent", () => {
     });
 
     it("should not download when activeDrawerType is incorrect", async () => {
-      component.drawerDetails = {
-        open: true,
-        invokerId: "test-invoker",
+      setupDrawerDetails({
         activeDrawerType: DrawerType.OrgAtRiskApps,
         atRiskMemberDetails: [{ email: "user@example.com", atRiskPasswordCount: 5 }],
-        appAtRiskMembers: null,
-        atRiskAppDetails: null,
-      };
+      });
 
       await component.downloadAtRiskMembers();
 
       expect(mockFileDownloadService.download).not.toHaveBeenCalled();
     });
 
-    it("should not download when atRiskMemberDetails is null", async () => {
-      component.drawerDetails = {
-        open: true,
-        invokerId: "test-invoker",
+    it("should not download when atRiskMemberDetails is undefined", async () => {
+      setupDrawerDetails({
         activeDrawerType: DrawerType.OrgAtRiskMembers,
-        atRiskMemberDetails: [],
-        appAtRiskMembers: null,
-        atRiskAppDetails: null,
-      };
+        atRiskMemberDetails: undefined,
+      });
 
       await component.downloadAtRiskMembers();
 
@@ -175,14 +179,10 @@ describe("RiskInsightsDrawerDialogComponent", () => {
     });
 
     it("should not download when atRiskMemberDetails is empty array", async () => {
-      component.drawerDetails = {
-        open: true,
-        invokerId: "test-invoker",
+      setupDrawerDetails({
         activeDrawerType: DrawerType.OrgAtRiskMembers,
         atRiskMemberDetails: [],
-        appAtRiskMembers: null,
-        atRiskAppDetails: null,
-      };
+      });
 
       await component.downloadAtRiskMembers();
 
@@ -196,17 +196,13 @@ describe("RiskInsightsDrawerDialogComponent", () => {
     });
 
     it("should download CSV when drawer is open with correct type and has data", async () => {
-      component.drawerDetails = {
-        open: true,
-        invokerId: "test-invoker",
+      setupDrawerDetails({
         activeDrawerType: DrawerType.OrgAtRiskApps,
-        atRiskMemberDetails: [],
-        appAtRiskMembers: null,
         atRiskAppDetails: [
           { applicationName: "App1", atRiskPasswordCount: 10 },
           { applicationName: "App2", atRiskPasswordCount: 7 },
         ],
-      };
+      });
 
       await component.downloadAtRiskApplications();
 
@@ -218,14 +214,11 @@ describe("RiskInsightsDrawerDialogComponent", () => {
     });
 
     it("should not download when drawer is closed", async () => {
-      component.drawerDetails = {
+      setupDrawerDetails({
         open: false,
-        invokerId: "test-invoker",
         activeDrawerType: DrawerType.OrgAtRiskApps,
-        atRiskMemberDetails: [],
-        appAtRiskMembers: null,
         atRiskAppDetails: [{ applicationName: "App1", atRiskPasswordCount: 10 }],
-      };
+      });
 
       await component.downloadAtRiskApplications();
 
@@ -233,29 +226,21 @@ describe("RiskInsightsDrawerDialogComponent", () => {
     });
 
     it("should not download when activeDrawerType is incorrect", async () => {
-      component.drawerDetails = {
-        open: true,
-        invokerId: "test-invoker",
+      setupDrawerDetails({
         activeDrawerType: DrawerType.OrgAtRiskMembers,
-        atRiskMemberDetails: [],
-        appAtRiskMembers: null,
         atRiskAppDetails: [{ applicationName: "App1", atRiskPasswordCount: 10 }],
-      };
+      });
 
       await component.downloadAtRiskApplications();
 
       expect(mockFileDownloadService.download).not.toHaveBeenCalled();
     });
 
-    it("should not download when atRiskAppDetails is null", async () => {
-      component.drawerDetails = {
-        open: true,
-        invokerId: "test-invoker",
+    it("should not download when atRiskAppDetails is undefined", async () => {
+      setupDrawerDetails({
         activeDrawerType: DrawerType.OrgAtRiskApps,
-        atRiskMemberDetails: [],
-        appAtRiskMembers: null,
-        atRiskAppDetails: null,
-      };
+        atRiskAppDetails: undefined,
+      });
 
       await component.downloadAtRiskApplications();
 
@@ -263,14 +248,10 @@ describe("RiskInsightsDrawerDialogComponent", () => {
     });
 
     it("should not download when atRiskAppDetails is empty array", async () => {
-      component.drawerDetails = {
-        open: true,
-        invokerId: "test-invoker",
+      setupDrawerDetails({
         activeDrawerType: DrawerType.OrgAtRiskApps,
-        atRiskMemberDetails: [],
-        appAtRiskMembers: null,
         atRiskAppDetails: [],
-      };
+      });
 
       await component.downloadAtRiskApplications();
 
