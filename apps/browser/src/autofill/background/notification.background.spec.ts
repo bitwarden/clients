@@ -220,6 +220,40 @@ describe("NotificationBackground", () => {
     });
   });
 
+  describe("queueMessageIsFromTabOrigin", () => {
+    const createQueueMessage = (tab: chrome.tabs.Tab, domain = "example.com") =>
+      mock<AddLoginQueueMessage>({
+        type: NotificationType.AddLogin,
+        domain,
+        tab,
+        data: { username: "", password: "", uri: "" },
+        expires: new Date(),
+        wasVaultLocked: false,
+        launchTimestamp: 0,
+      });
+
+    it.each([
+      {
+        name: "returns false when the tab navigated away from the queued domain (shared tab reference)",
+        tab: createChromeTabMock({ id: 1, url: "https://example.net" }),
+        expected: false,
+      },
+      {
+        name: "returns true when the tab URL matches the queued domain",
+        tab: createChromeTabMock({ id: 1, url: "https://example.com/login" }),
+        expected: true,
+      },
+      {
+        name: "returns false when the tab URL has no extractable domain",
+        tab: createChromeTabMock({ id: 1, url: undefined }),
+        expected: false,
+      },
+    ])("$name", ({ tab, expected }) => {
+      const message = createQueueMessage(tab);
+      expect(notificationBackground["queueMessageIsFromTabOrigin"](message, tab)).toBe(expected);
+    });
+  });
+
   describe("notification bar extension message handlers and triggers", () => {
     beforeEach(() => {
       notificationBackground.init();

@@ -87,8 +87,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
    * user has archive permissions
    */
   protected readonly userCanArchive = input<boolean>();
-  /** Archive feature is enabled */
-  readonly archiveEnabled = input.required<boolean>();
   /**
    * Enforce Org Data Ownership Policy Status
    */
@@ -101,7 +99,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
 
   protected readonly showArchiveButton = computed(() => {
     return (
-      this.archiveEnabled() &&
       !this.cipher().organizationId &&
       !CipherViewLikeUtils.isArchived(this.cipher()) &&
       !CipherViewLikeUtils.isDeleted(this.cipher())
