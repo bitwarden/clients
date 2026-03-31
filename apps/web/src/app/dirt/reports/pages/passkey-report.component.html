@@ -1,7 +1,21 @@
 <app-header></app-header>
 
 <bit-container>
-  <p>{{ "passkeyLoginReportDesc" | i18n }}</p>
+  <p>
+    {{ "passkeyLoginReportDesc" | i18n }}
+    <a
+      bitLink
+      href="https://bitwarden.com/blog/how-do-passkeys-work/"
+      target="_blank"
+      rel="noreferrer"
+    >
+      {{ "passkeyLoginReportHowTheyWork" | i18n }}
+    </a>
+    {{ "passkeyLoginReportAnd" | i18n }}
+    <a bitLink href="https://bitwarden.com/help/storing-passkeys/" target="_blank" rel="noreferrer">
+      {{ "passkeyLoginReportHowToUse" | i18n }}
+    </a>
+  </p>
   @if (!hasLoaded() && loading()) {
     <div>
       <i

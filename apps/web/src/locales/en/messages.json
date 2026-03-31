@@ -2961,7 +2961,16 @@
   "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which of your accounts support them."
 },
   "passkeyLoginReportDesc": {
-    "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which accounts in your vault support passkeys for a simpler, passwordless sign-in experience. Learn how passkeys work, and how to use them in Bitwarden."
+    "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which accounts in your vault support passkeys for a simpler, passwordless sign-in experience. Learn"
+  },
+"passkeyLoginReportHowTheyWork": {
+  "message": "how passkeys work"
+},
+  "passkeyLoginReportAnd": {
+    "message": "and "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "how to use them in Bitwarden."
   },
   "passkeyLoginFound": {
     "message": "Logins that support passkeys"
