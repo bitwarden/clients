@@ -19,7 +19,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeModule,
   CalloutModule,
-  ChipSelectComponent,
+  ChipFilterComponent,
   ContainerComponent,
   DialogService,
   LinkModule,
@@ -61,7 +61,7 @@ import {
     HeaderModule,
     BadgeModule,
     CalloutModule,
-    ChipSelectComponent,
+    ChipFilterComponent,
     ContainerComponent,
     LinkModule,
     TableModule,
