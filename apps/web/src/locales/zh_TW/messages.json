@@ -3398,6 +3398,9 @@
   "discount": {
     "message": "折扣"
   },
+  "discountExpiredOnPurchase": {
+    "message": "Discount expired. Please review your cart total and try again."
+  },
   "downloadLicense": {
     "message": "下載授權證"
   },
@@ -3804,6 +3807,15 @@
   },
   "policies": {
     "message": "原則"
+  },
+  "dataControls": {
+    "message": "Data controls"
+  },
+  "authentication": {
+    "message": "Authentication"
+  },
+  "vaultManagement": {
+    "message": "Vault management"
   },
   "singleSignOn": {
     "message": "單一登入"
@@ -6485,6 +6497,14 @@
   "verifyYourEmailToViewThisSend": {
     "message": "驗證您的電子郵件以檢視此 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Didn't receive a code? Contact the sender to confirm your email address or ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Resent verification code",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "建立此 Send 的 Bitwarden 使用者已選擇隱藏他們的電子郵件地址。在使用或下載此連結的內容之前，應確保您信任此連結的來源。",
