@@ -11,7 +11,7 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { firstValueFrom, Subject, take, takeUntil } from "rxjs";
+import { combineLatest, firstValueFrom, startWith, Subject, take, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultIcon, WaveIcon } from "@bitwarden/assets/svg";
@@ -26,10 +26,7 @@ import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.d
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
-import {
-  SsoLoginServiceAbstraction,
-  SsoRequiredCacheEntry,
-} from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { PasswordPreloginService } from "@bitwarden/common/auth/password-prelogin";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
@@ -243,44 +240,26 @@ export class LoginComponent implements OnInit, OnDestroy {
   private async determineIfSsoRequired() {
     const ssoRequiredCache = await firstValueFrom(this.ssoLoginService.ssoRequiredCache$);
 
-    // Only perform initial update and setup a subscription if there is actually a populated ssoRequiredCache
-    if (ssoRequiredCache != null && ssoRequiredCache.length > 0) {
-      const env = await firstValueFrom(this.environmentService.environment$);
-      const webVaultUrl = env.getWebVaultUrl();
-
-      // If the pre-filled/remembered email field value exists in the cache, set to true
-      if (
-        this.emailFormControl.value &&
-        ssoRequiredCache.some(
-          (e) =>
-            e.email === this.emailFormControl.value!.toLowerCase() && e.webVaultUrl === webVaultUrl,
-        )
-      ) {
-        this.ssoRequired = true;
-      }
-
-      this.listenForEmailChanges(ssoRequiredCache, webVaultUrl);
+    // Only set up a subscription if there is actually a populated ssoRequiredCache
+    if (ssoRequiredCache == null || ssoRequiredCache.length < 1) {
+      return;
     }
-  }
 
-  private listenForEmailChanges(ssoRequiredCache: SsoRequiredCacheEntry[], webVaultUrl: string) {
-    // On subsequent email field value changes, check and set again. This allows alternate login buttons
-    // to dynamically enable/disable depending on whether or not the entered email is in the ssoRequiredCache
-    this.formGroup.controls.email.valueChanges
+    // React to both email and environment changes so that switching environments on extension/desktop
+    // (which does not reload the page) correctly re-evaluates the SSO required state.
+    combineLatest([
+      // startWith email form field value (it could be empty, a remembered email, or pre-filled from query params)
+      this.formGroup.controls.email.valueChanges.pipe(startWith(this.emailFormControl.value)),
+      this.environmentService.environment$,
+    ])
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        if (
-          this.emailFormControl.value &&
-          ssoRequiredCache.some(
-            (e) =>
-              e.email === this.emailFormControl.value!.toLowerCase() &&
-              e.webVaultUrl === webVaultUrl,
-          )
-        ) {
-          this.ssoRequired = true;
-        } else {
-          this.ssoRequired = false;
-        }
+      .subscribe(([email, env]) => {
+        const emailValue = email?.toLowerCase();
+        const webVaultUrl = env.getWebVaultUrl();
+
+        this.ssoRequired = emailValue
+          ? ssoRequiredCache.some((e) => e.email === emailValue && e.webVaultUrl === webVaultUrl)
+          : false;
       });
   }
 
