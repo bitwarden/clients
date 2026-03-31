@@ -3,6 +3,7 @@ import { FormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NoResults, NoSendsIcon } from "@bitwarden/assets/svg";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { ReceiveView } from "@bitwarden/common/tools/receive/models/view/receive.view";
 import { ReceiveId } from "@bitwarden/common/types/guid";
 import {
@@ -28,8 +29,8 @@ const DUMMY_RECEIVE: ReceiveView = {
   name: "My first receive",
   expirationDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   secret: "mockTestSecret",
-  publicKey: undefined,
-  sharedContentEncryptionKey: undefined,
+  publicKey: new Uint8Array(64),
+  sharedContentEncryptionKey: new SymmetricCryptoKey(new Uint8Array(64)),
 };
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
