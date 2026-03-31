@@ -18,6 +18,7 @@ import { ReceiveCreateInput } from "../models/receive-create-input";
 import { ReceiveSharedData } from "../models/receive-shared-data";
 import { ReceiveUrlData } from "../models/receive-url-data";
 import { CreateReceiveRequest } from "../models/requests/create-receive.request";
+import { UpdateReceiveRequest } from "../models/requests/update-receive.request";
 import { ReceiveSharedDataResponse } from "../models/response/receive-shared-data.response";
 import { ReceiveFileView } from "../models/view/receive-file.view";
 import { ReceiveView } from "../models/view/receive.view";
@@ -65,15 +66,27 @@ export class DefaultReceiveService implements InternalReceiveService {
     );
   }
 
-  async create(input: ReceiveCreateInput, userId: UserId): Promise<Receive> {
-    const receiveKeys = await this.makeReceiveKeys(userId);
+  async create(input: ReceiveCreateInput, userId: UserId): Promise<ReceiveView> {
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    if (!userKey) {
+      throw new Error("User key not found for user: " + userId);
+    }
+
+    const receiveKeys = await this.makeReceiveKeys(userKey);
     const requestPayload = await this.getCreateReceiveRequest(input, receiveKeys);
 
     const response = await this.receiveApiService.postReceive(requestPayload);
     const data = new ReceiveData(response);
 
     await this.upsert(data, userId);
-    return new Receive(data);
+    return await this.decryptReceive(new Receive(data), userKey);
+  }
+
+  async update(receiveView: ReceiveView, userId: UserId): Promise<void> {
+    const updateRequest = await this.getUpdateReceiveRequest(receiveView);
+    const response = await this.receiveApiService.putReceive(receiveView.id, updateRequest);
+    const data = new ReceiveData(response);
+    await this.upsert(data, userId);
   }
 
   async getSharedData(urlData: ReceiveUrlData): Promise<ReceiveSharedData> {
@@ -142,12 +155,16 @@ export class DefaultReceiveService implements InternalReceiveService {
     );
   }
 
-  private async makeReceiveKeys(userId: UserId): Promise<ReceiveKeys> {
-    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-    if (!userKey) {
-      throw new Error("User key not found for user: " + userId);
-    }
+  private async getUpdateReceiveRequest(receiveView: ReceiveView): Promise<UpdateReceiveRequest> {
+    const encryptedName = await this.encryptService.encryptString(
+      receiveView.name,
+      receiveView.sharedContentEncryptionKey,
+    );
 
+    return new UpdateReceiveRequest(encryptedName, receiveView.expirationDate);
+  }
+
+  private async makeReceiveKeys(userKey: UserKey): Promise<ReceiveKeys> {
     const sharedContentEncryptionKey = await this.keyGenerationService.createKey(512);
     const [b64PublicKey, userKeyWrappedPrivateKey] = await this.keyService.makeKeyPair(userKey);
     const scekWrappedPublicKey = await this.encryptService.wrapEncapsulationKey(

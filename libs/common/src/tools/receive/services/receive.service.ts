@@ -15,7 +15,9 @@ export abstract class ReceiveService {
   // Get all the decrypted receive views for the user.
   abstract receiveViews$(userId: UserId): Observable<ReceiveView[]>;
   // Create a new receive with the given input and return the created receive.
-  abstract create(input: ReceiveCreateInput, userId: UserId): Promise<Receive>;
+  abstract create(input: ReceiveCreateInput, userId: UserId): Promise<ReceiveView>;
+  // Update a receive
+  abstract update(receiveView: ReceiveView, userId: UserId): Promise<void>;
 
   abstract getSharedData(urlData: ReceiveUrlData): Promise<ReceiveSharedData>;
 }

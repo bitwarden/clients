@@ -1,5 +1,6 @@
 import { ApiService } from "../../../abstractions/api.service";
 import { CreateReceiveRequest } from "../models/requests/create-receive.request";
+import { UpdateReceiveRequest } from "../models/requests/update-receive.request";
 import { ReceiveSharedDataResponse } from "../models/response/receive-shared-data.response";
 import { ReceiveResponse } from "../models/response/receive.response";
 
@@ -18,7 +19,7 @@ export class DefaultReceiveApiService implements ReceiveApiService {
     return new ReceiveResponse(r);
   }
 
-  async putReceive(id: string, request: CreateReceiveRequest): Promise<ReceiveResponse> {
+  async putReceive(id: string, request: UpdateReceiveRequest): Promise<ReceiveResponse> {
     const r = await this.apiService.send("PUT", "/receives/" + id, request, true, true);
     return new ReceiveResponse(r);
   }
