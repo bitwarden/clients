@@ -64,7 +64,6 @@ export enum FeatureFlag {
   Milestone11AppPageImprovements = "pm-30538-dirt-milestone-11-app-page-improvements",
   AccessIntelligenceTrendChart = "pm-26961-access-intelligence-trend-chart",
   AccessIntelligenceNewArchitecture = "pm-31936-access-intelligence-new-architecture",
-  AccessIntelligenceAzureFileStorage = "pm-31920-access-intelligence-azure-file-storage",
 
   /* Vault */
   PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",
@@ -127,7 +126,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.Milestone11AppPageImprovements]: FALSE,
   [FeatureFlag.AccessIntelligenceTrendChart]: FALSE,
   [FeatureFlag.AccessIntelligenceNewArchitecture]: FALSE,
-  [FeatureFlag.AccessIntelligenceAzureFileStorage]: FALSE,
 
   /* Vault */
   [FeatureFlag.CipherKeyEncryption]: FALSE,
