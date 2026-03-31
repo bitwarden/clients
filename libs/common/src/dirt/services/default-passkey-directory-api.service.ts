@@ -2,9 +2,9 @@ import { ApiService } from "../../abstractions/api.service";
 import { UserId } from "../../types/guid";
 import { PasskeyDirectoryEntryResponse } from "../models/response/passkey-directory-entry.response";
 
-import { PasskeyDirectoryApiServiceAbstraction } from "./abstractions/passkey-directory-api.service.abstraction";
+import { PasskeyDirectoryApiService } from "./abstractions/passkey-directory-api.service";
 
-export class PasskeyDirectoryApiService implements PasskeyDirectoryApiServiceAbstraction {
+export class DefaultPasskeyDirectoryApiService implements PasskeyDirectoryApiService {
   constructor(private apiService: ApiService) {}
 
   async getPasskeyDirectory(userId: UserId): Promise<PasskeyDirectoryEntryResponse[]> {

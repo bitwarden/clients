@@ -6,7 +6,7 @@ import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { PasskeyDirectoryApiServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/passkey-directory-api.service.abstraction";
+import { PasskeyDirectoryApiService } from "@bitwarden/common/dirt/services/abstractions/passkey-directory-api.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -30,7 +30,7 @@ describe("PasskeyReportComponent", () => {
   let cipherServiceMock: MockProxy<CipherService>;
   let syncServiceMock: MockProxy<SyncService>;
   let logServiceMock: MockProxy<LogService>;
-  let passkeyDirectoryApiServiceMock: MockProxy<PasskeyDirectoryApiServiceAbstraction>;
+  let passkeyDirectoryApiServiceMock: MockProxy<PasskeyDirectoryApiService>;
   const userId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(userId);
 
@@ -41,7 +41,7 @@ describe("PasskeyReportComponent", () => {
     cipherServiceMock.getAllDecrypted.mockResolvedValue([]);
     syncServiceMock = mock<SyncService>();
     logServiceMock = mock<LogService>();
-    passkeyDirectoryApiServiceMock = mock<PasskeyDirectoryApiServiceAbstraction>();
+    passkeyDirectoryApiServiceMock = mock<PasskeyDirectoryApiService>();
     passkeyDirectoryApiServiceMock.getPasskeyDirectory.mockResolvedValue([]);
 
     await TestBed.configureTestingModule({
@@ -68,7 +68,7 @@ describe("PasskeyReportComponent", () => {
           useValue: logServiceMock,
         },
         {
-          provide: PasskeyDirectoryApiServiceAbstraction,
+          provide: PasskeyDirectoryApiService,
           useValue: passkeyDirectoryApiServiceMock,
         },
         {

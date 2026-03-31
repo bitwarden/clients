@@ -8,7 +8,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PasskeyDirectoryEntryResponse } from "@bitwarden/common/dirt/models/response/passkey-directory-entry.response";
-import { PasskeyDirectoryApiServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/passkey-directory-api.service.abstraction";
+import { PasskeyDirectoryApiService } from "@bitwarden/common/dirt/services/abstractions/passkey-directory-api.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -32,7 +32,7 @@ describe("OrgPasskeyReportComponent", () => {
   let fixture: ComponentFixture<OrgPasskeyReportComponent>;
   let cipherServiceMock: MockProxy<CipherService>;
   let organizationService: MockProxy<OrganizationService>;
-  let passkeyDirectoryApiServiceMock: MockProxy<PasskeyDirectoryApiServiceAbstraction>;
+  let passkeyDirectoryApiServiceMock: MockProxy<PasskeyDirectoryApiService>;
   const userId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(userId);
   const orgId = Utils.newGuid();
@@ -49,7 +49,7 @@ describe("OrgPasskeyReportComponent", () => {
     cipherServiceMock.getAllFromApiForOrganization.mockResolvedValue([]);
     organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(of([mockOrganization]));
-    passkeyDirectoryApiServiceMock = mock<PasskeyDirectoryApiServiceAbstraction>();
+    passkeyDirectoryApiServiceMock = mock<PasskeyDirectoryApiService>();
     passkeyDirectoryApiServiceMock.getPasskeyDirectory.mockResolvedValue([]);
 
     await TestBed.configureTestingModule({
@@ -76,7 +76,7 @@ describe("OrgPasskeyReportComponent", () => {
           useValue: mock<LogService>(),
         },
         {
-          provide: PasskeyDirectoryApiServiceAbstraction,
+          provide: PasskeyDirectoryApiService,
           useValue: passkeyDirectoryApiServiceMock,
         },
         {

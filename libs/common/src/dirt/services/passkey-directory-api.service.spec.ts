@@ -3,15 +3,15 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { ApiService } from "../../abstractions/api.service";
 import { UserId } from "../../types/guid";
 
-import { PasskeyDirectoryApiService } from "./passkey-directory-api.service";
+import { DefaultPasskeyDirectoryApiService } from "./default-passkey-directory-api.service";
 
 describe("PasskeyDirectoryApiService", () => {
-  let service: PasskeyDirectoryApiService;
+  let service: DefaultPasskeyDirectoryApiService;
   let apiServiceMock: MockProxy<ApiService>;
 
   beforeEach(() => {
     apiServiceMock = mock<ApiService>();
-    service = new PasskeyDirectoryApiService(apiServiceMock);
+    service = new DefaultPasskeyDirectoryApiService(apiServiceMock);
   });
 
   describe("getPasskeyDirectory", () => {

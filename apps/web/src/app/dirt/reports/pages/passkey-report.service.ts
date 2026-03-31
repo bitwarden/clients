@@ -5,7 +5,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 export interface PasskeyServiceEntry {
-  instructions: string;
+  instructions: string | undefined;
   supportsPasskeyLogin: boolean;
   supportsPasskeyMfa: boolean;
 }
@@ -136,7 +136,7 @@ export class PasskeyReportService {
   buildPasskeyCipherRow(cipher: CipherView, match: PasskeyServiceEntry): PasskeyCipherRow {
     return {
       cipher,
-      instructions: match.instructions !== "" ? match.instructions : null,
+      instructions: match.instructions !== undefined ? match.instructions : null,
       supportsPasskeyLogin: match.supportsPasskeyLogin,
       supportsPasskeyMfa: match.supportsPasskeyMfa,
     };
