@@ -197,6 +197,9 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncPolicies(response.policies, response.profile.id);
       await this.preferenceSyncService?.pull(response.userPreferences, response.profile.id);
 
+      // Start push sync if not already running (idempotent — startPushSync tears down previous subscription)
+      this.preferenceSyncService?.startPushSync(response.profile.id);
+
       await this.setLastSync(now, userId);
       return this.syncCompleted(true, userId);
     } catch (e) {
