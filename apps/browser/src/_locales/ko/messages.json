@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "잠금 해제 옵션"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "잠금 해제 방법을 설정하여 보관함의 시간 초과 동작을 변경하세요."
-  },
   "unlockMethodNeeded": {
     "message": "설정에서 잠금 해제 수단 설정하기"
   },
   "sessionTimeoutHeader": {
     "message": "세션 만료"
-  },
-  "vaultTimeoutHeader": {
-    "message": "보관함 시간초과"
   },
   "otherOptions": {
     "message": "기타 옵션"
@@ -2372,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "선택한 마스터 비밀번호는 취약합니다. Bitwarden 계정을 확실히 보호하려면 강력한 마스터 비밀번호(혹은 패스프레이즈)를 사용해야 합니다. 정말 이 마스터 비밀번호를 사용하시겠습니까?"
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2480,8 @@
   "vaultTimeoutAction": {
     "message": "보관함 시간 제한 초과시 동작"
   },
-  "vaultTimeoutAction1": {
-    "message": "시간초과 시 행동"
+  "showAtRiskPasswordNotifications": {
+    "message": "Show at-risk password notifications"
   },
   "lock": {
     "message": "잠금",
@@ -3229,9 +3247,6 @@
   },
   "minutes": {
     "message": "분"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "타임아웃 옵션에 기업의 정책 요구 사항이 적용되었습니다"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "조직 정책이 보관함 제한 시간에 영향을 미치고 있습니다. 최대 허용 보관함 제한 시간은 $HOURS$시간 $MINUTES$분입니다",
@@ -4435,6 +4450,9 @@
   },
   "exportSuccess": {
     "message": "보관함 데이터 내보내짐"
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
   },
   "typePasskey": {
     "message": "패스키"
@@ -6130,8 +6148,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6157,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "전송 승인"
   },
   "declineAndLeave": {
     "message": "거부 및 떠나기"
-  },
-  "whyAmISeeingThis": {
-    "message": "왜 이 화면이 표시됩니까?"
   },
   "items": {
     "message": "항목"
@@ -6178,9 +6199,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "여러 이메일을 쉼표로 구분해 입력하세요."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "이메일 주소가 최소 하나 이상 있어야 이메일 인증 방식을 이용할 수 있습니다. 모든 이메일을 제거하려면, 위에서 접속 유형을 바꾸세요."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6214,8 @@
   },
   "userVerificationFailed": {
     "message": "사용자 인증에 실패했습니다."
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }

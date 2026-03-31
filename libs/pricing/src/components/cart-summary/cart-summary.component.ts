@@ -15,7 +15,8 @@ import { IconButtonModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { Cart, CartItem } from "../../types/cart";
-import { getAmount, getLabel } from "../../types/discount";
+import { Discount, getAmount, getLabel } from "../../types/discount";
+import { DiscountBadgeComponent } from "../discount-badge/discount-badge.component";
 
 /**
  * A reusable UI-only component that displays a cart summary with line items.
@@ -26,7 +27,14 @@ import { getAmount, getLabel } from "../../types/discount";
   selector: "billing-cart-summary",
   templateUrl: "./cart-summary.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TypographyModule, IconButtonModule, CurrencyPipe, I18nPipe, NgTemplateOutlet],
+  imports: [
+    TypographyModule,
+    IconButtonModule,
+    CurrencyPipe,
+    I18nPipe,
+    NgTemplateOutlet,
+    DiscountBadgeComponent,
+  ],
 })
 export class CartSummaryComponent {
   private readonly i18nService = inject(I18nService);
@@ -39,6 +47,9 @@ export class CartSummaryComponent {
 
   // Hide pricing term (e.g., "/ month" or "/ year") if true
   readonly hidePricingTerm = input<boolean>(false);
+
+  // Show discount badge chips next to the header total; use in checkout flows only
+  readonly showDiscountBadges = input<boolean>(false);
 
   // UI state
   readonly isExpanded = signal(true);
@@ -140,26 +151,39 @@ export class CartSummaryComponent {
   );
 
   /**
-   * Calculates the cart-level discount amount
+   * Maps a list of discounts to labeled line items, applying each discount to the running
+   * subtotal after the previous discount was subtracted. For example, two 10% discounts on
+   * a $100 subtotal yield $10 off (subtotal → $90), then $9 off (subtotal → $81).
    */
-  readonly discountAmount = computed<number>(() => {
-    const { discount } = this.cart();
-    if (!discount) {
-      return 0;
+  private calculateDiscountLineItems(
+    discounts: Discount[],
+    subtotal: number,
+  ): Array<{ label: string; amount: number }> {
+    let runningSubtotal = subtotal;
+    return discounts.map((discount) => {
+      const amount = getAmount(discount, runningSubtotal);
+      runningSubtotal -= amount;
+      return { label: getLabel(this.i18nService, discount), amount };
+    });
+  }
+
+  /**
+   * Computes each discount as a labeled line item with its individual amount
+   */
+  readonly discountLineItems = computed<Array<{ label: string; amount: number }>>(() => {
+    const { discounts } = this.cart();
+    if (!discounts?.length) {
+      return [];
     }
-    return getAmount(discount, this.subtotal());
+    return this.calculateDiscountLineItems(discounts, this.subtotal());
   });
 
   /**
-   * Gets the discount label for display
+   * Calculates the total discount amount across all discounts
    */
-  readonly discountLabel = computed<string>(() => {
-    const { discount } = this.cart();
-    if (!discount) {
-      return "";
-    }
-    return getLabel(this.i18nService, discount);
-  });
+  readonly discountAmount = computed<number>(() =>
+    this.discountLineItems().reduce((sum, item) => sum + item.amount, 0),
+  );
 
   /**
    * Calculates the credit amount from the cart credit

@@ -467,20 +467,16 @@ export class BrowserApi {
   /**
    * Returns true if the vault popup is currently open.
    *
-   * Uses `chrome.runtime.getContexts()` when available (MV3/Chrome),
-   * and falls back to `chrome.extension.getViews()` for MV2/Safari.
+   * Uses `chrome.runtime.getContexts()` on MV3 (Chrome/Edge),
+   * and falls back to `chrome.extension.getViews()` for MV2 (Firefox) and Safari.
    */
   static async isPopupOpen(): Promise<boolean> {
-    if (typeof (chrome.runtime as any).getContexts === "function") {
-      // Firefox MV2 exposes getContexts as a function but returns undefined instead of a Promise,
-      // because getContexts is MV3-only. Check the return value before awaiting.
-      const result = (chrome.runtime as any).getContexts({});
-      if (result instanceof Promise) {
-        const contexts = await result;
-        return (contexts ?? []).some(
-          (context: chrome.runtime.ExtensionContext) => context.contextType === "POPUP",
-        );
-      }
+    if (
+      typeof (chrome.runtime as any).getContexts === "function" &&
+      BrowserApi.isManifestVersion(3)
+    ) {
+      const contexts = await chrome.runtime.getContexts({});
+      return contexts.some((context) => context.contextType === "POPUP");
     }
 
     // MV2/Safari — background page can use getExtensionViews
@@ -494,57 +490,61 @@ export class BrowserApi {
    * - Sidebar: always considered focused (always visible).
    * - Popout windows: only focused if the window is currently focused.
    *
-   * Uses `chrome.runtime.getContexts()` when available (MV3/Chrome),
-   * and falls back to `chrome.extension.getViews()` for MV2/Safari.
+   * Uses `chrome.runtime.getContexts()` on MV3 (Chrome/Edge),
+   * and falls back to `chrome.extension.getViews()` for MV2 (Firefox) and Safari.
+   *
+   * NOTE: The `getContexts` path is restricted to MV3. Firefox MV2's persistent
+   * background page is classified as a "POPUP" context by `runtime.getContexts()`,
+   * which would cause `isAnyViewFocused` to permanently return true and block vault
+   * timeout. The `getExtensionViews` path only returns actually-visible views.
    */
   static async isAnyViewFocused(): Promise<boolean> {
-    if (typeof (chrome.runtime as any).getContexts === "function") {
-      // Firefox MV2 exposes getContexts as a function but returns undefined instead of a Promise,
-      // because getContexts is MV3-only. Check the return value before awaiting.
-      const result = (chrome.runtime as any).getContexts({});
-      if (result instanceof Promise) {
-        const contexts = await result;
+    if (
+      typeof (chrome.runtime as any).getContexts === "function" &&
+      BrowserApi.isManifestVersion(3)
+    ) {
+      const contexts = await chrome.runtime.getContexts({});
 
-        if (
-          contexts.some(
-            (c: chrome.runtime.ExtensionContext) =>
-              c.contextType === "POPUP" || c.contextType === "SIDE_PANEL",
-          )
-        ) {
+      if (
+        contexts.some(
+          (c: chrome.runtime.ExtensionContext) =>
+            c.contextType === "POPUP" || c.contextType === "SIDE_PANEL",
+        )
+      ) {
+        return true;
+      }
+
+      const tabs = contexts.filter(
+        (c: chrome.runtime.ExtensionContext) =>
+          c.contextType === "TAB" && c.documentUrl?.includes("uilocation=popout"),
+      );
+      for (const context of tabs) {
+        const win = await BrowserApi.getWindowById(context.windowId);
+        if (win?.focused) {
           return true;
         }
-
-        const tabs = contexts.filter(
-          (c: chrome.runtime.ExtensionContext) =>
-            c.contextType === "TAB" && c.documentUrl?.includes("uilocation=popout"),
-        );
-        for (const context of tabs) {
-          const win = await BrowserApi.getWindowById(context.windowId);
-          if (win?.focused) {
-            return true;
-          }
-        }
-        return false;
       }
+      return false;
     }
-
-    // MV2/Safari — background page can use getExtensionViews
-    if (BrowserApi.getExtensionViews({ type: "popup" }).length > 0) {
-      return true;
-    }
-
-    return BrowserApi.getExtensionViews({ type: "tab" }).some(
-      (v) =>
-        v.location.href.includes("uilocation=sidebar") ||
-        (v.location.href.includes("uilocation=popout") && v.document.hasFocus()),
-    );
   }
 
-  static createNewTab(url: string, active = true): Promise<chrome.tabs.Tab> {
-    return new Promise((resolve) =>
-      chrome.tabs.create({ url: url, active: active }, (tab) => resolve(tab)),
-    );
+  // MV2/Safari — background page can use getExtensionViews
+  if(BrowserApi.getExtensionViews({ type: "popup" }).length > 0) {
+  return true;
+}
+
+return BrowserApi.getExtensionViews({ type: "tab" }).some(
+  (v) =>
+    v.location.href.includes("uilocation=sidebar") ||
+    (v.location.href.includes("uilocation=popout") && v.document.hasFocus()),
+);
   }
+
+  static createNewTab(url: string, active = true): Promise < chrome.tabs.Tab > {
+  return new Promise((resolve) =>
+    chrome.tabs.create({ url: url, active: active }, (tab) => resolve(tab)),
+  );
+}
 
   /**
    * Gathers the details for a specified sub-frame of a tab.
@@ -552,10 +552,10 @@ export class BrowserApi {
    * @param details - The details of the frame to get.
    */
   static async getFrameDetails(
-    details: chrome.webNavigation.GetFrameDetails,
-  ): Promise<chrome.webNavigation.GetFrameResultDetails> {
-    return new Promise((resolve) => chrome.webNavigation.getFrame(details, resolve));
-  }
+  details: chrome.webNavigation.GetFrameDetails,
+): Promise < chrome.webNavigation.GetFrameResultDetails > {
+  return new Promise((resolve) => chrome.webNavigation.getFrame(details, resolve));
+}
 
   /**
    * Gets all frames associated with a tab.
@@ -563,46 +563,46 @@ export class BrowserApi {
    * @param tabId - The id of the tab to get the frames for.
    */
   static async getAllFrameDetails(
-    tabId: chrome.tabs.Tab["id"],
-  ): Promise<chrome.webNavigation.GetAllFrameResultDetails[]> {
-    return new Promise((resolve) => chrome.webNavigation.getAllFrames({ tabId }, resolve));
-  }
+  tabId: chrome.tabs.Tab["id"],
+): Promise < chrome.webNavigation.GetAllFrameResultDetails[] > {
+  return new Promise((resolve) => chrome.webNavigation.getAllFrames({ tabId }, resolve));
+}
 
   // Keep track of all the events registered in a Safari popup so we can remove
   // them when the popup gets unloaded, otherwise we cause a memory leak
   private static trackedChromeEventListeners: [
-    event: chrome.events.Event<(...args: unknown[]) => unknown>,
-    callback: (...args: unknown[]) => unknown,
-  ][] = [];
+  event: chrome.events.Event<(...args: unknown[]) => unknown>,
+  callback: (...args: unknown[]) => unknown,
+][] = [];
 
   static messageListener(
-    name: string,
-    callback: (
-      message: any,
-      sender: chrome.runtime.MessageSender,
-      sendResponse: any,
-    ) => boolean | void,
-  ) {
-    BrowserApi.addListener(chrome.runtime.onMessage, callback);
-  }
+  name: string,
+  callback: (
+    message: any,
+    sender: chrome.runtime.MessageSender,
+    sendResponse: any,
+  ) => boolean | void,
+) {
+  BrowserApi.addListener(chrome.runtime.onMessage, callback);
+}
 
   static messageListener$() {
-    return new Observable<unknown>((subscriber) => {
-      const handler = (message: unknown) => {
-        subscriber.next(message);
-      };
+  return new Observable<unknown>((subscriber) => {
+    const handler = (message: unknown) => {
+      subscriber.next(message);
+    };
 
-      BrowserApi.addListener(chrome.runtime.onMessage, handler);
+    BrowserApi.addListener(chrome.runtime.onMessage, handler);
 
-      return () => BrowserApi.removeListener(chrome.runtime.onMessage, handler);
-    });
-  }
+    return () => BrowserApi.removeListener(chrome.runtime.onMessage, handler);
+  });
+}
 
   static storageChangeListener(
-    callback: Parameters<typeof chrome.storage.onChanged.addListener>[0],
-  ) {
-    BrowserApi.addListener(chrome.storage.onChanged, callback);
-  }
+  callback: Parameters < typeof chrome.storage.onChanged.addListener > [0],
+) {
+  BrowserApi.addListener(chrome.storage.onChanged, callback);
+}
 
   /**
    * Adds a callback to the given chrome event in a cross-browser platform manner.
@@ -614,16 +614,16 @@ export class BrowserApi {
    * @param callback - The callback you want registered onto the event.
    */
   static addListener<T extends (...args: readonly any[]) => any>(
-    event: chrome.events.Event<T>,
-    callback: T,
-  ) {
-    event.addListener(callback);
+  event: chrome.events.Event<T>,
+  callback: T,
+) {
+  event.addListener(callback);
 
-    if (BrowserApi.isSafariApi && !BrowserApi.isBackgroundPage(self)) {
-      BrowserApi.trackedChromeEventListeners.push([event, callback]);
-      BrowserApi.setupUnloadListeners();
-    }
+  if (BrowserApi.isSafariApi && !BrowserApi.isBackgroundPage(self)) {
+    BrowserApi.trackedChromeEventListeners.push([event, callback]);
+    BrowserApi.setupUnloadListeners();
   }
+}
 
   /**
    * Removes a callback from the given chrome event in a cross-browser platform manner.
@@ -632,81 +632,81 @@ export class BrowserApi {
    */
   // Chrome's Event.removeListener expects callback args as `any[]` to align with its internal event typings.
   static removeListener<T extends (...args: readonly any[]) => any>(
-    event: chrome.events.Event<T>,
-    callback: T,
-  ) {
-    event.removeListener(callback);
+  event: chrome.events.Event<T>,
+  callback: T,
+) {
+  event.removeListener(callback);
 
-    if (BrowserApi.isSafariApi && !BrowserApi.isBackgroundPage(self)) {
-      const index = BrowserApi.trackedChromeEventListeners.findIndex(([_event, eventListener]) => {
-        return eventListener == callback;
-      });
-      if (index !== -1) {
-        BrowserApi.trackedChromeEventListeners.splice(index, 1);
-      }
+  if (BrowserApi.isSafariApi && !BrowserApi.isBackgroundPage(self)) {
+    const index = BrowserApi.trackedChromeEventListeners.findIndex(([_event, eventListener]) => {
+      return eventListener == callback;
+    });
+    if (index !== -1) {
+      BrowserApi.trackedChromeEventListeners.splice(index, 1);
     }
   }
+}
 
   // Setup the event to destroy all the listeners when the popup gets unloaded in Safari, otherwise we get a memory leak
   private static setupUnloadListeners() {
-    // The MDN recommend using 'visibilitychange' but that event is fired any time the popup window is obscured as well
-    // 'pagehide' works just like 'unload' but is compatible with the back/forward cache, so we prefer using that one
-    self.addEventListener("pagehide", () => {
-      for (const [event, callback] of BrowserApi.trackedChromeEventListeners) {
-        event.removeListener(callback);
-      }
-    });
-  }
+  // The MDN recommend using 'visibilitychange' but that event is fired any time the popup window is obscured as well
+  // 'pagehide' works just like 'unload' but is compatible with the back/forward cache, so we prefer using that one
+  self.addEventListener("pagehide", () => {
+    for (const [event, callback] of BrowserApi.trackedChromeEventListeners) {
+      event.removeListener(callback);
+    }
+  });
+}
 
   static sendMessage(subscriber: string, arg: any = {}) {
-    const message = Object.assign({}, { command: subscriber }, arg);
-    return chrome.runtime.sendMessage(message);
-  }
+  const message = Object.assign({}, { command: subscriber }, arg);
+  return chrome.runtime.sendMessage(message);
+}
 
   static sendMessageWithResponse<TResponse>(subscriber: string, arg: any = {}) {
-    const message = Object.assign({}, { command: subscriber }, arg);
-    return new Promise<TResponse>((resolve) => chrome.runtime.sendMessage(message, resolve));
-  }
+  const message = Object.assign({}, { command: subscriber }, arg);
+  return new Promise<TResponse>((resolve) => chrome.runtime.sendMessage(message, resolve));
+}
 
   static async focusTab(tabId: number) {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    chrome.tabs.update(tabId, { active: true, highlighted: true });
-  }
+  // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  chrome.tabs.update(tabId, { active: true, highlighted: true });
+}
 
   static closePopup(win: Window) {
-    if (BrowserApi.isWebExtensionsApi && BrowserApi.isFirefoxOnAndroid) {
-      // Reactivating the active tab dismisses the popup tab. The promise final
-      // condition is only called if the popup wasn't already dismissed (future proofing).
-      // ref: https://bugzilla.mozilla.org/show_bug.cgi?id=1433604
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      browser.tabs.update({ active: true }).finally(win.close);
-    } else {
-      win.close();
-    }
+  if (BrowserApi.isWebExtensionsApi && BrowserApi.isFirefoxOnAndroid) {
+    // Reactivating the active tab dismisses the popup tab. The promise final
+    // condition is only called if the popup wasn't already dismissed (future proofing).
+    // ref: https://bugzilla.mozilla.org/show_bug.cgi?id=1433604
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    browser.tabs.update({ active: true }).finally(win.close);
+  } else {
+    win.close();
   }
+}
 
   static gaFilter() {
-    return process.env.ENV !== "production";
-  }
+  return process.env.ENV !== "production";
+}
 
   static getUILanguage() {
-    return chrome.i18n.getUILanguage();
-  }
+  return chrome.i18n.getUILanguage();
+}
 
   /**
    * Handles reloading the extension using the underlying functionality exposed by the browser API.
    */
   static reloadExtension() {
-    // If we do `chrome.runtime.reload` on safari they will send an onInstalled reason of install
-    // and that prompts us to show a new tab, this apparently doesn't happen on sideloaded
-    // extensions and only shows itself production scenarios. See: https://bitwarden.atlassian.net/browse/PM-12298
-    if (this.isSafariApi) {
-      return self.location.reload();
-    }
-    return chrome.runtime.reload();
+  // If we do `chrome.runtime.reload` on safari they will send an onInstalled reason of install
+  // and that prompts us to show a new tab, this apparently doesn't happen on sideloaded
+  // extensions and only shows itself production scenarios. See: https://bitwarden.atlassian.net/browse/PM-12298
+  if (this.isSafariApi) {
+    return self.location.reload();
   }
+  return chrome.runtime.reload();
+}
 
   /**
    * Reloads all open extension views, except the background page. Will also
@@ -715,34 +715,34 @@ export class BrowserApi {
    * @param exemptCurrentHref - Whether to exempt the current window location from the reload.
    */
   static reloadOpenWindows(exemptCurrentHref = false) {
-    const views = BrowserApi.getExtensionViews();
-    if (!views.length) {
-      return;
-    }
-
-    const currentHref = self.location.href;
-    views
-      .filter((w) => w.location.href != null && !w.location.href.includes("background.html"))
-      .filter((w) => !exemptCurrentHref || w.location.href !== currentHref)
-      .forEach((w) => w.location.reload());
+  const views = BrowserApi.getExtensionViews();
+  if (!views.length) {
+    return;
   }
+
+  const currentHref = self.location.href;
+  views
+    .filter((w) => w.location.href != null && !w.location.href.includes("background.html"))
+    .filter((w) => !exemptCurrentHref || w.location.href !== currentHref)
+    .forEach((w) => w.location.reload());
+}
 
   static connectNative(application: string): browser.runtime.Port | chrome.runtime.Port {
-    if (BrowserApi.isWebExtensionsApi) {
-      return browser.runtime.connectNative(application);
-    } else if (BrowserApi.isChromeApi) {
-      return chrome.runtime.connectNative(application);
-    }
+  if (BrowserApi.isWebExtensionsApi) {
+    return browser.runtime.connectNative(application);
+  } else if (BrowserApi.isChromeApi) {
+    return chrome.runtime.connectNative(application);
   }
+}
 
   static requestPermission(permission: any) {
-    if (BrowserApi.isWebExtensionsApi) {
-      return browser.permissions.request(permission);
-    }
-    return new Promise((resolve) => {
-      chrome.permissions.request(permission, resolve);
-    });
+  if (BrowserApi.isWebExtensionsApi) {
+    return browser.permissions.request(permission);
   }
+  return new Promise((resolve) => {
+    chrome.permissions.request(permission, resolve);
+  });
+}
 
   /**
    * Checks if the user has provided the given permissions to the extension.
@@ -750,49 +750,49 @@ export class BrowserApi {
    * @param permissions - The permissions to check.
    */
   static async permissionsGranted(
-    permissions: chrome.runtime.ManifestPermissions[],
-  ): Promise<boolean> {
-    return new Promise((resolve) =>
-      chrome.permissions.contains({ permissions }, (result) => resolve(result)),
-    );
-  }
+  permissions: chrome.runtime.ManifestPermissions[],
+): Promise < boolean > {
+  return new Promise((resolve) =>
+    chrome.permissions.contains({ permissions }, (result) => resolve(result)),
+  );
+}
 
-  static getPlatformInfo(): Promise<browser.runtime.PlatformInfo | chrome.runtime.PlatformInfo> {
-    if (BrowserApi.isWebExtensionsApi) {
-      return browser.runtime.getPlatformInfo();
-    }
-    return new Promise((resolve) => {
-      chrome.runtime.getPlatformInfo(resolve);
-    });
+  static getPlatformInfo(): Promise < browser.runtime.PlatformInfo | chrome.runtime.PlatformInfo > {
+  if(BrowserApi.isWebExtensionsApi) {
+  return browser.runtime.getPlatformInfo();
+}
+return new Promise((resolve) => {
+  chrome.runtime.getPlatformInfo(resolve);
+});
   }
 
   /**
    * Returns the supported BrowserAction API based on the manifest version.
    */
   static getBrowserAction() {
-    return BrowserApi.isManifestVersion(3) ? chrome.action : chrome.browserAction;
-  }
+  return BrowserApi.isManifestVersion(3) ? chrome.action : chrome.browserAction;
+}
 
   static getSidebarAction(
-    win: Window & typeof globalThis,
-  ): OperaSidebarAction | FirefoxSidebarAction | null {
-    const deviceType = BrowserPlatformUtilsService.getDevice(win);
-    if (deviceType === DeviceType.FirefoxExtension) {
-      return browser.sidebarAction;
-    }
-
-    if (deviceType === DeviceType.OperaExtension) {
-      return win.opr?.sidebarAction;
-    }
-
-    return null;
+  win: Window & typeof globalThis,
+): OperaSidebarAction | FirefoxSidebarAction | null {
+  const deviceType = BrowserPlatformUtilsService.getDevice(win);
+  if (deviceType === DeviceType.FirefoxExtension) {
+    return browser.sidebarAction;
   }
 
-  static captureVisibleTab(): Promise<string> {
-    return new Promise((resolve) => {
-      chrome.tabs.captureVisibleTab(null, { format: "png" }, resolve);
-    });
+  if (deviceType === DeviceType.OperaExtension) {
+    return win.opr?.sidebarAction;
   }
+
+  return null;
+}
+
+  static captureVisibleTab(): Promise < string > {
+  return new Promise((resolve) => {
+    chrome.tabs.captureVisibleTab(null, { format: "png" }, resolve);
+  });
+}
 
   /**
    * Extension API helper method used to execute a script in a tab.
@@ -803,68 +803,68 @@ export class BrowserApi {
    * @param scriptingApiDetails {@link "ExecutionWorld" https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/scripting/ExecutionWorld}
    */
   static executeScriptInTab(
-    tabId: number,
-    details: chrome.extensionTypes.InjectDetails,
-    scriptingApiDetails?: {
-      world: chrome.scripting.ExecutionWorld;
-    },
-  ): Promise<unknown> {
-    if (BrowserApi.isManifestVersion(3)) {
-      let target: chrome.scripting.InjectionTarget;
+  tabId: number,
+  details: chrome.extensionTypes.InjectDetails,
+  scriptingApiDetails ?: {
+    world: chrome.scripting.ExecutionWorld;
+  },
+): Promise < unknown > {
+  if(BrowserApi.isManifestVersion(3)) {
+  let target: chrome.scripting.InjectionTarget;
 
-      if (typeof details.frameId === "number") {
-        target = { tabId, frameIds: [details.frameId] };
-      } else if (details.allFrames) {
-        target = { tabId, allFrames: true };
-      } else {
-        target = { tabId };
-      }
+  if (typeof details.frameId === "number") {
+    target = { tabId, frameIds: [details.frameId] };
+  } else if (details.allFrames) {
+    target = { tabId, allFrames: true };
+  } else {
+    target = { tabId };
+  }
 
-      return chrome.scripting.executeScript({
-        target,
-        files: details.file ? [details.file] : null,
-        injectImmediately: details.runAt === "document_start",
-        world: scriptingApiDetails?.world || chrome.scripting.ExecutionWorld.ISOLATED,
-      });
-    }
+  return chrome.scripting.executeScript({
+    target,
+    files: details.file ? [details.file] : null,
+    injectImmediately: details.runAt === "document_start",
+    world: scriptingApiDetails?.world || chrome.scripting.ExecutionWorld.ISOLATED,
+  });
+}
 
-    return new Promise((resolve) => {
-      chrome.tabs.executeScript(tabId, details, (result) => {
-        resolve(result);
-      });
-    });
+return new Promise((resolve) => {
+  chrome.tabs.executeScript(tabId, details, (result) => {
+    resolve(result);
+  });
+});
   }
 
   /**
    * Identifies if the browser autofill settings are overridden by the extension.
    */
-  static async browserAutofillSettingsOverridden(): Promise<boolean> {
-    if (!(await BrowserApi.permissionsGranted(["privacy"]))) {
-      return false;
-    }
+  static async browserAutofillSettingsOverridden(): Promise < boolean > {
+  if(!(await BrowserApi.permissionsGranted(["privacy"]))) {
+  return false;
+}
 
-    const checkOverrideStatus = (details: chrome.types.ChromeSettingGetResult<boolean>) =>
-      details.levelOfControl === "controlled_by_this_extension" && !details.value;
+const checkOverrideStatus = (details: chrome.types.ChromeSettingGetResult<boolean>) =>
+  details.levelOfControl === "controlled_by_this_extension" && !details.value;
 
-    const autofillAddressOverridden: boolean = await new Promise((resolve) =>
-      chrome.privacy.services.autofillAddressEnabled.get({}, (details) =>
-        resolve(checkOverrideStatus(details)),
-      ),
-    );
+const autofillAddressOverridden: boolean = await new Promise((resolve) =>
+  chrome.privacy.services.autofillAddressEnabled.get({}, (details) =>
+    resolve(checkOverrideStatus(details)),
+  ),
+);
 
-    const autofillCreditCardOverridden: boolean = await new Promise((resolve) =>
-      chrome.privacy.services.autofillCreditCardEnabled.get({}, (details) =>
-        resolve(checkOverrideStatus(details)),
-      ),
-    );
+const autofillCreditCardOverridden: boolean = await new Promise((resolve) =>
+  chrome.privacy.services.autofillCreditCardEnabled.get({}, (details) =>
+    resolve(checkOverrideStatus(details)),
+  ),
+);
 
-    const passwordSavingOverridden: boolean = await new Promise((resolve) =>
-      chrome.privacy.services.passwordSavingEnabled.get({}, (details) =>
-        resolve(checkOverrideStatus(details)),
-      ),
-    );
+const passwordSavingOverridden: boolean = await new Promise((resolve) =>
+  chrome.privacy.services.passwordSavingEnabled.get({}, (details) =>
+    resolve(checkOverrideStatus(details)),
+  ),
+);
 
-    return autofillAddressOverridden && autofillCreditCardOverridden && passwordSavingOverridden;
+return autofillAddressOverridden && autofillCreditCardOverridden && passwordSavingOverridden;
   }
 
   /**
@@ -873,10 +873,10 @@ export class BrowserApi {
    * @param value - Determines whether to enable or disable the autofill settings.
    */
   static async updateDefaultBrowserAutofillSettings(value: boolean) {
-    await chrome.privacy.services.autofillAddressEnabled.set({ value });
-    await chrome.privacy.services.autofillCreditCardEnabled.set({ value });
-    await chrome.privacy.services.passwordSavingEnabled.set({ value });
-  }
+  await chrome.privacy.services.autofillAddressEnabled.set({ value });
+  await chrome.privacy.services.autofillCreditCardEnabled.set({ value });
+  await chrome.privacy.services.passwordSavingEnabled.set({ value });
+}
 
   /**
    * Handles registration of static content scripts within manifest v2.
@@ -884,13 +884,13 @@ export class BrowserApi {
    * @param contentScriptOptions - Details of the registered content scripts
    */
   static async registerContentScriptsMv2(
-    contentScriptOptions: browser.contentScripts.RegisteredContentScriptOptions,
-  ): Promise<browser.contentScripts.RegisteredContentScript> {
-    if (typeof browser !== "undefined" && !!browser.contentScripts?.register) {
-      return await browser.contentScripts.register(contentScriptOptions);
-    }
+  contentScriptOptions: browser.contentScripts.RegisteredContentScriptOptions,
+): Promise < browser.contentScripts.RegisteredContentScript > {
+  if(typeof browser !== "undefined" && !!browser.contentScripts?.register) {
+  return await browser.contentScripts.register(contentScriptOptions);
+}
 
-    return await registerContentScriptsPolyfill(contentScriptOptions);
+return await registerContentScriptsPolyfill(contentScriptOptions);
   }
 
   /**
@@ -899,10 +899,10 @@ export class BrowserApi {
    * @param scripts - Details of the registered content scripts
    */
   static async registerContentScriptsMv3(
-    scripts: chrome.scripting.RegisteredContentScript[],
-  ): Promise<void> {
-    await chrome.scripting.registerContentScripts(scripts);
-  }
+  scripts: chrome.scripting.RegisteredContentScript[],
+): Promise < void> {
+  await chrome.scripting.registerContentScripts(scripts);
+}
 
   /**
    * Handles unregistering of static content scripts within manifest v3.
@@ -910,8 +910,8 @@ export class BrowserApi {
    * @param filter - Optional filter to unregister content scripts. Passing an empty object will unregister all content scripts.
    */
   static async unregisterContentScriptsMv3(
-    filter?: chrome.scripting.ContentScriptFilter,
-  ): Promise<void> {
-    await chrome.scripting.unregisterContentScripts(filter);
-  }
+  filter ?: chrome.scripting.ContentScriptFilter,
+): Promise < void> {
+  await chrome.scripting.unregisterContentScripts(filter);
+}
 }
