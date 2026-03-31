@@ -4707,5 +4707,59 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "multipleInputDomainsInvalid": {
+    "message": "One or more domains are invalid"
+  },
+  "domainNotAllowed": {
+    "message": "Due to an Enterpise policy you can only expose Sends to emails with domains $DOMAINS$",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendControlsEnable": {
+    "message": "Enable"
+  },
+  "sendControlsEnableDescription": {
+    "message": "Users can create and share Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendControlsDisable": {
+    "message": "Disable"
+  },
+  "sendControlsDisableDescription": {
+    "message": "Send is removed for all users",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "feature": {
+    "message": "Feature"
+  },
+  "sendType": {
+    "message": "Send type",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendSharingMethod": {
+    "message": "Sharing method"
+  },
+  "sendSharingMethodDescription": {
+    "message": "Set the sharing methods available to users when creating a Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "any": {
+    "message": "Any"
+  },
+  "anySharingMethodDescription": {
+    "message": "Allow users to choose their own sharing settings"
+  },
+  "passwordSharingMethodDescription": {
+    "message": "Require a password to access"
+  },
+  "specificPeopleSharingMethodDescription": {
+    "message": "Only selected emails or domains"
+  },
+  "allowedDomainsAutopopulateAlert": {
+    "message": "Domains have been auto populated based off of claimed domains. You can edit these at any time"
   }
 }

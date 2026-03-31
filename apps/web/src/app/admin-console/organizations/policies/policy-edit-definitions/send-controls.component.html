@@ -2,56 +2,61 @@
   {{ "sendControlsExemption" | i18n }}
 </bit-callout>
 
-<bit-form-control>
-  <input type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
-  <bit-label>{{ "turnOn" | i18n }}</bit-label>
-</bit-form-control>
-
 <div [formGroup]="data">
-  <h3 bitTypography="h3" class="tw-mt-4">{{ "options" | i18n }}</h3>
-  <bit-form-control>
-    <input
-      type="checkbox"
-      bitCheckbox
-      formControlName="disableSend"
-      id="disableSend"
-      [disabled]="!enabled.value"
-    />
-    <bit-label>{{ "disableSend" | i18n }}</bit-label>
-  </bit-form-control>
-  <bit-form-control>
-    <input
-      type="checkbox"
-      bitCheckbox
-      formControlName="disableHideEmail"
-      id="disableHideEmail"
-      [disabled]="!enabled.value"
-    />
-    <bit-label>{{ "disableHideEmail" | i18n }}</bit-label>
-  </bit-form-control>
-
-  <bit-form-field>
-    <bit-label>{{ "whoCanView" | i18n }}</bit-label>
-    <bit-select formControlName="whoCanAccess" id="whoCanAccess">
-      <bit-option
-        *ngFor="let o of whoCanAccessOptions"
-        [value]="o.value"
-        [label]="o.name"
-      ></bit-option>
-    </bit-select>
-  </bit-form-field>
-
-  @if (showDomains()) {
-    <bit-form-field>
-      <bit-label>{{ "allowedDomains" | i18n }}</bit-label>
-      <textarea
-        bitInput
-        formControlName="allowedDomains"
-        id="allowedDomains"
-        rows="3"
-        [placeholder]="'allowedDomainsPlaceholder' | i18n"
-      ></textarea>
-      <bit-hint>{{ "allowedDomainsHint" | i18n }}</bit-hint>
-    </bit-form-field>
-  }
+  <h3 bitTypography="h3" class="tw-mt-4">{{ "feature" | i18n }}</h3>
+  <bit-radio-group formControlName="disableSend" [block]="true">
+    <bit-radio-button id="enableSends" [value]="false">
+      <bit-label>{{ "sendControlsEnable" | i18n }}</bit-label>
+      <bit-hint>{{ "sendControlsEnableDescription" | i18n }}</bit-hint>
+    </bit-radio-button>
+    <bit-radio-button id="disableSends" [value]="true">
+      <bit-label>{{ "sendControlsDisable" | i18n }}</bit-label>
+      <bit-hint>{{ "sendControlsDisableDescription" | i18n }}</bit-hint>
+    </bit-radio-button>
+  </bit-radio-group>
+  <div [hidden]="!sendFeatureEnabled()">
+    <hr class="tw-border-secondary-100" />
+    <h3 bitTypography="h3" class="tw-mt-4">{{ "sendSharingMethod" | i18n }}</h3>
+    <div bitTypography="body1" class="tw-text-muted tw-mb-2">
+      {{ "sendSharingMethodDescription" | i18n }}
+    </div>
+    <bit-radio-group formControlName="whoCanAccess" [block]="true">
+      <bit-radio-button id="anyCanView" [value]="WhoCanAccessType.Any">
+        <bit-label>{{ "any" | i18n }}</bit-label>
+        <bit-hint>{{ "anySharingMethodDescription" | i18n }}</bit-hint>
+      </bit-radio-button>
+      <bit-radio-button id="passwordCanView" [value]="WhoCanAccessType.PasswordProtected">
+        <bit-label>{{ "passwordProtected" | i18n }}</bit-label>
+        <bit-hint>{{ "passwordSharingMethodDescription" | i18n }}</bit-hint>
+      </bit-radio-button>
+      <bit-radio-button id="specificPeopleCanView" [value]="WhoCanAccessType.SpecificPeople">
+        <bit-label>{{ "specificPeople" | i18n }}</bit-label>
+        <bit-hint>{{ "specificPeopleSharingMethodDescription" | i18n }}</bit-hint>
+      </bit-radio-button>
+      @if (showDomains()) {
+        @if (showAllowedDomainsAutopopulateAlert()) {
+          <bit-callout class="tw-mt-2" (dismiss)="onDismissCallout()">{{
+            "allowedDomainsAutopopulateAlert" | i18n
+          }}</bit-callout>
+        }
+        <bit-form-field class="tw-mt-2">
+          <bit-label>{{ "allowedDomains" | i18n }}</bit-label>
+          <textarea
+            bitInput
+            formControlName="allowedDomains"
+            id="allowedDomains"
+            rows="3"
+            [placeholder]="'allowedDomainsPlaceholder' | i18n"
+          ></textarea>
+          <bit-hint>{{ "allowedDomainsHint" | i18n }}</bit-hint>
+        </bit-form-field>
+      }
+    </bit-radio-group>
+    <hr class="tw-border-secondary-100" />
+    <h3 bitTypography="h3" class="tw-mt-4">{{ "additionalOptions" | i18n }}</h3>
+    <bit-form-control>
+      <input type="checkbox" bitCheckbox formControlName="disableHideEmail" id="disableHideEmail" />
+      <bit-label>{{ "disableHideEmail" | i18n }}</bit-label>
+    </bit-form-control>
+  </div>
 </div>

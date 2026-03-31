@@ -6187,5 +6187,8 @@
   },
   "downloadFailed": {
     "message": "Failed to download."
+  },
+  "multipleInputDomainsInvalid": {
+    "message": "One or more domains are invalid"
   }
 }

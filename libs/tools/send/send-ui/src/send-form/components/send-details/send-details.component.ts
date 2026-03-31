@@ -40,7 +40,12 @@ import {
   DialogService,
 } from "@bitwarden/components";
 import { CredentialGeneratorService } from "@bitwarden/generator-core";
-import { SendFormConfig, SendFormGenerationService, SendPolicyService } from "@bitwarden/send-ui";
+import {
+  SendFormConfig,
+  SendFormGenerationService,
+  SendPolicyService,
+  WhoCanAccessType,
+} from "@bitwarden/send-ui";
 
 import { SendFormContainer } from "../../send-form-container";
 import { SendOptionsComponent } from "../options/send-options.component";
@@ -156,16 +161,30 @@ export class SendDetailsComponent implements OnInit {
     this.sendPolicyService.whoCanAccess$,
   ]).pipe(
     map(([enabled, hasPremium, whoCanAccess]) => {
-      if (whoCanAccess === "specificPeople") {
-        return this.authTypes.filter((t) => t.value === AuthType.Email);
-      }
-      if (whoCanAccess === "passwordProtected") {
-        return this.authTypes.filter((t) => t.value === AuthType.Password);
-      }
-      if (!enabled || !hasPremium) {
-        return this.authTypes.filter((t) => t.value !== AuthType.Email);
-      }
-      return this.authTypes;
+      /** Show the email auth type if the feature flag is enable AND EITHER
+       * 1. There is an enterprise policy that mandates the email auth type
+       * 2. The Send currently uses the email auth type */
+      const includeEmail =
+        enabled &&
+        hasPremium &&
+        (whoCanAccess === WhoCanAccessType.SpecificPeople ||
+          this.originalSendView.authType === AuthType.Email);
+      /** Show the password auth type if EITHER
+       * 1. There is an enterprise policy that mandates the password auth type
+       * 2. The Send currently uses the password auth type */
+      const includePassword =
+        whoCanAccess === WhoCanAccessType.PasswordProtected ||
+        this.originalSendView.authType === AuthType.Password;
+      /** Show the "Anyone with the link" auth type if EITHER
+       * 1. There are no enterprise policies that dictate required auth types
+       * 2. The Send currently uses the "Anyone with the link" auth type */
+      const includeAny = whoCanAccess == null || this.originalSendView.authType === AuthType.None;
+      return this.authTypes.filter(
+        (at) =>
+          (includeEmail && at.value === AuthType.Email) ||
+          (includePassword && at.value === AuthType.Password) ||
+          (includeAny && at.value === AuthType.None),
+      );
     }),
   );
 
@@ -249,16 +268,6 @@ export class SendDetailsComponent implements OnInit {
       });
 
     this.sendFormContainer.registerChildForm("sendDetailsForm", this.sendDetailsForm);
-
-    this.sendPolicyService.whoCanAccess$.pipe(takeUntilDestroyed()).subscribe((whoCanAccess) => {
-      if (whoCanAccess === "specificPeople") {
-        this.sendDetailsForm.get("authType").setValue(AuthType.Email);
-        this.sendDetailsForm.get("authType").disable();
-      } else if (whoCanAccess === "passwordProtected") {
-        this.sendDetailsForm.get("authType").setValue(AuthType.Password);
-        this.sendDetailsForm.get("authType").disable();
-      }
-    });
 
     this.sendPolicyService.allowedDomains$
       .pipe(takeUntilDestroyed())
@@ -362,7 +371,12 @@ export class SendDetailsComponent implements OnInit {
           return !this.policyAllowedDomains.includes(domain);
         });
         if (disallowedEmails.length > 0) {
-          return { domainNotAllowed: true };
+          return {
+            domainNotAllowed: {
+              value: control.value,
+              domains: this.policyAllowedDomains.join(", "),
+            },
+          };
         }
       }
 

@@ -7,6 +7,14 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import {} from "@bitwarden/admin-console/common";
+
+export const WhoCanAccessType = Object.freeze({
+  Any: 0,
+  PasswordProtected: 1,
+  SpecificPeople: 2,
+} as const);
+export type WhoCanAccessType = (typeof WhoCanAccessType)[keyof typeof WhoCanAccessType];
 
 /**
  * Service for evaluating Send-related policy restrictions for the current user.
@@ -74,13 +82,13 @@ export class SendPolicyService {
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  readonly whoCanAccess$: Observable<string | null> = this.flagAndUser$.pipe(
+  readonly whoCanAccess$: Observable<WhoCanAccessType | null> = this.flagAndUser$.pipe(
     switchMap(([sendControlsEnabled, userId]) =>
       sendControlsEnabled
         ? this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
             map((policies) => {
-              const policy = policies?.find((p) => p.data?.whoCanAccess);
-              return (policy?.data?.whoCanAccess as string) ?? null;
+              const policy = policies?.find((p) => p.data?.whoCanAccess != null);
+              return (policy?.data?.whoCanAccess as WhoCanAccessType) ?? null;
             }),
           )
         : of(null),
@@ -94,12 +102,11 @@ export class SendPolicyService {
         ? this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
             map((policies) => {
               const policy = policies?.find((p) => p.data?.allowedDomains);
-              const raw = policy?.data?.allowedDomains as string;
+              const raw = policy?.data?.allowedDomains as string[];
               if (!raw) {
                 return null;
               }
               return raw
-                .split(",")
                 .map((d: string) => d.trim().toLowerCase())
                 .filter((d: string) => d.length > 0);
             }),
