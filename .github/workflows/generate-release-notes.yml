@@ -39,7 +39,10 @@ jobs:
           set -euo pipefail
 
           # Parse .github/release.yml into JSON for use by jq
-          RELEASE_CONFIG=$(yq -o=json '.changelog' .github/release.yml)
+          RELEASE_CONFIG=$(yq -o=json '.changelog' /.github/release.yml)
+
+          echo "Using release config:"
+          echo "$RELEASE_CONFIG" | jq .
 
           # Find the most recent tag for this client
           PREV_TAG=$(git tag -l --sort=-authordate | grep "^${CLIENT}-v" | head -n 1)
