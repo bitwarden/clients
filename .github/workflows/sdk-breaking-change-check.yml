@@ -17,10 +17,6 @@ on:
         description: "Artifacts run ID"
         required: true
         type: string
-      artifact_name:
-        description: "Artifact name"
-        required: true
-        type: string
 
 permissions:
   contents: read
@@ -36,7 +32,6 @@ jobs:
       _SOURCE_REPO: ${{ github.event.inputs.source_repo }}
       _SDK_VERSION: ${{ github.event.inputs.sdk_version }}
       _ARTIFACTS_RUN_ID: ${{ github.event.inputs.artifacts_run_id }}
-      _ARTIFACT_NAME: ${{ github.event.inputs.artifact_name }}
       
     steps:
       - name: Log in to Azure
@@ -113,7 +108,7 @@ jobs:
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           run_id: ${{ env._ARTIFACTS_RUN_ID }}
-          artifacts: ${{ env._ARTIFACT_NAME }}
+          artifacts: sdk-internal
           repo: ${{ env._SOURCE_REPO }}
           path: ./sdk-internal
           if_no_artifact_found: fail
