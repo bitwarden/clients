@@ -15,7 +15,7 @@ export class FormControlGroupItemDirective {
     if (!this.group) {
       return false;
     }
-    return this.group.selectedValues().has(this.value());
+    return this.group.selectedValues().includes(this.value());
   });
 
   readonly isDisabled = computed(() => this.group?.groupDisabled() ?? false);
