@@ -1,0 +1,308 @@
+import { mock, MockProxy } from "jest-mock-extended";
+import { firstValueFrom } from "rxjs";
+
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { FileUploadType } from "@bitwarden/common/platform/enums";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+
+import {
+  AccessReportApi,
+  AccessReportCreateApi,
+  AccessReportFileApi,
+  AccessReportSummaryApi,
+} from "../../../models";
+
+import { DefaultAccessIntelligenceApiService } from "./default-access-intelligence-api.service";
+
+describe("DefaultAccessIntelligenceApiService", () => {
+  let service: DefaultAccessIntelligenceApiService;
+  let mockApiService: MockProxy<ApiService>;
+
+  const orgId = "org-123" as OrganizationId;
+  const reportId = "report-456";
+  const reportFileId = "file-789";
+
+  beforeEach(() => {
+    mockApiService = mock<ApiService>();
+    service = new DefaultAccessIntelligenceApiService(mockApiService);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  describe("getLatestReport$", () => {
+    it("should call GET /reports/organizations/{orgId}/latest and return AccessReportApi", async () => {
+      const rawResponse = {
+        id: reportId,
+        organizationId: orgId,
+        creationDate: "2024-01-01T00:00:00Z",
+        reportData: "encrypted-reports",
+        summaryData: "encrypted-summary",
+        applicationData: "encrypted-apps",
+        contentEncryptionKey: "enc-key",
+      };
+      mockApiService.send.mockResolvedValue(rawResponse);
+
+      const result = await firstValueFrom(service.getLatestReport$(orgId));
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "GET",
+        `/reports/organizations/${orgId}/latest`,
+        null,
+        true,
+        true,
+      );
+      expect(result).toBeInstanceOf(AccessReportApi);
+      expect(result.id).toBe(reportId);
+      expect(result.organizationId).toBe(orgId);
+    });
+
+    it("should propagate API errors", async () => {
+      mockApiService.send.mockRejectedValue(new Error("Network error"));
+
+      await expect(firstValueFrom(service.getLatestReport$(orgId))).rejects.toThrow(
+        "Network error",
+      );
+    });
+  });
+
+  describe("createReport$", () => {
+    it("should call POST /reports/organizations/{orgId} and return AccessReportFileApi", async () => {
+      const rawResponse = {
+        reportFileUploadUrl: "https://storage.example.com/upload",
+        fileUploadType: FileUploadType.Azure,
+        reportResponse: {
+          id: reportId,
+          organizationId: orgId,
+          creationDate: "2024-01-01T00:00:00Z",
+        },
+      };
+      mockApiService.send.mockResolvedValue(rawResponse);
+
+      const request = new AccessReportCreateApi();
+      request.fileSize = 1024;
+      request.contentEncryptionKey = "enc-key";
+
+      const result = await firstValueFrom(service.createReport$(orgId, request));
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "POST",
+        `/reports/organizations/${orgId}`,
+        request,
+        true,
+        true,
+      );
+      expect(result).toBeInstanceOf(AccessReportFileApi);
+      expect(result.reportFileUploadUrl).toBe("https://storage.example.com/upload");
+      expect(result.fileUploadType).toBe(FileUploadType.Azure);
+      expect(result.reportResponse).toBeInstanceOf(AccessReportApi);
+    });
+
+    it("should propagate API errors", async () => {
+      mockApiService.send.mockRejectedValue(new Error("API error"));
+
+      const request = new AccessReportCreateApi();
+
+      await expect(firstValueFrom(service.createReport$(orgId, request))).rejects.toThrow(
+        "API error",
+      );
+    });
+  });
+
+  describe("updateSummaryData$", () => {
+    it("should call PATCH /reports/organizations/{orgId}/data/summary/{reportId} and return AccessReportApi", async () => {
+      const rawResponse = {
+        id: reportId,
+        organizationId: orgId,
+        creationDate: "2024-01-01T00:00:00Z",
+        summaryData: "encrypted-summary",
+        contentEncryptionKey: "enc-key",
+      };
+      mockApiService.send.mockResolvedValue(rawResponse);
+
+      const summaryData = "encrypted-summary-data";
+      const metrics = { totalApplicationCount: 5, totalAtRiskApplicationCount: 2 };
+
+      const result = await firstValueFrom(
+        service.updateSummaryData$(orgId, reportId, summaryData, metrics),
+      );
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "PATCH",
+        `/reports/organizations/${orgId}/data/summary/${reportId}`,
+        expect.objectContaining({ summaryData, metrics }),
+        true,
+        true,
+      );
+      expect(result).toBeInstanceOf(AccessReportApi);
+      expect(result.id).toBe(reportId);
+    });
+
+    it("should send null summaryData when not provided", async () => {
+      const rawResponse = { id: reportId, organizationId: orgId, creationDate: "" };
+      mockApiService.send.mockResolvedValue(rawResponse);
+
+      await firstValueFrom(service.updateSummaryData$(orgId, reportId, null));
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "PATCH",
+        expect.any(String),
+        expect.objectContaining({ summaryData: null }),
+        true,
+        true,
+      );
+    });
+
+    it("should propagate API errors", async () => {
+      mockApiService.send.mockRejectedValue(new Error("Update failed"));
+
+      await expect(
+        firstValueFrom(service.updateSummaryData$(orgId, reportId, "data")),
+      ).rejects.toThrow("Update failed");
+    });
+  });
+
+  describe("updateApplicationData$", () => {
+    it("should call PATCH /reports/organizations/{orgId}/data/application/{reportId} and return AccessReportApi", async () => {
+      const rawResponse = {
+        id: reportId,
+        organizationId: orgId,
+        creationDate: "2024-01-01T00:00:00Z",
+        applicationData: "encrypted-apps",
+        contentEncryptionKey: "enc-key",
+      };
+      mockApiService.send.mockResolvedValue(rawResponse);
+
+      const applicationData = "encrypted-app-data";
+
+      const result = await firstValueFrom(
+        service.updateApplicationData$(orgId, reportId, applicationData),
+      );
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "PATCH",
+        `/reports/organizations/${orgId}/data/application/${reportId}`,
+        expect.objectContaining({ applicationData }),
+        true,
+        true,
+      );
+      expect(result).toBeInstanceOf(AccessReportApi);
+      expect(result.id).toBe(reportId);
+    });
+
+    it("should send null applicationData when not provided", async () => {
+      const rawResponse = { id: reportId, organizationId: orgId, creationDate: "" };
+      mockApiService.send.mockResolvedValue(rawResponse);
+
+      await firstValueFrom(service.updateApplicationData$(orgId, reportId, null));
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "PATCH",
+        expect.any(String),
+        expect.objectContaining({ applicationData: null }),
+        true,
+        true,
+      );
+    });
+
+    it("should propagate API errors", async () => {
+      mockApiService.send.mockRejectedValue(new Error("Update failed"));
+
+      await expect(
+        firstValueFrom(service.updateApplicationData$(orgId, reportId, "data")),
+      ).rejects.toThrow("Update failed");
+    });
+  });
+
+  describe("getSummaryDataByDateRange$", () => {
+    const startDate = new Date("2024-01-01");
+    const endDate = new Date("2024-01-31");
+
+    it("should call GET with date range params and return AccessReportSummaryApi[]", async () => {
+      const rawResponse = [
+        { EncryptedData: "enc-data-1", EncryptionKey: "key-1", Date: "2024-01-15" },
+        { EncryptedData: "enc-data-2", EncryptionKey: "key-2", Date: "2024-01-20" },
+      ];
+      mockApiService.send.mockResolvedValue(rawResponse);
+
+      const result = await firstValueFrom(
+        service.getSummaryDataByDateRange$(orgId, startDate, endDate),
+      );
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "GET",
+        `/reports/organizations/${orgId}/data/summary?startDate=2024-01-01&endDate=2024-01-31`,
+        null,
+        true,
+        true,
+      );
+      expect(result).toHaveLength(2);
+      expect(result[0]).toBeInstanceOf(AccessReportSummaryApi);
+      expect(result[0].encryptedData).toBe("enc-data-1");
+    });
+
+    it("should return empty array when response is not an array", async () => {
+      mockApiService.send.mockResolvedValue(null);
+
+      const result = await firstValueFrom(
+        service.getSummaryDataByDateRange$(orgId, startDate, endDate),
+      );
+
+      expect(result).toEqual([]);
+    });
+
+    it("should return empty array on 404 error", async () => {
+      const notFoundError = new ErrorResponse({ Message: "Not found" }, 404);
+      mockApiService.send.mockRejectedValue(notFoundError);
+
+      const result = await firstValueFrom(
+        service.getSummaryDataByDateRange$(orgId, startDate, endDate),
+      );
+
+      expect(result).toEqual([]);
+    });
+
+    it("should propagate non-404 errors", async () => {
+      const serverError = new ErrorResponse({ Message: "Server error" }, 500);
+      mockApiService.send.mockRejectedValue(serverError);
+
+      await expect(
+        firstValueFrom(service.getSummaryDataByDateRange$(orgId, startDate, endDate)),
+      ).rejects.toBeInstanceOf(ErrorResponse);
+    });
+  });
+
+  describe("uploadReportFile$", () => {
+    it("should call POST /reports/organizations/{orgId}/{reportId}/file/report-data with FormData", async () => {
+      mockApiService.send.mockResolvedValue(undefined);
+
+      const file = new File(["file content"], "report.bin", { type: "application/octet-stream" });
+
+      await firstValueFrom(service.uploadReportFile$(orgId, reportId, file, reportFileId));
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "POST",
+        `/reports/organizations/${orgId}/${reportId}/file/report-data?reportFileId=${reportFileId}`,
+        expect.any(FormData),
+        true,
+        false,
+      );
+
+      const sentFormData: FormData = mockApiService.send.mock.calls[0][2] as FormData;
+      expect(sentFormData.get("file")).toBeInstanceOf(File);
+      expect((sentFormData.get("file") as File).name).toBe("report.bin");
+    });
+
+    it("should propagate API errors", async () => {
+      mockApiService.send.mockRejectedValue(new Error("Upload failed"));
+
+      const file = new File(["content"], "report.bin");
+
+      await expect(
+        firstValueFrom(service.uploadReportFile$(orgId, reportId, file, reportFileId)),
+      ).rejects.toThrow("Upload failed");
+    });
+  });
+});

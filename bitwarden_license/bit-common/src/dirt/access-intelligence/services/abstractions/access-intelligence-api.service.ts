@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 
-import { OrganizationId } from "@bitwarden/sdk-internal";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import {
   AccessReportApi,

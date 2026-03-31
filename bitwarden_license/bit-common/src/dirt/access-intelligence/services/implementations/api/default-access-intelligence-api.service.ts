@@ -2,7 +2,7 @@ import { catchError, from, map, Observable, of, throwError } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { OrganizationId } from "@bitwarden/sdk-internal";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import {
   AccessReportApi,
@@ -33,8 +33,8 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
     request: AccessReportCreateApi,
   ): Observable<AccessReportFileApi> {
     const response = this.apiService.send(
-      "GET",
-      `/reports/organizations/${orgId.toString()}/latest`,
+      "POST",
+      `/reports/organizations/${orgId.toString()}`,
       request,
       true,
       true,
