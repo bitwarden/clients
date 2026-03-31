@@ -117,9 +117,9 @@
             </td>
             <td bitCell class="tw-text-right">
               @if (row.instructions) {
-                <a bitBadge href="{{ row.instructions }}" target="_blank" rel="noreferrer">
-                  {{ "instructions" | i18n }}</a
-                >
+                <a href="{{ row.instructions }}" target="_blank" rel="noreferrer">
+                  <span bitBadge variant="primary">{{ "instructions" | i18n }}</span>
+                </a>
               }
             </td>
           </ng-template>
