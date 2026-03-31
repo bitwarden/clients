@@ -52,6 +52,7 @@ import { NativeAutofillMain } from "./platform/main/autofill/native-autofill.mai
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
+import { MagnifyMain } from "./platform/main/magnify.main";
 import { SafeShell } from "./platform/main/safe-shell.main";
 import { VersionMain } from "./platform/main/version.main";
 import { DesktopSettingsService } from "./platform/services/desktop-settings.service";
@@ -95,6 +96,7 @@ export class Main {
   sdkLoadService: SdkLoadService;
   mainDesktopAutotypeService: MainDesktopAutotypeService;
   ssoCookieMain: SsoCookieMain;
+  magnifyMain: MagnifyMain;
 
   constructor() {
     // Set paths for portable builds
@@ -337,6 +339,8 @@ export class Main {
         await this.desktopSettingsService.resetModalMode();
         await this.windowMain.init();
         this.ssoCookieMain.init(this.windowMain.session);
+        this.magnifyMain = new MagnifyMain(this.logService, this.windowMain);
+        this.magnifyMain.init();
         await this.i18nService.init();
         await this.messagingMain.init();
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.

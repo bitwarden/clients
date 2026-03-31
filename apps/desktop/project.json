@@ -60,6 +60,38 @@
         }
       }
     },
+    "build-magnify": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/apps/desktop/build/magnify"],
+      "options": {
+        "command": "cross-env NODE_ENV=production webpack --config webpack.config.js --config-name magnify",
+        "cwd": "apps/desktop"
+      },
+      "configurations": {
+        "development": {
+          "command": "cross-env NODE_ENV=development webpack --config webpack.config.js --config-name magnify"
+        },
+        "production": {
+          "command": "cross-env NODE_ENV=production webpack --config webpack.config.js --config-name magnify"
+        }
+      }
+    },
+    "serve-magnify": {
+      "continuous": true,
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cross-env NODE_ENV=development webpack serve --config webpack.magnify.js",
+        "cwd": "apps/desktop"
+      }
+    },
+    "test-magnify": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/coverage/apps/desktop/magnify"],
+      "options": {
+        "command": "npx jest --config jest.config.js --testPathPattern='src/magnify'",
+        "cwd": "apps/desktop"
+      }
+    },
     "build": {
       "executor": "nx:run-commands",
       "dependsOn": ["build-native"],
@@ -69,7 +101,8 @@
         "commands": [
           "nx run desktop:build-main",
           "nx run desktop:build-preload",
-          "nx run desktop:build-renderer"
+          "nx run desktop:build-renderer",
+          "nx run desktop:build-magnify"
         ]
       },
       "configurations": {
@@ -77,14 +110,16 @@
           "commands": [
             "nx run desktop:build-main --configuration=development",
             "nx run desktop:build-preload --configuration=development",
-            "nx run desktop:build-renderer --configuration=development"
+            "nx run desktop:build-renderer --configuration=development",
+            "nx run desktop:build-magnify --configuration=development"
           ]
         },
         "production": {
           "commands": [
             "nx run desktop:build-main --configuration=production",
             "nx run desktop:build-preload --configuration=production",
-            "nx run desktop:build-renderer --configuration=production"
+            "nx run desktop:build-renderer --configuration=production",
+            "nx run desktop:build-magnify --configuration=production"
           ]
         }
       }

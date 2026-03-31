@@ -15,6 +15,7 @@ import { IconModule } from "@bitwarden/components";
 import { SshAgentService } from "../autofill/services/ssh-agent.service";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { DesktopPremiumUpgradePromptService } from "../services/desktop-premium-upgrade-prompt.service";
+import { MagnifyService } from "../vault/services/magnify.service";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -50,6 +51,7 @@ import { ServicesModule } from "./services/services.module";
   ],
   providers: [
     SshAgentService,
+    MagnifyService,
     {
       provide: PremiumUpgradePromptService,
       useClass: DesktopPremiumUpgradePromptService,

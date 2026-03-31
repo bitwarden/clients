@@ -119,6 +119,13 @@ const localhostCallbackService = {
   },
 };
 
+const magnify = {
+  onCommand: (fn: (payload: { command: string; input: string }) => void) => {
+    ipcRenderer.on("magnify.command", (_e, payload) => fn(payload));
+  },
+  sendResults: (results: object) => ipcRenderer.send("magnify.results", results),
+};
+
 export default {
   versions: {
     app: (): Promise<string> => ipcRenderer.invoke("appVersion"),
@@ -192,6 +199,7 @@ export default {
   crypto,
   ephemeralStore,
   localhostCallbackService,
+  magnify,
 };
 
 function deviceType(): DeviceType {

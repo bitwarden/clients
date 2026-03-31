@@ -24,6 +24,16 @@ concurrently(
       prefixColor: "cyan",
     },
     {
+      name: "Magnify",
+      command: "npm run serve:magnify",
+      prefixColor: "blue",
+    },
+    {
+      name: "MagnPre",
+      command: "npm run build:magnify-preload:watch",
+      prefixColor: "white",
+    },
+    {
       name: "Elec",
       command: `npx wait-on ./build/main.js && npx electron --no-sandbox --inspect=5858 ${args.join(
         " ",

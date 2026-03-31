@@ -1,0 +1,9 @@
+@use "../../../../libs/angular/src/scss/bwicons/styles/style.scss" as *;
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-sans);
+}

@@ -29,6 +29,7 @@ import { ServerCommunicationConfigService } from "../../platform/services/server
 import { VersionService } from "../../platform/services/version.service";
 import { BiometricMessageHandlerService } from "../../services/biometric-message-handler.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
+import { MagnifyService } from "../../vault/services/magnify.service";
 
 @Injectable()
 export class InitService {
@@ -57,6 +58,7 @@ export class InitService {
     @Inject(DOCUMENT) private document: Document,
     private readonly migrationRunner: MigrationRunner,
     private serverCommunicationConfigService: ServerCommunicationConfigService,
+    private magnifyService: MagnifyService,
   ) {}
 
   init() {
@@ -64,6 +66,7 @@ export class InitService {
       await this.sdkLoadService.loadAndInit();
       await this.sshAgentService.init();
       this.nativeMessagingService.init();
+      this.magnifyService.init();
       await this.migrationRunner.waitForCompletion(); // Desktop will run migrations in the main process
 
       const accounts = await firstValueFrom(this.accountService.accounts$);

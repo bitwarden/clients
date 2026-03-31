@@ -1,0 +1,136 @@
+<div (keydown)="onKeydown($event)">
+  <!-- Search header -->
+  <div
+    #searchHeader
+    class="tw-flex tw-items-center tw-gap-2 tw-px-4 tw-py-3"
+    [class.tw-border-b]="!isMac"
+    [class.tw-border-secondary-300]="!isMac"
+    [class.tw-bg-background-alt]="!isMac"
+  >
+    <div class="tw-relative tw-min-w-0 tw-flex-1">
+      <i
+        class="bwi bwi-search bwi-fw tw-text-muted tw-absolute tw-start-3 tw-top-1/2 -tw-translate-y-1/2 tw-z-10 tw-pointer-events-none"
+        aria-hidden="true"
+      ></i>
+      <input
+        bitInput
+        type="search"
+        [formControl]="searchControl"
+        [placeholder]="placeholder()"
+        autocomplete="off"
+        class="!tw-ps-9 !tw-py-2 !tw-rounded-lg"
+        (keydown)="onKeydown($event)"
+      />
+    </div>
+  </div>
+
+  <!-- Results list -->
+  <div class="spotlight-results tw-flex-1 tw-min-h-0 tw-overflow-y-auto">
+    @for (item of results(); track $index; let i = $index) {
+      <div
+        class="tw-flex tw-cursor-pointer tw-items-center tw-gap-3 tw-px-4 tw-py-3 tw-transition-colors tw-rounded-lg tw-mx-2 tw-my-0.5"
+        [class.tw-border-b]="!isMac"
+        [class.tw-border-secondary-100]="!isMac"
+        [class.tw-ring-2]="i === selectedIndex()"
+        [class.tw-ring-primary-600]="i === selectedIndex()"
+        [class.tw-bg-primary-50]="i === selectedIndex()"
+        [class.hover:tw-ring-1]="i !== selectedIndex()"
+        [class.hover:tw-ring-secondary-300]="i !== selectedIndex()"
+        (mouseenter)="setSelectedIndex(i)"
+        (click)="setSelectedIndex(i)"
+        role="option"
+        [attr.aria-selected]="i === selectedIndex()"
+      >
+        @switch (type()) {
+          @case (MagnifySpotlightSearchType.UsernamePassword) {
+            <username-password-result-item
+              [item]="$any(item)"
+              [index]="i"
+              [isSelected]="i === selectedIndex()"
+            />
+          }
+        }
+      </div>
+    }
+
+    <!-- No results (search query present but nothing matches) -->
+    @if (results().length === 0 && searchControl.value) {
+      <div class="tw-flex tw-items-center tw-justify-center tw-py-10 tw-text-sm tw-text-muted">
+        No items match your search
+      </div>
+    }
+
+    <!-- Empty state (no search query yet) -->
+    @if (results().length === 0 && !searchControl.value) {
+      <div class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-py-10 tw-text-muted">
+        <i class="bwi bwi-lock tw-mb-2 tw-text-3xl" aria-hidden="true"></i>
+        <p class="tw-text-sm">Start typing to search your vault</p>
+      </div>
+    }
+  </div>
+
+  <!-- Footer shortcut hints -->
+  <div
+    class="tw-flex tw-items-center tw-gap-4 tw-border-t tw-px-4 tw-pt-2.5 tw-pb-4 tw-text-xs tw-text-muted"
+    style="line-height: normal"
+    [class.tw-border-secondary-300]="!isMac"
+    [class.tw-bg-background-alt]="!isMac"
+    [class.tw-border-white]="isMac"
+    [class.tw-border-opacity-10]="isMac"
+  >
+    <span class="tw-flex tw-items-center tw-gap-1.5">
+      <kbd
+        class="tw-rounded tw-border tw-border-secondary-300 tw-bg-secondary-100 tw-px-1.5 tw-py-0.5 tw-font-mono tw-text-xs tw-leading-[normal]"
+        >↑↓</kbd
+      >
+      Navigate
+    </span>
+    <ng-container *ngTemplateOutlet="footerHintsTemplate() ?? null"></ng-container>
+    <span class="tw-flex tw-items-center tw-gap-1.5">
+      <kbd
+        class="tw-rounded tw-border tw-border-secondary-300 tw-bg-secondary-100 tw-px-1.5 tw-py-0.5 tw-font-mono tw-text-xs tw-leading-[normal]"
+        >Esc</kbd
+      >
+      Close
+    </span>
+    <!-- Bitwarden branding badge -->
+    <div class="tw-pointer-events-none tw-shrink-0 tw-opacity-70 tw-ml-auto" aria-hidden="true">
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 20 20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g clip-path="url(#spotlight-bw-icon-clip)">
+          <path
+            d="M17.3333 0H2.66667C1.19391 0 0 1.19391 0 2.66667V17.3333C0 18.8061 1.19391 20 2.66667 20H17.3333C18.8061 20 20 18.8061 20 17.3333V2.66667C20 1.19391 18.8061 0 17.3333 0Z"
+            class="tw-fill-bw-blue"
+          />
+          <mask
+            id="spotlight-bw-icon-mask"
+            style="mask-type: luminance"
+            maskUnits="userSpaceOnUse"
+            x="3"
+            y="3"
+            width="14"
+            height="14"
+          >
+            <path d="M17 3H3V17H17V3Z" class="tw-fill-text-alt2" />
+          </mask>
+          <g mask="url(#spotlight-bw-icon-mask)">
+            <path
+              d="M15.6599 3.17501C15.607 3.11944 15.5435 3.07526 15.4731 3.04507C15.4027 3.01489 15.327 2.99958 15.2504 3.00001H4.75052C4.67396 2.99958 4.59784 3.01489 4.5274 3.04507C4.45696 3.07526 4.39352 3.11944 4.34102 3.17501C4.28546 3.22751 4.24127 3.29138 4.21109 3.36182C4.1809 3.43226 4.16559 3.50794 4.16602 3.58451V10.5844C4.16821 11.1173 4.27146 11.6449 4.47052 12.1393C4.65996 12.6271 4.91458 13.0874 5.22739 13.5069C5.54895 13.9274 5.90901 14.3163 6.30276 14.6698C6.66807 15.0049 7.05306 15.3186 7.4551 15.6086C7.8051 15.8571 8.1726 16.0925 8.5576 16.3148C8.9426 16.537 9.21431 16.6871 9.3731 16.7654C9.53322 16.8441 9.66272 16.9063 9.75897 16.9474C9.83422 16.9837 9.91694 17.0016 10.0005 16.9999C10.0827 17.0012 10.1641 16.982 10.2376 16.9448C10.3356 16.9019 10.4633 16.8415 10.6252 16.7628C10.7871 16.684 11.0627 16.5335 11.4407 16.3121C11.8187 16.0908 12.1906 15.8545 12.5432 15.606C12.9457 15.3155 13.3311 15.0023 13.6973 14.6671C14.0915 14.3141 14.4515 13.9247 14.7727 13.5043C15.085 13.0843 15.3397 12.6245 15.5295 12.1367C15.729 11.6423 15.8323 11.1147 15.834 10.5818V3.58188C15.8345 3.50576 15.8192 3.43051 15.789 3.36051C15.7588 3.29051 15.715 3.22751 15.6599 3.17501ZM14.3063 10.6483C14.3063 13.1858 10.0005 15.3654 10.0005 15.3654V4.49975H14.3063V10.6483Z"
+              class="tw-fill-text-alt2"
+            />
+          </g>
+        </g>
+        <defs>
+          <clipPath id="spotlight-bw-icon-clip">
+            <rect width="20" height="20" class="tw-fill-text-alt2" />
+          </clipPath>
+        </defs>
+      </svg>
+    </div>
+  </div>
+</div>
