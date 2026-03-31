@@ -37,7 +37,11 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { TaskSchedulerService, ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
-import { KeyService, KdfConfigService } from "@bitwarden/key-management";
+import {
+  KeyService,
+  KdfConfigService,
+  UserAsymmetricKeysRegenerationService,
+} from "@bitwarden/key-management";
 
 import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
@@ -128,6 +132,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     private configService: ConfigService,
     private accountCryptographicStateService: AccountCryptographicStateService,
     private passwordPreloginService: PasswordPreloginService,
+    private asymmetricKeysRegenerationService: UserAsymmetricKeysRegenerationService,
   ) {
     this.currentAuthnTypeState = this.stateProvider.get(CURRENT_LOGIN_STRATEGY_KEY);
     this.loginStrategyCacheState = this.stateProvider.get(CACHE_KEY);
@@ -384,6 +389,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               this.passwordStrengthService,
               this.policyService,
               this.passwordPreloginService,
+              this.asymmetricKeysRegenerationService,
               ...sharedDeps,
             );
           case AuthenticationType.Sso:
