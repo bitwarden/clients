@@ -77,10 +77,10 @@ export class SendFolderDetailsComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Pre-populate from context menu path
-    const preloaded = this.config().preloadedPath;
-    if (preloaded != null && preloaded.isDirectory) {
-      const preview = preloaded.name;
+    // Pre-populate from context menu path (single directory)
+    const preloadedPaths = this.config().preloadedPaths;
+    if (preloadedPaths != null && preloadedPaths.length === 1 && preloadedPaths[0].isDirectory) {
+      const preview = preloadedPaths[0].name;
       this.folderPreview.set(preview);
       this.sendFolderDetailsForm.controls.folder.setValue(preview);
     }

@@ -80,6 +80,9 @@ export class Main {
   migrationRunner: MigrationRunner;
   ssoUrlService: SsoUrlService;
 
+  private pendingSendPaths: string[] = [];
+  private sendPathDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
   windowMain: WindowMain;
   messagingMain: MessagingMain;
   updaterMain: UpdaterMain;
@@ -216,6 +219,11 @@ export class Main {
       this.shell,
       (arg) => this.processDeepLink(arg),
       (win) => this.trayMain.setupWindowListeners(win),
+      () => {
+        if (this.pendingSendPaths.length > 0) {
+          this.debounceSendPaths();
+        }
+      },
     );
 
     this.biometricsService = new MainBiometricsService(
@@ -429,13 +437,40 @@ export class Main {
       });
 
     // Handle --send-path from Windows Explorer context menu
+    // Accumulate paths and debounce to handle multi-select (N separate instances)
     const sendPathIdx = argv.indexOf("--send-path");
     if (sendPathIdx !== -1 && sendPathIdx + 1 < argv.length) {
       const filePath = argv[sendPathIdx + 1];
-      this.messagingService.send("deepLink", {
-        urlString: `bitwarden://send/create?path=${encodeURIComponent(filePath)}`,
-      });
+      this.pendingSendPaths.push(filePath);
+      this.debounceSendPaths();
     }
+  }
+
+  private debounceSendPaths(): void {
+    if (this.sendPathDebounceTimer != null) {
+      clearTimeout(this.sendPathDebounceTimer);
+    }
+    this.sendPathDebounceTimer = setTimeout(() => {
+      this.sendPathDebounceTimer = null;
+      this.flushSendPaths();
+    }, 500);
+  }
+
+  private flushSendPaths(): void {
+    if (this.pendingSendPaths.length === 0) {
+      return;
+    }
+
+    if (this.windowMain.win?.webContents == null) {
+      // Window not ready yet — paths stay in array, will be flushed after onWindowReady
+      return;
+    }
+
+    const paths = [...this.pendingSendPaths];
+    this.pendingSendPaths = [];
+    this.messagingService.send("deepLink", {
+      urlString: `bitwarden://send/create?paths=${encodeURIComponent(JSON.stringify(paths))}`,
+    });
   }
 
   private async toggleHardwareAcceleration(): Promise<void> {

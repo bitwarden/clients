@@ -137,7 +137,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private activeSimpleDialog: DialogRef<boolean> = null;
   private processingPendingAuthRequests = false;
   private shouldRerunAuthRequestProcessing = false;
-  private pendingSendPath: string | null = null;
+  private pendingSendPaths: string[] = [];
 
   private destroy$ = new Subject<void>();
 
@@ -859,12 +859,27 @@ export class AppComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Handle Send creation from context menu
+    // Handle Send creation from context menu (single or multi-file)
     if (urlString.indexOf("bitwarden://send/create") === 0) {
       const url = new URL(urlString);
+
+      // Multi-path batch from debounced main process
+      const pathsParam = url.searchParams.get("paths");
+      if (pathsParam) {
+        try {
+          const paths = JSON.parse(pathsParam) as string[];
+          this.pendingSendPaths = paths;
+        } catch {
+          return;
+        }
+        void this.handlePendingSend();
+        return;
+      }
+
+      // Legacy single-path fallback
       const filePath = url.searchParams.get("path");
       if (filePath) {
-        this.pendingSendPath = filePath;
+        this.pendingSendPaths = [filePath];
         void this.handlePendingSend();
       }
       return;
@@ -895,23 +910,23 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private async handlePendingSend(): Promise<void> {
-    if (this.pendingSendPath == null) {
+    if (this.pendingSendPaths.length === 0) {
       return;
     }
 
     // Check if the user is authenticated and unlocked
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     if (authStatus !== AuthenticationStatus.Unlocked) {
-      // Path stays in pendingSendPath — will be processed after unlock
+      // Paths stay in pendingSendPaths — will be processed after unlock
       return;
     }
 
-    const sendPath = this.pendingSendPath;
-    this.pendingSendPath = null;
+    const paths = this.pendingSendPaths;
+    this.pendingSendPaths = [];
 
     await this.router.navigate(["/send"], {
       queryParams: {
-        sendPath,
+        sendPaths: JSON.stringify(paths),
       },
     });
   }

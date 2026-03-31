@@ -60,13 +60,36 @@ export class SendFileDetailsComponent implements OnInit {
   }
 
   onFileSelected = (event: Event): void => {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file) {
+    const files = (event.target as HTMLInputElement).files;
+    if (!files || files.length === 0) {
       return;
     }
-    this.fileName = file.name;
-    this.sendFormContainer.onFileSelected(file);
+
+    if (files.length === 1) {
+      this.fileName = files[0].name;
+      this.sendFormContainer.onFileSelected(files[0]);
+    } else {
+      const totalSize = Array.from(files).reduce((sum, f) => sum + f.size, 0);
+      this.fileName = `${files.length} files, ${this.formatFileSize(totalSize)}`;
+      this.sendFormContainer.onMultipleFilesSelected(files);
+
+      // Set a placeholder file view so the form validates
+      const placeholderView = new SendFileView();
+      placeholderView.fileName = this.fileName;
+      placeholderView.size = String(totalSize);
+      this.sendFileDetailsForm.patchValue({ file: placeholderView });
+    }
   };
+
+  private formatFileSize(bytes: number): string {
+    if (bytes < 1024) {
+      return `${bytes} B`;
+    } else if (bytes < 1024 * 1024) {
+      return `${(bytes / 1024).toFixed(1)} KB`;
+    } else {
+      return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    }
+  }
 
   ngOnInit() {
     if (this.originalSendView()) {
@@ -75,13 +98,23 @@ export class SendFileDetailsComponent implements OnInit {
       });
     }
 
-    // Pre-populate from context menu path
-    const preloaded = this.config().preloadedPath;
-    if (preloaded != null && !preloaded.isDirectory) {
-      this.fileName = preloaded.name;
+    // Pre-populate from context menu preloaded paths
+    const preloadedPaths = this.config().preloadedPaths;
+    if (preloadedPaths != null && preloadedPaths.length > 0) {
+      const nonDirPaths = preloadedPaths.filter((p) => !p.isDirectory);
+      const totalSize = preloadedPaths.reduce((sum, p) => sum + p.size, 0);
+
+      if (nonDirPaths.length === 1 && preloadedPaths.length === 1) {
+        // Single file — show its name
+        this.fileName = nonDirPaths[0].name;
+      } else {
+        // Multiple entries — show summary
+        this.fileName = `${preloadedPaths.length} files, ${this.formatFileSize(totalSize)}`;
+      }
+
       const preloadedFileView = new SendFileView();
-      preloadedFileView.fileName = preloaded.name;
-      preloadedFileView.size = String(preloaded.size);
+      preloadedFileView.fileName = this.fileName;
+      preloadedFileView.size = String(totalSize);
       this.sendFileDetailsForm.patchValue({ file: preloadedFileView });
     }
 

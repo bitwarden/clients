@@ -115,16 +115,33 @@ export class SendComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    const sendPath = this.route.snapshot.queryParams["sendPath"];
+    const sendPathsParam = this.route.snapshot.queryParams["sendPaths"];
 
-    if (sendPath) {
-      await this.openSendFromPath(sendPath);
+    if (sendPathsParam) {
+      try {
+        const paths = JSON.parse(sendPathsParam) as string[];
+        if (paths.length > 0) {
+          await this.openSendFromPaths(paths);
+        }
+      } catch (e) {
+        this.logService.error("Error parsing sendPaths: " + e);
+      }
     }
   }
 
-  private async openSendFromPath(filePath: string): Promise<void> {
+  private async openSendFromPaths(filePaths: string[]): Promise<void> {
     try {
-      const pathInfo = await ipc.platform.sendFile.getPathInfo(filePath);
+      const pathInfos = await Promise.all(
+        filePaths.map(async (fp) => {
+          const info = await ipc.platform.sendFile.getPathInfo(fp);
+          return {
+            path: fp,
+            isDirectory: info.isDirectory,
+            name: info.name,
+            size: info.size,
+          };
+        }),
+      );
 
       const formConfig = await this.sendFormConfigService.buildConfig(
         "add",
@@ -132,13 +149,15 @@ export class SendComponent implements OnInit {
         SendType.File,
       );
 
-      formConfig.isFolderMode = pathInfo.isDirectory;
-      formConfig.preloadedPath = {
-        path: filePath,
-        isDirectory: pathInfo.isDirectory,
-        name: pathInfo.name,
-        size: pathInfo.size,
-      };
+      // Single directory → folder-mode (shows folder picker UI + "New Folder Send" header).
+      // Mixed selections (files + dirs, or multiple of either) stay in file-mode
+      // where the file-details component displays a summary like "5 files, 2.4 MB"
+      // and everything gets zipped together on submit.
+      if (pathInfos.length === 1 && pathInfos[0].isDirectory) {
+        formConfig.isFolderMode = true;
+      }
+
+      formConfig.preloadedPaths = pathInfos;
 
       this.activeDrawerRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
         formConfig,
@@ -147,7 +166,7 @@ export class SendComponent implements OnInit {
       await lastValueFrom(this.activeDrawerRef.closed);
       this.activeDrawerRef = null;
     } catch (e) {
-      this.logService.error("Error opening send from path: " + e);
+      this.logService.error("Error opening send from paths: " + e);
       this.toastService.showToast({
         variant: "error",
         title: null,

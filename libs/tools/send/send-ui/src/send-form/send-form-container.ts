@@ -47,6 +47,8 @@ export abstract class SendFormContainer {
 
   abstract onFileSelected(file: File): void;
 
+  abstract onMultipleFilesSelected(files: FileList): void;
+
   abstract onFolderSelected(files: FileList): void;
 
   abstract patchSend(updateFn: (current: SendView) => SendView): void;
