@@ -195,10 +195,13 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncSends(response.sends, response.profile.id);
       await this.syncSettings(response.domains, response.profile.id);
       await this.syncPolicies(response.policies, response.profile.id);
-      await this.preferenceSyncService?.pull(response.userPreferences, response.profile.id);
+      await this.preferenceSyncService?.applySyncedUserPreferences(
+        response.userPreferences,
+        response.profile.id,
+      );
 
       // Start push sync if not already running (idempotent — startPushSync tears down previous subscription)
-      this.preferenceSyncService?.startPushSync(response.profile.id);
+      this.preferenceSyncService?.beginSyncedKeyWatch(response.profile.id);
 
       await this.setLastSync(now, userId);
       return this.syncCompleted(true, userId);
