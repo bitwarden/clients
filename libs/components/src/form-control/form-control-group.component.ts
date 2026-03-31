@@ -76,7 +76,7 @@ export class FormControlGroupComponent<T = unknown>
   }
 
   // ── State ─────────────────────────────────────────────────────────────────
-  readonly selectedValues = signal<Set<T>>(new Set());
+  readonly selectedValues = signal<unknown[]>([]);
   readonly groupDisabled = signal(false);
   private readonly _touched = signal(false);
   private readonly _status = signal<string | null>(null);
@@ -102,7 +102,9 @@ export class FormControlGroupComponent<T = unknown>
       case "required":
         return this.i18nService.t("inputRequired");
       default:
-        if (details?.message) {return details.message;}
+        if (details?.message) {
+          return details.message;
+        }
         return key;
     }
   });
@@ -110,25 +112,19 @@ export class FormControlGroupComponent<T = unknown>
   // ── Child coordination ────────────────────────────────────────────────────
   onItemChange(value: unknown): void {
     if (this.mode() === "single") {
-      this.selectedValues.set(new Set([value as T]));
-      this._onChange?.(value != null ? (value as T) : null);
+      this.selectedValues.set([value]);
+      this.notifyOnChange()?.(value);
     } else {
-      this.selectedValues.update((prev) => {
-        const next = new Set(prev);
-        if (next.has(value as T)) {
-          next.delete(value as T);
-        } else {
-          next.add(value as T);
-        }
-        return next;
-      });
-      this._onChange?.(Array.from(this.selectedValues()));
+      this.selectedValues.update((prev) =>
+        prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
+      );
+      this.notifyOnChange()?.(this.selectedValues());
     }
-    this._onTouched?.();
+    this.notifyOnTouched()?.();
   }
 
   onBlur(): void {
-    this._onTouched?.();
+    this.notifyOnTouched()?.();
   }
 
   onFocusOut(event: FocusEvent): void {
@@ -151,33 +147,31 @@ export class FormControlGroupComponent<T = unknown>
   }
 
   // ── ControlValueAccessor ──────────────────────────────────────────────────
-   
-  private readonly _onChange?: (v: any) => void;
-  private readonly _onTouched?: () => void;
+  private readonly notifyOnChange = signal<(v: any) => void>(() => {});
+  private readonly notifyOnTouched = signal<() => void>(() => {});
 
   writeValue(value: T | T[] | null): void {
-    // Use Array.isArray to distinguish single (scalar) vs multi (array) payloads.
+    // Use Array.isArray to distinguish single vs multi (array) payloads.
     // This must work before mode is detected (writeValue is called during form setup,
     // before radio children register), so we infer from the value shape rather than mode.
     if (Array.isArray(value)) {
-      this.selectedValues.set(new Set(value));
+      this.selectedValues.set(value);
     } else if (value != null) {
-      this.selectedValues.set(new Set([value as T]));
+      this.selectedValues.set([value]);
     } else {
-      this.selectedValues.set(new Set());
+      this.selectedValues.set([]);
     }
   }
 
-   
   registerOnChange(fn: (v: any) => void): void {
-    this._onChange = fn;
+    this.notifyOnChange.set(fn);
   }
 
   registerOnTouched(fn: () => void): void {
-    this._onTouched = () => {
+    this.notifyOnTouched.set(() => {
       fn();
       this._touched.set(true);
-    };
+    });
   }
 
   setDisabledState(isDisabled: boolean): void {
