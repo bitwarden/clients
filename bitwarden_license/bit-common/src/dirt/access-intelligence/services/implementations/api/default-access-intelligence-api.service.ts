@@ -6,8 +6,9 @@ import { OrganizationId } from "@bitwarden/sdk-internal";
 
 import {
   AccessReportApi,
-  AccessReportFileResponseApi,
+  AccessReportFileApi,
   AccessReportSummaryApi,
+  AccessReportCreateApi,
 } from "../../../models";
 import { AccessIntelligenceApiService } from "../../abstractions/access-intelligence-api.service";
 
@@ -29,8 +30,8 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
 
   createReport$(
     orgId: OrganizationId,
-    request: AccessReportApi,
-  ): Observable<AccessReportFileResponseApi | AccessReportApi> {
+    request: AccessReportCreateApi,
+  ): Observable<AccessReportFileApi> {
     const response = this.apiService.send(
       "GET",
       `/reports/organizations/${orgId.toString()}/latest`,
@@ -38,18 +39,7 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
       true,
       true,
     );
-    return from(response).pipe(
-      map((res) => {
-        const fileResponse = new AccessReportFileResponseApi(res);
-
-        // response for file upload requests
-        if (fileResponse.reportFileUploadUrl != "") {
-          return fileResponse;
-        }
-
-        return new AccessReportApi(res);
-      }),
-    );
+    return from(response).pipe(map((response) => new AccessReportFileApi(response)));
   }
 
   updateSummaryData$(

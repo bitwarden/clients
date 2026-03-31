@@ -2,7 +2,12 @@ import { Observable } from "rxjs";
 
 import { OrganizationId } from "@bitwarden/sdk-internal";
 
-import { AccessReportApi, AccessReportFileResponseApi, AccessReportSummaryApi } from "../../models";
+import {
+  AccessReportApi,
+  AccessReportCreateApi,
+  AccessReportFileApi,
+  AccessReportSummaryApi,
+} from "../../models";
 
 export abstract class AccessIntelligenceApiService {
   /** GET /reports/organizations/{orgId}/latest */
@@ -14,8 +19,8 @@ export abstract class AccessIntelligenceApiService {
    */
   abstract createReport$(
     orgId: OrganizationId,
-    request: AccessReportApi,
-  ): Observable<AccessReportFileResponseApi | AccessReportApi>;
+    request: AccessReportCreateApi,
+  ): Observable<AccessReportFileApi>;
 
   /**
    * POST /reports/organizations/{orgId}/{reportId}/file/report-data
