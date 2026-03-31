@@ -1,7 +1,22 @@
 <bit-dialog dialogSize="large">
-  <ng-container bitDialogTitle>{{ "newReceive" | i18n }}</ng-container>
+  <ng-container bitDialogTitle>{{
+    (isEditMode ? "editReceive" : "newReceive") | i18n
+  }}</ng-container>
   <ng-container bitDialogContent>
     <form [formGroup]="form">
+      @if (isEditMode) {
+        <bit-form-field>
+          <bit-label>{{ "sendLink" | i18n }}</bit-label>
+          <input bitInput disabled type="text" [value]="receiveLink()" />
+          <button
+            type="button"
+            bitIconButton="bwi-clone"
+            bitSuffix
+            [label]="'copyLink' | i18n"
+            (click)="copyLink()"
+          ></button>
+        </bit-form-field>
+      }
       <bit-form-field>
         <bit-label>{{ "name" | i18n }}</bit-label>
         <input bitInput type="text" formControlName="name" />

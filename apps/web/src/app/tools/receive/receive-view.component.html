@@ -1,6 +1,17 @@
 <bit-dialog>
   <ng-container bitDialogTitle>{{ receive.name }}</ng-container>
   <ng-container bitDialogContent>
+    <bit-form-field>
+      <bit-label>{{ "sendLink" | i18n }}</bit-label>
+      <input bitInput disabled type="text" [value]="receiveLink()" />
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        bitSuffix
+        [label]="'copyLink' | i18n"
+        (click)="copyLink()"
+      ></button>
+    </bit-form-field>
     <dl>
       <dt bitTypography="body2" class="tw-text-muted">{{ "deletionDate" | i18n }}</dt>
       <dd>{{ receive.deletionDate | date: "medium" }}</dd>
