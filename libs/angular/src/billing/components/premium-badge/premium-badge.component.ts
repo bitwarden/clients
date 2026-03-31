@@ -1,7 +1,7 @@
 import { Component, input } from "@angular/core";
 
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { BadgeModule } from "@bitwarden/components";
+import { ChipActionComponent } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { NotPremiumDirective } from "../../directives/not-premium.directive";
@@ -14,15 +14,14 @@ import { NotPremiumDirective } from "../../directives/not-premium.directive";
     <button
       type="button"
       *appNotPremium
-      bitBadge
-      [variant]="'primary'"
-      class="!tw-text-primary-600 !tw-border-primary-600"
+      bit-chip-action
+      startIcon="bwi-premium"
+      [variant]="'accent-primary'"
       (click)="promptForPremium($event)"
-    >
-      <i class="bwi bwi-premium tw-pe-1"></i>{{ "upgrade" | i18n }}
-    </button>
+      [label]="'upgrade' | i18n"
+    ></button>
   `,
-  imports: [I18nPipe, BadgeModule, NotPremiumDirective],
+  imports: [I18nPipe, ChipActionComponent, NotPremiumDirective],
 })
 export class PremiumBadgeComponent {
   readonly organizationId = input<string>();

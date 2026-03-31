@@ -88,6 +88,31 @@ export class KitchenSinkDialogComponent {
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  template: `
+    <bit-dialog title="Dialog Title" dialogSize="small">
+      <ng-container bitDialogContent>
+        <bit-form-field>
+          <bit-label>Username</bit-label>
+          <input bitInput [appAutofocus]="true" />
+        </bit-form-field>
+      </ng-container>
+      <ng-container bitDialogFooter>
+        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">
+          Save
+        </button>
+        <button type="button" bitButton buttonType="secondary" bitDialogClose>Cancel</button>
+      </ng-container>
+    </bit-dialog>
+  `,
+  imports: [KitchenSinkSharedModule],
+})
+export class KitchenSinkDialogWithAutofocusComponent {
+  constructor(public dialogRef: DialogRef) {}
+}
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
   selector: "bit-tab-main",
   imports: [KitchenSinkSharedModule],
   template: `
