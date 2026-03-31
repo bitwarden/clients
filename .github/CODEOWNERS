@@ -95,6 +95,9 @@ libs/pricing @bitwarden/team-billing-dev
 libs/subscription @bitwarden/team-billing-dev
 bitwarden_license/bit-web/src/app/billing @bitwarden/team-billing-dev
 
+## Secrets Manager team files ##
+bitwarden_license/bit-web/src/app/secrets-manager @bitwarden/team-secrets-manager-dev
+
 ## Platform team files ##
 apps/browser/src/platform @bitwarden/team-platform-dev
 apps/cli/src/platform @bitwarden/team-platform-dev
@@ -119,6 +122,7 @@ libs/core-test-utils @bitwarden/team-platform-dev
 libs/state @bitwarden/team-platform-dev
 libs/state-internal @bitwarden/team-platform-dev
 libs/state-test-utils @bitwarden/team-platform-dev
+libs/scheduling @bitwarden/team-platform-dev
 # Web utils used across app and connectors
 apps/web/src/utils/ @bitwarden/team-platform-dev
 # Web core and shared files
