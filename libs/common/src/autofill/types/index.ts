@@ -35,7 +35,7 @@ export type TargetingRulesByDomain = {
 
 type TargetingRules = {
   /**
-   * Multiple form definitions for a given page allows for mixed for types
+   * Multiple form definitions for a given page allows for mixed form types
    * (e.g. a billing / shipping combo), unpredictable renders (e.g. multivariate
    * testing), multi-step flows at a single URI (e.g. SPAs), etc
    */
@@ -51,7 +51,7 @@ type TargetingRules = {
      */
     [pathname: Pathname]: {
       /**
-       * Multiple form definitions for a given page allows for mixed for types
+       * Multiple form definitions for a given page allows for mixed form types
        * (e.g. a billing / shipping combo), unpredictable renders (e.g. multivariate
        * testing), multi-step flows at a single URI (e.g. SPAs), etc
        */

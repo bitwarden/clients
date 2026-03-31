@@ -1073,8 +1073,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     pageDetails: AutofillPageDetails,
   ): boolean {
     /**
-     * This check come first because a targeting rule is an authoritative
-     * override for subsequent checks
+     * This check comes first because a targeting rule is an
+     * authoritative override for subsequent checks
      */
     if (autofillFieldData.targeted) {
       this.setTargetedFieldFillType(autofillFieldData);
