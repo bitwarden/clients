@@ -400,11 +400,11 @@ describe("ContextMenuClickedHandler", () => {
       });
 
       it("sends triageResultReady message with tabId after collecting results", async () => {
+        const sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage").mockResolvedValue(undefined);
+
         await sut.run(createData(AUTOFILL_TRIAGE_ID), mockTab);
 
-        expect(chrome.runtime.sendMessage).toHaveBeenCalledWith(
-          expect.objectContaining({ command: "triageResultReady", tabId: mockTab.id }),
-        );
+        expect(sendMessageSpy).toHaveBeenCalledWith("triageResultReady", { tabId: mockTab.id });
       });
 
       it("does not open popout when tab has no id", async () => {
@@ -416,7 +416,8 @@ describe("ContextMenuClickedHandler", () => {
         expect(BrowserApi.openSidePanel).not.toHaveBeenCalled();
       });
 
-      it("does not send triageResultReady when page details collection fails", async () => {
+      it("sends triageResultReady when page details collection fails so the component exits the loading state", async () => {
+        const sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage").mockResolvedValue(undefined);
         jest
           .spyOn(BrowserApi, "sendTabsMessage")
           .mockImplementation((_tabId, _message, _options, callback?: (response: any) => void) => {
@@ -425,9 +426,7 @@ describe("ContextMenuClickedHandler", () => {
 
         await sut.run(createData(AUTOFILL_TRIAGE_ID), mockTab);
 
-        expect(chrome.runtime.sendMessage).not.toHaveBeenCalledWith(
-          expect.objectContaining({ command: "triageResultReady" }),
-        );
+        expect(sendMessageSpy).toHaveBeenCalledWith("triageResultReady", { tabId: mockTab.id });
       });
     });
   });

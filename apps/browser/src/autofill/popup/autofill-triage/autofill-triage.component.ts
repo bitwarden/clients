@@ -118,16 +118,14 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
 
   private fetchTriageResult(): void {
     this.loading.set(true);
-    chrome.runtime.sendMessage(
-      { command: "getAutofillTriageResult" },
-      (response: AutofillTriagePageResult | null) => {
-        if (response) {
-          this.triageResult.set(response);
-          this.loading.set(false);
-        }
-        // If null, stay in loading state until the push message triggers another fetch
-      },
-    );
+    void BrowserApi.sendMessageWithResponse<AutofillTriagePageResult | null>(
+      "getAutofillTriageResult",
+    ).then((response) => {
+      if (response) {
+        this.triageResult.set(response);
+      }
+      this.loading.set(false);
+    });
   }
 
   /**

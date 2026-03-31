@@ -258,9 +258,13 @@ export class ContextMenuClickedHandler {
       return;
     }
 
-    // Open the UI immediately to preserve the user gesture required by sidePanel.open()
+    // Open the UI immediately to preserve the user gesture required by sidePanel.open().
+    // setSidePanelOptions must NOT be awaited before openSidePanel — awaiting would yield
+    // the event loop and expire the gesture token. Both IPC calls are dispatched in the
+    // same synchronous context; Chrome processes extension IPC in order, so setOptions
+    // is guaranteed to complete before open.
     if (BrowserApi.isSidePanelApiSupported) {
-      await BrowserApi.setSidePanelOptions({
+      void BrowserApi.setSidePanelOptions({
         path: "popup/index.html?uilocation=sidepanel#/autofill-triage",
         tabId: tab.id,
         enabled: true,
@@ -275,6 +279,7 @@ export class ContextMenuClickedHandler {
 
     const response = await this.collectPageDetailsForTriage(tab, info);
     if (!response) {
+      await BrowserApi.sendMessage("triageResultReady", { tabId: tab.id });
       return;
     }
 
@@ -290,7 +295,7 @@ export class ContextMenuClickedHandler {
       fields,
     };
 
-    await chrome.runtime.sendMessage({ command: "triageResultReady", tabId: tab.id });
+    await BrowserApi.sendMessage("triageResultReady", { tabId: tab.id });
   }
 
   private collectPageDetailsForTriage(

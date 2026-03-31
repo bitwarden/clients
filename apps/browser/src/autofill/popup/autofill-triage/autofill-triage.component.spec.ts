@@ -134,23 +134,17 @@ describe("AutofillTriageComponent", () => {
     });
 
     it("should send getAutofillTriageResult message to background on init", async () => {
-      const sendMessageSpy = jest.spyOn(chrome.runtime, "sendMessage");
+      const sendMessageSpy = jest
+        .spyOn(BrowserApi, "sendMessageWithResponse")
+        .mockResolvedValue(null);
 
       await component.ngOnInit();
 
-      expect(sendMessageSpy).toHaveBeenCalledWith(
-        { command: "getAutofillTriageResult" },
-        expect.any(Function),
-      );
+      expect(sendMessageSpy).toHaveBeenCalledWith("getAutofillTriageResult");
     });
 
     it("should set triageResult and clear loading when background responds with data", fakeAsync(() => {
-      jest
-        .spyOn(chrome.runtime, "sendMessage")
-        .mockImplementation((message: any, callback: any) => {
-          callback(mockTriageResult);
-          return true;
-        });
+      jest.spyOn(BrowserApi, "sendMessageWithResponse").mockResolvedValue(mockTriageResult);
 
       void component.ngOnInit();
       tick();
@@ -159,19 +153,14 @@ describe("AutofillTriageComponent", () => {
       expect(component.loading()).toBe(false);
     }));
 
-    it("should stay in loading state when background responds with null", fakeAsync(() => {
-      jest
-        .spyOn(chrome.runtime, "sendMessage")
-        .mockImplementation((message: any, callback: any) => {
-          callback(null);
-          return true;
-        });
+    it("should exit loading state when background responds with null", fakeAsync(() => {
+      jest.spyOn(BrowserApi, "sendMessageWithResponse").mockResolvedValue(null);
 
       void component.ngOnInit();
       tick();
 
       expect(component.triageResult()).toBeNull();
-      expect(component.loading()).toBe(true);
+      expect(component.loading()).toBe(false);
     }));
 
     it("should fetch result when triageResultReady message arrives with matching tabId", fakeAsync(() => {
@@ -179,12 +168,7 @@ describe("AutofillTriageComponent", () => {
       jest.spyOn(BrowserApi, "addListener").mockImplementation((_event, listener) => {
         capturedListener = listener as any;
       });
-      jest
-        .spyOn(chrome.runtime, "sendMessage")
-        .mockImplementation((message: any, callback: any) => {
-          callback(mockTriageResult);
-          return true;
-        });
+      jest.spyOn(BrowserApi, "sendMessageWithResponse").mockResolvedValue(mockTriageResult);
 
       void component.ngOnInit();
       tick();
@@ -202,11 +186,8 @@ describe("AutofillTriageComponent", () => {
         capturedListener = listener as any;
       });
       const sendMessageSpy = jest
-        .spyOn(chrome.runtime, "sendMessage")
-        .mockImplementation((message: any, callback: any) => {
-          callback(null);
-          return true;
-        });
+        .spyOn(BrowserApi, "sendMessageWithResponse")
+        .mockResolvedValue(null);
 
       void component.ngOnInit();
       tick();
