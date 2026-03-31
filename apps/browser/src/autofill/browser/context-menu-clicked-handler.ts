@@ -42,7 +42,11 @@ import {
 import { LockedVaultPendingNotificationsData } from "../background/abstractions/notification.background";
 import { AutofillTriageService } from "../services/abstractions/autofill-triage.service";
 import { AutofillCipherTypeId } from "../types";
-import { AutofillTriagePageResult, AutofillTriageResponse } from "../types/autofill-triage";
+import {
+  AutofillTriageBrowserInfo,
+  AutofillTriagePageResult,
+  AutofillTriageResponse,
+} from "../types/autofill-triage";
 
 export type CopyToClipboardOptions = { text: string; tab: chrome.tabs.Tab };
 export type CopyToClipboardAction = (options: CopyToClipboardOptions) => void;
@@ -273,6 +277,15 @@ export class ContextMenuClickedHandler {
       analyzedAt: new Date().toISOString(),
       targetElementRef: response.targetFieldRef,
       fields,
+      pageContext: {
+        title: response.pageDetails.title,
+        documentUrl: response.pageDetails.documentUrl,
+        totalForms: Object.keys(response.pageDetails.forms).length,
+        totalFields: response.pageDetails.fields.length,
+        collectedTimestamp: response.pageDetails.collectedTimestamp,
+      },
+      extensionVersion: chrome.runtime.getManifest().version,
+      browserInfo: this.getBrowserInfo(),
     };
 
     await BrowserPopupUtils.openPopout("popup/index.html#/autofill-triage", {
@@ -306,6 +319,36 @@ export class ContextMenuClickedHandler {
       cipher.reprompt === CipherRepromptType.Password &&
       (await this.userVerificationService.hasMasterPasswordAndMasterKeyHash())
     );
+  }
+
+  /**
+   * Gets browser information for version tracking.
+   */
+  private getBrowserInfo(): AutofillTriageBrowserInfo {
+    const userAgent = navigator.userAgent;
+    let name = "Unknown";
+    let version = "Unknown";
+
+    // Detect browser name and version
+    if (userAgent.includes("Edg/")) {
+      name = "Edge";
+      const match = userAgent.match(/Edg\/([\d.]+)/);
+      version = match ? match[1] : "Unknown";
+    } else if (userAgent.includes("Chrome/")) {
+      name = "Chrome";
+      const match = userAgent.match(/Chrome\/([\d.]+)/);
+      version = match ? match[1] : "Unknown";
+    } else if (userAgent.includes("Firefox/")) {
+      name = "Firefox";
+      const match = userAgent.match(/Firefox\/([\d.]+)/);
+      version = match ? match[1] : "Unknown";
+    } else if (userAgent.includes("Safari/") && !userAgent.includes("Chrome")) {
+      name = "Safari";
+      const match = userAgent.match(/Version\/([\d.]+)/);
+      version = match ? match[1] : "Unknown";
+    }
+
+    return { name, version };
   }
 
   private getCipherCreationType(menuItemId?: string): AutofillCipherTypeId | null {
