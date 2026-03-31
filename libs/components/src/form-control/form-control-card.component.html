@@ -1,5 +1,6 @@
 <div
   class="tw-flex tw-items-center tw-relative tw-p-4 tw-border tw-border-border-base tw-rounded-xl tw-justify-between tw-gap-4 has-[label:hover]:tw-border-border-brand-soft has-[input:focus-visible]:tw-ring-2 has-[input:focus-visible]:tw-ring-border-focus has-[input:focus-visible]:tw-border-transparent has-[input:checked]:tw-bg-bg-brand-soft"
+  (change)="inGroup && groupItem.notifyChange()"
 >
   <label
     [for]="base.inputId()"
@@ -19,9 +20,6 @@
     >
       <span [id]="labelId" bitTypography="body2" class="tw-leading-5 tw-font-medium">
         <ng-content select="bit-label"></ng-content>
-        @if (base.required) {
-          <span class="tw-text-xs tw-font-normal"> ({{ "required" | i18n }})</span>
-        }
       </span>
       <ng-content select="bit-hint"></ng-content>
     </span>

@@ -1,10 +1,17 @@
-import { FormsModule, ReactiveFormsModule, FormControl, FormGroup } from "@angular/forms";
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormControl,
+  FormGroup,
+  Validators,
+} from "@angular/forms";
 import { Meta, moduleMetadata, StoryObj, componentWrapperDecorator } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { FormControlModule } from "../form-control";
 import { FormControlCardComponent } from "../form-control/form-control-card.component";
+import { FormControlGroupComponent } from "../form-control/form-control-group.component";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { SwitchComponent } from "./switch.component";
@@ -24,6 +31,7 @@ export default {
         ReactiveFormsModule,
         SwitchComponent,
         FormControlModule,
+        FormControlGroupComponent,
         FormControlCardComponent,
       ],
       providers: [
@@ -168,28 +176,60 @@ export const FormControlCardGroup: Story = {
   render: () => ({
     props: {
       formObj: new FormGroup({
-        notifications: new FormControl(false),
-        autoLock: new FormControl(true),
+        features: new FormControl<string[]>([], Validators.required),
       }),
     },
     template: /* HTML */ `
       <form [formGroup]="formObj">
-        <bit-form-control-card-group>
+        <bit-form-control-group formControlName="features">
           <bit-label>Switch group</bit-label>
 
-          <bit-form-control-card icon="bwi-envelope">
-            <bit-switch formControlName="notifications"></bit-switch>
+          <bit-form-control-card [value]="'notifications'" icon="bwi-envelope">
+            <bit-switch></bit-switch>
             <bit-label>Notifications</bit-label>
             <bit-hint>Enable email notifications</bit-hint>
           </bit-form-control-card>
 
-          <bit-form-control-card icon="bwi-lock">
-            <bit-switch formControlName="autoLock"></bit-switch>
+          <bit-form-control-card [value]="'autoLock'" icon="bwi-lock">
+            <bit-switch></bit-switch>
             <bit-label>Auto-lock</bit-label>
             <bit-hint>Automatically lock after inactivity</bit-hint>
           </bit-form-control-card>
-        </bit-form-control-card-group>
+
+          <bit-hint>At least one option must be enabled.</bit-hint>
+        </bit-form-control-group>
       </form>
     `,
   }),
+};
+
+export const FormControlCardGroupWithValidationError: Story = {
+  render: () => {
+    const formObj = new FormGroup({
+      features: new FormControl<string[]>([], Validators.required),
+    });
+    formObj.markAllAsTouched();
+    return {
+      props: { formObj },
+      template: /* HTML */ `
+        <form [formGroup]="formObj">
+          <bit-form-control-group formControlName="features">
+            <bit-label>Switch group</bit-label>
+
+            <bit-form-control-card [value]="'notifications'" icon="bwi-envelope">
+              <bit-switch></bit-switch>
+              <bit-label>Notifications</bit-label>
+              <bit-hint>Enable email notifications</bit-hint>
+            </bit-form-control-card>
+
+            <bit-form-control-card [value]="'autoLock'" icon="bwi-lock">
+              <bit-switch></bit-switch>
+              <bit-label>Auto-lock</bit-label>
+              <bit-hint>Automatically lock after inactivity</bit-hint>
+            </bit-form-control-card>
+          </bit-form-control-group>
+        </form>
+      `,
+    };
+  },
 };

@@ -16,6 +16,7 @@ import { SwitchComponent } from "../switch";
 import { TypographyDirective } from "../typography/typography.directive";
 
 import { FormControlBaseDirective } from "./form-control-base.directive";
+import { FormControlGroupItemDirective } from "./form-control-group-item.directive";
 import { BitHintDirective } from "./hint.directive";
 
 @Component({
@@ -27,6 +28,10 @@ import { BitHintDirective } from "./hint.directive";
       directive: FormControlBaseDirective,
       inputs: ["label", "inline", "disableMargin"],
     },
+    {
+      directive: FormControlGroupItemDirective,
+      inputs: ["value"],
+    },
   ],
   host: {
     class: "[&_bit-hint]:tw-leading-4 [&_bit-hint]:tw-mt-0",
@@ -36,9 +41,26 @@ import { BitHintDirective } from "./hint.directive";
 export class FormControlCardComponent {
   protected readonly icon = input<BitwardenIcon>();
   protected readonly base = inject(FormControlBaseDirective);
+  protected readonly groupItem = inject(FormControlGroupItemDirective);
 
   readonly labelId = `${this.base.id}-label`;
   readonly errorId = `${this.base.id}-error`;
+
+  protected get inGroup() {
+    return this.groupItem.group != null && this.groupItem.value() !== undefined;
+  }
+
+  get required() {
+    return this.inGroup ? false : this.base.required;
+  }
+
+  get hasError() {
+    return this.inGroup ? false : this.base.hasError;
+  }
+
+  get displayError() {
+    return this.inGroup ? "" : this.base.displayError;
+  }
 
   protected readonly hint = contentChild(BitHintDirective);
   protected readonly switch = contentChild(SwitchComponent);
@@ -77,6 +99,23 @@ export class FormControlCardComponent {
           el.removeAttribute("aria-describedby");
         }
       }
+    });
+
+    // When inside a group, drive checked/disabled state into the inner control
+    effect(() => {
+      if (!this.groupItem.group || this.groupItem.value() === undefined) {
+        return;
+      }
+      const isSelected = this.groupItem.isSelected();
+      const isDisabled = this.groupItem.isDisabled();
+      const el = this.base.formControlEl().nativeElement;
+      const inputEl: HTMLInputElement | null =
+        el.tagName === "INPUT" ? (el as HTMLInputElement) : el.querySelector("input");
+      if (inputEl) {
+        inputEl.checked = isSelected;
+        inputEl.disabled = isDisabled;
+      }
+      this.switch()?.writeValue(isSelected);
     });
   }
 }

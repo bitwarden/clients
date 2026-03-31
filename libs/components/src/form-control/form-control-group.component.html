@@ -1,0 +1,28 @@
+@if (label()) {
+  <fieldset class="tw-border-none tw-m-0 tw-p-0">
+    <legend class="tw-block tw-mb-2 tw-text-sm/5 tw-font-medium">
+      <ng-content select="bit-label"></ng-content>
+      @if (required()) {
+        <span class="tw-text-xs tw-font-normal"> ({{ "required" | i18n }})</span>
+      }
+    </legend>
+    <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+  </fieldset>
+}
+
+@if (!label()) {
+  <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+}
+
+<ng-template #contentTpl>
+  <div [class]="containerClass()">
+    <ng-content></ng-content>
+  </div>
+  @if (hasError()) {
+    <div class="tw-mt-1 tw-text-fg-danger tw-text-xs tw-ms-0.5">
+      <bit-icon name="bwi-error"></bit-icon> {{ displayError() }}
+    </div>
+  } @else {
+    <ng-content select="bit-hint"></ng-content>
+  }
+</ng-template>
