@@ -104,11 +104,20 @@ export class OAuthDetectionBackground {
       return;
     }
 
-    if (this.activeFlows.has(details.tabId)) {
+    const existingFlow = this.activeFlows.get(details.tabId);
+    if (existingFlow) {
+      if (existingFlow.ssoProvider === provider.name) {
+        this.logService.info(
+          `[OAuthDetection][Step1] Ignoring: already tracking tab ${details.tabId} for ${provider.name}`,
+        );
+        return;
+      }
+      // Different provider detected on same tab — replace the old flow
       this.logService.info(
-        `[OAuthDetection][Step1] Ignoring: already tracking tab ${details.tabId}`,
+        `[OAuthDetection][Step1] Replacing ${existingFlow.ssoProvider} flow with ${provider.name} ` +
+          `on tab ${details.tabId}`,
       );
-      return;
+      this.activeFlows.delete(details.tabId);
     }
 
     const initiation = provider.extractFlowInitiation(details);
@@ -165,17 +174,31 @@ export class OAuthDetectionBackground {
 
       let originTab: chrome.tabs.Tab | undefined;
 
-      // Strategy A: Use openerTabId
+      // Strategy A: Use openerTabId — but only if the opener's URL matches
+      // the initiator origin. The openerTabId can be misleading when a tab
+      // was originally opened from an unrelated page (e.g. Wikipedia opened
+      // a Quora tab, then Quora starts a Facebook OAuth flow).
       if (ssoTab.openerTabId != null) {
         this.logService.info(
           `[OAuthDetection][ResolveOrigin] Strategy A: trying openerTabId=${ssoTab.openerTabId}`,
         );
-        originTab = await BrowserApi.getTab(ssoTab.openerTabId);
-        if (originTab) {
-          this.logService.info(
-            `[OAuthDetection][ResolveOrigin] Strategy A SUCCESS: ` +
-              `opener tab ${originTab.id}, url="${originTab.url}"`,
-          );
+        const openerTab = await BrowserApi.getTab(ssoTab.openerTabId);
+        if (openerTab) {
+          const openerMatchesInitiator =
+            initiatorOrigin === "unknown" ||
+            (openerTab.url && new URL(openerTab.url).origin === initiatorOrigin);
+          if (openerMatchesInitiator) {
+            originTab = openerTab;
+            this.logService.info(
+              `[OAuthDetection][ResolveOrigin] Strategy A SUCCESS: ` +
+                `opener tab ${originTab.id}, url="${originTab.url}"`,
+            );
+          } else {
+            this.logService.info(
+              `[OAuthDetection][ResolveOrigin] Strategy A SKIPPED: ` +
+                `opener tab ${openerTab.id} url="${openerTab.url}" does not match initiator "${initiatorOrigin}"`,
+            );
+          }
         } else {
           this.logService.info(
             `[OAuthDetection][ResolveOrigin] Strategy A FAILED: opener tab not found`,
@@ -478,8 +501,24 @@ export class OAuthDetectionBackground {
 
     this.logService.info(
       `[OAuthDetection][Step4] [${provider.name}] SSO tab ${details.tabId} navigating to: ${details.url} ` +
-        `(email="${flow.email ?? "NOT YET"}", redirectUri="${flow.redirectUri ?? "unknown"}")`,
+        `(email="${flow.email ?? "NOT YET"}", redirectUri="${flow.redirectUri ?? "unknown"}", ` +
+        `originUrl="${flow.originUrl}", completed=${flow.completed})`,
     );
+
+    // If the flow was already marked complete (e.g. consent page seen) and
+    // the tab navigates away from the SSO provider, trigger immediately.
+    // This handles same-tab flows where the tab redirects back to the
+    // origin instead of closing.
+    if (flow.completed) {
+      this.logService.info(
+        `[OAuthDetection][Step4] [${provider.name}] Flow already completed — ` +
+          `triggering notification on next navigation`,
+      );
+      this.activeFlows.delete(details.tabId);
+      this.logService.info(`[OAuthDetection] Active flows after removal: ${this.activeFlows.size}`);
+      this.triggerSaveNotification(flow);
+      return;
+    }
 
     const action = provider.detectCompletion(details.url, flow);
 

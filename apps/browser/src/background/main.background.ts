@@ -297,6 +297,7 @@ import ContextMenusBackground from "../autofill/background/context-menus.backgro
 import NotificationBackground from "../autofill/background/notification.background";
 import { OAuthDetectionBackground } from "../autofill/background/oauth-detection.background";
 import { AppleOAuthProvider } from "../autofill/background/oauth-providers/apple-oauth.provider";
+import { FacebookOAuthProvider } from "../autofill/background/oauth-providers/facebook-oauth.provider";
 import { GoogleOAuthProvider } from "../autofill/background/oauth-providers/google-oauth.provider";
 import { OverlayNotificationsBackground } from "../autofill/background/overlay-notifications.background";
 import { OverlayBackground } from "../autofill/background/overlay.background";
@@ -1426,7 +1427,7 @@ export default class MainBackground {
     this.oauthDetectionBackground = new OAuthDetectionBackground(
       this.logService,
       this.notificationBackground,
-      [new GoogleOAuthProvider(), new AppleOAuthProvider()],
+      [new GoogleOAuthProvider(), new AppleOAuthProvider(), new FacebookOAuthProvider()],
     );
 
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(
