@@ -46,13 +46,13 @@ export class MemberDialogManagerService {
   async openInviteDialog(
     organization: Organization,
     billingMetadata: OrganizationBillingMetadataResponse,
-    allUserEmails: string[],
+    allUsers: OrganizationUserView[],
   ): Promise<MemberDialogResult> {
     const dialog = openUserAddEditDialog(this.dialogService, {
       data: {
         kind: "Add",
         organizationId: organization.id,
-        allOrganizationUserEmails: allUserEmails,
+        allOrganizationUsers: allUsers,
         occupiedSeatCount: billingMetadata?.organizationOccupiedSeats ?? 0,
         isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
       },
