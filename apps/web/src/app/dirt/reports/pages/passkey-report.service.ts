@@ -12,7 +12,7 @@ export interface PasskeyServiceEntry {
 
 export interface PasskeyCipherRow {
   cipher: CipherView;
-  instructions: string | null;
+  instructions: string | undefined;
   supportsPasskeyLogin: boolean;
   supportsPasskeyMfa: boolean;
 }
@@ -136,7 +136,7 @@ export class PasskeyReportService {
   buildPasskeyCipherRow(cipher: CipherView, match: PasskeyServiceEntry): PasskeyCipherRow {
     return {
       cipher,
-      instructions: match.instructions ? match.instructions : null,
+      instructions: match.instructions,
       supportsPasskeyLogin: match.supportsPasskeyLogin,
       supportsPasskeyMfa: match.supportsPasskeyMfa,
     };
