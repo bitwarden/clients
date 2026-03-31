@@ -194,7 +194,7 @@ describe("PasskeyReportService", () => {
   });
 
   describe("buildPasskeyCipherRow", () => {
-    it("should map instructions to null when empty string", () => {
+    it("should map instructions to undefined when empty string", () => {
       const cipher = createCipherView({ id: "1" });
       const entry: PasskeyServiceEntry = {
         instructions: "",
@@ -204,7 +204,7 @@ describe("PasskeyReportService", () => {
 
       const row = service.buildPasskeyCipherRow(cipher, entry);
 
-      expect(row.instructions).toBeNull();
+      expect(row.instructions).toBeUndefined();
     });
 
     it("should preserve non-empty instructions", () => {
@@ -231,7 +231,7 @@ describe("PasskeyReportService", () => {
       },
       {
         cipher: { id: "cipher-2" } as CipherView,
-        instructions: null,
+        instructions: undefined,
         supportsPasskeyLogin: false,
         supportsPasskeyMfa: true,
       },

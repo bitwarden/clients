@@ -186,8 +186,8 @@ describe("PasskeyReportComponent", () => {
       const row1 = rows.find((r: any) => r.cipher.id === "cipher-1");
       const row2 = rows.find((r: any) => r.cipher.id === "cipher-2");
       expect(row1?.instructions).toEqual("https://example.com/passkey-setup");
-      // Empty instructions should be null
-      expect(row2?.instructions).toBeNull();
+      // Empty instructions should be undefined
+      expect(row2?.instructions).toBeUndefined();
     });
 
     it("should log error when loadPasskeyServices fails", async () => {

@@ -136,7 +136,7 @@ export class PasskeyReportService {
   buildPasskeyCipherRow(cipher: CipherView, match: PasskeyServiceEntry): PasskeyCipherRow {
     return {
       cipher,
-      instructions: match.instructions,
+      instructions: match.instructions || undefined,
       supportsPasskeyLogin: match.supportsPasskeyLogin,
       supportsPasskeyMfa: match.supportsPasskeyMfa,
     };

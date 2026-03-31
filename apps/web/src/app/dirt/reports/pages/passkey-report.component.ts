@@ -195,17 +195,7 @@ export class PasskeyReportComponent {
   private async init() {
     this.loading.set(true);
     await this.syncService.fullSync(false);
-
-    if (this.currentFilterStatus()) {
-      if (this.ciphers().length > 2) {
-        await this.filterOrgToggle(this.currentFilterStatus());
-      } else {
-        await this.filterOrgToggle(0);
-      }
-    } else {
-      await this.setCiphers();
-    }
-
+    await this.setCiphers();
     this.loading.set(false);
     this.hasLoaded.set(true);
   }
