@@ -6,6 +6,9 @@ export {
 } from "./synced-preferences";
 export {
   SyncedKeyEntry,
+  SharedSyncedKeyEntry,
+  CommonDeviceSyncedKeyEntry,
+  BrowserSyncedKeyEntry,
   SyncScope,
   SYNCED_KEYS,
   PREFERENCE_SYNC_ENABLED,

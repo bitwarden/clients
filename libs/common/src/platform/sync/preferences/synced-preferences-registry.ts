@@ -19,6 +19,8 @@ import {
 } from "../../../vault/services/key-state/vault-settings.state";
 import { UserKeyDefinition, SYNC_DISK } from "../../state";
 
+import { SharedPreferences, DevicePreferences, BrowserPreferences } from "./synced-preferences";
+
 // ── Sync scope types ──
 
 export const SyncScope = Object.freeze({
@@ -36,23 +38,36 @@ export type SyncScope = (typeof SyncScope)[keyof typeof SyncScope];
 
 // ── Registry entry ──
 
-export interface SyncedKeyEntry {
+interface SyncedKeyEntryBase {
   /** The UserKeyDefinition that owns this state in the StateProvider */
   keyDef: UserKeyDefinition<unknown>;
-
-  /** Field name in the SyncedPreferences blob (within the appropriate section) */
-  blobField: string;
-
-  /** Whether this setting belongs to "shared" or a per-device section */
-  scope: SyncScope;
-
-  /**
-   * For device-scoped entries: which client type(s) this applies to.
-   * `undefined` means all device sections include this field.
-   * A specific ClientType means only that section includes it.
-   */
-  device?: ClientType;
 }
+
+/** Entry for a preference shared across all device types */
+export interface SharedSyncedKeyEntry extends SyncedKeyEntryBase {
+  blobField: keyof SharedPreferences;
+  scope: typeof SyncScope.Shared;
+  device?: never;
+}
+
+/** Entry for a per-device preference present in every device type's section (values are unique per device type) */
+export interface CommonDeviceSyncedKeyEntry extends SyncedKeyEntryBase {
+  blobField: keyof DevicePreferences;
+  scope: typeof SyncScope.Device;
+  device?: undefined;
+}
+
+/** Entry for a per-device preference specific to the browser extension */
+export interface BrowserSyncedKeyEntry extends SyncedKeyEntryBase {
+  blobField: keyof BrowserPreferences;
+  scope: typeof SyncScope.Device;
+  device: ClientType.Browser;
+}
+
+export type SyncedKeyEntry =
+  | SharedSyncedKeyEntry
+  | CommonDeviceSyncedKeyEntry
+  | BrowserSyncedKeyEntry;
 
 // ── Opt-in flag ──
 
