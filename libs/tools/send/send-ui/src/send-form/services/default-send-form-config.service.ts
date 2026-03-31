@@ -1,16 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { inject, Injectable } from "@angular/core";
-import { combineLatest, firstValueFrom, map, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, map } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 
+import { SendPolicyService } from "../../services/send-policy.service";
 import {
   SendFormConfig,
   SendFormConfigService,
@@ -22,9 +19,8 @@ import {
  */
 @Injectable()
 export class DefaultSendFormConfigService implements SendFormConfigService {
-  private policyService: PolicyService = inject(PolicyService);
   private sendService: SendService = inject(SendService);
-  private accountService: AccountService = inject(AccountService);
+  private sendPolicyService: SendPolicyService = inject(SendPolicyService);
 
   async buildConfig(
     mode: SendFormMode,
@@ -43,10 +39,8 @@ export class DefaultSendFormConfigService implements SendFormConfigService {
     };
   }
 
-  private areSendsEnabled$ = this.accountService.activeAccount$.pipe(
-    getUserId,
-    switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId)),
-    map((p) => !p),
+  private areSendsEnabled$ = this.sendPolicyService.disableSend$.pipe(
+    map((disableSend) => !disableSend),
   );
 
   private getSend(id?: SendId) {
