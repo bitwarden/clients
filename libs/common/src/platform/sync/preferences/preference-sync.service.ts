@@ -40,7 +40,10 @@ export class PreferenceSyncService {
     return this.platformUtilsService.getClientType();
   }
 
-  async pull(response: UserPreferencesResponse | null, userId: UserId): Promise<void> {
+  async applySyncedUserPreferences(
+    response: UserPreferencesResponse | null,
+    userId: UserId,
+  ): Promise<void> {
     if (response?.data == null) {
       return;
     }
@@ -74,14 +77,14 @@ export class PreferenceSyncService {
         await this.applySection(deviceSection, SyncScope.Device, userId);
       }
     } catch (e) {
-      this.logService.error("PreferenceSyncService: pull failed, preserving local state", e);
+      this.logService.error("PreferenceSyncService: apply failed, preserving local state", e);
     } finally {
       this._isSyncing = false;
     }
   }
 
-  startPushSync(userId: UserId): void {
-    this.stopPushSync();
+  beginSyncedKeyWatch(userId: UserId): void {
+    this.stopSyncedKeyWatch();
 
     const observables = SYNCED_KEYS.filter((entry) => this.isEntryRelevant(entry)).map((entry) =>
       this.stateProvider.getUser(userId, entry.keyDef).state$.pipe(
@@ -103,7 +106,7 @@ export class PreferenceSyncService {
       });
   }
 
-  stopPushSync(): void {
+  stopSyncedKeyWatch(): void {
     this.pushSubscription?.unsubscribe();
     this.pushSubscription = null;
   }
