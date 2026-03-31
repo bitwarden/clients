@@ -48,6 +48,7 @@ import {
   KdfType,
   KeyService,
   PBKDF2KdfConfig,
+  UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
 
 import {
@@ -92,6 +93,7 @@ describe("LoginStrategyService", () => {
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<DefaultAccountCryptographicStateService>;
   let passwordPreloginService: MockProxy<PasswordPreloginService>;
+  let keypairRegenService: MockProxy<UserAsymmetricKeysRegenerationService>;
 
   let stateProvider: FakeGlobalStateProvider;
   let loginStrategyCacheExpirationState: FakeGlobalState<Date | null>;
@@ -127,6 +129,7 @@ describe("LoginStrategyService", () => {
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<DefaultAccountCryptographicStateService>();
     passwordPreloginService = mock<PasswordPreloginService>();
+    keypairRegenService = mock<UserAsymmetricKeysRegenerationService>();
 
     passwordPreloginService.getPreloginData$.mockReturnValue(
       of(new PasswordPreloginData(new PBKDF2KdfConfig())),
@@ -162,6 +165,7 @@ describe("LoginStrategyService", () => {
       configService,
       accountCryptographicStateService,
       passwordPreloginService,
+      keypairRegenService,
     );
 
     loginStrategyCacheExpirationState = stateProvider.getFake(CACHE_EXPIRATION_KEY);
