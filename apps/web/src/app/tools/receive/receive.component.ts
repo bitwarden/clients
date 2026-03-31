@@ -3,7 +3,8 @@ import { FormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NoResults, NoSendsIcon } from "@bitwarden/assets/svg";
-import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
+import { ReceiveView } from "@bitwarden/common/tools/receive/models/view/receive.view";
+import { ReceiveId } from "@bitwarden/common/types/guid";
 import {
   ButtonModule,
   DialogService,
@@ -19,19 +20,16 @@ import { HeaderModule } from "../../layouts/header/header.module";
 
 import { ReceiveAddEditComponent } from "./receive-add-edit.component";
 import { ReceiveTableComponent } from "./receive-table.component";
-import { ReceiveListState, ReceiveView } from "./receive-view";
+import { ReceiveListState } from "./receive-view";
 import { ReceiveViewComponent } from "./receive-view.component";
 
 const DUMMY_RECEIVE: ReceiveView = {
-  id: "dummy-1",
+  id: "dummy-1" as ReceiveId,
   name: "My first receive",
-  deletionDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  disabled: false,
-  authType: AuthType.None,
-  maxAccessCountReached: false,
-  expired: false,
-  pendingDelete: false,
-  password: null,
+  expirationDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  secret: "mockTestSecret",
+  publicKey: undefined,
+  sharedContentEncryptionKey: undefined,
 };
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush

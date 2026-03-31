@@ -95,9 +95,11 @@ export class ReceiveAddEditComponent {
       throw new Error("View data is required for editing a receive.");
     }
 
-    const updatedView = this.viewData;
-    updatedView.name = this.form.value.name!;
-    updatedView.expirationDate = this.getExpirationDate(this.form.value.expirationDays!);
+    const updatedView: ReceiveView = {
+      ...this.viewData,
+      name: this.form.value.name!,
+      expirationDate: this.getExpirationDate(this.form.value.expirationDays!),
+    };
     await this.receiveService.update(updatedView, userId);
   }
 
