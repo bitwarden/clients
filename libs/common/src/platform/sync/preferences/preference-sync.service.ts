@@ -40,8 +40,6 @@ export class PreferenceSyncService {
     return this.platformUtilsService.getClientType();
   }
 
-  // ── Pull (server → local) ──
-
   async pull(response: UserPreferencesResponse | null, userId: UserId): Promise<void> {
     if (response?.data == null) {
       return;
@@ -68,7 +66,7 @@ export class PreferenceSyncService {
         );
       }
 
-      // Apply device-specific settings (CLI is excluded by SYNCABLE_CLIENT_TYPES check at construction)
+      // Apply device-specific settings
       const deviceSection = (prefs as Record<string, unknown>)[this.clientType] as
         | Record<string, unknown>
         | undefined;
@@ -81,8 +79,6 @@ export class PreferenceSyncService {
       this._isSyncing = false;
     }
   }
-
-  // ── Push (local → server) ──
 
   startPushSync(userId: UserId): void {
     this.stopPushSync();
@@ -112,17 +108,6 @@ export class PreferenceSyncService {
     this.pushSubscription = null;
   }
 
-  // ── Initial seed (when user first enables sync) ──
-
-  async pushCurrentState(userId: UserId): Promise<void> {
-    const blob = await this.collectAndEncrypt(userId);
-    if (blob != null) {
-      await this.putUserPreferences(new UserPreferencesRequest(blob));
-    }
-  }
-
-  // ── Private helpers ──
-
   private async pushToServer(userId: UserId): Promise<void> {
     try {
       const isEnabled = await this.isSyncEnabled(userId);
@@ -146,7 +131,7 @@ export class PreferenceSyncService {
     return enabled === true;
   }
 
-  private async collectAndEncrypt(userId: UserId): Promise<string | null> {
+  private async collectAndEncrypt(userId: UserId): Promise<string | undefined> {
     const prefs = await this.collectAll(userId);
     return this.encryptBlob(prefs, userId);
   }
@@ -217,14 +202,14 @@ export class PreferenceSyncService {
       return true;
     }
     // Device-scoped: relevant if no section specified (all devices) or section matches
-    return entry.section == null || entry.section === this.clientType;
+    return entry.device == null || entry.device === this.clientType;
   }
 
-  private async encryptBlob(prefs: SyncedPreferences, userId: UserId): Promise<string | null> {
+  private async encryptBlob(prefs: SyncedPreferences, userId: UserId): Promise<string | undefined> {
     const key = await this.getUserKey(userId);
     if (key == null) {
       this.logService.warning("PreferenceSyncService: no user key available for encryption");
-      return null;
+      return undefined;
     }
 
     const json = JSON.stringify(prefs);
