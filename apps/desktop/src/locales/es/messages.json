@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Se quiere membrasía Premium para poder utilizar esta característica."
   },
+  "syncWithBrowser": {
+    "message": "Sync with browser"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Launch browser"
+  },
   "errorOccurred": {
     "message": "Ha ocurrido un error."
   },
@@ -905,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Pista de la contraseña maestra"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "passwordStrengthScore": {
     "message": "Puntuación de seguridad de la contraseña $SCORE$",
     "placeholders": {
@@ -1196,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Los nuevos ajustes de cifrado recomendados mejorará la seguridad de tu cuenta. Introduce tu contraseña maestra para actualizar ahora."
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
   "confirmIdentityToContinue": {
     "message": "Confirma tu identidad para continuar"
   },
@@ -1280,6 +1320,9 @@
   "changeMasterPass": {
     "message": "Cambiar contraseña maestra"
   },
+  "changeMasterPassword": {
+    "message": "Change master password"
+  },
   "continueToWebApp": {
     "message": "¿Continuar a la aplicación web?"
   },
@@ -1358,17 +1401,11 @@
   "twoStepLogin": {
     "message": "Autenticación en dos pasos"
   },
-  "vaultTimeoutHeader": {
-    "message": "Tiempo de espera de la caja fuerte"
-  },
   "vaultTimeout": {
     "message": "Tiempo de espera de la caja fuerte excedido"
   },
   "vaultTimeout1": {
     "message": "Tiempo de espera"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Acción de tiempo de espera"
   },
   "vaultTimeoutDesc": {
     "message": "Elige cuando se agotará el tiempo de espera de tu caja fuerte y se ejecutará la acción seleccionada."
@@ -1658,6 +1695,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "mes"
+  },
+  "monthly": {
+    "message": "Mensual"
+  },
+  "year": {
+    "message": "año"
+  },
+  "annually": {
+    "message": "Anualmente"
+  },
+  "annual": {
+    "message": "Anual"
   },
   "refreshComplete": {
     "message": "Actualización completada"
@@ -2089,9 +2141,6 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Cerrar sesión en la caja fuerte requiere que vuelvas a autenticarte para acceder nuevamente a ella."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configura un método de desbloqueo para cambiar el tiempo de espera de tu caja fuerte."
-  },
   "lock": {
     "message": "Bloquear",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2274,6 +2323,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Su nueva contraseña maestra no cumple con los requisitos de la política."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Obtén consejos, anuncios y oportunidades de investigación de Bitwarden en tu bandeja de entrada."
@@ -2709,9 +2761,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "El tiempo de espera de tu caja fuerte excede las restricciones establecidas por tu organización."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Se han aplicado los requisitos de la política de empresa a sus opciones de tiempo de espera"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Las políticas de su organización han establecido el tiempo de espera máximo permitido para la caja fuerte en $HOURS$ hora(s) y $MINUTES$ minuto(s).",
@@ -3745,6 +3794,9 @@
   "exportSuccess": {
     "message": "Datos de la caja fuerte exportados"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Autenticación multifactor cancelada"
   },
@@ -4617,8 +4669,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ exige que todos los elementos sean propiedad de la organización por motivos de seguridad y cumplimiento normativo. Haga clic en Aceptar para transferir la propiedad de sus elementos.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ exige que todos los elementos sean propiedad de la organización por motivos de seguridad y cumplimiento normativo.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4678,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Haz clic en Aceptar para transferir la propiedad de tus elementos."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Abrir el artículo de ayuda sobre cómo transferir elementos"
+  },
   "acceptTransfer": {
     "message": "Aceptar transferencia"
   },
   "declineAndLeave": {
     "message": "Rechazar y salir"
-  },
-  "whyAmISeeingThis": {
-    "message": "¿Por qué estoy viendo esto?"
   },
   "organizationIsSuspended": {
     "message": "La organización está suspendida"
@@ -4692,9 +4747,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Introduce varios correos electrónicos separándolos con una coma."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "La verificación del correo electrónico requiere al menos una dirección de correo electrónico. Para eliminar todos los correos electrónicos, cambia el tipo de acceso arriba."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"

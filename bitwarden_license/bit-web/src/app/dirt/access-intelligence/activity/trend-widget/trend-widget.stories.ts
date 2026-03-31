@@ -27,7 +27,7 @@ const selectedTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
 const systemTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
 
 export default {
-  title: "Web/Access Intelligence/Trend Widget",
+  title: "DIRT/Access Intelligence/Trend Widget",
   component: TrendWidgetComponent,
   decorators: [
     componentWrapperDecorator(
@@ -142,21 +142,6 @@ export const Default: Story = {
         { timestamp: "2026-02-17T00:00:00Z", atRisk: 48, total: 175 },
         { timestamp: "2026-02-18T00:00:00Z", atRisk: 52, total: 178 },
       ],
-    },
-    loading: false,
-    error: null,
-  },
-};
-
-/**
- * Empty state with no data points.
- */
-export const EmptyState: Story = {
-  args: {
-    data: {
-      timeframe: TimePeriod.PastMonth,
-      dataView: "applications",
-      dataPoints: [],
     },
     loading: false,
     error: null,

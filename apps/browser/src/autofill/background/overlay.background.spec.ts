@@ -111,6 +111,8 @@ describe("OverlayBackground", () => {
   let selectedThemeMock$: BehaviorSubject<ThemeType>;
   let inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
   let themeStateService: MockProxy<ThemeStateService>;
+  let enableNotificationAnimationMock$: BehaviorSubject<boolean>;
+  let enableInlineMenuAnimationMock$: BehaviorSubject<boolean>;
   let totpService: MockProxy<TotpService>;
   let overlayBackground: OverlayBackground;
   let portKeyForTabSpy: Record<number, string>;
@@ -169,7 +171,11 @@ describe("OverlayBackground", () => {
     cipherService = mock<CipherService>({
       getAllDecryptedForUrl: jest.fn().mockResolvedValue([]),
     });
+    enableNotificationAnimationMock$ = new BehaviorSubject(true);
+    enableInlineMenuAnimationMock$ = new BehaviorSubject(true);
     autofillService = mock<AutofillService>();
+    autofillService.enableNotificationAnimation$ = enableNotificationAnimationMock$;
+    autofillService.enableInlineMenuAnimation$ = enableInlineMenuAnimationMock$;
     activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
