@@ -1,8 +1,12 @@
 import { DatePipe } from "@angular/common";
-import { ChangeDetectionStrategy, Component, Inject, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, Inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { map } from "rxjs";
 
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { buildReceiveUrl } from "@bitwarden/common/tools/receive/models/receive-url-data";
 import { ReceiveView } from "@bitwarden/common/tools/receive/models/view/receive.view";
 import {
   ButtonModule,
@@ -24,7 +28,17 @@ import { ReceiveAddEditComponent } from "./receive-add-edit.component";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReceiveViewComponent {
-  protected readonly receiveLink = signal("https://receive.bitwarden.com/receive/dummy-link-id");
+  private readonly baseReceiveUrl = toSignal(
+    this.environmentService.environment$.pipe(map((env) => env.getWebVaultUrl() + "/#/receive")),
+  );
+
+  protected readonly receiveLink = computed(() => {
+    const baseUrl = this.baseReceiveUrl();
+    if (!baseUrl) {
+      return null;
+    }
+    return buildReceiveUrl(this.receive, baseUrl);
+  });
 
   constructor(
     @Inject(DIALOG_DATA) protected readonly receive: ReceiveView,
@@ -33,13 +47,18 @@ export class ReceiveViewComponent {
     private readonly i18nService: I18nService,
     private readonly platformUtilsService: PlatformUtilsService,
     private readonly toastService: ToastService,
+    private readonly environmentService: EnvironmentService,
   ) {}
 
   protected copyLink(): void {
-    this.platformUtilsService.copyToClipboard(this.receiveLink());
+    const receiveLink = this.receiveLink();
+    if (!receiveLink) {
+      return;
+    }
+    this.platformUtilsService.copyToClipboard(receiveLink);
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("valueCopied", this.i18nService.t("sendLink")),
+      message: this.i18nService.t("valueCopied", this.i18nService.t("receiveLink")),
     });
   }
 
