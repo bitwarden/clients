@@ -1,3 +1,5 @@
+import { Jsonify } from "type-fest";
+
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import { ReceiveFileApi } from "../api/receive-file.api";
 
@@ -16,5 +18,14 @@ export class ReceiveFileData {
     this.encapsulatedFileContentEncryptionKey = new EncString(
       data.encapsulatedFileContentEncryptionKey,
     );
+  }
+
+  static fromJSON(obj: Jsonify<ReceiveFileData>): ReceiveFileData {
+    return Object.assign(Object.create(ReceiveFileData.prototype) as ReceiveFileData, obj, {
+      fileName: EncString.fromJSON(obj.fileName),
+      encapsulatedFileContentEncryptionKey: EncString.fromJSON(
+        obj.encapsulatedFileContentEncryptionKey,
+      ),
+    });
   }
 }

@@ -11,6 +11,9 @@ import {
 } from "@bitwarden/common/admin-console/models/collections";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
+import { ReceiveData } from "@bitwarden/common/tools/receive/models/data/receive.data";
+import { ReceiveResponse } from "@bitwarden/common/tools/receive/models/response/receive.response";
+import { InternalReceiveService } from "@bitwarden/common/tools/receive/services/receive.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
@@ -92,6 +95,7 @@ export class DefaultSyncService extends CoreSyncService {
     messageSender: MessageSender,
     private policyService: InternalPolicyService,
     sendService: InternalSendService,
+    private receiveService: InternalReceiveService,
     logService: LogService,
     private keyConnectorService: KeyConnectorService,
     private providerService: ProviderService,
@@ -191,6 +195,7 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncCollections(response.collections, response.profile.id);
       await this.syncCiphers(response.ciphers, response.profile.id);
       await this.syncSends(response.sends, response.profile.id);
+      await this.syncReceives(response.receives, response.profile.id);
       await this.syncSettings(response.domains, response.profile.id);
       await this.syncPolicies(response.policies, response.profile.id);
 
@@ -398,6 +403,14 @@ export class DefaultSyncService extends CoreSyncService {
       sends[s.id] = new SendData(s);
     });
     return await this.sendService.replace(sends, userId);
+  }
+
+  private async syncReceives(response: ReceiveResponse[], userId: UserId) {
+    const receives: { [id: string]: ReceiveData } = {};
+    response.forEach((r) => {
+      receives[r.id] = new ReceiveData(r);
+    });
+    return await this.receiveService.replace(receives, userId);
   }
 
   private async syncSettings(response: DomainsResponse, userId: UserId) {

@@ -166,6 +166,9 @@ export const SEND_MEMORY = new StateDefinition("decryptedSend", "memory", {
   browser: "memory-large-object",
 });
 export const SEND_ACCESS_AUTH_MEMORY = new StateDefinition("sendAccessAuth", "memory");
+export const RECEIVE_DISK = new StateDefinition("encryptedReceive", "disk", {
+  web: "memory",
+});
 
 // Vault
 

@@ -3,6 +3,7 @@ import { of } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { StateProvider } from "@bitwarden/state";
 import { UserId } from "@bitwarden/user-core";
 
 import { KeyGenerationService } from "../../../key-management/crypto";
@@ -16,13 +17,14 @@ import { ReceiveCreateInput } from "../models/receive-create-input";
 import { ReceiveResponse } from "../models/response/receive.response";
 
 import { DefaultReceiveService } from "./default-receive.service";
-import { ReceiveApiService } from "./receive-api.service.abstraction";
+import { ReceiveApiService } from "./receive-api.service";
 
 describe("DefaultReceiveService", () => {
   const encryptService = mock<EncryptService>();
   const keyService = mock<KeyService>();
   const keyGenerationService = mock<KeyGenerationService>();
   const receiveApiService = mock<ReceiveApiService>();
+  const stateProvider = mock<StateProvider>();
 
   const mockUserId = Utils.newGuid() as UserId;
   const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as UserKey;
@@ -39,6 +41,9 @@ describe("DefaultReceiveService", () => {
 
     keyService.userKey$.mockReturnValue(of(mockUserKey));
     keyGenerationService.createKey.mockResolvedValue(mockScek);
+    stateProvider.getUser.mockReturnValue({
+      update: jest.fn().mockResolvedValue(undefined),
+    } as any);
     keyService.makeKeyPair.mockResolvedValue([mockB64PublicKey, mockWrappedPrivateKey]);
     encryptService.wrapEncapsulationKey.mockResolvedValue(mockScekWrappedPublicKey);
     encryptService.wrapSymmetricKey.mockResolvedValue(mockUserKeyWrappedScek);
@@ -65,6 +70,7 @@ describe("DefaultReceiveService", () => {
       keyService,
       keyGenerationService,
       receiveApiService,
+      stateProvider,
     );
   });
 
