@@ -436,13 +436,18 @@ export class Main {
         this.messagingService.send("deepLink", { urlString: s });
       });
 
-    // Handle --send-path from Windows Explorer context menu
-    // Accumulate paths and debounce to handle multi-select (N separate instances)
+    // Handle --send-path from Windows Explorer context menu.
+    // Electron/Chromium may inject flags (e.g. --allow-file-access-from-files) between
+    // --send-path and the actual file path, so scan forward past any flags.
     const sendPathIdx = argv.indexOf("--send-path");
-    if (sendPathIdx !== -1 && sendPathIdx + 1 < argv.length) {
-      const filePath = argv[sendPathIdx + 1];
-      this.pendingSendPaths.push(filePath);
-      this.debounceSendPaths();
+    if (sendPathIdx !== -1) {
+      for (let i = sendPathIdx + 1; i < argv.length; i++) {
+        if (!argv[i].startsWith("-")) {
+          this.pendingSendPaths.push(argv[i]);
+          this.debounceSendPaths();
+          break;
+        }
+      }
     }
   }
 
