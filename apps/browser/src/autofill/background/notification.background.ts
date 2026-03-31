@@ -1913,8 +1913,8 @@ export default class NotificationBackground {
     }
 
     const extensionUrl = BrowserApi.getRuntimeURL("popup/index.html");
-    const allTabs = await BrowserApi.tabsQuery({ url: `${extensionUrl}*` });
-    const unlockPopoutTabs = allTabs.filter((tab) =>
+    const extensionTabs = await BrowserApi.tabsQuery({ url: `${extensionUrl}*` });
+    const unlockPopoutTabs = extensionTabs.filter((tab) =>
       tab.url?.includes(`singleActionPopout=${AuthPopoutType.unlockExtension}`),
     );
 
