@@ -318,11 +318,12 @@ export class CipherService implements CipherServiceAbstraction {
     cipher.archivedDate = model.archivedDate;
     cipher.reprompt = model.reprompt;
     cipher.edit = model.edit;
+    cipher.viewPassword = model.viewPassword;
 
     if (
       // prevent unprivileged users from migrating to cipher key encryption
-      (model.viewPassword || originalCipher?.key) &&
-      (await this.getCipherKeyEncryptionEnabled())
+      (model.viewPassword && (await this.getCipherKeyEncryptionEnabled())) ||
+      originalCipher?.key
     ) {
       cipher.key = originalCipher?.key ?? null;
       const userOrOrgKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
