@@ -3,57 +3,12 @@ changelog:
     labels:
       - ignore-for-release
   categories:
-    # Browser client release
-    - title: "BROWSER CLIENT RELEASE"
-      labels:
-        - browser
-      exclude:
-        labels:
-          - web
-          - desktop
-          - cli
     - title: "💙 Community Highlight"
       labels:
         - community-pr
-      exclude:
-        labels:
-          - web
-          - desktop
-          - cli
     - title: "🐛 Bug fixes"
       labels:
         - bug
-      exclude:
-        labels:
-          - web
-          - desktop
-          - cli
-    # CLI client release
-    - title: "CLI CLIENT RELEASE NOTES"
-      labels:
-        - cli
-      exclude:
-        labels:
-          - web
-          - browser
-          - desktop
-    - title: "💙 Community Highlight"
-      labels:
-        - community-pr
-      exclude:
-        labels:
-          - web
-          - browser
-          - desktop
-    - title: "🐛 Bug fixes"
-      labels:
-        - bug
-      exclude:
-        labels:
-          - web
-          - browser
-          - desktop
-    # All releases
     - title: "📦 Dependency Updates"
       labels:
         - major-updates
