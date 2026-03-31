@@ -127,7 +127,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.Milestone11AppPageImprovements]: FALSE,
   [FeatureFlag.AccessIntelligenceTrendChart]: FALSE,
   [FeatureFlag.AccessIntelligenceNewArchitecture]: FALSE,
-  [FeatureFlag.PasskeyLoginReport]: true,
+  [FeatureFlag.PasskeyLoginReport]: FALSE,
 
   /* Vault */
   [FeatureFlag.CipherKeyEncryption]: FALSE,
