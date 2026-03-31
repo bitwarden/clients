@@ -255,6 +255,7 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
           type: IntegrationType.EVENT,
           canSetupConnection: true,
           integrationType: OrganizationIntegrationType.Hec,
+          urlHelperLinkText: "https://<customer-id>.crowdstrike.com",
         },
         {
           name: OrganizationIntegrationServiceName.Datadog,
@@ -263,6 +264,7 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
           type: IntegrationType.EVENT,
           canSetupConnection: true,
           integrationType: OrganizationIntegrationType.Datadog,
+          urlHelperLinkText: "https://api.<region>.datadoghq.com",
         },
       );
     }
@@ -282,6 +284,7 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
         description: "huntressEventIntegrationDesc",
         canSetupConnection: true,
         integrationType: OrganizationIntegrationType.Hec,
+        urlHelperLinkText: "https://hec.huntress.io/services/collector",
       });
     }
 
