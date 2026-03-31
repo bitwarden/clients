@@ -191,6 +191,9 @@ import {
   DefaultKeyService as KeyService,
   BiometricStateService,
   DefaultBiometricStateService,
+  UserAsymmetricKeysRegenerationService,
+  DefaultUserAsymmetricKeysRegenerationService,
+  DefaultUserAsymmetricKeysRegenerationApiService,
 } from "@bitwarden/key-management";
 import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
 import {
@@ -332,6 +335,7 @@ export class ServiceContainer {
   derivedStateProvider: DerivedStateProvider;
   stateProvider: StateProvider;
   passwordPreloginService: PasswordPreloginService;
+  asymmetricKeysRegenerationService: UserAsymmetricKeysRegenerationService;
   loginStrategyService: LoginStrategyServiceAbstraction;
   avatarService: AvatarServiceAbstraction;
   stateEventRunnerService: StateEventRunnerService;
@@ -789,6 +793,19 @@ export class ServiceContainer {
     );
     this.passwordPreloginService = new DefaultPasswordPreloginService(passwordPreloginApiService);
 
+    const asymmetricKeysRegenerationApiService =
+      new DefaultUserAsymmetricKeysRegenerationApiService(this.apiService);
+    this.asymmetricKeysRegenerationService = new DefaultUserAsymmetricKeysRegenerationService(
+      this.keyService,
+      this.cipherService,
+      asymmetricKeysRegenerationApiService,
+      this.logService,
+      this.sdkService,
+      this.apiService,
+      this.configService,
+      this.accountCryptographicStateService,
+    );
+
     this.loginStrategyService = new LoginStrategyService(
       this.accountService,
       this.masterPasswordService,
@@ -818,6 +835,7 @@ export class ServiceContainer {
       this.configService,
       this.accountCryptographicStateService,
       this.passwordPreloginService,
+      this.asymmetricKeysRegenerationService,
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(
