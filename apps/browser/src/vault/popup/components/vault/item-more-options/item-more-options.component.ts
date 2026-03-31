@@ -129,8 +129,6 @@ export class ItemMoreOptionsComponent {
     }),
   );
 
-  protected showArchive$: Observable<boolean> = this.cipherArchiveService.hasArchiveFlagEnabled$;
-
   protected canArchive$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId)),
@@ -195,6 +193,12 @@ export class ItemMoreOptionsComponent {
     const cipher = await this.cipherService.getFullCipherView(this.cipher);
 
     if (!(await this.passwordRepromptService.passwordRepromptCheck(this.cipher))) {
+      return;
+    }
+
+    //for non login types that are still auto-fillable
+    if (CipherViewLikeUtils.getType(cipher) !== CipherType.Login) {
+      await this.vaultPopupAutofillService.doAutofill(cipher, true, true);
       return;
     }
 
