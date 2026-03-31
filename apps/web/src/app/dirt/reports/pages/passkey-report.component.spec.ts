@@ -19,9 +19,9 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
-import { VaultItemDialogResult } from "@bitwarden/web-vault/app/vault/components/vault-item-dialog/vault-item-dialog.component";
 
 import { PasskeyReportComponent } from "./passkey-report.component";
+import { PasskeyReportService } from "./passkey-report.service";
 
 describe("PasskeyReportComponent", () => {
   let component: PasskeyReportComponent;
@@ -45,8 +45,7 @@ describe("PasskeyReportComponent", () => {
     passkeyDirectoryApiServiceMock.getPasskeyDirectory.mockResolvedValue([]);
 
     await TestBed.configureTestingModule({
-      declarations: [PasskeyReportComponent],
-      imports: [I18nPipe],
+      imports: [PasskeyReportComponent, I18nPipe],
       providers: [
         {
           provide: CipherService,
@@ -96,7 +95,15 @@ describe("PasskeyReportComponent", () => {
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
+    })
+      .overrideComponent(PasskeyReportComponent, {
+        set: {
+          imports: [I18nPipe],
+          schemas: [CUSTOM_ELEMENTS_SCHEMA],
+          providers: [PasskeyReportService],
+        },
+      })
+      .compileComponents();
   });
 
   beforeEach(() => {
@@ -121,7 +128,7 @@ describe("PasskeyReportComponent", () => {
 
       await component.setCiphers();
 
-      expect(component.ciphers().length).toEqual(0);
+      expect((component as any).ciphers().length).toEqual(0);
     });
 
     it("should filter ciphers that match passkey directory entries", async () => {
@@ -149,9 +156,9 @@ describe("PasskeyReportComponent", () => {
 
       await component.setCiphers();
 
-      expect(component.ciphers().length).toEqual(2);
-      expect(component.ciphers()[0].cipher.id).toEqual("cipher-1");
-      expect(component.ciphers()[1].cipher.id).toEqual("cipher-3");
+      expect((component as any).ciphers().length).toEqual(2);
+      expect((component as any).ciphers()[0].cipher.id).toEqual("cipher-1");
+      expect((component as any).ciphers()[1].cipher.id).toEqual("cipher-3");
     });
 
     it("should populate instructions for entries with instructions URLs", async () => {
@@ -175,9 +182,9 @@ describe("PasskeyReportComponent", () => {
 
       await component.setCiphers();
 
-      const rows = component.ciphers();
-      const row1 = rows.find((r) => r.cipher.id === "cipher-1");
-      const row2 = rows.find((r) => r.cipher.id === "cipher-2");
+      const rows = (component as any).ciphers();
+      const row1 = rows.find((r: any) => r.cipher.id === "cipher-1");
+      const row2 = rows.find((r: any) => r.cipher.id === "cipher-2");
       expect(row1?.instructions).toEqual("https://example.com/passkey-setup");
       // Empty instructions should be null
       expect(row2?.instructions).toBeNull();
@@ -213,7 +220,7 @@ describe("PasskeyReportComponent", () => {
       cipherServiceMock.getAllDecrypted.mockResolvedValue(ciphers);
       await component.setCiphers();
 
-      expect(component.ciphers().length).toEqual(0);
+      expect((component as any).ciphers().length).toEqual(0);
     });
 
     it("should exclude ciphers without URIs", async () => {
@@ -227,7 +234,7 @@ describe("PasskeyReportComponent", () => {
       cipherServiceMock.getAllDecrypted.mockResolvedValue(ciphers);
       await component.setCiphers();
 
-      expect(component.ciphers().length).toEqual(0);
+      expect((component as any).ciphers().length).toEqual(0);
     });
 
     it("should exclude ciphers that already have fido2 credentials", async () => {
@@ -244,7 +251,7 @@ describe("PasskeyReportComponent", () => {
       cipherServiceMock.getAllDecrypted.mockResolvedValue(ciphers);
       await component.setCiphers();
 
-      expect(component.ciphers().length).toEqual(0);
+      expect((component as any).ciphers().length).toEqual(0);
     });
 
     it("should exclude deleted ciphers", async () => {
@@ -259,7 +266,7 @@ describe("PasskeyReportComponent", () => {
       cipherServiceMock.getAllDecrypted.mockResolvedValue(ciphers);
       await component.setCiphers();
 
-      expect(component.ciphers().length).toEqual(0);
+      expect((component as any).ciphers().length).toEqual(0);
     });
 
     it("should include ciphers without edit access", async () => {
@@ -274,7 +281,7 @@ describe("PasskeyReportComponent", () => {
       cipherServiceMock.getAllDecrypted.mockResolvedValue(ciphers);
       await component.setCiphers();
 
-      expect(component.ciphers().length).toEqual(1);
+      expect((component as any).ciphers().length).toEqual(1);
     });
 
     it("should exclude ciphers without viewPassword", async () => {
@@ -289,7 +296,7 @@ describe("PasskeyReportComponent", () => {
       cipherServiceMock.getAllDecrypted.mockResolvedValue(ciphers);
       await component.setCiphers();
 
-      expect(component.ciphers().length).toEqual(0);
+      expect((component as any).ciphers().length).toEqual(0);
     });
 
     it("should match URIs with www prefix stripped", async () => {
@@ -303,7 +310,7 @@ describe("PasskeyReportComponent", () => {
       cipherServiceMock.getAllDecrypted.mockResolvedValue(ciphers);
       await component.setCiphers();
 
-      expect(component.ciphers().length).toEqual(1);
+      expect((component as any).ciphers().length).toEqual(1);
     });
 
     it("should check all URIs and match if any matches", async () => {
@@ -319,7 +326,7 @@ describe("PasskeyReportComponent", () => {
       cipherServiceMock.getAllDecrypted.mockResolvedValue(ciphers);
       await component.setCiphers();
 
-      expect(component.ciphers().length).toEqual(1);
+      expect((component as any).ciphers().length).toEqual(1);
     });
 
     it("should skip URIs that are null or empty", async () => {
@@ -335,7 +342,7 @@ describe("PasskeyReportComponent", () => {
       cipherServiceMock.getAllDecrypted.mockResolvedValue(ciphers);
       await component.setCiphers();
 
-      expect(component.ciphers().length).toEqual(1);
+      expect((component as any).ciphers().length).toEqual(1);
     });
   });
 
@@ -343,72 +350,6 @@ describe("PasskeyReportComponent", () => {
     it("should always return true", () => {
       const cipher = createCipherView({ id: "any-cipher" });
       expect((component as any).canManageCipher(cipher)).toBe(true);
-    });
-  });
-
-  describe("determinedUpdatedCipherReportStatus", () => {
-    beforeEach(() => {
-      passkeyDirectoryApiServiceMock.getPasskeyDirectory.mockResolvedValue([
-        { domainName: "example.com", instructions: "https://example.com/passkey-doc" } as any,
-      ]);
-    });
-
-    it("should return null when cipher was deleted", async () => {
-      const cipher = createCipherView({
-        id: "cipher-1",
-        login: { uris: [{ uri: "https://example.com" }] },
-      });
-
-      cipherServiceMock.getAllDecrypted.mockResolvedValue([cipher]);
-      await component.setCiphers();
-
-      const result = await component.determinedUpdatedCipherReportStatus(
-        VaultItemDialogResult.Deleted,
-        cipher,
-      );
-
-      expect(result).toBeNull();
-    });
-
-    it("should return row when cipher still matches", async () => {
-      const cipher = createCipherView({
-        id: "cipher-1",
-        login: { uris: [{ uri: "https://example.com" }] },
-      });
-
-      cipherServiceMock.getAllDecrypted.mockResolvedValue([cipher]);
-      await component.setCiphers();
-
-      const result = await component.determinedUpdatedCipherReportStatus(
-        VaultItemDialogResult.Saved,
-        cipher,
-      );
-
-      expect(result).not.toBeNull();
-      expect(result!.cipher).toEqual(cipher);
-      expect(result!.instructions).toEqual("https://example.com/passkey-doc");
-    });
-
-    it("should return null when updated cipher no longer matches directory", async () => {
-      const matchingCipher = createCipherView({
-        id: "cipher-1",
-        login: { uris: [{ uri: "https://example.com" }] },
-      });
-
-      cipherServiceMock.getAllDecrypted.mockResolvedValue([matchingCipher]);
-      await component.setCiphers();
-
-      const updatedCipher = createCipherView({
-        id: "cipher-1",
-        login: { uris: [{ uri: "https://nomatch.com" }] },
-      });
-
-      const result = await component.determinedUpdatedCipherReportStatus(
-        VaultItemDialogResult.Saved,
-        updatedCipher,
-      );
-
-      expect(result).toBeNull();
     });
   });
 

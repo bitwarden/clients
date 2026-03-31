@@ -1,8 +1,16 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, filter, firstValueFrom, lastValueFrom, shareReplay, switchMap } from "rxjs";
+import { filter, lastValueFrom, shareReplay, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -12,11 +20,10 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PasskeyDirectoryApiServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/passkey-directory-api.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { getById } from "@bitwarden/common/platform/misc";
-import { CipherId, CollectionId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
-import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeComponent,
@@ -44,16 +51,16 @@ import {
 import { AdminConsoleCipherFormConfigService } from "../../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import {
   PasskeyCipherRow,
+  PasskeyReportAction,
+  PasskeyReportService,
   PasskeyServiceEntry,
-  buildPasskeyCipherRow,
-  getPasskeyServiceMatch,
-  processPasskeyCiphers,
-} from "../passkey-report.utils";
+} from "../passkey-report.service";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-org-passkey-report",
   templateUrl: "org-passkey-report.component.html",
+  standalone: true,
   providers: [
     {
       provide: CipherFormConfigService,
@@ -62,6 +69,7 @@ import {
     AdminConsoleCipherFormConfigService,
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
+    PasskeyReportService,
   ],
   imports: [
     CommonModule,
@@ -75,7 +83,6 @@ import {
   ],
 })
 export class OrgPasskeyReportComponent {
-  // Injected dependencies
   private readonly route = inject(ActivatedRoute);
   private readonly accountService = inject(AccountService);
   private readonly organizationService = inject(OrganizationService);
@@ -83,6 +90,7 @@ export class OrgPasskeyReportComponent {
   private readonly dialogService = inject(DialogService);
   private readonly logService = inject(LogService);
   private readonly passkeyDirectoryApiService = inject(PasskeyDirectoryApiServiceAbstraction);
+  private readonly passkeyReportService = inject(PasskeyReportService);
   private readonly passwordRepromptService = inject(PasswordRepromptService);
   private readonly syncService = inject(SyncService);
   private readonly adminConsoleCipherFormConfigService = inject(
@@ -96,37 +104,42 @@ export class OrgPasskeyReportComponent {
   protected readonly dataSource = new TableDataSource<PasskeyCipherRow>();
 
   // Private state
-  private readonly manageableCiphers = signal<Cipher[]>([]);
-  private readonly passkeyServices = signal<Map<string, PasskeyServiceEntry>>(new Map());
+  private readonly userIdNullable = toSignal(this.accountService.activeAccount$.pipe(getUserId));
+  private readonly userId = computed(() => this.userIdNullable() as UserId);
 
-  // Observable streams
-  private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
-
-  private readonly organization$ = this.route.params.pipe(
-    concatMap((params) =>
-      this.userId$.pipe(
-        switchMap((userId) =>
-          this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
+  private readonly orgAndCiphers = toSignal(
+    this.route.params.pipe(
+      switchMap((params) =>
+        this.organizationService.organizations$(this.userId()).pipe(
+          getById(params.organizationId),
+          filter((org): org is Organization => org != null),
+          switchMap((org) =>
+            this.cipherService
+              .getAll(this.userId())
+              .then((ciphers) => ({ organization: org, ciphers })),
+          ),
         ),
-        filter((organization): organization is Organization => organization != null),
-        shareReplay({ refCount: true, bufferSize: 1 }),
       ),
+      shareReplay({ refCount: true, bufferSize: 1 }),
     ),
   );
+  private readonly organization = computed(() => this.orgAndCiphers()?.organization);
+  private readonly manageableCiphers = computed(() => this.orgAndCiphers()?.ciphers ?? []);
 
-  protected readonly organization = toSignal(this.organization$);
+  private readonly passkeyServices = signal<Map<string, PasskeyServiceEntry>>(new Map());
 
   constructor() {
-    this.organization$
-      .pipe(
-        concatMap(async (org) => {
-          const userId = await firstValueFrom(this.userId$);
-          this.manageableCiphers.set(await this.cipherService.getAll(userId));
-          await this.load(org);
-        }),
-        takeUntilDestroyed(),
-      )
-      .subscribe();
+    effect(async () => {
+      const organization = this.organization();
+
+      if (organization == null) {
+        return;
+      }
+
+      await untracked(async () => {
+        await this.load(organization);
+      });
+    });
   }
 
   protected async selectCipher(cipher: CipherView) {
@@ -165,32 +178,35 @@ export class OrgPasskeyReportComponent {
   }
 
   private async setCiphers(org: Organization) {
-    try {
-      if (this.passkeyServices().size === 0) {
-        const userId = await firstValueFrom(this.userId$);
-        const entries = await this.passkeyDirectoryApiService.getPasskeyDirectory(userId);
-        this.passkeyServices.set(
-          entries
-            .filter((x) => x.domainName != null)
-            .reduce(
-              (map, entry) => map.set(entry.domainName, entry),
-              new Map<string, PasskeyServiceEntry>(),
-            ),
-        );
-      }
-    } catch (e) {
-      this.logService.error("[OrgPasskeyReportComponent] Failed to load passkeys", e);
-    }
-
+    await this.loadPasskeyDirectory();
     if (this.passkeyServices().size === 0) {
       return;
     }
 
     const allCiphers = await this.cipherService.getAllFromApiForOrganization(org.id, true);
-    const rows = processPasskeyCiphers(allCiphers, this.passkeyServices());
+    const rows = this.passkeyReportService.processCiphers(allCiphers, this.passkeyServices());
 
     this.ciphers.set(rows);
     this.dataSource.data = rows;
+  }
+
+  private async loadPasskeyDirectory() {
+    if (this.passkeyServices().size > 0) {
+      return;
+    }
+
+    try {
+      const entries = (await this.passkeyDirectoryApiService.getPasskeyDirectory(this.userId()))
+        .filter((x) => x.domainName != null)
+        .reduce(
+          (map, entry) => map.set(entry.domainName, entry),
+          new Map<string, PasskeyServiceEntry>(),
+        );
+
+      this.passkeyServices.set(entries);
+    } catch (e) {
+      this.logService.error("[OrgPasskeyReportComponent] Failed to load passkeys", e);
+    }
   }
 
   private async openVaultItemDialog(
@@ -223,41 +239,29 @@ export class OrgPasskeyReportComponent {
       return;
     }
 
-    if (result === VaultItemDialogResult.Deleted) {
-      this.ciphers.update((current) => current.filter((r) => r.cipher.id !== cipher.id));
-      this.dataSource.data = this.ciphers();
-      return;
-    }
+    let updatedCipherView: CipherView | undefined;
+    const action: PasskeyReportAction =
+      result === VaultItemDialogResult.Deleted ? "deleted" : "saved";
 
-    if (result === VaultItemDialogResult.Saved) {
-      const activeUserId = await firstValueFrom(this.userId$);
+    if (action === "saved") {
       const updatedCipher =
         (await this.adminConsoleCipherFormConfigService.getCipher(cipher.id as CipherId, org)) ??
-        (await this.cipherService.get(cipher.id, activeUserId));
+        (await this.cipherService.get(cipher.id, this.userId()));
 
-      const updatedCipherView = await updatedCipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
+      updatedCipherView = await updatedCipher.decrypt(
+        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, this.userId()),
       );
-
-      const match = getPasskeyServiceMatch(updatedCipherView, this.passkeyServices());
-      const index = this.ciphers().findIndex((r) => r.cipher.id === updatedCipherView.id);
-
-      if (match != null) {
-        const updatedRow = buildPasskeyCipherRow(updatedCipherView, match);
-        if (index > -1) {
-          this.ciphers.update((current) => {
-            const updated = [...current];
-            updated[index] = updatedRow;
-            return updated;
-          });
-        }
-      } else if (index > -1) {
-        this.ciphers.update((current) =>
-          current.filter((r) => r.cipher.id !== updatedCipherView.id),
-        );
-      }
-
-      this.dataSource.data = this.ciphers();
     }
+
+    const updatedRows = this.passkeyReportService.applyDialogResult(
+      this.ciphers(),
+      action,
+      cipher,
+      this.passkeyServices(),
+      updatedCipherView,
+    );
+
+    this.ciphers.set(updatedRows);
+    this.dataSource.data = updatedRows;
   }
 }

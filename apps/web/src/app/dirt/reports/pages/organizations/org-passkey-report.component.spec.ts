@@ -23,6 +23,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
 
 import { AdminConsoleCipherFormConfigService } from "../../../../vault/org-vault/services/admin-console-cipher-form-config.service";
+import { PasskeyReportService } from "../passkey-report.service";
 
 import { OrgPasskeyReportComponent } from "./org-passkey-report.component";
 
@@ -121,6 +122,7 @@ describe("OrgPasskeyReportComponent", () => {
               provide: AdminConsoleCipherFormConfigService,
               useValue: mock<AdminConsoleCipherFormConfigService>(),
             },
+            PasskeyReportService,
           ],
         },
       })
@@ -152,6 +154,10 @@ describe("OrgPasskeyReportComponent", () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
+      // Allow the async effect to complete across microtask cycles
+      fixture.detectChanges();
+      await fixture.whenStable();
+
       expect(cipherServiceMock.getAllFromApiForOrganization).toHaveBeenCalledWith(
         mockOrganization.id,
         true,
@@ -166,7 +172,7 @@ describe("OrgPasskeyReportComponent", () => {
       expect((component as any).canManageCipher(cipher)).toBe(true);
     });
 
-    it("should return true when organization allows admin access to all collection items", () => {
+    it("should return true when organization allows admin access to all collection items", async () => {
       // Override the organization signal by re-creating with admin access
       const adminOrg = {
         ...mockOrganization,
@@ -178,6 +184,7 @@ describe("OrgPasskeyReportComponent", () => {
       fixture = TestBed.createComponent(OrgPasskeyReportComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
+      await fixture.whenStable();
 
       const cipher = {
         id: "cipher-1",

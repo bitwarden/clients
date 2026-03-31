@@ -39,12 +39,12 @@ import { ReportsSharedModule } from "./shared";
     PipesModule,
     HeaderModule,
     ChipSelectComponent,
+    PasskeyReportComponent,
   ],
   declarations: [
     BreachReportComponent,
     ExposedPasswordsReportComponent,
     InactiveTwoFactorReportComponent,
-    PasskeyReportComponent,
     ReportsLayoutComponent,
     ReportsHomeComponent,
     ReusedPasswordsReportComponent,

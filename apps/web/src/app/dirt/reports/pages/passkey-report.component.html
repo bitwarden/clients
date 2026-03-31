@@ -19,13 +19,13 @@
         </bit-callout>
       } @else {
         <bit-callout type="warning" title="{{ 'passkeyLoginFound' | i18n }}">
-          {{ "passkeyLoginFoundReportDesc" | i18n: (ciphers().length | number) : vaultMsg() }}
+          {{ "passkeyLoginFoundReportDesc" | i18n: (ciphers().length | number) ?? "" : vaultMsg() }}
         </bit-callout>
         @if (showFilterToggle()) {
           @if (canDisplayToggleGroup()) {
             <bit-toggle-group
-              [selected]="filterOrgStatus$ | async"
-              (selectedChange)="filterOrgToggle($event)"
+              [selected]="currentFilterStatus()"
+              (selectedChange)="filterOrgToggle($event ?? 0)"
               [attr.aria-label]="'addAccessFilter' | i18n"
             >
               @for (status of filterStatus(); track status) {
@@ -110,7 +110,7 @@
                 [disabled]="true"
                 [organizationId]="row.cipher.organizationId"
                 [organizationName]="
-                  row.cipher.organizationId | orgNameFromId: (organizations$ | async)
+                  (row.cipher.organizationId | orgNameFromId: organizations() ?? []) ?? ''
                 "
                 appStopProp
               />
