@@ -27,7 +27,7 @@ The Passkey Login Report identifies vault items that could benefit from passkey 
 
 ### Matching Logic
 
-The matching algorithm (in `passkey-report.utils.ts`) strips `www.` from cipher URIs and checks both the full host and the domain against the directory. The first match wins.
+The matching algorithm (in `passkey-report.service.ts`) strips `www.` from cipher URIs and checks both the full host and the domain against the directory. The first match wins.
 
 ```
 cipher URI: https://www.github.com/login
@@ -41,7 +41,7 @@ cipher URI: https://www.github.com/login
 | --------------------------- | ----------------------------------------------- | ----------------------------------------- |
 | `PasskeyReportComponent`    | `passkey-report.component.ts`                   | Individual user report with org filtering |
 | `OrgPasskeyReportComponent` | `organizations/org-passkey-report.component.ts` | Organization-scoped report (standalone)   |
-| `passkey-report.utils.ts`   | `passkey-report.utils.ts`                       | Shared matching and processing logic      |
+| `passkey-report.service.ts` | `passkey-report.service.ts`                     | Shared matching and processing logic      |
 
 ### Individual vs. Organization
 
@@ -54,11 +54,11 @@ The report is gated behind the `PasskeyLoginReport` feature flag (`inno-passkey-
 
 ## API Service
 
-| Layer          | File                                                                                      |
-| -------------- | ----------------------------------------------------------------------------------------- |
-| Abstraction    | `libs/common/src/dirt/services/abstractions/passkey-directory-api.service.abstraction.ts` |
-| Implementation | `libs/common/src/dirt/services/passkey-directory-api.service.ts`                          |
-| Response model | `libs/common/src/dirt/models/response/passkey-directory-entry.response.ts`                |
+| Layer          | File                                                                          |
+| -------------- | ----------------------------------------------------------------------------- |
+| Abstraction    | `libs/common/src/dirt/services/abstractions/passkey-directory-api.service.ts` |
+| Implementation | `libs/common/src/dirt/services/default-passkey-directory-api.service.ts`      |
+| Response model | `libs/common/src/dirt/models/response/passkey-directory-entry.response.ts`    |
 
 The service is registered in `jslib-services.module.ts`.
 
