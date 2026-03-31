@@ -1,14 +1,16 @@
-import { firstValueFrom, merge, Observable, Subscription } from "rxjs";
+import { firstValueFrom, merge, Subscription } from "rxjs";
 import { debounceTime, filter, skip } from "rxjs/operators";
 
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
-import { UserEncryptor } from "../../../tools/cryptography/user-encryptor.abstraction";
 import { UserId } from "../../../types/guid";
 import { LogService } from "../../abstractions/log.service";
+import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
+import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 import { StateProvider } from "../../state";
 
 import { PreferenceSyncApiService } from "./preference-sync-api.service";
-import { DeviceType, SyncedPreferences } from "./synced-preferences";
+import { SyncedPreferences } from "./synced-preferences";
 import {
   SYNCED_KEYS,
   SyncScope,
@@ -18,17 +20,25 @@ import {
 import { UserPreferencesRequest } from "./user-preferences.request";
 import { UserPreferencesResponse } from "./user-preferences.response";
 
+/** Callback to retrieve the user's symmetric encryption key. */
+export type UserKeyProvider = (userId: UserId) => Promise<SymmetricCryptoKey | null>;
+
 export class PreferenceSyncService {
   private _isSyncing = false;
   private pushSubscription: Subscription | null = null;
 
   constructor(
     private stateProvider: StateProvider,
-    private encryptor$: Observable<UserEncryptor>,
+    private encryptService: EncryptService,
+    private getUserKey: UserKeyProvider,
     private preferenceSyncApiService: PreferenceSyncApiService,
     private logService: LogService,
-    private deviceType: DeviceType,
+    private platformUtilsService: PlatformUtilsService,
   ) {}
+
+  private get clientType() {
+    return this.platformUtilsService.getClientType();
+  }
 
   // ── Pull (server → local) ──
 
@@ -44,7 +54,7 @@ export class PreferenceSyncService {
 
     this._isSyncing = true;
     try {
-      const prefs = await this.decryptBlob(response.data);
+      const prefs = await this.decryptBlob(response.data, userId);
       if (prefs == null) {
         return;
       }
@@ -58,14 +68,12 @@ export class PreferenceSyncService {
         );
       }
 
-      // Apply device-specific settings
-      const deviceSection = prefs[this.deviceType];
+      // Apply device-specific settings (CLI is excluded by SYNCABLE_CLIENT_TYPES check at construction)
+      const deviceSection = (prefs as Record<string, unknown>)[this.clientType] as
+        | Record<string, unknown>
+        | undefined;
       if (deviceSection != null) {
-        await this.applySection(
-          deviceSection as unknown as Record<string, unknown>,
-          SyncScope.Device,
-          userId,
-        );
+        await this.applySection(deviceSection, SyncScope.Device, userId);
       }
     } catch (e) {
       this.logService.error("PreferenceSyncService: pull failed, preserving local state", e);
@@ -140,7 +148,7 @@ export class PreferenceSyncService {
 
   private async collectAndEncrypt(userId: UserId): Promise<string | null> {
     const prefs = await this.collectAll(userId);
-    return this.encryptBlob(prefs);
+    return this.encryptBlob(prefs, userId);
   }
 
   private async collectAll(userId: UserId): Promise<SyncedPreferences> {
@@ -172,7 +180,7 @@ export class PreferenceSyncService {
     }
 
     if (Object.keys(device).length > 0) {
-      (prefs as Record<string, unknown>)[this.deviceType] = device;
+      (prefs as Record<string, unknown>)[this.clientType] = device;
     }
 
     return prefs;
@@ -209,38 +217,35 @@ export class PreferenceSyncService {
       return true;
     }
     // Device-scoped: relevant if no section specified (all devices) or section matches
-    return entry.section == null || entry.section === this.deviceType;
+    return entry.section == null || entry.section === this.clientType;
   }
 
-  private async getEncryptor(): Promise<UserEncryptor | null> {
-    const encryptor = await firstValueFrom(this.encryptor$.pipe(filter((e) => e != null)));
-    return encryptor ?? null;
-  }
-
-  private async encryptBlob(prefs: SyncedPreferences): Promise<string | null> {
-    const encryptor = await this.getEncryptor();
-    if (encryptor == null) {
-      this.logService.warning("PreferenceSyncService: no encryptor available");
+  private async encryptBlob(prefs: SyncedPreferences, userId: UserId): Promise<string | null> {
+    const key = await this.getUserKey(userId);
+    if (key == null) {
+      this.logService.warning("PreferenceSyncService: no user key available for encryption");
       return null;
     }
 
-    // Cast required: SyncedPreferences uses Record<string, unknown> for generator
-    // fields to avoid circular deps, which Jsonify's index signature rejects.
-    const encString = await encryptor.encrypt(prefs as unknown as Record<string, string>);
-    return encString?.encryptedString ?? null;
+    const json = JSON.stringify(prefs);
+    const encString = await this.encryptService.encryptString(json, key);
+    return encString.encryptedString;
   }
 
-  private async decryptBlob(encryptedData: string): Promise<SyncedPreferences | null> {
-    const encryptor = await this.getEncryptor();
-    if (encryptor == null) {
-      this.logService.warning("PreferenceSyncService: no encryptor available");
+  private async decryptBlob(
+    encryptedData: string,
+    userId: UserId,
+  ): Promise<SyncedPreferences | null> {
+    const key = await this.getUserKey(userId);
+    if (key == null) {
+      this.logService.warning("PreferenceSyncService: no user key available for decryption");
       return null;
     }
 
     try {
       const encString = new EncString(encryptedData);
-      const decrypted = await encryptor.decrypt<Record<string, unknown>>(encString);
-      return decrypted as unknown as SyncedPreferences;
+      const json = await this.encryptService.decryptString(encString, key);
+      return JSON.parse(json) as SyncedPreferences;
     } catch (e) {
       this.logService.error("PreferenceSyncService: failed to decrypt preferences blob", e);
       return null;

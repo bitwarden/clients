@@ -71,15 +71,3 @@ export interface BrowserPreferences extends DevicePreferences {
   defaultUriMatchStrategy?: UriMatchStrategySetting;
   enableBadgeCounter?: boolean;
 }
-
-/**
- * Device types used as keys in the SyncedPreferences blob.
- * Each client app maps to one of these.
- */
-export const DeviceType = Object.freeze({
-  Desktop: "desktop",
-  Browser: "browser",
-  Web: "web",
-  Mobile: "mobile",
-} as const);
-export type DeviceType = (typeof DeviceType)[keyof typeof DeviceType];
