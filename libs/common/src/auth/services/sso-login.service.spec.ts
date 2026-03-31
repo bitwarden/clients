@@ -148,6 +148,23 @@ describe("SSOLoginService ", () => {
       ]);
     });
 
+    it("should add same email with different webVaultUrl as separate entry", async () => {
+      const email = "duplicate@example.com";
+      const otherUrl = "https://other.bitwarden.com";
+
+      mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([entry(email)]);
+      mockStateProvider.global.getFake(SSO_EMAIL).stateSubject.next(email);
+      mockPolicyService.policyAppliesToUser$.mockReturnValue(of(true));
+      mockEnvironmentService.getEnvironment$.mockReturnValue(
+        of({ getWebVaultUrl: () => otherUrl } as any),
+      );
+
+      await sut.updateSsoRequiredCache(email, userId);
+
+      const cacheState = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
+      expect(cacheState.nextMock).toHaveBeenCalledWith([entry(email), entry(email, otherUrl)]);
+    });
+
     it("should not add duplicate email to cache when SSO is required", async () => {
       const duplicateEmail = "duplicate@example.com";
 
