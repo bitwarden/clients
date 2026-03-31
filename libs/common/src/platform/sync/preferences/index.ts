@@ -3,7 +3,6 @@ export {
   SharedPreferences,
   DevicePreferences,
   BrowserPreferences,
-  DeviceType,
 } from "./synced-preferences";
 export {
   SyncedKeyEntry,
@@ -15,4 +14,4 @@ export {
 export { UserPreferencesResponse } from "./user-preferences.response";
 export { UserPreferencesRequest } from "./user-preferences.request";
 export { PreferenceSyncApiService } from "./preference-sync-api.service";
-export { PreferenceSyncService } from "./preference-sync.service";
+export { PreferenceSyncService, UserKeyProvider } from "./preference-sync.service";

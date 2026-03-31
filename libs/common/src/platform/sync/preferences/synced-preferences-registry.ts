@@ -7,6 +7,7 @@ import {
 } from "../../../autofill/services/autofill-settings.service";
 import { ENABLE_BADGE_COUNTER } from "../../../autofill/services/badge-settings.service";
 import { DEFAULT_URI_MATCH_STRATEGY } from "../../../autofill/services/domain-settings.service";
+import { ClientType } from "../../../enums";
 import {
   VAULT_TIMEOUT,
   VAULT_TIMEOUT_ACTION,
@@ -17,8 +18,6 @@ import {
   CLICK_ITEMS_AUTOFILL_VAULT_VIEW,
 } from "../../../vault/services/key-state/vault-settings.state";
 import { UserKeyDefinition, SYNC_DISK } from "../../state";
-
-import { DeviceType } from "./synced-preferences";
 
 // ── Sync scope types ──
 
@@ -41,11 +40,11 @@ export interface SyncedKeyEntry {
   scope: SyncScope;
 
   /**
-   * For device-scoped entries: which device section(s) this applies to.
+   * For device-scoped entries: which client type(s) this applies to.
    * `undefined` means all device sections include this field.
-   * A specific DeviceType means only that section includes it.
+   * A specific ClientType means only that section includes it.
    */
-  section?: DeviceType;
+  section?: ClientType;
 
   /**
    * If true, the raw state is in ClassifiedFormat (SecretState) and needs
@@ -60,7 +59,8 @@ export const PREFERENCE_SYNC_ENABLED = new UserKeyDefinition<boolean>(
   SYNC_DISK,
   "preferenceSyncEnabled",
   {
-    deserializer: (v) => v ?? false,
+    // TODO: Change back to false before shipping — true for dev/testing only
+    deserializer: (v) => v ?? true,
     clearOn: [],
   },
 );
@@ -93,61 +93,61 @@ export const SYNCED_KEYS: SyncedKeyEntry[] = [
     keyDef: AUTOFILL_ON_PAGE_LOAD,
     blobField: "autofillOnPageLoad",
     scope: SyncScope.Device,
-    section: DeviceType.Browser,
+    section: ClientType.Browser,
   },
   {
     keyDef: AUTOFILL_ON_PAGE_LOAD_DEFAULT,
     blobField: "autofillOnPageLoadDefault",
     scope: SyncScope.Device,
-    section: DeviceType.Browser,
+    section: ClientType.Browser,
   },
   {
     keyDef: AUTO_COPY_TOTP,
     blobField: "autoCopyTotp",
     scope: SyncScope.Device,
-    section: DeviceType.Browser,
+    section: ClientType.Browser,
   },
   {
     keyDef: SHOW_INLINE_MENU_IDENTITIES,
     blobField: "showInlineMenuIdentities",
     scope: SyncScope.Device,
-    section: DeviceType.Browser,
+    section: ClientType.Browser,
   },
   {
     keyDef: SHOW_INLINE_MENU_CARDS,
     blobField: "showInlineMenuCards",
     scope: SyncScope.Device,
-    section: DeviceType.Browser,
+    section: ClientType.Browser,
   },
   {
     keyDef: SHOW_CARDS_CURRENT_TAB,
     blobField: "showCardsCurrentTab",
     scope: SyncScope.Device,
-    section: DeviceType.Browser,
+    section: ClientType.Browser,
   },
   {
     keyDef: SHOW_IDENTITIES_CURRENT_TAB,
     blobField: "showIdentitiesCurrentTab",
     scope: SyncScope.Device,
-    section: DeviceType.Browser,
+    section: ClientType.Browser,
   },
   {
     keyDef: CLICK_ITEMS_AUTOFILL_VAULT_VIEW,
     blobField: "clickItemsToAutofillOnVaultView",
     scope: SyncScope.Device,
-    section: DeviceType.Browser,
+    section: ClientType.Browser,
   },
   {
     keyDef: DEFAULT_URI_MATCH_STRATEGY,
     blobField: "defaultUriMatchStrategy",
     scope: SyncScope.Device,
-    section: DeviceType.Browser,
+    section: ClientType.Browser,
   },
   {
     keyDef: ENABLE_BADGE_COUNTER,
     blobField: "enableBadgeCounter",
     scope: SyncScope.Device,
-    section: DeviceType.Browser,
+    section: ClientType.Browser,
   },
 ];
 
