@@ -40,11 +40,11 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import {
   HecConnectDialogResult,
   DatadogConnectDialogResult,
-  HuntressConnectDialogResult,
+  ConnectViaHecTokenDialogResult,
   IntegrationDialogResultStatus,
   openDatadogConnectDialog,
   openHecConnectDialog,
-  openHuntressConnectDialog,
+  openConnectViaHecTokenDialog,
 } from "../integration-dialog/index";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -169,9 +169,9 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
         () => this.deleteDatadog(),
         (res) => this.saveDatadog(res),
       );
-    } else if (this.integrationSettings().name === OrganizationIntegrationServiceName.Huntress) {
+    } else if (this.integrationSettings()?.integrationType === OrganizationIntegrationType.Hec) {
       // Huntress uses HEC protocol but has its own dialog
-      const dialog = openHuntressConnectDialog(this.dialogService, {
+      const dialog = openConnectViaHecTokenDialog(this.dialogService, {
         data: {
           settings: this.integrationSettings(),
         },
@@ -362,7 +362,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     await this.deleteIntegration();
   }
 
-  async saveHuntress(result: HuntressConnectDialogResult) {
+  async saveHuntress(result: ConnectViaHecTokenDialogResult) {
     // Huntress uses "Splunk" scheme for HEC protocol compatibility
     const config = OrgIntegrationBuilder.buildHecConfiguration(
       result.url,
