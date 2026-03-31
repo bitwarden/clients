@@ -427,7 +427,7 @@ export class NativeMessagingMain {
             const settings: Map<string, any> = prefs.extensions.settings;
             for (const [extension, setting] of Object.entries(settings)) {
               if (setting.commands) {
-                for (const [command_name,] of Object.entries(setting.commands)) {
+                for (const [command_name] of Object.entries(setting.commands)) {
                   if (command_name === "autofill_login" || command_name === "generate_password") {
                     ids.add(`chrome-extension://${extension}/`);
                     this.logService.info(`Found extension ${chromePath}: ${extension}`);
