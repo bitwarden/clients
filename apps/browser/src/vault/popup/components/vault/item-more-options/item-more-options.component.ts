@@ -196,6 +196,12 @@ export class ItemMoreOptionsComponent {
       return;
     }
 
+    //for non login types that are still auto-fillable
+    if (CipherViewLikeUtils.getType(cipher) !== CipherType.Login) {
+      await this.vaultPopupAutofillService.doAutofill(cipher, true, true);
+      return;
+    }
+
     const uris = cipher.login?.uris ?? [];
     const uriMatchStrategy = await firstValueFrom(this.uriMatchStrategy$);
 
