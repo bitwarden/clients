@@ -592,6 +592,7 @@ const safeProviders: SafeProvider[] = [
       PendingAuthRequestsStateService,
       I18nServiceAbstraction,
       LogService,
+      ConfigService,
     ],
   }),
   safeProvider({
