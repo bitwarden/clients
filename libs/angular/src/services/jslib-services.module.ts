@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { APP_INITIALIZER, ErrorHandler, LOCALE_ID, NgModule } from "@angular/core";
 import { Router } from "@angular/router";
-import { Subject } from "rxjs";
+import { Subject, firstValueFrom } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -286,6 +286,10 @@ import { ValidationService } from "@bitwarden/common/platform/services/validatio
 import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for DI
 import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
+import {
+  PreferenceSyncApiService,
+  PreferenceSyncService,
+} from "@bitwarden/common/platform/sync/preferences";
 import { SystemNotificationsService } from "@bitwarden/common/platform/system-notifications";
 import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platform/system-notifications/unsupported-system-notifications.service";
 import {
@@ -889,6 +893,38 @@ const safeProviders: SafeProvider[] = [
     deps: [ApiServiceAbstraction],
   }),
   safeProvider({
+    provide: PreferenceSyncApiService,
+    useFactory: (apiService: ApiServiceAbstraction) => new PreferenceSyncApiService(apiService),
+    deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: PreferenceSyncService,
+    useFactory: (
+      stateProvider: StateProvider,
+      encryptService: EncryptService,
+      keyService: KeyService,
+      apiService: PreferenceSyncApiService,
+      logService: LogService,
+      platformUtilsService: PlatformUtilsServiceAbstraction,
+    ) =>
+      new PreferenceSyncService(
+        stateProvider,
+        encryptService,
+        (userId) => firstValueFrom(keyService.userKey$(userId)),
+        apiService,
+        logService,
+        platformUtilsService,
+      ),
+    deps: [
+      StateProvider,
+      EncryptService,
+      KeyService,
+      PreferenceSyncApiService,
+      LogService,
+      PlatformUtilsServiceAbstraction,
+    ],
+  }),
+  safeProvider({
     provide: SyncService,
     useClass: DefaultSyncService,
     deps: [
@@ -919,6 +955,7 @@ const safeProviders: SafeProvider[] = [
       SecurityStateService,
       KdfConfigService,
       AccountCryptographicStateService,
+      PreferenceSyncService,
     ],
   }),
   safeProvider({
