@@ -7,6 +7,7 @@ import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/environmen
 import {
   activeAuthGuard,
   authGuard,
+  hasPasswordGuard,
   lockGuard,
   redirectGuard,
   redirectToVaultIfUnlockedGuard,
@@ -16,6 +17,7 @@ import {
 import { LoginViaWebAuthnComponent } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn.component";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
@@ -43,6 +45,7 @@ import {
   TwoFactorAuthGuard,
 } from "@bitwarden/auth/angular";
 import { canAccessAutoConfirmSettings } from "@bitwarden/auto-confirm/angular";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import {
   LockComponent,
@@ -55,6 +58,7 @@ import { AuthExtensionRoute } from "../auth/popup/constants/auth-extension-route
 import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
 import { platformPopoutGuard } from "../auth/popup/guards/platform-popout.guard";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
+import { ChangePasswordPageComponent } from "../auth/popup/settings/change-password-page.component";
 import { ExtensionDeviceManagementComponent } from "../auth/popup/settings/extension-device-management.component";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
@@ -288,10 +292,21 @@ const routes: Routes = [
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
+    path: AuthExtensionRoute.SettingsPassword,
+    component: ChangePasswordPageComponent,
+    canActivate: [
+      // TODO: PM-32419 - remove feature flag check
+      canAccessFeature(FeatureFlag.PM32413_MultiClientPasswordManagement),
+      authGuard,
+      hasPasswordGuard([`/${AuthExtensionRoute.AccountSecurity}`]),
+    ],
+    data: { elevation: 2 } satisfies RouteDataProperties,
+  },
+  {
     path: AuthExtensionRoute.DeviceManagement,
     component: ExtensionDeviceManagementComponent,
     canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
+    data: { elevation: 2 } satisfies RouteDataProperties,
   },
   {
     path: "notifications",

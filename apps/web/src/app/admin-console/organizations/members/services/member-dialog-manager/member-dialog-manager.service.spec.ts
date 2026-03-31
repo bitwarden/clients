@@ -9,8 +9,8 @@ import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/m
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { EntityEventsComponent } from "../../../../../dirt/event-logs";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
-import { EntityEventsComponent } from "../../../manage/entity-events.component";
 import { AccountRecoveryDialogComponent } from "../../components/account-recovery/account-recovery-dialog.component";
 import { BulkConfirmDialogComponent } from "../../components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "../../components/bulk/bulk-delete-dialog.component";
@@ -85,12 +85,15 @@ describe("MemberDialogManagerService", () => {
       const mockDialogRef = { closed: of(MemberDialogResult.Saved) };
       dialogService.open.mockReturnValue(mockDialogRef as any);
 
-      const allUserEmails = ["user1@example.com", "user2@example.com"];
+      const allUsers = [
+        { email: "user1@example.com" } as OrganizationUserView,
+        { email: "user2@example.com" } as OrganizationUserView,
+      ];
 
       const result = await service.openInviteDialog(
         mockOrganization,
         mockBillingMetadata,
-        allUserEmails,
+        allUsers,
       );
 
       expect(dialogService.open).toHaveBeenCalledWith(
@@ -99,7 +102,7 @@ describe("MemberDialogManagerService", () => {
           data: {
             kind: "Add",
             organizationId: mockOrganization.id,
-            allOrganizationUserEmails: allUserEmails,
+            allOrganizationUsers: allUsers,
             occupiedSeatCount: 10,
             isOnSecretsManagerStandalone: false,
           },

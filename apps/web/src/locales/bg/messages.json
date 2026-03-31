@@ -2,8 +2,17 @@
   "allApplications": {
     "message": "Всички приложения"
   },
+  "allMembers": {
+    "message": "Всички членове"
+  },
+  "allPasswords": {
+    "message": "Всички пароли"
+  },
   "activity": {
     "message": "Дейност"
+  },
+  "applicationsAtRisk": {
+    "message": "Приложения в риск"
   },
   "appLogoLabel": {
     "message": "Лого на Битуорден"
@@ -43,6 +52,15 @@
   },
   "passwordRisk": {
     "message": "Рискова парола"
+  },
+  "passwords": {
+    "message": "Пароли"
+  },
+  "riskOverTime": {
+    "message": "Риск във времето"
+  },
+  "passwordsAtRisk": {
+    "message": "Пароли в риск"
   },
   "noEditPermissions": {
     "message": "Нямате право за редактиране на този елемент"
@@ -2103,6 +2121,9 @@
   "exportSuccess": {
     "message": "Данните от трезора ви са изнесени."
   },
+  "exportError": {
+    "message": "Възникна грешка при изнасянето на данните от трезора"
+  },
   "passwordGenerator": {
     "message": "Създаване на пароли"
   },
@@ -3047,16 +3068,16 @@
   "breachDesc": {
     "message": "Изтичането на данни е инцидент, при който злоумишлени лица получават достъп до данните ви, след което те биват публикувани. Прегледайте вида на изтеклата информация (адреси за електронна поща, пароли, номера на карти и т. н.) и предприемете надлежните действия като да си смените паролата."
   },
-  "breachCheckUsernameEmail": {
-    "message": "Проверка за изтекли данни, съдържащи потребителското ви име или адреса ви за електронна поща"
+  "breachCheckEmail": {
+    "message": "Проверка за всеки адрес на е-поща, който ползвате."
   },
   "checkBreaches": {
     "message": "Проверка за изтичане на данни"
   },
-  "breachUsernameNotFound": {
-    "message": "$USERNAME$ липсва във всички известни масиви с изтекли данни.",
+  "breachEmailNotFound": {
+    "message": "Адресът $EMAIL$ не беше открит в нито един известен случай на изтекли данни.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3087,10 @@
     "message": "Добри новини",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "$USERNAME$ е открит в $COUNT$ от известните масиви с изтекли данни.",
+  "breachEmailFound": {
+    "message": "Адресът $EMAIL$ беше открит в $COUNT$ различни известни случаи на изтекли данни.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -3376,6 +3397,9 @@
   },
   "discount": {
     "message": "отстъпка"
+  },
+  "discountExpiredOnPurchase": {
+    "message": "Отстъпката е изтекла. Моля, прегледайте крайната цена в количката си и опитайте отново."
   },
   "downloadLicense": {
     "message": "Изтегляне на лиценз"
@@ -3783,6 +3807,15 @@
   },
   "policies": {
     "message": "Политики"
+  },
+  "dataControls": {
+    "message": "Управление на данните"
+  },
+  "authentication": {
+    "message": "Удостоверяване"
+  },
+  "vaultManagement": {
+    "message": "Управление на трезора"
   },
   "singleSignOn": {
     "message": "Еднократна идентификация"
@@ -6465,6 +6498,14 @@
     "message": "Потвърдете е-пощата си, за да видите това Изпращане",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Не получихте код? Свържете се с подателя, за да потвърдите адреса на е-пощата си или ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Повторно пращане на кода за потвърждаване",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "Потребителят, който е създал това изпращане, е избрал да скрие адреса на своята е-поща. Уверете се, че източникът на тази връзка е достоверен, преди да я последвате или да свалите съдържание чрез нея.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -8310,6 +8351,9 @@
   "members": {
     "message": "Членове"
   },
+  "membersAtRisk": {
+    "message": "Членове в риск"
+  },
   "reporting": {
     "message": "Докладване"
   },
@@ -8580,6 +8624,14 @@
   "newProject": {
     "message": "Нов проект",
     "description": "Title for creating a new project."
+  },
+  "clickToRenameProject": {
+    "message": "Щракнете за преименуване на този проект",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "Името на проекта не може да бъде дешифровано – щракнете проекта за преименуване",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
     "message": "Изтриването на тайни може да засегне съществуващите интеграции.",
@@ -11046,6 +11098,9 @@
   "clientDetails": {
     "message": "Подробности за клиента"
   },
+  "downloadChart": {
+    "message": "Сваляне на таблицата"
+  },
   "downloadCSV": {
     "message": "Сваляне на CSV"
   },
@@ -11498,6 +11553,18 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "Потребителят $ID$ се премахна сам от организацията.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "userSelfRevokedOrganizationOwnership": {
+    "message": "Премахнато, поради отказ от прехвърляне на собствеността към организацията."
+  },
   "suspendedOrganizationTitle": {
     "message": "Достъпът на $ORGANIZATION$ е преустановен",
     "placeholders": {
@@ -11881,6 +11948,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Недоверени шифроващи ключове"
+  },
+  "atRiskPassword": {
+    "message": "Парола в риск"
   },
   "changeAtRiskPassword": {
     "message": "Промяна на парола в риск"
@@ -12551,12 +12621,6 @@
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Трябва да има присвоен домейн преди активирането на тази политика."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Задайте метод за отключване, за да може да промените действието при изтичане на времето за достъп до трезора."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Изискванията на политиката за големи компании бяха приложени към настройките на времето за достъп"
-  },
   "vaultTimeoutTooLarge": {
     "message": "Времето за достъп до трезора Ви превишава ограничението, определено от организацията Ви."
   },
@@ -12755,8 +12819,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ изисква всички елементи да станат притежание на организацията, за по-добра сигурност и съвместимост. Изберете, че приемате, за да прехвърлите собствеността на елементите си към организацията.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ изисква всички данни да бъдат притежание на организацията, с цел сигурност и съгласуваност.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12764,14 +12828,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Натиснете бутона за приемане, за да прехвърлите собствеността на данните си."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Отваряне на помощната информация относно прехвърлянето на данни"
+  },
   "acceptTransfer": {
     "message": "Приемане на прехвърлянето"
   },
   "declineAndLeave": {
     "message": "Отказване и напускане"
-  },
-  "whyAmISeeingThis": {
-    "message": "Защо виждам това?"
   },
   "youHaveBitwardenPremium": {
     "message": "Вие имате платен абонамент за Битуорден"
@@ -12922,9 +12989,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Можете да въведете повече е-пощи, като ги разделите със запетая."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Потвърждаването на е-пощата изисква да е наличен поне един адрес на е-поща. Ако искате да премахнете всички е-пощи, променете начина за достъп по-горе."
-  },
   "emailPlaceholder": {
     "message": "потребител@bitwarden.com , потребител@acme.com"
   },
@@ -13032,6 +13096,70 @@
       "date": {
         "content": "$2",
         "example": "Jan 1, 1970"
+      }
+    }
+  },
+  "sendsTitleNoSearchResults": {
+    "message": "Няма резултати от търсенето"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Изчистете филтрите или опитайте да търсите нещо друго"
+  },
+  "pastMonth": {
+    "message": "Последния месец"
+  },
+  "past3Months": {
+    "message": "Последните 3 месеца"
+  },
+  "past6Months": {
+    "message": "‎Последните 6 месеца‎"
+  },
+  "pastYear": {
+    "message": "Последната година"
+  },
+  "allTime": {
+    "message": "Целия период"
+  },
+  "timePeriod": {
+    "message": "Времеви период"
+  },
+  "of": {
+    "message": "от"
+  },
+  "coachmarkImportTitle": {
+    "message": "Внесете бързо паролите си"
+  },
+  "coachmarkImportDescription": {
+    "message": "Досега използвали ли сте управител на пароли? Можете да внесете файл във формата CSV с текущите си данни за вписване, както и други данни, в трезора си."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Добавете запис"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Добавете нови пароли, бележки и други данни в трезора си. Всичко е защитено с шифроване от край до край."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Споделяйте данни с други хора, защитено"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "Ако преместите елемент в колекция, можете да го споделите по сигурен начин с други хора в организацията си."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Следете сигурността на паролите си"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Грижете се за сигурността на записите в трезора си, като преглеждате доклади за уязвимостите."
+  },
+  "coachmarkStepIndicator": {
+    "message": "Стъпка $CURRENT$ от $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
       }
     }
   }

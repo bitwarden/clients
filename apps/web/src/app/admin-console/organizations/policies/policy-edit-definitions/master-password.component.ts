@@ -20,11 +20,14 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 export class MasterPasswordPolicy extends BasePolicyEditDefinition {
   name = "masterPassPolicyTitle";
   description = "masterPassPolicyDesc";
   type = PolicyType.MasterPassword;
+  category = PolicyCategory.Authentication;
+  priority = 10;
   component = MasterPasswordPolicyComponent;
 }
 
