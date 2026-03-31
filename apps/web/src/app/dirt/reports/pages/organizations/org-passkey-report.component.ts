@@ -26,7 +26,6 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
-  BadgeComponent,
   CalloutComponent,
   ContainerComponent,
   DialogService,
@@ -75,7 +74,6 @@ import {
     CommonModule,
     JslibModule,
     HeaderModule,
-    BadgeComponent,
     CalloutComponent,
     ContainerComponent,
     LinkComponent,
@@ -129,15 +127,15 @@ export class OrgPasskeyReportComponent {
   private readonly passkeyServices = signal<Map<string, PasskeyServiceEntry>>(new Map());
 
   constructor() {
-    effect(async () => {
+    effect(() => {
       const organization = this.organization();
 
       if (organization == null) {
         return;
       }
 
-      await untracked(async () => {
-        await this.load(organization);
+      untracked(() => {
+        void this.load(organization);
       });
     });
   }

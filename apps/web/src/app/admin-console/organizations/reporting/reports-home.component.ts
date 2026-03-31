@@ -76,7 +76,7 @@ export class ReportsHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           .organizations$(userId)
           .pipe(getOrganizationById(params.organizationId)),
       ),
-      switchMap(async (org) => await this.buildReports(org.productTierType)),
+      switchMap((org) => this.buildReports(org.productTierType)),
     );
   }
 
