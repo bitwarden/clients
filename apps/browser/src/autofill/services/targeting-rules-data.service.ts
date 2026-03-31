@@ -120,16 +120,27 @@ export class TargetingRulesDataService {
         }),
         retry({
           count: 2,
-          delay: (error, retryCount) => {
+          delay: async (error, retryCount) => {
+            if (retryCount === 1) {
+              // Intentionally clear cached rules on first failure rather than
+              // retaining potentially stale/invalid data. The risk of acting on
+              // outdated rules (e.g. filling wrong fields after a site redesign)
+              // outweighs the impact of temporarily falling back to heuristics until
+              // the next successful fetch.
+              await this.domainSettingsService.setTargetingRules({});
+            }
             this.logService.error(
               `[TargetingRulesDataService] Attempt ${retryCount} failed. Retrying in 5m...`,
               error,
             );
-            return timer(5 * 60 * 1000);
+            return timer(5 * 60 * 1000); // 5 minutes
           },
         }),
         catchError((err: unknown) => {
-          this.logService.error("[TargetingRulesDataService] All retry attempts failed.", err);
+          this.logService.error(
+            "[TargetingRulesDataService] All retry attempts failed, deferring to next scheduled check.",
+            err,
+          );
           return EMPTY;
         }),
       );
@@ -154,39 +165,27 @@ export class TargetingRulesDataService {
       `[TargetingRulesDataService] Fetching targeting rules from ${sourceUrl.href}`,
     );
 
-    try {
-      const response = await this.apiService.nativeFetch(new Request(sourceUrl.href));
+    const response = await this.apiService.nativeFetch(new Request(sourceUrl.href));
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
-      }
-
-      const resource: FormsMapResource = await response.json();
-      const rules: TargetingRulesByDomain = resource?.hosts ?? {};
-
-      if (resource?.version) {
-        this.logService.debug(
-          `[TargetingRulesDataService] Resource schema version: ${resource.version}`,
-        );
-      }
-
-      await this.domainSettingsService.setTargetingRules(rules);
-      await this._metaState.update(() => ({ timestamp: Date.now() }));
-
-      this.logService.info(
-        `[TargetingRulesDataService] Stored ${Object.keys(rules).length} domain rule sets`,
-      );
-    } catch (error: unknown) {
-      this.logService.warning(
-        "[TargetingRulesDataService] Resource unavailable, storing empty rules.",
-        error,
-      );
-      // Intentionally clear cached rules on failure rather than retaining
-      // potentially stale/invalid data. The risk of acting on outdated rules
-      // (e.g. filling wrong fields after a site redesign) outweighs the impact of
-      // temporarily falling back to heuristics until the next successful fetch.
-      await this.domainSettingsService.setTargetingRules({});
+    if (!response.ok) {
+      throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
     }
+
+    const resource: FormsMapResource = await response.json();
+    const rules: TargetingRulesByDomain = resource?.hosts ?? {};
+
+    if (resource?.version) {
+      this.logService.debug(
+        `[TargetingRulesDataService] Resource schema version: ${resource.version}`,
+      );
+    }
+
+    await this.domainSettingsService.setTargetingRules(rules);
+    await this._metaState.update(() => ({ timestamp: Date.now() }));
+
+    this.logService.info(
+      `[TargetingRulesDataService] Stored ${Object.keys(rules).length} domain rule sets`,
+    );
   }
 
   /**

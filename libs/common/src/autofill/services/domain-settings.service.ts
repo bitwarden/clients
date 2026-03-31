@@ -303,7 +303,7 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     }
 
     const rules = await firstValueFrom(this.targetingRules$);
-    if (!rules) {
+    if (!rules || Object.keys(rules).length === 0) {
       return null;
     }
 
