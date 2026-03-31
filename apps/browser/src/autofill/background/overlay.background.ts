@@ -2347,12 +2347,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       commandToRetry: { message: { command: "openAutofillInlineMenu" }, sender },
       target: "overlay.background",
     };
+    // Open the popout before queuing the pending notification. In Safari, opening the
+    // popout can trigger tab removal events that clear the pending notification queue.
+    await this.openUnlockPopout(sender.tab);
     await BrowserApi.tabSendMessageData(
       sender.tab,
       "addToLockedVaultPendingNotifications",
       retryMessage,
     );
-    await this.openUnlockPopout(sender.tab);
   }
 
   /**

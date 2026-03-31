@@ -112,13 +112,14 @@ export default class CommandsBackground {
         },
         target: "commands.background",
       };
+      // Open the popout before queuing the pending notification. In Safari, opening the
+      // popout can trigger tab removal events that clear the pending notification queue.
+      await openUnlockPopout(tab);
       await BrowserApi.tabSendMessageData(
         tab,
         "addToLockedVaultPendingNotifications",
         retryMessage,
       );
-
-      await openUnlockPopout(tab);
       return;
     }
 

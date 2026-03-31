@@ -81,10 +81,42 @@ describe("AuthPopoutWindow", () => {
   });
 
   describe("closeUnlockPopout", () => {
-    it("closes the unlock extension popout window", async () => {
+    beforeEach(async () => {
+      // Ensure module-level unlockPopoutWindowId is cleared before each test
+      await closeUnlockPopout();
+      jest.clearAllMocks();
+    });
+
+    it("falls back to closeSingleActionPopout when no tracked window id exists", async () => {
       await closeUnlockPopout();
 
       expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(AuthPopoutType.unlockExtension);
+    });
+
+    describe("when a tracked window id exists", () => {
+      let removeWindowSpy: jest.SpyInstance;
+
+      beforeEach(async () => {
+        removeWindowSpy = jest.spyOn(BrowserApi, "removeWindow").mockResolvedValue(undefined);
+        jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([]);
+        openPopoutSpy.mockResolvedValue({ id: 42 } as chrome.windows.Window);
+        await openUnlockPopout({ windowId: 1 } as chrome.tabs.Tab);
+      });
+
+      it("closes the window by its tracked id", async () => {
+        await closeUnlockPopout();
+
+        expect(removeWindowSpy).toHaveBeenCalledWith(42);
+      });
+
+      it("falls back to closeSingleActionPopout on subsequent calls after the tracked id is consumed", async () => {
+        await closeUnlockPopout();
+        closeSingleActionPopoutSpy.mockClear();
+
+        await closeUnlockPopout();
+
+        expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(AuthPopoutType.unlockExtension);
+      });
     });
   });
 

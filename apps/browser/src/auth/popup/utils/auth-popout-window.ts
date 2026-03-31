@@ -16,6 +16,8 @@ const extensionUnlockUrls = new Set([
   chrome.runtime.getURL("popup/index.html#/login"),
 ]);
 
+let unlockPopoutWindowId: number | undefined;
+
 /**
  * Opens a window that facilitates unlocking / logging into the extension.
  *
@@ -23,6 +25,17 @@ const extensionUnlockUrls = new Set([
  */
 async function openUnlockPopout(senderTab: chrome.tabs.Tab) {
   const existingPopoutWindowTabs = await BrowserApi.tabsQuery({ windowType: "popup" });
+
+  const newWindow = await BrowserPopupUtils.openPopout("popup/index.html", {
+    singleActionKey: AuthPopoutType.unlockExtension,
+    senderWindowId: senderTab.windowId,
+  });
+  unlockPopoutWindowId = newWindow?.id;
+
+  // Remove existing unlock popup windows AFTER the new popup is created. In Safari,
+  // tabsQuery returns the toolbar popover as a popup-type tab, and its removal fires
+  // chrome.tabs.onRemoved which triggers handleUnlockPopoutClosed. If the new popup
+  // doesn't exist yet at that point, the pending autofill notification is abandoned.
   existingPopoutWindowTabs.forEach((tab) => {
     if (extensionUnlockUrls.has(tab.url)) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -31,10 +44,6 @@ async function openUnlockPopout(senderTab: chrome.tabs.Tab) {
     }
   });
 
-  await BrowserPopupUtils.openPopout("popup/index.html", {
-    singleActionKey: AuthPopoutType.unlockExtension,
-    senderWindowId: senderTab.windowId,
-  });
   await BrowserApi.tabSendMessageData(senderTab, "bgUnlockPopoutOpened", {});
 }
 
@@ -42,6 +51,15 @@ async function openUnlockPopout(senderTab: chrome.tabs.Tab) {
  * Closes the unlock popout window.
  */
 async function closeUnlockPopout() {
+  // Uses the tracked window ID when available because Safari's tabsQuery with URL patterns
+  // unreliably returns extension popup tabs, causing closeSingleActionPopout to silently fail.
+  // This module-level state does not survive service worker termination; the fallback below
+  // covers that case (with reduced reliability on Safari).
+  if (unlockPopoutWindowId != null) {
+    await BrowserApi.removeWindow(unlockPopoutWindowId);
+    unlockPopoutWindowId = undefined;
+    return;
+  }
   await BrowserPopupUtils.closeSingleActionPopout(AuthPopoutType.unlockExtension);
 }
 

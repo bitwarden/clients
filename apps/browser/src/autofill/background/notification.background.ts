@@ -1876,7 +1876,23 @@ export default class NotificationBackground {
   }
 
   private setupUnlockPopoutCloseListener() {
-    chrome.tabs.onRemoved.addListener(async (tabId: number) => {
+    BrowserApi.addListener(chrome.tabs.onCreated, (tab) => {
+      const url = tab.pendingUrl ?? tab.url;
+      if (url?.includes(`singleActionPopout=${AuthPopoutType.unlockExtension}`) && tab.id != null) {
+        this.unlockPopoutTabId = tab.id;
+      }
+    });
+
+    BrowserApi.addListener(chrome.tabs.onUpdated, (tabId, changeInfo) => {
+      if (this.unlockPopoutTabId != null) {
+        return;
+      }
+      if (changeInfo.url?.includes(`singleActionPopout=${AuthPopoutType.unlockExtension}`)) {
+        this.unlockPopoutTabId = tabId;
+      }
+    });
+
+    BrowserApi.addListener(chrome.tabs.onRemoved, async (tabId: number) => {
       await this.handleUnlockPopoutClosed(tabId);
     });
   }
@@ -1903,8 +1919,9 @@ export default class NotificationBackground {
     }
 
     const extensionUrl = BrowserApi.getRuntimeURL("popup/index.html");
-    const unlockPopoutTabs = (await BrowserApi.tabsQuery({ url: `${extensionUrl}*` })).filter(
-      (tab) => tab.url?.includes(`singleActionPopout=${AuthPopoutType.unlockExtension}`),
+    const allTabs = await BrowserApi.tabsQuery({ url: `${extensionUrl}*` });
+    const unlockPopoutTabs = allTabs.filter((tab) =>
+      tab.url?.includes(`singleActionPopout=${AuthPopoutType.unlockExtension}`),
     );
 
     if (unlockPopoutTabs.length === 0) {
