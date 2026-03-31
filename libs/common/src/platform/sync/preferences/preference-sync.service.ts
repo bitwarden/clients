@@ -1,6 +1,7 @@
 import { firstValueFrom, merge, Subscription } from "rxjs";
 import { debounceTime, filter, skip } from "rxjs/operators";
 
+import { ApiService } from "../../../abstractions/api.service";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UserId } from "../../../types/guid";
@@ -9,7 +10,6 @@ import { PlatformUtilsService } from "../../abstractions/platform-utils.service"
 import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 import { StateProvider } from "../../state";
 
-import { PreferenceSyncApiService } from "./preference-sync-api.service";
 import { SyncedPreferences } from "./synced-preferences";
 import {
   SYNCED_KEYS,
@@ -31,7 +31,7 @@ export class PreferenceSyncService {
     private stateProvider: StateProvider,
     private encryptService: EncryptService,
     private getUserKey: UserKeyProvider,
-    private preferenceSyncApiService: PreferenceSyncApiService,
+    private apiService: ApiService,
     private logService: LogService,
     private platformUtilsService: PlatformUtilsService,
   ) {}
@@ -117,7 +117,7 @@ export class PreferenceSyncService {
   async pushCurrentState(userId: UserId): Promise<void> {
     const blob = await this.collectAndEncrypt(userId);
     if (blob != null) {
-      await this.preferenceSyncApiService.putUserPreferences(new UserPreferencesRequest(blob));
+      await this.putUserPreferences(new UserPreferencesRequest(blob));
     }
   }
 
@@ -132,7 +132,7 @@ export class PreferenceSyncService {
 
       const blob = await this.collectAndEncrypt(userId);
       if (blob != null) {
-        await this.preferenceSyncApiService.putUserPreferences(new UserPreferencesRequest(blob));
+        await this.putUserPreferences(new UserPreferencesRequest(blob));
       }
     } catch (e) {
       this.logService.error("PreferenceSyncService: push failed", e);
@@ -250,5 +250,9 @@ export class PreferenceSyncService {
       this.logService.error("PreferenceSyncService: failed to decrypt preferences blob", e);
       return null;
     }
+  }
+
+  private async putUserPreferences(request: UserPreferencesRequest): Promise<void> {
+    await this.apiService.send("PUT", "/user-preferences", request, true, false);
   }
 }

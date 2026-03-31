@@ -281,10 +281,7 @@ import { ValidationService } from "@bitwarden/common/platform/services/validatio
 import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for DI
 import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
-import {
-  PreferenceSyncApiService,
-  PreferenceSyncService,
-} from "@bitwarden/common/platform/sync/preferences";
+import { PreferenceSyncService } from "@bitwarden/common/platform/sync/preferences";
 import { SystemNotificationsService } from "@bitwarden/common/platform/system-notifications";
 import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platform/system-notifications/unsupported-system-notifications.service";
 import {
@@ -887,17 +884,12 @@ const safeProviders: SafeProvider[] = [
     deps: [ApiServiceAbstraction],
   }),
   safeProvider({
-    provide: PreferenceSyncApiService,
-    useFactory: (apiService: ApiServiceAbstraction) => new PreferenceSyncApiService(apiService),
-    deps: [ApiServiceAbstraction],
-  }),
-  safeProvider({
     provide: PreferenceSyncService,
     useFactory: (
       stateProvider: StateProvider,
       encryptService: EncryptService,
       keyService: KeyService,
-      apiService: PreferenceSyncApiService,
+      apiService: ApiServiceAbstraction,
       logService: LogService,
       platformUtilsService: PlatformUtilsServiceAbstraction,
     ) =>
@@ -913,7 +905,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       EncryptService,
       KeyService,
-      PreferenceSyncApiService,
+      ApiServiceAbstraction,
       LogService,
       PlatformUtilsServiceAbstraction,
     ],
