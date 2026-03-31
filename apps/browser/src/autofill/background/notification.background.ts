@@ -1876,23 +1876,7 @@ export default class NotificationBackground {
   }
 
   private setupUnlockPopoutCloseListener() {
-    BrowserApi.addListener(chrome.tabs.onCreated, (tab) => {
-      const url = tab.pendingUrl ?? tab.url;
-      if (url?.includes(`singleActionPopout=${AuthPopoutType.unlockExtension}`) && tab.id != null) {
-        this.unlockPopoutTabId = tab.id;
-      }
-    });
-
-    BrowserApi.addListener(chrome.tabs.onUpdated, (tabId, changeInfo) => {
-      if (this.unlockPopoutTabId != null) {
-        return;
-      }
-      if (changeInfo.url?.includes(`singleActionPopout=${AuthPopoutType.unlockExtension}`)) {
-        this.unlockPopoutTabId = tabId;
-      }
-    });
-
-    BrowserApi.addListener(chrome.tabs.onRemoved, async (tabId: number) => {
+    chrome.tabs.onRemoved.addListener(async (tabId: number) => {
       await this.handleUnlockPopoutClosed(tabId);
     });
   }

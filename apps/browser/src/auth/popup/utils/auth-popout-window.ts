@@ -25,17 +25,6 @@ let unlockPopoutWindowId: number | undefined;
  */
 async function openUnlockPopout(senderTab: chrome.tabs.Tab) {
   const existingPopoutWindowTabs = await BrowserApi.tabsQuery({ windowType: "popup" });
-
-  const newWindow = await BrowserPopupUtils.openPopout("popup/index.html", {
-    singleActionKey: AuthPopoutType.unlockExtension,
-    senderWindowId: senderTab.windowId,
-  });
-  unlockPopoutWindowId = newWindow?.id;
-
-  // Remove existing unlock popup windows AFTER the new popup is created. In Safari,
-  // tabsQuery returns the toolbar popover as a popup-type tab, and its removal fires
-  // chrome.tabs.onRemoved which triggers handleUnlockPopoutClosed. If the new popup
-  // doesn't exist yet at that point, the pending autofill notification is abandoned.
   existingPopoutWindowTabs.forEach((tab) => {
     if (extensionUnlockUrls.has(tab.url)) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -44,6 +33,11 @@ async function openUnlockPopout(senderTab: chrome.tabs.Tab) {
     }
   });
 
+  const newWindow = await BrowserPopupUtils.openPopout("popup/index.html", {
+    singleActionKey: AuthPopoutType.unlockExtension,
+    senderWindowId: senderTab.windowId,
+  });
+  unlockPopoutWindowId = newWindow?.id;
   await BrowserApi.tabSendMessageData(senderTab, "bgUnlockPopoutOpened", {});
 }
 

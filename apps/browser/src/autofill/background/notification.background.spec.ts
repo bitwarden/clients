@@ -3100,24 +3100,12 @@ describe("NotificationBackground", () => {
 
     describe("handleUnlockPopoutClosed", () => {
       let onRemovedListeners: Array<(tabId: number, removeInfo: chrome.tabs.OnRemovedInfo) => void>;
-      let onCreatedListeners: Array<(tab: chrome.tabs.Tab) => void>;
-      let onUpdatedListeners: Array<
-        (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) => void
-      >;
       let tabsQuerySpy: jest.SpyInstance;
 
       beforeEach(() => {
         onRemovedListeners = [];
-        onCreatedListeners = [];
-        onUpdatedListeners = [];
         chrome.tabs.onRemoved.addListener = jest.fn((listener) => {
           onRemovedListeners.push(listener);
-        });
-        chrome.tabs.onCreated.addListener = jest.fn((listener) => {
-          onCreatedListeners.push(listener);
-        });
-        chrome.tabs.onUpdated.addListener = jest.fn((listener) => {
-          onUpdatedListeners.push(listener);
         });
         chrome.runtime.getURL = jest.fn().mockReturnValue("chrome-extension://id/popup/index.html");
         notificationBackground.init();
@@ -3126,18 +3114,6 @@ describe("NotificationBackground", () => {
       const triggerTabRemoved = async (tabId: number) => {
         onRemovedListeners[0](tabId, mock<chrome.tabs.OnRemovedInfo>());
         await flushPromises();
-      };
-
-      const triggerTabCreated = (tab: Partial<chrome.tabs.Tab>) => {
-        onCreatedListeners[0](tab as chrome.tabs.Tab);
-      };
-
-      const triggerTabUpdated = (tabId: number, changeInfo: Partial<chrome.tabs.TabChangeInfo>) => {
-        onUpdatedListeners[0](
-          tabId,
-          changeInfo as chrome.tabs.TabChangeInfo,
-          mock<chrome.tabs.Tab>(),
-        );
       };
 
       it("sends abandon message when unlock popout is closed and vault is locked", async () => {
@@ -3177,87 +3153,6 @@ describe("NotificationBackground", () => {
 
         expect(tabsQuerySpy).not.toHaveBeenCalled();
         expect(messagingService.send).not.toHaveBeenCalled();
-      });
-
-      describe("proactive unlock popup tab tracking", () => {
-        const unlockPopoutUrl =
-          "chrome-extension://id/popup/index.html?singleActionPopout=auth_unlockExtension";
-
-        beforeEach(() => {
-          activeAccountStatusMock$.next(AuthenticationStatus.Locked);
-          tabsQuerySpy = jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([]);
-        });
-
-        it.each([
-          ["pendingUrl", { id: 123, pendingUrl: unlockPopoutUrl }],
-          ["url", { id: 123, url: unlockPopoutUrl }],
-        ])("sets unlockPopoutTabId when unlock popup tab is created via %s", async (_, tab) => {
-          triggerTabCreated(tab);
-
-          await triggerTabRemoved(999);
-
-          expect(tabsQuerySpy).not.toHaveBeenCalled();
-          expect(messagingService.send).not.toHaveBeenCalledWith(
-            "abandonAutofillPendingNotifications",
-          );
-        });
-
-        it("sets unlockPopoutTabId via onUpdated when the unlock popup URL is committed", async () => {
-          triggerTabUpdated(123, { url: unlockPopoutUrl });
-
-          await triggerTabRemoved(999);
-
-          expect(tabsQuerySpy).not.toHaveBeenCalled();
-          expect(messagingService.send).not.toHaveBeenCalledWith(
-            "abandonAutofillPendingNotifications",
-          );
-        });
-
-        it("does not set unlockPopoutTabId via onUpdated for unrelated URL changes", async () => {
-          triggerTabUpdated(123, { url: "https://example.com" });
-
-          await triggerTabRemoved(999);
-
-          expect(tabsQuerySpy).toHaveBeenCalled();
-          expect(messagingService.send).toHaveBeenCalledWith("abandonAutofillPendingNotifications");
-        });
-
-        it("onUpdated does not overwrite unlockPopoutTabId already set by onCreated", async () => {
-          triggerTabCreated({ id: 123, pendingUrl: unlockPopoutUrl });
-          triggerTabUpdated(456, { url: unlockPopoutUrl });
-
-          await triggerTabRemoved(123);
-
-          expect(tabsQuerySpy).not.toHaveBeenCalled();
-          expect(messagingService.send).toHaveBeenCalledWith("abandonAutofillPendingNotifications");
-        });
-
-        it("abandons notifications when the tracked tab from onCreated is removed", async () => {
-          triggerTabCreated({ id: 123, pendingUrl: unlockPopoutUrl });
-
-          await triggerTabRemoved(123);
-
-          expect(tabsQuerySpy).not.toHaveBeenCalled();
-          expect(messagingService.send).toHaveBeenCalledWith("abandonAutofillPendingNotifications");
-        });
-
-        it("does not set unlockPopoutTabId for unrelated tab creation", async () => {
-          triggerTabCreated({ id: 456, pendingUrl: "https://example.com" });
-
-          await triggerTabRemoved(999);
-
-          expect(tabsQuerySpy).toHaveBeenCalled();
-          expect(messagingService.send).toHaveBeenCalledWith("abandonAutofillPendingNotifications");
-        });
-
-        it("does not set unlockPopoutTabId when the created tab has no id", async () => {
-          triggerTabCreated({ id: undefined, pendingUrl: unlockPopoutUrl });
-
-          await triggerTabRemoved(999);
-
-          expect(tabsQuerySpy).toHaveBeenCalled();
-          expect(messagingService.send).toHaveBeenCalledWith("abandonAutofillPendingNotifications");
-        });
       });
     });
   });
