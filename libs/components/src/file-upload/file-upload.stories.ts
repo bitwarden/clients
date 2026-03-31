@@ -78,3 +78,35 @@ export const Error: Story = {
     hasError: true,
   },
 };
+
+function createMockFile(name: string, sizeBytes: number): File {
+  const content = new Uint8Array(sizeBytes);
+  return new File([content], name, { type: "application/octet-stream" });
+}
+
+export const WithFiles: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+      files: [
+        createMockFile("image.png", 2_400_000),
+        createMockFile("document.pdf", 150_000),
+        createMockFile("archive.zip", 48_000_000),
+      ],
+    },
+    template: /*html*/ `
+      <bit-file-upload
+        [maxFileSize]="maxFileSize"
+        [multiple]="multiple"
+        [accept]="accept"
+        [(files)]="files"
+      >
+        <bit-label>Upload file</bit-label>
+        <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
+      </bit-file-upload>
+    `,
+  }),
+  args: {
+    multiple: true,
+  },
+};
