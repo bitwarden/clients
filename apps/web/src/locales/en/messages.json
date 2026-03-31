@@ -6384,6 +6384,9 @@
   "newReceive": {
     "message": "New Receive"
   },
+  "editReceive": {
+    "message": "Edit Receive"
+  },
   "expirationDays": {
     "message": "Expiration (days)"
   },

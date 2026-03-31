@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, Inject, signal } from "@angular/cor
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ReceiveView } from "@bitwarden/common/tools/receive/models/view/receive.view";
 import {
   ButtonModule,
   DIALOG_DATA,
@@ -16,7 +17,6 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ReceiveAddEditComponent } from "./receive-add-edit.component";
-import { ReceiveView } from "./receive-view";
 
 @Component({
   templateUrl: "./receive-view.component.html",
