@@ -145,7 +145,7 @@ export class LoginView extends ItemView {
       username: this.username,
       password: this.password,
       passwordRevisionDate: this.passwordRevisionDate?.toISOString(),
-      totp: this.totp,
+      totp: this.hasTotp ? this.totp : undefined,
       autofillOnPageLoad: this.autofillOnPageLoad ?? undefined,
       uris: this.uris?.map((uri) => uri.toSdkLoginUriView()),
       fido2Credentials: undefined, // FIDO2 credentials are handled separately and remain encrypted
