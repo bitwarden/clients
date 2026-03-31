@@ -27,13 +27,10 @@ import {
   SendAddEditDialogComponent,
   DefaultSendFormConfigService,
   SendItemDialogResult,
-  SendFileProviderService,
 } from "@bitwarden/send-ui";
 
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { DesktopHeaderComponent } from "../../layout/header";
-
-import { DesktopSendFileProviderService } from "./desktop-send-file-provider.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -45,10 +42,6 @@ import { DesktopSendFileProviderService } from "./desktop-send-file-provider.ser
     {
       provide: PremiumUpgradePromptService,
       useClass: DesktopPremiumUpgradePromptService,
-    },
-    {
-      provide: SendFileProviderService,
-      useClass: DesktopSendFileProviderService,
     },
   ],
   templateUrl: "./send.component.html",
