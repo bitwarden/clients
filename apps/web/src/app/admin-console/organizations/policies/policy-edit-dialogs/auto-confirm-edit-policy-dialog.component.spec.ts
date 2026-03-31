@@ -19,6 +19,8 @@ import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
 
+import { AutoConfirmPolicyEditComponent } from "../policy-edit-definitions/auto-confirm-policy.component";
+
 import {
   AutoConfirmPolicyDialogComponent,
   AutoConfirmPolicyDialogData,
@@ -42,8 +44,16 @@ describe("AutoConfirmPolicyDialogComponent", () => {
   const mockUserId = newGuid() as UserId;
   const mockOrgId = newGuid() as OrganizationId;
 
+  const mockOrg = {
+    id: mockOrgId,
+    name: "Test Organization",
+    enabled: true,
+    isAdmin: true,
+    canManagePolicies: true,
+  } as Organization;
+
   const mockDialogData: AutoConfirmPolicyDialogData = {
-    organizationId: mockOrgId,
+    organization: mockOrg,
     policy: {
       name: "automaticUserConfirmation",
       description: "Auto Confirm Policy",
@@ -54,14 +64,6 @@ describe("AutoConfirmPolicyDialogComponent", () => {
     },
     firstTimeDialog: false,
   };
-
-  const mockOrg = {
-    id: mockOrgId,
-    name: "Test Organization",
-    enabled: true,
-    isAdmin: true,
-    canManagePolicies: true,
-  } as Organization;
 
   beforeEach(async () => {
     mockPolicyApiService = mock<PolicyApiServiceAbstraction>();
@@ -115,12 +117,16 @@ describe("AutoConfirmPolicyDialogComponent", () => {
 
   describe("handleSubmit", () => {
     beforeEach(() => {
-      // Mock the policyComponent
-      component.policyComponent = {
-        buildRequest: jest.fn().mockResolvedValue({ enabled: true, data: null }),
-        enabled: { value: true },
-        setSingleOrgEnabled: jest.fn(),
-      } as any;
+      // Mock the policyComponent as an AutoConfirmPolicyEditComponent instance so instanceof check passes
+      const mockPolicyEditComponent = Object.assign(
+        Object.create(AutoConfirmPolicyEditComponent.prototype),
+        {
+          buildRequest: jest.fn().mockResolvedValue({ enabled: true, data: null }),
+          enabled: { value: true },
+          setSingleOrgEnabled: jest.fn(),
+        },
+      ) as AutoConfirmPolicyEditComponent;
+      component["policyComponent"].set(mockPolicyEditComponent);
 
       mockAutoConfirmService.configuration$.mockReturnValue(
         of({ enabled: false, showSetupDialog: true, showBrowserNotification: undefined }),

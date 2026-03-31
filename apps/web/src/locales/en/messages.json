@@ -3812,6 +3812,15 @@
   "policies": {
     "message": "Policies"
   },
+  "dataControls": {
+    "message": "Data controls"
+  },
+  "authentication": {
+    "message": "Authentication"
+  },
+  "vaultManagement": {
+    "message": "Vault management"
+  },
   "singleSignOn": {
     "message": "Single sign-on"
   },
@@ -4295,6 +4304,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "revokedEmailError": {
+    "message": "1 or more emails belong to revoked members. Restore their access to reinvite."
   },
   "restoredUserId": {
     "message": "Restored organization access for $ID$.",

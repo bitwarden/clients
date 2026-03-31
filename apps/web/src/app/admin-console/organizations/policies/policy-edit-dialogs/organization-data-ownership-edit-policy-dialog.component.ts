@@ -28,7 +28,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -68,7 +67,7 @@ export class OrganizationDataOwnershipPolicyDialogComponent
   protected centralizeDataOwnershipEnabled$: Observable<boolean> = defer(() =>
     from(
       this.policyApiService.getPolicy(
-        this.data.organizationId,
+        this.data.organization.id,
         PolicyType.OrganizationDataOwnership,
       ),
     ).pipe(
@@ -83,7 +82,14 @@ export class OrganizationDataOwnershipPolicyDialogComponent
   private readonly policyForm = viewChild.required<TemplateRef<unknown>>("step0");
   private readonly policyFormTitle = viewChild.required<TemplateRef<unknown>>("step0Title");
 
-  override policyComponent: vNextOrganizationDataOwnershipPolicyComponent | undefined;
+  protected saveDisabled$: Observable<boolean> | undefined;
+
+  private get typedPolicyComponent(): vNextOrganizationDataOwnershipPolicyComponent | undefined {
+    const component = this.policyComponent();
+    return component instanceof vNextOrganizationDataOwnershipPolicyComponent
+      ? component
+      : undefined;
+  }
 
   constructor(
     @Inject(DIALOG_DATA) protected data: PolicyEditDialogData,
@@ -112,12 +118,11 @@ export class OrganizationDataOwnershipPolicyDialogComponent
   async ngAfterViewInit() {
     await super.ngAfterViewInit();
 
-    if (this.policyComponent) {
+    const typedComponent = this.typedPolicyComponent;
+    if (typedComponent) {
       this.saveDisabled$ = combineLatest([
         this.centralizeDataOwnershipEnabled$,
-        this.policyComponent.enabled.valueChanges.pipe(
-          startWith(this.policyComponent.enabled.value),
-        ),
+        typedComponent.enabled.valueChanges.pipe(startWith(typedComponent.enabled.value)),
       ]).pipe(map(([policyEnabled, value]) => !policyEnabled && !value));
     }
 
@@ -135,7 +140,8 @@ export class OrganizationDataOwnershipPolicyDialogComponent
   }
 
   private async handleSubmit() {
-    if (!this.policyComponent) {
+    const typedComponent = this.typedPolicyComponent;
+    if (!typedComponent) {
       throw new Error("PolicyComponent not initialized.");
     }
 
@@ -148,12 +154,10 @@ export class OrganizationDataOwnershipPolicyDialogComponent
 
     assertNonNullish(orgKey, "Org key not provided");
 
-    const request = await this.policyComponent.buildVNextRequest(
-      orgKey[this.data.organizationId as OrganizationId],
-    );
+    const request = await typedComponent.buildVNextRequest(orgKey[this.data.organization.id]);
 
     await this.policyApiService.putPolicyVNext(
-      this.data.organizationId,
+      this.data.organization.id,
       this.data.policy.type,
       request,
     );
@@ -163,17 +167,18 @@ export class OrganizationDataOwnershipPolicyDialogComponent
       message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
     });
 
-    if (!this.policyComponent.enabled.value) {
+    if (!typedComponent.enabled.value) {
       this.dialogRef.close("saved");
     }
   }
 
   submit = async () => {
-    if (!this.policyComponent) {
+    const typedComponent = this.typedPolicyComponent;
+    if (!typedComponent) {
       throw new Error("PolicyComponent not initialized.");
     }
 
-    if ((await this.policyComponent.confirm()) == false) {
+    if ((await typedComponent.confirm()) == false) {
       this.dialogRef.close();
       return;
     }
