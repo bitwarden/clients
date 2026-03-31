@@ -8,11 +8,7 @@
         <strong>{{ "email" | i18n }}:</strong> {{ email }}
       </ng-container>
       <ng-container *ngIf="!enabled">
-        <p class="tw-flex">
-          <span class="tw-mr-3">{{ "twoFactorEmailDesc" | i18n }}</span>
-          <!-- TODO: PM-33167 - replace with auth-two-factor-icon -->
-          <img class="tw-float-right tw-ml-auto mfaType1" alt="Email logo" />
-        </p>
+        <p>{{ "twoFactorEmailDesc" | i18n }}</p>
         <bit-form-field>
           <bit-label>1. {{ "twoFactorEmailEnterEmail" | i18n }}</bit-label>
           <input

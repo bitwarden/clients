@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "É necessária uma subscrição Premium para utilizar esta funcionalidade."
   },
+  "syncWithBrowser": {
+    "message": "Sincronizar com o navegador"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "Para se ligar a $VAULTURL$, tem de sincronizar o seu navegador predefinido com a app Bitwarden. Será redirecionado de volta para esta aplicação assim que o navegador estiver sincronizado.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Iniciar o navegador"
+  },
   "errorOccurred": {
     "message": "Ocorreu um erro."
   },
@@ -905,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Dica da palavra-passe mestra"
   },
+  "masterPasswordChanged": {
+    "message": "Palavra-passe mestra guardada"
+  },
   "passwordStrengthScore": {
     "message": "Pontuação da força da palavra-passe: $SCORE$",
     "placeholders": {
@@ -1196,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "As novas definições de encriptação recomendadas irão melhorar a segurança da sua conta. Introduza a sua palavra-passe mestra para atualizar agora."
   },
+  "rotateAccountEncKey": {
+    "message": "Regenerar também a chave de encriptação da minha conta"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impacto da regeneração da sua chave de encriptação"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Existem anexos de ficheiros antigos no seu cofre que têm de ser corrigidos antes de poder regenerar a chave de encriptação da sua conta."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Regenerar chave de encriptação"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Tem a certeza de que pretende regenerar a chave de encriptação da sua conta?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Após atualizar a sua chave de encriptação, terá de terminar a sessão e iniciar sessão novamente em todas as aplicações Bitwarden que está atualmente a utilizar (como a aplicação móvel ou as extensões do navegador). Não o fazer (o que permite descarregar a nova chave de encriptação) pode resultar em corrupção de dados. Tentaremos terminar a sua sessão automaticamente, no entanto, poderá sofrer algum atraso."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Todas as exportações com restrições de conta que tenha guardado tornar-se-ão inválidas."
+  },
   "confirmIdentityToContinue": {
     "message": "Confirme a sua identidade para continuar"
   },
@@ -1280,6 +1320,9 @@
   "changeMasterPass": {
     "message": "Alterar palavra-passe mestra"
   },
+  "changeMasterPassword": {
+    "message": "Alterar palavra-passe mestra"
+  },
   "continueToWebApp": {
     "message": "Continuar para a aplicação Web?"
   },
@@ -1358,17 +1401,11 @@
   "twoStepLogin": {
     "message": "Verificação de dois passos"
   },
-  "vaultTimeoutHeader": {
-    "message": "Tempo limite do cofre"
-  },
   "vaultTimeout": {
     "message": "Tempo limite do cofre"
   },
   "vaultTimeout1": {
     "message": "Tempo limite"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Ação de tempo limite"
   },
   "vaultTimeoutDesc": {
     "message": "Escolha quando é que o seu cofre executará a ação de tempo limite do cofre."
@@ -1658,6 +1695,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "mês"
+  },
+  "monthly": {
+    "message": "Mensal"
+  },
+  "year": {
+    "message": "ano"
+  },
+  "annually": {
+    "message": "Anual"
+  },
+  "annual": {
+    "message": "Anual"
   },
   "refreshComplete": {
     "message": "Atualização concluída"
@@ -2089,9 +2141,6 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "É necessária uma nova autenticação para aceder novamente ao seu cofre."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configure um método de desbloqueio para alterar a ação de tempo limite do seu cofre."
-  },
   "lock": {
     "message": "Bloquear",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2274,6 +2323,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "A sua nova palavra-passe mestra não cumpre os requisitos da política."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Uma ou mais políticas da organização exigem que a palavra-passe mestra cumpra os seguintes requisitos:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Receba conselhos, anúncios e oportunidades de investigação do Bitwarden na sua caixa de entrada."
@@ -2709,9 +2761,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "O tempo limite do seu cofre excede as restrições definidas pela sua organização."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Os requisitos da política empresarial foram aplicados às suas opções de tempo limite"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "As políticas da sua organização definiram o tempo limite máximo permitido do cofre de $HOURS$ hora(s) e $MINUTES$ minuto(s).",
@@ -3745,6 +3794,9 @@
   "exportSuccess": {
     "message": "Dados do cofre exportados"
   },
+  "exportError": {
+    "message": "Ocorreu um erro ao exportar os dados do seu cofre"
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Autenticação multifator cancelada"
   },
@@ -4490,7 +4542,7 @@
     "message": "Segurança online avançada"
   },
   "upgradeToPremium": {
-    "message": "Atualizar para o Premium"
+    "message": "Atualize para o Premium"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "A sua organização já não utiliza palavras-passe mestras para iniciar sessão no Bitwarden. Para continuar, verifique a organização e o domínio."
@@ -4617,8 +4669,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ exige que todos os itens sejam propriedade da organização por motivos de segurança e conformidade. Clique em Aceitar para transferir a propriedade dos seus itens.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ exige que todos os itens pertençam à organização por motivos de segurança e conformidade.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4678,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Clique em aceitar para transferir a titularidade dos seus itens."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Abrir artigo de ajuda sobre a transferência de itens"
+  },
   "acceptTransfer": {
     "message": "Aceitar transferência"
   },
   "declineAndLeave": {
     "message": "Recusar e sair"
-  },
-  "whyAmISeeingThis": {
-    "message": "Porque é que estou a ver isto?"
   },
   "organizationIsSuspended": {
     "message": "A organização está suspensa"
@@ -4692,9 +4747,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Introduza vários e-mails, separados por vírgula."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "A verificação por e-mail requer pelo menos um endereço de e-mail. Para remover todos os e-mails, altere o tipo de acesso acima."
   },
   "emailPlaceholder": {
     "message": "utilizador@bitwarden.com , utilizador@acme.com"

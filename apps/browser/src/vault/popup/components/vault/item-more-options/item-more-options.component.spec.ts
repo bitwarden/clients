@@ -102,7 +102,7 @@ describe("ItemMoreOptionsComponent", () => {
         { provide: RestrictedItemTypesService, useValue: { restricted$: of([]) } },
         {
           provide: CipherArchiveService,
-          useValue: { userCanArchive$: () => of(true), hasArchiveFlagEnabled$: of(true) },
+          useValue: { userCanArchive$: () => of(true) },
         },
         { provide: ToastService, useValue: { showToast: () => {} } },
         { provide: Router, useValue: { navigate: () => Promise.resolve(true) } },
@@ -182,9 +182,9 @@ describe("ItemMoreOptionsComponent", () => {
         expect(openSpy).toHaveBeenCalledTimes(1);
         const args = openSpy.mock.calls[0][1];
         expect(args.data?.currentUrl).toBe("https://page.example.com/path");
-        expect(args.data?.savedUrls).toEqual([
-          "https://one.example.com",
-          "https://two.example.com/a",
+        expect(args.data?.savedUris).toEqual([
+          { uri: "https://one.example.com" },
+          { uri: "https://two.example.com/a" },
         ]);
       });
 

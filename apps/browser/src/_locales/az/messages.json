@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Kilid açma seçimləri"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Seyf vaxt bitmə əməliyyatınızı dəyişdirmək üçün bir kilid açma üsulu qurun."
-  },
   "unlockMethodNeeded": {
     "message": "Ayarlarda bir kilid açma üsulu qurun"
   },
   "sessionTimeoutHeader": {
     "message": "Sessiya vaxt bitməsi"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Seyf vaxtının bitməsi"
   },
   "otherOptions": {
     "message": "Digər seçimlər"
@@ -897,7 +891,7 @@
     "message": "Yararsız doğrulama kodu"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "Yararsız e-poçt və ya doğrulama kodu"
   },
   "valueCopied": {
     "message": "$VALUE$ kopyalandı",
@@ -2372,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "Seçdiyiniz ana parol zəifdir. Bitwarden hesabınızı daha yaxşı qorumaq üçün güclü bir ana parol (və ya uzun ifadə) istifadə etməlisiniz. Bu ana parol istifadə etmək istədiyinizə əminsiniz?"
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2480,8 @@
   "vaultTimeoutAction": {
     "message": "Seyf vaxtının bitmə əməliyyatı"
   },
-  "vaultTimeoutAction1": {
-    "message": "Vaxt bitmə əməliyyatı"
+  "showAtRiskPasswordNotifications": {
+    "message": "Show at-risk password notifications"
   },
   "lock": {
     "message": "Kilidlə",
@@ -2861,7 +2879,7 @@
     "message": "Risk altındakı girişlərin olduğu siyahının təsviri."
   },
   "welcomeDialogGraphicAlt": {
-    "message": "Illustration of the layout of the Bitwarden vault page."
+    "message": "Bitwarden seyf səhifəsinin düzümünün illüstrasiyası."
   },
   "generatePasswordSlideDesc": {
     "message": "Risk altında olan saytda Bitwarden avto-doldurma menyusu ilə güclü, unikal parolları cəld yaradın.",
@@ -3229,9 +3247,6 @@
   },
   "minutes": {
     "message": "Dəqiqə"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Müəssisə siyasət tələbləri, vaxt bitmə seçimlərinizə tətbiq edildi"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Təşkilatınızın siyasətləri, icazə verilən maksimum seyf bitmə vaxtını $HOURS$ saat $MINUTES$ dəqiqə olaraq ayarladı.",
@@ -4436,6 +4451,9 @@
   "exportSuccess": {
     "message": "Seyf veriləri xaricə köçürüldü"
   },
+  "exportError": {
+    "message": "Seyf verilərinizi xaricə köçürərkən bir xəta baş verdi"
+  },
   "typePasskey": {
     "message": "Keçid açarı"
   },
@@ -4866,7 +4884,7 @@
     "message": "Ünvanı kopyala"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "Elementlərim"
   },
   "adminConsole": {
     "message": "Admin Konsolu"
@@ -6009,7 +6027,7 @@
     "message": "Kart nömrəsi"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Xəta: Şifrəsi açıla bilmir"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Təşkilatınız, artıq Bitwarden-ə giriş etmək üçün ana parol istifadə etmir. Davam etmək üçün təşkilatı və domeni doğrulayın."
@@ -6130,8 +6148,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$, təhlükəsizlik və riayətlilik üçün bütün elementlərin təşkilata aid olmasını tələb edir. Elementlərinizin sahibliyini transfer etmək üçün qəbul edin.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$, təhlükəsizlik və riayətlilik üçün bütün elementlərin təşkilata məxsus olmasını tələb edir.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6157,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Elementlərinizin sahibliyini transfer etmək üçün \"Qəbul et\"ə klikləyin."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Elementlərin köçürülməsi üzrə kömək məqaləsini aç"
+  },
   "acceptTransfer": {
     "message": "Transferi qəbul et"
   },
   "declineAndLeave": {
     "message": "Rədd et və tərk et"
-  },
-  "whyAmISeeingThis": {
-    "message": "Bunu niyə görürəm?"
   },
   "items": {
     "message": "Elementlər"
@@ -6178,14 +6199,11 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Birdən çox e-poçtu daxil edərkən vergül istifadə edin."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
   "downloadBitwardenApps": {
-    "message": "Download Bitwarden apps"
+    "message": "Bitwarden tətbiqini endir"
   },
   "emailProtected": {
     "message": "E-poçt qorunur"
@@ -6195,6 +6213,9 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "İstifadəçi doğrulaması uğursuz oldu."
+  },
+  "downloadFailed": {
+    "message": "Endirmə uğursuz oldu."
   }
 }
