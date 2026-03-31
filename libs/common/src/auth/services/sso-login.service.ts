@@ -65,7 +65,7 @@ export const SSO_EMAIL = new KeyDefinition<string>(SSO_DISK, "ssoEmail", {
 });
 
 /**
- * A cache list of user emails for whom the `PolicyType.RequireSso` policy is applied (that is, a list
+ * A cache list of users for whom the `PolicyType.RequireSso` policy is applied (that is, a list
  * of users who are required to authenticate via SSO only). The cache lives on the current device only.
  */
 export const SSO_REQUIRED_CACHE = new KeyDefinition<SsoRequiredCacheEntry[]>(

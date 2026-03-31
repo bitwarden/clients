@@ -2,6 +2,14 @@ import { Observable } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
 
+/**
+ * The `email` and `webVaultUrl` combo of a user who is required to sign in with SSO.
+ * We must include the `webVaultUrl` to distinguish accounts when a user has used the
+ * same email to create an account on more than one environment.
+ *
+ * Note: If not configured, the webVault URL falls back to the base URL. If the base URL
+ * is not configured, it falls back to the `DEFAULT_REGION_CONFIG` webVault URL.
+ */
 export type SsoRequiredCacheEntry = { email: string; webVaultUrl: string };
 
 export abstract class SsoLoginServiceAbstraction {
