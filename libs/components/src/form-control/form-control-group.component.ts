@@ -56,7 +56,7 @@ export class FormControlGroupComponent<T = unknown>
   // Card groups (multi) are always column layout. Inline radio groups (single + !block) flow naturally.
   readonly containerClass = computed(() =>
     this.block() || this.mode() === "multi"
-      ? "tw-flex tw-flex-col tw-gap-2 [&_bit-form-control-card]:!tw-mb-0 [&_bit-radio-button-card]:!tw-mb-0"
+      ? "tw-flex tw-flex-col tw-gap-2 [&_bit-form-control-card]:!tw-mb-0 [&_bit-radio-button-card]:!tw-mb-0 [&_bit-radio-button]:!tw-mb-0"
       : "",
   );
 
