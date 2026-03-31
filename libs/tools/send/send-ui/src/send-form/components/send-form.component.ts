@@ -7,10 +7,12 @@ import {
   DestroyRef,
   EventEmitter,
   forwardRef,
+  Inject,
   inject,
   Input,
   OnChanges,
   OnInit,
+  Optional,
   output,
   Output,
   viewChild,
@@ -38,6 +40,7 @@ import {
 } from "@bitwarden/components";
 import { MakeSendFolderEntry } from "@bitwarden/sdk-internal";
 
+import { SendFileProviderService } from "../abstractions/send-file-provider.service";
 import { SendFormConfig } from "../abstractions/send-form-config.service";
 import { SendFormService } from "../abstractions/send-form.service";
 import { SendForm, SendFormContainer } from "../send-form-container";
@@ -222,6 +225,7 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
     private i18nService: I18nService,
     private sdkService: SdkService,
     private logService: LogService,
+    @Optional() @Inject(SendFileProviderService) private sendFileProvider: SendFileProviderService,
   ) {}
 
   onFileSelected(file: File): void {
@@ -240,7 +244,35 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
 
     let fileOrBuffer: File | ArrayBuffer = this.file;
 
-    if (this.folderFiles != null && this.folderFiles.length > 0) {
+    // Handle preloaded path from desktop context menu
+    if (this.config.preloadedPath != null && this.sendFileProvider != null) {
+      const preloaded = this.config.preloadedPath;
+
+      if (preloaded.isDirectory) {
+        const dirEntries = await this.sendFileProvider.readDirectory(preloaded.path);
+        const client = await firstValueFrom(this.sdkService.client$);
+        const result = client.sends().make_send_folder({
+          folderName: preloaded.name,
+          files: dirEntries.map((e) => ({
+            path: `${preloaded.name}/${e.relativePath}`,
+            contents: e.contents,
+          })),
+        });
+
+        const fileView = new SendFileView();
+        fileView.id = result.file.id ?? null;
+        fileView.fileName = result.file.fileName;
+        fileView.size = result.file.size;
+        fileView.sizeName = result.file.sizeName;
+
+        this.updatedSendView.type = SendType.File;
+        this.updatedSendView.file = fileView;
+        fileOrBuffer = new Uint8Array(result.contents).buffer;
+      } else {
+        const contents = await this.sendFileProvider.readFile(preloaded.path);
+        fileOrBuffer = contents.buffer as ArrayBuffer;
+      }
+    } else if (this.folderFiles != null && this.folderFiles.length > 0) {
       const entries: MakeSendFolderEntry[] = [];
       const firstPath = this.folderFiles[0].webkitRelativePath;
       const folderName = firstPath.split("/")[0];

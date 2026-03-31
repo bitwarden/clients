@@ -99,6 +99,14 @@ const MODAL_MODE = new KeyDefinition<ModalModeState>(DESKTOP_SETTINGS_DISK, "mod
   deserializer: (b) => b,
 });
 
+const EXPLORER_CONTEXT_MENU_ENABLED = new KeyDefinition<boolean>(
+  DESKTOP_SETTINGS_DISK,
+  "explorerContextMenuEnabled",
+  {
+    deserializer: (b) => b,
+  },
+);
+
 const PREVENT_SCREENSHOTS = new KeyDefinition<boolean>(
   DESKTOP_SETTINGS_DISK,
   "preventScreenshots",
@@ -183,6 +191,15 @@ export class DesktopSettingsService {
   sshAgentPromptBehavior$ = this.sshAgentPromptBehavior.state$.pipe(
     map((v) => v ?? SshAgentPromptType.Always),
   );
+
+  private readonly explorerContextMenuEnabledState = this.stateProvider.getGlobal(
+    EXPLORER_CONTEXT_MENU_ENABLED,
+  );
+
+  /**
+   * The application setting for whether or not the Windows Explorer context menu integration is enabled.
+   */
+  explorerContextMenuEnabled$ = this.explorerContextMenuEnabledState.state$.pipe(map(Boolean));
 
   private readonly preventScreenshotState = this.stateProvider.getGlobal(PREVENT_SCREENSHOTS);
 
@@ -345,6 +362,14 @@ export class DesktopSettingsService {
       showTrafficButtons,
       modalPosition,
     }));
+  }
+
+  /**
+   * Sets a setting for whether or not the Windows Explorer context menu integration is enabled.
+   * @param value `true` if the context menu integration is enabled, `false` if it is not.
+   */
+  async setExplorerContextMenuEnabled(value: boolean) {
+    await this.explorerContextMenuEnabledState.update(() => value);
   }
 
   /**

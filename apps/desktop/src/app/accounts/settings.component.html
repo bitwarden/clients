@@ -279,6 +279,23 @@
                   "alwaysShowDockDesc" | i18n
                 }}</small>
               </div>
+              <div class="form-group" *ngIf="showExplorerContextMenu">
+                <div class="checkbox">
+                  <label for="enableExplorerContextMenu">
+                    <input
+                      id="enableExplorerContextMenu"
+                      type="checkbox"
+                      aria-describedby="enableExplorerContextMenuHelp"
+                      formControlName="enableExplorerContextMenu"
+                      (change)="saveExplorerContextMenu()"
+                    />
+                    {{ "enableExplorerContextMenu" | i18n }}
+                  </label>
+                </div>
+                <small id="enableExplorerContextMenuHelp" class="help-block">{{
+                  "enableExplorerContextMenuDesc" | i18n
+                }}</small>
+              </div>
               <div class="form-group">
                 <div class="checkbox">
                   <label for="enableBrowserIntegration">

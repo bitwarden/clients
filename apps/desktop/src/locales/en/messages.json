@@ -2352,6 +2352,12 @@
   "acceptPoliciesRequired": {
     "message": "Terms of Service and Privacy Policy have not been acknowledged."
   },
+  "enableExplorerContextMenu": {
+    "message": "Windows Explorer context menu"
+  },
+  "enableExplorerContextMenuDesc": {
+    "message": "Add Bitwarden actions to the Windows Explorer right-click menu."
+  },
   "enableBrowserIntegration": {
     "message": "Allow browser integration"
   },

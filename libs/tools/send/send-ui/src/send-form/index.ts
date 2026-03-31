@@ -6,4 +6,5 @@ export {
   SendFormMode,
 } from "./abstractions/send-form-config.service";
 export { SendFormGenerationService } from "./abstractions/send-form-generation.service";
+export { SendFileProviderService } from "./abstractions/send-file-provider.service";
 export { DefaultSendFormConfigService } from "./services/default-send-form-config.service";

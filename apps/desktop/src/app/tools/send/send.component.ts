@@ -1,7 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, DestroyRef, inject } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
+import { ActivatedRoute } from "@angular/router";
 import { combineLatest, map, switchMap, lastValueFrom } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -26,10 +27,13 @@ import {
   SendAddEditDialogComponent,
   DefaultSendFormConfigService,
   SendItemDialogResult,
+  SendFileProviderService,
 } from "@bitwarden/send-ui";
 
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { DesktopHeaderComponent } from "../../layout/header";
+
+import { DesktopSendFileProviderService } from "./desktop-send-file-provider.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -42,10 +46,14 @@ import { DesktopHeaderComponent } from "../../layout/header";
       provide: PremiumUpgradePromptService,
       useClass: DesktopPremiumUpgradePromptService,
     },
+    {
+      provide: SendFileProviderService,
+      useClass: DesktopSendFileProviderService,
+    },
   ],
   templateUrl: "./send.component.html",
 })
-export class SendComponent {
+export class SendComponent implements OnInit {
   private sendFormConfigService = inject(DefaultSendFormConfigService);
   private sendItemsService = inject(SendItemsService);
   private policyService = inject(PolicyService);
@@ -58,6 +66,7 @@ export class SendComponent {
   private toastService = inject(ToastService);
   private logService = inject(LogService);
   private destroyRef = inject(DestroyRef);
+  private route = inject(ActivatedRoute);
 
   private activeDrawerRef?: DialogRef<SendItemDialogResult>;
 
@@ -103,6 +112,48 @@ export class SendComponent {
     this.destroyRef.onDestroy(() => {
       this.activeDrawerRef?.close();
     });
+  }
+
+  async ngOnInit(): Promise<void> {
+    const sendPath = this.route.snapshot.queryParams["sendPath"];
+
+    if (sendPath) {
+      await this.openSendFromPath(sendPath);
+    }
+  }
+
+  private async openSendFromPath(filePath: string): Promise<void> {
+    try {
+      const pathInfo = await ipc.platform.sendFile.getPathInfo(filePath);
+
+      const formConfig = await this.sendFormConfigService.buildConfig(
+        "add",
+        undefined,
+        SendType.File,
+      );
+
+      formConfig.isFolderMode = pathInfo.isDirectory;
+      formConfig.preloadedPath = {
+        path: filePath,
+        isDirectory: pathInfo.isDirectory,
+        name: pathInfo.name,
+        size: pathInfo.size,
+      };
+
+      this.activeDrawerRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+        formConfig,
+      });
+
+      await lastValueFrom(this.activeDrawerRef.closed);
+      this.activeDrawerRef = null;
+    } catch (e) {
+      this.logService.error("Error opening send from path: " + e);
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("unexpectedError"),
+      });
+    }
   }
 
   protected async addSend(type: SendType): Promise<void> {

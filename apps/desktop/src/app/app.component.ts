@@ -137,6 +137,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private activeSimpleDialog: DialogRef<boolean> = null;
   private processingPendingAuthRequests = false;
   private shouldRerunAuthRequestProcessing = false;
+  private pendingSendPath: string | null = null;
 
   private destroy$ = new Subject<void>();
 
@@ -227,6 +228,9 @@ export class AppComponent implements OnInit, OnDestroy {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.updateAppMenu();
             this.processReloadService.cancelProcessReload();
+            // Process any pending Send creation from context menu after vault unlock
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this.handlePendingSend();
             break;
           case "loggedOut":
             this.modalService.closeAll();
@@ -855,6 +859,17 @@ export class AppComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Handle Send creation from context menu
+    if (urlString.indexOf("bitwarden://send/create") === 0) {
+      const url = new URL(urlString);
+      const filePath = url.searchParams.get("path");
+      if (filePath) {
+        this.pendingSendPath = filePath;
+        void this.handlePendingSend();
+      }
+      return;
+    }
+
     const url = new URL(urlString);
     const code = url.searchParams.get("code");
     const receivedState = url.searchParams.get("state");
@@ -877,6 +892,28 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     this.messagingService.send(message, { code: code, state: receivedState });
+  }
+
+  private async handlePendingSend(): Promise<void> {
+    if (this.pendingSendPath == null) {
+      return;
+    }
+
+    // Check if the user is authenticated and unlocked
+    const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
+    if (authStatus !== AuthenticationStatus.Unlocked) {
+      // Path stays in pendingSendPath — will be processed after unlock
+      return;
+    }
+
+    const sendPath = this.pendingSendPath;
+    this.pendingSendPath = null;
+
+    await this.router.navigate(["/send"], {
+      queryParams: {
+        sendPath,
+      },
+    });
   }
 
   private async deleteAccount() {

@@ -16,6 +16,8 @@ pub mod biometric;
 pub mod biometric_v2;
 #[allow(missing_docs)]
 pub mod clipboard;
+#[allow(missing_docs)]
+pub mod context_menu;
 pub(crate) mod crypto;
 pub mod error;
 pub mod ipc;
@@ -24,6 +26,8 @@ pub mod password;
 pub mod powermonitor;
 pub mod process_isolation;
 pub mod secure_memory;
+#[allow(missing_docs)]
+pub mod send_file;
 #[allow(missing_docs)] // staged to be removed
 pub mod ssh_agent;
 

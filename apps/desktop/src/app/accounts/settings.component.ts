@@ -105,6 +105,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   showAlwaysShowDock = false;
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
+  showExplorerContextMenu = false;
   showEnableAutotype = false;
   autotypeShortcut: string;
   showOpenAtLoginOption = false;
@@ -150,6 +151,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     startToTray: false,
     openAtLogin: false,
     alwaysShowDock: false,
+    enableExplorerContextMenu: false,
     enableBrowserIntegration: false,
     enableBrowserIntegrationFingerprint: this.formBuilder.control<boolean>({
       value: false,
@@ -279,6 +281,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
         .subscribe((enabled) => {
           this.showEnableAutotype = enabled;
         });
+
+      this.configService
+        .getFeatureFlag$(FeatureFlag.SendFolder)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((enabled) => {
+          this.showExplorerContextMenu = enabled;
+        });
     }
 
     this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
@@ -316,6 +325,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       startToTray: await firstValueFrom(this.desktopSettingsService.startToTray$),
       openAtLogin: await firstValueFrom(this.desktopSettingsService.openAtLogin$),
       alwaysShowDock: await firstValueFrom(this.desktopSettingsService.alwaysShowDock$),
+      enableExplorerContextMenu: await firstValueFrom(
+        this.desktopSettingsService.explorerContextMenuEnabled$,
+      ),
       enableBrowserIntegration: await firstValueFrom(
         this.desktopSettingsService.browserIntegrationEnabled$,
       ),
@@ -644,6 +656,31 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.messagingService.send(
       this.form.value.openAtLogin ? "addOpenAtLogin" : "removeOpenAtLogin",
     );
+  }
+
+  async saveExplorerContextMenu() {
+    const enabled = this.form.value.enableExplorerContextMenu;
+    await this.desktopSettingsService.setExplorerContextMenuEnabled(enabled);
+
+    try {
+      if (enabled) {
+        await ipc.platform.contextMenu.enable();
+      } else {
+        await ipc.platform.contextMenu.disable();
+      }
+    } catch (e) {
+      this.logService.error("Error toggling explorer context menu: " + e);
+      await this.dialogService.openSimpleDialog({
+        title: { key: "errorOccurred" },
+        content: { key: "unexpectedError" },
+        acceptButtonText: { key: "ok" },
+        cancelButtonText: null,
+        type: "danger",
+      });
+      // Revert the toggle
+      this.form.controls.enableExplorerContextMenu.setValue(!enabled);
+      await this.desktopSettingsService.setExplorerContextMenuEnabled(!enabled);
+    }
   }
 
   async saveBrowserIntegration() {

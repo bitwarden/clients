@@ -75,6 +75,16 @@ export class SendFileDetailsComponent implements OnInit {
       });
     }
 
+    // Pre-populate from context menu path
+    const preloaded = this.config().preloadedPath;
+    if (preloaded != null && !preloaded.isDirectory) {
+      this.fileName = preloaded.name;
+      const preloadedFileView = new SendFileView();
+      preloadedFileView.fileName = preloaded.name;
+      preloadedFileView.size = String(preloaded.size);
+      this.sendFileDetailsForm.patchValue({ file: preloadedFileView });
+    }
+
     if (!this.config().areSendsAllowed) {
       this.sendFileDetailsForm.disable();
     }

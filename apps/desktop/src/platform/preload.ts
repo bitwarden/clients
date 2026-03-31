@@ -108,6 +108,18 @@ const ephemeralStore = {
   listEphemeralValueKeys: (): Promise<string[]> => ipcRenderer.invoke("listEphemeralValueKeys"),
 };
 
+const sendFile = {
+  getPathInfo: (path: string) => ipcRenderer.invoke("sendFile.getPathInfo", path),
+  readFile: (path: string): Promise<Buffer> => ipcRenderer.invoke("sendFile.readFile", path),
+  readDirectory: (path: string): Promise<{ relativePath: string; contents: Buffer }[]> =>
+    ipcRenderer.invoke("sendFile.readDirectory", path),
+};
+
+const contextMenu = {
+  enable: (): Promise<void> => ipcRenderer.invoke("contextMenu.enable"),
+  disable: (): Promise<void> => ipcRenderer.invoke("contextMenu.disable"),
+};
+
 const localhostCallbackService = {
   openSsoPrompt: (
     codeChallenge: string,
@@ -192,6 +204,8 @@ export default {
   crypto,
   ephemeralStore,
   localhostCallbackService,
+  sendFile,
+  contextMenu,
 };
 
 function deviceType(): DeviceType {

@@ -40,10 +40,12 @@ import { DesktopAutofillSettingsService } from "./autofill/services/desktop-auto
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
 import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
 import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
+import { ContextMenuMain } from "./main/context-menu.main";
 import { MenuMain } from "./main/menu/menu.main";
 import { MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
+import { SendFileMain } from "./main/send-file.main";
 import { SsoCookieMain } from "./main/sso-cookie.main";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
@@ -86,6 +88,8 @@ export class Main {
   trayMain: TrayMain;
   biometricsService: DesktopBiometricsService;
   nativeMessagingMain: NativeMessagingMain;
+  contextMenuMain: ContextMenuMain;
+  sendFileMain: SendFileMain;
   clipboardMain: ClipboardMain;
   nativeAutofillMain: NativeAutofillMain;
   desktopAutofillSettingsService: DesktopAutofillSettingsService;
@@ -295,6 +299,9 @@ export class Main {
       app.getAppPath(),
     );
 
+    this.contextMenuMain = new ContextMenuMain(app.getPath("exe"));
+    this.sendFileMain = new SendFileMain();
+
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
 
     this.clipboardMain = new ClipboardMain();
@@ -420,6 +427,15 @@ export class Main {
       .forEach((s) => {
         this.messagingService.send("deepLink", { urlString: s });
       });
+
+    // Handle --send-path from Windows Explorer context menu
+    const sendPathIdx = argv.indexOf("--send-path");
+    if (sendPathIdx !== -1 && sendPathIdx + 1 < argv.length) {
+      const filePath = argv[sendPathIdx + 1];
+      this.messagingService.send("deepLink", {
+        urlString: `bitwarden://send/create?path=${encodeURIComponent(filePath)}`,
+      });
+    }
   }
 
   private async toggleHardwareAcceleration(): Promise<void> {

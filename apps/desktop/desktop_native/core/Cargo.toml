@@ -85,8 +85,10 @@ windows = { workspace = true, features = [
     "Win32_System_Pipes",
 ], optional = true }
 windows-future = { workspace = true }
+windows-registry = { workspace = true }
 
 [dev-dependencies]
+tempfile = "3"
 tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
 
 [lints]
