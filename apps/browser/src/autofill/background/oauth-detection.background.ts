@@ -362,7 +362,10 @@ export class OAuthDetectionBackground {
     attempt: number,
   ): void {
     const flow = this.activeFlows.get(tabId);
-    if (flow?.email) {
+    if (!flow) {
+      return;
+    }
+    if (flow.email) {
       this.logService.info(
         `[OAuthDetection][Step2] Attempt ${attempt}: skipping — email already captured`,
       );
