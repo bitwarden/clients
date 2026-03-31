@@ -35,12 +35,12 @@ export class ReceiveTableComponent {
   readonly dataSource = input<TableDataSource<ReceiveView>>();
   readonly disableReceive = input(false);
 
-  readonly editReceive = output<ReceiveView>();
+  readonly viewReceive = output<ReceiveView>();
   readonly copyReceive = output<ReceiveView>();
   readonly deleteReceive = output<ReceiveView>();
 
-  protected onEditReceive(receive: ReceiveView): void {
-    this.editReceive.emit(receive);
+  protected onViewReceive(receive: ReceiveView): void {
+    this.viewReceive.emit(receive);
   }
 
   protected onCopy(receive: ReceiveView): void {
