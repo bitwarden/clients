@@ -25,7 +25,7 @@ export class RadioButtonBaseDirective {
   }
 
   get selected() {
-    return this.groupComponent.selectedValues().has(this.value());
+    return this.groupComponent.selectedValues().includes(this.value());
   }
 
   get groupDisabled() {
