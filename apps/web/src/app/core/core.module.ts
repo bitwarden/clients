@@ -69,6 +69,7 @@ import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-managemen
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto/key-generation/key-generation.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import {
   InternalMasterPasswordServiceAbstraction,
@@ -116,6 +117,8 @@ import {
   DefaultThemeStateService,
   ThemeStateService,
 } from "@bitwarden/common/platform/theming/theme-state.service";
+import { DefaultReceiveFileService } from "@bitwarden/common/tools/receive/services/default-receive-file.service";
+import { ReceiveFileService } from "@bitwarden/common/tools/receive/services/receive-file.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
@@ -514,6 +517,11 @@ const safeProviders: SafeProvider[] = [
       ApiService,
       KeyServiceAbstraction,
     ],
+  }),
+  safeProvider({
+    provide: ReceiveFileService,
+    useClass: DefaultReceiveFileService,
+    deps: [KeyGenerationService, EncryptService, FileDownloadService],
   }),
 ];
 

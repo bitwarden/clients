@@ -302,6 +302,13 @@ import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
+import { DefaultReceiveApiService } from "@bitwarden/common/tools/receive/services/default-receive-api.service";
+import { DefaultReceiveService } from "@bitwarden/common/tools/receive/services/default-receive.service";
+import { ReceiveApiService } from "@bitwarden/common/tools/receive/services/receive-api.service";
+import {
+  InternalReceiveService,
+  ReceiveService,
+} from "@bitwarden/common/tools/receive/services/receive.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendStateProvider as SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
@@ -886,6 +893,20 @@ const safeProviders: SafeProvider[] = [
     deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, InternalSendService],
   }),
   safeProvider({
+    provide: ReceiveService,
+    useExisting: InternalReceiveService,
+  }),
+  safeProvider({
+    provide: InternalReceiveService,
+    useClass: DefaultReceiveService,
+    deps: [EncryptService, KeyService, KeyGenerationService, ReceiveApiService, StateProvider],
+  }),
+  safeProvider({
+    provide: ReceiveApiService,
+    useClass: DefaultReceiveApiService,
+    deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
     provide: KeyApiService,
     useClass: DefaultKeyApiService,
     deps: [ApiServiceAbstraction],
@@ -905,6 +926,7 @@ const safeProviders: SafeProvider[] = [
       MessagingServiceAbstraction,
       InternalPolicyService,
       InternalSendService,
+      InternalReceiveService,
       LogService,
       KeyConnectorServiceAbstraction,
       ProviderServiceAbstraction,

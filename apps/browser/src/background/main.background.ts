@@ -204,6 +204,10 @@ import {
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
 import { createSystemServiceProvider } from "@bitwarden/common/tools/providers";
+import { DefaultReceiveApiService } from "@bitwarden/common/tools/receive/services/default-receive-api.service";
+import { DefaultReceiveService } from "@bitwarden/common/tools/receive/services/default-receive.service";
+import { ReceiveApiService } from "@bitwarden/common/tools/receive/services/receive-api.service";
+import { InternalReceiveService } from "@bitwarden/common/tools/receive/services/receive.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
@@ -425,6 +429,8 @@ export default class MainBackground {
   eventUploadService: EventUploadServiceAbstraction;
   policyService: InternalPolicyServiceAbstraction;
   sendService: InternalSendServiceAbstraction;
+  receiveApiService: ReceiveApiService;
+  receiveService: InternalReceiveService;
   sendStateProvider: SendStateProvider;
   fileUploadService: FileUploadServiceAbstraction;
   cipherFileUploadService: CipherFileUploadServiceAbstraction;
@@ -1070,6 +1076,15 @@ export default class MainBackground {
 
     this.providerService = new ProviderService(this.stateProvider);
 
+    this.receiveApiService = new DefaultReceiveApiService(this.apiService);
+    this.receiveService = new DefaultReceiveService(
+      this.encryptService,
+      this.keyService,
+      this.keyGenerationService,
+      this.receiveApiService,
+      this.stateProvider,
+    );
+
     this.syncService = new DefaultSyncService(
       this.masterPasswordService,
       this.accountService,
@@ -1082,6 +1097,7 @@ export default class MainBackground {
       this.messagingService,
       this.policyService,
       this.sendService,
+      this.receiveService,
       this.logService,
       this.keyConnectorService,
       this.providerService,
