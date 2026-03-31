@@ -85,12 +85,15 @@ describe("MemberDialogManagerService", () => {
       const mockDialogRef = { closed: of(MemberDialogResult.Saved) };
       dialogService.open.mockReturnValue(mockDialogRef as any);
 
-      const allUserEmails = ["user1@example.com", "user2@example.com"];
+      const allUsers = [
+        { email: "user1@example.com" } as OrganizationUserView,
+        { email: "user2@example.com" } as OrganizationUserView,
+      ];
 
       const result = await service.openInviteDialog(
         mockOrganization,
         mockBillingMetadata,
-        allUserEmails,
+        allUsers,
       );
 
       expect(dialogService.open).toHaveBeenCalledWith(
@@ -99,7 +102,7 @@ describe("MemberDialogManagerService", () => {
           data: {
             kind: "Add",
             organizationId: mockOrganization.id,
-            allOrganizationUserEmails: allUserEmails,
+            allOrganizationUsers: allUsers,
             occupiedSeatCount: 10,
             isOnSecretsManagerStandalone: false,
           },

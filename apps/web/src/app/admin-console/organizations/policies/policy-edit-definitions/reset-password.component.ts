@@ -16,11 +16,14 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 export class ResetPasswordPolicy extends BasePolicyEditDefinition {
   name = "accountRecoveryPolicy";
   description = "accountRecoveryPolicyDesc";
   type = PolicyType.ResetPassword;
+  category = PolicyCategory.Authentication;
+  priority = 20;
   component = ResetPasswordPolicyComponent;
 
   display$(organization: Organization, configService: ConfigService) {

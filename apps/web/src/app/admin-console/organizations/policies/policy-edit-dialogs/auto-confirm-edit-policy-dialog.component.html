@@ -1,5 +1,5 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
-  <bit-dialog [loading]="loading">
+  <bit-dialog [loading]="loading()">
     <ng-container bitDialogTitle>
       @let title = (multiStepSubmit | async)[currentStep()]?.titleContent();
       @if (title) {
@@ -8,7 +8,7 @@
     </ng-container>
 
     <ng-container bitDialogContent>
-      @if (loading) {
+      @if (loading()) {
         <div>
           <i
             class="bwi bwi-spinner bwi-spin tw-text-muted"
@@ -18,7 +18,7 @@
           <span class="tw-sr-only">{{ "loading" | i18n }}</span>
         </div>
       }
-      <div [hidden]="loading">
+      <div [hidden]="loading()">
         @if (policy.showDescription) {
           <p bitTypography="body1">{{ policy.description | i18n }}</p>
         }
