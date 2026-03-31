@@ -61,10 +61,6 @@ const tabs = {
     addListener: jest.fn(),
     removeListener: jest.fn(),
   },
-  onCreated: {
-    addListener: jest.fn(),
-    removeListener: jest.fn(),
-  },
   onReplaced: {
     addListener: jest.fn(),
     removeListener: jest.fn(),
