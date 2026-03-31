@@ -1323,6 +1323,21 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     const tier = this.premiumOrgUpgradeService.SubscriptionTierIdFromProductTier(
       this.formGroup.controls.productTier.value!,
     );
+
+    const paymentMethod = await this.enterPaymentMethodComponent()?.tokenize();
+    if (!paymentMethod) {
+      throw new Error("Payment method validation failed");
+    }
+
+    await this.subscriberBillingClient.updatePaymentMethod(
+      { type: "account", data: account },
+      paymentMethod,
+      {
+        country: this.billingFormGroup.value.billingAddress?.country ?? "",
+        postalCode: this.billingFormGroup.value.billingAddress?.postalCode ?? "",
+      },
+    );
+
     return await this.premiumOrgUpgradeService.upgradeToOrganization(
       account!,
       organizationName,
