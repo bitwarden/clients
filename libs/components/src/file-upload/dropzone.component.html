@@ -1,0 +1,41 @@
+<ng-content select="bit-label"></ng-content>
+
+<input
+  [id]="inputId"
+  type="file"
+  class="tw-peer/dropzone-input tw-sr-only"
+  [accept]="accept()"
+  [multiple]="multiple()"
+  (change)="onFileInputChange($event)"
+/>
+
+<label
+  [attr.for]="inputId"
+  [class]="containerClasses()"
+  (dragenter)="onDragEnter($event)"
+  (dragover)="onDragOver($event)"
+  (dragleave)="onDragLeave($event)"
+  (drop)="onDrop($event)"
+>
+  <div class="tw-flex tw-flex-col tw-items-center tw-gap-1">
+    <span class="tw-text-sm tw-font-medium tw-text-fg-body-subtle">
+      {{ "clickToUploadOrDragAndDrop" | i18n }}
+    </span>
+    <span class="tw-text-xs tw-text-fg-body-subtle">
+      {{ "maxFileSizeParam" | i18n: maxFileSize() }}
+    </span>
+  </div>
+
+  <button
+    type="button"
+    bitButton
+    buttonType="primary"
+    size="small"
+    tabindex="-1"
+    class="tw-pointer-events-none"
+  >
+    {{ "chooseFiles" | i18n }}
+  </button>
+</label>
+
+<ng-content select="bit-hint"></ng-content>

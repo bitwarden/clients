@@ -1,0 +1,14 @@
+<ng-content select="bit-label"></ng-content>
+
+<bit-dropzone
+  [accept]="accept()"
+  [maxFileSize]="maxFileSize()"
+  [multiple]="multiple()"
+  [hasError]="hasError()"
+  (filesSelected)="onFilesSelected($event)"
+>
+</bit-dropzone>
+
+<ng-content select="bit-hint"></ng-content>
+
+<bit-file-list [files]="files()" (fileRemoved)="onFileRemoved($event)" />
