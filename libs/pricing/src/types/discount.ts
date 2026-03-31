@@ -23,7 +23,7 @@ export const getAmount = (discount: Discount, baseAmount: number): number => {
   switch (discount.type) {
     case DiscountTypes.PercentOff: {
       const percentage = discount.value < 1 ? discount.value : discount.value / 100;
-      return baseAmount * percentage;
+      return Math.round(baseAmount * percentage * 100) / 100;
     }
     case DiscountTypes.AmountOff:
       return discount.value;
