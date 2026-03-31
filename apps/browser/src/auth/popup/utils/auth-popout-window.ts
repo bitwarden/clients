@@ -16,8 +16,6 @@ const extensionUnlockUrls = new Set([
   chrome.runtime.getURL("popup/index.html#/login"),
 ]);
 
-let unlockPopoutWindowId: number | undefined;
-
 /**
  * Opens a window that facilitates unlocking / logging into the extension.
  *
@@ -33,11 +31,10 @@ async function openUnlockPopout(senderTab: chrome.tabs.Tab) {
     }
   });
 
-  const newWindow = await BrowserPopupUtils.openPopout("popup/index.html", {
+  await BrowserPopupUtils.openPopout("popup/index.html", {
     singleActionKey: AuthPopoutType.unlockExtension,
     senderWindowId: senderTab.windowId,
   });
-  unlockPopoutWindowId = newWindow?.id;
   await BrowserApi.tabSendMessageData(senderTab, "bgUnlockPopoutOpened", {});
 }
 
@@ -45,15 +42,6 @@ async function openUnlockPopout(senderTab: chrome.tabs.Tab) {
  * Closes the unlock popout window.
  */
 async function closeUnlockPopout() {
-  // Uses the tracked window ID when available because Safari's tabsQuery with URL patterns
-  // unreliably returns extension popup tabs, causing closeSingleActionPopout to silently fail.
-  // This module-level state does not survive service worker termination; the fallback below
-  // covers that case (with reduced reliability on Safari).
-  if (unlockPopoutWindowId != null) {
-    await BrowserApi.removeWindow(unlockPopoutWindowId);
-    unlockPopoutWindowId = undefined;
-    return;
-  }
   await BrowserPopupUtils.closeSingleActionPopout(AuthPopoutType.unlockExtension);
 }
 
