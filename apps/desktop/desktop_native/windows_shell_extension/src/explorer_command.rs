@@ -25,18 +25,18 @@ pub struct CreateSendCommand;
 pub struct ClassFactory;
 
 impl IExplorerCommand_Impl for CreateSendCommand_Impl {
-    fn GetTitle(&self, _psiitemarray: Option<&IShellItemArray>) -> Result<PWSTR> {
+    fn GetTitle(&self, _psiitemarray: Ref<IShellItemArray>) -> Result<PWSTR> {
         Ok(alloc_co_task_string("Create Send"))
     }
 
-    fn GetIcon(&self, _psiitemarray: Option<&IShellItemArray>) -> Result<PWSTR> {
+    fn GetIcon(&self, _psiitemarray: Ref<IShellItemArray>) -> Result<PWSTR> {
         match read_install_path() {
             Ok(exe_path) => Ok(alloc_co_task_string(&format!("{exe_path},0"))),
             Err(_) => Ok(PWSTR::null()),
         }
     }
 
-    fn GetToolTip(&self, _psiitemarray: Option<&IShellItemArray>) -> Result<PWSTR> {
+    fn GetToolTip(&self, _psiitemarray: Ref<IShellItemArray>) -> Result<PWSTR> {
         Ok(alloc_co_task_string(
             "Share encrypted files through a secure, temporary link using the Bitwarden app.",
         ))
@@ -46,20 +46,12 @@ impl IExplorerCommand_Impl for CreateSendCommand_Impl {
         Ok(CLSID_BITWARDEN_SHELL_EXTENSION)
     }
 
-    fn GetState(
-        &self,
-        _psiitemarray: Option<&IShellItemArray>,
-        _foktobeslow: BOOL,
-    ) -> Result<EXPCMDSTATE> {
-        Ok(ECS_ENABLED)
+    fn GetState(&self, _psiitemarray: Ref<IShellItemArray>, _foktobeslow: BOOL) -> Result<u32> {
+        Ok(ECS_ENABLED.0 as u32)
     }
 
-    fn Invoke(
-        &self,
-        psiitemarray: Option<&IShellItemArray>,
-        _pbc: Option<&IBindCtx>,
-    ) -> Result<()> {
-        let items = psiitemarray.ok_or_else(|| Error::from(E_INVALIDARG))?;
+    fn Invoke(&self, psiitemarray: Ref<IShellItemArray>, _pbc: Ref<IBindCtx>) -> Result<()> {
+        let items: &IShellItemArray = psiitemarray.ok()?;
         let count = unsafe { items.GetCount()? };
 
         // Read the exe path from registry
@@ -83,8 +75,8 @@ impl IExplorerCommand_Impl for CreateSendCommand_Impl {
         Ok(())
     }
 
-    fn GetFlags(&self) -> Result<EXPCMDFLAGS> {
-        Ok(ECF_DEFAULT)
+    fn GetFlags(&self) -> Result<u32> {
+        Ok(ECF_DEFAULT.0 as u32)
     }
 
     fn EnumSubCommands(&self) -> Result<IEnumExplorerCommand> {
@@ -112,7 +104,7 @@ impl IClassFactory_Impl for ClassFactory_Impl {
 }
 
 /// Read the Bitwarden executable path from the registry.
-fn read_install_path() -> std::result::Result<String, windows_registry::Error> {
+fn read_install_path() -> std::result::Result<String, windows_core::Error> {
     let key = windows_registry::CURRENT_USER.open(INSTALL_PATH_KEY)?;
     key.get_string(INSTALL_PATH_VALUE)
 }
