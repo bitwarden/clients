@@ -45,6 +45,13 @@ export class MainDesktopMagnifyService {
       this.commandHandler(event, command),
     );
 
+    // Magnify render process -> main process: resize the magnify window
+    ipcMain.on(MAGNIFY_IPC_CHANNELS.MAGNIFY_RESIZE, (_event, height: number) => {
+      if (this.magnifyWindow != null && !this.magnifyWindow.isDestroyed()) {
+        this.magnifyWindow.setSize(640, height, false);
+      }
+    });
+
     // Close the magnify window if the main BW window is closed
     this.windowMain.win.on("closed", () => {
       this.magnifyWindow?.close();
@@ -64,6 +71,7 @@ export class MainDesktopMagnifyService {
   dispose() {
     ipcMain.removeAllListeners(MAGNIFY_IPC_CHANNELS.TOGGLE);
     ipcMain.removeHandler(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND);
+    ipcMain.removeAllListeners(MAGNIFY_IPC_CHANNELS.MAGNIFY_RESIZE);
 
     // Also unregister the global shortcut
     this.disableMagnify();
@@ -97,7 +105,7 @@ export class MainDesktopMagnifyService {
     // otherwise: create the window
     const win = new BrowserWindow({
       width: 640,
-      height: 600,
+      height: 56,
       frame: false,
       transparent: true,
       alwaysOnTop: true,

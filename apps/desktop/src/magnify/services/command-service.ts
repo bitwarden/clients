@@ -11,6 +11,11 @@ import { MagnifyLoginItem } from "../../autofill/models/magnify-items";
   providedIn: "root",
 })
 export class CommandService {
+  /** Requests the main process to resize the magnify window to the given height. */
+  resize(height: number): void {
+    window.ipc.resize(height);
+  }
+
   async searchVault(input: string): Promise<MagnifyLoginItem[]> {
     const request: MagnifyCommandRequest = {
       type: MagnifyCommand.SearchVault,

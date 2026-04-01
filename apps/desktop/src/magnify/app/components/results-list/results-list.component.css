@@ -5,7 +5,7 @@
 
 .results-list {
   overflow-y: auto;
-  max-height: 490px;
+  max-height: calc(5 * 46px);
   padding: 6px 0;
   scroll-behavior: smooth;
 }

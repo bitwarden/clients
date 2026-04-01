@@ -11,6 +11,7 @@ import {
 import { MAGNIFY_ACTIONS } from "../../../../autofill/models/magnify-actions";
 import { MagnifyItem, MagnifyLoginItem } from "../../../../autofill/models/magnify-items";
 import { CommandService } from "../../../services/command-service";
+import { SEARCH_BAR_HEIGHT, calculateWindowHeight } from "../../utils/magnify-layout";
 import { ActionBarComponent } from "../action-bar/action-bar.component";
 import { ResultsListComponent } from "../results-list/results-list.component";
 
@@ -34,6 +35,9 @@ export class SearchBarComponent implements AfterViewInit {
 
   /** Set while an action is completing — drives the green flash in the results list. */
   readonly completingAction = signal<{ actionId: string; itemIndex: number } | null>(null);
+
+  /** The last height sent to the main process — used to skip redundant IPC resize calls. */
+  private readonly lastSentHeight = signal<number>(SEARCH_BAR_HEIGHT);
 
   readonly activeActions = computed(() => {
     const item = this.results()[this.selectedIndex()];
@@ -80,6 +84,7 @@ export class SearchBarComponent implements AfterViewInit {
       this.results.set([]);
       this.selectedIndex.set(0);
       this.hasSearched.set(false);
+      this.resizeIfNeeded(calculateWindowHeight(0, false));
       return;
     }
 
@@ -87,6 +92,16 @@ export class SearchBarComponent implements AfterViewInit {
     const results = await this.commandService.searchVault(query);
     this.results.set(results);
     this.selectedIndex.set(0);
+    this.resizeIfNeeded(calculateWindowHeight(results.length, true));
+  }
+
+  /** Only sends a resize IPC call when the required height has actually changed. */
+  private resizeIfNeeded(height: number): void {
+    if (height === this.lastSentHeight()) {
+      return;
+    }
+    this.lastSentHeight.set(height);
+    this.commandService.resize(height);
   }
 
   onKeydown(event: KeyboardEvent): void {
