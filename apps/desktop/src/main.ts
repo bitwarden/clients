@@ -310,6 +310,10 @@ export class Main {
     this.contextMenuMain = new ContextMenuMain(app.getPath("exe"));
     this.sendFileMain = new SendFileMain();
 
+    // Parse --send-path arguments from the initial cold start.
+    // (Second-instance args are handled separately via processDeepLink callback.)
+    this.parseSendPathArgs(process.argv);
+
     // Allow the renderer to pull pending --send-path arguments on demand.
     // This avoids the race condition where the push-based deep link message
     // arrives before the renderer has subscribed to IPC messaging.
@@ -445,10 +449,19 @@ export class Main {
         this.messagingService.send("deepLink", { urlString: s });
       });
 
-    // Handle --send-path from Windows Explorer context menu.
-    // The shell extension may pass multiple --send-path flags when several files are selected.
-    // Electron/Chromium may inject flags (e.g. --allow-file-access-from-files) between
-    // --send-path and the actual file path, so scan forward past any flags.
+    this.parseSendPathArgs(argv);
+    if (this.pendingSendPaths.length > 0) {
+      this.debounceSendPaths();
+    }
+  }
+
+  /**
+   * Parse --send-path arguments from an argv array and add them to pendingSendPaths.
+   * The shell extension may pass multiple --send-path flags when several files are selected.
+   * Electron/Chromium may inject flags (e.g. --allow-file-access-from-files) between
+   * --send-path and the actual file path, so scan forward past any flags.
+   */
+  private parseSendPathArgs(argv: string[]): void {
     for (let idx = 0; idx < argv.length; idx++) {
       if (argv[idx] !== "--send-path") {
         continue;
@@ -459,9 +472,6 @@ export class Main {
           break;
         }
       }
-    }
-    if (this.pendingSendPaths.length > 0) {
-      this.debounceSendPaths();
     }
   }
 
