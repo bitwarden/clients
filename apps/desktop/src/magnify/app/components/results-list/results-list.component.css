@@ -132,6 +132,7 @@
 }
 
 .result-action-badge {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -144,6 +145,9 @@
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.35),
     0 1px 2px rgba(0, 0, 0, 0.08);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .result-action-description {
@@ -158,4 +162,39 @@
   font-weight: 600;
   color: #ffffff;
   letter-spacing: 0.2px;
+}
+
+.result-action-badge.completing {
+  background: rgba(52, 199, 89, 0.25);
+  border-color: rgba(52, 199, 89, 0.6);
+  box-shadow:
+    inset 0 1px 0 rgba(52, 199, 89, 0.35),
+    0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* Fade the normal content out when completing so the overlay shows through */
+.result-action-badge.completing .result-action-description,
+.result-action-badge.completing .result-action-key {
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+/* Completion text sits centered over the badge without affecting its size */
+.result-action-completion {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgb(52, 199, 89);
+  letter-spacing: 0.2px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+.result-action-completion.visible {
+  opacity: 1;
 }

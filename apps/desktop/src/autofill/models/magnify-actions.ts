@@ -14,6 +14,8 @@ import { MagnifyItem } from "./magnify-items";
   - shortcuts:       the keyboard combinations that trigger this action, where
                      each inner array is one combination (e.g. ["Meta", "C"]),
                      or null if the action has no keyboard shortcut
+  - completionText:  the text briefly shown in the UI after the action completes,
+                     or null if no completion feedback is shown
 */
 export type MagnifyAction = {
   id: string;
@@ -23,6 +25,7 @@ export type MagnifyAction = {
   labelLinux: string;
   description: string;
   shortcuts: string[][] | null;
+  completionText: string | null;
 };
 
 /*
@@ -39,6 +42,7 @@ export const MAGNIFY_ACTIONS: MagnifyAction[] = [
     labelLinux: "↑↓",
     description: "Navigate",
     shortcuts: null,
+    completionText: null,
   },
   {
     id: "magnifyLoginItem-copyPassword",
@@ -48,5 +52,6 @@ export const MAGNIFY_ACTIONS: MagnifyAction[] = [
     labelLinux: "Ctrl+⇧C",
     description: "Copy password",
     shortcuts: [["CommandOrControl", "Shift", "C"]],
+    completionText: "✓ Copied",
   },
 ];

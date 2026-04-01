@@ -32,6 +32,9 @@ export class SearchBarComponent implements AfterViewInit {
   readonly selectedIndex = signal<number>(0);
   readonly hasSearched = signal<boolean>(false);
 
+  /** Set while an action is completing — drives the green flash in the results list. */
+  readonly completingAction = signal<{ actionId: string; itemIndex: number } | null>(null);
+
   readonly activeActions = computed(() => {
     const item = this.results()[this.selectedIndex()];
     if (!item) {
@@ -49,11 +52,14 @@ export class SearchBarComponent implements AfterViewInit {
     [
       "magnifyLoginItem-copyPassword",
       () => {
-        const item = this.results()[this.selectedIndex()];
+        const itemIndex = this.selectedIndex();
+        const item = this.results()[itemIndex];
         if (item) {
           void this.commandService.copyPassword(item.id).then((password) => {
             if (password) {
               void navigator.clipboard.writeText(password);
+              this.completingAction.set({ actionId: "magnifyLoginItem-copyPassword", itemIndex });
+              setTimeout(() => this.completingAction.set(null), 1500);
             }
           });
         }

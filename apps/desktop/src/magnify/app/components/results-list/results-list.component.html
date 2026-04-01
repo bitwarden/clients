@@ -27,9 +27,26 @@
         <div class="result-subtitle">{{ item.username }}</div>
       </div>
       <div class="result-actions" *ngIf="i === selectedIndex()">
-        <div class="result-action-badge" *ngFor="let action of itemActions">
+        <div
+          *ngFor="let action of itemActions"
+          class="result-action-badge"
+          [class.completing]="
+            completingAction()?.actionId === action.id && completingAction()?.itemIndex === i
+          "
+        >
+          <!-- Normal content always rendered — sets the badge width -->
           <span class="result-action-description">{{ action.description }}</span>
           <span class="result-action-key">{{ getActionLabel(action) }}</span>
+
+          <!-- Completion text overlaid absolutely — never affects badge size -->
+          <span
+            *ngIf="action.completionText"
+            class="result-action-completion"
+            [class.visible]="
+              completingAction()?.actionId === action.id && completingAction()?.itemIndex === i
+            "
+            >{{ action.completionText }}</span
+          >
         </div>
       </div>
     </div>

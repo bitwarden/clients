@@ -14,6 +14,8 @@ import { MAGNIFY_ACTIONS, MagnifyAction } from "../../../../autofill/models/magn
 import { MagnifyLoginItem } from "../../../../autofill/models/magnify-items";
 import { MAGNIFY_PLATFORM } from "../../../main";
 
+export type CompletingAction = { actionId: string; itemIndex: number } | null;
+
 // Actions that apply to a specific item type (magnifyItemType !== null).
 // Navigate (null) is global UI — it is not shown per-item.
 const ITEM_ACTIONS: MagnifyAction[] = MAGNIFY_ACTIONS.filter(
@@ -32,6 +34,9 @@ export class ResultsListComponent implements OnChanges {
   readonly results = input<MagnifyLoginItem[]>([]);
   readonly selectedIndex = input<number>(0);
   readonly hasSearched = input<boolean>(false);
+
+  /** Set by the parent while an action is completing — triggers the green flash on the matching badge. */
+  readonly completingAction = input<CompletingAction>(null);
 
   readonly itemSelected = output<MagnifyLoginItem>();
   readonly itemHovered = output<number>();
