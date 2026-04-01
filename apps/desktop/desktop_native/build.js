@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const child_process = require("child_process");
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 const process = require("process");
 
@@ -48,7 +49,7 @@ function buildNapiModule(target, release = true) {
 
 /**
  * Build a Rust binary with Cargo.
- * 
+ *
  * If {@link target} is specified, cross-compilation helpers are used to build if necessary, and the resulting
  * binary is copied to the `dist` folder.
  * @param {string} bin Name of cargo binary package in `desktop_native` workspace.
@@ -121,19 +122,37 @@ function buildShellExtension(target, release = true) {
     fs.copyFileSync(src, dst);
 }
 
+function findMakeAppx(arch) {
+    const sdkRoot = "C:\\Program Files (x86)\\Windows Kits\\10\\bin";
+    if (!fs.existsSync(sdkRoot)) {
+        return null;
+    }
+    // Find the latest SDK version directory that contains makeappx.exe
+    const versions = fs.readdirSync(sdkRoot).filter(d => d.startsWith("10.")).sort().reverse();
+    for (const ver of versions) {
+        const binDir = path.join(sdkRoot, ver, arch);
+        const match = fs.existsSync(binDir) && fs.readdirSync(binDir).find(f => f.toLowerCase() === "makeappx.exe");
+        if (match) {
+            return path.join(binDir, match);
+        }
+    }
+    return null;
+}
+
 function buildSparsePackage(target) {
-    // The sparse MSIX package is only needed on Windows
+    // The sparse MSIX package is only needed on Windows x64/arm64
     if (effectivePlatform(target) !== "win32") {
         return;
     }
+    const arch = target ? rustTargetsMap[target].nodeArch : process.arch;
+    if (arch === "ia32") {
+        console.log("Skipping sparse MSIX build for x86 (not supported)");
+        return;
+    }
 
-    // Map target to MSIX architecture name
-    let arch;
-    if (target) {
-        const nodeArch = rustTargetsMap[target].nodeArch;
-        arch = nodeArch === "ia32" ? "x86" : nodeArch;
-    } else {
-        arch = process.arch === "ia32" ? "x86" : process.arch;
+    const makeAppx = findMakeAppx(arch);
+    if (!makeAppx) {
+        throw new Error("MakeAppx.exe not found. Install the Windows SDK to build the sparse MSIX package.");
     }
 
     // Read version from the desktop package.json and append .0 for the four-part MSIX version
@@ -143,17 +162,36 @@ function buildSparsePackage(target) {
     // For local/dev builds use a self-signed placeholder publisher; CI overrides via environment variable
     const publisher = process.env.SPARSE_PACKAGE_PUBLISHER || "CN=Bitwarden, O=Bitwarden Inc., L=Santa Barbara, S=California, C=US";
 
-    const scriptPath = path.join(__dirname, "..", "scripts", "build-sparse-package.ps1");
+    const templatePath = path.join(__dirname, "..", "resources", "sparse-package", "AppxManifest.xml");
     const outputDir = path.join(__dirname, "dist");
+    const outputMsix = path.join(outputDir, "bitwarden-sparse.msix");
+    const stagingDir = path.join(os.tmpdir(), `bitwarden-sparse-${Date.now()}`);
 
     console.log(`Building sparse MSIX package (arch=${arch}, version=${version})`);
-    runCommand("powershell", [
-        "-ExecutionPolicy", "Bypass", "-File", scriptPath,
-        "-Arch", arch,
-        "-Version", version,
-        "-Publisher", `"${publisher}"`,
-        "-OutputDir", `"${outputDir}"`
-    ], "", true);
+
+    try {
+        // Create staging directory
+        fs.mkdirSync(stagingDir, { recursive: true });
+
+        // Read template and substitute variables
+        let manifest = fs.readFileSync(templatePath, "utf8");
+        manifest = manifest.replaceAll("${arch}", arch);
+        manifest = manifest.replaceAll("${version}", version);
+        manifest = manifest.replaceAll("${publisher}", publisher);
+
+        // Write processed manifest
+        fs.writeFileSync(path.join(stagingDir, "AppxManifest.xml"), manifest, "utf8");
+
+        // Ensure output directory exists
+        fs.mkdirSync(outputDir, { recursive: true });
+
+        // Package as sparse MSIX using MakeAppx.exe
+        runCommand(makeAppx, ["pack", "/d", stagingDir, "/p", outputMsix, "/nv", "/o"]);
+        console.log(`Sparse MSIX package created: ${outputMsix}`);
+    } finally {
+        // Clean up staging directory
+        fs.rmSync(stagingDir, { recursive: true, force: true });
+    }
 }
 
 function buildProcessIsolation() {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+    xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
     xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
     xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
     xmlns:desktop5="http://schemas.microsoft.com/appx/manifest/desktop/windows10/5"
@@ -26,12 +27,18 @@
     <Applications>
         <Application Id="BitwardenDesktop" Executable="Bitwarden.exe"
             EntryPoint="Windows.FullTrustApplication">
+            <uap:VisualElements DisplayName="Bitwarden"
+                Description="A secure and free password manager for all of your devices."
+                Square150x150Logo="resources\icon.png"
+                Square44x44Logo="resources\icon.png"
+                BackgroundColor="transparent"
+                AppListEntry="none" />
             <Extensions>
                 <!-- COM server registration for the shell extension DLL -->
                 <com:Extension Category="windows.comServer">
                     <com:ComServer>
                         <com:SurrogateServer DisplayName="Bitwarden Shell Extension">
-                            <com:Class Id="{A585A128-2049-4934-AE35-CEA51A83622B}"
+                            <com:Class Id="A585A128-2049-4934-AE35-CEA51A83622B"
                                        Path="bitwarden_windows_shell_extension.dll"
                                        ThreadingModel="STA" />
                         </com:SurrogateServer>
@@ -43,11 +50,11 @@
                     <desktop4:FileExplorerContextMenus>
                         <desktop5:ItemType Type="*">
                             <desktop5:Verb Id="BitwardenSend"
-                                           Clsid="{A585A128-2049-4934-AE35-CEA51A83622B}" />
+                                           Clsid="A585A128-2049-4934-AE35-CEA51A83622B" />
                         </desktop5:ItemType>
                         <desktop5:ItemType Type="Directory">
                             <desktop5:Verb Id="BitwardenSendDir"
-                                           Clsid="{A585A128-2049-4934-AE35-CEA51A83622B}" />
+                                           Clsid="A585A128-2049-4934-AE35-CEA51A83622B" />
                         </desktop5:ItemType>
                     </desktop4:FileExplorerContextMenus>
                 </desktop4:Extension>
