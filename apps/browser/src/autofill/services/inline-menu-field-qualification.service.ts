@@ -1308,13 +1308,12 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return false;
     }
 
-    const autocompleteValueParts = fieldAutocompleteValue.split(" ");
     if (typeof compareValues === "string") {
-      return autocompleteValueParts.indexOf(compareValues) > -1;
+      return AutofillService.autoCompleteTypeIncludesToken(fieldAutocompleteValue, compareValues);
     }
 
-    for (let index = 0; index < autocompleteValueParts.length; index++) {
-      if (compareValues.has(autocompleteValueParts[index])) {
+    for (const token of compareValues) {
+      if (AutofillService.autoCompleteTypeIncludesToken(fieldAutocompleteValue, token)) {
         return true;
       }
     }
