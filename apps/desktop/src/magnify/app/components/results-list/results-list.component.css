@@ -23,16 +23,6 @@
   border-radius: 3px;
 }
 
-.category-header {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-tertiary);
-  padding: 6px 20px 4px;
-  user-select: none;
-}
-
 .result-item {
   display: flex;
   align-items: center;

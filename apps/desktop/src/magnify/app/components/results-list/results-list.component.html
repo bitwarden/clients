@@ -1,7 +1,5 @@
 <div class="results-wrapper" *ngIf="hasSearched()">
   <div class="results-list" role="listbox">
-    <div class="category-header" *ngIf="results().length > 0">Logins</div>
-
     <div
       *ngFor="let item of results(); let i = index"
       #resultItem
