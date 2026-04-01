@@ -6366,6 +6366,9 @@
   "receiveLink": {
     "message": "Receive link"
   },
+  "receives": {
+    "message": "Receives"
+  },
   "allReceives": {
     "message": "All Receives"
   },

@@ -1,12 +1,18 @@
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { FileUploadType } from "@bitwarden/common/platform/enums";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
+import { AzureFileUploadService } from "@bitwarden/common/platform/services/file-upload/azure-file-upload.service";
+import { ReceiveId } from "@bitwarden/common/types/guid";
 
 import { ReceiveFileUploadInput } from "../models/receive-file-upload-input";
 import { ReceiveFileView } from "../models/view/receive-file.view";
 
+import { ReceiveApiService } from "./receive-api.service";
 import { ReceiveFileService } from "./receive-file.service";
 
 interface EncryptFileResult {
@@ -16,25 +22,63 @@ interface EncryptFileResult {
 }
 
 export class DefaultReceiveFileService implements ReceiveFileService {
+  private azureFileUploadService: AzureFileUploadService;
+
   constructor(
     private readonly keyGenerationService: KeyGenerationService,
     private readonly encryptService: EncryptService,
     private fileDownloadService: FileDownloadService,
-  ) {}
-  async uploadFile(input: ReceiveFileUploadInput): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const encryptedFileData = await this.encryptFile(input);
-
-    // TODO upload the encrypted file data to the server associated with the receive url data in the input
+    private receiveApiService: ReceiveApiService,
+    private apiService: ApiService,
+    logService: LogService,
+  ) {
+    this.azureFileUploadService = new AzureFileUploadService(logService, apiService);
   }
 
-  async downloadFile(fileView: ReceiveFileView): Promise<void> {
-    // TODO get the encrypted file data from the server using the fileView data
-    // fetch ID and URL from server for the file storage.
-    // Fetch the encrypted file from the URL
+  async uploadFile(input: ReceiveFileUploadInput): Promise<void> {
+    const encryptedFileData = await this.encryptFile(input);
 
-    // Fake data place holder
-    const encryptedFileData = new EncArrayBuffer(new Uint8Array(0));
+    const uploadDataResponse = await this.receiveApiService.postReceiveFile(
+      input.urlData.receiveId,
+      input.urlData.secretB64,
+      {
+        fileName: encryptedFileData.fileName.encryptedString!,
+        fileLength: encryptedFileData.encryptedFile.buffer.byteLength,
+        encapsulatedFileContentEncryptionKey:
+          encryptedFileData.encapsulatedFileContentEncryptionKey.encryptedString!,
+      },
+    );
+
+    if (uploadDataResponse.fileUploadType === FileUploadType.Azure) {
+      await this.azureFileUploadService.upload(
+        uploadDataResponse.url!,
+        encryptedFileData.encryptedFile,
+        // No-op: receives lack a URL renewal endpoint (unlike sends' GET /sends/{id}/file/{fileId})
+        async () => uploadDataResponse.url!,
+      );
+    } else {
+      throw new Error("Unsupported file upload type for receives");
+    }
+
+    await this.receiveApiService.postReceiveFileValidation(
+      input.urlData.receiveId,
+      uploadDataResponse.fileId,
+      input.urlData.secretB64,
+    );
+  }
+
+  async downloadFile(fileView: ReceiveFileView, receiveId: ReceiveId): Promise<void> {
+    const downloadData = await this.receiveApiService.getReceiveFileDownload(
+      receiveId,
+      fileView.id,
+    );
+
+    const response = await this.apiService.nativeFetch(new Request(downloadData.url));
+    if (response.status !== 200) {
+      throw new Error(`Failed to download file: ${response.status}`);
+    }
+
+    const encryptedFileData = await EncArrayBuffer.fromResponse(response);
 
     const fileData = await this.encryptService.decryptFileData(
       encryptedFileData,

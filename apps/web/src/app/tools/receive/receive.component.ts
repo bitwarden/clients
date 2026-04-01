@@ -46,6 +46,19 @@ import { ReceiveViewComponent } from "./receive-view.component";
   ],
 })
 export class ReceiveComponent {
+  protected readonly noItemIcon = NoSendsIcon;
+  protected readonly noResultsIcon = NoResults;
+  protected readonly ReceiveListState = ReceiveListState;
+
+  protected readonly loading = signal(true);
+  protected readonly listState = signal<ReceiveListState | null>(null);
+  protected readonly currentSearchText = signal("");
+  protected readonly dataSource = new TableDataSource<ReceiveView>();
+
+  protected readonly noSearchResults = computed(
+    () => true, // TODO: Implement search and update this value based on results
+  );
+
   constructor(
     private readonly dialogService: DialogService,
     private readonly receiveService: ReceiveService,
@@ -59,6 +72,8 @@ export class ReceiveComponent {
       )
       .subscribe((receives) => {
         this.dataSource.data = receives;
+        this.loading.set(false);
+        this.listState.set(receives.length === 0 ? ReceiveListState.Empty : null);
       });
   }
 
@@ -72,19 +87,6 @@ export class ReceiveComponent {
       closeOnNavigation: true,
     });
   }
-
-  protected readonly noItemIcon = NoSendsIcon;
-  protected readonly noResultsIcon = NoResults;
-  protected readonly ReceiveListState = ReceiveListState;
-
-  protected readonly loading = signal(false);
-  protected readonly listState = signal<ReceiveListState | null>(null);
-  protected readonly currentSearchText = signal("");
-  protected readonly dataSource = new TableDataSource<ReceiveView>();
-
-  protected readonly noSearchResults = computed(
-    () => true, // TODO: Implement search and update this value based on results
-  );
 
   searchTextChanged(newSearchText: string): void {
     this.currentSearchText.set(newSearchText);
