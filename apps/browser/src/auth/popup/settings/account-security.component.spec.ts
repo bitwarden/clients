@@ -438,7 +438,6 @@ describe("AccountSecurityComponent", () => {
       expect(component.form.controls.biometric.disabled).toBe(false);
     }));
 
-
     it("should check status on Safari", fakeAsync(async () => {
       biometricsService.canEnableBiometricUnlock.mockResolvedValue(true);
       browserApiSpy.mockResolvedValue(false);
