@@ -1,18 +1,22 @@
 // Lunr search is used for advanced querys which most users do not use. It is preformance heavy and should only be built when needed.
 
-import { StateProvider, UserKeyDefinition, VAULT_SEARCH_MEMORY } from "@bitwarden/state";
-import { UserId } from "@bitwarden/user-core";
-import lunr from "lunr";
+import * as lunr from "lunr";
 import { filter, firstValueFrom, map, Observable } from "rxjs";
 import { Jsonify } from "type-fest";
-import { normalizeSearchQuery } from "./search.service";
-import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
-import { CipherType } from "../enums/cipher-type";
-import { FieldType } from "../enums/field-type.enum";
+
+import { StateProvider, UserKeyDefinition, VAULT_SEARCH_MEMORY } from "@bitwarden/state";
+import { UserId } from "@bitwarden/user-core";
+
+
 import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
+import { CipherType } from "../enums/cipher-type";
+import { FieldType } from "../enums/field-type.enum";
+import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 import { perUserCache$ } from "../utils/observable-utilities";
+
+import { normalizeSearchQuery } from "./search.service";
 
 export type SerializedLunrIndex = {
   version: string;
@@ -141,11 +145,11 @@ export class LunrSearchService {
     return results;
   }
 
-  private async updateIndexForUser(userId: UserId, ciphers: CipherViewLike[]): Promise<lunr.Index | null> {
+  private async updateIndexForUser(userId: UserId, ciphers: CipherViewLike[]): Promise<lunr.Index> {
     // If another indexing operation is in progress for this user, wait for it then return.
     if (await this.getIsIndexing(userId)) {
       await firstValueFrom(this.searchIsIndexing$(userId).pipe(filter((indexing) => !indexing)));
-      return await this.getIndexForSearch(userId);
+      return await this.getIndexForSearch(userId)!;
     }
 
     // If there is no index in progress, build an index for the user and set it to state.
@@ -169,7 +173,8 @@ function normalizeAccentsPipelineFunction(token: lunr.Token): any {
   const searchableFields = ["name", "login.username", "subtitle", "notes"];
   const metadata = (token as unknown as { metadata?: { fields?: unknown[] } }).metadata;
   const fields = metadata?.fields;
-  const checkFields = Array.isArray(fields) && fields.every((i) => searchableFields.includes(String(i)));
+  const checkFields =
+    Array.isArray(fields) && fields.every((i) => searchableFields.includes(String(i)));
 
   if (checkFields) {
     return normalizeSearchQuery(token.toString());
