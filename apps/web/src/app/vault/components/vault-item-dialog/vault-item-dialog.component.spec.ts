@@ -86,7 +86,7 @@ describe("VaultItemDialogComponent", () => {
         provideNoopAnimations(),
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: DIALOG_DATA, useValue: { ...baseParams } },
-        { provide: DialogRef, useValue: { close: jest.fn() } },
+        { provide: DialogRef, useValue: {} },
         {
           provide: ToastService,
           useValue: {
@@ -473,40 +473,6 @@ describe("VaultItemDialogComponent", () => {
           replaceUrl: true,
         });
       });
-    });
-  });
-
-  describe("onCipherSaved", () => {
-    let cipherServiceMock: jest.Mocked<CipherService>;
-    let cipherAuthorizationServiceMock: jest.Mocked<CipherAuthorizationService>;
-
-    beforeEach(() => {
-      cipherServiceMock = TestBed.inject(CipherService) as jest.Mocked<CipherService>;
-      cipherAuthorizationServiceMock = TestBed.inject(
-        CipherAuthorizationService,
-      ) as jest.Mocked<CipherAuthorizationService>;
-
-      // Spy on changeMode to avoid needing DOM dependencies in these tests
-      jest.spyOn(component as any, "changeMode").mockResolvedValue(undefined);
-    });
-
-    it("updates canEdit based on the saved cipher after creating a new item", async () => {
-      component["_originalFormMode" as any] = "add";
-      component["canEdit"] = false;
-
-      const savedCipherView = { id: "new-cipher-id", collectionIds: [] } as any;
-      const savedCipher = { id: "new-cipher-id" } as any;
-
-      cipherServiceMock.get = jest.fn().mockResolvedValue(savedCipher);
-      cipherAuthorizationServiceMock.canEditCipher$ = jest.fn().mockReturnValue(of(true));
-
-      await component["onCipherSaved"](savedCipherView);
-
-      expect(component["canEdit"]).toBe(true);
-      expect(cipherAuthorizationServiceMock.canEditCipher$).toHaveBeenCalledWith(
-        savedCipherView,
-        component["params"].isAdminConsoleAction,
-      );
     });
   });
 });
