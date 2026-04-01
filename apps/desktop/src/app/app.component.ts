@@ -3,6 +3,7 @@
 import {
   Component,
   DestroyRef,
+  inject,
   NgZone,
   OnDestroy,
   OnInit,
@@ -87,6 +88,7 @@ import { SettingsComponent } from "./accounts/settings.component";
 import { ExportDesktopComponent } from "./tools/export/export-desktop.component";
 import { CredentialGeneratorComponent } from "./tools/generator/credential-generator.component";
 import { ImportDesktopComponent } from "./tools/import/import-desktop.component";
+import { PendingSendService } from "./tools/send/pending-send.service";
 
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
@@ -137,7 +139,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private activeSimpleDialog: DialogRef<boolean> = null;
   private processingPendingAuthRequests = false;
   private shouldRerunAuthRequestProcessing = false;
-  private pendingSendPaths: string[] = [];
+  private pendingSendService = inject(PendingSendService);
 
   private destroy$ = new Subject<void>();
 
@@ -228,9 +230,6 @@ export class AppComponent implements OnInit, OnDestroy {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.updateAppMenu();
             this.processReloadService.cancelProcessReload();
-            // Process any pending Send creation from context menu after vault unlock
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.handlePendingSend();
             break;
           case "loggedOut":
             this.modalService.closeAll();
@@ -868,7 +867,7 @@ export class AppComponent implements OnInit, OnDestroy {
       if (pathsParam) {
         try {
           const paths = JSON.parse(pathsParam) as string[];
-          this.pendingSendPaths = paths;
+          this.pendingSendService.addPaths(paths);
         } catch {
           return;
         }
@@ -879,7 +878,7 @@ export class AppComponent implements OnInit, OnDestroy {
       // Legacy single-path fallback
       const filePath = url.searchParams.get("path");
       if (filePath) {
-        this.pendingSendPaths = [filePath];
+        this.pendingSendService.addPaths([filePath]);
         void this.handlePendingSend();
       }
       return;
@@ -909,20 +908,25 @@ export class AppComponent implements OnInit, OnDestroy {
     this.messagingService.send(message, { code: code, state: receivedState });
   }
 
+  /**
+   * Navigate to the Send page if there are pending paths and the user is unlocked.
+   * Called directly from processDeepLink when already unlocked. When locked, the
+   * paths stay in PendingSendService and the pendingSendGuard on the /vault route
+   * handles the redirect after unlock.
+   */
   private async handlePendingSend(): Promise<void> {
-    if (this.pendingSendPaths.length === 0) {
+    if (!this.pendingSendService.hasPending()) {
       return;
     }
 
     // Check if the user is authenticated and unlocked
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     if (authStatus !== AuthenticationStatus.Unlocked) {
-      // Paths stay in pendingSendPaths — will be processed after unlock
+      // Paths stay in PendingSendService — the vault route guard will redirect after unlock
       return;
     }
 
-    const paths = this.pendingSendPaths;
-    this.pendingSendPaths = [];
+    const paths = this.pendingSendService.takePaths();
 
     await this.router.navigate(["/send"], {
       queryParams: {

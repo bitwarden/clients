@@ -55,6 +55,7 @@ import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.c
 import { VaultWrapperComponent } from "../vault/app/vault-v3/vault-wrapper.component";
 
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
+import { pendingSendGuard } from "./tools/send/pending-send.guard";
 import { SendComponent } from "./tools/send/send.component";
 
 /**
@@ -447,6 +448,7 @@ const routes: Routes = [
       {
         path: "vault",
         component: VaultWrapperComponent,
+        canActivate: [pendingSendGuard],
         data: { pageTitle: { key: "vault" } } satisfies RouteDataProperties,
       },
       {
