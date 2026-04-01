@@ -15,7 +15,6 @@ export abstract class AccessIntelligenceApiService {
 
   /**
    * POST /reports/organizations/{orgId}
-   * V2: returns upload URL + report metadata. V1: returns report metadata only.
    */
   abstract createReport$(
     orgId: OrganizationId,
