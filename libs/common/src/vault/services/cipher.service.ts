@@ -238,7 +238,7 @@ export class CipherService implements CipherServiceAbstraction {
     }
     if (this.searchService != null) {
       if (value == null) {
-        await this.searchService.clearIndex(userId);
+        await this.searchService.ciphersUpdated(userId);
       }
     }
   }
@@ -627,7 +627,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   private async reindexCiphers(userId: UserId) {
-    await this.searchService.clearIndex(userId);
+    await this.searchService.ciphersUpdated(userId);
   }
 
   async getAllDecryptedForGrouping(

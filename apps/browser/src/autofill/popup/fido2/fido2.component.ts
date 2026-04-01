@@ -396,7 +396,6 @@ export class Fido2Component implements OnInit, OnDestroy {
       this.displayedCiphers = await this.searchService.searchCiphers(
         userId,
         this.searchText,
-        null,
         this.ciphers,
       );
     } else {

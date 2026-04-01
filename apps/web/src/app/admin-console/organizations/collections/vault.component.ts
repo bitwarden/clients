@@ -418,15 +418,12 @@ export class VaultComponent implements OnInit, OnDestroy {
           const filterFunction = createFilterFunction(filter);
 
           if (await this.searchService.isSearchable(userId, searchText)) {
-            return await this.searchService.searchCiphers<CipherView>(
+            const searchFilteredCiphers = await this.searchService.searchCiphers<CipherView>(
               userId,
               searchText,
-              [filterFunction],
               ciphers,
-              // We are searching on the organization ciphers, which requires keeping a separate index. The index is
-              // specified by the IndexedEntityId
-              organizationId as string as IndexedEntityId,
-            );
+            )
+            return searchFilteredCiphers.filter(filterFunction).filter((c) => c.organizationId === organizationId);
           }
 
           return ciphers.filter(filterFunction);

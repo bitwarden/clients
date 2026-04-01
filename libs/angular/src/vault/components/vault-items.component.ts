@@ -182,7 +182,7 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
             this.restrictedItemTypesService.restricted$,
           ]),
         ),
-        switchMap(([indexedCiphers, failedCiphers, searchText, filter, userId, restricted]) => {
+        switchMap(async ([indexedCiphers, failedCiphers, searchText, filter, userId, restricted]) => {
           let allCiphers = (indexedCiphers ?? []) as C[];
           const _failedCiphers = failedCiphers ?? [];
 
@@ -191,12 +191,12 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
           const restrictedTypeFilter = (cipher: CipherViewLike) =>
             !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted);
 
-          return this.searchService.searchCiphers(
+          const searchFilteredCiphers = await this.searchService.searchCiphers(
             userId,
             searchText,
-            [filter, restrictedTypeFilter],
             allCiphers,
           );
+          return searchFilteredCiphers.filter(restrictedTypeFilter).filter(filter);
         }),
         takeUntilDestroyed(),
       )

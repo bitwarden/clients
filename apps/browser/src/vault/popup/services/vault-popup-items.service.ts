@@ -192,7 +192,7 @@ export class VaultPopupItemsService {
     ),
     switchMap(
       ([ciphers, searchText, userId]) =>
-        this.searchService.searchCiphers(userId, searchText, undefined, ciphers) as Promise<
+        this.searchService.searchCiphers(userId, searchText, ciphers) as Promise<
           PopupCipherViewLike[]
         >,
     ),

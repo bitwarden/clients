@@ -1,81 +1,29 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import * as lunr from "lunr";
-import { BehaviorSubject, Observable, firstValueFrom, map, timeout, filter as rxjsfilter } from "rxjs";
-import { Jsonify } from "type-fest";
+import {
+  BehaviorSubject,
+  Observable,
+  firstValueFrom,
+  map,
+  timeout,
+  filter as rxjsfilter,
+} from "rxjs";
 
-import { perUserCache$ } from "@bitwarden/common/vault/utils/observable-utilities";
-
-import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
-import {
-  SingleUserState,
-  StateProvider,
-  UserKeyDefinition,
-  VAULT_SEARCH_MEMORY,
-} from "../../platform/state";
+import { StateProvider } from "../../platform/state";
 import { SendView } from "../../tools/send/models/view/send.view";
-import { IndexedEntityId, UserId } from "../../types/guid";
+import { UserId } from "../../types/guid";
 import { SearchService as SearchServiceAbstraction } from "../abstractions/search.service";
-import { FieldType } from "../enums";
-import { CipherType } from "../enums/cipher-type";
 import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
+import { LunrSearchService } from "./lunr-search.service";
 
 // Time to wait before performing a search after the user stops typing.
 export const SearchTextDebounceInterval = 200; // milliseconds
 
-export type SerializedLunrIndex = {
-  version: string;
-  fields: string[];
-  fieldVectors: [string, number[]];
-  invertedIndex: any[];
-  pipeline: string[];
-};
-
-/**
- * The `KeyDefinition` for accessing the search index in application state.
- * The key definition is configured to clear the index when the user locks the vault.
- */
-export const LUNR_SEARCH_INDEX = new UserKeyDefinition<SerializedLunrIndex>(
-  VAULT_SEARCH_MEMORY,
-  "searchIndex",
-  {
-    deserializer: (obj: Jsonify<SerializedLunrIndex>) => obj,
-    clearOn: ["lock", "logout"],
-  },
-);
-
-/**
- * The `KeyDefinition` for accessing the ID of the entity currently indexed by Lunr search.
- * The key definition is configured to clear the indexed entity ID when the user locks the vault.
- */
-export const LUNR_SEARCH_INDEXED_ENTITY_ID = new UserKeyDefinition<IndexedEntityId>(
-  VAULT_SEARCH_MEMORY,
-  "searchIndexedEntityId",
-  {
-    deserializer: (obj: Jsonify<IndexedEntityId>) => obj,
-    clearOn: ["lock", "logout"],
-  },
-);
-
-/**
- * The `KeyDefinition` for accessing the state of Lunr search indexing, indicating whether the Lunr search index is currently being built or updating.
- * The key definition is configured to clear the indexing state when the user locks the vault.
- */
-export const LUNR_SEARCH_INDEXING = new UserKeyDefinition<boolean>(
-  VAULT_SEARCH_MEMORY,
-  "isIndexing",
-  {
-    deserializer: (obj: Jsonify<boolean>) => obj,
-    clearOn: ["lock", "logout"],
-  },
-);
-
 export class SearchService implements SearchServiceAbstraction {
-  private static registeredPipeline = false;
-
   private readonly immediateSearchLocales: string[] = ["zh-CN", "zh-TW", "ja", "ko", "vi"];
   private readonly defaultSearchableMinLength: number = 2;
   private searchableMinLength: number = this.defaultSearchableMinLength;
@@ -86,11 +34,14 @@ export class SearchService implements SearchServiceAbstraction {
   private _isSendSearching$ = new BehaviorSubject<boolean>(false);
   isSendSearching$: Observable<boolean> = this._isSendSearching$.asObservable();
 
+  private lunrSearchService: LunrSearchService;
+
   constructor(
     private logService: LogService,
     private i18nService: I18nService,
     private stateProvider: StateProvider,
   ) {
+    this.lunrSearchService = new LunrSearchService(this.stateProvider, this.logService);
     this.i18nService.locale$.subscribe((locale) => {
       if (this.immediateSearchLocales.indexOf(locale) !== -1) {
         this.searchableMinLength = 1;
@@ -98,58 +49,14 @@ export class SearchService implements SearchServiceAbstraction {
         this.searchableMinLength = this.defaultSearchableMinLength;
       }
     });
-
-    // Currently have to ensure this is only done a single time. Lunr allows you to register a function
-    // multiple times but they will add a warning message to the console. The way they do that breaks when ran on a service worker.
-    if (!SearchService.registeredPipeline) {
-      SearchService.registeredPipeline = true;
-      //register lunr pipeline function
-      lunr.Pipeline.registerFunction(this.normalizeAccentsPipelineFunction, "normalizeAccents");
-    }
   }
 
-  private searchIndexState(userId: UserId): SingleUserState<SerializedLunrIndex> {
-    return this.stateProvider.getUser(userId, LUNR_SEARCH_INDEX);
+  async ciphersUpdated(userId: UserId): Promise<void> {
+    await this.lunrSearchService.ciphersUpdated(userId);
   }
 
-  private index$ = perUserCache$((userId: UserId) => {
-    return this.searchIndexState(userId).state$.pipe(
-      map((searchIndex) => {
-        let index: lunr.Index | null = null;
-        if (searchIndex) {
-          const loadTime = performance.now();
-          index = lunr.Index.load(searchIndex);
-          this.logService.measure(loadTime, "Vault", "SearchService", "index load");
-        }
-        return index;
-      }),
-    );
-  });
-
-  private searchIndexEntityIdState(userId: UserId): SingleUserState<IndexedEntityId | null> {
-    return this.stateProvider.getUser(userId, LUNR_SEARCH_INDEXED_ENTITY_ID);
-  }
-
-  indexedEntityId$(userId: UserId): Observable<IndexedEntityId | null> {
-    return this.searchIndexEntityIdState(userId).state$.pipe(map((id) => id));
-  }
-
-  private searchIsIndexingState(userId: UserId): SingleUserState<boolean> {
-    return this.stateProvider.getUser(userId, LUNR_SEARCH_INDEXING);
-  }
-
-  private searchIsIndexing$(userId: UserId): Observable<boolean> {
-    return this.searchIsIndexingState(userId).state$.pipe(map((indexing) => indexing ?? false));
-  }
-
-  async clearIndex(userId: UserId): Promise<void> {
-    await this.searchIndexEntityIdState(userId).update(() => null);
-    await this.searchIndexState(userId).update(() => null);
-    await this.searchIsIndexingState(userId).update(() => null);
-  }
-
-  async isSearchable(userId: UserId, query: string | null): Promise<boolean> {
-    query = SearchService.normalizeSearchQuery(query);
+  async isSearchable(query: string | null): Promise<boolean> {
+    query = normalizeSearchQuery(query);
 
     // Nothing to search if the query is null
     if (query == null || query === "") {
@@ -160,164 +67,34 @@ export class SearchService implements SearchServiceAbstraction {
     return query.length >= this.searchableMinLength;
   }
 
-  private async indexCiphers(
-    userId: UserId,
-    ciphers: CipherViewLike[],
-    indexedEntityId?: string,
-  ): Promise<void> {
-    if (await this.getIsIndexing(userId)) {
-      return;
-    }
-
-    const indexingStartTime = performance.now();
-    await this.setIsIndexing(userId, true);
-    await this.setIndexedEntityIdForSearch(userId, indexedEntityId as IndexedEntityId);
-    const builder = new lunr.Builder();
-    builder.pipeline.add(this.normalizeAccentsPipelineFunction);
-    builder.ref("id");
-    builder.field("shortid", {
-      boost: 100,
-      extractor: (c: CipherViewLike) => uuidAsString(c.id).substr(0, 8),
-    });
-    builder.field("name", {
-      boost: 10,
-    });
-    builder.field("subtitle", {
-      boost: 5,
-      extractor: (c: CipherViewLike) => {
-        const subtitle = CipherViewLikeUtils.subtitle(c);
-        if (subtitle != null && CipherViewLikeUtils.getType(c) === CipherType.Card) {
-          return subtitle.replace(/\*/g, "");
-        }
-        return subtitle;
-      },
-    });
-    builder.field("notes", { extractor: (c: CipherViewLike) => CipherViewLikeUtils.getNotes(c) });
-    builder.field("login.username", {
-      extractor: (c: CipherViewLike) => {
-        const login = CipherViewLikeUtils.getLogin(c);
-        return login?.username ?? null;
-      },
-    });
-    builder.field("login.uris", {
-      boost: 2,
-      extractor: (c: CipherViewLike) => this.uriExtractor(c),
-    });
-    builder.field("fields", {
-      extractor: (c: CipherViewLike) => this.fieldExtractor(c, false),
-    });
-    builder.field("fields_joined", {
-      extractor: (c: CipherViewLike) => this.fieldExtractor(c, true),
-    });
-    builder.field("attachments", {
-      extractor: (c: CipherViewLike) => this.attachmentExtractor(c, false),
-    });
-    builder.field("attachments_joined", {
-      extractor: (c: CipherViewLike) => this.attachmentExtractor(c, true),
-    });
-    builder.field("organizationid", { extractor: (c: CipherViewLike) => c.organizationId });
-    ciphers = ciphers || [];
-    ciphers.forEach((c) => builder.add(c));
-    const index = builder.build();
-
-    await this.setIndexForSearch(userId, index.toJSON() as SerializedLunrIndex);
-
-    await this.setIsIndexing(userId, false);
-
-    this.logService.measure(indexingStartTime, "Vault", "SearchService", "index complete", [
-      ["Items", ciphers.length],
-    ]);
+  private isLunrQuery(query: string): boolean {
+    return query != null && query.length > 1 && query.indexOf(">") === 0;
   }
 
   async searchCiphers<C extends CipherViewLike>(
     userId: UserId,
     query: string,
-    filter: ((cipher: C) => boolean) | ((cipher: C) => boolean)[] = null,
     ciphers: C[],
-    indexedEntityId?: IndexedEntityId,
   ): Promise<C[]> {
+    this.logService.info("Starting cipher search", { query });
     this._isCipherSearching$.next(true);
-    const results: C[] = [];
     const searchStartTime = performance.now();
-    if (query != null) {
-      query = SearchService.normalizeSearchQuery(query.trim().toLowerCase());
-    }
+    query = normalizeSearchQuery(query.trim().toLowerCase());
     if (query === "") {
       query = null;
     }
 
-    if (ciphers == null) {
-      ciphers = [];
-    }
-
-    if (filter != null && Array.isArray(filter) && filter.length > 0) {
-      ciphers = ciphers.filter((c) => filter.every((f) => f == null || f(c)));
-    } else if (filter != null) {
-      ciphers = ciphers.filter(filter as (cipher: C) => boolean);
-    }
-
-    if (!(await this.isSearchable(userId, query))) {
+    if (!(await this.isSearchable(query))) {
       this._isCipherSearching$.next(false);
       return ciphers;
     }
 
-    const isQueryString = query != null && query.length > 1 && query.indexOf(">") === 0;
-    if (isQueryString) {
-      // If is indexing, then wait with timeout using observable
-      try {
-        await firstValueFrom(this.searchIsIndexing$(userId).pipe(rxjsfilter((indexing) => !indexing), timeout(2000)))
-      } catch {
-        // Timeout occurred, continue
-      }
-      let index = await this.getIndexForSearch(userId);
-
-      // If the caller specifies an entity ID that differs from the cached index's entity,
-      // clear the stale index so it will be rebuilt for the correct set of ciphers.
-      if (index != null) {
-        const currentEntityId = await firstValueFrom(this.indexedEntityId$(userId));
-        if ((indexedEntityId ?? null) !== (currentEntityId ?? null)) {
-          await this.clearIndex(userId);
-          index = null;
-        }
-      }
-
-      // If there is no index, build an index
-      if (index == null) {
-        this.logService.info("Building lunr index for search...");
-        await this.indexCiphers(userId, ciphers, indexedEntityId as unknown as string);
-        // indexCiphers will return early if another indexing operation is already in progress, so index may still be null here.
-        index = await this.getIndexForSearch(userId);
-        this.logService.info("Lunr index built for search.");
-      }
-
-      if (index == null) {
-        // Fallback in case a long-running index is in progress
-        this.logService.error("Lunr index is not available for search.");
-        const basicQuery = query.replace(">", "").trim();
-        const basicResults = this.searchCiphersBasic(ciphers, basicQuery);
-        this.logService.measure(searchStartTime, "Vault", "SearchService", "basic search complete");
-        this._isCipherSearching$.next(false);
-        return basicResults;
-      }
-
-      let searchResults: lunr.Index.Result[] = null;
-      const ciphersMap = new Map<string, C>();
-      ciphers.forEach((c) => ciphersMap.set(uuidAsString(c.id), c));
-      try {
-        searchResults = index.search(query.substr(1).trim());
-      } catch (e) {
-        this.logService.error(e);
-      }
-      if (searchResults != null) {
-        searchResults.forEach((r) => {
-          if (ciphersMap.has(r.ref)) {
-            results.push(ciphersMap.get(r.ref));
-          }
-        });
-      }
-      this.logService.measure(searchStartTime, "Vault", "SearchService", "search complete");
+    // Important: Only ever route to the lunr service when this is actually a lunr query.
+    // Lunr is very performance heavy, and querying it will invoke an index build.
+    if (this.isLunrQuery(query)) {
+      const lunrResults = await this.lunrSearchService.searchCiphers(userId, query, ciphers);
       this._isCipherSearching$.next(false);
-      return results;
+      return lunrResults;
     } else {
       // Use basic search if the query is not a lunr query
       const basicResults = this.searchCiphersBasic(ciphers, query);
@@ -333,7 +110,7 @@ export class SearchService implements SearchServiceAbstraction {
     deleted = false,
     archived = false,
   ) {
-    query = SearchService.normalizeSearchQuery(query.trim().toLowerCase());
+    query = normalizeSearchQuery(query.trim().toLowerCase());
     return ciphers.filter((c) => {
       if (deleted !== CipherViewLikeUtils.isDeleted(c)) {
         return false;
@@ -369,7 +146,7 @@ export class SearchService implements SearchServiceAbstraction {
 
   searchSends(sends: SendView[], query: string) {
     this._isSendSearching$.next(true);
-    query = SearchService.normalizeSearchQuery(query.trim().toLocaleLowerCase());
+    query = normalizeSearchQuery(query.trim().toLocaleLowerCase());
     if (query === null) {
       this._isSendSearching$.next(false);
       return sends;
@@ -397,137 +174,9 @@ export class SearchService implements SearchServiceAbstraction {
     this._isSendSearching$.next(false);
     return sendsMatched.concat(lowPriorityMatched);
   }
+}
 
-  async getIndexForSearch(userId: UserId): Promise<lunr.Index | null> {
-    return await firstValueFrom(this.index$(userId));
-  }
-
-  private async setIndexForSearch(userId: UserId, index: SerializedLunrIndex): Promise<void> {
-    await this.searchIndexState(userId).update(() => index);
-  }
-
-  private async setIndexedEntityIdForSearch(
-    userId: UserId,
-    indexedEntityId: IndexedEntityId,
-  ): Promise<void> {
-    await this.searchIndexEntityIdState(userId).update(() => indexedEntityId);
-  }
-
-  private async setIsIndexing(userId: UserId, indexing: boolean): Promise<void> {
-    await this.searchIsIndexingState(userId).update(() => indexing);
-  }
-
-  private async getIsIndexing(userId: UserId): Promise<boolean> {
-    return await firstValueFrom(this.searchIsIndexing$(userId));
-  }
-
-  private fieldExtractor(c: CipherViewLike, joined: boolean) {
-    const fields = CipherViewLikeUtils.getFields(c);
-    if (!fields || fields.length === 0) {
-      return null;
-    }
-    let fieldStrings: string[] = [];
-    fields.forEach((f) => {
-      if (f.name != null) {
-        fieldStrings.push(f.name);
-      }
-      // For CipherListView, value is only populated for Text fields
-      // For CipherView, we check the type explicitly
-      if (f.value != null) {
-        const fieldType = (f as { type?: FieldType }).type;
-        if (fieldType === undefined || fieldType === FieldType.Text) {
-          fieldStrings.push(f.value);
-        }
-      }
-    });
-    fieldStrings = fieldStrings.filter((f) => f.trim() !== "");
-    if (fieldStrings.length === 0) {
-      return null;
-    }
-    return joined ? fieldStrings.join(" ") : fieldStrings;
-  }
-
-  private attachmentExtractor(c: CipherViewLike, joined: boolean) {
-    const attachmentNames = CipherViewLikeUtils.getAttachmentNames(c);
-    if (!attachmentNames || attachmentNames.length === 0) {
-      return null;
-    }
-    let attachments: string[] = [];
-    attachmentNames.forEach((fileName) => {
-      if (fileName != null) {
-        if (joined && fileName.indexOf(".") > -1) {
-          attachments.push(fileName.substring(0, fileName.lastIndexOf(".")));
-        } else {
-          attachments.push(fileName);
-        }
-      }
-    });
-    attachments = attachments.filter((f) => f.trim() !== "");
-    if (attachments.length === 0) {
-      return null;
-    }
-    return joined ? attachments.join(" ") : attachments;
-  }
-
-  private uriExtractor(c: CipherViewLike) {
-    if (CipherViewLikeUtils.getType(c) !== CipherType.Login) {
-      return null;
-    }
-    const login = CipherViewLikeUtils.getLogin(c);
-    if (!login?.uris?.length) {
-      return null;
-    }
-    const uris: string[] = [];
-    login.uris.forEach((u) => {
-      if (u.uri == null || u.uri === "") {
-        return;
-      }
-
-      // Extract port from URI
-      const portMatch = u.uri.match(/:(\d+)(?:[/?#]|$)/);
-      const port = portMatch?.[1];
-
-      const hostname = CipherViewLikeUtils.getUriHostname(u);
-      if (hostname !== undefined) {
-        uris.push(hostname);
-        if (port) {
-          uris.push(`${hostname}:${port}`);
-          uris.push(port);
-        }
-      }
-
-      // Add processed URI (strip protocol and query params for non-regex matches)
-      let uri = u.uri;
-      if (u.match !== UriMatchStrategy.RegularExpression) {
-        const protocolIndex = uri.indexOf("://");
-        if (protocolIndex > -1) {
-          uri = uri.substring(protocolIndex + 3);
-        }
-        const queryIndex = uri.search(/\?|&|#/);
-        if (queryIndex > -1) {
-          uri = uri.substring(0, queryIndex);
-        }
-      }
-      uris.push(uri);
-    });
-
-    return uris.length > 0 ? uris : null;
-  }
-
-  private normalizeAccentsPipelineFunction(token: lunr.Token): any {
-    const searchableFields = ["name", "login.username", "subtitle", "notes"];
-    const fields = (token as any).metadata["fields"];
-    const checkFields = fields.every((i: any) => searchableFields.includes(i));
-
-    if (checkFields) {
-      return SearchService.normalizeSearchQuery(token.toString());
-    }
-
-    return token;
-  }
-
-  // Remove accents/diacritics characters from text. This regex is equivalent to the Diacritic unicode property escape, i.e. it will match all diacritic characters.
-  static normalizeSearchQuery(query: string): string {
-    return query?.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  }
+// Remove accents/diacritics characters from text. This regex is equivalent to the Diacritic unicode property escape, i.e. it will match all diacritic characters.
+export function normalizeSearchQuery(query: string): string {
+  return query?.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
