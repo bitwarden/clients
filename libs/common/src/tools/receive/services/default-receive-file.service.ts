@@ -7,6 +7,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { FileUploadType } from "@bitwarden/common/platform/enums";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { AzureFileUploadService } from "@bitwarden/common/platform/services/file-upload/azure-file-upload.service";
+import { ReceiveId } from "@bitwarden/common/types/guid";
 
 import { ReceiveFileUploadInput } from "../models/receive-file-upload-input";
 import { ReceiveFileView } from "../models/view/receive-file.view";
@@ -66,7 +67,7 @@ export class DefaultReceiveFileService implements ReceiveFileService {
     );
   }
 
-  async downloadFile(fileView: ReceiveFileView, receiveId: string): Promise<void> {
+  async downloadFile(fileView: ReceiveFileView, receiveId: ReceiveId): Promise<void> {
     const downloadData = await this.receiveApiService.getReceiveFileDownload(
       receiveId,
       fileView.id,
@@ -77,7 +78,7 @@ export class DefaultReceiveFileService implements ReceiveFileService {
       throw new Error(`Failed to download file: ${response.status}`);
     }
 
-    const encryptedFileData = new EncArrayBuffer(new Uint8Array(await response.arrayBuffer()));
+    const encryptedFileData = await EncArrayBuffer.fromResponse(response);
 
     const fileData = await this.encryptService.decryptFileData(
       encryptedFileData,

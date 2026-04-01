@@ -15,11 +15,14 @@ import {
   DIALOG_DATA,
   DialogModule,
   DialogRef,
+  DialogService,
   FormFieldModule,
   IconButtonModule,
   SelectModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { ReceiveViewComponent } from "./receive-view.component";
 
 @Component({
   templateUrl: "./receive-add-edit.component.html",
@@ -49,6 +52,7 @@ export class ReceiveAddEditComponent {
     private readonly formBuilder: FormBuilder,
     private readonly i18nService: I18nService,
     private readonly dialogRef: DialogRef,
+    private readonly dialogService: DialogService,
     private readonly receiveService: ReceiveService,
     private readonly accountService: AccountService,
   ) {
@@ -83,10 +87,12 @@ export class ReceiveAddEditComponent {
       await this.editReceive(userId);
       this.dialogRef.close();
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const receiveView = await this.createReceive(userId);
-      // TODO need to go to the success component instead and pass in the receiveView to show URL. See buildReceiveUrl.
       this.dialogRef.close();
+      this.dialogService.openDrawer(ReceiveViewComponent, {
+        data: receiveView,
+        closeOnNavigation: true,
+      });
     }
   };
 

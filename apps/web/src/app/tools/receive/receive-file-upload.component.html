@@ -1,10 +1,9 @@
 <div>
-  <p class="tw-text-center">
-    <b>INSERT_NAME_HERE</b>
-  </p>
-  <p class="tw-text-center">
-    <b>INSERT_EMAIL_HERE sent you this request</b>
-  </p>
+  @if (receiveName()) {
+    <p class="tw-text-center">
+      <b>{{ receiveName() }}</b>
+    </p>
+  }
   <hr />
 </div>
 <bit-section>
