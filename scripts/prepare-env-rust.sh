@@ -1,10 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# This script prepares the environment for developing in Rust for the clients repo,
+# specifically Desktop Native. This script is used by both developers locally, and
+# in CI.
+#
+# NOTE: The cargo tools installed in this script, are installed to the default location
+# (user's $HOME dir). If you prefer another location, please install the vesrions
+# specified below, and ensure they are in your $PATH.
+
+
 CARGO_DENY_VERSION="0.18.6"
 CARGO_SORT_VERSION="2.0.2"
 CARGO_UDEPS_VERSION="0.1.57"
 
+# Ensures the active toolchain is installed, and that nightly is installed
+# for the cargo tools
 toolchain_is_installed() {
   if ! command -v rustup >/dev/null 2>&1; then
     echo "Installing Rust..."
