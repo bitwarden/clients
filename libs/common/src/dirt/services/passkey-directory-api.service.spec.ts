@@ -43,7 +43,7 @@ describe("PasskeyDirectoryApiService", () => {
       expect(result[0].domainName).toEqual("example.com");
       expect(result[0].instructions).toEqual("https://example.com/setup");
       expect(result[1].domainName).toEqual("test.com");
-      expect(result[1].instructions).toEqual("");
+      expect(result[1].instructions).toBeNull();
     });
 
     it("should return empty array when API returns empty", async () => {
