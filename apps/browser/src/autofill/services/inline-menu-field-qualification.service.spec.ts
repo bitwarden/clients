@@ -1024,6 +1024,32 @@ describe("InlineMenuFieldQualificationService", () => {
     });
   });
 
+  describe("isFieldForIdentityEmail", () => {
+    it("returns true if the field htmlName is 'email' (case-insensitive)", () => {
+      const field = mock<AutofillField>({
+        placeholder: "",
+        autoCompleteType: "",
+        type: "text",
+        htmlName: "Email",
+        htmlID: "email-field",
+      });
+
+      expect(inlineMenuFieldQualificationService.isFieldForIdentityEmail(field)).toBe(true);
+    });
+
+    it("returns true if the field htmlName is 'email' (lowercase)", () => {
+      const field = mock<AutofillField>({
+        placeholder: "",
+        autoCompleteType: "",
+        type: "text",
+        htmlName: "email",
+        htmlID: "email-field",
+      });
+
+      expect(inlineMenuFieldQualificationService.isFieldForIdentityEmail(field)).toBe(true);
+    });
+  });
+
   describe("isEmailField", () => {
     it("returns true if the field type is of `email`", () => {
       const field = mock<AutofillField>({

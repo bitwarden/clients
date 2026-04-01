@@ -910,7 +910,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
     if (
       this.fieldContainsAutocompleteValues(field, this.emailAutocompleteValue) ||
       field.type === "email" ||
-      field.htmlName === "email"
+      field.htmlName?.toLowerCase() === "email"
     ) {
       return true;
     }
