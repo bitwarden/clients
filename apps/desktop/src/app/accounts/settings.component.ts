@@ -8,6 +8,7 @@ import { BehaviorSubject, Observable, Subject, firstValueFrom, of } from "rxjs";
 import { concatMap, map, switchMap, takeUntil, timeout } from "rxjs/operators";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
+import { EnableUserPreferencesSyncComponent } from "@bitwarden/angular/platform/sync/preferences/enable-user-preferences-sync.component";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -76,6 +77,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
   imports: [
     CheckboxModule,
     CommonModule,
+    EnableUserPreferencesSyncComponent,
     FormFieldModule,
     FormsModule,
     ReactiveFormsModule,
