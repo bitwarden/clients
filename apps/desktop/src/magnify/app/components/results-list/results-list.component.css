@@ -62,7 +62,6 @@
   background: rgba(255, 255, 255, 0.18);
   border: 1px solid rgba(255, 255, 255, 0.45);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.5),
     0 1px 3px rgba(0, 0, 0, 0.12),
     0 0 0 0.5px rgba(0, 0, 0, 0.06);
   backdrop-filter: blur(8px) saturate(160%);
@@ -142,9 +141,7 @@
   background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(8px) saturate(160%);
   -webkit-backdrop-filter: blur(8px) saturate(160%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    0 1px 2px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
   transition:
     background 0.15s ease,
     border-color 0.15s ease;
@@ -167,9 +164,7 @@
 .result-action-badge.completing {
   background: rgba(52, 199, 89, 0.25);
   border-color: rgba(52, 199, 89, 0.6);
-  box-shadow:
-    inset 0 1px 0 rgba(52, 199, 89, 0.35),
-    0 1px 2px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 /* Fade the normal content out when completing so the overlay shows through */
