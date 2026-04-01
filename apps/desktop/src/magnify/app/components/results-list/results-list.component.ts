@@ -10,7 +10,15 @@ import {
   output,
 } from "@angular/core";
 
+import { MAGNIFY_ACTIONS, MagnifyAction } from "../../../../autofill/models/magnify-actions";
 import { MagnifyLoginItem } from "../../../../autofill/models/magnify-items";
+import { MAGNIFY_PLATFORM } from "../../../main";
+
+// Actions that apply to a specific item type (magnifyItemType !== null).
+// Navigate (null) is global UI — it is not shown per-item.
+const ITEM_ACTIONS: MagnifyAction[] = MAGNIFY_ACTIONS.filter(
+  (action) => action.magnifyItemType !== null,
+);
 
 @Component({
   selector: "results-list",
@@ -31,9 +39,26 @@ export class ResultsListComponent implements OnChanges {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChildren("resultItem") resultItems!: QueryList<ElementRef<HTMLDivElement>>;
 
+  /** The item-specific actions to show in each result row. */
+  readonly itemActions = ITEM_ACTIONS;
+
   onImgError(event: Event): void {
     // Hide the broken image so the CSS fallback initial letter shows instead
     (event.target as HTMLImageElement).style.display = "none";
+  }
+
+  /** Returns the platform-appropriate shortcut label for a given action. */
+  getActionLabel(action: MagnifyAction): string {
+    switch (MAGNIFY_PLATFORM) {
+      case "darwin":
+        return action.labelMacOs;
+      case "win32":
+        return action.labelWindows;
+      case "linux":
+        return action.labelLinux;
+      default:
+        return action.labelWindows;
+    }
   }
 
   ngOnChanges(): void {
