@@ -94,7 +94,7 @@
   "win": {
     "electronUpdaterCompatibility": ">=0.0.1",
     "target": ["portable", "nsis-web", "appx"],
-    "signExts": [".dll", ".node"],
+    "signExts": [".dll", ".node", ".msix"],
     "signtoolOptions": {
       "sign": "./sign.js",
       "publisherName": "Bitwarden Inc."
