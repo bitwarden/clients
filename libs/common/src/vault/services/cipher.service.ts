@@ -627,12 +627,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   private async reindexCiphers(userId: UserId) {
-    const reindexRequired =
-      this.searchService != null &&
-      ((await firstValueFrom(this.searchService.indexedEntityId$(userId))) ?? userId) !== userId;
-    if (reindexRequired) {
-      await this.searchService.clearIndex(userId);
-    }
+    await this.searchService.clearIndex(userId);
   }
 
   async getAllDecryptedForGrouping(
