@@ -10,7 +10,7 @@ import {
   output,
 } from "@angular/core";
 
-import { MagnifyLoginItem } from "../../../../autofill/models/magnify-commands";
+import { MagnifyLoginItem } from "../../../../autofill/models/magnify-items";
 
 @Component({
   selector: "results-list",

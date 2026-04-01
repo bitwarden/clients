@@ -19,6 +19,7 @@ const ipc = {
   sendCommand: async (command: MagnifyCommandRequest): Promise<MagnifyCommandResponse> => {
     return await ipcRenderer.invoke(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND, command);
   },
+  platform: process.platform,
 };
 
 contextBridge.exposeInMainWorld("ipc", ipc);

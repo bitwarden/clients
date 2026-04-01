@@ -4,8 +4,8 @@ import {
   MagnifyCommand,
   MagnifyCommandRequest,
   MagnifyCommandResponse,
-  MagnifyLoginItem,
 } from "../../autofill/models/magnify-commands";
+import { MagnifyLoginItem } from "../../autofill/models/magnify-items";
 
 @Injectable({
   providedIn: "root",

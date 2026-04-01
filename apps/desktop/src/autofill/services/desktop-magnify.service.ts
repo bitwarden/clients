@@ -176,11 +176,25 @@ export class DesktopMagnifyService implements OnDestroy {
 
   */
   private async copyPassword(id: string): Promise<Result<MagnifyCommandResponse>> {
-    // Returning dummy data for now
-    // TODO: IMPLEMENT ACTUAL COPY PASSWORD LOGIC HERE
+    const ciphers = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        map((account) => account?.id),
+        filter((userId): userId is UserId => userId != null),
+        switchMap((userId) => this.cipherService.cipherViews$(userId)),
+      ),
+    );
+
+    const cipher = ciphers.find((c) => c.id === id);
+
+    if (!cipher) {
+      return [new Error(`Cipher with id ${id} not found.`), null];
+    }
+
+    const password = cipher.login?.password ?? "";
+
     const response: MagnifyCommandResponse = {
       type: MagnifyCommand.CopyPassword,
-      result: "PasswordIsHere!",
+      result: password,
     };
 
     return [null, response];
