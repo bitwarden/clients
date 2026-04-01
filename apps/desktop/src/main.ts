@@ -298,11 +298,6 @@ export class Main {
       app.getAppPath(),
     );
 
-    // TODO: Rewrite this to use an observable pattern instead of a callback, to avoid potential issues with multiple listeners and to better handle async operations
-    this.nativeMessagingMain.shouldKeepListening = async () => {
-      return Promise.resolve(true);
-    };
-
     this.ipcService = new IpcMainService(
       this.logService,
       app,
