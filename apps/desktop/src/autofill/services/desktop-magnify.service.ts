@@ -18,7 +18,11 @@ import {
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
 
-import { MagnifyCommand, MagnifyCommandResponse } from "../models/magnify-commands";
+import {
+  DEFAULT_CARD_EXPIRATION_FORMAT,
+  MagnifyCommand,
+  MagnifyCommandResponse,
+} from "../models/magnify-commands";
 
 import { MagnifyNavigationService } from "./magnify-navigation.service";
 
@@ -100,6 +104,27 @@ export class DesktopMagnifyService implements OnDestroy {
           callback(error, result);
           break;
         }
+
+        case MagnifyCommand.CopyCardNumber: {
+          const [error, result] = await this.copyCardNumber(request.itemId);
+          callback(error, result);
+          break;
+        }
+
+        case MagnifyCommand.CopyCardExpiration: {
+          const [error, result] = await this.copyCardExpiration(
+            request.itemId,
+            request.format ?? DEFAULT_CARD_EXPIRATION_FORMAT,
+          );
+          callback(error, result);
+          break;
+        }
+
+        case MagnifyCommand.CopyCardCode: {
+          const [error, result] = await this.copyCardCode(request.itemId);
+          callback(error, result);
+          break;
+        }
       }
     });
   }
@@ -125,9 +150,10 @@ export class DesktopMagnifyService implements OnDestroy {
     const response: MagnifyCommandResponse = {
       type: MagnifyCommand.SearchVault,
       results: [
-        { id: "a1b2c3", name: "Netflix", username: "user@gmail.com" },
-        { id: "d4e5f6", name: "Netflix Family", username: "family@gmail.com" },
-        { id: "g7h8i9", name: "Netflix Work", username: "user@company.com" },
+        { itemType: "login", id: "a1b2c3", name: "Netflix", username: "user@gmail.com" },
+        { itemType: "login", id: "d4e5f6", name: "Netflix Family", username: "family@gmail.com" },
+        { itemType: "login", id: "g7h8i9", name: "Netflix Work", username: "user@company.com" },
+        { itemType: "card", id: "j1k2l3", name: "Netflix credit card", brand: "Visa" },
       ],
     };
 
@@ -143,12 +169,62 @@ export class DesktopMagnifyService implements OnDestroy {
     for examples of returning this Result type.
 
   */
-  private async copyPassword(id: string): Promise<Result<MagnifyCommandResponse>> {
+  private async copyPassword(_id: string): Promise<Result<MagnifyCommandResponse>> {
     // Returning dummy data for now
     // TODO: IMPLEMENT ACTUAL COPY PASSWORD LOGIC HERE
     const response: MagnifyCommandResponse = {
       type: MagnifyCommand.CopyPassword,
       result: "PasswordIsHere!",
+    };
+
+    return [null, response];
+  }
+
+  /*
+    Returns the card number for a specific Card vault item
+    based on the copyCardNumber Magnify Command.
+  */
+  private async copyCardNumber(_itemId: string): Promise<Result<MagnifyCommandResponse>> {
+    // Returning dummy data for now
+    // TODO: IMPLEMENT ACTUAL COPY CARD NUMBER LOGIC HERE
+    const response: MagnifyCommandResponse = {
+      type: MagnifyCommand.CopyCardNumber,
+      result: "4111111111111111",
+    };
+
+    return [null, response];
+  }
+
+  /*
+    This function returns the expiration date for a specific Card vault item
+    based on the copyCardExpiration Magnify Command.
+    The format parameter controls the output format (e.g. "MM/YYYY").
+  */
+  private async copyCardExpiration(
+    _itemId: string,
+    _format: string,
+  ): Promise<Result<MagnifyCommandResponse>> {
+    // Returning dummy data for now
+    // TODO: IMPLEMENT ACTUAL COPY CARD EXPIRATION LOGIC HERE
+    // Use format param with itemId.card?.expMonth + itemId.card?.expYear
+    const response: MagnifyCommandResponse = {
+      type: MagnifyCommand.CopyCardExpiration,
+      result: "12/2026",
+    };
+
+    return [null, response];
+  }
+
+  /*
+    This function returns the CVV/security code for a specific Card vault item
+    based on the copyCardCode Magnify Command.
+  */
+  private async copyCardCode(_itemId: string): Promise<Result<MagnifyCommandResponse>> {
+    // Returning dummy data for now
+    // TODO: IMPLEMENT ACTUAL COPY CARD CODE (CVV) LOGIC HERE
+    const response: MagnifyCommandResponse = {
+      type: MagnifyCommand.CopyCardCode,
+      result: "123",
     };
 
     return [null, response];
