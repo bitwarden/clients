@@ -60,4 +60,13 @@ export class CommandService {
     );
     return "";
   }
+
+  async viewInBitwarden(itemId: string): Promise<void> {
+    const request: MagnifyCommandRequest = {
+      type: MagnifyCommand.ViewInBitwarden,
+      itemId,
+    };
+
+    await window.ipc.sendCommand(request);
+  }
 }

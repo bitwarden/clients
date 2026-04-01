@@ -20,6 +20,8 @@ import {
 
 import { MagnifyCommand, MagnifyCommandResponse } from "../models/magnify-commands";
 
+import { MagnifyNavigationService } from "./magnify-navigation.service";
+
 export const MAGNIFY_ENABLED = new UserKeyDefinition<boolean | null>(
   MAGNIFY_SETTINGS_DISK,
   "magnifyEnabled",
@@ -48,6 +50,7 @@ export class DesktopMagnifyService implements OnDestroy {
   constructor(
     private activeUserStateProvider: ActiveUserStateProvider,
     private authService: AuthService,
+    private magnifyNavigationService: MagnifyNavigationService,
   ) {
     this.magnifyEnabledUserSetting$ = this.magnifyEnabledState.state$.pipe(
       map((enabled) => enabled ?? false),
@@ -88,6 +91,12 @@ export class DesktopMagnifyService implements OnDestroy {
 
         case MagnifyCommand.CopyPassword: {
           const [error, result] = await this.copyPassword(request.id);
+          callback(error, result);
+          break;
+        }
+
+        case MagnifyCommand.ViewInBitwarden: {
+          const [error, result] = await this.viewInBitwarden(request.itemId);
           callback(error, result);
           break;
         }
@@ -142,6 +151,17 @@ export class DesktopMagnifyService implements OnDestroy {
       result: "PasswordIsHere!",
     };
 
+    return [null, response];
+  }
+
+  /*
+    Navigates the app's vault view to show the specified Login item
+    using the itemId query parameter.
+  */
+  private async viewInBitwarden(itemId: string): Promise<Result<MagnifyCommandResponse>> {
+    this.magnifyNavigationService.requestViewInBitwarden(itemId);
+
+    const response: MagnifyCommandResponse = { type: MagnifyCommand.ViewInBitwarden };
     return [null, response];
   }
 
