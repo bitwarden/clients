@@ -16,6 +16,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
   templateUrl: "enable-user-preferences-sync.component.html",
   imports: [SwitchComponent, FormFieldModule, ReactiveFormsModule, I18nPipe, CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: "tw-block" },
 })
 export class EnableUserPreferencesSyncComponent implements OnInit {
   private readonly accountService = inject(AccountService);
