@@ -23,7 +23,17 @@
       autocorrect="off"
       autocapitalize="off"
       spellcheck="false"
+      (input)="onInput()"
+      (keydown)="onKeydown($event)"
     />
     <span class="search-esc">esc</span>
   </div>
+
+  <results-list
+    [results]="results()"
+    [selectedIndex]="selectedIndex()"
+    [hasSearched]="hasSearched()"
+    (itemSelected)="onItemSelected($event)"
+    (itemHovered)="onItemHovered($event)"
+  />
 </div>

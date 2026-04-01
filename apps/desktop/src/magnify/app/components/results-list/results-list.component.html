@@ -1,0 +1,24 @@
+<div class="results-wrapper" *ngIf="hasSearched()">
+  <div class="results-list" role="listbox">
+    <div class="category-header" *ngIf="results().length > 0">Logins</div>
+
+    <div
+      *ngFor="let item of results(); let i = index"
+      #resultItem
+      class="result-item"
+      [class.selected]="i === selectedIndex()"
+      role="option"
+      [attr.aria-selected]="i === selectedIndex()"
+      (click)="itemSelected.emit(item)"
+      (mouseenter)="itemHovered.emit(i)"
+    >
+      <div class="result-icon">{{ item.name.charAt(0).toUpperCase() }}</div>
+      <div class="result-text">
+        <div class="result-title">{{ item.name }}</div>
+        <div class="result-subtitle">{{ item.username }}</div>
+      </div>
+    </div>
+
+    <div class="no-results" *ngIf="results().length === 0">No results found</div>
+  </div>
+</div>

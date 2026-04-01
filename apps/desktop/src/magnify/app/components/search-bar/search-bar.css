@@ -7,6 +7,7 @@
   --selection-bg: #007aff;
   --icon-color: rgba(0, 0, 0, 0.6);
   --preview-bg: rgba(0, 0, 0, 0.04);
+  --scrollbar-color: rgba(0, 0, 0, 0.2);
 
   width: 100%;
   border-radius: 12px;
@@ -28,6 +29,7 @@
     --selection-bg: #0a84ff;
     --icon-color: rgba(255, 255, 255, 0.6);
     --preview-bg: rgba(255, 255, 255, 0.06);
+    --scrollbar-color: rgba(255, 255, 255, 0.2);
   }
 }
 
