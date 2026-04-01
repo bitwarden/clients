@@ -61,11 +61,7 @@ export class IpcMainService extends IpcService {
             } satisfies IpcMessage;
 
             const clientId = extractClientId(message.destination.BrowserBackground);
-            if (clientId != null) {
-              this.nativeMessaging.sendTo(clientId, ipcMessage);
-            } else {
-              this.nativeMessaging.send(ipcMessage);
-            }
+            this.nativeMessaging.sendTo(clientId, ipcMessage);
             return;
           }
 
@@ -147,11 +143,7 @@ export class IpcMainService extends IpcService {
           } satisfies ForwardedIpcMessage;
 
           const clientId = extractClientId(message.message.destination.BrowserBackground);
-          if (clientId != null) {
-            this.nativeMessaging.sendTo(clientId, forwardedMessage);
-          } else {
-            this.nativeMessaging.send(forwardedMessage);
-          }
+          this.nativeMessaging.sendTo(clientId, forwardedMessage);
         }
       });
 
@@ -170,11 +162,11 @@ export class IpcMainService extends IpcService {
 
 /**
  * Extract a numeric client ID from a BrowserBackground host ID.
- * Returns the number if the id is `{ Id: number }`, or null if it's `"Own"`.
+ * Throws if the id is `"Own"`, which is not valid from the desktop's perspective.
  */
-function extractClientId(host: { id: string | { Id: number } }): number | null {
+function extractClientId(host: { id: string | { Id: number } }): number {
   if (typeof host.id === "object" && "Id" in host.id) {
     return host.id.Id;
   }
-  return null;
+  throw new Error(`Cannot resolve BrowserBackground host ID: ${JSON.stringify(host.id)}`);
 }
