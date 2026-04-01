@@ -1,0 +1,90 @@
+name: SDLC / Label PR
+run-name: Label PR ${{ github.event.pull_request.number || inputs.pr-number }}${{ github.event_name == 'workflow_dispatch' && format(' / mode "{0}" dry-run "{1}"', inputs.mode, inputs.dry-run) || '' }}
+on:
+  pull_request:
+    types: [opened, synchronize]
+  workflow_dispatch:
+    inputs:
+      pr-number:
+        description: "Pull Request Number"
+        required: true
+        type: number
+      mode:
+        description: "Labeling Mode"
+        type: choice
+        options:
+          - add
+          - replace
+        default: add
+      dry-run:
+        description: "Dry Run - Don't apply labels"
+        type: boolean
+        default: false
+
+env:
+  _PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr-number }}
+
+jobs:
+  label-pr:
+    name: Label PR by Changed Files
+    runs-on: ubuntu-24.04
+    permissions:
+      pull-requests: write # required to update labels
+      contents: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+
+      - name: Determine label mode for Pull Request
+        id: label-mode
+        env:
+          GH_TOKEN: ${{ github.token }}
+          _PR_USER: ${{ github.event.pull_request.user.login }}
+          _IS_FORK: ${{ github.event.pull_request.head.repo.fork }}
+        run: |
+          # Support workflow_dispatch testing by retrieving PR data
+          if [ -z "$_PR_USER" ]; then
+            echo "👀 PR User is empty, retrieving PR data for PR #$_PR_NUMBER..."
+            PR_DATA=$(gh pr view "$_PR_NUMBER" --json author,isCrossRepository)
+            _PR_USER=$(echo "$PR_DATA" | jq -r '.author.login')
+            _IS_FORK=$(echo "$PR_DATA" | jq -r '.isCrossRepository')
+          fi
+
+          echo "📋 PR User: $_PR_USER"
+          echo "📋 Is Fork: $_IS_FORK"
+
+          # Handle PRs with labels set by other automations by adding instead of replacing
+          if [ "$_IS_FORK" = "true" ]; then
+            echo "➡️ Fork PR ($_PR_USER). Label mode: --add"
+            echo "label_mode=--add" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [[ "$_PR_USER" == app/* || "$_PR_USER" == *\[bot\] ]]; then
+            echo "➡️ Bot PR ($_PR_USER). Label mode: --add"
+            echo "label_mode=--add" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "➡️ Normal PR. Label mode: --replace"
+          echo "label_mode=--replace" >> "$GITHUB_OUTPUT"
+
+      - name: Label PR based on changed files
+        env:
+          GH_TOKEN: ${{ github.token }}
+          _LABEL_MODE: ${{ inputs.mode && format('--{0}', inputs.mode) || steps.label-mode.outputs.label_mode }}
+          _DRY_RUN: ${{ inputs.dry-run == true && '--dry-run' || '' }}
+          _PR_LABELS: ${{ toJSON(github.event.pull_request.labels) }}
+        run: |
+          if [ -z "$_PR_LABELS" ] || [ "$_PR_LABELS" = "null" ] || [ "$_PR_LABELS" = "[]" ]; then
+            echo "🔍 No current PR labels found, retrieving PR data for PR #$_PR_NUMBER..."
+            _PR_LABELS=$(gh pr view "$_PR_NUMBER" --json labels --jq '.labels')
+          fi
+          echo "🔍 Labeling PR #$_PR_NUMBER with mode: \"$_LABEL_MODE\" and dry-run: \"$_DRY_RUN\" and current PR labels: \"$_PR_LABELS\"..."
+          echo "🐍 Running label-pr.py script..."
+          echo ""
+          python3 .github/scripts/label-pr.py "$_PR_NUMBER" "$_PR_LABELS" "$_LABEL_MODE" "$_DRY_RUN"
+

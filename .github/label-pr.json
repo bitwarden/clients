@@ -1,0 +1,35 @@
+{
+  "title_patterns": {
+    "t:feature": ["feat", "feature", "tool"],
+    "t:bug": ["fix", "bug", "bugfix"],
+    "t:tech-debt": ["refactor", "chore", "cleanup", "revert", "debt", "test", "perf"],
+    "t:docs": ["docs"],
+    "t:ci": ["ci", "build", "chore(ci)"],
+    "t:deps": ["deps"],
+    "t:breaking-change": ["breaking", "breaking-change"],
+    "t:misc": ["misc"],
+    "t:llm": ["llm"]
+  },
+  "path_patterns": {
+    "web": ["apps/web", "bitwarden_license/bit-web", "bitwarden_license/bit-common", "libs/"],
+    "browser": [
+      "apps/browser",
+      "bitwarden_license/bit-browser",
+      "bitwarden_license/bit-common",
+      "libs/"
+    ],
+    "desktop": [
+      "apps/desktop",
+      "bitwarden_license/bit-desktop",
+      "bitwarden_license/bit-common",
+      "libs/"
+    ],
+    "cli": ["apps/cli", "bitwarden_license/bit-cli", "bitwarden_license/bit-common", "libs/"],
+    "feature-flag": ["libs/common/src/enums/feature-flag.enum.ts"],
+    "t:tech-debt": ["gradle.properties", "keystore/"],
+    "t:ci": [".checkmarx/", ".github/", "scripts/", "fastlane/", ".gradle/", "detekt-config.yml"],
+    "t:docs": ["docs/"],
+    "t:deps": ["gradle/"],
+    "t:llm": [".claude/"]
+  }
+}
