@@ -1,6 +1,6 @@
 ---
-name: dirt-create-hec-event-integration-using-token-auth
-description: Use when adding a new HEC (HTTP Event Collector) event integration to the Bitwarden web client for the DIRT team. Implements the Splunk token authentication model (Bearer token + URI). Covers feature flag setup and card registration behind the flag. Does not apply to API key integrations or integrations requiring a custom connect dialog.
+name: create-hec-event-integration
+description: Use when adding a new HEC (HTTP Event Collector) event integration to the Bitwarden web client. Implements the Splunk token authentication model (Bearer token + URI). Covers feature flag setup and card registration behind the flag. Does not apply to API key integrations or integrations requiring a custom connect dialog.
 ---
 
 # Create HEC Event Integration (Token Auth)
@@ -11,15 +11,21 @@ Adds a new HEC (HTTP Event Collector) event integration using the **Splunk token
 
 ## Before You Start
 
-Ask the user the following questions before executing any steps:
+Ask these questions one at a time — wait for each answer before proceeding.
 
-1. **Service name:** "What is the service name for this integration?" (e.g. `Splunk`, `CrowdStrike`, `Panther`)
+**Prompt 1 — Service name:** "What is the service name for this integration?" (e.g. `Splunk`, `CrowdStrike`, `Panther`)
 
-   Use this as `<ServiceName>` throughout. The string value in the constant must exactly match what you use as the card's `name` in Step 3 — a mismatch silently saves the config with the wrong service name.
+Use the answer as `<ServiceName>` throughout. The string value in the constant must exactly match what you use as the card's `name` in Step 3 — a mismatch silently saves the config with the wrong service name.
 
-2. **Logos:** "Do you have the integration logo(s) ready to provide?"
-   - **If yes** — ask for the light-mode SVG file path, and optionally a dark-mode SVG path. Copy both to `apps/web/src/images/integrations/` using the naming convention `logo-<service-name-kebab>-color.svg` and `logo-<service-name-kebab>-darkmode.svg`. Use those filenames in Step 3.
-   - **If no** — use placeholder paths in Step 3 and add a `// TODO: add logo before shipping` comment.
+**Prompt 2 — Authentication:** "How is this integration authenticated?" (e.g. `Token`, `API key`)
+
+- **If Token** — continue with the steps below.
+- **If anything else** — stop and inform the user: "This skill currently only supports token-based authentication. Support for other authentication methods hasn't been added yet."
+
+**Prompt 3 — Logos:** "Do you have the integration logo(s) ready to provide?"
+
+- **If yes** — ask for the light-mode SVG file path, and optionally a dark-mode SVG path. Copy both to `apps/web/src/images/integrations/` using the naming convention `logo-<service-name-kebab>-color.svg` and `logo-<service-name-kebab>-darkmode.svg`. Use those filenames in Step 3.
+- **If no** — use placeholder paths in Step 3 and add a `// TODO: add logo before shipping` comment.
 
 ## Step 1 — Add service name constant
 
@@ -116,6 +122,16 @@ describe("<ServiceName> integration", () => {
   });
 });
 ```
+
+## Step 5 — Run unit tests
+
+Run the unit tests for the spec file and confirm they all pass before finishing:
+
+```bash
+npx nx test bit-common --testFile=bitwarden_license/bit-common/src/dirt/organization-integrations/services/organization-integration-service.spec.ts
+```
+
+All tests must pass. If any fail, fix them before proceeding.
 
 ## Common Mistakes
 
