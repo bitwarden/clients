@@ -120,6 +120,18 @@ export class PreferenceSyncService {
 
   async setSyncEnabled(userId: UserId, enabled: boolean): Promise<void> {
     await this.stateProvider.getUser(userId, PREFERENCE_SYNC_ENABLED).update(() => enabled);
+    if (enabled) {
+      try {
+        const response = await this.getUserPreferences();
+        if (response?.data != null) {
+          await this.applySyncedUserPreferences(response, userId);
+        } else {
+          await this.pushToServer(userId);
+        }
+      } catch (e) {
+        this.logService.error("PreferenceSyncService: initial sync on enable failed", e);
+      }
+    }
   }
 
   private async pushToServer(userId: UserId): Promise<void> {
@@ -253,6 +265,11 @@ export class PreferenceSyncService {
       this.logService.error("PreferenceSyncService: failed to decrypt preferences blob", e);
       return null;
     }
+  }
+
+  private async getUserPreferences(): Promise<UserPreferencesResponse> {
+    const r = await this.apiService.send("GET", "/user-preferences", null, true, true);
+    return new UserPreferencesResponse(r);
   }
 
   private async putUserPreferences(request: UserPreferencesRequest): Promise<void> {
