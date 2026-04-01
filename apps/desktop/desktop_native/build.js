@@ -144,9 +144,16 @@ function buildSparsePackage(target) {
     const publisher = process.env.SPARSE_PACKAGE_PUBLISHER || "CN=Bitwarden, O=Bitwarden Inc., L=Santa Barbara, S=California, C=US";
 
     const scriptPath = path.join(__dirname, "..", "scripts", "build-sparse-package.ps1");
+    const outputDir = path.join(__dirname, "dist");
 
     console.log(`Building sparse MSIX package (arch=${arch}, version=${version})`);
-    runCommand("powershell", ["-ExecutionPolicy", "Bypass", "-File", scriptPath, "-Arch", arch, "-Version", version, "-Publisher", publisher]);
+    runCommand("powershell", [
+        "-ExecutionPolicy", "Bypass", "-File", scriptPath,
+        "-Arch", arch,
+        "-Version", version,
+        "-Publisher", `"${publisher}"`,
+        "-OutputDir", `"${outputDir}"`
+    ], "", true);
 }
 
 function buildProcessIsolation() {
