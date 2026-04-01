@@ -478,12 +478,12 @@ export class VaultComponent<C extends CipherViewLike>
         const allCiphers = [...failedCiphers, ...ciphers];
 
         if (await this.searchService.isSearchable(activeUserId, searchText)) {
-          return await this.searchService.searchCiphers<C>(
+          const result = await this.searchService.searchCiphers<C>(
             activeUserId,
             searchText,
-            [filterFunction],
             allCiphers as C[],
           );
+          return result.filter(filterFunction);
         }
 
         return allCiphers.filter(filterFunction) as C[];

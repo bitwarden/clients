@@ -148,7 +148,7 @@ export class LunrSearchService {
     // If another indexing operation is in progress for this user, wait for it then return.
     if (await this.getIsIndexing(userId)) {
       await firstValueFrom(this.searchIsIndexing$(userId).pipe(filter((indexing) => !indexing)));
-      return await this.getIndexForSearch(userId)!;
+      return (await this.getIndexForSearch(userId))!;
     }
 
     // If there is no index in progress, build an index for the user and set it to state.

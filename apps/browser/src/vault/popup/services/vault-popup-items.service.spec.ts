@@ -480,20 +480,15 @@ describe("VaultPopupItemsService", () => {
   });
 
   describe("applyFilter", () => {
-    it("should call search Service with the new search term", (done) => {
+    it("should call search Service with the new search term", async () => {
       const searchText = "Hello";
       const searchServiceSpy = jest.spyOn(searchService, "searchCiphers");
 
       service.applyFilter(searchText);
-      service.favoriteCiphers$.subscribe(() => {
-        expect(searchServiceSpy).toHaveBeenCalledWith(
-          "UserId",
-          searchText,
-          undefined,
-          expect.anything(),
-        );
-        done();
-      });
+
+      await firstValueFrom(service.favoriteCiphers$.pipe(take(1)));
+
+      expect(searchServiceSpy).toHaveBeenCalledWith("UserId", searchText, expect.anything());
     });
   });
 
