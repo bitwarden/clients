@@ -38,6 +38,7 @@ export class ReceiveFileUploadComponent implements OnInit {
   readonly maxFileSize = 500;
   readonly files = signal<File[]>([]);
   readonly receiveName = signal<string>("");
+  readonly ownerEmail = signal<string>("");
   readonly showUploadFileButton = signal<boolean>(false);
   readonly showFileUploadResult = signal<boolean>(false);
   readonly filesUploaded = signal<number>(0);
@@ -70,6 +71,7 @@ export class ReceiveFileUploadComponent implements OnInit {
       );
       this.receiveName.set(sharedData.name);
       this.publicKey.set(sharedData.publicKey);
+      this.ownerEmail.set(sharedData.ownerEmail);
     } catch (e) {
       this.logService.error(e);
       this.toastService.showToast({

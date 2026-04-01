@@ -6410,6 +6410,9 @@
   "editReceive": {
     "message": "Edit Receive"
   },
+  "sentYouThisRequest" : {
+    "message": "sent you this request"
+  },
   "expirationDays": {
     "message": "Expiration (days)"
   },
