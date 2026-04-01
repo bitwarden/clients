@@ -376,7 +376,6 @@ export class Main {
             await this.nativeMessagingMain.generateDdgManifests();
           }
 
-          // Start native messaging when shared unlock is enabled at runtime
           await this.nativeMessagingMain.generateManifests();
           await this.nativeMessagingMain.listen();
         } catch (err) {
