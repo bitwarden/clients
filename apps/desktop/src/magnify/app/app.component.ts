@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 
-import { SearchBarComponent } from "./components/search-bar.component";
+import { SearchBarComponent } from "./components/search-bar/search-bar.component";
 
 @Component({
   selector: "magnify-root",

@@ -97,7 +97,7 @@ export class MainDesktopMagnifyService {
     // otherwise: create the window
     const win = new BrowserWindow({
       width: 800,
-      height: 100,
+      height: 600,
       frame: false,
       transparent: true,
       alwaysOnTop: true,
