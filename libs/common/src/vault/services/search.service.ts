@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import * as lunr from "lunr";
-import { BehaviorSubject, Observable, firstValueFrom, map } from "rxjs";
+import { BehaviorSubject, Observable, firstValueFrom, map, timeout, filter as rxjsfilter } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { perUserCache$ } from "@bitwarden/common/vault/utils/observable-utilities";
@@ -263,12 +263,11 @@ export class SearchService implements SearchServiceAbstraction {
 
     const isQueryString = query != null && query.length > 1 && query.indexOf(">") === 0;
     if (isQueryString) {
-      // If is indexing, then wait
-      if (await this.getIsIndexing(userId)) {
-        await new Promise((r) => setTimeout(r, 250));
-        if (await this.getIsIndexing(userId)) {
-          await new Promise((r) => setTimeout(r, 500));
-        }
+      // If is indexing, then wait with timeout using observable
+      try {
+        await firstValueFrom(this.searchIsIndexing$(userId).pipe(rxjsfilter((indexing) => !indexing), timeout(2000)))
+      } catch {
+        // Timeout occurred, continue
       }
       let index = await this.getIndexForSearch(userId);
 
