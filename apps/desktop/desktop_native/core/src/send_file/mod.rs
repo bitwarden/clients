@@ -59,7 +59,7 @@ pub fn read_file(path: &str) -> Result<Vec<u8>> {
 
 /// Recursively read all files in a directory.
 ///
-/// Skips symlinks to avoid loops. Enforces [`MAX_FOLDER_SIZE`] total size limit.
+/// Skips symlinks to avoid loops. Returns an error if total size exceeds 500 MB.
 /// Returns entries with forward-slash relative paths.
 pub fn read_directory(path: &str) -> Result<Vec<DirectoryEntry>> {
     let root = Path::new(path);

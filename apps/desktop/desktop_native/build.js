@@ -96,6 +96,31 @@ function buildImporterBinaries(target, release = true) {
     }
 }
 
+function buildShellExtension(target, release = true) {
+    // The shell extension DLL is only built for Windows
+    if (effectivePlatform(target) !== "win32") {
+        return;
+    }
+
+    const targetArg = target ? `--target=${target}` : "";
+    const releaseArg = release ? "--release" : "";
+    const args = ["build", "--package", "windows_shell_extension", releaseArg, targetArg].filter(s => s != "");
+
+    // Use cross-compilation helper if necessary
+    if (process.platform !== "win32") {
+        args.unshift("xwin");
+    }
+
+    runCommand("cargo", args);
+
+    // Copy the resulting DLL to the dist folder
+    const profileFolder = release ? "release" : "debug";
+    const src = path.join(__dirname, "target", target ? target : "", profileFolder, "bitwarden_windows_shell_extension.dll");
+    const dst = path.join(__dirname, "dist", "bitwarden_windows_shell_extension.dll");
+    console.log(`Copying ${src} to ${dst}`);
+    fs.copyFileSync(src, dst);
+}
+
 function buildProcessIsolation() {
     if (process.platform !== "linux") {
         return;
@@ -131,6 +156,7 @@ if (!crossPlatform && !target) {
     buildNapiModule(false, mode === "release");
     buildProxyBin(false, mode === "release");
     buildImporterBinaries(false, mode === "release");
+    buildShellExtension(false, mode === "release");
     buildProcessIsolation();
     return;
 }
@@ -141,6 +167,7 @@ if (target) {
     buildNapiModule(target, isRelease);
     buildProxyBin(target, isRelease);
     buildImporterBinaries(target, isRelease);
+    buildShellExtension(target, isRelease);
     buildProcessIsolation();
     return;
 }
@@ -160,5 +187,6 @@ platformTargets.forEach(([target, _]) => {
     buildNapiModule(target, isRelease);
     buildProxyBin(target, isRelease);
     buildImporterBinaries(target, isRelease);
+    buildShellExtension(target, isRelease);
     buildProcessIsolation();
 });

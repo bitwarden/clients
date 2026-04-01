@@ -4716,6 +4716,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "windows_shell_extension"
+version = "0.0.0"
+dependencies = [
+ "windows 0.62.2",
+ "windows-core 0.62.2",
+ "windows-registry",
+]
+
+[[package]]
 name = "windows_x86_64_gnu"
 version = "0.42.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"

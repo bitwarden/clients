@@ -72,7 +72,9 @@ serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 widestring = { workspace = true, optional = true }
 windows = { workspace = true, features = [
+    "ApplicationModel",
     "Foundation",
+    "Management_Deployment",
     "Security_Credentials_UI",
     "Security_Cryptography",
     "Storage_Streams",

@@ -1,7 +1,7 @@
 use anyhow::Result;
 
 /// Not supported on this platform.
-pub fn register(_exe_path: &str) -> Result<()> {
+pub fn register(_exe_path: &str, _msix_path: &str, _install_dir: &str) -> Result<()> {
     anyhow::bail!("Context menu integration is only supported on Windows")
 }
 

@@ -437,17 +437,22 @@ export class Main {
       });
 
     // Handle --send-path from Windows Explorer context menu.
+    // The shell extension may pass multiple --send-path flags when several files are selected.
     // Electron/Chromium may inject flags (e.g. --allow-file-access-from-files) between
     // --send-path and the actual file path, so scan forward past any flags.
-    const sendPathIdx = argv.indexOf("--send-path");
-    if (sendPathIdx !== -1) {
-      for (let i = sendPathIdx + 1; i < argv.length; i++) {
-        if (!argv[i].startsWith("-")) {
-          this.pendingSendPaths.push(argv[i]);
-          this.debounceSendPaths();
+    for (let idx = 0; idx < argv.length; idx++) {
+      if (argv[idx] !== "--send-path") {
+        continue;
+      }
+      for (let j = idx + 1; j < argv.length; j++) {
+        if (!argv[j].startsWith("-")) {
+          this.pendingSendPaths.push(argv[j]);
           break;
         }
       }
+    }
+    if (this.pendingSendPaths.length > 0) {
+      this.debounceSendPaths();
     }
   }
 

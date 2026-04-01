@@ -168,9 +168,13 @@ export declare namespace clipboards {
 export declare namespace context_menu {
   /**
    * Register the Bitwarden context menu in Windows Explorer for both files
-   * and directories. The `exe_path` is embedded in the registry commands.
+   * and directories.
+   *
+   * - `exe_path`: path to Bitwarden.exe (embedded in registry commands)
+   * - `msix_path`: path to the sparse MSIX package for Win11 modern menu
+   * - `install_dir`: application install directory (external location for sparse package)
    */
-  export function register(exePath: string): void
+  export function register(exePath: string, msixPath: string, installDir: string): void
   /** Remove all Bitwarden context menu entries from Windows Explorer. */
   export function unregister(): void
 }
