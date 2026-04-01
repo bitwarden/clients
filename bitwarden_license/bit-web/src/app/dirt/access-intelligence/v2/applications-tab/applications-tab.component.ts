@@ -248,7 +248,7 @@ export class ApplicationsTabComponent {
       });
   }
 
-  setFilterApplicationsByStatus(value: ApplicationFilterOption) {
+  protected setFilterApplicationsByStatus(value: ApplicationFilterOption) {
     this.selectedFilter.set(value);
   }
 
@@ -256,7 +256,7 @@ export class ApplicationsTabComponent {
    * Marks selected applications as critical in a single save operation.
    * Uses markApplicationsAsCritical$() to avoid multiple saves and UI flashing.
    */
-  markAppsAsCritical(): void {
+  protected markAppsAsCritical(): void {
     this.updatingCriticalApps.set(true);
     const count = this.selectedUrls().size;
     const appNames = Array.from(this.selectedUrls());
@@ -290,7 +290,7 @@ export class ApplicationsTabComponent {
    * Unmarks selected applications as critical in a single save operation.
    * Uses unmarkApplicationsAsCritical$() to avoid multiple saves and UI flashing.
    */
-  unmarkAppsAsCritical(): void {
+  protected unmarkAppsAsCritical(): void {
     this.updatingCriticalApps.set(true);
     const appsToUnmark = this.selectedUrls();
     const appNames = Array.from(appsToUnmark);
@@ -322,7 +322,7 @@ export class ApplicationsTabComponent {
       });
   }
 
-  requestPasswordChange(): void {
+  protected requestPasswordChange(): void {
     const orgId = this.organizationId();
     if (!orgId) {
       this.toastService.showToast({
@@ -362,7 +362,7 @@ export class ApplicationsTabComponent {
     this.drawerStateService.openDrawer(DrawerType.AppAtRiskMembers, applicationName);
   };
 
-  readonly onCheckboxChange = ({
+  protected readonly onCheckboxChange = ({
     applicationName,
     checked,
   }: {
@@ -394,7 +394,7 @@ export class ApplicationsTabComponent {
     });
   };
 
-  downloadApplicationsCSV(): void {
+  protected downloadApplicationsCSV(): void {
     try {
       const data = this.dataSource.filteredData;
       if (!data || data.length === 0) {

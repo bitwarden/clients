@@ -51,6 +51,8 @@ describe("PasswordChangeMetricV2Component", () => {
   let mockToastService: jest.Mocked<ToastService>;
   let mockI18nService: jest.Mocked<I18nService>;
 
+  const testAccess = (comp: PasswordChangeMetricV2Component) => comp as any;
+
   const orgId = "org-123" as OrganizationId;
 
   /** Creates a SecurityTask for testing with deterministic dates */
@@ -151,7 +153,7 @@ describe("PasswordChangeMetricV2Component", () => {
       mockDataService.report$.next(null);
       fixture.detectChanges();
 
-      expect(component.currentView()).toBe(PasswordChangeView.EMPTY);
+      expect(testAccess(component).currentView()).toBe(PasswordChangeView.EMPTY);
     });
 
     it("returns EMPTY when report has no critical applications", () => {
@@ -162,7 +164,7 @@ describe("PasswordChangeMetricV2Component", () => {
       mockDataService.report$.next(report);
       fixture.detectChanges();
 
-      expect(component.currentView()).toBe(PasswordChangeView.EMPTY);
+      expect(testAccess(component).currentView()).toBe(PasswordChangeView.EMPTY);
     });
 
     it("returns NO_TASKS_ASSIGNED when critical apps exist but no tasks are loaded", () => {
@@ -170,7 +172,7 @@ describe("PasswordChangeMetricV2Component", () => {
       mockAccessSecurityTasksService.tasks$.next([]);
       fixture.detectChanges();
 
-      expect(component.currentView()).toBe(PasswordChangeView.NO_TASKS_ASSIGNED);
+      expect(testAccess(component).currentView()).toBe(PasswordChangeView.NO_TASKS_ASSIGNED);
     });
 
     it("returns NEW_TASKS_AVAILABLE when unassigned cipher IDs exist", () => {
@@ -181,7 +183,7 @@ describe("PasswordChangeMetricV2Component", () => {
       mockAccessSecurityTasksService.unassignedCriticalCipherIds$.next(["c2", "c3"]);
       fixture.detectChanges();
 
-      expect(component.currentView()).toBe(PasswordChangeView.NEW_TASKS_AVAILABLE);
+      expect(testAccess(component).currentView()).toBe(PasswordChangeView.NEW_TASKS_AVAILABLE);
     });
 
     it("returns PROGRESS when all tasks are assigned and none are unassigned", () => {
@@ -193,7 +195,7 @@ describe("PasswordChangeMetricV2Component", () => {
       mockAccessSecurityTasksService.unassignedCriticalCipherIds$.next([]);
       fixture.detectChanges();
 
-      expect(component.currentView()).toBe(PasswordChangeView.PROGRESS);
+      expect(testAccess(component).currentView()).toBe(PasswordChangeView.PROGRESS);
     });
   });
 
@@ -210,7 +212,7 @@ describe("PasswordChangeMetricV2Component", () => {
       ]);
       fixture.detectChanges();
 
-      expect(component.tasksCount()).toBe(2);
+      expect(testAccess(component).tasksCount()).toBe(2);
     });
 
     it("completedTasksCount returns only completed tasks", () => {
@@ -221,14 +223,14 @@ describe("PasswordChangeMetricV2Component", () => {
       ]);
       fixture.detectChanges();
 
-      expect(component.completedTasksCount()).toBe(2);
+      expect(testAccess(component).completedTasksCount()).toBe(2);
     });
 
     it("completedTasksPercent returns 0 when no tasks", () => {
       mockAccessSecurityTasksService.tasks$.next([]);
       fixture.detectChanges();
 
-      expect(component.completedTasksPercent()).toBe(0);
+      expect(testAccess(component).completedTasksPercent()).toBe(0);
     });
 
     it("completedTasksPercent calculates correct percentage", () => {
@@ -240,20 +242,20 @@ describe("PasswordChangeMetricV2Component", () => {
       ]);
       fixture.detectChanges();
 
-      expect(component.completedTasksPercent()).toBe(25);
+      expect(testAccess(component).completedTasksPercent()).toBe(25);
     });
 
     it("atRiskPasswordCount deduplicates cipher IDs", () => {
       // Report has c1, c2 as at-risk in github.com (critical) and c3 as at-risk in gitlab.com (critical)
       // The count should be 3 (deduplicated unique cipher IDs)
-      expect(component.atRiskPasswordCount()).toBe(3);
+      expect(testAccess(component).atRiskPasswordCount()).toBe(3);
     });
 
     it("unassignedCipherIds returns count of unassigned cipher IDs", () => {
       mockAccessSecurityTasksService.unassignedCriticalCipherIds$.next(["c1", "c2"]);
       fixture.detectChanges();
 
-      expect(component.unassignedCipherIds()).toBe(2);
+      expect(testAccess(component).unassignedCipherIds()).toBe(2);
     });
   });
 
@@ -320,7 +322,7 @@ describe("PasswordChangeMetricV2Component", () => {
         of(undefined),
       );
 
-      component.assignTasks();
+      testAccess(component).assignTasks();
 
       expect(
         mockAccessSecurityTasksService.requestPasswordChangeForCriticalApplications$,
@@ -332,7 +334,7 @@ describe("PasswordChangeMetricV2Component", () => {
         of(undefined),
       );
 
-      component.assignTasks();
+      testAccess(component).assignTasks();
 
       expect(mockToastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "success" }),
@@ -345,7 +347,7 @@ describe("PasswordChangeMetricV2Component", () => {
         throwError(() => error),
       );
 
-      component.assignTasks();
+      testAccess(component).assignTasks();
 
       expect(mockToastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -360,7 +362,7 @@ describe("PasswordChangeMetricV2Component", () => {
         throwError(() => new Error("unexpected")),
       );
 
-      component.assignTasks();
+      testAccess(component).assignTasks();
 
       expect(mockToastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -376,15 +378,15 @@ describe("PasswordChangeMetricV2Component", () => {
       mockDataService.report$.next(null);
       fixture.detectChanges();
 
-      expect(component.atRiskPasswordCount()).toBe(0);
+      expect(testAccess(component).atRiskPasswordCount()).toBe(0);
     });
 
     it("handles empty task list — tasksCount is 0 and completedTasksPercent is 0", () => {
       mockAccessSecurityTasksService.tasks$.next([]);
       fixture.detectChanges();
 
-      expect(component.tasksCount()).toBe(0);
-      expect(component.completedTasksPercent()).toBe(0);
+      expect(testAccess(component).tasksCount()).toBe(0);
+      expect(testAccess(component).completedTasksPercent()).toBe(0);
     });
 
     it("handles report with no at-risk ciphers in critical apps — atRiskPasswordCount is 0", () => {
@@ -395,7 +397,7 @@ describe("PasswordChangeMetricV2Component", () => {
       mockDataService.report$.next(report);
       fixture.detectChanges();
 
-      expect(component.atRiskPasswordCount()).toBe(0);
+      expect(testAccess(component).atRiskPasswordCount()).toBe(0);
     });
   });
 });

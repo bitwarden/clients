@@ -293,7 +293,7 @@ describe("ActivityTabComponent", () => {
         .spyOn(NewApplicationsDialogV2Component, "open")
         .mockReturnValue(mockDialogRef as any);
 
-      await component.onReviewNewApplications();
+      await testAccess(component).onReviewNewApplications();
 
       expect(openSpy).toHaveBeenCalled();
       const callArgs = openSpy.mock.calls[0];
@@ -311,7 +311,7 @@ describe("ActivityTabComponent", () => {
     });
 
     it("should call onViewAtRiskMembers - opens drawer with correct type", async () => {
-      await component.onViewAtRiskMembers();
+      await testAccess(component).onViewAtRiskMembers();
 
       expect(mockDrawerStateService.openDrawer).toHaveBeenCalledWith(
         DrawerType.CriticalAtRiskMembers,
@@ -320,7 +320,7 @@ describe("ActivityTabComponent", () => {
     });
 
     it("should call onViewAtRiskApplications - opens drawer with correct type", async () => {
-      await component.onViewAtRiskApplications();
+      await testAccess(component).onViewAtRiskApplications();
 
       expect(mockDrawerStateService.openDrawer).toHaveBeenCalledWith(
         DrawerType.CriticalAtRiskApps,
@@ -335,10 +335,10 @@ describe("ActivityTabComponent", () => {
     it("should update extendPasswordChangeWidget signal", () => {
       expect(testAccess(component).extendPasswordChangeWidget()).toBe(false);
 
-      component.setExtendPasswordWidget(true);
+      testAccess(component).setExtendPasswordWidget(true);
       expect(testAccess(component).extendPasswordChangeWidget()).toBe(true);
 
-      component.setExtendPasswordWidget(false);
+      testAccess(component).setExtendPasswordWidget(false);
       expect(testAccess(component).extendPasswordChangeWidget()).toBe(false);
     });
   });
@@ -409,7 +409,7 @@ describe("ActivityTabComponent", () => {
         .spyOn(NewApplicationsDialogV2Component, "open")
         .mockReturnValue(mockDialogRef as any);
 
-      await component.onReviewNewApplications();
+      await testAccess(component).onReviewNewApplications();
 
       // Dialog closed without completing - no errors should occur
       expect(openSpy).toHaveBeenCalled();

@@ -94,24 +94,24 @@ export class PasswordChangeMetricV2Component implements OnInit {
     { initialValue: false },
   );
 
-  readonly tasksCount = computed(() => this._tasks().length);
-  readonly completedTasksCount = computed(
+  protected readonly tasksCount = computed(() => this._tasks().length);
+  protected readonly completedTasksCount = computed(
     () => this._tasks().filter((task) => task.status === SecurityTaskStatus.Completed).length,
   );
-  readonly completedTasksPercent = computed(() => {
+  protected readonly completedTasksPercent = computed(() => {
     const total = this.tasksCount();
     // Account for case where there are no tasks to avoid NaN
     return total > 0 ? Math.round((this.completedTasksCount() / total) * 100) : 0;
   });
 
-  readonly unassignedCipherIds = computed(() => this._unassignedCipherIds().length);
+  protected readonly unassignedCipherIds = computed(() => this._unassignedCipherIds().length);
 
-  readonly atRiskPasswordCount = computed(() => {
+  protected readonly atRiskPasswordCount = computed(() => {
     const atRiskIds = this._atRiskCipherIds();
     return new Set(atRiskIds).size;
   });
 
-  readonly currentView = computed<PasswordChangeView>(() => {
+  protected readonly currentView = computed<PasswordChangeView>(() => {
     if (!this._hasCriticalApplications()) {
       return PasswordChangeView.EMPTY;
     }
@@ -137,7 +137,7 @@ export class PasswordChangeMetricV2Component implements OnInit {
       .subscribe();
   }
 
-  assignTasks(): void {
+  protected assignTasks(): void {
     this.securityTasksService
       .requestPasswordChangeForCriticalApplications$(
         this.organizationId(),

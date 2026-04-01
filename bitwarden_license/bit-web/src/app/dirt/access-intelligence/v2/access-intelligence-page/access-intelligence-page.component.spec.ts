@@ -259,7 +259,7 @@ describe("AccessIntelligencePageComponent", () => {
   describe("Tab Navigation", () => {
     it("should update query params when tab changes", async () => {
       await component.ngOnInit();
-      await component.onTabChange(RiskInsightsTabType.AllApps);
+      await testAccess(component).onTabChange(RiskInsightsTabType.AllApps);
 
       expect(mockRouter.navigate).toHaveBeenCalledWith(
         [],
@@ -272,7 +272,7 @@ describe("AccessIntelligencePageComponent", () => {
 
     it("should close drawer when tab changes", async () => {
       await component.ngOnInit();
-      await component.onTabChange(RiskInsightsTabType.AllApps);
+      await testAccess(component).onTabChange(RiskInsightsTabType.AllApps);
 
       expect(mockDrawerStateService.closeDrawer).toHaveBeenCalled();
     });
@@ -281,7 +281,7 @@ describe("AccessIntelligencePageComponent", () => {
       const mockDialogRef = { close: jest.fn() };
       component["currentDialogRef"].set(mockDialogRef as any);
 
-      await component.onTabChange(RiskInsightsTabType.AllApps);
+      await testAccess(component).onTabChange(RiskInsightsTabType.AllApps);
 
       expect(mockDialogRef.close).toHaveBeenCalled();
     });
@@ -391,7 +391,7 @@ describe("AccessIntelligencePageComponent", () => {
       mockAccessIntelligenceService.generateNewReport$.mockReturnValue(of(undefined));
       component["organizationId"].set(orgId);
 
-      component.generateReport();
+      testAccess(component).generateReport();
 
       expect(mockAccessIntelligenceService.generateNewReport$).toHaveBeenCalledWith(orgId);
     });
@@ -401,7 +401,7 @@ describe("AccessIntelligencePageComponent", () => {
       mockAccessIntelligenceService.generateNewReport$.mockReturnValue(throwError(() => error));
       component["organizationId"].set(orgId);
 
-      component.generateReport();
+      testAccess(component).generateReport();
 
       // Wait for async error handling
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -412,7 +412,7 @@ describe("AccessIntelligencePageComponent", () => {
     it("should not generate when no organization ID", () => {
       component["organizationId"].set("" as OrganizationId);
 
-      component.generateReport();
+      testAccess(component).generateReport();
 
       expect(mockAccessIntelligenceService.generateNewReport$).not.toHaveBeenCalled();
     });

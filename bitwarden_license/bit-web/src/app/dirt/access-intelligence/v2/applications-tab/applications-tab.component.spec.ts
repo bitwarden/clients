@@ -245,7 +245,7 @@ describe("ApplicationsTabComponent", () => {
     it("should call markApplicationsAsCritical$ once with all selected URLs", async () => {
       testAccess(component).selectedUrls.set(new Set(["github.com", "gitlab.com"]));
 
-      await component.markAppsAsCritical();
+      await testAccess(component).markAppsAsCritical();
 
       expect(mockDataService.markApplicationsAsCritical$).toHaveBeenCalledTimes(1);
       expect(mockDataService.markApplicationsAsCritical$).toHaveBeenCalledWith(
@@ -256,7 +256,7 @@ describe("ApplicationsTabComponent", () => {
     it("should show success toast on completion", async () => {
       testAccess(component).selectedUrls.set(new Set(["github.com"]));
 
-      await component.markAppsAsCritical();
+      await testAccess(component).markAppsAsCritical();
 
       expect(mockToastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "success" }),
@@ -266,7 +266,7 @@ describe("ApplicationsTabComponent", () => {
     it("should clear selectedUrls after marking", async () => {
       testAccess(component).selectedUrls.set(new Set(["github.com"]));
 
-      await component.markAppsAsCritical();
+      await testAccess(component).markAppsAsCritical();
 
       expect(testAccess(component).selectedUrls().size).toBe(0);
     });
@@ -277,7 +277,7 @@ describe("ApplicationsTabComponent", () => {
         throwError(() => new Error("fail")),
       );
 
-      await component.markAppsAsCritical();
+      await testAccess(component).markAppsAsCritical();
 
       expect(mockToastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "error" }),
@@ -291,7 +291,7 @@ describe("ApplicationsTabComponent", () => {
     it("should call unmarkApplicationsAsCritical$ once with all selected URLs", async () => {
       testAccess(component).selectedUrls.set(new Set(["github.com", "gitlab.com"]));
 
-      await component.unmarkAppsAsCritical();
+      await testAccess(component).unmarkAppsAsCritical();
 
       expect(mockDataService.unmarkApplicationsAsCritical$).toHaveBeenCalledTimes(1);
       expect(mockDataService.unmarkApplicationsAsCritical$).toHaveBeenCalledWith(
@@ -302,7 +302,7 @@ describe("ApplicationsTabComponent", () => {
     it("should show success toast on completion", async () => {
       testAccess(component).selectedUrls.set(new Set(["github.com"]));
 
-      await component.unmarkAppsAsCritical();
+      await testAccess(component).unmarkAppsAsCritical();
 
       expect(mockToastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "success" }),
@@ -312,7 +312,7 @@ describe("ApplicationsTabComponent", () => {
     it("should clear selectedUrls after unmarking", async () => {
       testAccess(component).selectedUrls.set(new Set(["github.com"]));
 
-      await component.unmarkAppsAsCritical();
+      await testAccess(component).unmarkAppsAsCritical();
 
       expect(testAccess(component).selectedUrls().size).toBe(0);
     });
@@ -324,7 +324,7 @@ describe("ApplicationsTabComponent", () => {
     it("should call requestPasswordChangeForCriticalApplications with orgId", async () => {
       mockAccessSecurityTasksService.unassignedCriticalCipherIds$.next(["cipher-1" as CipherId]);
 
-      await component.requestPasswordChange();
+      await testAccess(component).requestPasswordChange();
 
       expect(
         mockAccessSecurityTasksService.requestPasswordChangeForCriticalApplications$,
@@ -332,7 +332,7 @@ describe("ApplicationsTabComponent", () => {
     });
 
     it("should show success toast on completion", async () => {
-      await component.requestPasswordChange();
+      await testAccess(component).requestPasswordChange();
 
       expect(mockToastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "success" }),
@@ -369,7 +369,7 @@ describe("ApplicationsTabComponent", () => {
         },
       ];
 
-      component.downloadApplicationsCSV();
+      testAccess(component).downloadApplicationsCSV();
 
       expect(mockFileDownloadService.download).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -383,7 +383,7 @@ describe("ApplicationsTabComponent", () => {
     it("should NOT call download when dataSource is empty", () => {
       testAccess(component).dataSource.data = [];
 
-      component.downloadApplicationsCSV();
+      testAccess(component).downloadApplicationsCSV();
 
       expect(mockFileDownloadService.download).not.toHaveBeenCalled();
     });
@@ -393,7 +393,7 @@ describe("ApplicationsTabComponent", () => {
 
   describe("onCheckboxChange()", () => {
     it("should add app to selectedUrls when checkbox is checked", () => {
-      component.onCheckboxChange({ applicationName: "github.com", checked: true });
+      testAccess(component).onCheckboxChange({ applicationName: "github.com", checked: true });
 
       expect(testAccess(component).selectedUrls().has("github.com")).toBe(true);
     });
@@ -401,7 +401,7 @@ describe("ApplicationsTabComponent", () => {
     it("should remove app from selectedUrls when checkbox is unchecked", () => {
       testAccess(component).selectedUrls.set(new Set(["github.com"]));
 
-      component.onCheckboxChange({ applicationName: "github.com", checked: false });
+      testAccess(component).onCheckboxChange({ applicationName: "github.com", checked: false });
 
       expect(testAccess(component).selectedUrls().has("github.com")).toBe(false);
     });

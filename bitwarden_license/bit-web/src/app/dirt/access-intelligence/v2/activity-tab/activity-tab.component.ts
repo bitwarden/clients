@@ -127,7 +127,7 @@ export class ActivityTabComponent {
    * Handles the review new applications button click.
    * Opens V2 dialog showing the list of new applications that can be marked as critical.
    */
-  readonly onReviewNewApplications = async () => {
+  protected readonly onReviewNewApplications = async () => {
     const dialogRef = NewApplicationsDialogV2Component.open(this.dialogService, {
       newApplications: this.newApplications(),
       organizationId: this.organizationId(),
@@ -141,7 +141,7 @@ export class ActivityTabComponent {
    * Handles the "View at-risk members" link click.
    * Opens the at-risk members drawer for critical applications only.
    */
-  readonly onViewAtRiskMembers = () => {
+  protected readonly onViewAtRiskMembers = () => {
     this.drawerStateService.openDrawer(
       DrawerType.CriticalAtRiskMembers,
       "activityTabAtRiskMembers",
@@ -152,7 +152,7 @@ export class ActivityTabComponent {
    * Handles the "View at-risk applications" link click.
    * Opens the at-risk applications drawer for critical applications only.
    */
-  readonly onViewAtRiskApplications = () => {
+  protected readonly onViewAtRiskApplications = () => {
     this.drawerStateService.openDrawer(
       DrawerType.CriticalAtRiskApps,
       "activityTabAtRiskApplications",
@@ -163,7 +163,7 @@ export class ActivityTabComponent {
    * Callback for PasswordChangeMetricV2Component to control layout.
    * When the password widget has a progress bar, it should span 2 columns.
    */
-  readonly setExtendPasswordWidget = (hasProgressBar: boolean) => {
+  protected readonly setExtendPasswordWidget = (hasProgressBar: boolean) => {
     this.extendPasswordChangeWidget.set(hasProgressBar);
   };
 }

@@ -200,7 +200,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   /**
    * Generates a new report for the current organization.
    */
-  generateReport(): void {
+  protected generateReport(): void {
     const orgId = this.organizationId();
     if (orgId) {
       this.accessIntelligenceService
@@ -214,7 +214,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     }
   }
 
-  async onTabChange(newIndex: number): Promise<void> {
+  protected async onTabChange(newIndex: number): Promise<void> {
     this.tabIndex.set(newIndex);
     await this.router.navigate([], {
       relativeTo: this.route,
