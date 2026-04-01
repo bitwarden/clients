@@ -150,7 +150,7 @@ function buildSparsePackage(target) {
         return;
     }
 
-    const makeAppx = findMakeAppx(arch);
+    const makeAppx = findMakeAppx(process.arch);
     if (!makeAppx) {
         throw new Error("MakeAppx.exe not found. Install the Windows SDK to build the sparse MSIX package.");
     }
