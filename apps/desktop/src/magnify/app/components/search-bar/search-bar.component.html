@@ -1,0 +1,42 @@
+<div class="search-bar-container">
+  <div class="search-bar">
+    <svg
+      class="search-icon"
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="8.5" cy="8.5" r="6" />
+      <line x1="13" y1="13" x2="18" y2="18" />
+    </svg>
+    <input
+      #searchInput
+      class="search-input"
+      type="text"
+      placeholder="Bitwarden Magnify"
+      autocomplete="off"
+      autocorrect="off"
+      autocapitalize="off"
+      spellcheck="false"
+      (input)="onInput()"
+      (keydown)="onKeydown($event)"
+    />
+    <span class="search-esc">esc</span>
+  </div>
+
+  <results-list
+    [results]="results()"
+    [selectedIndex]="selectedIndex()"
+    [hasSearched]="hasSearched()"
+    [completingAction]="completingAction()"
+    (itemSelected)="onItemSelected($event)"
+    (itemHovered)="onItemHovered($event)"
+  />
+
+  <action-bar [actions]="activeActions()" />
+</div>

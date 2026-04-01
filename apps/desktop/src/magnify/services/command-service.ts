@@ -3,15 +3,20 @@ import { Injectable } from "@angular/core";
 import {
   MagnifyCardItem,
   MagnifyCommand,
-  MagnifyItem,
   MagnifyLoginItem,
+  MagnifySearchResultItem,
 } from "../../autofill/models/magnify-commands";
 
 @Injectable({
   providedIn: "root",
 })
 export class CommandService {
-  async searchVault(input: string): Promise<MagnifyItem[]> {
+  /** Requests the main process to resize the magnify window to the given height. */
+  resize(height: number): void {
+    window.ipc.resize(height);
+  }
+
+  async searchVault(input: string): Promise<MagnifySearchResultItem[]> {
     return (await window.ipc.sendCommand({ type: MagnifyCommand.SearchVault, input })).results;
   }
 
@@ -40,7 +45,7 @@ export class CommandService {
       .result;
   }
 
-  async viewInBitwarden(item: MagnifyItem): Promise<void> {
+  async viewInBitwarden(item: MagnifySearchResultItem): Promise<void> {
     await window.ipc.sendCommand({ type: MagnifyCommand.ViewInBitwarden, itemId: item.id });
   }
 }

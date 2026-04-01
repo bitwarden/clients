@@ -27,6 +27,10 @@ const ipc = {
       { type: T["type"] }
     >;
   },
+  platform: process.platform,
+  resize: (height: number): void => {
+    ipcRenderer.send(MAGNIFY_IPC_CHANNELS.MAGNIFY_RESIZE, height);
+  },
 };
 
 contextBridge.exposeInMainWorld("ipc", ipc);
