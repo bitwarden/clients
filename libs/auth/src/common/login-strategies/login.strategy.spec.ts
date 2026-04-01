@@ -47,7 +47,12 @@ import {
   PasswordStrengthService,
 } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import {
+  KdfConfigService,
+  KeyService,
+  PBKDF2KdfConfig,
+  UserAsymmetricKeysRegenerationService,
+} from "@bitwarden/key-management";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { PasswordLoginCredentials } from "../models";
@@ -143,6 +148,7 @@ describe("LoginStrategy", () => {
   let environmentService: MockProxy<EnvironmentService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
+  let keypairRegenService: MockProxy<UserAsymmetricKeysRegenerationService>;
 
   let passwordLoginStrategy: PasswordLoginStrategy;
   let credentials: PasswordLoginCredentials;
@@ -170,6 +176,7 @@ describe("LoginStrategy", () => {
     environmentService = mock<EnvironmentService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
+    keypairRegenService = mock<UserAsymmetricKeysRegenerationService>();
 
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
 
@@ -187,6 +194,7 @@ describe("LoginStrategy", () => {
       passwordStrengthService,
       policyService,
       passwordPreloginService,
+      keypairRegenService,
       accountService as unknown as AccountService,
       masterPasswordService,
       keyService,
@@ -467,6 +475,7 @@ describe("LoginStrategy", () => {
         passwordStrengthService,
         policyService,
         passwordPreloginService,
+        keypairRegenService,
         accountService as AccountService,
         masterPasswordService,
         keyService,
@@ -529,6 +538,7 @@ describe("LoginStrategy", () => {
         passwordStrengthService,
         policyService,
         passwordPreloginService,
+        keypairRegenService,
         accountService as AccountService,
         masterPasswordService,
         keyService,
