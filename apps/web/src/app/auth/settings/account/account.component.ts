@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { firstValueFrom, lastValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
+import { EnableUserPreferencesSyncComponent } from "@bitwarden/angular/platform/sync/preferences/enable-user-preferences-sync.component";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -28,6 +29,7 @@ import { SetAccountVerifyDevicesDialogComponent } from "./set-account-verify-dev
     ProfileComponent,
     ChangeEmailComponent,
     DangerZoneComponent,
+    EnableUserPreferencesSyncComponent,
   ],
 })
 export class AccountComponent implements OnInit, OnDestroy {

@@ -1,5 +1,5 @@
-import { firstValueFrom, merge, Subscription } from "rxjs";
-import { debounceTime, filter, skip } from "rxjs/operators";
+import { firstValueFrom, merge, Observable, Subscription } from "rxjs";
+import { debounceTime, filter, map, skip } from "rxjs/operators";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
@@ -8,6 +8,7 @@ import { UserId } from "../../../types/guid";
 import { LogService } from "../../abstractions/log.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
+// eslint-disable-next-line import/no-restricted-paths -- pre-existing, matches sibling files
 import { StateProvider } from "../../state";
 
 import { SyncedPreferences } from "./synced-preferences";
@@ -111,6 +112,16 @@ export class PreferenceSyncService {
     this.pushSubscription = null;
   }
 
+  syncEnabled$(userId: UserId): Observable<boolean> {
+    return this.stateProvider
+      .getUser(userId, PREFERENCE_SYNC_ENABLED)
+      .state$.pipe(map((v) => v === true));
+  }
+
+  async setSyncEnabled(userId: UserId, enabled: boolean): Promise<void> {
+    await this.stateProvider.getUser(userId, PREFERENCE_SYNC_ENABLED).update(() => enabled);
+  }
+
   private async pushToServer(userId: UserId): Promise<void> {
     try {
       const isEnabled = await this.isSyncEnabled(userId);
@@ -128,10 +139,7 @@ export class PreferenceSyncService {
   }
 
   private async isSyncEnabled(userId: UserId): Promise<boolean> {
-    const enabled = await firstValueFrom(
-      this.stateProvider.getUser(userId, PREFERENCE_SYNC_ENABLED).state$,
-    );
-    return enabled === true;
+    return await firstValueFrom(this.syncEnabled$(userId));
   }
 
   private async collectAndEncrypt(userId: UserId): Promise<string | undefined> {
