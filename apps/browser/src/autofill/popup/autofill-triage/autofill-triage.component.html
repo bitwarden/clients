@@ -28,6 +28,36 @@
           <span class="tw-ml-2">{{ result.targetElementRef }}</span>
         </p>
       }
+      @if (result.pageContext) {
+        <div class="tw-mt-3 tw-pt-3 tw-border-t tw-border-secondary-300">
+          <h4 class="tw-font-semibold tw-mb-2">Page Information</h4>
+          <p class="tw-mb-1 tw-text-sm">
+            <strong>{{ "title" | i18n }}:</strong> {{ result.pageContext.title }}
+          </p>
+          <p class="tw-mb-1 tw-text-sm">
+            <strong>Total Forms:</strong> {{ result.pageContext.totalForms }}
+          </p>
+          <p class="tw-mb-1 tw-text-sm">
+            <strong>Total Fields:</strong> {{ result.pageContext.totalFields }}
+          </p>
+        </div>
+      }
+      @if (result.extensionVersion || result.browserInfo) {
+        <div class="tw-mt-3 tw-pt-3 tw-border-t tw-border-secondary-300">
+          <h4 class="tw-font-semibold tw-mb-2">Version Information</h4>
+          @if (result.extensionVersion) {
+            <p class="tw-mb-1 tw-text-sm">
+              <strong>Extension Version:</strong> {{ result.extensionVersion }}
+            </p>
+          }
+          @if (result.browserInfo) {
+            <p class="tw-mb-1 tw-text-sm">
+              <strong>Browser:</strong>
+              {{ result.browserInfo.name }} {{ result.browserInfo.version }}
+            </p>
+          }
+        </div>
+      }
     </bit-section>
 
     <!-- Fields List -->
@@ -91,6 +121,189 @@
                   <p><strong>Form Index:</strong> {{ field.formIndex }}</p>
                 }
               </div>
+
+              <!-- Field State -->
+              <div class="tw-mb-3 tw-text-sm tw-text-muted">
+                <h4 class="tw-font-semibold tw-mb-1">{{ "fieldState" | i18n }}</h4>
+                <div class="tw-flex tw-gap-2 tw-flex-wrap">
+                  <span bitBadge [variant]="field.viewable !== false ? 'success' : 'secondary'"
+                    >{{ "viewable" | i18n }}:
+                    {{ field.viewable !== false ? ("yes" | i18n) : ("no" | i18n) }}</span
+                  >
+                  <span bitBadge [variant]="!field.readonly ? 'success' : 'warning'"
+                    >{{ "readonly" | i18n }}:
+                    {{ field.readonly ? ("yes" | i18n) : ("no" | i18n) }}</span
+                  >
+                  <span bitBadge [variant]="!field.disabled ? 'success' : 'warning'"
+                    >{{ "disabled" | i18n }}:
+                    {{ field.disabled ? ("yes" | i18n) : ("no" | i18n) }}</span
+                  >
+                </div>
+              </div>
+
+              <!-- Element Metadata -->
+              @if (field.tagName || field.elementNumber !== undefined || field.htmlClass) {
+                <div class="tw-mb-3 tw-text-sm tw-text-muted">
+                  <h4 class="tw-font-semibold tw-mb-1">{{ "elementMetadata" | i18n }}</h4>
+                  @if (field.tagName) {
+                    <p>
+                      <strong>{{ "tagName" | i18n }}:</strong> {{ field.tagName }}
+                    </p>
+                  }
+                  @if (field.elementNumber !== undefined) {
+                    <p>
+                      <strong>{{ "elementPosition" | i18n }}:</strong> #{{ field.elementNumber }}
+                    </p>
+                  }
+                  @if (field.htmlClass) {
+                    <p>
+                      <strong>{{ "cssClasses" | i18n }}:</strong> {{ field.htmlClass }}
+                    </p>
+                  }
+                  @if (field.title) {
+                    <p>
+                      <strong>{{ "title" | i18n }}:</strong> {{ field.title }}
+                    </p>
+                  }
+                  @if (field.tabindex) {
+                    <p>
+                      <strong>{{ "tabindex" | i18n }}:</strong> {{ field.tabindex }}
+                    </p>
+                  }
+                  @if (field.maxLength !== undefined) {
+                    <p>
+                      <strong>{{ "maxLength" | i18n }}:</strong> {{ field.maxLength }}
+                    </p>
+                  }
+                </div>
+              }
+
+              <!-- Label Context -->
+              @if (field.labelLeft || field.labelRight || field.labelTag || field.labelTop) {
+                <div class="tw-mb-3 tw-text-sm tw-text-muted">
+                  <h4 class="tw-font-semibold tw-mb-1">{{ "labelContext" | i18n }}</h4>
+                  @if (field.labelLeft) {
+                    <p>
+                      <strong>{{ "labelLeft" | i18n }}:</strong> "{{ field.labelLeft }}"
+                    </p>
+                  }
+                  @if (field.labelRight) {
+                    <p>
+                      <strong>{{ "labelRight" | i18n }}:</strong> "{{ field.labelRight }}"
+                    </p>
+                  }
+                  @if (field.labelTag) {
+                    <p>
+                      <strong>{{ "labelTag" | i18n }}:</strong> "{{ field.labelTag }}"
+                    </p>
+                  }
+                  @if (field.labelTop) {
+                    <p>
+                      <strong>{{ "labelTop" | i18n }}:</strong> "{{ field.labelTop }}"
+                    </p>
+                  }
+                </div>
+              }
+
+              <!-- Form Context -->
+              @if (field.formContext) {
+                <div class="tw-mb-3 tw-text-sm tw-text-muted">
+                  <h4 class="tw-font-semibold tw-mb-1">{{ "formInformation" | i18n }}</h4>
+                  <p>
+                    <strong>{{ "formId" | i18n }}:</strong> {{ field.formContext.htmlId }}
+                  </p>
+                  <p>
+                    <strong>{{ "formName" | i18n }}:</strong> {{ field.formContext.htmlName }}
+                  </p>
+                  <p>
+                    <strong>{{ "formAction" | i18n }}:</strong> {{ field.formContext.htmlAction }}
+                  </p>
+                  <p>
+                    <strong>{{ "formMethod" | i18n }}:</strong> {{ field.formContext.htmlMethod }}
+                  </p>
+                  <p>
+                    <strong>{{ "fieldsInForm" | i18n }}:</strong> {{ field.formContext.fieldCount }}
+                  </p>
+                </div>
+              }
+
+              <!-- Value & State -->
+              @if (
+                field.valuePreview ||
+                field.checked !== undefined ||
+                (field.selectOptions && field.selectOptions.length > 0)
+              ) {
+                <div class="tw-mb-3 tw-text-sm tw-text-muted">
+                  <h4 class="tw-font-semibold tw-mb-1">{{ "valueAndState" | i18n }}</h4>
+                  @if (field.valuePreview) {
+                    <p>
+                      <strong>{{ "value" | i18n }}:</strong> {{ field.valuePreview }}
+                    </p>
+                  }
+                  @if (field.checked !== undefined) {
+                    <p>
+                      <strong>{{ "checked" | i18n }}:</strong>
+                      {{ field.checked ? ("yes" | i18n) : ("no" | i18n) }}
+                    </p>
+                  }
+                  @if (field.selectOptions && field.selectOptions.length > 0) {
+                    <p>
+                      <strong>{{ "selectOptions" | i18n }}:</strong>
+                      {{ field.selectOptions.length }} {{ "options" | i18n }}
+                    </p>
+                    <p class="tw-text-xs tw-pl-2">
+                      {{ field.selectOptions.slice(0, 3).join(", ")
+                      }}{{ field.selectOptions.length > 3 ? "..." : "" }}
+                    </p>
+                  }
+                </div>
+              }
+
+              <!-- Special Attributes -->
+              @if (
+                field.dataStripe ||
+                field.inlineMenuFillType ||
+                field.fieldQualifier ||
+                field.accountCreationFieldType ||
+                field.rel ||
+                field.showPasskeys ||
+                field.ariaHasPopup
+              ) {
+                <div class="tw-mb-3 tw-text-sm tw-text-muted">
+                  <h4 class="tw-font-semibold tw-mb-1">{{ "specialAttributes" | i18n }}</h4>
+                  @if (field.dataStripe) {
+                    <p><strong>Data-Stripe:</strong> {{ field.dataStripe }}</p>
+                  }
+                  @if (field.inlineMenuFillType) {
+                    <p>
+                      <strong>{{ "inlineMenuFillType" | i18n }}:</strong>
+                      {{ field.inlineMenuFillType }}
+                    </p>
+                  }
+                  @if (field.fieldQualifier) {
+                    <p>
+                      <strong>{{ "fieldQualifier" | i18n }}:</strong> {{ field.fieldQualifier }}
+                    </p>
+                  }
+                  @if (field.accountCreationFieldType) {
+                    <p>
+                      <strong>{{ "accountCreationFieldType" | i18n }}:</strong>
+                      {{ field.accountCreationFieldType }}
+                    </p>
+                  }
+                  @if (field.rel) {
+                    <p><strong>Rel:</strong> {{ field.rel }}</p>
+                  }
+                  @if (field.showPasskeys) {
+                    <p>
+                      <strong>{{ "showPasskeys" | i18n }}:</strong> {{ field.showPasskeys }}
+                    </p>
+                  }
+                  @if (field.ariaHasPopup) {
+                    <p><strong>ARIA Has-Popup:</strong> {{ field.ariaHasPopup }}</p>
+                  }
+                </div>
+              }
 
               <!-- Conditions List -->
               <div class="tw-mb-2">

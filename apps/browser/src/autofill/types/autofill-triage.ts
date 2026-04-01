@@ -27,6 +27,51 @@ export interface AutofillTriageConditionResult {
 }
 
 /**
+ * Context information about the page being analyzed.
+ */
+export interface AutofillTriagePageContext {
+  /**
+   * The title of the page.
+   */
+  title: string;
+
+  /**
+   * The document URL (may differ from page URL in iframes).
+   */
+  documentUrl: string;
+
+  /**
+   * Total number of forms detected on the page.
+   */
+  totalForms: number;
+
+  /**
+   * Total number of fields detected on the page.
+   */
+  totalFields: number;
+
+  /**
+   * Unix timestamp of when page details were collected.
+   */
+  collectedTimestamp: number;
+}
+
+/**
+ * Browser information for version tracking.
+ */
+export interface AutofillTriageBrowserInfo {
+  /**
+   * Browser name (e.g., "Chrome", "Firefox", "Edge").
+   */
+  name: string;
+
+  /**
+   * Browser version string.
+   */
+  version: string;
+}
+
+/**
  * Triage results for all fields on a page, assembled by the background after collecting page details.
  */
 export interface AutofillTriagePageResult {
@@ -54,6 +99,56 @@ export interface AutofillTriagePageResult {
    * Triage results for each analyzed field.
    */
   fields: AutofillTriageFieldResult[];
+
+  /**
+   * Additional context about the page.
+   */
+  pageContext?: AutofillTriagePageContext;
+
+  /**
+   * Extension version that generated this report.
+   */
+  extensionVersion?: string;
+
+  /**
+   * Browser name and version.
+   */
+  browserInfo?: AutofillTriageBrowserInfo;
+}
+
+/**
+ * Information about the form that contains this field.
+ */
+export interface AutofillTriageFormContext {
+  /**
+   * The form's unique identifier.
+   */
+  opid: string;
+
+  /**
+   * The form's HTML ID attribute.
+   */
+  htmlId: string;
+
+  /**
+   * The form's HTML name attribute.
+   */
+  htmlName: string;
+
+  /**
+   * The form's action URL.
+   */
+  htmlAction: string;
+
+  /**
+   * The form's HTTP method (GET, POST, etc.).
+   */
+  htmlMethod: string;
+
+  /**
+   * Number of fields in this form.
+   */
+  fieldCount: number;
 }
 
 /**
@@ -109,4 +204,134 @@ export interface AutofillTriageFieldResult {
    * Array of all qualification conditions that were checked, with their results.
    */
   conditions: AutofillTriageConditionResult[];
+
+  /**
+   * Whether the field is viewable/visible in the viewport.
+   */
+  viewable?: boolean;
+
+  /**
+   * Whether the field is readonly.
+   */
+  readonly?: boolean;
+
+  /**
+   * Whether the field is disabled.
+   */
+  disabled?: boolean;
+
+  /**
+   * The HTML tag name of the field (e.g., "input", "select", "textarea").
+   */
+  tagName?: string;
+
+  /**
+   * Sequential number assigned to the element based on its DOM position.
+   */
+  elementNumber?: number;
+
+  /**
+   * Text content to the left of the field in the DOM.
+   */
+  labelLeft?: string;
+
+  /**
+   * Text content to the right of the field in the DOM.
+   */
+  labelRight?: string;
+
+  /**
+   * Text content from associated label tags.
+   */
+  labelTag?: string;
+
+  /**
+   * Text content from table row above (for data tables).
+   */
+  labelTop?: string;
+
+  /**
+   * The HTML class attribute of the field.
+   */
+  htmlClass?: string;
+
+  /**
+   * The title attribute of the field.
+   */
+  title?: string;
+
+  /**
+   * The tabindex attribute of the field.
+   */
+  tabindex?: string;
+
+  /**
+   * The maxLength attribute of the field.
+   */
+  maxLength?: number;
+
+  /**
+   * Whether the field has ARIA-hidden attribute.
+   */
+  ariaHidden?: boolean;
+
+  /**
+   * Whether the field has ARIA-disabled attribute.
+   */
+  ariaDisabled?: boolean;
+
+  /**
+   * The data-stripe attribute value, if present.
+   */
+  dataStripe?: string;
+
+  /**
+   * Inline menu fill type classification.
+   */
+  inlineMenuFillType?: string;
+
+  /**
+   * Field qualifier type.
+   */
+  fieldQualifier?: string;
+
+  /**
+   * Account creation field type classification.
+   */
+  accountCreationFieldType?: string;
+
+  /**
+   * Form context, if this field belongs to a form.
+   */
+  formContext?: AutofillTriageFormContext;
+
+  /**
+   * Preview of the field's current value (sanitized for security).
+   */
+  valuePreview?: string;
+
+  /**
+   * For checkbox/radio inputs, whether the field is checked.
+   */
+  checked?: boolean;
+
+  /**
+   * For select elements, information about available options.
+   */
+  selectOptions?: string[];
+
+  /**
+   * The rel attribute value, if present.
+   */
+  rel?: string;
+
+  /**
+   * Whether passkeys should be shown for this field.
+   */
+  showPasskeys?: boolean;
+
+  /**
+   * Whether the field has ARIA has-popup attribute.
+   */
+  ariaHasPopup?: boolean;
 }

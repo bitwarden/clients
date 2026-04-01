@@ -16,8 +16,33 @@ export function formatAutofillTriageReport(result: AutofillTriagePageResult): st
   lines.push(`URL: ${result.pageUrl}`);
   lines.push(`Analyzed: ${result.analyzedAt}`);
 
+  // Version Information
+  if (result.extensionVersion || result.browserInfo) {
+    lines.push("");
+    lines.push("Version Information:");
+    if (result.extensionVersion) {
+      lines.push(`  Extension Version: ${result.extensionVersion}`);
+    }
+    if (result.browserInfo) {
+      lines.push(`  Browser: ${result.browserInfo.name} ${result.browserInfo.version}`);
+    }
+  }
+
+  // Page Context
+  if (result.pageContext) {
+    lines.push("");
+    lines.push("Page Information:");
+    lines.push(`  Title: ${result.pageContext.title}`);
+    lines.push(`  Document URL: ${result.pageContext.documentUrl}`);
+    lines.push(`  Total Forms: ${result.pageContext.totalForms}`);
+    lines.push(`  Total Fields: ${result.pageContext.totalFields}`);
+    const collectionDate = new Date(result.pageContext.collectedTimestamp);
+    lines.push(`  Collected At: ${collectionDate.toISOString()}`);
+  }
+
   // Calculate eligible count
   const eligibleCount = result.fields.filter((f: { eligible: boolean }) => f.eligible).length;
+  lines.push("");
   lines.push(`Eligible: ${eligibleCount} of ${result.fields.length} fields`);
 
   // Target element info if present
@@ -55,6 +80,119 @@ export function formatAutofillTriageReport(result: AutofillTriagePageResult): st
     }
     if (field.formIndex !== undefined) {
       lines.push(`  Form Index: ${field.formIndex}`);
+    }
+
+    // Field State
+    lines.push(`  Field State:`);
+    lines.push(`    Viewable: ${field.viewable !== false ? "Yes" : "No"}`);
+    lines.push(`    Readonly: ${field.readonly ? "Yes" : "No"}`);
+    lines.push(`    Disabled: ${field.disabled ? "Yes" : "No"}`);
+    if (field.ariaHidden !== undefined) {
+      lines.push(`    ARIA Hidden: ${field.ariaHidden ? "Yes" : "No"}`);
+    }
+    if (field.ariaDisabled !== undefined) {
+      lines.push(`    ARIA Disabled: ${field.ariaDisabled ? "Yes" : "No"}`);
+    }
+
+    // Element Metadata
+    if (field.tagName || field.elementNumber !== undefined || field.htmlClass) {
+      lines.push(`  Element Metadata:`);
+      if (field.tagName) {
+        lines.push(`    Tag Name: ${field.tagName}`);
+      }
+      if (field.elementNumber !== undefined) {
+        lines.push(`    Element Position: #${field.elementNumber}`);
+      }
+      if (field.htmlClass) {
+        lines.push(`    CSS Classes: ${field.htmlClass}`);
+      }
+      if (field.title) {
+        lines.push(`    Title: ${field.title}`);
+      }
+      if (field.tabindex) {
+        lines.push(`    Tabindex: ${field.tabindex}`);
+      }
+      if (field.maxLength !== undefined) {
+        lines.push(`    Max Length: ${field.maxLength}`);
+      }
+    }
+
+    // Label Context
+    if (field.labelLeft || field.labelRight || field.labelTag || field.labelTop) {
+      lines.push(`  Label Context:`);
+      if (field.labelLeft) {
+        lines.push(`    Label Left: "${field.labelLeft}"`);
+      }
+      if (field.labelRight) {
+        lines.push(`    Label Right: "${field.labelRight}"`);
+      }
+      if (field.labelTag) {
+        lines.push(`    Label Tag: "${field.labelTag}"`);
+      }
+      if (field.labelTop) {
+        lines.push(`    Label Top: "${field.labelTop}"`);
+      }
+    }
+
+    // Form Context
+    if (field.formContext) {
+      lines.push(`  Form Information:`);
+      lines.push(`    Form ID: ${field.formContext.htmlId}`);
+      lines.push(`    Form Name: ${field.formContext.htmlName}`);
+      lines.push(`    Form Action: ${field.formContext.htmlAction}`);
+      lines.push(`    Form Method: ${field.formContext.htmlMethod}`);
+      lines.push(`    Fields in Form: ${field.formContext.fieldCount}`);
+    }
+
+    // Value and Interaction State
+    if (field.valuePreview || field.checked !== undefined || field.selectOptions) {
+      lines.push(`  Value & State:`);
+      if (field.valuePreview) {
+        lines.push(`    Value: ${field.valuePreview}`);
+      }
+      if (field.checked !== undefined) {
+        lines.push(`    Checked: ${field.checked ? "Yes" : "No"}`);
+      }
+      if (field.selectOptions && field.selectOptions.length > 0) {
+        lines.push(`    Select Options: ${field.selectOptions.length} options`);
+        lines.push(
+          `      Options: ${field.selectOptions.slice(0, 5).join(", ")}${field.selectOptions.length > 5 ? "..." : ""}`,
+        );
+      }
+    }
+
+    // Special Attributes
+    if (
+      field.dataStripe ||
+      field.inlineMenuFillType ||
+      field.fieldQualifier ||
+      field.accountCreationFieldType ||
+      field.rel ||
+      field.showPasskeys ||
+      field.ariaHasPopup
+    ) {
+      lines.push(`  Special Attributes:`);
+      if (field.dataStripe) {
+        lines.push(`    Data-Stripe: ${field.dataStripe}`);
+      }
+      if (field.inlineMenuFillType) {
+        lines.push(`    Inline Menu Fill Type: ${field.inlineMenuFillType}`);
+      }
+      if (field.fieldQualifier) {
+        lines.push(`    Field Qualifier: ${field.fieldQualifier}`);
+      }
+      if (field.accountCreationFieldType) {
+        lines.push(`    Account Creation Field Type: ${field.accountCreationFieldType}`);
+      }
+      if (field.rel) {
+        lines.push(`    Rel: ${field.rel}`);
+      }
+      if (field.showPasskeys) {
+        lines.push(`    Show Passkeys: ${field.showPasskeys}`);
+      }
+      if (field.ariaHasPopup) {
+        lines.push(`    ARIA Has-Popup: ${field.ariaHasPopup}`);
+      }
     }
 
     // Conditions

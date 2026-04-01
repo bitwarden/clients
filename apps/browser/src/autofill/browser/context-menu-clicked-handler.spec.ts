@@ -337,7 +337,7 @@ describe("ContextMenuClickedHandler", () => {
 
     describe("autofill triage", () => {
       const mockTab = { id: 42, url: "https://example.com", windowId: 1 } as chrome.tabs.Tab;
-      const mockPageDetails = { fields: [] } as unknown as AutofillPageDetails;
+      const mockPageDetails = { fields: [], forms: {} } as unknown as AutofillPageDetails;
       const mockTriageResult: AutofillTriageFieldResult = {
         htmlId: "test-field",
         eligible: true,
@@ -353,6 +353,14 @@ describe("ContextMenuClickedHandler", () => {
           });
         jest.spyOn(BrowserPopupUtils, "openPopout").mockResolvedValue(undefined);
         triageService.triageField.mockReturnValue(mockTriageResult);
+        // Mock chrome.runtime.getManifest
+        (global as any).chrome = {
+          ...((global as any).chrome || {}),
+          runtime: {
+            ...((global as any).chrome?.runtime || {}),
+            getManifest: jest.fn().mockReturnValue({ version: "1.0.0" }),
+          },
+        };
       });
 
       it("sends collectAutofillTriage to the tab and stores the result", async () => {
