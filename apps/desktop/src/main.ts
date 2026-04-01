@@ -220,9 +220,7 @@ export class Main {
       (arg) => this.processDeepLink(arg),
       (win) => this.trayMain.setupWindowListeners(win),
       () => {
-        if (this.pendingSendPaths.length > 0) {
-          this.debounceSendPaths();
-        }
+        // no-op: pending send paths are pulled by the renderer via IPC
       },
     );
 
@@ -491,14 +489,15 @@ export class Main {
     }
 
     if (this.windowMain.win?.webContents == null) {
-      // Window not ready yet — paths stay in array, will be flushed after onWindowReady
       return;
     }
 
-    const paths = [...this.pendingSendPaths];
-    this.pendingSendPaths = [];
+    // Notify the renderer that paths are available. The renderer pulls the
+    // actual paths via the pendingSendPaths.take IPC handler, which is the
+    // sole place that clears the array. This avoids a race where the deep
+    // link message is lost but the paths have already been cleared.
     this.messagingService.send("deepLink", {
-      urlString: `bitwarden://send/create?paths=${encodeURIComponent(JSON.stringify(paths))}`,
+      urlString: "bitwarden://send/create",
     });
   }
 

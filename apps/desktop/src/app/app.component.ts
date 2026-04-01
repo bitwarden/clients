@@ -858,29 +858,9 @@ export class AppComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Handle Send creation from context menu (single or multi-file)
+    // Handle Send creation from context menu — pull paths from main process via IPC
     if (urlString.indexOf("bitwarden://send/create") === 0) {
-      const url = new URL(urlString);
-
-      // Multi-path batch from debounced main process
-      const pathsParam = url.searchParams.get("paths");
-      if (pathsParam) {
-        try {
-          const paths = JSON.parse(pathsParam) as string[];
-          this.pendingSendService.addPaths(paths);
-        } catch {
-          return;
-        }
-        void this.handlePendingSend();
-        return;
-      }
-
-      // Legacy single-path fallback
-      const filePath = url.searchParams.get("path");
-      if (filePath) {
-        this.pendingSendService.addPaths([filePath]);
-        void this.handlePendingSend();
-      }
+      void this.pullAndHandlePendingSend();
       return;
     }
 
@@ -914,6 +894,18 @@ export class AppComponent implements OnInit, OnDestroy {
    * paths stay in PendingSendService and the pendingSendGuard on the /vault route
    * handles the redirect after unlock.
    */
+  /**
+   * Pull pending send paths from the main process via IPC, store them in
+   * PendingSendService, then attempt to navigate to /send if unlocked.
+   */
+  private async pullAndHandlePendingSend(): Promise<void> {
+    const paths = await ipc.platform.contextMenu.takePendingSendPaths();
+    if (paths.length > 0) {
+      this.pendingSendService.addPaths(paths);
+    }
+    await this.handlePendingSend();
+  }
+
   private async handlePendingSend(): Promise<void> {
     if (!this.pendingSendService.hasPending()) {
       return;
