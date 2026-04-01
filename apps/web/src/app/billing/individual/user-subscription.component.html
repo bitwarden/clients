@@ -55,23 +55,14 @@
         <div class="tw-font-semibold tw-mb-2 tw-text-right">{{ "nextChargeHeader" | i18n }}</div>
         <div>
           <ng-container *ngIf="subscription">
-            <ng-container *ngIf="enableDiscountDisplay$ | async as enableDiscount; else noDiscount">
-              <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap tw-justify-end">
-                <span [attr.aria-label]="'nextChargeDate' | i18n">
-                  {{ sub.subscription.periodEndDate | date: "MMM d, y" }}
-                </span>
-                <billing-discount-badge
-                  [discount]="getDiscount(sub?.customerDiscount)"
-                ></billing-discount-badge>
-              </div>
-            </ng-container>
-            <ng-template #noDiscount>
-              <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap tw-justify-end">
-                <span [attr.aria-label]="'nextChargeDate' | i18n">
-                  {{ sub.subscription.periodEndDate | date: "MMM d, y" }}
-                </span>
-              </div>
-            </ng-template>
+            <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap tw-justify-end">
+              <span [attr.aria-label]="'nextChargeDate' | i18n">
+                {{ sub.subscription.periodEndDate | date: "MMM d, y" }}
+              </span>
+              <billing-discount-badge
+                [discount]="getDiscount(sub?.customerDiscount)"
+              ></billing-discount-badge>
+            </div>
           </ng-container>
           <span
             *ngIf="!subscription"
