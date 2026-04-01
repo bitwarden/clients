@@ -6,7 +6,11 @@ import { LogService } from "@bitwarden/logging";
 
 import { WindowMain } from "../../main/window.main";
 import { MAGNIFY_IPC_CHANNELS } from "../models/ipc-channels";
-import { MagnifyCommandRequest, MagnifyCommandResponse } from "../models/magnify-commands";
+import {
+  MagnifyCommand,
+  MagnifyCommandRequest,
+  MagnifyCommandResponse,
+} from "../models/magnify-commands";
 
 export class MainDesktopMagnifyService {
   private MAGNIFY_KEYBOARD_SHORTCUT = "CommandOrControl+Shift+Space";
@@ -165,6 +169,12 @@ export class MainDesktopMagnifyService {
       ipcMain.once(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND_RELAY_ERROR, onError);
 
       this.windowMain.win.webContents.send(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND_RELAY, command);
+    }).then((response) => {
+      if (command.type === MagnifyCommand.ViewInBitwarden) {
+        this.magnifyWindow?.close();
+        this.windowMain.win.focus();
+      }
+      return response;
     });
   }
 }

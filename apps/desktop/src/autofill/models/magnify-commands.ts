@@ -13,6 +13,7 @@ export type { MagnifyLoginItem };
 export const MagnifyCommand = Object.freeze({
   SearchVault: "SearchVault",
   CopyPassword: "CopyPassword",
+  ViewInBitwarden: "ViewInBitwarden",
 } as const);
 export type MagnifyCommand = (typeof MagnifyCommand)[keyof typeof MagnifyCommand];
 
@@ -22,7 +23,8 @@ export type MagnifyCommand = (typeof MagnifyCommand)[keyof typeof MagnifyCommand
 */
 export type MagnifyCommandRequest =
   | { type: typeof MagnifyCommand.SearchVault; input: string }
-  | { type: typeof MagnifyCommand.CopyPassword; id: string };
+  | { type: typeof MagnifyCommand.CopyPassword; id: string }
+  | { type: typeof MagnifyCommand.ViewInBitwarden; itemId: string };
 
 /*
   The MagnifyCommandResponse type represents the possible values
@@ -30,4 +32,5 @@ export type MagnifyCommandRequest =
 */
 export type MagnifyCommandResponse =
   | { type: typeof MagnifyCommand.SearchVault; results: MagnifyLoginItem[] }
-  | { type: typeof MagnifyCommand.CopyPassword; result: string };
+  | { type: typeof MagnifyCommand.CopyPassword; result: string }
+  | { type: typeof MagnifyCommand.ViewInBitwarden };

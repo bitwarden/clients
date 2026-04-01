@@ -153,6 +153,7 @@ import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/des
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
 import { DesktopMagnifyService } from "../../autofill/services/desktop-magnify.service";
+import { MagnifyNavigationService } from "../../autofill/services/magnify-navigation.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
 import { ElectronKeyService } from "../../key-management/electron-key.service";
@@ -546,6 +547,7 @@ const safeProviders: SafeProvider[] = [
       CipherServiceAbstraction,
       EnvironmentService,
       DomainSettingsService,
+      MagnifyNavigationService,
     ],
   }),
   safeProvider({
