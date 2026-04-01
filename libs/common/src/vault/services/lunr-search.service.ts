@@ -18,7 +18,7 @@ export type SerializedLunrIndex = {
   version: string;
   fields: string[];
   fieldVectors: [string, number[]];
-  invertedIndex: any[];
+  invertedIndex: unknown[];
   pipeline: string[];
 };
 
@@ -118,8 +118,7 @@ export class LunrSearchService {
   ): Promise<C[]> {
     const results: C[] = [];
     const searchStartTime = performance.now();
-    await this.updateIndexForUser(userId, ciphers);
-    const index = await this.getIndexForSearch(userId);
+    const index = await this.updateIndexForUser(userId, ciphers);
 
     // Convert to map that can be looked up in
     const ciphersMap = new Map<string, C>();
@@ -127,10 +126,11 @@ export class LunrSearchService {
 
     // Search and push to results
     try {
-      let searchResults: lunr.Index.Result[] = index.search(query.substr(1).trim());
+      const searchResults = index.search(query.substring(1).trim());
       searchResults.forEach((r) => {
-        if (ciphersMap.has(r.ref)) {
-          results.push(ciphersMap.get(r.ref));
+        const cipher = ciphersMap.get(r.ref);
+        if (cipher != null) {
+          results.push(cipher);
         }
       });
     } catch (e) {
@@ -141,11 +141,11 @@ export class LunrSearchService {
     return results;
   }
 
-  private async updateIndexForUser(userId: UserId, ciphers: CipherViewLike[]): Promise<void> {
+  private async updateIndexForUser(userId: UserId, ciphers: CipherViewLike[]): Promise<lunr.Index | null> {
     // If another indexing operation is in progress for this user, wait for it then return.
     if (await this.getIsIndexing(userId)) {
       await firstValueFrom(this.searchIsIndexing$(userId).pipe(filter((indexing) => !indexing)));
-      return;
+      return await this.getIndexForSearch(userId);
     }
 
     // If there is no index in progress, build an index for the user and set it to state.
@@ -159,6 +159,7 @@ export class LunrSearchService {
     ]);
     await this.setIndexForSearch(userId, index.toJSON() as SerializedLunrIndex);
     await this.setIsIndexing(userId, false);
+    return index;
   }
 }
 
@@ -166,8 +167,9 @@ export class LunrSearchService {
 
 function normalizeAccentsPipelineFunction(token: lunr.Token): any {
   const searchableFields = ["name", "login.username", "subtitle", "notes"];
-  const fields = (token as any).metadata["fields"];
-  const checkFields = fields.every((i: any) => searchableFields.includes(i));
+  const metadata = (token as unknown as { metadata?: { fields?: unknown[] } }).metadata;
+  const fields = metadata?.fields;
+  const checkFields = Array.isArray(fields) && fields.every((i) => searchableFields.includes(String(i)));
 
   if (checkFields) {
     return normalizeSearchQuery(token.toString());
@@ -185,56 +187,62 @@ async function buildCipherIndex(ciphers: CipherViewLike[]): Promise<lunr.Index> 
   builder.ref("id");
   builder.field("shortid", {
     boost: 100,
-    extractor: (c: CipherViewLike) => uuidAsString(c.id).substr(0, 8),
+    extractor: (doc: object) => uuidAsString((doc as CipherViewLike).id).substring(0, 8),
   });
   builder.field("name", {
     boost: 10,
-    extractor: (c: CipherViewLike) => c.name,
+    extractor: (doc: object) => (doc as CipherViewLike).name ?? "",
   });
   builder.field("subtitle", {
     boost: 5,
-    extractor: (c: CipherViewLike) => {
+    extractor: (doc: object) => {
+      const c = doc as CipherViewLike;
       const subtitle = CipherViewLikeUtils.subtitle(c);
       if (subtitle != null && CipherViewLikeUtils.getType(c) === CipherType.Card) {
         return subtitle.replace(/\*/g, "");
       }
-      return subtitle;
+      return subtitle ?? "";
     },
   });
-  builder.field("notes", { extractor: (c: CipherViewLike) => CipherViewLikeUtils.getNotes(c) });
+  builder.field("notes", {
+    extractor: (doc: object) => CipherViewLikeUtils.getNotes(doc as CipherViewLike) ?? "",
+  });
   builder.field("login.username", {
-    extractor: (c: CipherViewLike) => {
+    extractor: (doc: object) => {
+      const c = doc as CipherViewLike;
       const login = CipherViewLikeUtils.getLogin(c);
-      return login?.username ?? null;
+      return login?.username ?? "";
     },
   });
   builder.field("login.uris", {
     boost: 2,
-    extractor: (c: CipherViewLike) => uriExtractor(c),
+    extractor: (doc: object) => uriExtractor(doc as CipherViewLike),
   });
   builder.field("fields", {
-    extractor: (c: CipherViewLike) => fieldExtractor(c, false),
+    extractor: (doc: object) => fieldExtractor(doc as CipherViewLike, false),
   });
   builder.field("fields_joined", {
-    extractor: (c: CipherViewLike) => fieldExtractor(c, true),
+    extractor: (doc: object) => fieldExtractor(doc as CipherViewLike, true),
   });
   builder.field("attachments", {
-    extractor: (c: CipherViewLike) => attachmentExtractor(c, false),
+    extractor: (doc: object) => attachmentExtractor(doc as CipherViewLike, false),
   });
   builder.field("attachments_joined", {
-    extractor: (c: CipherViewLike) => attachmentExtractor(c, true),
+    extractor: (doc: object) => attachmentExtractor(doc as CipherViewLike, true),
   });
-  builder.field("organizationid", { extractor: (c: CipherViewLike) => c.organizationId });
+  builder.field("organizationid", {
+    extractor: (doc: object) => String((doc as CipherViewLike).organizationId ?? ""),
+  });
   ciphers = ciphers || [];
   ciphers.forEach((c) => builder.add(c));
   const index = builder.build();
   return index;
 }
 
-async function fieldExtractor(c: CipherViewLike, joined: boolean) {
+function fieldExtractor(c: CipherViewLike, joined: boolean): string[] | string {
   const fields = CipherViewLikeUtils.getFields(c);
   if (!fields || fields.length === 0) {
-    return null;
+    return joined ? "" : [];
   }
   let fieldStrings: string[] = [];
   fields.forEach((f) => {
@@ -252,15 +260,15 @@ async function fieldExtractor(c: CipherViewLike, joined: boolean) {
   });
   fieldStrings = fieldStrings.filter((f) => f.trim() !== "");
   if (fieldStrings.length === 0) {
-    return null;
+    return joined ? "" : [];
   }
   return joined ? fieldStrings.join(" ") : fieldStrings;
 }
 
-async function attachmentExtractor(c: CipherViewLike, joined: boolean) {
+function attachmentExtractor(c: CipherViewLike, joined: boolean): string[] | string {
   const attachmentNames = CipherViewLikeUtils.getAttachmentNames(c);
   if (!attachmentNames || attachmentNames.length === 0) {
-    return null;
+    return joined ? "" : [];
   }
   let attachments: string[] = [];
   attachmentNames.forEach((fileName) => {
@@ -274,18 +282,18 @@ async function attachmentExtractor(c: CipherViewLike, joined: boolean) {
   });
   attachments = attachments.filter((f) => f.trim() !== "");
   if (attachments.length === 0) {
-    return null;
+    return joined ? "" : [];
   }
   return joined ? attachments.join(" ") : attachments;
 }
 
-async function uriExtractor(c: CipherViewLike) {
+function uriExtractor(c: CipherViewLike): string[] {
   if (CipherViewLikeUtils.getType(c) !== CipherType.Login) {
-    return null;
+    return [];
   }
   const login = CipherViewLikeUtils.getLogin(c);
   if (!login?.uris?.length) {
-    return null;
+    return [];
   }
   const uris: string[] = [];
   login.uris.forEach((u) => {
@@ -321,5 +329,5 @@ async function uriExtractor(c: CipherViewLike) {
     uris.push(uri);
   });
 
-  return uris.length > 0 ? uris : null;
+  return uris;
 }
