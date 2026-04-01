@@ -1,12 +1,4 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  OnInit,
-  ElementRef,
-  inject,
-  signal,
-  viewChild,
-} from "@angular/core";
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -19,8 +11,9 @@ import { ReceiveService } from "@bitwarden/common/tools/receive/services/receive
 import { ReceiveId } from "@bitwarden/common/types/guid";
 import {
   ButtonModule,
+  FileUploadComponent,
   FormFieldModule,
-  SectionComponent,
+  LinkModule,
   ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -29,19 +22,21 @@ import { I18nPipe } from "@bitwarden/ui-common";
   selector: "app-receive-upload",
   templateUrl: "receive-file-upload.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonModule, FormFieldModule, I18nPipe, SectionComponent],
+  imports: [ButtonModule, FileUploadComponent, FormFieldModule, I18nPipe, LinkModule],
 })
 export class ReceiveFileUploadComponent implements OnInit {
+  readonly multiple = true;
+  readonly hasError = signal<boolean>(false);
+  readonly maxFileSize = 500;
+  readonly files = signal<File[]>([]);
   readonly receiveName = signal<string>("");
   readonly ownerEmail = signal<string>("");
-  readonly fileName = signal<string>("");
-  readonly showUploadFileButton = signal<boolean>(false);
+  readonly showFileUploadResult = signal<boolean>(false);
+  readonly filesUploaded = signal<number>(0);
   private readonly receiveId: ReceiveId;
   private readonly secretB64: string;
   private readonly sharedContentEncryptionKeyB64: string;
-  private readonly file = signal<File | null>(null);
   private readonly publicKey = signal<Uint8Array>(new Uint8Array());
-  private readonly fileSelectorRef = viewChild<ElementRef<HTMLInputElement>>("fileSelector");
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
@@ -76,32 +71,6 @@ export class ReceiveFileUploadComponent implements OnInit {
     }
   }
 
-  addFile(event: Event) {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file) {
-      return;
-    }
-    if (!this.isFileSizeValid(file)) {
-      this.removeFile();
-      return;
-    }
-    this.file.set(file);
-    this.fileName.set(file.name);
-    this.showUploadFileButton.set(true);
-  }
-
-  private isFileSizeValid(file: File) {
-    const MAX_SIZE_BYTES = 500 * 1024 * 1024; // 500 MB
-    if (file.size > MAX_SIZE_BYTES) {
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("maxFileSize"),
-      });
-      return false;
-    }
-    return true;
-  }
-
   private getUrlData() {
     return {
       receiveId: this.receiveId,
@@ -110,42 +79,45 @@ export class ReceiveFileUploadComponent implements OnInit {
     } as ReceiveUrlData;
   }
 
-  removeFile() {
-    this.file.set(null);
-    this.fileName.set("");
-    this.showUploadFileButton.set(false);
-    const fileSelectorElem = this.fileSelectorRef()?.nativeElement;
-    if (fileSelectorElem) {
-      fileSelectorElem.value = "";
-    }
+  removeFiles() {
+    this.files.set([]);
   }
 
-  async uploadFile() {
-    const file = this.file();
+  uploadMoreFiles() {
+    this.files.set([]);
+    this.showFileUploadResult.set(false);
+  }
+
+  async uploadFiles() {
+    let count = 0;
+    for (const file of this.files()) {
+      try {
+        await this.uploadFile(file);
+        count += 1;
+      } catch (e) {
+        this.logService.error(e);
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("fileUploadError", file.name),
+        });
+      }
+    }
+    this.filesUploaded.set(count);
+    this.showFileUploadResult.set(true);
+  }
+
+  async uploadFile(file: File) {
     const publicKey = this.publicKey();
     if (!file || publicKey.byteLength == 0) {
       return;
     }
-    try {
-      const fileArrayBuff = await file.arrayBuffer();
-      const input: ReceiveFileUploadInput = {
-        unencryptedFileBuffer: fileArrayBuff,
-        fileName: file.name,
-        urlData: this.getUrlData(),
-        publicKey: this.publicKey(),
-      };
-      await this.receiveFileService.uploadFile(input);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("fileUploadSuccess"),
-      });
-      this.removeFile();
-    } catch (e) {
-      this.logService.error(e);
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("fileReadError"),
-      });
-    }
+    const fileArrayBuff = await file.arrayBuffer();
+    const input: ReceiveFileUploadInput = {
+      unencryptedFileBuffer: fileArrayBuff,
+      fileName: file.name,
+      urlData: this.getUrlData(),
+      publicKey: this.publicKey(),
+    };
+    await this.receiveFileService.uploadFile(input);
   }
 }
