@@ -14,6 +14,7 @@ module.exports = {
     "../../libs/components/src/**/*.{html,ts,mdx}",
     "../../libs/key-management-ui/src/**/*.{html,ts}",
     "../../libs/auth/src/**/*.{html,ts}",
+    "../../libs/pricing/src/**/*.{html,ts}",
   ],
   safelist: [],
   corePlugins: { preflight: false },

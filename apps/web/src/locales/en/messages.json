@@ -13178,5 +13178,11 @@
         "example": "4"
       }
     }
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
   }
 }

@@ -68,6 +68,20 @@ export const AllVariants: Story = {
   }),
 };
 
+export const AllVariantsNoTitle: Story = {
+  render: () => ({
+    template: `
+      <div class="tw-flex tw-flex-col tw-gap-4">
+        <bit-callout type="info">${calloutContent}</bit-callout>
+        <bit-callout type="success">${calloutContent}</bit-callout>
+        <bit-callout type="warning">${calloutContent}</bit-callout>
+        <bit-callout type="danger">${calloutContent}</bit-callout>
+        <bit-callout type="subtle">${calloutContent}</bit-callout>
+      </div>
+    `,
+  }),
+};
+
 export const CustomIcon: Story = {
   render: () => ({
     template: `

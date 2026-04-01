@@ -4765,5 +4765,11 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
   }
 }

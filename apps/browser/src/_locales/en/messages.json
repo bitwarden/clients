@@ -6217,5 +6217,11 @@
   },
   "downloadFailed": {
     "message": "Failed to download."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
   }
 }
