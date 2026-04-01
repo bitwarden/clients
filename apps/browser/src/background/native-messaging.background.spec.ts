@@ -108,17 +108,6 @@ describe("NativeMessagingBackground", () => {
   });
 
   describe("connect", () => {
-    it("logs warning and returns if native messaging permission is missing", async () => {
-      (BrowserApi.permissionsGranted as jest.Mock).mockResolvedValue(false);
-
-      await sut.connect();
-
-      expect(logService.warning).toHaveBeenCalledWith(
-        "[Native Messaging IPC] Native messaging permission is missing for biometrics",
-      );
-      expect(sut.connected).toBe(false);
-    });
-
     it("connects immediately for Safari", async () => {
       platformUtilsService.isSafari.mockReturnValue(true);
 

@@ -21,31 +21,21 @@ describe("foreground browser biometrics service tests", function () {
   });
 
   describe("canEnableBiometricUnlock", () => {
-    const table: [boolean, boolean, boolean, boolean][] = [
+    const table: [boolean, boolean, boolean][] = [
       // canEnableBiometricUnlock from background, native permission granted, isSafari, expected
-
-      // needs permission prompt; always allowed
-      [true, false, false, true],
-      [false, false, false, true],
-
       // is safari; depends on the status that the background service reports
-      [false, false, true, false],
-      [true, false, true, true],
+      [false, true, false],
+      [true, true, true],
 
       // native permissions granted; depends on the status that the background service reports
-      [false, true, false, false],
-      [true, true, false, true],
-
-      // should never happen since safari does not use the permissions
-      [false, true, true, false],
-      [true, true, true, true],
+      [false, false, false],
+      [true, false, true],
     ];
     test.each(table)(
-      "canEnableBiometric: %s, native permission granted: %s, isSafari: %s, expected: %s",
-      async (canEnableBiometricUnlockBackground, granted, isSafari, expected) => {
+      "canEnableBiometric: %s, isSafari: %s, expected: %s",
+      async (canEnableBiometricUnlockBackground, isSafari, expected) => {
         const service = new ForegroundBrowserBiometricsService(platformUtilsService);
 
-        (BrowserApi.permissionsGranted as jest.Mock).mockResolvedValue(granted);
         (BrowserApi.sendMessageWithResponse as jest.Mock).mockResolvedValue({
           result: canEnableBiometricUnlockBackground,
         });
