@@ -36,4 +36,5 @@ export type MagnifyLoginItem = {
   id: string;
   name: string;
   username: string;
+  iconUrl: string | null;
 };

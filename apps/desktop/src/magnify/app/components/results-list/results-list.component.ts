@@ -31,6 +31,11 @@ export class ResultsListComponent implements OnChanges {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChildren("resultItem") resultItems!: QueryList<ElementRef<HTMLDivElement>>;
 
+  onImgError(event: Event): void {
+    // Hide the broken image so the CSS fallback initial letter shows instead
+    (event.target as HTMLImageElement).style.display = "none";
+  }
+
   ngOnChanges(): void {
     // Scroll the selected item into view after Angular updates the DOM.
     // Use a microtask so ViewChildren are refreshed first.

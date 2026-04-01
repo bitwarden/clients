@@ -16,6 +16,8 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import {
   ActiveUserStateProvider,
   MAGNIFY_SETTINGS_DISK,
@@ -23,6 +25,7 @@ import {
 } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { UserId } from "@bitwarden/user-core";
 
 import { MagnifyCommand, MagnifyCommandResponse } from "../models/magnify-commands";
@@ -57,6 +60,8 @@ export class DesktopMagnifyService implements OnDestroy {
     private authService: AuthService,
     private accountService: AccountService,
     private cipherService: CipherService,
+    private environmentService: EnvironmentService,
+    private domainSettingsService: DomainSettingsService,
   ) {
     this.magnifyEnabledUserSetting$ = this.magnifyEnabledState.state$.pipe(
       map((enabled) => enabled ?? false),
@@ -144,12 +149,17 @@ export class DesktopMagnifyService implements OnDestroy {
       return aStarts - bStarts;
     });
 
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const iconsUrl = env.getIconsUrl();
+    const showFavicons = await firstValueFrom(this.domainSettingsService.showFavicons$);
+
     const response: MagnifyCommandResponse = {
       type: MagnifyCommand.SearchVault,
       results: matched.map((c) => ({
         id: c.id,
         name: c.name,
         username: c.login?.username ?? "",
+        iconUrl: buildCipherIcon(iconsUrl, c, showFavicons).image,
       })),
     };
 

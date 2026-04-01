@@ -10,7 +10,18 @@
       (click)="itemSelected.emit(item)"
       (mouseenter)="itemHovered.emit(i)"
     >
-      <div class="result-icon">{{ item.name.charAt(0).toUpperCase() }}</div>
+      <div class="result-icon">
+        <img
+          *ngIf="item.iconUrl"
+          class="result-icon-img"
+          [src]="item.iconUrl"
+          [alt]="item.name"
+          (error)="onImgError($event)"
+        />
+        <span *ngIf="!item.iconUrl" class="result-icon-initial">
+          {{ item.name.charAt(0).toUpperCase() }}
+        </span>
+      </div>
       <div class="result-text">
         <div class="result-title">{{ item.name }}</div>
         <div class="result-subtitle">{{ item.username }}</div>
