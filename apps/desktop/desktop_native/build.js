@@ -121,6 +121,34 @@ function buildShellExtension(target, release = true) {
     fs.copyFileSync(src, dst);
 }
 
+function buildSparsePackage(target) {
+    // The sparse MSIX package is only needed on Windows
+    if (effectivePlatform(target) !== "win32") {
+        return;
+    }
+
+    // Map target to MSIX architecture name
+    let arch;
+    if (target) {
+        const nodeArch = rustTargetsMap[target].nodeArch;
+        arch = nodeArch === "ia32" ? "x86" : nodeArch;
+    } else {
+        arch = process.arch === "ia32" ? "x86" : process.arch;
+    }
+
+    // Read version from the desktop package.json and append .0 for the four-part MSIX version
+    const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "src", "package.json"), "utf8"));
+    const version = packageJson.version + ".0";
+
+    // For local/dev builds use a self-signed placeholder publisher; CI overrides via environment variable
+    const publisher = process.env.SPARSE_PACKAGE_PUBLISHER || "CN=Bitwarden, O=Bitwarden Inc., L=Santa Barbara, S=California, C=US";
+
+    const scriptPath = path.join(__dirname, "..", "scripts", "build-sparse-package.ps1");
+
+    console.log(`Building sparse MSIX package (arch=${arch}, version=${version})`);
+    runCommand("powershell", ["-ExecutionPolicy", "Bypass", "-File", scriptPath, "-Arch", arch, "-Version", version, "-Publisher", publisher]);
+}
+
 function buildProcessIsolation() {
     if (process.platform !== "linux") {
         return;
@@ -157,6 +185,7 @@ if (!crossPlatform && !target) {
     buildProxyBin(false, mode === "release");
     buildImporterBinaries(false, mode === "release");
     buildShellExtension(false, mode === "release");
+    buildSparsePackage(false);
     buildProcessIsolation();
     return;
 }
@@ -168,6 +197,7 @@ if (target) {
     buildProxyBin(target, isRelease);
     buildImporterBinaries(target, isRelease);
     buildShellExtension(target, isRelease);
+    buildSparsePackage(target);
     buildProcessIsolation();
     return;
 }
@@ -188,5 +218,6 @@ platformTargets.forEach(([target, _]) => {
     buildProxyBin(target, isRelease);
     buildImporterBinaries(target, isRelease);
     buildShellExtension(target, isRelease);
+    buildSparsePackage(target);
     buildProcessIsolation();
 });
