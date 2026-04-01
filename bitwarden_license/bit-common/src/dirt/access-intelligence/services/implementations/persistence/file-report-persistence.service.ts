@@ -24,8 +24,7 @@ import {
   AccessReportView,
   AccessReport,
   AccessReportData,
-  AccessReportApi,
-  AccessReportMetricsApi,
+  AccessReportCreateApi,
 } from "../../../models";
 import { AccessIntelligenceApiService } from "../../abstractions/access-intelligence-api.service";
 import { AccessReportEncryptionService } from "../../abstractions/access-report-encryption.service";
@@ -75,7 +74,7 @@ export class FileReportPersistenceService extends ReportPersistenceService {
               type: "application/json",
             });
 
-            const request = new AccessReportApi();
+            const request = new AccessReportCreateApi();
             request.applicationData = data.applications;
             request.summaryData = data.summary;
             request.contentEncryptionKey = data.contentEncryptionKey;
@@ -160,7 +159,7 @@ export class FileReportPersistenceService extends ReportPersistenceService {
               view.organizationId,
               view.id,
               data.summary,
-              metrics as AccessReportMetricsApi,
+              metrics as unknown as Record<string, number>,
             );
 
             return forkJoin([updateApplicationsCall, updateSummaryCall]).pipe(
