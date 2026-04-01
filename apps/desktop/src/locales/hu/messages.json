@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "A funkció használatához prémium tagság szükséges."
   },
+  "syncWithBrowser": {
+    "message": "Szinkronizálás böngészővel"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "$VAULTURL$ szolgáltatáshoz kapcsolódáshoz szinkronizálni kell alapértelmezett böngészőt a Bitwarden alkalmazással. A böngésző szinkronizálása után visszakerülünk ebbe az alkalmazásba.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Böngésző indítása"
+  },
   "errorOccurred": {
     "message": "Valamilyen hiba történt."
   },
@@ -905,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Mesterjelszó emlékeztető"
   },
+  "masterPasswordChanged": {
+    "message": "A mesterjelszó mentésre került."
+  },
   "passwordStrengthScore": {
     "message": "A jelszó erősségi pontszáma $SCORE$",
     "placeholders": {
@@ -1196,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Az új ajánlott titkosítási beállítások javítják a fiók biztonságát. Adjuk meg a mesterjelszót a frissítéshez most."
   },
+  "rotateAccountEncKey": {
+    "message": "A felhasználói fiókom titkosítókódját is cseréljük le"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "A titkosítási kulcs cseréjének hattása"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "A széfben régi mellékletek vannak, amelyeket javítani kell a fiók titkosító kulcsának fordítása előtt."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Titkosító kulcs cseréje"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Biztosan cserére kerüljön a fiók titkosító kulcsa?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "A titkosítási kulcs frissítése után ki kell jelentkezni és vissza kell jelentkezni az összes jelenleg használt Bitwarden alkalmazásba (például a mobilalkalmazás vagy a böngésző bővítmények). A kijelentkezés és a bejelentkezés elmulasztása (amely letölti az új titkosítási kulcsot) adatvesztést okozhat. Megkíséreljük az automatikusan kijelentkeztetést, azonban ez késhet."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "A fiókhoz korlátozottan mentett exportálások érvénytelenek lesznek."
+  },
   "confirmIdentityToContinue": {
     "message": "A folytatáshoz meg kell erősíteni a személyazonosságot."
   },
@@ -1280,6 +1320,9 @@
   "changeMasterPass": {
     "message": "Mesterjelszó módosítása"
   },
+  "changeMasterPassword": {
+    "message": "Mesterjelszó módosítása"
+  },
   "continueToWebApp": {
     "message": "Tovább a webes alkalmazáshoz?"
   },
@@ -1358,17 +1401,11 @@
   "twoStepLogin": {
     "message": "Kétlépcsős bejelentkezés"
   },
-  "vaultTimeoutHeader": {
-    "message": "Széf időkifutás"
-  },
   "vaultTimeout": {
     "message": "Széf időkifutás"
   },
   "vaultTimeout1": {
     "message": "Időkifutás"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Időkifutási művelet"
   },
   "vaultTimeoutDesc": {
     "message": "Válasszuk ki, hogy a széfnél mikor legyen időkifutás és a kiválasztott művelet végrehajtása."
@@ -1658,6 +1695,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "hónap"
+  },
+  "monthly": {
+    "message": "Havi"
+  },
+  "year": {
+    "message": "év"
+  },
+  "annually": {
+    "message": "Évente"
+  },
+  "annual": {
+    "message": "Éves"
   },
   "refreshComplete": {
     "message": "A frissítés befejezésre került."
@@ -2089,9 +2141,6 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "A lezárt széfnél szükséges az újbóli hitelesítés az ismételt hozzáféréshez."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Állítsunk be egy feloldási módot a széf időkifutási műveletének módosításához."
-  },
   "lock": {
     "message": "Lezárás",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2274,6 +2323,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Az új mesterjelszó nem felel meg a szabály követelményeknek."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Egy vagy több szervezeti rendszabályhoz mesterjelszó szükséges a következő követelmények megfeleléséhez:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Tanácsokat, bejelentéseket és kutatási lehetőségeket kaphatunk a Bitwardentől a postaládába."
@@ -2709,9 +2761,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "A széf időkorlátja túllépi a szervezet által beállított korlátozást."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "A vállalkozáspolitikai követelményeket alkalmazra kerültek az időkifutási opciókra.."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "A szervezeti szabályzata $HOURS$ órára és $MINUTES$ percre állította be a maximálisan megengedett széf időkifutást.",
@@ -3745,6 +3794,9 @@
   "exportSuccess": {
     "message": "A széfadatok exportálásra kerültek."
   },
+  "exportError": {
+    "message": "Hiba történt a széf adatainak exportálása közben."
+  },
   "multifactorAuthenticationCancelled": {
     "message": "A többtényezős hitelesítés megszakításra került."
   },
@@ -4617,8 +4669,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ megköveteli, hogy minden elem a szervezet tulajdonában legyen a biztonság és a megfelelőség érdekében. Kattintás az elfogadásra az elemek tulajdonjogának átruházásához.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ megköveteli, hogy minden elem a szervezet tulajdonában legyen a biztonság és a megfelelőség érdekében.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4678,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Kattintsunk az elfogadás lehetőségre az elemek tulajdonjogának átruházásához."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Súgó cikk megnyitása az elemek átviteléről"
+  },
   "acceptTransfer": {
     "message": "Átvitel elfogadása"
   },
   "declineAndLeave": {
     "message": "Elutasítás és kilépés"
-  },
-  "whyAmISeeingThis": {
-    "message": "Miért látható ez?"
   },
   "organizationIsSuspended": {
     "message": "A szervezet felfüggesztésre került."
@@ -4692,9 +4747,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Írjunk be több email címet vesszővel elválasztva."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Az email cím ellenőrzéshez legalább egy email cím szükséges. Az összes email cím eltávolításához módosítsuk a fenti hozzáférési típust."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"

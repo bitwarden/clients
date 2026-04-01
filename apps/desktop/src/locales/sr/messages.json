@@ -337,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Премиум чланарина је неопходна како бисте користили ову опцију."
   },
+  "syncWithBrowser": {
+    "message": "Sync with browser"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Launch browser"
+  },
   "errorOccurred": {
     "message": "Појавила се грешка."
   },
@@ -905,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Савет главне лозинке"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "passwordStrengthScore": {
     "message": "Снага лозинкe $SCORE$",
     "placeholders": {
@@ -1196,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Нова препоручена подешавања шифрирања побољшаће вашу сигурност налога. Унесите своју главну лозинку за ажурирање."
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
   "confirmIdentityToContinue": {
     "message": "Да бисте наставили потврдите ваш идентитет"
   },
@@ -1280,6 +1320,9 @@
   "changeMasterPass": {
     "message": "Промени главну лозинку"
   },
+  "changeMasterPassword": {
+    "message": "Change master password"
+  },
   "continueToWebApp": {
     "message": "Ићи на веб апликацију?"
   },
@@ -1358,17 +1401,11 @@
   "twoStepLogin": {
     "message": "Дво-коракна лозинка"
   },
-  "vaultTimeoutHeader": {
-    "message": "Тајмаут сефа"
-  },
   "vaultTimeout": {
     "message": "Тајмаут сефа"
   },
   "vaultTimeout1": {
     "message": "Време трајања"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Акција тајмаута"
   },
   "vaultTimeoutDesc": {
     "message": "Изаберите када ће сеф истећи и извршити одабрану радњу."
@@ -1658,6 +1695,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "month"
+  },
+  "monthly": {
+    "message": "Monthly"
+  },
+  "year": {
+    "message": "year"
+  },
+  "annually": {
+    "message": "Annually"
+  },
+  "annual": {
+    "message": "Annual"
   },
   "refreshComplete": {
     "message": "Освежавање је завршено"
@@ -2089,9 +2141,6 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Одјављени сеф захтева да поново потврдите идентитет да бисте му поново приступили."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Подесите метод откључавања да бисте променили радњу временског ограничења сефа."
-  },
   "lock": {
     "message": "Закључај",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2274,6 +2323,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Ваша нова главна лозинка не испуњава захтеве полисе."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Добијајте савете, најаве и могућности истраживања од Bitwarden-а у пријемном сандучету."
@@ -2709,9 +2761,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Време истека вашег сефа је премашило дозвољена ограничења од стране ваше организације."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Захтеви политике предузећа су примењени на опције тајмаута"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Ваше организационе политике су поставиле максимално дозвољено време трајања сефа на $HOURS$ сат(и) и $MINUTES$ минут(а).",
@@ -3745,6 +3794,9 @@
   "exportSuccess": {
     "message": "Подаци из сефа су извезени"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Вишефакторска аутентификација је отказана"
   },
@@ -4617,8 +4669,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ захтева да све ставке буду у власништву организације ради безбедности и усклађености. Кликните на прихвати да бисте пренели власништво над својим ставкама.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4678,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Прихвати трансфер"
   },
   "declineAndLeave": {
     "message": "Одбиј и напусти"
-  },
-  "whyAmISeeingThis": {
-    "message": "Зашто видите ово?"
   },
   "organizationIsSuspended": {
     "message": "Organization is suspended"
@@ -4692,9 +4747,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"

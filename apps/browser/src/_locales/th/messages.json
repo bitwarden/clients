@@ -586,7 +586,7 @@
     "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archived": {
-    "message": "Archived"
+    "message": "เก็บ"
   },
   "unarchiveAndSave": {
     "message": "Unarchive and save"
@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "ตัวเลือกการปลดล็อก"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "ตั้งค่าวิธีการปลดล็อกเพื่อเปลี่ยนการดำเนินการเมื่อตู้นิรภัยหมดเวลา"
-  },
   "unlockMethodNeeded": {
     "message": "ตั้งค่าวิธีการปลดล็อกในการตั้งค่า"
   },
   "sessionTimeoutHeader": {
     "message": "เซสชันหมดเวลา"
-  },
-  "vaultTimeoutHeader": {
-    "message": "ตู้นิรภัยหมดเวลา"
   },
   "otherOptions": {
     "message": "ตัวเลือกอื่น ๆ"
@@ -2372,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "รหัสผ่านหลักที่คุณเลือกไม่ปลอดภัย คุณควรใช้รหัสผ่านหลักที่รัดกุม (หรือวลีรหัสผ่าน) เพื่อปกป้องบัญชี Bitwarden ของคุณอย่างเหมาะสม ยืนยันที่จะใช้รหัสผ่านหลักนี้หรือไม่"
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2480,8 @@
   "vaultTimeoutAction": {
     "message": "การดำเนินการเมื่อตู้นิรภัยหมดเวลา"
   },
-  "vaultTimeoutAction1": {
-    "message": "การดำเนินการเมื่อหมดเวลา"
+  "showAtRiskPasswordNotifications": {
+    "message": "Show at-risk password notifications"
   },
   "lock": {
     "message": "ล็อก",
@@ -3229,9 +3247,6 @@
   },
   "minutes": {
     "message": "นาที"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "ข้อกำหนดนโยบายองค์กรถูกนำไปใช้กับตัวเลือกเวลาหมดเวลาของคุณแล้ว"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "นโยบายองค์กรกำหนดระยะเวลาหมดเวลาของตู้นิรภัยสูงสุดไว้ที่ $HOURS$ ชั่วโมง $MINUTES$ นาที",
@@ -4436,6 +4451,9 @@
   "exportSuccess": {
     "message": "ส่งออกข้อมูลตู้นิรภัยแล้ว"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "typePasskey": {
     "message": "พาสคีย์"
   },
@@ -4866,13 +4884,13 @@
     "message": "คัดลอกที่อยู่"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "รายการของฉัน"
   },
   "adminConsole": {
     "message": "คอนโซลผู้ดูแลระบบ"
   },
   "admin": {
-    "message": "Admin"
+    "message": "แอดมิน"
   },
   "automaticUserConfirmation": {
     "message": "Automatic user confirmation"
@@ -6130,8 +6148,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ กำหนดให้รายการทั้งหมดต้องเป็นขององค์กรเพื่อความปลอดภัยและการปฏิบัติตามข้อกำหนด คลิกยอมรับเพื่อโอนกรรมสิทธิ์รายการของคุณ",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6157,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "ยอมรับการโอนย้าย"
   },
   "declineAndLeave": {
     "message": "ปฏิเสธและออก"
-  },
-  "whyAmISeeingThis": {
-    "message": "ทำไมฉันจึงเห็นสิ่งนี้"
   },
   "items": {
     "message": "Items"
@@ -6178,9 +6199,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6214,8 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }

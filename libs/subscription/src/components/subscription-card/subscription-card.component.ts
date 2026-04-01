@@ -11,6 +11,7 @@ import {
   TypographyModule,
   CalloutTypes,
   ButtonType,
+  BitwardenIcon,
 } from "@bitwarden/components";
 import { CartSummaryComponent, Maybe } from "@bitwarden/pricing";
 import { BitwardenSubscription, SubscriptionStatuses } from "@bitwarden/subscription";
@@ -33,7 +34,7 @@ type Badge = { text: string; variant: BadgeVariant };
 type Callout = Maybe<{
   title: string;
   type: CalloutTypes;
-  icon?: string;
+  icon?: BitwardenIcon;
   description: string;
   callsToAction?: {
     text: string;
@@ -188,7 +189,7 @@ export class SubscriptionCardComponent {
         return {
           title: this.i18nService.t("upgradeYourPlan"),
           type: "info",
-          icon: "bwi-gem",
+          icon: "bwi-diamond",
           description: this.i18nService.t("premiumShareEvenMore"),
           callsToAction: [
             {

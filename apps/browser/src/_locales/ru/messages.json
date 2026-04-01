@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Настройки разблокировки"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Настройте способ разблокировки для изменения действия по тайм-ауту хранилища."
-  },
   "unlockMethodNeeded": {
     "message": "Установите способ разблокировки в настройках"
   },
   "sessionTimeoutHeader": {
     "message": "Тайм-аут сессии"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Тайм-аут хранилища"
   },
   "otherOptions": {
     "message": "Прочие настройки"
@@ -2372,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "Вы выбрали слабый мастер-пароль. Для надежной защиты аккаунта Bitwarden следует использовать сильный мастер-пароль (или парольную фразу). Вы действительно хотите использовать этот мастер-пароль?"
   },
+  "rotateAccountEncKey": {
+    "message": "Также сменить ключ шифрования моего аккаунта"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Сменить ключ шифрования"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Вы уверены, что хотите сменить ключ шифрования вашего аккаунта?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "После обновления ключа шифрования необходимо выйти из всех приложений Bitwarden, которые вы используете (например, из мобильного приложения или расширения браузера). Если этого не сделать, могут повредиться данные (так как при выходе и последующем входе загружается ваш новый ключ шифрования). Мы попытаемся автоматически осуществить завершение ваших сессий, однако это может произойти с задержкой."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Любые сохраненные вами настройки ограничения экспорта для аккаунта утратят силу."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "В вашем хранилище есть старые вложения файлов, которые необходимо исправить, прежде чем вы сможете сменить ключ шифрования вашего аккаунта."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Последствия смены ключа шифрования"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Одна или несколько политик организации требуют, чтобы мастер-пароль соответствовал следующим требованиям:"
+  },
   "pin": {
     "message": "PIN-код",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2480,8 @@
   "vaultTimeoutAction": {
     "message": "Действие по тайм-ауту хранилища"
   },
-  "vaultTimeoutAction1": {
-    "message": "Тайм-аут действия"
+  "showAtRiskPasswordNotifications": {
+    "message": "Show at-risk password notifications"
   },
   "lock": {
     "message": "Блокировка",
@@ -3229,9 +3247,6 @@
   },
   "minutes": {
     "message": "Мин."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "К настройкам тайм-аута были применены требования корпоративной политики"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "В соответствии с политиками вашей организации максимально допустимый тайм-аут хранилища составляет $HOURS$ час. и $MINUTES$ мин.",
@@ -4435,6 +4450,9 @@
   },
   "exportSuccess": {
     "message": "Данные хранилища экспортированы"
+  },
+  "exportError": {
+    "message": "При экспорте данных хранилища произошла ошибка"
   },
   "typePasskey": {
     "message": "Passkey"
@@ -6130,8 +6148,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации для обеспечения безопасности и соответствия требованиям. Нажмите Принять, чтобы передать собственность на ваши элементы.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации в целях безопасности и соблюдения нормативных требований.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6157,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Нажмите Принять, чтобы передать право собственности на ваши элементы."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Открыть статью помощь по передаче элементов"
+  },
   "acceptTransfer": {
     "message": "Принять передачу"
   },
   "declineAndLeave": {
     "message": "Отклонить и покинуть"
-  },
-  "whyAmISeeingThis": {
-    "message": "Почему я это вижу?"
   },
   "items": {
     "message": "Элементы"
@@ -6178,9 +6199,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Введите несколько email, разделяя их запятой."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Для проверки электронной почты требуется как минимум один адрес email. Чтобы удалить все адреса электронной почты, измените тип доступа выше."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6214,8 @@
   },
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
+  },
+  "downloadFailed": {
+    "message": "Не удалось загрузить."
   }
 }

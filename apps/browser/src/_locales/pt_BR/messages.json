@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Opções de desbloqueio"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configure um método de desbloqueio para alterar a ação do limite de tempo do cofre."
-  },
   "unlockMethodNeeded": {
     "message": "Configure um método de desbloqueio nas Configurações"
   },
   "sessionTimeoutHeader": {
     "message": "Limite de tempo da sessão"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Limite de tempo do cofre"
   },
   "otherOptions": {
     "message": "Outras opções"
@@ -2372,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "A senha principal que você selecionou está fraca. Você deve usar uma senha principal forte (ou uma frase secreta) para proteger a sua conta Bitwarden adequadamente. Tem certeza que deseja usar esta senha principal?"
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2480,8 @@
   "vaultTimeoutAction": {
     "message": "Ação do limite de tempo do cofre"
   },
-  "vaultTimeoutAction1": {
-    "message": "Ação do limite de tempo"
+  "showAtRiskPasswordNotifications": {
+    "message": "Show at-risk password notifications"
   },
   "lock": {
     "message": "Bloquear",
@@ -3116,7 +3134,7 @@
     }
   },
   "sendCreatedDescriptionEmail": {
-    "message": "Copie e compartilhe este link do Send. Ele pode ser visto pelas pessoas que você especificou pelos próximos $TIME$.",
+    "message": "Copie e compartilhe este link do Send. Ele pode ser visto pelas pessoas que você especificou por $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -3229,9 +3247,6 @@
   },
   "minutes": {
     "message": "Minutos"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Os requisitos de política empresarial foram aplicados às suas opções de limite de tempo"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "As políticas da sua organização configuraram o seu máximo permitido do limite de tempo do cofre para $HOURS$ hora(s) e $MINUTES$ minuto(s).",
@@ -4436,6 +4451,9 @@
   "exportSuccess": {
     "message": "Dados do cofre exportados"
   },
+  "exportError": {
+    "message": "Ocorreu um erro ao exportar os dados do seu cofre"
+  },
   "typePasskey": {
     "message": "Chave de acesso"
   },
@@ -4866,7 +4884,7 @@
     "message": "Copiar endereço"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "Meus itens"
   },
   "adminConsole": {
     "message": "Painel de administração"
@@ -6130,8 +6148,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ exige que todos os itens sejam propriedade da organização por segurança e conformidade. Clique em aceitar para transferir a propriedade dos seus itens.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ está exigindo que todos os itens sejam propriedade da organização por segurança e conformidade.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6157,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Clique em aceitar para transferir a propriedade dos seus itens."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Abrir artigo de ajuda sobre a transferência de itens"
+  },
   "acceptTransfer": {
     "message": "Aceitar transferência"
   },
   "declineAndLeave": {
     "message": "Recusar e sair"
-  },
-  "whyAmISeeingThis": {
-    "message": "Por que estou vendo isso?"
   },
   "items": {
     "message": "Itens"
@@ -6155,13 +6176,13 @@
     "message": "Resultados da busca"
   },
   "simplifiedAutofill": {
-    "message": "Simplified autofill"
+    "message": "Preenchimento simplificado"
   },
   "simplifiedAutofillDescription": {
-    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+    "message": "Ao clicar em um item sugerido para preencher, será preenchido em vez de te levar aos detalhes. Você pode ver esses itens no menu de Mais."
   },
   "openSimplifiedAutofillPopover": {
-    "message": "Open simplified autofill popover"
+    "message": "Abrir sobreposição de preenchimento simplificado"
   },
   "resizeSideNavigation": {
     "message": "Redimensionar navegação lateral"
@@ -6178,9 +6199,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Digite vários e-mails, separados com uma vírgula."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "A verificação de e-mail requer pelo menos um endereço de e-mail. Para remover todos, altere o tipo de acesso acima."
-  },
   "emailPlaceholder": {
     "message": "usuário@bitwarden.com , usuário@acme.com"
   },
@@ -6196,5 +6214,8 @@
   },
   "userVerificationFailed": {
     "message": "Falha na verificação do usuário."
+  },
+  "downloadFailed": {
+    "message": "Falha no download."
   }
 }
