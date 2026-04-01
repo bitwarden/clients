@@ -192,7 +192,15 @@ export class AppComponent implements OnInit, OnDestroy {
     this.destroyRef.onDestroy(() => langSubscription.unsubscribe());
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    // Pull any --send-path arguments collected by the main process during cold start.
+    // This is pull-based to avoid the race where a push-based deep link message
+    // arrives before the renderer's IPC messaging subscription is ready.
+    const coldStartPaths = await ipc.platform.contextMenu.takePendingSendPaths();
+    if (coldStartPaths.length > 0) {
+      this.pendingSendService.addPaths(coldStartPaths);
+    }
+
     this.accountService.activeAccount$.pipe(takeUntil(this.destroy$)).subscribe((account) => {
       this.activeUserId = account?.id;
     });

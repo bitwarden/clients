@@ -118,6 +118,7 @@ const sendFile = {
 const contextMenu = {
   enable: (): Promise<void> => ipcRenderer.invoke("contextMenu.enable"),
   disable: (): Promise<void> => ipcRenderer.invoke("contextMenu.disable"),
+  takePendingSendPaths: (): Promise<string[]> => ipcRenderer.invoke("pendingSendPaths.take"),
 };
 
 const localhostCallbackService = {

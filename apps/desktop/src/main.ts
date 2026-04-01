@@ -4,7 +4,7 @@ import "core-js/proposals/explicit-resource-management";
 
 import * as path from "path";
 
-import { app } from "electron";
+import { app, ipcMain } from "electron";
 import { Subject, firstValueFrom } from "rxjs";
 
 import { SsoUrlService } from "@bitwarden/auth/common";
@@ -309,6 +309,15 @@ export class Main {
 
     this.contextMenuMain = new ContextMenuMain(app.getPath("exe"));
     this.sendFileMain = new SendFileMain();
+
+    // Allow the renderer to pull pending --send-path arguments on demand.
+    // This avoids the race condition where the push-based deep link message
+    // arrives before the renderer has subscribed to IPC messaging.
+    ipcMain.handle("pendingSendPaths.take", () => {
+      const paths = [...this.pendingSendPaths];
+      this.pendingSendPaths = [];
+      return paths;
+    });
 
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
 
