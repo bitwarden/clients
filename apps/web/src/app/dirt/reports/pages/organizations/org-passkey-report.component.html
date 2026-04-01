@@ -1,7 +1,21 @@
 <app-header></app-header>
 
 <bit-container>
-  <p>{{ "passkeyLoginReportDesc" | i18n }}</p>
+  <p>
+    {{ "passkeyLoginReportDesc" | i18n }}
+    <a
+      bitLink
+      href="https://bitwarden.com/blog/how-do-passkeys-work/"
+      target="_blank"
+      rel="noreferrer"
+    >
+      {{ "passkeyLoginReportHowTheyWork" | i18n }}
+    </a>
+    {{ "passkeyLoginReportAnd" | i18n }}
+    <a bitLink href="https://bitwarden.com/help/storing-passkeys/" target="_blank" rel="noreferrer">
+      {{ "passkeyLoginReportHowToUse" | i18n }}
+    </a>
+  </p>
   @if (!hasLoaded() && loading()) {
     <div>
       <i
@@ -13,7 +27,11 @@
     </div>
   } @else {
     <div class="tw-mt-4">
-      @if (!ciphers().length) {
+      @if (error()) {
+        <bit-callout type="danger">
+          {{ "reportError" | i18n }}
+        </bit-callout>
+      } @else if (!ciphers().length) {
         <bit-callout type="success" title="{{ 'goodNews' | i18n }}">
           {{ "noPasskeyLogin" | i18n }}
         </bit-callout>
@@ -77,7 +95,7 @@
             </td>
             <td bitCell class="tw-text-right">
               @if (row.instructions) {
-                <a href="{{ row.instructions }}" target="_blank" rel="noreferrer">
+                <a [href]="row.instructions" target="_blank" rel="noreferrer">
                   <span bitBadge variant="primary">{{ "instructions" | i18n }}</span>
                 </a>
               }

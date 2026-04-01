@@ -87,6 +87,7 @@ export class PasskeyReportComponent {
   // Reactive state
   protected readonly loading = signal(false);
   protected readonly hasLoaded = signal(false);
+  protected readonly error = signal(false);
   protected readonly ciphers = signal<PasskeyCipherRow[]>([]);
   protected readonly allCiphers = signal<PasskeyCipherRow[]>([]);
   protected readonly dataSource = new TableDataSource<PasskeyCipherRow>();
@@ -195,10 +196,14 @@ export class PasskeyReportComponent {
 
   private async init() {
     this.loading.set(true);
+    this.error.set(false);
 
     try {
       await this.syncService.fullSync(false);
       await this.setCiphers();
+    } catch (e) {
+      this.logService.error("[PasskeyReportComponent] Failed to load report", e);
+      this.error.set(true);
     } finally {
       this.loading.set(false);
       this.hasLoaded.set(true);
@@ -210,18 +215,14 @@ export class PasskeyReportComponent {
       return;
     }
 
-    try {
-      const entries = (await this.passkeyDirectoryApiService.getPasskeyDirectory(this.userId()))
-        .filter((x) => x.domainName != null)
-        .reduce(
-          (map, entry) => map.set(entry.domainName, entry),
-          new Map<string, PasskeyServiceEntry>(),
-        );
+    const entries = (await this.passkeyDirectoryApiService.getPasskeyDirectory(this.userId()))
+      .filter((x) => x.domainName != null)
+      .reduce(
+        (map, entry) => map.set(entry.domainName, entry),
+        new Map<string, PasskeyServiceEntry>(),
+      );
 
-      this.passkeyServices.set(entries);
-    } catch (e) {
-      this.logService.error("[PasskeyReportComponent] Failed to load passkeys", e);
-    }
+    this.passkeyServices.set(entries);
   }
 
   private async openVaultItemDialog(

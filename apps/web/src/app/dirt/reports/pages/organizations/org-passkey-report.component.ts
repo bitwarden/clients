@@ -26,6 +26,7 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
+  BadgeComponent,
   CalloutComponent,
   ContainerComponent,
   DialogService,
@@ -78,6 +79,7 @@ import {
     ContainerComponent,
     LinkComponent,
     TableModule,
+    BadgeComponent,
   ],
 })
 export class OrgPasskeyReportComponent {
@@ -98,6 +100,7 @@ export class OrgPasskeyReportComponent {
   // Reactive state
   protected readonly loading = signal(false);
   protected readonly hasLoaded = signal(false);
+  protected readonly error = signal(false);
   protected readonly ciphers = signal<PasskeyCipherRow[]>([]);
   protected readonly dataSource = new TableDataSource<PasskeyCipherRow>();
 
@@ -170,9 +173,13 @@ export class OrgPasskeyReportComponent {
 
   private async load(org: Organization) {
     this.loading.set(true);
+    this.error.set(false);
     try {
       await this.syncService.fullSync(false);
       await this.setCiphers(org);
+    } catch (e) {
+      this.logService.error("[OrgPasskeyReportComponent] Failed to load report", e);
+      this.error.set(true);
     } finally {
       this.loading.set(false);
       this.hasLoaded.set(true);
@@ -197,18 +204,14 @@ export class OrgPasskeyReportComponent {
       return;
     }
 
-    try {
-      const entries = (await this.passkeyDirectoryApiService.getPasskeyDirectory(this.userId()))
-        .filter((x) => x.domainName != null)
-        .reduce(
-          (map, entry) => map.set(entry.domainName, entry),
-          new Map<string, PasskeyServiceEntry>(),
-        );
+    const entries = (await this.passkeyDirectoryApiService.getPasskeyDirectory(this.userId()))
+      .filter((x) => x.domainName != null)
+      .reduce(
+        (map, entry) => map.set(entry.domainName, entry),
+        new Map<string, PasskeyServiceEntry>(),
+      );
 
-      this.passkeyServices.set(entries);
-    } catch (e) {
-      this.logService.error("[OrgPasskeyReportComponent] Failed to load passkeys", e);
-    }
+    this.passkeyServices.set(entries);
   }
 
   private async openVaultItemDialog(

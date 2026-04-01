@@ -27,7 +27,11 @@
     </div>
   } @else {
     <div class="tw-mt-4">
-      @if (!ciphers().length) {
+      @if (error()) {
+        <bit-callout type="danger">
+          {{ "reportError" | i18n }}
+        </bit-callout>
+      } @else if (!ciphers().length) {
         <bit-callout type="success" title="{{ 'goodNews' | i18n }}">
           {{ "noPasskeyLogin" | i18n }}
         </bit-callout>
