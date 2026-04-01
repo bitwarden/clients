@@ -1,19 +1,14 @@
-import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
-import { CommandService } from "../services/command-service";
+import { SearchBarComponent } from "./components/search-bar.component";
 
 @Component({
   selector: "magnify-root",
-  template: `<p>Magnify</p>`,
+  standalone: true,
+  imports: [SearchBarComponent],
+  template: `<search-bar />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent implements OnInit {
-  constructor(private readonly commandService: CommandService) {}
-
-  async ngOnInit(): Promise<void> {
-    const r = await this.commandService.searchVault("Netfli");
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const r2 = await this.commandService.copyPassword(r[0].id);
-  }
+export class AppComponent {
+  constructor() {}
 }

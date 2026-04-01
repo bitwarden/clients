@@ -97,7 +97,11 @@ export class MainDesktopMagnifyService {
     // otherwise: create the window
     const win = new BrowserWindow({
       width: 800,
-      height: 600,
+      height: 100,
+      frame: false,
+      transparent: true,
+      alwaysOnTop: true,
+      skipTaskbar: true,
       webPreferences: {
         preload: path.join(__dirname, "magnify", "preload.js"),
         sandbox: true,

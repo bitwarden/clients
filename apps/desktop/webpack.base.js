@@ -423,8 +423,18 @@ module.exports.buildMagnifyConfig = function buildMagnifyConfig(params) {
           test: /\.[jt]sx?$/,
           loader: "@ngtools/webpack",
         },
+        // Angular requests component templates as `foo.html?ngResource` — hand back
+        // the raw source string so the Angular compiler receives what it expects.
         {
           test: /\.(html)$/,
+          resourceQuery: /ngResource/,
+          type: "asset/source",
+        },
+        // All other HTML files (e.g. index.html processed by HtmlWebpackPlugin) go
+        // through html-loader as normal.
+        {
+          test: /\.(html)$/,
+          resourceQuery: { not: [/ngResource/] },
           loader: "html-loader",
         },
         {
@@ -442,12 +452,13 @@ module.exports.buildMagnifyConfig = function buildMagnifyConfig(params) {
         {
           test: /\.css$/,
           resourceQuery: /ngResource/,
-          type: "asset/source",
+          use: [{ loader: "css-loader", options: { exportType: "string" } }],
         },
         {
           test: /\.css$/,
+          resourceQuery: { not: [/ngResource/] },
           use: [
-            MiniCssExtractPlugin.loader,
+            "style-loader",
             "css-loader",
             "resolve-url-loader",
             { loader: "postcss-loader", options: { sourceMap: true } },
@@ -456,7 +467,7 @@ module.exports.buildMagnifyConfig = function buildMagnifyConfig(params) {
         {
           test: /\.scss$/,
           use: [
-            { loader: MiniCssExtractPlugin.loader, options: { publicPath: "../" } },
+            "style-loader",
             "css-loader",
             "resolve-url-loader",
             { loader: "sass-loader", options: { sourceMap: true } },
@@ -495,10 +506,6 @@ module.exports.buildMagnifyConfig = function buildMagnifyConfig(params) {
       }),
       new webpack.SourceMapDevToolPlugin({
         include: ["app/main.js"],
-      }),
-      new MiniCssExtractPlugin({
-        filename: "[name].[contenthash].css",
-        chunkFilename: "[id].[contenthash].css",
       }),
       new webpack.DefinePlugin({
         BIT_ENVIRONMENT: JSON.stringify(NODE_ENV),
