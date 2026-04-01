@@ -8,7 +8,6 @@ import { UserId } from "../../../types/guid";
 import { LogService } from "../../abstractions/log.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
-// eslint-disable-next-line import/no-restricted-paths -- pre-existing, matches sibling files
 import { StateProvider } from "../../state";
 
 import { SyncedPreferences } from "./synced-preferences";
@@ -17,6 +16,7 @@ import {
   SyncScope,
   SyncedKeyEntry,
   PREFERENCE_SYNC_ENABLED,
+  isGlobalEntry,
 } from "./synced-preferences-registry";
 import { UserPreferencesRequest } from "./user-preferences.request";
 import { UserPreferencesResponse } from "./user-preferences.response";
@@ -88,7 +88,7 @@ export class PreferenceSyncService {
     this.stopSyncedKeyWatch();
 
     const observables = SYNCED_KEYS.filter((entry) => this.isEntryRelevant(entry)).map((entry) =>
-      this.stateProvider.getUser(userId, entry.keyDef).state$.pipe(
+      this.getStateAccessor(entry, userId).state$.pipe(
         skip(1), // skip initial emission to avoid pushing on subscribe
       ),
     );
@@ -156,7 +156,7 @@ export class PreferenceSyncService {
         continue;
       }
 
-      const value = await firstValueFrom(this.stateProvider.getUser(userId, entry.keyDef).state$);
+      const value = await firstValueFrom(this.getStateAccessor(entry, userId).state$);
 
       if (value === undefined || value === null) {
         continue;
@@ -201,11 +201,18 @@ export class PreferenceSyncService {
       }
 
       try {
-        await this.stateProvider.getUser(userId, entry.keyDef).update(() => value);
+        await this.getStateAccessor(entry, userId).update(() => value);
       } catch (e) {
         this.logService.error(`PreferenceSyncService: failed to apply ${entry.blobField}`, e);
       }
     }
+  }
+
+  private getStateAccessor(entry: SyncedKeyEntry, userId: UserId) {
+    if (isGlobalEntry(entry)) {
+      return this.stateProvider.getGlobal(entry.keyDef);
+    }
+    return this.stateProvider.getUser(userId, entry.keyDef);
   }
 
   private isEntryRelevant(entry: SyncedKeyEntry): boolean {

@@ -9,10 +9,12 @@ export {
   SharedSyncedKeyEntry,
   CommonDeviceSyncedKeyEntry,
   BrowserSyncedKeyEntry,
+  SharedGlobalSyncedKeyEntry,
   SyncScope,
   SYNCED_KEYS,
   PREFERENCE_SYNC_ENABLED,
   registerSyncedKeys,
+  isGlobalEntry,
 } from "./synced-preferences-registry";
 export { UserPreferencesResponse } from "./user-preferences.response";
 export { UserPreferencesRequest } from "./user-preferences.request";

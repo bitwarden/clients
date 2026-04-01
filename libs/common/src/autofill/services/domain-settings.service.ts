@@ -25,7 +25,7 @@ import {
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
 
-const SHOW_FAVICONS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "showFavicons", {
+export const SHOW_FAVICONS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "showFavicons", {
   deserializer: (value: boolean) => value ?? true,
 });
 

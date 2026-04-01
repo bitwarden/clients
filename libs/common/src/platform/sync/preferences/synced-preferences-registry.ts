@@ -1,4 +1,4 @@
-import { UserKeyDefinition, SYNC_DISK } from "@bitwarden/state";
+import { KeyDefinition, UserKeyDefinition, SYNC_SETTINGS_DISK } from "@bitwarden/state";
 
 import {
   AUTOFILL_ON_PAGE_LOAD,
@@ -8,7 +8,10 @@ import {
   SHOW_INLINE_MENU_CARDS,
 } from "../../../autofill/services/autofill-settings.service";
 import { ENABLE_BADGE_COUNTER } from "../../../autofill/services/badge-settings.service";
-import { DEFAULT_URI_MATCH_STRATEGY } from "../../../autofill/services/domain-settings.service";
+import {
+  DEFAULT_URI_MATCH_STRATEGY,
+  SHOW_FAVICONS,
+} from "../../../autofill/services/domain-settings.service";
 import { ClientType } from "../../../enums";
 import {
   VAULT_TIMEOUT,
@@ -44,6 +47,14 @@ export type SyncScope = (typeof SyncScope)[keyof typeof SyncScope];
 interface SyncedKeyEntryBase {
   /** The UserKeyDefinition that owns this state in the StateProvider */
   keyDef: UserKeyDefinition<unknown>;
+  global?: never;
+}
+
+interface SyncedGlobalKeyEntryBase {
+  /** The KeyDefinition that owns this state in the global StateProvider */
+  keyDef: KeyDefinition<unknown>;
+  /** Discriminator flag indicating this entry targets GlobalState, not user-scoped state */
+  global: true;
 }
 
 /** Entry for a preference shared across all device types */
@@ -67,19 +78,31 @@ export interface BrowserSyncedKeyEntry extends SyncedKeyEntryBase {
   device: ClientType.Browser;
 }
 
+/** Entry for a shared preference backed by GlobalState (not user-scoped) */
+export interface SharedGlobalSyncedKeyEntry extends SyncedGlobalKeyEntryBase {
+  blobField: keyof SharedPreferences;
+  scope: typeof SyncScope.Shared;
+  device?: never;
+}
+
 export type SyncedKeyEntry =
   | SharedSyncedKeyEntry
   | CommonDeviceSyncedKeyEntry
-  | BrowserSyncedKeyEntry;
+  | BrowserSyncedKeyEntry
+  | SharedGlobalSyncedKeyEntry;
+
+/** Type guard to check if a synced key entry targets GlobalState */
+export function isGlobalEntry(entry: SyncedKeyEntry): entry is SharedGlobalSyncedKeyEntry {
+  return "global" in entry && entry.global === true;
+}
 
 // ── Opt-in flag ──
 
 export const PREFERENCE_SYNC_ENABLED = new UserKeyDefinition<boolean>(
-  SYNC_DISK,
+  SYNC_SETTINGS_DISK,
   "preferenceSyncEnabled",
   {
-    // TODO: Change back to false before shipping — true for dev/testing only
-    deserializer: (v) => v ?? true,
+    deserializer: (v) => v ?? false,
     clearOn: [],
   },
 );
@@ -98,6 +121,7 @@ export const SYNCED_KEYS: SyncedKeyEntry[] = [
 
   { keyDef: THEME_USER_SELECTION, blobField: "theme", scope: SyncScope.Shared },
   { keyDef: LOCALE_USER, blobField: "locale", scope: SyncScope.Shared },
+  { keyDef: SHOW_FAVICONS, blobField: "showFavicons", scope: SyncScope.Shared, global: true },
 
   // ── Device — all device types ──
 
