@@ -183,11 +183,17 @@
   justify-content: center;
   font-size: 10px;
   font-weight: 600;
-  color: rgb(52, 199, 89);
+  color: rgb(36, 161, 68);
   letter-spacing: 0.2px;
   opacity: 0;
   transition: opacity 0.15s ease;
   pointer-events: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  .result-action-completion {
+    color: rgb(52, 199, 89);
+  }
 }
 
 .result-action-completion.visible {
