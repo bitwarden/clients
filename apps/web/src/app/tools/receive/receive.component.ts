@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { Component, computed, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { switchMap } from "rxjs";
@@ -6,6 +6,7 @@ import { switchMap } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NoResults, NoSendsIcon } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ReceiveView } from "@bitwarden/common/tools/receive/models/view/receive.view";
 import { ReceiveService } from "@bitwarden/common/tools/receive/services/receive.service";
 import {
@@ -44,12 +45,7 @@ import { ReceiveViewComponent } from "./receive-view.component";
     ReceiveTableComponent,
   ],
 })
-export class ReceiveComponent implements OnInit {
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly accountService = inject(AccountService);
-  private readonly receiveService = inject(ReceiveService);
-  private readonly dialogService = inject(DialogService);
-
+export class ReceiveComponent {
   protected readonly noItemIcon = NoSendsIcon;
   protected readonly noResultsIcon = NoResults;
   protected readonly ReceiveListState = ReceiveListState;
@@ -63,11 +59,16 @@ export class ReceiveComponent implements OnInit {
     () => true, // TODO: Implement search and update this value based on results
   );
 
-  ngOnInit(): void {
+  constructor(
+    private readonly dialogService: DialogService,
+    private readonly receiveService: ReceiveService,
+    private readonly accountService: AccountService,
+  ) {
     this.accountService.activeAccount$
       .pipe(
-        switchMap((account) => this.receiveService.receiveViews$(account!.id)),
-        takeUntilDestroyed(this.destroyRef),
+        getUserId,
+        switchMap((userId) => this.receiveService.receiveViews$(userId)),
+        takeUntilDestroyed(),
       )
       .subscribe((receives) => {
         this.dataSource.data = receives;

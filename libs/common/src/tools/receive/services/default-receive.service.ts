@@ -124,8 +124,8 @@ export class DefaultReceiveService implements InternalReceiveService {
     response: ReceiveSharedDataResponse,
     urlData: ReceiveUrlData,
   ): Promise<ReceiveSharedData> {
-    const sharedContentEncryptionKey = SymmetricCryptoKey.fromString(
-      urlData.sharedContentEncryptionKeyB64,
+    const sharedContentEncryptionKey = new SymmetricCryptoKey(
+      Utils.fromUrlB64ToArray(urlData.sharedContentEncryptionKeyB64),
     );
 
     return {

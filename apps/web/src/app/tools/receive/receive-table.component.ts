@@ -50,7 +50,7 @@ export class ReceiveTableComponent {
     this.deleteReceive.emit(receive);
   }
 
-  protected isExpired(receive: ReceiveView): boolean {
-    return receive.expirationDate != null && receive.expirationDate < new Date();
+  protected isExpired(view: ReceiveView): boolean {
+    return view.expirationDate != null && view.expirationDate < new Date();
   }
 }

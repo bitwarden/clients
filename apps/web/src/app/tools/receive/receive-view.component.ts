@@ -1,6 +1,7 @@
 import { DatePipe } from "@angular/common";
-import { ChangeDetectionStrategy, Component, Inject, OnInit, signal } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { ChangeDetectionStrategy, Component, computed, Inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { map } from "rxjs";
 
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -26,8 +27,18 @@ import { ReceiveAddEditComponent } from "./receive-add-edit.component";
   imports: [DatePipe, DialogModule, ButtonModule, FormFieldModule, IconButtonModule, I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ReceiveViewComponent implements OnInit {
-  protected readonly receiveLink = signal("");
+export class ReceiveViewComponent {
+  private readonly baseReceiveUrl = toSignal(
+    this.environmentService.environment$.pipe(map((env) => env.getWebVaultUrl() + "/#/receive")),
+  );
+
+  protected readonly receiveLink = computed(() => {
+    const baseUrl = this.baseReceiveUrl();
+    if (!baseUrl) {
+      return null;
+    }
+    return buildReceiveUrl(this.receive, baseUrl);
+  });
 
   constructor(
     @Inject(DIALOG_DATA) protected readonly receive: ReceiveView,
@@ -39,17 +50,15 @@ export class ReceiveViewComponent implements OnInit {
     private readonly environmentService: EnvironmentService,
   ) {}
 
-  async ngOnInit(): Promise<void> {
-    const env = await firstValueFrom(this.environmentService.environment$);
-    const baseUrl = env.getWebVaultUrl() + "/#/receive";
-    this.receiveLink.set(buildReceiveUrl(this.receive, baseUrl));
-  }
-
   protected copyLink(): void {
-    this.platformUtilsService.copyToClipboard(this.receiveLink());
+    const receiveLink = this.receiveLink();
+    if (!receiveLink) {
+      return;
+    }
+    this.platformUtilsService.copyToClipboard(receiveLink);
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("valueCopied", this.i18nService.t("sendLink")),
+      message: this.i18nService.t("valueCopied", this.i18nService.t("receiveLink")),
     });
   }
 

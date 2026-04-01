@@ -3,8 +3,9 @@
     <ng-container header>
       <tr>
         <th bitCell bitSortable="name" default>{{ "name" | i18n }}</th>
-        <th bitCell bitSortable="expirationDate" class="@lg/receive-table:tw-table-cell tw-hidden">
-          {{ "expirationDate" | i18n }}
+        <th bitCell bitSortable="files" default>{{ "file" | i18n }}</th>
+        <th bitCell bitSortable="expiration" class="@lg/receive-table:tw-table-cell tw-hidden">
+          {{ "expiration" | i18n }}
         </th>
         <th bitCell>{{ "options" | i18n }}</th>
       </tr>
@@ -28,6 +29,15 @@
               ></i>
             }
           </div>
+        </td>
+        <td
+          bitCell
+          (click)="onViewReceive(r)"
+          class="tw-text-muted tw-cursor-pointer @lg/receive-table:tw-table-cell tw-hidden"
+        >
+          <small bitTypography="body2" appStopProp>
+            {{ r.fileData?.length ?? 0 }}
+          </small>
         </td>
         <td
           bitCell
