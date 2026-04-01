@@ -465,13 +465,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       this.cipherAuthorizationService.canEditCipher$(this.cipher, this.params.isAdminConsoleAction),
     );
 
-    this.canDelete = await firstValueFrom(
-      this.cipherAuthorizationService.canDeleteCipher$(
-        this.cipher,
-        this.params.isAdminConsoleAction,
-      ),
-    );
-
     await this.changeMode("view");
   }
 
