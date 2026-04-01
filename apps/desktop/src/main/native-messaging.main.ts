@@ -5,6 +5,7 @@ import { homedir, userInfo } from "os";
 import * as path from "path";
 
 import { ipcMain } from "electron";
+import { Subject } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ipc, windows_registry } from "@bitwarden/desktop-napi";
@@ -16,6 +17,16 @@ import { WindowMain } from "./window.main";
 export class NativeMessagingMain {
   private ipcServer: ipc.NativeIpcServer | null;
   private connected: number[] = [];
+
+  private _messages$ = new Subject<ipc.IpcMessage>();
+  readonly messages$ = this._messages$.asObservable();
+
+  /**
+   * Optional callback that returns true if the listener should be kept alive
+   * even when a specific integration is being disabled. This prevents one
+   * integration from stopping the listener while another still needs it.
+   */
+  shouldKeepListening?: () => Promise<boolean>;
 
   constructor(
     private logService: LogService,
@@ -36,7 +47,7 @@ export class NativeMessagingMain {
             return e;
           }
         } else {
-          this.stop();
+          await this.stopIfUnused();
           try {
             await this.removeManifests();
           } catch (e) {
@@ -60,7 +71,7 @@ export class NativeMessagingMain {
             return e;
           }
         } else {
-          this.stop();
+          await this.stopIfUnused();
           try {
             await this.removeDdgManifests();
           } catch (e) {
@@ -77,7 +88,7 @@ export class NativeMessagingMain {
     if (this.ipcServer) {
       this.ipcServer.stop();
     }
-
+    this.logService.info("Starting native messaging server");
     this.ipcServer = await ipc.NativeIpcServer.listen("bw", (error, msg) => {
       switch (msg.kind) {
         case ipc.IpcMessageType.Connected: {
@@ -98,6 +109,7 @@ export class NativeMessagingMain {
           try {
             const msgJson = JSON.parse(msg.message);
             this.logService.debug("Native messaging message:", msgJson);
+            this._messages$.next(msg);
             this.windowMain.win?.webContents.send("nativeMessaging", msgJson);
           } catch (e) {
             this.logService.warning("Error processing message:", e, msg.message);
@@ -123,9 +135,21 @@ export class NativeMessagingMain {
     this.ipcServer?.stop();
   }
 
+  private async stopIfUnused() {
+    if (this.shouldKeepListening && (await this.shouldKeepListening())) {
+      return;
+    }
+    this.stop();
+  }
+
   send(message: object) {
     this.logService.debug("Native messaging reply:", message);
     this.ipcServer?.send(JSON.stringify(message));
+  }
+
+  sendTo(clientId: number, message: object) {
+    this.logService.debug("Native messaging targeted reply to client", clientId, ":", message);
+    this.ipcServer?.sendTo(clientId, JSON.stringify(message));
   }
 
   async generateManifests() {
@@ -286,15 +310,32 @@ export class NativeMessagingMain {
     }
   }
 
+  /*
+    Helper functions to get the native messaging host paths for each platform.
+
+    Note that for the chromium-based browsers (Edge, Brave, Vivaldi, etc.) they
+    usually fallback to checking Chrome's NativeMessagingHosts path if the manifest
+    is not found in their own path, but we still want to install the manifest in their
+    own path as well if possible on macOS and Linux.
+
+    This is because our code requires the browser paths to exist before installing the manifest,
+    so the fallback included in these browsers won't work if the user hasn't installed Chrome
+    first (or some other application created the folder for them).
+  */
+
   private getWindowsNMHS() {
     return {
       Firefox: ["HKCU", "SOFTWARE\\Mozilla\\NativeMessagingHosts\\com.8bit.bitwarden"],
       Chrome: ["HKCU", "SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.8bit.bitwarden"],
       Chromium: ["HKCU", "SOFTWARE\\Chromium\\NativeMessagingHosts\\com.8bit.bitwarden"],
-      // Edge uses the same registry key as Chrome as a fallback, but it's has its own separate key as well.
       "Microsoft Edge": [
         "HKCU",
         "SOFTWARE\\Microsoft\\Edge\\NativeMessagingHosts\\com.8bit.bitwarden",
+      ],
+      Vivaldi: ["HKCU", "SOFTWARE\\Vivaldi\\NativeMessagingHosts\\com.8bit.bitwarden"],
+      Brave: [
+        "HKCU",
+        "SOFTWARE\\BraveSoftware\\Brave-Browser\\NativeMessagingHosts\\com.8bit.bitwarden",
       ],
     };
   }
@@ -325,6 +366,8 @@ export class NativeMessagingMain {
       Chrome: `${this.homedir()}/.config/google-chrome/`,
       Chromium: `${this.homedir()}/.config/chromium/`,
       "Microsoft Edge": `${this.homedir()}/.config/microsoft-edge/`,
+      Vivaldi: `${this.homedir()}/.config/vivaldi/`,
+      Brave: `${this.homedir()}/.config/BraveSoftware/Brave-Browser/`,
     };
   }
 
@@ -407,9 +450,7 @@ export class NativeMessagingMain {
             this.logService.info(`Error reading preferences: ${e}`);
           }
         }
-        // FIXME: Remove when updating file. Eslint update
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (e) {
+      } catch {
         // Browser is not installed, we can just skip it
       }
     }
