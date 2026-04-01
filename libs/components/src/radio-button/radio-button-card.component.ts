@@ -12,7 +12,7 @@ import { RadioInputComponent } from "./radio-input.component";
   imports: [FormControlCardComponent, RadioInputComponent],
   host: {
     "[id]": "base.id()",
-    class: "tw-block tw-mb-1",
+    class: "tw-block",
   },
   hostDirectives: [
     {
