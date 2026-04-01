@@ -253,6 +253,22 @@ export default tseslint.config(
     },
   },
 
+  // Desktop app overrides
+  {
+    files: ["apps/desktop/src/**/*.ts"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "CallExpression[callee.type='MemberExpression'][callee.object.name='shell'][callee.property.name='openExternal']",
+          message:
+            "Do not call shell.openExternal() directly. Use SafeShell.openExternal() instead.",
+        },
+      ],
+    },
+  },
+
   // App overrides. Be considerate if you override these.
   {
     files: ["apps/browser/src/**/*.ts"],
@@ -355,7 +371,6 @@ export default tseslint.config(
             "logo",
             "logo-themed",
             "file-selector",
-            "mfaType.*",
             "filter.*", // Temporary until filters are migrated
             "tw-app-region*", // Custom utility for native passkey modals
             "tw-@container",

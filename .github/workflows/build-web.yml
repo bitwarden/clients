@@ -49,6 +49,7 @@ on:
 
 env:
   _AZ_REGISTRY: bitwardenprod.azurecr.io
+  _GHCR_REGISTRY: ghcr.io/bitwarden
   _GITHUB_PR_REPO_NAME: ${{ github.event.pull_request.head.repo.full_name }}
 
 permissions:
@@ -98,6 +99,7 @@ jobs:
     permissions:
       security-events: write
       id-token: write
+      packages: write
     needs: setup
     strategy:
       fail-fast: false
@@ -235,7 +237,7 @@ jobs:
 
       ########## Set up Docker ##########
       - name: Set up Docker
-        uses: docker/setup-docker-action@e43656e248c0bd0647d3f5c195d116aacf6fcaf4 # v4.7.0
+        uses: docker/setup-docker-action@1a6edb0ba9ac496f6850236981f15d8f9a82254d # v5.0.0
         with:
           daemon-config: |
             {
@@ -263,6 +265,14 @@ jobs:
       - name: Log into Prod container registry
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: az acr login -n "${_AZ_REGISTRY%.azurecr.io}"
+
+      - name: Log in to GHCR
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       ########## Generate image tag and build Docker image ##########
       - name: Generate container image tag
@@ -300,11 +310,16 @@ jobs:
         env:
           IMAGE_TAG: ${{ steps.tag.outputs.image_tag }}
           PROJECT_NAME: ${{ matrix.image_name }}
-        run: echo "name=$_AZ_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+        run: |
+          ACR_NAME="$_AZ_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}"
+          GHCR_NAME="$_GHCR_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}"
+          echo "name=$ACR_NAME" >> "$GITHUB_OUTPUT"
+          echo "ghcr_name=$GHCR_NAME" >> "$GITHUB_OUTPUT"
+          echo "tags=$ACR_NAME,$GHCR_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Build Docker image
         id: build-container
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
         with:
           build-args: |
             NODE_VERSION=${{ env._NODE_VERSION }}
@@ -318,13 +333,17 @@ jobs:
             linux/arm/v7,
             linux/arm64
           push: false
-          tags: ${{ steps.image-name.outputs.name }}
+          tags: ${{ steps.image-name.outputs.tags }}
 
       - name: Push images
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         env:
-          IMAGE_NAME: ${{ steps.image-name.outputs.name }}
-        run: docker push "$IMAGE_NAME"
+          TAGS: ${{ steps.image-name.outputs.tags }}
+        run: |
+          IFS=',' read -r -a tags_array <<< "$TAGS"
+          for tag in "${tags_array[@]}"; do
+            docker push "$tag"
+          done
 
       - name: Zip project
         working-directory: apps/web
@@ -345,14 +364,14 @@ jobs:
           if-no-files-found: error
 
       - name: Install Cosign
-        if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
+        if: github.event_name != 'pull_request_target' && env.is_publish_branch == 'true'
         uses: sigstore/cosign-installer@faadad0cce49287aee09b3a48701e75088a2c6ad # v4.0.0
 
       - name: Sign image with Cosign
-        if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
+        if: github.event_name != 'pull_request_target' && env.is_publish_branch == 'true'
         env:
           DIGEST: ${{ steps.build-container.outputs.digest }}
-          TAGS: ${{ steps.image-name.outputs.name }}
+          TAGS: ${{ steps.image-name.outputs.tags }}
         run: |
           IFS=',' read -r -a tags_array <<< "${TAGS}"
           images=()
@@ -380,7 +399,9 @@ jobs:
           ref: ${{ contains(github.event_name, 'pull_request') && format('refs/pull/{0}/head', github.event.pull_request.number) || github.ref }}
 
       - name: Log out of Docker
-        run: docker logout "$_AZ_REGISTRY"
+        run: |
+          docker logout "$_AZ_REGISTRY"
+          docker logout ghcr.io
 
       - name: Log out from Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -421,7 +442,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Upload Sources
-        uses: crowdin/github-action@b4b468cffefb50bdd99dd83e5d2eaeb63c880380 # v2.14.0
+        uses: crowdin/github-action@8818ff65bfc4322384f983ea37e3926948c11745 # v2.15.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}

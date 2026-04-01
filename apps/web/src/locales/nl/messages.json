@@ -2,8 +2,17 @@
   "allApplications": {
     "message": "Alle applicaties"
   },
+  "allMembers": {
+    "message": "Alle deelnemers"
+  },
+  "allPasswords": {
+    "message": "Alle wachtwoorden"
+  },
   "activity": {
     "message": "Activiteit"
+  },
+  "applicationsAtRisk": {
+    "message": "Risicovolle applicaties"
   },
   "appLogoLabel": {
     "message": "Bitwarden-logo"
@@ -43,6 +52,15 @@
   },
   "passwordRisk": {
     "message": "Wachtwoordrisico"
+  },
+  "passwords": {
+    "message": "Wachtwoorden"
+  },
+  "riskOverTime": {
+    "message": "Risico na verloop van tijd"
+  },
+  "passwordsAtRisk": {
+    "message": "Risicovolle wachtwoorden"
   },
   "noEditPermissions": {
     "message": "Je hebt geen toestemming om dit item te bewerken"
@@ -2103,6 +2121,9 @@
   "exportSuccess": {
     "message": "Kluisgegevens geëxporteerd"
   },
+  "exportError": {
+    "message": "Er is een fout opgetreden tijdens het exporteren van je kluisgegevens"
+  },
   "passwordGenerator": {
     "message": "Wachtwoordgenerator"
   },
@@ -3047,16 +3068,16 @@
   "breachDesc": {
     "message": "Een \"datalek\" is een incident waarbij de gegevens van een website zijn gestolen door hackers en vervolgens openbaar zijn gemaakt. Controleer de soorten gegevens die zijn gelekt (e-mailadressen, wachtwoorden, creditcards, enz.) en neem passende maatregelen, zoals het wijzigen van wachtwoorden."
   },
-  "breachCheckUsernameEmail": {
-    "message": "Controleer elke gebruikersnaam of e-mailadres die je gebruikt."
+  "breachCheckEmail": {
+    "message": "Controleer elk e-mailadres dat je gebruikt."
   },
   "checkBreaches": {
     "message": "Controleer datalekken"
   },
-  "breachUsernameNotFound": {
-    "message": "$USERNAME$ is niet gevonden in bekende datalekken.",
+  "breachEmailNotFound": {
+    "message": "$EMAIL$ is niet gevonden in bekende datalekken.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3087,10 @@
     "message": "Goed nieuws",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "$USERNAME$ is in $COUNT$ verschillende datalekken gevonden.",
+  "breachEmailFound": {
+    "message": "$EMAIL$ is in $COUNT$ verschillende datalekken gevonden.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -3376,6 +3397,9 @@
   },
   "discount": {
     "message": "korting"
+  },
+  "discountExpiredOnPurchase": {
+    "message": "Korting verlopen. Controleer je winkelwagentotaal en probeer het opnieuw."
   },
   "downloadLicense": {
     "message": "Licentie downloaden"
@@ -3783,6 +3807,15 @@
   },
   "policies": {
     "message": "Beleidseisen"
+  },
+  "dataControls": {
+    "message": "Gegevensbeheer"
+  },
+  "authentication": {
+    "message": "Authenticatie"
+  },
+  "vaultManagement": {
+    "message": "Kluisbeheer"
   },
   "singleSignOn": {
     "message": "Single sign-on"
@@ -6465,6 +6498,14 @@
     "message": "Verifieer je e-mailadres om deze Send te bekijken",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Heeft je geen code ontvangen? Neem contact op met de verzender om je e-mailadres te bevestigen of ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Verificatiecode opnieuw verzenden",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "De Bitwarden-gebruiker die deze Send heeft gemaakt heeft ervoor gekozen het e-mailadres te verbergen. Je moet je ervan verzekeren dat je de bron van deze link vertrouwt voordat je de inhoud gebruikt of downloadt.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -8310,6 +8351,9 @@
   "members": {
     "message": "Leden"
   },
+  "membersAtRisk": {
+    "message": "Risicovolle leden"
+  },
   "reporting": {
     "message": "Rapporteren"
   },
@@ -8580,6 +8624,14 @@
   "newProject": {
     "message": "Nieuw Project",
     "description": "Title for creating a new project."
+  },
+  "clickToRenameProject": {
+    "message": "Klik om dit project te hernoemen",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "Kan projectnaam niet ontsleutelen - klik op project om de naam te wijzigen",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
     "message": "Verwijderen van geheimen kan invloed hebben op bestaande integraties.",
@@ -11046,6 +11098,9 @@
   "clientDetails": {
     "message": "Klantgegevens"
   },
+  "downloadChart": {
+    "message": "Grafiek downloaden"
+  },
   "downloadCSV": {
     "message": "CSV downloaden"
   },
@@ -11498,6 +11553,18 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "Gebruiker $ID$ heeft zichzelf ingetrokken van de organisatie.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "userSelfRevokedOrganizationOwnership": {
+    "message": "Ingetrokken wegens afwijzen van overdracht naar organisatie-eigendom."
+  },
   "suspendedOrganizationTitle": {
     "message": "De $ORGANIZATION$ is geschorst",
     "placeholders": {
@@ -11881,6 +11948,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Niet-vertrouwde encryptiesleutels"
+  },
+  "atRiskPassword": {
+    "message": "Risicovolle wachtwoorden"
   },
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
@@ -12551,12 +12621,6 @@
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Voordat dit beleid geactiveerd kan worden, moet je een domein claimen."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Stel een ontgrendelingsmethode in om je kluis time-out actie te wijzigen."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Bedrijfsbeleidseisen zijn toegepast op je time-out instellingen"
-  },
   "vaultTimeoutTooLarge": {
     "message": "Je kluis time-out is hoger dan het maximum van jouw organisatie."
   },
@@ -12755,8 +12819,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en naleving. Klik op accepteren voor het overdragen van eigendom van je items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en regelgeving.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12764,14 +12828,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Klik op accepteren voor het overdragen van het eigendom van je items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Help-artikel openen over de overdracht van items"
+  },
   "acceptTransfer": {
     "message": "Overdacht accepteren"
   },
   "declineAndLeave": {
     "message": "Weigeren en verlaten"
-  },
-  "whyAmISeeingThis": {
-    "message": "Waarom zie ik dit?"
   },
   "youHaveBitwardenPremium": {
     "message": "Je hebt Bitwarden Premium"
@@ -12922,9 +12989,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Voer meerdere e-mailadressen in door te scheiden met een komma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "E-mailverificatie vereist ten minste één e-mailadres. Om alle e-mailadressen te verwijderen, moet je het toegangstype hierboven wijzigen."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -13032,6 +13096,70 @@
       "date": {
         "content": "$2",
         "example": "Jan 1, 1970"
+      }
+    }
+  },
+  "sendsTitleNoSearchResults": {
+    "message": "Geen resultaten teruggekregen"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Wis filters of probeer een andere zoekterm"
+  },
+  "pastMonth": {
+    "message": "Afgelopen maand"
+  },
+  "past3Months": {
+    "message": "Laatste 3 maanden"
+  },
+  "past6Months": {
+    "message": "Afgelopen 6 maanden"
+  },
+  "pastYear": {
+    "message": "Afgelopen jaar"
+  },
+  "allTime": {
+    "message": "Van alle tijden"
+  },
+  "timePeriod": {
+    "message": "Tijdsperiode"
+  },
+  "of": {
+    "message": "van"
+  },
+  "coachmarkImportTitle": {
+    "message": "Snel je wachtwoorden importeren"
+  },
+  "coachmarkImportDescription": {
+    "message": "Heb je eerder een wachtwoordmanager gehad? Je kunt een CSV met bestaande logins en andere gegevens in je kluis importeren."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Een item toevoegen"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Nieuwe wachtwoorden, notities en andere informatie aan je kluis toevoegen. Alles is beveiligd met end-to-end-versleuteling."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Items veilig met anderen delen"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "Door een item naar een collectie te verplaatsen, kun je het veilig delen met andere mensen in je organisatie."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "De beveiliging van je wachtwoord controleren"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Houd de veiligheid van je kluisitems sterk door rapporten te controleren op kwetsbaarheden."
+  },
+  "coachmarkStepIndicator": {
+    "message": "Stap $CURRENT$ van $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
       }
     }
   }

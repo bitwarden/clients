@@ -10,7 +10,6 @@ import {
 } from "rxjs";
 import { map, pairwise, share, takeUntil } from "rxjs/operators";
 
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -26,11 +25,12 @@ import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/au
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import {
   UriMatchStrategySetting,
   UriMatchStrategy,
 } from "@bitwarden/common/models/domain/domain-service";
+import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
@@ -77,6 +77,8 @@ export default class AutofillService implements AutofillServiceInterface {
   private currentlyOpeningPasswordRepromptPopout = false;
   private autofillScriptPortsSet = new Set<chrome.runtime.Port>();
   static searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
+  enableInlineMenuAnimation$: Observable<boolean>;
+  enableNotificationAnimation$: Observable<boolean>;
 
   constructor(
     private cipherService: CipherService,
@@ -93,7 +95,11 @@ export default class AutofillService implements AutofillServiceInterface {
     private configService: ConfigService,
     private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
     private messageListener: MessageListener,
-  ) {}
+    private animationControlService: AnimationControlService,
+  ) {
+    this.enableInlineMenuAnimation$ = this.animationControlService.enableInlineMenuAnimation$;
+    this.enableNotificationAnimation$ = this.animationControlService.enableNotificationAnimation$;
+  }
 
   /**
    * Collects page details from the specific tab. This method returns an observable that can
@@ -486,6 +492,9 @@ export default class AutofillService implements AutofillServiceInterface {
           await this.cipherService.updateLastUsedDate(options.cipher.id, activeAccount.id);
         }
 
+        const showAnimations =
+          (await firstValueFrom(this.animationControlService.enableAutofillAnimation$)) ?? true;
+
         void BrowserApi.tabSendMessage(
           tab,
           {
@@ -493,6 +502,7 @@ export default class AutofillService implements AutofillServiceInterface {
             fillScript: fillScript,
             url: tab.url,
             pageDetailsUrl: pd.details.url,
+            showAnimations,
           },
           { frameId: pd.frameId },
         );
@@ -1067,28 +1077,35 @@ export default class AutofillService implements AutofillServiceInterface {
           return;
         }
 
-        const isFillableTotpField =
+        const isTotpCandidate =
           options.allowTotpAutofill &&
           ["number", "tel", "text"].some((t) => t === field.type) &&
-          (AutofillService.fieldIsFuzzyMatch(field, [
-            ...AutoFillConstants.TotpFieldNames,
-            ...AutoFillConstants.AmbiguousTotpFieldNames,
-          ]) ||
-            field.autoCompleteType === "one-time-code") &&
           !AutofillService.fieldIsFuzzyMatch(field, [...AutoFillConstants.RecoveryCodeFieldNames]);
 
-        const isFillableUsernameField =
+        const isTotpField =
+          isTotpCandidate &&
+          (AutofillService.fieldIsFuzzyMatch(field, AutoFillConstants.TotpFieldNames) ||
+            field.autoCompleteType === "one-time-code");
+
+        const maybeTotpField =
+          isTotpCandidate &&
+          AutofillService.fieldIsFuzzyMatch(field, AutoFillConstants.AmbiguousTotpFieldNames);
+
+        const isUsernameField =
           !options.skipUsernameOnlyFill &&
           ["email", "tel", "text"].some((t) => t === field.type) &&
           AutofillService.fieldIsFuzzyMatch(field, AutoFillConstants.UsernameFieldNames);
 
-        // Prefer more uniquely keyworded fields first.
+        // Reliable TOTP signals win unconditionally; username wins over ambiguous TOTP signals.
         switch (true) {
-          case isFillableTotpField:
+          case isTotpField:
             totps.push(field);
             return;
-          case isFillableUsernameField:
+          case isUsernameField:
             usernames.set(field.opid, field);
+            return;
+          case maybeTotpField:
+            totps.push(field);
             return;
           default:
             return;

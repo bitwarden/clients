@@ -332,6 +332,18 @@ export class InputPasswordComponent implements OnInit {
         throw new Error("KdfConfig not found.");
       }
 
+      // Determine salt. Branches on userId presence:
+      //   - SetInitialPasswordAccountRegistration: no userId -> derives salt from email via emailToSalt()
+      //   - SetInitialPasswordAuthedUser, ChangePassword, ChangePasswordWithOptionalUserKeyRotation:
+      //     have an active userId -> retrieves stored salt via saltForUser$()
+      //
+      // Note: ChangePasswordDelegation (Emergency Access Takeover, Account Recovery) early-returns
+      // this component only collects the password for those flows. Salt determination
+      // is handled by the parent caller's service, which supplies the target user's email to
+      // emailToSalt() (see EmergencyAccessService.takeover, OrganizationUserResetPasswordService.resetMasterPassword).
+      //
+      // If/when we shift to using random entropy for the salt, the place to do so would be
+      // replacing: this.masterPasswordService.emailToSalt(this.email).
       const salt =
         this.userId != null
           ? await firstValueFrom(this.masterPasswordService.saltForUser$(this.userId))
@@ -340,17 +352,26 @@ export class InputPasswordComponent implements OnInit {
         throw new Error("Salt not found.");
       }
 
-      // 2. Verify current password is correct (if necessary)
-      if (
-        this.flow === InputPasswordFlow.ChangePassword ||
-        this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
-      ) {
-        const currentPasswordVerified = await this.verifyCurrentPassword(
-          currentPassword,
-          this.kdfConfig,
-        );
-        if (!currentPasswordVerified) {
-          return;
+      // When you unwind the flag in PM-28143, also remove the ConfigService if it is un-used.
+      const newApisWithInputPasswordFlagEnabled = await this.configService.getFeatureFlag(
+        FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
+      );
+
+      // Remove this current password verification block in PM-28143. Current password verification
+      // is performed by consumers when flag is on.
+      if (!newApisWithInputPasswordFlagEnabled) {
+        // 2. Verify current password is correct (if necessary)
+        if (
+          this.flow === InputPasswordFlow.ChangePassword ||
+          this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
+        ) {
+          const currentPasswordVerified = await this.verifyCurrentPassword(
+            currentPassword,
+            this.kdfConfig,
+          );
+          if (!currentPasswordVerified) {
+            return;
+          }
         }
       }
 
@@ -363,11 +384,6 @@ export class InputPasswordComponent implements OnInit {
       if (!newPasswordVerified) {
         return;
       }
-
-      // When you unwind the flag in PM-28143, also remove the ConfigService if it is un-used.
-      const newApisWithInputPasswordFlagEnabled = await this.configService.getFeatureFlag(
-        FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
-      );
 
       if (newApisWithInputPasswordFlagEnabled) {
         // 4. Build a PasswordInputResult object
@@ -537,6 +553,8 @@ export class InputPasswordComponent implements OnInit {
   }
 
   /**
+   * @deprecated To be removed in PM-28143
+   *
    * Returns `true` if the current password is correct (it can be used to successfully decrypt
    * the masterKeyEncryptedUserKey), `false` otherwise
    */
