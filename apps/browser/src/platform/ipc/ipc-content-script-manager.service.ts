@@ -1,6 +1,5 @@
-import { mergeMap } from "rxjs";
+import { mergeMap, of } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { BrowserApi } from "../browser/browser-api";
@@ -14,8 +13,7 @@ export class IpcContentScriptManagerService {
       return;
     }
 
-    configService
-      .getFeatureFlag$(FeatureFlag.ContentScriptIpcChannelFramework)
+    of(true)
       .pipe(
         mergeMap(async (enabled) => {
           if (!enabled) {
@@ -31,6 +29,8 @@ export class IpcContentScriptManagerService {
           await BrowserApi.registerContentScriptsMv3([
             {
               id: IPC_CONTENT_SCRIPT_ID,
+              // WARNING: This means that all websites can talk to the IPC layer.
+              // Before sharing unlock state, this needs to be fixed.
               matches: ["https://*/*"],
               js: ["content/ipc-content-script.js"],
             },
