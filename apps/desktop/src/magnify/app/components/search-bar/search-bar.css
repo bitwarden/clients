@@ -4,7 +4,7 @@
   --text-secondary: rgba(0, 0, 0, 0.65);
   --text-tertiary: rgba(0, 0, 0, 0.45);
   --border-color: rgba(0, 0, 0, 0.15);
-  --selection-bg: #007aff;
+  --selection-bg: rgba(0, 122, 255, 0.65);
   --icon-color: rgba(0, 0, 0, 0.6);
   --preview-bg: rgba(0, 0, 0, 0.04);
   --scrollbar-color: rgba(0, 0, 0, 0.2);
@@ -26,7 +26,7 @@
     --text-secondary: rgba(255, 255, 255, 0.65);
     --text-tertiary: rgba(255, 255, 255, 0.4);
     --border-color: rgba(255, 255, 255, 0.15);
-    --selection-bg: #0a84ff;
+    --selection-bg: rgba(10, 132, 255, 0.65);
     --icon-color: rgba(255, 255, 255, 0.6);
     --preview-bg: rgba(255, 255, 255, 0.06);
     --scrollbar-color: rgba(255, 255, 255, 0.2);
