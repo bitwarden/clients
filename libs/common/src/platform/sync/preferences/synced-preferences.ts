@@ -32,6 +32,7 @@ export interface SyncedPreferences {
 export interface SharedPreferences {
   theme?: Theme;
   locale?: string;
+  showFavicons?: boolean;
 
   // Generator preferences and settings — stored as opaque JSON
   // Actual types: CredentialPreference, PasswordGenerationOptions, etc.
