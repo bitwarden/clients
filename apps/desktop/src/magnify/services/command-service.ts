@@ -1,10 +1,10 @@
 import { Injectable } from "@angular/core";
 
 import {
+  MagnifyCardItem,
   MagnifyCommand,
-  MagnifyCommandRequest,
-  MagnifyCommandResponse,
   MagnifyItem,
+  MagnifyLoginItem,
 } from "../../autofill/models/magnify-commands";
 
 @Injectable({
@@ -12,131 +12,35 @@ import {
 })
 export class CommandService {
   async searchVault(input: string): Promise<MagnifyItem[]> {
-    const request: MagnifyCommandRequest = {
-      type: MagnifyCommand.SearchVault,
-      input,
-    };
-
-    const response: MagnifyCommandResponse = await window.ipc.sendCommand(request);
-
-    if (
-      response !== undefined &&
-      response !== null &&
-      response.type === MagnifyCommand.SearchVault
-    ) {
-      // eslint-disable-next-line no-console
-      console.log("search vault results: ", response.results);
-
-      return response.results;
-    }
-
-    // eslint-disable-next-line no-console
-    console.log("Error in searchVault(): response was not MagnifyCommand.SearchVault as expected");
-    return [];
+    return (await window.ipc.sendCommand({ type: MagnifyCommand.SearchVault, input })).results;
   }
 
-  async copyPassword(id: string): Promise<string> {
-    const request: MagnifyCommandRequest = {
-      type: MagnifyCommand.CopyPassword,
-      id,
-    };
-
-    const response: MagnifyCommandResponse = await window.ipc.sendCommand(request);
-
-    if (
-      response !== undefined &&
-      response !== null &&
-      response.type === MagnifyCommand.CopyPassword
-    ) {
-      // eslint-disable-next-line no-console
-      console.log("copy password result: ", response.result);
-
-      return response.result;
-    }
-
-    // eslint-disable-next-line no-console
-    console.log(
-      "Error in copyPassword(): response was not MagnifyCommand.CopyPassword as expected",
-    );
-    return "";
+  async copyPassword(item: MagnifyLoginItem): Promise<string> {
+    return (await window.ipc.sendCommand({ type: MagnifyCommand.CopyPassword, id: item.id }))
+      .result;
   }
 
-  async copyCardNumber(itemId: string): Promise<string> {
-    const request: MagnifyCommandRequest = {
-      type: MagnifyCommand.CopyCardNumber,
-      itemId,
-    };
-
-    const response: MagnifyCommandResponse = await window.ipc.sendCommand(request);
-
-    if (
-      response === undefined ||
-      response === null ||
-      response.type !== MagnifyCommand.CopyCardNumber
-    ) {
-      // eslint-disable-next-line no-console
-      console.log("Error in copyCardNumber(): expected MagnifyCommand.CopyCardNumber");
-      return "";
-    }
-
-    // eslint-disable-next-line no-console
-    console.log("copy card number result: ", response.result);
-    return response.result;
+  async copyCardNumber(item: MagnifyCardItem): Promise<string> {
+    return (await window.ipc.sendCommand({ type: MagnifyCommand.CopyCardNumber, itemId: item.id }))
+      .result;
   }
 
-  async copyCardExpiration(itemId: string, format?: string): Promise<string> {
-    const request: MagnifyCommandRequest = {
-      type: MagnifyCommand.CopyCardExpiration,
-      itemId,
-      ...(format !== undefined ? { format } : {}),
-    };
-
-    const response: MagnifyCommandResponse = await window.ipc.sendCommand(request);
-
-    if (
-      response === undefined ||
-      response === null ||
-      response.type !== MagnifyCommand.CopyCardExpiration
-    ) {
-      // eslint-disable-next-line no-console
-      console.log("Error in copyCardExpiration(): expected MagnifyCommand.CopyCardExpiration");
-      return "";
-    }
-
-    // eslint-disable-next-line no-console
-    console.log("copy card expiration result: ", response.result);
-    return response.result;
+  async copyCardExpiration(item: MagnifyCardItem, format?: string): Promise<string> {
+    return (
+      await window.ipc.sendCommand({
+        type: MagnifyCommand.CopyCardExpiration,
+        itemId: item.id,
+        ...(format !== undefined ? { format } : {}),
+      })
+    ).result;
   }
 
-  async copyCardCode(itemId: string): Promise<string> {
-    const request: MagnifyCommandRequest = {
-      type: MagnifyCommand.CopyCardCode,
-      itemId,
-    };
-
-    const response: MagnifyCommandResponse = await window.ipc.sendCommand(request);
-
-    if (
-      response === undefined ||
-      response === null ||
-      response.type !== MagnifyCommand.CopyCardCode
-    ) {
-      // eslint-disable-next-line no-console
-      console.log("Error in copyCardCode(): expected MagnifyCommand.CopyCardCode");
-      return "";
-    }
-
-    // eslint-disable-next-line no-console
-    console.log("copy card code result: ", response.result);
-    return response.result;
+  async copyCardCode(item: MagnifyCardItem): Promise<string> {
+    return (await window.ipc.sendCommand({ type: MagnifyCommand.CopyCardCode, itemId: item.id }))
+      .result;
   }
 
-  async viewInBitwarden(itemId: string): Promise<void> {
-    const request: MagnifyCommandRequest = {
-      type: MagnifyCommand.ViewInBitwarden,
-      itemId,
-    };
-
-    await window.ipc.sendCommand(request);
+  async viewInBitwarden(item: MagnifyItem): Promise<void> {
+    await window.ipc.sendCommand({ type: MagnifyCommand.ViewInBitwarden, itemId: item.id });
   }
 }

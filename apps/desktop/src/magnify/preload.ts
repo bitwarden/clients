@@ -16,8 +16,13 @@ import { MagnifyCommandRequest, MagnifyCommandResponse } from "../autofill/model
  */
 
 const ipc = {
-  sendCommand: async (command: MagnifyCommandRequest): Promise<MagnifyCommandResponse> => {
-    return await ipcRenderer.invoke(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND, command);
+  sendCommand: async <T extends MagnifyCommandRequest>(
+    command: T,
+  ): Promise<Extract<MagnifyCommandResponse, { type: T["type"] }>> => {
+    return (await ipcRenderer.invoke(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND, command)) as Extract<
+      MagnifyCommandResponse,
+      { type: T["type"] }
+    >;
   },
 };
 
