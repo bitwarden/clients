@@ -30,26 +30,28 @@
   <bit-label>{{ "turnOn" | i18n }}</bit-label>
 </bit-form-control>
 
-<bit-form-control>
-  <input
-    type="checkbox"
-    bitCheckbox
-    [formControl]="data.controls.enableIndividualItemsTransfer"
-    id="enableIndividualItemsTransfer"
-  />
-  <bit-label>{{ "promptUsersToMoveItems" | i18n }}</bit-label>
-</bit-form-control>
+@if (useMyItems()) {
+  <bit-form-control>
+    <input
+      type="checkbox"
+      bitCheckbox
+      [formControl]="data.controls.enableIndividualItemsTransfer"
+      id="enableIndividualItemsTransfer"
+    />
+    <bit-label>{{ "promptUsersToMoveItems" | i18n }}</bit-label>
+  </bit-form-control>
 
-@if (enableIndividualItemsTransfer()) {
-  <bit-callout type="info">
-    {{ "promptUsersToMoveItemsCallout" | i18n }}
-    <a
-      bitLink
-      href="https://bitwarden.com/resources/credential-lifecycle-management/"
-      target="_blank"
-      endIcon="bwi-external-link"
-    >
-      {{ "centralizeDataOwnershipWarningLink" | i18n }}
-    </a>
-  </bit-callout>
+  @if (enableIndividualItemsTransfer()) {
+    <bit-callout type="info">
+      {{ "promptUsersToMoveItemsCallout" | i18n }}
+      <a
+        bitLink
+        href="https://bitwarden.com/resources/credential-lifecycle-management/"
+        target="_blank"
+        endIcon="bwi-external-link"
+      >
+        {{ "centralizeDataOwnershipWarningLink" | i18n }}
+      </a>
+    </bit-callout>
+  }
 }

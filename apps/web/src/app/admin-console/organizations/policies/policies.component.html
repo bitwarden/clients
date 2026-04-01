@@ -2,10 +2,10 @@
 
 @let policySections = policySections$ | async;
 @let policiesEnabledMap = policiesEnabledMap$ | async;
-@let organizationId = organizationId$ | async;
+@let organization = organization$ | async;
 
 <bit-container>
-  @if (!policySections || !policiesEnabledMap || !organizationId) {
+  @if (!policySections || !policiesEnabledMap || !organization) {
     <i
       class="bwi bwi-spinner bwi-spin tw-text-muted"
       title="{{ 'loading' | i18n }}"
@@ -21,7 +21,7 @@
         <bit-item-group [attr.aria-label]="section.labelKey | i18n">
           @for (p of section.policies; track p.type) {
             <bit-item>
-              <button type="button" bit-item-content (click)="edit(p, organizationId)">
+              <button type="button" bit-item-content (click)="edit(p, organization)">
                 {{ p.name | i18n }}
                 <span slot="secondary">{{ p.description | i18n }}</span>
                 @if (policiesEnabledMap.get(p.type)) {
