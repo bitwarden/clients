@@ -928,6 +928,7 @@ export class AppComponent implements OnInit, OnDestroy {
       queryParams: {
         sendPaths: JSON.stringify(paths),
       },
+      onSameUrlNavigation: "reload",
     });
   }
 

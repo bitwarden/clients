@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, DestroyRef, inject, OnInit } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, map, switchMap, lastValueFrom } from "rxjs";
 
@@ -108,18 +108,19 @@ export class SendComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    const sendPathsParam = this.route.snapshot.queryParams["sendPaths"];
-
-    if (sendPathsParam) {
-      try {
-        const paths = JSON.parse(sendPathsParam) as string[];
-        if (paths.length > 0) {
-          await this.openSendFromPaths(paths);
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const sendPathsParam = params["sendPaths"];
+      if (sendPathsParam) {
+        try {
+          const paths = JSON.parse(sendPathsParam) as string[];
+          if (paths.length > 0) {
+            void this.openSendFromPaths(paths);
+          }
+        } catch (e) {
+          this.logService.error("Error parsing sendPaths: " + e);
         }
-      } catch (e) {
-        this.logService.error("Error parsing sendPaths: " + e);
       }
-    }
+    });
   }
 
   private async openSendFromPaths(filePaths: string[]): Promise<void> {
