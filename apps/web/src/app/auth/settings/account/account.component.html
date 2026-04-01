@@ -3,8 +3,10 @@
 <bit-container>
   <app-profile></app-profile>
 
-  <div class="tw-mt-16">
-    <bit-enable-user-preferences-sync></bit-enable-user-preferences-sync>
+  <div class="tw-mt-16 tw-grid tw-grid-cols-12 tw-gap-6">
+    <div class="tw-col-span-12 @3xl:tw-col-span-6">
+      <bit-enable-user-preferences-sync></bit-enable-user-preferences-sync>
+    </div>
   </div>
 
   <div *ngIf="showChangeEmail$ | async" class="tw-mt-16">
