@@ -16,6 +16,28 @@
       }
     }
   },
+  "uploadMoreFiles": {
+    "message": "Upload more files"
+  },
+  "filesUploadedSuccessFully": {
+    "message": "Files uploaded successfully"
+  },
+  "nFilesSentToSingular": {
+    "message": "Your $NUMBER_OF_FILES$ file has been sent to",
+    "placeholders": {
+      "NUMBER_OF_FILES": {
+        "content": "$1"
+      }
+    }
+  },
+  "nFilesSentToPlural": {
+    "message": "Your $NUMBER_OF_FILES$ files have been sent to",
+    "placeholders": {
+      "NUMBER_OF_FILES": {
+        "content": "$1"
+      }
+    }
+  },
   "allApplications": {
     "message": "All applications"
   },

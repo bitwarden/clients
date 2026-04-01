@@ -1,12 +1,4 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  OnInit,
-  ElementRef,
-  inject,
-  signal,
-  viewChild,
-} from "@angular/core";
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -21,6 +13,7 @@ import {
   ButtonModule,
   FileUploadComponent,
   FormFieldModule,
+  LinkModule,
   ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -29,24 +22,21 @@ import { I18nPipe } from "@bitwarden/ui-common";
   selector: "app-receive-upload",
   templateUrl: "receive-file-upload.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonModule, FileUploadComponent, FormFieldModule, I18nPipe],
+  imports: [ButtonModule, FileUploadComponent, FormFieldModule, I18nPipe, LinkModule],
 })
 export class ReceiveFileUploadComponent implements OnInit {
-  readonly accept = "";
   readonly multiple = true;
   readonly hasError = signal<boolean>(false);
   readonly maxFileSize = 500;
   readonly files = signal<File[]>([]);
   readonly receiveName = signal<string>("");
   readonly ownerEmail = signal<string>("");
-  readonly showUploadFileButton = signal<boolean>(false);
   readonly showFileUploadResult = signal<boolean>(false);
   readonly filesUploaded = signal<number>(0);
   private readonly receiveId: ReceiveId;
   private readonly secretB64: string;
   private readonly sharedContentEncryptionKeyB64: string;
   private readonly publicKey = signal<Uint8Array>(new Uint8Array());
-  private readonly fileSelectorRef = viewChild<ElementRef<HTMLInputElement>>("fileSelector");
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
@@ -91,11 +81,11 @@ export class ReceiveFileUploadComponent implements OnInit {
 
   removeFiles() {
     this.files.set([]);
-    this.showUploadFileButton.set(false);
-    const fileSelectorElem = this.fileSelectorRef()?.nativeElement;
-    if (fileSelectorElem) {
-      fileSelectorElem.value = "";
-    }
+  }
+
+  uploadMoreFiles() {
+    this.files.set([]);
+    this.showFileUploadResult.set(false);
   }
 
   async uploadFiles() {

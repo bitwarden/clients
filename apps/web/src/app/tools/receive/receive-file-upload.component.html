@@ -9,12 +9,26 @@
   }
 </div>
 @if (showFileUploadResult()) {
-  Files successfully uploaded: {{ filesUploaded() }}
+  <p class="tw-text-center tw-mb-0">{{ "filesUploadedSuccessfully" | i18n }}</p>
+  @if (filesUploaded() == 1) {
+    <p class="tw-text-center tw-text-muted tw-text-sm tw-mb-0">
+      {{ "nFilesSentToSingular" | i18n: filesUploaded() }} {{ ownerEmail() }}
+    </p>
+  } @else {
+    <p class="tw-text-center tw-text-muted tw-text-sm tw-mb-0">
+      {{ "nFilesSentToPlural" | i18n: filesUploaded() }} {{ ownerEmail() }}
+    </p>
+  }
+  <br />
+  <p class="tw-text-center tw-mb-0">
+    <button bitLink type="button" (click)="uploadMoreFiles()">
+      {{ "uploadMoreFiles" | i18n }}
+    </button>
+  </p>
 } @else {
   <bit-file-upload
     [maxFileSize]="maxFileSize"
     [multiple]="multiple"
-    [accept]="accept"
     [hasError]="hasError()"
     [(files)]="files"
   >
