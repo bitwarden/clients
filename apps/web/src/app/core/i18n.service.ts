@@ -1,14 +1,10 @@
 import { I18nService as BaseI18nService } from "@bitwarden/common/platform/services/i18n.service";
-import { GlobalStateProvider } from "@bitwarden/common/platform/state";
+import { StateProvider } from "@bitwarden/state";
 
 import { SupportedTranslationLocales } from "../../translation-constants";
 
 export class I18nService extends BaseI18nService {
-  constructor(
-    systemLanguage: string,
-    localesDirectory: string,
-    globalStateProvider: GlobalStateProvider,
-  ) {
+  constructor(systemLanguage: string, localesDirectory: string, stateProvider: StateProvider) {
     super(
       systemLanguage || "en-US",
       localesDirectory,
@@ -23,7 +19,7 @@ export class I18nService extends BaseI18nService {
         const locales = await localesResult.json();
         return locales;
       },
-      globalStateProvider,
+      stateProvider,
     );
 
     this.supportedTranslationLocales = SupportedTranslationLocales;

@@ -718,7 +718,7 @@ export default class MainBackground {
       this.accountService,
     );
 
-    this.i18nService = new I18nService(BrowserApi.getUILanguage(), this.globalStateProvider);
+    this.i18nService = new I18nService(BrowserApi.getUILanguage(), this.stateProvider);
 
     this.kdfConfigService = new DefaultKdfConfigService(this.stateProvider);
 
@@ -988,7 +988,7 @@ export default class MainBackground {
       this.accountService,
     );
 
-    this.themeStateService = new DefaultThemeStateService(this.globalStateProvider);
+    this.themeStateService = new DefaultThemeStateService(this.stateProvider);
 
     this.cipherEncryptionService = new DefaultCipherEncryptionService(
       this.sdkService,

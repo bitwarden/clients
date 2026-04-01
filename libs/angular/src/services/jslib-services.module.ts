@@ -499,7 +499,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ThemeStateService,
     useClass: DefaultThemeStateService,
-    deps: [GlobalStateProvider],
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: AbstractThemingService,

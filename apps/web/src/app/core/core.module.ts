@@ -109,7 +109,6 @@ import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { NoopSdkLoadService } from "@bitwarden/common/platform/services/sdk/noop-sdk-load.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
-import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
 import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
 import {
@@ -131,6 +130,7 @@ import {
   DefaultWebAuthnPrfUnlockService,
   SessionTimeoutSettingsComponentService,
 } from "@bitwarden/key-management-ui";
+import { GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { UserCryptoManagementModule } from "@bitwarden/user-crypto-management";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
@@ -202,7 +202,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: I18nServiceAbstraction,
     useClass: I18nService,
-    deps: [SYSTEM_LANGUAGE, LOCALES_DIRECTORY, GlobalStateProvider],
+    deps: [SYSTEM_LANGUAGE, LOCALES_DIRECTORY, StateProvider],
   }),
   safeProvider({ provide: AbstractStorageService, useClass: HtmlStorageService, deps: [] }),
   safeProvider({
@@ -273,7 +273,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ThemeStateService,
     useClass: DefaultThemeStateService,
-    deps: [GlobalStateProvider],
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: CLIENT_TYPE,

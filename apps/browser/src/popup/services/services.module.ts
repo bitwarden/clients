@@ -283,10 +283,10 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: I18nServiceAbstraction,
-    useFactory: (globalStateProvider: GlobalStateProvider) => {
-      return new I18nService(BrowserApi.getUILanguage(), globalStateProvider);
+    useFactory: (stateProvider: StateProvider) => {
+      return new I18nService(BrowserApi.getUILanguage(), stateProvider);
     },
-    deps: [GlobalStateProvider],
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: ActionsService,

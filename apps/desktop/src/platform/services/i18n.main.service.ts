@@ -4,19 +4,15 @@ import * as path from "path";
 import { app, ipcMain } from "electron";
 
 import { I18nService as BaseI18nService } from "@bitwarden/common/platform/services/i18n.service";
-import { GlobalStateProvider } from "@bitwarden/common/platform/state";
+import { StateProvider } from "@bitwarden/state";
 
 export class I18nMainService extends BaseI18nService {
-  constructor(
-    systemLanguage: string,
-    localesDirectory: string,
-    globalStateProvider: GlobalStateProvider,
-  ) {
+  constructor(systemLanguage: string, localesDirectory: string, stateProvider: StateProvider) {
     super(
       systemLanguage,
       localesDirectory,
       (formattedLocale: string) => this.readLanguageFile(formattedLocale),
-      globalStateProvider,
+      stateProvider,
     );
 
     ipcMain.handle("getLanguageFile", async (event, formattedLocale: string) =>

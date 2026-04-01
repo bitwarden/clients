@@ -1,10 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { I18nService as BaseI18nService } from "@bitwarden/common/platform/services/i18n.service";
-import { GlobalStateProvider } from "@bitwarden/common/platform/state";
+import { StateProvider } from "@bitwarden/state";
 
 export default class I18nService extends BaseI18nService {
-  constructor(systemLanguage: string, globalStateProvider: GlobalStateProvider) {
+  constructor(systemLanguage: string, stateProvider: StateProvider) {
     super(
       systemLanguage,
       null,
@@ -13,7 +13,7 @@ export default class I18nService extends BaseI18nService {
         const file = await fetch(this.localesDirectory + formattedLocale + "/messages.json");
         return await file.json();
       },
-      globalStateProvider,
+      stateProvider,
     );
 
     // Please leave 'en' where it is, as it's our fallback language in case no translation can be found

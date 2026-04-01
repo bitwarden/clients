@@ -1,3 +1,5 @@
+import { UserKeyDefinition, SYNC_DISK } from "@bitwarden/state";
+
 import {
   AUTOFILL_ON_PAGE_LOAD,
   AUTOFILL_ON_PAGE_LOAD_DEFAULT,
@@ -17,7 +19,8 @@ import {
   SHOW_IDENTITIES_CURRENT_TAB,
   CLICK_ITEMS_AUTOFILL_VAULT_VIEW,
 } from "../../../vault/services/key-state/vault-settings.state";
-import { UserKeyDefinition, SYNC_DISK } from "../../state";
+import { LOCALE_USER } from "../../services/i18n.service";
+import { THEME_USER_SELECTION } from "../../theming/theme-state.service";
 
 import { SharedPreferences, DevicePreferences, BrowserPreferences } from "./synced-preferences";
 
@@ -93,10 +96,8 @@ export const PREFERENCE_SYNC_ENABLED = new UserKeyDefinition<boolean>(
 export const SYNCED_KEYS: SyncedKeyEntry[] = [
   // ── Shared (universal, same on all devices) ──
 
-  // Theme + locale (requires migration 76+77 to exist as UserKeyDefinition)
-  // TODO: uncomment after theme/locale migration is complete
-  // { keyDef: THEME_USER_SELECTION, blobField: "theme", scope: SyncScope.Shared },
-  // { keyDef: LOCALE_USER, blobField: "locale", scope: SyncScope.Shared },
+  { keyDef: THEME_USER_SELECTION, blobField: "theme", scope: SyncScope.Shared },
+  { keyDef: LOCALE_USER, blobField: "locale", scope: SyncScope.Shared },
 
   // ── Device — all device types ──
 

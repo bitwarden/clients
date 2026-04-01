@@ -2,18 +2,19 @@
 // @ts-strict-ignore
 import { Observable, firstValueFrom, map } from "rxjs";
 
+import { StateProvider, UserKeyDefinition, TRANSLATION_DISK } from "@bitwarden/state";
+
 import { I18nService as I18nServiceAbstraction } from "../abstractions/i18n.service";
-import { GlobalState, GlobalStateProvider, KeyDefinition, TRANSLATION_DISK } from "../state";
 
 import { TranslationService } from "./translation.service";
 
-const LOCALE_KEY = new KeyDefinition<string>(TRANSLATION_DISK, "locale", {
+export const LOCALE_USER = new UserKeyDefinition<string>(TRANSLATION_DISK, "locale", {
   deserializer: (value) => value,
+  clearOn: [],
 });
 
 export class I18nService extends TranslationService implements I18nServiceAbstraction {
   translationLocale: string;
-  protected translationLocaleState: GlobalState<string>;
   userSetLocale$: Observable<string | undefined>;
   locale$: Observable<string>;
 
@@ -21,20 +22,27 @@ export class I18nService extends TranslationService implements I18nServiceAbstra
     protected systemLanguage: string,
     protected localesDirectory: string,
     protected getLocalesJson: (formattedLocale: string) => Promise<any>,
-    globalStateProvider: GlobalStateProvider,
+    protected stateProvider: StateProvider,
   ) {
     super(systemLanguage, localesDirectory, getLocalesJson);
-    this.translationLocaleState = globalStateProvider.get(LOCALE_KEY);
-    this.userSetLocale$ = this.translationLocaleState.state$;
+    this.userSetLocale$ = this.stateProvider.getUserStateOrDefault$(LOCALE_USER, {
+      userId: undefined,
+      defaultValue: undefined,
+    });
     this.locale$ = this.userSetLocale$.pipe(map((locale) => locale ?? this.translationLocale));
   }
 
   async setLocale(locale: string | null): Promise<void> {
-    await this.translationLocaleState.update(() => locale);
+    await this.stateProvider.setUserState(LOCALE_USER, locale);
   }
 
   override async init() {
-    const storedLocale = await firstValueFrom(this.translationLocaleState.state$);
+    const storedLocale = await firstValueFrom(
+      this.stateProvider.getUserStateOrDefault$(LOCALE_USER, {
+        userId: undefined,
+        defaultValue: undefined,
+      }),
+    );
     await super.init(storedLocale);
   }
 }
