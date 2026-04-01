@@ -74,7 +74,7 @@ export class FormControlCardComponent {
       map(() => this.base.formControl().hasError),
       distinctUntilChanged(),
     ),
-    { initialValue: this.base.formControl().hasError },
+    { initialValue: false },
   );
 
   constructor() {
