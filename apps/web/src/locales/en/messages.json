@@ -1,4 +1,21 @@
 {
+  "clickToUploadOrDragAndDrop" : {
+    "message": "Click to upload or drag and drop"
+  },
+  "maxFileSizeParam" : {
+    "message": "Maximum file size (MB)"
+  },
+  "chooseFiles" : {
+    "message": "Add files"
+  },
+  "fileUploadError": {
+    "message": "Could not upload $FILENAME$",
+    "placeholders": {
+      "FILENAME": {
+        "content": "$1"
+      }
+    }
+  },
   "allApplications": {
     "message": "All applications"
   },
@@ -11509,9 +11526,6 @@
   },
   "addAttachment": {
     "message": "Add attachment"
-  },
-  "fileReadError": {
-    "message": "File could not be read"
   },
   "receiveLoadError": {
     "message": "Could not load this receive"
