@@ -72,13 +72,12 @@ import { RemoveAccountDeprovisioningBannerDismissed } from "./migrations/72-remo
 import { AddMasterPasswordUnlockData } from "./migrations/73-add-master-password-unlock-data";
 import { RemoveLegacyPin } from "./migrations/74-remove-legacy-pin";
 import { RemoveUserEncryptedPrivateKey } from "./migrations/75-remove-user-encrypted-private-key";
-import { MoveThemeLocaleToUserStateMigrator } from "./migrations/76-move-theme-locale-to-user-state";
 import { MoveStateVersionMigrator } from "./migrations/8-move-state-version";
 import { MoveBrowserSettingsToGlobal } from "./migrations/9-move-browser-settings-to-global";
 import { MinVersionMigrator } from "./migrations/min-version";
 
 export const MIN_VERSION = 3;
-export const CURRENT_VERSION = 76;
+export const CURRENT_VERSION = 75;
 export type MinVersion = typeof MIN_VERSION;
 
 export function createMigrationBuilder() {
@@ -155,8 +154,7 @@ export function createMigrationBuilder() {
     .with(RemoveAccountDeprovisioningBannerDismissed, 71, 72)
     .with(AddMasterPasswordUnlockData, 72, 73)
     .with(RemoveLegacyPin, 73, 74)
-    .with(RemoveUserEncryptedPrivateKey, 74, 75)
-    .with(MoveThemeLocaleToUserStateMigrator, 75, CURRENT_VERSION);
+    .with(RemoveUserEncryptedPrivateKey, 74, CURRENT_VERSION);
 }
 
 export async function currentVersion(

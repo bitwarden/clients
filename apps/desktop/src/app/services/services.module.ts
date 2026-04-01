@@ -108,6 +108,7 @@ import { DefaultSdkLoadService } from "@bitwarden/common/platform/services/sdk/d
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { NoopSdkLoadService } from "@bitwarden/common/platform/services/sdk/noop-sdk-load.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
+import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -127,7 +128,6 @@ import {
   WebAuthnPrfUnlockService,
   DefaultWebAuthnPrfUnlockService,
 } from "@bitwarden/key-management-ui";
-import { GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import {
   DefaultSshImportPromptService,
@@ -247,7 +247,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: I18nServiceAbstraction,
     useClass: I18nRendererService,
-    deps: [SYSTEM_LANGUAGE, LOCALES_DIRECTORY, StateProvider],
+    deps: [SYSTEM_LANGUAGE, LOCALES_DIRECTORY, GlobalStateProvider],
   }),
   safeProvider({
     provide: MessageSender,

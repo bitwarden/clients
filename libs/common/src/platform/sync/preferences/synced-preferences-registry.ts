@@ -22,8 +22,6 @@ import {
   SHOW_IDENTITIES_CURRENT_TAB,
   CLICK_ITEMS_AUTOFILL_VAULT_VIEW,
 } from "../../../vault/services/key-state/vault-settings.state";
-import { LOCALE_USER } from "../../services/i18n.service";
-import { THEME_USER_SELECTION } from "../../theming/theme-state.service";
 
 import { SharedPreferences, DevicePreferences, BrowserPreferences } from "./synced-preferences";
 
@@ -119,8 +117,6 @@ export const PREFERENCE_SYNC_ENABLED = new UserKeyDefinition<boolean>(
 export const SYNCED_KEYS: SyncedKeyEntry[] = [
   // ── Shared (universal, same on all devices) ──
 
-  { keyDef: THEME_USER_SELECTION, blobField: "theme", scope: SyncScope.Shared },
-  { keyDef: LOCALE_USER, blobField: "locale", scope: SyncScope.Shared },
   { keyDef: SHOW_FAVICONS, blobField: "showFavicons", scope: SyncScope.Shared, global: true },
 
   // ── Device — all device types ──

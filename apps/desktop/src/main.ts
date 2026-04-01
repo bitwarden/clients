@@ -145,6 +145,8 @@ export class Main {
 
     this.ssoCookieMain = new SsoCookieMain(globalStateProvider, this.logService);
 
+    this.i18nService = new I18nMainService("en", "./locales/", globalStateProvider);
+
     this.sdkLoadService = new MainSdkLoadService();
 
     this.mainCryptoFunctionService = new NodeCryptoFunctionService();
@@ -178,8 +180,6 @@ export class Main {
       globalStateProvider,
       new DefaultDerivedStateProvider(),
     );
-
-    this.i18nService = new I18nMainService("en", "./locales/", stateProvider);
 
     this.environmentService = new DefaultEnvironmentService(
       stateProvider,

@@ -416,6 +416,8 @@ export class ServiceContainer {
       storageServiceProvider,
     );
 
+    this.i18nService = new I18nService("en", "./locales", this.globalStateProvider);
+
     this.singleUserStateProvider = new DefaultSingleUserStateProvider(
       storageServiceProvider,
       stateEventRegistrarService,
@@ -446,8 +448,6 @@ export class ServiceContainer {
       this.globalStateProvider,
       this.derivedStateProvider,
     );
-
-    this.i18nService = new I18nService("en", "./locales", this.stateProvider);
 
     this.accountCryptographicStateService = new DefaultAccountCryptographicStateService(
       this.stateProvider,
