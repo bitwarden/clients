@@ -17,7 +17,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { PasskeyDirectoryApiService } from "@bitwarden/common/dirt/services/abstractions/passkey-directory-api.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { CipherId, CollectionId } from "@bitwarden/common/types/guid";
@@ -89,7 +88,6 @@ export class OrgPasskeyReportComponent {
   private readonly cipherService = inject(CipherService);
   private readonly dialogService = inject(DialogService);
   private readonly logService = inject(LogService);
-  private readonly passkeyDirectoryApiService = inject(PasskeyDirectoryApiService);
   private readonly passkeyReportService = inject(PasskeyReportService);
   private readonly passwordRepromptService = inject(PasswordRepromptService);
   private readonly syncService = inject(SyncService);
@@ -204,13 +202,7 @@ export class OrgPasskeyReportComponent {
       return;
     }
 
-    const entries = (await this.passkeyDirectoryApiService.getPasskeyDirectory(this.userId()))
-      .filter((x) => x.domainName != null)
-      .reduce(
-        (map, entry) => map.set(entry.domainName, entry),
-        new Map<string, PasskeyServiceEntry>(),
-      );
-
+    const entries = await this.passkeyReportService.loadPasskeyDirectory(this.userId());
     this.passkeyServices.set(entries);
   }
 

@@ -1,6 +1,8 @@
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 
+import { PasskeyDirectoryApiService } from "@bitwarden/common/dirt/services/abstractions/passkey-directory-api.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -21,6 +23,20 @@ export type PasskeyReportAction = "deleted" | "saved";
 
 @Injectable()
 export class PasskeyReportService {
+  private readonly passkeyDirectoryApiService = inject(PasskeyDirectoryApiService);
+
+  /**
+   * Fetches the passkey directory from the API and returns a map of domain names to service entries.
+   */
+  async loadPasskeyDirectory(userId: UserId): Promise<Map<string, PasskeyServiceEntry>> {
+    return (await this.passkeyDirectoryApiService.getPasskeyDirectory(userId))
+      .filter((x) => x.domainName != null)
+      .reduce(
+        (map, entry) => map.set(entry.domainName, entry),
+        new Map<string, PasskeyServiceEntry>(),
+      );
+  }
+
   /**
    * Processes a list of ciphers against the passkey directory,
    * returning rows for ciphers that match a known passkey service.

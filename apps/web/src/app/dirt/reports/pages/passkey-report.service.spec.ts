@@ -1,3 +1,9 @@
+import { TestBed } from "@angular/core/testing";
+import { MockProxy, mock } from "jest-mock-extended";
+
+import { PasskeyDirectoryApiService } from "@bitwarden/common/dirt/services/abstractions/passkey-directory-api.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -9,6 +15,7 @@ import {
 
 describe("PasskeyReportService", () => {
   let service: PasskeyReportService;
+  let passkeyDirectoryApiServiceMock: MockProxy<PasskeyDirectoryApiService>;
 
   const passkeyServices = new Map<string, PasskeyServiceEntry>([
     [
@@ -30,7 +37,73 @@ describe("PasskeyReportService", () => {
   ]);
 
   beforeEach(() => {
-    service = new PasskeyReportService();
+    passkeyDirectoryApiServiceMock = mock<PasskeyDirectoryApiService>();
+
+    TestBed.configureTestingModule({
+      providers: [
+        PasskeyReportService,
+        { provide: PasskeyDirectoryApiService, useValue: passkeyDirectoryApiServiceMock },
+      ],
+    });
+
+    service = TestBed.inject(PasskeyReportService);
+  });
+
+  describe("loadPasskeyDirectory", () => {
+    const userId = Utils.newGuid() as UserId;
+
+    it("should fetch and return a map of passkey services", async () => {
+      passkeyDirectoryApiServiceMock.getPasskeyDirectory.mockResolvedValue([
+        {
+          domainName: "example.com",
+          instructions: "https://example.com/setup",
+          supportsPasskeyLogin: true,
+          supportsPasskeyMfa: false,
+        } as any,
+        {
+          domainName: "test.com",
+          instructions: "",
+          supportsPasskeyLogin: false,
+          supportsPasskeyMfa: true,
+        } as any,
+      ]);
+
+      const result = await service.loadPasskeyDirectory(userId);
+
+      expect(result.size).toBe(2);
+      expect(result.get("example.com")?.supportsPasskeyLogin).toBe(true);
+      expect(result.get("test.com")?.supportsPasskeyMfa).toBe(true);
+    });
+
+    it("should filter out entries with null domainName", async () => {
+      passkeyDirectoryApiServiceMock.getPasskeyDirectory.mockResolvedValue([
+        {
+          domainName: "example.com",
+          instructions: "https://example.com/setup",
+          supportsPasskeyLogin: true,
+          supportsPasskeyMfa: false,
+        } as any,
+        {
+          domainName: null,
+          instructions: "",
+          supportsPasskeyLogin: false,
+          supportsPasskeyMfa: true,
+        } as any,
+      ]);
+
+      const result = await service.loadPasskeyDirectory(userId);
+
+      expect(result.size).toBe(1);
+      expect(result.has("example.com")).toBe(true);
+    });
+
+    it("should return empty map when no entries exist", async () => {
+      passkeyDirectoryApiServiceMock.getPasskeyDirectory.mockResolvedValue([]);
+
+      const result = await service.loadPasskeyDirectory(userId);
+
+      expect(result.size).toBe(0);
+    });
   });
 
   describe("processCiphers", () => {
