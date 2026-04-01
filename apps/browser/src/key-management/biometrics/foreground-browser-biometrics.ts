@@ -64,12 +64,10 @@ export class ForegroundBrowserBiometricsService extends BiometricsService {
 
   async canEnableBiometricUnlock(): Promise<boolean> {
     return (
-      (
-        await BrowserApi.sendMessageWithResponse<{
-          result: boolean;
-          error: string;
-        }>(BiometricsCommands.CanEnableBiometricUnlock)
-      ).result
-    );
+      await BrowserApi.sendMessageWithResponse<{
+        result: boolean;
+        error: string;
+      }>(BiometricsCommands.CanEnableBiometricUnlock)
+    ).result;
   }
 }

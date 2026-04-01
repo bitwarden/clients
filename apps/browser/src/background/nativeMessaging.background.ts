@@ -88,8 +88,7 @@ export class NativeMessagingBackground {
     private logService: LogService,
     private biometricStateService: BiometricStateService,
     private accountService: AccountService,
-  ) {
-  }
+  ) {}
 
   async connect() {
     if (this.connected || this.connecting) {
