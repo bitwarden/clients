@@ -37,7 +37,6 @@ import {
   openAddEditVaultItemPopout,
   openVaultItemPasswordRepromptPopout,
 } from "../../vault/popup/utils/vault-popout-window";
-import { LockedVaultPendingNotificationsData } from "../background/abstractions/notification.background";
 import { AutofillCipherTypeId } from "../types";
 
 export type CopyToClipboardOptions = { text: string; tab: chrome.tabs.Tab };
@@ -86,21 +85,13 @@ export class ContextMenuClickedHandler {
     }
 
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      const retryMessage: LockedVaultPendingNotificationsData = {
+      await openUnlockPopout(tab, {
         commandToRetry: {
           message: { command: ExtensionCommand.NoopCommand, contextMenuOnClickData: info },
           sender: { tab: tab },
         },
         target: "contextmenus.background",
-      };
-      // Open the popout before queuing the pending notification. In Safari, opening the
-      // popout can trigger tab removal events that clear the pending notification queue.
-      await openUnlockPopout(tab);
-      await BrowserApi.tabSendMessageData(
-        tab,
-        "addToLockedVaultPendingNotifications",
-        retryMessage,
-      );
+      });
       return;
     }
 
