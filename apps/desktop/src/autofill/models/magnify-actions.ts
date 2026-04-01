@@ -45,6 +45,16 @@ export const MAGNIFY_ACTIONS: MagnifyAction[] = [
     completionText: null,
   },
   {
+    id: "magnifyLoginItem-copyUsername",
+    magnifyItemType: MagnifyItem.Login,
+    labelMacOs: "⌘C",
+    labelWindows: "Ctrl+C",
+    labelLinux: "Ctrl+C",
+    description: "Copy username",
+    shortcuts: [["CommandOrControl", "C"]],
+    completionText: "✓ Copied",
+  },
+  {
     id: "magnifyLoginItem-copyPassword",
     magnifyItemType: MagnifyItem.Login,
     labelMacOs: "⌘⇧C",

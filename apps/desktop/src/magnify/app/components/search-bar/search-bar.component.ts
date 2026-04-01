@@ -69,6 +69,18 @@ export class SearchBarComponent implements AfterViewInit {
         }
       },
     ],
+    [
+      "magnifyLoginItem-copyUsername",
+      () => {
+        const itemIndex = this.selectedIndex();
+        const item = this.results()[itemIndex];
+        if (item?.username) {
+          void navigator.clipboard.writeText(item.username);
+          this.completingAction.set({ actionId: "magnifyLoginItem-copyUsername", itemIndex });
+          setTimeout(() => this.completingAction.set(null), 1500);
+        }
+      },
+    ],
   ]);
 
   constructor(private readonly commandService: CommandService) {}
