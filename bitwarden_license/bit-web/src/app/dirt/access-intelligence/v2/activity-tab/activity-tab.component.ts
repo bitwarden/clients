@@ -13,8 +13,8 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { ActivityCardComponent } from "../../activity/activity-card.component";
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
-import { NewApplicationsDialogV2Component } from "../new-applications-dialog-v2/new-applications-dialog-v2.component";
 
+import { NewApplicationsDialogV2Component } from "./new-applications-dialog-v2/new-applications-dialog-v2.component";
 import { PasswordChangeMetricV2Component } from "./password-change-metric-v2/password-change-metric-v2.component";
 
 /**

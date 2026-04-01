@@ -7,7 +7,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService, DIALOG_DATA, ToastService } from "@bitwarden/components";
 
-import { AccessSecurityTasksService } from "../services/abstractions/access-security-tasks.service";
+import { AccessSecurityTasksService } from "../../services/abstractions/access-security-tasks.service";
 import {
   MockAccessIntelligenceDataService,
   MockDialogService,
@@ -15,7 +15,7 @@ import {
   MockSecurityTasksService,
   MockToastService,
   createAccessIntelligenceI18nMock,
-} from "../testing";
+} from "../../testing";
 
 import {
   NewApplicationsDialogV2Component,
@@ -27,7 +27,7 @@ const mockDialogRef = {
 };
 
 export default {
-  title: "DIRT/Access Intelligence/New Applications Dialog",
+  title: "DIRT/Access Intelligence/Activity Tab/New Applications Dialog",
   component: NewApplicationsDialogV2Component,
   decorators: [
     moduleMetadata({

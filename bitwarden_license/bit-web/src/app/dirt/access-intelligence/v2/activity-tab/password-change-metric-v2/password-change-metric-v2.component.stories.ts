@@ -40,7 +40,7 @@ function createTask(id: string, cipherId: string, status: SecurityTaskStatus): S
 }
 
 export default {
-  title: "DIRT/Access Intelligence/Password Change Metric",
+  title: "DIRT/Access Intelligence/Activity Tab/Password Change Metric",
   component: PasswordChangeMetricV2Component,
   decorators: [
     moduleMetadata({

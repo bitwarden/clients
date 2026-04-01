@@ -28,9 +28,10 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { AssignTasksViewComponent } from "../../activity/application-review-dialog/assign-tasks-view.component";
-import { AccessSecurityTasksService } from "../services/abstractions/access-security-tasks.service";
-import { ReviewApplicationsViewV2Component } from "../shared/review-applications-view-v2/review-applications-view-v2.component";
+import { AssignTasksViewComponent } from "../../../activity/application-review-dialog/assign-tasks-view.component";
+import { AccessSecurityTasksService } from "../../services/abstractions/access-security-tasks.service";
+
+import { ReviewApplicationsViewV2Component } from "./review-applications-view-v2/review-applications-view-v2.component";
 
 /**
  * Data passed to the new applications dialog.

@@ -57,7 +57,7 @@ const mockCiphers = [
 ];
 
 export default {
-  title: "DIRT/Access Intelligence/Review Applications",
+  title: "DIRT/Access Intelligence/Activity Tab/Review Applications",
   component: ReviewApplicationsViewV2Component,
   decorators: [
     moduleMetadata({

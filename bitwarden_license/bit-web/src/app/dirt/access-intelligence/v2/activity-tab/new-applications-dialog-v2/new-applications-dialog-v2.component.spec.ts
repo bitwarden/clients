@@ -14,7 +14,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogRef, DialogService, DIALOG_DATA, ToastService } from "@bitwarden/components";
 
-import { AccessSecurityTasksService } from "../services/abstractions/access-security-tasks.service";
+import { AccessSecurityTasksService } from "../../services/abstractions/access-security-tasks.service";
 
 import {
   DialogView,

@@ -31,7 +31,7 @@ import { ActivityTabComponent } from "./activity-tab.component";
 const orgId = "org-123" as OrganizationId;
 
 export default {
-  title: "DIRT/Access Intelligence/Activity",
+  title: "DIRT/Access Intelligence/Activity Tab",
   component: ActivityTabComponent,
   decorators: [
     moduleMetadata({
