@@ -210,12 +210,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
           }
 
           // Biometrics status shouldn't be checked if permissions are needed.
-          const needsPermissionPrompt =
-            !(await BrowserApi.permissionsGranted(["nativeMessaging"])) &&
-            !this.platformUtilsService.isSafari();
-          if (needsPermissionPrompt) {
-            return;
-          }
 
           const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
           if (status === BiometricsStatus.DesktopDisconnected && !biometricSettingAvailable) {
@@ -345,40 +339,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
   async updateBiometric(enabled: boolean) {
     if (enabled) {
-      let granted;
-      try {
-        granted = await BrowserApi.requestPermission({ permissions: ["nativeMessaging"] });
-      } catch (e) {
-        // eslint-disable-next-line
-        console.error(e);
-
-        if (this.platformUtilsService.isFirefox() && BrowserPopupUtils.inSidebar(window)) {
-          await this.dialogService.openSimpleDialog({
-            title: { key: "nativeMessaginPermissionSidebarTitle" },
-            content: { key: "nativeMessaginPermissionSidebarDesc" },
-            acceptButtonText: { key: "ok" },
-            cancelButtonText: null,
-            type: "info",
-          });
-
-          this.form.controls.biometric.setValue(false);
-          return;
-        }
-      }
-
-      if (!granted) {
-        await this.dialogService.openSimpleDialog({
-          title: { key: "nativeMessaginPermissionErrorTitle" },
-          content: { key: "nativeMessaginPermissionErrorDesc" },
-          acceptButtonText: { key: "ok" },
-          cancelButtonText: null,
-          type: "danger",
-        });
-
-        this.form.controls.biometric.setValue(false);
-        return;
-      }
-
       try {
         const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
         await this.keyService.refreshAdditionalKeys(userId);

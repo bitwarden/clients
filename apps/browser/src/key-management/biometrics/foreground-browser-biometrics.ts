@@ -63,11 +63,7 @@ export class ForegroundBrowserBiometricsService extends BiometricsService {
   }
 
   async canEnableBiometricUnlock(): Promise<boolean> {
-    const needsPermissionPrompt =
-      !(await BrowserApi.permissionsGranted(["nativeMessaging"])) &&
-      !this.platformUtilsService.isSafari();
     return (
-      needsPermissionPrompt ||
       (
         await BrowserApi.sendMessageWithResponse<{
           result: boolean;

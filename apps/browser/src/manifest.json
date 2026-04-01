@@ -51,6 +51,7 @@
     "clipboardWrite",
     "contextMenus",
     "idle",
+    "nativeMessaging",
     "storage",
     "tabs",
     "unlimitedStorage",
@@ -75,8 +76,8 @@
     "webRequest",
     "webRequestBlocking"
   ],
-  "optional_permissions": ["nativeMessaging", "privacy"],
-  "__firefox__optional_permissions": ["nativeMessaging"],
+  "optional_permissions": ["privacy"],
+  "__firefox__optional_permissions": [],
   "__safari__optional_permissions": null,
   "content_security_policy": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
   "sandbox": {

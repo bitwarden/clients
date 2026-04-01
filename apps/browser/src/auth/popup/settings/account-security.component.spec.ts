@@ -366,68 +366,6 @@ describe("AccountSecurityComponent", () => {
         trySetupBiometricsSpy = jest.spyOn(component, "trySetupBiometrics");
       });
 
-      it("displays permission error dialog when nativeMessaging permission is not granted", async () => {
-        browserApiSpy.mockResolvedValue(false);
-
-        await component.ngOnInit();
-        await component.updateBiometric(true);
-
-        expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
-          title: { key: "nativeMessaginPermissionErrorTitle" },
-          content: { key: "nativeMessaginPermissionErrorDesc" },
-          acceptButtonText: { key: "ok" },
-          cancelButtonText: null,
-          type: "danger",
-        });
-        expect(component.form.controls.biometric.value).toBe(false);
-        expect(trySetupBiometricsSpy).not.toHaveBeenCalled();
-      });
-
-      it("displays a specific sidebar dialog when nativeMessaging permissions throws an error on firefox + sidebar", async () => {
-        browserApiSpy.mockRejectedValue(new Error("Permission denied"));
-        platformUtilsService.isFirefox.mockReturnValue(true);
-        jest.spyOn(BrowserPopupUtils, "inSidebar").mockReturnValue(true);
-
-        await component.ngOnInit();
-        await component.updateBiometric(true);
-
-        expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
-          title: { key: "nativeMessaginPermissionSidebarTitle" },
-          content: { key: "nativeMessaginPermissionSidebarDesc" },
-          acceptButtonText: { key: "ok" },
-          cancelButtonText: null,
-          type: "info",
-        });
-        expect(component.form.controls.biometric.value).toBe(false);
-        expect(trySetupBiometricsSpy).not.toHaveBeenCalled();
-      });
-
-      test.each([
-        [false, false],
-        [false, true],
-        [true, false],
-      ])(
-        "displays a generic dialog when nativeMessaging permissions throws an error and isFirefox is %s and onSidebar is %s",
-        async (isFirefox, inSidebar) => {
-          browserApiSpy.mockRejectedValue(new Error("Permission denied"));
-          platformUtilsService.isFirefox.mockReturnValue(isFirefox);
-          jest.spyOn(BrowserPopupUtils, "inSidebar").mockReturnValue(inSidebar);
-
-          await component.ngOnInit();
-          await component.updateBiometric(true);
-
-          expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
-            title: { key: "nativeMessaginPermissionErrorTitle" },
-            content: { key: "nativeMessaginPermissionErrorDesc" },
-            acceptButtonText: { key: "ok" },
-            cancelButtonText: null,
-            type: "danger",
-          });
-          expect(component.form.controls.biometric.value).toBe(false);
-          expect(trySetupBiometricsSpy).not.toHaveBeenCalled();
-        },
-      );
-
       it("refreshes additional keys and attempts to setup biometrics when enabled with nativeMessaging permission", async () => {
         const setupBiometricsResult = true;
         trySetupBiometricsSpy.mockResolvedValue(setupBiometricsResult);
