@@ -1,13 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import * as lunr from "lunr";
 import {
   BehaviorSubject,
   Observable,
-  firstValueFrom,
-  map,
-  timeout,
-  filter as rxjsfilter,
 } from "rxjs";
 
 import { I18nService } from "../../platform/abstractions/i18n.service";

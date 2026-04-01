@@ -102,7 +102,7 @@ describe("VaultPopupItemsService", () => {
       failedToDecryptCiphersSubject.asObservable(),
     );
 
-    searchService.searchCiphers.mockImplementation(async (userId, _, __, ciphers) => ciphers!);
+    searchService.searchCiphers.mockImplementation(async (userId, _, ciphers) => ciphers!);
     cipherServiceMock.filterCiphersForUrl.mockImplementation(async (ciphers) =>
       ciphers.filter((c) => ["0", "1"].includes(uuidAsString(c.id))),
     );
