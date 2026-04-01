@@ -90,7 +90,7 @@ export class FileReportPersistenceService extends ReportPersistenceService {
           }),
           switchMap(({ result, reportFile, contentEncryptionKey }) => {
             const reportId = result.reportResponse.id as OrganizationReportId;
-            const reportFileId = result.reportResponse.reportFile ?? "";
+            const reportFileId = result.reportResponse.reportFile?.id ?? "";
 
             const upload$: Observable<void> =
               result.fileUploadType === FileUploadType.Azure
