@@ -123,12 +123,16 @@ fn register_sparse_package(msix_path: &str, install_dir: &str) -> Result<()> {
     let options = AddPackageOptions::new()?;
 
     // Set the external location to the install directory where the DLL lives
-    let install_uri = Uri::CreateUri(&windows_core::HSTRING::from(path_to_file_uri(install_dir)))?;
+    let install_uri = Uri::CreateUri(&windows_registry::HSTRING::from(path_to_file_uri(
+        install_dir,
+    )))?;
     options.SetExternalLocationUri(&install_uri)?;
 
     // Register the sparse package
-    let msix_uri = Uri::CreateUri(&windows_core::HSTRING::from(path_to_file_uri(msix_path)))?;
-    pm.AddPackageByUriAsync(&msix_uri, &options)?.get()?;
+    let msix_uri = Uri::CreateUri(&windows_registry::HSTRING::from(path_to_file_uri(
+        msix_path,
+    )))?;
+    pm.AddPackageByUriAsync(&msix_uri, &options)?.join()?;
 
     Ok(())
 }
@@ -140,12 +144,12 @@ fn unregister_sparse_package() -> Result<()> {
     let pm = PackageManager::new()?;
 
     // Search for our sparse package among the current user's packages
-    for pkg in pm.FindPackagesForUser(&windows_core::HSTRING::new())? {
+    for pkg in pm.FindPackages()? {
         if let Ok(id) = pkg.Id() {
             if let Ok(name) = id.Name() {
                 if name.to_string_lossy() == SPARSE_PACKAGE_NAME {
                     if let Ok(full_name) = id.FullName() {
-                        pm.RemovePackageAsync(&full_name)?.get()?;
+                        pm.RemovePackageAsync(&full_name)?.join()?;
                     }
                     break;
                 }
