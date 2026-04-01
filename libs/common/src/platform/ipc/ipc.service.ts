@@ -1,6 +1,12 @@
 import { Observable, shareReplay } from "rxjs";
 
-import { IpcClient, IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
+import {
+  IpcClient,
+  IncomingMessage,
+  OutgoingMessage,
+  ipcRequestDiscover,
+  Endpoint,
+} from "@bitwarden/sdk-internal";
 
 /**
  * Entry point for inter-process communication (IPC).
@@ -19,7 +25,7 @@ import { IpcClient, IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-inte
  *
  * ```typescript
  * // Send a message
- * await ipcService.send(OutgoingMessage.new_json_payload({ my: "data" }, "BrowserBackground", "my-topic"));
+ * await ipcService.send(OutgoingMessage.new_json_payload({ my: "data" }, { BrowserBackground: { id: "Own" } }, "my-topic"));
  *
  * // Receive messages
  * ipcService.messages$.subscribe((message: IncomingMessage) => {
@@ -133,6 +139,12 @@ export abstract class IpcService {
    * - Implementations may override `init` but should call this helper exactly once.
    */
   protected async initWithClient(client: IpcClient): Promise<void> {
+    // TODO: Remove, this is only used for development
+    // Example: Open electron renderer devtools console and call `await discover({ BrowserBackground: { id: "Own" } })`
+    // You might need to reload the browser extension if the desktop app was started after it (or if it was restarted while the extenion was running)
+    (globalThis as any).discover = async (endpoint: Endpoint) =>
+      await ipcRequestDiscover(this.client, endpoint);
+
     this._client = client;
     await this._client.start();
 
