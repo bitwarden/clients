@@ -5,6 +5,7 @@ import { ReceiveResponse } from "./receive.response";
 
 export class ReceiveFileUploadDataResponse extends BaseResponse {
   fileUploadType: FileUploadType;
+  fileId: string;
   receiveResponse?: ReceiveResponse;
   url?: string;
 
@@ -12,6 +13,7 @@ export class ReceiveFileUploadDataResponse extends BaseResponse {
     super(response);
 
     this.fileUploadType = this.getResponseProperty("FileUploadType");
+    this.fileId = this.getResponseProperty("FileId");
     const receiveResponse = this.getResponseProperty("ReceiveResponse");
     this.receiveResponse =
       receiveResponse != null ? new ReceiveResponse(receiveResponse) : undefined;

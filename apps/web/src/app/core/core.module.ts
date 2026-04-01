@@ -118,6 +118,7 @@ import {
   ThemeStateService,
 } from "@bitwarden/common/platform/theming/theme-state.service";
 import { DefaultReceiveFileService } from "@bitwarden/common/tools/receive/services/default-receive-file.service";
+import { ReceiveApiService } from "@bitwarden/common/tools/receive/services/receive-api.service";
 import { ReceiveFileService } from "@bitwarden/common/tools/receive/services/receive-file.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -521,7 +522,14 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ReceiveFileService,
     useClass: DefaultReceiveFileService,
-    deps: [KeyGenerationService, EncryptService, FileDownloadService],
+    deps: [
+      KeyGenerationService,
+      EncryptService,
+      FileDownloadService,
+      ReceiveApiService,
+      ApiService,
+      LogService,
+    ],
   }),
 ];
 
