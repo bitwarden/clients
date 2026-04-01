@@ -23,6 +23,7 @@
             actionText="{{ 'viewAtRiskMembers' | i18n }}"
             [showActionLink]="totalCriticalAppsAtRiskMemberCount > 0"
             (actionClick)="onViewAtRiskMembers()"
+            [testId]="'at-risk-members-card'"
           >
           </dirt-activity-card>
           <dirt-password-change-metric
@@ -47,6 +48,7 @@
           actionText="{{ 'viewAtRiskMembers' | i18n }}"
           [showActionLink]="totalCriticalAppsAtRiskMemberCount > 0"
           (actionClick)="onViewAtRiskMembers()"
+          [testId]="'at-risk-members-card'"
         >
         </dirt-activity-card>
       </li>
@@ -70,6 +72,7 @@
         actionText="{{ 'viewAtRiskApplications' | i18n }}"
         [showActionLink]="totalCriticalAppsAtRiskCount > 0"
         (actionClick)="onViewAtRiskApplications()"
+        [testId]="'critical-applications-card'"
       >
       </dirt-activity-card>
     </li>
@@ -86,6 +89,7 @@
           [buttonText]="''"
           [buttonType]="'primary'"
           (buttonClick)="onReviewNewApplications()"
+          [testId]="'allCaughtUp'"
         >
         </dirt-activity-card>
       </li>
@@ -102,6 +106,7 @@
           [buttonText]="'reviewApplications' | i18n"
           [buttonType]="'primary'"
           (buttonClick)="onReviewNewApplications()"
+          [testId]="'needs-review-card'"
         >
         </dirt-activity-card>
       </li>
@@ -118,6 +123,7 @@
           [buttonText]="'reviewNow' | i18n"
           [buttonType]="'primary'"
           (buttonClick)="onReviewNewApplications()"
+          [testId]="'review-new-applications-card'"
         >
         </dirt-activity-card>
       </li>
