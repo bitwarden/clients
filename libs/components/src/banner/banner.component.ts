@@ -11,12 +11,13 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IconButtonModule } from "../icon-button";
 import { IconTileComponent } from "../icon-tile/icon-tile.component";
+import { BitwardenIcon } from "../shared/icon";
 
 import { BannerTitleDirective } from "./banner-title.directive";
 
 export type BannerVariant = "primary" | "success" | "warning" | "danger";
 
-const defaultIcon: Record<BannerVariant, string> = {
+const defaultIcon: Record<BannerVariant, BitwardenIcon> = {
   primary: "bwi-info-circle",
   success: "bwi-star",
   warning: "bwi-exclamation-triangle",
@@ -60,7 +61,7 @@ export class BannerComponent {
    * The icon to display. If not provided, a default icon based on variant will be used.
    * Explicitly passing null will remove the icon.
    */
-  readonly icon = input<string | null>();
+  readonly icon = input<BitwardenIcon | null>();
 
   /**
    * Whether to show the close button.
