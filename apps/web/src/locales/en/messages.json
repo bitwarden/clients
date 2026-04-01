@@ -6363,6 +6363,9 @@
   "receive": {
     "message": "Receive"
   },
+  "receives": {
+    "message": "Receives"
+  },
   "allReceives": {
     "message": "All Receives"
   },

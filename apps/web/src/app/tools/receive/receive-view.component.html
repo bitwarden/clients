@@ -16,6 +16,7 @@
       <dt bitTypography="body2" class="tw-text-muted">{{ "expiration" | i18n }}</dt>
       <dd>{{ receive.expirationDate | date: "medium" }}</dd>
     </dl>
+    <app-receive-files-view [receiveView]="receive"></app-receive-files-view>
   </ng-container>
   <ng-container bitDialogFooter>
     <button type="button" bitButton buttonType="primary" (click)="openEdit()">
