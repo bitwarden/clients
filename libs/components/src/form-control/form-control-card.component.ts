@@ -6,6 +6,9 @@ import {
   inject,
   input,
 } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { EMPTY } from "rxjs";
+import { distinctUntilChanged, map, switchMap } from "rxjs/operators";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -65,6 +68,15 @@ export class FormControlCardComponent {
   protected readonly hint = contentChild(BitHintDirective);
   protected readonly switch = contentChild(SwitchComponent);
 
+  private readonly hasErrorSignal = toSignal(
+    toObservable(this.base.ngControl).pipe(
+      switchMap((ngControl) => ngControl?.control?.events ?? EMPTY),
+      map(() => this.base.formControl().hasError),
+      distinctUntilChanged(),
+    ),
+    { initialValue: this.base.formControl().hasError },
+  );
+
   constructor() {
     effect(() => {
       this.switch()?.size.set("large");
@@ -73,7 +85,7 @@ export class FormControlCardComponent {
     effect(() => {
       const hostEl = this.base.formControlEl().nativeElement;
       const inputId = this.base.inputId();
-      const hasError = this.base.formControl().hasError;
+      const hasError = this.hasErrorSignal();
 
       const describedBy = hasError ? this.errorId : (this.hint()?.id ?? null);
 
@@ -88,11 +100,14 @@ export class FormControlCardComponent {
         // For other controls (e.g. checkbox), the host element is the input itself
         const inputEl = hostEl.id !== inputId ? hostEl.querySelector(`[id="${inputId}"]`) : null;
         const el = inputEl || hostEl;
+
         if (inputEl) {
           hostEl.removeAttribute("aria-labelledby");
           hostEl.removeAttribute("aria-describedby");
         }
+
         el.setAttribute("aria-labelledby", this.labelId);
+
         if (describedBy) {
           el.setAttribute("aria-describedby", describedBy);
         } else {
@@ -111,10 +126,12 @@ export class FormControlCardComponent {
       const el = this.base.formControlEl().nativeElement;
       const inputEl: HTMLInputElement | null =
         el.tagName === "INPUT" ? (el as HTMLInputElement) : el.querySelector("input");
+
       if (inputEl) {
         inputEl.checked = isSelected;
         inputEl.disabled = isDisabled;
       }
+
       this.switch()?.writeValue(isSelected);
     });
   }
