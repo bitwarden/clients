@@ -365,7 +365,7 @@ describe("AccountSecurityComponent", () => {
         trySetupBiometricsSpy = jest.spyOn(component, "trySetupBiometrics");
       });
 
-      it("refreshes additional keys and attempts to setup biometrics when enabled with nativeMessaging permission", async () => {
+      it("refreshes additional keys and attempts to setup biometrics", async () => {
         const setupBiometricsResult = true;
         trySetupBiometricsSpy.mockResolvedValue(setupBiometricsResult);
 
@@ -438,31 +438,6 @@ describe("AccountSecurityComponent", () => {
       expect(component.form.controls.biometric.disabled).toBe(false);
     }));
 
-    it("skips status check when nativeMessaging permission is not granted and not Safari", fakeAsync(async () => {
-      biometricsService.canEnableBiometricUnlock.mockResolvedValue(true);
-      browserApiSpy.mockResolvedValue(false);
-      platformUtilsService.isSafari.mockReturnValue(false);
-
-      await component.ngOnInit();
-      tick();
-
-      expect(biometricsService.getBiometricsStatusForUser).not.toHaveBeenCalled();
-      expect(component.biometricUnavailabilityReason).toBeUndefined();
-    }));
-
-    it("checks biometrics status when nativeMessaging permission is granted", fakeAsync(async () => {
-      biometricsService.canEnableBiometricUnlock.mockResolvedValue(true);
-      browserApiSpy.mockResolvedValue(true);
-      platformUtilsService.isSafari.mockReturnValue(false);
-      biometricsService.getBiometricsStatusForUser.mockResolvedValue(
-        BiometricsStatus.DesktopDisconnected,
-      );
-
-      await component.ngOnInit();
-      tick();
-
-      expect(biometricsService.getBiometricsStatusForUser).toHaveBeenCalledWith(mockUserId);
-    }));
 
     it("should check status on Safari", fakeAsync(async () => {
       biometricsService.canEnableBiometricUnlock.mockResolvedValue(true);
