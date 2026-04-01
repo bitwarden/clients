@@ -11516,6 +11516,9 @@
   "fileReadError": {
     "message": "File could not be read"
   },
+  "fileUploadSuccess": {
+    "message": "File uploaded successfully"
+  },
   "receiveLoadError": {
     "message": "Could not load this receive"
   },

@@ -135,6 +135,11 @@ export class ReceiveFileUploadComponent implements OnInit {
         publicKey: this.publicKey(),
       };
       await this.receiveFileService.uploadFile(input);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("fileUploadSuccess"),
+      });
+      this.removeFile();
     } catch (e) {
       this.logService.error(e);
       this.toastService.showToast({
