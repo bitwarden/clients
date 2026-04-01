@@ -2323,6 +2323,7 @@ describe("OrganizationPlansComponent", () => {
       });
 
       it("should call premiumOrgUpgradeService.upgradeToOrganization() instead of create()", async () => {
+        setupMockPaymentMethodComponent(component, "mock_token", "card");
         organizationsSubject.next([{ id: newOrgId, name: newOrgName, isOwner: true } as any]);
 
         await component.submit();
@@ -2355,6 +2356,7 @@ describe("OrganizationPlansComponent", () => {
       });
 
       it("should show an error toast when the service rejects an unverified bank account payment method", async () => {
+        setupMockPaymentMethodComponent(component, "mock_token", "card");
         organizationsSubject.next([{ id: newOrgId, name: newOrgName, isOwner: true } as any]);
         const bankAccountError = new Error(
           "Unverified bank account payment method is not supported for this upgrade",
@@ -2374,6 +2376,7 @@ describe("OrganizationPlansComponent", () => {
       });
 
       it("should navigate to the new org and show success toast after premium upgrade", async () => {
+        setupMockPaymentMethodComponent(component, "mock_token", "card");
         organizationsSubject.next([{ id: newOrgId, name: newOrgName, isOwner: true } as any]);
 
         await component.submit();
