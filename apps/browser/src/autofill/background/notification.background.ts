@@ -1280,7 +1280,7 @@ export default class NotificationBackground {
     }
     const tab = sender.tab;
     if ((await this.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      await BrowserApi.tabSendMessageData(tab, "addToLockedVaultPendingNotifications", {
+      await this.openUnlockPopout(tab, {
         commandToRetry: {
           message: {
             command: message.command,
@@ -1290,8 +1290,7 @@ export default class NotificationBackground {
           sender: sender,
         },
         target: "notification.background",
-      } as LockedVaultPendingNotificationsData);
-      await this.openUnlockPopout(tab);
+      });
       return;
     }
 

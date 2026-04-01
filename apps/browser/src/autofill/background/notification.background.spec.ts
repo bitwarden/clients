@@ -2334,15 +2334,10 @@ describe("NotificationBackground", () => {
         sendMockExtensionMessage(message, sender);
         await flushPromises();
 
-        expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
-          sender.tab,
-          "addToLockedVaultPendingNotifications",
-          {
-            commandToRetry: { message, sender },
-            target: "notification.background",
-          },
-        );
-        expect(openUnlockPopoutSpy).toHaveBeenCalledWith(sender.tab);
+        expect(openUnlockPopoutSpy).toHaveBeenCalledWith(sender.tab, {
+          commandToRetry: { message, sender },
+          target: "notification.background",
+        });
       });
 
       describe("saveOrUpdateCredentials", () => {
