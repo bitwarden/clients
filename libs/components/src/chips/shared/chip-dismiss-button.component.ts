@@ -34,6 +34,7 @@ export class ChipDismissButtonComponent {
     const baseClasses = [
       "tw-bg-transparent",
       "hover:tw-bg-bg-hover",
+      "focus-visible:tw-bg-bg-hover",
       "tw-outline-none",
       "tw-rounded-md",
       "tw-p-0.5",
@@ -47,7 +48,8 @@ export class ChipDismissButtonComponent {
       "tw-justify-center",
       "focus-visible:tw-ring-2",
       "tw-ring-border-focus",
-      "hover:disabled:tw-bg-transparent",
+      "hover:aria-disabled:tw-bg-transparent",
+      "focus-visible:aria-disabled:tw-bg-transparent",
     ];
     const sizeClasses =
       this.size() === "small" ? ["tw-text-xs", "tw-size-4"] : ["tw-text-sm", "tw-size-5"];

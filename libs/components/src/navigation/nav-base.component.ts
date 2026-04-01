@@ -1,6 +1,8 @@
 import { Directive, output, input, model } from "@angular/core";
 import { RouterLink, RouterLinkActive } from "@angular/router";
 
+import { BitwardenIcon } from "../shared/icon";
+
 /**
  * Base class for navigation components in the side navigation.
  *
@@ -22,7 +24,7 @@ export abstract class NavBaseComponent {
   /**
    * Optional icon, e.g. `"bwi-collection-shared"`
    */
-  readonly icon = input<string>();
+  readonly icon = input<BitwardenIcon>();
 
   /**
    * Depth level

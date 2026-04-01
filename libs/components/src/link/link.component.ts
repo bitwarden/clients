@@ -26,17 +26,43 @@ export const LinkTypes = [
 export type LinkType = (typeof LinkTypes)[number];
 
 const linkStyles: Record<LinkType, string[]> = {
-  primary: ["tw-text-fg-brand", "hover:tw-text-fg-brand-strong"],
-  default: ["tw-text-fg-brand", "hover:tw-text-fg-brand-strong"],
-  secondary: ["tw-text-fg-heading", "hover:tw-text-fg-heading"],
-  light: ["tw-text-fg-white", "hover:tw-text-fg-white", "focus-visible:before:tw-ring-fg-contrast"],
-  subtle: ["!tw-text-fg-heading", "hover:tw-text-fg-heading"],
-  success: ["tw-text-fg-success", "hover:tw-text-fg-success-strong"],
-  warning: ["tw-text-fg-warning", "hover:tw-text-fg-warning-strong"],
-  danger: ["tw-text-fg-danger", "hover:tw-text-fg-danger-strong"],
+  primary: [
+    "tw-text-fg-brand",
+    "hover:tw-text-fg-brand-strong",
+    "focus-visible:tw-text-fg-brand-strong",
+  ],
+  default: [
+    "tw-text-fg-brand",
+    "hover:tw-text-fg-brand-strong",
+    "focus-visible:tw-text-fg-brand-strong",
+  ],
+  secondary: ["tw-text-fg-heading", "hover:tw-text-fg-heading", "focus-visible:tw-text-fg-heading"],
+  light: [
+    "tw-text-fg-white",
+    "hover:tw-text-fg-white",
+    "focus-visible:tw-text-fg-white",
+    "focus-visible:before:tw-ring-fg-contrast",
+  ],
+  subtle: ["!tw-text-fg-heading", "hover:tw-text-fg-heading", "focus-visible:tw-text-fg-heading"],
+  success: [
+    "tw-text-fg-success",
+    "hover:tw-text-fg-success-strong",
+    "focus-visible:tw-text-fg-success-strong",
+  ],
+  warning: [
+    "tw-text-fg-warning",
+    "hover:tw-text-fg-warning-strong",
+    "focus-visible:tw-text-fg-warning-strong",
+  ],
+  danger: [
+    "tw-text-fg-danger",
+    "hover:tw-text-fg-danger-strong",
+    "focus-visible:tw-text-fg-danger-strong",
+  ],
   contrast: [
     "tw-text-fg-contrast",
-    "hover:tw-text-fg-contrast",
+    "hover:tw-text-fg-contrast-strong",
+    "focus-visible:tw-text-fg-contrast-strong",
     "focus-visible:before:tw-ring-fg-contrast",
   ],
 };

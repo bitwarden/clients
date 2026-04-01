@@ -8,7 +8,7 @@ export const focusRing = [
   "focus-visible:tw-ring-2",
   "focus-visible:tw-ring-offset-1",
   "focus-visible:tw-ring-border-focus",
-  "!focus-visible:tw-border-[transparent]",
+  "focus-visible:!tw-border-transparent",
   "focus-visible:tw-z-10",
 ];
 
@@ -172,6 +172,7 @@ export const getButtonColorStyles = ({
       "aria-expanded:tw-text-fg-heading",
       "aria-expanded:tw-border-bg-quaternary",
       "focus-visible:tw-text-fg-heading",
+      "focus-visible:tw-bg-bg-quaternary",
     ],
     contrastOutline: [
       "tw-border-border-contrast",
@@ -208,7 +209,7 @@ export const getButtonColorStyles = ({
       "focus-visible:!tw-ring-fg-nav",
       "focus-visible:!tw-ring-offset-bg-nav",
       "focus-visible:!tw-text-fg-nav",
-      "focus-visible:tw-bg-transparent",
+      "focus-visible:tw-bg-bg-nav-hover",
       "focus-visible:tw-border-transparent",
     ],
     unstyled: [],
@@ -268,7 +269,6 @@ export const getButtonColorStyles = ({
       "hover:tw-bg-bg-hover",
       "aria-expanded:tw-bg-bg-hover",
       "focus-visible:tw-bg-bg-hover",
-      "focus-visible:tw-border-transparent",
     );
   }
 

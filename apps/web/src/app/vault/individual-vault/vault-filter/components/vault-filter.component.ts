@@ -308,7 +308,11 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     excludeTypes: CipherStatus[] = [],
     organizationId?: string,
   ): Promise<VaultFilterSection> {
-    const allFilter: CipherTypeFilter = { id: "AllItems", name: "allItems", type: "all", icon: "" };
+    const allFilter: CipherTypeFilter = {
+      id: "AllItems",
+      name: "allItems",
+      type: "all",
+    };
 
     const userId = await firstValueFrom(this.activeUserId$);
 
