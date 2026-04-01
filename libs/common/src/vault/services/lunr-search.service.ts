@@ -111,7 +111,6 @@ export class LunrSearchService {
     return await firstValueFrom(this.searchIsIndexing$(userId));
   }
 
-  
   async searchCiphers<C extends CipherViewLike>(
     userId: UserId,
     query: string,
@@ -121,7 +120,7 @@ export class LunrSearchService {
     const searchStartTime = performance.now();
     await this.updateIndexForUser(userId, ciphers);
     const index = await this.getIndexForSearch(userId);
-  
+
     // Convert to map that can be looked up in
     const ciphersMap = new Map<string, C>();
     ciphers.forEach((c) => ciphersMap.set(uuidAsString(c.id), c));
@@ -145,9 +144,7 @@ export class LunrSearchService {
   private async updateIndexForUser(userId: UserId, ciphers: CipherViewLike[]): Promise<void> {
     // If another indexing operation is in progress for this user, wait for it then return.
     if (await this.getIsIndexing(userId)) {
-      await firstValueFrom(
-        this.searchIsIndexing$(userId).pipe(filter((indexing) => !indexing)),
-      );
+      await firstValueFrom(this.searchIsIndexing$(userId).pipe(filter((indexing) => !indexing)));
       return;
     }
 
@@ -179,150 +176,150 @@ function normalizeAccentsPipelineFunction(token: lunr.Token): any {
   return token;
 }
 
-  /**
-   * Statelessly build a lunr index for the given cipher views.
-   */
-  async function buildCipherIndex(ciphers: CipherViewLike[]): Promise<lunr.Index> {
-    const builder = new lunr.Builder();
-    builder.pipeline.add(normalizeAccentsPipelineFunction);
-    builder.ref("id");
-    builder.field("shortid", {
-      boost: 100,
-      extractor: (c: CipherViewLike) => uuidAsString(c.id).substr(0, 8),
-    });
-    builder.field("name", {
-      boost: 10,
-      extractor: (c: CipherViewLike) => c.name,
-    });
-    builder.field("subtitle", {
-      boost: 5,
-      extractor: (c: CipherViewLike) => {
-        const subtitle = CipherViewLikeUtils.subtitle(c);
-        if (subtitle != null && CipherViewLikeUtils.getType(c) === CipherType.Card) {
-          return subtitle.replace(/\*/g, "");
-        }
-        return subtitle;
-      },
-    });
-    builder.field("notes", { extractor: (c: CipherViewLike) => CipherViewLikeUtils.getNotes(c) });
-    builder.field("login.username", {
-      extractor: (c: CipherViewLike) => {
-        const login = CipherViewLikeUtils.getLogin(c);
-        return login?.username ?? null;
-      },
-    });
-    builder.field("login.uris", {
-      boost: 2,
-      extractor: (c: CipherViewLike) => uriExtractor(c),
-    });
-    builder.field("fields", {
-      extractor: (c: CipherViewLike) => fieldExtractor(c, false),
-    });
-    builder.field("fields_joined", {
-      extractor: (c: CipherViewLike) => fieldExtractor(c, true),
-    });
-    builder.field("attachments", {
-      extractor: (c: CipherViewLike) => attachmentExtractor(c, false),
-    });
-    builder.field("attachments_joined", {
-      extractor: (c: CipherViewLike) => attachmentExtractor(c, true),
-    });
-    builder.field("organizationid", { extractor: (c: CipherViewLike) => c.organizationId });
-    ciphers = ciphers || [];
-    ciphers.forEach((c) => builder.add(c));
-    const index = builder.build();
-    return index;
+/**
+ * Statelessly build a lunr index for the given cipher views.
+ */
+async function buildCipherIndex(ciphers: CipherViewLike[]): Promise<lunr.Index> {
+  const builder = new lunr.Builder();
+  builder.pipeline.add(normalizeAccentsPipelineFunction);
+  builder.ref("id");
+  builder.field("shortid", {
+    boost: 100,
+    extractor: (c: CipherViewLike) => uuidAsString(c.id).substr(0, 8),
+  });
+  builder.field("name", {
+    boost: 10,
+    extractor: (c: CipherViewLike) => c.name,
+  });
+  builder.field("subtitle", {
+    boost: 5,
+    extractor: (c: CipherViewLike) => {
+      const subtitle = CipherViewLikeUtils.subtitle(c);
+      if (subtitle != null && CipherViewLikeUtils.getType(c) === CipherType.Card) {
+        return subtitle.replace(/\*/g, "");
+      }
+      return subtitle;
+    },
+  });
+  builder.field("notes", { extractor: (c: CipherViewLike) => CipherViewLikeUtils.getNotes(c) });
+  builder.field("login.username", {
+    extractor: (c: CipherViewLike) => {
+      const login = CipherViewLikeUtils.getLogin(c);
+      return login?.username ?? null;
+    },
+  });
+  builder.field("login.uris", {
+    boost: 2,
+    extractor: (c: CipherViewLike) => uriExtractor(c),
+  });
+  builder.field("fields", {
+    extractor: (c: CipherViewLike) => fieldExtractor(c, false),
+  });
+  builder.field("fields_joined", {
+    extractor: (c: CipherViewLike) => fieldExtractor(c, true),
+  });
+  builder.field("attachments", {
+    extractor: (c: CipherViewLike) => attachmentExtractor(c, false),
+  });
+  builder.field("attachments_joined", {
+    extractor: (c: CipherViewLike) => attachmentExtractor(c, true),
+  });
+  builder.field("organizationid", { extractor: (c: CipherViewLike) => c.organizationId });
+  ciphers = ciphers || [];
+  ciphers.forEach((c) => builder.add(c));
+  const index = builder.build();
+  return index;
+}
+
+async function fieldExtractor(c: CipherViewLike, joined: boolean) {
+  const fields = CipherViewLikeUtils.getFields(c);
+  if (!fields || fields.length === 0) {
+    return null;
   }
-
-  async function fieldExtractor(c: CipherViewLike, joined: boolean) {
-    const fields = CipherViewLikeUtils.getFields(c);
-    if (!fields || fields.length === 0) {
-      return null;
+  let fieldStrings: string[] = [];
+  fields.forEach((f) => {
+    if (f.name != null) {
+      fieldStrings.push(f.name);
     }
-    let fieldStrings: string[] = [];
-    fields.forEach((f) => {
-      if (f.name != null) {
-        fieldStrings.push(f.name);
+    // For CipherListView, value is only populated for Text fields
+    // For CipherView, we check the type explicitly
+    if (f.value != null) {
+      const fieldType = (f as { type?: FieldType }).type;
+      if (fieldType === undefined || fieldType === FieldType.Text) {
+        fieldStrings.push(f.value);
       }
-      // For CipherListView, value is only populated for Text fields
-      // For CipherView, we check the type explicitly
-      if (f.value != null) {
-        const fieldType = (f as { type?: FieldType }).type;
-        if (fieldType === undefined || fieldType === FieldType.Text) {
-          fieldStrings.push(f.value);
-        }
-      }
-    });
-    fieldStrings = fieldStrings.filter((f) => f.trim() !== "");
-    if (fieldStrings.length === 0) {
-      return null;
     }
-    return joined ? fieldStrings.join(" ") : fieldStrings;
+  });
+  fieldStrings = fieldStrings.filter((f) => f.trim() !== "");
+  if (fieldStrings.length === 0) {
+    return null;
   }
+  return joined ? fieldStrings.join(" ") : fieldStrings;
+}
 
-  async function attachmentExtractor(c: CipherViewLike, joined: boolean) {
-    const attachmentNames = CipherViewLikeUtils.getAttachmentNames(c);
-    if (!attachmentNames || attachmentNames.length === 0) {
-      return null;
-    }
-    let attachments: string[] = [];
-    attachmentNames.forEach((fileName) => {
-      if (fileName != null) {
-        if (joined && fileName.indexOf(".") > -1) {
-          attachments.push(fileName.substring(0, fileName.lastIndexOf(".")));
-        } else {
-          attachments.push(fileName);
-        }
-      }
-    });
-    attachments = attachments.filter((f) => f.trim() !== "");
-    if (attachments.length === 0) {
-      return null;
-    }
-    return joined ? attachments.join(" ") : attachments;
+async function attachmentExtractor(c: CipherViewLike, joined: boolean) {
+  const attachmentNames = CipherViewLikeUtils.getAttachmentNames(c);
+  if (!attachmentNames || attachmentNames.length === 0) {
+    return null;
   }
-
-  async function uriExtractor(c: CipherViewLike) {
-    if (CipherViewLikeUtils.getType(c) !== CipherType.Login) {
-      return null;
+  let attachments: string[] = [];
+  attachmentNames.forEach((fileName) => {
+    if (fileName != null) {
+      if (joined && fileName.indexOf(".") > -1) {
+        attachments.push(fileName.substring(0, fileName.lastIndexOf(".")));
+      } else {
+        attachments.push(fileName);
+      }
     }
-    const login = CipherViewLikeUtils.getLogin(c);
-    if (!login?.uris?.length) {
-      return null;
-    }
-    const uris: string[] = [];
-    login.uris.forEach((u) => {
-      if (u.uri == null || u.uri === "") {
-        return;
-      }
-
-      // Extract port from URI
-      const portMatch = u.uri.match(/:(\d+)(?:[/?#]|$)/);
-      const port = portMatch?.[1];
-
-      const hostname = CipherViewLikeUtils.getUriHostname(u);
-      if (hostname !== undefined) {
-        uris.push(hostname);
-        if (port) {
-          uris.push(`${hostname}:${port}`);
-          uris.push(port);
-        }
-      }
-
-      // Add processed URI (strip protocol and query params for non-regex matches)
-      let uri = u.uri;
-      if (u.match !== UriMatchStrategy.RegularExpression) {
-        const protocolIndex = uri.indexOf("://");
-        if (protocolIndex > -1) {
-          uri = uri.substring(protocolIndex + 3);
-        }
-        const queryIndex = uri.search(/\?|&|#/);
-        if (queryIndex > -1) {
-          uri = uri.substring(0, queryIndex);
-        }
-      }
-      uris.push(uri);
-    });
-
-    return uris.length > 0 ? uris : null;
+  });
+  attachments = attachments.filter((f) => f.trim() !== "");
+  if (attachments.length === 0) {
+    return null;
   }
+  return joined ? attachments.join(" ") : attachments;
+}
+
+async function uriExtractor(c: CipherViewLike) {
+  if (CipherViewLikeUtils.getType(c) !== CipherType.Login) {
+    return null;
+  }
+  const login = CipherViewLikeUtils.getLogin(c);
+  if (!login?.uris?.length) {
+    return null;
+  }
+  const uris: string[] = [];
+  login.uris.forEach((u) => {
+    if (u.uri == null || u.uri === "") {
+      return;
+    }
+
+    // Extract port from URI
+    const portMatch = u.uri.match(/:(\d+)(?:[/?#]|$)/);
+    const port = portMatch?.[1];
+
+    const hostname = CipherViewLikeUtils.getUriHostname(u);
+    if (hostname !== undefined) {
+      uris.push(hostname);
+      if (port) {
+        uris.push(`${hostname}:${port}`);
+        uris.push(port);
+      }
+    }
+
+    // Add processed URI (strip protocol and query params for non-regex matches)
+    let uri = u.uri;
+    if (u.match !== UriMatchStrategy.RegularExpression) {
+      const protocolIndex = uri.indexOf("://");
+      if (protocolIndex > -1) {
+        uri = uri.substring(protocolIndex + 3);
+      }
+      const queryIndex = uri.search(/\?|&|#/);
+      if (queryIndex > -1) {
+        uri = uri.substring(0, queryIndex);
+      }
+    }
+    uris.push(uri);
+  });
+
+  return uris.length > 0 ? uris : null;
+}

@@ -6,11 +6,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../spec";
 
-import {
-  LUNR_SEARCH_INDEX,
-  LUNR_SEARCH_INDEXING,
-  LunrSearchService,
-} from "./lunr-search.service";
+import { LUNR_SEARCH_INDEX, LUNR_SEARCH_INDEXING, LunrSearchService } from "./lunr-search.service";
 
 function createCipherView(id: string, name: string): CipherView {
   const cipher = new CipherView();
@@ -40,13 +36,23 @@ describe("LunrSearchService", () => {
   it("clears index state on ciphersUpdated", async () => {
     await fakeStateProvider
       .getUser(userId, LUNR_SEARCH_INDEX)
-      .update(() => ({ version: "2.3.9", fields: [], fieldVectors: [] as any, invertedIndex: [], pipeline: [] }));
+      .update(() => ({
+        version: "2.3.9",
+        fields: [],
+        fieldVectors: [] as any,
+        invertedIndex: [],
+        pipeline: [],
+      }));
     await fakeStateProvider.getUser(userId, LUNR_SEARCH_INDEXING).update(() => true);
 
     await service.ciphersUpdated(userId);
 
-    const searchIndex = await firstValueFrom(fakeStateProvider.getUser(userId, LUNR_SEARCH_INDEX).state$);
-    const isIndexing = await firstValueFrom(fakeStateProvider.getUser(userId, LUNR_SEARCH_INDEXING).state$);
+    const searchIndex = await firstValueFrom(
+      fakeStateProvider.getUser(userId, LUNR_SEARCH_INDEX).state$,
+    );
+    const isIndexing = await firstValueFrom(
+      fakeStateProvider.getUser(userId, LUNR_SEARCH_INDEXING).state$,
+    );
 
     expect(searchIndex).toBeNull();
     expect(isIndexing).toBe(false);

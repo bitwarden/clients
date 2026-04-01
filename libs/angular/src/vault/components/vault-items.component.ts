@@ -163,22 +163,24 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
             this.restrictedItemTypesService.restricted$,
           ]),
         ),
-        switchMap(async ([indexedCiphers, failedCiphers, searchText, filter, userId, restricted]) => {
-          let allCiphers = (indexedCiphers ?? []) as C[];
-          const _failedCiphers = failedCiphers ?? [];
+        switchMap(
+          async ([indexedCiphers, failedCiphers, searchText, filter, userId, restricted]) => {
+            let allCiphers = (indexedCiphers ?? []) as C[];
+            const _failedCiphers = failedCiphers ?? [];
 
-          allCiphers = [..._failedCiphers, ...allCiphers] as C[];
+            allCiphers = [..._failedCiphers, ...allCiphers] as C[];
 
-          const restrictedTypeFilter = (cipher: CipherViewLike) =>
-            !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted);
+            const restrictedTypeFilter = (cipher: CipherViewLike) =>
+              !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted);
 
-          const searchFilteredCiphers = await this.searchService.searchCiphers(
-            userId,
-            searchText,
-            allCiphers,
-          );
-          return searchFilteredCiphers.filter(restrictedTypeFilter).filter(filter);
-        }),
+            const searchFilteredCiphers = await this.searchService.searchCiphers(
+              userId,
+              searchText,
+              allCiphers,
+            );
+            return searchFilteredCiphers.filter(restrictedTypeFilter).filter(filter);
+          },
+        ),
         takeUntilDestroyed(),
       )
       .subscribe((ciphers) => {

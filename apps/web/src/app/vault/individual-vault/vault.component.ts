@@ -428,12 +428,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         const allCiphers = [...failedCiphers, ...ciphers];
 
         if (await this.searchService.isSearchable(activeUserId, searchText)) {
-          return await this.searchService.searchCiphers<C>(
+          const results = await this.searchService.searchCiphers<C>(
             activeUserId,
             searchText,
-            [filterFunction],
             allCiphers as C[],
           );
+          return results.filter(filterFunction);
         }
 
         return ciphers.filter(filterFunction) as C[];

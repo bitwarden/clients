@@ -57,7 +57,6 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import {
   CipherId,
   CollectionId,
-  IndexedEntityId,
   OrganizationId,
   UserId,
 } from "@bitwarden/common/types/guid";
@@ -421,8 +420,10 @@ export class VaultComponent implements OnInit, OnDestroy {
               userId,
               searchText,
               ciphers,
-            )
-            return searchFilteredCiphers.filter(filterFunction).filter((c) => c.organizationId === organizationId);
+            );
+            return searchFilteredCiphers
+              .filter(filterFunction)
+              .filter((c) => c.organizationId === organizationId);
           }
 
           return ciphers.filter(filterFunction);
