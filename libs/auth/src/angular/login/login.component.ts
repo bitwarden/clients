@@ -250,7 +250,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     combineLatest([
       // startWith email form field value (it could be empty, a remembered email, or pre-filled from query params)
       this.formGroup.controls.email.valueChanges.pipe(startWith(this.emailFormControl.value)),
-      this.environmentService.environment$,
+      this.environmentService.globalEnvironment$,
     ])
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(([email, env]) => {
