@@ -387,8 +387,8 @@ export const LargeList: Story = {
           action("onToggleAll")();
         },
       },
-      template: `
-        <div class="tw-max-h-[600px] tw-overflow-y-auto">
+      template: /*html*/ `
+        <div class="tw-max-h-[600px] tw-overflow-y-auto" tabindex="0">
           <dirt-review-applications-view-v2
             [applications]="applications"
             [ciphers]="ciphers"
