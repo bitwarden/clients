@@ -18,7 +18,6 @@ import {
 } from "@bitwarden/key-management";
 
 import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
-import { BrowserApi } from "../../platform/browser/browser-api";
 
 export class BackgroundBrowserBiometricsService extends BiometricsService {
   BACKGROUND_POLLING_INTERVAL = 30_000;
