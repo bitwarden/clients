@@ -85,7 +85,7 @@ fn register_for_root(root: &str, exe_path: &str, arg_flag: &str, path_var: &str)
 }
 
 fn set_icon(key: &Key, exe_path: &str) -> Result<()> {
-    key.set_string("Icon", &format!("{exe_path},0"))?;
+    key.set_string("Icon", format!("{exe_path},0"))?;
     Ok(())
 }
 
