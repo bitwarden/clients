@@ -128,7 +128,7 @@ describe("<ServiceName> integration", () => {
 Run the unit tests for the spec file and confirm they all pass before finishing:
 
 ```bash
-npx nx test bit-common --testFile=bitwarden_license/bit-common/src/dirt/organization-integrations/services/organization-integration-service.spec.ts
+cd bitwarden_license/bit-common && npx jest src/dirt/organization-integrations/services/organization-integration-service.spec.ts
 ```
 
 All tests must pass. If any fail, fix them before proceeding.
