@@ -195,10 +195,14 @@ export class PasskeyReportComponent {
 
   private async init() {
     this.loading.set(true);
-    await this.syncService.fullSync(false);
-    await this.setCiphers();
-    this.loading.set(false);
-    this.hasLoaded.set(true);
+
+    try {
+      await this.syncService.fullSync(false);
+      await this.setCiphers();
+    } finally {
+      this.loading.set(false);
+      this.hasLoaded.set(true);
+    }
   }
 
   private async loadPasskeyDirectory() {
