@@ -899,7 +899,7 @@ export default class MainBackground {
       pinStateService,
     );
 
-    this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
+    this.ipcContentScriptManagerService = new IpcContentScriptManagerService();
     this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);
 
     this.biometricsService = new BackgroundBrowserBiometricsService(
@@ -1633,6 +1633,7 @@ export default class MainBackground {
     }
 
     await this.initOverlayAndTabsBackground();
+    await this.ipcContentScriptManagerService.init();
     await this.ipcService.init();
     this.badgeService.startListening();
 
