@@ -109,4 +109,8 @@ export class RadioInputComponent implements BitFormControlAbstraction {
     const key = Object.keys(errors)[0];
     return [key, errors[key]];
   }
+
+  get inputId(): string {
+    return this.id();
+  }
 }
