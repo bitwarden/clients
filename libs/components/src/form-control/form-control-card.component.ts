@@ -82,6 +82,8 @@ export class FormControlCardComponent {
       this.switch()?.size.set("large");
     });
 
+    this.base.disableMarginSignal.set(true);
+
     effect(() => {
       const hostEl = this.base.formControlEl().nativeElement;
       const inputId = this.base.inputId();

@@ -30,6 +30,7 @@ let nextId = 0;
   imports: [NgTemplateOutlet, I18nPipe, IconComponent],
   host: {
     "(focusout)": "onFocusOut($event)",
+    class: "tw-block tw-mb-4",
   },
 })
 export class FormControlGroupComponent<T = unknown>

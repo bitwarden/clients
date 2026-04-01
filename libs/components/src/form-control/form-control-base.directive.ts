@@ -1,5 +1,6 @@
 import {
   booleanAttribute,
+  computed,
   contentChild,
   Directive,
   effect,
@@ -27,6 +28,11 @@ export class FormControlBaseDirective {
   readonly inline = input(false, { transform: booleanAttribute });
 
   readonly disableMargin = input(false, { transform: booleanAttribute });
+  readonly disableMarginSignal = signal(false);
+
+  private readonly computedDisableMargin = computed(
+    () => this.disableMargin() || this.disableMarginSignal(),
+  );
 
   readonly formControl = contentChild.required(BitFormControlAbstraction);
   readonly formControlEl = contentChild.required(BitFormControlAbstraction, { read: ElementRef });
@@ -37,7 +43,7 @@ export class FormControlBaseDirective {
   @HostBinding("class") get classes() {
     return ([] as string[])
       .concat(this.inline() ? ["tw-inline-block", "tw-me-4"] : ["tw-block"])
-      .concat(this.disableMargin() ? [] : ["tw-mb-4"]);
+      .concat(this.computedDisableMargin() ? [] : ["tw-mb-4"]);
   }
 
   private i18nService = inject(I18nService);
