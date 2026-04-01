@@ -9,6 +9,7 @@ import {
   input,
   signal,
 } from "@angular/core";
+import { NgControl } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -29,6 +30,7 @@ export class FormControlBaseDirective {
 
   readonly formControl = contentChild.required(BitFormControlAbstraction);
   readonly formControlEl = contentChild.required(BitFormControlAbstraction, { read: ElementRef });
+  readonly ngControl = contentChild(NgControl);
 
   readonly inputId = signal(this.id);
 
