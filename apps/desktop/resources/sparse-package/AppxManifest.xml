@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
     xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+    xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
     xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
     xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
     xmlns:desktop5="http://schemas.microsoft.com/appx/manifest/desktop/windows10/5"
-    xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities">
+    xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+    IgnorableNamespaces="com desktop4 desktop5 uap10">
     <Identity Name="BitwardenInc.BitwardenDesktop"
         ProcessorArchitecture="${arch}"
         Publisher="${publisher}"
@@ -14,6 +16,7 @@
         <PublisherDisplayName>Bitwarden Inc</PublisherDisplayName>
         <Description>A secure and free password manager for all of your devices.</Description>
         <Logo>resources\icon.png</Logo>
+        <uap10:AllowExternalContent>true</uap10:AllowExternalContent>
     </Properties>
     <Dependencies>
         <!-- MinVersion 10.0.19041.0 for desktop4/desktop5 namespace support -->
