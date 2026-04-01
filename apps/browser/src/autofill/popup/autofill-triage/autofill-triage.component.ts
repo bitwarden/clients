@@ -14,13 +14,16 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
+  BadgeModule,
   ButtonModule,
   CalloutModule,
   IconButtonModule,
   IconModule,
-  BadgeModule,
+  ItemModule,
   SectionComponent,
+  SectionHeaderComponent,
   ToastService,
+  TypographyModule,
 } from "@bitwarden/components";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -39,12 +42,15 @@ import { formatAutofillTriageReport } from "../utils/format-autofill-triage-repo
     JslibModule,
     PopupPageComponent,
     PopupHeaderComponent,
+    BadgeModule,
     ButtonModule,
     CalloutModule,
     IconButtonModule,
     IconModule,
-    BadgeModule,
+    ItemModule,
     SectionComponent,
+    SectionHeaderComponent,
+    TypographyModule,
     DatePipe,
   ],
 })

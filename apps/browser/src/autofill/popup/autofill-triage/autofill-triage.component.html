@@ -14,65 +14,81 @@
   @if (triageResult(); as result) {
     <!-- Summary Section -->
     <bit-section>
-      <p class="tw-mb-2">
-        <strong>{{ "url" | i18n }}:</strong>
-        <span class="tw-ml-2">{{ result.pageUrl }}</span>
-      </p>
-      <p class="tw-mb-2">
-        <strong>{{ "analyzed" | i18n }}:</strong>
-        <span class="tw-ml-2">{{ result.analyzedAt | date: "medium" }}</span>
-      </p>
-      <p class="tw-mb-2">
-        <strong>{{ "eligible" | i18n }}:</strong>
-        <span class="tw-ml-2">{{ eligibleCount() }} of {{ result.fields.length }} fields</span>
-      </p>
-      @if (result.targetElementRef) {
-        <p class="tw-mb-2">
-          <strong>{{ "targetElement" | i18n }}:</strong>
-          <span class="tw-ml-2">{{ result.targetElementRef }}</span>
-        </p>
-      }
+      <bit-item-group>
+        <bit-item>
+          <bit-item-content>
+            <i class="bwi bwi-fw bwi-globe tw-text-muted" slot="start" aria-hidden="true"></i>
+            {{ result.pageUrl }}
+            <span slot="secondary">{{ "url" | i18n }}</span>
+          </bit-item-content>
+        </bit-item>
+        <bit-item>
+          <bit-item-content>
+            <i class="bwi bwi-fw bwi-clock tw-text-muted" slot="start" aria-hidden="true"></i>
+            {{ result.analyzedAt | date: "medium" }}
+            <span slot="secondary">{{ "analyzed" | i18n }}</span>
+          </bit-item-content>
+        </bit-item>
+        <bit-item>
+          <bit-item-content>
+            <i
+              class="bwi bwi-fw bwi-check-circle tw-text-muted"
+              slot="start"
+              aria-hidden="true"
+            ></i>
+            {{ eligibleCount() }} of {{ result.fields.length }} {{ "fields" | i18n }}
+            <span slot="secondary">{{ "eligible" | i18n }}</span>
+          </bit-item-content>
+        </bit-item>
+        @if (result.targetElementRef) {
+          <bit-item>
+            <bit-item-content>
+              <i class="bwi bwi-fw bwi-filter tw-text-muted" slot="start" aria-hidden="true"></i>
+              {{ result.targetElementRef }}
+              <span slot="secondary">{{ "targetElement" | i18n }}</span>
+            </bit-item-content>
+          </bit-item>
+        }
+      </bit-item-group>
     </bit-section>
 
     <!-- Fields List -->
-    <div class="tw-mt-4">
-      <h2 class="tw-text-lg tw-font-semibold tw-mb-3">{{ "fields" | i18n }}</h2>
-
-      @for (field of result.fields; track $index) {
-        <bit-section class="tw-mb-3">
-          <!-- Field Header (clickable to expand/collapse) -->
-          <button
-            type="button"
-            bitButton
-            buttonType="secondary"
-            class="tw-w-full tw-flex tw-justify-between tw-items-center"
-            (click)="toggleField($index)"
-          >
-            <span class="tw-flex tw-items-center tw-gap-2">
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h6">{{ "fields" | i18n }}</h2>
+      </bit-section-header>
+      <bit-item-group>
+        @for (field of result.fields; track $index) {
+          <bit-item>
+            <button bit-item-content type="button" (click)="toggleField($index)">
               <bit-icon
+                slot="start"
                 [name]="isFieldExpanded()($index) ? 'bwi-angle-down' : 'bwi-angle-right'"
               ></bit-icon>
-              <span>{{ getFieldLabel(field) }}</span>
-            </span>
-            <span
-              bitBadge
-              [variant]="field.eligible ? 'success' : 'secondary'"
-              class="tw-flex tw-items-center tw-gap-1"
-            >
-              @if (field.eligible) {
-                <bit-icon name="bwi-check" aria-hidden="true"></bit-icon>
-              } @else {
-                <bit-icon name="bwi-close" aria-hidden="true"></bit-icon>
-              }
-              <span>{{ field.qualifiedAs }}</span>
-            </span>
-          </button>
+              {{ getFieldLabel(field) }}
+              <span
+                slot="default-trailing"
+                bitBadge
+                [variant]="field.eligible ? 'success' : 'secondary'"
+                class="tw-flex tw-items-center tw-gap-1"
+              >
+                @if (field.eligible) {
+                  <bit-icon name="bwi-check" aria-hidden="true"></bit-icon>
+                } @else {
+                  <bit-icon name="bwi-close" aria-hidden="true"></bit-icon>
+                }
+                <span>{{ field.qualifiedAs }}</span>
+              </span>
+            </button>
+          </bit-item>
 
           <!-- Expandable Field Details -->
           @if (isFieldExpanded()($index)) {
-            <div class="tw-mt-3 tw-pl-4 tw-border-l-2 tw-border-secondary-300">
+            <div
+              class="tw-px-4 tw-pb-3 tw-pt-2 tw-border-b tw-border-secondary-300 tw-bg-background-alt tw-text-sm"
+            >
               <!-- Field Attributes -->
-              <div class="tw-mb-3 tw-text-sm tw-text-muted">
+              <div class="tw-mb-3 tw-text-muted">
                 @if (field.htmlId) {
                   <p><strong>ID:</strong> {{ field.htmlId }}</p>
                 }
@@ -100,7 +116,7 @@
               <div class="tw-mb-2">
                 <h3 class="tw-text-sm tw-font-semibold tw-mb-2">{{ "conditions" | i18n }}</h3>
                 @for (condition of field.conditions; track condition.description) {
-                  <div class="tw-flex tw-items-start tw-gap-2 tw-mb-1 tw-text-sm">
+                  <div class="tw-flex tw-items-start tw-gap-2 tw-mb-1">
                     <span class="tw-shrink-0">
                       @if (condition.passed) {
                         <bit-icon name="bwi-check" aria-hidden="true"></bit-icon>
@@ -119,9 +135,9 @@
               </div>
             </div>
           }
-        </bit-section>
-      }
-    </div>
+        }
+      </bit-item-group>
+    </bit-section>
 
     <!-- Copy Report Button -->
     <div class="tw-mt-6 tw-flex tw-justify-center">
