@@ -16,6 +16,9 @@ import { MagnifyCommandRequest, MagnifyCommandResponse } from "../autofill/model
  */
 
 const ipc = {
+  // The useage of `Extract` on the "type" provides type safety in that the response command
+  // Type is the same as the request command type. This allows compile time guarantees without
+  // needing to manually handle validatation of each response command type.
   sendCommand: async <T extends MagnifyCommandRequest>(
     command: T,
   ): Promise<Extract<MagnifyCommandResponse, { type: T["type"] }>> => {
