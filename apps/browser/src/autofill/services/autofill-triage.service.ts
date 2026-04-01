@@ -110,29 +110,36 @@ export class AutofillTriageService implements AutofillTriageServiceInterface {
     }
 
     // Login-related checks
+    const isUsernameField = this.qualificationService.isUsernameField(field);
     conditions.push({
       description: "Is username field",
-      passed: this.qualificationService.isUsernameField(field),
+      passed: isUsernameField,
     });
+    const isEmailField = this.qualificationService.isEmailField(field);
     conditions.push({
       description: "Is email field",
-      passed: this.qualificationService.isEmailField(field),
+      passed: isEmailField,
     });
+    const isCurrentPasswordField = this.qualificationService.isCurrentPasswordField(field);
     conditions.push({
       description: "Is current password field",
-      passed: this.qualificationService.isCurrentPasswordField(field),
+      passed: isCurrentPasswordField,
     });
+    const isNewPasswordField = this.qualificationService.isNewPasswordField(field);
     conditions.push({
       description: "Is new password field",
-      passed: this.qualificationService.isNewPasswordField(field),
+      passed: isNewPasswordField,
     });
+    const isUpdateCurrentPasswordField =
+      this.qualificationService.isUpdateCurrentPasswordField(field);
     conditions.push({
       description: "Is update current password field",
-      passed: this.qualificationService.isUpdateCurrentPasswordField(field),
+      passed: isUpdateCurrentPasswordField,
     });
+    const isTotpField = this.qualificationService.isTotpField(field);
     conditions.push({
       description: "Is TOTP field",
-      passed: this.qualificationService.isTotpField(field),
+      passed: isTotpField,
     });
 
     // Form-level checks (used for qualification)
@@ -167,95 +174,117 @@ export class AutofillTriageService implements AutofillTriageServiceInterface {
     });
 
     // Credit card-specific checks
+    const isCardholderName = this.qualificationService.isFieldForCardholderName(field);
     conditions.push({
       description: "Is cardholder name field",
-      passed: this.qualificationService.isFieldForCardholderName(field),
+      passed: isCardholderName,
     });
+    const isCardNumber = this.qualificationService.isFieldForCardNumber(field);
     conditions.push({
       description: "Is card number field",
-      passed: this.qualificationService.isFieldForCardNumber(field),
+      passed: isCardNumber,
     });
+    const isCardExpirationDate = this.qualificationService.isFieldForCardExpirationDate(field);
     conditions.push({
       description: "Is card expiration date field",
-      passed: this.qualificationService.isFieldForCardExpirationDate(field),
+      passed: isCardExpirationDate,
     });
+    const isCardExpirationMonth = this.qualificationService.isFieldForCardExpirationMonth(field);
     conditions.push({
       description: "Is card expiration month field",
-      passed: this.qualificationService.isFieldForCardExpirationMonth(field),
+      passed: isCardExpirationMonth,
     });
+    const isCardExpirationYear = this.qualificationService.isFieldForCardExpirationYear(field);
     conditions.push({
       description: "Is card expiration year field",
-      passed: this.qualificationService.isFieldForCardExpirationYear(field),
+      passed: isCardExpirationYear,
     });
+    const isCardCvv = this.qualificationService.isFieldForCardCvv(field);
     conditions.push({
       description: "Is card CVV field",
-      passed: this.qualificationService.isFieldForCardCvv(field),
+      passed: isCardCvv,
     });
 
     // Identity-specific checks
+    const isIdentityTitle = this.qualificationService.isFieldForIdentityTitle(field);
     conditions.push({
       description: "Is identity title field",
-      passed: this.qualificationService.isFieldForIdentityTitle(field),
+      passed: isIdentityTitle,
     });
+    const isIdentityFirstName = this.qualificationService.isFieldForIdentityFirstName(field);
     conditions.push({
       description: "Is identity first name field",
-      passed: this.qualificationService.isFieldForIdentityFirstName(field),
+      passed: isIdentityFirstName,
     });
+    const isIdentityMiddleName = this.qualificationService.isFieldForIdentityMiddleName(field);
     conditions.push({
       description: "Is identity middle name field",
-      passed: this.qualificationService.isFieldForIdentityMiddleName(field),
+      passed: isIdentityMiddleName,
     });
+    const isIdentityLastName = this.qualificationService.isFieldForIdentityLastName(field);
     conditions.push({
       description: "Is identity last name field",
-      passed: this.qualificationService.isFieldForIdentityLastName(field),
+      passed: isIdentityLastName,
     });
+    const isIdentityFullName = this.qualificationService.isFieldForIdentityFullName(field);
     conditions.push({
       description: "Is identity full name field",
-      passed: this.qualificationService.isFieldForIdentityFullName(field),
+      passed: isIdentityFullName,
     });
+    const isIdentityAddress1 = this.qualificationService.isFieldForIdentityAddress1(field);
     conditions.push({
       description: "Is identity address 1 field",
-      passed: this.qualificationService.isFieldForIdentityAddress1(field),
+      passed: isIdentityAddress1,
     });
+    const isIdentityAddress2 = this.qualificationService.isFieldForIdentityAddress2(field);
     conditions.push({
       description: "Is identity address 2 field",
-      passed: this.qualificationService.isFieldForIdentityAddress2(field),
+      passed: isIdentityAddress2,
     });
+    const isIdentityAddress3 = this.qualificationService.isFieldForIdentityAddress3(field);
     conditions.push({
       description: "Is identity address 3 field",
-      passed: this.qualificationService.isFieldForIdentityAddress3(field),
+      passed: isIdentityAddress3,
     });
+    const isIdentityCity = this.qualificationService.isFieldForIdentityCity(field);
     conditions.push({
       description: "Is identity city field",
-      passed: this.qualificationService.isFieldForIdentityCity(field),
+      passed: isIdentityCity,
     });
+    const isIdentityState = this.qualificationService.isFieldForIdentityState(field);
     conditions.push({
       description: "Is identity state field",
-      passed: this.qualificationService.isFieldForIdentityState(field),
+      passed: isIdentityState,
     });
+    const isIdentityPostalCode = this.qualificationService.isFieldForIdentityPostalCode(field);
     conditions.push({
       description: "Is identity postal code field",
-      passed: this.qualificationService.isFieldForIdentityPostalCode(field),
+      passed: isIdentityPostalCode,
     });
+    const isIdentityCountry = this.qualificationService.isFieldForIdentityCountry(field);
     conditions.push({
       description: "Is identity country field",
-      passed: this.qualificationService.isFieldForIdentityCountry(field),
+      passed: isIdentityCountry,
     });
+    const isIdentityCompany = this.qualificationService.isFieldForIdentityCompany(field);
     conditions.push({
       description: "Is identity company field",
-      passed: this.qualificationService.isFieldForIdentityCompany(field),
+      passed: isIdentityCompany,
     });
+    const isIdentityPhone = this.qualificationService.isFieldForIdentityPhone(field);
     conditions.push({
       description: "Is identity phone field",
-      passed: this.qualificationService.isFieldForIdentityPhone(field),
+      passed: isIdentityPhone,
     });
+    const isIdentityEmail = this.qualificationService.isFieldForIdentityEmail(field);
     conditions.push({
       description: "Is identity email field",
-      passed: this.qualificationService.isFieldForIdentityEmail(field),
+      passed: isIdentityEmail,
     });
+    const isIdentityUsername = this.qualificationService.isFieldForIdentityUsername(field);
     conditions.push({
       description: "Is identity username field",
-      passed: this.qualificationService.isFieldForIdentityUsername(field),
+      passed: isIdentityUsername,
     });
 
     // Special Integrations Checks
@@ -338,8 +367,37 @@ export class AutofillTriageService implements AutofillTriageServiceInterface {
       qualifiedAs = "identity";
     }
 
-    // Determine if field is eligible (any check passed)
-    const eligible = conditions.some((c) => c.passed);
+    // Determine if field is eligible (any qualification check passed)
+    const eligible =
+      qualifiedAs !== "ineligible" ||
+      isUsernameField ||
+      isEmailField ||
+      isCurrentPasswordField ||
+      isNewPasswordField ||
+      isUpdateCurrentPasswordField ||
+      isTotpField ||
+      isCardholderName ||
+      isCardNumber ||
+      isCardExpirationDate ||
+      isCardExpirationMonth ||
+      isCardExpirationYear ||
+      isCardCvv ||
+      isIdentityTitle ||
+      isIdentityFirstName ||
+      isIdentityMiddleName ||
+      isIdentityLastName ||
+      isIdentityFullName ||
+      isIdentityAddress1 ||
+      isIdentityAddress2 ||
+      isIdentityAddress3 ||
+      isIdentityCity ||
+      isIdentityState ||
+      isIdentityPostalCode ||
+      isIdentityCountry ||
+      isIdentityCompany ||
+      isIdentityPhone ||
+      isIdentityEmail ||
+      isIdentityUsername;
 
     return {
       htmlId: field.htmlID || undefined,
