@@ -66,7 +66,6 @@ describe("BiometricMessageHandlerService", () => {
     ngZone = mock<NgZone>();
 
     desktopSettingsService.browserIntegrationEnabled$ = of(false);
-    desktopSettingsService.browserIntegrationFingerprintEnabled$ = of(false);
 
     (global as any).ipc = {
       platform: {
@@ -105,7 +104,6 @@ describe("BiometricMessageHandlerService", () => {
 
   describe("constructor", () => {
     let browserIntegrationEnabled = new BehaviorSubject<boolean>(true);
-    let browserIntegrationFingerprintEnabled = new BehaviorSubject<boolean>(true);
 
     beforeEach(async () => {
       (global as any).ipc = {
@@ -141,8 +139,6 @@ describe("BiometricMessageHandlerService", () => {
       };
 
       desktopSettingsService.browserIntegrationEnabled$ = browserIntegrationEnabled.asObservable();
-      desktopSettingsService.browserIntegrationFingerprintEnabled$ =
-        browserIntegrationFingerprintEnabled.asObservable();
 
       service = new BiometricMessageHandlerService(
         cryptoFunctionService,
@@ -325,107 +321,6 @@ describe("BiometricMessageHandlerService", () => {
         appId: "appId",
         command: "invalidateEncryption",
       });
-    });
-
-    it("should send verify fingerprint when fingerprinting is required on modern unlock, and dialog is accepted, and set to trusted", async () => {
-      desktopSettingsService.browserIntegrationFingerprintEnabled$ = of(true);
-      (global as any).ipc.platform.ephemeralStore.listEphemeralValueKeys.mockResolvedValue([
-        "connectedApp_appId",
-      ]);
-      (global as any).ipc.platform.ephemeralStore.getEphemeralValue.mockResolvedValue(
-        JSON.stringify({
-          publicKey: Utils.fromUtf8ToB64("publicKey"),
-          sessionSecret: Utils.fromBufferToB64(new Uint8Array(64)),
-          trusted: false,
-        }),
-      );
-      ngZone.run.mockReturnValue({
-        closed: of(true),
-      });
-      encryptService.decryptString.mockResolvedValue(
-        JSON.stringify({
-          command: BiometricsCommands.UnlockWithBiometricsForUser,
-          messageId: 0,
-          timestamp: Date.now(),
-          userId: SomeUser,
-        }),
-      );
-      await service.handleMessage({
-        appId: "appId",
-        message: {
-          command: BiometricsCommands.UnlockWithBiometricsForUser,
-          messageId: 0,
-          timestamp: Date.now(),
-          userId: SomeUser,
-        },
-      });
-
-      expect(ipc.platform.nativeMessaging.sendMessage).toHaveBeenCalledWith({
-        command: "verifyDesktopIPCFingerprint",
-        appId: "appId",
-      });
-      expect(ipc.platform.nativeMessaging.sendMessage).toHaveBeenCalledWith({
-        command: "verifiedDesktopIPCFingerprint",
-        appId: "appId",
-      });
-      expect(ipc.platform.ephemeralStore.setEphemeralValue).toHaveBeenCalledWith(
-        "connectedApp_appId",
-        JSON.stringify({
-          publicKey: Utils.fromUtf8ToB64("publicKey"),
-          sessionSecret: Utils.fromBufferToB64(new Uint8Array(64)),
-          trusted: true,
-        }),
-      );
-    });
-
-    it("should send reject fingerprint when fingerprinting is required on modern unlock, and dialog is rejected, and it should not set to trusted", async () => {
-      desktopSettingsService.browserIntegrationFingerprintEnabled$ = of(true);
-      (global as any).ipc.platform.ephemeralStore.listEphemeralValueKeys.mockResolvedValue([
-        "connectedApp_appId",
-      ]);
-      (global as any).ipc.platform.ephemeralStore.getEphemeralValue.mockResolvedValue(
-        JSON.stringify({
-          publicKey: Utils.fromUtf8ToB64("publicKey"),
-          sessionSecret: Utils.fromBufferToB64(new Uint8Array(64)),
-          trusted: false,
-        }),
-      );
-      ngZone.run.mockReturnValue({
-        closed: of(false),
-      });
-      encryptService.decryptString.mockResolvedValue(
-        JSON.stringify({
-          command: BiometricsCommands.UnlockWithBiometricsForUser,
-          messageId: 0,
-          timestamp: Date.now(),
-          userId: SomeUser,
-        }),
-      );
-      await service.handleMessage({
-        appId: "appId",
-        message: {
-          command: BiometricsCommands.UnlockWithBiometricsForUser,
-          messageId: 0,
-          timestamp: Date.now(),
-          userId: SomeUser,
-        },
-      });
-      expect(ipc.platform.nativeMessaging.sendMessage).toHaveBeenCalledWith({
-        command: "verifyDesktopIPCFingerprint",
-        appId: "appId",
-      });
-      expect(ipc.platform.nativeMessaging.sendMessage).toHaveBeenCalledWith({
-        command: "rejectedDesktopIPCFingerprint",
-        appId: "appId",
-      });
-      expect(ipc.platform.ephemeralStore.setEphemeralValue).not.toHaveBeenCalledWith(
-        "connectedApp_appId",
-        JSON.stringify({
-          publicKey: Utils.fromUtf8ToB64("publicKey"),
-          sessionSecret: Utils.fromBufferToB64(new Uint8Array(64)),
-          trusted: true,
-        }),
-      );
     });
 
     it("should not attempt to verify when the connected app is already trusted", async () => {
