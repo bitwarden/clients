@@ -2,8 +2,17 @@
   "allApplications": {
     "message": "All applications"
   },
+  "allMembers": {
+    "message": "All members"
+  },
+  "allPasswords": {
+    "message": "All passwords"
+  },
   "activity": {
     "message": "Activity"
+  },
+  "applicationsAtRisk": {
+    "message": "Applications at risk"
   },
   "appLogoLabel": {
     "message": "Bitwarden logo"
@@ -43,6 +52,15 @@
   },
   "passwordRisk": {
     "message": "Password Risk"
+  },
+  "passwords": {
+    "message": "Passwords"
+  },
+  "riskOverTime": {
+    "message": "Risk over time"
+  },
+  "passwordsAtRisk": {
+    "message": "Passwords at risk"
   },
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
@@ -2103,6 +2121,9 @@
   "exportSuccess": {
     "message": "Vault data exported"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "passwordGenerator": {
     "message": "Password generator"
   },
@@ -3047,16 +3068,16 @@
   "breachDesc": {
     "message": "Breached accounts can expose your personal information. Secure breached accounts by enabling 2FA or creating a stronger password."
   },
-  "breachCheckUsernameEmail": {
-    "message": "Check any usernames or email addresses that you use."
+  "breachCheckEmail": {
+    "message": "Check any email addresses that you use."
   },
   "checkBreaches": {
     "message": "Check breaches"
   },
-  "breachUsernameNotFound": {
-    "message": "$USERNAME$ was not found in any known data breaches.",
+  "breachEmailNotFound": {
+    "message": "$EMAIL$ was not found in any known data breaches.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3087,10 @@
     "message": "Gode nyhende",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "$USERNAME$ vart funne i $COUNT$ forskjellige databrot på nettet.",
+  "breachEmailFound": {
+    "message": "$EMAIL$ was found in $COUNT$ different data breaches online.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -3376,6 +3397,9 @@
   },
   "discount": {
     "message": "discount"
+  },
+  "discountExpiredOnPurchase": {
+    "message": "Discount expired. Please review your cart total and try again."
   },
   "downloadLicense": {
     "message": "Download license"
@@ -3783,6 +3807,15 @@
   },
   "policies": {
     "message": "Retningsliner"
+  },
+  "dataControls": {
+    "message": "Data controls"
+  },
+  "authentication": {
+    "message": "Authentication"
+  },
+  "vaultManagement": {
+    "message": "Vault management"
   },
   "singleSignOn": {
     "message": "Single sign-on"
@@ -6465,6 +6498,14 @@
     "message": "Verify your email to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Didn't receive a code? Contact the sender to confirm your email address or ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Resent verification code",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "The Bitwarden user who created this Send has chosen to hide their email address. You should ensure you trust the source of this link before using or downloading its content.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -8310,6 +8351,9 @@
   "members": {
     "message": "Members"
   },
+  "membersAtRisk": {
+    "message": "Members at risk"
+  },
   "reporting": {
     "message": "Reporting"
   },
@@ -8580,6 +8624,14 @@
   "newProject": {
     "message": "New project",
     "description": "Title for creating a new project."
+  },
+  "clickToRenameProject": {
+    "message": "Click to rename this project",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "Cannot decrypt project name - click project to rename",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
     "message": "Deleting secrets can affect existing integrations.",
@@ -11046,6 +11098,9 @@
   "clientDetails": {
     "message": "Client details"
   },
+  "downloadChart": {
+    "message": "Download chart"
+  },
   "downloadCSV": {
     "message": "Download CSV"
   },
@@ -11498,6 +11553,18 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "User $ID$ self-revoked from organization.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "userSelfRevokedOrganizationOwnership": {
+    "message": "Revoked for declining transfer to organization ownership."
+  },
   "suspendedOrganizationTitle": {
     "message": "The $ORGANIZATION$ is suspended",
     "placeholders": {
@@ -11881,6 +11948,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Untrusted encryption keys"
+  },
+  "atRiskPassword": {
+    "message": "At-risk password"
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
@@ -12551,12 +12621,6 @@
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "A domain must be claimed before activating this policy."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Set up an unlock method to change your vault timeout action."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
-  },
   "vaultTimeoutTooLarge": {
     "message": "Your vault timeout exceeds the restrictions set by your organization."
   },
@@ -12755,8 +12819,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12764,14 +12828,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
   },
   "youHaveBitwardenPremium": {
     "message": "You have Bitwarden Premium"
@@ -12922,9 +12989,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -13032,6 +13096,70 @@
       "date": {
         "content": "$2",
         "example": "Jan 1, 1970"
+      }
+    }
+  },
+  "sendsTitleNoSearchResults": {
+    "message": "No search results returned"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Clear filters or try another search term"
+  },
+  "pastMonth": {
+    "message": "Past month"
+  },
+  "past3Months": {
+    "message": "Past 3 months"
+  },
+  "past6Months": {
+    "message": "Past 6 months"
+  },
+  "pastYear": {
+    "message": "Past year"
+  },
+  "allTime": {
+    "message": "All time"
+  },
+  "timePeriod": {
+    "message": "Time period"
+  },
+  "of": {
+    "message": "of"
+  },
+  "coachmarkImportTitle": {
+    "message": "Quickly import your passwords"
+  },
+  "coachmarkImportDescription": {
+    "message": "Did you have a password manager before? You can import a CSV of existing logins and other data into your vault."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Add an item"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Add new passwords, notes, and other info to your vault. Everything is protected with end-to-end encryption."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Safely share items with others"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "By moving an item into a collection, you can securely share it with other people in your organization."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Monitor your password security"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
+  },
+  "coachmarkStepIndicator": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
       }
     }
   }

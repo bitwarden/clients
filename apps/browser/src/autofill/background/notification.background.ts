@@ -251,8 +251,11 @@ export default class NotificationBackground {
 
     const cipherQueueMessage = this.notificationQueue.find(
       (message): message is AddChangePasswordNotificationQueueMessage | AddLoginQueueMessage =>
-        message.type === NotificationType.ChangePassword ||
-        message.type === NotificationType.AddLogin,
+        (message.type === NotificationType.ChangePassword ||
+          message.type === NotificationType.AddLogin) &&
+        currentTab.id != null &&
+        message.tab.id === currentTab.id &&
+        this.queueMessageIsFromTabOrigin(message, currentTab),
     );
 
     if (cipherQueueMessage) {
@@ -471,6 +474,8 @@ export default class NotificationBackground {
       isVaultLocked,
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       launchTimestamp,
+      showAnimations:
+        (await firstValueFrom(this.autofillService.enableNotificationAnimation$)) ?? true,
     };
 
     switch (notificationType) {
@@ -1016,13 +1021,15 @@ export default class NotificationBackground {
     // involves all ciphers, making it mutually exclusive from any other scenario)
     if (noFieldMatches.length === ciphersForURL.length) {
       // trigger a new cipher notification in these input scenarios
+      // Note: username-only is excluded because a username with no password is insufficient
+      // signal to assume a new login is being created. Multistep login forms accumulate
+      // username + password across steps, so the combined data will trigger on form submission.
       if (
         (
           [
             inputScenarios.usernamePasswordNewPassword,
             inputScenarios.usernameNewPassword,
             inputScenarios.usernamePassword,
-            inputScenarios.username,
             inputScenarios.passwordNewPassword,
           ] as InputScenario[]
         ).includes(inputScenario) &&
@@ -1861,6 +1868,7 @@ export default class NotificationBackground {
 
   /**
    * Validates whether the queue message is associated with the passed tab.
+   * The tab's current URL must match the domain the notification was queued for.
    *
    * @param queueMessage - The queue message to check
    * @param tab - The tab to check the queue message against
@@ -1870,7 +1878,11 @@ export default class NotificationBackground {
     tab: chrome.tabs.Tab,
   ) {
     const tabDomain = Utils.getDomain(tab.url);
-    return tabDomain === queueMessage.domain || tabDomain === Utils.getDomain(queueMessage.tab.url);
+    if (tabDomain == null) {
+      return false;
+    }
+
+    return tabDomain === queueMessage.domain;
   }
 
   private setupUnlockPopoutCloseListener() {

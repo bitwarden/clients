@@ -10,7 +10,7 @@ import {
   validateOrganizationReportApplicationArray,
   validateOrganizationReportSummary,
   validateAccessReportSettingsDataArray,
-  validateAccessReportSummaryData,
+  validateAccessReportSummaryView,
   validateAccessReportPayload,
 } from "./risk-insights-type-guards";
 
@@ -165,7 +165,50 @@ describe("Risk Insights Type Guards", () => {
       };
 
       expect(() => validateOrganizationReportSummary(validData)).not.toThrow();
-      expect(validateOrganizationReportSummary(validData)).toEqual(validData);
+      expect(validateOrganizationReportSummary(validData)).toMatchObject(validData);
+    });
+
+    it("should default missing password count fields to 0 for old blobs", () => {
+      const oldBlob = {
+        totalMemberCount: 10,
+        totalApplicationCount: 5,
+        totalAtRiskMemberCount: 2,
+        totalAtRiskApplicationCount: 1,
+        totalCriticalApplicationCount: 3,
+        totalCriticalMemberCount: 4,
+        totalCriticalAtRiskMemberCount: 1,
+        totalCriticalAtRiskApplicationCount: 1,
+        // password count fields absent — as in blobs written before this change
+      };
+
+      const result = validateOrganizationReportSummary(oldBlob);
+      expect(result.totalPasswordCount).toBe(0);
+      expect(result.totalAtRiskPasswordCount).toBe(0);
+      expect(result.totalCriticalPasswordCount).toBe(0);
+      expect(result.totalCriticalAtRiskPasswordCount).toBe(0);
+    });
+
+    it("should preserve password count fields when present", () => {
+      const newBlob = {
+        totalMemberCount: 10,
+        totalApplicationCount: 5,
+        totalAtRiskMemberCount: 2,
+        totalAtRiskApplicationCount: 1,
+        totalCriticalApplicationCount: 3,
+        totalCriticalMemberCount: 4,
+        totalCriticalAtRiskMemberCount: 1,
+        totalCriticalAtRiskApplicationCount: 1,
+        totalPasswordCount: 20,
+        totalAtRiskPasswordCount: 5,
+        totalCriticalPasswordCount: 10,
+        totalCriticalAtRiskPasswordCount: 3,
+      };
+
+      const result = validateOrganizationReportSummary(newBlob);
+      expect(result.totalPasswordCount).toBe(20);
+      expect(result.totalAtRiskPasswordCount).toBe(5);
+      expect(result.totalCriticalPasswordCount).toBe(10);
+      expect(result.totalCriticalAtRiskPasswordCount).toBe(3);
     });
 
     it("should throw error for invalid field types", () => {
@@ -695,7 +738,7 @@ describe("Risk Insights Type Guards", () => {
     });
   });
 
-  describe("validateAccessReportSummaryData", () => {
+  describe("validateAccessReportSummaryView", () => {
     const validSummary = {
       totalMemberCount: 10,
       totalApplicationCount: 5,
@@ -708,20 +751,36 @@ describe("Risk Insights Type Guards", () => {
     };
 
     it("should validate valid summary data", () => {
-      expect(() => validateAccessReportSummaryData(validSummary)).not.toThrow();
-      const result = validateAccessReportSummaryData(validSummary);
+      expect(() => validateAccessReportSummaryView(validSummary)).not.toThrow();
+      const result = validateAccessReportSummaryView(validSummary);
       expect(result.totalMemberCount).toBe(10);
       expect(result.totalApplicationCount).toBe(5);
     });
 
     it("should throw for invalid field types", () => {
       const invalid = { ...validSummary, totalMemberCount: "10" };
-      expect(() => validateAccessReportSummaryData(invalid)).toThrow(/Invalid report summary/);
+      expect(() => validateAccessReportSummaryView(invalid)).toThrow(/Invalid report summary/);
     });
 
     it("should throw for non-object input", () => {
-      expect(() => validateAccessReportSummaryData(null)).toThrow(/Invalid report summary/);
-      expect(() => validateAccessReportSummaryData("string")).toThrow(/Invalid report summary/);
+      expect(() => validateAccessReportSummaryView(null)).toThrow(/Invalid report summary/);
+      expect(() => validateAccessReportSummaryView("string")).toThrow(/Invalid report summary/);
+    });
+
+    it("should accept old blobs without password count fields", () => {
+      // Old encrypted blobs predate password counts — fields are absent, not zero
+      expect(() => validateAccessReportSummaryView(validSummary)).not.toThrow();
+    });
+
+    it("should accept new blobs with password count fields present", () => {
+      const withPasswords = {
+        ...validSummary,
+        totalPasswordCount: 20,
+        totalAtRiskPasswordCount: 5,
+        totalCriticalPasswordCount: 10,
+        totalCriticalAtRiskPasswordCount: 3,
+      };
+      expect(() => validateAccessReportSummaryView(withPasswords)).not.toThrow();
     });
   });
 
