@@ -120,7 +120,13 @@ export class PasskeyReportComponent {
   }
 
   async setCiphers() {
-    await this.loadPasskeyDirectory();
+    try {
+      await this.loadPasskeyDirectory();
+    } catch (e) {
+      this.logService.error("[PasskeyReportComponent] Failed to load passkey directory", e);
+      this.error.set(true);
+      return;
+    }
     if (this.passkeyServices().size === 0) {
       return;
     }
