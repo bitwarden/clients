@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 import { Route, RouterModule, Routes } from "@angular/router";
-import { map } from "rxjs";
+import { map, switchMap } from "rxjs";
 
 import { organizationPolicyGuard } from "@bitwarden/angular/admin-console/guards";
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
@@ -51,6 +51,7 @@ import {
 } from "@bitwarden/auth/angular";
 import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
 import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/guards/premium-interest-redirect/premium-interest-redirect.guard";
@@ -641,10 +642,22 @@ const routes: Routes = [
         component: SendComponent,
         data: { titleId: "send" } satisfies RouteDataProperties,
         canActivate: [
-          organizationPolicyGuard((userId, _configService, policyService) =>
-            policyService
-              .policyAppliesToUser$(PolicyType.DisableSend, userId)
-              .pipe(map((policyApplies) => !policyApplies)),
+          organizationPolicyGuard((userId, configService, policyService) =>
+            configService
+              .getFeatureFlag$(FeatureFlag.SendControls)
+              .pipe(
+                switchMap((sendControlsEnabled) =>
+                  sendControlsEnabled
+                    ? policyService
+                        .policiesByType$(PolicyType.SendControls, userId)
+                        .pipe(
+                          map((policies) => !policies?.some((p) => p.data?.disableSend === true)),
+                        )
+                    : policyService
+                        .policyAppliesToUser$(PolicyType.DisableSend, userId)
+                        .pipe(map((policyApplies) => !policyApplies)),
+                ),
+              ),
           ),
         ],
       },

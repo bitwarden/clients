@@ -23,6 +23,7 @@ import {
 } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
@@ -111,6 +112,7 @@ export class CipherViewComponent {
     private logService: LogService,
     private cipherRiskService: CipherRiskService,
     private billingAccountService: BillingAccountProfileStateService,
+    private vaultSettingsService: VaultSettingsService,
   ) {}
 
   readonly resolvedCollections = toSignal<CollectionView[] | undefined>(
@@ -264,17 +266,40 @@ export class CipherViewComponent {
   );
 
   readonly showChangePasswordLink = computed(() => {
-    return this.hasLoginUri() && (this.hadPendingChangePasswordTask() || this.passwordIsAtRisk());
+    return (
+      this.hasLoginUri() &&
+      (this.hadPendingChangePasswordTask() ||
+        // Only show the change password link if the password is at risk and the user has opted to see at-risk password notifications.
+        // `hasPendingChangePasswordTask` supersedes the `showAtRiskPasswordNotifications` setting because it comes from
+        // an organization marking the cipher as at-risk.
+        (this.passwordIsAtRisk() && this.showAtRiskPasswordNotifications()))
+    );
   });
+
+  readonly showAtRiskPasswordNotifications = toSignal(
+    this.vaultSettingsService.showAtRiskPasswordNotifications$,
+  );
 
   protected readonly changePasswordUrl = resource({
     params: () => ({ cipher: this.cipher(), showPwLink: this.showChangePasswordLink() }),
     loader: async ({ params }) => {
       if (!params.showPwLink) {
-        return "";
+        return undefined;
       }
-      return await this.changeLoginPasswordService.getChangePasswordUrl(params.cipher);
+      try {
+        return await this.changeLoginPasswordService.getChangePasswordUrl(params.cipher);
+      } catch (e: any) {
+        this.logService.error(e.message);
+        return undefined;
+      }
     },
+  });
+
+  readonly changePasswordLink = computed(() => {
+    if (this.changePasswordUrl.hasValue()) {
+      return this.changePasswordUrl.value();
+    }
+    return undefined;
   });
 
   launchChangePassword = async () => {
