@@ -297,7 +297,7 @@ describe("VaultPopupItemsService", () => {
     it("should filter autoFillCiphers$ down to search term", (done) => {
       const searchText = "Login";
 
-      searchService.searchCiphers.mockImplementation(async (userId, q, _, ciphers) => {
+      searchService.searchCiphers.mockImplementation(async (userId, q, ciphers) => {
         return ciphers!.filter((cipher) => {
           return cipher.name.includes(searchText);
         });
