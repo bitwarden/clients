@@ -63,10 +63,10 @@ export type ApplicationFilterOption =
  * mark-as-critical actions, password change task requests, and CSV export.
  */
 @Component({
-  selector: "app-applications-v2",
+  selector: "app-applications-tab",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: "./applications-v2.component.html",
+  templateUrl: "./applications-tab.component.html",
   imports: [
     ReportLoadingComponent,
     LinkModule,
@@ -82,7 +82,7 @@ export type ApplicationFilterOption =
     TooltipDirective,
   ],
 })
-export class ApplicationsV2Component {
+export class ApplicationsTabComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly fileDownloadService = inject(FileDownloadService);
   private readonly logService = inject(LogService);

@@ -41,20 +41,20 @@ import {
   createAccessIntelligenceI18nMock,
 } from "../testing";
 
-import { ApplicationsV2Component } from "./applications-v2.component";
+import { ApplicationsTabComponent } from "./applications-tab.component";
 
 const orgId = "org-123" as OrganizationId;
 
 export default {
-  title: "DIRT/Access Intelligence/Applications",
-  component: ApplicationsV2Component,
+  title: "DIRT/Access Intelligence/Applications Tab",
+  component: ApplicationsTabComponent,
   decorators: [
     componentWrapperDecorator(
       (story) =>
         `<div bitScrollLayoutHost class="tw-flex tw-flex-col tw-h-screen tw-overflow-auto">${story}</div>`,
     ),
     moduleMetadata({
-      imports: [ApplicationsV2Component, ScrollLayoutHostDirective],
+      imports: [ApplicationsTabComponent, ScrollLayoutHostDirective],
       providers: [{ provide: I18nService, useFactory: createAccessIntelligenceI18nMock }],
     }),
     applicationConfig({
@@ -79,9 +79,9 @@ export default {
       ],
     }),
   ],
-} as Meta<ApplicationsV2Component>;
+} as Meta<ApplicationsTabComponent>;
 
-type Story = StoryObj<ApplicationsV2Component>;
+type Story = StoryObj<ApplicationsTabComponent>;
 
 /**
  * Default story - Applications table with a mix of critical and non-critical apps

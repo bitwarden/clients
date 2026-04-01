@@ -23,7 +23,7 @@ import { ToastService } from "@bitwarden/components";
 
 import { AccessSecurityTasksService } from "../services/abstractions/access-security-tasks.service";
 
-import { ApplicationsV2Component } from "./applications-v2.component";
+import { ApplicationsTabComponent } from "./applications-tab.component";
 
 /**
  * Mock type for AccessIntelligenceDataService — uses BehaviorSubjects so tests can call .next()
@@ -44,9 +44,9 @@ type MockSecurityTasksService = {
   requestPasswordChangeForCriticalApplications$: jest.Mock;
 };
 
-describe("ApplicationsV2Component", () => {
-  let component: ApplicationsV2Component;
-  let fixture: ComponentFixture<ApplicationsV2Component>;
+describe("ApplicationsTabComponent", () => {
+  let component: ApplicationsTabComponent;
+  let fixture: ComponentFixture<ApplicationsTabComponent>;
   let mockDataService: MockAccessIntelligenceDataService;
   let mockDrawerStateService: jest.Mocked<DrawerStateService>;
   let mockAccessSecurityTasksService: MockSecurityTasksService;
@@ -58,7 +58,7 @@ describe("ApplicationsV2Component", () => {
   /**
    * Helper to access protected/private members for testing.
    */
-  const testAccess = (comp: ApplicationsV2Component) => comp as any;
+  const testAccess = (comp: ApplicationsTabComponent) => comp as any;
 
   const orgId = "org-123" as OrganizationId;
 
@@ -99,7 +99,7 @@ describe("ApplicationsV2Component", () => {
     } as any;
 
     await TestBed.configureTestingModule({
-      imports: [ApplicationsV2Component],
+      imports: [ApplicationsTabComponent],
       providers: [
         { provide: AccessIntelligenceDataService, useValue: mockDataService },
         { provide: DrawerStateService, useValue: mockDrawerStateService },
@@ -113,12 +113,12 @@ describe("ApplicationsV2Component", () => {
     })
       // Strip template + imports to keep unit tests fast and focused on component logic.
       // Template rendering is not the test focus here.
-      .overrideComponent(ApplicationsV2Component, {
+      .overrideComponent(ApplicationsTabComponent, {
         set: { template: "", imports: [] },
       })
       .compileComponents();
 
-    fixture = TestBed.createComponent(ApplicationsV2Component);
+    fixture = TestBed.createComponent(ApplicationsTabComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput("organizationId", orgId);
   });

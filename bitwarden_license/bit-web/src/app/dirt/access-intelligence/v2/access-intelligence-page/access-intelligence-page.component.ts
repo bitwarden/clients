@@ -45,7 +45,7 @@ import { EmptyStateCardComponent } from "../../empty-state-card.component";
 import { RiskInsightsTabType } from "../../models/risk-insights.models";
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
 import { ActivityTabComponent } from "../activity-tab/activity-tab.component";
-import { ApplicationsV2Component } from "../applications-v2/applications-v2.component";
+import { ApplicationsTabComponent } from "../applications-tab/applications-tab.component";
 import {
   AppAtRiskMembersData,
   CriticalAtRiskAppsData,
@@ -66,7 +66,7 @@ type ProgressStep = ReportProgress | null;
   templateUrl: "./access-intelligence-page.component.html",
   imports: [
     ActivityTabComponent,
-    ApplicationsV2Component,
+    ApplicationsTabComponent,
     AsyncActionsModule,
     ButtonModule,
     CommonModule,
