@@ -1,12 +1,16 @@
 import { Component, computed, signal } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { switchMap } from "rxjs";
+import { map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NoResults, NoSendsIcon } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { buildReceiveUrl } from "@bitwarden/common/tools/receive/models/receive-url-data";
 import { ReceiveView } from "@bitwarden/common/tools/receive/models/view/receive.view";
 import { ReceiveService } from "@bitwarden/common/tools/receive/services/receive.service";
 import {
@@ -16,6 +20,7 @@ import {
   SearchModule,
   SpinnerComponent,
   TableDataSource,
+  ToastService,
   ToggleGroupModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -59,10 +64,18 @@ export class ReceiveComponent {
     () => true, // TODO: Implement search and update this value based on results
   );
 
+  private readonly baseReceiveUrl = toSignal(
+    this.environmentService.environment$.pipe(map((env) => env.getWebVaultUrl() + "/#/receive")),
+  );
+
   constructor(
     private readonly dialogService: DialogService,
     private readonly receiveService: ReceiveService,
     private readonly accountService: AccountService,
+    private readonly environmentService: EnvironmentService,
+    private readonly i18nService: I18nService,
+    private readonly platformUtilsService: PlatformUtilsService,
+    private readonly toastService: ToastService,
   ) {
     this.accountService.activeAccount$
       .pipe(
@@ -90,5 +103,20 @@ export class ReceiveComponent {
 
   searchTextChanged(newSearchText: string): void {
     this.currentSearchText.set(newSearchText);
+  }
+
+  protected copyReceiveLink(receive: ReceiveView): void {
+    const baseUrl = this.baseReceiveUrl();
+    if (!baseUrl) {
+      return;
+    }
+
+    const receiveLink = buildReceiveUrl(receive, baseUrl);
+
+    this.platformUtilsService.copyToClipboard(receiveLink);
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("valueCopied", this.i18nService.t("receiveLink")),
+    });
   }
 }

@@ -35,5 +35,6 @@ export class Receive {
     this.creationDate = new Date(data.creationDate);
     this.revisionDate = new Date(data.revisionDate);
     this.expirationDate = new Date(data.expirationDate);
+    this.files = data.files.map((f) => new ReceiveFile(f));
   }
 }
