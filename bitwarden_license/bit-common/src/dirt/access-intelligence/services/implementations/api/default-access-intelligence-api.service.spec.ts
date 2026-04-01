@@ -140,21 +140,6 @@ describe("DefaultAccessIntelligenceApiService", () => {
       expect(result.id).toBe(reportId);
     });
 
-    it("should send null summaryData when not provided", async () => {
-      const rawResponse = { id: reportId, organizationId: orgId, creationDate: "" };
-      mockApiService.send.mockResolvedValue(rawResponse);
-
-      await firstValueFrom(service.updateSummaryData$(orgId, reportId, null));
-
-      expect(mockApiService.send).toHaveBeenCalledWith(
-        "PATCH",
-        expect.any(String),
-        expect.objectContaining({ summaryData: null }),
-        true,
-        true,
-      );
-    });
-
     it("should propagate API errors", async () => {
       mockApiService.send.mockRejectedValue(new Error("Update failed"));
 
@@ -190,21 +175,6 @@ describe("DefaultAccessIntelligenceApiService", () => {
       );
       expect(result).toBeInstanceOf(AccessReportApi);
       expect(result.id).toBe(reportId);
-    });
-
-    it("should send null applicationData when not provided", async () => {
-      const rawResponse = { id: reportId, organizationId: orgId, creationDate: "" };
-      mockApiService.send.mockResolvedValue(rawResponse);
-
-      await firstValueFrom(service.updateApplicationData$(orgId, reportId, null));
-
-      expect(mockApiService.send).toHaveBeenCalledWith(
-        "PATCH",
-        expect.any(String),
-        expect.objectContaining({ applicationData: null }),
-        true,
-        true,
-      );
     });
 
     it("should propagate API errors", async () => {

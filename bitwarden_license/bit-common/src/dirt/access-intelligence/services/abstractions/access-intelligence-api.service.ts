@@ -44,7 +44,7 @@ export abstract class AccessIntelligenceApiService {
   abstract updateSummaryData$(
     orgId: OrganizationId,
     reportId: string,
-    summaryData: string | null,
+    summaryData: string,
     metrics?: Record<string, number>,
   ): Observable<AccessReportApi>;
 
@@ -52,6 +52,6 @@ export abstract class AccessIntelligenceApiService {
   abstract updateApplicationData$(
     orgId: OrganizationId,
     reportId: string,
-    applicationData: string | null,
+    applicationData: string,
   ): Observable<AccessReportApi>;
 }

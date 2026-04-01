@@ -45,7 +45,7 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
   updateSummaryData$(
     orgId: OrganizationId,
     reportId: string,
-    summaryData: string | null,
+    summaryData: string,
     metrics?: Record<string, number>,
   ): Observable<AccessReportApi> {
     const response = this.apiService.send(
@@ -62,7 +62,7 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
   updateApplicationData$(
     orgId: OrganizationId,
     reportId: string,
-    applicationData: string | null,
+    applicationData: string,
   ): Observable<AccessReportApi> {
     const response = this.apiService.send(
       "PATCH",
