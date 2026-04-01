@@ -2,8 +2,8 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
-import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -79,7 +79,19 @@ describe("VaultItemDialogComponent", () => {
     restore: undefined,
   };
 
+  let cipherServiceMock: MockProxy<CipherService>;
+  let cipherAuthorizationServiceMock: MockProxy<CipherAuthorizationService>;
+  const canEditCipherReturnValue$ = new BehaviorSubject(false);
+  const canDeleteCipherReturnValue$ = new BehaviorSubject(false);
+
   beforeEach(async () => {
+    cipherServiceMock = mock<CipherService>({
+      get: jest.fn().mockReturnValue(of({ id: "new-cipher-id" } as any)),
+    });
+    cipherAuthorizationServiceMock = mock<CipherAuthorizationService>({
+      canEditCipher$: jest.fn().mockReturnValue(canEditCipherReturnValue$),
+      canDeleteCipher$: jest.fn().mockReturnValue(canDeleteCipherReturnValue$),
+    });
     await TestBed.configureTestingModule({
       imports: [TestVaultItemDialogComponent],
       providers: [
@@ -112,10 +124,6 @@ describe("VaultItemDialogComponent", () => {
         },
         { provide: Router, useValue: { navigate: jest.fn() } },
         { provide: ActivatedRoute, useValue: {} },
-        {
-          provide: BillingAccountProfileStateService,
-          useValue: { hasPremiumFromAnySource$: () => ({}) },
-        },
         { provide: PremiumUpgradePromptService, useValue: {} },
         { provide: CipherAuthorizationService, useValue: {} },
         { provide: ApiService, useValue: {} },
@@ -177,6 +185,14 @@ describe("VaultItemDialogComponent", () => {
         },
         { provide: SyncService, useValue: {} },
         { provide: CipherRiskService, useValue: {} },
+        {
+          provide: CipherAuthorizationService,
+          useValue: cipherAuthorizationServiceMock,
+        },
+        {
+          provide: CipherService,
+          useValue: cipherServiceMock,
+        },
       ],
     })
       .overrideProvider(DialogService, { useValue: {} })
@@ -410,7 +426,9 @@ describe("VaultItemDialogComponent", () => {
     });
 
     it("refocuses the dialog header", async () => {
-      const focusOnHeaderSpy = jest.spyOn(component["dialogComponent"](), "focusHeader");
+      const dialog = component["dialogComponent"]();
+      expect(dialog).toBeDefined();
+      const focusOnHeaderSpy = jest.spyOn(dialog!, "focusHeader");
 
       await component["changeMode"]("view");
 
@@ -477,33 +495,38 @@ describe("VaultItemDialogComponent", () => {
   });
 
   describe("onCipherSaved", () => {
-    let cipherServiceMock: jest.Mocked<CipherService>;
-    let cipherAuthorizationServiceMock: jest.Mocked<CipherAuthorizationService>;
-
     beforeEach(() => {
-      cipherServiceMock = TestBed.inject(CipherService) as jest.Mocked<CipherService>;
-      cipherAuthorizationServiceMock = TestBed.inject(
-        CipherAuthorizationService,
-      ) as jest.Mocked<CipherAuthorizationService>;
-
       // Spy on changeMode to avoid needing DOM dependencies in these tests
       jest.spyOn(component as any, "changeMode").mockResolvedValue(undefined);
     });
 
     it("updates canEdit based on the saved cipher after creating a new item", async () => {
-      component["_originalFormMode" as any] = "add";
-      component["canEdit"] = false;
+      (component as any)._originalFormMode = "add";
 
       const savedCipherView = { id: "new-cipher-id", collectionIds: [] } as any;
-      const savedCipher = { id: "new-cipher-id" } as any;
 
-      cipherServiceMock.get = jest.fn().mockResolvedValue(savedCipher);
-      cipherAuthorizationServiceMock.canEditCipher$ = jest.fn().mockReturnValue(of(true));
+      canEditCipherReturnValue$.next(true);
 
       await component["onCipherSaved"](savedCipherView);
 
       expect(component["canEdit"]).toBe(true);
       expect(cipherAuthorizationServiceMock.canEditCipher$).toHaveBeenCalledWith(
+        savedCipherView,
+        component["params"].isAdminConsoleAction,
+      );
+    });
+
+    it("updates canDelete based on the saved cipher after creating a new item", async () => {
+      (component as any)._originalFormMode = "add";
+
+      const savedCipherView = { id: "new-cipher-id", collectionIds: [] } as any;
+
+      canDeleteCipherReturnValue$.next(true);
+
+      await component["onCipherSaved"](savedCipherView);
+
+      expect(component["canDelete"]).toBe(true);
+      expect(cipherAuthorizationServiceMock.canDeleteCipher$).toHaveBeenCalledWith(
         savedCipherView,
         component["params"].isAdminConsoleAction,
       );
