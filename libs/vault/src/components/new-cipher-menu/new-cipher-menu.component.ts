@@ -1,9 +1,11 @@
 import { CommonModule } from "@angular/common";
 import { Component, input, output } from "@angular/core";
-import { toObservable } from "@angular/core/rxjs-interop";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, map, shareReplay } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
@@ -47,8 +49,17 @@ export class NewCipherMenuComponent {
   folderAdded = output();
   collectionAdded = output();
   cipherAdded = output<CipherType>();
+  onAddItemDialog = output();
 
-  constructor(private restrictedItemTypesService: RestrictedItemTypesService) {}
+  protected readonly useNewItemDialog = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+    { initialValue: false },
+  );
+
+  constructor(
+    private restrictedItemTypesService: RestrictedItemTypesService,
+    private configService: ConfigService,
+  ) { }
 
   /**
    * Returns an observable that emits the cipher menu items, filtered by the restricted types.
@@ -106,6 +117,10 @@ export class NewCipherMenuComponent {
   protected handleButtonClick(): void {
     if (this.isOnlyCollectionCreation()) {
       this.collectionAdded.emit();
+      return;
+    }
+    if (this.useNewItemDialog()) {
+      this.onAddItemDialog.emit();
     }
   }
 }

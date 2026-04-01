@@ -1,0 +1,18 @@
+<bit-dialog dialogSize="large" background="alt">
+  <div bitDialogTitle class="tw-pt-5 tw-pb-3 tw-flex tw-flex-col tw-gap-2">
+    <span>{{ "chooseItemToAdd" | i18n }}</span>
+    <span class="tw-text-muted tw-font-normal tw-text-sm">
+      {{ "chooseItemToAddDesc" | i18n }}
+    </span>
+  </div>
+  <div bitDialogContent>
+    <vault-add-item-grid
+      [canCreateFolder]="data.canCreateFolder"
+      [canCreateCollection]="data.canCreateCollection"
+      [canCreateSshKey]="data.canCreateSshKey"
+      (cipherSelected)="onCipherSelected($event)"
+      (folderSelected)="onFolderSelected()"
+      (collectionSelected)="onCollectionSelected()"
+    />
+  </div>
+</bit-dialog>
