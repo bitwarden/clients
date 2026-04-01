@@ -54,25 +54,28 @@ impl NamedPipeServerStream {
                         info!("[SSH Agent Native Module] Incoming connection");
                         let handle = HANDLE(listener.as_raw_handle());
                         let mut pid = 0;
-                        unsafe {
-                            if let Err(e) = GetNamedPipeClientProcessId(handle, &mut pid) {
-                                error!(error = %e, pid, "Faile to get named pipe client process id");
-                                continue
-                            }
-                        };
+                        let peer_info = unsafe {
+                            GetNamedPipeClientProcessId(handle, &mut pid)
+                        }
+                        .map_err(|e| {
+                            error!(error = %e, pid, "Failed to get named pipe client process id");
+                            e
+                        })
+                        .ok()
+                        .and_then(|_| {
+                            peerinfo::gather::get_peer_info(pid)
+                                .map_err(|e| {
+                                    error!(error = %e, pid = %pid, "Failed getting process info");
+                                    e
+                                })
+                                .ok()
+                        });
 
-                        let peer_info = peerinfo::gather::get_peer_info(pid);
-                        let peer_info = match peer_info {
-                            Err(e) => {
-                                error!(error = %e, pid = %pid, "Failed getting process info");
-                                continue
-                            },
-                            Ok(info) => info,
-                        };
-
-                        tx.send((listener, peer_info)).await.unwrap();
-
-                        listener = match ServerOptions::new().create(PIPE_NAME) {
+                        // Always create a new pipe for the next connection, regardless
+                        // of whether this connection succeeded. Without this, the old
+                        // listener stays in a "connected" state and listener.connect()
+                        // returns immediately on the next iteration, causing an infinite loop.
+                        let new_listener = match ServerOptions::new().create(PIPE_NAME) {
                             Ok(pipe) => pipe,
                             Err(e) => {
                                 error!(error = %e, "Encountered an error creating a new pipe");
@@ -81,6 +84,12 @@ impl NamedPipeServerStream {
                                 return;
                             }
                         };
+
+                        if let Some(peer_info) = peer_info {
+                            tx.send((listener, peer_info)).await.unwrap();
+                        }
+
+                        listener = new_listener;
                     }
                 }
             }
