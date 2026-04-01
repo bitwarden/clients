@@ -9,7 +9,9 @@ import {
   OAuthSsoProvider,
 } from "./abstractions/oauth-detection.background";
 import NotificationBackground from "./notification.background";
+import { checkSsoAvailableOnPage } from "./oauth-providers/google-check-sso-available-on-page";
 
+// Jimmy Note: This gets trigger on every page, but it doesn't go through the whole process. I need to add my trigger around here.
 export class OAuthDetectionBackground {
   /** Maps SSO tab ID → flow state. */
   private activeFlows = new Map<number, OAuthFlowState>();
@@ -39,6 +41,12 @@ export class OAuthDetectionBackground {
         this.logService.info(
           `[OAuthDetection][DEBUG] Navigation: tabId=${details.tabId} url=${details.url}`,
         );
+
+        for (const provider of this.providers) {
+          void this.checkSsoAvailableOnPage(details.tabId, provider).then((available) => {
+            this.logService.info(`[OAuthDetection] Jimmy it's done ${JSON.stringify(available)}`);
+          });
+        }
       }
     });
 
@@ -372,6 +380,32 @@ export class OAuthDetectionBackground {
       } else {
         setTimeout(() => this.scrapeEmailFromTab(tabId, config.scraperFunc, attempt), delay);
       }
+    }
+  }
+
+  /**
+   * Executes the provider's isSsoAvailableOnPage function in the target tab
+   * via chrome.scripting.executeScript.
+   */
+  private async checkSsoAvailableOnPage(
+    tabId: number,
+    provider: OAuthSsoProvider,
+  ): Promise<boolean> {
+    this.logService.info(`[OAuthDetection] checkSsoAvailableOnPage Jimmy 2`);
+    try {
+      const results = await chrome.scripting.executeScript({
+        target: { tabId },
+        func: checkSsoAvailableOnPage,
+      });
+
+      const result = results?.[0]?.result;
+      this.logService.info(
+        `[OAuthDetection] checkSsoAvailableOnPage Jimmy 3 result: ${JSON.stringify(result)}`,
+      );
+      return result?.available ?? false;
+    } catch (e) {
+      this.logService.error(`[OAuthDetection] isSsoAvailableOnPage failed for tab ${tabId}: ${e}`);
+      return false;
     }
   }
 
