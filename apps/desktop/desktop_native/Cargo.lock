@@ -1004,6 +1004,7 @@ dependencies = [
  "desktop_core",
  "embed_plist",
  "futures",
+ "sysinfo",
  "tokio",
  "tokio-util",
  "tracing",

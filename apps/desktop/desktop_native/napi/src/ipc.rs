@@ -100,5 +100,13 @@ pub mod ipc {
                 // NAPI doesn't support u64 or usize, so we need to convert to u32
                 .map(|u| u32::try_from(u).unwrap_or_default())
         }
+
+        /// Send a message to a specific connected client by ID.
+        #[napi]
+        pub fn send_to(&self, client_id: u32, message: String) -> napi::Result<()> {
+            self.server.send_to(client_id, message).map_err(|e| {
+                napi::Error::from_reason(format!("Error sending to client {client_id}: {e:?}"))
+            })
+        }
     }
 }
