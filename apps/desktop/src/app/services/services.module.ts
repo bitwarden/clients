@@ -538,7 +538,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: DesktopMagnifyService,
-    deps: [ActiveUserStateProvider, AuthService],
+    deps: [ActiveUserStateProvider, AuthService, AccountService, CipherServiceAbstraction],
   }),
   safeProvider({
     provide: DesktopAutotypeDefaultSettingPolicy,
