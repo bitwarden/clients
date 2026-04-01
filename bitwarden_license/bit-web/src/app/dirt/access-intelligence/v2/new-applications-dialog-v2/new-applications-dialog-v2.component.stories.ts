@@ -15,7 +15,7 @@ import {
   MockSecurityTasksService,
   MockToastService,
   createAccessIntelligenceI18nMock,
-} from "../shared/test-helpers";
+} from "../testing";
 
 import {
   NewApplicationsDialogV2Component,

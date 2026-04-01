@@ -9,7 +9,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SecurityTask } from "@bitwarden/common/vault/tasks";
 import { I18nMockService } from "@bitwarden/components";
 
-import { AccessSecurityTasksService } from "../../services/abstractions/access-security-tasks.service";
+import { AccessSecurityTasksService } from "../services/abstractions/access-security-tasks.service";
 
 /**
  * Creates an I18nMockService pre-loaded with all keys used across Access Intelligence storybooks.

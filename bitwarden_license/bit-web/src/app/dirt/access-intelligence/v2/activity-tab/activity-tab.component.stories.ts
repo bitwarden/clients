@@ -24,18 +24,18 @@ import {
   MockSecurityTasksService,
   MockToastService,
   createAccessIntelligenceI18nMock,
-} from "../shared/test-helpers";
+} from "../testing";
 
-import { AllActivityV2Component } from "./all-activity-v2.component";
+import { ActivityTabComponent } from "./activity-tab.component";
 
 const orgId = "org-123" as OrganizationId;
 
 export default {
   title: "DIRT/Access Intelligence/Activity",
-  component: AllActivityV2Component,
+  component: ActivityTabComponent,
   decorators: [
     moduleMetadata({
-      imports: [AllActivityV2Component],
+      imports: [ActivityTabComponent],
       providers: [
         { provide: I18nService, useFactory: createAccessIntelligenceI18nMock },
         { provide: ToastService, useClass: MockToastService },
@@ -45,9 +45,9 @@ export default {
       providers: [provideRouter([]), provideLocationMocks()],
     }),
   ],
-} as Meta<AllActivityV2Component>;
+} as Meta<ActivityTabComponent>;
 
-type Story = StoryObj<AllActivityV2Component>;
+type Story = StoryObj<ActivityTabComponent>;
 
 /**
  * Default story - Normal state with data showing critical apps, at-risk members, and new applications

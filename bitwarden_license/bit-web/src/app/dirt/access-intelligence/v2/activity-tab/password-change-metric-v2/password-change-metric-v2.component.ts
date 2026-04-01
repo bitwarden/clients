@@ -25,7 +25,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-import { AccessSecurityTasksService } from "../services/abstractions/access-security-tasks.service";
+import { AccessSecurityTasksService } from "../../services/abstractions/access-security-tasks.service";
 
 export const PasswordChangeView = {
   EMPTY: "empty",

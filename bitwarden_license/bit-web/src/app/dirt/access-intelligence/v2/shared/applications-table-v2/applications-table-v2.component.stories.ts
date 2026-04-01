@@ -17,7 +17,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ScrollLayoutHostDirective, TableDataSource, I18nMockService } from "@bitwarden/components";
 
-import { createApplicationHandlers } from "../test-helpers/story-callbacks";
+import { createApplicationHandlers } from "../../testing/story-callbacks";
 
 import {
   ApplicationsTableV2Component,

@@ -44,7 +44,7 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { EmptyStateCardComponent } from "../../empty-state-card.component";
 import { RiskInsightsTabType } from "../../models/risk-insights.models";
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
-import { AllActivityV2Component } from "../all-activity-v2/all-activity-v2.component";
+import { ActivityTabComponent } from "../activity-tab/activity-tab.component";
 import { ApplicationsV2Component } from "../applications-v2/applications-v2.component";
 import {
   AppAtRiskMembersData,
@@ -65,7 +65,7 @@ type ProgressStep = ReportProgress | null;
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./access-intelligence-page.component.html",
   imports: [
-    AllActivityV2Component,
+    ActivityTabComponent,
     ApplicationsV2Component,
     AsyncActionsModule,
     ButtonModule,

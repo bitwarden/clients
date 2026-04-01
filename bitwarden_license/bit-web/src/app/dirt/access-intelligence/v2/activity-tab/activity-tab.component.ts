@@ -14,7 +14,8 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { ActivityCardComponent } from "../../activity/activity-card.component";
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
 import { NewApplicationsDialogV2Component } from "../new-applications-dialog-v2/new-applications-dialog-v2.component";
-import { PasswordChangeMetricV2Component } from "../password-change-metric-v2/password-change-metric-v2.component";
+
+import { PasswordChangeMetricV2Component } from "./password-change-metric-v2/password-change-metric-v2.component";
 
 /**
  * Displays the Access Intelligence activity dashboard.
@@ -26,10 +27,10 @@ import { PasswordChangeMetricV2Component } from "../password-change-metric-v2/pa
  * - New applications needing review
  */
 @Component({
-  selector: "app-all-activity-v2",
+  selector: "app-activity-tab",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: "./all-activity-v2.component.html",
+  templateUrl: "./activity-tab.component.html",
   imports: [
     ReportLoadingComponent,
     SharedModule,
@@ -37,7 +38,7 @@ import { PasswordChangeMetricV2Component } from "../password-change-metric-v2/pa
     PasswordChangeMetricV2Component,
   ],
 })
-export class AllActivityV2Component {
+export class ActivityTabComponent {
   private readonly accessIntelligenceService = inject(AccessIntelligenceDataService);
   private readonly drawerStateService = inject(DrawerStateService);
   private readonly dialogService = inject(DialogService);

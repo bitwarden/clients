@@ -62,7 +62,7 @@
         <div class="tw-flex-1 tw-flex tw-flex-col">
           <bit-tab-group [selectedIndex]="tabIndex()" (selectedIndexChange)="onTabChange($event)">
             <bit-tab label="{{ 'activity' | i18n }}">
-              <app-all-activity-v2 [organizationId]="organizationId()"></app-all-activity-v2>
+              <app-activity-tab [organizationId]="organizationId()"></app-activity-tab>
             </bit-tab>
             <bit-tab label="{{ 'applications' | i18n }}">
               <app-applications-v2 [organizationId]="organizationId()"></app-applications-v2>

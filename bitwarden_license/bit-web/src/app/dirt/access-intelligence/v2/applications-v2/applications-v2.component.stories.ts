@@ -39,7 +39,7 @@ import {
   MockSecurityTasksService,
   MockToastService,
   createAccessIntelligenceI18nMock,
-} from "../shared/test-helpers";
+} from "../testing";
 
 import { ApplicationsV2Component } from "./applications-v2.component";
 

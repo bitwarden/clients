@@ -14,13 +14,13 @@ import { CipherId, OrganizationId, SecurityTaskId } from "@bitwarden/common/type
 import { SecurityTask, SecurityTaskStatus, SecurityTaskType } from "@bitwarden/common/vault/tasks";
 import { ToastService } from "@bitwarden/components";
 
-import { AccessSecurityTasksService } from "../services/abstractions/access-security-tasks.service";
+import { AccessSecurityTasksService } from "../../services/abstractions/access-security-tasks.service";
 import {
   MockAccessIntelligenceDataService,
   MockSecurityTasksService,
   MockToastService,
   createAccessIntelligenceI18nMock,
-} from "../shared/test-helpers";
+} from "../../testing";
 
 import { PasswordChangeMetricV2Component } from "./password-change-metric-v2.component";
 

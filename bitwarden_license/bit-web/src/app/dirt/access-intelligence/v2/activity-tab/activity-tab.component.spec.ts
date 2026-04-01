@@ -24,7 +24,7 @@ import {
   NewApplicationsDialogV2Component,
 } from "../new-applications-dialog-v2/new-applications-dialog-v2.component";
 
-import { AllActivityV2Component } from "./all-activity-v2.component";
+import { ActivityTabComponent } from "./activity-tab.component";
 
 /**
  * Mock type for AccessIntelligenceDataService that uses BehaviorSubjects
@@ -37,9 +37,9 @@ type MockAccessIntelligenceDataService = {
   initializeForOrganization$: jest.Mock;
 };
 
-describe("AllActivityV2Component", () => {
-  let component: AllActivityV2Component;
-  let fixture: ComponentFixture<AllActivityV2Component>;
+describe("ActivityTabComponent", () => {
+  let component: ActivityTabComponent;
+  let fixture: ComponentFixture<ActivityTabComponent>;
   let mockAccessIntelligenceService: MockAccessIntelligenceDataService;
   let mockDrawerStateService: jest.Mocked<DrawerStateService>;
   let mockDialogService: jest.Mocked<DialogService>;
@@ -50,7 +50,7 @@ describe("AllActivityV2Component", () => {
    * Angular components use protected/private for encapsulation, but tests need access to verify internal state.
    * Using type assertion is the recommended approach per Angular testing best practices.
    */
-  const testAccess = (comp: AllActivityV2Component) => comp as any;
+  const testAccess = (comp: ActivityTabComponent) => comp as any;
 
   const orgId = "org-123" as OrganizationId;
 
@@ -77,7 +77,7 @@ describe("AllActivityV2Component", () => {
     } as any;
 
     await TestBed.configureTestingModule({
-      imports: [AllActivityV2Component],
+      imports: [ActivityTabComponent],
       providers: [
         { provide: AccessIntelligenceDataService, useValue: mockAccessIntelligenceService },
         { provide: DrawerStateService, useValue: mockDrawerStateService },
@@ -87,7 +87,7 @@ describe("AllActivityV2Component", () => {
       schemas: [NO_ERRORS_SCHEMA], // Ignore child component errors for unit testing
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AllActivityV2Component);
+    fixture = TestBed.createComponent(ActivityTabComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput("organizationId", orgId);
   });
