@@ -3,7 +3,7 @@
 // FIXME: rename output bindings and then remove this line
 /* eslint-disable @angular-eslint/no-output-on-prefix */
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, output, Output } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
 
@@ -109,6 +109,9 @@ export class VaultHeaderComponent {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() searchTextChanged = new EventEmitter<string>();
 
+    /** Emits an event when the add item dialog should be opened */
+  onOpenAddItemDialog = output();
+
   protected CollectionDialogTabType = CollectionDialogTabType;
 
   /** The cipher type enum. */
@@ -120,7 +123,7 @@ export class VaultHeaderComponent {
     private collectionAdminService: CollectionAdminService,
     private router: Router,
     private accountService: AccountService,
-  ) {}
+  ) { }
 
   get title() {
     const headerType = this.i18nService.t("collections").toLowerCase();
@@ -216,6 +219,10 @@ export class VaultHeaderComponent {
 
   addCipher(cipherType?: CipherType) {
     this.onAddCipher.emit(cipherType);
+  }
+
+  openAddItemDialog(): void {
+    this.onOpenAddItemDialog.emit();
   }
 
   async addCollection() {

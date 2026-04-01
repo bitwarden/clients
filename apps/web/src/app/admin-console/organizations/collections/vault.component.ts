@@ -76,6 +76,9 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import {
+  AddItemDialogCloseResult,
+  AddItemDialogComponent,
+  AddItemDialogResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
   CipherFormConfig,
@@ -837,6 +840,27 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Opens the add-item type selection dialog and handles the result.
+   */
+  protected async openAddItemDialog(): Promise<void> {
+    const organization = await firstValueFrom(this.organization$);
+    const ref = AddItemDialogComponent.open(this.dialogService, {
+      canCreateFolder: false,
+      canCreateCollection: organization?.canCreateNewCollections ?? false,
+      canCreateSshKey: true,
+    });
+    const result: AddItemDialogCloseResult | undefined = await firstValueFrom(ref.closed);
+    if (!result) {
+      return;
+    }
+    if (result.result === AddItemDialogResult.Cipher) {
+      await this.addCipher(result.cipherType);
+    } else if (result.result === AddItemDialogResult.Collection) {
+      await this.addCollection();
+    }
+  }
+
   /** Opens the Add/Edit Dialog */
   async addCipher(cipherType?: CipherType) {
     const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
@@ -921,6 +945,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     formConfig: CipherFormConfig,
     cipher?: CipherView,
     activeCollectionId?: CollectionId,
+    showBackButton?: boolean,
   ) {
     this.vaultItemDialogRef = VaultItemDialogComponent.open(this.dialogService, {
       mode,
@@ -928,6 +953,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       activeCollectionId,
       isAdminConsoleAction: true,
       restore: this.restore,
+      showBackButton,
     });
 
     const result = await lastValueFrom(this.vaultItemDialogRef.closed);

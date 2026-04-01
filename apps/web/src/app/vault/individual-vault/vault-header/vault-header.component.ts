@@ -7,6 +7,7 @@ import {
   inject,
   Input,
   Output,
+  output,
 } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
@@ -122,6 +123,9 @@ export class VaultHeaderComponent {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onDeleteCollection = new EventEmitter<void>();
 
+  /** Emits an event when the add item dialog should be opened */
+  readonly onOpenAddItemDialog = output<void>();
+
   constructor(
     private readonly i18nService: I18nService,
     private readonly collectionAdminService: CollectionAdminService,
@@ -129,7 +133,7 @@ export class VaultHeaderComponent {
     private readonly router: Router,
     private readonly configService: ConfigService,
     private readonly accountService: AccountService,
-  ) {}
+  ) { }
 
   /**
    * The id of the organization that is currently being filtered on.
@@ -255,6 +259,10 @@ export class VaultHeaderComponent {
 
   protected addCipher(cipherType?: CipherType) {
     this.onAddCipher.emit(cipherType);
+  }
+
+  protected openAddItemDialog(): void {
+    this.onOpenAddItemDialog.emit();
   }
 
   async addFolder(): Promise<void> {
