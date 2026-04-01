@@ -35,7 +35,7 @@ import { SingleUserState, UserKeyDefinition } from "../../platform/state";
 import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";
 import { SemanticLogger } from "../log";
 import { anyComplete, pin, ready, withLatestReady } from "../rx";
-import { SubjectConstraints, WithConstraints } from "../types";
+import { SubjectConstraints, WithConstraints, unconstrained } from "../types";
 
 import { ClassifiedFormat, isClassifiedFormat } from "./classified-format";
 import { unconstrained$ } from "./identity-state-constraint";
@@ -43,8 +43,6 @@ import { isObjectKey, ObjectKey, toUserKeyDefinition } from "./object-key";
 import { isDynamic } from "./state-constraints-dependency";
 import { UserStateSubjectDependencies } from "./user-state-subject-dependencies";
 import { UserStateSubjectDependencyProvider } from "./user-state-subject-dependency-provider";
-
-type Constrained<State> = WithConstraints<State>;
 
 // FIXME: The subject should always repeat the value when it's own `next` method is called.
 //
@@ -245,7 +243,7 @@ export class UserStateSubject<
   private prepareUpdate(
     init$: Observable<State>,
     dependencies$: Observable<Dependencies>,
-  ): OperatorFunction<Constrained<State>, State> {
+  ): OperatorFunction<WithConstraints<State>, State> {
     return (input$) =>
       concat(
         // `init$` becomes the accumulator for `scan`
@@ -282,7 +280,7 @@ export class UserStateSubject<
 
   private adjust(
     withConstraints: OperatorFunction<State, [State, SubjectConstraints<State>]>,
-  ): OperatorFunction<State, Constrained<State>> {
+  ): OperatorFunction<State, WithConstraints<State>> {
     return pipe(
       // how constraints are blended with incoming emissions varies:
       // * `output` needs to emit when constraints update
@@ -292,17 +290,18 @@ export class UserStateSubject<
         if (!loadedState && !this.objectKey?.initial) {
           this.log.debug("no value; bypassing adjustment");
           return {
+            state: null as State,
             constraints: {},
-            state: null,
-          } as Constrained<State>;
+            applied: unconstrained(),
+          } satisfies WithConstraints<State>;
         }
 
         this.log.debug("adjusting");
-        const unconstrained = loadedState ?? structuredClone(this.objectKey.initial);
+        const unconstrainedState = loadedState ?? structuredClone(this.objectKey.initial);
         const calibration = isDynamic(constraints)
-          ? constraints.calibrate(unconstrained)
+          ? constraints.calibrate(unconstrainedState)
           : constraints;
-        const result = calibration.adjust(unconstrained);
+        const result = calibration.adjust(unconstrainedState);
 
         this.log.debug("adjusted");
         return result;
@@ -312,7 +311,7 @@ export class UserStateSubject<
 
   private fix(
     constraints$: Observable<SubjectConstraints<State>>,
-  ): OperatorFunction<State, Constrained<State>> {
+  ): OperatorFunction<State, WithConstraints<State>> {
     return pipe(
       combineLatestWith(constraints$),
       map(([loadedState, constraints]) => {

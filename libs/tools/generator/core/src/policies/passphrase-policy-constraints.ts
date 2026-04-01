@@ -3,6 +3,7 @@ import {
   PolicyConstraints,
   StateConstraints,
   WithConstraints,
+  unconstrained,
 } from "@bitwarden/common/tools/types";
 
 import { DefaultPassphraseGenerationOptions } from "../data";
@@ -66,12 +67,12 @@ export class PassphrasePolicyConstraints implements StateConstraints<PassphraseG
     return {
       state: result,
       constraints: this.constraints,
-      applied: Object.keys(applied).length > 0 ? applied : undefined,
+      applied: Object.keys(applied).length > 0 ? applied : unconstrained(),
     };
   }
 
   fix(state: PassphraseGenerationOptions): WithConstraints<PassphraseGenerationOptions> {
-    return { state, constraints: this.constraints };
+    return { state, constraints: this.constraints, applied: unconstrained() };
   }
 }
 

@@ -1,4 +1,9 @@
-import { Constraints, StateConstraints, WithConstraints } from "@bitwarden/common/tools/types";
+import {
+  Constraints,
+  StateConstraints,
+  WithConstraints,
+  unconstrained,
+} from "@bitwarden/common/tools/types";
 
 import { CatchallGenerationOptions } from "../types";
 
@@ -28,7 +33,7 @@ export class CatchallConstraints implements StateConstraints<CatchallGenerationO
     const currentDomain = (state.catchallDomain ?? "").trim();
 
     if (currentDomain !== "") {
-      return { state, constraints: this.constraints };
+      return { state, constraints: this.constraints, applied: unconstrained() };
     }
 
     const result = { ...state };
@@ -42,6 +47,6 @@ export class CatchallConstraints implements StateConstraints<CatchallGenerationO
   }
 
   fix(state: CatchallGenerationOptions): WithConstraints<CatchallGenerationOptions> {
-    return { state, constraints: this.constraints };
+    return { state, constraints: this.constraints, applied: unconstrained() };
   }
 }

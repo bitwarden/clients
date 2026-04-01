@@ -30,11 +30,11 @@ export class IdentityConstraint<State extends object>
   }
 
   adjust(state: State): WithConstraints<State> {
-    return { state, constraints: this.constraints };
+    return { state, constraints: this.constraints, applied: this.constraints };
   }
 
   fix(state: State): WithConstraints<State> {
-    return { state, constraints: this.constraints };
+    return { state, constraints: this.constraints, applied: this.constraints };
   }
 }
 

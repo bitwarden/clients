@@ -277,7 +277,7 @@ describe("DynamicPasswordPolicyConstraints", () => {
     });
 
     it("activates special constraint when policy mandates minSpecial even if state.special is false", () => {
-      const policy = { ...disabledPolicy, specialCount: 5 };
+      const policy = { ...disabledPolicy, specialCount: 5, useSpecial: true };
       const dynamic = new DynamicPasswordPolicyConstraints(policy, someConstraints);
       const state = {
         ...defaultOptions,
@@ -291,7 +291,7 @@ describe("DynamicPasswordPolicyConstraints", () => {
     });
 
     it("activates number constraint when policy mandates minNumber even if state.number is false", () => {
-      const policy = { ...disabledPolicy, numberCount: 3 };
+      const policy = { ...disabledPolicy, numberCount: 3, useNumbers: true };
       const dynamic = new DynamicPasswordPolicyConstraints(policy, someConstraints);
       const state = {
         ...defaultOptions,
@@ -305,7 +305,7 @@ describe("DynamicPasswordPolicyConstraints", () => {
     });
 
     it("enforces minSpecial through adjust when policy sets specialCount", () => {
-      const policy = { ...disabledPolicy, specialCount: 5 };
+      const policy = { ...disabledPolicy, specialCount: 5, useSpecial: true };
       const dynamic = new DynamicPasswordPolicyConstraints(policy, someConstraints);
       const state = {
         ...defaultOptions,

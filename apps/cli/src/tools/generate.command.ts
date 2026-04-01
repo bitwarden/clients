@@ -2,6 +2,8 @@ import { BehaviorSubject, firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { VendorId } from "@bitwarden/common/tools/extension";
+import { isDynamic } from "@bitwarden/common/tools/state/state-constraints-dependency";
+import { Constraint, Constraints } from "@bitwarden/common/tools/types";
 import {
   BuiltIn,
   CredentialGeneratorService,
@@ -86,12 +88,9 @@ export class GenerateCommand {
 
       const requestedSettings = { ...savedSettings, ...clampedOverrides };
 
-      let adjustResult;
-      if ("calibrate" in policyConstraints) {
-        adjustResult = policyConstraints.calibrate(requestedSettings).adjust(requestedSettings);
-      } else {
-        adjustResult = policyConstraints.adjust(requestedSettings);
-      }
+      const adjustResult = isDynamic(policyConstraints)
+        ? policyConstraints.calibrate(requestedSettings).adjust(requestedSettings)
+        : policyConstraints.adjust(requestedSettings);
       const policyAdjustedSettings = adjustResult.state;
       const applied = adjustResult.applied;
 
@@ -176,21 +175,20 @@ export class GenerateCommand {
 
   private applyHardLimits(
     flagOverrides: Record<string, unknown>,
-    defaultConstraints: Record<string, unknown>,
+    defaultConstraints: Constraints<any>,
   ): { hardLimits: string[]; clampedOverrides: Record<string, unknown> } {
     const hardLimits: string[] = [];
     const clampedOverrides = { ...flagOverrides };
 
-    for (const key of Object.keys(clampedOverrides)) {
-      const value = clampedOverrides[key];
-      const constraint = defaultConstraints[key] as { min?: number; max?: number } | undefined;
+    for (const [key, value] of Object.entries(clampedOverrides)) {
+      const constraint = defaultConstraints[key];
       if (constraint == null || typeof value !== "number") {
         continue;
       }
-      if (constraint.max != null && value > constraint.max) {
+      if ("max" in constraint && value > (constraint.max ?? Infinity)) {
         hardLimits.push(`${key} has a maximum of ${constraint.max} (requested ${value})`);
         clampedOverrides[key] = constraint.max;
-      } else if (constraint.min != null && value < constraint.min) {
+      } else if ("min" in constraint && value < (constraint.min ?? -Infinity)) {
         hardLimits.push(`${key} has a minimum of ${constraint.min} (requested ${value})`);
         clampedOverrides[key] = constraint.min;
       }
@@ -202,23 +200,19 @@ export class GenerateCommand {
   private describeAppliedConstraints(
     requested: Record<string, unknown>,
     adjusted: Record<string, unknown>,
-    applied?: Record<string, unknown>,
+    applied: Constraints<any>,
   ): string[] {
-    if (!applied) {
-      return [];
-    }
-
     const descriptions: string[] = [];
     for (const key of Object.keys(applied)) {
+      const constraint = applied[key] as Constraint<any>;
       const before = requested[key];
       const after = adjusted[key];
       if (JSON.stringify(before) === JSON.stringify(after)) {
         continue;
       }
-      const constraint = applied[key] as Record<string, unknown> | undefined;
       const beforeStr = this.formatValue(before);
       const afterStr = this.formatValue(after);
-      const reason = this.formatConstraintReason(key, constraint);
+      const reason = this.formatConstraintReason(constraint);
       descriptions.push(
         reason
           ? `${key}: ${beforeStr} → ${afterStr} (${reason})`
@@ -235,25 +229,22 @@ export class GenerateCommand {
     return String(value ?? "unset");
   }
 
-  private formatConstraintReason(
-    key: string,
-    constraint: Record<string, unknown> | undefined,
-  ): string {
-    if (!constraint) {
-      return "";
-    }
-    if (constraint.requiredValue === true) {
+  private formatConstraintReason(constraint: Constraint<any>): string {
+    // BooleanConstraint
+    if ("requiredValue" in constraint && constraint.requiredValue === true) {
       return "required by policy";
     }
-    if (constraint.min != null && constraint.max != null) {
-      return `policy requires ${constraint.min}–${constraint.max}`;
+    // NumberConstraints
+    if ("min" in constraint || "max" in constraint) {
+      if (constraint.min != null && constraint.max != null) {
+        return `policy requires ${constraint.min}–${constraint.max}`;
+      } else if (constraint.min != null) {
+        return `policy minimum is ${constraint.min}`;
+      } else if (constraint.max != null) {
+        return `policy maximum is ${constraint.max}`;
+      }
     }
-    if (constraint.min != null) {
-      return `policy minimum is ${constraint.min}`;
-    }
-    if (constraint.max != null) {
-      return `policy maximum is ${constraint.max}`;
-    }
+    // TODO: Add StringConstraints messaging
     return "";
   }
 

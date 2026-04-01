@@ -1,3 +1,5 @@
+import { unconstrained } from "@bitwarden/common/tools/types";
+
 import { PasswordGeneratorSettings } from "../types";
 
 import { PasswordPolicyConstraints } from "./password-policy-constraints";
@@ -138,7 +140,7 @@ describe("PasswordPolicyConstraints", () => {
       expect(result.applied!.length).toEqual({ min: 10, max: 128 });
     });
 
-    it("does not report applied when nothing changed", () => {
+    it("reports the unconstrained value when nothing changed", () => {
       const constraint = new PasswordPolicyConstraints({});
       const state = {
         ...EmptyState,
@@ -148,7 +150,7 @@ describe("PasswordPolicyConstraints", () => {
 
       const result = constraint.adjust(state);
 
-      expect(result.applied).toBeUndefined();
+      expect(result.applied).toEqual(unconstrained());
     });
   });
 

@@ -12,7 +12,7 @@ import { disabledSemanticLoggerProvider } from "@bitwarden/common/tools/log";
 import { PrivateClassifier } from "@bitwarden/common/tools/private-classifier";
 import { IdentityConstraint } from "@bitwarden/common/tools/state/identity-state-constraint";
 import { UserStateSubjectDependencyProvider } from "@bitwarden/common/tools/state/user-state-subject-dependency-provider";
-import { StateConstraints } from "@bitwarden/common/tools/types";
+import { StateConstraints, unconstrained } from "@bitwarden/common/tools/types";
 import { OrganizationId, PolicyId, UserId } from "@bitwarden/common/types/guid";
 
 import {
@@ -119,10 +119,18 @@ const SomeProfile: CoreProfileMetadata<SomeSettings> = {
             return {
               constraints: {},
               adjust(state: SomeSettings) {
-                return { state: { foo: `adjusted(${state.foo})` }, constraints: {} };
+                return {
+                  state: { foo: `adjusted(${state.foo})` },
+                  constraints: {},
+                  applied: unconstrained(),
+                };
               },
               fix(state: SomeSettings) {
-                return { state: { foo: `fixed(${state.foo})` }, constraints: {} };
+                return {
+                  state: { foo: `fixed(${state.foo})` },
+                  constraints: {},
+                  applied: unconstrained(),
+                };
               },
             } satisfies StateConstraints<SomeSettings>;
           },
@@ -133,10 +141,10 @@ const SomeProfile: CoreProfileMetadata<SomeSettings> = {
             policyInEffect: false,
           },
           adjust(state: SomeSettings) {
-            return { state, constraints: {} };
+            return { state, constraints: {}, applied: unconstrained() };
           },
           fix(state: SomeSettings) {
-            return { state, constraints: {} };
+            return { state, constraints: {}, applied: unconstrained() };
           },
         } satisfies GeneratorConstraints<SomeSettings>;
       }

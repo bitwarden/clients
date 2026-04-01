@@ -60,26 +60,10 @@ export class DynamicPasswordPolicyConstraints implements DynamicStateConstraints
 
   calibrate(state: PasswordGeneratorSettings): StateConstraints<PasswordGeneratorSettings> {
     // decide which constraints are active
-    const lowercase =
-      state.lowercase ||
-      this.constraints.lowercase?.requiredValue ||
-      this.constraints.minLowercase?.min > 0 ||
-      false;
-    const uppercase =
-      state.uppercase ||
-      this.constraints.uppercase?.requiredValue ||
-      this.constraints.minUppercase?.min > 0 ||
-      false;
-    const number =
-      state.number ||
-      this.constraints.number?.requiredValue ||
-      this.constraints.minNumber?.min > 0 ||
-      false;
-    const special =
-      state.special ||
-      this.constraints.special?.requiredValue ||
-      this.constraints.minSpecial?.min > 0 ||
-      false;
+    const lowercase = state.lowercase || this.constraints.lowercase?.requiredValue || false;
+    const uppercase = state.uppercase || this.constraints.uppercase?.requiredValue || false;
+    const number = state.number || this.constraints.number?.requiredValue || false;
+    const special = state.special || this.constraints.special?.requiredValue || false;
 
     // minimum constraints cannot `atLeast(state...) because doing so would force
     // the constrained value to only increase

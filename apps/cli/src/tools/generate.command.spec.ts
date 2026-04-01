@@ -1,6 +1,7 @@
 import { BehaviorSubject, of } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Constraints, unconstrained } from "@bitwarden/common/tools/types";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   CredentialGeneratorService,
@@ -61,7 +62,11 @@ function mockMetadata(
 // Passthrough policy: no adjustments, no policy in effect
 function passthroughPolicy() {
   return {
-    adjust: (settings: any) => ({ state: settings, constraints: { policyInEffect: false } }),
+    adjust: (settings: any) => ({
+      state: settings,
+      constraints: { policyInEffect: false },
+      applied: unconstrained<any>(),
+    }),
     constraints: { policyInEffect: false },
   };
 }
@@ -72,7 +77,7 @@ function overridingPolicy(overrides: Record<string, unknown>, policyInEffect = f
     adjust: (settings: any) => {
       const adjusted = { ...settings, ...overrides };
       // Compute applied: only keys where the value changed
-      const applied: Record<string, unknown> = {};
+      const applied: Constraints<any> = {};
       for (const key of Object.keys(overrides)) {
         if (JSON.stringify(settings[key]) !== JSON.stringify(overrides[key])) {
           applied[key] = {};
@@ -81,7 +86,7 @@ function overridingPolicy(overrides: Record<string, unknown>, policyInEffect = f
       return {
         state: adjusted,
         constraints: { policyInEffect },
-        applied: Object.keys(applied).length > 0 ? applied : undefined,
+        applied: Object.keys(applied).length > 0 ? applied : unconstrained(),
       };
     },
     constraints: { policyInEffect },
