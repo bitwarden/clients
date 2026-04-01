@@ -614,6 +614,32 @@ describe("OrganizationIntegrationService", () => {
     });
   });
 
+  describe("Blumira integration", () => {
+    it("should save a new Blumira integration successfully", async () => {
+      const config = OrgIntegrationBuilder.buildHecConfiguration(
+        "https://test.blumira.com/hec",
+        "test-token",
+        OrganizationIntegrationServiceName.Blumira,
+      );
+      const template = OrgIntegrationBuilder.buildHecTemplate(
+        "test-index",
+        OrganizationIntegrationServiceName.Blumira,
+      );
+
+      expect(JSON.parse(config.toString())).toEqual({
+        Uri: "https://test.blumira.com/hec",
+        Scheme: "Bearer",
+        Token: "test-token",
+        bw_serviceName: "Blumira",
+      });
+
+      const parsed = JSON.parse(template.toString());
+      expect(parsed.index).toBe("test-index");
+      expect(parsed.bw_serviceName).toBe("Blumira");
+      expect(parsed.event.type).toBe("#TypeId#");
+    });
+  });
+
   describe("edge cases", () => {
     it("should handle empty integration list from API", async () => {
       integrationApiService.getOrganizationIntegrations.mockReturnValue(Promise.resolve([]));

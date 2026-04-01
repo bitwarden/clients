@@ -253,6 +253,23 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
       );
     }
 
+    // Add Blumira SIEM integration (separate feature flag)
+    const blumiraFeatureEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.EventManagementForBlumira),
+    );
+
+    if (blumiraFeatureEnabled) {
+      integrations.push({
+        name: OrganizationIntegrationServiceName.Blumira,
+        linkURL: "https://bitwarden.com/help/blumira-siem/",
+        image: "../../../../../../../images/integrations/logo-blumira-color.svg",
+        imageDarkMode: "../../../../../../../images/integrations/logo-blumira-darkmode.svg",
+        type: IntegrationType.EVENT,
+        canSetupConnection: true,
+        integrationType: OrganizationIntegrationType.Hec,
+      });
+    }
+
     // Add Huntress SIEM integration (separate feature flag)
     const huntressFeatureEnabled = await firstValueFrom(
       this.configService.getFeatureFlag$(FeatureFlag.EventManagementForHuntress),

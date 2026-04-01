@@ -169,23 +169,10 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
         () => this.deleteDatadog(),
         (res) => this.saveDatadog(res),
       );
-    } else if (this.integrationSettings()?.integrationType === OrganizationIntegrationType.Hec) {
-      // Huntress uses HEC protocol but has its own dialog
-      const dialog = openConnectViaHecTokenDialog(this.dialogService, {
-        data: {
-          settings: this.integrationSettings(),
-        },
-      });
-
-      const result = await lastValueFrom(dialog.closed);
-
-      await this.handleIntegrationDialogResult(
-        result,
-        () => this.deleteHuntress(),
-        (res) => this.saveHuntress(res),
-      );
-    } else {
-      // invoke the dialog to connect the integration
+    } else if (
+      this.integrationSettings()?.name === OrganizationIntegrationServiceName.CrowdStrike
+    ) {
+      // used by Crowdstrike only - for now
       const dialog = openHecConnectDialog(this.dialogService, {
         data: {
           settings: this.integrationSettings(),
@@ -198,6 +185,20 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
         result,
         () => this.deleteHec(),
         (res) => this.saveHec(res),
+      );
+    } else if (this.integrationSettings()?.integrationType === OrganizationIntegrationType.Hec) {
+      const dialog = openConnectViaHecTokenDialog(this.dialogService, {
+        data: {
+          settings: this.integrationSettings(),
+        },
+      });
+
+      const result = await lastValueFrom(dialog.closed);
+
+      await this.handleIntegrationDialogResult(
+        result,
+        () => this.deleteHecConnectViaToken(),
+        (res) => this.saveHecConnectViaToken(res),
       );
     }
   }
@@ -362,24 +363,23 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     await this.deleteIntegration();
   }
 
-  async saveHuntress(result: ConnectViaHecTokenDialogResult) {
-    // Huntress uses "Splunk" scheme for HEC protocol compatibility
+  async saveHecConnectViaToken(result: ConnectViaHecTokenDialogResult) {
     const config = OrgIntegrationBuilder.buildHecConfiguration(
       result.url,
       result.token,
-      OrganizationIntegrationServiceName.Huntress,
+      this.integrationSettings().name as OrganizationIntegrationServiceName,
       Schemas.Splunk,
     );
     // Huntress SIEM doesn't require the index field
     const template = OrgIntegrationBuilder.buildHecTemplate(
       "",
-      OrganizationIntegrationServiceName.Huntress,
+      this.integrationSettings().name as OrganizationIntegrationServiceName,
     );
 
     await this.saveIntegration(OrganizationIntegrationType.Hec, config, template);
   }
 
-  async deleteHuntress() {
+  async deleteHecConnectViaToken() {
     await this.deleteIntegration();
   }
 

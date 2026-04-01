@@ -58,6 +58,7 @@ export enum FeatureFlag {
   SendControls = "pm-31885-send-controls",
 
   /* DIRT */
+  EventManagementForBlumira = "event-management-for-blumira",
   EventManagementForDataDogAndCrowdStrike = "event-management-for-datadog-and-crowdstrike",
   EventManagementForHuntress = "event-management-for-huntress",
   PhishingDetection = "phishing-detection",
@@ -120,6 +121,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SendControls]: FALSE,
 
   /* DIRT */
+  [FeatureFlag.EventManagementForBlumira]: FALSE,
   [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
   [FeatureFlag.EventManagementForHuntress]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
