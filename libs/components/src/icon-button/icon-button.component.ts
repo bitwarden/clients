@@ -72,7 +72,6 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
 
   readonly iconClass = computed(() => [this.icon(), "!tw-m-0"]);
 
-<<<<<<< HEAD
   protected get showLoadingStyle() {
     return this.baseButton.showLoadingStyle();
   }
@@ -90,7 +89,8 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     classes.push(getRadiusStyle(this.size()));
 
     return classes.join(" ");
-=======
+  });
+
   protected readonly spinnerSize = computed(
     (): SpinnerSize => (this.size() === "small" ? "sm" : "md"),
   );
@@ -98,7 +98,6 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
   protected readonly disabledAttr = computed(() => {
     const disabled = this.disabled() != null && this.disabled() !== false;
     return disabled || this.loading();
->>>>>>> 72553a1ced (addressing QA feedback)
   });
 
   getFocusTarget() {
