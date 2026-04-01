@@ -21,10 +21,19 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ReceiveAddEditComponent } from "./receive-add-edit.component";
+import { ReceiveFilesViewComponent } from "./receive-files-view.component";
 
 @Component({
   templateUrl: "./receive-view.component.html",
-  imports: [DatePipe, DialogModule, ButtonModule, FormFieldModule, IconButtonModule, I18nPipe],
+  imports: [
+    DatePipe,
+    DialogModule,
+    ButtonModule,
+    FormFieldModule,
+    IconButtonModule,
+    I18nPipe,
+    ReceiveFilesViewComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReceiveViewComponent {
