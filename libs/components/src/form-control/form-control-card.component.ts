@@ -26,7 +26,7 @@ import { BitHintDirective } from "./hint.directive";
   hostDirectives: [
     {
       directive: FormControlBaseDirective,
-      inputs: ["label", "inline", "disableMargin"],
+      inputs: ["label", "inline"],
     },
     {
       directive: FormControlGroupItemDirective,
