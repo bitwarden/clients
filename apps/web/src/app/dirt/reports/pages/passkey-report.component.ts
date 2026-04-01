@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { lastValueFrom, switchMap } from "rxjs";
@@ -11,7 +11,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PasskeyDirectoryApiService } from "@bitwarden/common/dirt/services/abstractions/passkey-directory-api.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
@@ -107,8 +107,9 @@ export class PasskeyReportComponent {
     ),
   );
 
-  private readonly userIdNullable = toSignal(this.accountService.activeAccount$.pipe(getUserId));
-  private readonly userId = computed(() => this.userIdNullable() as UserId);
+  private readonly userId = toSignal(this.accountService.activeAccount$.pipe(getUserId), {
+    requireSync: true,
+  });
 
   protected readonly currentFilterStatus = signal<number | string>(0);
   private readonly passkeyServices = signal<Map<string, PasskeyServiceEntry>>(new Map());

@@ -20,7 +20,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PasskeyDirectoryApiService } from "@bitwarden/common/dirt/services/abstractions/passkey-directory-api.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { getById } from "@bitwarden/common/platform/misc";
-import { CipherId, CollectionId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
@@ -102,8 +102,9 @@ export class OrgPasskeyReportComponent {
   protected readonly dataSource = new TableDataSource<PasskeyCipherRow>();
 
   // Private state
-  private readonly userIdNullable = toSignal(this.accountService.activeAccount$.pipe(getUserId));
-  private readonly userId = computed(() => this.userIdNullable() as UserId);
+  private readonly userId = toSignal(this.accountService.activeAccount$.pipe(getUserId), {
+    requireSync: true,
+  });
 
   private readonly orgAndCiphers = toSignal(
     this.route.params.pipe(
@@ -169,10 +170,13 @@ export class OrgPasskeyReportComponent {
 
   private async load(org: Organization) {
     this.loading.set(true);
-    await this.syncService.fullSync(false);
-    await this.setCiphers(org);
-    this.loading.set(false);
-    this.hasLoaded.set(true);
+    try {
+      await this.syncService.fullSync(false);
+      await this.setCiphers(org);
+    } finally {
+      this.loading.set(false);
+      this.hasLoaded.set(true);
+    }
   }
 
   private async setCiphers(org: Organization) {

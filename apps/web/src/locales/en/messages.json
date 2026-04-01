@@ -2961,14 +2961,14 @@
     "message": "Passkey login"
   },
   "passkeyLoginReportMenuDesc": {
-  "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which of your accounts support them."
-},
+    "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which of your accounts support them."
+  },
   "passkeyLoginReportDesc": {
     "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which accounts in your vault support passkeys for a simpler, passwordless sign-in experience. Learn"
   },
-"passkeyLoginReportHowTheyWork": {
-  "message": "how passkeys work"
-},
+  "passkeyLoginReportHowTheyWork": {
+    "message": "how passkeys work"
+  },
   "passkeyLoginReportAnd": {
     "message": "and "
   },

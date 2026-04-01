@@ -9,7 +9,7 @@ export class PasskeyDirectoryEntryResponse extends BaseResponse {
   constructor(response: any) {
     super(response);
     this.domainName = this.getResponseProperty("DomainName");
-    this.instructions = this.getResponseProperty("Instructions") ?? "";
+    this.instructions = this.getResponseProperty("Instructions");
     this.supportsPasskeyLogin = this.getResponseProperty("Passwordless") ?? false;
     this.supportsPasskeyMfa = this.getResponseProperty("Mfa") ?? false;
   }
