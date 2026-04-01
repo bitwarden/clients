@@ -18,6 +18,15 @@
     <div [formGroup]="form">
       <bit-section>
         <bit-section-header>
+          <h2 bitTypography="h6">{{ "preferences" | i18n }}</h2>
+        </bit-section-header>
+        <bit-card>
+          <bit-enable-user-preferences-sync></bit-enable-user-preferences-sync>
+        </bit-card>
+      </bit-section>
+
+      <bit-section>
+        <bit-section-header>
           <h2 bitTypography="h6">{{ "unlockMethods" | i18n }}</h2>
         </bit-section-header>
         <bit-card>
