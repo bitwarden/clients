@@ -11,7 +11,7 @@ import {
 import { ControlValueAccessor, NgControl, NG_VALUE_ACCESSOR, Validators } from "@angular/forms";
 
 import { AriaDisableDirective } from "../a11y";
-import { BitFormControlAbstraction } from "../form-control";
+import { BitFormControlAbstraction } from "../form-control/form-control.abstraction";
 import { IconComponent } from "../icon";
 
 let nextId = 0;
