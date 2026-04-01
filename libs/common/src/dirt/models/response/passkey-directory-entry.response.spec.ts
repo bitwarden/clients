@@ -11,23 +11,23 @@ describe("PasskeyDirectoryEntryResponse", () => {
     expect(response.instructions).toEqual("https://example.com/passkey-setup");
   });
 
-  it("should default instructions to empty string when null", () => {
+  it("should default instructions to null when null", () => {
     const response = new PasskeyDirectoryEntryResponse({
       DomainName: "example.com",
       Instructions: null,
     });
 
     expect(response.domainName).toEqual("example.com");
-    expect(response.instructions).toEqual("");
+    expect(response.instructions).toBeNull();
   });
 
-  it("should default instructions to empty string when missing", () => {
+  it("should default instructions to undefined when missing", () => {
     const response = new PasskeyDirectoryEntryResponse({
       DomainName: "test.com",
     });
 
     expect(response.domainName).toEqual("test.com");
-    expect(response.instructions).toEqual("");
+    expect(response.instructions).toBeUndefined();
   });
 
   it("should parse supportsPasskeyLogin and supportsPasskeyMfa from response", () => {
