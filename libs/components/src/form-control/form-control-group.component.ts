@@ -24,7 +24,7 @@ import { BitLabelComponent } from "./label.component";
 let nextId = 0;
 
 @Component({
-  selector: "bit-form-control-group, bit-radio-group, bit-radio-button-group",
+  selector: "bit-form-control-group, bit-radio-group",
   templateUrl: "form-control-group.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgTemplateOutlet, I18nPipe, IconComponent],
