@@ -66,7 +66,7 @@ export class DefaultReceiveFileService implements ReceiveFileService {
     );
   }
 
-  async downloadFile(fileView: ReceiveFileView, receiveId: string): Promise<void> {
+  async downloadFile(fileView: ReceiveFileView, receiveId: ReceiveId): Promise<void> {
     const downloadData = await this.receiveApiService.getReceiveFileDownload(
       receiveId,
       fileView.id,
@@ -77,7 +77,7 @@ export class DefaultReceiveFileService implements ReceiveFileService {
       throw new Error(`Failed to download file: ${response.status}`);
     }
 
-    const encryptedFileData = new EncArrayBuffer(new Uint8Array(await response.arrayBuffer()));
+    const encryptedFileData = await EncArrayBuffer.fromResponse(response);
 
     const fileData = await this.encryptService.decryptFileData(
       encryptedFileData,
