@@ -153,12 +153,12 @@ describe("UriOptionComponent", () => {
       component.writeValue({ uri: "https://example.com", matchDetection: UriMatchStrategy.Exact });
       fixture.detectChanges();
       expect(getToggleMatchDetectionBtn().getAttribute("aria-label")).toBe(
-        "showMatchDetection https://example.com",
+        "showMatchDetectionNoPlaceholder",
       );
       getToggleMatchDetectionBtn().click();
       fixture.detectChanges();
       expect(getToggleMatchDetectionBtn().getAttribute("aria-label")).toBe(
-        "hideMatchDetection https://example.com",
+        "hideMatchDetectionNoPlaceholder",
       );
     });
   });

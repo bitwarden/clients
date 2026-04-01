@@ -8,6 +8,8 @@ import { Observable, of, switchMap } from "rxjs";
 import { getHostname, parse } from "tldts";
 import { Merge } from "type-fest";
 
+import "core-js/proposals/array-buffer-base64";
+
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
@@ -18,6 +20,31 @@ import { I18nService } from "../abstractions/i18n.service";
 // FIXME: Remove when updating file. Eslint update
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const nodeURL = typeof self === "undefined" ? require("url") : null;
+// Checked against the result of decodeURIComponent(url). Literal entries catch
+// single-encoded input (%2e%2e → ".." after decode). Percent-encoded entries catch
+// double-encoded input (%252e → "%2e" after one decode, matched literally here).
+const pathTraversalPatterns = [
+  "..", // Double dot
+  "%2e", // Double-encoded single dot (%252e → "%2e")
+  "\\", // Backslash
+  "%5c", // Double-encoded backslash (%255c → "%5c")
+  "\t", // TAB (stripped by WHATWG URL parser)
+  "%09", // Double-encoded TAB (%2509 → "%09")
+  "\n", // Line feed (stripped by WHATWG URL parser)
+  "%0a", // Double-encoded line feed (%250a → "%0a")
+  "\r", // Carriage return (stripped by WHATWG URL parser)
+  "%0d", // Double-encoded carriage return (%250d → "%0d")
+  "\0", // Null byte
+  "%00", // Double-encoded null byte (%2500 → "%00")
+];
+
+// Query-string-specific patterns, also checked after decodeURIComponent.
+const queryDangerousPatterns = [
+  "/", // Path separator (Dangerous in a query parameter)
+  "%2f", // Double-encoded path separator (%252f → "%2f")
+  "#", // Fragment delimiter (Truncates strings)
+  "%23", // Double-encoded fragment delimiter (%2523 → "%23")
+];
 
 declare global {
   /* eslint-disable-next-line no-var */
@@ -42,6 +69,7 @@ export class Utils {
   static readonly validHosts: string[] = ["localhost"];
   static readonly originalMinimumPasswordLength = 8;
   static readonly minimumPasswordLength = 12;
+  static readonly maximumPasswordLength = 128;
   static readonly DomainMatchBlacklist = new Map<string, Set<string>>([
     ["google.com", new Set(["script.google.com"])],
   ]);
@@ -71,7 +99,7 @@ export class Utils {
     }
   }
 
-  static fromB64ToArray(str: string): Uint8Array {
+  static fromB64ToArray(str: string): Uint8Array<ArrayBuffer> {
     if (str == null) {
       return null;
     }
@@ -88,11 +116,11 @@ export class Utils {
     }
   }
 
-  static fromUrlB64ToArray(str: string): Uint8Array {
+  static fromUrlB64ToArray(str: string): Uint8Array<ArrayBuffer> {
     return Utils.fromB64ToArray(Utils.fromUrlB64ToB64(str));
   }
 
-  static fromHexToArray(str: string): Uint8Array {
+  static fromHexToArray(str: string): Uint8Array<ArrayBuffer> {
     if (Utils.isNode) {
       return new Uint8Array(Buffer.from(str, "hex"));
     } else {
@@ -104,7 +132,7 @@ export class Utils {
     }
   }
 
-  static fromUtf8ToArray(str: string): Uint8Array {
+  static fromUtf8ToArray(str: string): Uint8Array<ArrayBuffer> {
     if (Utils.isNode) {
       return new Uint8Array(Buffer.from(str, "utf8"));
     } else {
@@ -117,7 +145,7 @@ export class Utils {
     }
   }
 
-  static fromByteStringToArray(str: string): Uint8Array {
+  static fromByteStringToArray(str: string): Uint8Array<ArrayBuffer> {
     if (str == null) {
       return null;
     }
@@ -126,6 +154,88 @@ export class Utils {
       arr[i] = str.charCodeAt(i);
     }
     return arr;
+  }
+
+  static fromArrayToHex(arr: Uint8Array): string;
+  static fromArrayToHex(arr: null): null;
+  /**
+   * Converts a Uint8Array to a hexadecimal string.
+   * @param arr - The Uint8Array to convert.
+   * @returns The hexadecimal string representation, or null if the input is null.
+   */
+  static fromArrayToHex(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    // @ts-expect-error - polyfilled by core-js
+    return arr.toHex();
+  }
+
+  static fromArrayToB64(arr: Uint8Array): string;
+  static fromArrayToB64(arr: null): null;
+  /**
+   * Converts a Uint8Array to a Base64 encoded string.
+   * @param arr - The Uint8Array to convert.
+   * @returns The Base64 encoded string, or null if the input is null.
+   */
+  static fromArrayToB64(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    // @ts-expect-error - polyfilled by core-js
+    return arr.toBase64({ alphabet: "base64" });
+  }
+
+  /**
+   * Converts a Uint8Array to a URL-safe Base64 encoded string, while stripping padding.
+   * @param arr - The Uint8Array to convert.
+   * @returns The URL-safe Base64 encoded string, or null if the input is null.
+   */
+  static fromArrayToUrlB64(arr: Uint8Array): string;
+  static fromArrayToUrlB64(arr: null): null;
+  static fromArrayToUrlB64(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    // @ts-expect-error - polyfilled by core-js
+    return arr.toBase64({ alphabet: "base64url", omitPadding: true });
+  }
+
+  static fromArrayToByteString(arr: null): null;
+  static fromArrayToByteString(arr: Uint8Array): string;
+  /**
+   * Converts a Uint8Array to a byte string (each byte as a character).
+   * @param arr - The Uint8Array to convert.
+   * @returns The byte string representation, or null if the input is null.
+   */
+  static fromArrayToByteString(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    let byteString = "";
+    for (let i = 0; i < arr.length; i++) {
+      byteString += String.fromCharCode(arr[i]);
+    }
+    return byteString;
+  }
+
+  static fromArrayToUtf8(arr: Uint8Array): string;
+  static fromArrayToUtf8(arr: null): null;
+  /**
+   * Converts a Uint8Array to a UTF-8 decoded string.
+   * @param arr - The Uint8Array containing UTF-8 encoded bytes.
+   * @returns The decoded UTF-8 string, or null if the input is null.
+   */
+  static fromArrayToUtf8(arr: Uint8Array | null): string | null {
+    if (arr == null) {
+      return null;
+    }
+
+    return BufferLib.from(arr).toString("utf8");
   }
 
   /**
@@ -301,7 +411,7 @@ export class Utils {
   }
 
   static fromUtf8ToUrlB64(utfStr: string): string {
-    return Utils.fromBufferToUrlB64(Utils.fromUtf8ToArray(utfStr));
+    return Utils.fromArrayToUrlB64(Utils.fromUtf8ToArray(utfStr));
   }
 
   static fromB64ToUtf8(b64Str: string): string {
@@ -346,12 +456,6 @@ export class Utils {
     }
 
     if (uriString.startsWith("file:")) {
-      return null;
-    }
-
-    // Does uriString contain invalid characters
-    // TODO Needs to possibly be extended, although '!' is a reserved character
-    if (uriString.indexOf("!") > 0) {
       return null;
     }
 
@@ -613,52 +717,61 @@ export class Utils {
   }
 
   /**
-   * Validates an url checking against invalid patterns
-   * @param url
-   * @returns true if invalid patterns found, false if safe
+   * Checks whether a URL string contains common path traversal indicators.
+   *
+   * This is a **supplementary heuristic**, not a security boundary.
+   *
+   * Primary defense against untrusted input in URL paths is
+   * validation at the input boundary (component level).
+   * Companion sanitizer: {@link normalizePath}.
+   *
+   * Known limitations:
+   * - This is a denylist, NOT a substitute for boundary validation.
+   * - WHATWG URL normalization may alter byte sequences beyond the checked set.
+   *
+   * @param url - The full URL string to inspect (path + optional query string).
+   * @returns `true` if traversal indicators are found; `false` otherwise.
    */
-  static invalidUrlPatterns(url: string): boolean {
-    const invalidUrlPatterns = ["..", "%2e", "\\", "%5c"];
-
-    const decodedUrl = decodeURIComponent(url.toLocaleLowerCase());
-
-    // Check URL for invalidUrl patterns across entire URL
-    if (invalidUrlPatterns.some((p) => decodedUrl.includes(p))) {
+  static containsTraversalIndicators(url: string): boolean {
+    let decodedUrl: string;
+    try {
+      decodedUrl = decodeURIComponent(url.toLowerCase());
+    } catch {
+      // Malformed URI sequences (e.g., overlong UTF-8) are treated as suspicious.
       return true;
     }
 
-    // Check for additional invalid patterns inside URL params
+    if (pathTraversalPatterns.some((p) => decodedUrl.includes(p))) {
+      return true;
+    }
+
     if (decodedUrl.includes("?")) {
-      const hasInvalidParams = this.validateQueryParameters(decodedUrl);
-      if (hasInvalidParams) {
-        return true;
-      }
+      return this.containsDangerousQueryPatterns(decodedUrl);
     }
 
     return false;
   }
 
   /**
-   * Validates query parameters for additional invalid patterns
-   * @param url - The URL containing query parameters
-   * @returns true if invalid patterns found, false if safe
+   * Checks whether query parameters contain characters that could indicate
+   * path injection within a query string context.
+   *
+   * Note: When called from {@link containsTraversalIndicators}, the URL has
+   * already been decoded via `decodeURIComponent`. The encoded forms (`%2f`,
+   * `%23`) in the pattern list are therefore redundant in that context — the
+   * literal `/` and `#` entries handle matching. The encoded forms are retained
+   * for clarity and in case this method is called on non-decoded input.
+   *
+   * @param url - A URL string containing a query string (after `?`).
+   * @returns `true` if dangerous patterns are found in the query string; `false` otherwise.
    */
-  private static validateQueryParameters(url: string): boolean {
-    try {
-      let queryString: string;
-
-      if (url.includes("?")) {
-        queryString = url.split("?")[1];
-      } else {
-        return false;
-      }
-
-      const paramInvalidPatterns = ["/", "%2f", "#", "%23"];
-
-      return paramInvalidPatterns.some((p) => queryString.includes(p));
-    } catch (error) {
-      throw new Error(`Error validating query parameters: ${error}`);
+  private static containsDangerousQueryPatterns(url: string): boolean {
+    const queryString = url.split("?")[1];
+    if (!queryString) {
+      return false;
     }
+
+    return queryDangerousPatterns.some((p) => queryString.includes(p));
   }
 
   private static isMobile(win: Window) {

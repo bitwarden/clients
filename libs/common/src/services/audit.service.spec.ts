@@ -21,7 +21,7 @@ describe("AuditService", () => {
 
   beforeEach(() => {
     mockCrypto = {
-      hash: jest.fn().mockResolvedValue(Buffer.from("AABBCCDDEEFF", "hex")),
+      hash: jest.fn().mockResolvedValue(new Uint8Array([0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff])),
     } as unknown as jest.Mocked<CryptoFunctionService>;
 
     mockApi = {

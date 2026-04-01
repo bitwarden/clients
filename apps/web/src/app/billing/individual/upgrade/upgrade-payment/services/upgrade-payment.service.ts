@@ -26,7 +26,7 @@ import {
   OrganizationSubscriptionPurchase,
   SubscriberBillingClient,
   TaxAmounts,
-  TaxClient,
+  PreviewInvoiceClient,
 } from "../../../../clients";
 import {
   BillingAddress,
@@ -53,12 +53,12 @@ export type PaymentFormValues = {
 /**
  * Service for handling payment submission and sales tax calculation for upgrade payment component
  */
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class UpgradePaymentService {
   constructor(
     private organizationBillingService: OrganizationBillingServiceAbstraction,
     private accountBillingClient: AccountBillingClient,
-    private taxClient: TaxClient,
+    private previewInvoiceClient: PreviewInvoiceClient,
     private logService: LogService,
     private syncService: SyncService,
     private organizationService: OrganizationService,
@@ -97,11 +97,12 @@ export class UpgradePaymentService {
   async calculateEstimatedTax(
     planDetails: PlanDetails,
     billingAddress: BillingAddress,
+    coupons?: string[],
   ): Promise<number> {
     const isFamiliesPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Families;
     const isPremiumPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Premium;
 
-    let taxClientCall: Promise<TaxAmounts> | null = null;
+    let previewInvoiceClientCall: Promise<TaxAmounts> | null = null;
 
     if (isFamiliesPlan) {
       // Currently, only Families plan is supported for organization plans
@@ -111,22 +112,28 @@ export class UpgradePaymentService {
         passwordManager: { seats: 1, additionalStorage: 0, sponsored: false },
       };
 
-      taxClientCall = this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
-        request,
-        billingAddress,
-      );
+      previewInvoiceClientCall =
+        this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
+          request,
+          billingAddress,
+          coupons,
+        );
     }
 
     if (isPremiumPlan) {
-      taxClientCall = this.taxClient.previewTaxForPremiumSubscriptionPurchase(0, billingAddress);
+      previewInvoiceClientCall = this.previewInvoiceClient.previewTaxForPremiumSubscriptionPurchase(
+        0,
+        billingAddress,
+        coupons,
+      );
     }
 
-    if (taxClientCall === null) {
-      throw new Error("Tax client call is not defined");
+    if (previewInvoiceClientCall === null) {
+      throw new Error("Preview client call is not defined");
     }
 
     try {
-      const preview = await taxClientCall;
+      const preview = await previewInvoiceClientCall;
       return preview.tax;
     } catch (error) {
       this.logService.error("Tax calculation failed:", error);
@@ -140,10 +147,11 @@ export class UpgradePaymentService {
   async upgradeToPremium(
     paymentMethod: TokenizedPaymentMethod | NonTokenizedPaymentMethod,
     billingAddress: Pick<BillingAddress, "country" | "postalCode">,
+    coupons?: string[],
   ): Promise<void> {
     this.validatePaymentAndBillingInfo(paymentMethod, billingAddress);
 
-    await this.accountBillingClient.purchasePremiumSubscription(paymentMethod, billingAddress);
+    await this.accountBillingClient.purchaseSubscription(paymentMethod, billingAddress, coupons);
 
     await this.refreshAndSync();
   }
@@ -156,6 +164,7 @@ export class UpgradePaymentService {
     planDetails: PlanDetails,
     paymentMethod: TokenizedPaymentMethod,
     formValues: PaymentFormValues,
+    coupons?: string[],
   ): Promise<OrganizationResponse> {
     const billingAddress = formValues.billingAddress;
 
@@ -189,6 +198,7 @@ export class UpgradePaymentService {
           postalCode: billingAddress.postalCode,
         },
       },
+      ...(coupons?.length ? { coupons } : {}),
     };
 
     const result = await this.organizationBillingService.purchaseSubscription(

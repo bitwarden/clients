@@ -10,8 +10,10 @@ import {
   DialogService,
   ButtonModule,
   DialogModule,
+  IconModule,
   LinkModule,
   TypographyModule,
+  CenterPositionStrategy,
 } from "@bitwarden/components";
 
 export interface LeaveConfirmationDialogParams {
@@ -34,7 +36,7 @@ export type LeaveConfirmationDialogResultType = UnionOfValues<typeof LeaveConfir
 @Component({
   templateUrl: "./leave-confirmation-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonModule, DialogModule, LinkModule, TypographyModule, JslibModule],
+  imports: [ButtonModule, DialogModule, IconModule, LinkModule, TypographyModule, JslibModule],
 })
 export class LeaveConfirmationDialogComponent {
   private readonly params = inject<LeaveConfirmationDialogParams>(DIALOG_DATA);
@@ -58,6 +60,8 @@ export class LeaveConfirmationDialogComponent {
 
   static open(dialogService: DialogService, config: DialogConfig<LeaveConfirmationDialogParams>) {
     return dialogService.open<LeaveConfirmationDialogResultType>(LeaveConfirmationDialogComponent, {
+      positionStrategy: new CenterPositionStrategy(),
+      disableClose: true,
       ...config,
     });
   }

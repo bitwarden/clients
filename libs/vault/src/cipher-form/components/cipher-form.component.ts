@@ -281,6 +281,10 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
 
       if (this.config.mode === "clone") {
         this.updatedCipherView.id = null;
+        // Ensure the cloned cipher generates a new cipher key
+        this.updatedCipherView.key = undefined;
+        // Cloning attachments is not supported
+        this.updatedCipherView.attachments = [];
 
         if (this.updatedCipherView.login) {
           this.updatedCipherView.login.fido2Credentials = null;
@@ -358,6 +362,7 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
   }
 
   submit = async () => {
+    let successToast: string = "editedItem";
     if (this.cipherForm.invalid) {
       this.cipherForm.markAllAsTouched();
 
@@ -392,6 +397,7 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
     // If the item is archived but user has lost archive permissions, unarchive the item.
     if (!userCanArchive && this.updatedCipherView.archivedDate) {
       this.updatedCipherView.archivedDate = null;
+      successToast = "itemRestored";
     }
 
     const savedCipher = await this.addEditFormService.saveCipher(
@@ -407,7 +413,7 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
       title: null,
       message: this.i18nService.t(
         this.config.mode === "edit" || this.config.mode === "partial-edit"
-          ? "editedItem"
+          ? successToast
           : "addedItem",
       ),
     });

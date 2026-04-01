@@ -1,11 +1,9 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   AssertCredentialParams,
   CreateCredentialParams,
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-client.service.abstraction";
 
-import { sendExtensionMessage } from "../../../autofill/utils";
+import { currentlyInSandboxedIframe, sendExtensionMessage } from "../../../autofill/utils";
 import { Fido2PortName } from "../enums/fido2-port-name.enum";
 
 import {
@@ -27,6 +25,10 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
     return;
   }
 
+  if (currentlyInSandboxedIframe()) {
+    return;
+  }
+
   // Initialization logic, set up the messenger and connect a port to the background script.
   const messenger = Messenger.forDOMCommunication(globalContext.window);
   messenger.handler = handleFido2Message;
@@ -41,12 +43,12 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
    */
   async function handleFido2Message(
     message: MessageWithMetadata,
-    abortController: AbortController,
+    abortController?: AbortController,
   ) {
     const requestId = Date.now().toString();
     const abortHandler = () =>
       sendExtensionMessage("fido2AbortRequest", { abortedRequestId: requestId });
-    abortController.signal.addEventListener("abort", abortHandler);
+    abortController?.signal.addEventListener("abort", abortHandler);
 
     try {
       if (message.type === MessageTypes.CredentialCreationRequest) {
@@ -67,7 +69,7 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
         return sendExtensionMessage("fido2AbortRequest", { abortedRequestId: requestId });
       }
     } finally {
-      abortController.signal.removeEventListener("abort", abortHandler);
+      abortController?.signal.removeEventListener("abort", abortHandler);
     }
   }
 

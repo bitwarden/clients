@@ -11,16 +11,17 @@ import {
   Input,
   OnChanges,
   OnInit,
+  output,
   Output,
+  viewChild,
   ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
@@ -104,6 +105,13 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onSendUpdated = new EventEmitter<SendView>();
+
+  /**
+   * Event emitted when the user requests to open the password generator.
+   */
+  readonly openPasswordGenerator = output<void>();
+
+  readonly sendDetailsComponent = viewChild(SendDetailsComponent);
 
   /**
    * The original send being edited or cloned. Null for add mode.
@@ -225,10 +233,6 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
     if (this.config.mode === "add") {
       this.onSendCreated.emit(sendView);
       return;
-    }
-
-    if (Utils.isNullOrWhitespace(this.updatedSendView.password)) {
-      this.updatedSendView.password = null;
     }
 
     this.toastService.showToast({

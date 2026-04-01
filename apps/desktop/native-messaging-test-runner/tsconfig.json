@@ -1,4 +1,5 @@
 {
+  "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "dist",
@@ -18,7 +19,13 @@
       "@bitwarden/auth/*": ["../../../libs/auth/src/*"],
       "@bitwarden/common/*": ["../../../libs/common/src/*"],
       "@bitwarden/key-management": ["../../../libs/key-management/src/"],
-      "@bitwarden/node/*": ["../../../libs/node/src/*"]
+      "@bitwarden/node/*": ["../../../libs/node/src/*"],
+      "@bitwarden/state": ["../../../libs/state/src/index.ts"],
+      "@bitwarden/state-internal": ["../../../libs/state-internal/src/index.ts"],
+      "@bitwarden/client-type": ["../../../libs/client-type/src/index.ts"],
+      "@bitwarden/messaging": ["../../../libs/messaging/src/index.ts"],
+      "@bitwarden/guid": ["../../../libs/guid/src/index.ts"],
+      "@bitwarden/serialization": ["../../../libs/serialization/src/index.ts"]
     },
     "plugins": [
       {
@@ -26,5 +33,6 @@
       }
     ]
   },
-  "exclude": ["node_modules"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

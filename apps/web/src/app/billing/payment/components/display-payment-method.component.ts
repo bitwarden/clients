@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, input, Input, Output } from "@angular/core";
 import { lastValueFrom } from "rxjs";
 
 import { DialogService } from "@bitwarden/components";
@@ -15,7 +15,9 @@ import { ChangePaymentMethodDialogComponent } from "./change-payment-method-dial
   selector: "app-display-payment-method",
   template: `
     <bit-section>
-      <h2 bitTypography="h2">{{ "paymentMethod" | i18n }}</h2>
+      @if (!hideHeader()) {
+        <h2 bitTypography="h2">{{ "paymentMethod" | i18n }}</h2>
+      }
       @if (paymentMethod) {
         @switch (paymentMethod.type) {
           @case ("bankAccount") {
@@ -81,6 +83,7 @@ export class DisplayPaymentMethodComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() updated = new EventEmitter<MaskedPaymentMethod>();
+  protected readonly hideHeader = input<boolean>(false);
 
   constructor(private dialogService: DialogService) {}
 

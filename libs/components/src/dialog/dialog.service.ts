@@ -10,15 +10,24 @@ import { ComponentPortal, Portal } from "@angular/cdk/portal";
 import { Injectable, Injector, TemplateRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
-import { filter, firstValueFrom, map, Observable, Subject, switchMap } from "rxjs";
+import {
+  distinctUntilChanged,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  startWith,
+  Subject,
+  switchMap,
+  take,
+} from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { DrawerService } from "../drawer/drawer.service";
 import { isAtOrLargerThanBreakpoint } from "../utils/responsive-utils";
 
+import { DrawerService } from "./drawer.service";
 import { SimpleConfigurableDialogComponent } from "./simple-dialog/simple-configurable-dialog/simple-configurable-dialog.component";
 import { SimpleDialogOptions } from "./simple-dialog/types";
 
@@ -62,7 +71,14 @@ export abstract class DialogRef<R = unknown, C = unknown> implements Pick<
 
 export type DialogConfig<D = unknown, R = unknown> = Pick<
   CdkDialogConfig<D, R>,
-  "data" | "disableClose" | "ariaModal" | "positionStrategy" | "height" | "width"
+  | "data"
+  | "disableClose"
+  | "ariaModal"
+  | "positionStrategy"
+  | "height"
+  | "width"
+  | "restoreFocus"
+  | "closeOnNavigation"
 >;
 
 /**
@@ -137,7 +153,11 @@ class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   /** The portal containing the drawer */
   portal?: Portal<unknown>;
 
-  constructor(private drawerService: DrawerService) {}
+  constructor(
+    private drawerService: DrawerService,
+    /** Whether to close this drawer when navigating to a different route */
+    readonly closeOnNavigation = false,
+  ) {}
 
   close(result?: R, _options?: DialogCloseOptions): void {
     if (this.disableClose) {
@@ -188,11 +208,10 @@ export class DialogService {
   private dialog = inject(CdkDialog);
   private drawerService = inject(DrawerService);
   private injector = inject(Injector);
-  private router = inject(Router, { optional: true });
+  private router = inject(Router);
   private authService = inject(AuthService, { optional: true });
-  private i18nService = inject(I18nService);
 
-  private backDropClasses = ["tw-fixed", "tw-bg-black", "tw-bg-opacity-30", "tw-inset-0"];
+  private backDropClasses = ["tw-fixed", "tw-bg-bg-overlay", "tw-inset-0"];
   private defaultScrollStrategy = new CustomBlockScrollStrategy();
   private activeDrawer: DrawerDialogRef<any, any> | null = null;
 
@@ -211,6 +230,24 @@ export class DialogService {
           takeUntilDestroyed(),
         )
         .subscribe(() => this.closeAll());
+    }
+
+    /**
+     * Close the active drawer on route navigation if configured.
+     * Note: CDK dialogs have their own `closeOnNavigation` config option,
+     * but drawers use a custom implementation that requires manual cleanup.
+     */
+    if (this.router) {
+      this.router.events
+        .pipe(
+          filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+          map((event) => event.urlAfterRedirects.split("?")[0]),
+          startWith(this.router.url.split("?")[0]),
+          distinctUntilChanged(),
+          filter(() => this.activeDrawer?.closeOnNavigation === true),
+          takeUntilDestroyed(),
+        )
+        .subscribe(() => this.closeDrawer());
     }
   }
 
@@ -237,11 +274,17 @@ export class DialogService {
       backdropClass: this.backDropClasses,
       scrollStrategy: this.defaultScrollStrategy,
       positionStrategy: config?.positionStrategy ?? new ResponsivePositionStrategy(),
+      closeOnNavigation: config?.closeOnNavigation,
       injector,
       ...config,
     };
 
     ref.cdkDialogRefBase = this.dialog.open<R, D, C>(componentOrTemplateRef, _config);
+
+    if (config?.restoreFocus === undefined) {
+      this.setRestoreFocusEl<R, C>(ref);
+    }
+
     return ref;
   }
 
@@ -255,7 +298,7 @@ export class DialogService {
      * This is also circular. When creating the DrawerDialogRef, we do not yet have a portal instance to provide to the injector.
      * Similar to `this.open`, we get around this with mutability.
      */
-    this.activeDrawer = new DrawerDialogRef(this.drawerService);
+    this.activeDrawer = new DrawerDialogRef(this.drawerService, config?.closeOnNavigation ?? false);
     const portal = new ComponentPortal(
       component,
       null,
@@ -298,6 +341,53 @@ export class DialogService {
   /** Close all open dialogs */
   closeAll(): void {
     return this.dialog.closeAll();
+  }
+
+  /** Close the open drawer */
+  closeDrawer(): void {
+    return this.activeDrawer?.close();
+  }
+
+  /**
+   * Configure the dialog to return focus to the previous active element upon closing.
+   * @param ref CdkDialogRef
+   *
+   * The cdk dialog already has the optional directive `cdkTrapFocusAutoCapture` to capture the
+   * current active element and return focus to it upon close. However, it does not have a way to
+   * delay the capture of the element. We need this delay in some situations, where the active
+   * element may be changing as the dialog is opening, and we want to wait for that to settle.
+   *
+   * For example -- the menu component often contains menu items that open dialogs. When the dialog
+   * opens, the menu is closing and is setting focus back to the menu trigger since the menu item no
+   * longer exists. We want to capture the menu trigger as the active element, not the about-to-be-
+   * nonexistent menu item. If we wait a tick, we can let the menu finish that focus move.
+   */
+  private setRestoreFocusEl<R = unknown, C = unknown>(ref: CdkDialogRef<R, C>) {
+    /**
+     * First, capture the current active el with no delay so that we can support normal use cases
+     * where we are not doing manual focus management
+     */
+    const activeEl = document.activeElement;
+
+    const restoreFocusTimeout = setTimeout(() => {
+      let restoreFocusEl = activeEl;
+
+      /**
+       * If the original active element is no longer connected, it's because we purposely removed it
+       * from the DOM and have moved focus. Select the new active element instead.
+       */
+      if (!restoreFocusEl?.isConnected) {
+        restoreFocusEl = document.activeElement;
+      }
+
+      if (restoreFocusEl instanceof HTMLElement) {
+        ref.cdkDialogRefBase.config.restoreFocus = restoreFocusEl;
+      }
+    }, 0);
+
+    ref.closed.pipe(take(1)).subscribe(() => {
+      clearTimeout(restoreFocusTimeout);
+    });
   }
 
   /** The injector that is passed to the opened dialog */

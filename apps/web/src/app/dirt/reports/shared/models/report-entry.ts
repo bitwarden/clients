@@ -1,4 +1,4 @@
-import { Icon } from "@bitwarden/assets/svg";
+import { BitSvg } from "@bitwarden/assets/svg";
 
 import { ReportVariant } from "./report-variant";
 
@@ -6,6 +6,6 @@ export type ReportEntry = {
   title: string;
   description: string;
   route: string;
-  icon: Icon;
+  icon: BitSvg;
   variant: ReportVariant;
 };

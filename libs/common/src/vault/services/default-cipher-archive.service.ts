@@ -1,10 +1,8 @@
-import { filter, map, Observable, shareReplay, combineLatest, firstValueFrom } from "rxjs";
+import { combineLatest, filter, firstValueFrom, map, Observable, shareReplay } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
@@ -18,13 +16,13 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { CipherArchiveService } from "../abstractions/cipher-archive.service";
+import { CipherData } from "../models/data/cipher.data";
 
 export class DefaultCipherArchiveService implements CipherArchiveService {
   constructor(
     private cipherService: CipherService,
     private apiService: ApiService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private configService: ConfigService,
   ) {}
 
   /**
@@ -44,23 +42,13 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
 
   /**
    * User can archive items if:
-   * Feature Flag is enabled
    * User has premium from any source (personal or organization)
    */
   userCanArchive$(userId: UserId): Observable<boolean> {
-    return combineLatest([
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId),
-      this.configService.getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive),
-    ]).pipe(
-      map(([hasPremium, archiveFlagEnabled]) => hasPremium && archiveFlagEnabled),
-      shareReplay({ refCount: true, bufferSize: 1 }),
-    );
+    return this.billingAccountProfileStateService
+      .hasPremiumFromAnySource$(userId)
+      .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
   }
-
-  /** Returns true when the archive features should be shown. */
-  hasArchiveFlagEnabled$: Observable<boolean> = this.configService
-    .getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive)
-    .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
 
   /** Returns true when the user has premium from any means. */
   userHasPremium$(userId: UserId): Observable<boolean> {
@@ -77,45 +65,31 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     );
   }
 
-  async archiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void> {
+  async archiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<CipherData> {
     const request = new CipherBulkArchiveRequest(Array.isArray(ids) ? ids : [ids]);
     const r = await this.apiService.send("PUT", "/ciphers/archive", request, true, true);
     const response = new ListResponse(r, CipherResponse);
 
     const currentCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
+    const responseDataArray = response.data.map(
+      (cipher) => new CipherData(cipher, currentCiphers[cipher.id as CipherId]?.collectionIds),
+    );
 
-    for (const cipher of response.data) {
-      const localCipher = currentCiphers[cipher.id as CipherId];
-
-      if (localCipher == null) {
-        continue;
-      }
-
-      localCipher.archivedDate = cipher.archivedDate;
-      localCipher.revisionDate = cipher.revisionDate;
-    }
-
-    await this.cipherService.replace(currentCiphers, userId);
+    await this.cipherService.upsert(responseDataArray, userId);
+    return response.data[0];
   }
 
-  async unarchiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void> {
+  async unarchiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<CipherData> {
     const request = new CipherBulkUnarchiveRequest(Array.isArray(ids) ? ids : [ids]);
     const r = await this.apiService.send("PUT", "/ciphers/unarchive", request, true, true);
     const response = new ListResponse(r, CipherResponse);
 
     const currentCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
+    const responseDataArray = response.data.map(
+      (cipher) => new CipherData(cipher, currentCiphers[cipher.id as CipherId]?.collectionIds),
+    );
 
-    for (const cipher of response.data) {
-      const localCipher = currentCiphers[cipher.id as CipherId];
-
-      if (localCipher == null) {
-        continue;
-      }
-
-      localCipher.archivedDate = cipher.archivedDate;
-      localCipher.revisionDate = cipher.revisionDate;
-    }
-
-    await this.cipherService.replace(currentCiphers, userId);
+    await this.cipherService.upsert(responseDataArray, userId);
+    return response.data[0];
   }
 }

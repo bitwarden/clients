@@ -109,6 +109,7 @@ module.exports.buildConfig = function buildConfig(params) {
     },
     {
       test: /\.[cm]?js$/,
+      exclude: /\.wasm\.js$/,
       use: [
         {
           loader: "babel-loader",
@@ -127,6 +128,10 @@ module.exports.buildConfig = function buildConfig(params) {
   ];
 
   const requiredPlugins = [
+    new webpack.SourceMapDevToolPlugin({
+      exclude: [/content\/.*/, /notification\/.*/, /overlay\/.*/],
+      filename: "[file].map",
+    }),
     new webpack.DefinePlugin({
       "process.env": {
         ENV: JSON.stringify(ENV),
@@ -199,10 +204,6 @@ module.exports.buildConfig = function buildConfig(params) {
     }),
     new webpack.ProvidePlugin({
       process: "process/browser.js",
-    }),
-    new webpack.SourceMapDevToolPlugin({
-      exclude: [/content\/.*/, /notification\/.*/, /overlay\/.*/],
-      filename: "[file].map",
     }),
     ...requiredPlugins,
   ];

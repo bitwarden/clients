@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -25,7 +23,6 @@ import {
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
-import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -68,6 +65,8 @@ import {
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
+  CalloutModule,
+  ButtonModule,
 } from "@bitwarden/components";
 import { AdvancedUriOptionDialogComponent } from "@bitwarden/vault";
 
@@ -100,7 +99,8 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     SelectModule,
     TypographyModule,
     ReactiveFormsModule,
-    SpotlightComponent,
+    CalloutModule,
+    ButtonModule,
   ],
 })
 export class AutofillComponent implements OnInit {
@@ -159,7 +159,7 @@ export class AutofillComponent implements OnInit {
   clearClipboard!: ClearClipboardDelaySetting;
   clearClipboardOptions: { name: string; value: ClearClipboardDelaySetting }[];
   defaultUriMatch: UriMatchStrategySetting = UriMatchStrategy.Domain;
-  uriMatchOptions: { name: string; value: UriMatchStrategySetting; disabled?: boolean }[];
+  uriMatchOptions: { name: string; value: UriMatchStrategySetting | null; disabled?: boolean }[];
   showCardsCurrentTab: boolean = true;
   showIdentitiesCurrentTab: boolean = true;
   /** Non-null asserted. */
@@ -358,13 +358,6 @@ export class AutofillComponent implements OnInit {
     );
   }
 
-  get spotlightButtonIcon() {
-    if (this.browserClientVendor === BrowserClientVendors.Unknown) {
-      return "bwi-external-link";
-    }
-    return null;
-  }
-
   get browserClientVendorExtended() {
     if (this.browserClientVendor !== BrowserClientVendors.Unknown) {
       return this.browserClientVendor;
@@ -556,17 +549,26 @@ export class AutofillComponent implements OnInit {
     const isAdvanced =
       current === UriMatchStrategy.StartsWith || current === UriMatchStrategy.RegularExpression;
     if (!valueChange || !isAdvanced) {
-      return await this.domainSettingsService.setDefaultUriMatchStrategy(current);
+      if (current !== null) {
+        await this.domainSettingsService.setDefaultUriMatchStrategy(current);
+      }
+      return;
+    }
+    const contentKey = this.advancedOptionWarningMap[current];
+    if (!contentKey) {
+      return;
     }
     AdvancedUriOptionDialogComponent.open(this.dialogService, {
-      contentKey: this.advancedOptionWarningMap[current],
+      contentKey,
       onContinue: async () => {
         this.additionalOptionsForm.controls.defaultUriMatch.setValue(current);
         await this.domainSettingsService.setDefaultUriMatchStrategy(current);
       },
       onCancel: async () => {
         this.additionalOptionsForm.controls.defaultUriMatch.setValue(previous);
-        await this.domainSettingsService.setDefaultUriMatchStrategy(previous);
+        if (previous !== null) {
+          await this.domainSettingsService.setDefaultUriMatchStrategy(previous);
+        }
       },
     });
   }
@@ -599,7 +601,10 @@ export class AutofillComponent implements OnInit {
       strategy === UriMatchStrategy.StartsWith ||
       strategy === UriMatchStrategy.RegularExpression
     ) {
-      hints.push(this.advancedOptionWarningMap[strategy]);
+      const hint = this.advancedOptionWarningMap[strategy];
+      if (hint) {
+        hints.push(hint);
+      }
     }
     return hints;
   }
@@ -611,6 +616,10 @@ export class AutofillComponent implements OnInit {
     if (this.canOverrideBrowserAutofillSetting) {
       this.defaultBrowserAutofillDisabled = true;
       await this.updateDefaultBrowserAutofillDisabled();
+      await this.nudgesService.dismissNudge(
+        NudgeType.AutofillNudge,
+        await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
+      );
     } else {
       await this.openURI(event, this.disablePasswordManagerURI);
     }

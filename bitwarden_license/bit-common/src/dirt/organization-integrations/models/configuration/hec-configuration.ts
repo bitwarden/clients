@@ -3,17 +3,29 @@ import { OrganizationIntegrationServiceName } from "../organization-integration-
 
 export class HecConfiguration implements OrgIntegrationConfiguration {
   uri: string;
-  scheme = "Bearer";
+  scheme: string;
   token: string;
-  service: OrganizationIntegrationServiceName;
+  service?: string;
+  bw_serviceName: OrganizationIntegrationServiceName;
 
-  constructor(uri: string, token: string, service: OrganizationIntegrationServiceName) {
+  constructor(
+    uri: string,
+    token: string,
+    bw_serviceName: OrganizationIntegrationServiceName,
+    scheme: string = "Bearer",
+  ) {
     this.uri = uri;
     this.token = token;
-    this.service = service;
+    this.bw_serviceName = bw_serviceName;
+    this.scheme = scheme;
   }
 
   toString(): string {
-    return JSON.stringify(this);
+    return JSON.stringify({
+      Uri: this.uri,
+      Scheme: this.scheme,
+      Token: this.token,
+      bw_serviceName: this.bw_serviceName,
+    });
   }
 }

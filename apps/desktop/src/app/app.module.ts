@@ -3,55 +3,58 @@ import "zone.js";
 // Register the locales for the application
 import "../platform/app/locales";
 
+import { OverlayModule } from "@angular/cdk/overlay";
 import { NgModule } from "@angular/core";
+import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
-import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
-import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
-import { CalloutModule, DialogModule } from "@bitwarden/components";
-import { AssignCollectionsComponent } from "@bitwarden/vault";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { IconModule } from "@bitwarden/components";
 
-import { DeleteAccountComponent } from "../auth/delete-account.component";
-import { LoginModule } from "../auth/login/login.module";
 import { SshAgentService } from "../autofill/services/ssh-agent.service";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
-import { VaultFilterModule } from "../vault/app/vault/vault-filter/vault-filter.module";
-import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
+import { DesktopPremiumUpgradePromptService } from "../services/desktop-premium-upgrade-prompt.service";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
-import { UserVerificationComponent } from "./components/user-verification.component";
+import { AvatarComponent } from "./components/avatar.component";
 import { AccountSwitcherComponent } from "./layout/account-switcher.component";
 import { HeaderComponent } from "./layout/header.component";
-import { NavComponent } from "./layout/nav.component";
 import { SearchComponent } from "./layout/search/search.component";
-import { SharedModule } from "./shared/shared.module";
+import { ServicesModule } from "./services/services.module";
 
+/**
+ * This is the `AppModule` for the Bitwarden desktop application.
+ *
+ * This file contains **ONLY** components that are used in `AppComponent`. You most likely
+ * **DO NOT** want to modify this file. Routable components are handled by the `AppRoutingModule`.
+ */
 @NgModule({
   imports: [
     BrowserAnimationsModule,
-    SharedModule,
     AppRoutingModule,
-    VaultFilterModule,
-    LoginModule,
-    DialogModule,
-    CalloutModule,
-    DeleteAccountComponent,
-    UserVerificationComponent,
-    NavComponent,
-    AssignCollectionsComponent,
-    VaultV2Component,
+    JslibModule,
+    IconModule,
+    ReactiveFormsModule,
+    OverlayModule,
+    ServicesModule,
   ],
   declarations: [
+    AvatarComponent,
     AccountSwitcherComponent,
     AppComponent,
-    ColorPasswordPipe,
-    ColorPasswordCountPipe,
     HeaderComponent,
     PremiumComponent,
     SearchComponent,
   ],
-  providers: [SshAgentService],
+  providers: [
+    SshAgentService,
+    {
+      provide: PremiumUpgradePromptService,
+      useClass: DesktopPremiumUpgradePromptService,
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

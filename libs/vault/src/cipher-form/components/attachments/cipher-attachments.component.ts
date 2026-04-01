@@ -1,3 +1,5 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
@@ -105,6 +107,8 @@ export class CipherAttachmentsComponent {
   /** Emits after a file has been successfully removed */
   readonly onRemoveSuccess = output<void>();
 
+  readonly onCloseButtonPress = output<void>();
+
   protected readonly organization = signal<Organization | null>(null);
   protected readonly cipher = signal<CipherView | null>(null);
 
@@ -154,7 +158,7 @@ export class CipherAttachmentsComponent {
       // Update the initial state of the submit button
       const btn = this.submitBtn();
       if (btn) {
-        btn.disabled.set(!this.attachmentForm.valid);
+        btn.disabled.set(!this.attachmentForm.valid && (this.cipher()?.edit ?? true));
       }
     });
 
@@ -192,6 +196,12 @@ export class CipherAttachmentsComponent {
 
   /** Save the attachments to the cipher */
   submit = async () => {
+    //user can't edit cipher and will close the bit-dialog
+    if (!(this.cipher()?.edit ?? false)) {
+      this.onCloseButtonPress.emit();
+      return;
+    }
+
     this.onUploadStarted.emit();
 
     const file = this.attachmentForm.value.file;
@@ -223,7 +233,7 @@ export class CipherAttachmentsComponent {
         this.cipherDomain,
         file,
         this.activeUserId,
-        this.organization()?.canEditAllCiphers,
+        this.admin(),
       );
 
       // re-decrypt the cipher to update the attachments
@@ -291,20 +301,22 @@ export class CipherAttachmentsComponent {
       return null;
     }
 
+    // When in admin context, always fetch from server to get fresh data.
+    // Admin uploads skip local state upsert, so local state may be stale.
+    if (this.admin()) {
+      const cipherResponse = await this.apiService.getCipherAdmin(id);
+      // Admin API response doesn't include `edit`, but admin users always have edit access
+      cipherResponse.edit = true;
+      const cipherData = new CipherData(cipherResponse);
+      return new Cipher(cipherData);
+    }
+
     // First try to get the cipher directly with user permissions
     const localCipher = await this.cipherService.get(id, this.activeUserId);
 
     // If we got the cipher or there's no organization context, return the result
     if (localCipher != null || !this.organizationId()) {
       return localCipher;
-    }
-
-    // Only try the admin API if the user has admin permissions
-    const org = this.organization();
-    if (org != null && org.canEditAllCiphers) {
-      const cipherResponse = await this.apiService.getCipherAdmin(id);
-      const cipherData = new CipherData(cipherResponse);
-      return new Cipher(cipherData);
     }
 
     return null;

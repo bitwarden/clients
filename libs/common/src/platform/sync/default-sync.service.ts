@@ -4,19 +4,25 @@ import { firstValueFrom, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
+import { CollectionService } from "@bitwarden/admin-console/common";
 import {
   CollectionData,
   CollectionDetailsResponse,
-  CollectionService,
-} from "@bitwarden/admin-console/common";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+} from "@bitwarden/common/admin-console/models/collections";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { EncString as SdkEncString } from "@bitwarden/sdk-internal";
 
-// FIXME: remove `src` and fix import
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { UserDecryptionOptionsServiceAbstraction } from "../../../../auth/src/common/abstractions";
+import {
+  InternalUserDecryptionOptionsServiceAbstraction,
+  UserDecryptionOptions,
+  WebAuthnPrfUserDecryptionOption,
+} from "../../../../auth/src/common";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "../../../../auth/src/common/types";
@@ -92,7 +98,7 @@ export class DefaultSyncService extends CoreSyncService {
     folderApiService: FolderApiServiceAbstraction,
     private organizationService: InternalOrganizationServiceAbstraction,
     sendApiService: SendApiService,
-    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+    private userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     private avatarService: AvatarService,
     private logoutCallback: (logoutReason: LogoutReason, userId?: UserId) => Promise<void>,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
@@ -101,6 +107,7 @@ export class DefaultSyncService extends CoreSyncService {
     stateProvider: StateProvider,
     private securityStateService: SecurityStateService,
     private kdfConfigService: KdfConfigService,
+    private accountCryptographicStateService: AccountCryptographicStateService,
   ) {
     super(
       tokenService,
@@ -176,6 +183,8 @@ export class DefaultSyncService extends CoreSyncService {
 
       const response = await this.inFlightApiCalls.sync;
 
+      await this.cipherService.clear(response.profile.id);
+
       await this.syncUserDecryption(response.profile.id, response.userDecryption);
       await this.syncProfile(response.profile);
       await this.syncFolders(response.folders, response.profile.id);
@@ -239,27 +248,19 @@ export class DefaultSyncService extends CoreSyncService {
 
     // Cleanup: Only the first branch should be kept after the server always returns accountKeys https://bitwarden.atlassian.net/browse/PM-21768
     if (response.accountKeys != null) {
-      await this.keyService.setPrivateKey(
-        response.accountKeys.publicKeyEncryptionKeyPair.wrappedPrivateKey,
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        response.accountKeys.toWrappedAccountCryptographicState(),
         response.id,
       );
-      if (response.accountKeys.signatureKeyPair !== null) {
-        // User is V2 user
-        await this.keyService.setUserSigningKey(
-          response.accountKeys.signatureKeyPair.wrappedSigningKey,
-          response.id,
-        );
-        await this.securityStateService.setAccountSecurityState(
-          response.accountKeys.securityState.securityState,
-          response.id,
-        );
-        await this.keyService.setSignedPublicKey(
-          response.accountKeys.publicKeyEncryptionKeyPair.signedPublicKey,
-          response.id,
-        );
-      }
     } else {
-      await this.keyService.setPrivateKey(response.privateKey, response.id);
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        {
+          V1: {
+            private_key: response.privateKey as SdkEncString,
+          },
+        },
+        response.id,
+      );
     }
     await this.keyService.setProviderKeys(response.providers, response.id);
     await this.keyService.setOrgKeys(
@@ -271,8 +272,8 @@ export class DefaultSyncService extends CoreSyncService {
     await this.avatarService.setSyncAvatarColor(response.id, response.avatarColor);
     await this.tokenService.setSecurityStamp(response.securityStamp, response.id);
     await this.accountService.setAccountEmailVerified(response.id, response.emailVerified);
+    await this.accountService.setAccountCreationDate(response.id, new Date(response.creationDate));
     await this.accountService.setAccountVerifyNewDeviceLogin(response.id, response.verifyDevices);
-    await this.accountService.setAccountCreationDate(response.id, response.creationDate);
 
     await this.billingAccountProfileStateService.setHasPremium(
       response.premiumPersonally,
@@ -441,6 +442,44 @@ export class DefaultSyncService extends CoreSyncService {
         userId,
       );
       await this.kdfConfigService.setKdfConfig(userId, masterPasswordUnlockData.kdf);
+    }
+
+    // Update WebAuthn PRF options if present
+    if (userDecryption.webAuthnPrfOptions != null && userDecryption.webAuthnPrfOptions.length > 0) {
+      try {
+        // Only update if this is the active user, since setUserDecryptionOptions()
+        // operates on the active user's state
+        const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+
+        if (activeAccount?.id !== userId) {
+          return;
+        }
+
+        // Get current options without blocking if they don't exist yet
+        const currentUserDecryptionOptions = await firstValueFrom(
+          this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
+        ).catch((): UserDecryptionOptions | null => {
+          return null;
+        });
+
+        if (currentUserDecryptionOptions != null) {
+          // Update the PRF options while preserving other decryption options
+          const updatedOptions = Object.assign(
+            new UserDecryptionOptions(),
+            currentUserDecryptionOptions,
+          );
+          updatedOptions.webAuthnPrfOptions = userDecryption.webAuthnPrfOptions
+            .map((option) => WebAuthnPrfUserDecryptionOption.fromResponse(option))
+            .filter((option) => option !== undefined);
+
+          await this.userDecryptionOptionsService.setUserDecryptionOptionsById(
+            activeAccount.id,
+            updatedOptions,
+          );
+        }
+      } catch (error) {
+        this.logService.error("[Sync] Failed to update WebAuthn PRF options:", error);
+      }
     }
   }
 }

@@ -55,8 +55,9 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));
 
-    expect(result.password).toBeInstanceOf(PasswordLoginStrategyData);
-    verifyPropertyPrototypes(result, actual);
+    expect(result).not.toBeNull();
+    expect(result!.password).toBeInstanceOf(PasswordLoginStrategyData);
+    verifyPropertyPrototypes(result!, actual);
   });
 
   it("should correctly deserialize SsoLoginStrategyData", () => {
@@ -71,36 +72,46 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));
 
-    expect(result.sso).toBeInstanceOf(SsoLoginStrategyData);
-    verifyPropertyPrototypes(result, actual);
+    expect(result).not.toBeNull();
+    expect(result!.sso).toBeInstanceOf(SsoLoginStrategyData);
+    verifyPropertyPrototypes(result!, actual);
   });
 
   it("should correctly deserialize UserApiLoginStrategyData", () => {
     const actual = { userApiKey: new UserApiLoginStrategyData() };
-    actual.userApiKey.tokenRequest = new UserApiTokenRequest("CLIENT_ID", "CLIENT_SECRET", null);
+    actual.userApiKey.tokenRequest = new UserApiTokenRequest(
+      "CLIENT_ID",
+      "CLIENT_SECRET",
+      twoFactorRequest,
+    );
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));
 
-    expect(result.userApiKey).toBeInstanceOf(UserApiLoginStrategyData);
-    verifyPropertyPrototypes(result, actual);
+    expect(result).not.toBeNull();
+    expect(result!.userApiKey).toBeInstanceOf(UserApiLoginStrategyData);
+    verifyPropertyPrototypes(result!, actual);
   });
 
   it("should correctly deserialize AuthRequestLoginStrategyData", () => {
     const actual = { authRequest: new AuthRequestLoginStrategyData() };
-    actual.authRequest.tokenRequest = new PasswordTokenRequest("EMAIL", "ACCESS_CODE", null, null);
+    actual.authRequest.tokenRequest = new PasswordTokenRequest(
+      "EMAIL",
+      "ACCESS_CODE",
+      twoFactorRequest,
+      deviceRequest,
+    );
     actual.authRequest.authRequestCredentials = new AuthRequestLoginCredentials(
       "EMAIL",
       "ACCESS_CODE",
       "AUTH_REQUEST_ID",
       new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
-      new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey,
-      "MASTER_KEY_HASH",
     );
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));
 
-    expect(result.authRequest).toBeInstanceOf(AuthRequestLoginStrategyData);
-    verifyPropertyPrototypes(result, actual);
+    expect(result).not.toBeNull();
+    expect(result!.authRequest).toBeInstanceOf(AuthRequestLoginStrategyData);
+    verifyPropertyPrototypes(result!, actual);
   });
 
   it("should correctly deserialize WebAuthnLoginStrategyData", () => {
@@ -122,8 +133,9 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));
 
-    expect(result.webAuthn).toBeInstanceOf(WebAuthnLoginStrategyData);
-    verifyPropertyPrototypes(result, actual);
+    expect(result).not.toBeNull();
+    expect(result!.webAuthn).toBeInstanceOf(WebAuthnLoginStrategyData);
+    verifyPropertyPrototypes(result!, actual);
   });
 });
 

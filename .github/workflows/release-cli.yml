@@ -29,7 +29,7 @@ jobs:
       release_version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
@@ -91,7 +91,9 @@ jobs:
                       apps/cli/bw-macos-${{ env.PKG_VERSION }}.zip,
                       apps/cli/bw-macos-arm64-${{ env.PKG_VERSION }}.zip,
                       apps/cli/bw-oss-linux-${{ env.PKG_VERSION }}.zip,
+                      apps/cli/bw-oss-linux-arm64-${{ env.PKG_VERSION }}.zip,
                       apps/cli/bw-linux-${{ env.PKG_VERSION }}.zip,
+                      apps/cli/bw-linux-arm64-${{ env.PKG_VERSION }}.zip,
                       apps/cli/bitwarden-cli.${{ env.PKG_VERSION }}.nupkg,
                       apps/cli/bw_${{ env.PKG_VERSION }}_amd64.snap,
                       apps/cli/bitwarden-cli-${{ env.PKG_VERSION }}-npm-build.zip"

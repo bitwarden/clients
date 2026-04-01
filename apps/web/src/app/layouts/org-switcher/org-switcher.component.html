@@ -7,13 +7,14 @@
   [routerLinkActiveOptions]="{ exact: true }"
   [(open)]="open"
 >
-  <i
+  <bit-icon
     slot="end"
     *ngIf="!activeOrganization.enabled"
-    class="bwi bwi-exclamation-triangle tw-my-auto"
-    [attr.aria-label]="'organizationIsDisabled' | i18n"
+    name="bwi-exclamation-triangle"
+    class="tw-my-auto"
+    [ariaLabel]="'organizationIsDisabled' | i18n"
     appA11yTitle="{{ 'organizationIsDisabled' | i18n }}"
-  ></i>
+  ></bit-icon>
   <ng-container *ngIf="organizations$ | async as organizations">
     <bit-nav-item
       *ngFor="let org of organizations"
@@ -23,13 +24,13 @@
       (mainContentClicked)="toggle()"
       [routerLinkActiveOptions]="{ exact: true }"
     >
-      <i
+      <bit-icon
         slot="end"
         *ngIf="org.enabled == false"
-        class="bwi bwi-exclamation-triangle"
-        [attr.aria-label]="'organizationIsDisabled' | i18n"
+        name="bwi-exclamation-triangle"
+        [ariaLabel]="'organizationIsDisabled' | i18n"
         appA11yTitle="{{ 'organizationIsDisabled' | i18n }}"
-      ></i>
+      ></bit-icon>
     </bit-nav-item>
   </ng-container>
   <bit-nav-item

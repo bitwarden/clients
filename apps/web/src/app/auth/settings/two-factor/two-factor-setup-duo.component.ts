@@ -21,7 +21,7 @@ import {
   DialogRef,
   DialogService,
   FormFieldModule,
-  IconModule,
+  SvgModule,
   InputModule,
   ToastService,
   TypographyModule,
@@ -42,7 +42,7 @@ import { TwoFactorSetupMethodBaseComponent } from "./two-factor-setup-method-bas
     InputModule,
     TypographyModule,
     ButtonModule,
-    IconModule,
+    SvgModule,
     I18nPipe,
     ReactiveFormsModule,
     AsyncActionsModule,
@@ -57,7 +57,7 @@ export class TwoFactorSetupDuoComponent
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onChangeStatus: EventEmitter<boolean> = new EventEmitter();
 
-  type = TwoFactorProviderType.Duo;
+  type: TwoFactorProviderType = TwoFactorProviderType.Duo;
   formGroup = this.formBuilder.group({
     clientId: ["", [Validators.required]],
     clientSecret: ["", [Validators.required]],

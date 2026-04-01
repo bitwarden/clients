@@ -12,10 +12,20 @@
   </bit-callout>
 
   <bit-callout *ngIf="showChangePasswordLink()" type="warning" [title]="''">
-    <a bitLink href="#" appStopClick (click)="launchChangePassword()" linkType="secondary">
+    @if (changePasswordLink()) {
+      <a
+        bitLink
+        [href]="changePasswordLink()"
+        appStopClick
+        (click)="launchChangePassword()"
+        linkType="secondary"
+        endIcon="bwi-external-link"
+      >
+        {{ "changeAtRiskPassword" | i18n }}
+      </a>
+    } @else {
       {{ "changeAtRiskPassword" | i18n }}
-      <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
-    </a>
+    }
   </bit-callout>
 
   <!-- HELPER TEXT -->
@@ -31,6 +41,7 @@
     [folder]="folder()"
     [hideOwner]="isAdminConsole()"
   >
+    <ng-content select="[slot=button]"></ng-content>
   </app-item-details-v2>
 
   <!-- LOGIN CREDENTIALS -->
@@ -39,6 +50,7 @@
     [cipher]="cipher()"
     [activeUserId]="activeUserId$ | async"
     [showChangePasswordLink]="showChangePasswordLink()"
+    [changePasswordLink]="changePasswordLink()"
     (handleChangePassword)="launchChangePassword()"
   ></app-login-credentials-view>
 

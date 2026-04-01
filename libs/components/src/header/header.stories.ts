@@ -14,7 +14,7 @@ import {
   BreadcrumbsModule,
   ButtonModule,
   IconButtonModule,
-  IconModule,
+  SvgModule,
   InputModule,
   MenuModule,
   NavigationModule,
@@ -40,7 +40,7 @@ export default {
         BreadcrumbsModule,
         ButtonModule,
         IconButtonModule,
-        IconModule,
+        SvgModule,
         InputModule,
         MenuModule,
         NavigationModule,
@@ -90,7 +90,7 @@ export const KitchenSink: Story = {
               placeholder="Ask Jeeves"
               type="text"
             />
-            <button type="button" bitIconButton="bwi-filter" label="Switch products"></button>
+            <button type="button" bitIconButton="bwi-grid" label="Switch products"></button>
             <bit-avatar text="Will"></bit-avatar>
             <button bitButton buttonType="primary">New</button>
             <button bitButton slot="secondary">Click Me 🎉</button>

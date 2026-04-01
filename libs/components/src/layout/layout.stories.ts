@@ -1,16 +1,20 @@
 import { RouterTestingModule } from "@angular/router/testing";
-import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { userEvent } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { CalloutModule } from "../callout";
 import { NavigationModule } from "../navigation";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
+import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
 import { LayoutComponent } from "./layout.component";
 import { mockLayoutI18n } from "./mocks";
+
+import { formatArgsForCodeSnippet } from ".storybook/format-args-for-code-snippet";
 
 export default {
   title: "Component Library/Layout",
@@ -25,6 +29,14 @@ export default {
           useFactory: () => {
             return new I18nMockService(mockLayoutI18n);
           },
+        },
+      ],
+    }),
+    applicationConfig({
+      providers: [
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
         },
       ],
     }),
@@ -53,17 +65,17 @@ export const WithContent: Story = {
   render: (args) => ({
     props: args,
     template: /* HTML */ `
-      <bit-layout>
+      <bit-layout ${formatArgsForCodeSnippet<LayoutComponent>(args)}>
         <bit-side-nav>
-          <bit-nav-group text="Hello World (Anchor)" [route]="['a']" icon="bwi-filter">
-            <bit-nav-item text="Child A" route="a" icon="bwi-filter"></bit-nav-item>
+          <bit-nav-group text="Hello World (Anchor)" [route]="['a']" icon="bwi-grid">
+            <bit-nav-item text="Child A" route="a" icon="bwi-grid"></bit-nav-item>
             <bit-nav-item text="Child B" route="b"></bit-nav-item>
-            <bit-nav-item text="Child C" route="c" icon="bwi-filter"></bit-nav-item>
+            <bit-nav-item text="Child C" route="c" icon="bwi-grid"></bit-nav-item>
           </bit-nav-group>
-          <bit-nav-group text="Lorem Ipsum (Button)" icon="bwi-filter">
-            <bit-nav-item text="Child A" icon="bwi-filter"></bit-nav-item>
+          <bit-nav-group text="Lorem Ipsum (Button)" icon="bwi-grid">
+            <bit-nav-item text="Child A" icon="bwi-grid"></bit-nav-item>
             <bit-nav-item text="Child B"></bit-nav-item>
-            <bit-nav-item text="Child C" icon="bwi-filter"></bit-nav-item>
+            <bit-nav-item text="Child C" icon="bwi-grid"></bit-nav-item>
           </bit-nav-group>
         </bit-side-nav>
         <bit-callout title="Foobar"> Hello world! </bit-callout>
@@ -85,19 +97,26 @@ export const Secondary: Story = {
     template: /* HTML */ `
       <bit-layout>
         <bit-side-nav variant="secondary">
-          <bit-nav-group text="Hello World (Anchor)" [route]="['a']" icon="bwi-filter">
-            <bit-nav-item text="Child A" route="a" icon="bwi-filter"></bit-nav-item>
+          <bit-nav-group text="Hello World (Anchor)" [route]="['a']" icon="bwi-grid">
+            <bit-nav-item text="Child A" route="a" icon="bwi-grid"></bit-nav-item>
             <bit-nav-item text="Child B" route="b"></bit-nav-item>
-            <bit-nav-item text="Child C" route="c" icon="bwi-filter"></bit-nav-item>
+            <bit-nav-item text="Child C" route="c" icon="bwi-grid"></bit-nav-item>
           </bit-nav-group>
-          <bit-nav-group text="Lorem Ipsum (Button)" icon="bwi-filter">
-            <bit-nav-item text="Child A" icon="bwi-filter"></bit-nav-item>
+          <bit-nav-group text="Lorem Ipsum (Button)" icon="bwi-grid">
+            <bit-nav-item text="Child A" icon="bwi-grid"></bit-nav-item>
             <bit-nav-item text="Child B"></bit-nav-item>
-            <bit-nav-item text="Child C" icon="bwi-filter"></bit-nav-item>
+            <bit-nav-item text="Child C" icon="bwi-grid"></bit-nav-item>
           </bit-nav-group>
         </bit-side-nav>
         <bit-callout title="Foobar"> Hello world! </bit-callout>
       </bit-layout>
     `,
   }),
+};
+
+export const Rounded: Story = {
+  ...WithContent,
+  args: {
+    rounded: true,
+  },
 };

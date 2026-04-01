@@ -6,10 +6,13 @@ import { Constructor } from "type-fest";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
-import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
+import { VNextSavePolicyRequest } from "@bitwarden/common/admin-console/models/request/v-next-save-policy.request";
+import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { OrgKey } from "@bitwarden/common/types/key";
 import { DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 
+import { PolicyCategory } from "./pipes/policy-category";
 import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit-dialog.component";
 
 /**
@@ -41,6 +44,16 @@ export abstract class BasePolicyEditDefinition {
    * The PolicyType enum that this policy represents.
    */
   abstract type: PolicyType;
+  /**
+   * The category this policy belongs to. Used to group policies on the Policies page.
+   */
+  abstract category: PolicyCategory;
+  /**
+   * The sort order of this policy within its category on the Policies page.
+   * Lower numbers appear first. Values only need to be consistent relative to
+   * other policies in the same category.
+   */
+  abstract priority: number;
   /**
    * The component used to edit this policy. See {@link BasePolicyEditComponent}.
    */
@@ -80,7 +93,7 @@ export abstract class BasePolicyEditDefinition {
 export abstract class BasePolicyEditComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() policyResponse: PolicyResponse | undefined;
+  @Input() policyResponse: PolicyStatusResponse | undefined;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() policy: BasePolicyEditDefinition | undefined;
@@ -101,6 +114,19 @@ export abstract class BasePolicyEditComponent implements OnInit {
     if (this.policyResponse?.data != null) {
       this.loadData();
     }
+  }
+
+  async buildVNextRequest(orgKey: OrgKey): Promise<VNextSavePolicyRequest> {
+    if (!this.policy) {
+      throw new Error("Policy was not found");
+    }
+
+    const request: VNextSavePolicyRequest = {
+      policy: await this.buildRequest(),
+      metadata: null,
+    };
+
+    return request;
   }
 
   buildRequest() {

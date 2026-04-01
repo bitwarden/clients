@@ -6,6 +6,7 @@ import { filter, firstValueFrom, map } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   LinkModule,
   AsyncActionsModule,
@@ -15,6 +16,7 @@ import {
   DialogService,
   FormFieldModule,
   IconButtonModule,
+  ToastService,
 } from "@bitwarden/components";
 
 /**
@@ -36,12 +38,14 @@ import {
   ],
 })
 export class PromptMigrationPasswordComponent {
-  private dialogRef = inject(DialogRef<string>);
-  private formBuilder = inject(FormBuilder);
-  private masterPasswordUnlockService = inject(MasterPasswordUnlockService);
-  private accountService = inject(AccountService);
+  private readonly dialogRef = inject(DialogRef<string>);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly masterPasswordUnlockService = inject(MasterPasswordUnlockService);
+  private readonly accountService = inject(AccountService);
+  private readonly toastService = inject(ToastService);
+  private readonly i18nService = inject(I18nService);
 
-  migrationPasswordForm = this.formBuilder.group({
+  readonly migrationPasswordForm = this.formBuilder.group({
     masterPassword: ["", [Validators.required]],
   });
 
@@ -49,7 +53,7 @@ export class PromptMigrationPasswordComponent {
     return dialogService.open<string>(PromptMigrationPasswordComponent);
   }
 
-  submit = async () => {
+  readonly submit = async () => {
     const masterPasswordControl = this.migrationPasswordForm.controls.masterPassword;
 
     if (!masterPasswordControl.value || masterPasswordControl.invalid) {
@@ -73,6 +77,10 @@ export class PromptMigrationPasswordComponent {
         userId,
       ))
     ) {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("incorrectPassword"),
+      });
       return;
     }
 

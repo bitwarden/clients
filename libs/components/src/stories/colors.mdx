@@ -2,127 +2,772 @@ import { Meta } from "@storybook/addon-docs/blocks";
 
 <Meta title="Documentation/Colors" />
 
-export const Row = (name) => (
-  <tr class="tw-h-16">
-    <td class="!tw-border-none">{name}</td>
-    <td class={"tw-bg-" + name + " !tw-border-secondary-300"}></td>
-  </tr>
-);
+# Color System
 
-export const Table = (args) => (
-  <table class={"border tw-table-auto !tw-text-main " + args.class}>
-    <thead>
-      <tr>
-        <th class="tw-w-40">General usage</th>
-        <th class="tw-w-20"></th>
-      </tr>
-    </thead>
-    <tbody>
-      {Row("background")}
-      {Row("background-alt")}
-      {Row("background-alt2")}
-      {Row("background-alt3")}
-      {Row("background-alt4")}
-    </tbody>
-    <tbody>
-      {Row("primary-100")}
-      {Row("primary-300")}
-      {Row("primary-600")}
-      {Row("primary-700")}
-    </tbody>
-    <tbody>
-      {Row("secondary-100")}
-      {Row("secondary-300")}
-      {Row("secondary-500")}
-      {Row("secondary-600")}
-      {Row("secondary-700")}
-    </tbody>
-    <tbody>
-      {Row("success-100")}
-      {Row("success-600")}
-      {Row("success-700")}
-    </tbody>
-    <tbody>
-      {Row("danger-100")}
-      {Row("danger-600")}
-      {Row("danger-700")}
-    </tbody>
-    <tbody>
-      {Row("warning-100")}
-      {Row("warning-600")}
-      {Row("warning-700")}
-    </tbody>
-    <tbody>
-      {Row("info-100")}
-      {Row("info-600")}
-      {Row("info-700")}
-    </tbody>
-    <tbody>
-      {Row("notification-100")}
-      {Row("notification-600")}
-    </tbody>
-    <tbody>
-      {Row("illustration-outline")}
-      {Row("illustration-bg-primary")}
-      {Row("illustration-bg-secondary")}
-      {Row("illustration-bg-tertiary")}
-      {Row("illustration-tertiary")}
-      {Row("illustration-logo")}
-    </tbody>
+Bitwarden uses a three-tier color token architecture:
 
-    <thead>
-      <tr>
-        <th>Text</th>
-        <th class="tw-w-20"></th>
-      </tr>
-    </thead>
-    <tbody>
-      {Row("text-main")}
-      {Row("text-muted")}
-      {Row("text-contrast")}
-      {Row("text-alt2")}
-      {Row("text-code")}
-    </tbody>
+- **Primitive Colors** - Raw color values from the Figma design system
+- **Semantic Tokens** - Meaningful names that reference primitives
+- **Tailwind Utilities** - CSS classes for components
 
-  </table>
-);
+## Color Token Structure
 
-<style>
-  {`
-table {
-  border-spacing: 0.5rem;
-  border-collapse: separate !important;
-}
+### Primitive Colors (Hex format)
 
-tr {
-  background: none !important;
-  border: none !important;
-}
+Location: `libs/components/src/tw-theme.css`
 
-td, th {
-  color: inherit !important;
-}
+- 10 color families: `brand`, `gray`, `red`, `orange`, `yellow`, `green`, `pink`, `coral`, `teal`,
+  `purple`
+- 11 shades each: `050`, `100`, `200`, `300`, `400`, `500`, `600`, `700`, `800`, `900`, `950`
+- Format: `--color-{family}-{shade}` (e.g., `--color-brand-600`)
 
-th {
-  border: none !important;
-}
-  `}
-</style>
+### Semantic Foreground Tokens
 
-# Colors
+- **Neutral**: `fg-white`, `fg-dark`, `fg-contrast`, `fg-heading`, `fg-body`, `fg-body-subtle`,
+  `fg-disabled`
+- **Brand**: `fg-brand-soft`, `fg-brand`, `fg-brand-strong`
+- **Status**: `fg-success`, `fg-success-strong`, `fg-danger`, `fg-danger-strong`, `fg-warning`,
+  `fg-warning-strong`, `fg-sensitive`
+- **Accent**: `fg-accent-primary`, `fg-accent-secondary`, `fg-accent-tertiary` (with `-soft` and
+  `-strong` variants)
+- Format: `--color-fg-{name}`
 
-Tailwind traditionally has a very large color palette. Bitwarden has their own more limited color
-palette instead.
+### Semantic Background Tokens
 
-This has a couple of advantages:
+- **Neutral**: `bg-white`, `bg-dark`, `bg-contrast`, `bg-contrast-strong`, `bg-primary`,
+  `bg-secondary`, `bg-tertiary`, `bg-quaternary`, `bg-gray`, `bg-disabled`
+- **Brand**: `bg-brand-softer`, `bg-brand-soft`, `bg-brand-medium`, `bg-brand`, `bg-brand-strong`
+- **Status**: `bg-success-soft`, `bg-success-medium`, `bg-success`, `bg-success-strong`,
+  `bg-danger-soft`, `bg-danger-medium`, `bg-danger`, `bg-danger-strong`, `bg-warning-soft`,
+  `bg-warning-medium`, `bg-warning`, `bg-warning-strong`
+- **Accent**: `bg-accent-primary-soft`, `bg-accent-primary-medium`, `bg-accent-primary`,
+  `bg-accent-secondary-soft`, `bg-accent-secondary-medium`, `bg-accent-secondary`,
+  `bg-accent-tertiary-soft`, `bg-accent-tertiary-medium`, `bg-accent-tertiary`
+- **Special**: `bg-hover`, `bg-overlay`
+- Format: `--color-bg-{name}`
 
-- Promotes consistency across the application.
-- Easier to maintain and make adjustments.
-- Allows us to support more than two themes light & dark, should it be needed.
+### Semantic Border Tokens
 
-Below are all the permited colors. Please consult design before considering adding a new color.
+- **Neutral**: `border-muted`, `border-light`, `border-base`, `border-strong`, `border-buffer`
+- **Brand**: `border-brand-soft`, `border-brand`, `border-brand-strong`
+- **Status**: `border-success-soft`, `border-success`, `border-success-strong`,
+  `border-danger-soft`, `border-danger`, `border-danger-strong`, `border-warning-soft`,
+  `border-warning`, `border-warning-strong`
+- **Accent**: `border-accent-primary-soft`, `border-accent-primary`, `border-accent-secondary-soft`,
+  `border-accent-secondary`, `border-accent-tertiary-soft`, `border-accent-tertiary`
+- **Focus**: `border-focus`
+- Format: `--color-border-{name}`
 
-<div class="tw-flex tw-space-x-4">
-  <Table />
-  <Table class="theme_dark tw-bg-background" />
+## Semantic Color Tokens
+
+> **Note:** Due to Tailwind's utility naming and our semantic token structure, class names will
+> appear repetitive (e.g., `tw-bg-bg-primary`). This repetition is intentional:
+>
+> - `tw-` = Tailwind prefix
+> - `bg-` = Tailwind utility type (background)
+> - `bg-primary` = Our semantic token name
+
+### Background Colors
+
+Use `tw-bg-bg-*` for background colors. These tokens automatically adapt to dark mode.
+
+export const Swatch = ({ name }) => {
+  const swatchClass = `tw-h-10 tw-w-10 tw-shrink-0 tw-rounded-lg tw-border tw-border-border-base tw-bg-${name}`;
+  return <div className={swatchClass} />;
+};
+
+export const BackgroundCard = ({ name, primitiveColor }) => {
+  const bgClass = `tw-flex tw-items-center tw-gap-3 tw-rounded-xl tw-p-4 tw-border tw-border-border-base tw-bg-bg-primary`;
+  const swatchClass = `tw-h-10 tw-w-10 tw-shrink-0 tw-rounded-lg tw-border tw-border-base tw-bg-bg-${name}`;
+  return (
+    <div className={bgClass}>
+      <div className="tw-flex-1 tw-min-w-0">
+        <div className="tw-font-mono tw-text-sm tw-font-semibold tw-text-fg-heading">bg-{name}</div>
+        <div className="tw-text-xs tw-text-fg-body-subtle tw-mt-0.5">({primitiveColor})</div>
+      </div>
+      <Swatch name={`bg-${name}`} />
+    </div>
+  );
+};
+
+<div class="sb-unstyled tw-grid tw-grid-cols-2 tw-gap-8 tw-my-6">
+  <div class="tw-bg-bg-primary tw-p-6 tw-rounded-lg tw-border tw-border-border-base">
+    <h3 class="sb-unstyled sb-unstyled tw-mb-6 tw-text-xl tw-font-bold tw-text-fg-heading">Light mode</h3>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Neutral</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BackgroundCard name="white" primitiveColor="white" />
+        <BackgroundCard name="dark" primitiveColor="gray-800" />
+        <BackgroundCard name="contrast" primitiveColor="gray-800" />
+        <BackgroundCard name="contrast-strong" primitiveColor="gray-950" />
+        <BackgroundCard name="primary" primitiveColor="white" />
+        <BackgroundCard name="secondary" primitiveColor="gray-050" />
+        <BackgroundCard name="tertiary" primitiveColor="gray-050" />
+        <BackgroundCard name="quaternary" primitiveColor="gray-200" />
+        <BackgroundCard name="gray" primitiveColor="gray-300" />
+        <BackgroundCard name="disabled" primitiveColor="gray-100" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Brand</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BackgroundCard name="brand-softer" primitiveColor="brand-050" />
+        <BackgroundCard name="brand-soft" primitiveColor="brand-100" />
+        <BackgroundCard name="brand-medium" primitiveColor="brand-200" />
+        <BackgroundCard name="brand" primitiveColor="brand-700" />
+        <BackgroundCard name="brand-strong" primitiveColor="brand-800" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Status</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BackgroundCard name="success-soft" primitiveColor="green-050" />
+        <BackgroundCard name="success-medium" primitiveColor="green-100" />
+        <BackgroundCard name="success" primitiveColor="green-600" />
+        <BackgroundCard name="success-strong" primitiveColor="green-700" />
+        <BackgroundCard name="danger-soft" primitiveColor="red-050" />
+        <BackgroundCard name="danger-medium" primitiveColor="red-100" />
+        <BackgroundCard name="danger" primitiveColor="red-600" />
+        <BackgroundCard name="danger-strong" primitiveColor="red-700" />
+        <BackgroundCard name="warning-soft" primitiveColor="orange-050" />
+        <BackgroundCard name="warning-medium" primitiveColor="orange-100" />
+        <BackgroundCard name="warning" primitiveColor="orange-600" />
+        <BackgroundCard name="warning-strong" primitiveColor="orange-700" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Accent</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BackgroundCard name="accent-primary-soft" primitiveColor="teal-050" />
+        <BackgroundCard name="accent-primary-medium" primitiveColor="teal-100" />
+        <BackgroundCard name="accent-primary" primitiveColor="teal-400" />
+        <BackgroundCard name="accent-secondary-soft" primitiveColor="coral-050" />
+        <BackgroundCard name="accent-secondary-medium" primitiveColor="coral-100" />
+        <BackgroundCard name="accent-secondary" primitiveColor="coral-400" />
+        <BackgroundCard name="accent-tertiary-soft" primitiveColor="purple-050" />
+        <BackgroundCard name="accent-tertiary-medium" primitiveColor="purple-100" />
+        <BackgroundCard name="accent-tertiary" primitiveColor="purple-600" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Hover</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BackgroundCard name="hover" primitiveColor="rgba" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Overlay</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BackgroundCard name="overlay" primitiveColor="rgba" />
+      </div>
+    </div>
+
+  </div>
+
+  <div class="theme_dark tw-bg-bg-primary tw-p-6 tw-rounded-lg">
+    <h3 class="sb-unstyled sb-unstyled tw-mb-6 tw-text-xl tw-font-bold tw-text-fg-heading">Dark mode</h3>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Neutral</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BackgroundCard name="white" primitiveColor="white" />
+        <BackgroundCard name="dark" primitiveColor="gray-800" />
+        <BackgroundCard name="contrast" primitiveColor="gray-050" />
+        <BackgroundCard name="contrast-strong" primitiveColor="gray-950" />
+        <BackgroundCard name="primary" primitiveColor="gray-900" />
+        <BackgroundCard name="secondary" primitiveColor="gray-800" />
+        <BackgroundCard name="tertiary" primitiveColor="gray-950" />
+        <BackgroundCard name="quaternary" primitiveColor="gray-950" />
+        <BackgroundCard name="gray" primitiveColor="gray-600" />
+        <BackgroundCard name="disabled" primitiveColor="gray-950" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Brand</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BackgroundCard name="brand-softer" primitiveColor="brand-950" />
+        <BackgroundCard name="brand-soft" primitiveColor="brand-900" />
+        <BackgroundCard name="brand-medium" primitiveColor="brand-800" />
+        <BackgroundCard name="brand" primitiveColor="brand-400" />
+        <BackgroundCard name="brand-strong" primitiveColor="brand-300" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Status</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BackgroundCard name="success-soft" primitiveColor="green-950" />
+        <BackgroundCard name="success-medium" primitiveColor="green-900" />
+        <BackgroundCard name="success" primitiveColor="green-400" />
+        <BackgroundCard name="success-strong" primitiveColor="green-300" />
+        <BackgroundCard name="danger-soft" primitiveColor="red-950" />
+        <BackgroundCard name="danger-medium" primitiveColor="red-900" />
+        <BackgroundCard name="danger" primitiveColor="red-400" />
+        <BackgroundCard name="danger-strong" primitiveColor="red-300" />
+        <BackgroundCard name="warning-soft" primitiveColor="orange-950" />
+        <BackgroundCard name="warning-medium" primitiveColor="orange-900" />
+        <BackgroundCard name="warning" primitiveColor="orange-400" />
+        <BackgroundCard name="warning-strong" primitiveColor="orange-300" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Accent</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BackgroundCard name="accent-primary-soft" primitiveColor="teal-950" />
+        <BackgroundCard name="accent-primary-medium" primitiveColor="teal-900" />
+        <BackgroundCard name="accent-primary" primitiveColor="teal-400" />
+        <BackgroundCard name="accent-secondary-soft" primitiveColor="coral-950" />
+        <BackgroundCard name="accent-secondary-medium" primitiveColor="coral-900" />
+        <BackgroundCard name="accent-secondary" primitiveColor="coral-400" />
+        <BackgroundCard name="accent-tertiary-soft" primitiveColor="purple-950" />
+        <BackgroundCard name="accent-tertiary-medium" primitiveColor="purple-900" />
+        <BackgroundCard name="accent-tertiary" primitiveColor="purple-600" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Hover</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BackgroundCard name="hover" primitiveColor="rgba" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Overlay</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BackgroundCard name="overlay" primitiveColor="rgba" />
+      </div>
+    </div>
+
+  </div>
+</div>
+
+---
+
+### Foreground Colors
+
+Use `tw-text-fg-*` for text colors. These tokens automatically adapt to dark mode.
+
+export const ForegroundCard = ({ name, primitiveColor }) => {
+  const textClass = `tw-text-fg-${name} tw-text-2xl tw-font-bold tw-shrink-0`;
+  return (
+    <div className="tw-flex tw-items-center tw-gap-3 tw-rounded-xl tw-p-4 tw-border tw-border-border-base tw-bg-bg-primary">
+      <div className="tw-flex-1 tw-min-w-0">
+        <div className="tw-font-mono tw-text-sm tw-font-semibold tw-text-fg-heading">fg-{name}</div>
+        <div className="tw-text-xs tw-text-fg-body-subtle tw-mt-0.5">({primitiveColor})</div>
+      </div>
+      <Swatch name={`fg-${name}`} />
+    </div>
+  );
+};
+
+<div class="sb-unstyled tw-grid tw-grid-cols-2 tw-gap-8 tw-my-6">
+  <div class="tw-bg-bg-primary tw-p-6 tw-rounded-lg tw-border tw-border-border-base">
+    <h3 class="sb-unstyled tw-mb-6 tw-text-xl tw-font-bold tw-text-fg-heading">Light mode</h3>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Neutral</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <ForegroundCard name="white" primitiveColor="#ffffff" />
+        <ForegroundCard name="dark" primitiveColor="gray-900" />
+        <ForegroundCard name="contrast" primitiveColor="white" />
+        <ForegroundCard name="heading" primitiveColor="gray-900" />
+        <ForegroundCard name="body" primitiveColor="gray-600" />
+        <ForegroundCard name="body-subtle" primitiveColor="gray-500" />
+        <ForegroundCard name="disabled" primitiveColor="gray-400" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Brand</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <ForegroundCard name="brand-soft" primitiveColor="brand-200" />
+        <ForegroundCard name="brand" primitiveColor="brand-700" />
+        <ForegroundCard name="brand-strong" primitiveColor="brand-900" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Status</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <ForegroundCard name="success" primitiveColor="green-700" />
+        <ForegroundCard name="success-strong" primitiveColor="green-900" />
+        <ForegroundCard name="danger" primitiveColor="red-700" />
+        <ForegroundCard name="danger-strong" primitiveColor="red-900" />
+        <ForegroundCard name="warning" primitiveColor="orange-600" />
+        <ForegroundCard name="warning-strong" primitiveColor="orange-900" />
+        <ForegroundCard name="sensitive" primitiveColor="pink-600" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Accent</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <ForegroundCard name="accent-primary-soft" primitiveColor="teal-200" />
+        <ForegroundCard name="accent-primary" primitiveColor="teal-400" />
+        <ForegroundCard name="accent-primary-strong" primitiveColor="teal-800" />
+        <ForegroundCard name="accent-secondary-soft" primitiveColor="coral-200" />
+        <ForegroundCard name="accent-secondary" primitiveColor="coral-400" />
+        <ForegroundCard name="accent-secondary-strong" primitiveColor="coral-900" />
+        <ForegroundCard name="accent-tertiary-soft" primitiveColor="purple-200" />
+        <ForegroundCard name="accent-tertiary" primitiveColor="purple-700" />
+        <ForegroundCard name="accent-tertiary-strong" primitiveColor="purple-900" />
+      </div>
+    </div>
+
+  </div>
+
+  <div class="theme_dark tw-bg-bg-primary tw-p-6 tw-rounded-lg">
+    <h3 class="sb-unstyled tw-mb-6 tw-text-xl tw-font-bold tw-text-fg-heading">Dark mode</h3>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Neutral</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <ForegroundCard name="white" primitiveColor="#ffffff" />
+        <ForegroundCard name="dark" primitiveColor="gray-900" />
+        <ForegroundCard name="contrast" primitiveColor="gray-900" />
+        <ForegroundCard name="heading" primitiveColor="gray-050" />
+        <ForegroundCard name="body" primitiveColor="gray-200" />
+        <ForegroundCard name="body-subtle" primitiveColor="gray-400" />
+        <ForegroundCard name="disabled" primitiveColor="gray-600" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Brand</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <ForegroundCard name="brand-soft" primitiveColor="brand-500" />
+        <ForegroundCard name="brand" primitiveColor="brand-400" />
+        <ForegroundCard name="brand-strong" primitiveColor="brand-200" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Status</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <ForegroundCard name="success" primitiveColor="green-400" />
+        <ForegroundCard name="success-strong" primitiveColor="green-100" />
+        <ForegroundCard name="danger" primitiveColor="red-400" />
+        <ForegroundCard name="danger-strong" primitiveColor="red-100" />
+        <ForegroundCard name="warning" primitiveColor="orange-400" />
+        <ForegroundCard name="warning-strong" primitiveColor="orange-100" />
+        <ForegroundCard name="sensitive" primitiveColor="pink-300" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Accent</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <ForegroundCard name="accent-primary-soft" primitiveColor="teal-400" />
+        <ForegroundCard name="accent-primary" primitiveColor="teal-300" />
+        <ForegroundCard name="accent-primary-strong" primitiveColor="teal-100" />
+        <ForegroundCard name="accent-secondary-soft" primitiveColor="coral-500" />
+        <ForegroundCard name="accent-secondary" primitiveColor="coral-400" />
+        <ForegroundCard name="accent-secondary-strong" primitiveColor="coral-100" />
+        <ForegroundCard name="accent-tertiary-soft" primitiveColor="purple-500" />
+        <ForegroundCard name="accent-tertiary" primitiveColor="purple-400" />
+        <ForegroundCard name="accent-tertiary-strong" primitiveColor="purple-100" />
+      </div>
+    </div>
+
+  </div>
+</div>
+
+---
+
+### Border Colors
+
+Use `tw-border-border-*` for border colors. These tokens automatically adapt to dark mode.
+
+export const BorderCard = ({ name, primitiveColor }) => {
+  return (
+    <div className="tw-flex tw-items-center tw-gap-3 tw-rounded-xl tw-p-4 tw-border tw-border-border-base tw-bg-bg-primary">
+      <div className="tw-flex-1 tw-min-w-0">
+        <div className="tw-font-mono tw-text-sm tw-font-semibold tw-text-fg-heading">
+          border-{name}
+        </div>
+        <div className="tw-text-xs tw-text-fg-body-subtle tw-mt-0.5">({primitiveColor})</div>
+      </div>
+      <Swatch name={`border-${name}`} />
+    </div>
+  );
+};
+
+<div class="sb-unstyled tw-grid tw-grid-cols-2 tw-gap-8 tw-my-6">
+  <div class="tw-bg-bg-primary tw-p-6 tw-rounded-lg tw-border tw-border-border-base">
+    <h3 class="sb-unstyled tw-mb-6 tw-text-xl tw-font-bold tw-text-fg-heading">Light mode</h3>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Neutral</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BorderCard name="muted" primitiveColor="gray-100" />
+        <BorderCard name="light" primitiveColor="gray-200" />
+        <BorderCard name="base" primitiveColor="gray-200" />
+        <BorderCard name="strong" primitiveColor="gray-300" />
+        <BorderCard name="buffer" primitiveColor="gray-100" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Brand</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BorderCard name="brand-soft" primitiveColor="brand-200" />
+        <BorderCard name="brand" primitiveColor="brand-700" />
+        <BorderCard name="brand-strong" primitiveColor="brand-900" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Status</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BorderCard name="success-soft" primitiveColor="green-200" />
+        <BorderCard name="success" primitiveColor="green-700" />
+        <BorderCard name="success-strong" primitiveColor="green-900" />
+        <BorderCard name="danger-soft" primitiveColor="red-200" />
+        <BorderCard name="danger" primitiveColor="red-700" />
+        <BorderCard name="danger-strong" primitiveColor="red-900" />
+        <BorderCard name="warning-soft" primitiveColor="orange-200" />
+        <BorderCard name="warning" primitiveColor="orange-600" />
+        <BorderCard name="warning-strong" primitiveColor="orange-900" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Accent</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BorderCard name="accent-primary-soft" primitiveColor="teal-200" />
+        <BorderCard name="accent-primary" primitiveColor="teal-600" />
+        <BorderCard name="accent-secondary-soft" primitiveColor="coral-200" />
+        <BorderCard name="accent-secondary" primitiveColor="coral-600" />
+        <BorderCard name="accent-tertiary-soft" primitiveColor="purple-200" />
+        <BorderCard name="accent-tertiary" primitiveColor="purple-600" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Focus</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BorderCard name="focus" primitiveColor="#000000" />
+      </div>
+    </div>
+
+  </div>
+
+  <div class="theme_dark tw-bg-bg-primary tw-p-6 tw-rounded-lg">
+    <h3 class="sb-unstyled tw-mb-6 tw-text-xl tw-font-bold tw-text-fg-heading">Dark mode</h3>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Neutral</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BorderCard name="muted" primitiveColor="gray-800" />
+        <BorderCard name="light" primitiveColor="gray-700" />
+        <BorderCard name="base" primitiveColor="gray-700" />
+        <BorderCard name="strong" primitiveColor="gray-600" />
+        <BorderCard name="buffer" primitiveColor="gray-900" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Brand</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BorderCard name="brand-soft" primitiveColor="brand-800" />
+        <BorderCard name="brand" primitiveColor="brand-700" />
+        <BorderCard name="brand-strong" primitiveColor="brand-600" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Status</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BorderCard name="success-soft" primitiveColor="green-800" />
+        <BorderCard name="success" primitiveColor="green-400" />
+        <BorderCard name="success-strong" primitiveColor="green-200" />
+        <BorderCard name="danger-soft" primitiveColor="red-800" />
+        <BorderCard name="danger" primitiveColor="red-400" />
+        <BorderCard name="danger-strong" primitiveColor="red-200" />
+        <BorderCard name="warning-soft" primitiveColor="orange-800" />
+        <BorderCard name="warning" primitiveColor="orange-400" />
+        <BorderCard name="warning-strong" primitiveColor="orange-200" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Accent</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BorderCard name="accent-primary-soft" primitiveColor="teal-800" />
+        <BorderCard name="accent-primary" primitiveColor="teal-600" />
+        <BorderCard name="accent-secondary-soft" primitiveColor="coral-800" />
+        <BorderCard name="accent-secondary" primitiveColor="coral-500" />
+        <BorderCard name="accent-tertiary-soft" primitiveColor="purple-800" />
+        <BorderCard name="accent-tertiary" primitiveColor="purple-500" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Focus</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <BorderCard name="focus" primitiveColor="#ffffff" />
+      </div>
+    </div>
+
+  </div>
+</div>
+
+---
+
+## Usage Guidelines
+
+### ✅ DO - Use semantic tokens via Tailwind
+
+```html
+<!-- Text colors -->
+<h1 class="tw-text-fg-heading">Heading text</h1>
+<p class="tw-text-fg-body">Body text</p>
+<button class="tw-text-fg-brand">Brand action</button>
+<span class="tw-text-fg-danger">Error message</span>
+
+<!-- Background colors -->
+<div class="tw-bg-bg-primary">Primary background</div>
+<div class="tw-bg-bg-secondary">Secondary background</div>
+<button class="tw-bg-bg-brand tw-text-fg-white">Brand button</button>
+<div class="tw-bg-bg-danger-soft tw-text-fg-danger">Danger alert</div>
+
+<!-- Border colors -->
+<div class="tw-border tw-border-border-base">Base border</div>
+<input class="tw-border tw-border-border-light focus:tw-border-border-focus" />
+<div class="tw-border-2 tw-border-border-brand">Brand border</div>
+<button class="tw-border tw-border-border-danger">Danger border</button>
+
+<!-- Combined examples -->
+<div
+  class="tw-bg-bg-success-soft tw-text-fg-success tw-border tw-border-border-success-soft tw-rounded tw-p-4"
+>
+  Success alert with matching colors
+</div>
+
+<!-- Hover states -->
+<div class="hover:tw-bg-bg-hover">Hover effect</div>
+
+<!-- Overlays -->
+<div class="tw-bg-bg-overlay">Modal overlay</div>
+```
+
+### ❌ DON'T - Use primitive colors directly
+
+```html
+<!-- Bad: These Tailwind classes don't exist (primitives not exposed) -->
+<p class="tw-text-brand-900">Text</p>
+<div class="tw-bg-brand-600">Background</div>
+
+<!-- Bad: Using primitives with Tailwind bracket notation -->
+<p class="tw-text-[var(--color-brand-600)]">Text</p>
+<div class="tw-bg-[var(--color-success-700)]">Background</div>
+
+<!-- Bad: Using primitive CSS variables bypasses the semantic layer -->
+<span style="color: var(--color-brand-600)">Text</span>
+<div style="background: var(--color-success-700)">Background</div>
+```
+
+**Why this is wrong:** Primitives aren't semantic and may change. Always use semantic tokens like
+`tw-text-fg-brand`, `tw-bg-success`, etc.
+
+---
+
+## Dark Mode
+
+- Semantic tokens automatically adapt to dark mode via `.theme_dark` class
+- No component changes needed when theme switches
+- The same semantic token name works in both light and dark themes
+- All color values are automatically swapped based on the active theme
+
+---
+
+## Migration Strategy
+
+- **New components:** Use semantic tokens (`fg-*`, `bg-*`, `border-*`) exclusively
+- **Existing components:** Keep legacy tokens until refactoring
+- **When refactoring:** Replace legacy tokens with semantic equivalents
+
+---
+
+## Legacy Colors
+
+**Legacy colors (RGB format)** still exist for backwards compatibility:
+
+- `primary-*`, `secondary-*`, `success-*`, `danger-*`, `warning-*`, etc.
+- Use these only when updating existing components
+- Migrate to new semantic tokens when refactoring
+
+The following legacy colors are displayed below with both light and dark mode values:
+
+export const LegacyCard = ({ name }) => {
+  return (
+    <div className="tw-flex tw-items-center tw-gap-3 tw-rounded-xl tw-p-4 tw-border tw-border-border-base tw-bg-bg-primary">
+      <div className="tw-flex-1 tw-min-w-0">
+        <div className="tw-font-mono tw-text-sm tw-font-semibold tw-text-fg-heading">{name}</div>
+        <div className="tw-text-xs tw-text-fg-body-subtle tw-mt-0.5">(legacy RGB format)</div>
+      </div>
+      <Swatch name={name} />
+    </div>
+  );
+};
+
+<div class="tw-grid tw-grid-cols-2 tw-gap-8">
+  <div class="tw-bg-bg-primary tw-p-6 tw-rounded-lg">
+    <h3 class="sb-unstyled tw-mb-6 tw-text-xl tw-font-bold tw-text-fg-heading">Light mode</h3>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">General</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <LegacyCard name="background" />
+        <LegacyCard name="background-alt" />
+        <LegacyCard name="background-alt2" />
+        <LegacyCard name="background-alt3" />
+        <LegacyCard name="background-alt4" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Primary</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <LegacyCard name="primary-100" />
+        <LegacyCard name="primary-300" />
+        <LegacyCard name="primary-600" />
+        <LegacyCard name="primary-700" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">
+        Secondary
+      </h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <LegacyCard name="secondary-100" />
+        <LegacyCard name="secondary-300" />
+        <LegacyCard name="secondary-500" />
+        <LegacyCard name="secondary-600" />
+        <LegacyCard name="secondary-700" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Success</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <LegacyCard name="success-100" />
+        <LegacyCard name="success-600" />
+        <LegacyCard name="success-700" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Danger</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <LegacyCard name="danger-100" />
+        <LegacyCard name="danger-600" />
+        <LegacyCard name="danger-700" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Warning</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <LegacyCard name="warning-100" />
+        <LegacyCard name="warning-600" />
+        <LegacyCard name="warning-700" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Info</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <LegacyCard name="info-100" />
+        <LegacyCard name="info-600" />
+        <LegacyCard name="info-700" />
+      </div>
+    </div>
+
+  </div>
+
+  <div class="theme_dark tw-bg-bg-primary tw-p-6 tw-rounded-lg">
+    <h3 class="sb-unstyled tw-mb-6 tw-text-xl tw-font-bold tw-text-fg-heading">Dark mode</h3>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">General</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <LegacyCard name="background" />
+        <LegacyCard name="background-alt" />
+        <LegacyCard name="background-alt2" />
+        <LegacyCard name="background-alt3" />
+        <LegacyCard name="background-alt4" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Primary</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <LegacyCard name="primary-100" />
+        <LegacyCard name="primary-300" />
+        <LegacyCard name="primary-600" />
+        <LegacyCard name="primary-700" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">
+        Secondary
+      </h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <LegacyCard name="secondary-100" />
+        <LegacyCard name="secondary-300" />
+        <LegacyCard name="secondary-500" />
+        <LegacyCard name="secondary-600" />
+        <LegacyCard name="secondary-700" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Success</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <LegacyCard name="success-100" />
+        <LegacyCard name="success-600" />
+        <LegacyCard name="success-700" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Danger</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <LegacyCard name="danger-100" />
+        <LegacyCard name="danger-600" />
+        <LegacyCard name="danger-700" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Warning</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <LegacyCard name="warning-100" />
+        <LegacyCard name="warning-600" />
+        <LegacyCard name="warning-700" />
+      </div>
+    </div>
+
+    <div class="sb-unstyled tw-mb-6">
+      <h4 class="sb-unstyled tw-mb-3 tw-text-base tw-font-semibold tw-text-fg-heading">Info</h4>
+      <div class="tw-grid tw-grid-cols-1 tw-gap-2">
+        <LegacyCard name="info-100" />
+        <LegacyCard name="info-600" />
+        <LegacyCard name="info-700" />
+      </div>
+    </div>
+
+  </div>
 </div>

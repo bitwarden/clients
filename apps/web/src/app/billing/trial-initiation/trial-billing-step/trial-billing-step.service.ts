@@ -12,7 +12,7 @@ import {
 import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { TaxClient } from "@bitwarden/web-vault/app/billing/clients";
+import { PreviewInvoiceClient } from "@bitwarden/web-vault/app/billing/clients";
 import {
   BillingAddressControls,
   getBillingAddressFromControls,
@@ -57,13 +57,13 @@ export interface Trial {
   length: number;
 }
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class TrialBillingStepService {
   constructor(
     private accountService: AccountService,
     private apiService: ApiService,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
-    private taxClient: TaxClient,
+    private previewInvoiceClient: PreviewInvoiceClient,
     private configService: ConfigService,
   ) {}
 
@@ -124,12 +124,13 @@ export class TrialBillingStepService {
     tier: Tier,
     cadence: Cadence,
     billingAddressControls: BillingAddressControls,
+    coupons?: string[],
   ): Promise<{
     tax: number;
     total: number;
   }> => {
     const billingAddress = getBillingAddressFromControls(billingAddressControls);
-    return await this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
+    return await this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
       {
         tier,
         cadence,
@@ -148,6 +149,7 @@ export class TrialBillingStepService {
             : undefined,
       },
       billingAddress,
+      coupons,
     );
   };
 
@@ -156,6 +158,7 @@ export class TrialBillingStepService {
     cadence: Cadence,
     billingAddress: BillingAddressControls,
     paymentMethod: TokenizedPaymentMethod,
+    coupons?: string[],
   ): Promise<OrganizationResponse> => {
     const getPlanType = async (tier: Tier, cadence: Cadence) => {
       const plans = await firstValueFrom(this.plans$);
@@ -217,6 +220,7 @@ export class TrialBillingStepService {
         },
         skipTrial: trial.length === 0,
       },
+      ...(coupons?.length ? { coupons } : {}),
     };
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));

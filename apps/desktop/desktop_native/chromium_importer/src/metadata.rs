@@ -24,12 +24,13 @@ pub fn get_supported_importers<T: InstalledBrowserRetriever>(
     let installed_browsers = T::get_installed_browsers().unwrap_or_default();
 
     const IMPORTERS: &[(&str, &str)] = &[
+        ("arccsv", "Arc"),
+        ("bravecsv", "Brave"),
         ("chromecsv", "Chrome"),
         ("chromiumcsv", "Chromium"),
-        ("bravecsv", "Brave"),
+        ("edgecsv", "Microsoft Edge"),
         ("operacsv", "Opera"),
         ("vivaldicsv", "Vivaldi"),
-        ("edgecsv", "Microsoft Edge"),
     ];
 
     let supported: HashSet<&'static str> =
@@ -91,6 +92,7 @@ mod tests {
         let map = get_supported_importers::<MockInstalledBrowserRetriever>();
 
         let expected: HashSet<String> = HashSet::from([
+            "arccsv".to_string(),
             "chromecsv".to_string(),
             "chromiumcsv".to_string(),
             "bravecsv".to_string(),
@@ -113,6 +115,7 @@ mod tests {
     fn macos_specific_loaders_match_const_array() {
         let map = get_supported_importers::<MockInstalledBrowserRetriever>();
         let ids = [
+            "arccsv",
             "chromecsv",
             "chromiumcsv",
             "bravecsv",

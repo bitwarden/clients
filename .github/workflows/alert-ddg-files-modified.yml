@@ -14,7 +14,7 @@ jobs:
       pull-requests: write
     steps:
     - name: Checkout code
-      uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
         fetch-depth: 0
         persist-credentials: false
@@ -73,7 +73,7 @@ jobs:
         _MONITORED_FILES: ${{ steps.changed-files.outputs.monitored_files }}
       with:
         script: |
-          const changedFiles = `$_MONITORED_FILES`.split(' ').filter(file => file.trim() !== '');
+          const changedFiles = process.env._MONITORED_FILES.split(' ').filter(file => file.trim() !== '');
 
           const message = `<!-- comment_tag: ddg-test-warning -->
           ⚠️🦆 **DuckDuckGo Integration files have been modified in this PR:**

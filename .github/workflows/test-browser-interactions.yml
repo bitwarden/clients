@@ -18,7 +18,7 @@ jobs:
       id-token: write
     steps:
     - name: Checkout code
-      uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
         fetch-depth: 0
         persist-credentials: false
@@ -49,9 +49,7 @@ jobs:
       uses: bitwarden/gh-actions/azure-logout@main
 
     - name: Generate GH App token
-      # NOTE: versions of actions/create-github-app-token after 2.0.3 break this workflow
-      # Remediation is tracked in https://bitwarden.atlassian.net/browse/PM-28174
-      uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
+      uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
       id: app-token
       with:
         app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
@@ -59,6 +57,7 @@ jobs:
         owner: bitwarden
         repositories: browser-interactions-testing
         permission-actions: write
+        permission-contents: write
 
     - name: Get changed files
       id: changed-files

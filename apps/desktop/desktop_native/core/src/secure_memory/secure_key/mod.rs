@@ -19,9 +19,7 @@ mod keyctl;
 mod memfd_secret;
 mod mlock;
 
-pub use crypto::EncryptedMemory;
-
-use crate::secure_memory::secure_key::crypto::DecryptionError;
+pub use crypto::{DecryptionError, EncryptedMemory};
 
 /// An ephemeral key that is protected using a platform mechanism. It is generated on construction
 /// freshly, and can be used to encrypt and decrypt segments of memory. Since the key is ephemeral,

@@ -5,6 +5,7 @@ export type AutofillInlineMenuIframeExtensionMessage = {
   portKey?: string;
   generatedPassword?: string;
   refreshPassword?: boolean;
+  showAnimations?: boolean;
 };
 
 export type AutofillInlineMenuIframeExtensionMessageParam = {
@@ -32,4 +33,5 @@ export type BackgroundPortMessageHandlers = {
 
 export interface AutofillInlineMenuIframeService {
   initMenuIframe(): void;
+  destroy(): void;
 }

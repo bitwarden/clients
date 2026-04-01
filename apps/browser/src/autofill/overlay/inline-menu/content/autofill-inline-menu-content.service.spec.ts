@@ -645,6 +645,292 @@ describe("AutofillInlineMenuContentService", () => {
 
       expect(disconnectSpy).toHaveBeenCalled();
     });
+
+    it("unobserves custom elements", () => {
+      const disconnectSpy = jest.spyOn(
+        autofillInlineMenuContentService["inlineMenuElementsMutationObserver"],
+        "disconnect",
+      );
+
+      autofillInlineMenuContentService.destroy();
+
+      expect(disconnectSpy).toHaveBeenCalled();
+    });
+
+    it("unobserves the container element", () => {
+      const disconnectSpy = jest.spyOn(
+        autofillInlineMenuContentService["containerElementMutationObserver"],
+        "disconnect",
+      );
+
+      autofillInlineMenuContentService.destroy();
+
+      expect(disconnectSpy).toHaveBeenCalled();
+    });
+
+    it("clears the mutation observer iterations reset timeout", () => {
+      jest.useFakeTimers();
+      const clearTimeoutSpy = jest.spyOn(globalThis, "clearTimeout");
+      autofillInlineMenuContentService["mutationObserverIterationsResetTimeout"] = setTimeout(
+        jest.fn(),
+        1000,
+      );
+
+      autofillInlineMenuContentService.destroy();
+
+      expect(clearTimeoutSpy).toHaveBeenCalled();
+      expect(autofillInlineMenuContentService["mutationObserverIterationsResetTimeout"]).toBeNull();
+    });
+
+    it("destroys the button iframe", () => {
+      const mockButtonIframe = { destroy: jest.fn() };
+      autofillInlineMenuContentService["buttonIframe"] = mockButtonIframe as any;
+
+      autofillInlineMenuContentService.destroy();
+
+      expect(mockButtonIframe.destroy).toHaveBeenCalled();
+    });
+
+    it("destroys the list iframe", () => {
+      const mockListIframe = { destroy: jest.fn() };
+      autofillInlineMenuContentService["listIframe"] = mockListIframe as any;
+
+      autofillInlineMenuContentService.destroy();
+
+      expect(mockListIframe.destroy).toHaveBeenCalled();
+    });
+  });
+
+  describe("observeCustomElements", () => {
+    it("observes the button element for attribute mutations", () => {
+      const buttonElement = document.createElement("div");
+      autofillInlineMenuContentService["buttonElement"] = buttonElement;
+      const observeSpy = jest.spyOn(
+        autofillInlineMenuContentService["inlineMenuElementsMutationObserver"],
+        "observe",
+      );
+
+      autofillInlineMenuContentService["observeCustomElements"]();
+
+      expect(observeSpy).toHaveBeenCalledWith(buttonElement, { attributes: true });
+    });
+
+    it("observes the list element for attribute mutations", () => {
+      const listElement = document.createElement("div");
+      autofillInlineMenuContentService["listElement"] = listElement;
+      const observeSpy = jest.spyOn(
+        autofillInlineMenuContentService["inlineMenuElementsMutationObserver"],
+        "observe",
+      );
+
+      autofillInlineMenuContentService["observeCustomElements"]();
+
+      expect(observeSpy).toHaveBeenCalledWith(listElement, { attributes: true });
+    });
+
+    it("does not observe when no elements exist", () => {
+      autofillInlineMenuContentService["buttonElement"] = undefined;
+      autofillInlineMenuContentService["listElement"] = undefined;
+      const observeSpy = jest.spyOn(
+        autofillInlineMenuContentService["inlineMenuElementsMutationObserver"],
+        "observe",
+      );
+
+      autofillInlineMenuContentService["observeCustomElements"]();
+
+      expect(observeSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("observeContainerElement", () => {
+    it("observes the container element for child list mutations", () => {
+      const containerElement = document.createElement("div");
+      const observeSpy = jest.spyOn(
+        autofillInlineMenuContentService["containerElementMutationObserver"],
+        "observe",
+      );
+
+      autofillInlineMenuContentService["observeContainerElement"](containerElement);
+
+      expect(observeSpy).toHaveBeenCalledWith(containerElement, { childList: true });
+    });
+  });
+
+  describe("unobserveContainerElement", () => {
+    it("disconnects the container element mutation observer", () => {
+      const disconnectSpy = jest.spyOn(
+        autofillInlineMenuContentService["containerElementMutationObserver"],
+        "disconnect",
+      );
+
+      autofillInlineMenuContentService["unobserveContainerElement"]();
+
+      expect(disconnectSpy).toHaveBeenCalled();
+    });
+
+    it("handles the case when the mutation observer is undefined", () => {
+      autofillInlineMenuContentService["containerElementMutationObserver"] = undefined as any;
+
+      expect(() => autofillInlineMenuContentService["unobserveContainerElement"]()).not.toThrow();
+    });
+  });
+
+  describe("observePageAttributes", () => {
+    it("observes the document element for attribute mutations", () => {
+      const observeSpy = jest.spyOn(
+        autofillInlineMenuContentService["htmlMutationObserver"],
+        "observe",
+      );
+
+      autofillInlineMenuContentService["observePageAttributes"]();
+
+      expect(observeSpy).toHaveBeenCalledWith(document.documentElement, { attributes: true });
+    });
+
+    it("observes the body element for attribute mutations", () => {
+      const observeSpy = jest.spyOn(
+        autofillInlineMenuContentService["bodyMutationObserver"],
+        "observe",
+      );
+
+      autofillInlineMenuContentService["observePageAttributes"]();
+
+      expect(observeSpy).toHaveBeenCalledWith(document.body, { attributes: true });
+    });
+  });
+
+  describe("unobservePageAttributes", () => {
+    it("disconnects the html mutation observer", () => {
+      const disconnectSpy = jest.spyOn(
+        autofillInlineMenuContentService["htmlMutationObserver"],
+        "disconnect",
+      );
+
+      autofillInlineMenuContentService["unobservePageAttributes"]();
+
+      expect(disconnectSpy).toHaveBeenCalled();
+    });
+
+    it("disconnects the body mutation observer", () => {
+      const disconnectSpy = jest.spyOn(
+        autofillInlineMenuContentService["bodyMutationObserver"],
+        "disconnect",
+      );
+
+      autofillInlineMenuContentService["unobservePageAttributes"]();
+
+      expect(disconnectSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe("checkPageRisks", () => {
+    it("returns true and closes inline menu when page is not opaque", async () => {
+      jest.spyOn(autofillInlineMenuContentService as any, "getPageIsOpaque").mockReturnValue(false);
+      const closeInlineMenuSpy = jest.spyOn(
+        autofillInlineMenuContentService as any,
+        "closeInlineMenu",
+      );
+
+      const result = await autofillInlineMenuContentService["checkPageRisks"]();
+
+      expect(result).toBe(true);
+      expect(closeInlineMenuSpy).toHaveBeenCalled();
+    });
+
+    it("returns true and closes inline menu when inline menu is disabled", async () => {
+      jest.spyOn(autofillInlineMenuContentService as any, "getPageIsOpaque").mockReturnValue(true);
+      autofillInlineMenuContentService["inlineMenuEnabled"] = false;
+      const closeInlineMenuSpy = jest.spyOn(
+        autofillInlineMenuContentService as any,
+        "closeInlineMenu",
+      );
+
+      const result = await autofillInlineMenuContentService["checkPageRisks"]();
+
+      expect(result).toBe(true);
+      expect(closeInlineMenuSpy).toHaveBeenCalled();
+    });
+
+    it("returns false when page is opaque and inline menu is enabled", async () => {
+      jest.spyOn(autofillInlineMenuContentService as any, "getPageIsOpaque").mockReturnValue(true);
+      autofillInlineMenuContentService["inlineMenuEnabled"] = true;
+      const closeInlineMenuSpy = jest.spyOn(
+        autofillInlineMenuContentService as any,
+        "closeInlineMenu",
+      );
+
+      const result = await autofillInlineMenuContentService["checkPageRisks"]();
+
+      expect(result).toBe(false);
+      expect(closeInlineMenuSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("handlePageMutations", () => {
+    it("checks page risks when mutations include attribute changes", async () => {
+      const checkPageRisksSpy = jest.spyOn(
+        autofillInlineMenuContentService as any,
+        "checkPageRisks",
+      );
+      const mutations = [{ type: "attributes" } as MutationRecord];
+
+      await autofillInlineMenuContentService["handlePageMutations"](mutations);
+
+      expect(checkPageRisksSpy).toHaveBeenCalled();
+    });
+
+    it("does not check page risks when mutations do not include attribute changes", async () => {
+      const checkPageRisksSpy = jest.spyOn(
+        autofillInlineMenuContentService as any,
+        "checkPageRisks",
+      );
+      const mutations = [{ type: "childList" } as MutationRecord];
+
+      await autofillInlineMenuContentService["handlePageMutations"](mutations);
+
+      expect(checkPageRisksSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("clearPersistentLastChildOverrideTimeout", () => {
+    it("clears the timeout when it exists", () => {
+      jest.useFakeTimers();
+      const clearTimeoutSpy = jest.spyOn(globalThis, "clearTimeout");
+      autofillInlineMenuContentService["handlePersistentLastChildOverrideTimeout"] = setTimeout(
+        jest.fn(),
+        1000,
+      );
+
+      autofillInlineMenuContentService["clearPersistentLastChildOverrideTimeout"]();
+
+      expect(clearTimeoutSpy).toHaveBeenCalled();
+    });
+
+    it("does nothing when the timeout is null", () => {
+      const clearTimeoutSpy = jest.spyOn(globalThis, "clearTimeout");
+      autofillInlineMenuContentService["handlePersistentLastChildOverrideTimeout"] = null;
+
+      autofillInlineMenuContentService["clearPersistentLastChildOverrideTimeout"]();
+
+      expect(clearTimeoutSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("elementAtCenterOfInlineMenuPosition", () => {
+    it("returns the element at the center of the given position", () => {
+      const mockElement = document.createElement("div");
+      jest.spyOn(globalThis.document, "elementFromPoint").mockReturnValue(mockElement);
+
+      const result = autofillInlineMenuContentService["elementAtCenterOfInlineMenuPosition"]({
+        top: 100,
+        left: 200,
+        width: 50,
+        height: 30,
+      });
+
+      expect(globalThis.document.elementFromPoint).toHaveBeenCalledWith(225, 115);
+      expect(result).toBe(mockElement);
+    });
   });
 
   describe("getOwnedTagNames", () => {
@@ -972,6 +1258,25 @@ describe("AutofillInlineMenuContentService", () => {
       expect(defineSpy).toHaveBeenCalled();
       expect(autofillInlineMenuContentService["listElement"]).toBeDefined();
       expect(autofillInlineMenuContentService["listElement"]?.tagName).not.toBe("DIV");
+    });
+  });
+
+  describe("unobserveCustomElements", () => {
+    it("disconnects the inline menu elements mutation observer", () => {
+      const disconnectSpy = jest.spyOn(
+        autofillInlineMenuContentService["inlineMenuElementsMutationObserver"],
+        "disconnect",
+      );
+
+      autofillInlineMenuContentService["unobserveCustomElements"]();
+
+      expect(disconnectSpy).toHaveBeenCalled();
+    });
+
+    it("handles the case when the mutation observer is undefined", () => {
+      autofillInlineMenuContentService["inlineMenuElementsMutationObserver"] = undefined as any;
+
+      expect(() => autofillInlineMenuContentService["unobserveCustomElements"]()).not.toThrow();
     });
   });
 

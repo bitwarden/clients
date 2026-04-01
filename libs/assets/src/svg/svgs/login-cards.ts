@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const LoginCards = svgIcon`
+export const LoginCards = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="6.25 6.25 137.5 137.5">
     <path class="tw-fill-illustration-bg-secondary" d="M18.75 53.125a9.375 9.375 0 0 1 9.375-9.375h106.25a9.375 9.375 0 0 1 9.375 9.375v81.25a9.375 9.375 0 0 1-9.375 9.375H28.125a9.375 9.375 0 0 1-9.375-9.375v-81.25Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M134.375 46.875H28.125a6.25 6.25 0 0 0-6.25 6.25v81.25a6.25 6.25 0 0 0 6.25 6.25h106.25a6.25 6.25 0 0 0 6.25-6.25v-81.25a6.25 6.25 0 0 0-6.25-6.25ZM28.125 43.75a9.375 9.375 0 0 0-9.375 9.375v81.25a9.375 9.375 0 0 0 9.375 9.375h106.25a9.375 9.375 0 0 0 9.375-9.375v-81.25a9.375 9.375 0 0 0-9.375-9.375H28.125Z" clip-rule="evenodd"/>

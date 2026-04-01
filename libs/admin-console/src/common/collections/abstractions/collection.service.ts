@@ -1,14 +1,25 @@
 import { Observable } from "rxjs";
 
+import {
+  CollectionView,
+  Collection,
+  CollectionData,
+} from "@bitwarden/common/admin-console/models/collections";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 
-import { CollectionData, Collection, CollectionView } from "../models";
-
 export abstract class CollectionService {
   abstract encryptedCollections$(userId: UserId): Observable<Collection[] | null>;
   abstract decryptedCollections$(userId: UserId): Observable<CollectionView[]>;
+
+  /**
+   * Gets the default collection for a user in a given organization, if it exists.
+   */
+  abstract defaultUserCollection$(
+    userId: UserId,
+    orgId: OrganizationId,
+  ): Observable<CollectionView | undefined>;
   abstract upsert(collection: CollectionData, userId: UserId): Promise<any>;
   abstract replace(collections: { [id: string]: CollectionData }, userId: UserId): Promise<any>;
   /**

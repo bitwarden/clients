@@ -90,6 +90,9 @@ export class EmergencyViewDialogComponent {
       case CipherType.SecureNote:
         this.title = this.i18nService.t("viewItemHeaderNote");
         break;
+      case CipherType.SshKey:
+        this.title = this.i18nService.t("viewItemHeaderSshKey");
+        break;
     }
   }
 

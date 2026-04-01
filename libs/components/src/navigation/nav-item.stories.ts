@@ -1,12 +1,14 @@
 import { RouterTestingModule } from "@angular/router/testing";
-import { StoryObj, Meta, moduleMetadata } from "@storybook/angular";
+import { StoryObj, Meta, moduleMetadata, applicationConfig } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { IconButtonModule } from "../icon-button";
 import { LayoutComponent } from "../layout";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
+import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
 import { NavItemComponent } from "./nav-item.component";
 import { NavigationModule } from "./navigation.module";
@@ -31,8 +33,17 @@ export default {
               toggleSideNavigation: "Toggle side navigation",
               skipToContent: "Skip to content",
               loading: "Loading",
+              resizeSideNavigation: "Resize side navigation",
             });
           },
+        },
+      ],
+    }),
+    applicationConfig({
+      providers: [
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
         },
       ],
     }),
@@ -57,7 +68,7 @@ export const Default: Story = {
   }),
   args: {
     text: "Hello World",
-    icon: "bwi-filter",
+    icon: "bwi-grid",
   },
 };
 
@@ -73,6 +84,7 @@ export const WithLongText: Story = {
   ...Default,
   args: {
     text: "Hello World This Is a Cool Item",
+    icon: "bwi-grid",
   },
 };
 
@@ -90,21 +102,21 @@ export const WithChildButtons: Story = {
     template: /*html*/ `
       <bit-nav-item text="Hello World Very Cool World" [route]="['']" icon="bwi-collection-shared">
         <button
-          type="button" 
+          type="button"
           slot="end"
           class="tw-ms-auto"
-          [bitIconButton]="'bwi-pencil-square'"
-          [buttonType]="'nav-contrast'"
-          size="small"
+          bitIconButton="bwi-pencil-square"
+          buttonType="side-nav"
+          size="xsmall"
           label="Edit"
         ></button>
         <button
-          type="button" 
+          type="button"
           slot="end"
           class="tw-ms-auto"
-          [bitIconButton]="'bwi-check'"
-          [buttonType]="'nav-contrast'"
-          size="small"
+          bitIconButton="bwi-check"
+          buttonType="side-nav"
+          size="xsmall"
           label="Confirm"
         ></button>
       </bit-nav-item>
@@ -134,29 +146,4 @@ export const ForceActiveStyles: Story = {
       <bit-nav-item text="Third Nav" icon="bwi-collection-shared"></bit-nav-item>
     `,
   }),
-};
-
-export const CollapsedNavItems: Story = {
-  render: (args) => ({
-    props: args,
-    template: `
-      <bit-nav-item text="First Nav" icon="bwi-collection-shared"></bit-nav-item>
-      <bit-nav-item text="Active Nav" icon="bwi-collection-shared" [forceActiveStyles]="true"></bit-nav-item>
-      <bit-nav-item text="Third Nav" icon="bwi-collection-shared"></bit-nav-item>
-    `,
-  }),
-  play: async () => {
-    const toggleButton = document.querySelector(
-      "[aria-label='Toggle side navigation']",
-    ) as HTMLButtonElement;
-
-    if (toggleButton) {
-      toggleButton.click();
-    }
-  },
-  parameters: {
-    chromatic: {
-      delay: 1000,
-    },
-  },
 };

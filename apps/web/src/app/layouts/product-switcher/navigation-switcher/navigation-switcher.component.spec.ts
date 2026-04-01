@@ -5,12 +5,14 @@ import { ActivatedRoute, RouterModule } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
-import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { IconButtonModule, NavigationModule } from "@bitwarden/components";
+import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
+import { IconButtonModule, NavigationModule, SideNavService } from "@bitwarden/components";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { NavItemComponent } from "@bitwarden/components/src/navigation/nav-item.component";
+import { GlobalStateProvider } from "@bitwarden/state";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ProductSwitcherItem, ProductSwitcherService } from "../shared/product-switcher.service";
 
@@ -59,9 +61,17 @@ describe("NavigationProductSwitcherComponent", () => {
     productSwitcherService.shouldShowPremiumUpgradeButton$ = mockShouldShowPremiumUpgradeButton$;
     mockProducts$.next({ bento: [], other: [] });
 
+    const fakeGlobalStateProvider = new FakeGlobalStateProvider();
+
     await TestBed.configureTestingModule({
-      imports: [RouterModule, NavigationModule, IconButtonModule, MockUpgradeNavButtonComponent],
-      declarations: [NavigationProductSwitcherComponent, I18nPipe],
+      imports: [
+        RouterModule,
+        NavigationModule,
+        IconButtonModule,
+        MockUpgradeNavButtonComponent,
+        I18nPipe,
+      ],
+      declarations: [NavigationProductSwitcherComponent],
       providers: [
         { provide: ProductSwitcherService, useValue: productSwitcherService },
         {
@@ -72,12 +82,19 @@ describe("NavigationProductSwitcherComponent", () => {
           provide: ActivatedRoute,
           useValue: mock<ActivatedRoute>(),
         },
+        {
+          provide: GlobalStateProvider,
+          useValue: fakeGlobalStateProvider,
+        },
       ],
     }).compileComponents();
   });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(NavigationProductSwitcherComponent);
+    // SideNavService.open starts false (managed by LayoutComponent's ResizeObserver in a real
+    // app). Set it to true so NavItemComponent renders text labels (used in text-content checks).
+    TestBed.inject(SideNavService).open.set(true);
     fixture.detectChanges();
   });
 

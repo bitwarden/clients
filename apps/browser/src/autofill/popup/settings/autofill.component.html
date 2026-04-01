@@ -6,16 +6,27 @@
   </popup-header>
 
   <div class="tw-bg-background-alt">
-    <div *ngIf="!defaultBrowserAutofillDisabled && (showSpotlightNudge$ | async)" class="tw-mb-6">
-      <bit-spotlight
-        [title]="'autofillSpotlightTitle' | i18n"
-        [subtitle]="'autofillSpotlightDesc' | i18n"
-        [buttonText]="spotlightButtonText"
-        (onDismiss)="dismissSpotlight()"
-        (onButtonClick)="disableBrowserAutofillSettingsFromNudge($event)"
-        [buttonIcon]="spotlightButtonIcon"
-      ></bit-spotlight>
-    </div>
+    @if (showSpotlightNudge$ | async) {
+      <div class="tw-mb-6">
+        <bit-callout
+          [title]="'autofillSpotlightTitle' | i18n"
+          [icon]="null"
+          (dismiss)="dismissSpotlight()"
+        >
+          {{ "autofillSpotlightDesc" | i18n }}
+          <button
+            slot="end"
+            bitButton
+            type="button"
+            buttonType="primary"
+            [endIcon]="browserClientIsUnknown ? 'bwi-external-link' : undefined"
+            (click)="disableBrowserAutofillSettingsFromNudge($event)"
+          >
+            {{ spotlightButtonText }}
+          </button>
+        </bit-callout>
+      </div>
+    }
     <bit-section>
       <bit-section-header>
         <h2 bitTypography="h6">{{ "autofillSuggestionsSectionTitle" | i18n }}</h2>

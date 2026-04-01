@@ -14,6 +14,7 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 
+import { MasterPasswordUnlockService } from "../../../key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "../../../key-management/pin/pin.service.abstraction";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
@@ -54,6 +55,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     private pinService: PinServiceAbstraction,
     private kdfConfigService: KdfConfigService,
     private biometricsService: BiometricsService,
+    private masterPasswordUnlockService: MasterPasswordUnlockService,
   ) {}
 
   async getAvailableVerificationOptions(
@@ -202,9 +204,8 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     let policyOptions: MasterPasswordPolicyResponse | null;
     // Client-side verification
     if (await this.hasMasterPasswordAndMasterKeyHash(userId)) {
-      const passwordValid = await this.keyService.compareKeyHash(
+      const passwordValid = await this.masterPasswordUnlockService.proofOfDecryption(
         verification.secret,
-        masterKey,
         userId,
       );
       if (!passwordValid) {
@@ -214,12 +215,13 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     } else {
       // Server-side verification
       const request = new SecretVerificationRequest();
-      const serverKeyHash = await this.keyService.hashMasterKey(
-        verification.secret,
-        masterKey,
-        HashPurpose.ServerAuthorization,
-      );
-      request.masterPasswordHash = serverKeyHash;
+      const authenticationData =
+        await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+          verification.secret,
+          kdfConfig,
+          await firstValueFrom(this.masterPasswordService.saltForUser$(userId)),
+        );
+      request.authenticateWith(authenticationData);
       try {
         policyOptions = await this.userVerificationApiService.postAccountVerifyPassword(request);
         // FIXME: Remove when updating file. Eslint update

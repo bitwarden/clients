@@ -4,9 +4,10 @@ import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, of, Subj
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 
 import { awaitAsync, mockAccountInfoWith } from "../../../../spec";
 import { Matrix } from "../../../../spec/matrix";
@@ -42,9 +43,10 @@ describe("NotificationsService", () => {
   let signalRNotificationConnectionService: MockProxy<SignalRConnectionService>;
   let authService: MockProxy<AuthService>;
   let webPushNotificationConnectionService: MockProxy<WebPushConnectionService>;
-  let authRequestAnsweringService: MockProxy<AuthRequestAnsweringServiceAbstraction>;
+  let authRequestAnsweringService: MockProxy<AuthRequestAnsweringService>;
   let configService: MockProxy<ConfigService>;
   let policyService: MockProxy<InternalPolicyService>;
+  let autoConfirmService: MockProxy<AutomaticUserConfirmationService>;
 
   let activeAccount: BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>;
   let accounts: BehaviorSubject<ObservedValueOf<AccountService["accounts$"]>>;
@@ -72,9 +74,10 @@ describe("NotificationsService", () => {
     signalRNotificationConnectionService = mock<SignalRConnectionService>();
     authService = mock<AuthService>();
     webPushNotificationConnectionService = mock<WorkerWebPushConnectionService>();
-    authRequestAnsweringService = mock<AuthRequestAnsweringServiceAbstraction>();
+    authRequestAnsweringService = mock<AuthRequestAnsweringService>();
     configService = mock<ConfigService>();
     policyService = mock<InternalPolicyService>();
+    autoConfirmService = mock<AutomaticUserConfirmationService>();
 
     // For these tests, use the active-user implementation (feature flag disabled)
     configService.getFeatureFlag$.mockImplementation(() => of(true));
@@ -128,6 +131,7 @@ describe("NotificationsService", () => {
       authRequestAnsweringService,
       configService,
       policyService,
+      autoConfirmService,
     );
   });
 
@@ -468,6 +472,68 @@ describe("NotificationsService", () => {
             type: mockPolicy.type,
             enabled: mockPolicy.enabled,
           }),
+        );
+      });
+    });
+
+    describe("NotificationType.AuthRequest", () => {
+      it("should call receivedPendingAuthRequest when it exists (Extension/Desktop)", async () => {
+        authRequestAnsweringService.receivedPendingAuthRequest!.mockResolvedValue(undefined as any);
+
+        const notification = new NotificationResponse({
+          type: NotificationType.AuthRequest,
+          payload: { userId: mockUser1, id: "auth-request-123" },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(authRequestAnsweringService.receivedPendingAuthRequest).toHaveBeenCalledWith(
+          mockUser1,
+          "auth-request-123",
+        );
+        expect(messagingService.send).not.toHaveBeenCalled();
+      });
+
+      it("should call messagingService.send when receivedPendingAuthRequest does not exist (Web)", async () => {
+        authRequestAnsweringService.receivedPendingAuthRequest = undefined as any;
+
+        const notification = new NotificationResponse({
+          type: NotificationType.AuthRequest,
+          payload: { userId: mockUser1, id: "auth-request-456" },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval", {
+          notificationId: "auth-request-456",
+        });
+      });
+    });
+
+    describe("NotificationType.AutoConfirmMember", () => {
+      it("should call autoConfirmService.autoConfirmUser with correct parameters", async () => {
+        autoConfirmService.autoConfirmUser.mockResolvedValue();
+
+        const notification = new NotificationResponse({
+          type: NotificationType.AutoConfirmMember,
+          payload: {
+            UserId: mockUser1,
+            TargetUserId: "target-user-id",
+            TargetOrganizationUserId: "target-org-user-id",
+            OrganizationId: "org-id",
+          },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(autoConfirmService.autoConfirmUser).toHaveBeenCalledWith(
+          mockUser1,
+          "target-user-id",
+          "target-org-user-id",
+          "org-id",
         );
       });
     });

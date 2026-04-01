@@ -7,6 +7,8 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { LogService } from "@bitwarden/logging";
 
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { UserId } from "../../../types/guid";
@@ -19,6 +21,7 @@ describe("PhishingDetectionSettingsService", () => {
   let mockBillingService: MockProxy<BillingAccountProfileStateService>;
   let mockConfigService: MockProxy<ConfigService>;
   let mockOrganizationService: MockProxy<OrganizationService>;
+  let mockPlatformService: MockProxy<PlatformUtilsService>;
 
   // RxJS Subjects we control in the tests
   let activeAccountSubject: BehaviorSubject<Account | null>;
@@ -52,6 +55,8 @@ describe("PhishingDetectionSettingsService", () => {
     usePhishingBlocker: true,
   });
 
+  const mockLogService = mock<LogService>();
+
   const mockUserId = "mock-user-id" as UserId;
   const account = mock<Account>({ id: mockUserId });
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
@@ -76,12 +81,16 @@ describe("PhishingDetectionSettingsService", () => {
     mockOrganizationService = mock<OrganizationService>();
     mockOrganizationService.organizations$.mockReturnValue(organizationsSubject.asObservable());
 
+    mockPlatformService = mock<PlatformUtilsService>();
+
     stateProvider = new FakeStateProvider(accountService);
     service = new PhishingDetectionSettingsService(
       mockAccountService,
       mockBillingService,
       mockConfigService,
+      mockLogService,
       mockOrganizationService,
+      mockPlatformService,
       stateProvider,
     );
   });

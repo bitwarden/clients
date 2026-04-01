@@ -1,18 +1,28 @@
 import { Injectable } from "@angular/core";
-import { firstValueFrom, switchMap, map, of, Observable, combineLatest } from "rxjs";
+import {
+  firstValueFrom,
+  switchMap,
+  map,
+  of,
+  Observable,
+  combineLatest,
+  BehaviorSubject,
+} from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService } from "@bitwarden/admin-console/common";
+import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -23,6 +33,12 @@ import {
   VaultItemsTransferService,
   UserMigrationInfo,
 } from "../abstractions/vault-items-transfer.service";
+import {
+  TransferItemsDialogComponent,
+  TransferItemsDialogResult,
+  LeaveConfirmationDialogComponent,
+  LeaveConfirmationDialogResult,
+} from "../components/vault-items-transfer";
 
 @Injectable()
 export class DefaultVaultItemsTransferService implements VaultItemsTransferService {
@@ -35,14 +51,29 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     private i18nService: I18nService,
     private dialogService: DialogService,
     private toastService: ToastService,
+    private eventCollectionService: EventCollectionService,
     private configService: ConfigService,
+    private organizationUserApiService: OrganizationUserApiService,
+    private syncService: SyncService,
   ) {}
+
+  private _transferInProgressSubject = new BehaviorSubject(false);
+
+  transferInProgress$ = this._transferInProgressSubject.asObservable();
+
+  /**
+   * Only a single enforcement should be allowed to run at a time to prevent multiple dialogs
+   * or multiple simultaneous transfers.
+   */
+  private enforcementInFlight: boolean = false;
 
   private enforcingOrganization$(userId: UserId): Observable<Organization | undefined> {
     return this.policyService.policiesByType$(PolicyType.OrganizationDataOwnership, userId).pipe(
       map(
         (policies) =>
-          policies.sort((a, b) => a.revisionDate.getTime() - b.revisionDate.getTime())?.[0],
+          policies
+            .filter((p) => p.data?.enableIndividualItemsTransfer === true)
+            .sort((a, b) => a.revisionDate.getTime() - b.revisionDate.getTime())?.[0],
       ),
       switchMap((policy) => {
         if (policy == null) {
@@ -60,18 +91,6 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     );
   }
 
-  private defaultUserCollection$(
-    userId: UserId,
-    organizationId: OrganizationId,
-  ): Observable<CollectionId | undefined> {
-    return this.collectionService.decryptedCollections$(userId).pipe(
-      map((collections) => {
-        return collections.find((c) => c.isDefaultCollection && c.organizationId === organizationId)
-          ?.id;
-      }),
-    );
-  }
-
   userMigrationInfo$(userId: UserId): Observable<UserMigrationInfo> {
     return this.enforcingOrganization$(userId).pipe(
       switchMap((enforcingOrganization) => {
@@ -82,13 +101,13 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
         }
         return combineLatest([
           this.personalCiphers$(userId),
-          this.defaultUserCollection$(userId, enforcingOrganization.id),
+          this.collectionService.defaultUserCollection$(userId, enforcingOrganization.id),
         ]).pipe(
-          map(([personalCiphers, defaultCollectionId]): UserMigrationInfo => {
+          map(([personalCiphers, defaultCollection]): UserMigrationInfo => {
             return {
               requiresMigration: personalCiphers.length > 0,
               enforcingOrganization,
-              defaultCollectionId,
+              defaultCollectionId: defaultCollection?.id,
             };
           }),
         );
@@ -96,12 +115,41 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     );
   }
 
+  /**
+   * Prompts the user to accept or decline the vault items transfer.
+   * If declined, shows a leave confirmation dialog with option to go back.
+   * @returns true if user accepts transfer, false if user confirms leaving
+   */
+  private async promptUserForTransfer(organizationName: string): Promise<boolean> {
+    const confirmDialogRef = TransferItemsDialogComponent.open(this.dialogService, {
+      data: { organizationName },
+    });
+
+    const confirmResult = await firstValueFrom(confirmDialogRef.closed);
+
+    if (confirmResult === TransferItemsDialogResult.Accepted) {
+      return true;
+    }
+
+    const leaveDialogRef = LeaveConfirmationDialogComponent.open(this.dialogService, {
+      data: { organizationName },
+    });
+
+    const leaveResult = await firstValueFrom(leaveDialogRef.closed);
+
+    if (leaveResult === LeaveConfirmationDialogResult.Back) {
+      return this.promptUserForTransfer(organizationName);
+    }
+
+    return false;
+  }
+
   async enforceOrganizationDataOwnership(userId: UserId): Promise<void> {
     const featureEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.MigrateMyVaultToMyItems,
     );
 
-    if (!featureEnabled) {
+    if (!featureEnabled || this.enforcementInFlight) {
       return;
     }
 
@@ -119,35 +167,53 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
       return;
     }
 
-    // Temporary confirmation dialog. Full implementation in PM-27663
-    const confirmMigration = await this.dialogService.openSimpleDialog({
-      title: "Requires migration",
-      content: "Your vault requires migration of personal items to your organization.",
-      type: "warning",
-    });
+    this.enforcementInFlight = true;
 
-    if (!confirmMigration) {
-      // TODO: Show secondary confirmation dialog in PM-27663, for now we just exit
-      // TODO: Revoke user from organization if they decline migration PM-29465
+    const userAcceptedTransfer = await this.promptUserForTransfer(
+      migrationInfo.enforcingOrganization.name,
+    );
+
+    if (!userAcceptedTransfer) {
+      await this.organizationUserApiService.revokeSelf(migrationInfo.enforcingOrganization.id);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("leftOrganization"),
+      });
+
+      // Sync to reflect organization removal
+      await this.syncService.fullSync(true);
+      this.enforcementInFlight = false;
       return;
     }
 
     try {
+      this._transferInProgressSubject.next(true);
       await this.transferPersonalItems(
         userId,
         migrationInfo.enforcingOrganization.id,
         migrationInfo.defaultCollectionId,
       );
+      this._transferInProgressSubject.next(false);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("itemsTransferred"),
       });
+
+      await this.eventCollectionService.collect(
+        EventType.Organization_ItemOrganization_Accepted,
+        undefined,
+        undefined,
+        migrationInfo.enforcingOrganization.id,
+      );
     } catch (error) {
+      this._transferInProgressSubject.next(false);
       this.logService.error("Error transferring personal items to organization", error);
       this.toastService.showToast({
         variant: "error",
         message: this.i18nService.t("errorOccurred"),
       });
+    } finally {
+      this.enforcementInFlight = false;
     }
   }
 
