@@ -134,6 +134,7 @@ export class DefaultReceiveService implements InternalReceiveService {
         response.scekWrappedPublicKey,
         sharedContentEncryptionKey,
       ),
+      ownerEmail: response.ownerEmail,
     };
   }
 
