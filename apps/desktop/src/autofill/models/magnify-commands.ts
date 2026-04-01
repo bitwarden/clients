@@ -4,6 +4,9 @@
   https://contributing.bitwarden.com/contributing/code-style/web/typescript#avoid-typescript-enums
 */
 
+import { MagnifyLoginItem } from "./magnify-items";
+export type { MagnifyLoginItem };
+
 /*
   The different possible Magnify Commands
 */
@@ -31,12 +34,3 @@ export type MagnifyCommandResponse =
   | { type: typeof MagnifyCommand.SearchVault; results: MagnifyLoginItem[] }
   | { type: typeof MagnifyCommand.CopyPassword; result: string }
   | { type: typeof MagnifyCommand.ViewInBitwarden };
-
-/*
-  Magnify Item: Login
-*/
-export type MagnifyLoginItem = {
-  id: string;
-  name: string;
-  username: string;
-};

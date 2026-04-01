@@ -3,20 +3,30 @@ import {
   combineLatest,
   concatMap,
   distinctUntilChanged,
+  filter,
+  firstValueFrom,
   map,
   Observable,
   of,
   Subject,
+  switchMap,
   takeUntil,
 } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import {
   ActiveUserStateProvider,
   MAGNIFY_SETTINGS_DISK,
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
+import { UserId } from "@bitwarden/user-core";
 
 import { MagnifyCommand, MagnifyCommandResponse } from "../models/magnify-commands";
 
@@ -50,6 +60,10 @@ export class DesktopMagnifyService implements OnDestroy {
   constructor(
     private activeUserStateProvider: ActiveUserStateProvider,
     private authService: AuthService,
+    private accountService: AccountService,
+    private cipherService: CipherService,
+    private environmentService: EnvironmentService,
+    private domainSettingsService: DomainSettingsService,
     private magnifyNavigationService: MagnifyNavigationService,
   ) {
     this.magnifyEnabledUserSetting$ = this.magnifyEnabledState.state$.pipe(
@@ -120,15 +134,42 @@ export class DesktopMagnifyService implements OnDestroy {
     for examples of returning this Result type.
   */
   private async searchVault(input: string): Promise<Result<MagnifyCommandResponse>> {
-    // Returning dummy data for now
-    // TODO: IMPLEMENT ACTUAL VAULT SEARCH HERE
+    const q = input.trim().toLowerCase();
+
+    const ciphers = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        map((account) => account?.id),
+        filter((userId): userId is UserId => userId != null),
+        switchMap((userId) => this.cipherService.cipherViews$(userId)),
+      ),
+    );
+
+    const matched = ciphers.filter(
+      (c) =>
+        c.type === CipherType.Login &&
+        !c.isDeleted &&
+        !c.isArchived &&
+        (c.name?.toLowerCase().includes(q) || c.login?.username?.toLowerCase().includes(q)),
+    );
+
+    matched.sort((a, b) => {
+      const aStarts = a.name?.toLowerCase().startsWith(q) ? 0 : 1;
+      const bStarts = b.name?.toLowerCase().startsWith(q) ? 0 : 1;
+      return aStarts - bStarts;
+    });
+
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const iconsUrl = env.getIconsUrl();
+    const showFavicons = await firstValueFrom(this.domainSettingsService.showFavicons$);
+
     const response: MagnifyCommandResponse = {
       type: MagnifyCommand.SearchVault,
-      results: [
-        { id: "a1b2c3", name: "Netflix", username: "user@gmail.com" },
-        { id: "d4e5f6", name: "Netflix Family", username: "family@gmail.com" },
-        { id: "g7h8i9", name: "Netflix Work", username: "user@company.com" },
-      ],
+      results: matched.map((c) => ({
+        id: c.id,
+        name: c.name,
+        username: c.login?.username ?? "",
+        iconUrl: buildCipherIcon(iconsUrl, c, showFavicons).image,
+      })),
     };
 
     return [null, response];
@@ -144,11 +185,25 @@ export class DesktopMagnifyService implements OnDestroy {
 
   */
   private async copyPassword(id: string): Promise<Result<MagnifyCommandResponse>> {
-    // Returning dummy data for now
-    // TODO: IMPLEMENT ACTUAL COPY PASSWORD LOGIC HERE
+    const ciphers = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        map((account) => account?.id),
+        filter((userId): userId is UserId => userId != null),
+        switchMap((userId) => this.cipherService.cipherViews$(userId)),
+      ),
+    );
+
+    const cipher = ciphers.find((c) => c.id === id);
+
+    if (!cipher) {
+      return [new Error(`Cipher with id ${id} not found.`), null];
+    }
+
+    const password = cipher.login?.password ?? "";
+
     const response: MagnifyCommandResponse = {
       type: MagnifyCommand.CopyPassword,
-      result: "PasswordIsHere!",
+      result: password,
     };
 
     return [null, response];
