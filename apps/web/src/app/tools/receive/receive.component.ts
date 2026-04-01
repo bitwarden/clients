@@ -1,11 +1,13 @@
-import { Component, computed, signal } from "@angular/core";
+import { Component, computed, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
+import { switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NoResults, NoSendsIcon } from "@bitwarden/assets/svg";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ReceiveView } from "@bitwarden/common/tools/receive/models/view/receive.view";
-import { ReceiveId } from "@bitwarden/common/types/guid";
+import { ReceiveService } from "@bitwarden/common/tools/receive/services/receive.service";
 import {
   ButtonModule,
   DialogService,
@@ -23,15 +25,6 @@ import { ReceiveAddEditComponent } from "./receive-add-edit.component";
 import { ReceiveTableComponent } from "./receive-table.component";
 import { ReceiveListState } from "./receive-view";
 import { ReceiveViewComponent } from "./receive-view.component";
-
-const DUMMY_RECEIVE: ReceiveView = {
-  id: "dummy-1" as ReceiveId,
-  name: "My first receive",
-  expirationDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  secret: "mockTestSecret",
-  publicKey: new Uint8Array(64),
-  sharedContentEncryptionKey: new SymmetricCryptoKey(new Uint8Array(64)),
-};
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -51,9 +44,36 @@ const DUMMY_RECEIVE: ReceiveView = {
     ReceiveTableComponent,
   ],
 })
-export class ReceiveComponent {
-  constructor(private readonly dialogService: DialogService) {
-    this.dataSource.data = [DUMMY_RECEIVE];
+export class ReceiveComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly accountService = inject(AccountService);
+  private readonly receiveService = inject(ReceiveService);
+  private readonly dialogService = inject(DialogService);
+
+  protected readonly noItemIcon = NoSendsIcon;
+  protected readonly noResultsIcon = NoResults;
+  protected readonly ReceiveListState = ReceiveListState;
+
+  protected readonly loading = signal(true);
+  protected readonly listState = signal<ReceiveListState | null>(null);
+  protected readonly currentSearchText = signal("");
+  protected readonly dataSource = new TableDataSource<ReceiveView>();
+
+  protected readonly noSearchResults = computed(
+    () => true, // TODO: Implement search and update this value based on results
+  );
+
+  ngOnInit(): void {
+    this.accountService.activeAccount$
+      .pipe(
+        switchMap((account) => this.receiveService.receiveViews$(account!.id)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((receives) => {
+        this.dataSource.data = receives;
+        this.loading.set(false);
+        this.listState.set(receives.length === 0 ? ReceiveListState.Empty : null);
+      });
   }
 
   openNewReceiveDrawer(): void {
@@ -66,19 +86,6 @@ export class ReceiveComponent {
       closeOnNavigation: true,
     });
   }
-
-  protected readonly noItemIcon = NoSendsIcon;
-  protected readonly noResultsIcon = NoResults;
-  protected readonly ReceiveListState = ReceiveListState;
-
-  protected readonly loading = signal(false);
-  protected readonly listState = signal<ReceiveListState | null>(null);
-  protected readonly currentSearchText = signal("");
-  protected readonly dataSource = new TableDataSource<ReceiveView>();
-
-  protected readonly noSearchResults = computed(
-    () => true, // TODO: Implement search and update this value based on results
-  );
 
   searchTextChanged(newSearchText: string): void {
     this.currentSearchText.set(newSearchText);

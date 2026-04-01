@@ -49,4 +49,8 @@ export class ReceiveTableComponent {
   protected onDelete(receive: ReceiveView): void {
     this.deleteReceive.emit(receive);
   }
+
+  protected isExpired(receive: ReceiveView): boolean {
+    return receive.expirationDate != null && receive.expirationDate < new Date();
+  }
 }

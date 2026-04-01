@@ -3,8 +3,8 @@
     <ng-container header>
       <tr>
         <th bitCell bitSortable="name" default>{{ "name" | i18n }}</th>
-        <th bitCell bitSortable="deletionDate" class="@lg/receive-table:tw-table-cell tw-hidden">
-          {{ "deletionDate" | i18n }}
+        <th bitCell bitSortable="expirationDate" class="@lg/receive-table:tw-table-cell tw-hidden">
+          {{ "expirationDate" | i18n }}
         </th>
         <th bitCell>{{ "options" | i18n }}</th>
       </tr>
@@ -15,22 +15,11 @@
           <div class="tw-flex tw-gap-2 tw-items-center">
             <button type="button" bitLink>
               {{ r.name }}
-              @if (r.disabled) {
-                <span class="tw-sr-only">, {{ "disabled" | i18n }}</span>
-              }
-              @if (r.expired) {
+              @if (isExpired(r)) {
                 <span class="tw-sr-only">, {{ "expired" | i18n }}</span>
               }
             </button>
-            @if (r.disabled) {
-              <i
-                class="bwi bwi-exclamation-triangle"
-                appStopProp
-                title="{{ 'disabled' | i18n }}"
-                aria-hidden="true"
-              ></i>
-            }
-            @if (r.expired) {
+            @if (isExpired(r)) {
               <i
                 class="bwi bwi-clock"
                 appStopProp
@@ -46,7 +35,7 @@
           class="tw-text-muted tw-cursor-pointer @lg/receive-table:tw-table-cell tw-hidden"
         >
           <small bitTypography="body2" appStopProp>
-            {{ r.deletionDate | date: "medium" }}
+            {{ r.expirationDate | date: "medium" }}
           </small>
         </td>
         <td bitCell class="tw-w-0 tw-text-right">
