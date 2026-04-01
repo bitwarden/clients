@@ -1,10 +1,12 @@
-<div>
+<div class="tw-mb-4">
   @if (receiveName()) {
     <p class="tw-text-center">
       <b>{{ receiveName() }}</b>
     </p>
   }
-  <hr />
+  @if (ownerEmail()) {
+    <p class="tw-text-center tw-mb-0">{{ ownerEmail() + " " }}{{ "sentYouThisRequest" | i18n }}</p>
+  }
 </div>
 <bit-section>
   <bit-form-field>

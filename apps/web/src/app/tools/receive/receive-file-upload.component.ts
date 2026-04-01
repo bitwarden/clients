@@ -33,6 +33,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 })
 export class ReceiveFileUploadComponent implements OnInit {
   readonly receiveName = signal<string>("");
+  readonly ownerEmail = signal<string>("");
   readonly fileName = signal<string>("");
   readonly showUploadFileButton = signal<boolean>(false);
   private readonly receiveId: ReceiveId;
@@ -65,6 +66,7 @@ export class ReceiveFileUploadComponent implements OnInit {
       );
       this.receiveName.set(sharedData.name);
       this.publicKey.set(sharedData.publicKey);
+      this.ownerEmail.set(sharedData.ownerEmail);
     } catch (e) {
       this.logService.error(e);
       this.toastService.showToast({
