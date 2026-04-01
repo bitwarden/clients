@@ -34,15 +34,13 @@ describe("LunrSearchService", () => {
   });
 
   it("clears index state on ciphersUpdated", async () => {
-    await fakeStateProvider
-      .getUser(userId, LUNR_SEARCH_INDEX)
-      .update(() => ({
-        version: "2.3.9",
-        fields: [],
-        fieldVectors: [] as any,
-        invertedIndex: [],
-        pipeline: [],
-      }));
+    await fakeStateProvider.getUser(userId, LUNR_SEARCH_INDEX).update(() => ({
+      version: "2.3.9",
+      fields: [],
+      fieldVectors: [] as any,
+      invertedIndex: [],
+      pipeline: [],
+    }));
     await fakeStateProvider.getUser(userId, LUNR_SEARCH_INDEXING).update(() => true);
 
     await service.ciphersUpdated(userId);

@@ -7,7 +7,6 @@ import { Jsonify } from "type-fest";
 import { StateProvider, UserKeyDefinition, VAULT_SEARCH_MEMORY } from "@bitwarden/state";
 import { UserId } from "@bitwarden/user-core";
 
-
 import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";

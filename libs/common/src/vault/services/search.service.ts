@@ -1,9 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import {
-  BehaviorSubject,
-  Observable,
-} from "rxjs";
+import { BehaviorSubject, Observable } from "rxjs";
 
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
@@ -13,6 +10,7 @@ import { SendView } from "../../tools/send/models/view/send.view";
 import { UserId } from "../../types/guid";
 import { SearchService as SearchServiceAbstraction } from "../abstractions/search.service";
 import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
+
 import { LunrSearchService } from "./lunr-search.service";
 
 // Time to wait before performing a search after the user stops typing.
