@@ -31,7 +31,7 @@ container with a `max-width` of 600px
 
 <Canvas of={stories.Default} />
 
-### Used with a from
+### Used with a form
 
 <Canvas of={stories.WithForm} />
 
@@ -42,3 +42,21 @@ container with a `max-width` of 600px
 ### Inactive
 
 <Canvas of={stories.Inactive} />
+
+## Using in a group
+
+Use `bit-form-control-group` to visually and semantically group related switches that belong to the
+same category. The group provides layout, a shared label, and accessibility structure — each switch
+still acts immediately when toggled.
+
+Choose a switch group when:
+
+- Multiple independent on/off settings are related and benefit from being shown together
+- Each toggle takes effect immediately (no save action required)
+
+Use checkboxes in a group instead when the selections need to be saved via form submission or
+validated as a batch.
+
+### Group
+
+<Canvas of={stories.FormControlCardGroup} />

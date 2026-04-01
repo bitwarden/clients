@@ -1,10 +1,4 @@
-import {
-  FormsModule,
-  ReactiveFormsModule,
-  FormControl,
-  FormGroup,
-  Validators,
-} from "@angular/forms";
+import { FormsModule, ReactiveFormsModule, FormControl, FormGroup } from "@angular/forms";
 import { Meta, moduleMetadata, StoryObj, componentWrapperDecorator } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -174,62 +168,22 @@ export const FormControlCard: Story = {
 
 export const FormControlCardGroup: Story = {
   render: () => ({
-    props: {
-      formObj: new FormGroup({
-        features: new FormControl<string[]>([], Validators.required),
-      }),
-    },
     template: /* HTML */ `
-      <form [formGroup]="formObj">
-        <bit-form-control-group formControlName="features">
-          <bit-label>Switch group</bit-label>
+      <bit-form-control-group>
+        <bit-label>Notification preferences</bit-label>
 
-          <bit-form-control-card [value]="'notifications'" icon="bwi-envelope">
-            <bit-switch></bit-switch>
-            <bit-label>Notifications</bit-label>
-            <bit-hint>Enable email notifications</bit-hint>
-          </bit-form-control-card>
+        <bit-form-control-card icon="bwi-envelope">
+          <bit-switch></bit-switch>
+          <bit-label>Email notifications</bit-label>
+          <bit-hint>Receive email updates for important activity</bit-hint>
+        </bit-form-control-card>
 
-          <bit-form-control-card [value]="'autoLock'" icon="bwi-lock">
-            <bit-switch></bit-switch>
-            <bit-label>Auto-lock</bit-label>
-            <bit-hint>Automatically lock after inactivity</bit-hint>
-          </bit-form-control-card>
-
-          <bit-hint>At least one option must be enabled.</bit-hint>
-        </bit-form-control-group>
-      </form>
+        <bit-form-control-card icon="bwi-lock">
+          <bit-switch></bit-switch>
+          <bit-label>Auto-lock</bit-label>
+          <bit-hint>Automatically lock after inactivity</bit-hint>
+        </bit-form-control-card>
+      </bit-form-control-group>
     `,
   }),
-};
-
-export const FormControlCardGroupWithValidationError: Story = {
-  render: () => {
-    const formObj = new FormGroup({
-      features: new FormControl<string[]>([], Validators.required),
-    });
-    formObj.markAllAsTouched();
-    return {
-      props: { formObj },
-      template: /* HTML */ `
-        <form [formGroup]="formObj">
-          <bit-form-control-group formControlName="features">
-            <bit-label>Switch group</bit-label>
-
-            <bit-form-control-card [value]="'notifications'" icon="bwi-envelope">
-              <bit-switch></bit-switch>
-              <bit-label>Notifications</bit-label>
-              <bit-hint>Enable email notifications</bit-hint>
-            </bit-form-control-card>
-
-            <bit-form-control-card [value]="'autoLock'" icon="bwi-lock">
-              <bit-switch></bit-switch>
-              <bit-label>Auto-lock</bit-label>
-              <bit-hint>Automatically lock after inactivity</bit-hint>
-            </bit-form-control-card>
-          </bit-form-control-group>
-        </form>
-      `,
-    };
-  },
 };
