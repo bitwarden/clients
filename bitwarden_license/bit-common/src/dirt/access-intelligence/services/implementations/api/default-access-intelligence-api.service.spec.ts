@@ -245,13 +245,16 @@ describe("DefaultAccessIntelligenceApiService", () => {
   });
 
   describe("renewReportFileUpload$", () => {
-    it("should call GET /reports/organizations/{orgId}/{reportId}/renew-upload and return AccessReportApi", async () => {
+    it("should call GET /reports/organizations/{orgId}/{reportId}/renew-upload and return AccessReportFileApi", async () => {
       const rawResponse = {
-        id: reportId,
-        organizationId: orgId,
-        creationDate: "2024-01-01T00:00:00Z",
         reportFileUploadUrl: "https://storage.example.com/renewed-upload",
-        contentEncryptionKey: "enc-key",
+        fileUploadType: FileUploadType.Azure,
+        reportResponse: {
+          id: reportId,
+          organizationId: orgId,
+          creationDate: "2024-01-01T00:00:00Z",
+          contentEncryptionKey: "enc-key",
+        },
       };
       mockApiService.send.mockResolvedValue(rawResponse);
 
@@ -264,8 +267,9 @@ describe("DefaultAccessIntelligenceApiService", () => {
         true,
         true,
       );
-      expect(result).toBeInstanceOf(AccessReportApi);
-      expect(result.id).toBe(reportId);
+      expect(result).toBeInstanceOf(AccessReportFileApi);
+      expect(result.reportResponse.id).toBe(reportId);
+      expect(result.reportFileUploadUrl).toBe("https://storage.example.com/renewed-upload");
     });
 
     it("should propagate API errors", async () => {

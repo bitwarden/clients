@@ -58,7 +58,7 @@ export abstract class AccessIntelligenceApiService {
   abstract renewReportFileUpload$(
     orgId: OrganizationId,
     reportId: OrganizationReportId,
-  ): Observable<AccessReportApi>;
+  ): Observable<AccessReportFileApi>;
 
   /** DELETE /reports/organizations/{orgId}/{reportId} */
   abstract deleteReport$(orgId: OrganizationId, reportId: OrganizationReportId): Observable<void>;
