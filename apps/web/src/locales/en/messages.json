@@ -46,6 +46,9 @@
       }
     }
   },
+  "successfullyUploadedDocuments": {
+    "message": "Successfully uploaded documents"
+  },
   "allApplications": {
     "message": "All applications"
   },

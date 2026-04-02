@@ -1,12 +1,9 @@
-<div class="tw-mb-4">
-  @if (sharedData.value(); as data) {
-    <p class="tw-text-center">
-      <b>{{ data.name }}</b>
-    </p>
-    <p class="tw-text-center tw-mb-0">{{ "sentYouThisRequest" | i18n: data.ownerEmail }}</p>
-  }
-</div>
 @if (showFileUploadResult()) {
+  <div class="tw-mb-4">
+    <p class="tw-text-center">
+      <b>{{ "successfullyUploadedDocuments" | i18n }}</b>
+    </p>
+  </div>
   <p class="tw-text-center tw-mb-0">{{ "filesUploadedSuccessfully" | i18n }}</p>
   <p class="tw-text-center tw-text-muted tw-text-sm tw-mb-0">
     @if (filesUploaded() == 1) {
@@ -21,6 +18,14 @@
     </button>
   </p>
 } @else {
+  <div class="tw-mb-4">
+    @if (sharedData.value(); as data) {
+      <p class="tw-text-center">
+        <b>{{ data.name }}</b>
+      </p>
+      <p class="tw-text-center tw-mb-0">{{ "sentYouThisRequest" | i18n: data.ownerEmail }}</p>
+    }
+  </div>
   <form [formGroup]="form" [bitSubmit]="uploadFiles">
     <bit-file-upload
       [maxFileSize]="500"

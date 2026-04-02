@@ -10,6 +10,7 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 
+import { ActiveSendIcon, Party } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ReceiveFileUploadInput } from "@bitwarden/common/tools/receive/models/receive-file-upload-input";
@@ -18,6 +19,7 @@ import { ReceiveFileService } from "@bitwarden/common/tools/receive/services/rec
 import { ReceiveService } from "@bitwarden/common/tools/receive/services/receive.service";
 import { ReceiveId } from "@bitwarden/common/types/guid";
 import {
+  AnonLayoutWrapperDataService,
   AsyncActionsModule,
   ButtonModule,
   FileUploadComponent,
@@ -46,6 +48,7 @@ export class ReceiveFileUploadComponent {
   private readonly receiveService = inject(ReceiveService);
   private readonly receiveFileService = inject(ReceiveFileService);
   private readonly route = inject(ActivatedRoute);
+  private readonly anonLayoutWrapperDataService = inject(AnonLayoutWrapperDataService);
 
   private readonly params = toSignal(this.route.paramMap);
   private readonly urlData = computed<ReceiveUrlData>(() => {
@@ -87,6 +90,7 @@ export class ReceiveFileUploadComponent {
   protected uploadMoreFiles() {
     this.files.set([]);
     this.showFileUploadResult.set(false);
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({ pageIcon: ActiveSendIcon });
   }
 
   protected readonly uploadFiles = async () => {
@@ -105,6 +109,7 @@ export class ReceiveFileUploadComponent {
     }
     this.filesUploaded.set(count);
     this.showFileUploadResult.set(true);
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({ pageIcon: Party });
   };
 
   private async uploadFile(file: File) {
