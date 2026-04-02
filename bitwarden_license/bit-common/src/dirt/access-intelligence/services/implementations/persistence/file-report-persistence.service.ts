@@ -15,7 +15,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { FileUploadService } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
-import { FileUploadType } from "@bitwarden/common/platform/enums";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { OrganizationReportId, OrganizationId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
@@ -92,30 +91,30 @@ export class FileReportPersistenceService extends ReportPersistenceService {
             const reportId = result.reportResponse.id as OrganizationReportId;
             const reportFileId = result.reportResponse.reportFile?.id ?? "";
 
-            const upload$: Observable<void> =
-              result.fileUploadType === FileUploadType.Azure
-                ? from(reportFile.arrayBuffer()).pipe(
-                    switchMap((buffer) =>
-                      from(
-                        this.fileUploadService.upload(
-                          { url: result.reportFileUploadUrl, fileUploadType: FileUploadType.Azure },
-                          new EncString(""),
-                          { buffer: new Uint8Array(buffer) } as unknown as EncArrayBuffer,
-                          {
-                            postDirect: () => Promise.resolve(),
-                            renewFileUploadUrl: () => Promise.resolve(result.reportFileUploadUrl),
-                            rollback: () => Promise.resolve(),
-                          },
+            const upload$ = from(reportFile.arrayBuffer()).pipe(
+              switchMap((buffer) =>
+                from(
+                  this.fileUploadService.upload(
+                    { url: result.reportFileUploadUrl, fileUploadType: result.fileUploadType },
+                    new EncString(""),
+                    { buffer: new Uint8Array(buffer) } as unknown as EncArrayBuffer,
+                    {
+                      postDirect: () =>
+                        firstValueFrom(
+                          this.accessIntelligenceApiService.uploadReportFile$(
+                            organizationId,
+                            reportId,
+                            reportFile,
+                            reportFileId,
+                          ),
                         ),
-                      ),
-                    ),
-                  )
-                : this.accessIntelligenceApiService.uploadReportFile$(
-                    organizationId,
-                    reportId,
-                    reportFile,
-                    reportFileId,
-                  );
+                      renewFileUploadUrl: () => Promise.resolve(result.reportFileUploadUrl),
+                      rollback: () => Promise.resolve(),
+                    },
+                  ),
+                ),
+              ),
+            );
 
             return upload$.pipe(map(() => ({ id: reportId, contentEncryptionKey })));
           }),
