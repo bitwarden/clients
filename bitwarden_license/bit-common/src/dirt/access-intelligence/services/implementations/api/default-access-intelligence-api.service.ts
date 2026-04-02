@@ -106,7 +106,7 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
   renewReportFileUpload$(
     orgId: OrganizationId,
     reportId: OrganizationReportId,
-  ): Observable<AccessReportApi> {
+  ): Observable<AccessReportFileApi> {
     const response = this.apiService.send(
       "GET",
       `/reports/organizations/${orgId}/${reportId}/renew-upload`,
@@ -114,7 +114,7 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
       true,
       true,
     );
-    return from(response).pipe(map((res) => new AccessReportApi(res)));
+    return from(response).pipe(map((res) => new AccessReportFileApi(res)));
   }
 
   deleteReport$(orgId: OrganizationId, reportId: OrganizationReportId): Observable<void> {
