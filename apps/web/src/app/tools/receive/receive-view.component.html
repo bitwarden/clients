@@ -1,6 +1,11 @@
 <bit-dialog>
   <ng-container bitDialogTitle>{{ receive.name }}</ng-container>
   <ng-container bitDialogContent>
+    @if (isExpired()) {
+      <bit-callout type="info" title="{{ 'receiveExpiredCalloutTitle' | i18n }}">
+        {{ "receiveExpiredCallout" | i18n }}
+      </bit-callout>
+    }
     <bit-form-field>
       <bit-label>{{ "receiveLink" | i18n }}</bit-label>
       <input bitInput disabled type="text" [value]="receiveLink()" />
@@ -9,6 +14,7 @@
         bitIconButton="bwi-clone"
         bitSuffix
         [label]="'copyLink' | i18n"
+        [disabled]="isExpired()"
         (click)="copyLink()"
       ></button>
     </bit-form-field>

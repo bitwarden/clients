@@ -1,6 +1,8 @@
 import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
+import { NoSendsIcon } from "@bitwarden/assets/svg";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ReceiveFileUploadInput } from "@bitwarden/common/tools/receive/models/receive-file-upload-input";
@@ -14,6 +16,7 @@ import {
   FileUploadComponent,
   FormFieldModule,
   LinkModule,
+  NoItemsModule,
   ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -22,11 +25,20 @@ import { I18nPipe } from "@bitwarden/ui-common";
   selector: "app-receive-upload",
   templateUrl: "receive-file-upload.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonModule, FileUploadComponent, FormFieldModule, I18nPipe, LinkModule],
+  imports: [
+    ButtonModule,
+    FileUploadComponent,
+    FormFieldModule,
+    I18nPipe,
+    LinkModule,
+    NoItemsModule,
+  ],
 })
 export class ReceiveFileUploadComponent implements OnInit {
   readonly multiple = true;
   readonly hasError = signal<boolean>(false);
+  readonly errorState = signal<"expired" | "badRequest" | null>(null);
+  protected readonly expiredIcon = NoSendsIcon;
   readonly maxFileSize = 500;
   readonly files = signal<File[]>([]);
   readonly receiveName = signal<string>("");
@@ -64,10 +76,11 @@ export class ReceiveFileUploadComponent implements OnInit {
       this.ownerEmail.set(sharedData.ownerEmail);
     } catch (e) {
       this.logService.error(e);
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("receiveLoadError"),
-      });
+      if (e instanceof ErrorResponse && e.statusCode === 404) {
+        this.errorState.set("expired");
+      } else {
+        this.errorState.set("badRequest");
+      }
     }
   }
 
