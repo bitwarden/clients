@@ -2,7 +2,6 @@ import { MockProxy, mock } from "jest-mock-extended";
 
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
@@ -15,7 +14,6 @@ import { DefaultLoginSuccessHandlerService } from "./default-login-success-handl
 describe("DefaultLoginSuccessHandlerService", () => {
   let service: DefaultLoginSuccessHandlerService;
 
-  let configService: MockProxy<ConfigService>;
   let loginEmailService: MockProxy<LoginEmailService>;
   let ssoLoginService: MockProxy<SsoLoginServiceAbstraction>;
   let syncService: MockProxy<SyncService>;
@@ -27,7 +25,6 @@ describe("DefaultLoginSuccessHandlerService", () => {
   const testEmail = "test@bitwarden.com";
 
   beforeEach(() => {
-    configService = mock<ConfigService>();
     loginEmailService = mock<LoginEmailService>();
     ssoLoginService = mock<SsoLoginServiceAbstraction>();
     syncService = mock<SyncService>();
@@ -36,7 +33,6 @@ describe("DefaultLoginSuccessHandlerService", () => {
     logService = mock<LogService>();
 
     service = new DefaultLoginSuccessHandlerService(
-      configService,
       loginEmailService,
       ssoLoginService,
       syncService,

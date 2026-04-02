@@ -1759,7 +1759,6 @@ const safeProviders: SafeProvider[] = [
     provide: LoginSuccessHandlerService,
     useClass: DefaultLoginSuccessHandlerService,
     deps: [
-      ConfigService,
       LoginEmailService,
       SsoLoginServiceAbstraction,
       SyncService,
