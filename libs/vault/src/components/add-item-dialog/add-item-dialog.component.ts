@@ -36,7 +36,7 @@ export class AddItemDialogComponent {
   constructor(
     private readonly dialogRef: DialogRef<AddItemDialogCloseResult>,
     @Inject(DIALOG_DATA) readonly data: AddItemDialogData,
-  ) { }
+  ) {}
 
   protected onCipherSelected(cipherType: CipherType): void {
     this.dialogRef.close({ result: AddItemDialogResult.Cipher, cipherType });

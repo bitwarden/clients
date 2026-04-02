@@ -59,7 +59,7 @@ export class NewCipherMenuComponent {
   constructor(
     private restrictedItemTypesService: RestrictedItemTypesService,
     private configService: ConfigService,
-  ) { }
+  ) {}
 
   /**
    * Returns an observable that emits the cipher menu items, filtered by the restricted types.
