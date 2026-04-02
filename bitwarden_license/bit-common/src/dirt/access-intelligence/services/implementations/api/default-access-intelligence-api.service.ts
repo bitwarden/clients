@@ -2,7 +2,7 @@ import { catchError, from, map, Observable, of, throwError } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
 import {
   AccessReportApi,
@@ -101,6 +101,31 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
         return throwError(() => error);
       }),
     );
+  }
+
+  renewReportFileUpload$(
+    orgId: OrganizationId,
+    reportId: OrganizationReportId,
+  ): Observable<AccessReportApi> {
+    const response = this.apiService.send(
+      "GET",
+      `/reports/organizations/${orgId}/${reportId}/renew-upload`,
+      null,
+      true,
+      true,
+    );
+    return from(response).pipe(map((res) => new AccessReportApi(res)));
+  }
+
+  deleteReport$(orgId: OrganizationId, reportId: OrganizationReportId): Observable<void> {
+    const response = this.apiService.send(
+      "DELETE",
+      `/reports/organizations/${orgId}/${reportId}`,
+      null,
+      true,
+      false,
+    );
+    return from(response);
   }
 
   uploadReportFile$(

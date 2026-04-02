@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
 import {
   AccessReportApi,
@@ -53,4 +53,13 @@ export abstract class AccessIntelligenceApiService {
     reportId: string,
     applicationData: string,
   ): Observable<AccessReportApi>;
+
+  /** GET /reports/organizations/{orgId}/{reportId}/renew-upload */
+  abstract renewReportFileUpload$(
+    orgId: OrganizationId,
+    reportId: OrganizationReportId,
+  ): Observable<AccessReportApi>;
+
+  /** DELETE /reports/organizations/{orgId}/{reportId} */
+  abstract deleteReport$(orgId: OrganizationId, reportId: OrganizationReportId): Observable<void>;
 }
