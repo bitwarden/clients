@@ -379,7 +379,9 @@ describe("VaultTimeoutService", () => {
         { isViewFocused: false },
       );
 
-      vaultTimeoutSettingsService.vaultTimeoutSuppressedUntil$.mockReturnValue(of(Date.now() - 1000));
+      vaultTimeoutSettingsService.vaultTimeoutSuppressedUntil$.mockReturnValue(
+        of(Date.now() - 1000),
+      );
 
       await vaultTimeoutService.checkVaultTimeout();
 
