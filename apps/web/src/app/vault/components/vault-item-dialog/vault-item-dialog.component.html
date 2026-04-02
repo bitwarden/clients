@@ -1,12 +1,12 @@
 <bit-dialog dialogSize="large" background="alt" [loading]="performingInitialLoad">
-  @if (showBackButton) {
+  @if (backAction) {
     <button
       type="button"
       bitIconButton="bwi-angle-left"
       buttonType="primaryGhost"
       size="default"
       [label]="'back' | i18n"
-      (click)="invokeBackAction()"
+      (click)="backAction()"
       class="-tw-ms-3"
       bitDialogHeaderStart
     ></button>
