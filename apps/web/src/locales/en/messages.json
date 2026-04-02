@@ -23,18 +23,21 @@
     "message": "Files uploaded successfully"
   },
   "nFilesSentToSingular": {
-    "message": "Your $NUMBER_OF_FILES$ file has been sent to",
+    "message": "Your file has been sent to $OWNER_EMAIL$",
     "placeholders": {
-      "NUMBER_OF_FILES": {
+      "OWNER_EMAIL": {
         "content": "$1"
       }
     }
   },
   "nFilesSentToPlural": {
-    "message": "Your $NUMBER_OF_FILES$ files have been sent to",
+    "message": "Your $NUMBER_OF_FILES$ files have been sent to $OWNER_EMAIL$",
     "placeholders": {
       "NUMBER_OF_FILES": {
         "content": "$1"
+      },
+      "OWNER_EMAIL": {
+        "content": "$2"
       }
     }
   },
@@ -6432,8 +6435,13 @@
   "editReceive": {
     "message": "Edit Receive"
   },
-  "sentYouThisRequest" : {
-    "message": "sent you this request"
+  "sentYouThisRequest": {
+    "message": "$OWNER_EMAIL$ sent you this request",
+    "placeholders": {
+      "OWNER_EMAIL": {
+        "content": "$1"
+      }
+    }
   },
   "expirationDays": {
     "message": "Expiration (days)"
