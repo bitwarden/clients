@@ -61,7 +61,7 @@ export class ReceiveComponent {
   protected readonly dataSource = new TableDataSource<ReceiveView>();
 
   protected readonly noSearchResults = computed(
-    () => true, // TODO: Implement search and update this value based on results
+    () => this.currentSearchText().length > 0 && this.dataSource.filteredData?.length === 0,
   );
 
   private readonly baseReceiveUrl = toSignal(
@@ -103,6 +103,23 @@ export class ReceiveComponent {
 
   searchTextChanged(newSearchText: string): void {
     this.currentSearchText.set(newSearchText);
+    this.dataSource.filter = this.receiveFilter(newSearchText);
+  }
+
+  private receiveFilter(query: string): (receive: ReceiveView) => boolean {
+    const normalizedQuery = query.trim().toLowerCase();
+    if (!normalizedQuery) {
+      return () => true;
+    }
+    return (receive: ReceiveView) => {
+      if (receive.name?.toLowerCase().includes(normalizedQuery)) {
+        return true;
+      }
+      if (receive.fileData?.some((f) => f.fileName?.toLowerCase().includes(normalizedQuery))) {
+        return true;
+      }
+      return false;
+    };
   }
 
   protected copyReceiveLink(receive: ReceiveView): void {
