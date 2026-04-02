@@ -60,6 +60,12 @@ export default class RuntimeBackground {
     chrome.runtime.onInstalled.addListener((details: any) => {
       this.onInstalledReason = details.reason;
     });
+
+    if (chrome?.permissions?.onAdded) {
+      chrome.permissions.onAdded.addListener((permissions) => {
+        void this.handleSetBitwardenAsDefaultPasswordManager(permissions);
+      });
+    }
   }
 
   async init() {
@@ -68,6 +74,7 @@ export default class RuntimeBackground {
     }
 
     await this.checkOnInstalled();
+
     const backgroundMessageListener = (
       msg: any,
       sender: chrome.runtime.MessageSender,
@@ -213,6 +220,30 @@ export default class RuntimeBackground {
         );
         return result;
       }
+    }
+  }
+
+  private async handleSetBitwardenAsDefaultPasswordManager(
+    permissions: chrome.permissions.Permissions,
+  ) {
+    if (!permissions.permissions?.includes("privacy")) {
+      return;
+    }
+
+    if (!chrome.storage?.session) {
+      return;
+    }
+
+    const result = await chrome.storage.session.get("pendingDefaultPasswordManagerApply");
+    if (!result.pendingDefaultPasswordManagerApply) {
+      return;
+    }
+
+    try {
+      await BrowserApi.updateDefaultBrowserAutofillSettings(false);
+      await chrome.storage.session.remove("pendingDefaultPasswordManagerApply");
+    } catch (error) {
+      this.logService.error(error);
     }
   }
 
