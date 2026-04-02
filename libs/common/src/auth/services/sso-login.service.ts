@@ -170,7 +170,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
   }
 
   /**
-   * Add an entry to the cached list of users who must authenticate via SSO.
+   * Add an entry to a cache list of users who must authenticate via SSO.
    */
   private async addToSsoRequiredCache(email: string, webVaultUrl: string): Promise<void> {
     const entry: SsoRequiredCacheEntry = { email: email.toLowerCase(), webVaultUrl };

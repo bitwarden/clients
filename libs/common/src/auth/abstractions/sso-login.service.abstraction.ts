@@ -118,9 +118,9 @@ export abstract class SsoLoginServiceAbstraction {
   ) => Promise<void>;
 
   /**
-   * Check if the user is required to authenticate via SSO. If so, add their email + webVaultUrl to a cache list.
-   * We'll use this cache list to enable only the "Use single sign-on" button to the user the next time they are
-   * on the `/login` page (and disable the alternate login option buttons).
+   * Check if the user is required to authenticate via SSO. If yes, add their `email` and `webVaultUrl` to a cache list.
+   * We'll use this cache list to enable only the "Use single sign-on" button  the next time the user is on the
+   * `/login` page (and disable the alternate login option buttons).
    *
    * If the user is not required to authenticate via SSO, remove their entry from the cache list if it is present.
    */
