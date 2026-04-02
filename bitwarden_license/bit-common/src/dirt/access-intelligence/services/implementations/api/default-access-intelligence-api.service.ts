@@ -44,7 +44,7 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
 
   updateSummaryData$(
     orgId: OrganizationId,
-    reportId: string,
+    reportId: OrganizationReportId,
     summaryData: string,
     metrics?: Record<string, number>,
   ): Observable<AccessReportApi> {
@@ -61,7 +61,7 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
 
   updateApplicationData$(
     orgId: OrganizationId,
-    reportId: string,
+    reportId: OrganizationReportId,
     applicationData: string,
   ): Observable<AccessReportApi> {
     const response = this.apiService.send(
@@ -130,7 +130,7 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
 
   uploadReportFile$(
     orgId: OrganizationId,
-    reportId: string,
+    reportId: OrganizationReportId,
     file: File,
     reportFileId: string,
   ): Observable<void> {
