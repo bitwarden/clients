@@ -2,6 +2,7 @@ export type ExportedVaultAsBlob = {
   type: "application/zip";
   data: Blob;
   fileName: string;
+  skippedAttachmentCount?: number;
 };
 
 export type ExportedVaultAsString = {

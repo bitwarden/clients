@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CommonModule } from "@angular/common";
 import { Component, effect, input } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
@@ -9,18 +8,18 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { getById } from "@bitwarden/common/platform/misc/rxjs-operators";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { CalloutModule } from "@bitwarden/components";
+import { TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { ExportFormat } from "@bitwarden/vault-export-core";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "tools-export-scope-callout",
-  templateUrl: "export-scope-callout.component.html",
-  imports: [CommonModule, I18nPipe, CalloutModule],
+  selector: "tools-export-scope-description",
+  templateUrl: "export-scope-description.component.html",
+  imports: [I18nPipe, TypographyModule],
 })
-export class ExportScopeCalloutComponent {
+export class ExportScopeDescriptionComponent {
   show = false;
   scopeConfig: {
     title: string;

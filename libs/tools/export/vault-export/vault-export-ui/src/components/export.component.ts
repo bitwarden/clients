@@ -73,7 +73,7 @@ import {
 
 import { EncryptedExportType } from "../enums/encrypted-export-type.enum";
 
-import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
+import { ExportScopeDescriptionComponent } from "./export-scope-description.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -91,7 +91,7 @@ import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
     SelectModule,
     CalloutModule,
     RadioButtonModule,
-    ExportScopeCalloutComponent,
+    ExportScopeDescriptionComponent,
     PasswordStrengthV2Component,
     GeneratorServicesModule,
     CopyClickDirective,
@@ -196,6 +196,8 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   onSuccessfulExport = new EventEmitter<OrganizationId | undefined>();
+
+  protected skippedAttachmentCount = 0;
 
   // TODO: Fix this the next time the file is edited.
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -539,6 +541,11 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
       // Download the export file
       this.downloadFile(data);
+
+      // Track skipped attachments for inline warning callout
+      if (data.type === "application/zip" && data.skippedAttachmentCount) {
+        this.skippedAttachmentCount = data.skippedAttachmentCount;
+      }
 
       this.toastService.showToast({
         variant: "success",
