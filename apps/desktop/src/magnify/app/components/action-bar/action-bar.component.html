@@ -1,0 +1,6 @@
+<div class="action-bar" *ngIf="actions().length > 0">
+  <div class="action-hint" *ngFor="let action of actions()">
+    <span class="action-key">{{ getLabel(action) }}</span>
+    <span class="action-label">{{ action.description }}</span>
+  </div>
+</div>

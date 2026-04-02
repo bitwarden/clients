@@ -121,6 +121,7 @@ import {
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
+import { MagnifyNavigationService } from "../../../autofill/services/magnify-navigation.service";
 import { DesktopCredentialGenerationService } from "../../../services/desktop-cipher-form-generator.service";
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
@@ -222,6 +223,7 @@ export class VaultComponent<C extends CipherViewLike>
   private routedVaultFilterService = inject(RoutedVaultFilterService);
   private vaultItemTransferService: VaultItemsTransferService = inject(VaultItemsTransferService);
   private searchBarService = inject(SearchBarService);
+  private magnifyNavigationService = inject(MagnifyNavigationService);
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -264,10 +266,6 @@ export class VaultComponent<C extends CipherViewLike>
     { initialValue: false },
   );
 
-  readonly archiveFlagEnabled = toSignal(this.cipherArchiveService.hasArchiveFlagEnabled$, {
-    initialValue: false,
-  });
-
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
     filterOutNullish(),
@@ -294,7 +292,7 @@ export class VaultComponent<C extends CipherViewLike>
   );
 
   protected readonly submitButtonText = computed(() => {
-    return this.cipher()?.isArchived && !this.userHasPremium() && this.archiveFlagEnabled()
+    return this.cipher()?.isArchived && !this.userHasPremium()
       ? this.i18nService.t("unArchiveAndSave")
       : this.i18nService.t("save");
   });
@@ -421,6 +419,18 @@ export class VaultComponent<C extends CipherViewLike>
       });
     });
 
+    this.magnifyNavigationService.viewInBitwarden$
+      .pipe(
+        concatMap(async (itemId) => {
+          const cipher = this.ciphers.find((c) => c.id === itemId);
+          if (cipher) {
+            await this.viewCipher(cipher);
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
     this.routedVaultFilterBridgeService.activeFilter$
       .pipe(takeUntil(this.destroy$))
       .subscribe((activeFilter) => {
@@ -472,17 +482,12 @@ export class VaultComponent<C extends CipherViewLike>
       ),
     );
 
-    const ciphers$ = combineLatest([
-      allowedCiphers$,
-      filter$,
-      this.currentSearchText$,
-      this.cipherArchiveService.hasArchiveFlagEnabled$,
-    ]).pipe(
+    const ciphers$ = combineLatest([allowedCiphers$, filter$, this.currentSearchText$]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText, showArchiveVault]) => {
+      concatMap(async ([ciphers, filter, searchText]) => {
         const failedCiphers =
           (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
-        const filterFunction = createFilterFunction(filter, showArchiveVault);
+        const filterFunction = createFilterFunction(filter);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
 

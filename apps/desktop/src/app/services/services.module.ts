@@ -57,6 +57,7 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
@@ -152,6 +153,7 @@ import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/des
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
 import { DesktopMagnifyService } from "../../autofill/services/desktop-magnify.service";
+import { MagnifyNavigationService } from "../../autofill/services/magnify-navigation.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
 import { ElectronKeyService } from "../../key-management/electron-key.service";
@@ -538,7 +540,15 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: DesktopMagnifyService,
-    deps: [ActiveUserStateProvider, AuthService],
+    deps: [
+      ActiveUserStateProvider,
+      AuthService,
+      AccountService,
+      CipherServiceAbstraction,
+      EnvironmentService,
+      DomainSettingsService,
+      MagnifyNavigationService,
+    ],
   }),
   safeProvider({
     provide: DesktopAutotypeDefaultSettingPolicy,

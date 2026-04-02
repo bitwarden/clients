@@ -4,7 +4,6 @@ import {
   MagnifyCommand,
   MagnifyCommandRequest,
   MagnifyCommandResponse,
-  MagnifyErrorCode,
   MagnifyLoginItem,
 } from "../../autofill/models/magnify-commands";
 
@@ -12,6 +11,11 @@ import {
   providedIn: "root",
 })
 export class CommandService {
+  /** Requests the main process to resize the magnify window to the given height. */
+  resize(height: number): void {
+    window.ipc.resize(height);
+  }
+
   async searchVault(input: string): Promise<MagnifyLoginItem[]> {
     const request: MagnifyCommandRequest = {
       type: MagnifyCommand.SearchVault,
@@ -62,18 +66,12 @@ export class CommandService {
     return "";
   }
 
-  /**
-   * Checks if an error from a command is an auth-related error.
-   * Returns the MagnifyErrorCode if it is, or null otherwise.
-   */
-  getAuthError(error: unknown): MagnifyErrorCode | null {
-    const message = error instanceof Error ? error.message : String(error);
-    if (message === MagnifyErrorCode.VaultLocked) {
-      return MagnifyErrorCode.VaultLocked;
-    }
-    if (message === MagnifyErrorCode.LoggedOut) {
-      return MagnifyErrorCode.LoggedOut;
-    }
-    return null;
+  async viewInBitwarden(itemId: string): Promise<void> {
+    const request: MagnifyCommandRequest = {
+      type: MagnifyCommand.ViewInBitwarden,
+      itemId,
+    };
+
+    await window.ipc.sendCommand(request);
   }
 }

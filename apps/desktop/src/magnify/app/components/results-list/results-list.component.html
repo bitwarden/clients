@@ -1,0 +1,56 @@
+<div class="results-wrapper" *ngIf="hasSearched()">
+  <div class="results-list" role="listbox">
+    <div
+      *ngFor="let item of results(); let i = index"
+      #resultItem
+      class="result-item"
+      [class.selected]="i === selectedIndex()"
+      role="option"
+      [attr.aria-selected]="i === selectedIndex()"
+      (click)="itemSelected.emit(item)"
+      (mouseenter)="itemHovered.emit(i)"
+    >
+      <div class="result-icon">
+        <img
+          *ngIf="item.iconUrl"
+          class="result-icon-img"
+          [src]="item.iconUrl"
+          [alt]="item.name"
+          (error)="onImgError($event)"
+        />
+        <span *ngIf="!item.iconUrl" class="result-icon-initial">
+          {{ item.name.charAt(0).toUpperCase() }}
+        </span>
+      </div>
+      <div class="result-text">
+        <div class="result-title">{{ item.name }}</div>
+        <div class="result-subtitle">{{ item.username }}</div>
+      </div>
+      <div class="result-actions" *ngIf="i === selectedIndex()">
+        <div
+          *ngFor="let action of itemActions"
+          class="result-action-badge"
+          [class.completing]="
+            completingAction()?.actionId === action.id && completingAction()?.itemIndex === i
+          "
+        >
+          <!-- Normal content always rendered — sets the badge width -->
+          <span class="result-action-description">{{ action.description }}</span>
+          <span class="result-action-key">{{ getActionLabel(action) }}</span>
+
+          <!-- Completion text overlaid absolutely — never affects badge size -->
+          <span
+            *ngIf="action.completionText"
+            class="result-action-completion"
+            [class.visible]="
+              completingAction()?.actionId === action.id && completingAction()?.itemIndex === i
+            "
+            >{{ action.completionText }}</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="no-results" *ngIf="results().length === 0">No results found</div>
+  </div>
+</div>

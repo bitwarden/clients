@@ -6,7 +6,11 @@ import { LogService } from "@bitwarden/logging";
 
 import { WindowMain } from "../../main/window.main";
 import { MAGNIFY_IPC_CHANNELS } from "../models/ipc-channels";
-import { MagnifyCommandRequest, MagnifyCommandResponse } from "../models/magnify-commands";
+import {
+  MagnifyCommand,
+  MagnifyCommandRequest,
+  MagnifyCommandResponse,
+} from "../models/magnify-commands";
 
 export class MainDesktopMagnifyService {
   private MAGNIFY_KEYBOARD_SHORTCUT = "CommandOrControl+Shift+Space";
@@ -45,6 +49,13 @@ export class MainDesktopMagnifyService {
       this.commandHandler(event, command),
     );
 
+    // Magnify render process -> main process: resize the magnify window
+    ipcMain.on(MAGNIFY_IPC_CHANNELS.MAGNIFY_RESIZE, (_event, height: number) => {
+      if (this.magnifyWindow != null && !this.magnifyWindow.isDestroyed()) {
+        this.magnifyWindow.setSize(640, height, false);
+      }
+    });
+
     // Close the magnify window if the main BW window is closed
     this.windowMain.win.on("closed", () => {
       this.magnifyWindow?.close();
@@ -64,6 +75,7 @@ export class MainDesktopMagnifyService {
   dispose() {
     ipcMain.removeAllListeners(MAGNIFY_IPC_CHANNELS.TOGGLE);
     ipcMain.removeHandler(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND);
+    ipcMain.removeAllListeners(MAGNIFY_IPC_CHANNELS.MAGNIFY_RESIZE);
 
     // Also unregister the global shortcut
     this.disableMagnify();
@@ -96,8 +108,12 @@ export class MainDesktopMagnifyService {
 
     // otherwise: create the window
     const win = new BrowserWindow({
-      width: 800,
-      height: 600,
+      width: 640,
+      height: 56,
+      frame: false,
+      transparent: true,
+      alwaysOnTop: true,
+      skipTaskbar: true,
       webPreferences: {
         preload: path.join(__dirname, "magnify", "preload.js"),
         sandbox: true,
@@ -153,6 +169,12 @@ export class MainDesktopMagnifyService {
       ipcMain.once(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND_RELAY_ERROR, onError);
 
       this.windowMain.win.webContents.send(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND_RELAY, command);
+    }).then((response) => {
+      if (command.type === MagnifyCommand.ViewInBitwarden) {
+        this.magnifyWindow?.close();
+        this.windowMain.win.focus();
+      }
+      return response;
     });
   }
 }
