@@ -877,7 +877,13 @@ export class VaultComponent implements OnInit, OnDestroy {
       collectionIds: collectionId ? [collectionId] : [],
     };
 
-    await this.openVaultItemDialog("form", cipherFormConfig, undefined, undefined, addItemDialogOnClose);
+    await this.openVaultItemDialog(
+      "form",
+      cipherFormConfig,
+      undefined,
+      undefined,
+      addItemDialogOnClose,
+    );
   }
 
   /**
@@ -953,7 +959,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       activeCollectionId,
       isAdminConsoleAction: true,
       restore: this.restore,
-      backAction: addItemDialogOnClose ? this.openAddItemDialog : undefined,
+      backAction: addItemDialogOnClose ? this.openAddItemDialog.bind(this) : undefined,
     });
 
     const result = await lastValueFrom(this.vaultItemDialogRef.closed);
