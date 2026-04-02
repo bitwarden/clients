@@ -47,7 +47,7 @@ export class BitFieldContainerDirective {
             "has-[:focus-visible]:!tw-border-border-focus",
             "has-[:focus-visible]:!tw-ring-border-focus",
           ]
-        : ["[&:not(:has(:focus-visible), :has(input:disabled)):hover]:tw-bg-bg-quaternary"]),
+        : ["[&:not(:has(:focus-visible)):not(:has(input:disabled)):hover]:tw-bg-bg-quaternary"]),
     ].join(" ");
   });
 }

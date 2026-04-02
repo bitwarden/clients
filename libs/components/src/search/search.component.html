@@ -15,8 +15,6 @@
     name="searchText"
     [ngModel]="searchText"
     (ngModelChange)="onChange($event)"
-    (focus)="isInputFocused.set(true)"
-    (blur)="isInputFocused.set(false); onTouch()"
     [disabled]="disabled()"
     [attr.autocomplete]="autocomplete()"
   />
