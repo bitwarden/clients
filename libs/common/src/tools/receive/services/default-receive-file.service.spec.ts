@@ -169,7 +169,6 @@ describe("DefaultReceiveFileService", () => {
       sizeName: "1 KB",
       fileName: "decrypted-file.txt",
       fileContentEncryptionKey: mockContentKey,
-      sizeName: "",
     };
     const receiveId = "receive-1" as ReceiveId;
 
