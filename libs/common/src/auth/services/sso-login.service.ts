@@ -173,10 +173,10 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
    * Add an entry to a cache list of users who must authenticate via SSO.
    */
   private async addToSsoRequiredCache(email: string, webVaultUrl: string): Promise<void> {
-    const entry: SsoRequiredCacheEntry = { email: email.toLowerCase(), webVaultUrl };
+    const newEntry: SsoRequiredCacheEntry = { email: email.toLowerCase(), webVaultUrl };
 
     await this.ssoRequiredCacheState.update(
-      (cache) => (cache == null ? [entry] : [...cache, entry]),
+      (cache) => (cache == null ? [newEntry] : [...cache, newEntry]),
       {
         shouldUpdate: (cache) => {
           // Always update if cache does not yet exist
@@ -185,19 +185,22 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
           }
 
           // Don't update if entry is already in the cache
-          return !cache.some((e) => e.email === entry.email && e.webVaultUrl === webVaultUrl);
+          return !cache.some(
+            (e) => e.email === newEntry.email && e.webVaultUrl === newEntry.webVaultUrl,
+          );
         },
       },
     );
   }
 
   async removeFromSsoRequiredCacheIfPresent(email: string, webVaultUrl: string): Promise<void> {
-    const normalizedEmail = email.toLowerCase();
+    const entryToRemove: SsoRequiredCacheEntry = { email: email.toLowerCase(), webVaultUrl };
 
     await this.ssoRequiredCacheState.update(
       (cache) =>
-        cache?.filter((e) => !(e.email === normalizedEmail && e.webVaultUrl === webVaultUrl)) ??
-        cache,
+        cache?.filter(
+          (e) => !(e.email === entryToRemove.email && e.webVaultUrl === entryToRemove.webVaultUrl),
+        ) ?? cache,
       {
         shouldUpdate: (cache) => {
           // Don't update if cache does not exist
@@ -206,7 +209,9 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
           }
 
           // Only update if entry is found in the cache
-          return cache.some((e) => e.email === normalizedEmail && e.webVaultUrl === webVaultUrl);
+          return cache.some(
+            (e) => e.email === entryToRemove.email && e.webVaultUrl === entryToRemove.webVaultUrl,
+          );
         },
       },
     );
