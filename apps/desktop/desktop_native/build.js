@@ -159,7 +159,7 @@ function buildSparsePackage(target) {
     const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "src", "package.json"), "utf8"));
     const version = packageJson.version + ".0";
 
-    const publisher = process.env.SPARSE_PACKAGE_PUBLISHER || "CN=Bitwarden Inc., O=Bitwarden Inc., L=Santa Barbara, S=California, C=US";
+    const publisher = process.env.SPARSE_PACKAGE_PUBLISHER || "CN=Bitwarden Inc., O=Bitwarden Inc., L=Santa Barbara, S=California, C=US, SERIALNUMBER=7654941, OID.2.5.4.15=Private Organization, OID.1.3.6.1.4.1.311.60.2.1.2=Delaware, OID.1.3.6.1.4.1.311.60.2.1.3=US";
 
     const templatePath = path.join(__dirname, "..", "resources", "sparse-package", "AppxManifest.xml");
     const outputDir = path.join(__dirname, "dist");
