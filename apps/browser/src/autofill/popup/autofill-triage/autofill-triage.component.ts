@@ -28,6 +28,7 @@ import {
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
+import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { AutofillTriagePageResult, AutofillTriageFieldResult } from "../../types/autofill-triage";
@@ -42,6 +43,7 @@ import { formatAutofillTriageReport } from "../utils/format-autofill-triage-repo
     JslibModule,
     PopupPageComponent,
     PopupHeaderComponent,
+    PopupFooterComponent,
     BadgeModule,
     ButtonModule,
     CalloutModule,
