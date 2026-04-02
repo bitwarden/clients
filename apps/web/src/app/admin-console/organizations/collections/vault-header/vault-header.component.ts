@@ -109,7 +109,7 @@ export class VaultHeaderComponent {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() searchTextChanged = new EventEmitter<string>();
 
-    /** Emits an event when the add item dialog should be opened */
+  /** Emits an event when the add item dialog should be opened */
   onOpenAddItemDialog = output();
 
   protected CollectionDialogTabType = CollectionDialogTabType;
@@ -123,7 +123,7 @@ export class VaultHeaderComponent {
     private collectionAdminService: CollectionAdminService,
     private router: Router,
     private accountService: AccountService,
-  ) { }
+  ) {}
 
   get title() {
     const headerType = this.i18nService.t("collections").toLowerCase();
