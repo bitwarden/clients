@@ -11,6 +11,7 @@ members = [
     "proxy",
     "ssh_agent",
     "windows_plugin_authenticator",
+    "windows_shell_extension",
 ]
 
 [workspace.package]

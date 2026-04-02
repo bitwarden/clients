@@ -11,6 +11,7 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { IconModule } from "@bitwarden/components";
+import { SendFileProviderService } from "@bitwarden/send-ui";
 
 import { SshAgentService } from "../autofill/services/ssh-agent.service";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
@@ -23,6 +24,7 @@ import { AccountSwitcherComponent } from "./layout/account-switcher.component";
 import { HeaderComponent } from "./layout/header.component";
 import { SearchComponent } from "./layout/search/search.component";
 import { ServicesModule } from "./services/services.module";
+import { DesktopSendFileProviderService } from "./tools/send/desktop-send-file-provider.service";
 
 /**
  * This is the `AppModule` for the Bitwarden desktop application.
@@ -53,6 +55,10 @@ import { ServicesModule } from "./services/services.module";
     {
       provide: PremiumUpgradePromptService,
       useClass: DesktopPremiumUpgradePromptService,
+    },
+    {
+      provide: SendFileProviderService,
+      useClass: DesktopSendFileProviderService,
     },
   ],
   bootstrap: [AppComponent],

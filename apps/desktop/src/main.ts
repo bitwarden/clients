@@ -4,7 +4,7 @@ import "core-js/proposals/explicit-resource-management";
 
 import * as path from "path";
 
-import { app } from "electron";
+import { app, ipcMain } from "electron";
 import { Subject, firstValueFrom } from "rxjs";
 
 import { SsoUrlService } from "@bitwarden/auth/common";
@@ -40,10 +40,12 @@ import { DesktopAutofillSettingsService } from "./autofill/services/desktop-auto
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
 import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
 import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
+import { ContextMenuMain } from "./main/context-menu.main";
 import { MenuMain } from "./main/menu/menu.main";
 import { MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
+import { SendFileMain } from "./main/send-file.main";
 import { SsoCookieMain } from "./main/sso-cookie.main";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
@@ -78,6 +80,9 @@ export class Main {
   migrationRunner: MigrationRunner;
   ssoUrlService: SsoUrlService;
 
+  private pendingSendPaths: string[] = [];
+  private sendPathDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
   windowMain: WindowMain;
   messagingMain: MessagingMain;
   updaterMain: UpdaterMain;
@@ -86,6 +91,8 @@ export class Main {
   trayMain: TrayMain;
   biometricsService: DesktopBiometricsService;
   nativeMessagingMain: NativeMessagingMain;
+  contextMenuMain: ContextMenuMain;
+  sendFileMain: SendFileMain;
   clipboardMain: ClipboardMain;
   nativeAutofillMain: NativeAutofillMain;
   desktopAutofillSettingsService: DesktopAutofillSettingsService;
@@ -212,6 +219,9 @@ export class Main {
       this.shell,
       (arg) => this.processDeepLink(arg),
       (win) => this.trayMain.setupWindowListeners(win),
+      () => {
+        // no-op: pending send paths are pulled by the renderer via IPC
+      },
     );
 
     this.biometricsService = new MainBiometricsService(
@@ -294,6 +304,18 @@ export class Main {
       app.getPath("exe"),
       app.getAppPath(),
     );
+
+    this.contextMenuMain = new ContextMenuMain(app.getPath("exe"));
+    this.sendFileMain = new SendFileMain();
+
+    // Allow the renderer to pull pending --send-path arguments on demand.
+    // This avoids the race condition where the push-based deep link message
+    // arrives before the renderer has subscribed to IPC messaging.
+    ipcMain.handle("pendingSendPaths.take", () => {
+      const paths = [...this.pendingSendPaths];
+      this.pendingSendPaths = [];
+      return paths;
+    });
 
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
 
@@ -420,6 +442,59 @@ export class Main {
       .forEach((s) => {
         this.messagingService.send("deepLink", { urlString: s });
       });
+
+    this.parseSendPathArgs(argv);
+    if (this.pendingSendPaths.length > 0) {
+      this.debounceSendPaths();
+    }
+  }
+
+  /**
+   * Parse --send-path arguments from an argv array and add them to pendingSendPaths.
+   * The shell extension may pass multiple --send-path flags when several files are selected.
+   * Electron/Chromium may inject flags (e.g. --allow-file-access-from-files) between
+   * --send-path and the actual file path, so scan forward past any flags.
+   */
+  private parseSendPathArgs(argv: string[]): void {
+    for (let idx = 0; idx < argv.length; idx++) {
+      if (argv[idx] !== "--send-path") {
+        continue;
+      }
+      for (let j = idx + 1; j < argv.length; j++) {
+        if (!argv[j].startsWith("-")) {
+          this.pendingSendPaths.push(argv[j]);
+          break;
+        }
+      }
+    }
+  }
+
+  private debounceSendPaths(): void {
+    if (this.sendPathDebounceTimer != null) {
+      clearTimeout(this.sendPathDebounceTimer);
+    }
+    this.sendPathDebounceTimer = setTimeout(() => {
+      this.sendPathDebounceTimer = null;
+      this.flushSendPaths();
+    }, 500);
+  }
+
+  private flushSendPaths(): void {
+    if (this.pendingSendPaths.length === 0) {
+      return;
+    }
+
+    if (this.windowMain.win?.webContents == null) {
+      return;
+    }
+
+    // Notify the renderer that paths are available. The renderer pulls the
+    // actual paths via the pendingSendPaths.take IPC handler, which is the
+    // sole place that clears the array. This avoids a race where the deep
+    // link message is lost but the paths have already been cleared.
+    this.messagingService.send("deepLink", {
+      urlString: "bitwarden://send/create",
+    });
   }
 
   private async toggleHardwareAcceleration(): Promise<void> {

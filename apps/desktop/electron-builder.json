@@ -94,7 +94,7 @@
   "win": {
     "electronUpdaterCompatibility": ">=0.0.1",
     "target": ["portable", "nsis-web", "appx"],
-    "signExts": [".dll", ".node"],
+    "signExts": [".dll", ".node", ".msix"],
     "signtoolOptions": {
       "sign": "./sign.js",
       "publisherName": "Bitwarden Inc."
@@ -107,6 +107,14 @@
       {
         "from": "desktop_native/dist/bitwarden_chromium_import_helper.win32-${arch}.exe",
         "to": "bitwarden_chromium_import_helper.exe"
+      },
+      {
+        "from": "desktop_native/dist/windows_shell_extension.dll",
+        "to": "windows_shell_extension.dll"
+      },
+      {
+        "from": "desktop_native/dist/bitwarden-sparse.${arch}.msix",
+        "to": "bitwarden-sparse.msix"
       }
     ]
   },

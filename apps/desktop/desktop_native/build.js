@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const child_process = require("child_process");
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 const process = require("process");
 
@@ -47,18 +48,20 @@ function buildNapiModule(target, release = true) {
 }
 
 /**
- * Build a Rust binary with Cargo.
- * 
+ * Build a Rust binary or library with Cargo.
+ *
  * If {@link target} is specified, cross-compilation helpers are used to build if necessary, and the resulting
- * binary is copied to the `dist` folder.
- * @param {string} bin Name of cargo binary package in `desktop_native` workspace.
+ * artifact is copied to the `dist` folder. Libraries are copied without a platform-arch suffix.
+ * @param {string} bin Name of cargo binary or package in `desktop_native` workspace.
  * @param {string?} target Rust compiler target, e.g. `aarch64-pc-windows-msvc`.
  * @param {boolean} release Whether to build in release mode.
+ * @param {boolean} [library=false] If true, builds a library (`--package`) instead of a binary (`--bin`).
  */
-function cargoBuild(bin, target, release) {
+function cargoBuild(bin, target, release, library = false) {
     const targetArg = target ? `--target=${target}` : "";
     const releaseArg = release ? "--release" : "";
-    const args = ["build", "--bin", bin, releaseArg, targetArg]
+    const packageFlag = library ? "--package" : "--bin";
+    const args = ["build", packageFlag, bin, releaseArg, targetArg]
     // Use cross-compilation helper if necessary
     if (effectivePlatform(target) === "win32" && process.platform !== "win32") {
         args.unshift("xwin")
@@ -76,11 +79,13 @@ function cargoBuild(bin, target, release) {
         platform = process.platform;
     }
 
-    // Copy the resulting binary to the dist folder
+    // Copy the resulting artifact to the dist folder
     const profileFolder = isRelease ? "release" : "debug";
-    const ext = platform === "win32" ? ".exe" : "";
+    const ext = library ? (platform === "win32" ? ".dll" : ".so") : (platform === "win32" ? ".exe" : "");
     const src = path.join(__dirname, "target", target ? target : "", profileFolder, `${bin}${ext}`)
-    const dst = path.join(__dirname, "dist", `${bin}.${platform}-${nodeArch}${ext}`)
+    const dst = library
+        ? path.join(__dirname, "dist", `${bin}${ext}`)
+        : path.join(__dirname, "dist", `${bin}.${platform}-${nodeArch}${ext}`)
     console.log(`Copying ${src} to ${dst}`);
     fs.copyFileSync(src, dst);
 }
@@ -93,6 +98,86 @@ function buildImporterBinaries(target, release = true) {
     // These binaries are only built for Windows, so we can skip them on other platforms
     if (effectivePlatform(target) == "win32") {
         cargoBuild("bitwarden_chromium_import_helper", target, release)
+    }
+}
+
+function buildShellExtension(target, release = true) {
+    // The shell extension DLL is only built for Windows
+    if (effectivePlatform(target) !== "win32") {
+        return;
+    }
+
+    cargoBuild("windows_shell_extension", target, release, true);
+}
+
+function findMakeAppx(arch) {
+    const sdkRoot = "C:\\Program Files (x86)\\Windows Kits\\10\\bin";
+    if (!fs.existsSync(sdkRoot)) {
+        return null;
+    }
+    // Find the latest SDK version directory that contains makeappx.exe
+    const versions = fs.readdirSync(sdkRoot).filter(d => d.startsWith("10.")).sort().reverse();
+    for (const ver of versions) {
+        const binDir = path.join(sdkRoot, ver, arch);
+        const match = fs.existsSync(binDir) && fs.readdirSync(binDir).find(f => f.toLowerCase() === "makeappx.exe");
+        if (match) {
+            return path.join(binDir, match);
+        }
+    }
+    return null;
+}
+
+function buildSparsePackage(target) {
+    // The sparse MSIX package is only needed on Windows x64/arm64
+    if (effectivePlatform(target) !== "win32") {
+        return;
+    }
+    const arch = target ? rustTargetsMap[target].nodeArch : process.arch;
+    if (arch === "ia32") {
+        console.log("Skipping sparse MSIX build for x86 (not supported)");
+        return;
+    }
+
+    const makeAppx = findMakeAppx(process.arch);
+    if (!makeAppx) {
+        throw new Error("MakeAppx.exe not found. Install the Windows SDK to build the sparse MSIX package.");
+    }
+
+    // Read version from the desktop package.json and append .0 for the four-part MSIX version
+    const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "src", "package.json"), "utf8"));
+    const version = packageJson.version + ".0";
+
+    const publisher = process.env.SPARSE_PACKAGE_PUBLISHER || "CN=Bitwarden Inc., O=Bitwarden Inc., L=Santa Barbara, S=California, C=US, SERIALNUMBER=7654941, OID.2.5.4.15=Private Organization, OID.1.3.6.1.4.1.311.60.2.1.2=Delaware, OID.1.3.6.1.4.1.311.60.2.1.3=US";
+
+    const templatePath = path.join(__dirname, "..", "resources", "sparse-package", "AppxManifest.xml");
+    const outputDir = path.join(__dirname, "dist");
+    const outputMsix = path.join(outputDir, `bitwarden-sparse.${arch}.msix`);
+    const stagingDir = path.join(os.tmpdir(), `bitwarden-sparse-${Date.now()}`);
+
+    console.log(`Building sparse MSIX package (arch=${arch}, version=${version})`);
+
+    try {
+        // Create staging directory
+        fs.mkdirSync(stagingDir, { recursive: true });
+
+        // Read template and substitute variables
+        let manifest = fs.readFileSync(templatePath, "utf8");
+        manifest = manifest.replaceAll("${arch}", arch);
+        manifest = manifest.replaceAll("${version}", version);
+        manifest = manifest.replaceAll("${publisher}", publisher);
+
+        // Write processed manifest
+        fs.writeFileSync(path.join(stagingDir, "AppxManifest.xml"), manifest, "utf8");
+
+        // Ensure output directory exists
+        fs.mkdirSync(outputDir, { recursive: true });
+
+        // Package as sparse MSIX using MakeAppx.exe
+        runCommand(makeAppx, ["pack", "/d", stagingDir, "/p", outputMsix, "/nv", "/o"]);
+        console.log(`Sparse MSIX package created: ${outputMsix}`);
+    } finally {
+        // Clean up staging directory
+        fs.rmSync(stagingDir, { recursive: true, force: true });
     }
 }
 
@@ -131,6 +216,8 @@ if (!crossPlatform && !target) {
     buildNapiModule(false, mode === "release");
     buildProxyBin(false, mode === "release");
     buildImporterBinaries(false, mode === "release");
+    buildShellExtension(false, mode === "release");
+    buildSparsePackage(false);
     buildProcessIsolation();
     return;
 }
@@ -141,6 +228,8 @@ if (target) {
     buildNapiModule(target, isRelease);
     buildProxyBin(target, isRelease);
     buildImporterBinaries(target, isRelease);
+    buildShellExtension(target, isRelease);
+    buildSparsePackage(target);
     buildProcessIsolation();
     return;
 }
@@ -160,5 +249,7 @@ platformTargets.forEach(([target, _]) => {
     buildNapiModule(target, isRelease);
     buildProxyBin(target, isRelease);
     buildImporterBinaries(target, isRelease);
+    buildShellExtension(target, isRelease);
+    buildSparsePackage(target);
     buildProcessIsolation();
 });

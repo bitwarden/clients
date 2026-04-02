@@ -52,6 +52,7 @@ export class WindowMain {
     private shell: SafeShell,
     private argvCallback: (argv: string[]) => void = null,
     private createWindowCallback: (win: BrowserWindow) => void,
+    private onWindowReady: () => void = null,
   ) {}
 
   init(): Promise<any> {
@@ -196,6 +197,10 @@ export class WindowMain {
 
           if (this.argvCallback != null) {
             this.argvCallback(process.argv);
+          }
+
+          if (this.onWindowReady != null) {
+            this.onWindowReady();
           }
         });
 

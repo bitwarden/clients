@@ -3,6 +3,7 @@
 import {
   Component,
   DestroyRef,
+  inject,
   NgZone,
   OnDestroy,
   OnInit,
@@ -87,6 +88,7 @@ import { SettingsComponent } from "./accounts/settings.component";
 import { ExportDesktopComponent } from "./tools/export/export-desktop.component";
 import { CredentialGeneratorComponent } from "./tools/generator/credential-generator.component";
 import { ImportDesktopComponent } from "./tools/import/import-desktop.component";
+import { PendingSendService } from "./tools/send/pending-send.service";
 
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
@@ -137,6 +139,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private activeSimpleDialog: DialogRef<boolean> = null;
   private processingPendingAuthRequests = false;
   private shouldRerunAuthRequestProcessing = false;
+  private pendingSendService = inject(PendingSendService);
 
   private destroy$ = new Subject<void>();
 
@@ -855,6 +858,12 @@ export class AppComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Handle Send creation from context menu — pull paths from main process via IPC
+    if (urlString.indexOf("bitwarden://send/create") === 0) {
+      void this.pullAndHandlePendingSend();
+      return;
+    }
+
     const url = new URL(urlString);
     const code = url.searchParams.get("code");
     const receivedState = url.searchParams.get("state");
@@ -877,6 +886,46 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     this.messagingService.send(message, { code: code, state: receivedState });
+  }
+
+  /**
+   * Navigate to the Send page if there are pending paths and the user is unlocked.
+   * Called directly from processDeepLink when already unlocked. When locked, the
+   * paths stay in PendingSendService and the pendingSendGuard on the /vault route
+   * handles the redirect after unlock.
+   */
+  /**
+   * Pull pending send paths from the main process via IPC, store them in
+   * PendingSendService, then attempt to navigate to /send if unlocked.
+   */
+  private async pullAndHandlePendingSend(): Promise<void> {
+    const paths = await ipc.platform.contextMenu.takePendingSendPaths();
+    if (paths.length > 0) {
+      this.pendingSendService.addPaths(paths);
+    }
+    await this.handlePendingSend();
+  }
+
+  private async handlePendingSend(): Promise<void> {
+    if (!this.pendingSendService.hasPending()) {
+      return;
+    }
+
+    // Check if the user is authenticated and unlocked
+    const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
+    if (authStatus !== AuthenticationStatus.Unlocked) {
+      // Paths stay in PendingSendService — the vault route guard will redirect after unlock
+      return;
+    }
+
+    const paths = this.pendingSendService.takePaths();
+
+    await this.router.navigate(["/send"], {
+      queryParams: {
+        sendPaths: JSON.stringify(paths),
+      },
+      onSameUrlNavigation: "reload",
+    });
   }
 
   private async deleteAccount() {

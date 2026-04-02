@@ -40,6 +40,19 @@ type BaseSendFormConfig = {
    * The selected folder contents are zipped via the SDK and sent as a File Send.
    */
   isFolderMode?: boolean;
+
+  /**
+   * Pre-loaded file/folder paths from the desktop context menu integration.
+   * When set, the form skips the file/folder picker and reads contents via IPC.
+   * A single non-directory entry is sent as a plain file; all other cases are
+   * zipped via the SDK's `make_send_folder()`.
+   */
+  preloadedPaths?: Array<{
+    path: string;
+    isDirectory: boolean;
+    name: string;
+    size: number;
+  }>;
 };
 
 /**

@@ -7,10 +7,12 @@ import {
   DestroyRef,
   EventEmitter,
   forwardRef,
+  Inject,
   inject,
   Input,
   OnChanges,
   OnInit,
+  Optional,
   output,
   Output,
   viewChild,
@@ -38,6 +40,7 @@ import {
 } from "@bitwarden/components";
 import { MakeSendMultiFileEntry } from "@bitwarden/sdk-internal";
 
+import { SendFileProviderService } from "../abstractions/send-file-provider.service";
 import { SendFormConfig } from "../abstractions/send-form-config.service";
 import { SendFormService } from "../abstractions/send-form.service";
 import { SendForm, SendFormContainer } from "../send-form-container";
@@ -75,6 +78,7 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
   private _firstInitialized = false;
   private file: File | null = null;
   private folderFiles: FileList | null = null;
+  private multipleFiles: FileList | null = null;
 
   /**
    * The form ID to use for the form. Used to connect it to a submit button.
@@ -194,6 +198,7 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
     this.originalSendView = null;
     this.file = null;
     this.folderFiles = null;
+    this.multipleFiles = null;
     this.sendForm.reset();
 
     if (this.config == null) {
@@ -222,6 +227,7 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
     private i18nService: I18nService,
     private sdkService: SdkService,
     private logService: LogService,
+    @Optional() @Inject(SendFileProviderService) private sendFileProvider: SendFileProviderService,
   ) {}
 
   onFileSelected(file: File): void {
@@ -232,6 +238,10 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
     this.folderFiles = files;
   }
 
+  onMultipleFilesSelected(files: FileList): void {
+    this.multipleFiles = files;
+  }
+
   submit = async () => {
     if (this.sendForm.invalid) {
       this.sendForm.markAllAsTouched();
@@ -240,41 +250,26 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
 
     let fileOrBuffer: File | ArrayBuffer = this.file;
 
-    if (this.folderFiles != null && this.folderFiles.length > 0) {
-      const entries: MakeSendMultiFileEntry[] = [];
+    // Handle preloaded paths from desktop context menu (single or multi-select)
+    if (
+      this.config.preloadedPaths != null &&
+      this.config.preloadedPaths.length > 0 &&
+      this.sendFileProvider != null
+    ) {
+      fileOrBuffer = await this.readPreloadedPaths(this.config.preloadedPaths);
+    } else if (this.multipleFiles != null && this.multipleFiles.length > 1) {
+      // Handle multi-file selection from file picker — zip via SDK
+      fileOrBuffer = await this.zipBrowserFiles(
+        Array.from(this.multipleFiles).map((f) => ({ file: f, path: f.name })),
+        "Send",
+      );
+    } else if (this.folderFiles != null && this.folderFiles.length > 0) {
       const firstPath = this.folderFiles[0].webkitRelativePath;
       const folderName = firstPath.split("/")[0];
-
-      this.logService.debug(
-        `[SendFormComponent] Creating zip from ${this.folderFiles.length} files in "${folderName}"`,
+      fileOrBuffer = await this.zipBrowserFiles(
+        Array.from(this.folderFiles).map((f) => ({ file: f, path: f.webkitRelativePath })),
+        folderName,
       );
-
-      for (const f of Array.from(this.folderFiles)) {
-        const buffer = await f.arrayBuffer();
-        entries.push({
-          path: f.webkitRelativePath,
-          contents: Array.from(new Uint8Array(buffer)),
-        });
-      }
-
-      const client = await firstValueFrom(this.sdkService.client$);
-      const result = client
-        .sends()
-        .make_send_multi_file({ archiveName: folderName, files: entries });
-
-      this.logService.debug(
-        `[SendFormComponent] Zip created: "${result.file.fileName}" (${result.file.sizeName})`,
-      );
-
-      const fileView = new SendFileView();
-      fileView.id = result.file.id ?? null;
-      fileView.fileName = result.file.fileName;
-      fileView.size = result.file.size;
-      fileView.sizeName = result.file.sizeName;
-
-      this.updatedSendView.type = SendType.File;
-      this.updatedSendView.file = fileView;
-      fileOrBuffer = new Uint8Array(result.contents).buffer;
     }
 
     const sendView = await this.addEditFormService.saveSend(
@@ -295,4 +290,83 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
     });
     this.onSendUpdated.emit(this.updatedSendView);
   };
+
+  /**
+   * Read preloaded paths from the desktop filesystem via IPC.
+   * A single non-directory file is returned as a raw ArrayBuffer;
+   * everything else is zipped via the SDK.
+   */
+  private async readPreloadedPaths(
+    paths: NonNullable<SendFormConfig["preloadedPaths"]>,
+  ): Promise<ArrayBuffer> {
+    // Single non-directory file — send as plain file, no zip
+    if (paths.length === 1 && !paths[0].isDirectory) {
+      const contents = await this.sendFileProvider.readFile(paths[0].path);
+      return contents.buffer as ArrayBuffer;
+    }
+
+    // Multiple entries or a directory — collect and zip
+    const allEntries: MakeSendMultiFileEntry[] = [];
+    let folderName = "Send";
+
+    for (const p of paths) {
+      if (p.isDirectory) {
+        folderName = p.name;
+        const dirEntries = await this.sendFileProvider.readDirectory(p.path);
+        for (const e of dirEntries) {
+          allEntries.push({
+            path: `${p.name}/${e.relativePath}`,
+            contents: e.contents,
+          });
+        }
+      } else {
+        const contents = await this.sendFileProvider.readFile(p.path);
+        allEntries.push({
+          path: p.name,
+          contents: Array.from(new Uint8Array(contents)),
+        });
+      }
+    }
+
+    return this.makeSendFolder(allEntries, folderName);
+  }
+
+  /**
+   * Zip browser File objects via the SDK and update the send view with the result.
+   */
+  private async zipBrowserFiles(
+    files: Array<{ file: File; path: string }>,
+    folderName: string,
+  ): Promise<ArrayBuffer> {
+    const entries: MakeSendMultiFileEntry[] = [];
+    for (const { file, path } of files) {
+      const buffer = await file.arrayBuffer();
+      entries.push({
+        path,
+        contents: Array.from(new Uint8Array(buffer)),
+      });
+    }
+    return this.makeSendFolder(entries, folderName);
+  }
+
+  /**
+   * Shared helper: call SDK make_send_folder and update the send view with the zip result.
+   */
+  private async makeSendFolder(
+    entries: MakeSendMultiFileEntry[],
+    folderName: string,
+  ): Promise<ArrayBuffer> {
+    const client = await firstValueFrom(this.sdkService.client$);
+    const result = client.sends().make_send_multi_file({ archiveName: folderName, files: entries });
+
+    const fileView = new SendFileView();
+    fileView.id = result.file.id ?? null;
+    fileView.fileName = result.file.fileName;
+    fileView.size = result.file.size;
+    fileView.sizeName = result.file.sizeName;
+
+    this.updatedSendView.type = SendType.File;
+    this.updatedSendView.file = fileView;
+    return new Uint8Array(result.contents).buffer;
+  }
 }

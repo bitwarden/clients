@@ -165,6 +165,20 @@ export declare namespace clipboards {
   export function write(text: string, password: boolean): Promise<void>
 }
 
+export declare namespace context_menu {
+  /**
+   * Register the Bitwarden context menu in Windows Explorer for both files
+   * and directories.
+   *
+   * - `exe_path`: path to Bitwarden.exe (embedded in registry commands)
+   * - `msix_path`: path to the sparse MSIX package for Win11 modern menu
+   * - `install_dir`: application install directory (external location for sparse package)
+   */
+  export function register(exePath: string, msixPath: string, installDir: string): void
+  /** Remove all Bitwarden context menu entries from Windows Explorer. */
+  export function unregister(): void
+}
+
 export declare namespace ipc {
   export class NativeIpcServer {
     /**
@@ -246,6 +260,32 @@ export declare namespace processisolations {
   export function disableCoredumps(): Promise<void>
   export function isCoreDumpingDisabled(): Promise<boolean>
   export function isolateProcess(): Promise<void>
+}
+
+export declare namespace send_file {
+  /** A single file entry within a directory. */
+  export interface DirectoryEntry {
+    /** Relative path using forward slashes. */
+    relativePath: string
+    /** Raw file contents. */
+    contents: Buffer
+  }
+  /** Get metadata about a filesystem path. */
+  export function getPathInfo(path: string): PathInfo
+  /** Metadata about a filesystem path. */
+  export interface PathInfo {
+    isDirectory: boolean
+    name: string
+    /** Size in bytes. Uses f64 because NAPI does not support u64. */
+    size: number
+  }
+  /**
+   * Recursively read all files in a directory. Skips symlinks. Enforces a
+   * 500 MB total size limit.
+   */
+  export function readDirectory(path: string): Array<DirectoryEntry>
+  /** Read a single file's contents. */
+  export function readFile(path: string): Buffer
 }
 
 export declare namespace sshagent {

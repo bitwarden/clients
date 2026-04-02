@@ -51,6 +51,7 @@ jobs:
             ! -path "*/Cargo.toml" \
             ! -path "*/Cargo.lock" \
             ! -path "./apps/desktop/macos/*" \
+            ! -path "./apps/desktop/resources/sparse-package/AppxManifest.xml" \
             ! -path "*/CLAUDE.md" \
             ! -path "*/SKILL.md" \
             > tmp.txt

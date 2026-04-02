@@ -951,6 +951,7 @@ dependencies = [
  "sha2",
  "ssh-key",
  "sysinfo",
+ "tempfile",
  "thiserror 2.0.17",
  "tokio",
  "tokio-util",
@@ -959,6 +960,7 @@ dependencies = [
  "widestring",
  "windows 0.62.2",
  "windows-future 0.3.2",
+ "windows-registry",
  "zbus",
  "zbus_polkit",
  "zeroizing-alloc",
@@ -4711,6 +4713,15 @@ dependencies = [
  "hex",
  "windows 0.62.2",
  "windows-core 0.62.2",
+]
+
+[[package]]
+name = "windows_shell_extension"
+version = "0.0.0"
+dependencies = [
+ "windows 0.62.2",
+ "windows-core 0.62.2",
+ "windows-registry",
 ]
 
 [[package]]

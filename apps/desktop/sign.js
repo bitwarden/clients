@@ -3,7 +3,10 @@ const child_process = require("child_process");
 
 exports.default = async function (configuration) {
   const ext = configuration.path.split(".").at(-1);
-  if (parseInt(process.env.ELECTRON_BUILDER_SIGN) === 1 && ["exe", "dll", "node"].includes(ext)) {
+  if (
+    parseInt(process.env.ELECTRON_BUILDER_SIGN) === 1 &&
+    ["exe", "dll", "node", "msix"].includes(ext)
+  ) {
     console.log(`[*] Signing file: ${configuration.path}`);
     child_process.execFileSync(
       "azuresigntool",
@@ -16,7 +19,7 @@ exports.default = async function (configuration) {
         "-kvt", process.env.SIGNING_TENANT_ID,
         "-kvs", process.env.SIGNING_CLIENT_SECRET,
         "-kvc", process.env.SIGNING_CERT_NAME,
-        "-fd", configuration.hash,
+        "-fd", ext === "msix" ? "sha256" : configuration.hash,
         "-du", configuration.site,
         "-tr", "http://timestamp.digicert.com",
         configuration.path,
@@ -27,7 +30,7 @@ exports.default = async function (configuration) {
     );
   } else if (
     process.env.ELECTRON_BUILDER_SIGN_CERT &&
-    ["exe", "dll", "node", "appx"].includes(ext)
+    ["exe", "dll", "node", "appx", "msix"].includes(ext)
   ) {
     console.log(`[*] Signing file: ${configuration.path}`);
     if (process.platform !== "win32") {

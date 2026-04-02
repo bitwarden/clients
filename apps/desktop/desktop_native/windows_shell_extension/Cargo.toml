@@ -1,0 +1,22 @@
+[package]
+name = "windows_shell_extension"
+version = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+publish = { workspace = true }
+
+[lib]
+name = "windows_shell_extension"
+crate-type = ["cdylib"]
+
+[target.'cfg(windows)'.dependencies]
+windows = { workspace = true, features = [
+    "Win32_Foundation",
+    "Win32_System_Com",
+    "Win32_UI_Shell",
+] }
+windows-core = { workspace = true }
+windows-registry = { workspace = true }
+
+[lints]
+workspace = true

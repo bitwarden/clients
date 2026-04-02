@@ -1,7 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, DestroyRef, inject } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { ActivatedRoute } from "@angular/router";
 import { combineLatest, map, switchMap, lastValueFrom } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -45,7 +46,7 @@ import { DesktopHeaderComponent } from "../../layout/header";
   ],
   templateUrl: "./send.component.html",
 })
-export class SendComponent {
+export class SendComponent implements OnInit {
   private sendFormConfigService = inject(DefaultSendFormConfigService);
   private sendItemsService = inject(SendItemsService);
   private policyService = inject(PolicyService);
@@ -58,6 +59,7 @@ export class SendComponent {
   private toastService = inject(ToastService);
   private logService = inject(LogService);
   private destroyRef = inject(DestroyRef);
+  private route = inject(ActivatedRoute);
 
   private activeDrawerRef?: DialogRef<SendItemDialogResult>;
 
@@ -103,6 +105,68 @@ export class SendComponent {
     this.destroyRef.onDestroy(() => {
       this.activeDrawerRef?.close();
     });
+  }
+
+  async ngOnInit(): Promise<void> {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const sendPathsParam = params["sendPaths"];
+      if (sendPathsParam) {
+        try {
+          const paths = JSON.parse(sendPathsParam) as string[];
+          if (paths.length > 0) {
+            void this.openSendFromPaths(paths);
+          }
+        } catch (e) {
+          this.logService.error("Error parsing sendPaths: " + e);
+        }
+      }
+    });
+  }
+
+  private async openSendFromPaths(filePaths: string[]): Promise<void> {
+    try {
+      const pathInfos = await Promise.all(
+        filePaths.map(async (fp) => {
+          const info = await ipc.platform.sendFile.getPathInfo(fp);
+          return {
+            path: fp,
+            isDirectory: info.isDirectory,
+            name: info.name,
+            size: info.size,
+          };
+        }),
+      );
+
+      const formConfig = await this.sendFormConfigService.buildConfig(
+        "add",
+        undefined,
+        SendType.File,
+      );
+
+      // Single directory → folder-mode (shows folder picker UI + "New Folder Send" header).
+      // Mixed selections (files + dirs, or multiple of either) stay in file-mode
+      // where the file-details component displays a summary like "5 files, 2.4 MB"
+      // and everything gets zipped together on submit.
+      if (pathInfos.length === 1 && pathInfos[0].isDirectory) {
+        formConfig.isFolderMode = true;
+      }
+
+      formConfig.preloadedPaths = pathInfos;
+
+      this.activeDrawerRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+        formConfig,
+      });
+
+      await lastValueFrom(this.activeDrawerRef.closed);
+      this.activeDrawerRef = null;
+    } catch (e) {
+      this.logService.error("Error opening send from paths: " + e);
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("unexpectedError"),
+      });
+    }
   }
 
   protected async addSend(type: SendType): Promise<void> {
