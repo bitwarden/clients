@@ -223,6 +223,8 @@ export class DeviceManagementComponent implements OnInit {
         upsertDevice.creationDate = existingDevice.creationDate;
         upsertDevice.firstLogin = new Date(existingDevice.creationDate);
         upsertDevice.id = existingDevice.id;
+        upsertDevice.isTrusted = existingDevice?.isTrusted ?? false;
+
         // TODO: PM-34091 - Remove this flag check; always copy lastActivityDate.
         if (this.showRecentlyActive) {
           const lastActivityDate = existingDevice.lastActivityDate
