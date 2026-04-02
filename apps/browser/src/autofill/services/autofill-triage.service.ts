@@ -367,37 +367,8 @@ export class AutofillTriageService implements AutofillTriageServiceInterface {
       qualifiedAs = "identity";
     }
 
-    // Determine if field is eligible (any qualification check passed)
-    const eligible =
-      qualifiedAs !== "ineligible" ||
-      isUsernameField ||
-      isEmailField ||
-      isCurrentPasswordField ||
-      isNewPasswordField ||
-      isUpdateCurrentPasswordField ||
-      isTotpField ||
-      isCardholderName ||
-      isCardNumber ||
-      isCardExpirationDate ||
-      isCardExpirationMonth ||
-      isCardExpirationYear ||
-      isCardCvv ||
-      isIdentityTitle ||
-      isIdentityFirstName ||
-      isIdentityMiddleName ||
-      isIdentityLastName ||
-      isIdentityFullName ||
-      isIdentityAddress1 ||
-      isIdentityAddress2 ||
-      isIdentityAddress3 ||
-      isIdentityCity ||
-      isIdentityState ||
-      isIdentityPostalCode ||
-      isIdentityCountry ||
-      isIdentityCompany ||
-      isIdentityPhone ||
-      isIdentityEmail ||
-      isIdentityUsername;
+    // A field is eligible only when it qualified for a recognized autofill category.
+    const eligible = qualifiedAs !== "ineligible";
 
     return {
       htmlId: field.htmlID || undefined,

@@ -28,6 +28,7 @@ import {
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
+import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { AutofillTriagePageResult, AutofillTriageFieldResult } from "../../types/autofill-triage";
@@ -42,6 +43,7 @@ import { formatAutofillTriageReport } from "../utils/format-autofill-triage-repo
     JslibModule,
     PopupPageComponent,
     PopupHeaderComponent,
+    PopupFooterComponent,
     BadgeModule,
     ButtonModule,
     CalloutModule,
@@ -188,6 +190,24 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
       variant: "success",
       title: this.i18nService.t("copiedToClipboard"),
       message: this.i18nService.t("triageReportCopied"),
+    });
+  }
+
+  /**
+   * Serializes the triage result as formatted JSON and copies it to the clipboard.
+   */
+  async copyJsonReport(): Promise<void> {
+    const result = this.triageResult();
+    if (!result) {
+      return;
+    }
+
+    await this.platformUtilsService.copyToClipboard(JSON.stringify(result, null, 2));
+
+    this.toastService.showToast({
+      variant: "success",
+      title: this.i18nService.t("copiedToClipboard"),
+      message: this.i18nService.t("triageJsonReportCopied"),
     });
   }
 }

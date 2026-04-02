@@ -66,8 +66,8 @@ describe("AutofillTriageService", () => {
       );
     });
 
-    it("should mark field as eligible if any qualification check passes", () => {
-      qualificationService.isUsernameField.mockReturnValue(true);
+    it("should mark field as eligible if any form-level qualification check passes", () => {
+      qualificationService.isFieldForLoginForm.mockReturnValue(true);
 
       const result = service.triageField(mockField, mockPageDetails);
 

@@ -380,9 +380,10 @@
         }
       </bit-item-group>
     </bit-section>
+  }
 
-    <!-- Copy Report Button -->
-    <div class="tw-mt-6 tw-flex tw-justify-center">
+  @if (triageResult()) {
+    <popup-footer slot="footer">
       <button
         type="button"
         bitButton
@@ -392,6 +393,16 @@
       >
         {{ "copyReport" | i18n }}
       </button>
-    </div>
+      <button
+        slot="end"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        startIcon="bwi-clone"
+        (click)="copyJsonReport()"
+      >
+        {{ "copyJsonReport" | i18n }}
+      </button>
+    </popup-footer>
   }
 </popup-page>
