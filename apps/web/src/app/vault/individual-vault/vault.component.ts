@@ -832,8 +832,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     await this.filterComponent()?.filters?.organizationFilter?.action(orgNode);
   }
 
-  addFolder = (): void => {
-    AddEditFolderDialogComponent.open(this.dialogService);
+  addFolder = (navigateToAddItemDialog?: boolean): void => {
+    AddEditFolderDialogComponent.open(this.dialogService, {
+      backAction: navigateToAddItemDialog ? this.openAddItemDialog.bind(this) : undefined,
+    });
   };
 
   editFolder = async (folder: FolderFilter): Promise<void> => {
@@ -972,7 +974,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (result.result === AddItemDialogResult.Cipher) {
       await this.addCipher(result.cipherType, true);
     } else if (result.result === AddItemDialogResult.Folder) {
-      this.addFolder();
+      this.addFolder(true);
     } else {
       await this.addCollection(true);
     }
