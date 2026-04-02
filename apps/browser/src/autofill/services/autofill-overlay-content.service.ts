@@ -6,10 +6,8 @@ import {
   AUTOFILL_OVERLAY_HANDLE_REPOSITION,
   AUTOFILL_OVERLAY_HANDLE_SCROLL,
   AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
-  AutofillTargetingRuleTypes,
   EVENTS,
 } from "@bitwarden/common/autofill/constants";
-import { AutofillTargetingRuleType } from "@bitwarden/common/autofill/types";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { ModifyLoginCipherFormData } from "../background/abstractions/overlay-notifications.background";
@@ -55,7 +53,12 @@ import {
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
 import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
-import { AutoFillConstants } from "./autofill-constants";
+import {
+  AutoFillConstants,
+  loginQualifiers,
+  cardQualifiers,
+  identityQualifiers,
+} from "./autofill-constants";
 
 export class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
   pageDetailsUpdateRequired = false;
@@ -1168,41 +1171,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private setTargetedFieldFillType(autofillFieldData: AutofillField): void {
     const qualifier = autofillFieldData.fieldQualifier;
-
-    const loginQualifiers: AutofillTargetingRuleType[] = [
-      AutofillTargetingRuleTypes.username,
-      AutofillTargetingRuleTypes.password,
-      AutofillTargetingRuleTypes.newPassword,
-      AutofillTargetingRuleTypes.totp,
-    ];
-
-    const cardQualifiers: AutofillTargetingRuleType[] = [
-      AutofillTargetingRuleTypes.cardholderName,
-      AutofillTargetingRuleTypes.cardNumber,
-      AutofillTargetingRuleTypes.cardExpirationMonth,
-      AutofillTargetingRuleTypes.cardExpirationYear,
-      AutofillTargetingRuleTypes.cardExpirationDate,
-      AutofillTargetingRuleTypes.cardCvv,
-    ];
-
-    const identityQualifiers: AutofillTargetingRuleType[] = [
-      AutofillTargetingRuleTypes.identityTitle,
-      AutofillTargetingRuleTypes.identityFirstName,
-      AutofillTargetingRuleTypes.identityMiddleName,
-      AutofillTargetingRuleTypes.identityLastName,
-      AutofillTargetingRuleTypes.identityFullName,
-      AutofillTargetingRuleTypes.identityAddress1,
-      AutofillTargetingRuleTypes.identityAddress2,
-      AutofillTargetingRuleTypes.identityAddress3,
-      AutofillTargetingRuleTypes.identityCity,
-      AutofillTargetingRuleTypes.identityState,
-      AutofillTargetingRuleTypes.identityPostalCode,
-      AutofillTargetingRuleTypes.identityCountry,
-      AutofillTargetingRuleTypes.identityCompany,
-      AutofillTargetingRuleTypes.identityPhone,
-      AutofillTargetingRuleTypes.identityEmail,
-      AutofillTargetingRuleTypes.identityUsername,
-    ];
 
     if (loginQualifiers.includes(qualifier)) {
       autofillFieldData.inlineMenuFillType = CipherType.Login;
