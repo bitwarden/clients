@@ -6416,8 +6416,11 @@
   "receiveLink": {
     "message": "Receive link"
   },
-  "shareReceiveLink": {
-    "message": "Share this link to the Receive dropbox"
+  "receiveCreatedSuccessfully": {
+    "message": "Receive created successfully!"
+  },
+  "receiveCreatedDescription": {
+    "message": "Copy and share this Receive link. Anyone can upload files to this link."
   },
   "receives": {
     "message": "Receives"
