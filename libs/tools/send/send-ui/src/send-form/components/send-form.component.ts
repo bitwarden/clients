@@ -38,7 +38,7 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import { MakeSendFolderEntry } from "@bitwarden/sdk-internal";
+import { MakeSendMultiFileEntry } from "@bitwarden/sdk-internal";
 
 import { SendFileProviderService } from "../abstractions/send-file-provider.service";
 import { SendFormConfig } from "../abstractions/send-form-config.service";
@@ -306,7 +306,7 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
     }
 
     // Multiple entries or a directory — collect and zip
-    const allEntries: MakeSendFolderEntry[] = [];
+    const allEntries: MakeSendMultiFileEntry[] = [];
     let folderName = "Send";
 
     for (const p of paths) {
@@ -338,7 +338,7 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
     files: Array<{ file: File; path: string }>,
     folderName: string,
   ): Promise<ArrayBuffer> {
-    const entries: MakeSendFolderEntry[] = [];
+    const entries: MakeSendMultiFileEntry[] = [];
     for (const { file, path } of files) {
       const buffer = await file.arrayBuffer();
       entries.push({
@@ -353,11 +353,11 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
    * Shared helper: call SDK make_send_folder and update the send view with the zip result.
    */
   private async makeSendFolder(
-    entries: MakeSendFolderEntry[],
+    entries: MakeSendMultiFileEntry[],
     folderName: string,
   ): Promise<ArrayBuffer> {
     const client = await firstValueFrom(this.sdkService.client$);
-    const result = client.sends().make_send_folder({ folderName, files: entries });
+    const result = client.sends().make_send_multi_file({ archiveName: folderName, files: entries });
 
     const fileView = new SendFileView();
     fileView.id = result.file.id ?? null;
