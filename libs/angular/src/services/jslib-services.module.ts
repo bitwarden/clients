@@ -1891,12 +1891,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherArchiveService,
     useClass: DefaultCipherArchiveService,
-    deps: [
-      CipherServiceAbstraction,
-      ApiServiceAbstraction,
-      BillingAccountProfileStateService,
-      ConfigService,
-    ],
+    deps: [CipherServiceAbstraction, ApiServiceAbstraction, BillingAccountProfileStateService],
   }),
   safeProvider({
     provide: RotateableKeySetService,
