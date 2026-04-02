@@ -7,7 +7,7 @@ description: Use when adding a new HEC (HTTP Event Collector) event integration 
 
 ## Overview
 
-## Before You Start
+## Step 1 - Prompts
 
 Ask these questions one at a time — wait for each answer before proceeding.
 
@@ -25,7 +25,7 @@ Use the answer as `<ServiceName>` throughout. The string value in the constant m
 - **If yes** — ask for the light-mode SVG file path, and optionally a dark-mode SVG path. Copy both to `apps/web/src/images/integrations/` using the naming convention `logo-<service-name-kebab>-color.svg` and `logo-<service-name-kebab>-darkmode.svg`. Use those filenames in Step 3.
 - **If no** — use placeholder paths in Step 3 and add a `// TODO: add logo before shipping` comment.
 
-## Step 1 — Add service name constant
+## Step 2 — Add service name constant
 
 **File:** `bitwarden_license/bit-common/src/dirt/organization-integrations/models/organization-integration-service-type.ts`
 
@@ -40,7 +40,7 @@ export const OrganizationIntegrationServiceName = Object.freeze({
 } as const);
 ```
 
-## Step 2 — Add feature flag
+## Step 3 — Add feature flag
 
 **File:** `libs/common/src/enums/feature-flag.enum.ts`
 
@@ -61,7 +61,7 @@ EventManagementForPanther = "event-management-for-panther",
 [FeatureFlag.EventManagementForPanther]: FALSE,
 ```
 
-## Step 3 — Register the card behind the feature flag
+## Step 4 — Register the card behind the feature flag
 
 **File:** `bitwarden_license/bit-web/src/app/dirt/organization-integrations/organization-integrations.resolver.ts`
 
@@ -87,7 +87,7 @@ if (<serviceName>FeatureEnabled) {
 
 No changes needed to `IntegrationCardComponent` — new HEC services fall into the existing `else` branch, which calls `openHecConnectDialog` → `saveHec` → `deleteHec`. These methods already call `buildHecConfiguration` and `buildHecTemplate` using the card's `name` as the service name.
 
-## Step 4 — Add tests
+## Step 5 — Add tests
 
 **File:** `bitwarden_license/bit-common/src/dirt/organization-integrations/services/organization-integration-service.spec.ts`
 
@@ -121,7 +121,7 @@ describe("<ServiceName> integration", () => {
 });
 ```
 
-## Step 5 — Run unit tests
+## Step 6 — Run unit tests
 
 Run the unit tests for the spec file and confirm they all pass before finishing:
 

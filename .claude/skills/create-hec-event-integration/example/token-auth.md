@@ -4,7 +4,7 @@ A completed walkthrough of the skill using **Blumira** as the service name.
 
 ---
 
-## Prompts answered
+## Step 1 - Prompts
 
 | Prompt         | Answer                           |
 | -------------- | -------------------------------- |
@@ -14,7 +14,7 @@ A completed walkthrough of the skill using **Blumira** as the service name.
 
 ---
 
-## Step 1 — Service name constant
+## Step 2 — Service name constant
 
 **File:** `bitwarden_license/bit-common/src/dirt/organization-integrations/models/organization-integration-service-type.ts`
 
@@ -29,7 +29,7 @@ export const OrganizationIntegrationServiceName = Object.freeze({
 
 ---
 
-## Step 2 — Feature flag
+## Step 3 — Feature flag
 
 **File:** `libs/common/src/enums/feature-flag.enum.ts`
 
@@ -43,7 +43,7 @@ EventManagementForBlumira = "event-management-for-blumira",
 
 ---
 
-## Step 3 — Card registration
+## Step 4 — Card registration
 
 **File:** `bitwarden_license/bit-web/src/app/dirt/organization-integrations/organization-integrations.resolver.ts`
 
@@ -67,7 +67,7 @@ if (blumiraFeatureEnabled) {
 
 ---
 
-## Step 4 — Logos
+## Step 5 — Logos
 
 Copied to:
 
@@ -76,7 +76,7 @@ Copied to:
 
 ---
 
-## Step 5 — Tests
+## Step 6 — Tests
 
 **File:** `bitwarden_license/bit-common/src/dirt/organization-integrations/services/organization-integration-service.spec.ts`
 
