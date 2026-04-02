@@ -190,4 +190,22 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
       message: this.i18nService.t("triageReportCopied"),
     });
   }
+
+  /**
+   * Serializes the triage result as formatted JSON and copies it to the clipboard.
+   */
+  async copyJsonReport(): Promise<void> {
+    const result = this.triageResult();
+    if (!result) {
+      return;
+    }
+
+    await this.platformUtilsService.copyToClipboard(JSON.stringify(result, null, 2));
+
+    this.toastService.showToast({
+      variant: "success",
+      title: this.i18nService.t("copiedToClipboard"),
+      message: this.i18nService.t("triageJsonReportCopied"),
+    });
+  }
 }
