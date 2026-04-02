@@ -66,27 +66,16 @@ export class OAuthDetectionBackground {
               `[OAuthDetection] Jimmy Found ${ciphers.length} cipher(s) for ${data.pageDomain}`,
             );
 
-            if (ciphers.length > 0) {
-              const names = ciphers.map((c) => c.name).join(", ");
-
-              // Jimmy Note: this will notify the OS
-              this.logService.info(`[OAuthDetection] Jimmy names ${names}`);
-              // await chrome.notifications.create({
-              //   type: "basic",
-              //   iconUrl: "images/icon48.png",
-              //   title: "Bitwarden — Existing Login Found",
-              //   message: `Jimmy test`,
-              // });
-
-              chrome.notifications.create(
-                {
-                  type: "basic",
-                  iconUrl: "images/icon48.png",
-                  title: "Test",
-                  message: "Jimmy hello",
-                },
-                // eslint-disable-next-line no-console
-                (id) => console.log("Jimmy created:", id, chrome.runtime.lastError),
+            if (ciphers.length > 0 && data?.pageUrl) {
+              const tab = await BrowserApi.getTab(details.tabId);
+              if (!tab) {
+                return;
+              }
+              const cipherNames = ciphers.map((c) => c.name);
+              await this.notificationBackground.pushExistingLoginToQueue(
+                tab,
+                cipherNames,
+                data.pageUrl,
               );
             }
           });

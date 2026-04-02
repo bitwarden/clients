@@ -9,6 +9,7 @@ import { CollectionView, I18n, OrgView } from "../content/components/common-type
 import { AtRiskNotification } from "../content/components/notification/at-risk-password/container";
 import { NotificationConfirmationContainer } from "../content/components/notification/confirmation/container";
 import { NotificationContainer } from "../content/components/notification/container";
+import { ExistingLoginNotification } from "../content/components/notification/existing-login/container";
 import { selectedCipher as selectedCipherSignal } from "../content/components/signals/selected-cipher";
 import { selectedFolder as selectedFolderSignal } from "../content/components/signals/selected-folder";
 import { selectedVault as selectedVaultSignal } from "../content/components/signals/selected-vault";
@@ -100,6 +101,7 @@ export function getNotificationHeaderMessage(i18n: I18n, type?: NotificationType
         [NotificationTypes.Change]: i18n.updateLogin,
         [NotificationTypes.Unlock]: i18n.unlockToSave,
         [NotificationTypes.AtRiskPassword]: i18n.atRiskPassword,
+        [NotificationTypes.ExistingLogin]: "Existing login found",
       }[type]
     : undefined;
 }
@@ -120,6 +122,7 @@ export function getConfirmationHeaderMessage(i18n: I18n, type?: NotificationType
         [NotificationTypes.Change]: i18n.loginUpdateSuccess,
         [NotificationTypes.Unlock]: "",
         [NotificationTypes.AtRiskPassword]: "",
+        [NotificationTypes.ExistingLogin]: "",
       }[type]
     : undefined;
 }
@@ -171,6 +174,7 @@ export function getNotificationTestId(
     [NotificationTypes.Add]: "save-notification-bar",
     [NotificationTypes.Change]: "update-notification-bar",
     [NotificationTypes.AtRiskPassword]: "at-risk-notification-bar",
+    [NotificationTypes.ExistingLogin]: "existing-login-notification-bar",
   }[notificationType];
 }
 
@@ -240,6 +244,21 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
         notificationTestId,
         params: initData.params,
         handleCloseNotification,
+      }),
+      document.body,
+    );
+  }
+
+  // Handle ExistingLoginNotification render
+  if (notificationBarIframeInitData.type === NotificationTypes.ExistingLogin) {
+    const cipherNames = (initData.params?.data?.cipherNames as string[]) ?? [];
+    return render(
+      ExistingLoginNotification({
+        cipherNames,
+        handleCloseNotification,
+        i18n,
+        notificationTestId,
+        theme: resolvedTheme,
       }),
       document.body,
     );

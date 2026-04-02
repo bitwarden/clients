@@ -3,6 +3,7 @@ const NotificationType = {
   ChangePassword: "change",
   UnlockVault: "unlock",
   AtRiskPassword: "at-risk-password",
+  ExistingLogin: "existing-login",
 } as const;
 
 type NotificationTypes = (typeof NotificationType)[keyof typeof NotificationType];

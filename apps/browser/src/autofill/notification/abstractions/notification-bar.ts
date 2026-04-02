@@ -16,6 +16,8 @@ const NotificationTypes = {
   Unlock: "unlock",
   /** represents scenarios where the user has security tasks after updating ciphers */
   AtRiskPassword: "at-risk-password",
+  /** represents scenarios where the user already has saved logins for the current site */
+  ExistingLogin: "existing-login",
 } as const;
 
 /**
