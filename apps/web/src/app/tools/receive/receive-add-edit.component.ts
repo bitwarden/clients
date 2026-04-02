@@ -22,7 +22,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { ReceiveViewComponent } from "./receive-view.component";
+import { ReceiveSuccessComponent } from "./receive-success.component";
 
 @Component({
   templateUrl: "./receive-add-edit.component.html",
@@ -89,7 +89,7 @@ export class ReceiveAddEditComponent {
     } else {
       const receiveView = await this.createReceive(userId);
       this.dialogRef.close();
-      this.dialogService.openDrawer(ReceiveViewComponent, {
+      this.dialogService.openDrawer(ReceiveSuccessComponent, {
         data: receiveView,
         closeOnNavigation: true,
       });
