@@ -308,10 +308,6 @@ export class Main {
     this.contextMenuMain = new ContextMenuMain(app.getPath("exe"));
     this.sendFileMain = new SendFileMain();
 
-    // Parse --send-path arguments from the initial cold start.
-    // (Second-instance args are handled separately via processDeepLink callback.)
-    this.parseSendPathArgs(process.argv);
-
     // Allow the renderer to pull pending --send-path arguments on demand.
     // This avoids the race condition where the push-based deep link message
     // arrives before the renderer has subscribed to IPC messaging.
