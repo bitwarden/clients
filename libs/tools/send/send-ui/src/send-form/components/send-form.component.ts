@@ -4,6 +4,7 @@ import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
+  computed,
   DestroyRef,
   EventEmitter,
   forwardRef,
@@ -24,6 +25,7 @@ import {
   AsyncActionsModule,
   BitSubmitDirective,
   ButtonComponent,
+  CalloutComponent,
   FormFieldModule,
   ItemModule,
   SelectModule,
@@ -50,6 +52,7 @@ import { SendDetailsComponent } from "./send-details/send-details.component";
   ],
   imports: [
     AsyncActionsModule,
+    CalloutComponent,
     TypographyModule,
     ItemModule,
     FormFieldModule,
@@ -124,6 +127,12 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
   protected loading: boolean = true;
 
   SendType = SendType;
+
+  /**
+   * Whether the send being edited is disabled by policy.
+   * Used in the template to show a warning banner.
+   */
+  protected readonly sendDisabled = computed(() => this.originalSendView?.disabled ?? false);
 
   ngAfterViewInit(): void {
     if (this.submitBtn) {

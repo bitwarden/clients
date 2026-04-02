@@ -78,6 +78,12 @@ export class SendAddEditDialogComponent {
    */
   config: SendFormConfig;
 
+  /**
+   * Whether the form is disabled (e.g., the Send is disabled by policy).
+   * When true, the Save button is hidden.
+   */
+  disableForm = false;
+
   constructor(
     @Inject(DIALOG_DATA) protected params: SendItemDialogParams,
     private dialogRef: DialogRef<SendItemDialogResult>,
@@ -87,6 +93,7 @@ export class SendAddEditDialogComponent {
     private dialogService: DialogService,
   ) {
     this.config = params.formConfig;
+    this.disableForm = params.disableForm ?? this.config.originalSend?.disabled ?? false;
     this.headerText = this.getHeaderText(this.config.mode, this.config.sendType);
   }
 

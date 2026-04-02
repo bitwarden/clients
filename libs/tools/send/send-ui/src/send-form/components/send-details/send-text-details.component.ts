@@ -60,5 +60,9 @@ export class SendTextDetailsComponent implements OnInit {
     if (!this.config().areSendsAllowed) {
       this.sendTextDetailsForm.disable();
     }
+
+    if (this.originalSendView()?.disabled) {
+      this.sendTextDetailsForm.disable();
+    }
   }
 }

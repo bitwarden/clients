@@ -314,6 +314,10 @@ export class SendDetailsComponent implements OnInit {
     if (!this.config.areSendsAllowed) {
       this.sendDetailsForm.disable();
     }
+
+    if (this.originalSendView?.disabled) {
+      this.sendDetailsForm.disable();
+    }
   }
 
   setupDeletionDatePresets() {

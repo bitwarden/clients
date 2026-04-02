@@ -27,6 +27,14 @@
         </div>
         {{ send.name }}
         <div slot="default-trailing" class="tw-flex tw-gap-2 tw-relative tw-z-10">
+          @if (send.disabled) {
+            <i
+              class="bwi bwi-exclamation-triangle"
+              appA11yTitle="{{ 'disabled' | i18n }}"
+              aria-hidden="true"
+            ></i>
+            <span class="tw-sr-only">{{ "disabled" | i18n }}</span>
+          }
           @if (send.authType !== authType.None) {
             @let titleKey =
               send.authType === authType.Email ? "emailProtected" : "passwordProtected";

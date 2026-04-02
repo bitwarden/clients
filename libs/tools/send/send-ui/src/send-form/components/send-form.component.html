@@ -1,5 +1,10 @@
 <form [id]="formId" [formGroup]="sendForm" [bitSubmit]="submit">
   <ng-container *ngIf="!loading">
+    @if (sendDisabled()) {
+      <bit-callout type="warning" [title]="'sendDisabledBannerTitle' | i18n">
+        {{ "sendDisabledBannerMessage" | i18n }}
+      </bit-callout>
+    }
     <tools-send-details
       [config]="config"
       [originalSendView]="originalSendView"

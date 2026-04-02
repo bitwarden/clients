@@ -7,7 +7,7 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormControl, UntypedFormBuilder, ValidationErrors, ValidatorFn } from "@angular/forms";
+import { AbstractControl, UntypedFormBuilder, ValidationErrors, ValidatorFn } from "@angular/forms";
 import { Observable } from "rxjs";
 
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
@@ -46,7 +46,7 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     disableSend: false,
     disableHideEmail: false,
     whoCanAccess: WhoCanAccessType.Any as WhoCanAccessType,
-    allowedDomains: null as string,
+    allowedDomains: null as string | null,
   });
 
   readonly sendFeatureEnabled = signal(true);
@@ -74,17 +74,17 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
       .subscribe((value: WhoCanAccessType) => {
         const allowedDomainsControl = this.data.get("allowedDomains");
         if (value === WhoCanAccessType.SpecificPeople) {
-          allowedDomainsControl.setValidators([this.emailDomainValidator()]);
+          allowedDomainsControl?.setValidators([this.emailDomainValidator()]);
           const claimedDomains = this.claimedDomains();
           if (claimedDomains != null) {
             this.showAllowedDomainsAutopopulateAlert.set(true);
           }
-          allowedDomainsControl.setValue(claimedDomains);
+          allowedDomainsControl?.setValue(claimedDomains);
           this.showDomains.set(true);
         } else {
           this.showAllowedDomainsAutopopulateAlert.set(false);
-          allowedDomainsControl.clearValidators();
-          allowedDomainsControl.patchValue(null);
+          allowedDomainsControl?.clearValidators();
+          allowedDomainsControl?.patchValue(null);
           this.showDomains.set(false);
         }
       });
@@ -92,8 +92,8 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
       .get("disableSend")
       ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value: boolean) => {
-        this.data.get("whoCanAccess").patchValue(WhoCanAccessType.Any);
-        this.data.get("disableHideEmail").patchValue(false);
+        this.data.get("whoCanAccess")?.patchValue(WhoCanAccessType.Any);
+        this.data.get("disableHideEmail")?.patchValue(false);
         this.sendFeatureEnabled.set(!value);
       });
     this.data.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
@@ -114,8 +114,8 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     // Do not auto-populate if:
     // 1. The policy has no organizationId (so can't fetch claimed domains)
     // 2. The policy already exists and has domains specified by the user associated with it
-    const orgId = this.policyResponse.organizationId;
-    const hasExistingDomains = this.policyResponse.data?.allowedDomains != null;
+    const orgId = this.policyResponse?.organizationId;
+    const hasExistingDomains = this.policyResponse?.data?.allowedDomains != null;
     if (!orgId || hasExistingDomains) {
       return;
     }
@@ -131,7 +131,7 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
   }
 
   emailDomainValidator(): ValidatorFn {
-    return (control: FormControl): ValidationErrors | null => {
+    return (control: AbstractControl): ValidationErrors | null => {
       if (control.value == null || control.value == "") {
         return null;
       }
