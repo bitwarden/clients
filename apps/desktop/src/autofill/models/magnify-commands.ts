@@ -4,8 +4,16 @@
   https://contributing.bitwarden.com/contributing/code-style/web/typescript#avoid-typescript-enums
 */
 
-import { MagnifyLoginItem } from "./magnify-items";
-export type { MagnifyLoginItem };
+import {
+  isMagnifyCardItem,
+  isMagnifyLoginItem,
+  MagnifyCardItem,
+  MagnifyLoginItem,
+  MagnifySearchResultItem,
+} from "./magnify-items";
+
+export type { MagnifyCardItem, MagnifyLoginItem, MagnifySearchResultItem };
+export { isMagnifyCardItem, isMagnifyLoginItem };
 
 /*
   The default format used when copying a card expiration date.
@@ -48,32 +56,3 @@ export type MagnifyCommandResponse =
   | { type: typeof MagnifyCommand.CopyCardNumber; result: string }
   | { type: typeof MagnifyCommand.CopyCardExpiration; result: string }
   | { type: typeof MagnifyCommand.CopyCardCode; result: string };
-
-/*
-  Magnify Search Result Item: unified discriminated union of all supported vault item types
-  returned in SearchVault results.
-*/
-export type MagnifySearchResultItem =
-  | ({ itemType: "login" } & MagnifyLoginItem)
-  | ({ itemType: "card" } & MagnifyCardItem);
-
-export function isMagnifyLoginItem(
-  item: MagnifySearchResultItem,
-): item is { itemType: "login" } & MagnifyLoginItem {
-  return item.itemType === "login";
-}
-
-export function isMagnifyCardItem(
-  item: MagnifySearchResultItem,
-): item is { itemType: "card" } & MagnifyCardItem {
-  return item.itemType === "card";
-}
-
-/*
-  Magnify Item: Credit Card
-*/
-export type MagnifyCardItem = {
-  id: string;
-  name: string;
-  brand?: string;
-};

@@ -33,6 +33,7 @@ import {
   MagnifyCommand,
   MagnifyCommandResponse,
 } from "../models/magnify-commands";
+import { MagnifyItem } from "../models/magnify-items";
 
 import { MagnifyNavigationService } from "./magnify-navigation.service";
 
@@ -190,7 +191,7 @@ export class DesktopMagnifyService implements OnDestroy {
     const response: MagnifyCommandResponse = {
       type: MagnifyCommand.SearchVault,
       results: matched.map((c) => ({
-        itemType: "login" as const,
+        itemType: MagnifyItem.Login,
         id: c.id,
         name: c.name,
         username: c.login?.username ?? "",
