@@ -240,6 +240,7 @@ export class DefaultReceiveService implements InternalReceiveService {
         return {
           id: file.id,
           size: file.size,
+          sizeName: file.sizeName,
           fileName: await this.encryptService.decryptString(
             file.fileName,
             fileContentEncryptionKey,
