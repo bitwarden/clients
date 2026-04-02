@@ -4,9 +4,12 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angula
 import { Router, ActivatedRoute } from "@angular/router";
 import {
   BehaviorSubject,
+  distinctUntilChanged,
   filter,
   firstValueFrom,
+  of,
   timer,
+  map,
   mergeMap,
   Subject,
   switchMap,
@@ -191,6 +194,9 @@ export class LockComponent implements OnInit, OnDestroy {
     // Listen for active account changes
     this.listenForActiveAccountChanges();
 
+    // Listen for account unlock changes and continue when user key is available.
+    this.listenForUnlockChanges();
+
     this.listenForUnlockOptionsChanges();
 
     // Identify client
@@ -263,6 +269,25 @@ export class LockComponent implements OnInit, OnDestroy {
           await this.handleActiveAccountChange(account);
           this.loading = false;
         }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+  }
+
+  private listenForUnlockChanges() {
+    this.accountService.activeAccount$
+      .pipe(
+        switchMap((account) => {
+          if (account == null) {
+            return of(false);
+          }
+
+          return this.keyService.userKey$(account.id).pipe(map((key) => key != null));
+        }),
+        // Trigger continuation on lock->unlock transitions only.
+        distinctUntilChanged(),
+        filter((isUnlocked) => isUnlocked),
+        mergeMap(() => this.doContinue({})),
         takeUntil(this.destroy$),
       )
       .subscribe();
