@@ -52,7 +52,7 @@
     "@angular/compiler-cli": "20.3.18",
     "@babel/core": "7.28.5",
     "@babel/preset-env": "7.28.5",
-    "@compodoc/compodoc": "1.1.32",
+    "@compodoc/compodoc": "1.2.1",
     "@electron/notarize": "3.0.1",
     "@electron/rebuild": "4.0.3",
     "@eslint/compat": "2.0.0",
@@ -217,7 +217,7 @@
     "tldts": "7.0.22",
     "ts-node": "10.9.2",
     "utf-8-validate": "6.0.5",
-    "vite-tsconfig-paths": "5.1.4",
+    "vite-tsconfig-paths": "6.1.1",
     "zone.js": "0.15.1",
     "zxcvbn": "4.4.2"
   },
