@@ -200,6 +200,55 @@ describe("AutofillTriageComponent", () => {
 
       expect(sendMessageSpy).toHaveBeenCalledTimes(callCountAfterInit);
     }));
+
+    it("should clear previous results and expanded fields when new triage is triggered", fakeAsync(() => {
+      let capturedListener: (msg: { command: string; tabId?: number }) => void;
+      jest.spyOn(BrowserApi, "addListener").mockImplementation((_event, listener) => {
+        capturedListener = listener as any;
+      });
+
+      const newTriageResult: AutofillTriagePageResult = {
+        ...mockTriageResult,
+        analyzedAt: "2026-04-02T15:00:00.000Z",
+      };
+
+      jest
+        .spyOn(BrowserApi, "sendMessageWithResponse")
+        .mockResolvedValueOnce(mockTriageResult)
+        .mockResolvedValueOnce(newTriageResult);
+
+      void component.ngOnInit();
+      tick();
+
+      // Component should have initial results
+      expect(component.triageResult()).toEqual(mockTriageResult);
+
+      // Expand a field
+      component.toggleField(0);
+      expect(component.expandedFields().has(0)).toBe(true);
+
+      // Simulate a new triage being triggered
+      capturedListener({ command: "triageResultReady", tabId: mockTab.id });
+      tick();
+
+      // Results and expanded fields should be cleared and then refreshed
+      expect(component.triageResult()).toEqual(newTriageResult);
+      expect(component.expandedFields().size).toBe(0);
+    }));
+
+    it("should get active tab when in side panel and getCurrentTab returns null", fakeAsync(() => {
+      const activeTab = { id: 99 } as chrome.tabs.Tab;
+      jest.spyOn(BrowserApi, "getCurrentTab").mockResolvedValue(null);
+      jest.spyOn(BrowserPopupUtils, "inSidePanel").mockReturnValue(true);
+      jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([activeTab]);
+      jest.spyOn(BrowserApi, "sendMessageWithResponse").mockResolvedValue(null);
+
+      void component.ngOnInit();
+      tick();
+
+      expect(BrowserApi.tabsQuery).toHaveBeenCalledWith({ active: true, currentWindow: true });
+      expect(component["currentTabId"]()).toBe(99);
+    }));
   });
 
   describe("ngOnDestroy", () => {

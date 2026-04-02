@@ -93,6 +93,9 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
 
   private readonly messageListener = (msg: { command: string; tabId?: number }) => {
     if (msg.command === "triageResultReady" && msg.tabId === this.currentTabId()) {
+      // Clear previous results and show loading state for new triage
+      this.triageResult.set(null);
+      this.expandedFields.set(new Set());
       this.fetchTriageResult();
     }
   };
@@ -104,7 +107,13 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    const tab = await BrowserApi.getCurrentTab();
+    // In a side panel context, chrome.tabs.getCurrent() returns null.
+    // We need to get the active tab from the current window instead.
+    let tab = await BrowserApi.getCurrentTab();
+    if (!tab && BrowserPopupUtils.inSidePanel(window)) {
+      const tabs = await BrowserApi.tabsQuery({ active: true, currentWindow: true });
+      tab = tabs[0];
+    }
     this.currentTabId.set(tab?.id);
 
     BrowserApi.addListener(chrome.runtime.onMessage, this.messageListener);
