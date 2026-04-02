@@ -6226,5 +6226,107 @@
   },
   "triageReportCopied": {
     "message": "Triage report copied to clipboard"
+  },
+  "pageInformation": {
+    "message": "Page Information"
+  },
+  "versionInformation": {
+    "message": "Version Information"
+  },
+  "totalForms": {
+    "message": "Total Forms"
+  },
+  "totalFields": {
+    "message": "Total Fields"
+  },
+  "extensionVersion": {
+    "message": "Extension Version"
+  },
+  "browser": {
+    "message": "Browser"
+  },
+  "fieldState": {
+    "message": "Field State"
+  },
+  "viewable": {
+    "message": "Viewable"
+  },
+  "readonly": {
+    "message": "Readonly"
+  },
+  "elementMetadata": {
+    "message": "Element Metadata"
+  },
+  "tagName": {
+    "message": "Tag Name"
+  },
+  "elementPosition": {
+    "message": "Element Position"
+  },
+  "cssClasses": {
+    "message": "CSS Classes"
+  },
+  "tabindex": {
+    "message": "Tabindex"
+  },
+  "maxLength": {
+    "message": "Max Length"
+  },
+  "labelContext": {
+    "message": "Label Context"
+  },
+  "labelLeft": {
+    "message": "Label Left"
+  },
+  "labelRight": {
+    "message": "Label Right"
+  },
+  "labelTag": {
+    "message": "Label Tag"
+  },
+  "labelTop": {
+    "message": "Label Top"
+  },
+  "formInformation": {
+    "message": "Form Information"
+  },
+  "formId": {
+    "message": "Form ID"
+  },
+  "formName": {
+    "message": "Form Name"
+  },
+  "formAction": {
+    "message": "Form Action"
+  },
+  "formMethod": {
+    "message": "Form Method"
+  },
+  "fieldsInForm": {
+    "message": "Fields in Form"
+  },
+  "valueAndState": {
+    "message": "Value & State"
+  },
+  "checked": {
+    "message": "Checked"
+  },
+  "selectOptions": {
+    "message": "Select Options"
+  },
+  "specialAttributes": {
+    "message": "Special Attributes"
+  },
+  "inlineMenuFillType": {
+    "message": "Inline Menu Fill Type"
+  },
+  "fieldQualifier": {
+    "message": "Field Qualifier"
+  },
+  "accountCreationFieldType": {
+    "message": "Account Creation Field Type"
+  },
+  "showPasskeys": {
+    "message": "Show Passkeys"
   }
 }

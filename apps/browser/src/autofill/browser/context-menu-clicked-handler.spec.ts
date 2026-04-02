@@ -352,6 +352,9 @@ describe("ContextMenuClickedHandler", () => {
             callback?.({ pageDetails: mockPageDetails });
           });
         jest.spyOn(BrowserPopupUtils, "openPopout").mockResolvedValue(undefined);
+        jest.spyOn(BrowserApi, "setSidePanelOptions").mockResolvedValue(undefined);
+        jest.spyOn(BrowserApi, "openSidePanel").mockResolvedValue(undefined);
+        jest.spyOn(BrowserApi, "isSidePanelApiSupported", "get").mockReturnValue(false);
         triageService.triageField.mockReturnValue(mockTriageResult);
         // Mock chrome.runtime.getManifest
         (global as any).chrome = {
@@ -377,13 +380,39 @@ describe("ContextMenuClickedHandler", () => {
         expect(sut.latestTriageResult?.pageUrl).toBe(mockTab.url);
       });
 
-      it("opens the autofill triage popout after collecting results", async () => {
+      it("opens the autofill triage popout when side panel API is not supported", async () => {
         await sut.run(createData(AUTOFILL_TRIAGE_ID), mockTab);
 
         expect(BrowserPopupUtils.openPopout).toHaveBeenCalledWith(
           "popup/index.html#/autofill-triage",
           expect.objectContaining({ singleActionKey: AUTOFILL_TRIAGE_ID }),
         );
+        expect(BrowserApi.setSidePanelOptions).not.toHaveBeenCalled();
+        expect(BrowserApi.openSidePanel).not.toHaveBeenCalled();
+      });
+
+      it("opens the Chrome side panel when side panel API is supported", async () => {
+        jest.spyOn(BrowserApi, "isSidePanelApiSupported", "get").mockReturnValue(true);
+
+        await sut.run(createData(AUTOFILL_TRIAGE_ID), mockTab);
+
+        expect(BrowserApi.setSidePanelOptions).toHaveBeenCalledWith(
+          expect.objectContaining({
+            path: expect.stringContaining("uilocation=sidepanel"),
+            tabId: mockTab.id,
+            enabled: true,
+          }),
+        );
+        expect(BrowserApi.openSidePanel).toHaveBeenCalledWith({ tabId: mockTab.id });
+        expect(BrowserPopupUtils.openPopout).not.toHaveBeenCalled();
+      });
+
+      it("sends triageResultReady message with tabId after collecting results", async () => {
+        const sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage").mockResolvedValue(undefined);
+
+        await sut.run(createData(AUTOFILL_TRIAGE_ID), mockTab);
+
+        expect(sendMessageSpy).toHaveBeenCalledWith("triageResultReady", { tabId: mockTab.id });
       });
 
       it("does not open popout when tab has no id", async () => {
@@ -392,9 +421,11 @@ describe("ContextMenuClickedHandler", () => {
         await sut.run(createData(AUTOFILL_TRIAGE_ID), tabWithoutId);
 
         expect(BrowserPopupUtils.openPopout).not.toHaveBeenCalled();
+        expect(BrowserApi.openSidePanel).not.toHaveBeenCalled();
       });
 
-      it("does not open popout when page details collection fails", async () => {
+      it("sends triageResultReady when page details collection fails so the component exits the loading state", async () => {
+        const sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage").mockResolvedValue(undefined);
         jest
           .spyOn(BrowserApi, "sendTabsMessage")
           .mockImplementation((_tabId, _message, _options, callback?: (response: any) => void) => {
@@ -403,7 +434,7 @@ describe("ContextMenuClickedHandler", () => {
 
         await sut.run(createData(AUTOFILL_TRIAGE_ID), mockTab);
 
-        expect(BrowserPopupUtils.openPopout).not.toHaveBeenCalled();
+        expect(sendMessageSpy).toHaveBeenCalledWith("triageResultReady", { tabId: mockTab.id });
       });
     });
   });

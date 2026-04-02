@@ -8,6 +8,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
 
+import { BrowserApi } from "../../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { AutofillTriagePageResult } from "../../types/autofill-triage";
 
 import { AutofillTriageComponent } from "./autofill-triage.component";
@@ -18,6 +20,8 @@ describe("AutofillTriageComponent", () => {
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let i18nService: MockProxy<I18nService>;
   let toastService: MockProxy<ToastService>;
+
+  const mockTab = { id: 42 } as chrome.tabs.Tab;
 
   const mockTriageResult: AutofillTriagePageResult = {
     pageUrl: "https://example.com/login",
@@ -70,12 +74,22 @@ describe("AutofillTriageComponent", () => {
 
     i18nService.t.mockImplementation((key: string) => key);
 
-    // Mock chrome.runtime.sendMessage
+    // Mock chrome.runtime with onMessage support
     global.chrome = {
       runtime: {
         sendMessage: jest.fn(),
+        onMessage: {
+          addListener: jest.fn(),
+          removeListener: jest.fn(),
+        },
       },
     } as any;
+
+    jest.spyOn(BrowserApi, "getCurrentTab").mockResolvedValue(mockTab);
+    jest.spyOn(BrowserApi, "addListener").mockImplementation(() => {});
+    jest.spyOn(BrowserApi, "removeListener").mockImplementation(() => {});
+    jest.spyOn(BrowserApi, "isSidePanelApiSupported", "get").mockReturnValue(false);
+    jest.spyOn(BrowserPopupUtils, "inSidePanel").mockReturnValue(false);
 
     await TestBed.configureTestingModule({
       imports: [AutofillTriageComponent],
@@ -96,7 +110,7 @@ describe("AutofillTriageComponent", () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   it("should create", () => {
@@ -104,44 +118,125 @@ describe("AutofillTriageComponent", () => {
   });
 
   describe("ngOnInit", () => {
-    it("should send getAutofillTriageResult message to background", async () => {
-      const sendMessageSpy = jest.spyOn(chrome.runtime, "sendMessage");
-
+    it("should start in loading state", async () => {
       await component.ngOnInit();
 
-      expect(sendMessageSpy).toHaveBeenCalledWith(
-        { command: "getAutofillTriageResult" },
+      expect(component.loading()).toBe(true);
+    });
+
+    it("should register a message listener via BrowserApi.addListener", async () => {
+      await component.ngOnInit();
+
+      expect(BrowserApi.addListener).toHaveBeenCalledWith(
+        chrome.runtime.onMessage,
         expect.any(Function),
       );
     });
 
-    it("should set triageResult when background responds with data", fakeAsync(() => {
-      jest
-        .spyOn(chrome.runtime, "sendMessage")
-        .mockImplementation((message: any, callback: any) => {
-          callback(mockTriageResult);
-          return true;
-        });
+    it("should send getAutofillTriageResult message to background on init", async () => {
+      const sendMessageSpy = jest
+        .spyOn(BrowserApi, "sendMessageWithResponse")
+        .mockResolvedValue(null);
+
+      await component.ngOnInit();
+
+      expect(sendMessageSpy).toHaveBeenCalledWith("getAutofillTriageResult");
+    });
+
+    it("should set triageResult and clear loading when background responds with data", fakeAsync(() => {
+      jest.spyOn(BrowserApi, "sendMessageWithResponse").mockResolvedValue(mockTriageResult);
 
       void component.ngOnInit();
       tick();
 
       expect(component.triageResult()).toEqual(mockTriageResult);
+      expect(component.loading()).toBe(false);
     }));
 
-    it("should set triageResult to null when background responds with null", fakeAsync(() => {
-      jest
-        .spyOn(chrome.runtime, "sendMessage")
-        .mockImplementation((message: any, callback: any) => {
-          callback(null);
-          return true;
-        });
+    it("should exit loading state when background responds with null", fakeAsync(() => {
+      jest.spyOn(BrowserApi, "sendMessageWithResponse").mockResolvedValue(null);
 
       void component.ngOnInit();
       tick();
 
       expect(component.triageResult()).toBeNull();
+      expect(component.loading()).toBe(false);
     }));
+
+    it("should fetch result when triageResultReady message arrives with matching tabId", fakeAsync(() => {
+      let capturedListener: (msg: { command: string; tabId?: number }) => void;
+      jest.spyOn(BrowserApi, "addListener").mockImplementation((_event, listener) => {
+        capturedListener = listener as any;
+      });
+      jest.spyOn(BrowserApi, "sendMessageWithResponse").mockResolvedValue(mockTriageResult);
+
+      void component.ngOnInit();
+      tick();
+
+      // Simulate the push message arriving
+      capturedListener({ command: "triageResultReady", tabId: mockTab.id });
+      tick();
+
+      expect(component.triageResult()).toEqual(mockTriageResult);
+    }));
+
+    it("should ignore triageResultReady message with mismatched tabId", fakeAsync(() => {
+      let capturedListener: (msg: { command: string; tabId?: number }) => void;
+      jest.spyOn(BrowserApi, "addListener").mockImplementation((_event, listener) => {
+        capturedListener = listener as any;
+      });
+      const sendMessageSpy = jest
+        .spyOn(BrowserApi, "sendMessageWithResponse")
+        .mockResolvedValue(null);
+
+      void component.ngOnInit();
+      tick();
+
+      const callCountAfterInit = sendMessageSpy.mock.calls.length;
+
+      // Message from a different tab should be ignored
+      capturedListener({ command: "triageResultReady", tabId: 9999 });
+      tick();
+
+      expect(sendMessageSpy).toHaveBeenCalledTimes(callCountAfterInit);
+    }));
+  });
+
+  describe("ngOnDestroy", () => {
+    it("should remove the message listener via BrowserApi.removeListener", async () => {
+      await component.ngOnInit();
+      component.ngOnDestroy();
+
+      expect(BrowserApi.removeListener).toHaveBeenCalledWith(
+        chrome.runtime.onMessage,
+        expect.any(Function),
+      );
+    });
+
+    it("should re-disable the side panel when destroyed in side panel context", async () => {
+      jest.spyOn(BrowserPopupUtils, "inSidePanel").mockReturnValue(true);
+      jest.spyOn(BrowserApi, "isSidePanelApiSupported", "get").mockReturnValue(true);
+      const setSidePanelOptionsSpy = jest
+        .spyOn(BrowserApi, "setSidePanelOptions")
+        .mockResolvedValue(undefined);
+
+      await component.ngOnInit();
+      component.ngOnDestroy();
+
+      expect(setSidePanelOptionsSpy).toHaveBeenCalledWith({ enabled: false });
+    });
+
+    it("should not disable side panel when destroyed outside side panel context", async () => {
+      jest.spyOn(BrowserPopupUtils, "inSidePanel").mockReturnValue(false);
+      const setSidePanelOptionsSpy = jest
+        .spyOn(BrowserApi, "setSidePanelOptions")
+        .mockResolvedValue(undefined);
+
+      await component.ngOnInit();
+      component.ngOnDestroy();
+
+      expect(setSidePanelOptionsSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe("eligibleCount", () => {

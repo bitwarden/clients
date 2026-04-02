@@ -1,21 +1,33 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { DatePipe, CommonModule } from "@angular/common";
-import { Component, OnInit, signal, computed, ChangeDetectionStrategy } from "@angular/core";
+import {
+  Component,
+  OnDestroy,
+  OnInit,
+  signal,
+  computed,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
+  BadgeModule,
   ButtonModule,
   CalloutModule,
   IconButtonModule,
   IconModule,
-  BadgeModule,
+  ItemModule,
   SectionComponent,
+  SectionHeaderComponent,
   ToastService,
+  TypographyModule,
 } from "@bitwarden/components";
 
+import { BrowserApi } from "../../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { AutofillTriagePageResult, AutofillTriageFieldResult } from "../../types/autofill-triage";
@@ -30,16 +42,24 @@ import { formatAutofillTriageReport } from "../utils/format-autofill-triage-repo
     JslibModule,
     PopupPageComponent,
     PopupHeaderComponent,
+    BadgeModule,
     ButtonModule,
     CalloutModule,
     IconButtonModule,
     IconModule,
-    BadgeModule,
+    ItemModule,
     SectionComponent,
+    SectionHeaderComponent,
+    TypographyModule,
     DatePipe,
   ],
 })
-export class AutofillTriageComponent implements OnInit {
+export class AutofillTriageComponent implements OnInit, OnDestroy {
+  /**
+   * Whether the component is waiting for triage results from the background.
+   */
+  readonly loading = signal(true);
+
   /**
    * The triage result fetched from the background service worker.
    */
@@ -69,6 +89,14 @@ export class AutofillTriageComponent implements OnInit {
     return (index: number) => expanded.has(index);
   });
 
+  private readonly currentTabId = signal<number | undefined>(undefined);
+
+  private readonly messageListener = (msg: { command: string; tabId?: number }) => {
+    if (msg.command === "triageResultReady" && msg.tabId === this.currentTabId()) {
+      this.fetchTriageResult();
+    }
+  };
+
   constructor(
     private readonly platformUtilsService: PlatformUtilsService,
     private readonly i18nService: I18nService,
@@ -76,13 +104,34 @@ export class AutofillTriageComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    // Fetch the triage result from the background service worker
-    chrome.runtime.sendMessage(
-      { command: "getAutofillTriageResult" },
-      (response: AutofillTriagePageResult | null) => {
+    const tab = await BrowserApi.getCurrentTab();
+    this.currentTabId.set(tab?.id);
+
+    BrowserApi.addListener(chrome.runtime.onMessage, this.messageListener);
+
+    // Safety net: if the background finished collection before Angular bootstrapped,
+    // pick up the already-stored result immediately.
+    this.fetchTriageResult();
+  }
+
+  ngOnDestroy() {
+    BrowserApi.removeListener(chrome.runtime.onMessage, this.messageListener);
+
+    if (BrowserPopupUtils.inSidePanel(window)) {
+      void BrowserApi.setSidePanelOptions({ enabled: false });
+    }
+  }
+
+  private fetchTriageResult(): void {
+    this.loading.set(true);
+    void BrowserApi.sendMessageWithResponse<AutofillTriagePageResult | null>(
+      "getAutofillTriageResult",
+    ).then((response) => {
+      if (response) {
         this.triageResult.set(response);
-      },
-    );
+      }
+      this.loading.set(false);
+    });
   }
 
   /**
