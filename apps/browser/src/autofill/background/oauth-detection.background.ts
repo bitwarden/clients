@@ -52,43 +52,53 @@ export class OAuthDetectionBackground {
           `[OAuthDetection][DEBUG] Navigation: tabId=${details.tabId} url=${details.url}`,
         );
 
-        for (const provider of this.providers) {
-          void this.checkSsoAvailableOnPage(details.tabId, provider).then(async (data) => {
-            this.logService.info(`[OAuthDetection] Jimmy it's done ${JSON.stringify(data)}`);
+        void this.checkSsoAvailableOnPage(details.tabId).then(async (data) => {
+          this.logService.info(`[OAuthDetection] Jimmy it's done ${JSON.stringify(data)}`);
 
-            if (!data || !("pageUrl" in data)) {
-              this.logService.info(`[OAuthDetection] The user is most likely logged in.`);
+          if (!data || !("pageUrl" in data)) {
+            this.logService.info(`[OAuthDetection] The user is most likely logged in.`);
+            return;
+          }
+
+          const activeUser = await firstValueFrom(this.accountService.activeAccount$);
+          if (!activeUser) {
+            this.logService.info(`[OAuthDetection] Please log in to the extension.`);
+            return;
+          }
+
+          const ciphers = await this.cipherService.getAllDecryptedForUrl(
+            data.pageUrl,
+            activeUser.id,
+          );
+          this.logService.info(
+            `[OAuthDetection] Jimmy Found ${ciphers.length} cipher(s) for ${data.pageDomain}`,
+          );
+
+          this.logService.info(`[OAuthDetection] Jimmy ciphers ${JSON.stringify(ciphers)}`);
+
+          const ssoLogins = ciphers
+            .filter((c) => c.login?.password?.includes("[SSO:"))
+            .map((c) => {
+              const match = c.login?.password?.match(/\[SSO:\s*(.+?)\]/);
+              return {
+                username: c.login?.username ?? "",
+                provider: match?.[1] ?? "Unknown",
+              };
+            });
+
+          if (ssoLogins.length > 0) {
+            const tab = await BrowserApi.getTab(details.tabId);
+            if (!tab) {
+              this.logService.info(`[OAuthDetection] Tab no longer exist.`);
               return;
             }
-
-            const activeUser = await firstValueFrom(this.accountService.activeAccount$);
-            if (!activeUser) {
-              this.logService.info(`[OAuthDetection] Please log in to the extension.`);
-              return;
-            }
-
-            const ciphers = await this.cipherService.getAllDecryptedForUrl(
+            await this.notificationBackground.pushExistingLoginToQueue(
+              tab,
+              ssoLogins,
               data.pageUrl,
-              activeUser.id,
             );
-            this.logService.info(
-              `[OAuthDetection] Jimmy Found ${ciphers.length} cipher(s) for ${data.pageDomain}`,
-            );
-
-            if (ciphers.length > 0) {
-              const tab = await BrowserApi.getTab(details.tabId);
-              if (!tab) {
-                return;
-              }
-              const cipherNames = ciphers.map((c) => c.name);
-              await this.notificationBackground.pushExistingLoginToQueue(
-                tab,
-                cipherNames,
-                data.pageUrl,
-              );
-            }
-          });
-        }
+          }
+        });
       }
     });
 
@@ -431,7 +441,6 @@ export class OAuthDetectionBackground {
    */
   private async checkSsoAvailableOnPage(
     tabId: number,
-    provider: OAuthSsoProvider,
   ): Promise<SuccessCheckSsoAvailableOnPageResult | FailureCheckSsoAvailableOnPageResult> {
     this.logService.info(`[OAuthDetection] checkSsoAvailableOnPage Jimmy 2`);
     try {

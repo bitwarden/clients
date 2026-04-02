@@ -251,10 +251,11 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
 
   // Handle ExistingLoginNotification render
   if (notificationBarIframeInitData.type === NotificationTypes.ExistingLogin) {
-    const cipherNames = (initData.params?.data?.cipherNames as string[]) ?? [];
+    const ssoLogins =
+      (initData.params?.data?.ssoLogins as { username: string; provider: string }[]) ?? [];
     return render(
       ExistingLoginNotification({
-        cipherNames,
+        ssoLogins,
         handleCloseNotification,
         i18n,
         notificationTestId,

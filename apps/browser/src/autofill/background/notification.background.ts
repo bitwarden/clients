@@ -493,7 +493,7 @@ export default class NotificationBackground {
 
   async pushExistingLoginToQueue(
     tab: chrome.tabs.Tab,
-    cipherNames: string[],
+    ssoLogins: { username: string; provider: string }[],
     uri: string,
   ): Promise<void> {
     this.removeTabFromNotificationQueue(tab);
@@ -505,7 +505,7 @@ export default class NotificationBackground {
     const launchTimestamp = new Date().getTime();
     const message: ExistingLoginQueueMessage = {
       type: NotificationType.ExistingLogin,
-      data: { cipherNames, uri },
+      data: { ssoLogins, uri },
       domain: loginDomain,
       tab,
       launchTimestamp,

@@ -10,8 +10,13 @@ import {
   componentClassPrefix as notificationHeaderClassPrefix,
 } from "../header";
 
+export type SsoLoginEntry = {
+  username: string;
+  provider: string;
+};
+
 export type ExistingLoginNotificationProps = {
-  cipherNames: string[];
+  ssoLogins: SsoLoginEntry[];
   handleCloseNotification: (e: Event) => void;
   i18n: I18n;
   notificationTestId: string;
@@ -19,26 +24,30 @@ export type ExistingLoginNotificationProps = {
 };
 
 export function ExistingLoginNotification({
-  cipherNames,
+  ssoLogins,
   handleCloseNotification,
   i18n,
   notificationTestId,
   theme = ThemeTypes.Light,
 }: ExistingLoginNotificationProps) {
-  const message =
-    cipherNames.length === 1
-      ? `You have a saved login for this site: ${cipherNames[0]}`
-      : `You have ${cipherNames.length} saved logins for this site: ${cipherNames.join(", ")}`;
-
   return html`
     <div data-testid="${notificationTestId}" class=${containerStyles(theme)}>
       ${NotificationHeader({
         handleCloseNotification,
         i18n,
-        message: "Existing login found",
+        message: `Existing SSO login${ssoLogins.length > 1 ? "s" : ""} found`,
         theme,
       })}
-      <div class=${bodyStyles(theme)}>${message}</div>
+      <div class=${bodyStyles(theme)}>
+        ${ssoLogins.map(
+          ({ username, provider }) => html`
+            <div class=${rowStyles(theme)}>
+              <span class=${usernameStyles(theme)}>${username}</span>
+              <span class=${providerStyles(theme)}>${provider}</span>
+            </div>
+          `,
+        )}
+      </div>
     </div>
   `;
 }
@@ -60,8 +69,32 @@ const containerStyles = (theme: Theme) => css`
 `;
 
 const bodyStyles = (theme: Theme) => css`
-  padding: 12px;
+  padding: 8px 12px;
   background-color: ${themes[theme].background.alt};
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+const rowStyles = (theme: Theme) => css`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 0.5px solid ${themes[theme].secondary["300"]};
+
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const usernameStyles = (theme: Theme) => css`
   color: ${themes[theme].text.main};
-  font-size: 14px;
+  font-size: 13px;
+`;
+
+const providerStyles = (theme: Theme) => css`
+  color: ${themes[theme].text.muted};
+  font-size: 12px;
+  font-style: italic;
 `;

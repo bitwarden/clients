@@ -41,8 +41,13 @@ export type AtRiskPasswordNotificationData = {
   passwordChangeUri?: string;
 };
 
+export type SsoLoginEntry = {
+  username: string;
+  provider: string;
+};
+
 export type ExistingLoginNotificationData = {
-  cipherNames: string[];
+  ssoLogins: SsoLoginEntry[];
   uri: string;
 };
 
