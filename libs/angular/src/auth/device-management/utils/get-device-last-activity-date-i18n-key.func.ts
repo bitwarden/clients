@@ -32,14 +32,14 @@ export function getDeviceLastActivityDateI18nKey(
     return "recentlyActiveToday";
   }
   if (daysAgo < 7) {
-    return "recentlyActiveThisWeek";
+    return "recentlyActivePast7Days";
   }
   if (daysAgo < 14) {
-    return "recentlyActiveLastWeek";
+    return "recentlyActivePast14Days";
   }
   if (daysAgo < 30) {
-    return "recentlyActiveThisMonth";
+    return "recentlyActivePast30Days";
   }
 
-  return "recentlyActiveOverThirtyDays";
+  return "recentlyActiveOver30Days";
 }

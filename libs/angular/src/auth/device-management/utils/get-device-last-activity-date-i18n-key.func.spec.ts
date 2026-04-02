@@ -33,56 +33,56 @@ describe("getDeviceLastActivityDateI18nKey", () => {
     });
   });
 
-  describe("recentlyActiveThisWeek", () => {
-    it("returns 'recentlyActiveThisWeek' when activity was 1 calendar day ago", () => {
+  describe("recentlyActivePast7Days", () => {
+    it("returns 'recentlyActivePast7Days' when activity was 1 calendar day ago", () => {
       const date = new Date(2026, 2, 25, 23, 59, 0); // Wednesday at 11:59 PM — was 'Today' with elapsed-ms
-      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActiveThisWeek");
+      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActivePast7Days");
     });
 
-    it("returns 'recentlyActiveThisWeek' when activity was 3 calendar days ago", () => {
+    it("returns 'recentlyActivePast7Days' when activity was 3 calendar days ago", () => {
       const date = new Date(2026, 2, 23, 14, 0, 0);
-      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActiveThisWeek");
+      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActivePast7Days");
     });
 
-    it("returns 'recentlyActiveThisWeek' when activity was 6 calendar days ago", () => {
+    it("returns 'recentlyActivePast7Days' when activity was 6 calendar days ago", () => {
       const date = new Date(2026, 2, 20, 14, 0, 0);
-      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActiveThisWeek");
+      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActivePast7Days");
     });
   });
 
-  describe("recentlyActiveLastWeek", () => {
-    it("returns 'recentlyActiveLastWeek' when activity was 7 calendar days ago", () => {
+  describe("recentlyActivePast14Days", () => {
+    it("returns 'recentlyActivePast14Days' when activity was 7 calendar days ago", () => {
       const date = new Date(2026, 2, 19, 14, 0, 0);
-      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActiveLastWeek");
+      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActivePast14Days");
     });
 
-    it("returns 'recentlyActiveLastWeek' when activity was 13 calendar days ago", () => {
+    it("returns 'recentlyActivePast14Days' when activity was 13 calendar days ago", () => {
       const date = new Date(2026, 2, 13, 14, 0, 0);
-      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActiveLastWeek");
+      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActivePast14Days");
     });
   });
 
-  describe("recentlyActiveThisMonth", () => {
-    it("returns 'recentlyActiveThisMonth' when activity was 14 calendar days ago", () => {
+  describe("recentlyActivePast30Days", () => {
+    it("returns 'recentlyActivePast30Days' when activity was 14 calendar days ago", () => {
       const date = new Date(2026, 2, 12, 14, 0, 0);
-      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActiveThisMonth");
+      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActivePast30Days");
     });
 
-    it("returns 'recentlyActiveThisMonth' when activity was 29 calendar days ago", () => {
+    it("returns 'recentlyActivePast30Days' when activity was 29 calendar days ago", () => {
       const date = new Date(2026, 1, 25, 14, 0, 0);
-      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActiveThisMonth");
+      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActivePast30Days");
     });
   });
 
-  describe("recentlyActiveOverThirtyDays", () => {
-    it("returns 'recentlyActiveOverThirtyDays' when activity was 30 calendar days ago", () => {
+  describe("recentlyActiveOver30Days", () => {
+    it("returns 'recentlyActiveOver30Days' when activity was 30 calendar days ago", () => {
       const date = new Date(2026, 1, 24, 14, 0, 0);
-      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActiveOverThirtyDays");
+      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActiveOver30Days");
     });
 
-    it("returns 'recentlyActiveOverThirtyDays' when activity was 60 calendar days ago", () => {
+    it("returns 'recentlyActiveOver30Days' when activity was 60 calendar days ago", () => {
       const date = new Date(2026, 0, 25, 14, 0, 0);
-      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActiveOverThirtyDays");
+      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActiveOver30Days");
     });
   });
 
@@ -100,11 +100,11 @@ describe("getDeviceLastActivityDateI18nKey", () => {
       //   Activity : March 31  11 PM local  →  April 1  07:00 UTC
       //   Now      : April 7    1 AM local  →  April 7  09:00 UTC
       //
-      // UTC-based calc: April 7 − April 1 = 6 days  →  "recentlyActiveThisWeek"  ← wrong
-      // Local-calendar: April 7 − March 31 = 7 days  →  "recentlyActiveLastWeek"  ← correct
+      // UTC-based calc: April 7 − April 1 = 6 days  →  "recentlyActivePast7Days"  ← wrong
+      // Local-calendar: April 7 − March 31 = 7 days  →  "recentlyActivePast14Days"  ← correct
       const date = new Date(2026, 2, 31, 23, 0, 0); // March 31 at 11 PM local
       const now = new Date(2026, 3, 7, 1, 0, 0); // April 7 at 1 AM local
-      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActiveLastWeek");
+      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActivePast14Days");
     });
 
     it("counts 30 days (month boundary) correctly when activity was at 11 PM local — a time that shifts to the next UTC date in negative-offset zones", () => {
@@ -112,11 +112,11 @@ describe("getDeviceLastActivityDateI18nKey", () => {
       //   Activity : April 29  11 PM local  →  April 30  UTC
       //   Now      : May 29     1 AM local  →  May 29    UTC
       //
-      // UTC-based calc: May 29 − April 30 = 29 days  →  "recentlyActiveThisMonth"  ← wrong
-      // Local-calendar: May 29 − April 29 = 30 days  →  "recentlyActiveOverThirtyDays"  ← correct
+      // UTC-based calc: May 29 − April 30 = 29 days  →  "recentlyActivePast30Days"  ← wrong
+      // Local-calendar: May 29 − April 29 = 30 days  →  "recentlyActiveOver30Days"  ← correct
       const date = new Date(2026, 3, 29, 23, 0, 0); // April 29 at 11 PM local
       const now = new Date(2026, 4, 29, 1, 0, 0); // May 29 at 1 AM local
-      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActiveOverThirtyDays");
+      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActiveOver30Days");
     });
   });
 
@@ -134,7 +134,7 @@ describe("getDeviceLastActivityDateI18nKey", () => {
       // March 2 midnight → March 9 midnight = 6 × 24h + 23h = 167h total.
       const date = new Date(2026, 2, 2, 0, 0, 0); // March 2 midnight
       const now = new Date(2026, 2, 9, 0, 0, 0); // March 9 midnight
-      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActiveLastWeek");
+      expect(getDeviceLastActivityDateI18nKey(date, now)).toBe("recentlyActivePast14Days");
     });
   });
 });

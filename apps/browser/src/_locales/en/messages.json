@@ -3774,16 +3774,16 @@
   "recentlyActiveToday": {
     "message": "Today"
   },
-  "recentlyActiveThisWeek": {
-    "message": "This week"
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
   },
-  "recentlyActiveLastWeek": {
-    "message": "Last week"
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
   },
-  "recentlyActiveThisMonth": {
-    "message": "This month"
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
   },
-  "recentlyActiveOverThirtyDays": {
+  "recentlyActiveOver30Days": {
     "message": "Over 30 days ago"
   },
   "masterPasswordChanged": {
