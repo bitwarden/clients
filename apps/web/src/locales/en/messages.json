@@ -6416,6 +6416,9 @@
   "receiveLink": {
     "message": "Receive link"
   },
+  "shareReceiveLink": {
+    "message": "Share this link to the Receive dropbox"
+  },
   "receives": {
     "message": "Receives"
   },
