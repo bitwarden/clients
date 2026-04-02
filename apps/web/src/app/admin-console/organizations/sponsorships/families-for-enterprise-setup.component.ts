@@ -16,8 +16,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanSponsorshipType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -68,6 +70,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private toastService: ToastService,
+    private logService: LogService,
   ) {}
 
   async ngOnInit() {
@@ -76,6 +79,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
     this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
       const error = qParams.token == null;
       if (error) {
+        this.logService.warning("[Sponsorship] No token found in query params");
         this.toastService.showToast({
           variant: "error",
           title: null,
@@ -89,12 +93,20 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
       }
 
       this.token = qParams.token;
+      this.logService.info(
+        `[Sponsorship] Token present (length=${this.token.length}), starting validation`,
+      );
 
       await this.syncService.fullSync(true);
 
       this.preValidateSponsorshipResponse = await this.apiService.postPreValidateSponsorshipToken(
         this.token,
       );
+
+      this.logService.info(
+        `[Sponsorship] Pre-validation result: isTokenValid=${this.preValidateSponsorshipResponse.isTokenValid}, isFreeFamilyPolicyEnabled=${this.preValidateSponsorshipResponse.isFreeFamilyPolicyEnabled}`,
+      );
+
       if (this.preValidateSponsorshipResponse.isFreeFamilyPolicyEnabled) {
         this.toastService.showToast({
           variant: "error",
@@ -160,12 +172,18 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
   }
 
   private async doSubmit(organizationId: string) {
+    this.logService.info(
+      `[Sponsorship] Redeem started: organizationId=${organizationId}, showNewOrganization=${this.showNewOrganization}, tokenLength=${this.token?.length}`,
+    );
+
     try {
       const request = new OrganizationSponsorshipRedeemRequest();
       request.planSponsorshipType = PlanSponsorshipType.FamiliesForEnterprise;
       request.sponsoredOrganizationId = organizationId;
 
       await this.apiService.postRedeemSponsorship(this.token, request);
+
+      this.logService.info("[Sponsorship] Redeem succeeded");
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -177,9 +195,20 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/"]);
       // FIXME: Remove when updating file. Eslint update
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+       
     } catch (e) {
+      if (e instanceof ErrorResponse) {
+        this.logService.error(
+          `[Sponsorship] Redeem failed: statusCode=${e.statusCode}, message="${e.message}", validationErrors=${JSON.stringify(e.validationErrors)}`,
+        );
+      } else {
+        this.logService.error(`[Sponsorship] Redeem failed with unexpected error: ${e}`);
+      }
+
       if (this.showNewOrganization) {
+        this.logService.warning(
+          `[Sponsorship] Opening delete dialog for newly created org: organizationId=${organizationId}`,
+        );
         const dialog = openDeleteOrganizationDialog(this.dialogService, {
           data: {
             organizationId: organizationId,
@@ -200,6 +229,9 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
   }
 
   protected async onOrganizationCreateSuccess(value: any) {
+    this.logService.info(
+      `[Sponsorship] Organization created successfully: organizationId=${value?.organizationId}`,
+    );
     // Use newly created organization id
     await this.doSubmit(value.organizationId);
   }
