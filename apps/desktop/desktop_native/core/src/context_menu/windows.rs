@@ -128,6 +128,10 @@ fn register_sparse_package(msix_path: &str, install_dir: &str) -> Result<()> {
     )))?;
     options.SetExternalLocationUri(&install_uri)?;
 
+    // The sparse MSIX is unsigned because it ships inside a signed installer
+    // (NSIS / Store APPX) and is only used locally for context menu registration.
+    options.SetAllowUnsigned(true)?;
+
     // Register the sparse package
     let msix_uri = Uri::CreateUri(&windows_registry::HSTRING::from(path_to_file_uri(
         msix_path,
