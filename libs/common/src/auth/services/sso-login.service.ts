@@ -170,7 +170,8 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
    * Add an entry to the cached list of users who must authenticate via SSO.
    */
   private async addToSsoRequiredCache(email: string, webVaultUrl: string): Promise<void> {
-    const entry: SsoRequiredCacheEntry = { email, webVaultUrl };
+    const entry: SsoRequiredCacheEntry = { email: email.toLowerCase(), webVaultUrl };
+
     await this.ssoRequiredCacheState.update(
       (cache) => (cache == null ? [entry] : [...cache, entry]),
       {
@@ -178,22 +179,25 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
           if (cache == null) {
             return true;
           }
-          return !cache.some((e) => e.email === email && e.webVaultUrl === webVaultUrl);
+          return !cache.some((e) => e.email === entry.email && e.webVaultUrl === webVaultUrl);
         },
       },
     );
   }
 
   async removeFromSsoRequiredCacheIfPresent(email: string, webVaultUrl: string): Promise<void> {
+    const normalizedEmail = email.toLowerCase();
+
     await this.ssoRequiredCacheState.update(
       (cache) =>
-        cache?.filter((e) => !(e.email === email && e.webVaultUrl === webVaultUrl)) ?? cache,
+        cache?.filter((e) => !(e.email === normalizedEmail && e.webVaultUrl === webVaultUrl)) ??
+        cache,
       {
         shouldUpdate: (cache) => {
           if (cache == null) {
             return false;
           }
-          return cache.some((e) => e.email === email && e.webVaultUrl === webVaultUrl);
+          return cache.some((e) => e.email === normalizedEmail && e.webVaultUrl === webVaultUrl);
         },
       },
     );
@@ -208,7 +212,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     const webVaultUrl = env.getWebVaultUrl();
 
     if (ssoRequired) {
-      await this.addToSsoRequiredCache(ssoLoginEmail.toLowerCase(), webVaultUrl);
+      await this.addToSsoRequiredCache(ssoLoginEmail, webVaultUrl);
     } else {
       /**
        * If user is not required to authenticate via SSO, remove their entry from the cache
@@ -216,7 +220,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
        * required to authenticate via SSO at some point in the past, but now their org
        * no longer requires SSO authenticaiton.
        */
-      await this.removeFromSsoRequiredCacheIfPresent(ssoLoginEmail.toLowerCase(), webVaultUrl);
+      await this.removeFromSsoRequiredCacheIfPresent(ssoLoginEmail, webVaultUrl);
     }
   }
 }

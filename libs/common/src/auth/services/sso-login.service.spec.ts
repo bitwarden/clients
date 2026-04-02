@@ -151,6 +151,32 @@ describe("SSOLoginService ", () => {
         expect(cache.nextMock).toHaveBeenCalledWith([entry(email, webVaultUrl)]);
       });
 
+      it("should normalize email to lowercase before storing", async () => {
+        // Arrange
+        mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([]);
+
+        // Act
+        await sut.updateSsoRequiredCache("User1@Example.COM", userId);
+
+        // Assert
+        const cache = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
+        expect(cache.nextMock).toHaveBeenCalledWith([entry("user1@example.com", webVaultUrl)]);
+      });
+
+      it("should NOT add a duplicate entry when the same email is passed with different casing", async () => {
+        // Arrange
+        mockStateProvider.global
+          .getFake(SSO_REQUIRED_CACHE)
+          .stateSubject.next([entry(email, webVaultUrl)]);
+
+        // Act
+        await sut.updateSsoRequiredCache("User1@Example.COM", userId);
+
+        // Assert
+        const cache = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
+        expect(cache.nextMock).not.toHaveBeenCalled();
+      });
+
       it("should NOT add an entry to the cache if that same entry already exists in the cache", async () => {
         // Arrange
         mockStateProvider.global
@@ -280,6 +306,20 @@ describe("SSOLoginService ", () => {
 
       // Act
       await sut.removeFromSsoRequiredCacheIfPresent(email, webVaultUrl);
+
+      // Assert
+      const cache = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
+      expect(cache.nextMock).toHaveBeenCalledWith([]);
+    });
+
+    it("should normalize email to lowercase before matching and removing", async () => {
+      // Arrange
+      mockStateProvider.global
+        .getFake(SSO_REQUIRED_CACHE)
+        .stateSubject.next([entry(email, webVaultUrl)]);
+
+      // Act
+      await sut.removeFromSsoRequiredCacheIfPresent("User1@Example.COM", webVaultUrl);
 
       // Assert
       const cache = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
