@@ -91,7 +91,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     return classes.join(" ");
   });
 
-  protected readonly spinnerSize = computed(
+  protected readonly spinnerSize = computed<SpinnerSize>(
     (): SpinnerSize => (this.size() === "small" ? "sm" : "md"),
   );
 

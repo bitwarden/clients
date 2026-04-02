@@ -7,7 +7,7 @@ import {
   SpinnerComponent,
 } from "../spinner/spinner.component";
 
-type SpinnerLockupLayout = "horizontal" | "vertical";
+type SpinnerLockupOrientation = "horizontal" | "vertical";
 
 const spinnerLockupTextStyles: Record<SpinnerSize, { fontSize: string; lineHeight: string }> = {
   sm: { fontSize: "tw-text-xs", lineHeight: "tw-leading-4" },
@@ -16,8 +16,8 @@ const spinnerLockupTextStyles: Record<SpinnerSize, { fontSize: string; lineHeigh
   lg: { fontSize: "tw-text-xl", lineHeight: "tw-leading-7" },
 };
 
-const spinnerLockupLayoutStyles: Record<
-  SpinnerLockupLayout,
+const spinnerLockupOrientationStyles: Record<
+  SpinnerLockupOrientation,
   {
     container: string[];
     textContainer: string[];
@@ -33,6 +33,11 @@ const spinnerLockupLayoutStyles: Record<
   },
 };
 
+/**
+ * Combines a spinner with a title and body text lockup.
+ * Title and body content are projected via named slots: `[slot=title]` and `[slot=body]`.
+ * Supports horizontal and vertical orientations, all spinner size variants, and all color variants.
+ */
 @Component({
   selector: "bit-spinner-lockup",
   templateUrl: "spinner-lockup.component.html",
@@ -40,13 +45,18 @@ const spinnerLockupLayoutStyles: Record<
   imports: [SpinnerComponent],
 })
 export class SpinnerLockupComponent {
+  /** Size of the spinner and corresponding text scale. Defaults to `"base"`. */
   readonly size = input<SpinnerSize>("base");
+
+  /** Color variant of the spinner. Defaults to `"primary"`. */
   readonly variant = input<SpinnerVariant>("primary");
-  readonly layout = input<SpinnerLockupLayout>("horizontal");
 
-  readonly sizeClasses = computed(() => spinnerSizeStyles[this.size()]);
+  /** Orientation of the spinner relative to the text. Defaults to `"horizontal"`. */
+  readonly orientation = input<SpinnerLockupOrientation>("horizontal");
 
-  readonly textClasses = computed(() => {
+  protected readonly sizeClasses = computed(() => spinnerSizeStyles[this.size()]);
+
+  protected readonly textClasses = computed(() => {
     const sizeStyles = spinnerLockupTextStyles[this.size()];
     return {
       title: [sizeStyles.fontSize, sizeStyles.lineHeight, "tw-font-medium", "tw-text-fg-heading"],
@@ -54,11 +64,11 @@ export class SpinnerLockupComponent {
     };
   });
 
-  readonly layoutClasses = computed(() => {
-    const layoutStyles = spinnerLockupLayoutStyles[this.layout()];
+  protected readonly orientationClasses = computed(() => {
+    const orientationStyles = spinnerLockupOrientationStyles[this.orientation()];
     return {
-      container: [...layoutStyles.container, "tw-flex", "tw-items-center"],
-      textContainer: [...layoutStyles.textContainer, "tw-flex", "tw-flex-col"],
+      container: [...orientationStyles.container, "tw-flex", "tw-items-center"],
+      textContainer: [...orientationStyles.textContainer, "tw-flex", "tw-flex-col"],
     };
   });
 }

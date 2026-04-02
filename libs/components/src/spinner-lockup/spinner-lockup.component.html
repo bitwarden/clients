@@ -1,6 +1,6 @@
-<div [class]="layoutClasses().container">
+<div [class]="orientationClasses().container">
   <bit-spinner [size]="size()" [variant]="variant()"></bit-spinner>
-  <div [class]="layoutClasses().textContainer">
+  <div [class]="orientationClasses().textContainer">
     <span [class]="textClasses().title">
       <ng-content select="[slot=title]"></ng-content>
     </span>

@@ -56,7 +56,7 @@ export class ButtonComponent implements ButtonLikeAbstraction {
     return ["bwi", this.endIcon()];
   });
 
-  protected readonly spinnerSize = computed(
+  protected readonly spinnerSize = computed<SpinnerSize>(
     (): SpinnerSize => (this.size() === "small" ? "sm" : "md"),
   );
 
