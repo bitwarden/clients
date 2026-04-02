@@ -926,7 +926,6 @@ const safeProviders: SafeProvider[] = [
       MessagingServiceAbstraction,
       InternalPolicyService,
       InternalSendService,
-      InternalReceiveService,
       LogService,
       KeyConnectorServiceAbstraction,
       ProviderServiceAbstraction,
@@ -943,6 +942,8 @@ const safeProviders: SafeProvider[] = [
       SecurityStateService,
       KdfConfigService,
       AccountCryptographicStateService,
+      InternalReceiveService,
+      ReceiveApiService,
     ],
   }),
   safeProvider({

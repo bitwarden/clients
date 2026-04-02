@@ -966,7 +966,6 @@ export class ServiceContainer {
       this.messagingService,
       this.policyService,
       this.sendService,
-      this.receiveService,
       this.logService,
       this.keyConnectorService,
       this.providerService,
@@ -983,6 +982,8 @@ export class ServiceContainer {
       this.securityStateService,
       this.kdfConfigService,
       this.accountCryptographicStateService,
+      this.receiveService,
+      this.receiveApiService,
     );
 
     this.totpService = new TotpService(this.sdkService);

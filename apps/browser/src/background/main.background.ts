@@ -1097,7 +1097,6 @@ export default class MainBackground {
       this.messagingService,
       this.policyService,
       this.sendService,
-      this.receiveService,
       this.logService,
       this.keyConnectorService,
       this.providerService,
@@ -1114,6 +1113,8 @@ export default class MainBackground {
       this.securityStateService,
       this.kdfConfigService,
       this.accountCryptographicStateService,
+      this.receiveService,
+      this.receiveApiService,
     );
 
     this.syncServiceListener = new SyncServiceListener(

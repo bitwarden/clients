@@ -5,6 +5,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { ReceiveId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
@@ -118,6 +119,11 @@ export class DefaultReceiveService implements InternalReceiveService {
 
   async replace(receives: { [id: string]: ReceiveData }, userId: UserId): Promise<void> {
     await this.stateProvider.getUser(userId, RECEIVE_ENCRYPTED_RECEIVES).update(() => receives);
+  }
+
+  async get(id: ReceiveId, userId: UserId): Promise<Receive | undefined> {
+    const receives = await firstValueFrom(this.receives$(userId));
+    return receives.find((r) => r.id === id);
   }
 
   private async decryptResponse(
