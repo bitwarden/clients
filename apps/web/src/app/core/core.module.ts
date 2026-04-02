@@ -388,7 +388,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ProcessReloadServiceAbstraction,
     useClass: WebProcessReloadService,
-    deps: [WINDOW],
+    deps: [WINDOW, PlatformUtilsService, Router],
   }),
   safeProvider({
     provide: LoginEmailService,
