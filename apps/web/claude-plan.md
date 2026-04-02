@@ -71,33 +71,57 @@ putOrganizationUserRecoverAccount(orgId, id, request): Promise<void> {
 
 ### 5. Reset password service — `apps/web/src/app/admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service.ts`
 
-Rename/extend `resetMasterPassword` to `recoverAccount` (keep `resetMasterPassword` as a thin
-wrapper for now to avoid breaking the key-rotation usages, or update all call sites):
+Introduce a `recoverAccount` public orchestrator and extract the existing monolithic
+`resetMasterPassword` body into focused private helpers. `resetMasterPassword` becomes a thin
+backward-compat wrapper so no other callers need to change.
 
-New signature:
+**New public API:**
 
 ```ts
-async recoverAccount(
-  organizationUserId: string,
-  organizationId: OrganizationId,
-  resetMasterPassword: boolean,
-  resetTwoFactor: boolean,
-  newMasterPassword?: string,
-  email?: string,
-): Promise<void>
+// Request object — avoids long positional param lists
+type RecoverAccountRequest = {
+  organizationUserId: string;
+  organizationId: OrganizationId;
+  resetMasterPassword: boolean;
+  resetTwoFactor: boolean;
+  newMasterPassword?: string; // required when resetMasterPassword is true
+  email?: string;             // required when resetMasterPassword is true
+};
+
+async recoverAccount(request: RecoverAccountRequest): Promise<void>
+
+// Thin backward-compat wrapper — no callers change
+async resetMasterPassword(
+  newMasterPassword: string,
+  email: string,
+  orgUserId: string,
+  orgId: OrganizationId,
+): Promise<void> {
+  return this.recoverAccount({
+    organizationUserId: orgUserId,
+    organizationId: orgId,
+    resetMasterPassword: true,
+    resetTwoFactor: false,
+    newMasterPassword,
+    email,
+  });
+}
 ```
 
-Logic:
+**Private helpers extracted from the existing method body:**
 
-- If `resetMasterPassword` is true → run existing crypto, populate `request.key` /
-  `request.newMasterPasswordHash` (existing two code paths for feature flag
-  `PM27086_UpdateAuthenticationApisForInputPassword` stay unchanged).
-- Set `request.resetMasterPassword = resetMasterPassword` and `request.resetTwoFactor =
-resetTwoFactor` on the request.
-- Call `organizationUserApiService.putOrganizationUserRecoverAccount(...)` (new endpoint) instead of
-  the old `putOrganizationUserResetPassword`.
-- If only `resetTwoFactor = true` (no password reset): skip all crypto, build a minimal request with
-  just the boolean flags, call the new endpoint.
+- `buildKdfConfig(response)` — constructs `PBKDF2KdfConfig` or `Argon2KdfConfig` from the API
+  response fields
+- `decryptUserKey(response, orgId)` — fetches org sym key, unwraps private key, decapsulates user
+  key; returns `UserKey`
+- `buildResetPasswordRequestV2(password, email, kdfConfig, userKey)` — new-API path (feature flag
+  `PM27086_UpdateAuthenticationApisForInputPassword`): builds `OrganizationUserResetPasswordRequest`
+  via `newConstructor`
+- `buildMasterPasswordRequest(password, email, kdfConfig, userKey)` — legacy path: makes master key,
+  hashes it, wraps user key, returns request
+- `recoverAccount` (orchestrator): validates flags, calls `decryptUserKey` + one of the two request
+  builders only when `resetMasterPassword` is true, sets boolean flags on request, calls
+  `putOrganizationUserRecoverAccount`
 
 ### 6. Dialog TypeScript — `apps/web/src/app/admin-console/organizations/members/components/account-recovery/account-recovery-dialog.component.ts`
 
@@ -113,7 +137,7 @@ Changes:
 - Update `handlePrimaryButtonClick`:
   - If `!resetMasterPassword && !resetTwoFactor` → show validation error (at least one must be selected).
   - If `resetMasterPassword` → call `inputPasswordComponent.submit()` as before.
-  - Call `resetPasswordService.recoverAccount(orgUserId, orgId, resetMasterPassword, resetTwoFactor, password, email)`.
+  - Call `resetPasswordService.recoverAccount({ organizationUserId, organizationId, resetMasterPassword, resetTwoFactor, newMasterPassword: password, email })`.
   - Update success toast to use new i18n key `recoverAccountSuccess`.
 - Import `CheckboxModule`, `FormFieldModule` from `@bitwarden/components`.
 
@@ -153,6 +177,34 @@ Add new keys (near existing `recoverAccount` group):
   "message": "Account recovery success!"
 }
 ```
+
+---
+
+## Test Coverage
+
+### `organization-user-reset-password.service.spec.ts` (existing file — update)
+
+- Update mocks: replace `putOrganizationUserResetPassword` spy with `putOrganizationUserRecoverAccount`.
+- Add test cases for `recoverAccount`:
+  - `resetMasterPassword: true, resetTwoFactor: false` → calls crypto helpers, sends request with
+    correct fields, calls new endpoint.
+  - `resetMasterPassword: false, resetTwoFactor: true` → skips all crypto, sends minimal request,
+    calls new endpoint.
+  - Both `true` → crypto runs and both flags are true in request.
+  - Both `false` → throws or resolves immediately without calling API (validator logic).
+- Add test for `resetMasterPassword` backward-compat wrapper → delegates to `recoverAccount` with
+  correct shape.
+- Add unit tests for each private helper (`buildKdfConfig`, `decryptUserKey`,
+  `buildMasterPasswordRequest`, `buildResetPasswordRequestV2`) to validate their behavior in
+  isolation.
+
+### `account-recovery-dialog.component` (new spec file)
+
+- Test that the 2FA checkbox is hidden when `AdminResetTwoFactor` feature flag is `false`.
+- Test that the 2FA checkbox is visible when the flag is `true`.
+- Test that the Save button is disabled (or shows error) when both checkboxes are unchecked.
+- Test that the password input is hidden when "Reset master password" is unchecked.
+- Test that submit calls `recoverAccount` with the correct flag combination.
 
 ---
 
