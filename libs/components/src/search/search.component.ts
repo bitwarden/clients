@@ -1,5 +1,4 @@
-import { NgIf, NgClass } from "@angular/common";
-import { Component, ElementRef, input, model, signal, computed, viewChild } from "@angular/core";
+import { Component, ElementRef, input, model, viewChild } from "@angular/core";
 import {
   ControlValueAccessor,
   NG_VALUE_ACCESSOR,
@@ -14,6 +13,8 @@ import {
   BitFieldContainerDirective,
   FieldContainerSize,
 } from "../form-field/field-container.directive";
+import { IconComponent } from "../icon";
+import { BitIconButtonComponent } from "../icon-button";
 import { FocusableElement } from "../shared/focusable-element";
 
 let nextId = 0;
@@ -37,7 +38,14 @@ let nextId = 0;
       useExisting: SearchComponent,
     },
   ],
-  imports: [BitFieldContainerDirective, ReactiveFormsModule, FormsModule, I18nPipe, NgIf, NgClass],
+  imports: [
+    IconComponent,
+    BitFieldContainerDirective,
+    ReactiveFormsModule,
+    FormsModule,
+    I18nPipe,
+    BitIconButtonComponent,
+  ],
 })
 export class SearchComponent implements ControlValueAccessor, FocusableElement {
   private notifyOnChange?: (v: string) => void;
@@ -49,14 +57,6 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   protected searchText?: string;
   // Use `type="text"` for Safari to improve rendering performance
   protected inputType = isBrowserSafariApi() ? ("text" as const) : ("search" as const);
-
-  protected readonly isInputFocused = signal(false);
-  protected readonly isFormHovered = signal(false);
-  protected readonly isResetButtonFocused = signal(false);
-
-  protected readonly showResetButton = computed(
-    () => this.isInputFocused() || this.isFormHovered() || this.isResetButtonFocused(),
-  );
 
   readonly disabled = model<boolean>();
   readonly placeholder = input<string>();
