@@ -113,7 +113,7 @@
         "to": "bitwarden_windows_shell_extension.dll"
       },
       {
-        "from": "desktop_native/dist/bitwarden-sparse.msix",
+        "from": "desktop_native/dist/bitwarden-sparse.${arch}.msix",
         "to": "bitwarden-sparse.msix"
       }
     ]

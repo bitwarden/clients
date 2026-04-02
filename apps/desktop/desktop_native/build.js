@@ -48,18 +48,20 @@ function buildNapiModule(target, release = true) {
 }
 
 /**
- * Build a Rust binary with Cargo.
+ * Build a Rust binary or library with Cargo.
  *
  * If {@link target} is specified, cross-compilation helpers are used to build if necessary, and the resulting
- * binary is copied to the `dist` folder.
- * @param {string} bin Name of cargo binary package in `desktop_native` workspace.
+ * artifact is copied to the `dist` folder. Libraries are copied without a platform-arch suffix.
+ * @param {string} bin Name of cargo binary or package in `desktop_native` workspace.
  * @param {string?} target Rust compiler target, e.g. `aarch64-pc-windows-msvc`.
  * @param {boolean} release Whether to build in release mode.
+ * @param {boolean} [library=false] If true, builds a library (`--package`) instead of a binary (`--bin`).
  */
-function cargoBuild(bin, target, release) {
+function cargoBuild(bin, target, release, library = false) {
     const targetArg = target ? `--target=${target}` : "";
     const releaseArg = release ? "--release" : "";
-    const args = ["build", "--bin", bin, releaseArg, targetArg]
+    const packageFlag = library ? "--package" : "--bin";
+    const args = ["build", packageFlag, bin, releaseArg, targetArg]
     // Use cross-compilation helper if necessary
     if (effectivePlatform(target) === "win32" && process.platform !== "win32") {
         args.unshift("xwin")
@@ -77,11 +79,13 @@ function cargoBuild(bin, target, release) {
         platform = process.platform;
     }
 
-    // Copy the resulting binary to the dist folder
+    // Copy the resulting artifact to the dist folder
     const profileFolder = isRelease ? "release" : "debug";
-    const ext = platform === "win32" ? ".exe" : "";
+    const ext = library ? (platform === "win32" ? ".dll" : ".so") : (platform === "win32" ? ".exe" : "");
     const src = path.join(__dirname, "target", target ? target : "", profileFolder, `${bin}${ext}`)
-    const dst = path.join(__dirname, "dist", `${bin}.${platform}-${nodeArch}${ext}`)
+    const dst = library
+        ? path.join(__dirname, "dist", `${bin}${ext}`)
+        : path.join(__dirname, "dist", `${bin}.${platform}-${nodeArch}${ext}`)
     console.log(`Copying ${src} to ${dst}`);
     fs.copyFileSync(src, dst);
 }
@@ -103,23 +107,7 @@ function buildShellExtension(target, release = true) {
         return;
     }
 
-    const targetArg = target ? `--target=${target}` : "";
-    const releaseArg = release ? "--release" : "";
-    const args = ["build", "--package", "windows_shell_extension", releaseArg, targetArg].filter(s => s != "");
-
-    // Use cross-compilation helper if necessary
-    if (process.platform !== "win32") {
-        args.unshift("xwin");
-    }
-
-    runCommand("cargo", args);
-
-    // Copy the resulting DLL to the dist folder
-    const profileFolder = release ? "release" : "debug";
-    const src = path.join(__dirname, "target", target ? target : "", profileFolder, "bitwarden_windows_shell_extension.dll");
-    const dst = path.join(__dirname, "dist", "bitwarden_windows_shell_extension.dll");
-    console.log(`Copying ${src} to ${dst}`);
-    fs.copyFileSync(src, dst);
+    cargoBuild("bitwarden_windows_shell_extension", target, release, true);
 }
 
 function findMakeAppx(arch) {
@@ -163,7 +151,7 @@ function buildSparsePackage(target) {
 
     const templatePath = path.join(__dirname, "..", "resources", "sparse-package", "AppxManifest.xml");
     const outputDir = path.join(__dirname, "dist");
-    const outputMsix = path.join(outputDir, "bitwarden-sparse.msix");
+    const outputMsix = path.join(outputDir, `bitwarden-sparse.${arch}.msix`);
     const stagingDir = path.join(os.tmpdir(), `bitwarden-sparse-${Date.now()}`);
 
     console.log(`Building sparse MSIX package (arch=${arch}, version=${version})`);
