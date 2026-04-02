@@ -42,7 +42,11 @@ import {
   VaultTimeoutStringType,
 } from "../types/vault-timeout.type";
 
-import { VAULT_TIMEOUT, VAULT_TIMEOUT_ACTION } from "./vault-timeout-settings.state";
+import {
+  VAULT_TIMEOUT,
+  VAULT_TIMEOUT_ACTION,
+  VAULT_TIMEOUT_SUPPRESSED_UNTIL,
+} from "./vault-timeout-settings.state";
 
 export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceAbstraction {
   constructor(
@@ -355,5 +359,29 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
       getFirstPolicy,
       map((policy) => (policy?.data ?? null) as MaximumSessionTimeoutPolicyData | null),
     );
+  }
+
+  vaultTimeoutSuppressedUntil$(userId: UserId): Observable<number | null> {
+    if (!userId) {
+      throw new Error("User id required. Cannot get vault timeout suppressed until.");
+    }
+
+    return this.stateProvider.getUserState$(VAULT_TIMEOUT_SUPPRESSED_UNTIL, userId);
+  }
+
+  async suppressVaultTimeout(until: number, userId: UserId): Promise<void> {
+    if (!userId) {
+      throw new Error("User id required. Cannot suppress vault timeout.");
+    }
+
+    await this.stateProvider.getUser(userId, VAULT_TIMEOUT_SUPPRESSED_UNTIL).update(() => until);
+  }
+
+  async clearVaultTimeoutSuppression(userId: UserId): Promise<void> {
+    if (!userId) {
+      throw new Error("User id required. Cannot clear vault timeout suppression.");
+    }
+
+    await this.stateProvider.getUser(userId, VAULT_TIMEOUT_SUPPRESSED_UNTIL).update(() => null);
   }
 }

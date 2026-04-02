@@ -54,6 +54,7 @@ describe("VaultTimeoutService", () => {
     vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockReturnValue(
       vaultTimeoutActionSubject,
     );
+    vaultTimeoutSettingsService.vaultTimeoutSuppressedUntil$.mockReturnValue(of(null));
 
     availableVaultTimeoutActionsSubject = new BehaviorSubject<VaultTimeoutAction[]>([]);
 
@@ -152,6 +153,8 @@ describe("VaultTimeoutService", () => {
         ],
       );
     });
+
+    vaultTimeoutSettingsService.vaultTimeoutSuppressedUntil$.mockImplementation(() => of(null));
   };
 
   const expectUserToHaveLocked = (userId: string) => {

@@ -93,6 +93,14 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
       return false;
     }
 
+    // Check if vault timeout is suppressed by shared unlock
+    const suppressedUntil = await firstValueFrom(
+      this.vaultTimeoutSettingsService.vaultTimeoutSuppressedUntil$(userId as UserId),
+    );
+    if (suppressedUntil != null && Date.now() < suppressedUntil) {
+      return false;
+    }
+
     const authStatus = await this.authService.getAuthStatus(userId);
     if (
       authStatus === AuthenticationStatus.Locked ||
