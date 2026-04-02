@@ -166,6 +166,7 @@ describe("DefaultReceiveFileService", () => {
     const fileView: ReceiveFileView = {
       id: "file-456" as ReceiveFileId,
       size: "1024",
+      sizeName: "1 KB",
       fileName: "decrypted-file.txt",
       fileContentEncryptionKey: mockContentKey,
     };
