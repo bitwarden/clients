@@ -88,12 +88,19 @@ export class SearchBarComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.searchInput.nativeElement.focus();
+    const savedQuery = localStorage.getItem("magnify.lastQuery");
+    if (savedQuery) {
+      this.searchInput.nativeElement.value = savedQuery;
+      this.searchInput.nativeElement.select();
+      void this.onInput();
+    }
   }
 
   async onInput(): Promise<void> {
     const query = this.searchInput.nativeElement.value;
 
     if (!query.trim()) {
+      localStorage.removeItem("magnify.lastQuery");
       this.results.set([]);
       this.selectedIndex.set(0);
       this.hasSearched.set(false);
@@ -101,6 +108,7 @@ export class SearchBarComponent implements AfterViewInit {
       return;
     }
 
+    localStorage.setItem("magnify.lastQuery", query);
     this.hasSearched.set(true);
     const results = await this.commandService.searchVault(query);
     this.results.set(results);
