@@ -141,7 +141,35 @@ export class PreferenceSyncService {
         return;
       }
 
-      const blob = await this.collectAndEncrypt(userId);
+      // Fetch existing blob to preserve other device types' sections
+      // TODO: Explore making this more efficient by comparing revision dates of last sync
+      let existingPrefs: SyncedPreferences = {};
+      try {
+        const response = await this.getUserPreferences();
+        if (response?.data != null) {
+          existingPrefs = (await this.decryptBlob(response.data, userId)) ?? {};
+        }
+      } catch (e) {
+        this.logService.warning(
+          "PreferenceSyncService: could not fetch existing prefs for merge",
+          e,
+        );
+      }
+
+      // Deep merge local changes into existing blob — preserves foreign device sections
+      // and individual fields within each section (last-write-wins per field)
+      const localPrefs = await this.collectAll(userId);
+      const merged: SyncedPreferences = { ...existingPrefs };
+      for (const [key, value] of Object.entries(localPrefs)) {
+        if (value != null && typeof value === "object") {
+          (merged as Record<string, unknown>)[key] = {
+            ...((existingPrefs as Record<string, unknown>)[key] as Record<string, unknown>),
+            ...value,
+          };
+        }
+      }
+
+      const blob = await this.encryptBlob(merged, userId);
       if (blob != null) {
         await this.putUserPreferences(new UserPreferencesRequest(blob));
       }
