@@ -1,21 +1,19 @@
-import { ChangeDetectionStrategy, Component, computed, Inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { map } from "rxjs";
 
 import { ActiveSendIcon } from "@bitwarden/assets/svg";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { buildReceiveUrl } from "@bitwarden/common/tools/receive/models/receive-url-data";
 import { ReceiveView } from "@bitwarden/common/tools/receive/models/view/receive.view";
 import {
   ButtonModule,
+  CopyClickDirective,
   DIALOG_DATA,
   DialogModule,
   FormFieldModule,
   IconButtonModule,
   SvgModule,
-  ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -30,11 +28,15 @@ import { I18nPipe } from "@bitwarden/ui-common";
     SvgModule,
     TypographyModule,
     I18nPipe,
+    CopyClickDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReceiveSuccessComponent {
   protected readonly activeReceiveIcon = ActiveSendIcon;
+  protected readonly receive = inject<ReceiveView>(DIALOG_DATA);
+
+  private readonly environmentService = inject(EnvironmentService);
 
   private readonly baseReceiveUrl = toSignal(
     this.environmentService.environment$.pipe(map((env) => env.getWebVaultUrl() + "/#/receive")),
@@ -47,24 +49,4 @@ export class ReceiveSuccessComponent {
     }
     return buildReceiveUrl(this.receive, baseUrl);
   });
-
-  constructor(
-    @Inject(DIALOG_DATA) protected readonly receive: ReceiveView,
-    private readonly environmentService: EnvironmentService,
-    private readonly i18nService: I18nService,
-    private readonly platformUtilsService: PlatformUtilsService,
-    private readonly toastService: ToastService,
-  ) {}
-
-  protected copyLink(): void {
-    const link = this.receiveLink();
-    if (!link) {
-      return;
-    }
-    this.platformUtilsService.copyToClipboard(link);
-    this.toastService.showToast({
-      variant: "success",
-      message: this.i18nService.t("valueCopied", this.i18nService.t("receiveLink")),
-    });
-  }
 }

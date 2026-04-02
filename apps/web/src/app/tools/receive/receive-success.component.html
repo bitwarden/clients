@@ -5,7 +5,7 @@
       class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-text-center tw-h-full tw-px-4 tw-pt-20"
     >
       <div class="tw-mb-6 tw-mt-8">
-        <div class="tw-size-[95px] tw-content-center">
+        <div class="tw-size-24 tw-content-center">
           <bit-svg [content]="activeReceiveIcon"></bit-svg>
         </div>
       </div>
@@ -26,14 +26,23 @@
           bitIconButton="bwi-clone"
           bitSuffix
           [label]="'copyLink' | i18n"
-          (click)="copyLink()"
+          [appCopyClick]="receiveLink() ?? ''"
+          [valueLabel]="'receiveLink' | i18n"
+          showToast
         ></button>
       </bit-form-field>
     </div>
   </ng-container>
 
   <ng-container bitDialogFooter>
-    <button type="button" bitButton buttonType="primary" (click)="copyLink()">
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      [appCopyClick]="receiveLink() ?? ''"
+      [valueLabel]="'receiveLink' | i18n"
+      showToast
+    >
       {{ "copyLink" | i18n }}
     </button>
     <button type="button" bitButton buttonType="secondary" bitDialogClose>
