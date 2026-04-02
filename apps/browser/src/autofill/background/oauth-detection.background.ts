@@ -1,4 +1,8 @@
+import { firstValueFrom } from "rxjs";
+
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 
@@ -22,6 +26,8 @@ export class OAuthDetectionBackground {
     private logService: LogService,
     private notificationBackground: NotificationBackground,
     private providers: OAuthSsoProvider[],
+    private cipherService: CipherService,
+    private accountService: AccountService,
   ) {}
 
   init() {
@@ -43,8 +49,22 @@ export class OAuthDetectionBackground {
         );
 
         for (const provider of this.providers) {
-          void this.checkSsoAvailableOnPage(details.tabId, provider).then((available) => {
-            this.logService.info(`[OAuthDetection] Jimmy it's done ${JSON.stringify(available)}`);
+          void this.checkSsoAvailableOnPage(details.tabId, provider).then(async (data) => {
+            this.logService.info(`[OAuthDetection] Jimmy it's done ${JSON.stringify(data)}`);
+
+            const activeUser = await firstValueFrom(this.accountService.activeAccount$);
+            if (!activeUser) {
+              this.logService.info(`[OAuthDetection] Please log in to the extension.`);
+              return;
+            }
+
+            const ciphers = await this.cipherService.getAllDecryptedForUrl(
+              data.pageUrl,
+              activeUser.id,
+            );
+            this.logService.info(
+              `[OAuthDetection] Jimmy Found ${ciphers.length} cipher(s) for ${data.pageDomain}`,
+            );
           });
         }
       }
@@ -387,10 +407,7 @@ export class OAuthDetectionBackground {
    * Executes the provider's isSsoAvailableOnPage function in the target tab
    * via chrome.scripting.executeScript.
    */
-  private async checkSsoAvailableOnPage(
-    tabId: number,
-    provider: OAuthSsoProvider,
-  ): Promise<boolean> {
+  private async checkSsoAvailableOnPage(tabId: number, provider: OAuthSsoProvider): Promise<any> {
     this.logService.info(`[OAuthDetection] checkSsoAvailableOnPage Jimmy 2`);
     try {
       const results = await chrome.scripting.executeScript({
@@ -402,7 +419,7 @@ export class OAuthDetectionBackground {
       this.logService.info(
         `[OAuthDetection] checkSsoAvailableOnPage Jimmy 3 result: ${JSON.stringify(result)}`,
       );
-      return result?.available ?? false;
+      return result;
     } catch (e) {
       this.logService.error(`[OAuthDetection] isSsoAvailableOnPage failed for tab ${tabId}: ${e}`);
       return false;
