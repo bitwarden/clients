@@ -82,10 +82,9 @@ describe("AuthPopoutWindow", () => {
     it("queues the pending notification after the popout is created", async () => {
       jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([]);
       const callOrder: string[] = [];
-      openPopoutSpy.mockImplementation(async () => {
+      openPopoutSpy.mockImplementation(async (..._: any[]) => {
         callOrder.push("openPopout");
-        // needed for type safety - unused in function
-        return undefined as Window;
+        return undefined as any;
       });
       sendMessageDataSpy.mockImplementation(async (_tab: any, command: string) => {
         callOrder.push(`notification:${command}`);
