@@ -212,7 +212,7 @@ export class DesktopMagnifyService implements OnDestroy {
       ),
     );
 
-    const cipher = ciphers.find((c) => c.id === itemId);
+    const cipher = ciphers.find((c) => c.id === itemId && c.deletedDate == null);
 
     if (!cipher) {
       return [new Error(`Cipher with id ${itemId} not found.`), null];
@@ -232,7 +232,9 @@ export class DesktopMagnifyService implements OnDestroy {
   */
   private async copyPassword(id: string): Promise<Result<MagnifyCommandResponse>> {
     const [error, cipher] = await this.findCipher(id);
-    if (error) {return [error, null];}
+    if (error) {
+      return [error, null];
+    }
 
     return [null, { type: MagnifyCommand.CopyPassword, result: cipher.login?.password ?? "" }];
   }
@@ -243,7 +245,9 @@ export class DesktopMagnifyService implements OnDestroy {
   */
   private async copyCardNumber(itemId: string): Promise<Result<MagnifyCommandResponse>> {
     const [error, cipher] = await this.findCipher(itemId);
-    if (error) {return [error, null];}
+    if (error) {
+      return [error, null];
+    }
 
     return [null, { type: MagnifyCommand.CopyCardNumber, result: cipher.card?.number ?? "" }];
   }
@@ -259,7 +263,9 @@ export class DesktopMagnifyService implements OnDestroy {
     format: string,
   ): Promise<Result<MagnifyCommandResponse>> {
     const [error, cipher] = await this.findCipher(itemId);
-    if (error) {return [error, null];}
+    if (error) {
+      return [error, null];
+    }
 
     const month = (cipher.card?.expMonth ?? "").padStart(2, "0");
     const year = cipher.card?.expYear ?? "";
@@ -278,7 +284,9 @@ export class DesktopMagnifyService implements OnDestroy {
   */
   private async copyCardCode(itemId: string): Promise<Result<MagnifyCommandResponse>> {
     const [error, cipher] = await this.findCipher(itemId);
-    if (error) {return [error, null];}
+    if (error) {
+      return [error, null];
+    }
 
     return [null, { type: MagnifyCommand.CopyCardCode, result: cipher.card?.code ?? "" }];
   }
