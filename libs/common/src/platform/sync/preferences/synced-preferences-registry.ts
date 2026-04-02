@@ -1,4 +1,9 @@
-import { KeyDefinition, UserKeyDefinition, SYNC_SETTINGS_DISK } from "@bitwarden/state";
+import {
+  GENERATOR_DISK,
+  KeyDefinition,
+  UserKeyDefinition,
+  SYNC_SETTINGS_DISK,
+} from "@bitwarden/state";
 
 import {
   AUTOFILL_ON_PAGE_LOAD,
@@ -124,17 +129,74 @@ export const PREFERENCE_SYNC_ENABLED = new UserKeyDefinition<boolean>(
 // Single source of truth for all synced preferences.
 // Adding a new synced setting = one entry in this array.
 //
-// NOTE: Generator settings from @bitwarden/generator (PASSWORD_SETTINGS, etc.)
-// and forwarder keys cannot be imported here without creating circular dependencies
-// between libs/common and libs/tools. These will be registered separately via
-// a registration function called during app bootstrap.
-
 export const SYNCED_KEYS: SyncedKeyEntry[] = [
   // ── Shared (universal, same on all devices) ──
 
   { keyDef: THEME_SELECTION, blobField: "theme", scope: SyncScope.Shared, global: true },
   { keyDef: LOCALE_KEY, blobField: "locale", scope: SyncScope.Shared, global: true },
   { keyDef: SHOW_FAVICONS, blobField: "showFavicons", scope: SyncScope.Shared, global: true },
+
+  // ── Shared — generator settings ──
+  // NOTE: These duplicate KeyDefinitions from @bitwarden/generator-core to avoid
+  // circular dependencies. Long term, extract to a shared location in libs/common.
+
+  {
+    keyDef: new UserKeyDefinition(GENERATOR_DISK, "credentialPreferences", {
+      deserializer: (v) => v,
+      clearOn: [],
+    }),
+    blobField: "credentialPreferences",
+    scope: SyncScope.Shared,
+  },
+  {
+    keyDef: new UserKeyDefinition(GENERATOR_DISK, "passwordGeneratorSettings", {
+      deserializer: (v) => v,
+      clearOn: [],
+    }),
+    blobField: "passwordGeneratorSettings",
+    scope: SyncScope.Shared,
+  },
+  {
+    keyDef: new UserKeyDefinition(GENERATOR_DISK, "passphraseGeneratorSettings", {
+      deserializer: (v) => v,
+      clearOn: [],
+    }),
+    blobField: "passphraseGeneratorSettings",
+    scope: SyncScope.Shared,
+  },
+  {
+    keyDef: new UserKeyDefinition(GENERATOR_DISK, "effUsernameGeneratorSettings", {
+      deserializer: (v) => v,
+      clearOn: [],
+    }),
+    blobField: "effUsernameGeneratorSettings",
+    scope: SyncScope.Shared,
+  },
+  {
+    keyDef: new UserKeyDefinition(GENERATOR_DISK, "catchallGeneratorSettings", {
+      deserializer: (v) => v,
+      clearOn: [],
+    }),
+    blobField: "catchallGeneratorSettings",
+    scope: SyncScope.Shared,
+  },
+  {
+    keyDef: new UserKeyDefinition(GENERATOR_DISK, "subaddressGeneratorSettings", {
+      deserializer: (v) => v,
+      clearOn: [],
+    }),
+    blobField: "subaddressGeneratorSettings",
+    scope: SyncScope.Shared,
+  },
+
+  // ── Shared — forwarder settings ──
+  // TODO: Forwarder settings (Addy.io, SimpleLogin, etc.) are NOT stored via the
+  // UserKeyDefinition at `forwarder.settings`. The UI writes via the extension system
+  // which uses dynamically constructed keys (e.g., "forwarder.addyio.forwarder") on
+  // EXTENSION_DISK with "classified" format (PrivateClassifier + encrypted).
+  // Syncing these requires integrating with the extension system's storage model,
+  // potentially reading/writing via ExtensionService.settings() or bridging the
+  // ClassifiedFormat into the sync blob.
 
   // ── Device — all device types ──
 
