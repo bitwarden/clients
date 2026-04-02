@@ -1,0 +1,122 @@
+import { Canvas, Controls, Meta, Primary } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./batch-bar.stories";
+
+<Meta of={stories} />
+
+```ts
+import { BatchBarComponent } from "@bitwarden/components";
+```
+
+# Batch Bar
+
+The Batch Bar is a fixed floating toolbar that appears at the bottom of the screen when one or more
+rows are selected. It provides contextual bulk actions for the selection and dismisses when the
+selection is cleared.
+
+<Primary />
+
+<Controls />
+
+## Usage
+
+```html
+<bit-batch-bar
+  [selectedCount]="selectedCount"
+  [actions]="actions"
+  [menuActions]="menuActions"
+  (cleared)="onSelectionCleared()"
+/>
+```
+
+```ts
+import { BatchBarAction, BatchBarComponent } from "@bitwarden/components";
+
+actions: BatchBarAction[] = [
+  { label: "Move", icon: "bwi-folder", handler: () => this.move() },
+  { label: "Delete", icon: "bwi-trash", handler: () => this.delete() },
+];
+
+menuActions: BatchBarAction[] = [
+  { label: "Archive", icon: "bwi-archive", handler: () => this.archive() },
+];
+```
+
+The bar is automatically hidden when `selectedCount` is `0`.
+
+## Actions
+
+Each entry in `actions` and `menuActions` is a `BatchBarAction` object:
+
+| Property         | Type                         | Description                                          |
+| ---------------- | ---------------------------- | ---------------------------------------------------- |
+| `label`          | `string`                     | Button label shown to the user                       |
+| `icon`           | `BitwardenIcon` (optional)   | `bwi-*` icon displayed before the label              |
+| `handler`        | `FunctionReturningAwaitable` | Called when the action is triggered; supports async  |
+| `inactive`       | `boolean` (optional)         | Renders the action in a muted, non-interactive state |
+| `inactiveReason` | `string` (optional)          | Tooltip shown when the action is inactive            |
+
+Primary `actions` render as inline buttons inside the bar. `menuActions` appear inside the overflow
+(`⋮`) menu.
+
+## States
+
+### No Overflow Menu
+
+<Canvas of={stories.NoOverflowMenu} />
+
+Omit `menuActions` (or pass an empty array) and leave `overflowButton` unset to render the bar
+without the overflow button.
+
+### Inactive Actions
+
+<Canvas of={stories.WithDisabledActions} />
+
+Actions that the current user cannot perform should be marked `inactive: true` with an
+`inactiveReason` explaining why. They remain visible and focusable but cannot be triggered. A
+tooltip surfaces the reason on hover or focus.
+
+Do not hide actions the user lacks permission to take — inactive actions communicate what is
+possible in their context, even when they cannot act on it right now.
+
+### Single Selection
+
+<Canvas of={stories.SingleSelection} />
+
+The count label updates dynamically. Screen readers announce changes via `aria-live="polite"`.
+
+### Hidden (zero selections)
+
+<Canvas of={stories.Hidden} />
+
+The bar is not rendered when `selectedCount` is `0`.
+
+## Overflow Button
+
+The `⋮` overflow button renders automatically when `menuActions` has entries. Use `overflowButton`
+to override this behavior explicitly:
+
+```html
+<!-- Force visible even with no menuActions (e.g. lazily populated menu) -->
+<bit-batch-bar [overflowButton]="true" ... />
+
+<!-- Force hidden even when menuActions are present -->
+<bit-batch-bar [overflowButton]="false" ... />
+```
+
+## Keyboard Interaction
+
+| Key      | Behavior                                   |
+| -------- | ------------------------------------------ |
+| `Escape` | Clears the selection and emits `(cleared)` |
+| `Tab`    | Moves focus between toolbar buttons        |
+
+## Accessibility
+
+- The toolbar container has `role="toolbar"` and `aria-label="Batch actions for selected items"`.
+- The selection count uses `aria-live="polite"` and `aria-atomic="true"` so assistive technology
+  announces count changes without interrupting the user.
+- The Clear button has an explicit `aria-label="Clear selection"`.
+- Inactive actions use `aria-disabled="true"` rather than `disabled` so they remain focusable and
+  their tooltip/reason is reachable via keyboard.
+- Each `inactiveReason` tooltip is linked via `aria-describedby` for screen reader support.

@@ -1,0 +1,84 @@
+@if (visible()) {
+  <div
+    role="toolbar"
+    aria-label="Batch actions for selected items"
+    class="tw-fixed tw-bottom-6 tw-left-1/2 -tw-translate-x-1/2 tw-z-50 tw-flex tw-items-center tw-gap-1.5 tw-p-1.5 tw-rounded-xl tw-bg-[#0c3276]"
+  >
+    <!-- Selection count -->
+    <span
+      aria-live="polite"
+      aria-atomic="true"
+      class="tw-flex tw-items-center tw-gap-1 tw-px-3 tw-py-1.5 tw-whitespace-nowrap"
+    >
+      <span class="tw-font-semibold tw-text-sm tw-text-contrast">{{ selectedCount() }}</span>
+      <span class="tw-text-sm tw-text-contrast">selected</span>
+    </span>
+
+    <!-- Divider -->
+    <div class="tw-w-px tw-h-8 tw-bg-[#175ddc] tw-shrink-0" aria-hidden="true"></div>
+
+    <!-- Clear button -->
+    <button
+      bitButton
+      type="button"
+      buttonType="unstyled"
+      [bitAction]="onClear"
+      aria-label="Clear selection"
+      class="!tw-border-0 tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-leading-4 tw-text-xs tw-font-medium tw-text-contrast tw-transition tw-whitespace-nowrap hover:tw-bg-[#175ddc] focus-visible:tw-ring-2 tw-ring-text-contrast focus-visible:tw-ring-offset-2"
+    >
+      <bit-icon name="bwi-close" />
+      Clear
+    </button>
+
+    <!-- Divider -->
+    <div class="tw-w-px tw-h-8 tw-bg-[#175ddc] tw-shrink-0" aria-hidden="true"></div>
+
+    <!-- Action buttons -->
+    @for (action of actions(); track action.label) {
+      <button
+        bitButton
+        type="button"
+        buttonType="unstyled"
+        [bitAction]="action.handler"
+        [disabled]="action.inactive ?? false"
+        [bitTooltip]="action.inactive && action.inactiveReason ? action.inactiveReason : ''"
+        [addTooltipToDescribedby]="true"
+        class="!tw-border-0 tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-leading-4 tw-text-xs tw-font-medium tw-text-contrast tw-transition tw-whitespace-nowrap hover:tw-bg-[#175ddc] focus-visible:tw-ring-2 tw-ring-text-contrast focus-visible:tw-ring-offset-2 aria-disabled:tw-text-[#8496b0] aria-disabled:hover:tw-bg-transparent aria-disabled:tw-cursor-not-allowed"
+      >
+        @if (action.icon) {
+          <bit-icon [name]="action.icon" />
+        }
+        {{ action.label }}
+      </button>
+    }
+
+    <!-- Overflow menu (only rendered when menuActions are provided) -->
+    @if (showOverflow()) {
+      <button
+        bitIconButton="bwi-ellipsis-v"
+        type="button"
+        buttonType="contrast"
+        size="small"
+        label="More actions"
+        [bitMenuTriggerFor]="overflowMenu"
+      ></button>
+      <bit-menu #overflowMenu>
+        @for (item of menuActions(); track item.label) {
+          <button
+            type="button"
+            bitMenuItem
+            [disabled]="item.inactive ?? false"
+            [bitTooltip]="item.inactive && item.inactiveReason ? item.inactiveReason : ''"
+            [addTooltipToDescribedby]="true"
+            (click)="callHandler(item.handler)"
+          >
+            @if (item.icon) {
+              <bit-icon [name]="item.icon" slot="start" />
+            }
+            {{ item.label }}
+          </button>
+        }
+      </bit-menu>
+    }
+  </div>
+}
