@@ -1,4 +1,8 @@
+import { firstValueFrom } from "rxjs";
+
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 
@@ -9,6 +13,11 @@ import {
   OAuthSsoProvider,
 } from "./abstractions/oauth-detection.background";
 import NotificationBackground from "./notification.background";
+import {
+  checkSsoAvailableOnPage,
+  FailureCheckSsoAvailableOnPageResult,
+  SuccessCheckSsoAvailableOnPageResult,
+} from "./oauth-providers/google-check-sso-available-on-page";
 
 export class OAuthDetectionBackground {
   /** Maps SSO tab ID → flow state. */
@@ -20,6 +29,8 @@ export class OAuthDetectionBackground {
     private logService: LogService,
     private notificationBackground: NotificationBackground,
     private providers: OAuthSsoProvider[],
+    private cipherService: CipherService,
+    private accountService: AccountService,
   ) {}
 
   init() {
@@ -39,6 +50,58 @@ export class OAuthDetectionBackground {
         this.logService.info(
           `[OAuthDetection][DEBUG] Navigation: tabId=${details.tabId} url=${details.url}`,
         );
+
+        void this.checkSsoAvailableOnPage(details.tabId).then(async (data) => {
+          this.logService.info(`[OAuthDetection check existing auth flow] start checking`);
+
+          if (!data || !("pageUrl" in data)) {
+            this.logService.info(
+              `[OAuthDetection check existing auth flow] The user is most likely logged in on the site.`,
+            );
+            return;
+          }
+
+          const activeUser = await firstValueFrom(this.accountService.activeAccount$);
+          if (!activeUser) {
+            this.logService.info(
+              `[OAuthDetection check existing auth flow] Please log in to the extension.`,
+            );
+            return;
+          }
+
+          const ciphers = await this.cipherService.getAllDecryptedForUrl(
+            data.pageUrl,
+            activeUser.id,
+          );
+          this.logService.info(
+            `[OAuthDetection check existing auth flow] Found ${ciphers.length} cipher(s) for ${data.pageDomain}`,
+          );
+
+          const ssoLogins = ciphers
+            .filter((c) => c.login?.password?.includes("[SSO:"))
+            .map((c) => {
+              const match = c.login?.password?.match(/\[SSO:\s*(.+?)\]/);
+              return {
+                username: c.login?.username ?? "",
+                provider: match?.[1] ?? "Unknown",
+              };
+            });
+
+          if (ssoLogins.length > 0) {
+            const tab = await BrowserApi.getTab(details.tabId);
+            if (!tab) {
+              this.logService.info(
+                `[OAuthDetection check existing auth flow] Tab no longer exist.`,
+              );
+              return;
+            }
+            await this.notificationBackground.pushExistingLoginToQueue(
+              tab,
+              ssoLogins,
+              data.pageUrl,
+            );
+          }
+        });
       }
     });
 
@@ -436,6 +499,30 @@ export class OAuthDetectionBackground {
       } else {
         setTimeout(() => this.scrapeEmailFromTab(tabId, config.scraperFunc, attempt), delay);
       }
+    }
+  }
+
+  /**
+   * Executes the provider's isSsoAvailableOnPage function in the target tab
+   * via chrome.scripting.executeScript.
+   */
+  private async checkSsoAvailableOnPage(
+    tabId: number,
+  ): Promise<SuccessCheckSsoAvailableOnPageResult | FailureCheckSsoAvailableOnPageResult> {
+    this.logService.info(`[OAuthDetection check existing auth flow] start executeScript`);
+    try {
+      const results = await chrome.scripting.executeScript({
+        target: { tabId },
+        func: checkSsoAvailableOnPage,
+      });
+
+      const result = results?.[0]?.result;
+      return result;
+    } catch (e) {
+      this.logService.error(
+        `[OAuthDetection check existing auth flow] failed for tab ${tabId}: ${e}`,
+      );
+      return null;
     }
   }
 

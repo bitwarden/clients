@@ -1428,6 +1428,8 @@ export default class MainBackground {
       this.logService,
       this.notificationBackground,
       [new GoogleOAuthProvider(), new AppleOAuthProvider(), new FacebookOAuthProvider()],
+      this.cipherService,
+      this.accountService,
     );
 
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(

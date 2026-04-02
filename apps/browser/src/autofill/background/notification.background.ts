@@ -68,6 +68,7 @@ import {
   AddLoginQueueMessage,
   AddLoginMessageData,
   AtRiskPasswordQueueMessage,
+  ExistingLoginQueueMessage,
   NotificationQueueMessageItem,
   LockedVaultPendingNotificationsData,
   NotificationBackgroundExtensionMessage,
@@ -488,6 +489,31 @@ export default class NotificationBackground {
     this.logService.info(
       `[OAuthDetection][NotifQueue] checkNotificationQueue completed for tab ${tab.id}`,
     );
+  }
+
+  async pushExistingLoginToQueue(
+    tab: chrome.tabs.Tab,
+    ssoLogins: { username: string; provider: string }[],
+    uri: string,
+  ): Promise<void> {
+    this.removeTabFromNotificationQueue(tab);
+    const loginDomain = Utils.getDomain(uri);
+    if (!loginDomain) {
+      return;
+    }
+
+    const launchTimestamp = new Date().getTime();
+    const message: ExistingLoginQueueMessage = {
+      type: NotificationType.ExistingLogin,
+      data: { ssoLogins, uri },
+      domain: loginDomain,
+      tab,
+      launchTimestamp,
+      expires: new Date(launchTimestamp + NOTIFICATION_BAR_LIFESPAN_MS),
+      wasVaultLocked: false,
+    };
+    this.notificationQueue.push(message);
+    await this.checkNotificationQueue(tab);
   }
 
   private cleanupNotificationQueue() {

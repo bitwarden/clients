@@ -41,6 +41,16 @@ export type AtRiskPasswordNotificationData = {
   passwordChangeUri?: string;
 };
 
+export type SsoLoginEntry = {
+  username: string;
+  provider: string;
+};
+
+export type ExistingLoginNotificationData = {
+  ssoLogins: SsoLoginEntry[];
+  uri: string;
+};
+
 // Notification queue message types using generic pattern
 export type AddLoginQueueMessage = NotificationQueueMessage<
   typeof NotificationType.AddLogin,
@@ -62,11 +72,17 @@ export type AtRiskPasswordQueueMessage = NotificationQueueMessage<
   AtRiskPasswordNotificationData
 >;
 
+export type ExistingLoginQueueMessage = NotificationQueueMessage<
+  typeof NotificationType.ExistingLogin,
+  ExistingLoginNotificationData
+>;
+
 export type NotificationQueueMessageItem =
   | AddLoginQueueMessage
   | AddChangePasswordNotificationQueueMessage
   | AddUnlockVaultQueueMessage
-  | AtRiskPasswordQueueMessage;
+  | AtRiskPasswordQueueMessage
+  | ExistingLoginQueueMessage;
 
 export type LockedVaultPendingNotificationsData = {
   commandToRetry: {
