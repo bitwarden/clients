@@ -1002,6 +1002,7 @@ export default class MainBackground {
       this.apiService,
       this.domainSettingsService,
       this.configService,
+      this.environmentService,
       this.taskSchedulerService,
       this.globalStateProvider,
       this.logService,
