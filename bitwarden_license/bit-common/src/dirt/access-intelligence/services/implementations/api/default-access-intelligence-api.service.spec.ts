@@ -4,7 +4,7 @@ import { firstValueFrom } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { FileUploadType } from "@bitwarden/common/platform/enums";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
 import {
   AccessReportApi,
@@ -20,7 +20,7 @@ describe("DefaultAccessIntelligenceApiService", () => {
   let mockApiService: MockProxy<ApiService>;
 
   const orgId = "org-123" as OrganizationId;
-  const reportId = "report-456";
+  const reportId = "report-456" as OrganizationReportId;
   const reportFileId = "file-789";
 
   beforeEach(() => {
@@ -241,6 +241,63 @@ describe("DefaultAccessIntelligenceApiService", () => {
       await expect(
         firstValueFrom(service.getSummaryDataByDateRange$(orgId, startDate, endDate)),
       ).rejects.toBeInstanceOf(ErrorResponse);
+    });
+  });
+
+  describe("renewReportFileUpload$", () => {
+    it("should call GET /reports/organizations/{orgId}/{reportId}/renew-upload and return AccessReportApi", async () => {
+      const rawResponse = {
+        id: reportId,
+        organizationId: orgId,
+        creationDate: "2024-01-01T00:00:00Z",
+        reportFileUploadUrl: "https://storage.example.com/renewed-upload",
+        contentEncryptionKey: "enc-key",
+      };
+      mockApiService.send.mockResolvedValue(rawResponse);
+
+      const result = await firstValueFrom(service.renewReportFileUpload$(orgId, reportId));
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "GET",
+        `/reports/organizations/${orgId}/${reportId}/renew-upload`,
+        null,
+        true,
+        true,
+      );
+      expect(result).toBeInstanceOf(AccessReportApi);
+      expect(result.id).toBe(reportId);
+    });
+
+    it("should propagate API errors", async () => {
+      mockApiService.send.mockRejectedValue(new Error("Renew failed"));
+
+      await expect(firstValueFrom(service.renewReportFileUpload$(orgId, reportId))).rejects.toThrow(
+        "Renew failed",
+      );
+    });
+  });
+
+  describe("deleteReport$", () => {
+    it("should call DELETE /reports/organizations/{orgId}/{reportId}", async () => {
+      mockApiService.send.mockResolvedValue(undefined);
+
+      await firstValueFrom(service.deleteReport$(orgId, reportId));
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "DELETE",
+        `/reports/organizations/${orgId}/${reportId}`,
+        null,
+        true,
+        false,
+      );
+    });
+
+    it("should propagate API errors", async () => {
+      mockApiService.send.mockRejectedValue(new Error("Delete failed"));
+
+      await expect(firstValueFrom(service.deleteReport$(orgId, reportId))).rejects.toThrow(
+        "Delete failed",
+      );
     });
   });
 
