@@ -195,7 +195,6 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/"]);
       // FIXME: Remove when updating file. Eslint update
-       
     } catch (e) {
       if (e instanceof ErrorResponse) {
         this.logService.error(
