@@ -7,8 +7,6 @@ description: Use when adding a new HEC (HTTP Event Collector) event integration 
 
 ## Overview
 
-Adds a new HEC (HTTP Event Collector) event integration using the **Splunk token authentication model** (Bearer token + endpoint URI). The integration is gated behind a feature flag and uses the shared `openHecConnectDialog` — no new configuration classes, template classes, or dialog components are needed.
-
 ## Before You Start
 
 Ask these questions one at a time — wait for each answer before proceeding.
