@@ -11,6 +11,8 @@ import {
   SectionHeaderComponent,
   TypographyModule,
   IconTileComponent,
+  CardComponent,
+  SectionComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -25,6 +27,9 @@ import { I18nPipe } from "@bitwarden/ui-common";
     BitActionDirective,
     SectionHeaderComponent,
     TypographyModule,
+    SectionComponent,
+    SectionHeaderComponent,
+    CardComponent,
     IconTileComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
