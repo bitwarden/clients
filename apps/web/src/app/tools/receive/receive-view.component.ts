@@ -11,13 +11,17 @@ import { ReceiveView } from "@bitwarden/common/tools/receive/models/view/receive
 import {
   ButtonModule,
   CalloutModule,
+  CardComponent,
   DIALOG_DATA,
   DialogModule,
   DialogRef,
   DialogService,
   FormFieldModule,
   IconButtonModule,
+  SectionComponent,
+  SectionHeaderComponent,
   ToastService,
+  TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -35,6 +39,10 @@ import { ReceiveFilesViewComponent } from "./receive-files-view.component";
     IconButtonModule,
     I18nPipe,
     ReceiveFilesViewComponent,
+    CardComponent,
+    SectionComponent,
+    SectionHeaderComponent,
+    TypographyModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

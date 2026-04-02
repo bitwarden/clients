@@ -1,27 +1,34 @@
 @if (receiveView()?.fileData?.length > 0) {
-  <section class="tw-mb-5 bit-compact:tw-mb-4">
+  <bit-section>
     <bit-section-header>
-      <dl class="tw-text-muted">
+      <h2 bitTypography="h6">
         {{ "receives" | i18n }} {{ "(" + receiveView().fileData?.length + ")" }}
-      </dl>
+      </h2>
     </bit-section-header>
-    <bit-item-group>
-      <bit-item *ngFor="let file of receiveView().fileData">
-        <bit-item-content>
-          <span data-testid="file-name"> {{ file.fileName }} </span>
-        </bit-item-content>
-        <ng-container slot="end">
-          <bit-item-action class="tw-pr-4 [@media(min-width:650px)]:tw-pr-6">
-            <button
-              type="button"
-              bitIconButton="bwi-download"
-              buttonType="main"
-              [label]="'download' | i18n"
-              [bitAction]="downloadFile(file)"
-            ></button>
-          </bit-item-action>
-        </ng-container>
-      </bit-item>
-    </bit-item-group>
-  </section>
+    <bit-card>
+      <bit-item-group>
+        @for (file of receiveView().fileData; track file.id) {
+          <bit-item>
+            <bit-item-content>
+              <bit-icon-tile slot="start" icon="bwi-file" />
+              <span data-testid="file-name">{{ file.fileName }}</span>
+              <span slot="secondary">{{ file.sizeName }}</span>
+            </bit-item-content>
+            <ng-container slot="end">
+              <bit-item-action>
+                <button
+                  type="button"
+                  bitIconButton="bwi-download"
+                  buttonType="main"
+                  size="small"
+                  [label]="'download' | i18n"
+                  [bitAction]="downloadFile(file)"
+                ></button>
+              </bit-item-action>
+            </ng-container>
+          </bit-item>
+        }
+      </bit-item-group>
+    </bit-card>
+  </bit-section>
 }

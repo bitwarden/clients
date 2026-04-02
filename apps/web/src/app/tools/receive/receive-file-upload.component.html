@@ -1,53 +1,56 @@
 @if (!errorState()) {
-  <div class="tw-mb-4">
-    @if (receiveName()) {
-      <p class="tw-text-center">
-        <b>{{ receiveName() }}</b>
-      </p>
-    }
-    @if (ownerEmail()) {
-      <p class="tw-text-center tw-mb-0">
-        {{ ownerEmail() + " " }}{{ "sentYouThisRequest" | i18n }}
-      </p>
-    }
-  </div>
   @if (showFileUploadResult()) {
+    <div class="tw-mb-4">
+      <p class="tw-text-center">
+        <b>{{ "successfullyUploadedDocuments" | i18n }}</b>
+      </p>
+    </div>
     <p class="tw-text-center tw-mb-0">{{ "filesUploadedSuccessfully" | i18n }}</p>
-    @if (filesUploaded() == 1) {
-      <p class="tw-text-center tw-text-muted tw-text-sm tw-mb-0">
-        {{ "nFilesSentToSingular" | i18n: filesUploaded() }} {{ ownerEmail() }}
-      </p>
-    } @else {
-      <p class="tw-text-center tw-text-muted tw-text-sm tw-mb-0">
-        {{ "nFilesSentToPlural" | i18n: filesUploaded() }} {{ ownerEmail() }}
-      </p>
-    }
-    <br />
-    <p class="tw-text-center tw-mb-0">
+    <p class="tw-text-center tw-text-muted tw-text-sm tw-mb-0">
+      @if (filesUploaded() == 1) {
+        {{ "nFilesSentToSingular" | i18n: sharedData.value()?.ownerEmail }}
+      } @else {
+        {{ "nFilesSentToPlural" | i18n: filesUploaded() : sharedData.value()?.ownerEmail }}
+      }
+    </p>
+    <p class="tw-text-center tw-mt-4 tw-mb-0">
       <button bitLink type="button" (click)="uploadMoreFiles()">
         {{ "uploadMoreFiles" | i18n }}
       </button>
     </p>
   } @else {
-    <bit-file-upload
-      [maxFileSize]="maxFileSize"
-      [multiple]="multiple"
-      [hasError]="hasError()"
-      [(files)]="files"
-    >
-      <bit-label></bit-label>
-      <bit-hint></bit-hint>
-    </bit-file-upload>
-    @if (files().length > 0) {
-      <div class="tw-flex tw-flex-row tw-items-center tw-gap-2 tw-mt-4">
-        <button bitButton type="button" buttonType="primary" (click)="uploadFiles()">
-          {{ "upload" | i18n }}
-        </button>
-        <button bitButton type="button" buttonType="secondary" (click)="removeFiles()">
-          {{ "cancel" | i18n }}
-        </button>
-      </div>
-    }
+    <div class="tw-mb-4">
+      @if (sharedData.value(); as data) {
+        <p class="tw-text-center">
+          <b>{{ data.name }}</b>
+        </p>
+        <p class="tw-text-center tw-mb-0">{{ "sentYouThisRequest" | i18n: data.ownerEmail }}</p>
+      }
+    </div>
+    <form [formGroup]="form" [bitSubmit]="uploadFiles">
+      <bit-file-upload
+        [maxFileSize]="500"
+        multiple="true"
+        [hasError]="hasError()"
+        [(files)]="files"
+      />
+      @if (files().length > 0) {
+        <div class="tw-flex tw-flex-row tw-items-center tw-gap-2 tw-mt-4">
+          <button bitButton bitFormButton type="submit" buttonType="primary">
+            {{ "upload" | i18n }}
+          </button>
+          <button
+            bitButton
+            bitFormButton
+            type="button"
+            buttonType="secondary"
+            (click)="removeFiles()"
+          >
+            {{ "cancel" | i18n }}
+          </button>
+        </div>
+      }
+    </form>
   }
 } @else if (errorState() === "expired") {
   <bit-no-items [icon]="expiredIcon">
