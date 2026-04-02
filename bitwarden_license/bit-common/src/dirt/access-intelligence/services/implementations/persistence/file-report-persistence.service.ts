@@ -108,8 +108,16 @@ export class FileReportPersistenceService extends ReportPersistenceService {
                             reportFileId,
                           ),
                         ),
-                      renewFileUploadUrl: () => Promise.resolve(result.reportFileUploadUrl),
-                      rollback: () => Promise.resolve(),
+                      renewFileUploadUrl: () =>
+                        firstValueFrom(
+                          this.accessIntelligenceApiService
+                            .renewReportFileUpload$(organizationId, reportId)
+                            .pipe(map((res) => res.reportFileUploadUrl)),
+                        ),
+                      rollback: () =>
+                        firstValueFrom(
+                          this.accessIntelligenceApiService.deleteReport$(organizationId, reportId),
+                        ),
                     },
                   ),
                 ),
