@@ -18,7 +18,7 @@ const DIRECTORY_ROOT: &str = r"Software\Classes\Directory\shell\Bitwarden";
 const INSTALL_PATH_KEY: &str = r"Software\Bitwarden";
 
 /// The identity name of the sparse package, used for lookup during unregistration.
-const SPARSE_PACKAGE_NAME: &str = "BitwardenInc.BitwardenDesktop";
+const SPARSE_PACKAGE_NAME: &str = "8bitSolutionsLLC.BitwardenDesktopShellExtension";
 
 /// Register the Bitwarden context menu entries in the Windows Explorer
 /// right-click menu for both files and directories.
@@ -38,7 +38,7 @@ pub fn register(exe_path: &str, msix_path: &str, install_dir: &str) -> Result<()
 
     // Sparse package for Windows 11 modern context menu (best-effort)
     if let Err(e) = register_sparse_package(msix_path, install_dir) {
-        tracing::warn!("Failed to register sparse package for modern context menu: {e}");
+        tracing::warn!("Failed to register sparse package for modern context menu: {e:#}");
     }
 
     Ok(())
@@ -119,26 +119,66 @@ fn register_sparse_package(msix_path: &str, install_dir: &str) -> Result<()> {
         Management::Deployment::{AddPackageOptions, PackageManager},
     };
 
+    tracing::info!("Registering sparse package: msix={msix_path}, install_dir={install_dir}");
+
+    let msix_exists = std::path::Path::new(msix_path).exists();
+    tracing::info!("Sparse MSIX file exists: {msix_exists}");
+    if !msix_exists {
+        anyhow::bail!("Sparse MSIX file not found at {msix_path}");
+    }
+
     let pm = PackageManager::new()?;
+    tracing::info!("PackageManager created");
+
     let options = AddPackageOptions::new()?;
+    tracing::info!("AddPackageOptions created");
 
     // Set the external location to the install directory where the DLL lives
     let install_uri = Uri::CreateUri(&windows_registry::HSTRING::from(path_to_file_uri(
         install_dir,
     )))?;
     options.SetExternalLocationUri(&install_uri)?;
+    tracing::info!("ExternalLocationUri set");
 
     // The sparse MSIX is unsigned because it ships inside a signed installer
     // (NSIS / Store APPX) and is only used locally for context menu registration.
     options.SetAllowUnsigned(true)?;
+    tracing::info!("AllowUnsigned set, calling AddPackageByUriAsync...");
 
     // Register the sparse package
     let msix_uri = Uri::CreateUri(&windows_registry::HSTRING::from(path_to_file_uri(
         msix_path,
     )))?;
-    pm.AddPackageByUriAsync(&msix_uri, &options)?.join()?;
+    let result = pm.AddPackageByUriAsync(&msix_uri, &options)?.join()?;
 
-    Ok(())
+    let is_registered = result.IsRegistered()?;
+    tracing::info!("AddPackageByUriAsync completed: IsRegistered={is_registered}");
+
+    if !is_registered {
+        let error_text = result.ErrorText()?;
+        let extended_error = result.ExtendedErrorCode()?;
+        tracing::warn!("Sparse package deployment failed: error_text={error_text}, extended_error={extended_error:?}");
+        anyhow::bail!("Sparse package deployment failed: {error_text}");
+    }
+
+    // Verify the package is actually visible
+    for pkg in pm.FindPackages()? {
+        if let Ok(id) = pkg.Id() {
+            if let Ok(name) = id.Name() {
+                if name.to_string_lossy() == "8bitSolutionsLLC.BitwardenDesktopShellExtension" {
+                    let full_name = id.FullName().unwrap_or_default();
+                    tracing::info!(
+                        "Verified package is registered: {}",
+                        full_name.to_string_lossy()
+                    );
+                    return Ok(());
+                }
+            }
+        }
+    }
+
+    tracing::warn!("Package not found after supposedly successful registration");
+    anyhow::bail!("Sparse package not found after registration")
 }
 
 /// Unregister the Bitwarden sparse package if present.

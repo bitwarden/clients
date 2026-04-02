@@ -22,7 +22,7 @@
         DeleteRegKey HKCU "Software\Classes\Directory\shell\Bitwarden"
 
         ; Remove sparse package for Win11 modern context menu (best-effort)
-        nsExec::ExecToLog 'powershell -Command "Get-AppxPackage BitwardenInc.BitwardenDesktop* | Remove-AppxPackage" '
+        nsExec::ExecToLog 'powershell -Command "Get-AppxPackage 8bitSolutionsLLC.BitwardenDesktopShellExtension* | Remove-AppxPackage" '
 
         ; Clean up shell extension registry
         DeleteRegKey HKCU "Software\Bitwarden"
