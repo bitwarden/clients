@@ -245,11 +245,13 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // React to both email and environment changes so that switching environments on extension/desktop
-    // (which does not reload the page) correctly re-evaluates the SSO required state.
+    // React to both email and environment changes
     combineLatest([
       // startWith email form field value (it could be empty, a remembered email, or pre-filled from query params)
       this.formGroup.controls.email.valueChanges.pipe(startWith(this.emailFormControl.value)),
+      // Changing environments on Extension/Desktop does not reload the page, so we must listen for environment
+      // changes and re-evaluate the SSO required state accordingly. Web only ever uses the initial emission, because
+      // changing environments on Web navigates the page.
       this.environmentService.globalEnvironment$,
     ])
       .pipe(takeUntilDestroyed(this.destroyRef))
