@@ -47,7 +47,30 @@ export class OAuthDetectionBackground {
     this.logService.info("[OAuthDetection] Tab close listener ready");
 
     chrome.webNavigation.onBeforeNavigate.addListener(this.handleNavBeforeNavigate);
+    // Also listen to onCompleted to catch server-side 302 redirect chains
+    // (e.g. Google callback → github.com/two-factor) where onBeforeNavigate
+    // only fires for the initial request, not the final landing page.
+    chrome.webNavigation.onCompleted.addListener(this.handleNavCompleted_Completion);
     this.logService.info("[OAuthDetection] Navigation completion listener ready");
+
+    // Listen for account selection messages from injected scripts
+    chrome.runtime.onMessage.addListener((message, sender) => {
+      if (message?.command !== "oauthAccountSelected" || !message.email) {
+        return;
+      }
+      const tabId = sender.tab?.id;
+      if (tabId == null) {
+        return;
+      }
+      const flow = this.activeFlows.get(tabId);
+      if (!flow || flow.email) {
+        return;
+      }
+      flow.email = message.email;
+      this.logService.info(
+        `[OAuthDetection] Account selected: "${message.email}" for tab ${tabId} (${flow.ssoProvider})`,
+      );
+    });
 
     this.logService.info(
       `[OAuthDetection] Initialization complete — ${this.providers.length} provider(s): ` +
@@ -82,6 +105,36 @@ export class OAuthDetectionBackground {
       this.logService.info(
         `[OAuthDetection] [${provider.name}] Email ready request listener ready`,
       );
+    }
+
+    // Account selection: inject click listeners on account chooser pages
+    // to capture the selected email before the page navigates away.
+    if (provider.accountSelectionConfig) {
+      chrome.webNavigation.onCompleted.addListener(
+        (details) => {
+          if (details.frameId !== 0 || details.tabId < 0) {
+            return;
+          }
+          if (!this.activeFlows.has(details.tabId)) {
+            return;
+          }
+          this.logService.info(
+            `[OAuthDetection] [${provider.name}] Injecting account selection listener in tab ${details.tabId}`,
+          );
+          chrome.scripting
+            .executeScript({
+              target: { tabId: details.tabId },
+              func: provider.accountSelectionConfig!.injectedFunc,
+            })
+            .catch((e) => {
+              this.logService.error(
+                `[OAuthDetection] [${provider.name}] Failed to inject account selection listener: ${e}`,
+              );
+            });
+        },
+        { url: provider.accountSelectionConfig.pageFilter },
+      );
+      this.logService.info(`[OAuthDetection] [${provider.name}] Account selection listener ready`);
     }
   }
 
@@ -357,6 +410,17 @@ export class OAuthDetectionBackground {
     );
 
     this.triggerEmailScrape(details.tabId, provider);
+
+    // For providers where the consent request IS the completion signal
+    // (e.g. Apple's web_message flow), mark the flow as completed.
+    // The notification will fire when the popup closes (Step 3).
+    if (provider.emailReadyRequestSignalsCompletion && !flow.completed) {
+      flow.completed = true;
+      this.logService.info(
+        `[OAuthDetection][Step2b] [${provider.name}] Consent request signals completion — ` +
+          `tab ${details.tabId} marked as completed, will notify on tab close`,
+      );
+    }
   };
 
   /**
@@ -479,16 +543,34 @@ export class OAuthDetectionBackground {
 
   /**
    * Step 4: Delegates to the owning provider to check if a navigation
-   * represents OAuth flow completion.
+   * represents OAuth flow completion. Fires on onBeforeNavigate.
    */
   private handleNavBeforeNavigate = (
     details: chrome.webNavigation.WebNavigationTransitionCallbackDetails,
   ): void => {
-    if (details.tabId < 0 || details.frameId !== 0) {
+    this.checkNavCompletion(details.tabId, details.frameId, details.url);
+  };
+
+  /**
+   * Also fires on onCompleted to catch server-side 302 redirect chains
+   * where onBeforeNavigate only fires for the initial request, not the
+   * final landing page (e.g. Google callback → github.com/two-factor).
+   */
+  private handleNavCompleted_Completion = (
+    details: chrome.webNavigation.WebNavigationFramedCallbackDetails,
+  ): void => {
+    this.checkNavCompletion(details.tabId, details.frameId, details.url);
+  };
+
+  /**
+   * Shared completion check used by both onBeforeNavigate and onCompleted.
+   */
+  private checkNavCompletion(tabId: number, frameId: number, url: string): void {
+    if (tabId < 0 || frameId !== 0) {
       return;
     }
 
-    const flow = this.activeFlows.get(details.tabId);
+    const flow = this.activeFlows.get(tabId);
     if (!flow) {
       return;
     }
@@ -500,7 +582,7 @@ export class OAuthDetectionBackground {
     }
 
     this.logService.info(
-      `[OAuthDetection][Step4] [${provider.name}] SSO tab ${details.tabId} navigating to: ${details.url} ` +
+      `[OAuthDetection][Step4] [${provider.name}] SSO tab ${tabId} navigating to: ${url} ` +
         `(email="${flow.email ?? "NOT YET"}", redirectUri="${flow.redirectUri ?? "unknown"}", ` +
         `originUrl="${flow.originUrl}", completed=${flow.completed})`,
     );
@@ -514,22 +596,22 @@ export class OAuthDetectionBackground {
         `[OAuthDetection][Step4] [${provider.name}] Flow already completed — ` +
           `triggering notification on next navigation`,
       );
-      this.activeFlows.delete(details.tabId);
+      this.activeFlows.delete(tabId);
       this.logService.info(`[OAuthDetection] Active flows after removal: ${this.activeFlows.size}`);
       this.triggerSaveNotification(flow);
       return;
     }
 
-    const action = provider.detectCompletion(details.url, flow);
+    const action = provider.detectCompletion(url, flow);
 
     switch (action) {
       case CompletionAction.CompleteAndNotify:
         flow.completed = true;
         this.logService.info(
           `[OAuthDetection][Step4] [${provider.name}] OAuth SUCCESS — ` +
-            `tab ${details.tabId}, triggering notification immediately`,
+            `tab ${tabId}, triggering notification immediately`,
         );
-        this.activeFlows.delete(details.tabId);
+        this.activeFlows.delete(tabId);
         this.logService.info(
           `[OAuthDetection] Active flows after removal: ${this.activeFlows.size}`,
         );
@@ -540,18 +622,15 @@ export class OAuthDetectionBackground {
         flow.completed = true;
         this.logService.info(
           `[OAuthDetection][Step4] [${provider.name}] OAuth flow APPROVED — ` +
-            `tab ${details.tabId}, waiting for tab close to notify`,
+            `tab ${tabId}, waiting for tab close to notify`,
         );
         break;
 
       case CompletionAction.None:
       default:
-        this.logService.info(
-          `[OAuthDetection][Step4] [${provider.name}] Not a completion event — continuing to track`,
-        );
         break;
     }
-  };
+  }
 
   /**
    * Shows the Bitwarden "save login" notification on the origin tab.

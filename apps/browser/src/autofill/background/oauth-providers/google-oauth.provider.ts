@@ -1,4 +1,5 @@
 import {
+  AccountSelectionConfig,
   CompletionAction,
   EmailScrapeConfig,
   OAuthFlowInitiation,
@@ -6,6 +7,7 @@ import {
   OAuthSsoProvider,
 } from "../abstractions/oauth-detection.background";
 
+import { googleAccountSelectionListener } from "./google-account-selection";
 import { scrapeGoogleEmailFromPage } from "./google-email-scraper";
 
 /** URL patterns that indicate a Google OAuth flow. */
@@ -21,10 +23,20 @@ const GOOGLE_EMAIL_PAGE_FILTER: chrome.events.UrlFilter[] = [
 
 const GOOGLE_SIGNIN_CONSENT_PATTERN = "accounts.google.com/signin/oauth";
 
+/** URL filter for Google's account chooser page. */
+const GOOGLE_ACCOUNT_CHOOSER_FILTER: chrome.events.UrlFilter[] = [
+  { hostEquals: "accounts.google.com", pathContains: "signin/accountchooser" },
+  { hostEquals: "accounts.google.com", pathContains: "signin/identifier" },
+];
+
 export class GoogleOAuthProvider implements OAuthSsoProvider {
   readonly name = "Google";
   readonly flowDetectionFilter = GOOGLE_OAUTH_URL_FILTER;
   readonly emailPageFilter = GOOGLE_EMAIL_PAGE_FILTER;
+  readonly accountSelectionConfig: AccountSelectionConfig = {
+    pageFilter: GOOGLE_ACCOUNT_CHOOSER_FILTER,
+    injectedFunc: googleAccountSelectionListener,
+  };
 
   extractFlowInitiation(
     details: chrome.webRequest.OnBeforeRequestDetails,
@@ -66,6 +78,13 @@ export class GoogleOAuthProvider implements OAuthSsoProvider {
       return CompletionAction.CompleteAndWaitForTabClose;
     }
 
+    // Same-tab flow: navigation back to the origin site (leaving Google).
+    // Handles cases where the callback redirect is a server-side 302 that
+    // onBeforeNavigate doesn't catch (e.g. GitHub's Google OAuth).
+    if (this.isReturnToOrigin(navUrl, flow)) {
+      return CompletionAction.CompleteAndNotify;
+    }
+
     return CompletionAction.None;
   }
 
@@ -95,12 +114,15 @@ export class GoogleOAuthProvider implements OAuthSsoProvider {
   }
 
   /**
-   * For storagerelay:// redirect_uri flows: the auth code is sent via
-   * postMessage, not navigation. Completion is signaled by navigation to
-   * Google's consent processing URL after the user clicks "Allow".
+   * For non-redirect flows (storagerelay:// or gis_transform): the auth
+   * code/token is sent via postMessage, not navigation. Completion is
+   * signaled by navigation to Google's consent processing URL after the
+   * user clicks "Allow".
    */
   private isStorageRelayApproval(navUrl: string, flow: OAuthFlowState): boolean {
-    if (!flow.redirectUri?.startsWith("storagerelay://")) {
+    const isNonRedirectFlow =
+      flow.redirectUri?.startsWith("storagerelay://") || flow.redirectUri === "gis_transform";
+    if (!isNonRedirectFlow) {
       return false;
     }
 
@@ -112,5 +134,28 @@ export class GoogleOAuthProvider implements OAuthSsoProvider {
       navUrl.includes("accounts.google.com/signin/oauth/consent") &&
       navUrl.includes("flowName=GeneralOAuthFlow")
     );
+  }
+
+  /**
+   * Same-tab flow: navigation back to the origin site indicates the
+   * OAuth flow completed and Google redirected back.
+   */
+  private isReturnToOrigin(navUrl: string, flow: OAuthFlowState): boolean {
+    if (!flow.originUrl || !navUrl.startsWith("http")) {
+      return false;
+    }
+
+    // Don't match navigations still on Google
+    if (navUrl.includes("accounts.google.com")) {
+      return false;
+    }
+
+    try {
+      const navOrigin = new URL(navUrl).origin;
+      const flowOrigin = new URL(flow.originUrl).origin;
+      return navOrigin === flowOrigin;
+    } catch {
+      return false;
+    }
   }
 }

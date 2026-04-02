@@ -33,6 +33,7 @@ export class AppleOAuthProvider implements OAuthSsoProvider {
   readonly flowDetectionFilter = APPLE_OAUTH_URL_FILTER;
   readonly emailPageFilter = APPLE_EMAIL_PAGE_FILTER;
   readonly emailReadyRequestFilter = APPLE_EMAIL_READY_REQUEST_FILTER;
+  readonly emailReadyRequestSignalsCompletion = true;
 
   extractFlowInitiation(
     details: chrome.webRequest.OnBeforeRequestDetails,

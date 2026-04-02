@@ -53,6 +53,24 @@ export type EmailScrapeConfig = {
 };
 
 /**
+ * Configuration for account selection interception. When the SSO provider
+ * shows an account chooser (e.g. Google's account picker), the orchestrator
+ * injects a script that listens for the user's selection and reports the
+ * chosen email back via chrome.runtime.sendMessage.
+ */
+export type AccountSelectionConfig = {
+  /** URL filter for pages where the account chooser appears. */
+  pageFilter: chrome.events.UrlFilter[];
+  /**
+   * Standalone function injected into the account chooser page.
+   * Must attach click listeners and call chrome.runtime.sendMessage
+   * with { command: "oauthAccountSelected", email: "..." } on selection.
+   * Must have no closures over outer variables.
+   */
+  injectedFunc: () => void;
+};
+
+/**
  * Result of a provider's flow completion check.
  */
 export const CompletionAction = Object.freeze({
@@ -93,6 +111,21 @@ export interface OAuthSsoProvider {
    * is triggered by emailPageFilter navigation instead.
    */
   readonly emailReadyRequestFilter?: chrome.webRequest.RequestFilter;
+
+  /**
+   * If true, the email-ready request completing also signals that the
+   * OAuth flow is approved (e.g. Apple's web_message flow where the
+   * consent API response IS the completion signal). The orchestrator
+   * will mark the flow as completed when the request finishes.
+   */
+  readonly emailReadyRequestSignalsCompletion?: boolean;
+
+  /**
+   * Optional config for account selection interception. When provided,
+   * the orchestrator injects a click listener on account chooser pages
+   * that reports the selected email back to the background.
+   */
+  readonly accountSelectionConfig?: AccountSelectionConfig;
 
   /**
    * Given a webRequest that matched flowDetectionFilter, extract
