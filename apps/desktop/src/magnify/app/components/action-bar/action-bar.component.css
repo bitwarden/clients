@@ -7,6 +7,16 @@
   border-top: 1px solid var(--border-color);
 }
 
+.action-bar-logo {
+  margin-left: auto;
+  flex-shrink: 0;
+  width: 9px;
+  height: 11px;
+  color: var(--icon-color);
+  opacity: 0.4;
+  display: block;
+}
+
 .action-hint {
   display: flex;
   align-items: center;
