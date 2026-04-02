@@ -1,11 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
-import {
-  SpinnerSize,
-  spinnerSizeStyles,
-  SpinnerVariant,
-  SpinnerComponent,
-} from "../spinner/spinner.component";
+import { SpinnerSize, SpinnerVariant, SpinnerComponent } from "../spinner/spinner.component";
 
 type SpinnerLockupOrientation = "horizontal" | "vertical";
 
@@ -53,8 +48,6 @@ export class SpinnerLockupComponent {
 
   /** Orientation of the spinner relative to the text. Defaults to `"horizontal"`. */
   readonly orientation = input<SpinnerLockupOrientation>("horizontal");
-
-  protected readonly sizeClasses = computed(() => spinnerSizeStyles[this.size()]);
 
   protected readonly textClasses = computed(() => {
     const sizeStyles = spinnerLockupTextStyles[this.size()];

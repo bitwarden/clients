@@ -40,7 +40,7 @@ export const PrimaryVariant: Story = {
       <bit-spinner-lockup
         [variant]="variant"
         [size]="size"
-        [layout]="layout"
+        [orientation]="orientation"
       >
         <span slot="title">Loading</span>
         <span slot="body">This might take a few minutes.</span>
@@ -50,7 +50,7 @@ export const PrimaryVariant: Story = {
   args: {
     variant: "primary",
     size: "base",
-    layout: "vertical",
+    orientation: "vertical",
   },
 };
 
@@ -61,7 +61,7 @@ export const VerticalWithRichContentDangerVariant: Story = {
       <bit-spinner-lockup
         [variant]="variant"
         [size]="size"
-        [layout]="layout"
+        [orientation]="orientation"
       >
         <span slot="title"><strong>Processing</strong> your request</span>
         <span slot="body">Please <em>do not</em> refresh the page.</span>
@@ -71,7 +71,7 @@ export const VerticalWithRichContentDangerVariant: Story = {
   args: {
     variant: "danger",
     size: "base",
-    layout: "vertical",
+    orientation: "vertical",
   },
 };
 
@@ -83,7 +83,7 @@ export const AllVerticalVariants: Story = {
         <bit-spinner-lockup
           variant="primary"
           [size]="size"
-          [layout]="layout"
+            
         >
           <span slot="title">Loading</span>
           <span slot="body">This might take a few minutes.</span>
@@ -91,7 +91,7 @@ export const AllVerticalVariants: Story = {
         <bit-spinner-lockup
           variant="subtle"
           [size]="size"
-          [layout]="layout"
+          [orientation]="orientation"
         >
           <span slot="title">Loading</span>
           <span slot="body">This might take a few minutes.</span>
@@ -99,7 +99,7 @@ export const AllVerticalVariants: Story = {
         <bit-spinner-lockup
           variant="success"
           [size]="size"
-          [layout]="layout"
+          [orientation]="orientation"
         >
           <span slot="title">Loading</span>
           <span slot="body">This might take a few minutes.</span>
@@ -107,7 +107,7 @@ export const AllVerticalVariants: Story = {
         <bit-spinner-lockup
           variant="warning"
           [size]="size"
-          [layout]="layout"
+          [orientation]="orientation"
         >
           <span slot="title">Loading</span>
           <span slot="body">This might take a few minutes.</span>
@@ -115,7 +115,7 @@ export const AllVerticalVariants: Story = {
         <bit-spinner-lockup
           variant="danger"
           [size]="size"
-          [layout]="layout"
+          [orientation]="orientation"
         >
           <span slot="title">Loading</span>
           <span slot="body">This might take a few minutes.</span>
@@ -124,7 +124,7 @@ export const AllVerticalVariants: Story = {
           <bit-spinner-lockup
             variant="contrast"
             [size]="size"
-            [layout]="layout"
+            [orientation]="orientation"
           >
             <span slot="title" class="tw-text-fg-contrast">Loading</span>
             <span slot="body" class="tw-text-fg-contrast">This might take a few minutes.</span>
@@ -135,7 +135,7 @@ export const AllVerticalVariants: Story = {
   }),
   args: {
     size: "base",
-    layout: "vertical",
+    orientation: "vertical",
   },
 };
 
@@ -147,7 +147,7 @@ export const AllVerticalSizes: Story = {
         <bit-spinner-lockup
           size="sm"
           [variant]="variant"
-          [layout]="layout"
+          [orientation]="orientation"
         >
           <span slot="title">Loading</span>
           <span slot="body">This might take a few minutes.</span>
@@ -155,7 +155,7 @@ export const AllVerticalSizes: Story = {
         <bit-spinner-lockup
           size="md"
           [variant]="variant"
-          [layout]="layout"
+          [orientation]="orientation"
         >
           <span slot="title">Loading</span>
           <span slot="body">This might take a few minutes.</span>
@@ -163,7 +163,7 @@ export const AllVerticalSizes: Story = {
         <bit-spinner-lockup
           size="base"
           [variant]="variant"
-          [layout]="layout"
+          [orientation]="orientation"
         >
           <span slot="title">Loading</span>
           <span slot="body">This might take a few minutes.</span>
@@ -171,7 +171,7 @@ export const AllVerticalSizes: Story = {
         <bit-spinner-lockup
           size="lg"
           [variant]="variant"
-          [layout]="layout"
+          [orientation]="orientation"
         >
           <span slot="title">Loading</span>
           <span slot="body">This might take a few minutes.</span>
@@ -181,7 +181,7 @@ export const AllVerticalSizes: Story = {
   }),
   args: {
     variant: "primary",
-    layout: "vertical",
+    orientation: "vertical",
   },
 };
 
@@ -192,7 +192,7 @@ export const HorizontalWithRichContentDangerVariant: Story = {
       <bit-spinner-lockup
         [variant]="variant"
         [size]="size"
-        [layout]="layout"
+        [orientation]="orientation"
       >
         <span slot="title"><strong>Processing</strong> your request</span>
         <span slot="body">Please <em>do not</em> refresh the page.</span>
@@ -202,7 +202,7 @@ export const HorizontalWithRichContentDangerVariant: Story = {
   args: {
     variant: "danger",
     size: "base",
-    layout: "horizontal",
+    orientation: "horizontal",
   },
 };
 
@@ -214,7 +214,7 @@ export const AllHorizontalVariants: Story = {
         <bit-spinner-lockup
           variant="primary"
           [size]="size"
-          [layout]="layout"
+          [orientation]="orientation"
         >
           <span slot="title">Loading</span>
           <span slot="body">This might take a few minutes.</span>
@@ -222,7 +222,7 @@ export const AllHorizontalVariants: Story = {
         <bit-spinner-lockup
           variant="subtle"
           [size]="size"
-          [layout]="layout"
+          [orientation]="orientation"
         >
           <span slot="title">Loading</span>
           <span slot="body">This might take a few minutes.</span>
@@ -230,7 +230,7 @@ export const AllHorizontalVariants: Story = {
         <bit-spinner-lockup
           variant="success"
           [size]="size"
-          [layout]="layout"
+          [orientation]="orientation"
         >
           <span slot="title">Loading</span>
           <span slot="body">This might take a few minutes.</span>
@@ -238,7 +238,7 @@ export const AllHorizontalVariants: Story = {
         <bit-spinner-lockup
           variant="warning"
           [size]="size"
-          [layout]="layout"
+          [orientation]="orientation"
         >
           <span slot="title">Loading</span>
           <span slot="body">This might take a few minutes.</span>
@@ -246,7 +246,7 @@ export const AllHorizontalVariants: Story = {
         <bit-spinner-lockup
           variant="danger"
           [size]="size"
-          [layout]="layout"
+          [orientation]="orientation"
         >
           <span slot="title">Loading</span>
           <span slot="body">This might take a few minutes.</span>
@@ -255,7 +255,7 @@ export const AllHorizontalVariants: Story = {
           <bit-spinner-lockup
             variant="contrast"
             [size]="size"
-            [layout]="layout"
+            [orientation]="orientation"
           >
             <span slot="title" class="tw-text-fg-contrast">Loading</span>
             <span slot="body" class="tw-text-fg-contrast">This might take a few minutes.</span>
@@ -266,7 +266,7 @@ export const AllHorizontalVariants: Story = {
   }),
   args: {
     size: "base",
-    layout: "horizontal",
+    orientation: "horizontal",
   },
 };
 
@@ -278,7 +278,7 @@ export const AllHorizontalSizes: Story = {
         <bit-spinner-lockup
           size="sm"
           [variant]="variant"
-          [layout]="layout"
+          [orientation]="orientation"
         >
           <span slot="title">Loading</span>
           <span slot="body">This might take a few minutes.</span>
@@ -286,7 +286,7 @@ export const AllHorizontalSizes: Story = {
         <bit-spinner-lockup
           size="md"
           [variant]="variant"
-          [layout]="layout"
+          [orientation]="orientation"
         >
           <span slot="title">Loading</span>
           <span slot="body">This might take a few minutes.</span>
@@ -294,7 +294,7 @@ export const AllHorizontalSizes: Story = {
         <bit-spinner-lockup
           size="base"
           [variant]="variant"
-          [layout]="layout"
+          [orientation]="orientation"
         >
           <span slot="title">Loading</span>
           <span slot="body">This might take a few minutes.</span>
@@ -302,7 +302,7 @@ export const AllHorizontalSizes: Story = {
         <bit-spinner-lockup
           size="lg"
           [variant]="variant"
-          [layout]="layout"
+          [orientation]="orientation"
         >
           <span slot="title">Loading</span>
           <span slot="body">This might take a few minutes.</span>
@@ -312,6 +312,6 @@ export const AllHorizontalSizes: Story = {
   }),
   args: {
     variant: "primary",
-    layout: "horizontal",
+    orientation: "horizontal",
   },
 };
