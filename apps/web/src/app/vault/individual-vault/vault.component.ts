@@ -325,7 +325,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private policyService: PolicyService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
     private webVaultPromptService: WebVaultPromptService,
-  ) {}
+  ) { }
 
   async ngOnInit() {
     this.trashCleanupWarning = this.i18nService.t(
@@ -925,12 +925,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     mode: VaultItemDialogMode,
     formConfig: CipherFormConfig,
     activeCollectionId?: CollectionId,
+    navigateBackToItemDialog?: boolean,
   ) {
     this.vaultItemDialogRef = VaultItemDialogComponent.open(this.dialogService, {
       mode,
       formConfig,
       activeCollectionId,
       restore: this.restore,
+      backAction: navigateBackToItemDialog ? this.openAddItemDialog.bind(this) : undefined,
     });
 
     const result = await lastValueFrom(this.vaultItemDialogRef.closed);
@@ -968,7 +970,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return;
     }
     if (result.result === AddItemDialogResult.Cipher) {
-      await this.addCipher(result.cipherType);
+      await this.addCipher(result.cipherType, true);
     } else if (result.result === AddItemDialogResult.Folder) {
       this.addFolder();
     } else {
@@ -980,7 +982,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
    * Opens the add cipher dialog.
    * @param cipherType The type of cipher to add.
    */
-  async addCipher(cipherType?: CipherType) {
+  async addCipher(cipherType?: CipherType, navigateBackToItemDialog?: boolean) {
     const type = cipherType ?? this.activeFilter.cipherType;
     const cipherFormConfig = await this.cipherFormConfigService.buildConfig("add", undefined, type);
     const collectionId =
@@ -1006,7 +1008,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       folderId: this.activeFilter.folderId,
     };
 
-    await this.openVaultItemDialog("form", cipherFormConfig);
+    await this.openVaultItemDialog("form", cipherFormConfig, undefined, navigateBackToItemDialog);
   }
 
   async editCipher(cipher: CipherView | CipherListView, cloneMode?: boolean) {

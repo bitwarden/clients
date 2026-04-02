@@ -855,14 +855,14 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
     if (result.result === AddItemDialogResult.Cipher) {
-      await this.addCipher(result.cipherType);
+      await this.addCipher(result.cipherType, true);
     } else if (result.result === AddItemDialogResult.Collection) {
       await this.addCollection();
     }
   }
 
   /** Opens the Add/Edit Dialog */
-  async addCipher(cipherType?: CipherType) {
+  async addCipher(cipherType?: CipherType, addItemDialogOnClose?: boolean) {
     const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
       "add",
       undefined,
@@ -877,7 +877,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       collectionIds: collectionId ? [collectionId] : [],
     };
 
-    await this.openVaultItemDialog("form", cipherFormConfig);
+    await this.openVaultItemDialog("form", cipherFormConfig, undefined, undefined, addItemDialogOnClose);
   }
 
   /**
@@ -945,7 +945,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     formConfig: CipherFormConfig,
     cipher?: CipherView,
     activeCollectionId?: CollectionId,
-    showBackButton?: boolean,
+    addItemDialogOnClose?: boolean,
   ) {
     this.vaultItemDialogRef = VaultItemDialogComponent.open(this.dialogService, {
       mode,
@@ -953,7 +953,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       activeCollectionId,
       isAdminConsoleAction: true,
       restore: this.restore,
-      showBackButton,
+      backAction: addItemDialogOnClose ? this.openAddItemDialog : undefined,
     });
 
     const result = await lastValueFrom(this.vaultItemDialogRef.closed);

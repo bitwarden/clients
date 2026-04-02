@@ -43,6 +43,7 @@ import {
   DIALOG_DATA,
   DialogRef,
   AsyncActionsModule,
+  BitIconButtonComponent,
   ButtonModule,
   DialogModule,
   DialogService,
@@ -101,6 +102,12 @@ export interface VaultItemDialogParams {
    * Function to restore a cipher from the trash.
    */
   restore?: (c: CipherViewLike) => Promise<void>;
+
+  /**
+   * When provided, a "Back" button is shown when creating a new cipher (cipher == null),
+   * and the provided method will be invoked.
+   */
+  backAction?: () => void;
 }
 
 export const VaultItemDialogResult = {
@@ -133,6 +140,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
   selector: "app-vault-item-dialog",
   templateUrl: "vault-item-dialog.component.html",
   imports: [
+    BitIconButtonComponent,
     ButtonModule,
     CipherViewComponent,
     DialogModule,
@@ -277,6 +285,15 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected get showCipherView() {
     return this.cipher != undefined && (this.params.mode === "view" || this.loadingForm);
+  }
+
+  protected get hasBackAction() {
+    return typeof this.params.backAction === "function";
+  }
+
+  invokeBackAction() {
+    this.params.backAction?.();
+    this.dialogRef.close();
   }
 
   protected get submitButtonText$(): Observable<string> {

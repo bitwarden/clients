@@ -1,5 +1,17 @@
 <bit-dialog dialogSize="large" background="alt" [loading]="performingInitialLoad">
-  <span bitDialogTitle aria-live="polite">
+  @if (hasBackAction) {
+    <button
+      type="button"
+      bitIconButton="bwi-angle-left"
+      buttonType="primaryGhost"
+      size="default"
+      [label]="'back' | i18n"
+      (click)="invokeBackAction()"
+      class="-tw-ms-3"
+      bitDialogHeaderStart
+    ></button>
+  }
+  <span bitDialogTitle class="tw-flex tw-items-center tw-gap-1" aria-live="polite">
     {{ title }}
   </span>
 
