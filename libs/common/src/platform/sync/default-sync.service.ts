@@ -161,6 +161,7 @@ export class DefaultSyncService extends CoreSyncService {
       if (needsSyncSucceeded) {
         await this.setLastSync(now, userId);
       }
+      this.preferenceSyncService?.beginSyncedKeyWatch(userId);
       return this.syncCompleted(false, userId);
     }
 
@@ -200,7 +201,6 @@ export class DefaultSyncService extends CoreSyncService {
         response.profile.id,
       );
 
-      // Start push sync if not already running (idempotent — startPushSync tears down previous subscription)
       this.preferenceSyncService?.beginSyncedKeyWatch(response.profile.id);
 
       await this.setLastSync(now, userId);
