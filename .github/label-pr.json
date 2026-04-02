@@ -24,12 +24,40 @@
       "bitwarden_license/bit-common",
       "libs/"
     ],
-    "cli": ["apps/cli", "bitwarden_license/bit-cli", "bitwarden_license/bit-common", "libs/"],
+    "cli": [
+      "apps/cli",
+      "bitwarden_license/bit-cli",
+      "bitwarden_license/bit-common",
+      "libs/",
+      "!libs/angular",
+      "!libs/auth/src/angular",
+      "!libs/auto-confirm/src/angular",
+      "!libs/components",
+      "!libs/dirt/card/",
+      "!libs/importer/src/components",
+      "!libs/key-management-ui",
+      "!libs/pricing/src/components",
+      "!libs/subscription/src/components",
+      "!libs/tools/export/vault-export/vault-export-ui",
+      "!libs/tools/generator/components",
+      "!libs/tools/send/send-ui",
+      "!libs/vault/src/cipher-form",
+      "!libs/vault/src/cipher-view",
+      "!libs/vault/src/components"
+    ],
     "feature-flag": ["libs/common/src/enums/feature-flag.enum.ts"],
-    "t:tech-debt": ["gradle.properties", "keystore/"],
-    "t:ci": [".checkmarx/", ".github/", "scripts/", "fastlane/", ".gradle/", "detekt-config.yml"],
-    "t:docs": ["docs/"],
-    "t:deps": ["gradle/"],
+    "t:tech-debt": [],
+    "t:ci": [
+      ".checkmarx/",
+      ".github/",
+      "scripts/",
+      "apps/desktop/electron-builder.json",
+      "apps/desktop/electron-builder-beta.json",
+      "apps/desktop/scripts",
+      "apps/desktop/stores"
+    ],
+    "t:docs": ["docs/", "README.md", "CONTRIBUTING.md", "SECURITY.md"],
+    "t:deps": ["package.json", "package-lock.json", "nx.json"],
     "t:llm": [".claude/"]
   }
 }
