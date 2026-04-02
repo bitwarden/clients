@@ -20,6 +20,7 @@ import {
   SectionComponent,
   SectionHeaderComponent,
   ToastService,
+  TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -39,6 +40,7 @@ import { ReceiveFilesViewComponent } from "./receive-files-view.component";
     CardComponent,
     SectionComponent,
     SectionHeaderComponent,
+    TypographyModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

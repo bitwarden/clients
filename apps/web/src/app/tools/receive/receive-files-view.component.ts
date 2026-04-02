@@ -31,6 +31,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
     SectionHeaderComponent,
     CardComponent,
     IconTileComponent,
+    TypographyModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

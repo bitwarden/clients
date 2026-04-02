@@ -1,9 +1,9 @@
 @if (receiveView()?.fileData?.length > 0) {
   <bit-section>
     <bit-section-header>
-      <dl class="tw-text-muted">
+      <h2 bitTypography="h6">
         {{ "receives" | i18n }} {{ "(" + receiveView().fileData?.length + ")" }}
-      </dl>
+      </h2>
     </bit-section-header>
     <bit-card>
       <bit-item-group>

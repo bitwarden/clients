@@ -3,16 +3,21 @@
     {{ (isEditMode ? "editReceive" : "newReceive") | i18n }}
   </ng-container>
   <ng-container bitDialogContent>
-    <bit-card>
-      <bit-form-field>
-        <bit-label>{{ "name" | i18n }}</bit-label>
-        <input bitInput type="text" formControlName="name" />
-      </bit-form-field>
-      <bit-form-field>
-        <bit-label>{{ "expirationDays" | i18n }}</bit-label>
-        <bit-select formControlName="expirationDays" [items]="expirationDayOptions" />
-      </bit-form-field>
-    </bit-card>
+    <bit-section>
+      <bit-section-header class="tw-mt-2">
+        <h2 bitTypography="h6">Receive Details</h2>
+      </bit-section-header>
+      <bit-card>
+        <bit-form-field>
+          <bit-label>{{ "name" | i18n }}</bit-label>
+          <input bitInput type="text" formControlName="name" />
+        </bit-form-field>
+        <bit-form-field>
+          <bit-label>{{ "expirationDays" | i18n }}</bit-label>
+          <bit-select formControlName="expirationDays" [items]="expirationDayOptions" />
+        </bit-form-field>
+      </bit-card>
+    </bit-section>
   </ng-container>
   <ng-container bitDialogFooter>
     <button type="submit" bitButton bitFormButton buttonType="primary">

@@ -20,7 +20,10 @@ import {
   FormFieldModule,
   IconButtonModule,
   Option,
+  SectionComponent,
+  SectionHeaderComponent,
   SelectModule,
+  TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -38,6 +41,9 @@ import { ReceiveViewComponent } from "./receive-view.component";
     IconButtonModule,
     CardComponent,
     I18nPipe,
+    SectionComponent,
+    SectionHeaderComponent,
+    TypographyModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
