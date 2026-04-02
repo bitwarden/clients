@@ -1,5 +1,7 @@
 <bit-dialog dialogSize="large">
-  <ng-container bitDialogTitle>{{ "newReceive" | i18n }}</ng-container>
+  <ng-container bitDialogTitle>{{
+    (isEditMode ? "editReceive" : "newReceive") | i18n
+  }}</ng-container>
   <ng-container bitDialogContent>
     <form [formGroup]="form">
       <bit-form-field>
@@ -17,7 +19,9 @@
     </form>
   </ng-container>
   <ng-container bitDialogFooter>
-    <button type="button" bitButton buttonType="primary">{{ "generateLink" | i18n }}</button>
+    <button type="button" bitButton buttonType="primary" [bitAction]="submit">
+      {{ (isEditMode ? "save" : "generateLink") | i18n }}
+    </button>
     <button type="button" bitButton buttonType="secondary" bitDialogClose>
       {{ "cancel" | i18n }}
     </button>

@@ -1,45 +1,29 @@
-import { ApiService } from "../../../abstractions/api.service";
 import { CreateReceiveRequest } from "../models/requests/create-receive.request";
+import { UpdateReceiveRequest } from "../models/requests/update-receive.request";
+import { ReceiveFileDownloadDataResponse } from "../models/response/receive-file-download-data.response";
+import { ReceiveFileUploadDataResponse } from "../models/response/receive-file-upload-data.response";
 import { ReceiveSharedDataResponse } from "../models/response/receive-shared-data.response";
 import { ReceiveResponse } from "../models/response/receive.response";
 
-import { ReceiveApiService as ReceiveApiServiceAbstraction } from "./receive-api.service.abstraction";
+export abstract class ReceiveApiService {
+  abstract getReceive(id: string): Promise<ReceiveResponse>;
 
-export class ReceiveApiService implements ReceiveApiServiceAbstraction {
-  constructor(private apiService: ApiService) {}
+  abstract postReceive(request: CreateReceiveRequest): Promise<ReceiveResponse>;
+  abstract putReceive(id: string, request: UpdateReceiveRequest): Promise<ReceiveResponse>;
+  abstract deleteReceive(id: string): Promise<void>;
 
-  async getReceive(id: string): Promise<ReceiveResponse> {
-    const r = await this.apiService.send("GET", "/receives/" + id, null, true, true);
-    return new ReceiveResponse(r);
-  }
+  abstract postReceiveAccess(id: string, secret: string): Promise<ReceiveSharedDataResponse>;
 
-  async postReceive(request: CreateReceiveRequest): Promise<ReceiveResponse> {
-    const r = await this.apiService.send("POST", "/receives", request, true, true);
-    return new ReceiveResponse(r);
-  }
+  abstract postReceiveFile(
+    id: string,
+    secret: string,
+    request: { fileName: string; fileLength: number; encapsulatedFileContentEncryptionKey: string },
+  ): Promise<ReceiveFileUploadDataResponse>;
 
-  async putReceive(id: string, request: CreateReceiveRequest): Promise<ReceiveResponse> {
-    const r = await this.apiService.send("PUT", "/receives/" + id, request, true, true);
-    return new ReceiveResponse(r);
-  }
+  abstract postReceiveFileValidation(id: string, fileId: string, secret: string): Promise<void>;
 
-  async deleteReceive(id: string): Promise<void> {
-    await this.apiService.send("DELETE", "/receives/" + id, null, true, false);
-  }
-
-  async postReceiveAccess(id: string, secret: string): Promise<ReceiveSharedDataResponse> {
-    const addSecretHeader = (headers: Headers) => {
-      headers.set("Receive-Secret", secret);
-    };
-    const r = await this.apiService.send(
-      "GET",
-      "/receives/" + id + "/shared",
-      null,
-      false,
-      true,
-      undefined,
-      addSecretHeader,
-    );
-    return new ReceiveSharedDataResponse(r);
-  }
+  abstract getReceiveFileDownload(
+    id: string,
+    fileId: string,
+  ): Promise<ReceiveFileDownloadDataResponse>;
 }

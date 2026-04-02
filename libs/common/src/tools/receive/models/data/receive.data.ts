@@ -1,3 +1,5 @@
+import { Jsonify } from "type-fest";
+
 import { ReceiveResponse } from "../response/receive.response";
 
 import { ReceiveFileData } from "./receive-file.data";
@@ -29,5 +31,11 @@ export class ReceiveData {
     this.expirationDate = response.expirationDate;
 
     this.files = response.files.map((f) => new ReceiveFileData(f));
+  }
+
+  static fromJSON(obj: Jsonify<ReceiveData>): ReceiveData {
+    return Object.assign(Object.create(ReceiveData.prototype) as ReceiveData, obj, {
+      files: obj.files?.map(ReceiveFileData.fromJSON) ?? [],
+    });
   }
 }

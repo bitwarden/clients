@@ -14,7 +14,11 @@
       [placeholder]="'search' | i18n"
       appAutofocus
     />
-    <app-receive-table [dataSource]="dataSource" (viewReceive)="openViewReceiveDrawer($event)" />
+    <app-receive-table
+      [dataSource]="dataSource"
+      (viewReceive)="openViewReceiveDrawer($event)"
+      (copyReceive)="copyReceiveLink($event)"
+    />
     @if (noSearchResults()) {
       <bit-no-items [icon]="noResultsIcon">
         <ng-container slot="title">{{ "receivesTitleNoSearchResults" | i18n }}</ng-container>

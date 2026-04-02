@@ -1,29 +1,48 @@
-<bit-section>
-  <bit-form-field>
-    <bit-label for="file">{{ "file" | i18n }}</bit-label>
-    <div class="tw-flex tw-mt-2 tw-mb-1">
-      <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
-        {{ "chooseFile" | i18n }}
-      </button>
-      <span
-        class="{{ fileName() ? 'tw-text-main' : 'tw-text-muted' }} tw-flex tw-items-center tw-pl-3"
-      >
-        {{ fileName() || ("noFileChosen" | i18n) }}</span
-      >
-    </div>
-    <input bitInput #fileSelector type="file" hidden label="File..." (change)="addFile($event)" />
-    <bit-hint>
-      {{ "maxFileSize" | i18n }}
-    </bit-hint>
-  </bit-form-field>
-  @if (showUploadFileButton()) {
-    <div class="tw-flex tw-flex-row tw-items-center tw-gap-2">
-      <button bitButton type="button" buttonType="primary" (click)="uploadFile()">
+<div class="tw-mb-4">
+  @if (receiveName()) {
+    <p class="tw-text-center">
+      <b>{{ receiveName() }}</b>
+    </p>
+  }
+  @if (ownerEmail()) {
+    <p class="tw-text-center tw-mb-0">{{ ownerEmail() + " " }}{{ "sentYouThisRequest" | i18n }}</p>
+  }
+</div>
+@if (showFileUploadResult()) {
+  <p class="tw-text-center tw-mb-0">{{ "filesUploadedSuccessfully" | i18n }}</p>
+  @if (filesUploaded() == 1) {
+    <p class="tw-text-center tw-text-muted tw-text-sm tw-mb-0">
+      {{ "nFilesSentToSingular" | i18n: filesUploaded() }} {{ ownerEmail() }}
+    </p>
+  } @else {
+    <p class="tw-text-center tw-text-muted tw-text-sm tw-mb-0">
+      {{ "nFilesSentToPlural" | i18n: filesUploaded() }} {{ ownerEmail() }}
+    </p>
+  }
+  <br />
+  <p class="tw-text-center tw-mb-0">
+    <button bitLink type="button" (click)="uploadMoreFiles()">
+      {{ "uploadMoreFiles" | i18n }}
+    </button>
+  </p>
+} @else {
+  <bit-file-upload
+    [maxFileSize]="maxFileSize"
+    [multiple]="multiple"
+    [hasError]="hasError()"
+    [(files)]="files"
+  >
+    <bit-label></bit-label>
+    <bit-hint></bit-hint>
+  </bit-file-upload>
+  @if (files().length > 0) {
+    <div class="tw-flex tw-flex-row tw-items-center tw-gap-2 tw-mt-4">
+      <button bitButton type="button" buttonType="primary" (click)="uploadFiles()">
         {{ "upload" | i18n }}
       </button>
-      <button bitButton type="button" buttonType="secondary" (click)="removeFile()">
+      <button bitButton type="button" buttonType="secondary" (click)="removeFiles()">
         {{ "cancel" | i18n }}
       </button>
     </div>
   }
-</bit-section>
+}

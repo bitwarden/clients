@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { ReceiveView } from "@bitwarden/common/tools/receive/models/view/receive.view";
 import {
   BadgeModule,
   ButtonModule,
@@ -12,8 +13,6 @@ import {
   TableModule,
   TypographyModule,
 } from "@bitwarden/components";
-
-import { ReceiveView } from "./receive-view";
 
 @Component({
   selector: "app-receive-table",
@@ -49,5 +48,9 @@ export class ReceiveTableComponent {
 
   protected onDelete(receive: ReceiveView): void {
     this.deleteReceive.emit(receive);
+  }
+
+  protected isExpired(view: ReceiveView): boolean {
+    return view.expirationDate != null && view.expirationDate < new Date();
   }
 }

@@ -1,4 +1,43 @@
 {
+  "clickToUploadOrDragAndDrop" : {
+    "message": "Click to upload or drag and drop"
+  },
+  "maxFileSizeParam" : {
+    "message": "Maximum file size (MB)"
+  },
+  "chooseFiles" : {
+    "message": "Add files"
+  },
+  "fileUploadError": {
+    "message": "Could not upload $FILENAME$",
+    "placeholders": {
+      "FILENAME": {
+        "content": "$1"
+      }
+    }
+  },
+  "uploadMoreFiles": {
+    "message": "Upload more files"
+  },
+  "filesUploadedSuccessFully": {
+    "message": "Files uploaded successfully"
+  },
+  "nFilesSentToSingular": {
+    "message": "Your $NUMBER_OF_FILES$ file has been sent to",
+    "placeholders": {
+      "NUMBER_OF_FILES": {
+        "content": "$1"
+      }
+    }
+  },
+  "nFilesSentToPlural": {
+    "message": "Your $NUMBER_OF_FILES$ files have been sent to",
+    "placeholders": {
+      "NUMBER_OF_FILES": {
+        "content": "$1"
+      }
+    }
+  },
   "allApplications": {
     "message": "All applications"
   },
@@ -6363,6 +6402,12 @@
   "receive": {
     "message": "Receive"
   },
+  "receiveLink": {
+    "message": "Receive link"
+  },
+  "receives": {
+    "message": "Receives"
+  },
   "allReceives": {
     "message": "All Receives"
   },
@@ -6383,6 +6428,12 @@
   },
   "newReceive": {
     "message": "New Receive"
+  },
+  "editReceive": {
+    "message": "Edit Receive"
+  },
+  "sentYouThisRequest" : {
+    "message": "sent you this request"
   },
   "expirationDays": {
     "message": "Expiration (days)"
@@ -11501,8 +11552,8 @@
   "addAttachment": {
     "message": "Add attachment"
   },
-  "fileReadError": {
-    "message": "File could not be read"
+  "receiveLoadError": {
+    "message": "Could not load this receive"
   },
   "maxFileSizeSansPunctuation": {
     "message": "Maximum file size is 500 MB"
