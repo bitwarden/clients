@@ -35,7 +35,8 @@ import { SingleUserState, UserKeyDefinition } from "../../platform/state";
 import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";
 import { SemanticLogger } from "../log";
 import { anyComplete, pin, ready, withLatestReady } from "../rx";
-import { SubjectConstraints, WithConstraints, unconstrained } from "../types";
+import { SubjectConstraints, WithConstraints } from "../types";
+import { unconstrained } from "../util";
 
 import { ClassifiedFormat, isClassifiedFormat } from "./classified-format";
 import { unconstrained$ } from "./identity-state-constraint";

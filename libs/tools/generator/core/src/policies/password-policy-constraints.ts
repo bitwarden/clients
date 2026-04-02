@@ -3,8 +3,8 @@ import {
   PolicyConstraints,
   StateConstraints,
   WithConstraints,
-  unconstrained,
 } from "@bitwarden/common/tools/types";
+import { unconstrained } from "@bitwarden/common/tools/util";
 
 import { PasswordGeneratorSettings } from "../types";
 

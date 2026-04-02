@@ -1,7 +1,8 @@
 import { BehaviorSubject, of } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { Constraints, unconstrained } from "@bitwarden/common/tools/types";
+import { Constraints } from "@bitwarden/common/tools/types";
+import { unconstrained } from "@bitwarden/common/tools/util";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   CredentialGeneratorService,

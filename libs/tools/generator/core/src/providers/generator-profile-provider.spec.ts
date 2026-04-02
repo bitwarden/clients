@@ -12,7 +12,8 @@ import { disabledSemanticLoggerProvider } from "@bitwarden/common/tools/log";
 import { PrivateClassifier } from "@bitwarden/common/tools/private-classifier";
 import { IdentityConstraint } from "@bitwarden/common/tools/state/identity-state-constraint";
 import { UserStateSubjectDependencyProvider } from "@bitwarden/common/tools/state/user-state-subject-dependency-provider";
-import { StateConstraints, unconstrained } from "@bitwarden/common/tools/types";
+import { StateConstraints } from "@bitwarden/common/tools/types";
+import { unconstrained } from "@bitwarden/common/tools/util";
 import { OrganizationId, PolicyId, UserId } from "@bitwarden/common/types/guid";
 
 import {

@@ -72,14 +72,6 @@ export type Constraints<T> = {
   [Key in keyof T]?: Simplify<Constraint<T[Key]>>;
 };
 
-/** Utility type to provide an empty set of constraints
- * Freezing `EMPTY` protects all callers from aliased edits creating spooky action at a distance.
- */
-const EMPTY = Object.freeze({});
-export function unconstrained<T>(): Constraints<T> {
-  return EMPTY;
-}
-
 /** Utility type that tracks whether a set of constraints was
  *  produced by an active policy.
  */

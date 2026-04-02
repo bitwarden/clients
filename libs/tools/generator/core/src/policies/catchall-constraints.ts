@@ -1,9 +1,5 @@
-import {
-  Constraints,
-  StateConstraints,
-  WithConstraints,
-  unconstrained,
-} from "@bitwarden/common/tools/types";
+import { Constraints, StateConstraints, WithConstraints } from "@bitwarden/common/tools/types";
+import { unconstrained } from "@bitwarden/common/tools/util";
 
 import { CatchallGenerationOptions } from "../types";
 

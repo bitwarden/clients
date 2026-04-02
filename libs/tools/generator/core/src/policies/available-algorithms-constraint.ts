@@ -1,11 +1,7 @@
 import { SemanticLogger } from "@bitwarden/common/tools/log";
 import { UserStateSubjectDependencyProvider } from "@bitwarden/common/tools/state/user-state-subject-dependency-provider";
-import {
-  Constraints,
-  StateConstraints,
-  unconstrained,
-  WithConstraints,
-} from "@bitwarden/common/tools/types";
+import { Constraints, StateConstraints, WithConstraints } from "@bitwarden/common/tools/types";
+import { unconstrained } from "@bitwarden/common/tools/util";
 
 import { CredentialAlgorithm, CredentialType } from "../metadata";
 import { CredentialPreference } from "../types";
