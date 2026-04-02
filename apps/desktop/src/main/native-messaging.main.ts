@@ -422,6 +422,19 @@ export class NativeMessagingMain {
                 this.logService.info(`Found extension from ${chromePath}: ${extension}`);
               }
             }
+
+            // Match via settings too. Sometimes global commands don't register properly.
+            const settings: Map<string, any> = prefs.extensions.settings;
+            for (const [extension, setting] of Object.entries(settings)) {
+              if (setting.commands) {
+                for (const [command_name] of Object.entries(setting.commands)) {
+                  if (command_name === "autofill_login" || command_name === "generate_password") {
+                    ids.add(`chrome-extension://${extension}/`);
+                    this.logService.info(`Found extension ${chromePath}: ${extension}`);
+                  }
+                }
+              }
+            }
           } catch (e) {
             this.logService.info(`Error reading preferences: ${e}`);
           }
