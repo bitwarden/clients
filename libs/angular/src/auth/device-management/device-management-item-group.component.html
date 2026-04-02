@@ -17,6 +17,9 @@
             <div>
               <span bitBadge variant="warning">{{ "requestPending" | i18n }}</span>
             </div>
+            @if (device.isTrusted) {
+              <span>{{ "trusted" | i18n }}</span>
+            }
             <div>
               <span class="tw-font-medium">{{ "firstLogin" | i18n }}: </span>
               <span>{{ device.firstLogin | date: "medium" }}</span>
