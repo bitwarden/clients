@@ -10,10 +10,10 @@ import {
 
 import { MAGNIFY_ACTIONS } from "../../../../autofill/models/magnify-actions";
 import {
+  isMagnifyCardItem,
   isMagnifyLoginItem,
   MagnifySearchResultItem,
 } from "../../../../autofill/models/magnify-commands";
-import { MagnifyItem } from "../../../../autofill/models/magnify-items";
 import { CommandService } from "../../../services/command-service";
 import { SEARCH_BAR_HEIGHT, calculateWindowHeight } from "../../utils/magnify-layout";
 import { ActionBarComponent } from "../action-bar/action-bar.component";
@@ -48,28 +48,36 @@ export class SearchBarComponent implements AfterViewInit {
     if (!item) {
       return [];
     }
-    const magnifyItemType = isMagnifyLoginItem(item) ? MagnifyItem.Login : null;
     return MAGNIFY_ACTIONS.filter(
-      (action) => action.magnifyItemType === null || action.magnifyItemType === magnifyItemType,
+      (action) => action.magnifyItemType === null || action.magnifyItemType === item.itemType,
     );
   });
+
+  private readonly copyAndIndicate = <T extends MagnifySearchResultItem>(
+    guard: (item: MagnifySearchResultItem) => item is T,
+    actionId: string,
+    copyFn: (item: T) => Promise<string>,
+  ): void => {
+    const itemIndex = this.selectedIndex();
+    const item = this.results()[itemIndex];
+    if (item && guard(item)) {
+      void copyFn(item).then((value) => {
+        if (value) {
+          void navigator.clipboard.writeText(value);
+          this.completingAction.set({ actionId, itemIndex });
+          setTimeout(() => this.completingAction.set(null), 1500);
+        }
+      });
+    }
+  };
 
   private readonly actionHandlers = new Map<string, () => void>([
     [
       "magnifyLoginItem-copyPassword",
-      () => {
-        const itemIndex = this.selectedIndex();
-        const item = this.results()[itemIndex];
-        if (item && isMagnifyLoginItem(item)) {
-          void this.commandService.copyPassword(item).then((password) => {
-            if (password) {
-              void navigator.clipboard.writeText(password);
-              this.completingAction.set({ actionId: "magnifyLoginItem-copyPassword", itemIndex });
-              setTimeout(() => this.completingAction.set(null), 1500);
-            }
-          });
-        }
-      },
+      () =>
+        this.copyAndIndicate(isMagnifyLoginItem, "magnifyLoginItem-copyPassword", (item) =>
+          this.commandService.copyPassword(item),
+        ),
     ],
     [
       "magnifyLoginItem-copyUsername",
@@ -82,6 +90,27 @@ export class SearchBarComponent implements AfterViewInit {
           setTimeout(() => this.completingAction.set(null), 1500);
         }
       },
+    ],
+    [
+      "magnifyCardItem-copyCardNumber",
+      () =>
+        this.copyAndIndicate(isMagnifyCardItem, "magnifyCardItem-copyCardNumber", (item) =>
+          this.commandService.copyCardNumber(item),
+        ),
+    ],
+    [
+      "magnifyCardItem-copyCardCode",
+      () =>
+        this.copyAndIndicate(isMagnifyCardItem, "magnifyCardItem-copyCardCode", (item) =>
+          this.commandService.copyCardCode(item),
+        ),
+    ],
+    [
+      "magnifyCardItem-copyCardExpiration",
+      () =>
+        this.copyAndIndicate(isMagnifyCardItem, "magnifyCardItem-copyCardExpiration", (item) =>
+          this.commandService.copyCardExpiration(item),
+        ),
     ],
   ]);
 

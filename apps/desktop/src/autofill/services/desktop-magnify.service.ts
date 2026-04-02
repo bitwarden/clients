@@ -173,10 +173,11 @@ export class DesktopMagnifyService implements OnDestroy {
 
     const matched = ciphers.filter(
       (c) =>
-        c.type === CipherType.Login &&
+        (c.type === CipherType.Login || c.type === CipherType.Card) &&
         !c.isDeleted &&
         !c.isArchived &&
-        (c.name?.toLowerCase().includes(q) || c.login?.username?.toLowerCase().includes(q)),
+        (c.name?.toLowerCase().includes(q) ||
+          (c.type === CipherType.Login && c.login?.username?.toLowerCase().includes(q))),
     );
 
     matched.sort((a, b) => {
@@ -191,13 +192,23 @@ export class DesktopMagnifyService implements OnDestroy {
 
     const response: MagnifyCommandResponse = {
       type: MagnifyCommand.SearchVault,
-      results: matched.map((c) => ({
-        itemType: MagnifyItem.Login,
-        id: c.id,
-        name: c.name,
-        username: c.login?.username ?? "",
-        iconUrl: buildCipherIcon(iconsUrl, c, showFavicons).image ?? null,
-      })),
+      results: matched.map((c) => {
+        if (c.type === CipherType.Card) {
+          return {
+            itemType: MagnifyItem.Card,
+            id: c.id,
+            name: c.name,
+            brand: c.card?.brand ?? undefined,
+          };
+        }
+        return {
+          itemType: MagnifyItem.Login,
+          id: c.id,
+          name: c.name,
+          username: c.login?.username ?? "",
+          iconUrl: buildCipherIcon(iconsUrl, c, showFavicons).image ?? null,
+        };
+      }),
     };
 
     return [null, response];

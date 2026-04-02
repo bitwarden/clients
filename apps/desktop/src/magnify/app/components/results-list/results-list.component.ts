@@ -20,12 +20,6 @@ import { MAGNIFY_PLATFORM } from "../../../main";
 
 export type CompletingAction = { actionId: string; itemIndex: number } | null;
 
-// Actions that apply to a specific item type (magnifyItemType !== null).
-// Navigate (null) is global UI — it is not shown per-item.
-const ITEM_ACTIONS: MagnifyAction[] = MAGNIFY_ACTIONS.filter(
-  (action) => action.magnifyItemType !== null,
-);
-
 @Component({
   selector: "results-list",
   standalone: true,
@@ -48,8 +42,12 @@ export class ResultsListComponent implements OnChanges {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChildren("resultItem") resultItems!: QueryList<ElementRef<HTMLDivElement>>;
 
-  /** The item-specific actions to show in each result row. */
-  readonly itemActions = ITEM_ACTIONS;
+  /** Returns the item-specific actions for a given result row. */
+  getItemActions(item: MagnifySearchResultItem): MagnifyAction[] {
+    return MAGNIFY_ACTIONS.filter(
+      (action) => action.magnifyItemType !== null && action.magnifyItemType === item.itemType,
+    );
+  }
 
   getIconUrl(item: MagnifySearchResultItem): string | null {
     return isMagnifyLoginItem(item) ? item.iconUrl : null;

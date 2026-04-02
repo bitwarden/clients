@@ -28,7 +28,7 @@
       </div>
       <div class="result-actions" *ngIf="i === selectedIndex()">
         <div
-          *ngFor="let action of itemActions"
+          *ngFor="let action of getItemActions(item)"
           class="result-action-badge"
           [class.completing]="
             completingAction()?.actionId === action.id && completingAction()?.itemIndex === i
