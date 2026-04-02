@@ -84,6 +84,8 @@ describe("AuthPopoutWindow", () => {
       const callOrder: string[] = [];
       openPopoutSpy.mockImplementation(async () => {
         callOrder.push("openPopout");
+        // needed for type safety - unused in function
+        return undefined as Window;
       });
       sendMessageDataSpy.mockImplementation(async (_tab: any, command: string) => {
         callOrder.push(`notification:${command}`);
