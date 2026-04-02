@@ -80,7 +80,7 @@ Copied to:
 
 **File:** `bitwarden_license/bit-common/src/dirt/organization-integrations/services/organization-integration-service.spec.ts`
 
-```typescript
+````typescript
 describe("Blumira integration", () => {
   it("should save a new Blumira integration successfully", async () => {
     const config = OrgIntegrationBuilder.buildHecConfiguration(
@@ -142,7 +142,79 @@ describe("Blumira integration", () => {
     expect(integrations[0].type).toBe(OrganizationIntegrationType.Hec);
   });
 });
+## Step 5 — Tests
+
+**File:** `bitwarden_license/bit-common/src/dirt/organization-integrations/services/organization-integration-service.spec.ts`
+
+```typescript
+describe("HEC token-based integration", () => {
+  it("should save a new HEC token integration successfully", async () => {
+    const config = OrgIntegrationBuilder.buildHecConfiguration(
+      "https://test.example.com/hec",
+      "test-token",
+      OrganizationIntegrationServiceName.Huntress,
+    );
+    const template = OrgIntegrationBuilder.buildHecTemplate(
+      "test-index",
+      OrganizationIntegrationServiceName.Huntress,
+    );
+
+    expect(JSON.parse(config.toString())).toEqual({
+      Uri: "https://test.example.com/hec",
+      Scheme: "Bearer",
+      Token: "test-token",
+      bw_serviceName: "Huntress",
+    });
+
+    const parsed = JSON.parse(template.toString());
+    expect(parsed.index).toBe("test-index");
+    expect(parsed.bw_serviceName).toBe("Huntress");
+    expect(parsed.event.type).toBe("#TypeId#");
+  });
+
+  it("should update an HEC token integration successfully", async () => {
+    const config = OrgIntegrationBuilder.buildHecConfiguration(
+      "https://updated.example.com/hec",
+      "updated-token",
+      OrganizationIntegrationServiceName.Huntress,
+    );
+    const template = OrgIntegrationBuilder.buildHecTemplate(
+      "updated-index",
+      OrganizationIntegrationServiceName.Huntress,
+    );
+
+    expect(JSON.parse(config.toString())).toEqual({
+      Uri: "https://updated.example.com/hec",
+      Scheme: "Bearer",
+      Token: "updated-token",
+      bw_serviceName: "Huntress",
+    });
+
+    const parsed = JSON.parse(template.toString());
+    expect(parsed.index).toBe("updated-index");
+    expect(parsed.bw_serviceName).toBe("Huntress");
+  });
+
+  it("should delete an HEC token integration successfully", async () => {
+    const result = await service.delete(orgId, integrationId, configurationId);
+    expect(result).toEqual({ mustBeOwner: false, success: true });
+  });
+
+  it("should load an HEC token integration from API response", async () => {
+    const integrations = await firstValueFrom(service.integrations$);
+    expect(integrations).toHaveLength(1);
+    expect(integrations[0].type).toBe(OrganizationIntegrationType.Hec);
+  });
+});
+````
+
+Run tests:
+
+```bash
+cd bitwarden_license/bit-common && npx jest src/dirt/organization-integrations/services/organization-integration-service.spec.ts
 ```
+
+Result: **32 tests passed**
 
 Run tests:
 
