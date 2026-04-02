@@ -11571,6 +11571,28 @@
   "receiveLoadError": {
     "message": "Could not load this receive"
   },
+  "receiveAccessExpiredTitle": {
+    "message": "Receive unavailable"
+  },
+  "receiveAccessExpiredDescription": {
+    "message": "The Receive you are trying to access has either expired or been deleted, and cannot be used for uploads.",
+    "description": "'Receive' is a noun and the name of a feature called 'Bitwarden Receive'. It should not be translated."
+  },
+  "receiveExpiredCalloutTitle": {
+    "message": "This Receive has expired",
+    "description": "'Receive' is a noun and the name of a feature called 'Bitwarden Receive'. It should not be translated."
+  },
+  "receiveExpiredCallout": {
+    "message": "To make it active, update the expiration date.",
+    "description": "'Receive' is a noun and the name of a feature called 'Bitwarden Receive'. It should not be translated."
+  },
+  "receiveAccessErrorTitle": {
+    "message": "Something went wrong"
+  },
+  "receiveAccessErrorDescription": {
+    "message": "The Receive you are trying to access could not be loaded. Please verify the link and try again.",
+    "description": "'Receive' is a noun and the name of a feature called 'Bitwarden Receive'. It should not be translated."
+  },
   "maxFileSizeSansPunctuation": {
     "message": "Maximum file size is 500 MB"
   },
