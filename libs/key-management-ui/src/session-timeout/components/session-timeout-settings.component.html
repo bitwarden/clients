@@ -19,13 +19,12 @@
       }
     </bit-select>
 
-    @if (!canLock && supportsLock) {
+    @if (isTimeoutSuppressed()) {
+      <bit-hint>{{ "sessionTimeoutSuppressedByConnectedDevice" | i18n }}</bit-hint>
+    } @else if (!canLock && supportsLock) {
       <bit-hint>{{ "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction" | i18n }}</bit-hint>
     } @else if ((sessionTimeoutActionFromPolicy$ | async) != null) {
       <bit-hint>{{ "sessionTimeoutSettingsManagedByOrganization" | i18n }}</bit-hint>
-    }
-    @if (isTimeoutSuppressed()) {
-      <bit-hint>{{ "sessionTimeoutSuppressedByConnectedDevice" | i18n }}</bit-hint>
     }
   </bit-form-field>
 </div>
