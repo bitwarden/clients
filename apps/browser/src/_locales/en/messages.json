@@ -6227,6 +6227,12 @@
   "triageReportCopied": {
     "message": "Triage report copied to clipboard"
   },
+  "copyJsonReport": {
+    "message": "Copy JSON"
+  },
+  "triageJsonReportCopied": {
+    "message": "Triage JSON report copied to clipboard"
+  },
   "pageInformation": {
     "message": "Page Information"
   },

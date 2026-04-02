@@ -381,8 +381,8 @@
       </bit-item-group>
     </bit-section>
 
-    <!-- Copy Report Button -->
-    <div class="tw-mt-6 tw-flex tw-justify-center">
+    <!-- Copy Report Buttons -->
+    <div class="tw-mt-6 tw-flex tw-justify-center tw-gap-3">
       <button
         type="button"
         bitButton
@@ -391,6 +391,15 @@
         (click)="copyReport()"
       >
         {{ "copyReport" | i18n }}
+      </button>
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        startIcon="bwi-clone"
+        (click)="copyJsonReport()"
+      >
+        {{ "copyJsonReport" | i18n }}
       </button>
     </div>
   }
