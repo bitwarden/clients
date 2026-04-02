@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Inject, Optional } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
@@ -10,14 +10,16 @@ import { ReceiveView } from "@bitwarden/common/tools/receive/models/view/receive
 import { ReceiveService } from "@bitwarden/common/tools/receive/services/receive.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
-  BitActionDirective,
+  AsyncActionsModule,
   ButtonModule,
+  CardComponent,
   DIALOG_DATA,
   DialogModule,
   DialogRef,
   DialogService,
   FormFieldModule,
   IconButtonModule,
+  Option,
   SelectModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -28,54 +30,44 @@ import { ReceiveViewComponent } from "./receive-view.component";
   templateUrl: "./receive-add-edit.component.html",
   imports: [
     ReactiveFormsModule,
+    AsyncActionsModule,
     DialogModule,
     FormFieldModule,
     SelectModule,
     ButtonModule,
-    BitActionDirective,
     IconButtonModule,
+    CardComponent,
     I18nPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReceiveAddEditComponent {
-  protected readonly expirationDayOptions: { label: string; value: number }[];
-  protected readonly isEditMode: boolean;
+  private readonly viewData = inject<ReceiveView | null>(DIALOG_DATA, { optional: true });
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly i18nService = inject(I18nService);
+  private readonly dialogRef = inject(DialogRef);
+  private readonly dialogService = inject(DialogService);
+  private readonly receiveService = inject(ReceiveService);
+  private readonly accountService = inject(AccountService);
+
+  protected readonly isEditMode = this.viewData != null;
+
+  protected readonly expirationDayOptions: Option<number>[] = [
+    { label: this.i18nService.t("oneHour"), value: 1 / 24 },
+    { label: this.i18nService.t("oneDay"), value: 1 },
+    { label: this.i18nService.t("days", "2"), value: 2 },
+    { label: this.i18nService.t("days", "3"), value: 3 },
+    { label: this.i18nService.t("days", "7"), value: 7 },
+    { label: this.i18nService.t("days", "14"), value: 14 },
+    { label: this.i18nService.t("days", "30"), value: 30 },
+  ];
 
   protected readonly form = this.formBuilder.nonNullable.group({
-    name: ["", Validators.required],
+    name: [this.viewData?.name ?? "", Validators.required],
     expirationDays: [7, Validators.required],
   });
 
-  constructor(
-    @Optional() @Inject(DIALOG_DATA) private readonly viewData: ReceiveView | null,
-    private readonly formBuilder: FormBuilder,
-    private readonly i18nService: I18nService,
-    private readonly dialogRef: DialogRef,
-    private readonly dialogService: DialogService,
-    private readonly receiveService: ReceiveService,
-    private readonly accountService: AccountService,
-  ) {
-    this.isEditMode = this.viewData != null;
-
-    this.expirationDayOptions = [
-      { label: this.i18nService.t("oneHour"), value: 1 / 24 },
-      { label: this.i18nService.t("oneDay"), value: 1 },
-      { label: this.i18nService.t("days", "2"), value: 2 },
-      { label: this.i18nService.t("days", "3"), value: 3 },
-      { label: this.i18nService.t("days", "7"), value: 7 },
-      { label: this.i18nService.t("days", "14"), value: 14 },
-      { label: this.i18nService.t("days", "30"), value: 30 },
-    ];
-
-    if (this.viewData) {
-      this.form.patchValue({
-        name: this.viewData.name,
-      });
-    }
-  }
-
-  readonly submit = async () => {
+  protected readonly submit = async () => {
     this.form.markAllAsTouched();
     if (this.form.invalid || !this.form.value.name || !this.form.value.expirationDays) {
       return;

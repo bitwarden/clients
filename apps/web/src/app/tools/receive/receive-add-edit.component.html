@@ -1,29 +1,25 @@
-<bit-dialog dialogSize="large">
-  <ng-container bitDialogTitle>{{
-    (isEditMode ? "editReceive" : "newReceive") | i18n
-  }}</ng-container>
+<form [formGroup]="form" bit-dialog dialogSize="large" background="alt" [bitSubmit]="submit">
+  <ng-container bitDialogTitle>
+    {{ (isEditMode ? "editReceive" : "newReceive") | i18n }}
+  </ng-container>
   <ng-container bitDialogContent>
-    <form [formGroup]="form">
+    <bit-card>
       <bit-form-field>
         <bit-label>{{ "name" | i18n }}</bit-label>
         <input bitInput type="text" formControlName="name" />
       </bit-form-field>
       <bit-form-field>
         <bit-label>{{ "expirationDays" | i18n }}</bit-label>
-        <bit-select formControlName="expirationDays">
-          @for (option of expirationDayOptions; track option.value) {
-            <bit-option [value]="option.value" [label]="option.label"></bit-option>
-          }
-        </bit-select>
+        <bit-select formControlName="expirationDays" [items]="expirationDayOptions" />
       </bit-form-field>
-    </form>
+    </bit-card>
   </ng-container>
   <ng-container bitDialogFooter>
-    <button type="button" bitButton buttonType="primary" [bitAction]="submit">
+    <button type="submit" bitButton bitFormButton buttonType="primary">
       {{ (isEditMode ? "save" : "generateLink") | i18n }}
     </button>
-    <button type="button" bitButton buttonType="secondary" bitDialogClose>
+    <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
       {{ "cancel" | i18n }}
     </button>
   </ng-container>
-</bit-dialog>
+</form>
