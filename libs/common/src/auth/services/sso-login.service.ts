@@ -176,9 +176,12 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
       (cache) => (cache == null ? [entry] : [...cache, entry]),
       {
         shouldUpdate: (cache) => {
+          // Always update if cache does not yet exist
           if (cache == null) {
             return true;
           }
+
+          // Don't update if entry is already in the cache
           return !cache.some((e) => e.email === entry.email && e.webVaultUrl === webVaultUrl);
         },
       },
@@ -194,9 +197,12 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
         cache,
       {
         shouldUpdate: (cache) => {
+          // Don't update if cache does not exist
           if (cache == null) {
             return false;
           }
+
+          // Only update if entry is found in the cache
           return cache.some((e) => e.email === normalizedEmail && e.webVaultUrl === webVaultUrl);
         },
       },
