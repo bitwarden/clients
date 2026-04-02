@@ -124,5 +124,5 @@ export abstract class SsoLoginServiceAbstraction {
    *
    * If the user is not required to authenticate via SSO, remove their entry from the cache list if it is present.
    */
-  abstract updateSsoRequiredCache: (ssoLoginEmail: string, userId: UserId) => Promise<void>;
+  abstract updateSsoRequiredCache: (email: string, userId: UserId) => Promise<void>;
 }

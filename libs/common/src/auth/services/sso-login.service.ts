@@ -203,7 +203,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     );
   }
 
-  async updateSsoRequiredCache(ssoLoginEmail: string, userId: UserId): Promise<void> {
+  async updateSsoRequiredCache(email: string, userId: UserId): Promise<void> {
     const ssoRequired = await firstValueFrom(
       this.policyService.policyAppliesToUser$(PolicyType.RequireSso, userId),
     );
@@ -212,7 +212,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     const webVaultUrl = env.getWebVaultUrl();
 
     if (ssoRequired) {
-      await this.addToSsoRequiredCache(ssoLoginEmail, webVaultUrl);
+      await this.addToSsoRequiredCache(email, webVaultUrl);
     } else {
       /**
        * If user is not required to authenticate via SSO, remove their entry from the cache
@@ -220,7 +220,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
        * required to authenticate via SSO at some point in the past, but now their org
        * no longer requires SSO authenticaiton.
        */
-      await this.removeFromSsoRequiredCacheIfPresent(ssoLoginEmail, webVaultUrl);
+      await this.removeFromSsoRequiredCacheIfPresent(email, webVaultUrl);
     }
   }
 }
