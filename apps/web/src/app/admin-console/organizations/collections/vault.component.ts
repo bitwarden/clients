@@ -857,7 +857,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     if (result.result === AddItemDialogResult.Cipher) {
       await this.addCipher(result.cipherType, true);
     } else if (result.result === AddItemDialogResult.Collection) {
-      await this.addCollection();
+      await this.addCollection(true);
     }
   }
 
@@ -1295,7 +1295,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  async addCollection(): Promise<void> {
+  async addCollection(navigateBackToItemDialog?: boolean): Promise<void> {
     const organization = await firstValueFrom(this.organization$);
     const selectedCollection = await firstValueFrom(this.selectedCollection$);
     const dialog = openCollectionDialog(this.dialogService, {
@@ -1304,6 +1304,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         parentCollectionId: selectedCollection?.node.id,
         limitNestedCollections: !organization.canEditAnyCollection,
         isAdminConsoleActive: true,
+        backAction: navigateBackToItemDialog ? this.openAddItemDialog.bind(this) : undefined,
       },
     });
 

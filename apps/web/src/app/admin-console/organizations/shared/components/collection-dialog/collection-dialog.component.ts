@@ -102,6 +102,10 @@ export interface CollectionDialogParams {
   readonly?: boolean;
   isAddAccessCollection?: boolean;
   isAdminConsoleActive?: boolean;
+  /**
+   * When provided, a "Back" button is shown and the provided method will be invoked.
+   */
+  backAction?: () => void;
 }
 
 export interface CollectionDialogResult {
@@ -343,6 +347,17 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
   get organizationSelected() {
     return this.formGroup.controls.selectedOrg;
+  }
+
+  protected get backAction() {
+    if (!this.params.backAction) {
+      return undefined;
+    }
+
+    return () => {
+      this.params.backAction!();
+      this.close(CollectionDialogAction.Canceled);
+    };
   }
 
   protected get isExternalIdVisible(): boolean {

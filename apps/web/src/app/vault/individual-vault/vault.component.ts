@@ -325,7 +325,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private policyService: PolicyService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
     private webVaultPromptService: WebVaultPromptService,
-  ) { }
+  ) {}
 
   async ngOnInit() {
     this.trashCleanupWarning = this.i18nService.t(
@@ -974,7 +974,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     } else if (result.result === AddItemDialogResult.Folder) {
       this.addFolder();
     } else {
-      await this.addCollection();
+      await this.addCollection(true);
     }
   }
 
@@ -1100,7 +1100,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     );
   }
 
-  async addCollection() {
+  async addCollection(navigateBackToItemDialog?: boolean): Promise<void> {
     const dialog = openCollectionDialog(this.dialogService, {
       data: {
         organizationId: this.allOrganizations
@@ -1109,6 +1109,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         parentCollectionId: this.filter.collectionId,
         showOrgSelector: true,
         limitNestedCollections: true,
+        backAction: navigateBackToItemDialog ? this.openAddItemDialog.bind(this) : undefined,
       },
     });
     const result = await lastValueFrom(dialog.closed);
