@@ -119,7 +119,7 @@
                     <com:ComServer>
                         <com:SurrogateServer DisplayName="Bitwarden Shell Extension">
                             <com:Class Id="{A585A128-2049-4934-AE35-CEA51A83622B}"
-                                       Path="bitwarden_windows_shell_extension.dll"
+                                       Path="windows_shell_extension.dll"
                                        ThreadingModel="STA" />
                         </com:SurrogateServer>
                     </com:ComServer>

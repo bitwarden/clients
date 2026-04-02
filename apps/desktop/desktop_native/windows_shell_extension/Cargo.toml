@@ -6,7 +6,7 @@ license = { workspace = true }
 publish = { workspace = true }
 
 [lib]
-name = "bitwarden_windows_shell_extension"
+name = "windows_shell_extension"
 crate-type = ["cdylib"]
 
 [target.'cfg(windows)'.dependencies]

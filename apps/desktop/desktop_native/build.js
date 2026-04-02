@@ -107,7 +107,7 @@ function buildShellExtension(target, release = true) {
         return;
     }
 
-    cargoBuild("bitwarden_windows_shell_extension", target, release, true);
+    cargoBuild("windows_shell_extension", target, release, true);
 }
 
 function findMakeAppx(arch) {

@@ -109,8 +109,8 @@
         "to": "bitwarden_chromium_import_helper.exe"
       },
       {
-        "from": "desktop_native/dist/bitwarden_windows_shell_extension.dll",
-        "to": "bitwarden_windows_shell_extension.dll"
+        "from": "desktop_native/dist/windows_shell_extension.dll",
+        "to": "windows_shell_extension.dll"
       },
       {
         "from": "desktop_native/dist/bitwarden-sparse.${arch}.msix",
