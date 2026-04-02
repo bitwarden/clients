@@ -13,7 +13,11 @@ import {
   OAuthSsoProvider,
 } from "./abstractions/oauth-detection.background";
 import NotificationBackground from "./notification.background";
-import { checkSsoAvailableOnPage } from "./oauth-providers/google-check-sso-available-on-page";
+import {
+  checkSsoAvailableOnPage,
+  FailureCheckSsoAvailableOnPageResult,
+  SuccessCheckSsoAvailableOnPageResult,
+} from "./oauth-providers/google-check-sso-available-on-page";
 
 // Jimmy Note: This gets trigger on every page, but it doesn't go through the whole process. I need to add my trigger around here.
 export class OAuthDetectionBackground {
@@ -52,6 +56,11 @@ export class OAuthDetectionBackground {
           void this.checkSsoAvailableOnPage(details.tabId, provider).then(async (data) => {
             this.logService.info(`[OAuthDetection] Jimmy it's done ${JSON.stringify(data)}`);
 
+            if (!data || !("pageUrl" in data)) {
+              this.logService.info(`[OAuthDetection] The user is most likely logged in.`);
+              return;
+            }
+
             const activeUser = await firstValueFrom(this.accountService.activeAccount$);
             if (!activeUser) {
               this.logService.info(`[OAuthDetection] Please log in to the extension.`);
@@ -66,7 +75,7 @@ export class OAuthDetectionBackground {
               `[OAuthDetection] Jimmy Found ${ciphers.length} cipher(s) for ${data.pageDomain}`,
             );
 
-            if (ciphers.length > 0 && data?.pageUrl) {
+            if (ciphers.length > 0) {
               const tab = await BrowserApi.getTab(details.tabId);
               if (!tab) {
                 return;
@@ -420,7 +429,10 @@ export class OAuthDetectionBackground {
    * Executes the provider's isSsoAvailableOnPage function in the target tab
    * via chrome.scripting.executeScript.
    */
-  private async checkSsoAvailableOnPage(tabId: number, provider: OAuthSsoProvider): Promise<any> {
+  private async checkSsoAvailableOnPage(
+    tabId: number,
+    provider: OAuthSsoProvider,
+  ): Promise<SuccessCheckSsoAvailableOnPageResult | FailureCheckSsoAvailableOnPageResult> {
     this.logService.info(`[OAuthDetection] checkSsoAvailableOnPage Jimmy 2`);
     try {
       const results = await chrome.scripting.executeScript({
@@ -435,7 +447,7 @@ export class OAuthDetectionBackground {
       return result;
     } catch (e) {
       this.logService.error(`[OAuthDetection] isSsoAvailableOnPage failed for tab ${tabId}: ${e}`);
-      return false;
+      return null;
     }
   }
 
