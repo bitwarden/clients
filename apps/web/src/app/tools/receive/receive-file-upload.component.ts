@@ -10,7 +10,8 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 
-import { ActiveSendIcon, Party } from "@bitwarden/assets/svg";
+import { ActiveSendIcon, NoSendsIcon, Party } from "@bitwarden/assets/svg";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ReceiveFileUploadInput } from "@bitwarden/common/tools/receive/models/receive-file-upload-input";
@@ -24,6 +25,7 @@ import {
   ButtonModule,
   FileUploadComponent,
   LinkModule,
+  NoItemsModule,
   ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -38,6 +40,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
     FileUploadComponent,
     I18nPipe,
     LinkModule,
+    NoItemsModule,
     ReactiveFormsModule,
   ],
 })
@@ -67,10 +70,11 @@ export class ReceiveFileUploadComponent {
         return await this.receiveService.getSharedData(urlData);
       } catch (e) {
         this.logService.error(e);
-        this.toastService.showToast({
-          variant: "error",
-          message: this.i18nService.t("receiveLoadError"),
-        });
+        if (e instanceof ErrorResponse && e.statusCode === 404) {
+          this.errorState.set("expired");
+        } else {
+          this.errorState.set("badRequest");
+        }
         return null;
       }
     },
@@ -78,6 +82,8 @@ export class ReceiveFileUploadComponent {
 
   protected readonly form = new FormGroup({});
   protected readonly hasError = signal<boolean>(false);
+  protected readonly errorState = signal<"expired" | "badRequest" | null>(null);
+  protected readonly expiredIcon = NoSendsIcon;
   protected readonly files = signal<File[]>([]);
 
   protected readonly showFileUploadResult = signal<boolean>(false);

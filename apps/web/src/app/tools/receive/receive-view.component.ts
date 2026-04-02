@@ -10,6 +10,7 @@ import { buildReceiveUrl } from "@bitwarden/common/tools/receive/models/receive-
 import { ReceiveView } from "@bitwarden/common/tools/receive/models/view/receive.view";
 import {
   ButtonModule,
+  CalloutModule,
   CardComponent,
   DIALOG_DATA,
   DialogModule,
@@ -30,6 +31,7 @@ import { ReceiveFilesViewComponent } from "./receive-files-view.component";
 @Component({
   templateUrl: "./receive-view.component.html",
   imports: [
+    CalloutModule,
     DatePipe,
     DialogModule,
     ButtonModule,
@@ -47,6 +49,10 @@ import { ReceiveFilesViewComponent } from "./receive-files-view.component";
 export class ReceiveViewComponent {
   private readonly baseReceiveUrl = toSignal(
     this.environmentService.environment$.pipe(map((env) => env.getWebVaultUrl() + "/#/receive")),
+  );
+
+  protected readonly isExpired = computed(
+    () => this.receive.expirationDate != null && this.receive.expirationDate < new Date(),
   );
 
   protected readonly receiveLink = computed(() => {
