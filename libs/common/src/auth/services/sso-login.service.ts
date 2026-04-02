@@ -76,10 +76,13 @@ export const SSO_REQUIRED_CACHE = new KeyDefinition<SsoRequiredCacheEntry[]>(
       if (!Array.isArray(cache) || cache.length === 0) {
         return cache;
       }
-      // Old format was string[]; clear it since we can't infer the environment
+
+      // Old cache format was just an array of emails (string[]). Clear it since we cannot use
+      // that format to infer the environment. New cache format uses SsoRequiredCacheEntry[].
       if (typeof cache[0] === "string") {
         return null;
       }
+
       return cache;
     },
   },
