@@ -109,6 +109,25 @@ def gh_replace_labels(pr_number: str, labels: list[str]) -> None:
         check=True
     )
 
+def file_matches_patterns(file: str, patterns: list[str]) -> bool:
+    """Check if a file matches the pattern list using .gitignore-style negation.
+
+    Patterns are evaluated in order:
+    - Regular patterns (e.g. "libs/") include files starting with that prefix.
+    - Negation patterns (e.g. "!libs/angular/") exclude previously matched files.
+
+    The last matching pattern wins, just like .gitignore.
+    """
+    matched = False
+    for pattern in patterns:
+        if pattern.startswith("!"):
+            if file.startswith(pattern[1:]):
+                matched = False
+        else:
+            if file.startswith(pattern):
+                matched = True
+    return matched
+
 def label_filepaths(changed_files: list[str], path_patterns: dict) -> list[str]:
     """Check changed files against path patterns and return labels to apply."""
     if not changed_files:
@@ -118,7 +137,7 @@ def label_filepaths(changed_files: list[str], path_patterns: dict) -> list[str]:
 
     for label, patterns in path_patterns.items():
         for file in changed_files:
-            if any(file.startswith(pattern) for pattern in patterns):
+            if file_matches_patterns(file, patterns):
                 print(f"👀 File '{file}' matches pattern for label '{label}'")
                 labels_to_apply.add(label)
                 break
