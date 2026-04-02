@@ -21,7 +21,7 @@ export class CommandService {
   }
 
   async copyPassword(item: MagnifyLoginItem): Promise<string> {
-    return (await window.ipc.sendCommand({ type: MagnifyCommand.CopyPassword, id: item.id }))
+    return (await window.ipc.sendCommand({ type: MagnifyCommand.CopyPassword, itemId: item.id }))
       .result;
   }
 

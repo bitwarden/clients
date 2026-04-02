@@ -31,7 +31,7 @@ export type MagnifyCommand = (typeof MagnifyCommand)[keyof typeof MagnifyCommand
 */
 export type MagnifyCommandRequest =
   | { type: typeof MagnifyCommand.SearchVault; input: string }
-  | { type: typeof MagnifyCommand.CopyPassword; id: string }
+  | { type: typeof MagnifyCommand.CopyPassword; itemId: string }
   | { type: typeof MagnifyCommand.ViewInBitwarden; itemId: string }
   | { type: typeof MagnifyCommand.CopyCardNumber; itemId: string }
   | { type: typeof MagnifyCommand.CopyCardExpiration; itemId: string; format?: string }

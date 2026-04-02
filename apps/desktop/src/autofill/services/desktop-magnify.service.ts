@@ -108,7 +108,7 @@ export class DesktopMagnifyService implements OnDestroy {
         }
 
         case MagnifyCommand.CopyPassword: {
-          const [error, result] = await this.copyPassword(request.id);
+          const [error, result] = await this.copyPassword(request.itemId);
           callback(error, result);
           break;
         }
