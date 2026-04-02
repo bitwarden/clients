@@ -29,21 +29,59 @@ fi
 
 echo "Previous tag: $PREV_TAG" >&2
 
-# Get the author date of the previous tag
-PREV_DATE=$(git tag -l --format='%(authordate:iso-strict)' "$PREV_TAG")
-echo "Previous tag date: $PREV_DATE" >&2
+# Extract PR numbers from commit messages between the previous tag and HEAD.
+# This ensures we only capture PRs whose commits are actually on this branch,
+# rather than all PRs merged after a date (which could include other branches).
+PR_NUMBERS=$(git log "${PREV_TAG}..HEAD" --oneline | grep -oE '\(#[0-9]+\)' | grep -oE '[0-9]+' | sort -u)
 
-# Query merged PRs with the client label since the previous tag date
-PRS=$(gh pr list \
-  --repo "$GH_REPO" \
-  --state merged \
-  --label "$CLIENT" \
-  --search "merged:>=${PREV_DATE}" \
-  --json number,title,labels,author \
-  --limit 500 2>&1) || {
-  echo "Error: Failed to fetch PRs from GitHub: $PRS" >&2
-  exit 1
+if [ -z "$PR_NUMBERS" ]; then
+  echo "No PRs found in commit history since $PREV_TAG" >&2
+  echo "No changes for this release."
+  exit 0
+fi
+
+PR_COUNT=$(echo "$PR_NUMBERS" | wc -l | tr -d ' ')
+echo "Found $PR_COUNT PRs in commit history since $PREV_TAG" >&2
+
+# Fetch PR details via GitHub GraphQL API in batches
+# (GitHub GraphQL queries have a complexity limit, so we batch by 100)
+fetch_prs_batch() {
+  local numbers=("$@")
+  local query="query {"
+  for n in "${numbers[@]}"; do
+    query+=" pr_${n}: repository(owner: \"bitwarden\", name: \"clients\") { pullRequest(number: ${n}) { number title labels(first: 20) { nodes { name } } author { login } } }"
+  done
+  query+=" }"
+
+  local result
+  result=$(gh api graphql -f query="$query" 2>&1) || {
+    echo "Error: Failed to fetch PR details from GitHub: $result" >&2
+    exit 1
+  }
+
+  # Normalize GraphQL response to match the previous JSON structure:
+  # [ { number, title, labels: [{name}], author: {login} } ]
+  echo "$result" | jq '[.data | to_entries[].value.pullRequest | { number, title, labels: [.labels.nodes[] | {name}], author }]'
 }
+
+PRS="[]"
+BATCH=()
+while IFS= read -r num; do
+  BATCH+=("$num")
+  if [ "${#BATCH[@]}" -ge 100 ]; then
+    BATCH_RESULT=$(fetch_prs_batch "${BATCH[@]}")
+    PRS=$(jq -s '.[0] + .[1]' <(echo "$PRS") <(echo "$BATCH_RESULT"))
+    BATCH=()
+  fi
+done <<< "$PR_NUMBERS"
+
+# Flush remaining batch
+if [ "${#BATCH[@]}" -gt 0 ]; then
+  BATCH_RESULT=$(fetch_prs_batch "${BATCH[@]}")
+  PRS=$(jq -s '.[0] + .[1]' <(echo "$PRS") <(echo "$BATCH_RESULT"))
+fi
+
+echo "Fetched details for $(echo "$PRS" | jq 'length') PRs" >&2
 
 # Filter and categorize PRs using the release.yml config
 MARKDOWN=$(jq -r -n \
