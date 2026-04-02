@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
-    xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
     xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
     xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
     xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
@@ -12,14 +11,13 @@
         Publisher="${publisher}"
         Version="${version}" />
     <Properties>
-        <DisplayName>Bitwarden</DisplayName>
+        <DisplayName>Bitwarden Shell Extension</DisplayName>
         <PublisherDisplayName>Bitwarden Inc</PublisherDisplayName>
-        <Description>A secure and free password manager for all of your devices.</Description>
+        <Description>Bitwarden context menu shell extension for Windows Explorer.</Description>
         <Logo>resources\icon.png</Logo>
         <uap10:AllowExternalContent>true</uap10:AllowExternalContent>
     </Properties>
     <Dependencies>
-        <!-- MinVersion 10.0.19041.0 for desktop4/desktop5 namespace support -->
         <TargetDeviceFamily Name="Windows.Desktop"
             MinVersion="10.0.19041.0"
             MaxVersionTested="10.0.26100.0" />
@@ -30,12 +28,6 @@
     <Applications>
         <Application Id="BitwardenDesktop" Executable="Bitwarden.exe"
             EntryPoint="Windows.FullTrustApplication">
-            <uap:VisualElements DisplayName="Bitwarden"
-                Description="A secure and free password manager for all of your devices."
-                Square150x150Logo="resources\icon.png"
-                Square44x44Logo="resources\icon.png"
-                BackgroundColor="transparent"
-                AppListEntry="none" />
             <Extensions>
                 <!-- COM server registration for the shell extension DLL -->
                 <com:Extension Category="windows.comServer">
@@ -47,7 +39,6 @@
                         </com:SurrogateServer>
                     </com:ComServer>
                 </com:Extension>
-
                 <!-- Windows 11 modern context menu entries -->
                 <desktop4:Extension Category="windows.fileExplorerContextMenus">
                     <desktop4:FileExplorerContextMenus>

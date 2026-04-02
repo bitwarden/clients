@@ -159,11 +159,7 @@ function buildSparsePackage(target) {
     const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "src", "package.json"), "utf8"));
     const version = packageJson.version + ".0";
 
-    // The sparse MSIX is always unsigned (AllowUnsigned) because it ships inside
-    // a signed installer. Unsigned packages require the publisher to end with
-    // the Windows unsigned marker OID (a fixed magic value).
-    // See: https://learn.microsoft.com/en-us/windows/msix/package/unsigned-package
-    const publisher = "CN=Bitwarden Inc, OID.2.25.311729368913984317654407730594956997722=1";
+    const publisher = process.env.SPARSE_PACKAGE_PUBLISHER || "CN=Bitwarden Inc., O=Bitwarden Inc., L=Santa Barbara, S=California, C=US";
 
     const templatePath = path.join(__dirname, "..", "resources", "sparse-package", "AppxManifest.xml");
     const outputDir = path.join(__dirname, "dist");

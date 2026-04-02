@@ -19,7 +19,7 @@ exports.default = async function (configuration) {
         "-kvt", process.env.SIGNING_TENANT_ID,
         "-kvs", process.env.SIGNING_CLIENT_SECRET,
         "-kvc", process.env.SIGNING_CERT_NAME,
-        "-fd", configuration.hash,
+        "-fd", ext === "msix" ? "sha256" : configuration.hash,
         "-du", configuration.site,
         "-tr", "http://timestamp.digicert.com",
         configuration.path,
