@@ -19,7 +19,6 @@ import {
   SuccessCheckSsoAvailableOnPageResult,
 } from "./oauth-providers/google-check-sso-available-on-page";
 
-// Jimmy Note: This gets trigger on every page, but it doesn't go through the whole process. I need to add my trigger around here.
 export class OAuthDetectionBackground {
   /** Maps SSO tab ID → flow state. */
   private activeFlows = new Map<number, OAuthFlowState>();
@@ -53,16 +52,20 @@ export class OAuthDetectionBackground {
         );
 
         void this.checkSsoAvailableOnPage(details.tabId).then(async (data) => {
-          this.logService.info(`[OAuthDetection] Jimmy it's done ${JSON.stringify(data)}`);
+          this.logService.info(`[OAuthDetection check existing auth flow] start checking`);
 
           if (!data || !("pageUrl" in data)) {
-            this.logService.info(`[OAuthDetection] The user is most likely logged in.`);
+            this.logService.info(
+              `[OAuthDetection check existing auth flow] The user is most likely logged in on the site.`,
+            );
             return;
           }
 
           const activeUser = await firstValueFrom(this.accountService.activeAccount$);
           if (!activeUser) {
-            this.logService.info(`[OAuthDetection] Please log in to the extension.`);
+            this.logService.info(
+              `[OAuthDetection check existing auth flow] Please log in to the extension.`,
+            );
             return;
           }
 
@@ -71,10 +74,8 @@ export class OAuthDetectionBackground {
             activeUser.id,
           );
           this.logService.info(
-            `[OAuthDetection] Jimmy Found ${ciphers.length} cipher(s) for ${data.pageDomain}`,
+            `[OAuthDetection check existing auth flow] Found ${ciphers.length} cipher(s) for ${data.pageDomain}`,
           );
-
-          this.logService.info(`[OAuthDetection] Jimmy ciphers ${JSON.stringify(ciphers)}`);
 
           const ssoLogins = ciphers
             .filter((c) => c.login?.password?.includes("[SSO:"))
@@ -89,7 +90,9 @@ export class OAuthDetectionBackground {
           if (ssoLogins.length > 0) {
             const tab = await BrowserApi.getTab(details.tabId);
             if (!tab) {
-              this.logService.info(`[OAuthDetection] Tab no longer exist.`);
+              this.logService.info(
+                `[OAuthDetection check existing auth flow] Tab no longer exist.`,
+              );
               return;
             }
             await this.notificationBackground.pushExistingLoginToQueue(
@@ -442,7 +445,7 @@ export class OAuthDetectionBackground {
   private async checkSsoAvailableOnPage(
     tabId: number,
   ): Promise<SuccessCheckSsoAvailableOnPageResult | FailureCheckSsoAvailableOnPageResult> {
-    this.logService.info(`[OAuthDetection] checkSsoAvailableOnPage Jimmy 2`);
+    this.logService.info(`[OAuthDetection check existing auth flow] start executeScript`);
     try {
       const results = await chrome.scripting.executeScript({
         target: { tabId },
@@ -450,12 +453,11 @@ export class OAuthDetectionBackground {
       });
 
       const result = results?.[0]?.result;
-      this.logService.info(
-        `[OAuthDetection] checkSsoAvailableOnPage Jimmy 3 result: ${JSON.stringify(result)}`,
-      );
       return result;
     } catch (e) {
-      this.logService.error(`[OAuthDetection] isSsoAvailableOnPage failed for tab ${tabId}: ${e}`);
+      this.logService.error(
+        `[OAuthDetection check existing auth flow] failed for tab ${tabId}: ${e}`,
+      );
       return null;
     }
   }
