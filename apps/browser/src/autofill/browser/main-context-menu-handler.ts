@@ -27,6 +27,8 @@ import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
+import { COPY_AUTOFILL_DEBUG_ID } from "../enums/autofill-message.enums";
+import { devFlagEnabled } from "../../platform/flags";
 import { InitContextMenuItems } from "./abstractions/main-context-menu-handler";
 
 export class MainContextMenuHandler {
@@ -203,6 +205,14 @@ export class MainContextMenuHandler {
         }
 
         await MainContextMenuHandler.create({ ...otherOptions, contexts: ["all"] });
+      }
+      if (devFlagEnabled("autofillDebugMode")) {
+        await MainContextMenuHandler.create({
+          id: COPY_AUTOFILL_DEBUG_ID,
+          parentId: ROOT_ID,
+          title: "[Debug] Copy autofill debug info",
+          contexts: ["all"],
+        });
       }
     } catch (error) {
       if (error instanceof Error) {
