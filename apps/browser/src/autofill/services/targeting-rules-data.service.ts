@@ -17,6 +17,7 @@ import { DomainSettingsService } from "@bitwarden/common/autofill/services/domai
 import { FormsMapResource, TargetingRulesByDomain } from "@bitwarden/common/autofill/types";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ScheduledTaskNames, TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
 import {
@@ -62,6 +63,7 @@ export class TargetingRulesDataService {
     private apiService: ApiService,
     private domainSettingsService: DomainSettingsService,
     private configService: ConfigService,
+    private environmentService: EnvironmentService,
     private taskSchedulerService: TaskSchedulerService,
     private globalStateProvider: GlobalStateProvider,
     private logService: LogService,
@@ -75,12 +77,6 @@ export class TargetingRulesDataService {
    * first fetch.
    */
   async init(): Promise<void> {
-    const isEnabled = await this.configService.getFeatureFlag(FeatureFlag.FillAssistTargetingRules);
-
-    if (!isEnabled) {
-      return;
-    }
-
     this.taskSchedulerService.registerTaskHandler(ScheduledTaskNames.targetingRulesUpdate, () =>
       this._triggerUpdate$.next(),
     );
@@ -97,8 +93,24 @@ export class TargetingRulesDataService {
       )
       .subscribe();
 
-    // Trigger initial update
-    this._triggerUpdate$.next();
+    // Always clear rules on environment change. Rules from a previous
+    // environment must not persist, as a safety concern (e.g. switching
+    // to/from a self-hosted server).
+    this.environmentService.environment$.pipe(takeUntil(this._destroy$)).subscribe((env) => {
+      this.logService.info(
+        `[TargetingRulesDataService] Environment loaded: ${env.getHostname()}; clearing cached data.`,
+      );
+      void this.domainSettingsService.setTargetingRules({});
+      void this._metaState.update(() => ({ timestamp: 0 }));
+    });
+
+    // Trigger a fetch whenever the server config changes (e.g. after
+    // unlock, account switch, or environment change). The config lags
+    // behind environment$, so reacting here ensures _resolveSourceUrl
+    // reads the correct config for the active environment.
+    this.configService.serverConfig$.pipe(takeUntil(this._destroy$)).subscribe(() => {
+      this._triggerUpdate$.next();
+    });
   }
 
   dispose(): void {
@@ -111,7 +123,6 @@ export class TargetingRulesDataService {
     // Use defer to restart timer if retry is activated
     return defer(() => {
       const startTime = Date.now();
-      this.logService.info("[TargetingRulesDataService] Update triggered...");
 
       return from(this._fetchAndStoreRules()).pipe(
         tap(() => {
@@ -120,19 +131,22 @@ export class TargetingRulesDataService {
         }),
         retry({
           count: 2,
-          delay: async (error, retryCount) => {
-            if (retryCount === 1) {
-              // Intentionally clear cached rules on first failure rather than
-              // retaining potentially stale/invalid data. The risk of acting on
-              // outdated rules (e.g. filling wrong fields after a site redesign)
-              // outweighs the impact of temporarily falling back to heuristics until
-              // the next successful fetch.
-              await this.domainSettingsService.setTargetingRules({});
-            }
+          delay: (error, retryCount) => {
             this.logService.error(
               `[TargetingRulesDataService] Attempt ${retryCount} failed. Retrying in 5m...`,
               error,
             );
+
+            // Intentionally clear cached rules on first failure rather than
+            // retaining potentially stale/invalid data. The risk of acting on
+            // outdated rules (e.g. filling wrong fields after a site redesign)
+            // outweighs the impact of temporarily falling back to heuristics until
+            // the next successful fetch.
+            if (retryCount === 1) {
+              void this.domainSettingsService.setTargetingRules({});
+              void this._metaState.update(() => ({ timestamp: 0 }));
+            }
+
             return timer(5 * 60 * 1000); // 5 minutes
           },
         }),
@@ -148,6 +162,15 @@ export class TargetingRulesDataService {
   }
 
   private async _fetchAndStoreRules(): Promise<void> {
+    const isEnabled = await this.configService.getFeatureFlag(FeatureFlag.FillAssistTargetingRules);
+    if (!isEnabled) {
+      this.logService.debug("[TargetingRulesDataService] Feature is not enabled, skipping fetch.");
+
+      return;
+    }
+
+    this.logService.info("[TargetingRulesDataService] Update triggered...");
+
     const meta = await firstValueFrom(this._metaState.state$);
     const cacheAge = Date.now() - (meta?.timestamp ?? 0);
 
