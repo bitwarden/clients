@@ -293,7 +293,7 @@ export class LockComponent implements OnInit, OnDestroy {
           if (this.unlockingViaManualFlow) {
             return;
           }
-          await this.pinService.userUnlocked(this.activeAccount.id);
+          await this.pinService.userUnlocked(this.activeAccount!.id);
           await this.doContinue({});
         }),
         takeUntil(this.destroy$),
