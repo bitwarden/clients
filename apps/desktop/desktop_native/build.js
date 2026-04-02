@@ -160,10 +160,10 @@ function buildSparsePackage(target) {
     const version = packageJson.version + ".0";
 
     // The sparse MSIX is always unsigned (AllowUnsigned) because it ships inside
-    // a signed installer. Unsigned packages require the publisher to use the
-    // OID.2.25 (UUID arc) namespace format instead of a certificate DN.
-    // This OID is derived from UUID a585a128-2049-4934-ae35-cea51a83622b (the shell extension CLSID).
-    const publisher = "OID.2.25.220016942046461694737412095376966132267=1";
+    // a signed installer. Unsigned packages require the publisher to end with
+    // the Windows unsigned marker OID (a fixed magic value).
+    // See: https://learn.microsoft.com/en-us/windows/msix/package/unsigned-package
+    const publisher = "CN=Bitwarden Inc, OID.2.25.311729368913984317654407730594956997722=1";
 
     const templatePath = path.join(__dirname, "..", "resources", "sparse-package", "AppxManifest.xml");
     const outputDir = path.join(__dirname, "dist");
