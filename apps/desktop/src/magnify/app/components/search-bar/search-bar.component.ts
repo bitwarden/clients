@@ -1,3 +1,4 @@
+import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -20,7 +21,7 @@ const MODIFIER_KEYS = new Set(["Meta", "Control", "Shift", "Alt", "CommandOrCont
 @Component({
   selector: "search-bar",
   standalone: true,
-  imports: [ResultsListComponent, ActionBarComponent],
+  imports: [ResultsListComponent, ActionBarComponent, NgIf],
   templateUrl: "./search-bar.component.html",
   styleUrl: "./search-bar.css",
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -75,3 +75,12 @@
   padding: 2px 6px;
   letter-spacing: 0.3px;
 }
+
+.search-bar-logo {
+  flex-shrink: 0;
+  display: block;
+  width: 14px;
+  height: 18px;
+  color: var(--icon-color);
+  opacity: 0.5;
+}
