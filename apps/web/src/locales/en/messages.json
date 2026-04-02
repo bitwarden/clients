@@ -6416,6 +6416,12 @@
   "receiveLink": {
     "message": "Receive link"
   },
+  "receiveCreatedSuccessfully": {
+    "message": "Receive created successfully!"
+  },
+  "receiveCreatedDescription": {
+    "message": "Copy and share this Receive link. Anyone can upload files to this link."
+  },
   "receives": {
     "message": "Receives"
   },
