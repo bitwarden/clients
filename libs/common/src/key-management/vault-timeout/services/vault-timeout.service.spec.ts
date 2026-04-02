@@ -336,5 +336,54 @@ describe("VaultTimeoutService", () => {
 
       expectNoAction("1");
     });
+
+    it("should not run timeout actions for a user while vault timeout is suppressed", async () => {
+      setupAccounts(
+        {
+          1: {
+            authStatus: AuthenticationStatus.Unlocked,
+            isAuthenticated: true,
+            lastActive: new Date().getTime() - 120 * 1000, // Last active 2 minutes ago
+            vaultTimeout: 1, // Vault timeout of 1 minute
+          },
+          2: {
+            authStatus: AuthenticationStatus.Unlocked,
+            isAuthenticated: true,
+            lastActive: new Date().getTime() - 120 * 1000, // Last active 2 minutes ago
+            vaultTimeout: 1, // Vault timeout of 1 minute
+          },
+        },
+        { isViewFocused: false },
+      );
+
+      vaultTimeoutSettingsService.vaultTimeoutSuppressedUntil$.mockImplementation((userId) =>
+        of(userId === "1" ? Date.now() + 60 * 1000 : null),
+      );
+
+      await vaultTimeoutService.checkVaultTimeout();
+
+      expectNoAction("1");
+      expectUserToHaveLocked("2");
+    });
+
+    it("should run timeout action when suppression has expired", async () => {
+      setupAccounts(
+        {
+          1: {
+            authStatus: AuthenticationStatus.Unlocked,
+            isAuthenticated: true,
+            lastActive: new Date().getTime() - 120 * 1000, // Last active 2 minutes ago
+            vaultTimeout: 1, // Vault timeout of 1 minute
+          },
+        },
+        { isViewFocused: false },
+      );
+
+      vaultTimeoutSettingsService.vaultTimeoutSuppressedUntil$.mockReturnValue(of(Date.now() - 1000));
+
+      await vaultTimeoutService.checkVaultTimeout();
+
+      expectUserToHaveLocked("1");
+    });
   });
 });
