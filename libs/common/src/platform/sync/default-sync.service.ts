@@ -13,6 +13,7 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 import { ReceiveData } from "@bitwarden/common/tools/receive/models/data/receive.data";
 import { ReceiveResponse } from "@bitwarden/common/tools/receive/models/response/receive.response";
+import { ReceiveApiService } from "@bitwarden/common/tools/receive/services/receive-api.service";
 import { InternalReceiveService } from "@bitwarden/common/tools/receive/services/receive.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -95,7 +96,6 @@ export class DefaultSyncService extends CoreSyncService {
     messageSender: MessageSender,
     private policyService: InternalPolicyService,
     sendService: InternalSendService,
-    private receiveService: InternalReceiveService,
     logService: LogService,
     private keyConnectorService: KeyConnectorService,
     private providerService: ProviderService,
@@ -112,6 +112,8 @@ export class DefaultSyncService extends CoreSyncService {
     private securityStateService: SecurityStateService,
     private kdfConfigService: KdfConfigService,
     private accountCryptographicStateService: AccountCryptographicStateService,
+    receiveService: InternalReceiveService,
+    receiveApiService: ReceiveApiService,
   ) {
     super(
       tokenService,
@@ -127,6 +129,8 @@ export class DefaultSyncService extends CoreSyncService {
       sendService,
       sendApiService,
       stateProvider,
+      receiveService,
+      receiveApiService,
     );
   }
 

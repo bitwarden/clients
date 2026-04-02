@@ -36,4 +36,7 @@ export enum NotificationType {
 
   SyncPolicy = 25,
   AutoConfirmMember = 26,
+
+  SyncReceiveCreate = 28,
+  SyncReceiveUpdate = 29,
 }

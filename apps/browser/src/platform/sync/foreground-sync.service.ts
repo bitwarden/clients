@@ -17,6 +17,8 @@ import { StateProvider } from "@bitwarden/common/platform/state";
 // eslint-disable-next-line no-restricted-imports
 import { CoreSyncService } from "@bitwarden/common/platform/sync/internal";
 import { SyncOptions } from "@bitwarden/common/platform/sync/sync.service";
+import { ReceiveApiService } from "@bitwarden/common/tools/receive/services/receive-api.service";
+import { InternalReceiveService } from "@bitwarden/common/tools/receive/services/receive.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -45,6 +47,8 @@ export class ForegroundSyncService extends CoreSyncService {
     sendApiService: SendApiService,
     private readonly messageListener: MessageListener,
     stateProvider: StateProvider,
+    receiveService: InternalReceiveService,
+    receiveApiService: ReceiveApiService,
   ) {
     super(
       tokenService,
@@ -60,6 +64,8 @@ export class ForegroundSyncService extends CoreSyncService {
       sendService,
       sendApiService,
       stateProvider,
+      receiveService,
+      receiveApiService,
     );
   }
 
