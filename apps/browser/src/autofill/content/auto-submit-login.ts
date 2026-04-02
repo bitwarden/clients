@@ -9,12 +9,12 @@ import { DomQueryService } from "../services/dom-query.service";
 import InsertAutofillContentService from "../services/insert-autofill-content.service";
 import {
   elementIsInputElement,
-  getSubmitButtonKeywordsSet,
   nodeIsButtonElement,
   nodeIsFormElement,
   nodeIsTypeSubmitElement,
   sendExtensionMessage,
 } from "../utils";
+import { getSubmitButtonKeywordsSet } from "../utils/qualification";
 
 (function (globalContext) {
   const domQueryService = new DomQueryService();

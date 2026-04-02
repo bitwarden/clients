@@ -420,47 +420,6 @@ export function debounce<FunctionType extends (...args: unknown[]) => unknown>(
 }
 
 /**
- * Gathers and normalizes keywords from a potential submit button element. Used
- * to verify if the element submits a login or change password form.
- *
- * @param element - The element to gather keywords from.
- */
-export function getSubmitButtonKeywordsSet(element: HTMLElement): Set<string> {
-  const keywords = [
-    element.textContent,
-    element.getAttribute("type"),
-    element.getAttribute("value"),
-    element.getAttribute("aria-label"),
-    element.getAttribute("aria-labelledby"),
-    element.getAttribute("aria-describedby"),
-    element.getAttribute("title"),
-    element.getAttribute("id"),
-    element.getAttribute("name"),
-    element.getAttribute("class"),
-  ];
-
-  const keywordsSet = new Set<string>();
-  for (let i = 0; i < keywords.length; i++) {
-    const keyword = keywords[i];
-    if (typeof keyword === "string") {
-      // Iterate over all keywords metadata and split them by non-letter characters.
-      // This ensures we check against individual words and not the entire string.
-      keyword
-        .toLowerCase()
-        .replace(/[-\s]/g, "")
-        .split(/[^\p{L}]+/gu)
-        .forEach((splitKeyword) => {
-          if (splitKeyword) {
-            keywordsSet.add(splitKeyword);
-          }
-        });
-    }
-  }
-
-  return keywordsSet;
-}
-
-/**
  * Generates the origin and subdomain match patterns for the URL.
  *
  * @param url - The URL of the tab

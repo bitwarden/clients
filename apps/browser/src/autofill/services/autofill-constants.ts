@@ -68,7 +68,56 @@ export class AutoFillConstants {
     "create",
   ];
 
-  static readonly NewsletterFormNames: string[] = ["newsletter"];
+  /**
+   * Field-level keywords indicating account creation or registration context.
+   * Broader than {@link RegistrationKeywords}, which is used at the form level.
+   */
+  static readonly AccountCreationFieldKeywords: string[] = [
+    "register",
+    "registration",
+    "create password",
+    "create a password",
+    "create an account",
+    "create account password",
+    "create user password",
+    "confirm password",
+    "confirm account password",
+    "confirm user password",
+    "new user",
+    "new email",
+    "new e-mail",
+    "new password",
+    "new-password",
+    "neuer benutzer",
+    "neues passwort",
+    "neue e-mail",
+    "pwdcheck",
+  ];
+
+  /**
+   * Field-level keywords indicating a password update or change context, as distinguished
+   * from a new account creation or initial login context.
+   */
+  static readonly UpdatePasswordFieldKeywords: string[] = [
+    "update password",
+    "change password",
+    "current password",
+    "kennwort ändern",
+  ];
+
+  /**
+   * Form-level keywords indicating a non-login context such as newsletter signup or
+   * subscription forms. Used to exclude fields within these forms from login autofill.
+   */
+  static readonly NonLoginFormKeywords: string[] = [
+    "newsletter",
+    // @TODO expand list thoughtfully
+    // consider possible collisions with login forms
+    // consider using a "maybe" check
+    // "subscribe",
+    // "subscription",
+    // "unsubscribe",
+  ];
 
   static readonly FieldIgnoreList: string[] = ["captcha", "findanything", "forgot"];
 
@@ -397,6 +446,7 @@ export class IdentityAutoFillConstants {
     "label-top",
     "data-recurly",
     "accountCreationFieldType",
+    "type",
   ];
 
   static readonly FullNameFieldNames: string[] = ["name", "full-name", "your-name"];
