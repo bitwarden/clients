@@ -154,6 +154,7 @@ export class LockComponent implements OnInit, OnDestroy {
   defaultUnlockOptionSetForUser = false;
 
   unlockingViaBiometrics = false;
+  unlockingViaManualFlow = false;
 
   constructor(
     private accountService: AccountService,
@@ -287,7 +288,14 @@ export class LockComponent implements OnInit, OnDestroy {
         // Trigger continuation on lock->unlock transitions only.
         distinctUntilChanged(),
         filter((isUnlocked) => isUnlocked),
-        mergeMap(() => this.doContinue({})),
+        switchMap(async () => {
+          // We don't want duplicate continue flows to happen
+          if (this.unlockingViaManualFlow) {
+            return;
+          }
+          await this.pinService.userUnlocked(this.activeAccount.id);
+          await this.doContinue({});
+        }),
         takeUntil(this.destroy$),
       )
       .subscribe();
@@ -615,6 +623,7 @@ export class LockComponent implements OnInit, OnDestroy {
     // Add a mark to indicate that the user has unlocked their vault. A good starting point for measuring unlock performance.
     this.logService.mark("Vault unlocked");
 
+    this.unlockingViaManualFlow = true;
     await this.keyService.setUserKey(key, this.activeAccount.id);
     await this.pinService.userUnlocked(this.activeAccount.id);
 
