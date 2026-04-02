@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+    xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
     xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
     xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
     xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
@@ -28,6 +29,12 @@
     <Applications>
         <Application Id="BitwardenDesktop" Executable="Bitwarden.exe"
             EntryPoint="Windows.FullTrustApplication">
+            <uap:VisualElements DisplayName="Bitwarden Shell Extension"
+                Description="Bitwarden context menu shell extension for Windows Explorer."
+                Square150x150Logo="resources\icon.png"
+                Square44x44Logo="resources\icon.png"
+                BackgroundColor="transparent"
+                AppListEntry="none" />
             <Extensions>
                 <!-- COM server registration for the shell extension DLL -->
                 <com:Extension Category="windows.comServer">
