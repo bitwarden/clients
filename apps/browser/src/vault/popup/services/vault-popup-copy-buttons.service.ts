@@ -1,17 +1,11 @@
 import { inject, Injectable } from "@angular/core";
 import { map, Observable, shareReplay } from "rxjs";
 
+import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 import {
-  GlobalStateProvider,
-  KeyDefinition,
-  VAULT_APPEARANCE,
-} from "@bitwarden/common/platform/state";
-
-export type CopyButtonDisplayMode = "combined" | "quick";
-
-const COPY_BUTTON = new KeyDefinition<CopyButtonDisplayMode>(VAULT_APPEARANCE, "copyButtons", {
-  deserializer: (s) => s,
-});
+  COPY_BUTTON,
+  CopyButtonDisplayMode,
+} from "@bitwarden/common/vault/services/key-state/vault-appearance.state";
 
 /**
  * Settings service for vault copy button settings

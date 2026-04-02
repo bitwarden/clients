@@ -10,6 +10,8 @@ export {
   CommonDeviceSyncedKeyEntry,
   BrowserSyncedKeyEntry,
   SharedGlobalSyncedKeyEntry,
+  BrowserGlobalSyncedKeyEntry,
+  GlobalSyncedKeyEntry,
   SyncScope,
   SYNCED_KEYS,
   PREFERENCE_SYNC_ENABLED,

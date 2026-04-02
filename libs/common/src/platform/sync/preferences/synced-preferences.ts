@@ -71,4 +71,8 @@ export interface BrowserPreferences extends DevicePreferences {
   clickItemsToAutofillOnVaultView?: boolean;
   defaultUriMatchStrategy?: UriMatchStrategySetting;
   enableBadgeCounter?: boolean;
+  compactMode?: boolean;
+  showAnimations?: boolean;
+  copyButtonDisplayMode?: string;
+  popupWidth?: string;
 }
