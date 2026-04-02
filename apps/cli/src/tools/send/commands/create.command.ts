@@ -173,7 +173,9 @@ export class SendCreateCommand {
 
         const folderName = path.basename(folderPath);
         const client = await firstValueFrom(this.sdkService.client$);
-        const result = client.sends().make_send_folder({ folderName, files: entries });
+        const result = client
+          .sends()
+          .make_send_multi_file({ archiveName: folderName, files: entries });
 
         req.file.fileName = result.file.fileName;
         fileBuffer = new Uint8Array(result.contents).buffer;

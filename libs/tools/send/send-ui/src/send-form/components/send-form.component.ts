@@ -36,7 +36,7 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import { MakeSendFolderEntry } from "@bitwarden/sdk-internal";
+import { MakeSendMultiFileEntry } from "@bitwarden/sdk-internal";
 
 import { SendFormConfig } from "../abstractions/send-form-config.service";
 import { SendFormService } from "../abstractions/send-form.service";
@@ -241,7 +241,7 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
     let fileOrBuffer: File | ArrayBuffer = this.file;
 
     if (this.folderFiles != null && this.folderFiles.length > 0) {
-      const entries: MakeSendFolderEntry[] = [];
+      const entries: MakeSendMultiFileEntry[] = [];
       const firstPath = this.folderFiles[0].webkitRelativePath;
       const folderName = firstPath.split("/")[0];
 
@@ -258,7 +258,9 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
       }
 
       const client = await firstValueFrom(this.sdkService.client$);
-      const result = client.sends().make_send_folder({ folderName, files: entries });
+      const result = client
+        .sends()
+        .make_send_multi_file({ archiveName: folderName, files: entries });
 
       this.logService.debug(
         `[SendFormComponent] Zip created: "${result.file.fileName}" (${result.file.sizeName})`,
