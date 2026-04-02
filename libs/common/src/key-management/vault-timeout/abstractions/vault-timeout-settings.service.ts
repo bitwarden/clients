@@ -67,6 +67,7 @@ export abstract class VaultTimeoutSettingsService {
    * While suppressed, the vault timeout service will not lock or log out users.
    */
   abstract suppressVaultTimeout(until: number, userId: UserId): Promise<void>;
+
   /**
    * Clear vault timeout suppression for the user, allowing vault timeout to occur as normal.
    */
