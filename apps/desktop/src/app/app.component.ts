@@ -818,7 +818,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.vaultTimeoutSettingsService.vaultTimeoutSuppressedUntil$(userId as UserId),
       );
       if (suppressedUntil != null && Date.now() < suppressedUntil) {
-        return;
+        continue;
       }
 
       const options = await this.getVaultTimeoutOptions(userId);
