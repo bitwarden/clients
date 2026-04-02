@@ -14,15 +14,16 @@ import {
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventType } from "@bitwarden/common/dirt/event-logs";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs/services/event-collection.service";
 import { FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
+import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import {
   FakeStateProvider,
   FakeAccountService,
@@ -96,6 +97,11 @@ describe("AutofillService", () => {
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
   let authService: MockProxy<AuthService>;
   let configService: MockProxy<ConfigService>;
+  let enableRoutingAnimationMock$: BehaviorSubject<boolean>;
+  let enableAutofillAnimationMock$: BehaviorSubject<boolean>;
+  let enableInlineMenuAnimationMock$: BehaviorSubject<boolean>;
+  let enableNotificationAnimationMock$: BehaviorSubject<boolean>;
+  let animationControlService: MockProxy<AnimationControlService>;
   let enableChangedPasswordPromptMock$: BehaviorSubject<boolean>;
   let enableAddedLoginPromptMock$: BehaviorSubject<boolean>;
   let userNotificationsSettings: MockProxy<UserNotificationSettingsServiceAbstraction>;
@@ -130,6 +136,15 @@ describe("AutofillService", () => {
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
     messageListener = mock<MessageListener>();
+    enableRoutingAnimationMock$ = new BehaviorSubject(true);
+    enableAutofillAnimationMock$ = new BehaviorSubject(true);
+    enableInlineMenuAnimationMock$ = new BehaviorSubject(true);
+    enableNotificationAnimationMock$ = new BehaviorSubject(true);
+    animationControlService = mock<AnimationControlService>();
+    animationControlService.enableRoutingAnimation$ = enableRoutingAnimationMock$;
+    animationControlService.enableAutofillAnimation$ = enableAutofillAnimationMock$;
+    animationControlService.enableNotificationAnimation$ = enableNotificationAnimationMock$;
+    animationControlService.enableInlineMenuAnimation$ = enableInlineMenuAnimationMock$;
     enableChangedPasswordPromptMock$ = new BehaviorSubject(true);
     enableAddedLoginPromptMock$ = new BehaviorSubject(true);
     userNotificationsSettings = mock<UserNotificationSettingsServiceAbstraction>();
@@ -150,6 +165,7 @@ describe("AutofillService", () => {
       configService,
       userNotificationsSettings,
       messageListener,
+      animationControlService,
     );
     jest.spyOn(BrowserApi, "tabSendMessage");
   });
@@ -815,6 +831,7 @@ describe("AutofillService", () => {
           },
           url: currentAutofillPageDetails.tab.url,
           pageDetailsUrl: "url",
+          showAnimations: true,
         },
         {
           frameId: currentAutofillPageDetails.frameId,
@@ -826,6 +843,23 @@ describe("AutofillService", () => {
         autofillOptions.cipher.id,
       );
       expect(autofillResult).toBeNull();
+    });
+
+    it("sends showAnimations as false when enableAutofillAnimation$ emits false", async () => {
+      enableAutofillAnimationMock$.next(false);
+
+      await autofillService.doAutoFill(autofillOptions);
+
+      const currentAutofillPageDetails = autofillOptions.pageDetails[0];
+      expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(
+        currentAutofillPageDetails.tab.id,
+        expect.objectContaining({
+          command: "fillForm",
+          showAnimations: false,
+        }),
+        { frameId: currentAutofillPageDetails.frameId },
+        expect.any(Function),
+      );
     });
 
     it("will autofill card data for a page", async () => {
@@ -2437,6 +2471,139 @@ describe("AutofillService", () => {
             expect.anything(),
             AutoFillConstants.TotpFieldNames,
           );
+        });
+
+        it("classifies a field matching TotpFieldNames as TOTP", async () => {
+          const totpCode = "123456";
+          options.allowTotpAutofill = true;
+          totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
+          const totpField = createAutofillFieldMock({
+            opid: "reliable-totp",
+            type: "text",
+            form: "validFormId",
+            htmlName: AutoFillConstants.TotpFieldNames[0],
+            elementNumber: 5,
+          });
+          pageDetails.fields = [totpField];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(fillScript, totpField, totpCode);
+        });
+
+        it("classifies a field matching AmbiguousTotpFieldNames as username when it also matches username signals", async () => {
+          options.allowTotpAutofill = true;
+          // Simulates a username field whose label-left was contaminated with an
+          // ambiguous TOTP keyword.
+          const ambiguousField = createAutofillFieldMock({
+            opid: "ambiguous-totp",
+            type: "text",
+            form: "validFormId",
+            htmlName: "username",
+            htmlID: AutoFillConstants.AmbiguousTotpFieldNames[0],
+            "label-left": AutoFillConstants.AmbiguousTotpFieldNames[0],
+            elementNumber: 5,
+          });
+          pageDetails.fields = [ambiguousField];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledTimes(1);
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            ambiguousField,
+            options.cipher.login.username,
+          );
+        });
+
+        it("classifies a field matching only AmbiguousTotpFieldNames as TOTP when there are no username signals", async () => {
+          const totpCode = "123456";
+          options.allowTotpAutofill = true;
+          totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
+          const ambiguousField = createAutofillFieldMock({
+            opid: "ambiguous-totp-only",
+            type: "text",
+            form: "validFormId",
+            htmlName: AutoFillConstants.AmbiguousTotpFieldNames[0],
+            htmlID: AutoFillConstants.AmbiguousTotpFieldNames[0],
+            elementNumber: 5,
+          });
+          pageDetails.fields = [ambiguousField];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            ambiguousField,
+            totpCode,
+          );
+        });
+
+        it("classifies a field matching TotpFieldNames as TOTP even when it also matches username signals", async () => {
+          const totpCode = "123456";
+          options.allowTotpAutofill = true;
+          totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
+          const field = createAutofillFieldMock({
+            opid: "reliable-totp-with-username-signal",
+            type: "text",
+            form: "validFormId",
+            htmlName: AutoFillConstants.TotpFieldNames[0],
+            "label-left": "username",
+            elementNumber: 5,
+          });
+          pageDetails.fields = [field];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(fillScript, field, totpCode);
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            field,
+            options.cipher.login.username,
+          );
+        });
+
+        it("classifies a field with autocomplete=one-time-code as TOTP", async () => {
+          const totpCode = "123456";
+          options.allowTotpAutofill = true;
+          totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
+          const field = createAutofillFieldMock({
+            opid: "otp-autocomplete",
+            type: "text",
+            form: "validFormId",
+            autoCompleteType: "one-time-code",
+            elementNumber: 5,
+          });
+          pageDetails.fields = [field];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(fillScript, field, totpCode);
         });
       });
 

@@ -216,8 +216,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return BrowserPopupUtils.inSingleActionPopout(window, VaultPopoutType.addEditVaultItem);
   }
 
-  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
-
   constructor(
     private route: ActivatedRoute,
     private i18nService: I18nService,

@@ -9,7 +9,6 @@ import { Observable, of, switchMap } from "rxjs";
 import { BitSvg } from "@bitwarden/assets/svg";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -91,13 +90,10 @@ export class VaultListComponent<C extends CipherViewLike> {
 
   protected cipherAuthorizationService = inject(CipherAuthorizationService);
   protected restrictedItemTypesService = inject(RestrictedItemTypesService);
-  protected cipherArchiveService = inject(CipherArchiveService);
   private premiumUpgradePromptService = inject(PremiumUpgradePromptService);
 
   protected dataSource = new TableDataSource<VaultItem<C>>();
   private restrictedTypes: RestrictedCipherType[] = [];
-
-  protected archiveFeatureEnabled$ = this.cipherArchiveService.hasArchiveFlagEnabled$;
 
   constructor() {
     this.restrictedItemTypesService.restricted$.pipe(takeUntilDestroyed()).subscribe((types) => {

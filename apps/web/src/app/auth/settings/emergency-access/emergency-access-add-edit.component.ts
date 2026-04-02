@@ -6,7 +6,6 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   DialogConfig,
   DialogRef,
@@ -61,7 +60,6 @@ export class EmergencyAccessAddEditComponent implements OnInit {
     private formBuilder: FormBuilder,
     private emergencyAccessService: EmergencyAccessService,
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
     private logService: LogService,
     private dialogRef: DialogRef<EmergencyAccessAddEditDialogResult>,
     private toastService: ToastService,
@@ -104,37 +102,29 @@ export class EmergencyAccessAddEditComponent implements OnInit {
       this.addEditForm.markAllAsTouched();
       return;
     }
-    try {
-      if (this.editMode) {
-        await this.emergencyAccessService.update(
-          this.params.emergencyAccessId,
-          this.addEditForm.value.emergencyAccessType,
-          this.addEditForm.value.waitTime,
-        );
-      } else {
-        await this.emergencyAccessService.invite(
-          this.addEditForm.value.email,
-          this.addEditForm.value.emergencyAccessType,
-          this.addEditForm.value.waitTime,
-        );
-      }
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t(
-          this.editMode ? "editedUserId" : "invitedUsers",
-          this.params.name,
-        ),
-      });
-      this.dialogRef.close(EmergencyAccessAddEditDialogResult.Saved);
-    } catch (e) {
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: e.message,
-      });
-      this.logService.error(e);
+
+    if (this.editMode) {
+      await this.emergencyAccessService.update(
+        this.params.emergencyAccessId,
+        this.addEditForm.value.emergencyAccessType,
+        this.addEditForm.value.waitTime,
+      );
+    } else {
+      await this.emergencyAccessService.invite(
+        this.addEditForm.value.email,
+        this.addEditForm.value.emergencyAccessType,
+        this.addEditForm.value.waitTime,
+      );
     }
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t(
+        this.editMode ? "editedUserId" : "invitedUsers",
+        this.params.name,
+      ),
+    });
+    this.dialogRef.close(EmergencyAccessAddEditDialogResult.Saved);
   };
 
   delete = async () => {
