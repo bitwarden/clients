@@ -185,9 +185,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
           }
 
           // Don't update if entry is already in the cache
-          return !cache.some(
-            (e) => e.email === newEntry.email && e.webVaultUrl === newEntry.webVaultUrl,
-          );
+          return !cache.some((e) => this.entriesMatch(e, newEntry));
         },
       },
     );
@@ -197,10 +195,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     const entryToRemove: SsoRequiredCacheEntry = { email: email.toLowerCase(), webVaultUrl };
 
     await this.ssoRequiredCacheState.update(
-      (cache) =>
-        cache?.filter(
-          (e) => !(e.email === entryToRemove.email && e.webVaultUrl === entryToRemove.webVaultUrl),
-        ) ?? cache,
+      (cache) => cache?.filter((e) => !this.entriesMatch(e, entryToRemove)) ?? cache,
       {
         shouldUpdate: (cache) => {
           // Don't update if cache does not exist
@@ -209,9 +204,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
           }
 
           // Only update if entry is found in the cache
-          return cache.some(
-            (e) => e.email === entryToRemove.email && e.webVaultUrl === entryToRemove.webVaultUrl,
-          );
+          return cache.some((e) => this.entriesMatch(e, entryToRemove));
         },
       },
     );
@@ -236,5 +229,12 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
        */
       await this.removeFromSsoRequiredCacheIfPresent(email, webVaultUrl);
     }
+  }
+
+  /**
+   * Determines if two `SsoRequiredCacheEntry` objects have matching values
+   */
+  private entriesMatch(a: SsoRequiredCacheEntry, b: SsoRequiredCacheEntry): boolean {
+    return a.email === b.email && a.webVaultUrl === b.webVaultUrl;
   }
 }
