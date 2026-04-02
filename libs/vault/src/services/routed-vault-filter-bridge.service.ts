@@ -109,7 +109,7 @@ function createLegacyFilterForAdminConsole(
     );
   } else if (filter.type !== undefined && filter.type === "trash") {
     legacyFilter.selectedCipherTypeNode = new TreeNode<CipherTypeFilter>(
-      { id: "trash", name: "", type: "trash", icon: "" },
+      { id: "trash", name: "", type: "trash" },
       null,
     );
   } else if (filter.type !== undefined && filter.type !== "trash") {
@@ -170,12 +170,12 @@ function createLegacyFilterForEndUser(
     );
   } else if (filter.type !== undefined && filter.type === "trash") {
     legacyFilter.selectedCipherTypeNode = new TreeNode<CipherTypeFilter>(
-      { id: "trash", name: "", type: "trash", icon: "" },
+      { id: "trash", name: "", type: "trash" },
       null,
     );
   } else if (filter.type !== undefined && filter.type === "archive") {
     legacyFilter.selectedCipherTypeNode = new TreeNode<CipherTypeFilter>(
-      { id: "archive", name: "", type: "archive", icon: "" },
+      { id: "archive", name: "", type: "archive" },
       null,
     );
   } else if (filter.type !== undefined && filter.type !== "trash") {
