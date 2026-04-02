@@ -290,8 +290,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   protected get showBackButton() {
     return (
       typeof this.params.backAction === "function" &&
-      this.params.mode === "form" &&
-      this._originalFormMode === "add"
+      this.cipher == null &&
+      this.params.mode === "form"
     );
   }
 
