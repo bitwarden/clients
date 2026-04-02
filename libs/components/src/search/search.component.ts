@@ -10,7 +10,10 @@ import {
 import { isBrowserSafariApi } from "@bitwarden/platform";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { InputModule } from "../input/input.module";
+import {
+  BitFieldContainerDirective,
+  FieldContainerSize,
+} from "../form-field/field-container.directive";
 import { FocusableElement } from "../shared/focusable-element";
 
 let nextId = 0;
@@ -34,7 +37,7 @@ let nextId = 0;
       useExisting: SearchComponent,
     },
   ],
-  imports: [InputModule, ReactiveFormsModule, FormsModule, I18nPipe, NgIf, NgClass],
+  imports: [BitFieldContainerDirective, ReactiveFormsModule, FormsModule, I18nPipe, NgIf, NgClass],
 })
 export class SearchComponent implements ControlValueAccessor, FocusableElement {
   private notifyOnChange?: (v: string) => void;
@@ -58,6 +61,7 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   readonly disabled = model<boolean>();
   readonly placeholder = input<string>();
   readonly autocomplete = input<string>();
+  readonly size = input<FieldContainerSize>("base");
 
   getFocusTarget() {
     return this.input()?.nativeElement;

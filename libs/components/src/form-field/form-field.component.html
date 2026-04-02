@@ -26,7 +26,7 @@
       <span class="tw-sr-only"> ({{ "required" | i18n }})</span>
     }
   </label>
-  <div [class]="inputContainerClasses">
+  <div bitFieldContainer [size]="size()" [hasError]="input().hasError" [readOnly]="readOnly">
     <div
       #prefixContainer
       [hidden]="!prefixHasChildren()"
