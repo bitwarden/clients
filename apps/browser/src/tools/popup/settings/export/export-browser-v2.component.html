@@ -9,6 +9,7 @@
     (formDisabled)="this.disabled = $event"
     (formLoading)="this.loading = $event"
     (onSuccessfulExport)="this.onSuccessfulExport($event)"
+    (skippedAttachmentCountChange)="this.skippedAttachmentCount.set($event)"
   ></tools-export>
 
   <popup-footer slot="footer">

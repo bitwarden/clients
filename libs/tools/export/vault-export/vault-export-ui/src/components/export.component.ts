@@ -5,6 +5,7 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  model,
   Input,
   OnDestroy,
   OnInit,
@@ -197,7 +198,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   @Output()
   onSuccessfulExport = new EventEmitter<OrganizationId | undefined>();
 
-  protected skippedAttachmentCount = 0;
+  readonly skippedAttachmentCount = model(0);
 
   // TODO: Fix this the next time the file is edited.
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -544,7 +545,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
       // Track skipped attachments for inline warning callout
       if (data.type === "application/zip" && data.skippedAttachmentCount) {
-        this.skippedAttachmentCount = data.skippedAttachmentCount;
+        this.skippedAttachmentCount.set(data.skippedAttachmentCount);
       }
 
       this.toastService.showToast({

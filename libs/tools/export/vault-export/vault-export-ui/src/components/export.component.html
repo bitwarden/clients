@@ -130,8 +130,8 @@
   </ng-container>
 </form>
 
-@if (skippedAttachmentCount > 0) {
+@if (skippedAttachmentCount() > 0) {
   <bit-callout type="warning" [title]="null">
-    {{ "exportSuccessSkippedAttachments" | i18n: skippedAttachmentCount }}
+    {{ "exportSuccessSkippedAttachments" | i18n: skippedAttachmentCount() }}
   </bit-callout>
 }
