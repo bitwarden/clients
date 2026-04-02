@@ -57,7 +57,7 @@
       "apps/desktop/stores"
     ],
     "t:docs": ["docs/", "README.md", "CONTRIBUTING.md", "SECURITY.md"],
-    "t:deps": ["package.json", "package-lock.json", "nx.json"],
+    "t:deps": [],
     "t:llm": [".claude/"]
   }
 }
