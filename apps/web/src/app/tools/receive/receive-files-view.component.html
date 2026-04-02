@@ -9,7 +9,9 @@
       @for (file of receiveView().fileData; track file.id) {
         <bit-item>
           <bit-item-content>
+            <bit-icon-tile slot="start" icon="bwi-file" />
             <span data-testid="file-name">{{ file.fileName }}</span>
+            <span slot="secondary">{{ file.sizeName }}</span>
           </bit-item-content>
           <ng-container slot="end">
             <bit-item-action>
