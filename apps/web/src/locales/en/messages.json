@@ -7068,6 +7068,9 @@
   "sessionTimeoutAction": {
     "message": "Session timeout action"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "This setting is being managed by the Bitwarden browser extension app"
+  },
   "immediately": {
     "message": "Immediately"
   },
