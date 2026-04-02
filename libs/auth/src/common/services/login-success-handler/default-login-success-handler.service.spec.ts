@@ -5,7 +5,6 @@ import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-mi
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
-import { LogService } from "@bitwarden/logging";
 
 import { LoginEmailService } from "../login-email/login-email.service";
 
@@ -19,7 +18,6 @@ describe("DefaultLoginSuccessHandlerService", () => {
   let syncService: MockProxy<SyncService>;
   let userAsymmetricKeysRegenerationService: MockProxy<UserAsymmetricKeysRegenerationService>;
   let encryptedMigrator: MockProxy<EncryptedMigrator>;
-  let logService: MockProxy<LogService>;
 
   const userId = "USER_ID" as UserId;
   const testEmail = "test@bitwarden.com";
@@ -30,7 +28,6 @@ describe("DefaultLoginSuccessHandlerService", () => {
     syncService = mock<SyncService>();
     userAsymmetricKeysRegenerationService = mock<UserAsymmetricKeysRegenerationService>();
     encryptedMigrator = mock<EncryptedMigrator>();
-    logService = mock<LogService>();
 
     service = new DefaultLoginSuccessHandlerService(
       loginEmailService,
@@ -38,7 +35,6 @@ describe("DefaultLoginSuccessHandlerService", () => {
       syncService,
       userAsymmetricKeysRegenerationService,
       encryptedMigrator,
-      logService,
     );
 
     syncService.fullSync.mockResolvedValue(true);
@@ -68,11 +64,11 @@ describe("DefaultLoginSuccessHandlerService", () => {
         ssoLoginService.getSsoEmail.mockResolvedValue(null);
       });
 
-      it("should not check SSO requirements", async () => {
+      it("should not call updateSsoRequiredCache() and clearSsoEmail()", async () => {
         await service.run(userId, null);
 
-        expect(logService.debug).toHaveBeenCalledWith("SSO login email not found.");
         expect(ssoLoginService.updateSsoRequiredCache).not.toHaveBeenCalled();
+        expect(ssoLoginService.clearSsoEmail).not.toHaveBeenCalled();
       });
     });
 

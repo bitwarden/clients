@@ -1764,7 +1764,6 @@ const safeProviders: SafeProvider[] = [
       SyncService,
       UserAsymmetricKeysRegenerationService,
       EncryptedMigrator,
-      LogService,
     ],
   }),
   safeProvider({

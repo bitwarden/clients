@@ -3,7 +3,6 @@ import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-mi
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
-import { LogService } from "@bitwarden/logging";
 
 import { LoginSuccessHandlerService } from "../../abstractions/login-success-handler.service";
 import { LoginEmailService } from "../login-email/login-email.service";
@@ -15,7 +14,6 @@ export class DefaultLoginSuccessHandlerService implements LoginSuccessHandlerSer
     private syncService: SyncService,
     private userAsymmetricKeysRegenerationService: UserAsymmetricKeysRegenerationService,
     private encryptedMigrator: EncryptedMigrator,
-    private logService: LogService,
   ) {}
 
   async run(userId: UserId, masterPassword: string | null): Promise<void> {
@@ -32,8 +30,6 @@ export class DefaultLoginSuccessHandlerService implements LoginSuccessHandlerSer
     if (ssoLoginEmail) {
       await this.ssoLoginService.updateSsoRequiredCache(ssoLoginEmail, userId);
       await this.ssoLoginService.clearSsoEmail();
-    } else {
-      this.logService.debug("SSO login email not found.");
     }
   }
 }
