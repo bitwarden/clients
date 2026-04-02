@@ -31,6 +31,7 @@ import {
   NotificationResponse,
   SyncCipherNotification,
   SyncFolderNotification,
+  SyncReceiveNotification,
   SyncSendNotification,
 } from "../../../models/response/notification.response";
 import { UserId } from "../../../types/guid";
@@ -301,6 +302,13 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
           notification.payload.targetUserId,
           notification.payload.targetOrganizationUserId,
           notification.payload.organizationId,
+        );
+        break;
+      case NotificationType.SyncReceiveCreate:
+      case NotificationType.SyncReceiveUpdate:
+        await this.syncService.syncUpsertReceive(
+          notification.payload as SyncReceiveNotification,
+          notification.type === NotificationType.SyncReceiveUpdate,
         );
         break;
       default:

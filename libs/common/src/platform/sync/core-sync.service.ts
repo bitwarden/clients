@@ -5,6 +5,9 @@ import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { ReceiveData } from "@bitwarden/common/tools/receive/models/data/receive.data";
+import { ReceiveApiService } from "@bitwarden/common/tools/receive/services/receive-api.service";
+import { InternalReceiveService } from "@bitwarden/common/tools/receive/services/receive.service";
 
 import { ApiService } from "../../abstractions/api.service";
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -14,12 +17,13 @@ import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import {
   SyncCipherNotification,
   SyncFolderNotification,
+  SyncReceiveNotification,
   SyncSendNotification,
 } from "../../models/response/notification.response";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
-import { UserId } from "../../types/guid";
+import { ReceiveId, UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
@@ -57,6 +61,8 @@ export abstract class CoreSyncService implements SyncService {
     protected readonly sendService: InternalSendService,
     protected readonly sendApiService: SendApiService,
     protected readonly stateProvider: StateProvider,
+    protected readonly receiveService: InternalReceiveService,
+    protected readonly receiveApiService: ReceiveApiService,
   ) {}
 
   abstract fullSync(forceSync: boolean, syncOptions?: SyncOptions): Promise<boolean>;
@@ -270,6 +276,38 @@ export abstract class CoreSyncService implements SyncService {
       return true;
     }
     return this.syncCompleted(false, undefined);
+  }
+
+  async syncUpsertReceive(
+    notification: SyncReceiveNotification,
+    isEdit: boolean,
+  ): Promise<boolean> {
+    this.syncStarted();
+    const receiveId = notification.id as ReceiveId;
+    const userId = notification.userId as UserId;
+    const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
+
+    if (authStatus >= AuthenticationStatus.Locked) {
+      try {
+        const localReceive = await this.receiveService.get(receiveId, userId);
+        if (
+          (!isEdit && localReceive == undefined) ||
+          (isEdit &&
+            localReceive != undefined &&
+            localReceive.revisionDate < notification.revisionDate)
+        ) {
+          const remoteReceive = await this.receiveApiService.getReceive(receiveId);
+          if (remoteReceive != null) {
+            await this.receiveService.upsert(new ReceiveData(remoteReceive), userId);
+            this.messageSender.send("syncedUpsertedReceive", { receiveId: receiveId });
+            return this.syncCompleted(true, userId);
+          }
+        }
+      } catch (e) {
+        this.logService.error(e);
+      }
+    }
+    return this.syncCompleted(false, userId);
   }
 
   // Helpers

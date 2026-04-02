@@ -11,6 +11,7 @@ import {
   UserDecryptionOptions,
   InternalUserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import { ReceiveApiService } from "@bitwarden/common/tools/receive/services/receive-api.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
@@ -80,6 +81,7 @@ describe("DefaultSyncService", () => {
   let securityStateService: MockProxy<SecurityStateService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
+  let receiveApiService: MockProxy<ReceiveApiService>;
 
   let sut: DefaultSyncService;
 
@@ -113,6 +115,7 @@ describe("DefaultSyncService", () => {
     securityStateService = mock();
     kdfConfigService = mock();
     accountCryptographicStateService = mock();
+    receiveApiService = mock();
 
     sut = new DefaultSyncService(
       masterPasswordAbstraction,
@@ -126,7 +129,6 @@ describe("DefaultSyncService", () => {
       messageSender,
       policyService,
       sendService,
-      receiveService,
       logService,
       keyConnectorService,
       providerService,
@@ -143,6 +145,8 @@ describe("DefaultSyncService", () => {
       securityStateService,
       kdfConfigService,
       accountCryptographicStateService,
+      receiveService,
+      receiveApiService,
     );
   });
 
