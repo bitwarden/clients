@@ -17,12 +17,16 @@ import {
   VAULT_TIMEOUT,
   VAULT_TIMEOUT_ACTION,
 } from "../../../key-management/vault-timeout/services/vault-timeout-settings.state";
+import { COPY_BUTTON } from "../../../vault/services/key-state/vault-appearance.state";
 import {
   SHOW_CARDS_CURRENT_TAB,
   SHOW_IDENTITIES_CURRENT_TAB,
   CLICK_ITEMS_AUTOFILL_VAULT_VIEW,
 } from "../../../vault/services/key-state/vault-settings.state";
+import { ROUTING_ANIMATION } from "../../abstractions/animation-control.service";
 import { LOCALE_KEY } from "../../services/i18n.service";
+import { POPUP_WIDTH } from "../../services/popup-size.state";
+import { COMPACT_MODE } from "../../theming/compact-mode.state";
 import { THEME_SELECTION } from "../../theming/theme-state.service";
 
 import { SharedPreferences, DevicePreferences, BrowserPreferences } from "./synced-preferences";
@@ -85,14 +89,23 @@ export interface SharedGlobalSyncedKeyEntry extends SyncedGlobalKeyEntryBase {
   device?: never;
 }
 
+/** Entry for a browser-specific preference backed by GlobalState (not user-scoped) */
+export interface BrowserGlobalSyncedKeyEntry extends SyncedGlobalKeyEntryBase {
+  blobField: keyof BrowserPreferences;
+  scope: typeof SyncScope.Device;
+  device: ClientType.Browser;
+}
+
+export type GlobalSyncedKeyEntry = SharedGlobalSyncedKeyEntry | BrowserGlobalSyncedKeyEntry;
+
 export type SyncedKeyEntry =
   | SharedSyncedKeyEntry
   | CommonDeviceSyncedKeyEntry
   | BrowserSyncedKeyEntry
-  | SharedGlobalSyncedKeyEntry;
+  | GlobalSyncedKeyEntry;
 
 /** Type guard to check if a synced key entry targets GlobalState */
-export function isGlobalEntry(entry: SyncedKeyEntry): entry is SharedGlobalSyncedKeyEntry {
+export function isGlobalEntry(entry: SyncedKeyEntry): entry is GlobalSyncedKeyEntry {
   return "global" in entry && entry.global === true;
 }
 
@@ -189,6 +202,34 @@ export const SYNCED_KEYS: SyncedKeyEntry[] = [
     blobField: "enableBadgeCounter",
     scope: SyncScope.Device,
     device: ClientType.Browser,
+  },
+  {
+    keyDef: ROUTING_ANIMATION,
+    blobField: "showAnimations",
+    scope: SyncScope.Device,
+    device: ClientType.Browser,
+    global: true,
+  },
+  {
+    keyDef: COMPACT_MODE,
+    blobField: "compactMode",
+    scope: SyncScope.Device,
+    device: ClientType.Browser,
+    global: true,
+  },
+  {
+    keyDef: COPY_BUTTON,
+    blobField: "copyButtonDisplayMode",
+    scope: SyncScope.Device,
+    device: ClientType.Browser,
+    global: true,
+  },
+  {
+    keyDef: POPUP_WIDTH,
+    blobField: "popupWidth",
+    scope: SyncScope.Device,
+    device: ClientType.Browser,
+    global: true,
   },
 ];
 

@@ -2,19 +2,13 @@ import { inject, Injectable } from "@angular/core";
 import { map, Observable } from "rxjs";
 
 import {
-  GlobalStateProvider,
-  KeyDefinition,
-  POPUP_STYLE_DISK,
-} from "@bitwarden/common/platform/state";
-
-import BrowserPopupUtils, {
+  POPUP_WIDTH,
   PopupWidthOption,
   PopupWidthOptions,
-} from "../../browser/browser-popup-utils";
+} from "@bitwarden/common/platform/services/popup-size.state";
+import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 
-const POPUP_WIDTH_KEY_DEF = new KeyDefinition<PopupWidthOption>(POPUP_STYLE_DISK, "popup-width", {
-  deserializer: (s) => s,
-});
+import BrowserPopupUtils from "../../browser/browser-popup-utils";
 
 /**
  * Handles sizing the popup based on available width/height, which can be affected by
@@ -24,7 +18,7 @@ const POPUP_WIDTH_KEY_DEF = new KeyDefinition<PopupWidthOption>(POPUP_STYLE_DISK
 @Injectable({ providedIn: "root" })
 export class PopupSizeService {
   private static readonly LocalStorageKey = "bw-popup-width";
-  private readonly state = inject(GlobalStateProvider).get(POPUP_WIDTH_KEY_DEF);
+  private readonly state = inject(GlobalStateProvider).get(POPUP_WIDTH);
 
   readonly width$: Observable<PopupWidthOption> = this.state.state$.pipe(
     map((state) => state ?? "default"),
