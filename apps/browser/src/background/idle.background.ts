@@ -60,7 +60,7 @@ export default class IdleBackground {
                 this.vaultTimeoutSettingsService.vaultTimeoutSuppressedUntil$(userId as UserId),
               );
               if (suppressedUntil != null && Date.now() < suppressedUntil) {
-                return;
+                continue;
               }
 
               // If the screen is locked or the screensaver activates
