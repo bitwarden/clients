@@ -2,8 +2,13 @@
   "clickToUploadOrDragAndDrop" : {
     "message": "Click to upload or drag and drop"
   },
-  "maxFileSizeParam" : {
-    "message": "Maximum file size (MB)"
+  "maxFileSizeParam": {
+    "message": "Max. File Size: $MAX_SIZE$MB",
+    "placeholders": {
+      "MAX_SIZE": {
+        "content": "$1"
+      }
+    }
   },
   "chooseFiles" : {
     "message": "Add files"
