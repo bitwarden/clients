@@ -31,13 +31,11 @@ export class DefaultLoginSuccessHandlerService implements LoginSuccessHandlerSer
     }
 
     const ssoLoginEmail = await this.ssoLoginService.getSsoEmail();
-
-    if (!ssoLoginEmail) {
+    if (ssoLoginEmail) {
+      await this.ssoLoginService.updateSsoRequiredCache(ssoLoginEmail, userId);
+      await this.ssoLoginService.clearSsoEmail();
+    } else {
       this.logService.debug("SSO login email not found.");
-      return;
     }
-
-    await this.ssoLoginService.updateSsoRequiredCache(ssoLoginEmail, userId);
-    await this.ssoLoginService.clearSsoEmail();
   }
 }
