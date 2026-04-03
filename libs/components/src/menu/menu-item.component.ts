@@ -59,8 +59,8 @@ export class MenuItemComponent implements FocusableOption {
       ...this.computedStyles(),
     ];
   }
-  @HostBinding("attr.role") readonly role = "menuitem";
-  @HostBinding("tabIndex") readonly tabIndex = "-1";
+  @HostBinding("attr.role") role = "menuitem";
+  @HostBinding("tabIndex") tabIndex = "-1";
   @HostBinding("attr.disabled") get disabledAttr() {
     return this.disabled || null; // native disabled attr must be null when false
   }
@@ -72,7 +72,7 @@ export class MenuItemComponent implements FocusableOption {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: coerceBooleanProperty }) disabled?: boolean = false;
 
-  constructor(readonly elementRef: ElementRef<HTMLButtonElement>) {}
+  constructor(public elementRef: ElementRef<HTMLButtonElement>) {}
 
   focus() {
     this.elementRef.nativeElement.focus();
