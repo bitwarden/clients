@@ -71,7 +71,7 @@ const withHeaderAndFooterContent = /*html*/ `
     <img slot="header" src="https://placehold.co/352x160/e2e8f0/64748b?text=Media+Header" alt="" style="width:100%;height:100%;object-fit:cover;" />
     A new and improved dashboard is now live! Enjoy a smoother, more intuitive experience.
     <div slot="footer">
-      <button type="button" bitButton buttonType="secondary">Read more <bit-icon name="bwi-arrow-right"></bit-icon></button>
+      <button type="button" bitButton class="tw-mr-3" buttonType="secondary">Read more <bit-icon name="bwi-arrow-right"></bit-icon></button>
       <button type="button" bitButton buttonType="primary">Read more <bit-icon name="bwi-arrow-right"></bit-icon></button>
     </div>
   </bit-popover>

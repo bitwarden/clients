@@ -10,34 +10,37 @@
   >
     <div class="tw-overflow-hidden tw-rounded-xl tw-shadow-lg">
       <div
-        class="tw-relative tw-z-20 tw-w-[352px] tw-break-words tw-bg-background tw-p-6 tw-text-fg-body tw-border tw-border-solid tw-border-border-base"
-        [class.tw-pb-4]="!footerSlot()"
+        class="tw-relative tw-z-20 tw-w-[352px] tw-break-words tw-bg-background tw-text-fg-body tw-border tw-border-solid tw-border-border-base"
       >
         @if (headerSlot()) {
           <div
-            class="tw-h-[160px] tw-w-full tw-bg-bg-secondary tw-flex tw-items-center tw-justify-center tw-overflow-hidden"
+            class="tw-h-[160px] tw-mt-2 tw-mx-2 tw-overflow-hidden tw-rounded-lg tw-bg-bg-secondary tw-flex tw-items-center tw-justify-center"
           >
             <ng-content select="[slot='header']"></ng-content>
           </div>
         }
-        <span class="tw-absolute tw-top-2 tw-right-2">
-          <button
-            type="button"
-            bitIconButton="bwi-close"
-            [label]="'close' | i18n"
-            (click)="closed.emit()"
-            size="small"
-          ></button>
-        </span>
-        <span class="tw-font-medium tw-text-fg-heading">{{ title() }}</span>
-        <span class="">
-          <ng-content></ng-content>
-        </span>
-        @if (footerSlot()) {
-          <div class="tw-flex tw-items-center">
-            <ng-content select="[slot='footer']"></ng-content>
+        <div class="tw-p-6">
+          <div class="tw-absolute tw-top-2 tw-right-2">
+            <button
+              type="button"
+              bitIconButton="bwi-close"
+              [label]="'close' | i18n"
+              (click)="closed.emit()"
+              size="small"
+            ></button>
           </div>
-        }
+          <p class="tw-mb-3 tw-text-lg tw-font-medium tw-text-fg-heading">
+            {{ title() }}
+          </p>
+          <span class="tw-text-sm tw-font-normal tw-text-fg-body">
+            <ng-content></ng-content>
+          </span>
+          @if (footerSlot()) {
+            <div class="tw-mt-6 tw-flex tw-items-center">
+              <ng-content select="[slot='footer']"></ng-content>
+            </div>
+          }
+        </div>
       </div>
     </div>
     <div class="bit-popover-arrow"></div>
