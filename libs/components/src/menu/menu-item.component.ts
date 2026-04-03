@@ -1,12 +1,19 @@
 import { FocusableOption } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
-import { Component, ElementRef, HostBinding, Input, input, computed } from "@angular/core";
+import {
+  Component,
+  ElementRef,
+  HostBinding,
+  Input,
+  input,
+  computed,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "[bitMenuItem]",
   templateUrl: "menu-item.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuItemComponent implements FocusableOption {
   readonly variant = input<"primary" | "danger">("primary");
@@ -52,8 +59,8 @@ export class MenuItemComponent implements FocusableOption {
       ...this.computedStyles(),
     ];
   }
-  @HostBinding("attr.role") role = "menuitem";
-  @HostBinding("tabIndex") tabIndex = "-1";
+  @HostBinding("attr.role") readonly role = "menuitem";
+  @HostBinding("tabIndex") readonly tabIndex = "-1";
   @HostBinding("attr.disabled") get disabledAttr() {
     return this.disabled || null; // native disabled attr must be null when false
   }
@@ -65,7 +72,7 @@ export class MenuItemComponent implements FocusableOption {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: coerceBooleanProperty }) disabled?: boolean = false;
 
-  constructor(public elementRef: ElementRef<HTMLButtonElement>) {}
+  constructor(readonly elementRef: ElementRef<HTMLButtonElement>) {}
 
   focus() {
     this.elementRef.nativeElement.focus();

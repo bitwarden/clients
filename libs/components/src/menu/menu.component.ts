@@ -8,17 +8,17 @@ import {
   input,
   viewChild,
   contentChildren,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 
 import { MenuItemComponent } from "./menu-item.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-menu",
   templateUrl: "./menu.component.html",
   exportAs: "menuComponent",
   imports: [CdkTrapFocus],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuComponent {
   readonly templateRef = viewChild.required(TemplateRef);
@@ -26,7 +26,7 @@ export class MenuComponent {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() closed = new EventEmitter<void>();
   readonly menuItems = contentChildren(MenuItemComponent, { descendants: true });
-  keyManager?: FocusKeyManager<MenuItemComponent>;
+  readonly keyManager?: FocusKeyManager<MenuItemComponent>;
 
   readonly ariaRole = input<"menu" | "dialog">("menu");
 
