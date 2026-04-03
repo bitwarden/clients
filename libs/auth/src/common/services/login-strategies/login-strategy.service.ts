@@ -38,6 +38,7 @@ import { TaskSchedulerService, ScheduledTaskNames } from "@bitwarden/common/plat
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
@@ -74,7 +75,6 @@ import {
   CACHE_EXPIRATION_KEY,
   CACHE_KEY,
 } from "./login-strategy.state";
-import { UnlockService } from "@bitwarden/unlock";
 
 const sessionTimeoutLength = 5 * 60 * 1000; // 5 minutes
 
