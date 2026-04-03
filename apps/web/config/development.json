@@ -1,15 +1,15 @@
 {
   "urls": {
-    "notifications": "http://localhost:61840",
+    "notifications": "https://notifications.usdev.bitwarden.pw",
     "scim": "http://localhost:44559"
   },
   "dev": {
-    "proxyApi": "http://localhost:4000",
-    "proxyIdentity": "http://localhost:33656",
+    "proxyApi": "https://vault.usdev.bitwarden.pw/api",
+    "proxyIdentity": "https://vault.usdev.bitwarden.pw/identity",
     "proxyEvents": "http://localhost:46273",
-    "proxyNotifications": "http://localhost:61840",
+    "proxyNotifications": "https:///notifications.usdev.bitwarden.pw",
     "proxyIcons": "http://localhost:50024",
-    "wsConnectSrc": "ws://localhost:61840"
+    "wsConnectSrc": "wss://notifications.usdev.bitwarden.pw"
   },
   "additionalRegions": [
     {
