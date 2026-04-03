@@ -103,13 +103,13 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
     );
   }
 
-  renewReportFileUpload$(
+  renewReportFileUploadLink$(
     orgId: OrganizationId,
     reportId: OrganizationReportId,
   ): Observable<AccessReportFileApi> {
     const response = this.apiService.send(
       "GET",
-      `/reports/organizations/${orgId}/${reportId}/renew-upload`,
+      `/reports/organizations/${orgId}/${reportId}/file/renew`,
       null,
       true,
       true,

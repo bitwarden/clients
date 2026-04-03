@@ -54,8 +54,8 @@ export abstract class AccessIntelligenceApiService {
     applicationData: string,
   ): Observable<AccessReportApi>;
 
-  /** GET /reports/organizations/{orgId}/{reportId}/renew-upload */
-  abstract renewReportFileUpload$(
+  /** GET /reports/organizations/{orgId}/{reportId}/file/renew */
+  abstract renewReportFileUploadLink$(
     orgId: OrganizationId,
     reportId: OrganizationReportId,
   ): Observable<AccessReportFileApi>;
