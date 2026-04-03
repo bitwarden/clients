@@ -168,8 +168,14 @@ export class SearchBarComponent implements AfterViewInit {
     }
 
     // All other actions are driven by MAGNIFY_ACTIONS shortcuts.
+    // Only consider actions that apply to the currently selected item's type.
+    const selectedItem = this.results()[this.selectedIndex()];
+    const selectedItemType = selectedItem?.itemType ?? null;
     for (const action of MAGNIFY_ACTIONS) {
       if (!action.shortcuts) {
+        continue;
+      }
+      if (action.magnifyItemType !== null && action.magnifyItemType !== selectedItemType) {
         continue;
       }
       for (const combination of action.shortcuts) {
