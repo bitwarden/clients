@@ -800,7 +800,6 @@ export class ServiceContainer {
       this.messagingService,
       this.logService,
       this.keyConnectorService,
-      this.unlockService,
       this.environmentService,
       this.stateService,
       this.twoFactorService,
@@ -819,6 +818,7 @@ export class ServiceContainer {
       this.configService,
       this.accountCryptographicStateService,
       this.passwordPreloginService,
+      this.unlockService,
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(
