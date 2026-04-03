@@ -43,7 +43,7 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
       return false;
     }
 
-    await firstValueFrom(
+    return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         map(async (sdk) => {
           if (!sdk) {
@@ -63,6 +63,7 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
             trusted_emergency_access_public_keys: trustedEmergencyAccessUserPublicKeys,
             trusted_organization_public_keys: trustedOrganizationPublicKeys,
           } as RotateUserKeysRequest);
+          return true;
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to rotate user keys: ${error}`);
@@ -70,8 +71,6 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
         }),
       ),
     );
-
-    return true;
   }
 
   async verifyTrust(userId: UserId): Promise<TrustVerificationResult> {
