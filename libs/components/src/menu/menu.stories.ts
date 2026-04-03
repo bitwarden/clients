@@ -8,7 +8,6 @@ import { ButtonModule } from "../button";
 import { IconModule } from "../icon";
 import { I18nMockService } from "../utils";
 
-import { FilterMenuHeaderComponent } from "./filter-menu-header.component";
 import { MenuTriggerForDirective } from "./menu-trigger-for.directive";
 import { MenuModule } from "./menu.module";
 
@@ -17,14 +16,7 @@ export default {
   component: MenuTriggerForDirective,
   decorators: [
     moduleMetadata({
-      imports: [
-        MenuModule,
-        OverlayModule,
-        ButtonModule,
-        IconModule,
-        FilterMenuHeaderComponent,
-        BerryComponent,
-      ],
+      imports: [MenuModule, OverlayModule, ButtonModule, IconModule, BerryComponent],
       providers: [
         {
           provide: I18nService,
@@ -189,13 +181,7 @@ export const InputMenu: Story = {
 export const FilterMenu: Story = {
   render: () => ({
     template: /*html*/ `
-      <bit-menu #filterMenu="menuComponent">
-        <span slot="header"> Filters </span>
-
-        <bit-filter-menu-header [bitMenuTriggerFor]="statusMenu">
-          <span slot="title"> Status </span>
-        </bit-filter-menu-header>
-        
+      <bit-menu #filterMenu="menuComponent">        
         <button type="button" bitMenuItem>
           <input type="radio" bitRadio slot="start" class="!tw-p-1" />
           Approved
@@ -218,11 +204,6 @@ export const FilterMenu: Story = {
         </button>
 
         <bit-menu-divider></bit-menu-divider>
-
-        <bit-filter-menu-header>
-          <span slot="title"> Groups </span>
-          <bit-berry [value]="1" slot="end"></bit-berry>
-        </bit-filter-menu-header>
 
         <button type="button" bitMenuItem>
           <input type="checkbox" bitCheckbox slot="start" />
@@ -248,13 +229,6 @@ export const FilterMenu: Story = {
           <input type="checkbox" bitCheckbox slot="start" />
           Sales
           <span slot="end"> (456) </span>
-        </button>
-
-        <button bitButton buttonType="secondary" slot="footer" class="tw-w-[118px]">
-          Clear
-        </button>
-        <button bitButton buttonType="primary" slot="footer" class="tw-w-[118px]">
-          Apply
         </button>
       </bit-menu>
 
