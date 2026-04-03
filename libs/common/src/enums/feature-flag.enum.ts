@@ -12,6 +12,7 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
+  AdminResetTwoFactor = "pm-15489-admin-reset-two-factor",
 
   /* Auth */
   PM27086_UpdateAuthenticationApisForInputPassword = "pm-27086-update-authentication-apis-for-input-password",
@@ -104,6 +105,7 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.AutoConfirm]: FALSE,
+  [FeatureFlag.AdminResetTwoFactor]: FALSE,
 
   /* Autofill */
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,

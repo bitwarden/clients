@@ -7,6 +7,8 @@ import {
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 
 export class OrganizationUserResetPasswordRequest {
+  resetMasterPassword: boolean = true;
+  resetTwoFactor: boolean = false;
   newMasterPasswordHash: string;
   key: string;
 
@@ -18,6 +20,7 @@ export class OrganizationUserResetPasswordRequest {
     unlockData: MasterPasswordUnlockData,
   ): OrganizationUserResetPasswordRequest {
     const request = new OrganizationUserResetPasswordRequest();
+    request.resetMasterPassword = true;
     request.newMasterPasswordHash = authenticationData.masterPasswordAuthenticationHash;
     request.key = unlockData.masterKeyWrappedUserKey;
     return request;

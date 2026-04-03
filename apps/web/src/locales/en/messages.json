@@ -6661,10 +6661,10 @@
     "message": "Account recovery administration"
   },
   "accountRecoveryPolicyDesc": {
-    "message": "Based on the encryption method, recover accounts when master passwords or trusted devices are forgotten or lost."
+    "message": "Recover accounts when master password, two-step login, or trusted devices are forgotten or lost."
   },
   "accountRecoveryPolicyWarning": {
-    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts. Automatic enrollment will turn on account recovery for new members."
+    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts."
   },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "The single organization Enterprise policy must be turned on before activating this policy."
@@ -6673,7 +6673,7 @@
     "message": "Automatic enrollment"
   },
   "resetPasswordPolicyAutoEnrollCheckbox": {
-    "message": "Require new members to be enrolled automatically"
+    "message": "Automatically enroll new members in account recovery"
   },
   "resetPasswordAutoEnrollInviteWarning": {
     "message": "This organization has an Enterprise policy that will automatically enroll you in password reset. Enrollment will allow organization administrators to change your master password."
@@ -9693,6 +9693,21 @@
   },
   "recoverAccount": {
     "message": "Recover account"
+  },
+  "recoverAccountWarning": {
+    "message": "When you reset the password or two-step login for this member, they'll be notified of the change and logged out."
+  },
+  "resetMasterPassword": {
+    "message": "Reset master password"
+  },
+  "resetTwoStepLogin": {
+    "message": "Reset two-step login"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "The member's access will be revoked until they set up two-step login"
+  },
+  "recoverAccountSuccess": {
+    "message": "Account recovery success!"
   },
   "updatedTempPassword": {
     "message": "User updated a password issued through account recovery."
