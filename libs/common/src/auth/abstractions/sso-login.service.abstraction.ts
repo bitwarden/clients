@@ -7,8 +7,8 @@ import { UserId } from "@bitwarden/common/types/guid";
  * We must include the `webVaultUrl` to distinguish accounts when a user has used the
  * same email to create an account on more than one environment.
  *
- * Note: If not configured, the webVault URL falls back to the base URL. If the base URL
- * is not configured, it falls back to the `DEFAULT_REGION_CONFIG` webVault URL.
+ * Note: The webVault URL is resolved via `getWebVaultUrl()` at the time of a successful SSO login,
+ * so it always reflects the environment the user actually authenticated against.
  */
 export type SsoRequiredCacheEntry = { email: string; webVaultUrl: string };
 
