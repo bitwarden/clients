@@ -141,6 +141,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM29437_WelcomeDialog]: FALSE,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
+  [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword]: FALSE,
