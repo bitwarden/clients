@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Opcje odblokowania"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Ustaw metodę odblokowania, aby zmienić sposób blokowania sejfu."
-  },
   "unlockMethodNeeded": {
     "message": "Ustaw metodę odblokowania w ustawieniach"
   },
   "sessionTimeoutHeader": {
     "message": "Blokada aplikacji"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Blokowanie sejfu"
   },
   "otherOptions": {
     "message": "Inne opcje"
@@ -2372,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "Użyj silniejszego hasła, aby odpowiednio chronić konto Bitwarden. Czy na pewno chcesz użyć tego hasła głównego?"
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
+  },
   "pin": {
     "message": "Kod PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2480,8 @@
   "vaultTimeoutAction": {
     "message": "Sposób blokowania sejfu"
   },
-  "vaultTimeoutAction1": {
-    "message": "Sposób blokady"
+  "showAtRiskPasswordNotifications": {
+    "message": "Show at-risk password notifications"
   },
   "lock": {
     "message": "Zablokuj",
@@ -3229,9 +3247,6 @@
   },
   "minutes": {
     "message": "Minuty"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Zasady organizacji zostały zastosowane do opcji blokowania sejfu"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Zasady organizacji mają wpływ na czas blokowania sejfu. Maksymalny dozwolony czas wynosi $HOURS$ godz. i $MINUTES$ min.",
@@ -4435,6 +4450,9 @@
   },
   "exportSuccess": {
     "message": "Dane sejfu zostały wyeksportowane"
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
   },
   "typePasskey": {
     "message": "Klucz dostępu"
@@ -6130,8 +6148,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "Organizacja $ORGANIZATION$ wymaga, aby wszystkie elementy były ich własnością.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6157,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Kliknij akceptuj, aby przenieść własność elementów."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Otwórz artykuł pomocy dotyczący przenoszenia elementów"
+  },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "Akceptuj"
   },
   "declineAndLeave": {
     "message": "Odrzuć i wyjdź"
-  },
-  "whyAmISeeingThis": {
-    "message": "Dlaczego to widzę?"
   },
   "items": {
     "message": "Elementy"
@@ -6178,9 +6199,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Wpisz wiele adresów e-mail, oddzielając je przecinkami."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com, user@acme.com"
   },
@@ -6196,5 +6214,8 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "downloadFailed": {
+    "message": "Pobieranie nie powiodło się."
   }
 }

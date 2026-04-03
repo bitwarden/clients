@@ -1,4 +1,4 @@
-import { EventType } from "@bitwarden/common/enums";
+import { EventType } from "@bitwarden/common/dirt/event-logs";
 
 export class OrganizationIntegrationConfigurationRequest {
   eventType?: EventType | null = null;

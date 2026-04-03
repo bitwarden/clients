@@ -76,12 +76,16 @@ export class PreviewInvoiceClient {
   previewTaxForOrganizationSubscriptionPurchase = async (
     purchase: OrganizationSubscriptionPurchase,
     billingAddress: BillingAddress,
+    coupons?: string[],
   ): Promise<TaxAmounts> => {
     const json = await this.apiService.send(
       "POST",
       "/billing/preview-invoice/organizations/subscriptions/purchase",
       {
-        purchase,
+        purchase: {
+          ...purchase,
+          ...(coupons?.length ? { coupons } : {}),
+        },
         billingAddress,
       },
       true,
@@ -133,6 +137,7 @@ export class PreviewInvoiceClient {
   previewTaxForPremiumSubscriptionPurchase = async (
     additionalStorage: number,
     billingAddress: BillingAddress,
+    coupons?: string[],
   ): Promise<TaxAmounts> => {
     const json = await this.apiService.send(
       "POST",
@@ -140,6 +145,7 @@ export class PreviewInvoiceClient {
       {
         additionalStorage,
         billingAddress,
+        ...(coupons?.length ? { coupons } : {}),
       },
       true,
       true,

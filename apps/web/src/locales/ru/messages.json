@@ -2,8 +2,17 @@
   "allApplications": {
     "message": "Все приложения"
   },
+  "allMembers": {
+    "message": "Все участники"
+  },
+  "allPasswords": {
+    "message": "Все пароли"
+  },
   "activity": {
     "message": "Активность"
+  },
+  "applicationsAtRisk": {
+    "message": "Applications at risk"
   },
   "appLogoLabel": {
     "message": "Логотип Bitwarden"
@@ -43,6 +52,15 @@
   },
   "passwordRisk": {
     "message": "Риск пароля"
+  },
+  "passwords": {
+    "message": "Пароли"
+  },
+  "riskOverTime": {
+    "message": "Risk over time"
+  },
+  "passwordsAtRisk": {
+    "message": "Passwords at risk"
   },
   "noEditPermissions": {
     "message": "У вас нет разрешения на редактирование этого элемента"
@@ -2103,6 +2121,9 @@
   "exportSuccess": {
     "message": "Данные хранилища экспортированы"
   },
+  "exportError": {
+    "message": "При экспорте данных хранилища произошла ошибка"
+  },
   "passwordGenerator": {
     "message": "Генератор паролей"
   },
@@ -3047,16 +3068,16 @@
   "breachDesc": {
     "message": "Взломанные аккаунты могут раскрыть вашу личную информацию. Защитите их, включив 2ЭА или создав более надежный пароль."
   },
-  "breachCheckUsernameEmail": {
-    "message": "Проверьте имена пользователей или адреса email, которые вы используете."
+  "breachCheckEmail": {
+    "message": "Проверьте все адреса email, которые используете."
   },
   "checkBreaches": {
     "message": "Проверить в базах утечек"
   },
-  "breachUsernameNotFound": {
-    "message": "$USERNAME$ не найден в известных базах утечек.",
+  "breachEmailNotFound": {
+    "message": "$EMAIL$ не найден в известных базах утечек.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3087,10 @@
     "message": "Хорошие новости",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "$USERNAME$ найден в $COUNT$ различных онлайн-базах утечек.",
+  "breachEmailFound": {
+    "message": "$EMAIL$ найден в $COUNT$ различных онлайн-базах утечек.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -3376,6 +3397,9 @@
   },
   "discount": {
     "message": "скидка"
+  },
+  "discountExpiredOnPurchase": {
+    "message": "Срок действия скидки истек. Просмотрите сумму корзины и повторите попытку."
   },
   "downloadLicense": {
     "message": "Загрузить лицензию"
@@ -3783,6 +3807,15 @@
   },
   "policies": {
     "message": "Политики"
+  },
+  "dataControls": {
+    "message": "Data controls"
+  },
+  "authentication": {
+    "message": "Authentication"
+  },
+  "vaultManagement": {
+    "message": "Vault management"
   },
   "singleSignOn": {
     "message": "Единый вход"
@@ -6465,6 +6498,14 @@
     "message": "Подтвердите свой адрес email, чтобы просмотреть эту Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Не получили код? Свяжитесь с отправителем, чтобы подтвердить свой адрес электронной почты, или ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "повторно отправьте код подтверждения",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "Пользователь Bitwarden, создавший эту Send, решил скрыть свой адрес email. Вы должны убедиться, что доверяете источнику этой ссылки, прежде чем использовать или скачивать ее содержимое.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -8310,6 +8351,9 @@
   "members": {
     "message": "Участники"
   },
+  "membersAtRisk": {
+    "message": "Members at risk"
+  },
   "reporting": {
     "message": "Отчеты"
   },
@@ -8580,6 +8624,14 @@
   "newProject": {
     "message": "Новый проект",
     "description": "Title for creating a new project."
+  },
+  "clickToRenameProject": {
+    "message": "Нажмите, чтобы переименовать этот проект",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "Невозможно расшифровать название проекта — выберите проект, чтобы переименовать его",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
     "message": "Удаление секретов может повлиять на существующие интеграции.",
@@ -11046,6 +11098,9 @@
   "clientDetails": {
     "message": "Информация о клиенте"
   },
+  "downloadChart": {
+    "message": "Download chart"
+  },
   "downloadCSV": {
     "message": "Скачать CSV"
   },
@@ -11498,6 +11553,18 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "Пользователь $ID$ исключил себя из организации.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "userSelfRevokedOrganizationOwnership": {
+    "message": "Отозван в связи с отказом в передаче в собственность организации."
+  },
   "suspendedOrganizationTitle": {
     "message": "$ORGANIZATION$ приостановлена",
     "placeholders": {
@@ -11881,6 +11948,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Недоверенные ключи шифрования"
+  },
+  "atRiskPassword": {
+    "message": "Пароль, подверженный риску"
   },
   "changeAtRiskPassword": {
     "message": "Изменить пароль, подверженный риску"
@@ -12551,12 +12621,6 @@
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Перед активацией этой политики необходимо заявить домен."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Настройте способ разблокировки для изменения действия по тайм-ауту хранилища."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "К настройкам тайм-аута были применены требования корпоративной политики"
-  },
   "vaultTimeoutTooLarge": {
     "message": "Тайм-аут вашего хранилища превышает ограничения, установленные вашей организацией."
   },
@@ -12755,8 +12819,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации для обеспечения безопасности и соответствия требованиям. Нажмите Принять, чтобы передать собственность на ваши элементы.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации в целях безопасности и соблюдения нормативных требований.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12764,14 +12828,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Нажмите Принять, чтобы передать право собственности на ваши элементы."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Открыть статью помощь по передаче элементов"
+  },
   "acceptTransfer": {
     "message": "Принять передачу"
   },
   "declineAndLeave": {
     "message": "Отклонить и покинуть"
-  },
-  "whyAmISeeingThis": {
-    "message": "Почему я это вижу?"
   },
   "youHaveBitwardenPremium": {
     "message": "У вас Bitwarden Премиум"
@@ -12922,9 +12989,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Введите несколько email, разделяя их запятой."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Для проверки электронной почты требуется как минимум один адрес email. Чтобы удалить все адреса электронной почты, измените тип доступа выше."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -13032,6 +13096,70 @@
       "date": {
         "content": "$2",
         "example": "Jan 1, 1970"
+      }
+    }
+  },
+  "sendsTitleNoSearchResults": {
+    "message": "Поиск не дал результатов"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Очистите фильтры или попробуйте другой поисковый запрос"
+  },
+  "pastMonth": {
+    "message": "Последний месяц"
+  },
+  "past3Months": {
+    "message": "Последние 3 месяца"
+  },
+  "past6Months": {
+    "message": "Последние 6 месяцев"
+  },
+  "pastYear": {
+    "message": "Последний год"
+  },
+  "allTime": {
+    "message": "Все время"
+  },
+  "timePeriod": {
+    "message": "Период"
+  },
+  "of": {
+    "message": "из"
+  },
+  "coachmarkImportTitle": {
+    "message": "Быстрый импорт паролей"
+  },
+  "coachmarkImportDescription": {
+    "message": "У вас был менеджер паролей раньше? Вы можете импортировать CSV-файл с существующими логинами и другими данными в свое хранилище."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Добавить элемент"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Добавляйте новые пароли, заметки и другую информацию в свое хранилище. Все данные защищены сквозным шифрованием."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Безопасно делитесь своими элементами"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "Переместив элемент в коллекцию, вы можете безопасно поделиться им с другими людьми в вашей организации."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Контролируйте безопасность своего пароля"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Обеспечьте надежную защиту элементов в своем хранилище, проверяя отчеты на наличие уязвимостей."
+  },
+  "coachmarkStepIndicator": {
+    "message": "Шаг $CURRENT$ из $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
       }
     }
   }

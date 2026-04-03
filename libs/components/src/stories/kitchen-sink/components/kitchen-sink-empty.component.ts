@@ -11,7 +11,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
     <div class="tw-flex tw-items-center tw-justify-center tw-min-h-96">
       <bit-no-items>
         <ng-container slot="icon">
-          <bit-icon name="bwi-filter" aria-hidden="true"></bit-icon>
+          <bit-icon name="bwi-grid" aria-hidden="true"></bit-icon>
         </ng-container>
         <ng-container slot="title">No items to display</ng-container>
         <ng-container slot="description">
