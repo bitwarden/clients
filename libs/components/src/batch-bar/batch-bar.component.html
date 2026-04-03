@@ -2,7 +2,7 @@
   <div
     role="toolbar"
     aria-label="Batch actions for selected items"
-    class="tw-fixed tw-bottom-6 tw-left-1/2 -tw-translate-x-1/2 tw-z-50 tw-flex tw-items-center tw-gap-1.5 tw-p-1.5 tw-rounded-xl tw-bg-[#0c3276]"
+    class="tw-fixed tw-bottom-6 tw-left-1/2 -tw-translate-x-1/2 tw-z-50 tw-flex tw-items-center tw-gap-1.5 tw-p-1.5 tw-rounded-xl tw-bg-[var(--color-bg-batch-bar)]"
   >
     <!-- Selection count -->
     <span
@@ -10,12 +10,12 @@
       aria-atomic="true"
       class="tw-flex tw-items-center tw-gap-1 tw-px-3 tw-py-1.5 tw-whitespace-nowrap"
     >
-      <span class="tw-font-semibold tw-text-sm tw-text-contrast">{{ selectedCount() }}</span>
-      <span class="tw-text-sm tw-text-contrast">selected</span>
+      <span class="tw-font-semibold tw-text-sm tw-text-alt2">{{ selectedCount() }}</span>
+      <span class="tw-text-sm tw-text-alt2">selected</span>
     </span>
 
     <!-- Divider -->
-    <div class="tw-w-px tw-h-8 tw-bg-[#175ddc] tw-shrink-0" aria-hidden="true"></div>
+    <div class="tw-w-px tw-h-8 tw-bg-[var(--color-brand-700)] tw-shrink-0" aria-hidden="true"></div>
 
     <!-- Clear button -->
     <button
@@ -24,14 +24,14 @@
       buttonType="unstyled"
       [bitAction]="onClear"
       aria-label="Clear selection"
-      class="!tw-border-0 tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-leading-4 tw-text-xs tw-font-medium tw-text-contrast tw-transition tw-whitespace-nowrap hover:tw-bg-[#175ddc] focus-visible:tw-ring-2 tw-ring-text-contrast focus-visible:tw-ring-offset-2"
+      class="!tw-border-0 tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-leading-4 tw-text-xs tw-font-medium tw-text-alt2 tw-transition tw-whitespace-nowrap hover:tw-bg-[var(--color-bg-batch-bar-hover)] focus-visible:tw-ring-2 tw-ring-text-alt2 focus-visible:tw-ring-offset-2"
     >
       <bit-icon name="bwi-close" />
       Clear
     </button>
 
     <!-- Divider -->
-    <div class="tw-w-px tw-h-8 tw-bg-[#175ddc] tw-shrink-0" aria-hidden="true"></div>
+    <div class="tw-w-px tw-h-8 tw-bg-[var(--color-brand-700)] tw-shrink-0" aria-hidden="true"></div>
 
     <!-- Action buttons -->
     @for (action of actions(); track action.label) {
@@ -43,7 +43,7 @@
         [disabled]="action.inactive ?? false"
         [bitTooltip]="action.inactive && action.inactiveReason ? action.inactiveReason : ''"
         [addTooltipToDescribedby]="true"
-        class="!tw-border-0 tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-leading-4 tw-text-xs tw-font-medium tw-text-contrast tw-transition tw-whitespace-nowrap hover:tw-bg-[#175ddc] focus-visible:tw-ring-2 tw-ring-text-contrast focus-visible:tw-ring-offset-2 aria-disabled:tw-text-[#8496b0] aria-disabled:hover:tw-bg-transparent aria-disabled:tw-cursor-not-allowed"
+        class="!tw-border-0 tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-leading-4 tw-text-xs tw-font-medium tw-text-alt2 tw-transition tw-whitespace-nowrap hover:tw-bg-[var(--color-bg-batch-bar-hover)] focus-visible:tw-ring-2 tw-ring-text-alt2 focus-visible:tw-ring-offset-2 aria-disabled:tw-text-fg-body-subtle aria-disabled:hover:tw-bg-transparent aria-disabled:tw-cursor-not-allowed"
       >
         @if (action.icon) {
           <bit-icon [name]="action.icon" />
@@ -57,10 +57,11 @@
       <button
         bitIconButton="bwi-ellipsis-v"
         type="button"
-        buttonType="contrast"
+        buttonType="unstyled"
         size="small"
         label="More actions"
         [bitMenuTriggerFor]="overflowMenu"
+        class="!tw-border-0 tw-text-alt2 hover:tw-bg-[var(--color-bg-batch-bar-hover)]"
       ></button>
       <bit-menu #overflowMenu>
         @for (item of menuActions(); track item.label) {

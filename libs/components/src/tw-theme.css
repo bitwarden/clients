@@ -394,6 +394,13 @@
   --color-nav-border-secondary: var(--color-gray-200);
   --color-nav-border-primary-focus: var(--color-white);
   --color-nav-border-secondary-focus: var(--color-black);
+
+  /**========================================
+   * BATCH BAR CUSTOM COLORS (Light mode)
+   * ======================================== */
+
+  --color-bg-batch-bar: var(--color-brand-900);
+  --color-bg-batch-bar-hover: var(--color-brand-700);
 }
 
 .theme_light {
@@ -621,6 +628,13 @@
   --color-nav-border-secondary: var(--color-gray-700);
   --color-nav-border-primary-focus: var(--color-white);
   --color-nav-border-secondary-focus: var(--color-white);
+
+  /**========================================
+   * BATCH BAR CUSTOM COLORS (Dark mode)
+   * ======================================== */
+
+  --color-bg-batch-bar: var(--color-brand-700);
+  --color-bg-batch-bar-hover: var(--color-brand-800);
 }
 
 @layer components {
