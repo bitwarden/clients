@@ -11,16 +11,14 @@ import {
 } from "@angular/core";
 
 import { MAGNIFY_ACTIONS, MagnifyAction } from "../../../../autofill/models/magnify-actions";
-import { MagnifyLoginItem } from "../../../../autofill/models/magnify-items";
+import {
+  isMagnifyCardItem,
+  isMagnifyLoginItem,
+  MagnifySearchResultItem,
+} from "../../../../autofill/models/magnify-commands";
 import { MAGNIFY_PLATFORM } from "../../../main";
 
 export type CompletingAction = { actionId: string; itemIndex: number } | null;
-
-// Actions that apply to a specific item type (magnifyItemType !== null).
-// Navigate (null) is global UI — it is not shown per-item.
-const ITEM_ACTIONS: MagnifyAction[] = MAGNIFY_ACTIONS.filter(
-  (action) => action.magnifyItemType !== null,
-);
 
 @Component({
   selector: "results-list",
@@ -31,21 +29,39 @@ const ITEM_ACTIONS: MagnifyAction[] = MAGNIFY_ACTIONS.filter(
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResultsListComponent implements OnChanges {
-  readonly results = input<MagnifyLoginItem[]>([]);
+  readonly results = input<MagnifySearchResultItem[]>([]);
   readonly selectedIndex = input<number>(0);
   readonly hasSearched = input<boolean>(false);
 
   /** Set by the parent while an action is completing — triggers the green flash on the matching badge. */
   readonly completingAction = input<CompletingAction>(null);
 
-  readonly itemSelected = output<MagnifyLoginItem>();
+  readonly itemSelected = output<MagnifySearchResultItem>();
   readonly itemHovered = output<number>();
 
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChildren("resultItem") resultItems!: QueryList<ElementRef<HTMLDivElement>>;
 
-  /** The item-specific actions to show in each result row. */
-  readonly itemActions = ITEM_ACTIONS;
+  /** Returns the item-specific actions for a given result row. */
+  getItemActions(item: MagnifySearchResultItem): MagnifyAction[] {
+    return MAGNIFY_ACTIONS.filter(
+      (action) => action.magnifyItemType !== null && action.magnifyItemType === item.itemType,
+    );
+  }
+
+  getIconUrl(item: MagnifySearchResultItem): string | null {
+    return isMagnifyLoginItem(item) ? item.iconUrl : null;
+  }
+
+  getSubtitle(item: MagnifySearchResultItem): string {
+    if (isMagnifyLoginItem(item)) {
+      return item.username;
+    }
+    if (isMagnifyCardItem(item)) {
+      return item.brand ?? "";
+    }
+    return "";
+  }
 
   onImgError(event: Event): void {
     // Hide the broken image so the CSS fallback initial letter shows instead

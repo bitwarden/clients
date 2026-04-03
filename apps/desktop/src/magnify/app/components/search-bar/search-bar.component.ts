@@ -10,7 +10,11 @@ import {
 } from "@angular/core";
 
 import { MAGNIFY_ACTIONS } from "../../../../autofill/models/magnify-actions";
-import { MagnifyItem, MagnifyLoginItem } from "../../../../autofill/models/magnify-items";
+import {
+  isMagnifyCardItem,
+  isMagnifyLoginItem,
+  MagnifySearchResultItem,
+} from "../../../../autofill/models/magnify-commands";
 import { CommandService } from "../../../services/command-service";
 import { SEARCH_BAR_HEIGHT, calculateWindowHeight } from "../../utils/magnify-layout";
 import { ActionBarComponent } from "../action-bar/action-bar.component";
@@ -30,7 +34,7 @@ export class SearchBarComponent implements AfterViewInit {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("searchInput") searchInput!: ElementRef<HTMLInputElement>;
 
-  readonly results = signal<MagnifyLoginItem[]>([]);
+  readonly results = signal<MagnifySearchResultItem[]>([]);
   readonly selectedIndex = signal<number>(0);
   readonly hasSearched = signal<boolean>(false);
 
@@ -45,42 +49,69 @@ export class SearchBarComponent implements AfterViewInit {
     if (!item) {
       return [];
     }
-    // Include actions that apply to all item types (null), or to Login items.
-    // All results from the vault search are MagnifyLoginItems, so Login actions
-    // are always applicable when a result is selected.
     return MAGNIFY_ACTIONS.filter(
-      (action) => action.magnifyItemType === null || action.magnifyItemType === MagnifyItem.Login,
+      (action) => action.magnifyItemType === null || action.magnifyItemType === item.itemType,
     );
   });
+
+  private readonly copyAndIndicate = <T extends MagnifySearchResultItem>(
+    guard: (item: MagnifySearchResultItem) => item is T,
+    actionId: string,
+    copyFn: (item: T) => Promise<string>,
+  ): void => {
+    const itemIndex = this.selectedIndex();
+    const item = this.results()[itemIndex];
+    if (item && guard(item)) {
+      void copyFn(item).then((value) => {
+        if (value) {
+          void navigator.clipboard.writeText(value);
+          this.completingAction.set({ actionId, itemIndex });
+          setTimeout(() => this.completingAction.set(null), 1500);
+        }
+      });
+    }
+  };
 
   private readonly actionHandlers = new Map<string, () => void>([
     [
       "magnifyLoginItem-copyPassword",
-      () => {
-        const itemIndex = this.selectedIndex();
-        const item = this.results()[itemIndex];
-        if (item) {
-          void this.commandService.copyPassword(item.id).then((password) => {
-            if (password) {
-              void navigator.clipboard.writeText(password);
-              this.completingAction.set({ actionId: "magnifyLoginItem-copyPassword", itemIndex });
-              setTimeout(() => this.completingAction.set(null), 1500);
-            }
-          });
-        }
-      },
+      () =>
+        this.copyAndIndicate(isMagnifyLoginItem, "magnifyLoginItem-copyPassword", (item) =>
+          this.commandService.copyPassword(item),
+        ),
     ],
     [
       "magnifyLoginItem-copyUsername",
       () => {
         const itemIndex = this.selectedIndex();
         const item = this.results()[itemIndex];
-        if (item?.username) {
+        if (item && isMagnifyLoginItem(item) && item.username) {
           void navigator.clipboard.writeText(item.username);
           this.completingAction.set({ actionId: "magnifyLoginItem-copyUsername", itemIndex });
           setTimeout(() => this.completingAction.set(null), 1500);
         }
       },
+    ],
+    [
+      "magnifyCardItem-copyCardNumber",
+      () =>
+        this.copyAndIndicate(isMagnifyCardItem, "magnifyCardItem-copyCardNumber", (item) =>
+          this.commandService.copyCardNumber(item),
+        ),
+    ],
+    [
+      "magnifyCardItem-copyCardCode",
+      () =>
+        this.copyAndIndicate(isMagnifyCardItem, "magnifyCardItem-copyCardCode", (item) =>
+          this.commandService.copyCardCode(item),
+        ),
+    ],
+    [
+      "magnifyCardItem-copyCardExpiration",
+      () =>
+        this.copyAndIndicate(isMagnifyCardItem, "magnifyCardItem-copyCardExpiration", (item) =>
+          this.commandService.copyCardExpiration(item),
+        ),
     ],
   ]);
 
@@ -146,8 +177,14 @@ export class SearchBarComponent implements AfterViewInit {
     }
 
     // All other actions are driven by MAGNIFY_ACTIONS shortcuts.
+    // Only consider actions that apply to the currently selected item's type.
+    const selectedItem = this.results()[this.selectedIndex()];
+    const selectedItemType = selectedItem?.itemType ?? null;
     for (const action of MAGNIFY_ACTIONS) {
       if (!action.shortcuts) {
+        continue;
+      }
+      if (action.magnifyItemType !== null && action.magnifyItemType !== selectedItemType) {
         continue;
       }
       for (const combination of action.shortcuts) {
@@ -160,12 +197,14 @@ export class SearchBarComponent implements AfterViewInit {
     }
   }
 
-  onItemSelected(item: MagnifyLoginItem): void {
-    void this.commandService.copyPassword(item.id).then((password) => {
-      if (password) {
-        void navigator.clipboard.writeText(password);
-      }
-    });
+  onItemSelected(item: MagnifySearchResultItem): void {
+    if (isMagnifyLoginItem(item)) {
+      void this.commandService.copyPassword(item).then((password) => {
+        if (password) {
+          void navigator.clipboard.writeText(password);
+        }
+      });
+    }
   }
 
   onItemHovered(index: number): void {

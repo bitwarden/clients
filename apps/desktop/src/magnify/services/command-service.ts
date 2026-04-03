@@ -1,11 +1,11 @@
 import { Injectable } from "@angular/core";
 
 import {
+  MagnifyCardItem,
   MagnifyCommand,
-  MagnifyCommandRequest,
-  MagnifyCommandResponse,
+  MagnifyLoginItem,
+  MagnifySearchResultItem,
 } from "../../autofill/models/magnify-commands";
-import { MagnifyLoginItem } from "../../autofill/models/magnify-items";
 
 @Injectable({
   providedIn: "root",
@@ -16,62 +16,36 @@ export class CommandService {
     window.ipc.resize(height);
   }
 
-  async searchVault(input: string): Promise<MagnifyLoginItem[]> {
-    const request: MagnifyCommandRequest = {
-      type: MagnifyCommand.SearchVault,
-      input,
-    };
-
-    const response: MagnifyCommandResponse = await window.ipc.sendCommand(request);
-
-    if (
-      response !== undefined &&
-      response !== null &&
-      response.type === MagnifyCommand.SearchVault
-    ) {
-      // eslint-disable-next-line no-console
-      console.log("search vault results: ", response.results);
-
-      return response.results;
-    }
-
-    // eslint-disable-next-line no-console
-    console.log("Error in searchVault(): response was not MagnifyCommand.SearchVault as expected");
-    return [];
+  async searchVault(input: string): Promise<MagnifySearchResultItem[]> {
+    return (await window.ipc.sendCommand({ type: MagnifyCommand.SearchVault, input })).results;
   }
 
-  async copyPassword(id: string): Promise<string> {
-    const request: MagnifyCommandRequest = {
-      type: MagnifyCommand.CopyPassword,
-      id,
-    };
-
-    const response: MagnifyCommandResponse = await window.ipc.sendCommand(request);
-
-    if (
-      response !== undefined &&
-      response !== null &&
-      response.type === MagnifyCommand.CopyPassword
-    ) {
-      // eslint-disable-next-line no-console
-      console.log("copy password result: ", response.result);
-
-      return response.result;
-    }
-
-    // eslint-disable-next-line no-console
-    console.log(
-      "Error in copyPassword(): response was not MagnifyCommand.CopyPassword as expected",
-    );
-    return "";
+  async copyPassword(item: MagnifyLoginItem): Promise<string> {
+    return (await window.ipc.sendCommand({ type: MagnifyCommand.CopyPassword, itemId: item.id }))
+      .result;
   }
 
-  async viewInBitwarden(itemId: string): Promise<void> {
-    const request: MagnifyCommandRequest = {
-      type: MagnifyCommand.ViewInBitwarden,
-      itemId,
-    };
+  async copyCardNumber(item: MagnifyCardItem): Promise<string> {
+    return (await window.ipc.sendCommand({ type: MagnifyCommand.CopyCardNumber, itemId: item.id }))
+      .result;
+  }
 
-    await window.ipc.sendCommand(request);
+  async copyCardExpiration(item: MagnifyCardItem, format?: string): Promise<string> {
+    return (
+      await window.ipc.sendCommand({
+        type: MagnifyCommand.CopyCardExpiration,
+        itemId: item.id,
+        ...(format !== undefined ? { format } : {}),
+      })
+    ).result;
+  }
+
+  async copyCardCode(item: MagnifyCardItem): Promise<string> {
+    return (await window.ipc.sendCommand({ type: MagnifyCommand.CopyCardCode, itemId: item.id }))
+      .result;
+  }
+
+  async viewInBitwarden(item: MagnifySearchResultItem): Promise<void> {
+    await window.ipc.sendCommand({ type: MagnifyCommand.ViewInBitwarden, itemId: item.id });
   }
 }
