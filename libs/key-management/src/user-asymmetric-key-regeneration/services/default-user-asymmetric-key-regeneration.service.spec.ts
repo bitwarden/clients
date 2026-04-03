@@ -203,6 +203,27 @@ describe("regenerateIfNeeded", () => {
     expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
   });
 
+  it("should regenerate when user has no asymmetric keys at all", async () => {
+    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
+      privateKeyDecryptable: true,
+      validPrivateKey: false,
+    };
+    setupVerificationResponse(mockVerificationResponse, sdkService);
+    keyService.userEncryptedPrivateKey$.mockReturnValue(
+      of(undefined as unknown as EncryptedString),
+    );
+    apiService.getUserPublicKey.mockRejectedValue(
+      Object.assign(new Error("Not found"), { statusCode: 404 }),
+    );
+
+    await sut.regenerateIfNeeded(userId);
+
+    expect(
+      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
+    ).toHaveBeenCalled();
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalled();
+  });
+
   it("should regenerate when private key is decryptable and invalid", async () => {
     const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
       privateKeyDecryptable: true,
