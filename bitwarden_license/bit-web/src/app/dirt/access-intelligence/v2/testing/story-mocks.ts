@@ -17,6 +17,9 @@ import { AccessSecurityTasksService } from "../services/abstractions/access-secu
  */
 export function createAccessIntelligenceI18nMock(): I18nMockService {
   return new I18nMockService({
+    // --- Shared ---
+    loading: "Loading",
+
     // --- Shared table / search ---
     search: "Search",
     resetSearch: "Reset search",
@@ -29,8 +32,8 @@ export function createAccessIntelligenceI18nMock(): I18nMockService {
     unselectApplication: "Deselect application",
     filter: "Filter",
     application: "Application",
-    atRiskPasswords: "At-Risk Credentials",
-    totalPasswords: "Total Credentials",
+    atRiskPasswords: "At-Risk Passwords",
+    totalPasswords: "Total Passwords",
     atRiskMembers: "At-Risk Members",
     totalMembers: "Total Members",
     criticalBadge: "Critical",
@@ -105,10 +108,20 @@ export function createAccessIntelligenceI18nMock(): I18nMockService {
     // --- New applications dialog ---
     prioritizeCriticalApplications: "Prioritize Critical Applications",
     assignSecurityTasksToMembers: "Assign Security Tasks to Members",
+    taskSummary: "Task Summary",
+    membersWithAtRiskPasswords: "members have at-risk passwords",
+    membersWillReceiveSecurityTask:
+      "Members will receive a security task to update their passwords.",
     selectCriticalAppsDescription: "Select which applications are critical to your organization.",
     reviewNewAppsDescription: "Review new applications and mark which ones are critical.",
     clickIconToMarkAppAsCritical: "Click the star icon to mark an app as critical",
     markAsCritical: "Mark as Critical",
+
+    // --- Dialog save results ---
+    applicationReviewSaved: "Application review saved",
+    newApplicationsReviewed: "New applications reviewed",
+    errorSavingReviewStatus: "Error saving review status",
+    pleaseTryAgain: "Please try again",
   });
 }
 
@@ -131,18 +144,18 @@ export class MockAccessIntelligenceDataService {
     this._loading.next(isLoading);
   }
 
-  markApplicationsAsCritical$ = (orgId: OrganizationId, appNames: string[]) => {
-    action("markApplicationsAsCritical$")(orgId, appNames);
+  markApplicationsAsCritical$ = (appNames: string[]) => {
+    action("markApplicationsAsCritical$")(appNames);
     return of(undefined as void);
   };
 
-  unmarkApplicationsAsCritical$ = (orgId: OrganizationId, appNames: string[]) => {
-    action("unmarkApplicationsAsCritical$")(orgId, appNames);
+  unmarkApplicationsAsCritical$ = (appNames: string[]) => {
+    action("unmarkApplicationsAsCritical$")(appNames);
     return of(undefined as void);
   };
 
-  markApplicationsAsReviewed$ = (orgId: OrganizationId, appNames: string[]) => {
-    action("markApplicationsAsReviewed$")(orgId, appNames);
+  markApplicationsAsReviewed$ = (appNames: string[], date?: Date) => {
+    action("markApplicationsAsReviewed$")(appNames, date);
     return of(undefined as void);
   };
 }

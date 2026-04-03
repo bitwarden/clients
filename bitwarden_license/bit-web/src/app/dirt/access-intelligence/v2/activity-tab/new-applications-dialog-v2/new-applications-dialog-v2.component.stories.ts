@@ -1,9 +1,16 @@
+import { signal } from "@angular/core";
 import { Meta, StoryObj, moduleMetadata, applicationConfig } from "@storybook/angular";
+import { BehaviorSubject } from "rxjs";
+import { action } from "storybook/actions";
+import { getByRole, userEvent, waitFor } from "storybook/test";
 
+import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
 import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/access-intelligence";
 import { createReport } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ThemeTypes } from "@bitwarden/common/platform/enums";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService, DIALOG_DATA, ToastService } from "@bitwarden/components";
 
@@ -18,12 +25,13 @@ import {
 } from "../../testing";
 
 import {
+  DialogView,
   NewApplicationsDialogV2Component,
   NewApplicationsDialogV2Data,
 } from "./new-applications-dialog-v2.component";
 
 const mockDialogRef = {
-  close: () => {},
+  close: action("DialogRef.close"),
 };
 
 export default {
@@ -43,7 +51,16 @@ export default {
       ],
     }),
     applicationConfig({
-      providers: [],
+      providers: [
+        {
+          provide: ThemeStateService,
+          useValue: { selectedTheme$: new BehaviorSubject(ThemeTypes.Light) },
+        },
+        {
+          provide: SYSTEM_THEME_OBSERVABLE,
+          useValue: new BehaviorSubject(ThemeTypes.Light),
+        },
+      ],
     }),
   ],
 } as Meta<NewApplicationsDialogV2Component>;
@@ -51,19 +68,32 @@ export default {
 type Story = StoryObj<NewApplicationsDialogV2Component>;
 
 /**
- * Default - Select Applications View (default state)
- * Shows the application selection view with sample data
+ * Large Dataset - Many new applications (20+)
+ * Default story: select apps and click "Mark as Critical" to walk through the full flow.
  */
-export const Default: Story = {
+export const LargeDataset: Story = {
   render: (args) => {
+    // Generate 25 deterministic applications
+    const newApplications = Array.from({ length: 25 }, (_, i) => {
+      // Deterministic pattern for member/cipher data
+      const memberCount = (i % 5) + 1; // 1-5 members
+      const cipherCount = (i % 4) + 1; // 1-4 ciphers
+
+      const members: Record<string, boolean> = {};
+      for (let j = 0; j < memberCount; j++) {
+        members[`u${i * 5 + j}`] = j % 2 === 0; // Alternate at-risk status
+      }
+
+      const ciphers: Record<string, boolean> = {};
+      for (let k = 0; k < cipherCount; k++) {
+        ciphers[`c${i * 4 + k}`] = k % 2 === 0; // Alternate at-risk status
+      }
+
+      return createReport(`app-${i}.example.com`, members, ciphers);
+    });
+
     const data: NewApplicationsDialogV2Data = {
-      newApplications: [
-        createReport("github.com", { u1: true, u2: false, u3: true }, { c1: true, c2: false }),
-        createReport("gitlab.com", { u4: true, u5: false }, { c4: true, c5: false }),
-        createReport("bitbucket.org", { u6: true }, { c6: true, c7: true }),
-        createReport("aws.amazon.com", { u7: true, u8: true, u9: true }, { c8: true, c9: true }),
-        createReport("azure.microsoft.com", { u10: true }, { c10: true }),
-      ],
+      newApplications,
       organizationId: "org-123" as OrganizationId,
       hasExistingCriticalApplications: true,
     };
@@ -103,10 +133,10 @@ export const NoCriticalAppsYet: Story = {
 };
 
 /**
- * No At-Risk Ciphers - Apps without at-risk passwords
+ * No At-Risk Passwords - Apps without at-risk passwords
  * Shows workflow when selected apps have no at-risk passwords (skip assign view)
  */
-export const NoAtRiskCiphers: Story = {
+export const NoAtRiskPasswords: Story = {
   render: (args) => {
     const data: NewApplicationsDialogV2Data = {
       newApplications: [
@@ -127,33 +157,50 @@ export const NoAtRiskCiphers: Story = {
 };
 
 /**
- * Large Dataset - Many new applications (20+)
- * Shows performance with a large number of new applications
- * ⚠️ Uses deterministic data for Chromatic visual regression testing
+ * AssignTasksView - Second step of the dialog (static snapshot)
+ * Uses a props override to show the assign tasks view directly in docs.
  */
-export const LargeDataset: Story = {
+export const AssignTasksView: Story = {
   render: (args) => {
-    // Generate 25 deterministic applications
-    const newApplications = Array.from({ length: 25 }, (_, i) => {
-      // Deterministic pattern for member/cipher data
-      const memberCount = (i % 5) + 1; // 1-5 members
-      const cipherCount = (i % 4) + 1; // 1-4 ciphers
-
-      const members: Record<string, boolean> = {};
-      for (let j = 0; j < memberCount; j++) {
-        members[`u${i * 5 + j}`] = j % 2 === 0; // Alternate at-risk status
-      }
-
-      const ciphers: Record<string, boolean> = {};
-      for (let k = 0; k < cipherCount; k++) {
-        ciphers[`c${i * 4 + k}`] = k % 2 === 0; // Alternate at-risk status
-      }
-
-      return createReport(`app-${i}.example.com`, members, ciphers);
-    });
-
     const data: NewApplicationsDialogV2Data = {
-      newApplications,
+      newApplications: [
+        createReport("github.com", { u1: true, u2: true }, { c1: true, c2: true }),
+        createReport("gitlab.com", { u3: true }, { c3: true }),
+        createReport("salesforce.com", { u4: true, u5: true }, { c4: true, c5: true }),
+      ],
+      organizationId: "org-123" as OrganizationId,
+      hasExistingCriticalApplications: true,
+    };
+
+    return {
+      props: {
+        ...args,
+        ...{
+          currentView: signal(DialogView.AssignTasks),
+          selectedApplications: signal(new Set(["github.com", "gitlab.com", "salesforce.com"])),
+        },
+      },
+      moduleMetadata: {
+        providers: [{ provide: DIALOG_DATA, useValue: data }],
+      },
+    };
+  },
+};
+
+/**
+ * FullFlow - Complete interactive walkthrough
+ * Simulates the full user journey: select all apps → mark as critical → navigates to assign tasks view.
+ * The play function drives navigation through both dialog views.
+ */
+export const FullFlow: Story = {
+  tags: ["!autodocs"],
+  render: (args) => {
+    const data: NewApplicationsDialogV2Data = {
+      newApplications: [
+        createReport("github.com", { u1: true, u2: true }, { c1: true, c2: true }),
+        createReport("gitlab.com", { u3: true }, { c3: true }),
+        createReport("salesforce.com", { u4: true, u5: true }, { c4: true, c5: true }),
+      ],
       organizationId: "org-123" as OrganizationId,
       hasExistingCriticalApplications: true,
     };
@@ -165,31 +212,14 @@ export const LargeDataset: Story = {
       },
     };
   },
-};
-
-/**
- * Single New Application - Minimal dataset
- * Shows dialog with only one new application
- */
-export const SingleNewApplication: Story = {
-  render: (args) => {
-    const data: NewApplicationsDialogV2Data = {
-      newApplications: [
-        createReport(
-          "new-critical-app.com",
-          { u1: true, u2: true, u3: true },
-          { c1: true, c2: true },
-        ),
-      ],
-      organizationId: "org-123" as OrganizationId,
-      hasExistingCriticalApplications: false,
-    };
-
-    return {
-      props: { ...args },
-      moduleMetadata: {
-        providers: [{ provide: DIALOG_DATA, useValue: data }],
-      },
-    };
+  play: async ({ canvasElement, step }) => {
+    await step("Select all applications", async () => {
+      await waitFor(() => getByRole(canvasElement, "button", { name: "Select all" }));
+      await userEvent.click(getByRole(canvasElement, "button", { name: "Select all" }));
+    });
+    await step("Mark as Critical", async () => {
+      await waitFor(() => getByRole(canvasElement, "button", { name: "Mark as Critical" }));
+      await userEvent.click(getByRole(canvasElement, "button", { name: "Mark as Critical" }));
+    });
   },
 };

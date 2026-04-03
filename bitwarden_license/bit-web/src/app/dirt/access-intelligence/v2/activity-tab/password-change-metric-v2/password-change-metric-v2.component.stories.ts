@@ -59,25 +59,6 @@ export default {
 type Story = StoryObj<PasswordChangeMetricV2Component>;
 
 /**
- * Default (Empty) — no report data loaded, no critical applications
- * Shows the initial EMPTY state prompt
- */
-export const Default: Story = {
-  render: () => ({
-    props: { organizationId: orgId },
-    moduleMetadata: {
-      providers: [
-        {
-          provide: AccessIntelligenceDataService,
-          useValue: new MockAccessIntelligenceDataService(null),
-        },
-        { provide: AccessSecurityTasksService, useValue: new MockSecurityTasksService() },
-      ],
-    },
-  }),
-};
-
-/**
  * NoCriticalApplications — report loaded but no apps marked critical
  * Shows EMPTY state with prompt to review and mark applications as critical
  */
