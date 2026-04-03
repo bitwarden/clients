@@ -69,6 +69,11 @@ export class SendFileDetailsComponent implements OnInit {
     if (files.length === 1) {
       this.fileName = files[0].name;
       this.sendFormContainer.onFileSelected(files[0]);
+
+      const fileView = new SendFileView();
+      fileView.fileName = files[0].name;
+      fileView.size = String(files[0].size);
+      this.sendFileDetailsForm.patchValue({ file: fileView });
     } else {
       const totalSize = Array.from(files).reduce((sum, f) => sum + f.size, 0);
       this.fileName = `${files.length} files, ${this.formatFileSize(totalSize)}`;
@@ -90,6 +95,11 @@ export class SendFileDetailsComponent implements OnInit {
     if (result.files.length === 1) {
       this.fileName = result.files[0].file.name;
       this.sendFormContainer.onFileSelected(result.files[0].file);
+
+      const fileView = new SendFileView();
+      fileView.fileName = result.files[0].file.name;
+      fileView.size = String(result.files[0].file.size);
+      this.sendFileDetailsForm.patchValue({ file: fileView });
     } else {
       const totalSize = result.files.reduce((sum, f) => sum + f.file.size, 0);
       this.fileName = `${result.files.length} files, ${this.formatFileSize(totalSize)}`;

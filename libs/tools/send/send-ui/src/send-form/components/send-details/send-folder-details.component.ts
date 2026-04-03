@@ -103,12 +103,7 @@ export class SendFolderDetailsComponent implements OnInit {
 
     this.sendFolderDetailsForm.controls.folder.setValue(this.folderPreview());
 
-    // Create a FileList from the dropped files for the container
-    const dt = new DataTransfer();
-    for (const f of result.files) {
-      dt.items.add(f.file);
-    }
-    this.sendFormContainer.onFolderSelected(dt.files);
+    this.sendFormContainer.onFolderFilesDropped(result.files);
   }
 
   ngOnInit() {

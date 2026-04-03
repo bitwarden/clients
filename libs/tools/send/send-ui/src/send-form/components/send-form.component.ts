@@ -86,6 +86,7 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
   private _firstInitialized = false;
   private file: File | null = null;
   private folderFiles: FileList | null = null;
+  private droppedFolderFiles: Array<{ file: File; path: string }> | null = null;
   private multipleFiles: FileList | null = null;
 
   /**
@@ -211,6 +212,7 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
     this.originalSendView = null;
     this.file = null;
     this.folderFiles = null;
+    this.droppedFolderFiles = null;
     this.multipleFiles = null;
     this.sendForm.reset();
 
@@ -250,6 +252,12 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
 
   onFolderSelected(files: FileList): void {
     this.folderFiles = files;
+    this.droppedFolderFiles = null;
+  }
+
+  onFolderFilesDropped(files: Array<{ file: File; path: string }>): void {
+    this.droppedFolderFiles = files;
+    this.folderFiles = null;
   }
 
   onMultipleFilesSelected(files: FileList): void {
@@ -308,7 +316,12 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
         Array.from(this.multipleFiles).map((f) => ({ file: f, path: f.name })),
         "Send",
       );
+    } else if (this.droppedFolderFiles != null && this.droppedFolderFiles.length > 0) {
+      // Drag-and-drop folder files — paths come from the entries API
+      const folderName = this.droppedFolderFiles[0].path.split("/")[0];
+      fileOrBuffer = await this.zipBrowserFiles(this.droppedFolderFiles, folderName);
     } else if (this.folderFiles != null && this.folderFiles.length > 0) {
+      // Folder picker files — paths come from webkitRelativePath
       const firstPath = this.folderFiles[0].webkitRelativePath;
       const folderName = firstPath.split("/")[0];
       fileOrBuffer = await this.zipBrowserFiles(
