@@ -191,6 +191,7 @@ describe("AddEditFolderDialogComponent", () => {
 
       beforeEach(() => {
         dialogData.backAction = mockBackAction;
+        component.ngOnInit();
         fixture.detectChanges();
       });
 

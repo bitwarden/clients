@@ -287,18 +287,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return this.cipher != undefined && (this.params.mode === "view" || this.loadingForm);
   }
 
-  protected get backAction() {
-    if (
-      typeof this.params.backAction === "function" &&
-      this.cipher == null &&
-      this.params.mode === "form"
-    ) {
-      return this.params.backAction;
-    }
-
-    return undefined;
-  }
-
   protected get submitButtonText$(): Observable<string> {
     return this.userHasPremium$.pipe(
       map((hasPremium) =>
@@ -346,6 +334,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   protected attachmentsButtonDisabled = false;
 
   protected confirmedPremiumUpgrade = false;
+
+  protected backAction: (() => void) | undefined;
 
   constructor(
     @Inject(DIALOG_DATA) protected params: VaultItemDialogParams,
@@ -427,6 +417,12 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
     this.showRestore = await this.canUserRestore();
     this.performingInitialLoad = false;
+    if (typeof this.params.backAction === "function") {
+      this.backAction = () => {
+        this.params.backAction();
+        this.dialogRef.close();
+      };
+    }
   }
 
   ngOnDestroy() {

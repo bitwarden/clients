@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { BehaviorSubject } from "rxjs";
 
@@ -7,6 +8,8 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 
+import { AddItemGridComponent } from "../add-item-grid/add-item-grid.component";
+
 import {
   AddItemDialogComponent,
   AddItemDialogData,
@@ -14,7 +17,6 @@ import {
 } from "./add-item-dialog.component";
 
 describe("AddItemDialogComponent", () => {
-  let component: AddItemDialogComponent;
   let fixture: ComponentFixture<AddItemDialogComponent>;
   let dialogData: AddItemDialogData;
 
@@ -43,18 +45,21 @@ describe("AddItemDialogComponent", () => {
   function createComponent(data: AddItemDialogData) {
     dialogData = data;
     fixture = TestBed.createComponent(AddItemDialogComponent);
-    component = fixture.componentInstance;
     fixture.detectChanges();
   }
 
-  it("closes with cipher result when onCipherSelected is called", () => {
+  function getGrid(): AddItemGridComponent {
+    return fixture.debugElement.query(By.directive(AddItemGridComponent)).componentInstance;
+  }
+
+  it("closes with cipher result when a cipher type is selected", () => {
     createComponent({
       canCreateFolder: false,
       canCreateCollection: false,
       canCreateSshKey: true,
     });
 
-    component["onCipherSelected"](CipherType.Login);
+    getGrid().cipherSelected.emit(CipherType.Login);
 
     expect(close).toHaveBeenCalledWith({
       result: AddItemDialogResult.Cipher,
@@ -62,26 +67,26 @@ describe("AddItemDialogComponent", () => {
     });
   });
 
-  it("closes with folder result when onFolderSelected is called", () => {
+  it("closes with folder result when a folder is selected", () => {
     createComponent({
       canCreateFolder: true,
       canCreateCollection: false,
       canCreateSshKey: false,
     });
 
-    component["onFolderSelected"]();
+    getGrid().folderSelected.emit();
 
     expect(close).toHaveBeenCalledWith({ result: AddItemDialogResult.Folder });
   });
 
-  it("closes with collection result when onCollectionSelected is called", () => {
+  it("closes with collection result when a collection is selected", () => {
     createComponent({
       canCreateFolder: false,
       canCreateCollection: true,
       canCreateSshKey: false,
     });
 
-    component["onCollectionSelected"]();
+    getGrid().collectionSelected.emit();
 
     expect(close).toHaveBeenCalledWith({ result: AddItemDialogResult.Collection });
   });

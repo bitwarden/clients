@@ -26,18 +26,10 @@ import { I18nPipe } from "@bitwarden/ui-common";
   imports: [ButtonModule, CommonModule, MenuModule, PopoverModule, I18nPipe, JslibModule],
 })
 export class NewCipherMenuComponent {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  canCreateCipher = input(false);
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  canCreateFolder = input(false);
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  canCreateCollection = input(false);
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  canCreateSshKey = input(false);
+  readonly canCreateCipher = input(false);
+  readonly canCreateFolder = input(false);
+  readonly canCreateCollection = input(false);
+  readonly canCreateSshKey = input(false);
 
   /** Optional popover to anchor to the "New" button for coachmark tours */
   readonly coachmarkPopover = input<PopoverComponent>();

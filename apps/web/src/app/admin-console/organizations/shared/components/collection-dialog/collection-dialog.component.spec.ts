@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormBuilder } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import {
   CollectionAdminService,
@@ -9,7 +10,7 @@ import {
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -25,9 +26,12 @@ import {
 } from "./collection-dialog.component";
 
 describe("CollectionDialogComponent", () => {
+  let component: CollectionDialogComponent;
   let fixture: ComponentFixture<CollectionDialogComponent>;
 
   let mockDialogRef: MockProxy<DialogRef<any>>;
+  let mockCollectionAdminService: MockProxy<CollectionAdminService>;
+  let mockOrgUserApiService: MockProxy<OrganizationUserApiService>;
 
   const mockOrgId = newGuid() as OrganizationId;
 
@@ -37,27 +41,39 @@ describe("CollectionDialogComponent", () => {
 
   beforeEach(async () => {
     mockDialogRef = mock<DialogRef<any>>();
+    mockCollectionAdminService = mock<CollectionAdminService>();
+    mockCollectionAdminService.collectionAdminViews$.mockReturnValue(of([]));
+    mockOrgUserApiService = mock<OrganizationUserApiService>();
+    mockOrgUserApiService.getAllMiniUserDetails.mockReturnValue(of({ data: [] }) as any);
 
     await TestBed.configureTestingModule({
       imports: [CollectionDialogComponent],
       providers: [
         FormBuilder,
         { provide: DIALOG_DATA, useValue: defaultParams },
-        { provide: OrganizationService, useValue: mock<OrganizationService>() },
+        {
+          provide: OrganizationService,
+          useValue: {
+            organizations$: () =>
+              of([{ canCreateNewCollections: true, name: "Organization 1", id: mockOrgId }]),
+          },
+        },
         { provide: GroupApiService, useValue: mock<GroupApiService>() },
-        { provide: CollectionAdminService, useValue: mock<CollectionAdminService>() },
+        { provide: CollectionAdminService, useValue: mockCollectionAdminService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
-        { provide: OrganizationUserApiService, useValue: mock<OrganizationUserApiService>() },
+        { provide: OrganizationUserApiService, useValue: mockOrgUserApiService },
         { provide: DialogService, useValue: mock<DialogService>() },
-        { provide: AccountService, useValue: mock<AccountService>() },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: newGuid() } as Account) } },
         { provide: ToastService, useValue: mock<ToastService>() },
-        { provide: CollectionService, useValue: mock<CollectionService>() },
+        { provide: CollectionService, useValue: { encryptedCollections$: () => of([]) } },
         { provide: ConfigService, useValue: mock<ConfigService>() },
         { provide: DialogRef, useValue: mockDialogRef },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CollectionDialogComponent);
+    component = fixture.componentInstance;
+    (component as any).organizations$ = of([]);
     fixture.detectChanges();
   });
 
@@ -76,9 +92,10 @@ describe("CollectionDialogComponent", () => {
     describe("when backAction param is provided", () => {
       let mockBackAction: jest.Mock;
 
-      beforeEach(() => {
+      beforeEach(async () => {
         mockBackAction = jest.fn();
         defaultParams.backAction = mockBackAction;
+        await component.ngOnInit();
         fixture.detectChanges();
       });
 

@@ -77,6 +77,8 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
 
   variant: "add" | "edit" = "add";
 
+  protected backAction: (() => void) | undefined;
+
   folderForm = this.formBuilder.group({
     name: ["", Validators.required],
   });
@@ -107,6 +109,14 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
       // Create a new folder view
       this.folder = new FolderView();
     }
+
+    // Set up back action when provided
+    if (this.data?.backAction) {
+      this.backAction = () => {
+        this.data.backAction();
+        this.dialogRef.close();
+      };
+    }
   }
 
   ngAfterViewInit(): void {
@@ -117,17 +127,6 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
 
       this.submitBtn.loading.set(loading);
     });
-  }
-
-  protected get backAction() {
-    if (!this.data?.backAction) {
-      return undefined;
-    }
-
-    return () => {
-      this.data?.backAction?.();
-      this.dialogRef.close();
-    };
   }
 
   /** Submit the new folder */

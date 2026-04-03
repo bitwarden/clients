@@ -8,7 +8,7 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 
 import { AddItemGridComponent } from "./add-item-grid.component";
 
-describe("AddItemComponent", () => {
+describe("AddItemGridComponent", () => {
   let component: AddItemGridComponent;
   let fixture: ComponentFixture<AddItemGridComponent>;
 

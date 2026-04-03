@@ -1,10 +1,10 @@
 <bit-dialog dialogSize="large" background="alt">
-  <div bitDialogTitle class="tw-pt-5 tw-pb-3 tw-flex tw-flex-col tw-gap-2">
+  <span bitDialogTitle class="tw-pt-5 tw-pb-3 tw-flex tw-flex-col tw-gap-2">
     <span>{{ "chooseItemToAdd" | i18n }}</span>
     <span class="tw-text-muted tw-font-normal tw-text-sm">
       {{ "chooseItemToAddDesc" | i18n }}
     </span>
-  </div>
+  </span>
   <div bitDialogContent>
     <vault-add-item-grid
       [canCreateFolder]="data.canCreateFolder"
