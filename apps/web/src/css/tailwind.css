@@ -82,8 +82,17 @@
     content: url("../images/logo-white.svg");
   }
 
+  #web-authn-frame {
+    height: 40px;
+
+    iframe {
+      border: none;
+      height: 100%;
+      width: 100%;
+    }
+  }
+
   @import "./braintree.css";
-  @import "./old-mfa.css";
   @import "./vault-filters.css";
 
   @import "../../../../libs/angular/src/scss/bwicons/styles/style.css";
