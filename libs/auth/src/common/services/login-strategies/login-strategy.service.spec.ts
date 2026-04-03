@@ -147,7 +147,6 @@ describe("LoginStrategyService", () => {
       messagingService,
       logService,
       keyConnectorService,
-      unlockService,
       environmentService,
       stateService,
       twoFactorService,
@@ -166,6 +165,7 @@ describe("LoginStrategyService", () => {
       configService,
       accountCryptographicStateService,
       passwordPreloginService,
+      unlockService,
     );
 
     loginStrategyCacheExpirationState = stateProvider.getFake(CACHE_EXPIRATION_KEY);
