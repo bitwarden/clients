@@ -2496,6 +2496,13 @@
   "maxFolderSize": {
     "message": "Maximum folder size is 500 MB."
   },
+  "dropFilesToCreateSend": {
+    "message": "Drop files here to create a Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "dropFilesHere": {
+    "message": "Drop files here"
+  },
   "sendTypeText": {
     "message": "Text"
   },

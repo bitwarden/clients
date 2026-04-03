@@ -16,6 +16,7 @@ import {
 
 import { SendFormConfig } from "../../abstractions/send-form-config.service";
 import { SendFormContainer } from "../../send-form-container";
+import { DragDropResult } from "../../utils/drag-drop-entries";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -68,6 +69,11 @@ export class SendFileDetailsComponent implements OnInit {
     if (files.length === 1) {
       this.fileName = files[0].name;
       this.sendFormContainer.onFileSelected(files[0]);
+
+      const fileView = new SendFileView();
+      fileView.fileName = files[0].name;
+      fileView.size = String(files[0].size);
+      this.sendFileDetailsForm.patchValue({ file: fileView });
     } else {
       const totalSize = Array.from(files).reduce((sum, f) => sum + f.size, 0);
       this.fileName = `${files.length} files, ${this.formatFileSize(totalSize)}`;
@@ -80,6 +86,37 @@ export class SendFileDetailsComponent implements OnInit {
       this.sendFileDetailsForm.patchValue({ file: placeholderView });
     }
   };
+
+  onFilesDropped(result: DragDropResult): void {
+    if (result.files.length === 0) {
+      return;
+    }
+
+    if (result.files.length === 1) {
+      this.fileName = result.files[0].file.name;
+      this.sendFormContainer.onFileSelected(result.files[0].file);
+
+      const fileView = new SendFileView();
+      fileView.fileName = result.files[0].file.name;
+      fileView.size = String(result.files[0].file.size);
+      this.sendFileDetailsForm.patchValue({ file: fileView });
+    } else {
+      const totalSize = result.files.reduce((sum, f) => sum + f.file.size, 0);
+      this.fileName = `${result.files.length} files, ${this.formatFileSize(totalSize)}`;
+
+      // Create a FileList-like for the container
+      const dt = new DataTransfer();
+      for (const f of result.files) {
+        dt.items.add(f.file);
+      }
+      this.sendFormContainer.onMultipleFilesSelected(dt.files);
+
+      const placeholderView = new SendFileView();
+      placeholderView.fileName = this.fileName;
+      placeholderView.size = String(totalSize);
+      this.sendFileDetailsForm.patchValue({ file: placeholderView });
+    }
+  }
 
   private formatFileSize(bytes: number): string {
     if (bytes < 1024) {
@@ -110,6 +147,23 @@ export class SendFileDetailsComponent implements OnInit {
       } else {
         // Multiple entries — show summary
         this.fileName = `${preloadedPaths.length} files, ${this.formatFileSize(totalSize)}`;
+      }
+
+      const preloadedFileView = new SendFileView();
+      preloadedFileView.fileName = this.fileName;
+      preloadedFileView.size = String(totalSize);
+      this.sendFileDetailsForm.patchValue({ file: preloadedFileView });
+    }
+
+    // Pre-populate from drag-and-drop preloaded files
+    const preloadedFiles = this.config().preloadedFiles;
+    if (preloadedFiles != null && preloadedFiles.length > 0) {
+      const totalSize = preloadedFiles.reduce((sum, f) => sum + f.file.size, 0);
+
+      if (preloadedFiles.length === 1) {
+        this.fileName = preloadedFiles[0].file.name;
+      } else {
+        this.fileName = `${preloadedFiles.length} files, ${this.formatFileSize(totalSize)}`;
       }
 
       const preloadedFileView = new SendFileView();

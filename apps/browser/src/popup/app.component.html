@@ -15,8 +15,15 @@
 } @else {
   <!-- eslint-disable-next-line -->
   <div class="tw-h-screen tw-w-screen">
-    <div [@routerTransition]="getRouteElevation(outlet)" class="tw-size-full">
+    <div [@routerTransition]="getRouteElevation(outlet)" class="tw-size-full tw-relative">
       <router-outlet #outlet="outlet"></router-outlet>
+      @if (isDragOverApp()) {
+        <div
+          class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-bg-primary-100 tw-opacity-50 tw-text-primary-600 tw-font-semibold tw-z-50"
+        >
+          {{ "dropFilesToCreateSend" | i18n }}
+        </div>
+      }
     </div>
     <bit-toast-container></bit-toast-container>
   </div>

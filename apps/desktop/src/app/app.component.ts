@@ -7,6 +7,7 @@ import {
   NgZone,
   OnDestroy,
   OnInit,
+  signal,
   Type,
   ViewChild,
   ViewContainerRef,
@@ -76,6 +77,7 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { DialogRef, DialogService, ToastOptions, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+import { PendingDragDropFilesService, setupAppDragDrop } from "@bitwarden/send-ui";
 import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwarden/vault";
 
 import { DeleteAccountComponent } from "../auth/delete-account.component";
@@ -110,6 +112,27 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
         <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
       </div>
       <router-outlet *ngIf="!loading"></router-outlet>
+
+      @if (isDragOverApp()) {
+        <div
+          class="drag-drop-overlay"
+          style="
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 9999;
+            pointer-events: none;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+          "
+        >
+          {{ "dropFilesToCreateSend" | i18n }}
+        </div>
+      }
     </div>
 
     <bit-toast-container></bit-toast-container>
@@ -130,6 +153,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   showHeader$ = this.accountService.showHeader$;
   loading = false;
+  readonly isDragOverApp = signal(false);
 
   private lastActivity: Date = null;
   private modal: ModalRef = null;
@@ -140,6 +164,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private processingPendingAuthRequests = false;
   private shouldRerunAuthRequestProcessing = false;
   private pendingSendService = inject(PendingSendService);
+  private pendingDragDropFilesService = inject(PendingDragDropFilesService);
 
   private destroy$ = new Subject<void>();
 
@@ -192,7 +217,9 @@ export class AppComponent implements OnInit, OnDestroy {
     this.destroyRef.onDestroy(() => langSubscription.unsubscribe());
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    await this.setupDragDropListeners();
+
     this.accountService.activeAccount$.pipe(takeUntil(this.destroy$)).subscribe((account) => {
       this.activeUserId = account?.id;
     });
@@ -925,6 +952,39 @@ export class AppComponent implements OnInit, OnDestroy {
         sendPaths: JSON.stringify(paths),
       },
       onSameUrlNavigation: "reload",
+    });
+  }
+
+  private async setupDragDropListeners(): Promise<void> {
+    const enabled = await this.configService.getFeatureFlag(FeatureFlag.SendFolder);
+    if (!enabled) {
+      return;
+    }
+
+    setupAppDragDrop(
+      (active) => this.isDragOverApp.set(active),
+      (result) => {
+        this.pendingDragDropFilesService.setFiles(result.files, result.folderName);
+        void this.handlePendingDragDrop();
+      },
+    );
+  }
+
+  private async handlePendingDragDrop(): Promise<void> {
+    if (!this.pendingDragDropFilesService.hasPending()) {
+      return;
+    }
+
+    const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
+    if (authStatus !== AuthenticationStatus.Unlocked) {
+      // Files stay in PendingDragDropFilesService — the vault route guard will redirect after unlock
+      return;
+    }
+
+    await this.router.navigate(["/send"], {
+      queryParams: {
+        dragDropFiles: Date.now().toString(),
+      },
     });
   }
 

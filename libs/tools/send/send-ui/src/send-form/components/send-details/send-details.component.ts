@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule, DatePipe } from "@angular/common";
-import { Component, OnInit, Input, output } from "@angular/core";
+import { Component, OnInit, Input, output, viewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   FormBuilder,
@@ -129,6 +129,9 @@ export class SendDetailsComponent implements OnInit {
   @Input() originalSendView?: SendView;
 
   readonly openPasswordGenerator = output<void>();
+
+  readonly fileDetailsComponent = viewChild(SendFileDetailsComponent);
+  readonly folderDetailsComponent = viewChild(SendFolderDetailsComponent);
 
   FileSendType = SendType.File;
   TextSendType = SendType.Text;

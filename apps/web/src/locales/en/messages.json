@@ -1335,6 +1335,9 @@
   "maxFileSize": {
     "message": "Maximum file size is 500 MB."
   },
+  "fileToShare": {
+    "message": "File to share"
+  },
   "addedItem": {
     "message": "Item added"
   },
@@ -5766,6 +5769,13 @@
   },
   "maxFolderSize": {
     "message": "Maximum folder size is 500 MB."
+  },
+  "dropFilesToCreateSend": {
+    "message": "Drop files here to create a Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "dropFilesHere": {
+    "message": "Drop files here"
   },
   "createSend": {
     "message": "New Send",

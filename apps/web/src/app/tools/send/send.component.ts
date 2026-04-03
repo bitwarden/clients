@@ -42,6 +42,7 @@ import {
   SendListComponent,
   SendListState,
   SendListFiltersService,
+  PendingDragDropFilesService,
 } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -134,10 +135,16 @@ export class SendComponent implements OnDestroy {
     private sendItemsService: SendItemsService,
     private sendItemsFiltersService: SendListFiltersService,
     private validationService: ValidationService,
+    private pendingDragDropService: PendingDragDropFilesService,
   ) {
     this.SendUIRefresh$ = this.configService.getFeatureFlag$(FeatureFlag.SendUIRefresh);
 
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      if (params.get("dragDropFiles")) {
+        void this.openSendFromDragDropFiles();
+        return;
+      }
+
       const typeParam = params.get("type");
       let toggleValue: SendFilterType = SendFilterType.All;
       let sendType: SendType | null = null;
@@ -157,6 +164,22 @@ export class SendComponent implements OnDestroy {
   ngOnDestroy() {
     this.dialogService.closeAll();
     this.dialogService.closeDrawer();
+  }
+
+  private async openSendFromDragDropFiles(): Promise<void> {
+    const pending = this.pendingDragDropService.takeFiles();
+    if (pending == null || pending.files.length === 0) {
+      return;
+    }
+
+    const config = await this.addEditFormConfigService.buildConfig("add", null, SendType.File);
+    config.preloadedFiles = pending.files;
+
+    if (pending.folderName != null) {
+      config.isFolderMode = true;
+    }
+
+    await this.openSendItemDialog(config);
   }
 
   async addSend() {

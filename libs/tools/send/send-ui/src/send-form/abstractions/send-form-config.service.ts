@@ -53,6 +53,12 @@ type BaseSendFormConfig = {
     name: string;
     size: number;
   }>;
+
+  /**
+   * Pre-loaded File objects from drag-and-drop.
+   * Uses the same shape as `zipBrowserFiles()` input — no IPC needed.
+   */
+  preloadedFiles?: Array<{ file: File; path: string }>;
 };
 
 /**

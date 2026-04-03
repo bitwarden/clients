@@ -4,6 +4,8 @@ import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
+import { DragDropZoneDirective } from "@bitwarden/send-ui";
+
 import { AppComponent } from "./app.component";
 import { CoreModule } from "./core";
 import { OssRoutingModule } from "./oss-routing.module";
@@ -26,6 +28,7 @@ import { WildcardRoutingModule } from "./wildcard-routing.module";
     LayoutModule,
     OssRoutingModule,
     WildcardRoutingModule, // Needs to be last to catch all non-existing routes
+    DragDropZoneDirective,
   ],
   declarations: [AppComponent],
   bootstrap: [AppComponent],

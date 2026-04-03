@@ -5,7 +5,7 @@ import { Component, inject, viewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { map, switchMap } from "rxjs";
+import { switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -29,6 +29,7 @@ import {
   SendFormGenerationService,
   SendFormMode,
   SendFormModule,
+  PendingDragDropFilesService,
 } from "@bitwarden/send-ui";
 
 import { PopupBackBrowserDirective } from "../../../../platform/popup/layout/popup-back.directive";
@@ -109,6 +110,7 @@ export class SendAddEditComponent {
   config: SendFormConfig;
 
   private sendFormGenerationService = inject(SendFormGenerationService);
+  private pendingDragDropService = inject(PendingDragDropFilesService);
   private readonly sendFormComponent = viewChild(SendFormComponent);
 
   constructor(
@@ -189,8 +191,25 @@ export class SendAddEditComponent {
     this.route.queryParams
       .pipe(
         takeUntilDestroyed(),
-        map((params) => new QueryParams(params)),
-        switchMap(async (params) => {
+        switchMap(async (queryParams) => {
+          // Handle drag-and-drop files from app-level drop zone
+          if (queryParams["dragDropFiles"]) {
+            const pending = this.pendingDragDropService.takeFiles();
+            if (pending != null && pending.files.length > 0) {
+              const config = await this.addEditFormConfigService.buildConfig(
+                "add",
+                undefined,
+                SendType.File,
+              );
+              config.preloadedFiles = pending.files;
+              if (pending.folderName != null) {
+                config.isFolderMode = true;
+              }
+              return config;
+            }
+          }
+
+          const params = new QueryParams(queryParams);
           let mode: SendFormMode;
           if (params.sendId == null) {
             mode = "add";
