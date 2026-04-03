@@ -2,6 +2,7 @@
 name: cipher-type-planner
 description: Plans the creation or modification of a cipher type (vault item type) across the Bitwarden clients monorepo. Use this skill when a user wants to add a new cipher type, modify an existing cipher type, or asks about what is needed to implement a cipher type. DO NOT invoke for general vault or cipher questions unrelated to adding or changing a cipher type.
 user-invokable: true
+argument-hint: [target-client]
 ---
 
 # Cipher Type Planner
@@ -21,12 +22,13 @@ the user has already provided.
     - Data type (string, number, boolean)
     - Encryption required?
     - Required
-3.  **Autofill** - Should this type participate in browser autofill? (Currently only Login, Card,
-    and Identity support autofill.)
-4.  **Linked fields** - Should this type support linked custom fields? If yes, which properties
+3.  **Target client** (`$0`) - Which client should this plan focus on? (`web`, `desktop`, `browser`, `cli`, or `all`). Shared library changes (`libs/common`, `libs/vault`) are always included; `$0` controls which `apps/*` files appear. **Skip if already provided as an argument.** Default: `all`.
+4.  **Autofill** - Should this type participate in browser autofill? (Currently only Login, Card,
+    and Identity support autofill.) Only ask if `$0` is `browser` or `all`.
+5.  **Linked fields** - Should this type support linked custom fields? If yes, which properties
     should be linkable?
-5.  **Feature flag** - What is the feature flag name?
-6.  **Prerequisites** - Have all server and SDK prerequisites been completed? **Do not proceed
+6.  **Feature flag** - What is the feature flag name?
+7.  **Prerequisites** - Have all server and SDK prerequisites been completed? **Do not proceed
     with the plan until the user confirms these are done.**
 
 **Additional questions:**
@@ -141,41 +143,80 @@ All vault filter files must be feature-flag-gated so the new type only appears w
 enabled. Use `ConfigService.getFeatureFlag$()` with `combineLatest` to filter the type out of
 arrays when the flag is off.
 
+_Always included (shared):_
+
 - `libs/vault/src/services/vault-filter.service.ts` - **CRITICAL**: Add type to `buildCipherTypeTree()` `allTypeFilters` array. Without this, ciphers of the new type will not appear in the vault sidebar or list.
 - `libs/vault/src/models/filter-function.ts` - Add filter case for the new type
+- `libs/angular/src/vault/components/vault-items.component.ts` - Feature-flag-gate empty state type buttons
+
+_Include if `$0` is `web` or `all`:_
+
 - `apps/web/src/app/vault/individual-vault/vault-filter/components/vault-filter.component.ts` - Add to `allTypeFilters`, `searchPlaceholder`, and feature-flag-gate in `buildAllFilters()`
 - `apps/web/src/app/admin-console/organizations/collections/vault-filter/vault-filter.component.ts` - Feature-flag-gate in `buildAllFilters()`
+
+_Include if `$0` is `desktop` or `all`:_
+
 - `apps/desktop/src/vault/app/vault-v3/vault-filter/filters/type-filter.component.ts` - Add `ConfigService`, `combineLatest` with feature flag
+
+_Include if `$0` is `browser` or `all`:_
+
 - `apps/browser/src/vault/popup/services/vault-popup-list-filters.service.ts` - Add `ConfigService`, feature-flag-gate `cipherTypes`
-- `libs/angular/src/vault/components/vault-items.component.ts` - Feature-flag-gate empty state type buttons
 
 **New item menus (feature-flag-gated):**
 
+_Always included (shared):_
+
 - `libs/common/src/vault/types/cipher-menu-items.ts` - Add menu item entry for new type
 - `libs/vault/src/components/new-cipher-menu/new-cipher-menu.component.ts` - Add `canCreate<Type> = input(false)` signal, gate in `cipherMenuItems` observable
+
+_Include if `$0` is `web` or `all`:_
+
 - `apps/web/src/app/vault/individual-vault/vault-header/vault-header.component.ts` - Add `canCreate<Type>$` observable from feature flag
 - `apps/web/src/app/vault/individual-vault/vault-header/vault-header.component.html` - Bind `[canCreate<Type>]` to `<vault-new-cipher-menu>`
+
+_Include if `$0` is `browser` or `all`:_
+
 - `apps/browser/src/vault/popup/components/vault/new-item-dropdown/new-item-dropdown.component.ts` - Add `ConfigService`, `combineLatest` with feature flag
 
 **Localization (add i18n keys):**
 
-- `apps/web/src/locales/en/messages.json`
-- `apps/desktop/src/locales/en/messages.json`
-- `apps/browser/src/_locales/en/messages.json`
+_Include only locale files for `$0`. If `$0` is `all`, include all three:_
+
+- `apps/web/src/locales/en/messages.json` _(web)_
+- `apps/desktop/src/locales/en/messages.json` _(desktop)_
+- `apps/browser/src/_locales/en/messages.json` _(browser)_
 
 **Linked fields (if applicable):**
 
 - `libs/common/src/vault/enums/linked-id-type.enum.ts`
 
-**Autofill (if applicable):**
+**Autofill (if applicable — only if `$0` is `browser` or `all`):**
 
 - List relevant autofill files from `apps/browser/src/autofill/` only if the type supports
   autofill
 
 **Restricted item types (if applicable):**
 
-- `apps/web/src/app/admin-console/organizations/policies/policy-edit-definitions/restricted-item-types.component.ts`
+Restricted item type enforcement is used across all clients. Include files for `$0`:
+
+_Always included (shared):_
+
+- `libs/common/src/vault/services/vault-settings/vault-settings.service.ts` - Restricted types service
+
+_Include if `$0` is `web` or `all`:_
+
+- `apps/web/src/app/admin-console/organizations/policies/policy-edit-definitions/restricted-item-types.component.ts` - Policy configuration UI
 - `apps/web/src/app/admin-console/organizations/policies/policy-edit-definitions/restricted-item-types.component.html`
+
+_Include if `$0` is `browser` or `all`:_
+
+- `apps/browser/src/vault/popup/components/vault/item-more-options/item-more-options.component.ts` - Restricted type checks
+
+_Include if `$0` is `cli` or `all`:_
+
+- `apps/cli/src/commands/create.command.ts` - Restricted type checks
+- `apps/cli/src/commands/list.command.ts` - Restricted type checks
+- `apps/cli/src/commands/get.command.ts` - Restricted type checks
 
 ### 4. Localization Keys
 
@@ -202,22 +243,23 @@ List all test files that need to be created or updated:
 
 ### 6. Recommended Implementation Order
 
-Recommended implementation order, customized for this specific type:
+Recommended implementation order, customized for this specific type. Only include steps relevant
+to `$0` (shared steps are always included):
 
-1. Core enum addition
-2. Feature flag registration
-3. Model stack (API, Data, Domain, View, Export if applicable)
-4. Container switch updates (7 files)
-5. SDK bindings (`toSdk*`/`fromSdk*`)
-6. Localization keys
-7. Shared UI (icon, menu items)
-8. Vault filters with feature flag gating (CRITICAL for ciphers to appear)
-9. New item menus with feature flag gating
-10. Per-app UI (form section, view section)
-11. Context menu / copy actions (see Section 8)
-12. CLI
-13. Autofill (if applicable)
-14. Tests
+1. Core enum addition _(shared)_
+2. Feature flag registration _(shared)_
+3. Model stack (API, Data, Domain, View, Export if applicable) _(shared)_
+4. Container switch updates _(shared)_
+5. SDK bindings (`toSdk*`/`fromSdk*`) _(shared)_
+6. Localization keys _(`$0`)_
+7. Shared UI (icon, menu items) _(shared)_
+8. Vault filters with feature flag gating — CRITICAL for ciphers to appear _(shared + `$0`)_
+9. New item menus with feature flag gating _(shared + `$0`)_
+10. Per-app UI (form section, view section) _(shared)_
+11. Context menu / copy actions — see Section 8 _(shared + `$0`)_
+12. CLI _(only if `$0` is `cli` or `all`)_
+13. Autofill _(only if `$0` is `browser` or `all`)_
+14. Tests _(shared + `$0`)_
 
 ### 7. Risks and Considerations
 
@@ -233,30 +275,30 @@ Recommended implementation order, customized for this specific type:
 ### 8. Context Menu / Copy Actions
 
 Each cipher type can expose copiable fields in the vault list item context menus (right-click / more
-menu). This requires changes across **7 files** spanning core infrastructure and all 3 clients.
+menu). Include only the sections relevant to `$0`.
 
-#### Core Infrastructure (2 files)
+#### Core Infrastructure (always included)
 
 | File                                                    | What to add                                                                                                                                                                                                                                     |
 | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `libs/vault/src/services/copy-cipher-field.service.ts`  | Add field names to the `CopyAction` type union. Add entries to the `CopyActions` record with `typeI18nKey` (i18n key for the toast message), `protected` (whether it requires password re-prompt), and optional `event` (for event collection). |
 | `libs/common/src/vault/utils/cipher-view-like-utils.ts` | Add cases to `hasCopyableValue()` that check whether the cipher has a non-empty value for each copiable field.                                                                                                                                  |
 
-#### Browser (2 files)
+#### Browser (include if `$0` is `browser` or `all`)
 
 | File                                                                                              | What to add                                                                                                                                                              |
 | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `apps/browser/src/vault/popup/components/vault/item-copy-action/item-copy-actions.component.ts`   | Add a `singleCopyable<Type>` getter (for single-field quick copy button), a `has<Type>Values` getter, and a `getNumberOf<Type>Values()` method. Follow the Card pattern. |
 | `apps/browser/src/vault/popup/components/vault/item-copy-action/item-copy-actions.component.html` | Add a section using `@if` syntax (NOT `*ngIf`) with the single/multi field pattern.                                                                                      |
 
-#### Web (2 files)
+#### Web (include if `$0` is `web` or `all`)
 
 | File                                                                            | What to add                                                                                                               |
 | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `apps/web/src/app/vault/components/vault-items/vault-cipher-row.component.ts`   | Add `is<Type>Cipher` and `hasVisible<Type>Options` getters. Add `hasVisible<Type>Options` to the `showMenuDivider` check. |
 | `apps/web/src/app/vault/components/vault-items/vault-cipher-row.component.html` | Add copy buttons using `@if` syntax with `appCopyField` directive.                                                        |
 
-#### Desktop (1 file)
+#### Desktop (include if `$0` is `desktop` or `all`)
 
 | File                                                                            | What to add                                                                                                                                                                              |
 | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
