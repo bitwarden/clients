@@ -87,33 +87,36 @@ No changes needed to `IntegrationCardComponent` — new HEC services fall into t
 
 ## Step 5 — Add tests
 
-**File:** `bitwarden_license/bit-common/src/dirt/organization-integrations/services/organization-integration-service.spec.ts`
+**File:** `bitwarden_license/bit-common/src/dirt/organization-integrations/models/integration-builder.spec.ts`
 
-The spec is organized by operation (`save`, `update`, `delete`, etc.) — there are no per-service test blocks. Add a new `it` block inside the existing `describe("save", ...)` block to verify that `buildHecConfiguration` and `buildHecTemplate` correctly embed the new service name:
+Add one `it` block inside the existing `describe("buildHecConfiguration", ...)` block, and one inside `describe("buildHecTemplate", ...)`. Use typed property access — do not use `JSON.parse`:
 
 ```typescript
-it("should build correct HEC config and template for <ServiceName>", () => {
+// Inside describe("buildHecConfiguration", ...)
+it("should work with <ServiceName> service name", () => {
   const config = OrgIntegrationBuilder.buildHecConfiguration(
     "https://test.<servicename>.com/hec",
     "test-token",
     OrganizationIntegrationServiceName.<ServiceName>,
   );
+
+  expect(config).toBeInstanceOf(HecConfiguration);
+  expect((config as HecConfiguration).uri).toBe("https://test.<servicename>.com/hec");
+  expect((config as HecConfiguration).scheme).toBe("Bearer");
+  expect((config as HecConfiguration).token).toBe("test-token");
+  expect(config.bw_serviceName).toBe(OrganizationIntegrationServiceName.<ServiceName>);
+});
+
+// Inside describe("buildHecTemplate", ...)
+it("should work with <ServiceName> service name", () => {
   const template = OrgIntegrationBuilder.buildHecTemplate(
     "test-index",
     OrganizationIntegrationServiceName.<ServiceName>,
   );
 
-  expect(JSON.parse(config.toString())).toEqual({
-    Uri: "https://test.<servicename>.com/hec",
-    Scheme: "Bearer",
-    Token: "test-token",
-    bw_serviceName: "<ServiceName>",
-  });
-
-  const parsed = JSON.parse(template.toString());
-  expect(parsed.index).toBe("test-index");
-  expect(parsed.bw_serviceName).toBe("<ServiceName>");
-  expect(parsed.event.type).toBe("#TypeId#");
+  expect(template).toBeInstanceOf(HecTemplate);
+  expect((template as HecTemplate).index).toBe("test-index");
+  expect(template.bw_serviceName).toBe(OrganizationIntegrationServiceName.<ServiceName>);
 });
 ```
 
@@ -122,7 +125,7 @@ it("should build correct HEC config and template for <ServiceName>", () => {
 Run the unit tests for the spec file and confirm they all pass before finishing:
 
 ```bash
-npx jest bitwarden_license/bit-common/src/dirt/organization-integrations/services/organization-integration-service.spec.ts
+npx jest bitwarden_license/bit-common/src/dirt/organization-integrations/models/integration-builder.spec.ts
 ```
 
 All tests must pass. If any fail, fix them before proceeding.

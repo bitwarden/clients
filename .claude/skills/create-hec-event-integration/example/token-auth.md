@@ -74,33 +74,36 @@ if (blumiraFeatureEnabled) {
 
 ## Step 5 — Add tests
 
-**File:** `bitwarden_license/bit-common/src/dirt/organization-integrations/services/organization-integration-service.spec.ts`
+**File:** `bitwarden_license/bit-common/src/dirt/organization-integrations/models/integration-builder.spec.ts`
 
-Added inside the existing `describe("save", ...)` block — no new wrapper `describe`:
+Added inside the existing `describe("buildHecConfiguration", ...)` and `describe("buildHecTemplate", ...)` blocks:
 
 ```typescript
-it("should build correct HEC config and template for Blumira", () => {
+// Inside describe("buildHecConfiguration", ...)
+it("should work with Blumira service name", () => {
   const config = OrgIntegrationBuilder.buildHecConfiguration(
     "https://test.blumira.com/hec",
     "test-token",
     OrganizationIntegrationServiceName.Blumira,
   );
+
+  expect(config).toBeInstanceOf(HecConfiguration);
+  expect((config as HecConfiguration).uri).toBe("https://test.blumira.com/hec");
+  expect((config as HecConfiguration).scheme).toBe("Bearer");
+  expect((config as HecConfiguration).token).toBe("test-token");
+  expect(config.bw_serviceName).toBe(OrganizationIntegrationServiceName.Blumira);
+});
+
+// Inside describe("buildHecTemplate", ...)
+it("should work with Blumira service name", () => {
   const template = OrgIntegrationBuilder.buildHecTemplate(
     "test-index",
     OrganizationIntegrationServiceName.Blumira,
   );
 
-  expect(JSON.parse(config.toString())).toEqual({
-    Uri: "https://test.blumira.com/hec",
-    Scheme: "Bearer",
-    Token: "test-token",
-    bw_serviceName: "Blumira",
-  });
-
-  const parsed = JSON.parse(template.toString());
-  expect(parsed.index).toBe("test-index");
-  expect(parsed.bw_serviceName).toBe("Blumira");
-  expect(parsed.event.type).toBe("#TypeId#");
+  expect(template).toBeInstanceOf(HecTemplate);
+  expect((template as HecTemplate).index).toBe("test-index");
+  expect(template.bw_serviceName).toBe(OrganizationIntegrationServiceName.Blumira);
 });
 ```
 
@@ -109,7 +112,7 @@ it("should build correct HEC config and template for Blumira", () => {
 ## Step 6 — Run unit tests
 
 ```bash
-npx jest bitwarden_license/bit-common/src/dirt/organization-integrations/services/organization-integration-service.spec.ts
+npx jest bitwarden_license/bit-common/src/dirt/organization-integrations/models/integration-builder.spec.ts
 ```
 
 Result: **32 tests passed**
