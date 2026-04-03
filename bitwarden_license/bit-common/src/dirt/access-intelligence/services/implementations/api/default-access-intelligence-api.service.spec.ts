@@ -258,11 +258,11 @@ describe("DefaultAccessIntelligenceApiService", () => {
       };
       mockApiService.send.mockResolvedValue(rawResponse);
 
-      const result = await firstValueFrom(service.renewReportFileUpload$(orgId, reportId));
+      const result = await firstValueFrom(service.renewReportFileUploadLink$(orgId, reportId));
 
       expect(mockApiService.send).toHaveBeenCalledWith(
         "GET",
-        `/reports/organizations/${orgId}/${reportId}/renew-upload`,
+        `/reports/organizations/${orgId}/${reportId}/file/renew`,
         null,
         true,
         true,
@@ -275,9 +275,9 @@ describe("DefaultAccessIntelligenceApiService", () => {
     it("should propagate API errors", async () => {
       mockApiService.send.mockRejectedValue(new Error("Renew failed"));
 
-      await expect(firstValueFrom(service.renewReportFileUpload$(orgId, reportId))).rejects.toThrow(
-        "Renew failed",
-      );
+      await expect(
+        firstValueFrom(service.renewReportFileUploadLink$(orgId, reportId)),
+      ).rejects.toThrow("Renew failed");
     });
   });
 
