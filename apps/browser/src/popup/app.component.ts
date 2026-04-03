@@ -25,6 +25,7 @@ import {
 
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval/login-approval-dialog.component";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
+import { DebugFeatureFlagDialogService } from "@bitwarden/angular/platform/dev-settings";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import {
   AuthRequestServiceAbstraction,
@@ -115,6 +116,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private authRequestService: AuthRequestServiceAbstraction,
     private pendingAuthRequestsState: PendingAuthRequestsStateService,
     private authRequestAnsweringService: AuthRequestAnsweringService,
+    private readonly debugFeatureFlagDialogService: DebugFeatureFlagDialogService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 

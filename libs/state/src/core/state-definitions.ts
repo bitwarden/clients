@@ -111,6 +111,9 @@ export const PHISHING_DETECTION_DISK = new StateDefinition("phishingDetection", 
 
 // Platform
 
+export const DEV_SETTINGS_DISK = new StateDefinition("devSettings", "disk", {
+  web: "disk-local",
+});
 export const APPLICATION_ID_DISK = new StateDefinition("applicationId", "disk", {
   web: "disk-local",
 });
