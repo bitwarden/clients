@@ -42,9 +42,13 @@ export async function readDragDropEntries(dataTransfer: DataTransfer): Promise<D
   if (directoryEntries.length > 0) {
     const dirNames = new Set(directoryEntries.map((d) => d.name));
     for (const file of plainFiles) {
-      if (!dirNames.has(file.name) || file.size > 0) {
-        files.push({ file, path: file.name });
+      // Skip any File whose name matches a detected directory — on some platforms
+      // (e.g. macOS) the directory placeholder has a non-zero size, so we cannot
+      // rely on size alone to distinguish it from a real file.
+      if (dirNames.has(file.name)) {
+        continue;
       }
+      files.push({ file, path: file.name });
     }
 
     // Recursively read directory contents (async)
