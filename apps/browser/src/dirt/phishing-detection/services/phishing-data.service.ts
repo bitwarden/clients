@@ -431,11 +431,7 @@ export class PhishingDataService {
         },
       }),
       catchError((error: unknown) => {
-        const elapsed = Date.now() - startTime;
-        this.logService.error(
-          `[PhishingDataService] All update attempts failed after ${elapsed}ms:`,
-          error,
-        );
+        this.logService.error(`[PhishingDataService] All update attempts failed:`, error);
         return of(previous);
       }),
     );
