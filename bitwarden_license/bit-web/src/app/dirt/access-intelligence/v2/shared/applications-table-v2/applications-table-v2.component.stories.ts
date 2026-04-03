@@ -135,13 +135,13 @@ export const Default: Story = {
         checkboxChange,
       },
       template: `
-        <app-applications-table-v2
+        <dirt-applications-table-v2
           [dataSource]="dataSource"
           [selectedUrls]="selectedUrls"
           [openApplication]="openApplication"
           (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
           (checkboxChange)="checkboxChange($event)"
-        ></app-applications-table-v2>
+        ></dirt-applications-table-v2>
       `,
     };
   },
@@ -168,13 +168,13 @@ export const Empty: Story = {
         checkboxChange,
       },
       template: `
-        <app-applications-table-v2
+        <dirt-applications-table-v2
           [dataSource]="dataSource"
           [selectedUrls]="selectedUrls"
           [openApplication]="openApplication"
           (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
           (checkboxChange)="checkboxChange($event)"
-        ></app-applications-table-v2>
+        ></dirt-applications-table-v2>
       `,
     };
   },
@@ -200,13 +200,13 @@ export const WithSelections: Story = {
         checkboxChange,
       },
       template: `
-        <app-applications-table-v2
+        <dirt-applications-table-v2
           [dataSource]="dataSource"
           [selectedUrls]="selectedUrls"
           [openApplication]="openApplication"
           (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
           (checkboxChange)="checkboxChange($event)"
-        ></app-applications-table-v2>
+        ></dirt-applications-table-v2>
       `,
     };
   },
@@ -232,13 +232,13 @@ export const WithOpenApplication: Story = {
         checkboxChange,
       },
       template: `
-        <app-applications-table-v2
+        <dirt-applications-table-v2
           [dataSource]="dataSource"
           [selectedUrls]="selectedUrls"
           [openApplication]="openApplication"
           (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
           (checkboxChange)="checkboxChange($event)"
-        ></app-applications-table-v2>
+        ></dirt-applications-table-v2>
       `,
     };
   },
@@ -265,13 +265,13 @@ export const CriticalOnly: Story = {
         checkboxChange,
       },
       template: `
-        <app-applications-table-v2
+        <dirt-applications-table-v2
           [dataSource]="dataSource"
           [selectedUrls]="selectedUrls"
           [openApplication]="openApplication"
           (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
           (checkboxChange)="checkboxChange($event)"
-        ></app-applications-table-v2>
+        ></dirt-applications-table-v2>
       `,
     };
   },
@@ -301,13 +301,13 @@ export const WithoutIcons: Story = {
         checkboxChange,
       },
       template: `
-        <app-applications-table-v2
+        <dirt-applications-table-v2
           [dataSource]="dataSource"
           [selectedUrls]="selectedUrls"
           [openApplication]="openApplication"
           (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
           (checkboxChange)="checkboxChange($event)"
-        ></app-applications-table-v2>
+        ></dirt-applications-table-v2>
       `,
     };
   },
@@ -351,13 +351,13 @@ export const LargeDataset: Story = {
       },
       template: `
         <div class="tw-h-[600px]">
-          <app-applications-table-v2
+          <dirt-applications-table-v2
             [dataSource]="dataSource"
             [selectedUrls]="selectedUrls"
             [openApplication]="openApplication"
             (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
             (checkboxChange)="checkboxChange($event)"
-          ></app-applications-table-v2>
+          ></dirt-applications-table-v2>
         </div>
       `,
     };

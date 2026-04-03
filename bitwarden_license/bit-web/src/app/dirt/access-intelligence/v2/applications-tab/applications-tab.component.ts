@@ -63,7 +63,7 @@ export type ApplicationFilterOption =
  * mark-as-critical actions, password change task requests, and CSV export.
  */
 @Component({
-  selector: "app-applications-tab",
+  selector: "dirt-applications-tab",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./applications-tab.component.html",

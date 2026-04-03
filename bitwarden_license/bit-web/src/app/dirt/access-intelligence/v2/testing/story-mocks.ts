@@ -1,5 +1,5 @@
 import { signal } from "@angular/core";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, EMPTY, of } from "rxjs";
 import { action } from "storybook/actions";
 
 import { AccessReportView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
@@ -44,10 +44,10 @@ export function createAccessIntelligenceI18nMock(): I18nMockService {
     back: "Back",
 
     // --- Applications toolbar ---
-    critical: "Critical ({{0}})",
-    notCritical: "Not Critical ({{0}})",
-    markAppCountAsCritical: "Mark {{0}} as Critical",
-    markAppCountAsNotCritical: "Unmark {{0}} as Critical",
+    critical: (n: string | undefined) => `Critical (${n})`,
+    notCritical: (n: string | undefined) => `Not Critical (${n})`,
+    markAppCountAsCritical: (n: string | undefined) => `Mark ${n} as Critical`,
+    markAppCountAsNotCritical: (n: string | undefined) => `Unmark ${n} as Critical`,
     assignTasks: "Assign Tasks",
     allTasksAssigned: "All tasks assigned",
     downloadCSV: "Download CSV",
@@ -116,6 +116,11 @@ export function createAccessIntelligenceI18nMock(): I18nMockService {
     reviewNewAppsDescription: "Review new applications and mark which ones are critical.",
     clickIconToMarkAppAsCritical: "Click the star icon to mark an app as critical",
     markAsCritical: "Mark as Critical",
+
+    // --- Chip filter (used by ChipFilterComponent internally) ---
+    viewItemsIn: (name: string | undefined) => `View items in ${name}`,
+    backTo: (name: string | undefined) => `Back to ${name}`,
+    removeItem: (name: string | undefined) => `Remove ${name}`,
 
     // --- Dialog save results ---
     applicationReviewSaved: "Application review saved",
@@ -220,6 +225,9 @@ export class MockToastService {
  * Mock DialogService for Storybook stories.
  */
 export class MockDialogService {
-  open = action("DialogService.open");
+  open = (...args: any[]) => {
+    action("DialogService.open")(...args);
+    return { closed: EMPTY };
+  };
   openSimpleDialog = () => Promise.resolve(true);
 }

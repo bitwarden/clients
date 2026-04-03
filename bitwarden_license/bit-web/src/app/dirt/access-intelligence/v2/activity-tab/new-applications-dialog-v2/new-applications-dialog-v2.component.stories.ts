@@ -42,7 +42,6 @@ export default {
       imports: [NewApplicationsDialogV2Component],
       providers: [
         { provide: AccessIntelligenceDataService, useClass: MockAccessIntelligenceDataService },
-        { provide: DialogRef, useValue: mockDialogRef },
         { provide: DialogService, useClass: MockDialogService },
         { provide: I18nService, useFactory: createAccessIntelligenceI18nMock },
         { provide: LogService, useClass: MockLogService },
@@ -52,6 +51,7 @@ export default {
     }),
     applicationConfig({
       providers: [
+        { provide: DialogRef, useValue: mockDialogRef },
         {
           provide: ThemeStateService,
           useValue: { selectedTheme$: new BehaviorSubject(ThemeTypes.Light) },

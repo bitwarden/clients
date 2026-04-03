@@ -75,7 +75,6 @@
           type="button"
           bitIconButton="bwi-download"
           buttonType="subtleGhost"
-          class="tw-w-full sm:tw-w-auto"
           [label]="'downloadCSV' | i18n"
           [disabled]="!dataSource.filteredData.length"
           (click)="downloadApplicationsCSV()"
@@ -83,7 +82,7 @@
       </div>
     </div>
 
-    <app-applications-table-v2
+    <dirt-applications-table-v2
       [dataSource]="dataSource"
       [selectedUrls]="selectedUrls()"
       [openApplication]="currentDrawerState?.invokerId || ''"
@@ -91,7 +90,7 @@
       (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
       (selectAllChange)="onSelectAllChange($event)"
       class="tw-mb-10"
-    ></app-applications-table-v2>
+    ></dirt-applications-table-v2>
 
     @if (emptyTableExplanation()) {
       <div class="tw-flex tw-mt-10 tw-justify-center">

@@ -51,7 +51,7 @@ export default {
   decorators: [
     componentWrapperDecorator(
       (story) =>
-        `<div bitScrollLayoutHost class="tw-flex tw-flex-col tw-h-screen tw-overflow-auto">${story}</div>`,
+        `<div bitScrollLayoutHost class="tw-flex tw-flex-col tw-h-[600px] tw-w-full tw-min-w-[1100px] tw-px-4">${story}</div>`,
     ),
     moduleMetadata({
       imports: [ApplicationsTabComponent, ScrollLayoutHostDirective],
@@ -79,6 +79,9 @@ export default {
       ],
     }),
   ],
+  parameters: {
+    layout: "fullscreen",
+  },
 } as Meta<ApplicationsTabComponent>;
 
 type Story = StoryObj<ApplicationsTabComponent>;
