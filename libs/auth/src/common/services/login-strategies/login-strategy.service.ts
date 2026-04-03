@@ -103,6 +103,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   constructor(
     private accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    private unlockService: UnlockService,
     private keyService: KeyService,
     private apiService: ApiService,
     private tokenService: TokenService,
@@ -386,6 +387,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               this.passwordStrengthService,
               this.policyService,
               this.passwordPreloginService,
+              this.unlockService,
               ...sharedDeps,
             );
           case AuthenticationType.Sso:

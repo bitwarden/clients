@@ -68,6 +68,7 @@ describe("LoginStrategyService", () => {
 
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
+  let unlockService: MockProxy<UnlockService>;
   let keyService: MockProxy<KeyService>;
   let apiService: MockProxy<ApiService>;
   let tokenService: MockProxy<TokenService>;
@@ -103,6 +104,7 @@ describe("LoginStrategyService", () => {
   beforeEach(() => {
     accountService = mockAccountServiceWith(userId);
     masterPasswordService = new FakeMasterPasswordService();
+    unlockService = mock<UnlockService>();
     keyService = mock<KeyService>();
     apiService = mock<ApiService>();
     tokenService = mock<TokenService>();
@@ -139,6 +141,7 @@ describe("LoginStrategyService", () => {
     sut = new LoginStrategyService(
       accountService,
       masterPasswordService,
+      unlockService,
       keyService,
       apiService,
       tokenService,
