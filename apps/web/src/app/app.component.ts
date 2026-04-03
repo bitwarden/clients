@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, DestroyRef, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, NgZone, OnDestroy, OnInit, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { Subject, filter, firstValueFrom, map, timeout } from "rxjs";
@@ -16,6 +16,7 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -29,6 +30,7 @@ import { InternalFolderService } from "@bitwarden/common/vault/abstractions/fold
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, RouterFocusManagerService, ToastService } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+import { DragDropResult, PendingDragDropFilesService } from "@bitwarden/send-ui";
 
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
@@ -47,6 +49,7 @@ export class AppComponent implements OnDestroy, OnInit {
   private destroy$ = new Subject<void>();
 
   loading = false;
+  readonly isDragOverApp = signal(false);
 
   constructor(
     private broadcasterService: BroadcasterService,
@@ -77,6 +80,7 @@ export class AppComponent implements OnDestroy, OnInit {
     private readonly documentLangSetter: DocumentLangSetter,
     private readonly tokenService: TokenService,
     private readonly routerFocusManager: RouterFocusManagerService,
+    private readonly pendingDragDropService: PendingDragDropFilesService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -225,6 +229,18 @@ export class AppComponent implements OnDestroy, OnInit {
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  async onFilesDropped(result: DragDropResult) {
+    const enabled = await this.configService.getFeatureFlag(FeatureFlag.SendFolder);
+    if (!enabled || result.files.length === 0) {
+      return;
+    }
+
+    this.pendingDragDropService.setFiles(result.files, result.folderName);
+    await this.router.navigate(["/sends"], {
+      queryParams: { dragDropFiles: Date.now().toString() },
+    });
   }
 
   private async logOut(redirect = true) {

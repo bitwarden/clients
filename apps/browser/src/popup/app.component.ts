@@ -8,6 +8,7 @@ import {
   NgZone,
   OnDestroy,
   OnInit,
+  signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
@@ -38,12 +39,15 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
@@ -53,6 +57,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { BiometricsService, BiometricStateService, KeyService } from "@bitwarden/key-management";
+import { PendingDragDropFilesService, setupAppDragDrop } from "@bitwarden/send-ui";
 
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { PopupCompactModeService } from "../platform/popup/layout/popup-compact-mode.service";
@@ -74,6 +79,10 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
 export class AppComponent implements OnInit, OnDestroy {
   private compactModeService = inject(PopupCompactModeService);
   private sdkService = inject(SdkService);
+  private pendingDragDropService = inject(PendingDragDropFilesService);
+  private configService = inject(ConfigService);
+
+  readonly isDragOverApp = signal(false);
 
   private lastActivity: Date;
   private activeUserId: UserId;
@@ -124,6 +133,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     initPopupClosedListener();
+    await this.setupDragDropListeners();
 
     this.compactModeService.init();
     await this.popupSizeService.setHeight();
@@ -305,6 +315,28 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     return outlet.activatedRouteData.elevation;
+  }
+
+  private async setupDragDropListeners(): Promise<void> {
+    const enabled = await this.configService.getFeatureFlag(FeatureFlag.SendFolder);
+    if (!enabled) {
+      return;
+    }
+
+    setupAppDragDrop(
+      (active) => this.isDragOverApp.set(active),
+      (result) => {
+        this.pendingDragDropService.setFiles(result.files, result.folderName);
+        void this.router.navigate(["/add-send"], {
+          replaceUrl: true,
+          queryParams: {
+            type: SendType.File,
+            dragDropFiles: Date.now().toString(),
+            isFolderMode: result.folderName != null ? "true" : "false",
+          },
+        });
+      },
+    );
   }
 
   private async recordActivity() {

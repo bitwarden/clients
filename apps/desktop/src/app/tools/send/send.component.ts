@@ -27,6 +27,7 @@ import {
   SendAddEditDialogComponent,
   DefaultSendFormConfigService,
   SendItemDialogResult,
+  PendingDragDropFilesService,
 } from "@bitwarden/send-ui";
 
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
@@ -60,6 +61,7 @@ export class SendComponent implements OnInit {
   private logService = inject(LogService);
   private destroyRef = inject(DestroyRef);
   private route = inject(ActivatedRoute);
+  private pendingDragDropService = inject(PendingDragDropFilesService);
 
   private activeDrawerRef?: DialogRef<SendItemDialogResult>;
 
@@ -109,6 +111,12 @@ export class SendComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      // Handle drag-and-drop files (in-memory File objects)
+      if (params["dragDropFiles"]) {
+        void this.openSendFromDragDropFiles();
+        return;
+      }
+
       const sendPathsParam = params["sendPaths"];
       if (sendPathsParam) {
         try {
@@ -121,6 +129,41 @@ export class SendComponent implements OnInit {
         }
       }
     });
+  }
+
+  private async openSendFromDragDropFiles(): Promise<void> {
+    const pending = this.pendingDragDropService.takeFiles();
+    if (pending == null || pending.files.length === 0) {
+      return;
+    }
+
+    try {
+      const formConfig = await this.sendFormConfigService.buildConfig(
+        "add",
+        undefined,
+        SendType.File,
+      );
+
+      if (pending.folderName != null) {
+        formConfig.isFolderMode = true;
+      }
+
+      formConfig.preloadedFiles = pending.files;
+
+      this.activeDrawerRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+        formConfig,
+      });
+
+      await lastValueFrom(this.activeDrawerRef.closed);
+      this.activeDrawerRef = null;
+    } catch (e) {
+      this.logService.error("Error opening send from drag-drop files: " + e);
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("unexpectedError"),
+      });
+    }
   }
 
   private async openSendFromPaths(filePaths: string[]): Promise<void> {

@@ -201,7 +201,23 @@
 </ng-template>
 
 <ng-container *ngIf="!loading; else loadingState">
-  <router-outlet></router-outlet>
+  <div
+    class="tw-relative tw-min-h-screen"
+    toolsDragDropZone
+    (filesDropped)="onFilesDropped($any($event))"
+    (dragActive)="isDragOverApp.set($any($event))"
+  >
+    <router-outlet></router-outlet>
+    @if (isDragOverApp()) {
+      <div
+        class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-bg-background tw-opacity-50 tw-border-2 tw-border-dashed tw-border-primary-600 tw-z-50"
+      >
+        <span class="tw-text-lg tw-font-semibold tw-text-primary-600">
+          {{ "dropFilesToCreateSend" | i18n }}
+        </span>
+      </div>
+    }
+  </div>
 </ng-container>
 
 <bit-toast-container></bit-toast-container>

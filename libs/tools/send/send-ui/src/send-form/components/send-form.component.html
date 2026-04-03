@@ -1,4 +1,12 @@
-<form [id]="formId" [formGroup]="sendForm" [bitSubmit]="submit">
+<form
+  [id]="formId"
+  [formGroup]="sendForm"
+  [bitSubmit]="submit"
+  toolsDragDropZone
+  (filesDropped)="onFormFilesDropped($event)"
+  (dragActive)="isDragActive.set($event)"
+  class="tw-relative"
+>
   <ng-container *ngIf="!loading">
     <tools-send-details
       [config]="config"
@@ -6,4 +14,11 @@
       (openPasswordGenerator)="openPasswordGenerator.emit()"
     ></tools-send-details>
   </ng-container>
+  @if (dragDropEnabled() && isDragActive() && config.sendType === SendType.File) {
+    <div
+      class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-rounded tw-bg-primary-100 tw-opacity-50 tw-text-primary-600 tw-font-semibold tw-z-10"
+    >
+      {{ "dropFilesHere" | i18n }}
+    </div>
+  }
 </form>

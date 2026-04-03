@@ -14,6 +14,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { SendFormConfig } from "../../abstractions/send-form-config.service";
 import { SendFormContainer } from "../../send-form-container";
+import { DragDropResult } from "../../utils/drag-drop-entries";
 
 @Component({
   selector: "tools-send-folder-details",
@@ -76,6 +77,40 @@ export class SendFolderDetailsComponent implements OnInit {
     this.sendFormContainer.onFolderSelected(files);
   }
 
+  onFolderDropped(result: DragDropResult): void {
+    if (result.files.length === 0) {
+      return;
+    }
+
+    const totalSize = result.files.reduce((sum, f) => sum + f.file.size, 0);
+
+    this.folderPreview.set(
+      this.i18nService.t(
+        "folderPreview",
+        result.files.length.toString(),
+        this.formatBytes(totalSize),
+      ),
+    );
+
+    if (totalSize > SendFolderDetailsComponent.MAX_FOLDER_SIZE_BYTES) {
+      this.sendFolderDetailsForm.controls.folder.setValue(null);
+      this.sendFolderDetailsForm.controls.folder.setErrors({
+        maxSize: { message: this.i18nService.t("maxFolderSize") },
+      });
+      this.sendFolderDetailsForm.controls.folder.markAsTouched();
+      return;
+    }
+
+    this.sendFolderDetailsForm.controls.folder.setValue(this.folderPreview());
+
+    // Create a FileList from the dropped files for the container
+    const dt = new DataTransfer();
+    for (const f of result.files) {
+      dt.items.add(f.file);
+    }
+    this.sendFormContainer.onFolderSelected(dt.files);
+  }
+
   ngOnInit() {
     // Pre-populate from context menu path (single directory)
     const preloadedPaths = this.config().preloadedPaths;
@@ -83,6 +118,20 @@ export class SendFolderDetailsComponent implements OnInit {
       const preview = preloadedPaths[0].name;
       this.folderPreview.set(preview);
       this.sendFolderDetailsForm.controls.folder.setValue(preview);
+    }
+
+    // Pre-populate from drag-and-drop preloaded files (folder mode)
+    const preloadedFiles = this.config().preloadedFiles;
+    if (preloadedFiles != null && preloadedFiles.length > 0) {
+      const totalSize = preloadedFiles.reduce((sum, f) => sum + f.file.size, 0);
+      const folderName = preloadedFiles[0].path.split("/")[0];
+      const preview = this.i18nService.t(
+        "folderPreview",
+        preloadedFiles.length.toString(),
+        this.formatBytes(totalSize),
+      );
+      this.folderPreview.set(preview);
+      this.sendFolderDetailsForm.controls.folder.setValue(folderName);
     }
 
     if (!this.config().areSendsAllowed) {

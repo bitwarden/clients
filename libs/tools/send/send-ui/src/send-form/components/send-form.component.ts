@@ -15,13 +15,16 @@ import {
   Optional,
   output,
   Output,
+  signal,
   viewChild,
   ViewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -39,11 +42,14 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { MakeSendMultiFileEntry } from "@bitwarden/sdk-internal";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { SendFileProviderService } from "../abstractions/send-file-provider.service";
 import { SendFormConfig } from "../abstractions/send-form-config.service";
 import { SendFormService } from "../abstractions/send-form.service";
+import { DragDropZoneDirective } from "../directives/drag-drop-zone.directive";
 import { SendForm, SendFormContainer } from "../send-form-container";
+import { DragDropResult } from "../utils/drag-drop-entries";
 
 import { SendDetailsComponent } from "./send-details/send-details.component";
 
@@ -67,6 +73,8 @@ import { SendDetailsComponent } from "./send-details/send-details.component";
     SelectModule,
     NgIf,
     SendDetailsComponent,
+    DragDropZoneDirective,
+    I18nPipe,
   ],
 })
 export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, SendFormContainer {
@@ -143,6 +151,11 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
   protected loading: boolean = true;
 
   SendType = SendType;
+  readonly isDragActive = signal(false);
+  protected readonly dragDropEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.SendFolder),
+    { initialValue: false },
+  );
 
   ngAfterViewInit(): void {
     if (this.submitBtn) {
@@ -228,6 +241,7 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
     private sdkService: SdkService,
     private logService: LogService,
     @Optional() @Inject(SendFileProviderService) private sendFileProvider: SendFileProviderService,
+    private configService: ConfigService,
   ) {}
 
   onFileSelected(file: File): void {
@@ -242,6 +256,27 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
     this.multipleFiles = files;
   }
 
+  /**
+   * Handle files dropped anywhere on the send form.
+   * Relays to the file/folder detail component that already handles drops.
+   */
+  onFormFilesDropped(result: DragDropResult): void {
+    if (
+      !this.dragDropEnabled() ||
+      result.files.length === 0 ||
+      this.config.sendType !== SendType.File
+    ) {
+      return;
+    }
+
+    const details = this.sendDetailsComponent();
+    if (this.config.isFolderMode) {
+      details?.folderDetailsComponent()?.onFolderDropped(result);
+    } else {
+      details?.fileDetailsComponent()?.onFilesDropped(result);
+    }
+  }
+
   submit = async () => {
     if (this.sendForm.invalid) {
       this.sendForm.markAllAsTouched();
@@ -250,8 +285,18 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
 
     let fileOrBuffer: File | ArrayBuffer = this.file;
 
-    // Handle preloaded paths from desktop context menu (single or multi-select)
-    if (
+    // Handle pre-loaded File objects from drag-and-drop
+    if (this.config.preloadedFiles != null && this.config.preloadedFiles.length > 0) {
+      if (this.config.preloadedFiles.length === 1 && !this.config.isFolderMode) {
+        fileOrBuffer = this.config.preloadedFiles[0].file;
+      } else {
+        const folderName = this.config.isFolderMode
+          ? this.config.preloadedFiles[0].path.split("/")[0]
+          : "Send";
+        fileOrBuffer = await this.zipBrowserFiles(this.config.preloadedFiles, folderName);
+      }
+    } else if (
+      // Handle preloaded paths from desktop context menu (single or multi-select)
       this.config.preloadedPaths != null &&
       this.config.preloadedPaths.length > 0 &&
       this.sendFileProvider != null
