@@ -22,7 +22,6 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
-import { UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
 
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
@@ -70,7 +69,6 @@ export class PasswordLoginStrategy extends LoginStrategy {
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private policyService: PolicyService,
     private passwordPreloginService: PasswordPreloginService,
-    private asymmetricKeysRegenerationService: UserAsymmetricKeysRegenerationService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
     super(...sharedDeps);
@@ -159,7 +157,6 @@ export class PasswordLoginStrategy extends LoginStrategy {
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    await this.asymmetricKeysRegenerationService.regenerateIfNeeded(userId);
     await this.accountCryptographicStateService.setAccountCryptographicState(
       response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
       userId,

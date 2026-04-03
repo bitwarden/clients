@@ -585,7 +585,6 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       AccountCryptographicStateService,
       PasswordPreloginService,
-      UserAsymmetricKeysRegenerationService,
     ],
   }),
   safeProvider({

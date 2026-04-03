@@ -38,12 +38,7 @@ import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitw
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import {
-  KdfConfigService,
-  KeyService,
-  PBKDF2KdfConfig,
-  UserAsymmetricKeysRegenerationService,
-} from "@bitwarden/key-management";
+import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";
@@ -91,7 +86,6 @@ describe("PasswordLoginStrategy", () => {
   let environmentService: MockProxy<EnvironmentService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
-  let keypairRegenService: MockProxy<UserAsymmetricKeysRegenerationService>;
 
   let passwordLoginStrategy: PasswordLoginStrategy;
   let credentials: PasswordLoginCredentials;
@@ -121,7 +115,6 @@ describe("PasswordLoginStrategy", () => {
     environmentService = mock<EnvironmentService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
-    keypairRegenService = mock<UserAsymmetricKeysRegenerationService>();
 
     appIdService.getAppId.mockResolvedValue(deviceId);
     tokenService.decodeAccessToken.mockResolvedValue({
@@ -147,7 +140,6 @@ describe("PasswordLoginStrategy", () => {
       passwordStrengthService,
       policyService,
       passwordPreloginService,
-      keypairRegenService,
       accountService,
       masterPasswordService,
       keyService,
