@@ -1,4 +1,5 @@
 export { KeeperApprovalMethodSelectComponent } from "./keeper-approval-method-select.component";
+export { KeeperErrorComponent } from "./keeper-error.component";
 export { KeeperDeviceApprovalPromptComponent } from "./keeper-device-approval-prompt.component";
 export { KeeperDuoMethodSelectComponent } from "./keeper-duo-method-select.component";
 export { KeeperDuoPushPromptComponent } from "./keeper-duo-push-prompt.component";

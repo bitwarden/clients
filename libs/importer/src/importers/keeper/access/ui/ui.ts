@@ -22,4 +22,7 @@ export interface Ui {
   selectDuoMethod(methods: DuoMethod[], phoneNumber: string): Promise<DuoMethod | Cancel>;
   waitForDuoPush(method: DuoMethod): Promise<typeof Cancel | void>;
   closeDuoPushDialog(): void;
+
+  // Error display
+  showError(message: string): Promise<void>;
 }

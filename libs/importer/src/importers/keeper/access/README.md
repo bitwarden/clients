@@ -28,3 +28,4 @@
 - [ ] Legacy RecordV2 format is not supported. No test data available.
 - [ ] Test custom fields with names ending in `Ref`. See if they get ignored. Explore record links.
 - [x] When the import is done and successful, there's still an error message popping up.
+- [x] What if there's 2FA but only the unsupported kind? Test.

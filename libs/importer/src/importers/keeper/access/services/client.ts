@@ -481,6 +481,11 @@ export class Client {
       .map((x) => this.twoFactorMethodToUi.get(x.channelType)!)
       .filter((x) => x !== undefined && this.supported2faMethods.has(x));
 
+    if (methods.length === 0) {
+      await this.ui.showError("keeperUnsupported2faMethod");
+      throw new Error("Two-factor authentication cancelled by user");
+    }
+
     const methodOrCancel = await this.ui.selectTwoFactorMethod(methods);
     if (methodOrCancel === Cancel) {
       throw new Error("Two-factor authentication cancelled by user");

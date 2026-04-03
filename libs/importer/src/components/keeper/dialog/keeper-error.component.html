@@ -1,0 +1,15 @@
+<bit-dialog>
+  <span bitDialogTitle>
+    {{ "errorOccurred" | i18n }}
+  </span>
+
+  <div bitDialogContent>
+    <p>{{ messageKey | i18n }}</p>
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button bitButton bitDialogClose buttonType="primary" type="button">
+      <span>{{ "ok" | i18n }}</span>
+    </button>
+  </ng-container>
+</bit-dialog>

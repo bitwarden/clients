@@ -13347,5 +13347,8 @@
   },
   "keeperDuoVoiceWaiting": {
     "message": "Answer the phone call from Duo and follow the instructions."
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
   }
 }

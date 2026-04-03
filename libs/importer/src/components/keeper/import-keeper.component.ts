@@ -124,7 +124,11 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
     const message = typeof error === "string" ? error : (error as Error)?.message;
     switch (message) {
       case "Authentication cancelled":
+      case "Authentication cancelled by user":
       case "Device approval cancelled":
+      case "Device approval cancelled by user":
+      case "Two-factor authentication cancelled by user":
+      case "SSO authentication cancelled by user":
       case "MFA cancelled":
         return "multifactorAuthenticationCancelled";
       case "No data found":

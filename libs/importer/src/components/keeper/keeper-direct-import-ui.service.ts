@@ -16,6 +16,7 @@ import { KeeperApprovalMethodSelectComponent } from "./dialog/keeper-approval-me
 import { KeeperDeviceApprovalPromptComponent } from "./dialog/keeper-device-approval-prompt.component";
 import { KeeperDuoMethodSelectComponent } from "./dialog/keeper-duo-method-select.component";
 import { KeeperDuoPushPromptComponent } from "./dialog/keeper-duo-push-prompt.component";
+import { KeeperErrorComponent } from "./dialog/keeper-error.component";
 import { KeeperMultifactorPromptComponent } from "./dialog/keeper-multifactor-prompt.component";
 import { KeeperTwoFactorMethodSelectComponent } from "./dialog/keeper-two-factor-method-select.component";
 
@@ -155,5 +156,13 @@ export class KeeperDirectImportUIService implements Ui {
 
   closeDuoPushDialog(): void {
     this.dialogRef?.close();
+  }
+
+  //
+  // Error display
+  //
+
+  async showError(message: string): Promise<void> {
+    await KeeperErrorComponent.open(this.dialogService, message);
   }
 }
