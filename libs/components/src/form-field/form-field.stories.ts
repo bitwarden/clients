@@ -126,6 +126,45 @@ export const Default: Story = {
   }),
 };
 
+export const InteractionStates: Story = {
+  render: (args) => ({
+    props: { formObj: formObj, ...args },
+    template: /*html*/ `
+      <form [formGroup]="formObj">
+        <bit-form-field>
+          <bit-label>Default</bit-label>
+          <input bitInput formControlName="test" />
+        </bit-form-field>
+
+        <bit-form-field id="hover-field">
+          <bit-label>Hover</bit-label>
+          <input bitInput formControlName="test" />
+        </bit-form-field>
+
+        <bit-form-field id="focus-field">
+          <bit-label>Focus</bit-label>
+          <input bitInput formControlName="test" />
+        </bit-form-field>
+
+        <bit-form-field id="hover-focus-field">
+          <bit-label>Hover + Focus</bit-label>
+          <input bitInput formControlName="test" />
+        </bit-form-field>
+      </form>
+    `,
+  }),
+  play: async ({ canvasElement }) => {
+    const getContainer = (id: string) => canvasElement.querySelector(`#${id} [bitfieldcontainer]`);
+
+    getContainer("hover-field")?.classList.add("tw-test-hover");
+    getContainer("focus-field")?.querySelector("input")?.classList.add("tw-test-focus-visible");
+
+    const hoverFocus = getContainer("hover-focus-field");
+    hoverFocus?.classList.add("tw-test-hover");
+    hoverFocus?.querySelector("input")?.classList.add("tw-test-focus-visible");
+  },
+};
+
 export const Large: Story = {
   render: (args) => ({
     props: {

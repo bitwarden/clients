@@ -28,8 +28,11 @@ export class BitFieldContainerDirective {
       "has-[input:disabled]:tw-border-border-base",
       "tw-transition-colors",
       "has-[:focus-visible]:tw-border-border-brand",
+      "has-[.tw-test-focus-visible]:tw-border-border-brand",
       "has-[:focus-visible]:tw-ring-border-brand",
+      "has-[.tw-test-focus-visible]:tw-ring-border-brand",
       "has-[:focus-visible]:tw-ring-1",
+      "has-[.tw-test-focus-visible]:tw-ring-1",
       ...(size === "large" ? ["tw-text-base/6", "tw-min-h-12"] : ["tw-text-sm/5", "tw-min-h-10"]),
       ...(hasError
         ? [
@@ -37,7 +40,9 @@ export class BitFieldContainerDirective {
             "tw-ring-1",
             "!tw-border-border-danger",
             "has-[:focus-visible]:!tw-border-border-brand",
+            "has-[.tw-test-focus-visible]:!tw-border-border-brand",
             "has-[:focus-visible]:!tw-ring-border-brand",
+            "has-[.tw-test-focus-visible]:!tw-ring-border-brand",
           ]
         : []),
       ...(readOnly
@@ -45,9 +50,14 @@ export class BitFieldContainerDirective {
             "tw-bg-transparent",
             "tw-border-transparent",
             "has-[:focus-visible]:!tw-border-border-focus",
+            "has-[.tw-test-focus-visible]:!tw-border-border-focus",
             "has-[:focus-visible]:!tw-ring-border-focus",
+            "has-[.tw-test-focus-visible]:!tw-ring-border-focus",
           ]
-        : ["[&:not(:has(:focus-visible)):not(:has(input:disabled)):hover]:tw-bg-bg-quaternary"]),
+        : [
+            "[&:not(:has(:focus-visible)):not(:has(input:disabled)):hover]:tw-bg-bg-quaternary",
+            "[&:not(:has(:focus-visible)):not(:has(.tw-test-focus-visible)):not(:has(input:disabled)).tw-test-hover]:tw-bg-bg-quaternary",
+          ]),
     ].join(" ");
   });
 }
