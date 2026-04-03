@@ -114,11 +114,11 @@ describe("VaultCipherRowComponent", () => {
       component.disabled = false;
     });
 
-    const openMenuAndGetContent = (): string => {
+    const openCopyMenuAndGetContent = (): string => {
       fixture.detectChanges();
 
       const menuTrigger = fixture.nativeElement.querySelector(
-        'button[biticonbutton="bwi-ellipsis-v"]',
+        'button[biticonbutton="bwi-clone"]',
       ) as HTMLButtonElement;
       expect(menuTrigger).toBeTruthy();
 
@@ -131,7 +131,7 @@ describe("VaultCipherRowComponent", () => {
     it("renders copy password button in menu when viewPassword is true", () => {
       component.cipher.viewPassword = true;
 
-      const overlayContent = openMenuAndGetContent();
+      const overlayContent = openCopyMenuAndGetContent();
 
       expect(overlayContent).toContain('appcopyfield="password"');
       expect(overlayContent).toContain("copyPassword");
@@ -140,7 +140,7 @@ describe("VaultCipherRowComponent", () => {
     it("does not render copy password button in menu when viewPassword is false", () => {
       component.cipher.viewPassword = false;
 
-      const overlayContent = openMenuAndGetContent();
+      const overlayContent = openCopyMenuAndGetContent();
 
       expect(overlayContent).not.toContain('appcopyfield="password"');
     });
@@ -148,7 +148,7 @@ describe("VaultCipherRowComponent", () => {
     it("does not render copy password button in menu when viewPassword is undefined", () => {
       component.cipher.viewPassword = undefined;
 
-      const overlayContent = openMenuAndGetContent();
+      const overlayContent = openCopyMenuAndGetContent();
 
       expect(overlayContent).not.toContain('appcopyfield="password"');
     });
