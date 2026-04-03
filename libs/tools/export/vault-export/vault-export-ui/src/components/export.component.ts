@@ -678,6 +678,13 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.exportForm.get("fileEncryptionType").value;
   }
 
+  get skippedAttachmentMessage(): string {
+    const count = this.skippedAttachmentCount();
+    return count === 1
+      ? this.i18nService.t("exportSuccessSkippedAttachment")
+      : this.i18nService.t("exportSuccessSkippedAttachments", count);
+  }
+
   adjustValidators() {
     this.exportForm.get("confirmFilePassword").reset();
     this.exportForm.get("filePassword").reset();

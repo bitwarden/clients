@@ -132,6 +132,6 @@
 
 @if (skippedAttachmentCount() > 0) {
   <bit-callout type="warning" [title]="null">
-    {{ "exportSuccessSkippedAttachments" | i18n: skippedAttachmentCount() }}
+    {{ skippedAttachmentMessage }}
   </bit-callout>
 }
