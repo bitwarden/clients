@@ -139,8 +139,6 @@ export class ViewComponent {
   protected userCanArchive$ = this.accountService.activeAccount$
     .pipe(getUserId)
     .pipe(switchMap((userId) => this.archiveService.userCanArchive$(userId)));
-  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
-
   constructor(
     private passwordRepromptService: PasswordRepromptService,
     private route: ActivatedRoute,
@@ -412,7 +410,7 @@ export class ViewComponent {
     const ref = AutofillConfirmationDialogComponent.open(this.dialogService, {
       data: {
         currentUrl: currentTab?.url || "",
-        savedUrls: this.cipher.login?.uris?.filter((u) => u.uri).map((u) => u.uri!) ?? [],
+        savedUris: this.cipher.login?.uris?.filter((u) => u.uri) ?? [],
         viewOnly: !this.cipher.edit,
       },
     });

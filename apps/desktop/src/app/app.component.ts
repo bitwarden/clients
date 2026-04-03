@@ -36,7 +36,6 @@ import {
   LogoutReason,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
@@ -46,6 +45,8 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
+import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
@@ -63,7 +64,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
-import { SSO_COOKIE_VENDOR_CALLBACK_COMMAND } from "@bitwarden/common/platform/services/server-communication-config/server-communication-config-platform-api.service";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -78,8 +78,10 @@ import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwarden/vault";
 
 import { DeleteAccountComponent } from "../auth/delete-account.component";
+import { ChangePasswordDialogComponent } from "../auth/password-management/change-password-dialog.component";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
+import { SSO_COOKIE_VENDOR_CALLBACK_COMMAND } from "../platform/services/server-communication-config/server-communication-config-platform-api.service";
 
 import { SettingsComponent } from "./accounts/settings.component";
 import { ExportDesktopComponent } from "./tools/export/export-desktop.component";
@@ -290,6 +292,9 @@ export class AppComponent implements OnInit, OnDestroy {
             break;
           case "openPremium":
             await this.premiumUpgradePromptService.promptForPremium();
+            break;
+          case "openChangePasswordDialog":
+            this.dialogService.open(ChangePasswordDialogComponent);
             break;
           case "showFingerprintPhrase": {
             const activeUserId = await firstValueFrom(
@@ -578,6 +583,10 @@ export class AppComponent implements OnInit, OnDestroy {
             email: stateAccounts[userId].email,
             userId: userId,
             hasMasterPassword: await this.userVerificationService.hasMasterPassword(userId),
+            // TODO: PM-32419 - remove multiClientPasswordManagement flag and logic once the feature is fully rolled out
+            multiClientPasswordManagement: await firstValueFrom(
+              this.configService.getFeatureFlag$(FeatureFlag.PM32413_MultiClientPasswordManagement),
+            ),
           };
         }
       }

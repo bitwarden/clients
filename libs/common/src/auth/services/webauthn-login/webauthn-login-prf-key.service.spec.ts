@@ -19,7 +19,7 @@ describe("WebAuthnLoginPrfKeyService", () => {
         Promise.resolve(randomBytes(length)),
       );
 
-      const result = await service.createSymmetricKeyFromPrf(randomBytes(32));
+      const result = await service.createSymmetricKeyFromPrf(randomBytes(32).buffer);
 
       expect(result.toEncoded().length).toBe(64);
     });
@@ -27,6 +27,6 @@ describe("WebAuthnLoginPrfKeyService", () => {
 });
 
 /** This is a fake function that always returns the same byte sequence */
-function randomBytes(length: number) {
+function randomBytes(length: number): Uint8Array<ArrayBuffer> {
   return new Uint8Array(Array.from({ length }, (_, k) => k % 255));
 }
