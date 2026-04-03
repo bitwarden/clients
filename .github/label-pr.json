@@ -1,11 +1,11 @@
 {
   "title_patterns": {
     "t:feature": ["feat", "feature", "tool"],
-    "t:bug": ["fix", "bug", "bugfix"],
+    "t:bugfix": ["fix", "bug", "bugfix"],
     "t:tech-debt": ["refactor", "chore", "cleanup", "revert", "debt", "test", "perf"],
     "t:docs": ["docs"],
     "t:ci": ["ci", "build", "chore(ci)"],
-    "t:deps": ["deps"],
+    "t:deps": ["deps", "[deps]"],
     "t:breaking-change": ["breaking", "breaking-change"],
     "t:misc": ["misc"],
     "t:llm": ["llm"]
@@ -32,6 +32,7 @@
       "!libs/angular",
       "!libs/auth/src/angular",
       "!libs/auto-confirm/src/angular",
+      "!libs/assets",
       "!libs/components",
       "!libs/dirt/card/",
       "!libs/importer/src/components",
@@ -46,6 +47,7 @@
       "!libs/vault/src/components"
     ],
     "feature-flag": ["libs/common/src/enums/feature-flag.enum.ts"],
+    "t:feature": ["libs/common/src/enums/feature-flag.enum.ts"],
     "t:tech-debt": [],
     "t:ci": [
       ".checkmarx/",

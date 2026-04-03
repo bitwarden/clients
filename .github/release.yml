@@ -9,16 +9,13 @@ changelog:
     - title: ":shipit: Feature Development"
       labels:
         - t:feature
-        - t:feature-app
-        - t:feature-tool
-        - t:new-feature
-        - t:enhancement
+        - feature-flag
     - title: "❗ Breaking Changes"
       labels:
         - t:breaking-change
     - title: "🐛 Bug fixes"
       labels:
-        - t:bug
+        - t:bugfix
     - title: "⚙️ Maintenance"
       labels:
         - t:tech-debt
