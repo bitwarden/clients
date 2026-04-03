@@ -596,7 +596,7 @@ export class LoginCommand {
       for (let port = 8065; port <= 8070; port++) {
         try {
           this.ssoRedirectUri = "http://localhost:" + port;
-          callbackServer.listen(port, () => {
+          callbackServer.listen(port, "localhost", () => {
             const webAppSsoUrl = this.ssoUrlService.buildSsoUrl(
               webUrl,
               ClientType.Cli,
