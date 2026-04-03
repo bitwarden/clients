@@ -7,31 +7,48 @@
  */
 export function googleAccountSelectionListener(): void {
   function extractEmailFromElement(el: Element): string | null {
-    // Google account chooser items have data-identifier with the email
-    const identifier = el.closest("[data-identifier]");
-    if (identifier) {
-      const email = identifier.getAttribute("data-identifier");
-      if (email?.includes("@")) {
-        return email;
+    // Walk up from click target to find a clickable account container
+    const ancestor =
+      el.closest("[data-identifier]") ??
+      el.closest("[data-email]") ??
+      el.closest("[role='link']") ??
+      el.closest("[data-authuser]") ??
+      el.closest("li");
+
+    if (!ancestor) {
+      return null;
+    }
+
+    // 1. Check data attributes on the ancestor
+    for (const attr of ["data-identifier", "data-email"]) {
+      const val = ancestor.getAttribute(attr);
+      if (val?.includes("@")) {
+        return val;
       }
     }
 
-    // Walk up to find a container with data-email
-    const emailEl = el.closest("[data-email]");
-    if (emailEl) {
-      const email = emailEl.getAttribute("data-email");
-      if (email?.includes("@")) {
-        return email;
+    // 2. Check data attributes on child elements
+    for (const attr of ["data-identifier", "data-email"]) {
+      const child = ancestor.querySelector(`[${attr}]`);
+      if (child) {
+        const val = child.getAttribute(attr);
+        if (val?.includes("@")) {
+          return val;
+        }
       }
     }
 
-    // Look for email-like text in sibling/child elements near the click
-    const container = el.closest("[role='link'], [data-authuser], li, [jsname]");
-    if (container) {
-      const text = container.textContent ?? "";
-      const match = text.match(/[\w.-]+@[\w.-]+\.\w+/);
-      if (match) {
-        return match[0];
+    // 3. Search child divs/spans for email-like text (GSI select page has
+    //    no data attributes — email is only in text content of child elements)
+    const children = ancestor.querySelectorAll("div, span");
+    for (const child of children) {
+      // Only check direct text, not nested children's text
+      const text = child.textContent?.trim() ?? "";
+      if (text.includes("@") && !text.includes(" ")) {
+        const match = text.match(/^[\w.-]+@[\w.-]+\.\w+$/);
+        if (match) {
+          return match[0];
+        }
       }
     }
 

@@ -12,21 +12,25 @@ import { scrapeGoogleEmailFromPage } from "./google-email-scraper";
 
 /** URL patterns that indicate a Google OAuth flow. */
 const GOOGLE_OAUTH_URL_FILTER: chrome.webRequest.RequestFilter = {
-  urls: ["*://accounts.google.com/o/oauth2/*", "*://accounts.google.com/v3/signin/*"],
+  urls: [
+    "*://accounts.google.com/o/oauth2/*",
+    "*://accounts.google.com/v3/signin/*",
+    "*://accounts.google.com/gsi/select*",
+  ],
   types: ["main_frame", "sub_frame"],
 };
 
-/** URL filter for the Google consent/identity page where we scrape email. */
+/** URL filter for Google pages where we scrape email. */
 const GOOGLE_EMAIL_PAGE_FILTER: chrome.events.UrlFilter[] = [
   { hostEquals: "accounts.google.com", pathContains: "signin/oauth" },
+  { hostEquals: "accounts.google.com", pathContains: "gsi/select" },
 ];
-
-const GOOGLE_SIGNIN_CONSENT_PATTERN = "accounts.google.com/signin/oauth";
 
 /** URL filter for Google's account chooser page. */
 const GOOGLE_ACCOUNT_CHOOSER_FILTER: chrome.events.UrlFilter[] = [
   { hostEquals: "accounts.google.com", pathContains: "signin/accountchooser" },
   { hostEquals: "accounts.google.com", pathContains: "signin/identifier" },
+  { hostEquals: "accounts.google.com", pathContains: "gsi/select" },
 ];
 
 export class GoogleOAuthProvider implements OAuthSsoProvider {
@@ -42,9 +46,23 @@ export class GoogleOAuthProvider implements OAuthSsoProvider {
     details: chrome.webRequest.OnBeforeRequestDetails,
   ): OAuthFlowInitiation | null {
     let redirectUri: string | undefined;
+    let initiatorOrigin = details.initiator ?? undefined;
+
     try {
       const oauthUrl = new URL(details.url);
       redirectUri = oauthUrl.searchParams.get("redirect_uri") ?? undefined;
+
+      // GSI select (One Tap) has no redirect_uri — uses postMessage via origin param.
+      if (!redirectUri && oauthUrl.pathname.includes("gsi/select")) {
+        redirectUri = "gsi_select";
+        initiatorOrigin = oauthUrl.searchParams.get("origin") ?? initiatorOrigin;
+        return {
+          ssoProvider: this.name,
+          redirectUri,
+          initiatorOrigin,
+          oneClickFlow: true,
+        };
+      }
     } catch {
       // URL parsing failed — continue without redirect_uri
     }
@@ -52,12 +70,15 @@ export class GoogleOAuthProvider implements OAuthSsoProvider {
     return {
       ssoProvider: this.name,
       redirectUri,
-      initiatorOrigin: details.initiator ?? undefined,
+      initiatorOrigin,
     };
   }
 
   shouldScrapeEmail(url: string): boolean {
-    return url.includes(GOOGLE_SIGNIN_CONSENT_PATTERN);
+    return (
+      url.includes("accounts.google.com/signin/oauth") ||
+      url.includes("accounts.google.com/gsi/select")
+    );
   }
 
   getEmailScrapeConfig(): EmailScrapeConfig {
@@ -121,7 +142,9 @@ export class GoogleOAuthProvider implements OAuthSsoProvider {
    */
   private isStorageRelayApproval(navUrl: string, flow: OAuthFlowState): boolean {
     const isNonRedirectFlow =
-      flow.redirectUri?.startsWith("storagerelay://") || flow.redirectUri === "gis_transform";
+      flow.redirectUri?.startsWith("storagerelay://") ||
+      flow.redirectUri === "gis_transform" ||
+      flow.redirectUri === "gsi_select";
     if (!isNonRedirectFlow) {
       return false;
     }

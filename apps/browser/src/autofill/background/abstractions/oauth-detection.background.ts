@@ -22,8 +22,12 @@ export type OAuthFlowState = {
   email?: string;
   /** The redirect_uri from the OAuth request. */
   redirectUri?: string;
+  /** Whether this is a one-click flow (no consent page). */
+  oneClickFlow: boolean;
   /** Whether the OAuth flow completed successfully. */
   completed: boolean;
+  /** Timestamp when the flow was created. */
+  createdAt: number;
 };
 
 /**
@@ -36,6 +40,13 @@ export type OAuthFlowInitiation = {
   redirectUri?: string;
   /** The initiator origin, if available from the request details. */
   initiatorOrigin?: string;
+  /**
+   * If true, this is a one-click flow (e.g. Google One Tap / GSI select)
+   * where account selection is the only user interaction — there's no
+   * consent page. The orchestrator will mark the flow as completed
+   * when the account is selected.
+   */
+  oneClickFlow?: boolean;
 };
 
 /**

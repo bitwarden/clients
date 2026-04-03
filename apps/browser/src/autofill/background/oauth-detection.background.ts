@@ -19,9 +19,14 @@ import {
   SuccessCheckSsoAvailableOnPageResult,
 } from "./oauth-providers/google-check-sso-available-on-page";
 
+/** Maximum time (ms) an OAuth flow can remain active before being discarded. */
+const OAUTH_FLOW_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+
 export class OAuthDetectionBackground {
   /** Maps SSO tab ID → flow state. */
   private activeFlows = new Map<number, OAuthFlowState>();
+  /** Maps SSO tab ID → suspended flow (saved when a nested auth replaces it). */
+  private suspendedFlows = new Map<number, OAuthFlowState>();
   /** Maps SSO tab ID → pending resolveOriginTab promise. */
   private pendingResolves = new Map<number, Promise<void>>();
 
@@ -116,7 +121,7 @@ export class OAuthDetectionBackground {
     chrome.webNavigation.onCompleted.addListener(this.handleNavCompleted_Completion);
     this.logService.info("[OAuthDetection] Navigation completion listener ready");
 
-    // Listen for account selection messages from injected scripts
+    // Listen for account selection messages from injected scripts.
     chrome.runtime.onMessage.addListener((message, sender) => {
       if (message?.command !== "oauthAccountSelected" || !message.email) {
         return;
@@ -130,9 +135,18 @@ export class OAuthDetectionBackground {
         return;
       }
       flow.email = message.email;
-      this.logService.info(
-        `[OAuthDetection] Account selected: "${message.email}" for tab ${tabId} (${flow.ssoProvider})`,
-      );
+      // For one-click flows (e.g. GSI select), account selection IS the
+      // completion — there's no consent page. The popup closes right after.
+      if (flow.oneClickFlow) {
+        flow.completed = true;
+        this.logService.info(
+          `[OAuthDetection] Account selected (one-click): "${message.email}" for tab ${tabId} (${flow.ssoProvider}) — marked completed`,
+        );
+      } else {
+        this.logService.info(
+          `[OAuthDetection] Account selected: "${message.email}" for tab ${tabId} (${flow.ssoProvider})`,
+        );
+      }
     });
 
     this.logService.info(
@@ -223,17 +237,57 @@ export class OAuthDetectionBackground {
     const existingFlow = this.activeFlows.get(details.tabId);
     if (existingFlow) {
       if (existingFlow.ssoProvider === provider.name) {
+        // Same provider re-detected — check if there's a suspended flow to restore.
+        // This happens when a nested auth (e.g. Google inside GitHub) completes and
+        // the original provider's authorize page fires again.
+        const suspended = this.suspendedFlows.get(details.tabId);
+        if (suspended && suspended.ssoProvider === provider.name) {
+          const initiation = provider.extractFlowInitiation(details);
+          if (initiation) {
+            suspended.redirectUri = initiation.redirectUri ?? suspended.redirectUri;
+            suspended.completed = false;
+            suspended.createdAt = Date.now();
+            this.activeFlows.set(details.tabId, suspended);
+            this.suspendedFlows.delete(details.tabId);
+            this.logService.info(
+              `[OAuthDetection][Step1] [${provider.name}] RESTORED suspended flow for tab ${details.tabId} ` +
+                `— originUrl="${suspended.originUrl}", redirect_uri="${suspended.redirectUri ?? "unknown"}"`,
+            );
+            return;
+          }
+        }
         this.logService.info(
           `[OAuthDetection][Step1] Ignoring: already tracking tab ${details.tabId} for ${provider.name}`,
         );
         return;
       }
-      // Different provider detected on same tab — replace the old flow
+      // Different provider detected on same tab — suspend the old flow
+      // so it can be restored when the nested auth completes.
       this.logService.info(
-        `[OAuthDetection][Step1] Replacing ${existingFlow.ssoProvider} flow with ${provider.name} ` +
-          `on tab ${details.tabId}`,
+        `[OAuthDetection][Step1] Suspending ${existingFlow.ssoProvider} flow, ` +
+          `replacing with ${provider.name} on tab ${details.tabId}`,
       );
+      this.suspendedFlows.set(details.tabId, existingFlow);
       this.activeFlows.delete(details.tabId);
+    }
+
+    // Check if there's a suspended flow for this provider (nested auth just
+    // completed and the original provider's authorize URL is firing again).
+    const suspended = this.suspendedFlows.get(details.tabId);
+    if (suspended && suspended.ssoProvider === provider.name) {
+      const initiation = provider.extractFlowInitiation(details);
+      if (initiation) {
+        suspended.redirectUri = initiation.redirectUri ?? suspended.redirectUri;
+        suspended.completed = false;
+        suspended.createdAt = Date.now();
+        this.activeFlows.set(details.tabId, suspended);
+        this.suspendedFlows.delete(details.tabId);
+        this.logService.info(
+          `[OAuthDetection][Step1] [${provider.name}] RESTORED suspended flow for tab ${details.tabId} ` +
+            `— originUrl="${suspended.originUrl}", redirect_uri="${suspended.redirectUri ?? "unknown"}"`,
+        );
+        return;
+      }
     }
 
     const initiation = provider.extractFlowInitiation(details);
@@ -255,6 +309,7 @@ export class OAuthDetectionBackground {
       initiation.initiatorOrigin ?? "unknown",
       initiation.redirectUri,
       initiation.ssoProvider,
+      initiation.oneClickFlow ?? false,
     );
     this.pendingResolves.set(details.tabId, promise);
     void promise.finally(() => this.pendingResolves.delete(details.tabId));
@@ -269,6 +324,7 @@ export class OAuthDetectionBackground {
     initiatorOrigin: string,
     redirectUri: string | undefined,
     ssoProvider: string,
+    oneClickFlow: boolean = false,
   ): Promise<void> {
     this.logService.info(
       `[OAuthDetection][ResolveOrigin] Looking up origin tab for SSO tab ${ssoTabId}...`,
@@ -374,7 +430,9 @@ export class OAuthDetectionBackground {
         originUrl,
         ssoProvider,
         redirectUri,
+        oneClickFlow,
         completed: false,
+        createdAt: Date.now(),
       };
       this.activeFlows.set(ssoTabId, flowState);
 
@@ -592,6 +650,13 @@ export class OAuthDetectionBackground {
           `[OAuthDetection][Step2] EMAIL CAPTURED on attempt ${attempt}: "${result.email}" ` +
             `for SSO flow tab ${tabId} -> origin ${currentFlow.originUrl}`,
         );
+
+        // For one-click flows (e.g. GSI auto_select), email capture means
+        // the flow is complete — the popup will close momentarily.
+        if (currentFlow.oneClickFlow && !currentFlow.completed) {
+          currentFlow.completed = true;
+          this.logService.info(`[OAuthDetection][Step2] One-click flow — marked completed`);
+        }
       })
       .catch((e) => {
         this.logService.error(
@@ -605,12 +670,20 @@ export class OAuthDetectionBackground {
    * already marked as completed.
    */
   private handleTabRemoved = (tabId: number): void => {
+    this.suspendedFlows.delete(tabId);
+
     const flow = this.activeFlows.get(tabId);
     if (!flow) {
       return;
     }
 
     this.activeFlows.delete(tabId);
+
+    // Discard expired flows
+    if (Date.now() - flow.createdAt > OAUTH_FLOW_TIMEOUT_MS) {
+      this.logService.info(`[OAuthDetection][Step3] Flow for tab ${tabId} expired — discarding`);
+      return;
+    }
 
     this.logService.info(
       `[OAuthDetection][Step3] SSO tab ${tabId} CLOSED — ` +
@@ -620,6 +693,14 @@ export class OAuthDetectionBackground {
     this.logService.info(`[OAuthDetection] Active flows after removal: ${this.activeFlows.size}`);
 
     if (flow.completed) {
+      this.triggerSaveNotification(flow);
+    } else if (flow.oneClickFlow) {
+      // One-click flows (e.g. GSI auto_select) may close before we can
+      // capture the email or mark completion. The tab closing after the
+      // auth flow IS the completion signal for these flows.
+      this.logService.info(
+        `[OAuthDetection][Step3] One-click flow — treating tab close as completion`,
+      );
       this.triggerSaveNotification(flow);
     } else {
       this.logService.info(
@@ -635,7 +716,7 @@ export class OAuthDetectionBackground {
   private handleNavBeforeNavigate = (
     details: chrome.webNavigation.WebNavigationTransitionCallbackDetails,
   ): void => {
-    this.checkNavCompletion(details.tabId, details.frameId, details.url);
+    this.checkNavCompletion(details.tabId, details.frameId, details.url, false);
   };
 
   /**
@@ -646,19 +727,34 @@ export class OAuthDetectionBackground {
   private handleNavCompleted_Completion = (
     details: chrome.webNavigation.WebNavigationFramedCallbackDetails,
   ): void => {
-    this.checkNavCompletion(details.tabId, details.frameId, details.url);
+    this.checkNavCompletion(details.tabId, details.frameId, details.url, true);
   };
 
   /**
    * Shared completion check used by both onBeforeNavigate and onCompleted.
+   *
+   * @param pageLoaded - true when called from onCompleted (page fully loaded),
+   *   false from onBeforeNavigate (navigation starting, may be intermediate redirect).
    */
-  private checkNavCompletion(tabId: number, frameId: number, url: string): void {
+  private checkNavCompletion(
+    tabId: number,
+    frameId: number,
+    url: string,
+    pageLoaded: boolean,
+  ): void {
     if (tabId < 0 || frameId !== 0) {
       return;
     }
 
     const flow = this.activeFlows.get(tabId);
     if (!flow) {
+      return;
+    }
+
+    // Discard expired flows
+    if (Date.now() - flow.createdAt > OAUTH_FLOW_TIMEOUT_MS) {
+      this.logService.info(`[OAuthDetection][Step4] Flow for tab ${tabId} expired — discarding`);
+      this.activeFlows.delete(tabId);
       return;
     }
 
@@ -674,18 +770,38 @@ export class OAuthDetectionBackground {
         `originUrl="${flow.originUrl}", completed=${flow.completed})`,
     );
 
-    // If the flow was already marked complete (e.g. consent page seen) and
-    // the tab navigates away from the SSO provider, trigger immediately.
-    // This handles same-tab flows where the tab redirects back to the
-    // origin instead of closing.
-    if (flow.completed) {
+    // If the flow was already marked complete and the tab navigated back
+    // to the origin, trigger immediately. This handles same-tab flows
+    // where the tab redirects back to the origin instead of closing.
+    // Only fires from onCompleted (pageLoaded=true) to avoid triggering on
+    // intermediate redirect pages (e.g. form_post callback → signup page).
+    if (flow.completed && this.isNavigationAtOrigin(url, flow)) {
+      if (!pageLoaded) {
+        // Wait for the page to finish loading — this may be an intermediate
+        // redirect (e.g. form_post callback) that will navigate again.
+        this.logService.info(
+          `[OAuthDetection][Step4] [${provider.name}] Flow completed, at origin but page not loaded yet — deferring`,
+        );
+        return;
+      }
       this.logService.info(
-        `[OAuthDetection][Step4] [${provider.name}] Flow already completed — ` +
-          `triggering notification on next navigation`,
+        `[OAuthDetection][Step4] [${provider.name}] Flow completed and back at origin — ` +
+          `triggering notification`,
       );
       this.activeFlows.delete(tabId);
       this.logService.info(`[OAuthDetection] Active flows after removal: ${this.activeFlows.size}`);
-      this.triggerSaveNotification(flow);
+      // For popup flows (SSO tab ≠ origin tab), send to the origin tab —
+      // the SSO tab may close momentarily after the callback page loads.
+      const isPopupFlow = flow.originTab.id !== tabId;
+      this.triggerSaveNotification(flow, isPopupFlow ? undefined : tabId);
+      return;
+    }
+
+    // If the flow was already marked as completed by an earlier mechanism
+    // (e.g. emailReadyRequestSignalsCompletion or account selection), don't
+    // run detectCompletion — the early-exit above will fire when the page
+    // settles at the origin, or handleTabRemoved will fire if the tab closes.
+    if (flow.completed) {
       return;
     }
 
@@ -702,7 +818,10 @@ export class OAuthDetectionBackground {
         this.logService.info(
           `[OAuthDetection] Active flows after removal: ${this.activeFlows.size}`,
         );
-        this.triggerSaveNotification(flow);
+        this.triggerSaveNotification(
+          flow,
+          this.isNavigationAtOrigin(url, flow) ? tabId : undefined,
+        );
         break;
 
       case CompletionAction.CompleteAndWaitForTabClose:
@@ -720,26 +839,51 @@ export class OAuthDetectionBackground {
   }
 
   /**
-   * Shows the Bitwarden "save login" notification on the origin tab.
+   * Checks if a navigation URL is back at the flow's origin site.
    */
-  private triggerSaveNotification(flow: OAuthFlowState): void {
-    this.logService.info(`[OAuthDetection][Notify] ========================================`);
-    this.logService.info(`[OAuthDetection][Notify] TRIGGERING save notification:`);
-    this.logService.info(`[OAuthDetection][Notify]   Provider: ${flow.ssoProvider}`);
-    this.logService.info(`[OAuthDetection][Notify]   Email:    ${flow.email}`);
-    this.logService.info(`[OAuthDetection][Notify]   Origin:   ${flow.originUrl}`);
-    this.logService.info(
-      `[OAuthDetection][Notify]   Tab:      ${flow.originTab.id} ("${flow.originTab.title}")`,
-    );
-    this.logService.info(`[OAuthDetection][Notify] ========================================`);
+  private isNavigationAtOrigin(url: string, flow: OAuthFlowState): boolean {
+    if (!flow.originUrl || !url.startsWith("http")) {
+      return false;
+    }
+    try {
+      return new URL(url).origin === new URL(flow.originUrl).origin;
+    } catch {
+      return false;
+    }
+  }
 
-    this.notificationBackground
-      .pushSsoLoginToQueue(flow.originTab, flow.ssoProvider, flow.email, flow.originUrl)
-      .then(() => {
-        this.logService.info(`[OAuthDetection][Notify] pushSsoLoginToQueue SUCCEEDED`);
-      })
-      .catch((e) => {
-        this.logService.error(`[OAuthDetection][Notify] pushSsoLoginToQueue FAILED: ${e}`);
-      });
+  /**
+   * Shows the Bitwarden "save login" notification on the target tab.
+   *
+   * @param flow - The OAuth flow state
+   * @param activeTabId - If provided, use this tab (the SSO tab that navigated
+   *   back to origin) instead of the original origin tab. This handles same-tab
+   *   flows and multi-window scenarios where the origin tab may be in a
+   *   different window.
+   */
+  private triggerSaveNotification(flow: OAuthFlowState, activeTabId?: number): void {
+    const resolveTab =
+      activeTabId != null
+        ? BrowserApi.getTab(activeTabId).then((tab) => tab ?? flow.originTab)
+        : Promise.resolve(flow.originTab);
+
+    void resolveTab.then((tab) => {
+      this.logService.info(`[OAuthDetection][Notify] ========================================`);
+      this.logService.info(`[OAuthDetection][Notify] TRIGGERING save notification:`);
+      this.logService.info(`[OAuthDetection][Notify]   Provider: ${flow.ssoProvider}`);
+      this.logService.info(`[OAuthDetection][Notify]   Email:    ${flow.email}`);
+      this.logService.info(`[OAuthDetection][Notify]   Origin:   ${flow.originUrl}`);
+      this.logService.info(`[OAuthDetection][Notify]   Tab:      ${tab.id} ("${tab.title}")`);
+      this.logService.info(`[OAuthDetection][Notify] ========================================`);
+
+      this.notificationBackground
+        .pushSsoLoginToQueue(tab, flow.ssoProvider, flow.email, flow.originUrl)
+        .then(() => {
+          this.logService.info(`[OAuthDetection][Notify] pushSsoLoginToQueue SUCCEEDED`);
+        })
+        .catch((e) => {
+          this.logService.error(`[OAuthDetection][Notify] pushSsoLoginToQueue FAILED: ${e}`);
+        });
+    });
   }
 }

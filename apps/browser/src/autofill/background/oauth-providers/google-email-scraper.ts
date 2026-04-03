@@ -7,7 +7,7 @@ import { EmailScrapeResult } from "../abstractions/oauth-detection.background";
  */
 export function scrapeGoogleEmailFromPage(): EmailScrapeResult {
   try {
-    // Primary: data-profile-identifier attribute
+    // Strategy 1: data-profile-identifier attribute (consent pages)
     const profileEl = document.querySelector("[data-profile-identifier]");
     if (profileEl) {
       const attrValue = profileEl.getAttribute("data-profile-identifier");
@@ -18,13 +18,27 @@ export function scrapeGoogleEmailFromPage(): EmailScrapeResult {
       if (text.includes("@")) {
         return { email: text, debug: "found via data-profile-identifier textContent" };
       }
-      return {
-        email: null,
-        debug: `[data-profile-identifier] element found but no email (attr="${attrValue}", text="${text}")`,
-      };
     }
 
-    // Last resort: look for any element containing an email-like string
+    // Strategy 2: data-identifier attribute (account chooser)
+    const identifierEl = document.querySelector("[data-identifier]");
+    if (identifierEl) {
+      const val = identifierEl.getAttribute("data-identifier");
+      if (val?.includes("@")) {
+        return { email: val, debug: "found via data-identifier attr" };
+      }
+    }
+
+    // Strategy 3: data-email attribute (GSI select child elements)
+    const emailAttrEl = document.querySelector("[data-email]");
+    if (emailAttrEl) {
+      const val = emailAttrEl.getAttribute("data-email");
+      if (val?.includes("@")) {
+        return { email: val, debug: "found via data-email attr" };
+      }
+    }
+
+    // Strategy 4: regex on body text
     const bodyText = document.body?.innerText ?? "";
     const emailMatch = bodyText.match(/[\w.-]+@[\w.-]+\.\w+/);
     if (emailMatch) {
@@ -36,7 +50,7 @@ export function scrapeGoogleEmailFromPage(): EmailScrapeResult {
 
     return {
       email: null,
-      debug: `no [data-profile-identifier], no email in body (${bodyText.length} chars)`,
+      debug: `no email found in page (${bodyText.length} chars)`,
     };
   } catch (e) {
     return {
