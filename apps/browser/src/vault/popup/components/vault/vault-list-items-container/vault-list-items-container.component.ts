@@ -1,3 +1,5 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CdkVirtualScrollViewport, ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import {
@@ -34,7 +36,6 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
-  BadgeModule,
   ButtonModule,
   CompactModeService,
   DisclosureComponent,
@@ -46,6 +47,7 @@ import {
   SectionHeaderComponent,
   TypographyModule,
   ScrollLayoutDirective,
+  ChipActionComponent,
 } from "@bitwarden/components";
 import {
   DecryptionFailureDialogComponent,
@@ -69,7 +71,6 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     CommonModule,
     ItemModule,
     ButtonModule,
-    BadgeModule,
     IconButtonModule,
     SectionComponent,
     TypographyModule,
@@ -82,6 +83,7 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     DisclosureComponent,
     DisclosureTriggerForDirective,
     ScrollLayoutDirective,
+    ChipActionComponent,
   ],
   selector: "app-vault-list-items-container",
   templateUrl: "vault-list-items-container.component.html",

@@ -1,0 +1,23 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  pointer-events="none"
+  class="tw-rounded-full tw-size-full tw-min-w-full tw-bg-[--avatar-bg] group-aria-disabled/avatar:tw-bg-bg-disabled [&:is(button:not([aria-disabled='true'])_*)]:group-hover/avatar:tw-bg-[--avatar-bg-hover] [&:is(button:not([aria-disabled='true'])_*)]:group-focus-visible/avatar:tw-bg-[--avatar-bg-hover]"
+  attr.viewBox="0 0 {{ svgSize }} {{ svgSize }}"
+>
+  <title>{{ title() || text() }}</title>
+  <text
+    text-anchor="middle"
+    y="50%"
+    x="50%"
+    dy="0.35em"
+    pointer-events="auto"
+    class="[&:is(button:is([aria-disabled='true'])_*)]:tw-fill-fg-disabled"
+    [class]="avatarColors().text.includes('white') ? 'tw-fill-fg-white' : 'tw-fill-black'"
+    [style.fontWeight]="svgFontWeight"
+    [style.fontSize.px]="svgFontSize"
+    [style.lineHeight.px]="16"
+    font-family='Inter,"Helvetica Neue",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"'
+  >
+    {{ displayChars() }}
+  </text>
+</svg>

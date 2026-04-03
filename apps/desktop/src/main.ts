@@ -44,6 +44,7 @@ import { MenuMain } from "./main/menu/menu.main";
 import { MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
+import { SsoCookieMain } from "./main/sso-cookie.main";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
@@ -51,6 +52,7 @@ import { NativeAutofillMain } from "./platform/main/autofill/native-autofill.mai
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
+import { SafeShell } from "./platform/main/safe-shell.main";
 import { VersionMain } from "./platform/main/version.main";
 import { DesktopSettingsService } from "./platform/services/desktop-settings.service";
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
@@ -88,9 +90,11 @@ export class Main {
   nativeAutofillMain: NativeAutofillMain;
   desktopAutofillSettingsService: DesktopAutofillSettingsService;
   versionMain: VersionMain;
+  shell: SafeShell;
   sshAgentService: MainSshAgentService;
   sdkLoadService: SdkLoadService;
   mainDesktopAutotypeService: MainDesktopAutotypeService;
+  ssoCookieMain: SsoCookieMain;
 
   constructor() {
     // Set paths for portable builds
@@ -138,6 +142,8 @@ export class Main {
       storageServiceProvider,
       this.logService,
     );
+
+    this.ssoCookieMain = new SsoCookieMain(globalStateProvider, this.logService);
 
     this.i18nService = new I18nMainService("en", "./locales/", globalStateProvider);
 
@@ -196,11 +202,14 @@ export class Main {
       true,
     );
 
+    this.shell = new SafeShell(this.logService);
+
     this.windowMain = new WindowMain(
       biometricStateService,
       this.logService,
       this.storageService,
       this.desktopSettingsService,
+      this.shell,
       (arg) => this.processDeepLink(arg),
       (win) => this.trayMain.setupWindowListeners(win),
     );
@@ -216,12 +225,17 @@ export class Main {
     );
 
     this.messagingMain = new MessagingMain(this, this.desktopSettingsService);
-    this.updaterMain = new UpdaterMain(this.i18nService, this.logService, this.windowMain);
+    this.updaterMain = new UpdaterMain(
+      this.i18nService,
+      this.logService,
+      this.windowMain,
+      this.shell,
+    );
 
     const messageSubject = new Subject<Message<Record<string, unknown>>>();
     this.messagingService = MessageSender.combine(
       new SubjectMessageSender(messageSubject), // For local messages
-      new ElectronMainMessagingService(this.windowMain),
+      new ElectronMainMessagingService(this.windowMain, this.shell),
     );
 
     this.trayMain = new TrayMain(
@@ -253,6 +267,7 @@ export class Main {
       this.updaterMain,
       this.desktopSettingsService,
       this.versionMain,
+      this.shell,
     );
 
     this.trayMain = new TrayMain(
@@ -321,6 +336,7 @@ export class Main {
         // Reset modal mode to make sure main window is displayed correctly
         await this.desktopSettingsService.resetModalMode();
         await this.windowMain.init();
+        this.ssoCookieMain.init(this.windowMain.session);
         await this.i18nService.init();
         await this.messagingMain.init();
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.

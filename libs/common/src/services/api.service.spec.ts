@@ -1245,4 +1245,85 @@ describe("ApiService", () => {
       expect(logoutCallback).not.toHaveBeenCalled();
     });
   });
+
+  describe("fetch", () => {
+    it("does not execute any middlewares when none are registered", async () => {
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+      nativeFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+      } satisfies Partial<Response> as Response);
+      sut.nativeFetch = nativeFetch;
+
+      const request = {
+        url: "https://example.com/api",
+        method: "POST",
+        headers: { set: jest.fn() },
+      } as unknown as Request;
+      await sut.fetch(request);
+
+      expect(nativeFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("executes a registered middleware before sending the request", async () => {
+      const middleware = jest.fn<Promise<Response>, [Request, (req: Request) => Promise<Response>]>(
+        async (req, next) => next(req),
+      );
+      sut.addMiddleware(middleware);
+
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+      nativeFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+      } satisfies Partial<Response> as Response);
+      sut.nativeFetch = nativeFetch;
+
+      const request = {
+        url: "https://example.com/api",
+        method: "POST",
+        headers: { set: jest.fn() },
+      } as unknown as Request;
+      await sut.fetch(request);
+
+      expect(middleware).toHaveBeenCalledTimes(1);
+      expect(middleware).toHaveBeenCalledWith(request, expect.any(Function));
+      expect(nativeFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("executes all registered middlewares before sending the request", async () => {
+      const callOrder: number[] = [];
+      const middleware1 = jest
+        .fn<Promise<Response>, [Request, (req: Request) => Promise<Response>]>()
+        .mockImplementation(async (req, next) => {
+          callOrder.push(1);
+          return next(req);
+        });
+      const middleware2 = jest
+        .fn<Promise<Response>, [Request, (req: Request) => Promise<Response>]>()
+        .mockImplementation(async (req, next) => {
+          callOrder.push(2);
+          return next(req);
+        });
+      sut.addMiddleware(middleware1);
+      sut.addMiddleware(middleware2);
+
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+      nativeFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+      } satisfies Partial<Response> as Response);
+      sut.nativeFetch = nativeFetch;
+
+      const request = {
+        url: "https://example.com/api",
+        method: "POST",
+        headers: { set: jest.fn() },
+      } as unknown as Request;
+      await sut.fetch(request);
+
+      expect(middleware1).toHaveBeenCalledTimes(1);
+      expect(middleware2).toHaveBeenCalledTimes(1);
+      expect(nativeFetch).toHaveBeenCalledTimes(1);
+    });
+  });
 });

@@ -1,6 +1,6 @@
 import { guidToRawFormat, guidToStandardFormat } from "./guid-utils";
 
-const workingExamples: [string, Uint8Array][] = [
+const workingExamples: [string, Uint8Array<ArrayBuffer>][] = [
   [
     "00000000-0000-0000-0000-000000000000",
     new Uint8Array([

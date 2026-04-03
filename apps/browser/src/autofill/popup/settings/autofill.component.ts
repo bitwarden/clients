@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -25,7 +23,6 @@ import {
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
-import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -68,6 +65,8 @@ import {
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
+  CalloutModule,
+  ButtonModule,
 } from "@bitwarden/components";
 import { AdvancedUriOptionDialogComponent } from "@bitwarden/vault";
 
@@ -100,7 +99,8 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     SelectModule,
     TypographyModule,
     ReactiveFormsModule,
-    SpotlightComponent,
+    CalloutModule,
+    ButtonModule,
   ],
 })
 export class AutofillComponent implements OnInit {
@@ -159,7 +159,7 @@ export class AutofillComponent implements OnInit {
   clearClipboard!: ClearClipboardDelaySetting;
   clearClipboardOptions: { name: string; value: ClearClipboardDelaySetting }[];
   defaultUriMatch: UriMatchStrategySetting = UriMatchStrategy.Domain;
-  uriMatchOptions: { name: string; value: UriMatchStrategySetting; disabled?: boolean }[];
+  uriMatchOptions: { name: string; value: UriMatchStrategySetting | null; disabled?: boolean }[];
   showCardsCurrentTab: boolean = true;
   showIdentitiesCurrentTab: boolean = true;
   /** Non-null asserted. */
@@ -223,6 +223,17 @@ export class AutofillComponent implements OnInit {
       await this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
         this.browserClientVendor,
       );
+
+    if (await this.getPendingDefaultPasswordManagerApply()) {
+      if (await this.privacyPermissionGranted()) {
+        this.defaultBrowserAutofillDisabled =
+          await this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
+            this.browserClientVendor,
+          );
+      } else {
+        await this.setPendingDefaultPasswordManagerApply(false);
+      }
+    }
 
     this.inlineMenuVisibility = await firstValueFrom(
       this.autofillSettingsService.inlineMenuVisibility$,
@@ -356,13 +367,6 @@ export class AutofillComponent implements OnInit {
     this.showIdentitiesCurrentTab = await firstValueFrom(
       this.vaultSettingsService.showIdentitiesCurrentTab$,
     );
-  }
-
-  get spotlightButtonIcon() {
-    if (this.browserClientVendor === BrowserClientVendors.Unknown) {
-      return "bwi-external-link";
-    }
-    return null;
   }
 
   get browserClientVendorExtended() {
@@ -507,20 +511,22 @@ export class AutofillComponent implements OnInit {
       return;
     }
 
-    if (
-      !privacyPermissionGranted &&
-      !(await BrowserApi.requestPermission({ permissions: ["privacy"] }))
-    ) {
-      await this.dialogService.openSimpleDialog({
-        title: { key: "privacyPermissionAdditionNotGrantedTitle" },
-        content: { key: "privacyPermissionAdditionNotGrantedDescription" },
-        acceptButtonText: { key: "ok" },
-        cancelButtonText: null,
-        type: "warning",
-      });
-      this.defaultBrowserAutofillDisabled = false;
+    if (!privacyPermissionGranted) {
+      await this.setPendingDefaultPasswordManagerApply(true);
+      const granted = await BrowserApi.requestPermission({ permissions: ["privacy"] });
+      if (!granted) {
+        await this.setPendingDefaultPasswordManagerApply(false);
+        await this.dialogService.openSimpleDialog({
+          title: { key: "privacyPermissionAdditionNotGrantedTitle" },
+          content: { key: "privacyPermissionAdditionNotGrantedDescription" },
+          acceptButtonText: { key: "ok" },
+          cancelButtonText: null,
+          type: "warning",
+        });
+        this.defaultBrowserAutofillDisabled = false;
 
-      return;
+        return;
+      }
     }
 
     await BrowserApi.updateDefaultBrowserAutofillSettings(!this.defaultBrowserAutofillDisabled);
@@ -556,23 +562,59 @@ export class AutofillComponent implements OnInit {
     const isAdvanced =
       current === UriMatchStrategy.StartsWith || current === UriMatchStrategy.RegularExpression;
     if (!valueChange || !isAdvanced) {
-      return await this.domainSettingsService.setDefaultUriMatchStrategy(current);
+      if (current !== null) {
+        await this.domainSettingsService.setDefaultUriMatchStrategy(current);
+      }
+      return;
+    }
+    const contentKey = this.advancedOptionWarningMap[current];
+    if (!contentKey) {
+      return;
     }
     AdvancedUriOptionDialogComponent.open(this.dialogService, {
-      contentKey: this.advancedOptionWarningMap[current],
+      contentKey,
       onContinue: async () => {
         this.additionalOptionsForm.controls.defaultUriMatch.setValue(current);
         await this.domainSettingsService.setDefaultUriMatchStrategy(current);
       },
       onCancel: async () => {
         this.additionalOptionsForm.controls.defaultUriMatch.setValue(previous);
-        await this.domainSettingsService.setDefaultUriMatchStrategy(previous);
+        if (previous !== null) {
+          await this.domainSettingsService.setDefaultUriMatchStrategy(previous);
+        }
       },
     });
   }
 
   async privacyPermissionGranted(): Promise<boolean> {
     return await BrowserApi.permissionsGranted(["privacy"]);
+  }
+
+  /**
+   * Persists whether a default password manager apply is pending because the permission UI may close the popup.
+   */
+  private async setPendingDefaultPasswordManagerApply(pending: boolean): Promise<void> {
+    if (!chrome.storage?.session) {
+      return;
+    }
+
+    if (pending) {
+      await chrome.storage.session.set({ pendingDefaultPasswordManagerApply: true });
+    } else {
+      await chrome.storage.session.remove("pendingDefaultPasswordManagerApply");
+    }
+  }
+
+  /**
+   * Reads the pending apply flag used to resume the default password manager flow on popup or background restart.
+   */
+  private async getPendingDefaultPasswordManagerApply(): Promise<boolean> {
+    if (!chrome.storage?.session) {
+      return false;
+    }
+
+    const result = await chrome.storage.session.get("pendingDefaultPasswordManagerApply");
+    return Boolean(result.pendingDefaultPasswordManagerApply);
   }
 
   async updateShowCardsCurrentTab() {
@@ -599,7 +641,10 @@ export class AutofillComponent implements OnInit {
       strategy === UriMatchStrategy.StartsWith ||
       strategy === UriMatchStrategy.RegularExpression
     ) {
-      hints.push(this.advancedOptionWarningMap[strategy]);
+      const hint = this.advancedOptionWarningMap[strategy];
+      if (hint) {
+        hints.push(hint);
+      }
     }
     return hints;
   }

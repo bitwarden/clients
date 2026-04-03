@@ -1,4 +1,4 @@
-import { EventType } from "@bitwarden/common/enums";
+import { EventType } from "@bitwarden/common/dirt/event-logs";
 import {
   OrganizationIntegrationConfigurationId,
   OrganizationIntegrationId,

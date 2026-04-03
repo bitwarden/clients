@@ -15,14 +15,16 @@ manual_test = []
 
 [dependencies]
 anyhow = { workspace = true }
+async-trait = { workspace = true }
 autotype = { path = "../autotype" }
 chromium_importer = { path = "../chromium_importer" }
 desktop_core = { path = "../core" }
-napi = { workspace = true, features = ["async"] }
+napi = { workspace = true, features = ["async", "anyhow"] }
 napi-derive = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
-tokio = { workspace = true }
+ssh_agent = { path = "../ssh_agent" }
+tokio = { workspace = true, features = ["time"] }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 
