@@ -157,16 +157,16 @@ export const InputMenu: Story = {
   render: () => ({
     template: /*html*/ `
       <bit-menu #inputMenu="menuComponent">
-        <button type="button" bitMenuItem [selectable]="true">
+        <button type="button" bitMenuItem>
           Text
         </button>
-        <button type="button" bitMenuItem [selectable]="true">
+        <button type="button" bitMenuItem>
           Hidden
         </button>
-        <button type="button" bitMenuItem [selectable]="true">
+        <button type="button" bitMenuItem>
           Checkbox
         </button>
-        <button type="button" bitMenuItem [selectable]="true">
+        <button type="button" bitMenuItem>
           Linked
         </button>
       </bit-menu>
@@ -253,7 +253,7 @@ export const NestedMenu: Story = {
             Back to parent item
             <span slot="end"> (456) </span>
         </button>
-        <button type="button" bitMenuItem [selectable]="true">
+        <button type="button" bitMenuItem>
             Child item
             <span slot="end"> (456) </span>
         </button>

@@ -1,35 +1,17 @@
 import { FocusableOption } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
-import { Component, ElementRef, HostBinding, Input, input, computed, signal } from "@angular/core";
-
-import { IconComponent } from "../icon";
+import { Component, ElementRef, HostBinding, Input, input, computed } from "@angular/core";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "[bitMenuItem]",
   templateUrl: "menu-item.component.html",
-  imports: [IconComponent],
-  host: {
-    "(click)": "onClick()",
-  },
 })
 export class MenuItemComponent implements FocusableOption {
   readonly variant = input<"primary" | "danger">("primary");
-  readonly selectable = input<boolean>(false);
-  readonly selected = signal<boolean>(false);
-
-  protected readonly onClick = () => {
-    if (!this.disabled && this.selectable()) {
-      this.selected.set(!this.selected());
-    }
-  };
 
   protected readonly computedStyles = computed(() => {
-    if (this.selected()) {
-      return ["tw-text-fg-heading", "tw-bg-bg-brand-softer", "hover:tw-bg-bg-brand-soft"];
-    }
-
     switch (this.variant()) {
       case "primary":
         return ["tw-text-fg-body", "hover:tw-text-fg-heading", "hover:tw-bg-bg-brand-softer"];

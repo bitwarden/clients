@@ -1,10 +1,6 @@
 <div class="tw-flex tw-w-full tw-justify-between tw-items-center tw-gap-2">
   <span class="tw-flex tw-gap-2 tw-items-center tw-overflow-hidden tw-text-sm tw-font-medium">
-    @if (selectable()) {
-      <bit-icon name="bwi-check" class="tw-text-sm" [class.tw-invisible]="!selected()" />
-    } @else {
-      <ng-content select="[slot=start]"></ng-content>
-    }
+    <ng-content select="[slot=start]"></ng-content>
     <span class="tw-truncate"><ng-content></ng-content></span>
   </span>
   <span class="tw-flex tw-items-center tw-gap-2 tw-text-fg-body-subtle tw-text-xs empty:tw-hidden">
