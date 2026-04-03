@@ -924,9 +924,14 @@ describe("Cipher Service", () => {
       cipherView.organizationId = null; // Ensure organizationId is null for this test
       const collectionIds = ["collection1", "collection2"] as CollectionId[];
 
+      const sdkCipherView = new CipherView(expectedCipher);
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "shareWithServer")
-        .mockResolvedValue(expectedCipher);
+        .mockResolvedValue(sdkCipherView);
+      cipherEncryptionService.encrypt.mockResolvedValue({
+        cipher: expectedCipher,
+        encryptedFor: userId,
+      });
       const clearCacheSpy = jest.spyOn(cipherService as any, "clearCache");
 
       const result = await cipherService.shareWithServer(cipherView, orgId, collectionIds, userId);
@@ -952,9 +957,14 @@ describe("Cipher Service", () => {
       originalCipherView.name = "Original Cipher";
       const collectionIds = ["collection1"] as CollectionId[];
 
+      const sdkCipherView = new CipherView(expectedCipher);
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "shareWithServer")
-        .mockResolvedValue(expectedCipher);
+        .mockResolvedValue(sdkCipherView);
+      cipherEncryptionService.encrypt.mockResolvedValue({
+        cipher: expectedCipher,
+        encryptedFor: userId,
+      });
 
       await cipherService.shareWithServer(
         cipherView,
