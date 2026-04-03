@@ -33,17 +33,17 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
     newMasterPassword: string,
     hint: string | undefined,
     userId: UserId,
-  ): Promise<void> {
+  ): Promise<boolean> {
     // First, the provided organizations and emergency access users need to be verified;
     // this is currently done by providing the user a manual confirmation dialog.
     const { wasTrustDenied, trustedOrganizationPublicKeys, trustedEmergencyAccessUserPublicKeys } =
       await this.verifyTrust(userId);
     if (wasTrustDenied) {
       this.logService.info("[Userkey rotation] Trust was denied by user. Aborting!");
-      return;
+      return false;
     }
 
-    return firstValueFrom(
+    await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         map(async (sdk) => {
           if (!sdk) {
@@ -70,6 +70,8 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
         }),
       ),
     );
+
+    return true;
   }
 
   async verifyTrust(userId: UserId): Promise<TrustVerificationResult> {
