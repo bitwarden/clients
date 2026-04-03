@@ -6,8 +6,8 @@
         {{ "receiveExpiredCallout" | i18n }}
       </bit-callout>
     }
-    <bit-section class="tw-mb-4">
-      <bit-section-header class="tw-mt-2">
+    <bit-section>
+      <bit-section-header>
         <h2 bitTypography="h6">Receive Details</h2>
       </bit-section-header>
       <bit-card>
@@ -20,7 +20,9 @@
             bitSuffix
             [label]="'copyLink' | i18n"
             [disabled]="isExpired()"
-            (click)="copyLink()"
+            [appCopyClick]="receiveLink()"
+            showToast
+            [valueLabel]="'receiveLink' | i18n"
           ></button>
         </bit-form-field>
         <dl>
@@ -30,7 +32,18 @@
       </bit-card>
     </bit-section>
 
-    <app-receive-files-view [receiveView]="receive"></app-receive-files-view>
+    @if (receive.fileData?.length > 0) {
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h6">
+            {{ "receives" | i18n }} {{ "(" + receive.fileData?.length + ")" }}
+          </h2>
+        </bit-section-header>
+        <bit-card>
+          <app-receive-files-view [receiveView]="receive" />
+        </bit-card>
+      </bit-section>
+    }
   </ng-container>
   <ng-container bitDialogFooter>
     <button type="button" bitButton buttonType="primary" (click)="openEdit()">

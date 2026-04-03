@@ -11,44 +11,36 @@
       </tr>
     </ng-container>
     <ng-template body let-rows$>
-      <tr bitRow *ngFor="let r of rows$ | async">
-        <td bitCell (click)="onViewReceive(r)" class="tw-cursor-pointer">
+      <tr
+        bitRow
+        *ngFor="let r of rows$ | async"
+        (click)="onViewReceive(r)"
+        class="tw-cursor-pointer"
+      >
+        <td bitCell>
           <div class="tw-flex tw-gap-2 tw-items-center">
             <button type="button" bitLink>
               {{ r.name }}
-              @if (isExpired(r)) {
+              @if (r.expired) {
                 <span class="tw-sr-only">, {{ "expired" | i18n }}</span>
               }
             </button>
-            @if (isExpired(r)) {
-              <i
-                class="bwi bwi-clock"
-                appStopProp
-                title="{{ 'expired' | i18n }}"
-                aria-hidden="true"
-              ></i>
+            @if (r.expired) {
+              <bit-icon name="bwi-clock" appStopProp title="{{ 'expired' | i18n }}" />
             }
           </div>
         </td>
-        <td
-          bitCell
-          (click)="onViewReceive(r)"
-          class="tw-text-muted tw-cursor-pointer @lg/receive-table:tw-table-cell tw-hidden"
-        >
+        <td bitCell class="tw-text-muted @lg/receive-table:tw-table-cell tw-hidden">
           <small bitTypography="body2" appStopProp>
             {{ r.fileData?.length ?? 0 }}
           </small>
         </td>
-        <td
-          bitCell
-          (click)="onViewReceive(r)"
-          class="tw-text-muted tw-cursor-pointer @lg/receive-table:tw-table-cell tw-hidden"
-        >
+        <td bitCell class="tw-text-muted @lg/receive-table:tw-table-cell tw-hidden">
           <small bitTypography="body2" appStopProp>
             {{ r.expirationDate | date: "medium" }}
           </small>
         </td>
-        <td bitCell class="tw-w-0 tw-text-right">
+        <td bitCell class="tw-w-0 tw-text-right" appStopProp>
           <button
             type="button"
             size="small"
@@ -58,12 +50,12 @@
           ></button>
           <bit-menu #receiveOptions>
             <button type="button" bitMenuItem (click)="onCopy(r)">
-              <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+              <bit-icon name="bwi-clone" fixedWidth />
               {{ "copyReceiveLink" | i18n }}
             </button>
             <button type="button" bitMenuItem (click)="onDelete(r)">
               <span class="tw-text-danger">
-                <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+                <bit-icon name="bwi-trash" fixedWidth />
                 {{ "delete" | i18n }}
               </span>
             </button>

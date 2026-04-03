@@ -657,6 +657,7 @@ export class ServiceContainer {
       this.keyGenerationService,
       this.receiveApiService,
       this.stateProvider,
+      this.environmentService,
     );
 
     this.sendPasswordService = new DefaultSendPasswordService(this.cryptoFunctionService);
@@ -952,6 +953,7 @@ export class ServiceContainer {
       this.keyGenerationService,
       this.receiveApiService,
       this.stateProvider,
+      this.environmentService,
     );
 
     this.syncService = new DefaultSyncService(

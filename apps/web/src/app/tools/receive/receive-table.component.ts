@@ -7,18 +7,23 @@ import {
   BadgeModule,
   ButtonModule,
   IconButtonModule,
+  IconModule,
   LinkModule,
   MenuModule,
   TableDataSource,
   TableModule,
   TypographyModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { ReceiveRow } from "./receive.component";
 
 @Component({
   selector: "app-receive-table",
   templateUrl: "./receive-table.component.html",
   imports: [
     CommonModule,
+    I18nPipe,
     JslibModule,
     TableModule,
     ButtonModule,
@@ -26,13 +31,13 @@ import {
     IconButtonModule,
     MenuModule,
     BadgeModule,
+    IconModule,
     TypographyModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReceiveTableComponent {
-  readonly dataSource = input<TableDataSource<ReceiveView>>();
-  readonly disableReceive = input(false);
+  readonly dataSource = input<TableDataSource<ReceiveRow>>();
 
   readonly viewReceive = output<ReceiveView>();
   readonly copyReceive = output<ReceiveView>();
@@ -48,9 +53,5 @@ export class ReceiveTableComponent {
 
   protected onDelete(receive: ReceiveView): void {
     this.deleteReceive.emit(receive);
-  }
-
-  protected isExpired(view: ReceiveView): boolean {
-    return view.expirationDate != null && view.expirationDate < new Date();
   }
 }

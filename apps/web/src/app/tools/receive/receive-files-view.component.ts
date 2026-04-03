@@ -8,11 +8,7 @@ import {
   BitActionDirective,
   IconButtonModule,
   ItemModule,
-  SectionHeaderComponent,
-  TypographyModule,
   IconTileComponent,
-  CardComponent,
-  SectionComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -25,13 +21,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
     IconButtonModule,
     ItemModule,
     BitActionDirective,
-    SectionHeaderComponent,
-    TypographyModule,
-    SectionComponent,
-    SectionHeaderComponent,
-    CardComponent,
     IconTileComponent,
-    TypographyModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

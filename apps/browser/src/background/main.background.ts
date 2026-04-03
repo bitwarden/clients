@@ -1083,6 +1083,7 @@ export default class MainBackground {
       this.keyGenerationService,
       this.receiveApiService,
       this.stateProvider,
+      this.environmentService,
     );
 
     this.syncService = new DefaultSyncService(

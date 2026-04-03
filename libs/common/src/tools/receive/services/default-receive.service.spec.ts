@@ -9,6 +9,7 @@ import { UserId } from "@bitwarden/user-core";
 import { KeyGenerationService } from "../../../key-management/crypto";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { EnvironmentService } from "../../../platform/abstractions/environment.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "../../../types/csprng";
@@ -25,6 +26,7 @@ describe("DefaultReceiveService", () => {
   const keyGenerationService = mock<KeyGenerationService>();
   const receiveApiService = mock<ReceiveApiService>();
   const stateProvider = mock<StateProvider>();
+  const environmentService = mock<EnvironmentService>();
 
   const mockUserId = Utils.newGuid() as UserId;
   const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as UserKey;
@@ -71,6 +73,7 @@ describe("DefaultReceiveService", () => {
       keyGenerationService,
       receiveApiService,
       stateProvider,
+      environmentService,
     );
   });
 
