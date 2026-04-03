@@ -230,7 +230,7 @@ describe("SSOLoginService ", () => {
         expect(cache.nextMock).toHaveBeenCalledWith([otherEntry]);
       });
 
-      it("should NOT remove an entry from the cache if that entry does not already exist in the cache", async () => {
+      it("should NOT remove an entry from the cache (i.e. should not run update()) if that entry does not already exist in the cache", async () => {
         // Arrange
         const otherEntry = entry("other@example.com", webVaultUrl);
         mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([otherEntry]);
@@ -273,7 +273,7 @@ describe("SSOLoginService ", () => {
       expect(cache.nextMock).toHaveBeenCalledWith([otherEntry]);
     });
 
-    it("should NOT remove from the cache when an entry is not present", async () => {
+    it("should NOT remove from the cache when a matching entry is not present", async () => {
       // Arrange
       const otherEntry = entry("other@example.com", webVaultUrl);
       mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([otherEntry]);
@@ -286,7 +286,7 @@ describe("SSOLoginService ", () => {
       expect(cache.nextMock).not.toHaveBeenCalled();
     });
 
-    it("should NOT remove from the cache when the cache is null", async () => {
+    it("should NOT remove from the cache (i.e. should not run update()) when the cache is null", async () => {
       // Arrange
       mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next(null);
 
