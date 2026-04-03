@@ -2481,7 +2481,7 @@
     "message": "保管庫タイムアウト時のアクション"
   },
   "showAtRiskPasswordNotifications": {
-    "message": "Show at-risk password notifications"
+    "message": "リスクの高いパスワードの通知を表示する"
   },
   "lock": {
     "message": "ロック",
