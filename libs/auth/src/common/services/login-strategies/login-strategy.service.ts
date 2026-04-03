@@ -103,7 +103,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   constructor(
     private accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    private unlockService: UnlockService,
     private keyService: KeyService,
     private apiService: ApiService,
     private tokenService: TokenService,

@@ -141,7 +141,6 @@ describe("LoginStrategyService", () => {
     sut = new LoginStrategyService(
       accountService,
       masterPasswordService,
-      unlockService,
       keyService,
       apiService,
       tokenService,
