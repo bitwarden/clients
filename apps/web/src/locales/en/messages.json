@@ -8412,6 +8412,15 @@
   "pink": {
     "message": "Pink"
   },
+  "coral": {
+    "message": "Coral"
+  },
+  "purple": {
+    "message": "Purple"
+  },
+  "blue": {
+    "message": "Blue"
+  },
   "customColor": {
     "message": "Custom Color"
   },

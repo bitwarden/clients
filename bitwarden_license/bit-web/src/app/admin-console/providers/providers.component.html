@@ -11,7 +11,7 @@
       <ng-template body>
         <tr bitRow *ngFor="let p of providers">
           <td bitCell class="tw-w-1">
-            <bit-avatar [text]="p.name" [id]="p.id" size="small"></bit-avatar>
+            <bit-avatar [text]="p.name" [id]="p.id"></bit-avatar>
           </td>
           <td bitCell>
             <a href="#" [routerLink]="['/providers', p.id]">{{ p.name }}</a>

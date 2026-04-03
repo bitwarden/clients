@@ -23,7 +23,7 @@
         <ng-template body>
           <tr bitRow *ngFor="let user of users">
             <td bitCell class="tw-w-5">
-              <bit-avatar [text]="user | userName" [id]="user.id" size="small"></bit-avatar>
+              <bit-avatar [text]="user | userName" [id]="user.id"></bit-avatar>
             </td>
             <td bitCell>
               {{ user.email }}
@@ -53,7 +53,7 @@
         <ng-template body>
           <tr bitRow *ngFor="let user of users">
             <td bitCell class="tw-w-5">
-              <bit-avatar [text]="user | userName" [id]="user.id" size="small"></bit-avatar>
+              <bit-avatar [text]="user | userName" [id]="user.id"></bit-avatar>
             </td>
             <td bitCell>
               {{ user.email }}
