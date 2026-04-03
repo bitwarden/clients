@@ -300,8 +300,8 @@ describe("TrendWidgetComponent", () => {
 
       // Check CSV headers are present
       expect(csvContent).toContain("date");
-      expect(csvContent).toContain("applicationsAtRisk");
-      expect(csvContent).toContain("allApplications");
+      expect(csvContent).toContain("criticalAppsAtRisk");
+      expect(csvContent).toContain("allCriticalApps");
 
       // Check data points are included
       expect(csvContent).toContain("5");

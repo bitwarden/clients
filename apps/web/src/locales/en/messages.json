@@ -11,8 +11,11 @@
   "activity": {
     "message": "Activity"
   },
-  "applicationsAtRisk": {
-    "message": "Applications at risk"
+  "criticalAppsAtRisk": {
+    "message": "Critical apps at risk"
+  },
+  "allCriticalApps": {
+    "message": "All critical apps"
   },
   "appLogoLabel": {
     "message": "Bitwarden logo"

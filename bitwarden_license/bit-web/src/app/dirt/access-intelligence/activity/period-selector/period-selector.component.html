@@ -5,7 +5,7 @@
   [attr.aria-label]="'timePeriod' | i18n"
 >
   <span>{{ selectedLabel() }}</span>
-  <i class="bwi bwi-angle-down tw-mt-0.5" aria-hidden="true"></i>
+  <bit-icon name="bwi-angle-down" class="tw-mt-0.5" />
 </button>
 
 <bit-menu #periodMenu [ariaLabel]="'timePeriod' | i18n">
@@ -16,10 +16,14 @@
       (click)="selectPeriod(option.value)"
       [attr.aria-current]="option.value === selectedPeriod() ? 'true' : null"
     >
-      @if (option.value === selectedPeriod()) {
-        <i slot="start" class="bwi bwi-check" aria-hidden="true"></i>
-      }
-      {{ option.label }}
+      <span class="tw-flex tw-w-full tw-items-center tw-justify-between">
+        <span class="tw-w-5">
+          @if (option.value === selectedPeriod()) {
+            <bit-icon name="bwi-check" aria-hidden="true"></bit-icon>
+          }
+        </span>
+        {{ option.label }}
+      </span>
     </button>
   }
 </bit-menu>

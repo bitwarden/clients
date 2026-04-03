@@ -9,7 +9,7 @@ import {
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { MenuModule } from "@bitwarden/components";
+import { IconComponent, MenuModule } from "@bitwarden/components";
 
 import { DEFAULT_TIME_PERIOD, PERIOD_OPTIONS, TimePeriod } from "./period-selector.types";
 
@@ -22,7 +22,7 @@ interface TranslatedPeriodOption {
 @Component({
   selector: "dirt-period-selector",
   templateUrl: "./period-selector.component.html",
-  imports: [MenuModule, JslibModule],
+  imports: [MenuModule, JslibModule, IconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PeriodSelectorComponent {
