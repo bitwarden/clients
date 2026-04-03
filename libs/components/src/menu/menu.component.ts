@@ -26,7 +26,7 @@ export class MenuComponent {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() closed = new EventEmitter<void>();
   readonly menuItems = contentChildren(MenuItemComponent, { descendants: true });
-  readonly keyManager?: FocusKeyManager<MenuItemComponent>;
+  keyManager?: FocusKeyManager<MenuItemComponent>;
 
   readonly ariaRole = input<"menu" | "dialog">("menu");
 
