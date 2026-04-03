@@ -20,7 +20,12 @@
 
         <!-- Secondary Content -->
         <span slot="secondary" class="tw-text-sm">
-          <br />
+          @if (device.isTrusted) {
+            <span>{{ "trusted" | i18n }}</span>
+          } @else {
+            <br />
+          }
+
           <div>
             <span class="tw-font-medium"> {{ "firstLogin" | i18n }}: </span>
             <span>{{ device.firstLogin | date: "medium" }}</span>

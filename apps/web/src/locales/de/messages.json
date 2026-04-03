@@ -3398,6 +3398,9 @@
   "discount": {
     "message": "Rabatt"
   },
+  "discountExpiredOnPurchase": {
+    "message": "Rabatt abgelaufen. Bitte überprüfe den Warenkorb und versuche es erneut."
+  },
   "downloadLicense": {
     "message": "Lizenz herunterladen"
   },
@@ -3804,6 +3807,15 @@
   },
   "policies": {
     "message": "Richtlinien"
+  },
+  "dataControls": {
+    "message": "Dateneinstellungen"
+  },
+  "authentication": {
+    "message": "Authentifizierung"
+  },
+  "vaultManagement": {
+    "message": "Tresor-Verwaltung"
   },
   "singleSignOn": {
     "message": "Single Sign-On"
@@ -6485,6 +6497,14 @@
   "verifyYourEmailToViewThisSend": {
     "message": "Verifiziere deine E-Mail-Adresse, um dieses Send anzuzeigen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Kein Code erhalten? Kontaktiere den Absender, um deine E-Mail-Adresse zu bestätigen oder ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Verifizierungscode erneut senden",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "Der Bitwarden Benutzer, der dieses Send erstellt hat, hat sich entschieden, seine E-Mail-Adresse zu verstecken. Du solltest sicherstellen, dass du der Quelle dieses Links vertraust, bevor du dessen Inhalt verwendest oder herunterlädst.",

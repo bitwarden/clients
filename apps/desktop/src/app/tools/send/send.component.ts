@@ -2,12 +2,8 @@
 // @ts-strict-ignore
 import { Component, DestroyRef, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, map, switchMap, lastValueFrom } from "rxjs";
+import { combineLatest, lastValueFrom, map } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -26,6 +22,7 @@ import {
   SendAddEditDialogComponent,
   DefaultSendFormConfigService,
   SendItemDialogResult,
+  SendPolicyService,
 } from "@bitwarden/send-ui";
 
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
@@ -48,8 +45,7 @@ import { DesktopHeaderComponent } from "../../layout/header";
 export class SendComponent {
   private sendFormConfigService = inject(DefaultSendFormConfigService);
   private sendItemsService = inject(SendItemsService);
-  private policyService = inject(PolicyService);
-  private accountService = inject(AccountService);
+  private sendPolicyService = inject(SendPolicyService);
   private i18nService = inject(I18nService);
   private platformUtilsService = inject(PlatformUtilsService);
   private environmentService = inject(EnvironmentService);
@@ -71,15 +67,9 @@ export class SendComponent {
     initialValue: "",
   });
 
-  protected readonly disableSend = toSignal(
-    this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) =>
-        this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
-      ),
-    ),
-    { initialValue: false },
-  );
+  protected readonly disableSend = toSignal(this.sendPolicyService.disableSend$, {
+    initialValue: false,
+  });
 
   protected readonly listState = toSignal(
     combineLatest([

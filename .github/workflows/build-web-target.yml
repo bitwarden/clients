@@ -41,4 +41,5 @@ jobs:
       pull-requests: write
       id-token: write
       security-events: write
+      packages: write
 
