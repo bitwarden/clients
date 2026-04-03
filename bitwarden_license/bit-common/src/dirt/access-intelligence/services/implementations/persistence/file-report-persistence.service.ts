@@ -111,7 +111,7 @@ export class FileReportPersistenceService extends ReportPersistenceService {
                       renewFileUploadUrl: () =>
                         firstValueFrom(
                           this.accessIntelligenceApiService
-                            .renewReportFileUpload$(organizationId, reportId)
+                            .renewReportFileUploadLink$(organizationId, reportId)
                             .pipe(map((res) => res.reportFileUploadUrl)),
                         ),
                       rollback: () =>
