@@ -104,7 +104,7 @@
     }
   },
   "deletionDateDescV2": {
-    "message": "Tento Send bude trvale smazán v určené datum.",
+    "message": "Tento Send bude trvale smazán v určený den.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "fileToShare": {
@@ -336,6 +336,22 @@
   },
   "premiumRequiredDesc": {
     "message": "Pro použití této funkce je potřebné členství Premium."
+  },
+  "syncWithBrowser": {
+    "message": "Synchronizovat s prohlížečem"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "Chcete-li se připojit k $VAULTURL$, musíte synchronizovat svůj výchozí prohlížeč s aplikací Bitwarden. Po synchronizaci prohlížeče budete přesměrováni zpět do této aplikace.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Otevřít prohlížeč"
   },
   "errorOccurred": {
     "message": "Došlo k chybě."
@@ -905,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Nápověda k hlavnímu heslu"
   },
+  "masterPasswordChanged": {
+    "message": "Hlavní heslo bylo uloženo"
+  },
   "passwordStrengthScore": {
     "message": "Skóre síly hesla: $SCORE$",
     "placeholders": {
@@ -1121,7 +1140,7 @@
     "message": "Vyberte metodu dvoufázového přihlášení"
   },
   "selfHostedEnvironment": {
-    "message": "Vlastní hostované prostředí"
+    "message": "Prostředí vlastního serveru"
   },
   "selfHostedBaseUrlHint": {
     "message": "Zadejte základní URL adresu Vaší vlastní hostované aplikace Bitwarden. Příklad: https://bitwarden.spolecnost.cz"
@@ -1195,6 +1214,27 @@
   },
   "updateEncryptionSettingsDesc": {
     "message": "Nové doporučené nastavení šifrování zlepší bezpečnost Vašeho účtu. Pokud chcete aktualizovat nyní, zadejte hlavní heslo."
+  },
+  "rotateAccountEncKey": {
+    "message": "Měnit také šifrovací klíč k mému účtu"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Dopad rotace Vašeho šifrovacího klíče"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Ve Vašem trezoru jsou staré přílohy vyžadující opravu před změnou šifrovacího klíče k Vašemu účtu."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Měnit šifrovací klíč"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Opravdu chcete měnit šifrovací klíč k Vašemu účtu?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Po aktualizace šifrovacího klíče dojde k odhlášení a budete se muset opětovně přihlásit do všech aplikací Bitwardenu, které aktuálně používáte (např. mobilní aplikace či rozšíření pro prohlížeč). Nezdaří-li se odhlášení a opětovné přihlášení (během něhož bude stažen nový šifrovací klíč), může dojít k poškození dat. Pokusíme se Vás automaticky odhlásit, nicméně, může to chvíli trvat."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Všechny uložené exporty s omezením účtu se stanou neplatnými."
   },
   "confirmIdentityToContinue": {
     "message": "Pro pokračování potvrďte svou identitu"
@@ -1280,6 +1320,9 @@
   "changeMasterPass": {
     "message": "Změnit hlavní heslo"
   },
+  "changeMasterPassword": {
+    "message": "Změnit hlavní heslo"
+  },
   "continueToWebApp": {
     "message": "Pokračovat do webové aplikace?"
   },
@@ -1358,17 +1401,11 @@
   "twoStepLogin": {
     "message": "Dvoufázové přihlášení"
   },
-  "vaultTimeoutHeader": {
-    "message": "Časový limit trezoru"
-  },
   "vaultTimeout": {
     "message": "Časový limit trezoru"
   },
   "vaultTimeout1": {
     "message": "Časový limit"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Akce vypršení časového limitu"
   },
   "vaultTimeoutDesc": {
     "message": "Vyberte, kdy vyprší bezpečnostní limit trezoru. Poté bude provedena vybraná akce."
@@ -1544,7 +1581,7 @@
     }
   },
   "updateAvailable": {
-    "message": "Je dostupná akatualizace"
+    "message": "Je dostupná aktualizace"
   },
   "updateAvailableDesc": {
     "message": "Byla nalezena aktualizace. Chcete ji nyní stáhnout?"
@@ -1658,6 +1695,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "měsíc"
+  },
+  "monthly": {
+    "message": "měsíčně"
+  },
+  "year": {
+    "message": "rok"
+  },
+  "annually": {
+    "message": "ročně"
+  },
+  "annual": {
+    "message": "roční"
   },
   "refreshComplete": {
     "message": "Obnova je dokončena"
@@ -1792,7 +1844,7 @@
     }
   },
   "passwordSafe": {
-    "message": " V žádném ze známých případů nedošlo k úniku tohoto hesla. Mělo by být bezpečné používat jej i nadále."
+    "message": "V žádném ze známých případů nedošlo k úniku tohoto hesla. Mělo by být bezpečné používat jej i nadále."
   },
   "baseDomain": {
     "message": "Základní doména",
@@ -1929,7 +1981,7 @@
     "message": "Tento export obsahuje data Vašeho trezoru v nezašifrovaném formátu. Soubor s exportem byste neměli ukládat ani odesílat přes nezabezpečené kanály (např. e-mailem). Smažte jej okamžitě po jeho použití."
   },
   "encExportKeyWarningDesc": {
-    "message": "Tento export zašifruje Vaše data pomocí šifrovacího klíče Vašeho účtu. Pokud někdy změníte šifrovací klíč Vašeho účtu, měli by jste vyexportovat data znovu, protože tento exportovaný soubor nebudete moci dešifrovat."
+    "message": "Tento export zašifruje Vaše data pomocí šifrovacího klíče Vašeho účtu. Pokud někdy změníte šifrovací klíč Vašeho účtu, měli byste vyexportovat data znovu, protože tento exportovaný soubor nebudete moci dešifrovat."
   },
   "encExportAccountWarningDesc": {
     "message": "Šifrovací klíče účtu jsou pro každý uživatelský účet Bitwardenu jedinečné, takže nelze importovat šifrovaný export do jiného účtu."
@@ -2088,9 +2140,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "Budete odhlášeni. Pro opětovný přístup k trezoru bude vyžadováno ověření."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Nastavte metodu odemknutí, abyste změnili časový limit Vašeho trezoru."
   },
   "lock": {
     "message": "Zamknout",
@@ -2275,6 +2324,9 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Vaše nové hlavní heslo nesplňuje požadavky zásad."
   },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Jedna nebo více zásad organizace vyžaduje, aby hlavní heslo splňovalo následující požadavky:"
+  },
   "receiveMarketingEmailsV2": {
     "message": "Dostávejte do své e-mailové schránky rady, oznámení a příležitosti k výzkumu od společnosti Bitwarden."
   },
@@ -2393,7 +2445,7 @@
     "message": "Identifikace"
   },
   "contactInfo": {
-    "message": "Contact information"
+    "message": "Kontaktní informace"
   },
   "send": {
     "message": "Send",
@@ -2709,9 +2761,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Časový limit Vašeho trezoru překračuje omezení stanovená Vaší organizací."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Na volby časového limitu byly uplatněny požadavky podnikových zásad"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Zásady Vaší organizace nastavily maximální povolený časový limit trezoru na $HOURS$ hodin a $MINUTES$ minut.",
@@ -3383,7 +3432,7 @@
     "message": "Důležité:"
   },
   "accessing": {
-    "message": "Přistupování"
+    "message": "Přistupujete na"
   },
   "accessTokenUnableToBeDecrypted": {
     "message": "Byli jste odhlášeni, protože Váš přístupový token nelze dešifrovat. Pro vyřešení tohoto problému se přihlaste znovu."
@@ -3450,7 +3499,7 @@
     "description": "European Union"
   },
   "selfHostedServer": {
-    "message": "vlastní hosting"
+    "message": "vlastní server"
   },
   "accessDenied": {
     "message": "Přístup byl odepřen. Nemáte oprávnění k zobrazení této stránky."
@@ -3616,7 +3665,7 @@
     "message": "Přístupový klíč nebude zkopírován"
   },
   "passkeyNotCopiedAlert": {
-    "message": "Přístupový klíč nebude zkopírován do duplikované položky. Chete pokračovat v duplikování této položky?"
+    "message": "Přístupový klíč nebude zkopírován do duplikované položky. Chcete pokračovat v duplikování této položky?"
   },
   "aliasDomain": {
     "message": "Doména aliasu"
@@ -3744,6 +3793,9 @@
   },
   "exportSuccess": {
     "message": "Data trezoru byla exportována"
+  },
+  "exportError": {
+    "message": "Při exportu dat Vašeho trezoru se vyskytla chyba"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Vícefázové ověření zrušeno"
@@ -4108,16 +4160,16 @@
     "message": "Potvrďte, že okno je stále viditelné."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
-    "message": "Je vyžadována aktualiazce rozšíření"
+    "message": "Je vyžadována aktualizace rozšíření"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Použité rozšíření prohlížeče je zastaralé. Aktualizujte jej nebo zakažte ověření otisků prstů při integraci prohlížeče v nastavení aplikace."
   },
   "changeAtRiskPassword": {
-    "message": "Změnit ohrožené heslo"
+    "message": "Změnit zranitelné heslo"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
+    "message": "Tyto přihlašovací údaje jsou zranitelné a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
   },
   "vulnerablePassword": {
     "message": "Zranitelné heslo."
@@ -4544,7 +4596,7 @@
     "message": "Změnit velikost boční navigace"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
-    "message": "Tato nastavení je spravováno Vaší organizací."
+    "message": "Toto nastavení je spravováno Vaší organizací."
   },
   "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
     "message": "Vaše organizace nastavila maximální časový limit relace na $HOURS$ hodin a $MINUTES$ minut.",
@@ -4617,8 +4669,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ vyžaduje, aby byly všechny položky vlastněny organizací z důvodu bezpečnosti a shody. Klepnutím na tlačítko pro převod vlastnictví Vašich položek.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ vyžaduje, aby byly všechny položky vlastněny organizací z důvodu bezpečnosti a shody.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,14 +4678,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Klepněte na tlačítko Přijmout pro převod vlastnictví Vašich položek."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Otevřít článek nápovědy o přenosu položek"
+  },
   "acceptTransfer": {
     "message": "Přijmout převod"
   },
   "declineAndLeave": {
     "message": "Odmítnout a odejít"
-  },
-  "whyAmISeeingThis": {
-    "message": "Proč se mi toto zobrazuje?"
   },
   "organizationIsSuspended": {
     "message": "Organizace je deaktivována"
@@ -4692,9 +4747,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Zadejte více e-mailů oddělených čárkou."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Ověření e-mailu vyžaduje alespoň jednu e-mailovou adresu. Chcete-li odebrat všechny emaily, změňte výše uvedený typ přístupu."
   },
   "emailPlaceholder": {
     "message": "uživatel@bitwarden.com, uživatel@společnost.cz"

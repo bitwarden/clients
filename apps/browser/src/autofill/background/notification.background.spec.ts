@@ -79,6 +79,8 @@ describe("NotificationBackground", () => {
   const selectedThemeMock$ = new BehaviorSubject(ThemeTypes.Light);
   const themeStateService = mock<ThemeStateService>();
   themeStateService.selectedTheme$ = selectedThemeMock$;
+  const enableNotificationAnimationMock$ = new BehaviorSubject(true);
+  autofillService.enableNotificationAnimation$ = enableNotificationAnimationMock$;
   const configService = mock<ConfigService>();
   const accountService = mock<AccountService>();
   const organizationService = mock<OrganizationService>();
@@ -215,6 +217,40 @@ describe("NotificationBackground", () => {
       const cipherView = notificationBackground["convertAddLoginQueueMessageToCipherView"](message);
 
       expect(cipherView.name).toEqual("fallback-domain.com");
+    });
+  });
+
+  describe("queueMessageIsFromTabOrigin", () => {
+    const createQueueMessage = (tab: chrome.tabs.Tab, domain = "example.com") =>
+      mock<AddLoginQueueMessage>({
+        type: NotificationType.AddLogin,
+        domain,
+        tab,
+        data: { username: "", password: "", uri: "" },
+        expires: new Date(),
+        wasVaultLocked: false,
+        launchTimestamp: 0,
+      });
+
+    it.each([
+      {
+        name: "returns false when the tab navigated away from the queued domain (shared tab reference)",
+        tab: createChromeTabMock({ id: 1, url: "https://example.net" }),
+        expected: false,
+      },
+      {
+        name: "returns true when the tab URL matches the queued domain",
+        tab: createChromeTabMock({ id: 1, url: "https://example.com/login" }),
+        expected: true,
+      },
+      {
+        name: "returns false when the tab URL has no extractable domain",
+        tab: createChromeTabMock({ id: 1, url: undefined }),
+        expected: false,
+      },
+    ])("$name", ({ tab, expected }) => {
+      const message = createQueueMessage(tab);
+      expect(notificationBackground["queueMessageIsFromTabOrigin"](message, tab)).toBe(expected);
     });
   });
 
@@ -1640,7 +1676,7 @@ describe("NotificationBackground", () => {
           expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
         });
 
-        it("and no cipher update candidates match `username`, trigger a new cipher notification", async () => {
+        it("and no cipher update candidates match `username`, do not trigger a notification (username alone is insufficient signal)", async () => {
           const storedCiphersForURL = [
             mock<CipherView>({
               id: "cipher-id-1",
@@ -1658,15 +1694,7 @@ describe("NotificationBackground", () => {
           await notificationBackground.triggerCipherNotification(formEntryData, tab);
 
           expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
-          expect(pushAddLoginToQueueSpy).toHaveBeenCalledWith(
-            mockFormattedURI,
-            {
-              password: "",
-              url: formEntryData.uri,
-              username: formEntryData.username,
-            },
-            sender.tab,
-          );
+          expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
         });
 
         it("and no cipher update candidates match `username`, do not trigger a new cipher notification if the new cipher notification setting is disabled", async () => {

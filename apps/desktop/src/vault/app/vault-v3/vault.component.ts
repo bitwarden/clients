@@ -41,7 +41,6 @@ import {
   ItemTypes,
   BitSvg,
 } from "@bitwarden/assets/svg";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -54,7 +53,7 @@ import {
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -265,10 +264,6 @@ export class VaultComponent<C extends CipherViewLike>
     { initialValue: false },
   );
 
-  readonly archiveFlagEnabled = toSignal(this.cipherArchiveService.hasArchiveFlagEnabled$, {
-    initialValue: false,
-  });
-
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
     filterOutNullish(),
@@ -295,7 +290,7 @@ export class VaultComponent<C extends CipherViewLike>
   );
 
   protected readonly submitButtonText = computed(() => {
-    return this.cipher()?.isArchived && !this.userHasPremium() && this.archiveFlagEnabled()
+    return this.cipher()?.isArchived && !this.userHasPremium()
       ? this.i18nService.t("unArchiveAndSave")
       : this.i18nService.t("save");
   });
@@ -473,17 +468,12 @@ export class VaultComponent<C extends CipherViewLike>
       ),
     );
 
-    const ciphers$ = combineLatest([
-      allowedCiphers$,
-      filter$,
-      this.currentSearchText$,
-      this.cipherArchiveService.hasArchiveFlagEnabled$,
-    ]).pipe(
+    const ciphers$ = combineLatest([allowedCiphers$, filter$, this.currentSearchText$]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText, showArchiveVault]) => {
+      concatMap(async ([ciphers, filter, searchText]) => {
         const failedCiphers =
           (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
-        const filterFunction = createFilterFunction(filter, showArchiveVault);
+        const filterFunction = createFilterFunction(filter);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
 

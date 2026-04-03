@@ -774,6 +774,10 @@ describe("InsertAutofillContentService", () => {
       jest.clearAllTimers();
     });
 
+    afterEach(() => {
+      insertAutofillContentService["showAnimations"] = true;
+    });
+
     describe("will not trigger the animation when...", () => {
       it("the element is a non-hidden hidden input type", async () => {
         document.body.innerHTML = mockLoginForm + '<input type="hidden" />';
@@ -839,6 +843,21 @@ describe("InsertAutofillContentService", () => {
         jest.spyOn(testElement.classList, "add");
         jest.spyOn(testElement.classList, "remove");
 
+        insertAutofillContentService["triggerFillAnimationOnElement"](testElement);
+        jest.advanceTimersByTime(200);
+
+        expect(testElement.classList.add).not.toHaveBeenCalled();
+        expect(testElement.classList.remove).not.toHaveBeenCalled();
+      });
+
+      it("the showAnimations flag is set to false", () => {
+        const testElement = document.querySelector(
+          'input[type="password"]',
+        ) as FillableFormFieldElement;
+        jest.spyOn(testElement.classList, "add");
+        jest.spyOn(testElement.classList, "remove");
+
+        insertAutofillContentService["showAnimations"] = false;
         insertAutofillContentService["triggerFillAnimationOnElement"](testElement);
         jest.advanceTimersByTime(200);
 

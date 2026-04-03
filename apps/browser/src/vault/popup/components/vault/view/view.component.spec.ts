@@ -6,7 +6,6 @@ import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
@@ -17,7 +16,7 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -31,6 +30,7 @@ import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/ciphe
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -134,7 +134,6 @@ describe("ViewComponent", () => {
     showPasswordPrompt.mockClear();
     getFeatureFlag.mockClear();
     autofillAllowed$.next(true);
-    cipherArchiveService.hasArchiveFlagEnabled$ = of(true);
     cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
     cipherArchiveService.archiveWithServer.mockResolvedValue({ id: "122-333-444" } as CipherData);
     cipherArchiveService.unarchiveWithServer.mockResolvedValue({ id: "122-333-444" } as CipherData);
@@ -145,6 +144,12 @@ describe("ViewComponent", () => {
         { provide: Router, useValue: { navigate: mockNavigate } },
         { provide: CipherService, useValue: mockCipherService },
         { provide: LogService, useValue: mock<LogService>() },
+        {
+          provide: VaultSettingsService,
+          useValue: mock<VaultSettingsService>({
+            showAtRiskPasswordNotifications$: of(true),
+          }),
+        },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: ConfigService, useValue: mock<ConfigService>() },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>({ back }) },
@@ -1034,7 +1039,7 @@ describe("ViewComponent", () => {
       expect(AutofillConfirmationDialogComponent.open).toHaveBeenCalledWith(dialogService, {
         data: {
           currentUrl: "https://example.com",
-          savedUrls: ["https://example.com"],
+          savedUris: component.cipher.login.uris,
           viewOnly: false,
         },
       });
@@ -1102,7 +1107,7 @@ describe("ViewComponent", () => {
       expect(openSpy).toHaveBeenCalledWith(dialogService, {
         data: {
           currentUrl: "https://example.com",
-          savedUrls: ["https://example.com"],
+          savedUris: component.cipher.login.uris,
           viewOnly: true,
         },
       });
@@ -1129,7 +1134,7 @@ describe("ViewComponent", () => {
       expect(openSpy).toHaveBeenCalledWith(dialogService, {
         data: {
           currentUrl: "https://example.com",
-          savedUrls: ["https://example.com", "https://example2.com"],
+          savedUris: component.cipher.login.uris.filter((u) => u.uri),
           viewOnly: false,
         },
       });
@@ -1152,7 +1157,7 @@ describe("ViewComponent", () => {
       expect(openSpy).toHaveBeenCalledWith(dialogService, {
         data: {
           currentUrl: "https://example.com",
-          savedUrls: [],
+          savedUris: [],
           viewOnly: false,
         },
       });

@@ -6,7 +6,7 @@
     <button
       type="button"
       bitIconButton="bwi-generate"
-      buttonType="main"
+      buttonType="primaryGhost"
       (click)="generate(USER_REQUEST)"
       [label]="credentialTypeGenerateLabel$ | async"
       [disabled]="!(algorithm$ | async)"
@@ -16,7 +16,7 @@
     <button
       type="button"
       bitIconButton="bwi-clone"
-      buttonType="main"
+      buttonType="primaryGhost"
       showToast
       [label]="credentialTypeCopyLabel$ | async"
       [appCopyClick]="value$ | async"

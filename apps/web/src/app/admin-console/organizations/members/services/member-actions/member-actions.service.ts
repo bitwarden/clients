@@ -16,9 +16,7 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService } from "@bitwarden/components";
@@ -45,7 +43,6 @@ export class BulkActionResult {
 export class MemberActionsService {
   private organizationUserApiService = inject(OrganizationUserApiService);
   private organizationUserService = inject(OrganizationUserService);
-  private configService = inject(ConfigService);
   private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
   private apiService = inject(ApiService);
   private dialogService = inject(DialogService);
@@ -189,15 +186,7 @@ export class MemberActionsService {
     users: OrganizationUserView[],
   ): Promise<BulkActionResult> {
     let result = new BulkActionResult();
-    const bulkReinviteUIEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.BulkReinviteUI),
-    );
-
-    if (bulkReinviteUIEnabled) {
-      this.startProcessing(users.length);
-    } else {
-      this.startProcessing();
-    }
+    this.startProcessing(users.length);
 
     try {
       result = await this.processBatchedOperation(users, REQUESTS_PER_BATCH, (userBatch) => {
@@ -208,7 +197,7 @@ export class MemberActionsService {
         );
       });
 
-      if (bulkReinviteUIEnabled && result.failed.length > 0) {
+      if (result.failed.length > 0) {
         this.memberDialogManager.openBulkReinviteFailureDialog(organization, users, result);
       }
     } catch (error) {
