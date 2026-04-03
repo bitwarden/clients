@@ -25,6 +25,7 @@
       [attr.aria-expanded]="open().toString()"
       [attr.aria-controls]="contentId"
       [label]="['toggleCollapse' | i18n, text()].join(' ')"
+      data-testid="nav-group-collapse-arrow"
     ></button>
     <ng-container slot="end">
       <ng-content select="[slot=end]"></ng-content>

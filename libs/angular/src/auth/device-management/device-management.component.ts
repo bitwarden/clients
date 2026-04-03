@@ -193,6 +193,7 @@ export class DeviceManagementComponent implements OnInit {
         upsertDevice.creationDate = existingDevice.creationDate;
         upsertDevice.firstLogin = new Date(existingDevice.creationDate);
         upsertDevice.id = existingDevice.id;
+        upsertDevice.isTrusted = existingDevice.response?.isTrusted ?? false;
       }
     }
 
