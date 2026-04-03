@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(npm install:*)",
+      "Bash(npm view:*)",
+      "Bash(npm test:*)",
+      "Bash(npm list:*)",
+      "Bash(grep -l \"testEnvironment.*shared/test.environment\" libs/*/jest.config.js apps/*/jest.config.js)",
+      "Bash(grep -r \"jest\\\\\\\\.require\" /c/Users/CarleyDiaz/Documents/GitHub/clients/libs/tools/generator/core/src --include=\"*.spec.ts\")",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(grep -n \"toBeCalled\\\\|toBeCalledWith\\\\|toBeCalledTimes\\\\|lastCalledWith\\\\|nthCalledWith\" /c/Users/CarleyDiaz/Documents/GitHub/clients/libs/tools/generator/core/src/**/*.spec.ts)"
+    ]
+  }
+}
