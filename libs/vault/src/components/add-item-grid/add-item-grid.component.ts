@@ -8,7 +8,7 @@ import {
   RestrictedCipherType,
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
+import { DIALOG_CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { BitwardenIcon, IconComponent, ItemModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -40,13 +40,13 @@ export class AddItemGridComponent {
 
   protected readonly items = computed<DialogItem[]>(() => {
     const restrictedTypes = this.restrictedTypes();
-    const items: DialogItem[] = CIPHER_MENU_ITEMS.filter((item) => {
+    const items: DialogItem[] = DIALOG_CIPHER_MENU_ITEMS.filter((item) => {
       if (!this.canCreateSshKey() && item.type === CipherType.SshKey) {
         return false;
       }
       return !restrictedTypes.some((r) => r.cipherType === item.type);
     }).map((item) => ({
-      icon: item.icon,
+      icon: item.icon as BitwardenIcon,
       labelKey: item.labelKey,
       subtitleKey: item.subtitleKey,
       action: () => this.cipherSelected.emit(item.type),

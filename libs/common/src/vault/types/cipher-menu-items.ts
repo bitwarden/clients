@@ -49,3 +49,24 @@ export const CIPHER_MENU_ITEMS = Object.freeze([
     subtitleKey: "typeSshKeySubtitle",
   },
 ] as const) satisfies readonly CipherMenuItem[];
+
+/**
+ * Updated menu items for new item dialog. This list should only be used
+ * when `FeatureFlag.PM32009NewItemTypes` is enabled, otherwise use `CIPHER_MENU_ITEMS`.
+ */
+export const DIALOG_CIPHER_MENU_ITEMS = CIPHER_MENU_ITEMS.map((item) => {
+  if (item.type === CipherType.Login) {
+    return {
+      ...item,
+      icon: "bwi-lock",
+    };
+  }
+
+  if (item.type === CipherType.Identity) {
+    return {
+      ...item,
+      icon: "bwi-user",
+    };
+  }
+  return item;
+});
