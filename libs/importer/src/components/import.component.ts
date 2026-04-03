@@ -485,6 +485,13 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
+    // Keeper direct import handles its own import via the importCompleted event,
+    // bypassing the file-based flow. Without this check, performImport would
+    // show a "Select a file" error since there's no file to import.
+    if (this.showKeeperOptions) {
+      return;
+    }
+
     await this.performImport();
   };
 
