@@ -132,8 +132,8 @@ export class IndividualVaultExportService
           );
 
           cipherFolder.file(attachment.fileName, decBuf);
-        } catch {
-          this.logService.error(`Failed to export attachment: Cipher Id: ${cipher.id}`);
+        } catch (error) {
+          this.logService.error(`Failed to export attachment: Cipher Id: ${cipher.id}`, error);
           skippedAttachmentCount++;
         }
       }
