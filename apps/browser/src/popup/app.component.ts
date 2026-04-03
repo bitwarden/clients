@@ -86,6 +86,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private lastActivity: Date;
   private activeUserId: UserId;
+  private isUnlocked = false;
+  private pendingDragDropFolderMode = false;
   private routerAnimations = false;
   private processingPendingAuthRequests = false;
   private shouldRerunAuthRequestProcessing = false;
@@ -140,6 +142,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.accountService.activeAccount$.pipe(takeUntil(this.destroy$)).subscribe((account) => {
       this.activeUserId = account?.id;
+    });
+
+    this.authService.activeAccountStatus$.pipe(takeUntil(this.destroy$)).subscribe((status) => {
+      this.isUnlocked = status === AuthenticationStatus.Unlocked;
     });
 
     this.authRequestAnsweringService.setupUnlockListenersForProcessingAuthRequests(this.destroy$);
@@ -283,6 +289,25 @@ export class AppComponent implements OnInit, OnDestroy {
     this.router.events.pipe(takeUntil(this.destroy$)).subscribe(async (event) => {
       if (event instanceof NavigationEnd) {
         const url = event.urlAfterRedirects || event.url || "";
+
+        // After unlock, if files were dropped while locked, redirect to the send form.
+        // This runs after the lock screen's post-unlock navigation completes to avoid a race.
+        if (
+          this.isUnlocked &&
+          !url.startsWith("/add-send") &&
+          this.pendingDragDropService.hasPending()
+        ) {
+          void this.router.navigate(["/add-send"], {
+            replaceUrl: true,
+            queryParams: {
+              type: SendType.File,
+              dragDropFiles: Date.now().toString(),
+              isFolderMode: this.pendingDragDropFolderMode ? "true" : "false",
+            },
+          });
+          return;
+        }
+
         if (url.startsWith("/tabs/")) {
           await this.cipherService.setAddEditCipherInfo(null, this.activeUserId);
         }
@@ -331,14 +356,18 @@ export class AppComponent implements OnInit, OnDestroy {
       (active) => this.isDragOverApp.set(active),
       (result) => {
         this.pendingDragDropService.setFiles(result.files, result.folderName);
-        void this.router.navigate(["/add-send"], {
-          replaceUrl: true,
-          queryParams: {
-            type: SendType.File,
-            dragDropFiles: Date.now().toString(),
-            isFolderMode: result.folderName != null ? "true" : "false",
-          },
-        });
+        this.pendingDragDropFolderMode = result.folderName != null;
+
+        if (this.isUnlocked) {
+          void this.router.navigate(["/add-send"], {
+            replaceUrl: true,
+            queryParams: {
+              type: SendType.File,
+              dragDropFiles: Date.now().toString(),
+              isFolderMode: this.pendingDragDropFolderMode ? "true" : "false",
+            },
+          });
+        }
       },
     );
   }
