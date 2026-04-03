@@ -318,6 +318,10 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private async setupDragDropListeners(): Promise<void> {
+    if (BrowserPopupUtils.inPopup(window)) {
+      return;
+    }
+
     const enabled = await this.configService.getFeatureFlag(FeatureFlag.SendFolder);
     if (!enabled) {
       return;
