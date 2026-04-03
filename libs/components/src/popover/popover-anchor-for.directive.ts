@@ -13,6 +13,7 @@ import {
   model,
   signal,
 } from "@angular/core";
+import { outputToObservable } from "@angular/core/rxjs-interop";
 import { Observable, Subscription, filter, mergeWith } from "rxjs";
 
 import { PositionIdentifier, defaultPositions } from "./default-positions";
@@ -68,6 +69,10 @@ export class PopoverAnchorForDirective implements OnDestroy {
   /** Padding around the spotlight cutout in pixels */
   readonly spotlightPadding = input<number>(0);
 
+  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly viewContainerRef = inject(ViewContainerRef);
+  private readonly overlay = inject(Overlay);
+
   private overlayRef: OverlayRef | null = null;
   private closedEventsSub: Subscription | null = null;
   private readonly hasInitialized = signal(false);
@@ -107,11 +112,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
     };
   }
 
-  constructor(
-    private elementRef: ElementRef<HTMLElement>,
-    private viewContainerRef: ViewContainerRef,
-    private overlay: Overlay,
-  ) {
+  constructor() {
     // Wait for the first render to complete so layout is stable before opening.
     // Sets a signal so the effect below re-evaluates once the layout is ready.
     afterNextRender(() => this.hasInitialized.set(true));
@@ -177,7 +178,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
     const backdrop = this.overlayRef
       .backdropClick()
       .pipe(filter(() => !this.spotlight() && this.closeOnBackdropClick()));
-    const popoverClosed = this.popover().closed;
+    const popoverClosed = outputToObservable(this.popover().closed);
 
     return detachments.pipe(mergeWith(escKey, backdrop, popoverClosed));
   }

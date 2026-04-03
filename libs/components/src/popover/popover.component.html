@@ -6,15 +6,21 @@
     role="dialog"
     aria-modal="true"
     [attr.aria-label]="title()"
+    [class.bit-popover-has-header]="headerSlot()"
   >
     <div class="tw-overflow-hidden tw-rounded-xl tw-shadow-lg">
       <div
-        class="tw-relative tw-z-20 tw-w-72 tw-break-words tw-bg-background tw-pb-4 tw-pt-2 tw-text-main"
+        class="tw-relative tw-z-20 tw-w-[352px] tw-break-words tw-bg-background tw-p-6 tw-text-fg-body tw-border tw-border-solid tw-border-border-base"
+        [class.tw-pb-4]="!footerSlot()"
       >
-        <div class="tw-me-2 tw-flex tw-items-start tw-justify-between tw-gap-4 tw-ps-4">
-          <h2 bitTypography="h5" class="tw-font-medium tw-mt-1">
-            {{ title() }}
-          </h2>
+        @if (headerSlot()) {
+          <div
+            class="tw-h-[160px] tw-w-full tw-bg-bg-secondary tw-flex tw-items-center tw-justify-center tw-overflow-hidden"
+          >
+            <ng-content select="[slot='header']"></ng-content>
+          </div>
+        }
+        <span class="tw-absolute tw-top-2 tw-right-2">
           <button
             type="button"
             bitIconButton="bwi-close"
@@ -22,10 +28,16 @@
             (click)="closed.emit()"
             size="small"
           ></button>
-        </div>
-        <div bitTypography="body2" class="tw-px-4">
+        </span>
+        <span class="tw-font-medium tw-text-fg-heading">{{ title() }}</span>
+        <span class="">
           <ng-content></ng-content>
-        </div>
+        </span>
+        @if (footerSlot()) {
+          <div class="tw-flex tw-items-center">
+            <ng-content select="[slot='footer']"></ng-content>
+          </div>
+        }
       </div>
     </div>
     <div class="bit-popover-arrow"></div>
