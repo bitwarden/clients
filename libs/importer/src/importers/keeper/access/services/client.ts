@@ -776,7 +776,7 @@ export class Client {
         });
 
         const requestBytes = ApiRequest.toBinary(apiRequest);
-        const response = await post(url, new Uint8Array(requestBytes));
+        const response = await post(url, requestBytes.buffer as ArrayBuffer);
 
         if (keyId !== this.serverKeyId) {
           this.serverKeyId = keyId;

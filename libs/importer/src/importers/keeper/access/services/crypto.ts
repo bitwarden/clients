@@ -24,10 +24,18 @@ export function generateEncryptionKey(): Uint8Array {
 export async function decryptAesV1(data: Uint8Array, key: Uint8Array): Promise<Uint8Array> {
   const iv = data.subarray(0, AES_BLOCK_SIZE);
   const encrypted = data.subarray(AES_BLOCK_SIZE);
-  const cryptoKey = await crypto.subtle.importKey("raw", key, { name: "AES-CBC" }, false, [
-    "decrypt",
-  ]);
-  const decrypted = await crypto.subtle.decrypt({ name: "AES-CBC", iv }, cryptoKey, encrypted);
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    toBuffer(key),
+    { name: "AES-CBC" },
+    false,
+    ["decrypt"],
+  );
+  const decrypted = await crypto.subtle.decrypt(
+    { name: "AES-CBC", iv: toBuffer(iv) },
+    cryptoKey,
+    toBuffer(encrypted),
+  );
   return new Uint8Array(decrypted);
 }
 
@@ -43,13 +51,17 @@ export async function encryptAesV2(
   nonceLength = AES_GCM_NONCE_SIZE,
 ): Promise<Uint8Array> {
   const nonceBuffer = nonce || getRandomBytes(nonceLength);
-  const cryptoKey = await crypto.subtle.importKey("raw", key, { name: "AES-GCM" }, false, [
-    "encrypt",
-  ]);
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    toBuffer(key),
+    { name: "AES-GCM" },
+    false,
+    ["encrypt"],
+  );
   const encrypted = await crypto.subtle.encrypt(
-    { name: "AES-GCM", iv: nonceBuffer, tagLength: AES_GCM_TAG_SIZE * 8 },
+    { name: "AES-GCM", iv: toBuffer(nonceBuffer), tagLength: AES_GCM_TAG_SIZE * 8 },
     cryptoKey,
-    data,
+    toBuffer(data),
   );
   return concatUint8Arrays(nonceBuffer, new Uint8Array(encrypted));
 }
@@ -66,13 +78,17 @@ export async function decryptAesV2(
   const nonce = data.subarray(0, nonceLength);
   // Web Crypto API expects ciphertext + tag together (not separated like Node.js)
   const ciphertextWithTag = data.subarray(nonceLength);
-  const cryptoKey = await crypto.subtle.importKey("raw", key, { name: "AES-GCM" }, false, [
-    "decrypt",
-  ]);
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    toBuffer(key),
+    { name: "AES-GCM" },
+    false,
+    ["decrypt"],
+  );
   const decrypted = await crypto.subtle.decrypt(
-    { name: "AES-GCM", iv: nonce, tagLength: AES_GCM_TAG_SIZE * 8 },
+    { name: "AES-GCM", iv: toBuffer(nonce), tagLength: AES_GCM_TAG_SIZE * 8 },
     cryptoKey,
-    ciphertextWithTag,
+    toBuffer(ciphertextWithTag),
   );
   return new Uint8Array(decrypted);
 }
@@ -118,7 +134,7 @@ export async function loadEcPublicKey(publicKeyBytes: Uint8Array): Promise<Crypt
   }
   return await crypto.subtle.importKey(
     "raw",
-    publicKeyBytes,
+    toBuffer(publicKeyBytes),
     { name: "ECDH", namedCurve: "P-256" },
     true,
     [],
@@ -128,7 +144,7 @@ export async function loadEcPublicKey(publicKeyBytes: Uint8Array): Promise<Crypt
 export async function loadEcPrivateKey(privateKeyBytes: Uint8Array): Promise<CryptoKey> {
   return await crypto.subtle.importKey(
     "pkcs8",
-    privateKeyBytes,
+    toBuffer(privateKeyBytes),
     { name: "ECDH", namedCurve: "P-256" },
     true,
     ["deriveBits"],
@@ -185,7 +201,7 @@ export async function deriveKeyV1(
   const derivedBits = await crypto.subtle.deriveBits(
     {
       name: "PBKDF2",
-      salt,
+      salt: toBuffer(salt),
       iterations,
       hash: "SHA-256",
     },
@@ -201,7 +217,7 @@ export async function deriveV1KeyHash(
   iterations: number,
 ): Promise<Uint8Array> {
   const key = await deriveKeyV1(password, salt, iterations);
-  const hash = await crypto.subtle.digest("SHA-256", key);
+  const hash = await crypto.subtle.digest("SHA-256", toBuffer(key));
   return new Uint8Array(hash);
 }
 
@@ -259,10 +275,13 @@ async function decryptAesNoPadding(
   // block, in the case that the plaintext length is a multiple of the block size. This is done
   // by using the last ciphertext block as the IV to encrypt the padding block containing only
   // 0x10. Appending this at the end, then results in a valid PKCS7-padded block.
-  const cryptoKey = await crypto.subtle.importKey("raw", key, { name: "AES-CBC" }, false, [
-    "encrypt",
-    "decrypt",
-  ]);
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    toBuffer(key),
+    { name: "AES-CBC" },
+    false,
+    ["encrypt", "decrypt"],
+  );
 
   // Get the last block of ciphertext to use as IV for encrypting the padding
   const lastBlock = data.subarray(data.length - AES_BLOCK_SIZE);
@@ -272,7 +291,7 @@ async function decryptAesNoPadding(
 
   // Encrypt the padding block using the last ciphertext block as IV
   const encryptedPadding = await crypto.subtle.encrypt(
-    { name: "AES-CBC", iv: lastBlock },
+    { name: "AES-CBC", iv: toBuffer(lastBlock) },
     cryptoKey,
     paddingBlock,
   );
@@ -285,9 +304,9 @@ async function decryptAesNoPadding(
 
   // Now decrypt - Web Crypto will find valid PKCS7 padding
   const decrypted = await crypto.subtle.decrypt(
-    { name: "AES-CBC", iv },
+    { name: "AES-CBC", iv: toBuffer(iv) },
     cryptoKey,
-    paddedCiphertext,
+    toBuffer(paddedCiphertext),
   );
 
   // Return only the original data length (strip the decrypted padding block)
@@ -367,6 +386,10 @@ function uint8ArrayToByteString(data: Uint8Array): string {
     result += String.fromCharCode(data[i]);
   }
   return result;
+}
+
+function toBuffer(data: Uint8Array): BufferSource {
+  return data as unknown as BufferSource;
 }
 
 function byteStringToUint8Array(str: string): Uint8Array {

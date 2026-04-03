@@ -1,6 +1,6 @@
 import { HttpResponse } from "../models";
 
-export async function post(url: string, body: Uint8Array): Promise<HttpResponse> {
+export async function post(url: string, body: ArrayBuffer): Promise<HttpResponse> {
   const response = await fetch(url, {
     method: "POST",
     headers: {
