@@ -1,6 +1,12 @@
 @import "../../../../libs/components/src/tw-theme-preflight.css";
 @import "@angular/cdk/overlay-prebuilt.css";
 @import "@angular/cdk/text-field-prebuilt.css";
+@import "../../../../libs/angular/src/scss/bwicons/styles/style.css";
+@import "../../../../libs/angular/src/scss/icons.css";
+@import "../../../../libs/components/src/multi-select/scss/bw.theme.css";
+
+@import "./braintree.css";
+@import "./vault-filters.css";
 
 /*
  * Web specific global styling.
@@ -91,13 +97,6 @@
       width: 100%;
     }
   }
-
-  @import "./braintree.css";
-  @import "./vault-filters.css";
-
-  @import "../../../../libs/angular/src/scss/bwicons/styles/style.css";
-  @import "../../../../libs/angular/src/scss/icons.css";
-  @import "../../../../libs/components/src/multi-select/scss/bw.theme.css";
 }
 
 /**
