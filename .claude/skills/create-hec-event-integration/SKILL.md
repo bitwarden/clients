@@ -5,15 +5,13 @@ description: Use when adding a new HEC (HTTP Event Collector) event integration 
 
 # Create HEC Event Integration (Token Auth)
 
-## Overview
-
 ## Step 1 - Prompts
 
 Ask these questions one at a time — wait for each answer before proceeding.
 
 **Prompt 1 — Service name:** "What is the service name for this integration?" (e.g. `Splunk`, `CrowdStrike`, `Panther`)
 
-Use the answer as `<ServiceName>` throughout. The string value in the constant must exactly match what you use as the card's `name` in Step 3 — a mismatch silently saves the config with the wrong service name.
+Use the answer as `<ServiceName>` throughout. The string value in the constant must exactly match what you use as the card's `name` in Step 4 — a mismatch silently saves the config with the wrong service name.
 
 **Prompt 2 — Authentication:** "How is this integration authenticated?" (e.g. `Token`, `API key`)
 
@@ -22,8 +20,8 @@ Use the answer as `<ServiceName>` throughout. The string value in the constant m
 
 **Prompt 3 — Logos:** "Do you have the integration logo(s) ready to provide?"
 
-- **If yes** — ask for the light-mode SVG file path, and optionally a dark-mode SVG path. Copy both to `apps/web/src/images/integrations/` using the naming convention `logo-<service-name-kebab>-color.svg` and `logo-<service-name-kebab>-darkmode.svg`. Use those filenames in Step 3.
-- **If no** — use placeholder paths in Step 3 and add a `// TODO: add logo before shipping` comment.
+- **If yes** — ask for the light-mode SVG file path, and optionally a dark-mode SVG path. Copy both to `apps/web/src/images/integrations/` using the naming convention `logo-<service-name-kebab>-color.svg` and `logo-<service-name-kebab>-darkmode.svg`. Use those filenames in Step 4.
+- **If no** — use placeholder paths in Step 4 and add a `// TODO: add logo before shipping` comment.
 
 ## Step 2 — Add service name constant
 
@@ -91,33 +89,31 @@ No changes needed to `IntegrationCardComponent` — new HEC services fall into t
 
 **File:** `bitwarden_license/bit-common/src/dirt/organization-integrations/services/organization-integration-service.spec.ts`
 
-Follow the existing Huntress or CrowdStrike test block as a reference — both are HEC-type integrations. Cover save, update, delete, and load operations:
+The spec is organized by operation (`save`, `update`, `delete`, etc.) — there are no per-service test blocks. Add a new `it` block inside the existing `describe("save", ...)` block to verify that `buildHecConfiguration` and `buildHecTemplate` correctly embed the new service name:
 
 ```typescript
-describe("<ServiceName> integration", () => {
-  it("should save a new <ServiceName> integration successfully", async () => {
-    const config = OrgIntegrationBuilder.buildHecConfiguration(
-      "https://test.<servicename>.com/hec",
-      "test-token",
-      OrganizationIntegrationServiceName.<ServiceName>,
-    );
-    const template = OrgIntegrationBuilder.buildHecTemplate(
-      "test-index",
-      OrganizationIntegrationServiceName.<ServiceName>,
-    );
+it("should build correct HEC config and template for <ServiceName>", () => {
+  const config = OrgIntegrationBuilder.buildHecConfiguration(
+    "https://test.<servicename>.com/hec",
+    "test-token",
+    OrganizationIntegrationServiceName.<ServiceName>,
+  );
+  const template = OrgIntegrationBuilder.buildHecTemplate(
+    "test-index",
+    OrganizationIntegrationServiceName.<ServiceName>,
+  );
 
-    expect(JSON.parse(config.toString())).toEqual({
-      Uri: "https://test.<servicename>.com/hec",
-      Scheme: "Bearer",
-      Token: "test-token",
-      bw_serviceName: "<ServiceName>",
-    });
-
-    const parsed = JSON.parse(template.toString());
-    expect(parsed.index).toBe("test-index");
-    expect(parsed.bw_serviceName).toBe("<ServiceName>");
-    expect(parsed.event.type).toBe("#TypeId#");
+  expect(JSON.parse(config.toString())).toEqual({
+    Uri: "https://test.<servicename>.com/hec",
+    Scheme: "Bearer",
+    Token: "test-token",
+    bw_serviceName: "<ServiceName>",
   });
+
+  const parsed = JSON.parse(template.toString());
+  expect(parsed.index).toBe("test-index");
+  expect(parsed.bw_serviceName).toBe("<ServiceName>");
+  expect(parsed.event.type).toBe("#TypeId#");
 });
 ```
 
@@ -126,7 +122,7 @@ describe("<ServiceName> integration", () => {
 Run the unit tests for the spec file and confirm they all pass before finishing:
 
 ```bash
-cd bitwarden_license/bit-common && npx jest src/dirt/organization-integrations/services/organization-integration-service.spec.ts
+npx jest bitwarden_license/bit-common/src/dirt/organization-integrations/services/organization-integration-service.spec.ts
 ```
 
 All tests must pass. If any fail, fix them before proceeding.

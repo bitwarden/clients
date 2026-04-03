@@ -45,6 +45,11 @@ EventManagementForBlumira = "event-management-for-blumira",
 
 ## Step 4 — Card registration
 
+Logos were provided in Step 1, so copy them first:
+
+- `apps/web/src/images/integrations/logo-blumira-color.svg`
+- `apps/web/src/images/integrations/logo-blumira-darkmode.svg`
+
 **File:** `bitwarden_license/bit-web/src/app/dirt/organization-integrations/organization-integrations.resolver.ts`
 
 ```typescript
@@ -67,87 +72,44 @@ if (blumiraFeatureEnabled) {
 
 ---
 
-## Step 5 — Logos
-
-Copied to:
-
-- `apps/web/src/images/integrations/logo-blumira-color.svg`
-- `apps/web/src/images/integrations/logo-blumira-darkmode.svg`
-
----
-
-## Step 6 — Tests
+## Step 5 — Add tests
 
 **File:** `bitwarden_license/bit-common/src/dirt/organization-integrations/services/organization-integration-service.spec.ts`
 
+Added inside the existing `describe("save", ...)` block — no new wrapper `describe`:
+
 ```typescript
-describe("Blumira integration", () => {
-  it("should save a new Blumira integration successfully", async () => {
-    const config = OrgIntegrationBuilder.buildHecConfiguration(
-      "https://test.blumira.com/hec",
-      "test-token",
-      OrganizationIntegrationServiceName.Blumira,
-    );
-    const template = OrgIntegrationBuilder.buildHecTemplate(
-      "test-index",
-      OrganizationIntegrationServiceName.Blumira,
-    );
+it("should build correct HEC config and template for Blumira", () => {
+  const config = OrgIntegrationBuilder.buildHecConfiguration(
+    "https://test.blumira.com/hec",
+    "test-token",
+    OrganizationIntegrationServiceName.Blumira,
+  );
+  const template = OrgIntegrationBuilder.buildHecTemplate(
+    "test-index",
+    OrganizationIntegrationServiceName.Blumira,
+  );
 
-    expect(JSON.parse(config.toString())).toEqual({
-      Uri: "https://test.blumira.com/hec",
-      Scheme: "Bearer",
-      Token: "test-token",
-      bw_serviceName: "Blumira",
-    });
-
-    const parsed = JSON.parse(template.toString());
-    expect(parsed.index).toBe("test-index");
-    expect(parsed.bw_serviceName).toBe("Blumira");
-    expect(parsed.event.type).toBe("#TypeId#");
+  expect(JSON.parse(config.toString())).toEqual({
+    Uri: "https://test.blumira.com/hec",
+    Scheme: "Bearer",
+    Token: "test-token",
+    bw_serviceName: "Blumira",
   });
 
-  it("should update a Blumira integration successfully", async () => {
-    const config = OrgIntegrationBuilder.buildHecConfiguration(
-      "https://updated.blumira.com/hec",
-      "updated-token",
-      OrganizationIntegrationServiceName.Blumira,
-    );
-    const template = OrgIntegrationBuilder.buildHecTemplate(
-      "updated-index",
-      OrganizationIntegrationServiceName.Blumira,
-    );
-
-    expect(JSON.parse(config.toString())).toEqual({
-      Uri: "https://updated.blumira.com/hec",
-      Scheme: "Bearer",
-      Token: "updated-token",
-      bw_serviceName: "Blumira",
-    });
-
-    const parsed = JSON.parse(template.toString());
-    expect(parsed.index).toBe("updated-index");
-    expect(parsed.bw_serviceName).toBe("Blumira");
-  });
-
-  it("should delete a Blumira integration successfully", async () => {
-    // ... uses standard delete flow via service.delete(orgId, integrationId, configurationId)
-    const result = await service.delete(orgId, integrationId, configurationId);
-    expect(result).toEqual({ mustBeOwner: false, success: true });
-  });
-
-  it("should load a Blumira integration from API response", async () => {
-    // ... mocks getOrganizationIntegrations with a Blumira HEC response
-    const integrations = await firstValueFrom(service.integrations$);
-    expect(integrations).toHaveLength(1);
-    expect(integrations[0].type).toBe(OrganizationIntegrationType.Hec);
-  });
+  const parsed = JSON.parse(template.toString());
+  expect(parsed.index).toBe("test-index");
+  expect(parsed.bw_serviceName).toBe("Blumira");
+  expect(parsed.event.type).toBe("#TypeId#");
 });
 ```
 
-Run tests:
+---
+
+## Step 6 — Run unit tests
 
 ```bash
-cd bitwarden_license/bit-common && npx jest src/dirt/organization-integrations/services/organization-integration-service.spec.ts
+npx jest bitwarden_license/bit-common/src/dirt/organization-integrations/services/organization-integration-service.spec.ts
 ```
 
 Result: **32 tests passed**
