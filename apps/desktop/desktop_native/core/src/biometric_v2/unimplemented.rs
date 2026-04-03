@@ -23,7 +23,12 @@ impl super::BiometricTrait for BiometricLockSystem {
         unimplemented!()
     }
 
-    async fn enroll_persistent(&self, _user_id: &str, _key: &[u8]) -> Result<(), anyhow::Error> {
+    async fn enroll_persistent(
+        &self,
+        _user_id: &str,
+        _key: &[u8],
+        _hwnd: &[u8],
+    ) -> Result<(), anyhow::Error> {
         unimplemented!()
     }
 

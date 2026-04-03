@@ -2,9 +2,10 @@ use anyhow::Result;
 use itertools::Itertools;
 use tracing::debug;
 use windows::Win32::{
-    Foundation::{GetLastError, SetLastError, WIN32_ERROR},
+    Foundation::{GetLastError, SetLastError},
     UI::Input::KeyboardAndMouse::INPUT,
 };
+use windows_core::WIN32_ERROR;
 
 mod type_input;
 mod window_title;

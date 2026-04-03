@@ -38,6 +38,7 @@ use tokio::sync::Mutex;
 use tracing::{debug, warn};
 use windows::{
     core::{factory, h, Interface, HSTRING},
+    Foundation::Metadata::ApiInformation,
     Security::{
         Credentials::{
             KeyCredentialCreationOption, KeyCredentialManager, KeyCredentialStatus,
@@ -52,6 +53,7 @@ use windows::{
         System::WinRT::{IBufferByteAccess, IUserConsentVerifierInterop},
         UI::WindowsAndMessaging::GetForegroundWindow,
     },
+    UI::WindowId,
 };
 use windows_future::IAsyncOperation;
 
@@ -116,7 +118,7 @@ impl super::BiometricTrait for BiometricLockSystem {
         delete_keychain_entry(user_id).await
     }
 
-    async fn enroll_persistent(&self, user_id: &str, key: &[u8]) -> Result<()> {
+    async fn enroll_persistent(&self, user_id: &str, key: &[u8], hwnd: &[u8]) -> Result<()> {
         // Enrollment works by first generating a random challenge unique to the user / enrollment.
         // Then, with the challenge and a Windows-Hello prompt, the "windows hello key" is
         // derived. The windows hello key is used to encrypt the key to store with
@@ -128,7 +130,11 @@ impl super::BiometricTrait for BiometricLockSystem {
         let challenge: [u8; CHALLENGE_LENGTH] = rand::random();
 
         // This key is unique to the challenge
-        let windows_hello_key = windows_hello_authenticate_with_crypto(&challenge).await?;
+        let hwnd = isize::from_le_bytes(hwnd.try_into().expect("hwnd must be 8 bytes"));
+
+        let windows_hello_key =
+            windows_hello_authenticate_with_crypto(WindowId { Value: hwnd as u64 }, &challenge)
+                .await?;
         let (wrapped_key, nonce) = encrypt_data(&windows_hello_key, key)?;
 
         set_keychain_entry(
@@ -149,7 +155,7 @@ impl super::BiometricTrait for BiometricLockSystem {
             .put(user_id.to_string(), key);
     }
 
-    async fn unlock(&self, user_id: &String, _hwnd: Vec<u8>) -> Result<Vec<u8>> {
+    async fn unlock(&self, user_id: &String, hwnd: Vec<u8>) -> Result<Vec<u8>> {
         // Allow restoring focus to the previous window (browser)
         let previous_active_window = super::windows_focus::get_active_window();
         let _focus_scopeguard = scopeguard::guard((), |_| {
@@ -171,9 +177,13 @@ impl super::BiometricTrait for BiometricLockSystem {
                 Err(anyhow!("Authentication failed"))
             }
         } else {
+            let hwnd = isize::from_le_bytes(hwnd.try_into().expect("hwnd must be 8 bytes"));
             let keychain_entry = get_keychain_entry(user_id).await?;
-            let windows_hello_key =
-                windows_hello_authenticate_with_crypto(&keychain_entry.challenge).await?;
+            let windows_hello_key = windows_hello_authenticate_with_crypto(
+                WindowId { Value: hwnd as u64 },
+                &keychain_entry.challenge,
+            )
+            .await?;
             let decrypted_key = decrypt_data(
                 &windows_hello_key,
                 &keychain_entry.wrapped_key,
@@ -232,34 +242,52 @@ async fn windows_hello_authenticate(message: String) -> Result<bool> {
 ///
 /// Note: This API has inconsistent focusing behavior when called from another window
 async fn windows_hello_authenticate_with_crypto(
+    window: WindowId,
     challenge: &[u8; CHALLENGE_LENGTH],
 ) -> Result<[u8; XCHACHA20POLY1305_KEY_LENGTH]> {
     debug!("[Windows Hello] Authenticating to sign challenge");
 
-    // Ugly hack: We need to focus the window via window focusing APIs until Microsoft releases a
-    // new API. This is unreliable, and if it does not work, the operation may fail
-    let stop_focusing = Arc::new(AtomicBool::new(false));
-    let stop_focusing_clone = stop_focusing.clone();
-    let _ = std::thread::spawn(move || loop {
-        if !stop_focusing_clone.load(std::sync::atomic::Ordering::Relaxed) {
-            focus_security_prompt();
-            std::thread::sleep(std::time::Duration::from_millis(500));
-        } else {
-            break;
-        }
-    });
-    // Only stop focusing once this function exits. The focus MUST run both during the initial
-    // creation with RequestCreateAsync, and also with the subsequent use with RequestSignAsync.
-    let _guard = scopeguard::guard((), |_| {
-        stop_focusing.store(true, std::sync::atomic::Ordering::Relaxed);
-    });
+    // Newer Windows SDK builds include support focusing the dialogs
+    let available = ApiInformation::IsMethodPresent(
+        &HSTRING::from("Windows.Security.Credentials.KeyCredential"),
+        &HSTRING::from("RequestSignForWindowAsync"),
+    )
+    .unwrap_or(false);
+
+    if !available {
+        // Ugly hack: We need to focus the window via window focusing APIs as a fallback for older
+        // machines. This is unreliable, and if it does not work, the operation may fail
+        let stop_focusing = Arc::new(AtomicBool::new(false));
+        let stop_focusing_clone = stop_focusing.clone();
+        let _ = std::thread::spawn(move || loop {
+            if !stop_focusing_clone.load(std::sync::atomic::Ordering::Relaxed) {
+                focus_security_prompt();
+                std::thread::sleep(std::time::Duration::from_millis(500));
+            } else {
+                break;
+            }
+        });
+        // Only stop focusing once this function exits. The focus MUST run both during the initial
+        // creation with RequestCreateAsync, and also with the subsequent use with RequestSignAsync.
+        let _guard = scopeguard::guard((), |_| {
+            stop_focusing.store(true, std::sync::atomic::Ordering::Relaxed);
+        });
+    }
 
     // First create or replace the Bitwarden Biometrics signing key
     let credential = {
-        let key_credential_creation_result = KeyCredentialManager::RequestCreateAsync(
-            CREDENTIAL_NAME,
-            KeyCredentialCreationOption::FailIfExists,
-        )?
+        let key_credential_creation_result = if available {
+            KeyCredentialManager::RequestCreateForWindowAsync(
+                window,
+                CREDENTIAL_NAME,
+                KeyCredentialCreationOption::FailIfExists,
+            )
+        } else {
+            KeyCredentialManager::RequestCreateAsync(
+                CREDENTIAL_NAME,
+                KeyCredentialCreationOption::FailIfExists,
+            )
+        }?
         .await?;
         match key_credential_creation_result.Status()? {
             KeyCredentialStatus::CredentialAlreadyExists => {
@@ -272,9 +300,16 @@ async fn windows_hello_authenticate_with_crypto(
     .Credential()?;
 
     let signature = {
-        let sign_operation = credential.RequestSignAsync(
-            &CryptographicBuffer::CreateFromByteArray(challenge.as_slice())?,
-        )?;
+        let sign_operation = if available {
+            credential.RequestSignForWindowAsync(
+                window,
+                &CryptographicBuffer::CreateFromByteArray(challenge.as_slice())?,
+            )
+        } else {
+            credential.RequestSignAsync(&CryptographicBuffer::CreateFromByteArray(
+                challenge.as_slice(),
+            )?)
+        }?;
 
         // We need to drop the credential here to avoid holding it across an await point.
         drop(credential);

@@ -25,7 +25,7 @@ pub trait BiometricTrait: Send + Sync {
     async fn authenticate_available(&self) -> Result<bool>;
     /// Enroll a key for persistent unlock. If the implementation does not support persistent
     /// enrollment, this function should do nothing.
-    async fn enroll_persistent(&self, user_id: &str, key: &[u8]) -> Result<()>;
+    async fn enroll_persistent(&self, user_id: &str, key: &[u8], hwnd: &[u8]) -> Result<()>;
     /// Clear the persistent and ephemeral keys
     #[allow(clippy::ptr_arg)] // to allow using user_id as map key type
     async fn unenroll(&self, user_id: &String) -> Result<()>;
