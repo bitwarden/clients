@@ -79,6 +79,7 @@ export enum FeatureFlag {
   PM29437_WelcomeDialog = "pm-29437-welcome-dialog-no-ext-prompt",
   PM31039ItemActionInExtension = "pm-31039-item-action-in-extension",
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
+  PM34500_StrictCipherDecryption = "PM-34500-strict-cipher-decryption",
 
   /* Platform */
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
