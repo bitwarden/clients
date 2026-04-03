@@ -38,6 +38,8 @@ export class PasswordLoginStrategyData implements LoginStrategyData {
   masterKey: MasterKey;
   /** The user's master password */
   masterPassword: string;
+  /** Whether unlock service should be used for this login flow. */
+  unlockServiceForPasswordLogin = false;
   /**
    * Tracks if the user needs to update their password due to
    * a password that does not meet an organization's master password policy.
@@ -63,11 +65,6 @@ export class PasswordLoginStrategy extends LoginStrategy {
 
   protected cache: BehaviorSubject<PasswordLoginStrategyData>;
 
-  // Cache the feature flag state in the service, so that every time the service is accessed, the value is the same.
-  // Changing the feature flag state during runtime could lead to unintended behavior, since there are multiple times
-  // where this value is checked.
-  unlockServiceForPasswordLogin = false;
-
   constructor(
     data: PasswordLoginStrategyData,
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
@@ -87,7 +84,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
   }
 
   override async logIn(credentials: PasswordLoginCredentials): Promise<AuthResult> {
-    this.unlockServiceForPasswordLogin = await this.configService.getFeatureFlag(
+    const unlockServiceForPasswordLogin = await this.configService.getFeatureFlag(
       FeatureFlag.UseUnlockServiceForPasswordLogin,
     );
 
@@ -99,6 +96,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
       email,
     );
     data.masterPassword = masterPassword;
+    data.unlockServiceForPasswordLogin = unlockServiceForPasswordLogin;
     data.userEnteredEmail = email;
 
     // Hash the password early (before authentication) so we don't persist it in memory in plaintext
@@ -132,7 +130,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
   }
 
   protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
-    if (!this.unlockServiceForPasswordLogin) {
+    if (!this.cache.value.unlockServiceForPasswordLogin) {
       const { masterKey, localMasterKeyHash } = this.cache.value;
       await this.masterPasswordService.setMasterKey(masterKey, userId);
       await this.masterPasswordService.setMasterKeyHash(localMasterKeyHash, userId);
@@ -143,7 +141,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    if (this.unlockServiceForPasswordLogin) {
+    if (this.cache.value.unlockServiceForPasswordLogin) {
       await this.unlockService.unlockWithMasterPassword(userId, this.cache.value.masterPassword);
     } else {
       // If migration is required, we won't have a user key to set yet.

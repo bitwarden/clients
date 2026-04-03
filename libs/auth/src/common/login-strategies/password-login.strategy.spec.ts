@@ -279,6 +279,7 @@ describe("PasswordLoginStrategy", () => {
     expect(unlockService.unlockWithMasterPassword).toHaveBeenCalledWith(userId, masterPassword);
     expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).not.toHaveBeenCalled();
     expect(keyService.setUserKey).not.toHaveBeenCalled();
+    expect(passwordLoginStrategy.exportCache().password.unlockServiceForPasswordLogin).toBe(true);
   });
 
   it("does not force the user to update their master password when there are no requirements", async () => {
