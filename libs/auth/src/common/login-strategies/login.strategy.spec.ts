@@ -48,6 +48,7 @@ import {
 } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { PasswordLoginCredentials } from "../models";
@@ -122,6 +123,7 @@ describe("LoginStrategy", () => {
   let cache: PasswordLoginStrategyData;
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
+  let unlockService: MockProxy<UnlockService>;
 
   let passwordPreloginService: MockProxy<PasswordPreloginService>;
   let keyService: MockProxy<KeyService>;
@@ -150,6 +152,7 @@ describe("LoginStrategy", () => {
   beforeEach(async () => {
     accountService = mockAccountServiceWith(userId);
     masterPasswordService = new FakeMasterPasswordService();
+    unlockService = mock<UnlockService>();
 
     passwordPreloginService = mock<PasswordPreloginService>();
     keyService = mock<KeyService>();
@@ -187,6 +190,7 @@ describe("LoginStrategy", () => {
       passwordStrengthService,
       policyService,
       passwordPreloginService,
+      unlockService,
       accountService as unknown as AccountService,
       masterPasswordService,
       keyService,
@@ -467,6 +471,7 @@ describe("LoginStrategy", () => {
         passwordStrengthService,
         policyService,
         passwordPreloginService,
+        unlockService,
         accountService as AccountService,
         masterPasswordService,
         keyService,
@@ -529,6 +534,7 @@ describe("LoginStrategy", () => {
         passwordStrengthService,
         policyService,
         passwordPreloginService,
+        unlockService,
         accountService as AccountService,
         masterPasswordService,
         keyService,
