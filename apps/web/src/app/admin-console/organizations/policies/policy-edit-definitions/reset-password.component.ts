@@ -20,7 +20,7 @@ import { PolicyCategory } from "../pipes/policy-category";
 
 export class ResetPasswordPolicy extends BasePolicyEditDefinition {
   name = "accountRecoveryPolicy";
-  description = "accountRecoveryPolicyDesc";
+  description = "accountRecoveryPolicyDescV2";
   type = PolicyType.ResetPassword;
   category = PolicyCategory.Authentication;
   priority = 20;
