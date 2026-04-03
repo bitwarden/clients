@@ -113,7 +113,7 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
     // Set up back action when provided
     if (this.data?.backAction) {
       this.backAction = () => {
-        this.data.backAction();
+        this.data?.backAction?.();
         this.dialogRef.close();
       };
     }
