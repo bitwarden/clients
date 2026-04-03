@@ -193,7 +193,9 @@ describe("regenerateIfNeeded", () => {
       validPrivateKey: false,
     };
     setupVerificationResponse(mockVerificationResponse, sdkService);
-    apiService.getUserPublicKey.mockResolvedValue(undefined as any);
+    apiService.getUserPublicKey.mockRejectedValue(
+      Object.assign(new Error("Not found"), { statusCode: 404 }),
+    );
 
     await sut.regenerateIfNeeded(userId);
 
