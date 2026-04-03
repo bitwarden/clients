@@ -26,7 +26,7 @@ export class FirstMenu {
   protected get hasLockableAccounts(): boolean {
     return (
       this._accounts != null &&
-      Object.values(this._accounts).some((a) => a.isLockable && a.isAuthenticated)
+      Object.values(this._accounts).some((a) => a.isLockable && a.isAuthenticated && !a.isLocked)
     );
   }
 
@@ -98,7 +98,7 @@ export class FirstMenu {
       label: this.localize("lockAllVaults"),
       click: () => this.sendMessage("lockAllVaults"),
       accelerator: "CmdOrCtrl+L",
-      enabled: this.hasAuthenticatedAccounts,
+      enabled: this.hasLockableAccounts,
     };
   }
 
