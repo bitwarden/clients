@@ -480,7 +480,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.canEdit = await firstValueFrom(
       this.cipherAuthorizationService.canEditCipher$(this.cipher, this.params.isAdminConsoleAction),
     );
-
+    // Clear the back action to avoid going back to the new item dialog
+    this.backAction = undefined;
     await this.changeMode("view");
   }
 
