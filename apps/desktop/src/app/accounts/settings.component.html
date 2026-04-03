@@ -351,12 +351,16 @@
                     <input
                       id="enableMagnify"
                       type="checkbox"
+                      aria-describedby="enableMagnifyHelp"
                       formControlName="enableMagnify"
                       (change)="saveEnableMagnify()"
                     />
                     {{ "enableMagnify" | i18n }}
                   </label>
                 </div>
+                <small id="enableMagnifyHelp" class="help-block">{{
+                  "enableMagnifyDesc" | i18n
+                }}</small>
               </div>
               <div class="form-group">
                 <div class="checkbox">

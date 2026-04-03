@@ -1,6 +1,6 @@
 import * as path from "path";
 
-import { ipcMain, globalShortcut, BrowserWindow } from "electron";
+import { ipcMain, globalShortcut, BrowserWindow, screen } from "electron";
 
 import { LogService } from "@bitwarden/logging";
 
@@ -140,6 +140,26 @@ export class MainDesktopMagnifyService {
     this.magnifyWindow = win;
 
     await win.loadFile(path.join(__dirname, "magnify", "index.html"));
+
+    // Position magnify window after loading to ensure it's properly rendered
+    this.positionMagnifyWindow(win);
+  }
+
+  /*
+    Position the magnify window at the center of the display where the mouse cursor is.
+    This is more reliable than checking focused windows since the global shortcut can
+    shift focus to the Bitwarden window.
+  */
+  private positionMagnifyWindow(win: BrowserWindow) {
+    // Get the display where the mouse cursor is currently located
+    const mousePoint = screen.getCursorScreenPoint();
+    const targetDisplay = screen.getDisplayNearestPoint(mousePoint);
+
+    // Center the 640px wide magnify window at the center of that display
+    const x = targetDisplay.bounds.x + (targetDisplay.bounds.width - 640) / 2;
+    const y = targetDisplay.bounds.y + (targetDisplay.bounds.height - 56) / 2;
+
+    win.setPosition(Math.round(x), Math.round(y));
   }
 
   /*
@@ -172,7 +192,7 @@ export class MainDesktopMagnifyService {
     }).then((response) => {
       if (command.type === MagnifyCommand.ViewInBitwarden) {
         this.magnifyWindow?.close();
-        this.windowMain.win.focus();
+        this.windowMain.win.show();
       }
       return response;
     });

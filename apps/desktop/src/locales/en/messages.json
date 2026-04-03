@@ -4768,5 +4768,8 @@
   },
   "enableMagnify": {
     "message": "Enable Magnify"
+  },
+  "enableMagnifyDesc": {
+    "message": "Press Ctrl+Shift+Space to open the Magnify search bar. Use it to search your vault and perform actions without leaving the current window."
   }
 }
