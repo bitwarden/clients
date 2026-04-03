@@ -73,7 +73,7 @@ export const SSO_REQUIRED_CACHE = new KeyDefinition<SsoRequiredCacheEntry[]>(
   "ssoRequiredCache",
   {
     deserializer: (cache) => {
-      if (!Array.isArray(cache) || cache.length === 0) {
+      if (cache == null || cache.length === 0) {
         return cache;
       }
 
