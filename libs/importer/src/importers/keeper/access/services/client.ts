@@ -461,6 +461,13 @@ export class Client {
     [DuoMethod.Voice, TwoFactorPushType.TWO_FA_PUSH_DUO_CALL],
   ]);
 
+  private supported2faMethods: Set<TwoFactorMethod> = new Set([
+    TwoFactorMethod.Totp,
+    TwoFactorMethod.Sms,
+    TwoFactorMethod.Duo,
+    TwoFactorMethod.KeeperPush,
+  ]);
+
   private async handle2FA(
     _username: string,
     deviceToken: Uint8Array,
@@ -472,7 +479,7 @@ export class Client {
 
     const methods = response.channels
       .map((x) => this.twoFactorMethodToUi.get(x.channelType)!)
-      .filter((x) => x !== undefined);
+      .filter((x) => x !== undefined && this.supported2faMethods.has(x));
 
     const methodOrCancel = await this.ui.selectTwoFactorMethod(methods);
     if (methodOrCancel === Cancel) {
