@@ -1,8 +1,8 @@
 import { EncString } from "../../key-management/crypto/models/enc-string";
 
-export function safeGetString(value: string | EncString) {
+export function safeGetString(value: string | EncString | undefined | null): string | undefined {
   if (value == null) {
-    return null;
+    return undefined;
   }
 
   if (typeof value == "string") {
