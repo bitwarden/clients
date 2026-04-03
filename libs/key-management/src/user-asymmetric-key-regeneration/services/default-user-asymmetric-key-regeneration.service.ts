@@ -1,4 +1,4 @@
-import { combineLatest, firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -42,9 +42,8 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
       }
     } catch (error) {
       this.logService.error(
-        "[UserAsymmetricKeyRegeneration] An error occurred: " +
-          error +
-          " Skipping regeneration for the user.",
+        "[UserAsymmetricKeyRegeneration] An error occurred. Skipping regeneration for the user.",
+        error,
       );
     }
   }
@@ -68,13 +67,28 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
       return false;
     }
 
-    const [userKeyEncryptedPrivateKey, publicKeyResponse] = await firstValueFrom(
-      combineLatest([
-        this.keyService.userEncryptedPrivateKey$(userId),
-        this.apiService.getUserPublicKey(userId),
-      ]),
+    const userKeyEncryptedPrivateKey = await firstValueFrom(
+      this.keyService.userEncryptedPrivateKey$(userId),
     );
 
+    let publicKeyResponse = null;
+    try {
+      publicKeyResponse = await this.apiService.getUserPublicKey(userId);
+    } catch (e) {
+      if ((e as any)?.statusCode !== 404) {
+        throw e;
+      }
+    }
+
+    // If a user doesn't have a keypair at all, attempt to create one. We have a subset of old users in this state.
+    if (!userKeyEncryptedPrivateKey && !publicKeyResponse) {
+      this.logService.info(
+        "[UserAsymmetricKeyRegeneration] User has no asymmetric keys, attempting to create a new keypair.",
+      );
+      return true;
+    }
+
+    // If the user has one but not the other, something is wrong so log a warning and skip regeneration.
     if (!userKeyEncryptedPrivateKey || !publicKeyResponse) {
       this.logService.warning(
         "[UserAsymmetricKeyRegeneration] User's asymmetric key initialization data is unavailable, skipping regeneration.",
@@ -157,8 +171,8 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
         return false;
       } else {
         this.logService.error(
-          "[UserAsymmetricKeyRegeneration] Regeneration error when submitting the request to the server: " +
-            error,
+          "[UserAsymmetricKeyRegeneration] Regeneration error when submitting the request to the server.",
+          error,
         );
         return false;
       }
@@ -199,7 +213,8 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
       return true;
     } catch (error) {
       this.logService.error(
-        "[UserAsymmetricKeyRegeneration] User Symmetric Key validation error: " + error,
+        "[UserAsymmetricKeyRegeneration] User Symmetric Key validation error.",
+        error,
       );
       return false;
     }
