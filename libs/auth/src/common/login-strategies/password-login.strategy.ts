@@ -13,11 +13,11 @@ import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/model
 import { IdentitySsoRequiredResponse } from "@bitwarden/common/auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   PasswordPreloginData,
   PasswordPreloginService,
 } from "@bitwarden/common/auth/password-prelogin";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
