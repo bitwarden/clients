@@ -24,7 +24,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import {
-  BitIconButtonComponent,
   CardComponent,
   DialogService,
   FormFieldModule,
@@ -46,7 +45,6 @@ import { UserId } from "@bitwarden/user-core";
     ReactiveFormsModule,
     SwitchComponent,
     CardComponent,
-    BitIconButtonComponent,
     I18nPipe,
     CalloutModule,
   ],
