@@ -223,12 +223,12 @@ describe("FileReportPersistenceService", () => {
           FileUploadType: FileUploadType.Azure,
           ReportResponse: { Id: reportId, OrganizationId: organizationId },
         });
-        mockApiService.renewReportFileUpload$.mockReturnValue(of(renewResponse));
+        mockApiService.renewReportFileUploadLink$.mockReturnValue(of(renewResponse));
 
         const url = await capturedMethods.renewFileUploadUrl();
 
         expect(url).toBe(newUrl);
-        expect(mockApiService.renewReportFileUpload$).toHaveBeenCalledWith(
+        expect(mockApiService.renewReportFileUploadLink$).toHaveBeenCalledWith(
           organizationId,
           reportId,
         );
