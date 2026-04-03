@@ -27,13 +27,16 @@ import {
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
+import type { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { UserId } from "@bitwarden/user-core";
 
 import {
+  DEFAULT_CARD_EXPIRATION_FORMAT,
   MagnifyCommand,
   MagnifyCommandResponse,
   MagnifyErrorCode,
 } from "../models/magnify-commands";
+import { MagnifyItem } from "../models/magnify-items";
 
 import { MagnifyNavigationService } from "./magnify-navigation.service";
 
@@ -121,13 +124,34 @@ export class DesktopMagnifyService implements OnDestroy {
         }
 
         case MagnifyCommand.CopyPassword: {
-          const [error, result] = await this.copyPassword(request.id);
+          const [error, result] = await this.copyPassword(request.itemId);
           callback(error, result);
           break;
         }
 
         case MagnifyCommand.ViewInBitwarden: {
           const [error, result] = await this.viewInBitwarden(request.itemId);
+          callback(error, result);
+          break;
+        }
+
+        case MagnifyCommand.CopyCardNumber: {
+          const [error, result] = await this.copyCardNumber(request.itemId);
+          callback(error, result);
+          break;
+        }
+
+        case MagnifyCommand.CopyCardExpiration: {
+          const [error, result] = await this.copyCardExpiration(
+            request.itemId,
+            request.format ?? DEFAULT_CARD_EXPIRATION_FORMAT,
+          );
+          callback(error, result);
+          break;
+        }
+
+        case MagnifyCommand.CopyCardCode: {
+          const [error, result] = await this.copyCardCode(request.itemId);
           callback(error, result);
           break;
         }
@@ -163,10 +187,11 @@ export class DesktopMagnifyService implements OnDestroy {
 
     const matched = ciphers.filter(
       (c) =>
-        c.type === CipherType.Login &&
+        (c.type === CipherType.Login || c.type === CipherType.Card) &&
         !c.isDeleted &&
         !c.isArchived &&
-        (c.name?.toLowerCase().includes(q) || c.login?.username?.toLowerCase().includes(q)),
+        (c.name?.toLowerCase().includes(q) ||
+          (c.type === CipherType.Login && c.login?.username?.toLowerCase().includes(q))),
     );
 
     matched.sort((a, b) => {
@@ -181,15 +206,44 @@ export class DesktopMagnifyService implements OnDestroy {
 
     const response: MagnifyCommandResponse = {
       type: MagnifyCommand.SearchVault,
-      results: matched.map((c) => ({
-        id: c.id,
-        name: c.name,
-        username: c.login?.username ?? "",
-        iconUrl: buildCipherIcon(iconsUrl, c, showFavicons).image,
-      })),
+      results: matched.map((c) => {
+        if (c.type === CipherType.Card) {
+          return {
+            itemType: MagnifyItem.Card,
+            id: c.id,
+            name: c.name,
+            brand: c.card?.brand ?? undefined,
+          };
+        }
+        return {
+          itemType: MagnifyItem.Login,
+          id: c.id,
+          name: c.name,
+          username: c.login?.username ?? "",
+          iconUrl: buildCipherIcon(iconsUrl, c, showFavicons).image ?? null,
+        };
+      }),
     };
 
     return [null, response];
+  }
+
+  private async findCipher(itemId: string): Promise<Result<CipherView>> {
+    const ciphers = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        map((account) => account?.id),
+        filter((userId): userId is UserId => userId != null),
+        switchMap((userId) => this.cipherService.cipherViews$(userId)),
+      ),
+    );
+
+    const cipher = ciphers.find((c) => c.id === itemId && c.deletedDate == null);
+
+    if (!cipher) {
+      return [new Error(`Cipher with id ${itemId} not found.`), null];
+    }
+
+    return [null, cipher];
   }
 
   /*
@@ -202,28 +256,64 @@ export class DesktopMagnifyService implements OnDestroy {
 
   */
   private async copyPassword(id: string): Promise<Result<MagnifyCommandResponse>> {
-    const ciphers = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(
-        map((account) => account?.id),
-        filter((userId): userId is UserId => userId != null),
-        switchMap((userId) => this.cipherService.cipherViews$(userId)),
-      ),
-    );
-
-    const cipher = ciphers.find((c) => c.id === id);
-
-    if (!cipher) {
-      return [new Error(`Cipher with id ${id} not found.`), null];
+    const [error, cipher] = await this.findCipher(id);
+    if (error) {
+      return [error, null];
     }
 
-    const password = cipher.login?.password ?? "";
+    return [null, { type: MagnifyCommand.CopyPassword, result: cipher.login?.password ?? "" }];
+  }
 
-    const response: MagnifyCommandResponse = {
-      type: MagnifyCommand.CopyPassword,
-      result: password,
-    };
+  /*
+    Returns the card number for a specific Card vault item
+    based on the copyCardNumber Magnify Command.
+  */
+  private async copyCardNumber(itemId: string): Promise<Result<MagnifyCommandResponse>> {
+    const [error, cipher] = await this.findCipher(itemId);
+    if (error) {
+      return [error, null];
+    }
 
-    return [null, response];
+    return [null, { type: MagnifyCommand.CopyCardNumber, result: cipher.card?.number ?? "" }];
+  }
+
+  /*
+    Returns the expiration date for a specific Card vault item
+    based on the copyCardExpiration Magnify Command.
+    The format parameter controls the output format, where "MM" is replaced
+    with the zero-padded month and "YYYY" with the four-digit year.
+  */
+  private async copyCardExpiration(
+    itemId: string,
+    format: string,
+  ): Promise<Result<MagnifyCommandResponse>> {
+    const [error, cipher] = await this.findCipher(itemId);
+    if (error) {
+      return [error, null];
+    }
+
+    const month = (cipher.card?.expMonth ?? "").padStart(2, "0");
+    const year = cipher.card?.expYear ?? "";
+    return [
+      null,
+      {
+        type: MagnifyCommand.CopyCardExpiration,
+        result: format.replace("MM", month).replace("YYYY", year),
+      },
+    ];
+  }
+
+  /*
+    Returns the CVV/security code for a specific Card vault item
+    based on the copyCardCode Magnify Command.
+  */
+  private async copyCardCode(itemId: string): Promise<Result<MagnifyCommandResponse>> {
+    const [error, cipher] = await this.findCipher(itemId);
+    if (error) {
+      return [error, null];
+    }
+
+    return [null, { type: MagnifyCommand.CopyCardCode, result: cipher.card?.code ?? "" }];
   }
 
   /*

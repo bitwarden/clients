@@ -38,6 +38,7 @@ import { TaskSchedulerService, ScheduledTaskNames } from "@bitwarden/common/plat
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
@@ -102,6 +103,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   constructor(
     private accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    private unlockService: UnlockService,
     private keyService: KeyService,
     private apiService: ApiService,
     private tokenService: TokenService,
@@ -384,6 +386,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               this.passwordStrengthService,
               this.policyService,
               this.passwordPreloginService,
+              this.unlockService,
               ...sharedDeps,
             );
           case AuthenticationType.Sso:

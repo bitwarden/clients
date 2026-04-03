@@ -12,23 +12,23 @@
     >
       <div class="result-icon">
         <img
-          *ngIf="item.iconUrl"
+          *ngIf="getIconUrl(item)"
           class="result-icon-img"
-          [src]="item.iconUrl"
+          [src]="getIconUrl(item)"
           [alt]="item.name"
           (error)="onImgError($event)"
         />
-        <span *ngIf="!item.iconUrl" class="result-icon-initial">
+        <span *ngIf="!getIconUrl(item)" class="result-icon-initial">
           {{ item.name.charAt(0).toUpperCase() }}
         </span>
       </div>
       <div class="result-text">
         <div class="result-title">{{ item.name }}</div>
-        <div class="result-subtitle">{{ item.username }}</div>
+        <div class="result-subtitle">{{ getSubtitle(item) }}</div>
       </div>
       <div class="result-actions" *ngIf="i === selectedIndex()">
         <div
-          *ngFor="let action of itemActions"
+          *ngFor="let action of getItemActions(item)"
           class="result-action-badge"
           [class.completing]="
             completingAction()?.actionId === action.id && completingAction()?.itemIndex === i

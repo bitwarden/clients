@@ -9,6 +9,7 @@
 */
 export const MagnifyItem = Object.freeze({
   Login: "Login",
+  Card: "Card",
 } as const);
 export type MagnifyItem = (typeof MagnifyItem)[keyof typeof MagnifyItem];
 
@@ -22,3 +23,33 @@ export type MagnifyLoginItem = {
   username: string;
   iconUrl: string | null;
 };
+
+/*
+  Magnify Item: Credit Card
+  Represents a card cipher returned in Magnify search results.
+*/
+export type MagnifyCardItem = {
+  id: string;
+  name: string;
+  brand?: string;
+};
+
+/*
+  Unified discriminated union of all supported vault item types
+  returned in SearchVault results.
+*/
+export type MagnifySearchResultItem =
+  | ({ itemType: typeof MagnifyItem.Login } & MagnifyLoginItem)
+  | ({ itemType: typeof MagnifyItem.Card } & MagnifyCardItem);
+
+export function isMagnifyLoginItem(
+  item: MagnifySearchResultItem,
+): item is { itemType: typeof MagnifyItem.Login } & MagnifyLoginItem {
+  return item.itemType === MagnifyItem.Login;
+}
+
+export function isMagnifyCardItem(
+  item: MagnifySearchResultItem,
+): item is { itemType: typeof MagnifyItem.Card } & MagnifyCardItem {
+  return item.itemType === MagnifyItem.Card;
+}

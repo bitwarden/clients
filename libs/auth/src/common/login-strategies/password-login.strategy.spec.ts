@@ -17,6 +17,7 @@ import {
 } from "@bitwarden/common/auth/password-prelogin";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
@@ -39,6 +40,7 @@ import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/pass
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";
@@ -65,6 +67,7 @@ const masterPasswordPolicyResponse = new MasterPasswordPolicyResponse({
 describe("PasswordLoginStrategy", () => {
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
+  let unlockService: MockProxy<UnlockService>;
 
   let passwordPreloginService: MockProxy<PasswordPreloginService>;
   let keyService: MockProxy<KeyService>;
@@ -94,6 +97,7 @@ describe("PasswordLoginStrategy", () => {
   beforeEach(async () => {
     accountService = mockAccountServiceWith(userId);
     masterPasswordService = new FakeMasterPasswordService();
+    unlockService = mock<UnlockService>();
 
     passwordPreloginService = mock<PasswordPreloginService>();
     keyService = mock<KeyService>();
@@ -115,6 +119,7 @@ describe("PasswordLoginStrategy", () => {
     environmentService = mock<EnvironmentService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
+    configService.getFeatureFlag.mockResolvedValue(false);
 
     appIdService.getAppId.mockResolvedValue(deviceId);
     tokenService.decodeAccessToken.mockResolvedValue({
@@ -140,6 +145,7 @@ describe("PasswordLoginStrategy", () => {
       passwordStrengthService,
       policyService,
       passwordPreloginService,
+      unlockService,
       accountService,
       masterPasswordService,
       keyService,
@@ -222,6 +228,58 @@ describe("PasswordLoginStrategy", () => {
       { V1: { private_key: tokenResponse.privateKey } },
       userId,
     );
+  });
+
+  it("uses master password unlock service when feature flag is enabled", async () => {
+    configService.getFeatureFlag.mockImplementation(async (flag: FeatureFlag) => {
+      if (flag === FeatureFlag.UseUnlockServiceForPasswordLogin) {
+        return true;
+      }
+      return false;
+    });
+
+    // Re-create he strategy and wait a bit to settle the feature flag
+    passwordLoginStrategy = new PasswordLoginStrategy(
+      new PasswordLoginStrategyData(),
+      passwordStrengthService,
+      policyService,
+      passwordPreloginService,
+      unlockService,
+      accountService,
+      masterPasswordService,
+      keyService,
+      encryptService,
+      apiService,
+      tokenService,
+      appIdService,
+      platformUtilsService,
+      messagingService,
+      logService,
+      stateService,
+      twoFactorService,
+      userDecryptionOptionsService,
+      billingAccountProfileStateService,
+      vaultTimeoutSettingsService,
+      kdfConfigService,
+      environmentService,
+      configService,
+      accountCryptographicStateService,
+    );
+
+    unlockService.unlockWithMasterPassword.mockResolvedValue(undefined);
+    tokenService.decodeAccessToken.mockResolvedValue({ sub: userId });
+
+    await passwordLoginStrategy.logIn(credentials);
+
+    expect(configService.getFeatureFlag).toHaveBeenCalledWith(
+      FeatureFlag.UseUnlockServiceForPasswordLogin,
+    );
+    expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
+    expect(masterPasswordService.mock.setMasterKeyHash).not.toHaveBeenCalled();
+    expect(unlockService.unlockWithMasterPassword).toHaveBeenCalledWith(userId, masterPassword);
+    expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).not.toHaveBeenCalled();
+    expect(keyService.setUserKey).not.toHaveBeenCalled();
+    expect(passwordLoginStrategy.exportCache().password.unlockServiceForPasswordLogin).toBe(true);
   });
 
   describe("makePasswordPreloginMasterKey", () => {
