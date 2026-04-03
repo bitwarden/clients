@@ -286,7 +286,7 @@ export class PhishingDataService {
   }
 
   /**
-   * Fetch and parse manifest.json from assets.bitwarden.com.
+   * Fetch and parse the phishing manifest.
    */
   private async fetchManifest(): Promise<PhishingManifest> {
     this.logService.info(`[PhishingDataService] Fetching manifest from ${PHISHING_MANIFEST_URL}`);
@@ -353,6 +353,13 @@ export class PhishingDataService {
     let patchesApplied = 0;
 
     while (localSha256 !== manifest.full_list.sha256) {
+      if (patchesApplied >= manifest.patches.length) {
+        this.logService.warning(
+          `[PhishingDataService] Patch chain exceeded maximum iterations (${manifest.patches.length}) -- falling back to full download`,
+        );
+        return null;
+      }
+
       const patch = patchMap.get(localSha256);
       if (!patch) {
         this.logService.info(
@@ -394,9 +401,8 @@ export class PhishingDataService {
   private _backgroundUpdate(
     previous: PhishingDataMeta | null,
   ): Observable<PhishingDataMeta | null> {
-    const startTime = Date.now();
-
     return defer(() => {
+      const startTime = Date.now();
       return from(this._performDeltaSync(previous)).pipe(
         concatMap((result) => {
           if (result.updated) {
@@ -528,8 +534,12 @@ export class PhishingDataService {
 
     const streamSha256 = await this.indexedDbService.saveUrlsFromStream(response.body);
 
+    if (!streamSha256) {
+      throw new Error("Stream save failed: no SHA256 returned");
+    }
+
     // Verify stream SHA256 against manifest if available
-    if (manifest && streamSha256) {
+    if (manifest) {
       if (streamSha256 !== manifest.full_list.sha256) {
         throw new Error(
           `Full download SHA256 mismatch: ${streamSha256.slice(0, 12)}... !== ${manifest.full_list.sha256.slice(0, 12)}...`,
