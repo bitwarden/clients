@@ -12,6 +12,11 @@ CLIENT="${1:?Usage: $0 <client> (web, browser, desktop, cli)}"
 # Internal variables that can be overridden for testing
 GH_REPO="bitwarden/clients"
 RELEASE_CONFIG_PATH=".github/release.yml"
+TARGET_TAG="HEAD"
+
+# Override for testing - comment out for normal use
+# PREV_TAG="${CLIENT}-v2026.2.0"
+# TARGET_TAG="${CLIENT}-v2026.3.0"
 
 # Parse .github/release.yml into JSON for use by jq
 RELEASE_CONFIG=$(yq -o=json '.changelog' "$RELEASE_CONFIG_PATH") || {
@@ -20,7 +25,9 @@ RELEASE_CONFIG=$(yq -o=json '.changelog' "$RELEASE_CONFIG_PATH") || {
 }
 
 # Find the most recent tag for this client
-PREV_TAG=$(git tag -l --sort=-authordate | grep "^${CLIENT}-v" | head -n 1)
+if [ -z "${PREV_TAG:-}" ]; then
+  PREV_TAG=$(git tag -l --sort=-authordate | grep "^${CLIENT}-v" | head -n 1)
+fi
 
 if [ -z "$PREV_TAG" ]; then
   echo "No previous tag found for client '${CLIENT}'" >&2
@@ -32,7 +39,7 @@ echo "Previous tag: $PREV_TAG" >&2
 # Extract PR numbers from commit messages between the previous tag and HEAD.
 # This ensures we only capture PRs whose commits are actually on this branch,
 # rather than all PRs merged after a date (which could include other branches).
-PR_NUMBERS=$(git log "${PREV_TAG}..HEAD" --oneline | grep -oE '\(#[0-9]+\)' | grep -oE '[0-9]+' | sort -u)
+PR_NUMBERS=$(git log "${PREV_TAG}..${TARGET_TAG}" --oneline | grep -oE '\(#[0-9]+\)' | grep -oE '[0-9]+' | sort -u)
 
 if [ -z "$PR_NUMBERS" ]; then
   echo "No PRs found in commit history since $PREV_TAG" >&2
@@ -85,6 +92,7 @@ echo "Fetched details for $(echo "$PRS" | jq 'length') PRs" >&2
 
 # Filter and categorize PRs using the release.yml config
 MARKDOWN=$(jq -r -n \
+  --arg client "$CLIENT" \
   --argjson config "$RELEASE_CONFIG" \
   --argjson prs "$PRS" '
 
@@ -93,6 +101,16 @@ MARKDOWN=$(jq -r -n \
 
   # Filter out PRs with excluded labels
   [ $prs[] | select(.labels | map(.name) | any(. as $l | $exclude_labels | index($l)) | not) ] |
+
+  # Filter by client label: if a PR has any client label, it must match the current client
+  ["web", "browser", "desktop", "cli"] as $client_labels |
+  [ .[] | select(
+    (.labels | map(.name)) as $pr_labels |
+    ($pr_labels | any(. as $l | $client_labels | index($l))) as $has_client_label |
+    if $has_client_label then ($pr_labels | index($client) != null)
+    else true
+    end
+  ) ] |
 
   # Iterate categories in order, assign each PR to first matching category
   . as $filtered_prs |
@@ -114,14 +132,18 @@ MARKDOWN=$(jq -r -n \
 
   # Render markdown, skip empty sections
   [ .sections[] | select(.prs | length > 0) |
-    "## \(.title)\n" + (
-      [ .prs[] | "- \(.title) by @\(.author.login) (#\(.number))" ] | join("\n")
+    "### \(.title)\n" + (
+      [ .prs[] | "- \(.title) by @\(.author.login) in [#\(.number)](https://github.com/bitwarden/clients/pull/\(.number))" ] | join("\n")
     )
   ] | join("\n\n")
 ')
 
+OUTPUT_FILE="${CLIENT}-release-notes.md"
+
 if [ -z "$MARKDOWN" ]; then
   echo "No changes for this release."
 else
-  echo "$MARKDOWN"
+  echo "$MARKDOWN" | tee "$OUTPUT_FILE"
 fi
+
+echo "Release notes written to $OUTPUT_FILE" >&2
