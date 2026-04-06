@@ -17,6 +17,7 @@
     (ngModelChange)="onChange($event)"
     [disabled]="disabled()"
     [attr.autocomplete]="autocomplete()"
+    (blur)="onTouch()"
   />
   @if (searchText) {
     <button
