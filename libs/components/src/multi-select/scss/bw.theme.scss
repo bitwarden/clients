@@ -215,13 +215,35 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
     }
   }
   .ng-clear-wrapper {
-    color: $ng-select-placeholder;
-    padding-top: 2.5px;
-    &:hover .ng-clear {
-      color: $ng-clear-icon-hover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $ng-select-primary-text;
+    // padding-top: 2.5px;
+    width: 24px !important;
+    min-width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    margin-inline-end: 8px;
+
+    &:hover,
+    &:focus,
+    &:focus-visible {
+      border-color: $ng-select-primary-text;
+      outline: none;
     }
+
     border-radius: $ng-select-border-radius;
     text-align: center;
+
+    span {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid;
+      font-size: 12px !important;
+    }
   }
   .ng-spinner-zone {
     padding: 5px 5px 0 0;
