@@ -2,13 +2,11 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { BadgeModule } from "../badge";
-import { ButtonModule } from "../button";
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
-import { BannerTitleDirective } from "./banner-title.directive";
 import { BannerComponent } from "./banner.component";
 
 export default {
@@ -16,7 +14,7 @@ export default {
   component: BannerComponent,
   decorators: [
     moduleMetadata({
-      imports: [BadgeModule, ButtonModule, BannerTitleDirective, IconButtonModule, LinkModule],
+      imports: [IconButtonModule, LinkModule],
       providers: [
         {
           provide: I18nService,
@@ -33,11 +31,11 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/design/rKUVGKb7Kw3d6YGoQl6Ho7/Flowbite-Component-Mapping?node-id=31783-38719",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-26720&t=b5tDKylm5sWm2yKo-4",
     },
   },
   args: {
-    variant: "primary",
+    bannerType: "warning",
     showClose: true,
   },
   argTypes: {
@@ -47,145 +45,84 @@ export default {
 
 type Story = StoryObj<BannerComponent>;
 
-export const BannerBase: Story = {
+export const Base: Story = {
   render: (args) => {
     return {
       props: args,
       template: /*html*/ `
-        <bit-banner
-          [variant]="variant"
-          [showClose]="showClose"
-          >
-          Bitwarden is the most trusted password manager. <a bitLink [linkType]="variant">Click me</a>
+        <bit-banner ${formatArgsForCodeSnippet<BannerComponent>(args)}>
+          Content Really Long Text Lorem Ipsum Ipsum Ipsum
+          <button type="button" bitLink linkType="secondary">Button</button>
         </bit-banner>
       `,
     };
   },
+};
+
+export const Premium: Story = {
+  ...Base,
   args: {
-    variant: "primary",
-    showClose: true,
+    bannerType: "premium",
   },
 };
 
-export const TitleBannerBase: Story = {
-  render: (args) => {
-    return {
-      props: args,
-      template: /*html*/ `
-        <bit-banner
-          [variant]="variant"
-          [showClose]="showClose"
-        >
-          <span slot="title">Integration is the key</span>
-          Bitwarden is the most trusted password manager. With many tools to make your work even more efficient.
-          <ng-container slot="actions">
-            <button bitButton type="button" buttonType="secondary">Cancel</button>
-            <button bitButton type="button" buttonType="primary">Continue</button>
-          </ng-container>
-        </bit-banner>
+export const Info: Story = {
+  ...Base,
+  args: {
+    bannerType: "info",
+  },
+};
+
+export const Warning: Story = {
+  ...Base,
+  args: {
+    bannerType: "warning",
+  },
+};
+
+export const Danger: Story = {
+  ...Base,
+  args: {
+    bannerType: "danger",
+  },
+};
+
+export const HideClose: Story = {
+  ...Base,
+  args: {
+    showClose: false,
+  },
+};
+
+export const Stacked: Story = {
+  args: {},
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-banner bannerType="premium" (onClose)="onClose($event)">
+        Bruce
+      </bit-banner>
+      <bit-banner bannerType="premium" (onClose)="onClose($event)">
+        Bruce
+      </bit-banner>
+      <bit-banner bannerType="warning" (onClose)="onClose($event)">
+        Bruce
+      </bit-banner>
+      <bit-banner bannerType="warning" (onClose)="onClose($event)">
+        Bruce
+      </bit-banner>
+      <bit-banner bannerType="danger" (onClose)="onClose($event)">
+        Bruce
+      </bit-banner>
+      <bit-banner bannerType="danger" (onClose)="onClose($event)">
+        Bruce
+      </bit-banner>
+      <bit-banner bannerType="info" (onClose)="onClose($event)">
+        Bruce
+      </bit-banner>
+      <bit-banner bannerType="info" (onClose)="onClose($event)">
+        Bruce
+      </bit-banner>
       `,
-    };
-  },
-  args: {
-    variant: "primary",
-    showClose: true,
-  },
-};
-
-export const BannerSimple: Story = {
-  render: (args) => ({
-    props: args,
-    template: /*html*/ `
-      <bit-banner [variant]="variant" [showClose]="showClose">
-        Bitwarden is the most trusted password manager for individuals and teams.
-      </bit-banner>
-    `,
   }),
-  args: {
-    variant: "primary",
-    showClose: true,
-  },
-};
-
-export const AllVariantsNoTitle: Story = {
-  render: () => ({
-    template: /*html*/ `
-      <div class="tw-flex tw-flex-col tw-gap-4">
-        @for (v of variants; track v) {
-          <bit-banner [variant]="v" [showClose]="true">
-            Bitwarden is the most trusted password manager. <a bitLink [linkType]="v">Learn more</a>
-          </bit-banner>
-        }
-      </div>
-    `,
-    props: {
-      variants: ["primary", "success", "warning", "danger"],
-    },
-  }),
-};
-
-export const AllVariantsWithTitle: Story = {
-  render: () => ({
-    template: /*html*/ `
-      <div class="tw-flex tw-flex-col tw-gap-4">
-        @for (v of variants; track v) {
-          <bit-banner [variant]="v" [showClose]="true">
-            <span slot="title">Integration is the key</span>
-            You can integrate Bitwarden with many tools. <a bitLink [linkType]="v">Learn more</a>
-            <ng-container slot="actions">
-              <button bitButton type="button" buttonType="secondary">Cancel</button>
-              <button bitButton type="button" buttonType="primary">Continue</button>
-            </ng-container>
-          </bit-banner>
-        }
-      </div>
-    `,
-    props: {
-      variants: ["primary", "success", "warning", "danger"],
-    },
-  }),
-};
-
-export const AllVariantsCustomIcon: Story = {
-  render: () => ({
-    template: /*html*/ `
-      <div class="tw-flex tw-flex-col tw-gap-4">
-        @for (v of variants; track v) {
-          <bit-banner [variant]="v" [showClose]="true" icon="bwi-star">
-            <span slot="title">Custom icon example</span>
-            Bitwarden is the most trusted password manager. With many tools to make your work even more efficient.
-            <ng-container slot="actions">
-              <button bitButton type="button" buttonType="secondary">Cancel</button>
-              <button bitButton type="button" buttonType="primary">Continue</button>
-            </ng-container>
-          </bit-banner>
-        }
-      </div>
-    `,
-    props: {
-      variants: ["primary", "success", "warning", "danger"],
-    },
-  }),
-};
-
-export const BadgeTitle: Story = {
-  render: (args) => ({
-    props: args,
-    template: /*html*/ `
-      <bit-banner [variant]="variant" [showClose]="showClose">
-        <span slot="title">
-          <span bitBadge variant="primary">New</span>
-          Integration updates
-        </span>
-        Bitwarden is the most trusted password manager. With many tools to make your work even more efficient.
-        <ng-container slot="actions">
-          This change affects all organization members. <a bitLink linkType="primary">Read the release notes</a>
-        </ng-container>
-      </bit-banner>
-    `,
-  }),
-  args: {
-    variant: "primary",
-    showClose: true,
-  },
 };
