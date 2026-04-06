@@ -1,6 +1,6 @@
 @if (showPremiumCallout()) {
   <div class="tw-m-4">
-    <bit-callout type="default" [title]="'premiumSubscriptionEnded' | i18n">
+    <bit-callout type="subtle" [title]="'premiumSubscriptionEnded' | i18n">
       <ng-container>
         <div>
           {{ "premiumSubscriptionEndedDesc" | i18n }}
@@ -73,7 +73,6 @@
               (onEvent)="event($event)"
               [userCanArchive]="userCanArchive()"
               [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy()"
-              [archiveEnabled]="archiveFeatureEnabled$ | async"
             ></tr>
           }
         </ng-container>

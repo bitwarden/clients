@@ -46,7 +46,7 @@ export interface InvoicePreview {
   newPlanProratedAmount?: number;
 }
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class PremiumOrgUpgradeService {
   constructor(
     private accountBillingClient: AccountBillingClient,
@@ -134,7 +134,7 @@ export class PremiumOrgUpgradeService {
       case ProductTierType.Enterprise:
         return BusinessSubscriptionPricingTierIds.Enterprise;
       default:
-        throw new Error(`Unsupported product tier: ${productTier}`);
+        throw new Error("Invalid plan tier for organization upgrade");
     }
   }
 

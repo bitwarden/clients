@@ -72,6 +72,7 @@
     },
     "provisioningProfile": "bitwarden_desktop_developer_id.provisionprofile",
     "singleArchFiles": "node_modules/@bitwarden/desktop-napi/desktop_napi.darwin-*.node",
+    "x64ArchFiles": "{**/desktop_napi.darwin-*.node,**/bufferutil/**/darwin-*/*.node}",
     "extraFiles": [
       {
         "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
@@ -95,7 +96,8 @@
     "target": ["portable", "nsis-web", "appx"],
     "signExts": [".dll", ".node"],
     "signtoolOptions": {
-      "sign": "./sign.js"
+      "sign": "./sign.js",
+      "publisherName": "Bitwarden Inc."
     },
     "extraFiles": [
       {
@@ -132,6 +134,7 @@
   },
   "dmg": {
     "icon": "dmg.icns",
+    "background": "resources/background.png",
     "sign": false,
     "contents": [
       {
@@ -152,6 +155,7 @@
     }
   },
   "mas": {
+    "identity": "Bitwarden Inc",
     "entitlements": "resources/entitlements.mas.plist",
     "entitlementsInherit": "resources/entitlements.mas.inherit.plist",
     "entitlementsLoginHelper": "resources/entitlements.mas.loginhelper.plist",

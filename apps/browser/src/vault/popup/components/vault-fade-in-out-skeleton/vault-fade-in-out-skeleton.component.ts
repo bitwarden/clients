@@ -16,5 +16,5 @@ import { ChangeDetectionStrategy, Component, HostBinding } from "@angular/core";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VaultFadeInOutSkeletonComponent {
-  @HostBinding("@fadeInOut") fadeInOut = true;
+  @HostBinding("@fadeInOut") readonly fadeInOut = true;
 }

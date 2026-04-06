@@ -3,8 +3,6 @@ import { firstValueFrom } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -18,20 +16,11 @@ export class ArchiveCommand {
   constructor(
     private cipherService: CipherService,
     private accountService: AccountService,
-    private configService: ConfigService,
     private cipherArchiveService: CipherArchiveService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {}
 
   async run(object: string, id: string): Promise<Response> {
-    const featureFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM19148_InnovationArchive,
-    );
-
-    if (!featureFlagEnabled) {
-      return Response.notFound();
-    }
-
     if (id != null) {
       id = id.toLowerCase();
     }

@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import {
   MasterPasswordAuthenticationData,
+  MasterPasswordAuthenticationHash,
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 
@@ -18,14 +19,18 @@ export class PasswordRequest extends SecretVerificationRequest {
   // This will eventually be changed to be an actual constructor, once all callers are updated.
   // https://bitwarden.atlassian.net/browse/PM-23234
   static newConstructor(
-    authenticationData: MasterPasswordAuthenticationData,
-    unlockData: MasterPasswordUnlockData,
+    currentMasterPasswordAuthenticationHash: MasterPasswordAuthenticationHash,
+    newAuthenticationData: MasterPasswordAuthenticationData,
+    newUnlockData: MasterPasswordUnlockData,
+    newMasterPasswordHint: string,
   ): PasswordRequest {
     const request = new PasswordRequest();
-    request.newMasterPasswordHash = authenticationData.masterPasswordAuthenticationHash;
-    request.key = unlockData.masterKeyWrappedUserKey;
-    request.authenticationData = authenticationData;
-    request.unlockData = unlockData;
+    request.masterPasswordHash = currentMasterPasswordAuthenticationHash;
+    request.newMasterPasswordHash = newAuthenticationData.masterPasswordAuthenticationHash;
+    request.key = newUnlockData.masterKeyWrappedUserKey;
+    request.authenticationData = newAuthenticationData;
+    request.unlockData = newUnlockData;
+    request.masterPasswordHint = newMasterPasswordHint;
     return request;
   }
 }
