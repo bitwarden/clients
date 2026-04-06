@@ -899,7 +899,14 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: InternalReceiveService,
     useClass: DefaultReceiveService,
-    deps: [EncryptService, KeyService, KeyGenerationService, ReceiveApiService, StateProvider],
+    deps: [
+      EncryptService,
+      KeyService,
+      KeyGenerationService,
+      ReceiveApiService,
+      StateProvider,
+      EnvironmentService,
+    ],
   }),
   safeProvider({
     provide: ReceiveApiService,

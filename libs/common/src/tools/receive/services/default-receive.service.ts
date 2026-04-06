@@ -3,6 +3,7 @@ import { combineLatest, firstValueFrom, map, Observable, of, switchMap } from "r
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { ReceiveId } from "@bitwarden/common/types/guid";
@@ -17,7 +18,7 @@ import { Receive } from "../models/domain/receive";
 import { ReceiveFile } from "../models/domain/receive-file";
 import { ReceiveCreateInput } from "../models/receive-create-input";
 import { ReceiveSharedData } from "../models/receive-shared-data";
-import { ReceiveUrlData } from "../models/receive-url-data";
+import { buildReceiveUrl, ReceiveUrlData } from "../models/receive-url-data";
 import { CreateReceiveRequest } from "../models/requests/create-receive.request";
 import { UpdateReceiveRequest } from "../models/requests/update-receive.request";
 import { ReceiveSharedDataResponse } from "../models/response/receive-shared-data.response";
@@ -42,9 +43,10 @@ export class DefaultReceiveService implements InternalReceiveService {
     private keyGenerationService: KeyGenerationService,
     private receiveApiService: ReceiveApiService,
     private stateProvider: StateProvider,
+    private environmentService: EnvironmentService,
   ) {}
 
-  receives$(userId: UserId): Observable<Receive[]> {
+  private receives$(userId: UserId): Observable<Receive[]> {
     return this.stateProvider.getUser(userId, RECEIVE_ENCRYPTED_RECEIVES).state$.pipe(
       map((receives) => {
         if (receives == null) {
@@ -90,6 +92,12 @@ export class DefaultReceiveService implements InternalReceiveService {
     await this.upsert(data, userId);
   }
 
+  buildReceiveUrl$(receive: ReceiveView): Observable<string | null> {
+    return this.environmentService.environment$.pipe(
+      map((env) => buildReceiveUrl(receive, env.getWebVaultUrl() + "/#/receive")),
+    );
+  }
+
   async getSharedData(urlData: ReceiveUrlData): Promise<ReceiveSharedData> {
     const response = await this.receiveApiService.postReceiveAccess(
       urlData.receiveId,
@@ -124,6 +132,18 @@ export class DefaultReceiveService implements InternalReceiveService {
   async get(id: ReceiveId, userId: UserId): Promise<Receive | undefined> {
     const receives = await firstValueFrom(this.receives$(userId));
     return receives.find((r) => r.id === id);
+  }
+
+  async delete(id: ReceiveId, userId: UserId): Promise<void> {
+    await this.receiveApiService.deleteReceive(id);
+
+    await this.stateProvider.getUser(userId, RECEIVE_ENCRYPTED_RECEIVES).update((receives) => {
+      if (receives == null) {
+        return receives;
+      }
+      delete receives[id];
+      return receives;
+    });
   }
 
   private async decryptResponse(

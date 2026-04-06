@@ -6466,6 +6466,18 @@
   "generateLink": {
     "message": "Generate Link"
   },
+  "deleteReceive": {
+    "message": "Delete Receive",
+    "description": "'Receive' is a noun and the name of a feature called 'Bitwarden Receive'. It should not be translated."
+  },
+  "deleteReceivePermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Receive?",
+    "description": "'Receive' is a noun and the name of a feature called 'Bitwarden Receive'. It should not be translated."
+  },
+  "deletedReceive": {
+    "message": "Receive deleted",
+    "description": "'Receive' is a noun and the name of a feature called 'Bitwarden Receive'. It should not be translated."
+  },
   "sendAccessTaglineProductDesc": {
     "message": "Bitwarden Send transmits sensitive, temporary information to others easily and securely.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."

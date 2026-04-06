@@ -1,11 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { map } from "rxjs";
 
 import { ActiveSendIcon } from "@bitwarden/assets/svg";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { buildReceiveUrl } from "@bitwarden/common/tools/receive/models/receive-url-data";
 import { ReceiveView } from "@bitwarden/common/tools/receive/models/view/receive.view";
+import { ReceiveService } from "@bitwarden/common/tools/receive/services/receive.service";
 import {
   ButtonModule,
   CopyClickDirective,
@@ -35,18 +33,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 export class ReceiveSuccessComponent {
   protected readonly activeReceiveIcon = ActiveSendIcon;
   protected readonly receive = inject<ReceiveView>(DIALOG_DATA);
+  private readonly receiveService = inject(ReceiveService);
 
-  private readonly environmentService = inject(EnvironmentService);
-
-  private readonly baseReceiveUrl = toSignal(
-    this.environmentService.environment$.pipe(map((env) => env.getWebVaultUrl() + "/#/receive")),
-  );
-
-  protected readonly receiveLink = computed(() => {
-    const baseUrl = this.baseReceiveUrl();
-    if (!baseUrl) {
-      return null;
-    }
-    return buildReceiveUrl(this.receive, baseUrl);
-  });
+  protected readonly receiveLink = toSignal(this.receiveService.buildReceiveUrl$(this.receive));
 }
