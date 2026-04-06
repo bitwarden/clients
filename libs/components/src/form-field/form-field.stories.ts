@@ -174,11 +174,6 @@ export const Large: Story = {
     },
     template: /*html*/ `
       <form [formGroup]="formObj">
-        <bit-form-field size="large">
-          <bit-label>Label</bit-label>
-          <input bitInput formControlName="test" />
-          <bit-hint>Optional Hint</bit-hint>
-        </bit-form-field>
         <bit-form-field size="large" [formGroup]="formObj">
           <bit-label>Label</bit-label>
           <input required formControlName="required" bitInput placeholder="Placeholder" />

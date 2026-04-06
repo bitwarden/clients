@@ -82,6 +82,7 @@ export class BitFormFieldComponent implements AfterContentChecked {
       "has-[bit-select]:tw-p-0",
       "has-[bit-multi-select]:tw-p-0",
       "has-[textarea]:tw-pe-0",
+      "has-[textarea]:!tw-py-3",
       ...(this.readOnly ? [] : ["tw-px-3"]),
     ].join(" ");
   }
