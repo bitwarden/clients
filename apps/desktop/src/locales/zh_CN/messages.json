@@ -335,7 +335,7 @@
     "message": "需要高级版"
   },
   "premiumRequiredDesc": {
-    "message": "使用此功能需要高级会员资格。"
+    "message": "需要高级版成员资格才能使用此功能。"
   },
   "syncWithBrowser": {
     "message": "与浏览器同步"
@@ -1222,16 +1222,16 @@
     "message": "轮换加密密钥的影响"
   },
   "oldAttachmentsNeedFixDesc": {
-    "message": "需要先修复您的密码库中的旧文件附件，然后才能轮换您账户的加密密钥。"
+    "message": "需要先修复您的密码库中旧的文件附件，然后才能轮换您的账户加密密钥。"
   },
   "rotateEncKeyTitle": {
     "message": "轮换加密密钥"
   },
   "rotateEncKeyConfirmation": {
-    "message": "确定要轮换账户的加密密钥吗？"
+    "message": "确定要轮换您的账户加密密钥吗？"
   },
   "updateEncryptionKeyWarning": {
-    "message": "更新加密密钥后，您需要注销所有当前使用的 Bitwarden 应用程序（例如移动 App 或浏览器扩展）然后重新登录。注销或者重新登录（这将下载新的加密密钥）失败可能会导致数据损坏。我们会尝试自动为您注销，但可能会有所延迟。"
+    "message": "更新加密密钥后，您需要注销当前正在使用的所有 Bitwarden 应用程序（例如移动 App 或浏览器扩展）然后重新登录。注销然后重新登录（这将下载新的加密密钥）失败可能会导致数据损坏。我们会尝试自动为您注销，但可能会有所延迟。"
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "所有您已保存的账户限制的导出文件将失效。"
@@ -1318,10 +1318,10 @@
     "message": "立即同步"
   },
   "changeMasterPass": {
-    "message": "修改主密码"
+    "message": "更改主密码"
   },
   "changeMasterPassword": {
-    "message": "修改主密码"
+    "message": "更改主密码"
   },
   "continueToWebApp": {
     "message": "前往网页 App 吗？"
@@ -1631,7 +1631,7 @@
     "message": "卡号"
   },
   "premiumMembership": {
-    "message": "高级版成员"
+    "message": "高级版成员资格"
   },
   "premiumManage": {
     "message": "管理成员资格"
@@ -1646,7 +1646,7 @@
     "message": "您目前不是高级版成员。"
   },
   "premiumSignUpAndGet": {
-    "message": "注册高级版成员将获得："
+    "message": "注册高级版成员资格并获得："
   },
   "premiumSignUpStorage": {
     "message": "1 GB 文件附件加密存储空间。"
@@ -1944,7 +1944,7 @@
     "message": "此密码将用于导出和导入此文件"
   },
   "accountRestrictedOptionDescription": {
-    "message": "使用衍生自您账户用户名和主密码的加密密钥以加密此导出，并限制只能导入到当前 Bitwarden 账户。"
+    "message": "使用衍生自您账户用户名和主密码的账户加密密钥以加密此导出，并限制只能导入到当前 Bitwarden 账户。"
   },
   "passwordProtected": {
     "message": "密码保护"
@@ -1981,7 +1981,7 @@
     "message": "此导出包含未加密格式的密码库数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。使用完后请立即将其删除。"
   },
   "encExportKeyWarningDesc": {
-    "message": "此导出将使用您账户的加密密钥来加密您的数据。如果您曾经轮换过账户的加密密钥，您应将其重新导出，否则您将无法解密导出的文件。"
+    "message": "此导出将使用您的账户加密密钥来加密您的数据。如果您曾经轮换过您的账户加密密钥，您应将其重新导出，否则您将无法解密导出的文件。"
   },
   "encExportAccountWarningDesc": {
     "message": "每个 Bitwarden 用户账户的账户加密密钥都是唯一的，因此您无法将加密的导出导入到另一个账户。"
@@ -2078,7 +2078,7 @@
     "message": "无法删除账户"
   },
   "cannotDeleteAccountDesc": {
-    "message": "此操作无法完成，因为您的账户归组织所有。请联系您的组织管理员获取详细信息。"
+    "message": "此操作无法完成，因为您的账户由组织拥有。请联系您的组织管理员获取详细信息。"
   },
   "accountDeleted": {
     "message": "账户已删除"
@@ -2102,7 +2102,7 @@
     "message": "您必须至少选择一个集合。"
   },
   "premiumUpdated": {
-    "message": "您已升级为高级版。"
+    "message": "您已升级到高级版。"
   },
   "restore": {
     "message": "恢复"
@@ -2125,6 +2125,15 @@
   },
   "unsavedChangesTitle": {
     "message": "更改未保存"
+  },
+  "unsavedChangesUpdateBody": {
+    "message": "如果您现在离开，您的更改不会被保存。可以稍后安装更新，这样您就可以继续操作并保存更改。"
+  },
+  "installLater": {
+    "message": "稍后安装"
+  },
+  "continueWithInstall": {
+    "message": "继续安装"
   },
   "clone": {
     "message": "克隆"
@@ -2234,6 +2243,9 @@
   },
   "copyTOTP": {
     "message": "复制验证器密钥 (TOTP)"
+  },
+  "copyNotes": {
+    "message": "复制备注"
   },
   "totpHelperTitle": {
     "message": "无缝两步验证"
@@ -2682,7 +2694,7 @@
     "message": "重试"
   },
   "verificationRequiredForActionSetPinToContinue": {
-    "message": "此操作需要验证。设置一个 PIN 码以继续。"
+    "message": "此操作需要验证。请设置一个 PIN 码以继续。"
   },
   "setPin": {
     "message": "设置 PIN 码"
@@ -3056,7 +3068,7 @@
     "message": "转发的电子邮箱别名"
   },
   "forwardedEmailDesc": {
-    "message": "使用外部转发服务生成一个电子邮箱别名。"
+    "message": "使用外部转发服务生成电子邮箱别名。"
   },
   "forwarderDomainName": {
     "message": "电子邮箱域名",
@@ -4542,7 +4554,7 @@
     "message": "高级在线安全防护"
   },
   "upgradeToPremium": {
-    "message": "升级为高级版"
+    "message": "升级到高级版"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "您的组织已不再使用主密码登录 Bitwarden。要继续，请验证组织和域名。"
@@ -4670,7 +4682,7 @@
     }
   },
   "transferItemsToOrganizationDescription": {
-    "message": "出于安全和合规要求，$ORGANIZATION$ 要求所有项目必须归组织所有。",
+    "message": "为确保安全性和合规性，$ORGANIZATION$ 要求所有项目由组织拥有。",
     "placeholders": {
       "organization": {
         "content": "$1",

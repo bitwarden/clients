@@ -2126,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "Neuložené změny"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "Pokud nyní odejdete, Vaše změny nebudou uloženy. Nainstalujte aktualizaci později, abyste mohli zůstat a uložit změny."
+  },
+  "installLater": {
+    "message": "Nainstalovat později"
+  },
+  "continueWithInstall": {
+    "message": "Pokračovat s instalací"
+  },
   "clone": {
     "message": "Duplikovat"
   },
@@ -2234,6 +2243,9 @@
   },
   "copyTOTP": {
     "message": "Kopírovat autentizační klíč (TOTP)"
+  },
+  "copyNotes": {
+    "message": "Kopírovat poznámky"
   },
   "totpHelperTitle": {
     "message": "Bezproblémové dvoufázové ověřování"

@@ -2126,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "Những thay đổi chưa được lưu"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "If you leave now, your changes will not be saved. Install the update later so you can stay and save your changes."
+  },
+  "installLater": {
+    "message": "Install later"
+  },
+  "continueWithInstall": {
+    "message": "Continue with install"
+  },
   "clone": {
     "message": "Tạo bản sao"
   },
@@ -2234,6 +2243,9 @@
   },
   "copyTOTP": {
     "message": "Sao chép khóa xác thực (TOTP)"
+  },
+  "copyNotes": {
+    "message": "Copy notes"
   },
   "totpHelperTitle": {
     "message": "Giúp quá trình xác minh 2 bước diễn ra liền mạch"

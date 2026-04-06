@@ -2126,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "Nicht gespeicherte Änderungen"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "Wenn du jetzt gehst, werden deine Änderungen nicht gespeichert. Installiere die Aktualisierung später, damit du deine Änderungen speichern kannst."
+  },
+  "installLater": {
+    "message": "Später installieren"
+  },
+  "continueWithInstall": {
+    "message": "Mit der Installation fortfahren"
+  },
   "clone": {
     "message": "Duplizieren"
   },
@@ -2234,6 +2243,9 @@
   },
   "copyTOTP": {
     "message": "Authenticator-Schlüssel kopieren (TOTP)"
+  },
+  "copyNotes": {
+    "message": "Notizen kopieren"
   },
   "totpHelperTitle": {
     "message": "Zwei-Faktor-Authentifizierung nahtlos gestalten"

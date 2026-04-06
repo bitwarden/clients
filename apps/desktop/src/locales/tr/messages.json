@@ -2126,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "Kaydedilmemiş değişiklikler"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "If you leave now, your changes will not be saved. Install the update later so you can stay and save your changes."
+  },
+  "installLater": {
+    "message": "Install later"
+  },
+  "continueWithInstall": {
+    "message": "Continue with install"
+  },
   "clone": {
     "message": "Klonla"
   },
@@ -2234,6 +2243,9 @@
   },
   "copyTOTP": {
     "message": "Kimlik doğrulama anahtarını kopyala (TOTP)"
+  },
+  "copyNotes": {
+    "message": "Notları kopyala"
   },
   "totpHelperTitle": {
     "message": "2 adımlı doğrulamayı sorunsuz hale getirin"

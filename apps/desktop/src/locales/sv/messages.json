@@ -2126,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "Osparade ändringar"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "Om du lämnar nu kommer dina ändringar inte att sparas. Installera uppdateringen senare så att du kan stanna och spara dina ändringar."
+  },
+  "installLater": {
+    "message": "Installera senare"
+  },
+  "continueWithInstall": {
+    "message": "Fortsätt med installationen"
+  },
   "clone": {
     "message": "Klona"
   },
@@ -2234,6 +2243,9 @@
   },
   "copyTOTP": {
     "message": "Kopiera autentiseringsnyckel (TOTP)"
+  },
+  "copyNotes": {
+    "message": "Kopiera anteckningar"
   },
   "totpHelperTitle": {
     "message": "Gör 2-stegsverifiering sömlös"

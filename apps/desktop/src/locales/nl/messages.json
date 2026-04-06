@@ -2126,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "Niet-opgeslagen wijzigingen"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "Als je nu vertrekt, worden de wijzigingen niet opgeslagen. Installeer de update later zodat je kunt blijven en je wijzigingen kunt opslaan."
+  },
+  "installLater": {
+    "message": "Later installeren"
+  },
+  "continueWithInstall": {
+    "message": "Doorgaan met installeren"
+  },
   "clone": {
     "message": "Dupliceren"
   },
@@ -2234,6 +2243,9 @@
   },
   "copyTOTP": {
     "message": "Authenticatie-sleutel (TOTP) kopiëren"
+  },
+  "copyNotes": {
+    "message": "Notities kopiëren"
   },
   "totpHelperTitle": {
     "message": "Maak tweestapsaanmelding naadloos"

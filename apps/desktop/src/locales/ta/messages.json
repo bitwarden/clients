@@ -2126,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "சேமிக்கப்படாத மாற்றங்கள்"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "If you leave now, your changes will not be saved. Install the update later so you can stay and save your changes."
+  },
+  "installLater": {
+    "message": "Install later"
+  },
+  "continueWithInstall": {
+    "message": "Continue with install"
+  },
   "clone": {
     "message": "குளோன்"
   },
@@ -2234,6 +2243,9 @@
   },
   "copyTOTP": {
     "message": "அங்கீகரிப்பான் விசையை (TOTP) நகலெடுக்கவும்"
+  },
+  "copyNotes": {
+    "message": "Copy notes"
   },
   "totpHelperTitle": {
     "message": "2-படி சரிபார்ப்பை தடையற்றதாக்குங்கள்"
