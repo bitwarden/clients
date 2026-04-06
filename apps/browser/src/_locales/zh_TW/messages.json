@@ -493,7 +493,7 @@
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "包含大寫字元",
+    "message": "包含大寫字母",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -501,7 +501,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "包含小寫字元",
+    "message": "包含小寫字母",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -703,7 +703,7 @@
     "message": "工作階段逾時"
   },
   "otherOptions": {
-    "message": "其它選項"
+    "message": "其他選項"
   },
   "rateExtension": {
     "message": "評分此擴充功能"
@@ -1120,7 +1120,7 @@
     "message": "一律在密碼庫介面中顯示付款卡自動填入建議"
   },
   "showCardsCurrentTab": {
-    "message": "於分頁頁面顯示卡片"
+    "message": "於分頁頁面顯示付款卡"
   },
   "showCardsCurrentTabDesc": {
     "message": "於分頁頁面顯示付款卡以便於自動填入。"
@@ -1205,7 +1205,7 @@
     }
   },
   "saveAsNewLoginAction": {
-    "message": "儲存為新的登入資訊",
+    "message": "儲存為新的登入資料",
     "description": "Button text for saving login details as a new entry."
   },
   "updateLoginAction": {
@@ -1810,7 +1810,7 @@
     "message": "顯示身分建議"
   },
   "showInlineMenuCardsLabel": {
-    "message": "顯示信用卡建議"
+    "message": "顯示付款卡建議"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "當選擇圖示時，顯示建議"
@@ -1995,7 +1995,7 @@
     "message": "安全碼"
   },
   "cardNumber": {
-    "message": "信用卡號碼"
+    "message": "卡號"
   },
   "ex": {
     "message": "例如"
@@ -2103,7 +2103,7 @@
     "message": "備註"
   },
   "newItemHeaderLogin": {
-    "message": "新增登入資訊",
+    "message": "新增登入資料",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
@@ -2367,28 +2367,28 @@
     "message": "您選擇的主密碼強度過弱。請使用高強度的主密碼（或密碼短語），以妥善保護您的 Bitwarden 帳戶。您確定要使用此主密碼嗎？"
   },
   "rotateAccountEncKey": {
-    "message": "Also rotate my account's encryption key"
+    "message": "同時輪換帳戶的加密金鑰"
   },
   "rotateEncKeyTitle": {
-    "message": "Rotate encryption key"
+    "message": "輪換加密金鑰"
   },
   "rotateEncKeyConfirmation": {
-    "message": "Are you sure you want to rotate your account's encryption key?"
+    "message": "確定要輪換帳戶的加密金鑰嗎？"
   },
   "updateEncryptionKeyWarning": {
-    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+    "message": "更新加密金鑰後，您需要登出並重新登入目前使用的所有 Bitwarden 應用程式（如行動應用程式或瀏覽器擴充套件）。登出和重新登入（這會下載新的加密金鑰）失敗可能會導致資料損毀。我們將嘗試自動登出，但可能會有所延遲。"
   },
   "updateEncryptionKeyAccountExportWarning": {
-    "message": "Any account restricted exports you have saved will become invalid."
+    "message": "您保存的任何受限制匯出帳號將失效。"
   },
   "oldAttachmentsNeedFixDesc": {
-    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+    "message": "需要先修正密碼庫中舊的檔案附件，然後才能輪換帳戶的加密金鑰。"
   },
   "impactOfRotatingYourEncryptionKey": {
-    "message": "Impact of rotating your encryption key"
+    "message": "輪換加密金鑰的影響"
   },
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
-    "message": "One or more organization policies require the master password to meet the following requirements:"
+    "message": "一個或多個組織原則要求主密碼須符合下列條件："
   },
   "pin": {
     "message": "PIN 碼",
@@ -2481,7 +2481,7 @@
     "message": "密碼庫逾時動作"
   },
   "showAtRiskPasswordNotifications": {
-    "message": "Show at-risk password notifications"
+    "message": "顯示高風險密碼通知"
   },
   "lock": {
     "message": "鎖定",
@@ -4272,7 +4272,7 @@
     "description": "Screen reader text (aria-label) for new login button within inline menu"
   },
   "newCard": {
-    "message": "新信用卡",
+    "message": "新增付款卡",
     "description": "Button text to display within inline menu when there are no matching items on a credit card field"
   },
   "addNewCardItemAria": {
@@ -5129,7 +5129,7 @@
     "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
   },
   "loginCredentials": {
-    "message": "登入資訊"
+    "message": "登入憑證"
   },
   "authenticatorKey": {
     "message": "驗證器金鑰"
@@ -5198,7 +5198,7 @@
     "message": "在頁面載入時自動填寫？"
   },
   "cardExpiredTitle": {
-    "message": "過期的信用卡"
+    "message": "過期的付款卡"
   },
   "cardExpiredMessage": {
     "message": "如果您已續期，請更新信用卡資訊"

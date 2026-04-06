@@ -2367,28 +2367,28 @@
     "message": "A senha principal que você selecionou está fraca. Você deve usar uma senha principal forte (ou uma frase secreta) para proteger a sua conta Bitwarden adequadamente. Tem certeza que deseja usar esta senha principal?"
   },
   "rotateAccountEncKey": {
-    "message": "Also rotate my account's encryption key"
+    "message": "Rotacionar a chave de criptografia da minha conta"
   },
   "rotateEncKeyTitle": {
-    "message": "Rotate encryption key"
+    "message": "Rotacionar chave de criptografia"
   },
   "rotateEncKeyConfirmation": {
-    "message": "Are you sure you want to rotate your account's encryption key?"
+    "message": "Tem certeza que quer rotacionar a chave de criptografia da sua conta?"
   },
   "updateEncryptionKeyWarning": {
-    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+    "message": "Depois de atualizar sua chave de criptografia, é necessário se desconectar e reconectar em todos os aplicativos do Bitwarden que você está usando atualmente (como o aplicativo móvel ou as extensões do navegador). Não fazer isso (que descarrega sua nova chave de criptografia) pode resultar em corrupção de dados. Nós tentaremos desconectá-lo automaticamente, mas isso pode demorar um pouco."
   },
   "updateEncryptionKeyAccountExportWarning": {
-    "message": "Any account restricted exports you have saved will become invalid."
+    "message": "Quaisquer exportações que você tem salvas que são restritas à conta se tornarão inválidas."
   },
   "oldAttachmentsNeedFixDesc": {
-    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+    "message": "Há anexos de arquivos antigos no seu cofre que precisam ser corrigidos antes que você possa rotacionar a chave de criptografia da sua conta."
   },
   "impactOfRotatingYourEncryptionKey": {
-    "message": "Impact of rotating your encryption key"
+    "message": "Consequências de rotacionar sua chave de criptografia"
   },
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
-    "message": "One or more organization policies require the master password to meet the following requirements:"
+    "message": "Uma ou mais políticas da organização exigem que a senha principal cumpra aos seguintes requisitos:"
   },
   "pin": {
     "message": "PIN",
@@ -2481,7 +2481,7 @@
     "message": "Ação do limite de tempo do cofre"
   },
   "showAtRiskPasswordNotifications": {
-    "message": "Show at-risk password notifications"
+    "message": "Mostrar notificações de senhas em risco"
   },
   "lock": {
     "message": "Bloquear",
