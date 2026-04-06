@@ -55,7 +55,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
   private readonly resizeObserver: ResizeObserver;
 
   private readonly _groupId: number;
-  private readonly _indexToSelect: number | null = 0;
+  private readonly _indexToSelect = signal<number | null>(0);
 
   /**
    * Aria label for the tab list menu
@@ -82,7 +82,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
 
   private readonly moreButton = viewChild.required<ElementRef>("moreButton");
 
-  private readonly gapBetweenTabs = 0;
+  private readonly gapBetweenTabs = signal(0);
 
   /** Cached tab widths measured before any hiding, keyed by index. */
   private readonly tabWidths = signal<number[]>([]);
@@ -101,7 +101,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
     const containerWidth = this.tabHeaderWidth();
 
     const totalTabsWidth = this.tabWidths().reduce(
-      (sum, w, i) => sum + w + (i > 0 ? this.gapBetweenTabs : 0),
+      (sum, w, i) => sum + w + (i > 0 ? this.gapBetweenTabs() : 0),
       0,
     );
 
@@ -115,7 +115,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
     let totalWidth = 0;
     const tabWidths = this.tabWidths();
     for (let i = 0; i < tabWidths.length; i++) {
-      totalWidth += tabWidths[i] + (i > 0 ? this.gapBetweenTabs : 0);
+      totalWidth += tabWidths[i] + (i > 0 ? this.gapBetweenTabs() : 0);
       if (totalWidth > availableWidth) {
         return i;
       }
@@ -131,12 +131,12 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   get selectedIndex(): number | null {
-    return this._selectedIndex;
+    return this._selectedIndex();
   }
   set selectedIndex(value: number) {
-    this._indexToSelect = coerceNumberProperty(value, null);
+    this._indexToSelect.set(coerceNumberProperty(value, null));
   }
-  private readonly _selectedIndex: number | null = null;
+  private readonly _selectedIndex = signal<number | null>(null);
 
   /** Output to enable support for two-way binding on `[(selectedIndex)]` */
   readonly selectedIndexChange = output<number>();
@@ -148,7 +148,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
    * Focus key manager for keeping tab controls accessible.
    * https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/tablist_role#keyboard_interactions
    */
-  readonly keyManager?: FocusKeyManager<TabListItemDirective>;
+  readonly keyManager = signal<FocusKeyManager<TabListItemDirective> | undefined>(undefined);
 
   constructor() {
     this._groupId = nextId++;
@@ -166,20 +166,21 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
     });
 
     effect(() => {
-      const indexToSelect = this._clampTabIndex(this._indexToSelect ?? 0);
+      const indexToSelect = this._clampTabIndex(this._indexToSelect() ?? 0);
 
       // If the selected tab didn't explicitly change, keep the previously
       // selected tab selected/active
-      if (indexToSelect === this._selectedIndex) {
+      if (indexToSelect === this._selectedIndex()) {
         const tabs = this.tabs();
         let selectedTab: TabComponent | undefined;
 
         for (let i = 0; i < tabs.length; i++) {
-          if (tabs[i].isActive) {
+          if (tabs[i].isActive()) {
             // Set both _indexToSelect and _selectedIndex to avoid firing a change
             // event which could cause an infinite loop if adding a tab within the
             // selectedIndexChange event
-            this._indexToSelect = this._selectedIndex = i;
+            this._indexToSelect.set(i);
+            this._selectedIndex.set(i);
             selectedTab = tabs[i];
             break;
           }
@@ -188,7 +189,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
         // No active tab found and a tab does exist means the active tab
         // was removed, so a new active tab must be set manually
         if (!selectedTab && tabs[indexToSelect]) {
-          tabs[indexToSelect].isActive = true;
+          tabs[indexToSelect].isActive.set(true);
           this.selectedTabChange.emit({
             index: indexToSelect,
             tab: tabs[indexToSelect],
@@ -215,10 +216,11 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
    * should be currently selected.
    */
   ngAfterContentChecked(): void {
-    const indexToSelect = (this._indexToSelect = this._clampTabIndex(this._indexToSelect ?? 0));
+    const indexToSelect = this._clampTabIndex(this._indexToSelect() ?? 0);
+    this._indexToSelect.set(indexToSelect);
 
-    if (this._selectedIndex != indexToSelect) {
-      const isFirstRun = this._selectedIndex == null;
+    if (this._selectedIndex() != indexToSelect) {
+      const isFirstRun = this._selectedIndex() == null;
 
       if (!isFirstRun) {
         this.selectedTabChange.emit({
@@ -232,7 +234,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       Promise.resolve().then(() => {
-        this.tabs().forEach((tab, index) => (tab.isActive = index === indexToSelect));
+        this.tabs().forEach((tab, index) => tab.isActive.set(index === indexToSelect));
 
         if (!isFirstRun) {
           this.selectedIndexChange.emit(indexToSelect);
@@ -240,21 +242,23 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
       });
 
       // Manually update the _selectedIndex and keyManager active item
-      this._selectedIndex = indexToSelect;
-      this.keyManager?.setActiveItem(indexToSelect);
+      this._selectedIndex.set(indexToSelect);
+      this.keyManager()?.setActiveItem(indexToSelect);
     }
   }
 
   ngAfterViewInit(): void {
-    this.keyManager = new FocusKeyManager(this.tabLabels())
-      .withHorizontalOrientation("ltr")
-      .withWrap()
-      .withHomeAndEnd()
-      // Skip disabled and hidden tabs to allow focus to move to "More" button on keyboard navigation
-      .skipPredicate((item) => item.disabled || item.elementRef.nativeElement.hidden);
+    this.keyManager.set(
+      new FocusKeyManager(this.tabLabels())
+        .withHorizontalOrientation("ltr")
+        .withWrap()
+        .withHomeAndEnd()
+        // Skip disabled and hidden tabs to allow focus to move to "More" button on keyboard navigation
+        .skipPredicate((item) => item.disabled || item.elementRef.nativeElement.hidden),
+    );
 
-    this.gapBetweenTabs = parseFloat(
-      window.getComputedStyle(this.tabListContainer().nativeElement).gap,
+    this.gapBetweenTabs.set(
+      parseFloat(window.getComputedStyle(this.tabListContainer().nativeElement).gap),
     );
   }
 
@@ -305,7 +309,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
 
     if (entries != null) {
       // Called by ResizeObserver — button is visible, read directly from entries
-      this.moreButtonWidth.set(entries[0].contentBoxSize[0].inlineSize + this.gapBetweenTabs);
+      this.moreButtonWidth.set(entries[0].contentBoxSize[0].inlineSize + this.gapBetweenTabs());
       return;
     }
 
@@ -318,7 +322,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
       void window.getComputedStyle(moreButtonEl).width;
     }
 
-    this.moreButtonWidth.set(moreButtonEl.getBoundingClientRect().width + this.gapBetweenTabs);
+    this.moreButtonWidth.set(moreButtonEl.getBoundingClientRect().width + this.gapBetweenTabs());
 
     // Hide the more button again if it was originally hidden
     if (wasHidden) {

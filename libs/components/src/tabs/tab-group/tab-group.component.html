@@ -25,7 +25,7 @@
     bitTabListContainer
     role="tablist"
     [attr.aria-label]="label()"
-    (keydown)="keyManager.onKeydown($event)"
+    (keydown)="keyManager()?.onKeydown($event)"
     [class.tw-invisible]="!tabListRendered()"
   >
     @for (tab of tabs(); track tab; let i = $index) {
@@ -35,7 +35,7 @@
         type="button"
         role="tab"
         [id]="getTabLabelId(i)"
-        [active]="tab.isActive"
+        [active]="tab.isActive()"
         [disabled]="tab.disabled()"
         [attr.aria-selected]="selectedIndex === i"
         [hidden]="i > 0 && overflowTabIndex() !== undefined && i >= overflowTabIndex()!"
@@ -75,7 +75,7 @@
       [id]="getTabContentId(i)"
       [attr.tabindex]="tab.contentTabIndex()"
       [attr.labelledby]="getTabLabelId(i)"
-      [active]="tab.isActive"
+      [active]="tab.isActive()"
       [content]="tab.content"
       [preserveContent]="preserveContent()"
     >

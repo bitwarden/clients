@@ -6,6 +6,7 @@ import {
   TemplateRef,
   ViewContainerRef,
   input,
+  signal,
   viewChild,
   ChangeDetectionStrategy,
 } from "@angular/core";
@@ -43,17 +44,17 @@ export class TabComponent implements OnInit {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ContentChild(TabLabelDirective) templateLabel?: TabLabelDirective;
 
-  private readonly _contentPortal: TemplatePortal | null = null;
+  private readonly _contentPortal = signal<TemplatePortal | null>(null);
 
   get content(): TemplatePortal | null {
-    return this._contentPortal;
+    return this._contentPortal();
   }
 
-  readonly isActive?: boolean;
+  readonly isActive = signal(false);
 
   constructor(private readonly _viewContainerRef: ViewContainerRef) {}
 
   ngOnInit(): void {
-    this._contentPortal = new TemplatePortal(this.implicitContent(), this._viewContainerRef);
+    this._contentPortal.set(new TemplatePortal(this.implicitContent(), this._viewContainerRef));
   }
 }
