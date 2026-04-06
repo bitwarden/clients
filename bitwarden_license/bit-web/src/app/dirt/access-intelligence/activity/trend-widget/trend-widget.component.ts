@@ -183,9 +183,28 @@ export class TrendWidgetComponent {
     return getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
   }
 
-  protected readonly lineChartConfiguration: ChartConfig = {
-    xAxisType: "datetime",
-  };
+  protected readonly lineChartConfiguration = computed<ChartConfig>(() => {
+    const timespan = this.selectedTimespan();
+    const xMax = new Date();
+    const xMin = this.getXMinForTimespan(timespan);
+    return { xAxisType: "datetime", xMin, xMax };
+  });
+
+  private getXMinForTimespan(timespan: TimePeriod): Date | undefined {
+    const now = new Date();
+    switch (timespan) {
+      case TimePeriod.PastMonth:
+        return new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+      case TimePeriod.Past3Months:
+        return new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+      case TimePeriod.Past6Months:
+        return new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+      case TimePeriod.PastYear:
+        return new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+      case TimePeriod.AllTime:
+        return undefined;
+    }
+  }
 
   protected downloadAsPNG(): void {
     const chart = this.lineChart()?.chart();
