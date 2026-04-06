@@ -19,8 +19,8 @@ import {
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
-import { ModalModeState, WindowState } from "../models/domain/window-state";
 import { isDev } from "../../utils";
+import { ModalModeState, WindowState } from "../models/domain/window-state";
 
 export const HARDWARE_ACCELERATION = new KeyDefinition<boolean>(
   DESKTOP_SETTINGS_DISK,

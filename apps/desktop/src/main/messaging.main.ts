@@ -10,7 +10,7 @@ import { autostart } from "@bitwarden/desktop-napi";
 
 import { Main } from "../main";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
-import { isDev, isFlatpak } from "../utils";
+import { isFlatpak } from "../utils";
 
 import { MenuUpdateRequest } from "./menu/menu.updater";
 
