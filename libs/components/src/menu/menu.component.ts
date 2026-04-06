@@ -6,6 +6,7 @@ import {
   EventEmitter,
   effect,
   input,
+  signal,
   viewChild,
   contentChildren,
   ChangeDetectionStrategy,
@@ -26,7 +27,7 @@ export class MenuComponent {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() closed = new EventEmitter<void>();
   readonly menuItems = contentChildren(MenuItemComponent, { descendants: true });
-  keyManager?: FocusKeyManager<MenuItemComponent>;
+  readonly keyManager = signal<FocusKeyManager<MenuItemComponent> | undefined>(undefined);
 
   readonly ariaRole = input<"menu" | "dialog">("menu");
 
@@ -35,9 +36,9 @@ export class MenuComponent {
   constructor() {
     effect(() => {
       if (this.ariaRole() === "menu") {
-        this.keyManager = new FocusKeyManager(this.menuItems())
-          .withWrap()
-          .skipPredicate((item) => !!item.disabled);
+        this.keyManager.set(
+          new FocusKeyManager(this.menuItems()).withWrap().skipPredicate((item) => !!item.disabled),
+        );
       }
     });
   }

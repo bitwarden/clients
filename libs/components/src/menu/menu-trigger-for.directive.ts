@@ -142,11 +142,12 @@ export class MenuTriggerForDirective implements OnDestroy {
     this.setupClosingActions(isContextMenu);
     this.setupMenuCloseListener();
 
-    if (menu.keyManager) {
-      menu.keyManager.setFirstItemActive();
+    const menuKeyManager = menu.keyManager();
+    if (menuKeyManager) {
+      menuKeyManager.setFirstItemActive();
       this.keyDownEventsSub = this.overlayRef
         .keydownEvents()
-        .subscribe((event: KeyboardEvent) => this.menu().keyManager?.onKeydown(event));
+        .subscribe((event: KeyboardEvent) => menuKeyManager.onKeydown(event));
     }
   }
 
