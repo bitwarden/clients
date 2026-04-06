@@ -81,7 +81,7 @@
       <button
         type="button"
         bitIconButton="bwi-minus-circle"
-        buttonType="danger"
+        buttonType="dangerGhost"
         bitSuffix
         *ngIf="loginDetailsForm.enabled && viewHiddenFields"
         [bitAction]="removePasskey"
@@ -100,7 +100,7 @@
           [appA11yTitle]="'learnMoreAboutAuthenticators' | i18n"
           slot="end"
         >
-          <i class="bwi bwi-sm bwi-question-circle" aria-hidden="true"></i>
+          <i class="bwi bwi-question-circle" aria-hidden="true"></i>
         </button>
         <bit-popover #totpPopover [title]="'totpHelperTitle' | i18n">
           <p class="tw-mb-0">

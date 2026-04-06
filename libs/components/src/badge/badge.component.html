@@ -1,3 +1,9 @@
-<span [ngClass]="{ 'tw-truncate tw-block': truncate() }">
-  <ng-content></ng-content>
-</span>
+<div class="tw-inline-flex tw-min-w-0 tw-w-full tw-max-w-full tw-items-center tw-gap-0.5">
+  @if (computedIcon()) {
+    <bit-icon [name]="computedIcon()" [class]="iconSizeStyles()" />
+  }
+
+  <span class="tw-px-1 tw-text-start tw-min-w-0 tw-flex-1" [class.tw-truncate]="truncate()">
+    <ng-content></ng-content>
+  </span>
+</div>
