@@ -214,7 +214,7 @@ _Include if `$0` is `browser` or `all`:_
 
 _Include if `$0` is `cli` or `all`:_
 
-- `apps/cli/src/commands/create.command.ts` - Restricted type checks
+- `apps/cli/src/vault/create.command.ts` - Restricted type checks
 - `apps/cli/src/commands/list.command.ts` - Restricted type checks
 - `apps/cli/src/commands/get.command.ts` - Restricted type checks
 
