@@ -18,6 +18,7 @@ export enum FeatureFlag {
   SafariAccountSwitching = "pm-5594-safari-account-switching",
   PM30811_ChangeEmailNewAuthenticationApis = "pm-30811-change-email-new-authentication-apis",
   PM31088_MasterPasswordServiceEmitSalt = "pm-31088-master-password-service-emit-salt",
+  UseUnlockServiceForPasswordLogin = "use-unlock-service-for-password-login",
   PM32413_MultiClientPasswordManagement = "pm-32413-multi-client-password-management",
   // TODO: PM-34091 - Remove this flag and its DefaultFeatureFlagValue entry below.
   PM4516_DevicesLastActivityDate = "pm-4516-devices-add-last-activity-date",
@@ -84,6 +85,7 @@ export enum FeatureFlag {
   /* Platform */
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
   WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
+  ElectronStorageCache = "pm-32783-electron-storage-cache",
 
   /* Desktop */
   DesktopUiMigrationMilestone3 = "desktop-ui-migration-milestone-3",
@@ -147,6 +149,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SafariAccountSwitching]: FALSE,
   [FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis]: FALSE,
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
+  [FeatureFlag.UseUnlockServiceForPasswordLogin]: FALSE,
   [FeatureFlag.PM32413_MultiClientPasswordManagement]: FALSE,
   // TODO: PM-34091 - Remove this default value entry.
   [FeatureFlag.PM4516_DevicesLastActivityDate]: FALSE,
@@ -178,6 +181,7 @@ export const DefaultFeatureFlagValue = {
   /* Platform */
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
   [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
+  [FeatureFlag.ElectronStorageCache]: FALSE,
 
   /* Desktop */
   [FeatureFlag.DesktopUiMigrationMilestone3]: FALSE,
