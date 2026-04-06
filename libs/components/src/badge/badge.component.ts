@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,78 +7,107 @@ import {
   input,
 } from "@angular/core";
 
-import { FocusableElement } from "../shared/focusable-element";
+import { IconComponent } from "../icon";
+import { BitwardenIcon } from "../shared/icon";
+
+/**
+ * @deprecated Use 'primary' instead. This variant will be removed in a future version.
+ */
+export type LegacyInfoVariant = "info";
+
+/**
+ * @deprecated Use 'subtle' instead. This variant will be removed in a future version.
+ */
+export type LegacySecondaryVariant = "secondary";
 
 export type BadgeVariant =
   | "primary"
-  | "secondary"
+  | "subtle"
   | "success"
   | "danger"
   | "warning"
-  | "info"
-  | "notification";
+  | "accent-primary"
+  | LegacyInfoVariant
+  | LegacySecondaryVariant;
 
-const styles: Record<BadgeVariant, string[]> = {
-  primary: ["tw-bg-primary-100", "tw-border-primary-700", "!tw-text-primary-700"],
-  secondary: ["tw-bg-secondary-100", "tw-border-secondary-700", "!tw-text-secondary-700"],
-  success: ["tw-bg-success-100", "tw-border-success-700", "!tw-text-success-700"],
-  danger: ["tw-bg-danger-100", "tw-border-danger-700", "!tw-text-danger-700"],
-  warning: ["tw-bg-warning-100", "tw-border-warning-700", "!tw-text-warning-700"],
-  info: ["tw-bg-info-100", "tw-border-info-700", "!tw-text-info-700"],
-  notification: [
-    "tw-bg-notification-100",
-    "tw-border-notification-600",
-    "!tw-text-notification-600",
+export type BadgeSize = "small" | "large";
+
+const variantStyles: Record<BadgeVariant, string[]> = {
+  primary: ["tw-bg-bg-brand-softer", "tw-border-border-brand-soft", "tw-text-fg-brand-strong"],
+  info: ["tw-bg-bg-brand-softer", "tw-border-border-brand-soft", "tw-text-fg-brand-strong"],
+  subtle: ["tw-bg-bg-secondary", "tw-border-border-base", "tw-text-fg-body"],
+  secondary: ["tw-bg-bg-secondary", "tw-border-border-base", "tw-text-fg-body"],
+  success: ["tw-bg-bg-success-soft", "tw-border-border-success-soft", "tw-text-fg-success-strong"],
+  warning: ["tw-bg-bg-warning-soft", "tw-border-border-warning-soft", "tw-text-fg-warning-strong"],
+  danger: ["tw-bg-bg-danger-soft", "tw-border-border-danger-soft", "tw-text-fg-danger-strong"],
+  "accent-primary": [
+    "tw-bg-bg-accent-primary-soft",
+    "tw-border-border-accent-primary-soft",
+    "tw-text-fg-accent-primary-strong",
   ],
 };
 
-const hoverStyles: Record<BadgeVariant, string[]> = {
-  primary: ["hover:tw-bg-primary-600", "hover:tw-border-primary-600", "hover:!tw-text-contrast"],
-  secondary: [
-    "hover:tw-bg-secondary-600",
-    "hover:tw-border-secondary-600",
-    "hover:!tw-text-contrast",
-  ],
-  success: ["hover:tw-bg-success-600", "hover:tw-border-success-600", "hover:!tw-text-contrast"],
-  danger: ["hover:tw-bg-danger-600", "hover:tw-border-danger-600", "hover:!tw-text-contrast"],
-  warning: ["hover:tw-bg-warning-600", "hover:tw-border-warning-600", "hover:!tw-text-black"],
-  info: ["hover:tw-bg-info-600", "hover:tw-border-info-600", "hover:!tw-text-black"],
-  notification: [
-    "hover:tw-bg-notification-600",
-    "hover:tw-border-notification-600",
-    "hover:!tw-text-contrast",
-  ],
+type SizeStyle = {
+  label: string[];
+  icon: string[];
 };
+
+// Size mappings
+const sizeStyles: Record<BadgeSize, SizeStyle> = {
+  small: {
+    label: ["tw-text-xs/4", "tw-px-1", "tw-py-0.5"],
+    icon: ["tw-text-sm/3"],
+  },
+  large: {
+    label: ["tw-text-sm/5", "tw-px-1.5", "tw-py-1"],
+    icon: ["tw-text-base/5"],
+  },
+};
+
+const commonStyles = [
+  "tw-inline-flex",
+  "tw-items-center",
+  "tw-rounded-full",
+  "tw-border",
+  "tw-font-medium",
+  "tw-cursor-default",
+];
+
+const defaultIconMap: Record<BadgeVariant, BitwardenIcon | null> = {
+  info: null,
+  subtle: null,
+  secondary: null,
+  primary: null,
+  success: "bwi-check-circle",
+  warning: "bwi-exclamation-triangle",
+  danger: "bwi-error",
+  "accent-primary": null,
+};
+
+const getDefaultIconForVariant = (variant: BadgeVariant) => defaultIconMap[variant];
+
 /**
- * Badges are primarily used as labels, counters, and small buttons.
- * Typically Badges are only used with text set to `text-xs`. If additional sizes are needed, the component configurations may be reviewed and adjusted.
+ * Badges are used as labels.
  *
- * The Badge directive can be used on a `<span>` (non clickable events), or an `<a>` or `<button>` tag
- *
- * > `NOTE:` The Focus and Hover states only apply to badges used for interactive events.
- *
- * > `NOTE:` The `disabled` state only applies to buttons.
+ * The Badge directive can only be used on a `<span>` tag
  */
 @Component({
-  selector: "span[bitBadge], a[bitBadge], button[bitBadge]",
-  providers: [{ provide: FocusableElement, useExisting: BadgeComponent }],
-  imports: [CommonModule],
+  selector: "span[bitBadge], bit-badge",
+  imports: [IconComponent],
   templateUrl: "badge.component.html",
   host: {
     "[class]": "classList()",
-    "[attr.title]": "titleAttr()",
+    "[attr.title]": "titleContent()",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BadgeComponent implements FocusableElement {
+export class BadgeComponent {
   private readonly el = inject(ElementRef<HTMLElement>);
 
-  private readonly hasHoverEffects = this.el.nativeElement.nodeName !== "SPAN";
-
   /**
-   * Optional override for the automatic badge title attribute when truncating.
-   * When truncating is enabled and this is not provided, the badge will automatically
-   * use its text content as the title.
+   * Optional override for the tooltip content when content overflows.
+   * When overflow is detected and this is not provided, the badge will automatically
+   * use its text content as the tooltip.
    */
   readonly title = input<string>();
 
@@ -89,58 +117,54 @@ export class BadgeComponent implements FocusableElement {
   readonly variant = input<BadgeVariant>("primary");
 
   /**
+   * Size of the badge, which determines its padding and font size.
+   */
+  readonly size = input<BadgeSize>("large");
+
+  /**
    * Whether to truncate long text with ellipsis when it exceeds maxWidthClass.
    * When enabled, a title attribute is automatically added for accessibility.
    */
   readonly truncate = input(true);
 
   /**
-   * Tailwind max-width class to apply when truncating is enabled.
+   * Tailwind max-width class to apply to constrain badge width.
    * Must be a valid Tailwind max-width utility class (e.g., "tw-max-w-40", "tw-max-w-xs").
    */
   readonly maxWidthClass = input<`tw-max-w-${string}`>("tw-max-w-40");
 
+  readonly startIcon = input<BitwardenIcon | null | undefined>(undefined);
+
+  protected readonly computedIcon = computed(() => {
+    if (this.startIcon() === null) {
+      return null;
+    }
+
+    return this.startIcon() || getDefaultIconForVariant(this.variant());
+  });
+
+  protected readonly iconSizeStyles = computed(() => {
+    return sizeStyles[this.size()]?.icon;
+  });
+
   protected readonly classList = computed(() => {
     return [
-      "tw-inline-block",
-      "tw-py-1",
-      "tw-px-2",
-      "tw-font-medium",
-      "tw-text-center",
-      "tw-align-text-top",
-      "tw-rounded-full",
-      "tw-border-[0.5px]",
-      "tw-border-solid",
-      "tw-box-border",
-      "tw-whitespace-nowrap",
-      "tw-text-xs",
-      "hover:tw-no-underline",
-      "focus-visible:tw-outline-none",
-      "focus-visible:tw-ring-2",
-      "focus-visible:tw-ring-offset-2",
-      "focus-visible:tw-ring-primary-600",
-      "disabled:tw-bg-secondary-300",
-      "disabled:hover:tw-bg-secondary-300",
-      "disabled:tw-border-secondary-300",
-      "disabled:hover:tw-border-secondary-300",
-      "disabled:!tw-text-muted",
-      "disabled:hover:!tw-text-muted",
-      "disabled:tw-cursor-not-allowed",
-    ]
-      .concat(styles[this.variant()])
-      .concat(this.hasHoverEffects ? [...hoverStyles[this.variant()], "tw-min-w-10"] : [])
-      .concat(this.truncate() ? this.maxWidthClass() : []);
+      ...commonStyles,
+      ...sizeStyles[this.size()].label,
+      ...variantStyles[this.variant()],
+    ].concat(this.truncate() ? this.maxWidthClass() : "");
   });
 
-  protected readonly titleAttr = computed(() => {
-    const title = this.title();
-    if (title !== undefined) {
-      return title;
+  /**
+   * Computed title content - only shows when content is overflowing
+   */
+  protected readonly titleContent = computed(() => {
+    // Use custom title if provided, otherwise use text content
+    const customTitle = this.title();
+    if (customTitle !== undefined) {
+      return customTitle;
     }
-    return this.truncate() ? this.el.nativeElement?.textContent?.trim() : null;
-  });
 
-  getFocusTarget() {
-    return this.el.nativeElement;
-  }
+    return this.truncate() ? this.el.nativeElement?.textContent?.trim() || "" : undefined;
+  });
 }

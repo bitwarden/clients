@@ -43,6 +43,7 @@ type NotificationBarIframeInitData = {
   removeIndividualVault?: boolean;
   theme?: Theme;
   type?: NotificationType;
+  showAnimations?: boolean;
   params?: AtRiskPasswordNotificationParams | any;
 };
 

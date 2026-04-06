@@ -17,10 +17,12 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
+  AvatarDefaultColors,
   DIALOG_DATA,
   DialogConfig,
   DialogRef,
   DialogService,
+  isAvatarColor,
   ToastService,
 } from "@bitwarden/components";
 
@@ -47,17 +49,14 @@ export class ChangeAvatarDialogComponent implements OnInit, OnDestroy {
   @ViewChild("colorPicker") colorPickerElement: ElementRef<HTMLElement>;
 
   loading = false;
-  defaultColorPalette: NamedAvatarColor[] = [
-    { name: "brightBlue", color: "#16cbfc" },
-    { name: "green", color: "#94cc4b" },
-    { name: "orange", color: "#ffb520" },
-    { name: "lavender", color: "#e5beed" },
-    { name: "yellow", color: "#fcff41" },
-    { name: "indigo", color: "#acbdf7" },
-    { name: "teal", color: "#8ecdc5" },
-    { name: "salmon", color: "#ffa3a3" },
-    { name: "pink", color: "#ffa2d4" },
-  ];
+
+  defaultColorPalette: NamedAvatarColor[] = AvatarDefaultColors.map((color) => {
+    return {
+      color,
+      name: this.i18nService.t(color === "brand" ? "blue" : color),
+    };
+  });
+
   customColorSelected = false;
   currentSelection: string;
 
@@ -77,9 +76,6 @@ export class ChangeAvatarDialogComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    //localize the default colors
-    this.defaultColorPalette.forEach((c) => (c.name = this.i18nService.t(c.name)));
-
     this.customColor$
       .pipe(debounceTime(200), takeUntil(this.destroy$))
       .subscribe((color: string | null) => {
@@ -102,12 +98,12 @@ export class ChangeAvatarDialogComponent implements OnInit, OnDestroy {
     this.setSelection(this.customColor$.value);
   }
 
-  async generateAvatarColor() {
-    Utils.stringToColor(this.profile.name.toString());
-  }
-
   submit = async () => {
-    if (Utils.validateHexColor(this.currentSelection) || this.currentSelection == null) {
+    const defaultColorSelected = isAvatarColor(this.currentSelection);
+    const isValidHex = Utils.validateHexColor(this.currentSelection);
+    const isValidSelection = this.currentSelection == null || defaultColorSelected || isValidHex;
+
+    if (isValidSelection) {
       await this.avatarService.setAvatarColor(this.currentSelection);
       this.dialogRef.close();
       this.toastService.showToast({
