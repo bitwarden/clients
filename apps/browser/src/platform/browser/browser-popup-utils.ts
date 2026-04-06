@@ -2,21 +2,15 @@
 // @ts-strict-ignore
 import { filter, firstValueFrom, interval, of, switchMap, takeWhile, timeout } from "rxjs";
 
+import { PopupWidthOptions } from "@bitwarden/common/platform/services/popup-size.state";
+
 import { ScrollOptions } from "./abstractions/browser-popup-utils.abstractions";
 import { BrowserApi } from "./browser-api";
 
-/**
- *
- * Value represents width in pixels
- */
-export const PopupWidthOptions = Object.freeze({
-  default: 480,
-  wide: 600,
-  narrow: 380,
-});
-
-type PopupWidthOptions = typeof PopupWidthOptions;
-export type PopupWidthOption = keyof PopupWidthOptions;
+export {
+  PopupWidthOptions,
+  PopupWidthOption,
+} from "@bitwarden/common/platform/services/popup-size.state";
 
 export default class BrowserPopupUtils {
   /**

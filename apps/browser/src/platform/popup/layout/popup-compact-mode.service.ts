@@ -1,12 +1,9 @@
 import { inject, Injectable } from "@angular/core";
 import { map, Observable } from "rxjs";
 
-import { GlobalStateProvider, KeyDefinition, THEMING_DISK } from "@bitwarden/common/platform/state";
+import { GlobalStateProvider } from "@bitwarden/common/platform/state";
+import { COMPACT_MODE } from "@bitwarden/common/platform/theming/compact-mode.state";
 import { CompactModeService } from "@bitwarden/components";
-
-const COMPACT_MODE = new KeyDefinition<boolean>(THEMING_DISK, "compactMode", {
-  deserializer: (s) => s,
-});
 
 /**
  * Service to persist Compact Mode to state / user settings.

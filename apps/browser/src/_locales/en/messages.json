@@ -439,6 +439,12 @@
   "sync": {
     "message": "Sync"
   },
+  "syncSettingsToOtherDevices": {
+    "message": "Sync settings to other devices"
+  },
+  "syncSettingsDescription": {
+    "message": "When available, settings will sync wherever you're logged in"
+  },
   "syncNow": {
     "message": "Sync now"
   },

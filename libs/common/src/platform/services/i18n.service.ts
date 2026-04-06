@@ -7,7 +7,7 @@ import { GlobalState, GlobalStateProvider, KeyDefinition, TRANSLATION_DISK } fro
 
 import { TranslationService } from "./translation.service";
 
-const LOCALE_KEY = new KeyDefinition<string>(TRANSLATION_DISK, "locale", {
+export const LOCALE_KEY = new KeyDefinition<string>(TRANSLATION_DISK, "locale", {
   deserializer: (value) => value,
 });
 

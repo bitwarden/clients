@@ -25,7 +25,7 @@ import {
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
 
-const SHOW_FAVICONS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "showFavicons", {
+export const SHOW_FAVICONS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "showFavicons", {
   deserializer: (value: boolean) => value ?? true,
 });
 
@@ -48,7 +48,7 @@ const EQUIVALENT_DOMAINS = new UserKeyDefinition(DOMAIN_SETTINGS_DISK, "equivale
   clearOn: ["logout"],
 });
 
-const DEFAULT_URI_MATCH_STRATEGY = new UserKeyDefinition(
+export const DEFAULT_URI_MATCH_STRATEGY = new UserKeyDefinition(
   DOMAIN_SETTINGS_DISK,
   "defaultUriMatchStrategy",
   {

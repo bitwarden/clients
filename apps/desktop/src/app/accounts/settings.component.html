@@ -112,6 +112,11 @@
               </button>
             </h2>
             <ng-container *ngIf="showAccountPreferences">
+              <div
+                class="form-group [&_label]:!tw-inline-flex [&_label]:!tw-w-auto [&_label]:!tw-mb-0"
+              >
+                <bit-enable-user-preferences-sync></bit-enable-user-preferences-sync>
+              </div>
               <div class="form-group">
                 <label for="clearClipboard">{{ "clearClipboard" | i18n }}</label>
                 <select

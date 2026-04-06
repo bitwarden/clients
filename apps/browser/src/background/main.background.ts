@@ -191,6 +191,7 @@ import { WindowStorageService } from "@bitwarden/common/platform/storage/window-
 import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for service creation
 import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
+import { PreferenceSyncService } from "@bitwarden/common/platform/sync/preferences";
 import { SystemNotificationsService } from "@bitwarden/common/platform/system-notifications/";
 import { SystemNotificationEvent } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
 import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platform/system-notifications/unsupported-system-notifications.service";
@@ -1070,6 +1071,15 @@ export default class MainBackground {
 
     this.providerService = new ProviderService(this.stateProvider);
 
+    const preferenceSyncService = new PreferenceSyncService(
+      this.stateProvider,
+      this.encryptService,
+      (userId) => firstValueFrom(this.keyService.userKey$(userId)),
+      this.apiService,
+      this.logService,
+      this.platformUtilsService,
+    );
+
     this.syncService = new DefaultSyncService(
       this.masterPasswordService,
       this.accountService,
@@ -1098,6 +1108,7 @@ export default class MainBackground {
       this.securityStateService,
       this.kdfConfigService,
       this.accountCryptographicStateService,
+      preferenceSyncService,
     );
 
     this.syncServiceListener = new SyncServiceListener(

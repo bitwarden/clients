@@ -65,6 +65,7 @@ import { MessageSender } from "../messaging";
 import { StateProvider } from "../state";
 
 import { CoreSyncService } from "./core-sync.service";
+import { PreferenceSyncService } from "./preferences/preference-sync.service";
 import { SyncResponse } from "./sync.response";
 import { SyncOptions } from "./sync.service";
 
@@ -108,6 +109,7 @@ export class DefaultSyncService extends CoreSyncService {
     private securityStateService: SecurityStateService,
     private kdfConfigService: KdfConfigService,
     private accountCryptographicStateService: AccountCryptographicStateService,
+    private preferenceSyncService?: PreferenceSyncService,
   ) {
     super(
       tokenService,
@@ -159,6 +161,7 @@ export class DefaultSyncService extends CoreSyncService {
       if (needsSyncSucceeded) {
         await this.setLastSync(now, userId);
       }
+      this.preferenceSyncService?.beginSyncedKeyWatch(userId);
       return this.syncCompleted(false, userId);
     }
 
@@ -193,6 +196,12 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncSends(response.sends, response.profile.id);
       await this.syncSettings(response.domains, response.profile.id);
       await this.syncPolicies(response.policies, response.profile.id);
+      await this.preferenceSyncService?.applySyncedUserPreferences(
+        response.userPreferences,
+        response.profile.id,
+      );
+
+      this.preferenceSyncService?.beginSyncedKeyWatch(response.profile.id);
 
       await this.setLastSync(now, userId);
       return this.syncCompleted(true, userId);

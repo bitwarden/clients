@@ -36,7 +36,7 @@ export abstract class AnimationControlService {
   abstract setEnableRoutingAnimation(state: boolean): Promise<void>;
 }
 
-const ROUTING_ANIMATION = new KeyDefinition<boolean>(ANIMATION_DISK, "routing", {
+export const ROUTING_ANIMATION = new KeyDefinition<boolean>(ANIMATION_DISK, "routing", {
   deserializer: (s) => s,
 });
 

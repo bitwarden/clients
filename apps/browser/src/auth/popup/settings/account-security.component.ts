@@ -19,6 +19,7 @@ import {
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { EnableUserPreferencesSyncComponent } from "@bitwarden/angular/platform/sync/preferences/enable-user-preferences-sync.component";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
 import { LockService } from "@bitwarden/auth/common";
@@ -85,6 +86,7 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     CardComponent,
     CheckboxModule,
     CommonModule,
+    EnableUserPreferencesSyncComponent,
     FormFieldModule,
     FormsModule,
     ReactiveFormsModule,

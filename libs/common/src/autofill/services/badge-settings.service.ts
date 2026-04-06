@@ -9,10 +9,14 @@ import {
   UserKeyDefinition,
 } from "../../platform/state";
 
-const ENABLE_BADGE_COUNTER = new UserKeyDefinition(BADGE_SETTINGS_DISK, "enableBadgeCounter", {
-  deserializer: (value: boolean) => value ?? true,
-  clearOn: [],
-});
+export const ENABLE_BADGE_COUNTER = new UserKeyDefinition(
+  BADGE_SETTINGS_DISK,
+  "enableBadgeCounter",
+  {
+    deserializer: (value: boolean) => value ?? true,
+    clearOn: [],
+  },
+);
 
 export abstract class BadgeSettingsServiceAbstraction {
   enableBadgeCounter$: Observable<boolean>;
