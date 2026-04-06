@@ -1,7 +1,7 @@
 ---
 name: cipher-type-planner
 description: Plans the creation or modification of a cipher type (vault item type) across the Bitwarden clients monorepo. Use this skill when a user wants to add a new cipher type, modify an existing cipher type, or asks about what is needed to implement a cipher type. DO NOT invoke for general vault or cipher questions unrelated to adding or changing a cipher type.
-user-invokable: true
+user-invocable: true
 argument-hint: [target-client]
 ---
 
