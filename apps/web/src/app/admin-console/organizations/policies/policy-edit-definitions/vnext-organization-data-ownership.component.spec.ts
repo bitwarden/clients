@@ -5,6 +5,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
@@ -12,6 +13,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { KeyService } from "@bitwarden/key-management";
 
 import {
   vNextOrganizationDataOwnershipPolicy,
@@ -66,6 +68,8 @@ describe("vNextOrganizationDataOwnershipPolicyComponent", () => {
         { provide: EncryptService, useValue: mock<EncryptService>() },
         { provide: OrganizationService, useValue: mockOrganizationService },
         { provide: AccountService, useValue: mockAccountService },
+        { provide: KeyService, useValue: mock<KeyService>() },
+        { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -76,7 +80,7 @@ describe("vNextOrganizationDataOwnershipPolicyComponent", () => {
 
   describe("loadData with null server response", () => {
     it("should default enableIndividualItemsTransfer to false when data is null", async () => {
-      component.policyResponse = makePolicyResponse(true, null);
+      fixture.componentRef.setInput("policyResponse", makePolicyResponse(true, null));
 
       await component.ngOnInit();
 
@@ -84,7 +88,10 @@ describe("vNextOrganizationDataOwnershipPolicyComponent", () => {
     });
 
     it("should default enableIndividualItemsTransfer to false when the attribute is null", async () => {
-      component.policyResponse = makePolicyResponse(true, { enableIndividualItemsTransfer: null });
+      fixture.componentRef.setInput(
+        "policyResponse",
+        makePolicyResponse(true, { enableIndividualItemsTransfer: null }),
+      );
 
       await component.ngOnInit();
 
@@ -95,7 +102,7 @@ describe("vNextOrganizationDataOwnershipPolicyComponent", () => {
   describe("useMyItems conditional behavior", () => {
     it("should enable enableIndividualItemsTransfer control when policy is enabled and organization.useMyItems is true", async () => {
       setupOrg(true);
-      component.policyResponse = makePolicyResponse(true);
+      fixture.componentRef.setInput("policyResponse", makePolicyResponse(true));
 
       await component.ngOnInit();
 
@@ -104,7 +111,7 @@ describe("vNextOrganizationDataOwnershipPolicyComponent", () => {
 
     it("should keep enableIndividualItemsTransfer control disabled when policy is enabled but organization.useMyItems is false", async () => {
       setupOrg(false);
-      component.policyResponse = makePolicyResponse(true);
+      fixture.componentRef.setInput("policyResponse", makePolicyResponse(true));
 
       await component.ngOnInit();
 
@@ -113,7 +120,7 @@ describe("vNextOrganizationDataOwnershipPolicyComponent", () => {
 
     it("should keep enableIndividualItemsTransfer control disabled when organization is not found", async () => {
       // mockOrganizationService returns [] by default (no org found)
-      component.policyResponse = makePolicyResponse(true);
+      fixture.componentRef.setInput("policyResponse", makePolicyResponse(true));
 
       await component.ngOnInit();
 
@@ -122,7 +129,7 @@ describe("vNextOrganizationDataOwnershipPolicyComponent", () => {
 
     it("should enable enableIndividualItemsTransfer control when enabled changes to true and useMyItems is true", async () => {
       setupOrg(true);
-      component.policyResponse = makePolicyResponse(false);
+      fixture.componentRef.setInput("policyResponse", makePolicyResponse(false));
       await component.ngOnInit();
 
       component.enabled.setValue(true);
@@ -132,7 +139,7 @@ describe("vNextOrganizationDataOwnershipPolicyComponent", () => {
 
     it("should keep enableIndividualItemsTransfer control disabled when enabled changes to true but useMyItems is false", async () => {
       setupOrg(false);
-      component.policyResponse = makePolicyResponse(false);
+      fixture.componentRef.setInput("policyResponse", makePolicyResponse(false));
       await component.ngOnInit();
 
       component.enabled.setValue(true);
@@ -144,7 +151,10 @@ describe("vNextOrganizationDataOwnershipPolicyComponent", () => {
   describe("buildRequestData", () => {
     it("should return enableIndividualItemsTransfer: false when useMyItems is false, even if control value is true", async () => {
       setupOrg(false);
-      component.policyResponse = makePolicyResponse(true, { enableIndividualItemsTransfer: true });
+      fixture.componentRef.setInput(
+        "policyResponse",
+        makePolicyResponse(true, { enableIndividualItemsTransfer: true }),
+      );
 
       await component.ngOnInit();
 
@@ -155,7 +165,10 @@ describe("vNextOrganizationDataOwnershipPolicyComponent", () => {
 
     it("should return enableIndividualItemsTransfer: true when useMyItems is true and control value is true", async () => {
       setupOrg(true);
-      component.policyResponse = makePolicyResponse(true, { enableIndividualItemsTransfer: true });
+      fixture.componentRef.setInput(
+        "policyResponse",
+        makePolicyResponse(true, { enableIndividualItemsTransfer: true }),
+      );
 
       await component.ngOnInit();
 

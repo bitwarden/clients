@@ -66,7 +66,7 @@ describe("MultiStepPolicyEditDialogComponent", () => {
   /** Sets up the component state as if ngAfterViewInit had run with the given steps. */
   function setupSteps(steps: PolicyStep[]) {
     (component as any).policySteps.set(steps);
-    component.policyComponent = policyComponent;
+    (component as any).policyComponent.set(policyComponent);
   }
 
   describe("submit()", () => {
