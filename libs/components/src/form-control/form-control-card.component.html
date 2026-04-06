@@ -18,8 +18,16 @@
       [class.tw-text-muted]="base.formControl().disabled"
       [class.tw-text-main]="!base.formControl().disabled"
     >
-      <span [id]="labelId" bitTypography="body2" class="tw-leading-5 tw-font-medium">
+      <span
+        [id]="labelId"
+        bitTypography="body2"
+        class="tw-flex tw-gap-0.5 tw-items-center tw-leading-5 tw-font-medium"
+      >
         <ng-content select="bit-label"></ng-content>
+        @if (required) {
+          <sup class="tw-text-sm tw-text-fg-danger tw-relative tw-top-[-1px]">*</sup>
+          <span class="tw-sr-only"> ({{ "required" | i18n }})</span>
+        }
       </span>
       <ng-content select="bit-hint"></ng-content>
     </span>
