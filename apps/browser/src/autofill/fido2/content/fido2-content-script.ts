@@ -110,6 +110,18 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
   }
 
   /**
+   * Returns whether the current context is same-origin with its ancestors.
+   * Safari can throw when reading `window.top` from blocked cross-origin iframes.
+   */
+  function isSameOriginWithAncestors(): boolean {
+    try {
+      return globalContext.self === globalContext.top;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * Sends a message to the extension to handle the
    * credential request and returns the result.
    *
@@ -129,7 +141,7 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
     const data: CreateCredentialParams | AssertCredentialParams = {
       ...messageData,
       origin: globalContext.location.origin,
-      sameOriginWithAncestors: globalContext.self === globalContext.top,
+      sameOriginWithAncestors: isSameOriginWithAncestors(),
     };
 
     const result = await sendExtensionMessage(command, { data, requestId });

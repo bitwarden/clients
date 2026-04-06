@@ -120,6 +120,35 @@ describe("Fido2 Content Script", () => {
     });
   });
 
+  it("handles SecurityError when reading window.top in cross-origin iframes", async () => {
+    const message = mock<MessageWithMetadata>({
+      type: MessageTypes.CredentialGetRequest,
+      data: mock<InsecureCreateCredentialParams>(),
+    });
+    const topGetterSpy = jest.spyOn(globalThis, "top", "get").mockImplementation(() => {
+      throw new DOMException("Blocked a frame", "SecurityError");
+    });
+
+    try {
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require("./fido2-content-script");
+
+      await messenger.handler!(message, new AbortController());
+
+      expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
+        command: "fido2GetCredentialRequest",
+        data: expect.objectContaining({
+          origin: globalThis.location.origin,
+          sameOriginWithAncestors: false,
+        }),
+        requestId: expect.any(String),
+      });
+    } finally {
+      topGetterSpy.mockRestore();
+    }
+  });
+
   it("removes the abort handler when the FIDO2 request is complete", async () => {
     const message = mock<MessageWithMetadata>({
       type: MessageTypes.CredentialCreationRequest,
