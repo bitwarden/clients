@@ -226,6 +226,22 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
       },
     ];
 
+    const blumiraFeatureEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.EventManagementForBlumira),
+    );
+
+    if (blumiraFeatureEnabled) {
+      integrations.push({
+        name: OrganizationIntegrationServiceName.Blumira,
+        linkURL: "https://bitwarden.com/help/blumira-siem/",
+        image: "../../../../../../../images/integrations/logo-blumira-color.svg",
+        imageDarkMode: "../../../../../../../images/integrations/logo-blumira-darkmode.svg",
+        type: IntegrationType.EVENT,
+        canSetupConnection: true,
+        integrationType: OrganizationIntegrationType.Hec,
+      });
+    }
+
     const featureEnabled = await firstValueFrom(
       this.configService.getFeatureFlag$(FeatureFlag.EventManagementForDataDogAndCrowdStrike),
     );
