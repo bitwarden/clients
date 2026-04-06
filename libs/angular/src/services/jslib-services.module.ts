@@ -940,6 +940,8 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       LogService,
       BiometricsService,
+      PlatformUtilsServiceAbstraction,
+      StateServiceAbstraction,
     ],
   }),
   safeProvider({

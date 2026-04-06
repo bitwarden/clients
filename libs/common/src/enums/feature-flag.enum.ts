@@ -171,7 +171,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
   [FeatureFlag.SdkKeyConnectorMigration]: FALSE,
-  [FeatureFlag.UnlockViaSDK]: FALSE,
+  [FeatureFlag.UnlockViaSDK]: true,
 
   /* Platform */
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
