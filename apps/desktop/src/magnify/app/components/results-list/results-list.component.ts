@@ -16,7 +16,7 @@ import {
   isMagnifyLoginItem,
   MagnifySearchResultItem,
 } from "../../../../autofill/models/magnify-commands";
-import { MAGNIFY_PLATFORM } from "../../../main";
+import { MAGNIFY_PLATFORM } from "../../utils/magnify-platform";
 
 export type CompletingAction = { actionId: string; itemIndex: number } | null;
 

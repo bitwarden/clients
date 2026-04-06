@@ -2,7 +2,7 @@ import { NgFor, NgIf } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 import { MagnifyAction } from "../../../../autofill/models/magnify-actions";
-import { MAGNIFY_PLATFORM } from "../../../main";
+import { MAGNIFY_PLATFORM } from "../../utils/magnify-platform";
 
 @Component({
   selector: "action-bar",
