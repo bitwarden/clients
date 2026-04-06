@@ -1,0 +1,74 @@
+.vault-auth-status {
+  --bg-spotlight: rgba(255, 255, 255, 0.95);
+  --text-primary: #000000;
+  --text-secondary: rgba(0, 0, 0, 0.65);
+  --border-color: rgba(0, 0, 0, 0.15);
+  --icon-color: rgba(0, 0, 0, 0.5);
+  --preview-bg: rgba(0, 0, 0, 0.04);
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: var(--bg-spotlight);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-color-scheme: dark) {
+  .vault-auth-status {
+    --bg-spotlight: rgba(40, 40, 40, 0.97);
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.65);
+    --border-color: rgba(255, 255, 255, 0.15);
+    --icon-color: rgba(255, 255, 255, 0.5);
+    --preview-bg: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.status-icon {
+  flex-shrink: 0;
+  color: var(--icon-color);
+}
+
+.status-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.status-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.status-subtitle {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.status-hint {
+  margin-left: auto;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.hint-key {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--preview-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 1px 6px;
+}

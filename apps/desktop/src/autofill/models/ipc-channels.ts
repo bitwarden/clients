@@ -20,4 +20,6 @@ export const MAGNIFY_IPC_CHANNELS = {
   MAGNIFY_COMMAND_RELAY_ERROR: "autofill.magnifyCommandRelayError",
   // BW render process -> Main process
   MAGNIFY_COMMAND_RESPONSE: "autofill.magnifyCommandResponse",
+  // Magnify render process -> Main process: focus the main BW window and close Magnify
+  MAGNIFY_FOCUS_BITWARDEN: "autofill.magnifyFocusBitwarden",
 } as const;
