@@ -1,11 +1,35 @@
+@let tabLabelContentClasses =
+  "tw-flex tw-items-center tw-gap-1.5 tw-rounded group-focus-visible:tw-ring-2 group-focus-visible:tw-ring-border-focus";
+
+<ng-template #tabLabelContent let-tab="tab" let-truncate="truncate">
+  <span [class]="tabLabelContentClasses">
+    <span [class]="truncate ? 'tw-min-w-0 tw-truncate' : ''">
+      @if (tab.templateLabel) {
+        <ng-container [ngTemplateOutlet]="tab.templateLabel.templateRef"></ng-container>
+      } @else {
+        {{ tab.textLabel() }}
+      }
+    </span>
+    @if (tab.berryValue()) {
+      <bit-berry [value]="tab.berryValue()" />
+    }
+    @if (tab.trailingIcon()) {
+      <bit-icon [name]="tab.trailingIcon()" class="tw-text-base" />
+    }
+  </span>
+</ng-template>
+
 <bit-tab-header>
   <div
+    #tabListContainer
     bitTabListContainer
     role="tablist"
     [attr.aria-label]="label()"
     (keydown)="keyManager.onKeydown($event)"
+    [class.tw-invisible]="!tabListRendered()"
   >
     @for (tab of tabs(); track tab; let i = $index) {
+      @let truncate = i === 0 && overflowTabIndex() === 0;
       <button
         bitTabListItem
         type="button"
@@ -14,19 +38,34 @@
         [active]="tab.isActive"
         [disabled]="tab.disabled()"
         [attr.aria-selected]="selectedIndex === i"
+        [hidden]="i > 0 && overflowTabIndex() !== undefined && i >= overflowTabIndex()!"
         [attr.tabindex]="selectedIndex === i ? 0 : -1"
+        [class.tw-flex-1]="truncate"
+        [class.tw-overflow-hidden]="truncate"
         (click)="selectTab(i)"
       >
-        <ng-container [ngTemplateOutlet]="content"></ng-container>
-        <ng-template #content>
-          @if (tab.templateLabel) {
-            <ng-container [ngTemplateOutlet]="tab.templateLabel.templateRef"></ng-container>
-          } @else {
-            {{ tab.textLabel() }}
-          }
-        </ng-template>
+        <ng-container
+          [ngTemplateOutlet]="tabLabelContent"
+          [ngTemplateOutletContext]="{ tab: tab, truncate: truncate }"
+        ></ng-container>
       </button>
     }
+    <button
+      #moreButton
+      bitTabListItem
+      type="button"
+      role="tab"
+      [hidden]="overflowTabIndex() === undefined"
+      [attr.aria-hidden]="overflowTabIndex() === undefined ? 'true' : null"
+      [attr.tabindex]="overflowTabIndex() === undefined ? -1 : null"
+      [bitMenuTriggerFor]="overFlowTabsMenu"
+    >
+      <span [class]="tabLabelContentClasses">
+        More
+        <bit-berry [value]="tabs().length - overflowTabIndex()"></bit-berry>
+        <bit-icon name="bwi-angle-down" class="tw-text-base" />
+      </span>
+    </button>
   </div>
 </bit-tab-header>
 <div class="tw-px-6 tw-pt-5">
@@ -35,7 +74,7 @@
       role="tabpanel"
       [id]="getTabContentId(i)"
       [attr.tabindex]="tab.contentTabIndex()"
-      [attr.labeledby]="getTabLabelId(i)"
+      [attr.labelledby]="getTabLabelId(i)"
       [active]="tab.isActive"
       [content]="tab.content"
       [preserveContent]="preserveContent()"
@@ -43,3 +82,21 @@
     </bit-tab-body>
   }
 </div>
+
+<bit-menu #overFlowTabsMenu>
+  @if (overflowTabIndex()) {
+    @for (tab of tabs().slice(overflowTabIndex()); track tab; let i = $index) {
+      <button
+        bitMenuItem
+        type="button"
+        [disabled]="tab.disabled()"
+        (click)="selectTab(i + overflowTabIndex()!)"
+      >
+        <ng-container
+          [ngTemplateOutlet]="tabLabelContent"
+          [ngTemplateOutletContext]="{ tab: tab }"
+        ></ng-container>
+      </button>
+    }
+  }
+</bit-menu>

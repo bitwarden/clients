@@ -22,7 +22,12 @@ export class TabListItemDirective implements FocusableOption {
     return this.disabled || null; // native disabled attr must be null when false
   }
 
-  constructor(private elementRef: ElementRef) {}
+  @HostBinding("attr.aria-selected")
+  get ariaSelected() {
+    return this.active() === true;
+  }
+
+  constructor(readonly elementRef: ElementRef) {}
 
   focus() {
     this.elementRef.nativeElement.focus();
@@ -46,53 +51,40 @@ export class TabListItemDirective implements FocusableOption {
    */
   get textColorClassList(): string[] {
     if (this.disabled) {
-      return ["!tw-text-secondary-300", "hover:!tw-text-secondary-300"];
+      return ["!tw-text-fg-disabled", "hover:!tw-text-fg-disabled"];
     }
     if (this.active()) {
-      return ["!tw-text-primary-600", "hover:!tw-text-primary-700"];
+      return ["!tw-text-fg-brand"];
     }
-    return ["!tw-text-main", "hover:!tw-text-main"];
+    return ["!tw-text-fg-body", "hover:!tw-text-fg-brand"];
   }
 
   get baseClassList(): string[] {
     return [
       "tw-block",
       "tw-relative",
-      "tw-py-2",
-      "tw-px-4",
+      "tw-shrink-0",
+      "tw-whitespace-nowrap",
+      "tw--mb-px",
+      "tw-pb-3",
+      "tw-text-sm",
       "tw-font-medium",
       "tw-transition",
-      "tw-rounded-t-lg",
       "tw-border-0",
-      "tw-border-x",
-      "tw-border-t-4",
+      "tw-border-b-2",
       "tw-border-transparent",
       "tw-border-solid",
       "tw-bg-transparent",
-      "hover:tw-underline",
-      "focus-visible:tw-z-10",
-      "focus-visible:tw-outline-none",
-      "focus-visible:tw-ring-2",
-      "focus-visible:tw-ring-primary-600",
+      "tw-outline-none",
+      "tw-group",
     ];
   }
 
   get disabledClassList(): string[] {
-    return ["!tw-no-underline", "tw-cursor-not-allowed"];
+    return ["tw-cursor-not-allowed"];
   }
 
   get activeClassList(): string[] {
-    return [
-      "tw--mb-px",
-      "tw-border-x-secondary-100",
-      "tw-border-t-primary-600",
-      "tw-border-b",
-      "tw-border-b-background",
-      "!tw-bg-background",
-      "hover:tw-no-underline",
-      "hover:tw-border-t-primary-700",
-      "focus-visible:tw-border-t-primary-700",
-      "focus-visible:!tw-text-primary-700",
-    ];
+    return ["tw-font-semibold", "tw-border-bg-brand"];
   }
 }

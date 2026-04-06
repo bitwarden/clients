@@ -6,7 +6,7 @@ import { Directive } from "@angular/core";
 @Directive({
   selector: "[bitTabListContainer]",
   host: {
-    class: "tw-inline-flex tw-flex-wrap tw-leading-5",
+    class: "tw-inline-flex tw-flex-nowrap tw-w-full tw-leading-5 tw-gap-6",
   },
 })
 export class TabListContainerDirective {}

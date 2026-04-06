@@ -30,6 +30,10 @@ Tabs can be used in dialogs to separate related content.
 
 <Canvas of={dialogStories.TabContent} />
 
+## Overflow Tabs
+
+<Canvas of={stories.OverflowTabs}
+
 ## Accessibility
 
 **Navigation tabs** are implemented using the `<nav>` element and `<a>` for each tab.
@@ -37,5 +41,4 @@ Tabs can be used in dialogs to separate related content.
 **Content tabs** should be implemented with the `tablist` role and:
 
 - Use `<button>` for the tab elements
-- Set `aria-selected` for each tab; “true” for selected and “false” for unselected
 - See WCAG for more: https://www.w3.org/TR/wai-aria-practices/examples/tabs/tabs-1/tabs.html

@@ -7,6 +7,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { ButtonModule } from "../button";
 import { FormFieldModule } from "../form-field";
+import { IconModule } from "../icon";
 import { I18nMockService } from "../utils";
 
 import { TabGroupComponent } from "./tab-group/tab-group.component";
@@ -63,6 +64,7 @@ export default {
         ButtonModule,
         FormFieldModule,
         RouterModule,
+        IconModule,
         ActiveDummyComponent,
         ItemTwoDummyComponent,
         ItemThreeDummyComponent,
@@ -109,11 +111,13 @@ export const ContentTabs: Story = {
     props: args,
     template: `
       <bit-tab-group label="Main Content Tabs" class="tw-text-main">
-        <bit-tab label="First Tab">First Tab Content</bit-tab>
-        <bit-tab label="Second Tab">Second Tab Content</bit-tab>
+        <bit-tab label="First Tab" [berryValue]="5">First Tab Content</bit-tab>
+        <bit-tab label="Second Tab" [berryValue]="5" [trailingIcon]="'bwi-check-circle'">
+          Second Tab Content
+        </bit-tab>
         <bit-tab>
           <ng-template bitTabLabel>
-            <i class="bwi bwi-search tw-pe-1"></i> Template Label
+            <bit-icon name="bwi-search" /> Template Label
           </ng-template>
           Template Label Content
         </bit-tab>
@@ -194,6 +198,31 @@ export const KeyboardNavigation: Story = {
         </bit-tab>
       </bit-tab-group>
       <button type="button" bitButton buttonType="primary" class="tw-mt-5">External Button</button>
+    `,
+  }),
+};
+
+export const OverflowTabs: Story = {
+  render: (args: any) => ({
+    props: args,
+    template: `
+      <bit-tab-group label="Main Content Tabs" class="tw-text-main">
+        <bit-tab label="First Long Named TabFirst Long Named Tab" [berryValue]="5" [trailingIcon]="'bwi-check-circle'">
+          First Tab Content
+        </bit-tab>
+        <bit-tab label="Second Long Named Tab" [berryValue]="5" [trailingIcon]="'bwi-check-circle'">
+          Second Tab Content
+        </bit-tab>
+        <bit-tab label="Third Long Named Tab" [berryValue]="5" [trailingIcon]="'bwi-check-circle'">
+          Third Tab Content
+        </bit-tab>
+        <bit-tab label="Fourth Long Named Tab" [berryValue]="5" [trailingIcon]="'bwi-check-circle'">
+          Fourth Tab Content
+        </bit-tab>
+        <bit-tab label="Another Long Named Tab" [berryValue]="5" [trailingIcon]="'bwi-check-circle'">
+          Another Tab Content
+        </bit-tab>
+      </bit-tab-group>
     `,
   }),
 };

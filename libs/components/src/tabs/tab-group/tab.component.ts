@@ -7,22 +7,26 @@ import {
   ViewContainerRef,
   input,
   viewChild,
+  ChangeDetectionStrategy,
 } from "@angular/core";
+
+import { BitwardenIcon } from "../../shared/icon";
 
 import { TabLabelDirective } from "./tab-label.directive";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-tab",
   templateUrl: "./tab.component.html",
   host: {
     role: "tabpanel",
   },
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TabComponent implements OnInit {
   readonly disabled = input(false);
   readonly textLabel = input("", { alias: "label" });
+  readonly berryValue = input<number>();
+  readonly trailingIcon = input<BitwardenIcon>();
 
   /**
    * Optional tabIndex for the tabPanel that contains this tab's content.
@@ -39,15 +43,15 @@ export class TabComponent implements OnInit {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ContentChild(TabLabelDirective) templateLabel?: TabLabelDirective;
 
-  private _contentPortal: TemplatePortal | null = null;
+  private readonly _contentPortal: TemplatePortal | null = null;
 
   get content(): TemplatePortal | null {
     return this._contentPortal;
   }
 
-  isActive?: boolean;
+  readonly isActive?: boolean;
 
-  constructor(private _viewContainerRef: ViewContainerRef) {}
+  constructor(private readonly _viewContainerRef: ViewContainerRef) {}
 
   ngOnInit(): void {
     this._contentPortal = new TemplatePortal(this.implicitContent(), this._viewContainerRef);
