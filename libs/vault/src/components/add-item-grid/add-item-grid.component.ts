@@ -2,14 +2,19 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, input, output } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   RestrictedCipherType,
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DIALOG_CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
-import { BitwardenIcon, IconComponent, ItemModule, TypographyModule } from "@bitwarden/components";
+import {
+  BitwardenIcon,
+  IconComponent,
+  ItemModule,
+  TypographyModule,
+  IconTileComponent,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 type DialogItem = {
@@ -23,7 +28,7 @@ type DialogItem = {
   selector: "vault-add-item-grid",
   templateUrl: "./add-item-grid.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, JslibModule, I18nPipe, IconComponent, ItemModule, TypographyModule],
+  imports: [CommonModule, I18nPipe, IconTileComponent, IconComponent, ItemModule, TypographyModule],
 })
 export class AddItemGridComponent {
   readonly canCreateFolder = input(false);
