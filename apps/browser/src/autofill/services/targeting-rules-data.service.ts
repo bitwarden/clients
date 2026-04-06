@@ -197,9 +197,9 @@ export class TargetingRulesDataService {
     const resource: FormsMapResource = await response.json();
     const rules: TargetingRulesByDomain = resource?.hosts ?? {};
 
-    if (resource?.version) {
+    if (resource?.schemaVersion) {
       this.logService.debug(
-        `[TargetingRulesDataService] Resource schema version: ${resource.version}`,
+        `[TargetingRulesDataService] Resource schema version: ${resource.schemaVersion}`,
       );
     }
 

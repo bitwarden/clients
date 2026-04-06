@@ -265,19 +265,19 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     for (let formIndex = 0; formIndex < forms.length; formIndex++) {
       const form = forms[formIndex];
 
-      for (const [fieldType, selectors] of Object.entries(form.selectors)) {
-        if (!selectors?.length) {
+      for (const [fieldType, selectorAlternatives] of Object.entries(form.fields)) {
+        if (!selectorAlternatives?.length) {
           continue;
         }
 
-        // FIXME location of the form tag; presently unused
-        if (fieldType === "form") {
-          continue;
-        }
-
-        // Try each selector in order, use the first match found
+        // Try each selector alternative in order, use the first match found.
+        // Composite selectors (string[]) are skipped for now; only single
+        // selectors (string) are supported.
         let matchedElement: Element | null = null;
-        for (const selector of selectors) {
+        for (const selector of selectorAlternatives) {
+          if (typeof selector !== "string") {
+            continue;
+          }
           matchedElement = this.domQueryService.queryDeepSelector(selector);
           if (matchedElement) {
             break;
