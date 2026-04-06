@@ -239,6 +239,7 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
         type: IntegrationType.EVENT,
         canSetupConnection: true,
         integrationType: OrganizationIntegrationType.Hec,
+        urlHelperLinkText: "https://<BLUMIRA_HEC_URL>/services/collector/",
       });
     }
 

@@ -123,7 +123,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SendControls]: FALSE,
 
   /* DIRT */
-  [FeatureFlag.EventManagementForBlumira]: true,
+  [FeatureFlag.EventManagementForBlumira]: FALSE,
   [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
   [FeatureFlag.EventManagementForHuntress]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
