@@ -12,14 +12,14 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
-  BulkReinviteUI = "pm-28416-bulk-reinvite-ux-improvements",
 
   /* Auth */
-  PM23801_PrefetchPasswordPrelogin = "pm-23801-prefetch-password-prelogin",
   PM27086_UpdateAuthenticationApisForInputPassword = "pm-27086-update-authentication-apis-for-input-password",
   SafariAccountSwitching = "pm-5594-safari-account-switching",
   PM30811_ChangeEmailNewAuthenticationApis = "pm-30811-change-email-new-authentication-apis",
   PM31088_MasterPasswordServiceEmitSalt = "pm-31088-master-password-service-emit-salt",
+  UseUnlockServiceForPasswordLogin = "use-unlock-service-for-password-login",
+  PM32413_MultiClientPasswordManagement = "pm-32413-multi-client-password-management",
 
   /* Autofill */
   UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
@@ -29,11 +29,12 @@ export enum FeatureFlag {
   SSHAgentV2 = "ssh-agent-v2",
 
   /* Billing */
+  PM29108_EnablePersonalDiscounts = "pm-29108-enable-personal-discounts",
   TrialPaymentOptional = "PM-8163-trial-payment",
   PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
   PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
   PM26462_Milestone_3 = "pm-26462-milestone-3",
-  PM23341_Milestone_2 = "pm-23341-milestone-2",
+
   PM29594_UpdateIndividualSubscriptionPage = "pm-29594-update-individual-subscription-page",
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
 
@@ -45,7 +46,6 @@ export enum FeatureFlag {
   LinuxBiometricsV2 = "pm-26340-linux-biometrics-v2",
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
   PasskeyUnlock = "pm-2035-passkey-unlock",
-  DataRecoveryTool = "pm-28813-data-recovery-tool",
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
@@ -63,6 +63,7 @@ export enum FeatureFlag {
   EventManagementForHuntress = "event-management-for-huntress",
   PhishingDetection = "phishing-detection",
   Milestone11AppPageImprovements = "pm-30538-dirt-milestone-11-app-page-improvements",
+  AccessIntelligenceTrendChart = "pm-26961-access-intelligence-trend-chart",
   AccessIntelligenceNewArchitecture = "pm-31936-access-intelligence-new-architecture",
 
   /* Vault */
@@ -82,16 +83,11 @@ export enum FeatureFlag {
   /* Platform */
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
   WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
-
-  /* Innovation */
-  PM19148_InnovationArchive = "pm-19148-innovation-archive",
+  ElectronStorageCache = "pm-32783-electron-storage-cache",
 
   /* Desktop */
   DesktopUiMigrationMilestone3 = "desktop-ui-migration-milestone-3",
   DesktopUiMigrationMilestone4 = "desktop-ui-migration-milestone-4",
-
-  /* UIF */
-  RouterFocusManagement = "router-focus-management",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -110,7 +106,6 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.AutoConfirm]: FALSE,
-  [FeatureFlag.BulkReinviteUI]: FALSE,
 
   /* Autofill */
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
@@ -131,6 +126,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EventManagementForHuntress]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
   [FeatureFlag.Milestone11AppPageImprovements]: FALSE,
+  [FeatureFlag.AccessIntelligenceTrendChart]: FALSE,
   [FeatureFlag.AccessIntelligenceNewArchitecture]: FALSE,
 
   /* Vault */
@@ -147,18 +143,20 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
 
   /* Auth */
-  [FeatureFlag.PM23801_PrefetchPasswordPrelogin]: FALSE,
   [FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword]: FALSE,
   [FeatureFlag.SafariAccountSwitching]: FALSE,
   [FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis]: FALSE,
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
+  [FeatureFlag.UseUnlockServiceForPasswordLogin]: FALSE,
+  [FeatureFlag.PM32413_MultiClientPasswordManagement]: FALSE,
 
   /* Billing */
+  [FeatureFlag.PM29108_EnablePersonalDiscounts]: FALSE,
   [FeatureFlag.TrialPaymentOptional]: FALSE,
   [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
   [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,
   [FeatureFlag.PM26462_Milestone_3]: FALSE,
-  [FeatureFlag.PM23341_Milestone_2]: FALSE,
+
   [FeatureFlag.PM29594_UpdateIndividualSubscriptionPage]: FALSE,
   [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
 
@@ -170,7 +168,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
   [FeatureFlag.PasskeyUnlock]: FALSE,
-  [FeatureFlag.DataRecoveryTool]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
@@ -180,16 +177,11 @@ export const DefaultFeatureFlagValue = {
   /* Platform */
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
   [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
-
-  /* Innovation */
-  [FeatureFlag.PM19148_InnovationArchive]: FALSE,
+  [FeatureFlag.ElectronStorageCache]: FALSE,
 
   /* Desktop */
   [FeatureFlag.DesktopUiMigrationMilestone3]: FALSE,
   [FeatureFlag.DesktopUiMigrationMilestone4]: FALSE,
-
-  /* UIF */
-  [FeatureFlag.RouterFocusManagement]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { DatePipe } from "@angular/common";
-import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { Directive, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import {
   Subject,
@@ -14,8 +14,6 @@ import {
   tap,
 } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -36,6 +34,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 
 // Value = hours
 // FIXME: update to use a const object instead of a typescript enum
@@ -108,6 +107,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   protected componentName = "";
   private sendLinkBaseUrl: string;
   private destroy$ = new Subject<void>();
+  private sendPolicyService = inject(SendPolicyService);
 
   protected formGroup = this.formBuilder.group({
     name: ["", Validators.required],
@@ -137,7 +137,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected datePipe: DatePipe,
     protected sendService: SendService,
     protected messagingService: MessagingService,
-    protected policyService: PolicyService,
     protected logService: LogService,
     protected stateService: StateService,
     protected sendApiService: SendApiService,
@@ -162,14 +161,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.accountService.activeAccount$
-      .pipe(
-        getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
-        ),
-        takeUntil(this.destroy$),
-      )
+    this.sendPolicyService.disableSend$
+      .pipe(takeUntil(this.destroy$))
       .subscribe((policyAppliesToActiveUser) => {
         this.disableSend = policyAppliesToActiveUser;
         if (this.disableSend) {
@@ -177,13 +170,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.accountService.activeAccount$
-      .pipe(
-        getUserId,
-        switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
-        map((policies) => policies?.some((p) => p.data.disableHideEmail)),
-        takeUntil(this.destroy$),
-      )
+    this.sendPolicyService.disableHideEmail$
+      .pipe(takeUntil(this.destroy$))
       .subscribe((policyAppliesToActiveUser) => {
         if (
           (this.disableHideEmail = policyAppliesToActiveUser) &&

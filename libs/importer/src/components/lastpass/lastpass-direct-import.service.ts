@@ -17,6 +17,7 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
 import { LogService } from "@bitwarden/logging";
 
 import { ClientInfo, Vault } from "../../importers/lastpass/access";
+import { LastpassLoginType } from "../../importers/lastpass/access/enums";
 import { FederatedUserContext } from "../../importers/lastpass/access/models";
 
 import { LastPassPasswordPromptComponent } from "./dialog/lastpass-password-prompt.component";
@@ -176,7 +177,7 @@ export class LastPassDirectImportService {
     password: string,
     includeSharedFolders: boolean,
   ): Promise<string> {
-    const clientInfo = await this.createClientInfo(email);
+    const clientInfo = await this.createClientInfo(email, LastpassLoginType.MasterPassword);
 
     try {
       await this.vault.open(email, password, clientInfo, this.lastPassDirectImportUIService, {
@@ -210,7 +211,10 @@ export class LastPassDirectImportService {
       throw err;
     }
 
-    const clientInfo = await this.createClientInfo(federatedUser.username);
+    const clientInfo = await this.createClientInfo(
+      federatedUser.username,
+      LastpassLoginType.Federated,
+    );
     try {
       await this.vault.openFederated(
         federatedUser,
@@ -228,10 +232,10 @@ export class LastPassDirectImportService {
     return this.vault.accountsToExportedCsvString(!includeSharedFolders);
   }
 
-  private async createClientInfo(email: string): Promise<ClientInfo> {
+  private async createClientInfo(email: string, loginType: LastpassLoginType): Promise<ClientInfo> {
     const appId = await this.appIdService.getAppId();
     const id = "lastpass" + appId + email;
     const idHash = await this.cryptoFunctionService.hash(id, "sha256");
-    return ClientInfo.createClientInfo(Utils.fromArrayToHex(idHash));
+    return ClientInfo.createClientInfo(Utils.fromArrayToHex(idHash), loginType);
   }
 }

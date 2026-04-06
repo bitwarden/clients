@@ -269,7 +269,22 @@ export class NewApplicationsDialogComponent {
 
     // Save the application review dates and critical markings
     try {
-      await firstValueFrom(this.dataService.saveApplicationReviewStatus(updatedApplications));
+      const response = await firstValueFrom(
+        this.dataService.saveApplicationReviewStatus(updatedApplications),
+      );
+
+      if (response.error) {
+        this.logService.error(
+          "[NewApplicationsDialog] Failed to save application review status",
+          response.error,
+        );
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorSavingReviewStatus"),
+          message: this.i18nService.t("pleaseTryAgain"),
+        });
+        return;
+      }
 
       this.toastService.showToast({
         variant: "success",

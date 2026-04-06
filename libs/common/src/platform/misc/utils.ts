@@ -47,8 +47,7 @@ const queryDangerousPatterns = [
 ];
 
 declare global {
-  /* eslint-disable-next-line no-var */
-  var bitwardenContainerService: BitwardenContainerService;
+  let bitwardenContainerService: BitwardenContainerService;
 }
 
 interface BitwardenContainerService {

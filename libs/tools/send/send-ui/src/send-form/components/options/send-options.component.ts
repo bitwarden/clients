@@ -4,12 +4,9 @@ import { CommonModule } from "@angular/common";
 import { Component, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { switchMap, map } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   TypographyModule,
   AsyncActionsModule,
@@ -22,6 +19,7 @@ import {
   SectionHeaderComponent,
   SelectModule,
 } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { SendFormService } from "../../abstractions/send-form.service";
@@ -63,6 +61,8 @@ export class SendOptionsComponent implements OnInit {
     hideEmail: [false as boolean],
   });
 
+  private sendPolicyService = inject(SendPolicyService);
+
   get shouldShowCount(): boolean {
     return (
       this.sendFormService.sendFormConfig.mode === "edit" &&
@@ -81,13 +81,8 @@ export class SendOptionsComponent implements OnInit {
   constructor() {
     this.sendFormService.registerChildForm("sendOptionsForm", this.sendOptionsForm);
 
-    this.accountService.activeAccount$
-      .pipe(
-        getUserId,
-        switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
-        map((policies) => policies?.some((p) => p.data.disableHideEmail)),
-        takeUntilDestroyed(),
-      )
+    this.sendPolicyService.disableHideEmail$
+      .pipe(takeUntilDestroyed())
       .subscribe((disableHideEmail) => {
         this.disableHideEmail = disableHideEmail;
       });

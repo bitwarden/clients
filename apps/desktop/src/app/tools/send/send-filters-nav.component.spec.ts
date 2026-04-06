@@ -4,9 +4,12 @@ import { Router, provideRouter } from "@angular/router";
 import { RouterTestingHarness } from "@angular/router/testing";
 import { BehaviorSubject } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { NavigationModule } from "@bitwarden/components";
 import { SendListFiltersService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
@@ -79,6 +82,20 @@ describe("SendFiltersNavComponent", () => {
         {
           provide: GlobalStateProvider,
           useValue: fakeGlobalStateProvider,
+        },
+        {
+          provide: PremiumUpgradePromptService,
+          useValue: { promptForPremium: jest.fn() },
+        },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: {
+            hasPremiumFromAnySource$: jest.fn().mockReturnValue(new BehaviorSubject(false)),
+          },
+        },
+        {
+          provide: AccountService,
+          useValue: { activeAccount$: new BehaviorSubject({ id: "test-user-id" }) },
         },
       ],
     }).compileComponents();

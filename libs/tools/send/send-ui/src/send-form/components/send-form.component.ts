@@ -69,6 +69,13 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges {
   readonly onSendUpdated = output<SendView>();
 
   /**
+   * Event emitted when the user requests to open the password generator.
+   */
+  readonly openPasswordGenerator = output<void>();
+
+  readonly sendDetailsComponent = viewChild(SendDetailsComponent);
+
+  /**
    * The original send being edited or cloned. Null for add mode.
    */
   originalSendView: SendView | null;
