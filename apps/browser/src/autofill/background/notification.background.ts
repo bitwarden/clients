@@ -1055,23 +1055,40 @@ export default class NotificationBackground {
         return true;
       }
 
-      // Trigger an update cipher notification with all URI ciphers
-      // in these input scenarios
+      // Trigger an update or new cipher notification for password-only input scenarios
       if (
         ([inputScenarios.password, inputScenarios.newPassword] as InputScenario[]).includes(
           inputScenario,
-        ) &&
-        changePasswordNotificationIsEnabled
+        )
       ) {
-        await this.pushChangePasswordToQueue(
-          ciphersForURL.map((c) => c.id),
-          loginDomain,
-          // @TODO handle empty strings / incomplete data structure
-          data.newPassword || data.password,
-          tab,
-        );
+        if (ciphersForURL.length > 0 && changePasswordNotificationIsEnabled) {
+          await this.pushChangePasswordToQueue(
+            ciphersForURL.map((c) => c.id),
+            loginDomain,
+            // @TODO handle empty strings / incomplete data structure
+            data.newPassword || data.password,
+            tab,
+          );
 
-        return true;
+          return true;
+        }
+
+        // No existing ciphers for this URL — offer to save the generated password as a new login.
+        // The cipher may lack a username, but that is easier for the user to fix than losing
+        // a generated password they cannot easily retrieve.
+        if (ciphersForURL.length === 0 && newLoginNotificationIsEnabled) {
+          await this.pushAddLoginToQueue(
+            loginDomain,
+            {
+              username: data.username,
+              url: data.uri,
+              password: data.newPassword || data.password,
+            },
+            tab,
+          );
+
+          return true;
+        }
       }
 
       return false;
