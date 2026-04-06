@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import * as path from "path";
+
 import { OptionValues } from "commander";
 import * as inquirer from "inquirer";
 import { firstValueFrom } from "rxjs";
@@ -168,7 +170,7 @@ export class SendReceiveCommand extends DownloadCommand {
 
         return await this.saveAttachmentToFile(
           downloadData.url,
-          response?.file?.fileName,
+          path.basename(response?.file?.fileName ?? `BitwardenSendFile-${Date.now()}`),
           decryptBufferFn,
           options.output,
         );
@@ -432,7 +434,7 @@ export class SendReceiveCommand extends DownloadCommand {
 
           return await this.saveAttachmentToFile(
             downloadData.url,
-            decryptedView?.file?.fileName,
+            path.basename(decryptedView?.file?.fileName ?? `BitwardenSendFile-${Date.now()}`),
             decryptBufferFn,
             options.output,
           );
