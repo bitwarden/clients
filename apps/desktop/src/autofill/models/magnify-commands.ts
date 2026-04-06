@@ -24,6 +24,7 @@ export const DEFAULT_CARD_EXPIRATION_FORMAT = "MM/YYYY";
   The different possible Magnify Commands
 */
 export const MagnifyCommand = Object.freeze({
+  GetAuthStatus: "GetAuthStatus",
   SearchVault: "SearchVault",
   CopyPassword: "CopyPassword",
   ViewInBitwarden: "ViewInBitwarden",
@@ -34,10 +35,32 @@ export const MagnifyCommand = Object.freeze({
 export type MagnifyCommand = (typeof MagnifyCommand)[keyof typeof MagnifyCommand];
 
 /*
+  Error codes returned through the IPC error channel.
+  Magnify can match on these to determine the cause of a failure.
+*/
+export const MagnifyErrorCode = Object.freeze({
+  VaultLocked: "VAULT_LOCKED",
+  LoggedOut: "LOGGED_OUT",
+} as const);
+export type MagnifyErrorCode = (typeof MagnifyErrorCode)[keyof typeof MagnifyErrorCode];
+
+/*
+  Auth status values returned by the GetAuthStatus command.
+  Unlike MagnifyErrorCode, these are returned as successful responses.
+*/
+export const MagnifyAuthStatus = Object.freeze({
+  Unlocked: "UNLOCKED",
+  Locked: "VAULT_LOCKED",
+  LoggedOut: "LOGGED_OUT",
+} as const);
+export type MagnifyAuthStatus = (typeof MagnifyAuthStatus)[keyof typeof MagnifyAuthStatus];
+
+/*
   The MagnifyCommandRequest type represents the possible values
   Magnify request commands can be, and the data they hold.
 */
 export type MagnifyCommandRequest =
+  | { type: typeof MagnifyCommand.GetAuthStatus }
   | { type: typeof MagnifyCommand.SearchVault; input: string }
   | { type: typeof MagnifyCommand.CopyPassword; itemId: string }
   | { type: typeof MagnifyCommand.ViewInBitwarden; itemId: string }
@@ -51,6 +74,7 @@ export type MagnifyCommandRequest =
 */
 export type MagnifyCommandResponse =
   | { type: typeof MagnifyCommand.SearchVault; results: MagnifySearchResultItem[] }
+  | { type: typeof MagnifyCommand.GetAuthStatus; status: MagnifyAuthStatus }
   | { type: typeof MagnifyCommand.CopyPassword; result: string }
   | { type: typeof MagnifyCommand.ViewInBitwarden }
   | { type: typeof MagnifyCommand.CopyCardNumber; result: string }

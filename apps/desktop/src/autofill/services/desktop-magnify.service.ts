@@ -1,6 +1,5 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import {
-  combineLatest,
   concatMap,
   distinctUntilChanged,
   filter,
@@ -31,8 +30,10 @@ import { UserId } from "@bitwarden/user-core";
 
 import {
   DEFAULT_CARD_EXPIRATION_FORMAT,
+  MagnifyAuthStatus,
   MagnifyCommand,
   MagnifyCommandResponse,
+  MagnifyErrorCode,
 } from "../models/magnify-commands";
 import { MagnifyItem } from "../models/magnify-items";
 
@@ -58,7 +59,8 @@ export class DesktopMagnifyService implements OnDestroy {
   // The enabled/disabled state from the user settings menu
   magnifyEnabledUserSetting$: Observable<boolean> = of(false);
 
-  // Magnify is only active when the user has the setting enabled and the vault is unlocked
+  // Magnify is active whenever the user has the setting enabled — auth state
+  // is checked at the command level so the UI can show a locked/logged-out message.
   private magnifyFeatureEnabled$: Observable<boolean> = of(false);
 
   private destroy$ = new Subject<void>();
@@ -78,14 +80,7 @@ export class DesktopMagnifyService implements OnDestroy {
       takeUntil(this.destroy$),
     );
 
-    this.magnifyFeatureEnabled$ = combineLatest([
-      this.magnifyEnabledUserSetting$,
-      this.authService.activeAccountStatus$,
-    ]).pipe(
-      map(
-        ([settingEnabled, authStatus]) =>
-          settingEnabled && authStatus === AuthenticationStatus.Unlocked,
-      ),
+    this.magnifyFeatureEnabled$ = this.magnifyEnabledUserSetting$.pipe(
       distinctUntilChanged(),
       takeUntil(this.destroy$),
     );
@@ -102,6 +97,33 @@ export class DesktopMagnifyService implements OnDestroy {
       .subscribe();
 
     ipc.autofill.listenMagnifyCommand(async (request, callback) => {
+      const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
+
+      // GetAuthStatus always returns a successful response regardless of auth state
+      if (request.type === MagnifyCommand.GetAuthStatus) {
+        let status: MagnifyAuthStatus;
+        if (authStatus === AuthenticationStatus.LoggedOut) {
+          status = MagnifyAuthStatus.LoggedOut;
+        } else if (authStatus === AuthenticationStatus.Locked) {
+          status = MagnifyAuthStatus.Locked;
+        } else {
+          status = MagnifyAuthStatus.Unlocked;
+        }
+        callback(null, { type: MagnifyCommand.GetAuthStatus, status });
+        return;
+      }
+
+      // All other commands require an unlocked vault
+      if (authStatus === AuthenticationStatus.LoggedOut) {
+        callback(new Error(MagnifyErrorCode.LoggedOut), null);
+        return;
+      }
+
+      if (authStatus === AuthenticationStatus.Locked) {
+        callback(new Error(MagnifyErrorCode.VaultLocked), null);
+        return;
+      }
+
       switch (request.type) {
         case MagnifyCommand.SearchVault: {
           const [error, result] = await this.searchVault(request.input);

@@ -56,6 +56,13 @@ export class MainDesktopMagnifyService {
       }
     });
 
+    // Magnify render process -> main process: focus the main BW window and close Magnify
+    ipcMain.on(MAGNIFY_IPC_CHANNELS.MAGNIFY_FOCUS_BITWARDEN, () => {
+      this.magnifyWindow?.close();
+      this.windowMain.win.show();
+      this.windowMain.win.focus();
+    });
+
     // Close the magnify window if the main BW window is closed
     this.windowMain.win.on("closed", () => {
       this.magnifyWindow?.close();
@@ -76,6 +83,7 @@ export class MainDesktopMagnifyService {
     ipcMain.removeAllListeners(MAGNIFY_IPC_CHANNELS.TOGGLE);
     ipcMain.removeHandler(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND);
     ipcMain.removeAllListeners(MAGNIFY_IPC_CHANNELS.MAGNIFY_RESIZE);
+    ipcMain.removeAllListeners(MAGNIFY_IPC_CHANNELS.MAGNIFY_FOCUS_BITWARDEN);
 
     // Also unregister the global shortcut
     this.disableMagnify();

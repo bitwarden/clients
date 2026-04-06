@@ -31,6 +31,9 @@ const ipc = {
   resize: (height: number): void => {
     ipcRenderer.send(MAGNIFY_IPC_CHANNELS.MAGNIFY_RESIZE, height);
   },
+  focusBitwarden: (): void => {
+    ipcRenderer.send(MAGNIFY_IPC_CHANNELS.MAGNIFY_FOCUS_BITWARDEN);
+  },
 };
 
 contextBridge.exposeInMainWorld("ipc", ipc);

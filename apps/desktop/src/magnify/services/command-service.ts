@@ -1,8 +1,11 @@
 import { Injectable } from "@angular/core";
 
 import {
+  MagnifyAuthStatus,
   MagnifyCardItem,
   MagnifyCommand,
+  MagnifyCommandRequest,
+  MagnifyCommandResponse,
   MagnifyLoginItem,
   MagnifySearchResultItem,
 } from "../../autofill/models/magnify-commands";
@@ -11,6 +14,25 @@ import {
   providedIn: "root",
 })
 export class CommandService {
+  async getAuthStatus(): Promise<MagnifyAuthStatus> {
+    const request: MagnifyCommandRequest = {
+      type: MagnifyCommand.GetAuthStatus,
+    };
+
+    const response: MagnifyCommandResponse = await window.ipc.sendCommand(request);
+
+    if (response?.type === MagnifyCommand.GetAuthStatus) {
+      return response.status;
+    }
+
+    return MagnifyAuthStatus.LoggedOut;
+  }
+
+  /** Focuses the main Bitwarden window and closes Magnify. */
+  focusBitwarden(): void {
+    window.ipc.focusBitwarden();
+  }
+
   /** Requests the main process to resize the magnify window to the given height. */
   resize(height: number): void {
     window.ipc.resize(height);

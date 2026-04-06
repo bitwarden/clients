@@ -20,6 +20,7 @@ export const ACTION_BAR_HEIGHT = 31; // 30px height + 1px border-top
 export const NO_RESULTS_HEIGHT = 80; // 32px padding-top + ~16px text + 32px padding-bottom
 export const MAX_VISIBLE_ITEMS = 5;
 export const BORDER_RADIUS_BUFFER = 2; // prevents bottom border-radius from being clipped by the window edge
+export const VAULT_AUTH_STATUS_HEIGHT = 80; // lock icon + title + subtitle with padding
 
 /**
  * Calculates the required magnify window height based on the current result count
