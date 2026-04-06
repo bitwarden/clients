@@ -58,7 +58,7 @@ export class FormControlGroupComponent<T = unknown>
   readonly containerClass = computed(() =>
     this.block() || this.mode() === "multi"
       ? "tw-flex tw-flex-col tw-gap-2 [&_bit-form-control-card]:!tw-mb-0 [&_bit-radio-button-card]:!tw-mb-0 [&_bit-radio-button]:!tw-mb-0"
-      : "",
+      : "tw-flex [&_bit-form-control]:tw-flex",
   );
 
   // ── Mode (auto-detected from child types) ─────────────────────────────────

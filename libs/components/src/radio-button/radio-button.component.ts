@@ -27,7 +27,7 @@ export class RadioButtonComponent {
   }
 
   @HostBinding("class") get classList() {
-    return [this.base.block ? "tw-block" : "tw-inline-block", "tw-mb-1", "[&_bit-hint]:tw-mt-0"];
+    return [this.base.block ? "tw-block" : "tw-inline-block", "[&_bit-hint]:tw-mt-0"];
   }
 
   protected onInputChange() {
