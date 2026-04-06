@@ -189,6 +189,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      actions: write
     env:
       _ENVIRONMENT_ARTIFACT: ${{ needs.setup.outputs.environment_artifact }}
     outputs:
@@ -218,26 +219,6 @@ jobs:
           branch: ${{ inputs.branch-or-tag }}
           artifacts: ${{ env._ENVIRONMENT_ARTIFACT }}
 
-      - name: Log in to Azure
-        if: ${{ steps.download-latest-artifacts.outcome == 'failure' }}
-        uses: bitwarden/gh-actions/azure-login@main
-        with:
-          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-          client_id: ${{ secrets.AZURE_CLIENT_ID }}
-
-      - name: Retrieve secrets for Build trigger
-        if: ${{ steps.download-latest-artifacts.outcome == 'failure' }}
-        id: retrieve-secret
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: "bitwarden-ci"
-          secrets: "github-pat-bitwarden-devops-bot-repo-scope"
-
-      - name: Log out from Azure
-        if: ${{ steps.download-latest-artifacts.outcome == 'failure' }}
-        uses: bitwarden/gh-actions/azure-logout@main
-
       - name: 'Trigger build web for missing branch/tag ${{ inputs.branch-or-tag }}'
         if: ${{ steps.download-latest-artifacts.outcome == 'failure' }}
         uses: convictional/trigger-workflow-and-wait@f69fa9eedd3c62a599220f4d5745230e237904be # v1.6.5
@@ -245,7 +226,7 @@ jobs:
         with:
           owner: bitwarden
           repo: clients
-          github_token: ${{ steps.retrieve-secret.outputs.github-pat-bitwarden-devops-bot-repo-scope }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow_file_name: build-web.yml
           ref: ${{ inputs.branch-or-tag }}
           wait_interval: 100
