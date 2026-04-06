@@ -325,6 +325,9 @@
   "applicationsMarkedAsCriticalFail": {
     "message": "Failed to mark applications as critical"
   },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Failed to unmark applications as critical"
+  },
   "application": {
     "message": "Application"
   },
@@ -4301,6 +4304,9 @@
       }
     }
   },
+  "revokedEmailError": {
+    "message": "1 or more emails belong to revoked members. Restore their access to reinvite."
+  },
   "restoredUserId": {
     "message": "Restored organization access for $ID$.",
     "placeholders": {
@@ -6237,6 +6243,16 @@
   "sendDisabledWarning": {
     "message": "ಎಂಟರ್‌ಪ್ರೈಸ್ ನೀತಿಯಿಂದಾಗಿ, ನೀವು ಅಸ್ತಿತ್ವದಲ್ಲಿರುವ ಕಳುಹಿಸುವಿಕೆಯನ್ನು ಮಾತ್ರ ಅಳಿಸಲು ಸಾಧ್ಯವಾಗುತ್ತದೆ.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendControls": {
+    "message": "Send controls"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Organization members that can manage the organization's policies are exempt from this policy's enforcement."
   },
   "sendOptions": {
     "message": "ಆಯ್ಕೆಗಳನ್ನು ಕಳುಹಿಸಿ",

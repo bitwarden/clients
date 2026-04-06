@@ -160,7 +160,7 @@ export class TrendWidgetComponent {
   private getAtRiskLabel(view: TrendWidgetViewType): string {
     switch (view) {
       case TrendWidgetViewType.Applications:
-        return this.i18nService.t("applicationsAtRisk");
+        return this.i18nService.t("criticalAppsAtRisk");
       case TrendWidgetViewType.Passwords:
         return this.i18nService.t("passwordsAtRisk");
       case TrendWidgetViewType.Members:
@@ -171,7 +171,7 @@ export class TrendWidgetComponent {
   private getAllLabel(view: TrendWidgetViewType): string {
     switch (view) {
       case TrendWidgetViewType.Applications:
-        return this.i18nService.t("allApplications");
+        return this.i18nService.t("allCriticalApps");
       case TrendWidgetViewType.Passwords:
         return this.i18nService.t("allPasswords");
       case TrendWidgetViewType.Members:
