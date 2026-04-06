@@ -278,7 +278,7 @@
     "message": "Позначені критичні програми"
   },
   "criticalApplicationsMarkedSuccess": {
-    "message": "$COUNT$ applications marked as critical",
+    "message": "$COUNT$ програм позначено як критичні",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -287,7 +287,7 @@
     }
   },
   "numCriticalApplicationsMarkedSuccess": {
-    "message": "$COUNT$ applications marked critical",
+    "message": "$COUNT$ програм позначено критичними",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -296,7 +296,7 @@
     }
   },
   "numApplicationsUnmarkedCriticalSuccess": {
-    "message": "$COUNT$ applications marked not critical",
+    "message": "$COUNT$ програм позначено некритичними",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -305,7 +305,7 @@
     }
   },
   "markAppCountAsCritical": {
-    "message": "Mark $COUNT$ as critical",
+    "message": "Позначити $COUNT$ як критичні",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -314,7 +314,7 @@
     }
   },
   "markAppCountAsNotCritical": {
-    "message": "Mark $COUNT$ as not critical",
+    "message": "Позначити $COUNT$ як некритичні",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -323,7 +323,10 @@
     }
   },
   "applicationsMarkedAsCriticalFail": {
-    "message": "Failed to mark applications as critical"
+    "message": "Не вдалося позначити програми як критичні"
+  },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Не вдалося зняти позначення програм як критичних"
   },
   "application": {
     "message": "Програма"
@@ -347,13 +350,13 @@
     "message": "Учасники з ризиком"
   },
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
-    "message": "These members have access to vulnerable items for critical applications."
+    "message": "Ці учасники мають доступ до вразливих записів для критичних програм."
   },
   "membersWithAtRiskPasswords": {
     "message": "Учасники з ризикованими паролями"
   },
   "membersWillReceiveSecurityTask": {
-    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
+    "message": "Учасникам вашої організації буде присвоєно завдання зі зміни вразливих паролів. Вони отримають сповіщення у розширенні браузера Bitwarden."
   },
   "membersAtRiskCount": {
     "message": "$COUNT$ учасників з ризиком",
@@ -383,10 +386,10 @@
     }
   },
   "atRiskMemberDescription": {
-    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
+    "message": "Ці учасники використовують для входу в критичні програми слабкі, викриті, або повторювані паролі."
   },
   "atRiskMembersDescriptionNone": {
-    "message": "Немає учасників, які використовують у програмах слабкі, викриті, або повторювані паролі."
+    "message": "Немає учасників, які використовують для входу в програми слабкі, викриті, або повторювані паролі."
   },
   "atRiskApplicationsDescription": {
     "message": "Ці програми мають слабкі, викриті, або повторювані паролі."
@@ -395,7 +398,7 @@
     "message": "Немає програм, які мають слабкі, викриті, або повторювані паролі."
   },
   "atRiskMembersDescriptionWithApp": {
-    "message": "Ці учасники використовують у $APPNAME$ слабкі, викриті, або повторювані паролі.",
+    "message": "Ці учасники використовують для входу в $APPNAME$ слабкі, викриті, або повторювані паролі.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -422,7 +425,7 @@
     "message": "Всього програм"
   },
   "applicationsNeedingReview": {
-    "message": "Applications needing review"
+    "message": "Програми, що потребують перевірки"
   },
   "newApplicationsCardTitle": {
     "message": "Перегляд нових програм"
@@ -437,16 +440,16 @@
     }
   },
   "newApplicationsDescription": {
-    "message": "Review new applications to mark as critical and keep your organization secure"
+    "message": "Перевірте нові програми, щоб позначити критичність задля безпеки вашої організації"
   },
   "reviewNow": {
-    "message": "Review now"
+    "message": "Перевірити"
   },
   "allCaughtUp": {
-    "message": "All caught up!"
+    "message": "Готово!"
   },
   "noNewApplicationsToReviewAtThisTime": {
-    "message": "No new applications to review at this time"
+    "message": "Наразі немає нових програм для перевірки"
   },
   "organizationHasItemsSavedForApplications": {
     "message": "Your organization has items saved for $COUNT$ applications",
@@ -4301,6 +4304,9 @@
       }
     }
   },
+  "revokedEmailError": {
+    "message": "1 or more emails belong to revoked members. Restore their access to reinvite."
+  },
   "restoredUserId": {
     "message": "Доступ до організації для $ID$ відновлено.",
     "placeholders": {
@@ -6237,6 +6243,16 @@
   "sendDisabledWarning": {
     "message": "У зв'язку з політикою компанії, ви можете лише видалити наявне відправлення.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendControls": {
+    "message": "Send controls"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Organization members that can manage the organization's policies are exempt from this policy's enforcement."
   },
   "sendOptions": {
     "message": "Налаштування відправлень",

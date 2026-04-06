@@ -55,6 +55,7 @@ import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
+import { fieldContainsKeyword, isNonLoginFormContext } from "../utils/qualification";
 
 import {
   AutoFillOptions,
@@ -918,14 +919,12 @@ export default class AutofillService implements AutofillServiceInterface {
       (focusedField.type === "text" ||
         focusedField.type === "number" ||
         focusedField.type === "tel") &&
-      (AutofillService.fieldIsFuzzyMatch(focusedField, [
+      (fieldContainsKeyword(focusedField, [
         ...AutoFillConstants.TotpFieldNames,
         ...AutoFillConstants.AmbiguousTotpFieldNames,
       ]) ||
         focusedField.autoCompleteType === "one-time-code") &&
-      !AutofillService.fieldIsFuzzyMatch(focusedField, [
-        ...AutoFillConstants.RecoveryCodeFieldNames,
-      ]);
+      !fieldContainsKeyword(focusedField, [...AutoFillConstants.RecoveryCodeFieldNames]);
 
     const focusedUsernameField =
       focusedField &&
@@ -1080,21 +1079,21 @@ export default class AutofillService implements AutofillServiceInterface {
         const isTotpCandidate =
           options.allowTotpAutofill &&
           ["number", "tel", "text"].some((t) => t === field.type) &&
-          !AutofillService.fieldIsFuzzyMatch(field, [...AutoFillConstants.RecoveryCodeFieldNames]);
+          !fieldContainsKeyword(field, [...AutoFillConstants.RecoveryCodeFieldNames]);
 
         const isTotpField =
           isTotpCandidate &&
-          (AutofillService.fieldIsFuzzyMatch(field, AutoFillConstants.TotpFieldNames) ||
+          (fieldContainsKeyword(field, AutoFillConstants.TotpFieldNames) ||
             field.autoCompleteType === "one-time-code");
 
         const maybeTotpField =
-          isTotpCandidate &&
-          AutofillService.fieldIsFuzzyMatch(field, AutoFillConstants.AmbiguousTotpFieldNames);
+          isTotpCandidate && fieldContainsKeyword(field, AutoFillConstants.AmbiguousTotpFieldNames);
 
         const isUsernameField =
           !options.skipUsernameOnlyFill &&
           ["email", "tel", "text"].some((t) => t === field.type) &&
-          AutofillService.fieldIsFuzzyMatch(field, AutoFillConstants.UsernameFieldNames);
+          fieldContainsKeyword(field, AutoFillConstants.UsernameFieldNames) &&
+          !isNonLoginFormContext(field, pageDetails);
 
         // Reliable TOTP signals win unconditionally; username wins over ambiguous TOTP signals.
         switch (true) {
@@ -2423,7 +2422,7 @@ export default class AutofillService implements AutofillServiceInterface {
       }
 
       // We want to avoid treating TOTP fields as password fields
-      if (AutofillService.fieldIsFuzzyMatch(f, AutoFillConstants.TotpFieldNames)) {
+      if (fieldContainsKeyword(f, AutoFillConstants.TotpFieldNames)) {
         return;
       }
 
@@ -2508,51 +2507,63 @@ export default class AutofillService implements AutofillServiceInterface {
     canBeReadOnly: boolean,
     withoutForm: boolean,
   ): AutofillField | null {
-    let usernameField: AutofillField | null = null;
-    let usernameFieldInSameForm: AutofillField | null = null;
+    let sameFormCandidate: AutofillField | null = null;
+    let bestCandidate: AutofillField | null = null;
 
-    for (let i = 0; i < pageDetails.fields.length; i++) {
-      const f = pageDetails.fields[i];
-      if (AutofillService.forCustomFieldsOnly(f)) {
+    const fieldsPrecedingPassword = pageDetails.fields.filter(
+      (f) => f.elementNumber < passwordField.elementNumber,
+    );
+
+    for (const field of fieldsPrecedingPassword) {
+      if (AutofillService.forCustomFieldsOnly(field)) {
         continue;
       }
 
-      if (f.elementNumber >= passwordField.elementNumber) {
-        break;
+      if (isNonLoginFormContext(field, pageDetails)) {
+        continue;
       }
 
-      const includesUsernameFieldName =
-        this.findMatchingFieldIndex(f, AutoFillConstants.UsernameFieldNames) > -1;
-      // only consider fields in same form if both have non-null form values
+      const isUsernameFieldType =
+        field.type === "text" || field.type === "email" || field.type === "tel";
+      if (!isUsernameFieldType) {
+        continue;
+      }
+
+      // Only consider fields with non-null form values as being in the same form;
       // null forms are treated as separate
       const isInSameForm =
-        f.form != null && passwordField.form != null && f.form === passwordField.form;
+        field.form != null && passwordField.form != null && field.form === passwordField.form;
 
-      // An email or tel field in the same form as the password field is likely a qualified
-      // candidate for autofill, even if visibility checks are unreliable
-      const isQualifiedUsernameField = isInSameForm && (f.type === "email" || f.type === "tel");
+      const includesUsernameKeyword = fieldContainsKeyword(
+        field,
+        AutoFillConstants.UsernameFieldNames,
+      );
 
-      if (
-        !f.disabled &&
-        (canBeReadOnly || !f.readonly) &&
-        (withoutForm || isInSameForm || includesUsernameFieldName) &&
-        (canBeHidden || f.viewable || isQualifiedUsernameField) &&
-        (f.type === "text" || f.type === "email" || f.type === "tel")
-      ) {
-        // Prioritize fields in the same form as the password field
-        if (isInSameForm) {
-          usernameFieldInSameForm = f;
-          if (includesUsernameFieldName) {
-            return f;
-          }
-        } else {
-          usernameField = f;
+      // Email/tel fields in the same form are strong candidates even when visibility
+      // checks are unreliable
+      const isQualifiedByType = isInSameForm && (field.type === "email" || field.type === "tel");
+
+      const isAccessible = !field.disabled && (canBeReadOnly || !field.readonly);
+      const isVisible = canBeHidden || field.viewable || isQualifiedByType;
+      const isReachable = withoutForm || isInSameForm || includesUsernameKeyword;
+
+      if (!isAccessible || !isVisible || !isReachable) {
+        continue;
+      }
+
+      if (isInSameForm) {
+        sameFormCandidate = field;
+        // A same-form field explicitly named for username is the best possible match
+        if (includesUsernameKeyword) {
+          return field;
         }
+      } else {
+        bestCandidate = field;
       }
     }
 
-    // Prefer username field in same form, fall back to any username field
-    return usernameFieldInSameForm || usernameField;
+    // Prefer a same-form candidate, fall back to any matching field
+    return sameFormCandidate || bestCandidate;
   }
 
   /**
@@ -2592,11 +2603,11 @@ export default class AutofillService implements AutofillServiceInterface {
           f.type === "number" ||
           // sites will commonly use tel in order to get the digit pad against semantic recommendations
           f.type === "tel") &&
-        AutofillService.fieldIsFuzzyMatch(f, [
+        fieldContainsKeyword(f, [
           ...AutoFillConstants.TotpFieldNames,
           ...AutoFillConstants.AmbiguousTotpFieldNames,
         ]) &&
-        !AutofillService.fieldIsFuzzyMatch(f, [...AutoFillConstants.RecoveryCodeFieldNames])
+        !fieldContainsKeyword(f, [...AutoFillConstants.RecoveryCodeFieldNames])
       ) {
         totpField = f;
 
@@ -2746,85 +2757,6 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     return fieldVal.toLowerCase() === name;
-  }
-
-  /**
-   * Accepts a field and returns true if the field contains a
-   * value that matches any of the names in the provided list.
-   *
-   * Returns boolean and attr of value that was matched as a tuple if showMatch is set to true.
-   *
-   * @param {AutofillField} field
-   * @param {string[]} names
-   * @param {boolean} showMatch
-   * @returns {boolean | [boolean, { attr: string; value: string }?]}
-   */
-  static fieldIsFuzzyMatch(
-    field: AutofillField,
-    names: string[],
-    showMatch: true,
-  ): [boolean, { attr: string; value: string }?];
-  static fieldIsFuzzyMatch(field: AutofillField, names: string[]): boolean;
-  static fieldIsFuzzyMatch(
-    field: AutofillField,
-    names: string[],
-    showMatch: boolean = false,
-  ): boolean | [boolean, { attr: string; value: string }?] {
-    const attrs = [
-      "htmlID",
-      "htmlName",
-      "label-tag",
-      "placeholder",
-      "label-left",
-      "label-right",
-      "label-top",
-      "label-aria",
-      "dataSetValues",
-    ];
-
-    for (const attr of attrs) {
-      const value = field[attr];
-      if (!AutofillService.hasValue(value)) {
-        continue;
-      }
-      if (AutofillService.fuzzyMatch(names, value)) {
-        return showMatch ? [true, { attr, value }] : true;
-      }
-    }
-    return showMatch ? [false] : false;
-  }
-
-  /**
-   * Accepts a list of options and a value and returns
-   * true if the value matches any of the options.
-   * @param {string[]} options
-   * @param {string} value
-   * @returns {boolean}
-   * @private
-   */
-  private static fuzzyMatch(options: string[], value: string): boolean {
-    if (
-      options == null ||
-      options.length === 0 ||
-      value == null ||
-      typeof value !== "string" ||
-      value.length < 1
-    ) {
-      return false;
-    }
-
-    value = value
-      .replace(/(?:\r\n|\r|\n)/g, "")
-      .trim()
-      .toLowerCase();
-
-    for (let i = 0; i < options.length; i++) {
-      if (value.indexOf(options[i]) > -1) {
-        return true;
-      }
-    }
-
-    return false;
   }
 
   /**
