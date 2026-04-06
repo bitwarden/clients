@@ -1,6 +1,6 @@
-import { SecureNoteType } from "../../enums/secureNoteType";
-import { SecureNote as SecureNoteDomain } from "../domain/secure-note";
-import { SecureNoteView } from "../view/secure-note.view";
+import { SecureNoteType } from "../../vault/enums";
+import { SecureNote as SecureNoteDomain } from "../../vault/models/domain/secure-note";
+import { SecureNoteView } from "../../vault/models/view/secure-note.view";
 
 export class SecureNoteExport {
   static template(): SecureNoteExport {
@@ -19,7 +19,7 @@ export class SecureNoteExport {
     return view;
   }
 
-  type: SecureNoteType;
+  type: SecureNoteType = SecureNoteType.Generic;
 
   constructor(o?: SecureNoteView | SecureNoteDomain) {
     if (o == null) {

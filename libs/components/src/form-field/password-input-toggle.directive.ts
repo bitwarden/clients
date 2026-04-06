@@ -5,12 +5,12 @@ import {
   Host,
   HostBinding,
   HostListener,
-  Input,
+  model,
   OnChanges,
   Output,
 } from "@angular/core";
 
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { BitIconButtonComponent } from "../icon-button/icon-button.component";
 
@@ -18,12 +18,17 @@ import { BitFormFieldComponent } from "./form-field.component";
 
 @Directive({
   selector: "[bitPasswordInputToggle]",
+  host: {
+    "[attr.aria-pressed]": "toggled()",
+  },
 })
 export class BitPasswordInputToggleDirective implements AfterContentInit, OnChanges {
   /**
    * Whether the input is toggled to show the password.
    */
-  @HostBinding("attr.aria-pressed") @Input() toggled = false;
+  readonly toggled = model(false);
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() toggledChange = new EventEmitter<boolean>();
 
   @HostBinding("attr.title") title = this.i18nService.t("toggleVisibility");
@@ -33,22 +38,20 @@ export class BitPasswordInputToggleDirective implements AfterContentInit, OnChan
    * Click handler to toggle the state of the input type.
    */
   @HostListener("click") onClick() {
-    this.toggled = !this.toggled;
-    this.toggledChange.emit(this.toggled);
+    this.toggled.update((toggled) => !toggled);
+    this.toggledChange.emit(this.toggled());
 
     this.update();
-
-    this.formField.input?.focus();
   }
 
   constructor(
     @Host() private button: BitIconButtonComponent,
     private formField: BitFormFieldComponent,
-    private i18nService: I18nService
+    private i18nService: I18nService,
   ) {}
 
   get icon() {
-    return this.toggled ? "bwi-eye-slash" : "bwi-eye";
+    return this.toggled() ? "bwi-eye-slash" : "bwi-eye";
   }
 
   ngOnChanges(): void {
@@ -56,15 +59,19 @@ export class BitPasswordInputToggleDirective implements AfterContentInit, OnChan
   }
 
   ngAfterContentInit(): void {
-    this.toggled = this.formField.input.type !== "password";
-    this.button.icon = this.icon;
+    const input = this.formField.input();
+    if (input?.type) {
+      this.toggled.set(input.type() !== "password");
+    }
+    this.button.icon.set(this.icon);
   }
 
   private update() {
-    this.button.icon = this.icon;
-    if (this.formField.input?.type != null) {
-      this.formField.input.type = this.toggled ? "text" : "password";
-      this.formField.input.spellcheck = this.toggled ? false : undefined;
+    this.button.icon.set(this.icon);
+    const input = this.formField.input();
+    if (input?.type != null) {
+      input.type.set(this.toggled() ? "text" : "password");
+      input?.spellcheck?.set(this.toggled() ? false : undefined);
     }
   }
 }

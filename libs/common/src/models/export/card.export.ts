@@ -1,6 +1,8 @@
-import { Card as CardDomain } from "../domain/card";
-import { EncString } from "../domain/enc-string";
-import { CardView } from "../view/card.view";
+import { EncString } from "../../key-management/crypto/models/enc-string";
+import { Card as CardDomain } from "../../vault/models/domain/card";
+import { CardView } from "../../vault/models/view/card.view";
+
+import { safeGetString } from "./utils";
 
 export class CardExport {
   static template(): CardExport {
@@ -25,41 +27,33 @@ export class CardExport {
   }
 
   static toDomain(req: CardExport, domain = new CardDomain()) {
-    domain.cardholderName = req.cardholderName != null ? new EncString(req.cardholderName) : null;
-    domain.brand = req.brand != null ? new EncString(req.brand) : null;
-    domain.number = req.number != null ? new EncString(req.number) : null;
-    domain.expMonth = req.expMonth != null ? new EncString(req.expMonth) : null;
-    domain.expYear = req.expYear != null ? new EncString(req.expYear) : null;
-    domain.code = req.code != null ? new EncString(req.code) : null;
+    domain.cardholderName =
+      req.cardholderName != null ? new EncString(req.cardholderName) : undefined;
+    domain.brand = req.brand != null ? new EncString(req.brand) : undefined;
+    domain.number = req.number != null ? new EncString(req.number) : undefined;
+    domain.expMonth = req.expMonth != null ? new EncString(req.expMonth) : undefined;
+    domain.expYear = req.expYear != null ? new EncString(req.expYear) : undefined;
+    domain.code = req.code != null ? new EncString(req.code) : undefined;
     return domain;
   }
 
-  cardholderName: string;
-  brand: string;
-  number: string;
-  expMonth: string;
-  expYear: string;
-  code: string;
+  cardholderName?: string;
+  brand?: string;
+  number?: string;
+  expMonth?: string;
+  expYear?: string;
+  code?: string;
 
   constructor(o?: CardView | CardDomain) {
     if (o == null) {
       return;
     }
 
-    if (o instanceof CardView) {
-      this.cardholderName = o.cardholderName;
-      this.brand = o.brand;
-      this.number = o.number;
-      this.expMonth = o.expMonth;
-      this.expYear = o.expYear;
-      this.code = o.code;
-    } else {
-      this.cardholderName = o.cardholderName?.encryptedString;
-      this.brand = o.brand?.encryptedString;
-      this.number = o.number?.encryptedString;
-      this.expMonth = o.expMonth?.encryptedString;
-      this.expYear = o.expYear?.encryptedString;
-      this.code = o.code?.encryptedString;
-    }
+    this.cardholderName = safeGetString(o.cardholderName);
+    this.brand = safeGetString(o.brand);
+    this.number = safeGetString(o.number);
+    this.expMonth = safeGetString(o.expMonth);
+    this.expYear = safeGetString(o.expYear);
+    this.code = safeGetString(o.code);
   }
 }

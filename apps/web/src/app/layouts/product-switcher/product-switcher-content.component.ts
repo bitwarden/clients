@@ -1,93 +1,25 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, ViewChild } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import { combineLatest, map } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/abstractions/organization/organization.service.abstraction";
 import { MenuComponent } from "@bitwarden/components";
 
-type ProductSwitcherItem = {
-  /**
-   * Displayed name
-   */
-  name: string;
+import { ProductSwitcherService } from "./shared/product-switcher.service";
 
-  /**
-   * Displayed icon
-   */
-  icon: string;
-
-  /**
-   * Route for items in the `bentoProducts$` section
-   */
-  appRoute?: string | any[];
-
-  /**
-   * Route for items in the `otherProducts$` section
-   */
-  marketingRoute?: string | any[];
-};
-
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "product-switcher-content",
   templateUrl: "./product-switcher-content.component.html",
+  standalone: false,
 })
 export class ProductSwitcherContentComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("menu")
   menu: MenuComponent;
 
-  protected products$ = combineLatest([
-    this.organizationService.organizations$,
-    this.route.paramMap,
-  ]).pipe(
-    map(([orgs, paramMap]) => {
-      const routeOrg = orgs.find((o) => o.id === paramMap.get("organizationId"));
-      // If the active route org doesn't have access to SM, find the first org that does.
-      const smOrg = routeOrg?.canAccessSecretsManager
-        ? routeOrg
-        : orgs.find((o) => o.canAccessSecretsManager);
+  constructor(private productSwitcherService: ProductSwitcherService) {}
 
-      /**
-       * We can update this to the "satisfies" type upon upgrading to TypeScript 4.9
-       * https://devblogs.microsoft.com/typescript/announcing-typescript-4-9/#satisfies
-       */
-      const products: Record<"pm" | "sm" | "orgs", ProductSwitcherItem> = {
-        pm: {
-          name: "Password Manager",
-          icon: "bwi-lock",
-          appRoute: "/vault",
-          marketingRoute: "https://bitwarden.com/products/personal/",
-        },
-        sm: {
-          name: "Secrets Manager Beta",
-          icon: "bwi-cli",
-          appRoute: ["/sm", smOrg?.id],
-          // TODO: update marketing link
-          marketingRoute: "#",
-        },
-        orgs: {
-          name: "Organizations",
-          icon: "bwi-business",
-          marketingRoute: "https://bitwarden.com/products/business/",
-        },
-      };
-
-      const bento: ProductSwitcherItem[] = [products.pm];
-      const other: ProductSwitcherItem[] = [];
-
-      if (smOrg) {
-        bento.push(products.sm);
-      }
-
-      if (orgs.length === 0) {
-        other.push(products.orgs);
-      }
-
-      return {
-        bento,
-        other,
-      };
-    })
-  );
-
-  constructor(private organizationService: OrganizationService, private route: ActivatedRoute) {}
+  protected readonly products$ = this.productSwitcherService.products$;
 }

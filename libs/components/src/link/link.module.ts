@@ -1,11 +1,9 @@
-import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 
-import { AnchorLinkDirective, ButtonLinkDirective } from "./link.directive";
+import { LinkComponent } from "./link.component";
 
 @NgModule({
-  imports: [CommonModule],
-  exports: [AnchorLinkDirective, ButtonLinkDirective],
-  declarations: [AnchorLinkDirective, ButtonLinkDirective],
+  imports: [LinkComponent],
+  exports: [LinkComponent],
 })
 export class LinkModule {}

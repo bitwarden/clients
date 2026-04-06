@@ -1,28 +1,35 @@
+import { firstValueFrom, map } from "rxjs";
+
+import { OrganizationUserApiService, CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { CipherService } from "@bitwarden/common/abstractions/cipher.service";
-import { CollectionService } from "@bitwarden/common/abstractions/collection.service";
-import { FolderService } from "@bitwarden/common/abstractions/folder/folder.service.abstraction";
-import { OrganizationUserService } from "@bitwarden/common/abstractions/organization-user/organization-user.service";
-import { OrganizationService } from "@bitwarden/common/abstractions/organization/organization.service.abstraction";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { Utils } from "@bitwarden/common/misc/utils";
-import { CollectionData } from "@bitwarden/common/models/data/collection.data";
-import { Collection } from "@bitwarden/common/models/domain/collection";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
+  CollectionData,
+  Collection,
   CollectionDetailsResponse as ApiCollectionDetailsResponse,
   CollectionResponse as ApiCollectionResponse,
-} from "@bitwarden/common/models/response/collection.response";
+} from "@bitwarden/common/admin-console/models/collections";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { ListResponse as ApiListResponse } from "@bitwarden/common/models/response/list.response";
-import { CipherView } from "@bitwarden/common/models/view/cipher.view";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { KeyService } from "@bitwarden/key-management";
 
+import { CollectionResponse } from "../admin-console/models/response/collection.response";
+import { OrganizationUserResponse } from "../admin-console/models/response/organization-user.response";
+import { OrganizationResponse } from "../admin-console/models/response/organization.response";
 import { Response } from "../models/response";
-import { CipherResponse } from "../models/response/cipher.response";
-import { CollectionResponse } from "../models/response/collection.response";
-import { FolderResponse } from "../models/response/folder.response";
 import { ListResponse } from "../models/response/list.response";
-import { OrganizationUserResponse } from "../models/response/organization-user.response";
-import { OrganizationResponse } from "../models/response/organization.response";
 import { CliUtils } from "../utils";
+import { CipherResponse } from "../vault/models/cipher.response";
+import { FolderResponse } from "../vault/models/folder.response";
+import { CliRestrictedItemTypesService } from "../vault/services/cli-restricted-item-types.service";
 
 export class ListCommand {
   constructor(
@@ -31,8 +38,13 @@ export class ListCommand {
     private collectionService: CollectionService,
     private organizationService: OrganizationService,
     private searchService: SearchService,
-    private organizationUserService: OrganizationUserService,
-    private apiService: ApiService
+    private organizationUserApiService: OrganizationUserApiService,
+    private apiService: ApiService,
+    private eventCollectionService: EventCollectionService,
+    private accountService: AccountService,
+    private keyService: KeyService,
+    private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
+    private cipherArchiveService: CipherArchiveService,
   ) {}
 
   async run(object: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -57,11 +69,19 @@ export class ListCommand {
 
   private async listCiphers(options: Options) {
     let ciphers: CipherView[];
+
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const userCanArchive = await firstValueFrom(
+      this.cipherArchiveService.userCanArchive$(activeUserId),
+    );
+
     options.trash = options.trash || false;
+    options.archived = userCanArchive && options.archived;
+
     if (options.url != null && options.url.trim() !== "") {
-      ciphers = await this.cipherService.getAllDecryptedForUrl(options.url);
+      ciphers = await this.cipherService.getAllDecryptedForUrl(options.url, activeUserId);
     } else {
-      ciphers = await this.cipherService.getAllDecrypted();
+      ciphers = await this.cipherService.getAllDecrypted(activeUserId);
     }
 
     if (
@@ -70,14 +90,17 @@ export class ListCommand {
       options.organizationId != null
     ) {
       ciphers = ciphers.filter((c) => {
-        if (options.trash !== c.isDeleted) {
+        const matchesStateOptions = this.matchesStateOptions(c, options);
+
+        if (!matchesStateOptions) {
           return false;
         }
+
         if (options.folderId != null) {
           if (options.folderId === "notnull" && c.folderId != null) {
             return true;
           }
-          const folderId = options.folderId === "null" ? null : options.folderId;
+          const folderId = options.folderId === "null" ? undefined : options.folderId;
           if (folderId === c.folderId) {
             return true;
           }
@@ -87,7 +110,8 @@ export class ListCommand {
           if (options.organizationId === "notnull" && c.organizationId != null) {
             return true;
           }
-          const organizationId = options.organizationId === "null" ? null : options.organizationId;
+          const organizationId =
+            options.organizationId === "null" ? undefined : options.organizationId;
           if (organizationId === c.organizationId) {
             return true;
           }
@@ -116,19 +140,30 @@ export class ListCommand {
         return false;
       });
     } else if (options.search == null || options.search.trim() === "") {
-      ciphers = ciphers.filter((c) => options.trash === c.isDeleted);
+      ciphers = ciphers.filter((c) => this.matchesStateOptions(c, options));
     }
 
     if (options.search != null && options.search.trim() !== "") {
-      ciphers = this.searchService.searchCiphersBasic(ciphers, options.search, options.trash);
+      ciphers = this.searchService.searchCiphersBasic(
+        ciphers,
+        options.search,
+        options.trash,
+        options.archived,
+      );
     }
+
+    ciphers = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(ciphers);
+
+    await this.eventCollectionService.collectMany(EventType.Cipher_ClientViewed, ciphers, true);
 
     const res = new ListResponse(ciphers.map((o) => new CipherResponse(o)));
     return Response.success(res);
   }
 
   private async listFolders(options: Options) {
-    let folders = await this.folderService.getAllDecryptedFromState();
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    let folders = await this.folderService.getAllDecryptedFromState(activeUserId);
 
     if (options.search != null && options.search.trim() !== "") {
       folders = CliUtils.searchFolders(folders, options.search);
@@ -139,7 +174,10 @@ export class ListCommand {
   }
 
   private async listCollections(options: Options) {
-    let collections = await this.collectionService.getAllDecrypted();
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    let collections = await firstValueFrom(
+      this.collectionService.decryptedCollections$(activeUserId),
+    );
 
     if (options.organizationId != null) {
       collections = collections.filter((c) => {
@@ -159,13 +197,21 @@ export class ListCommand {
   }
 
   private async listOrganizationCollections(options: Options) {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     if (options.organizationId == null || options.organizationId === "") {
       return Response.badRequest("`organizationid` option is required.");
     }
     if (!Utils.isGuid(options.organizationId)) {
       return Response.badRequest("`" + options.organizationId + "` is not a GUID.");
     }
-    const organization = await this.organizationService.getFromState(options.organizationId);
+    if (!userId) {
+      return Response.badRequest("No user found.");
+    }
+    const organization = await firstValueFrom(
+      this.organizationService
+        .organizations$(userId)
+        .pipe(map((organizatons) => organizatons.find((o) => o.id == options.organizationId))),
+    );
     if (organization == null) {
       return Response.error("Organization not found.");
     }
@@ -179,8 +225,16 @@ export class ListCommand {
       }
       const collections = response.data
         .filter((c) => c.organizationId === options.organizationId)
-        .map((r) => new Collection(new CollectionData(r as ApiCollectionDetailsResponse)));
-      let decCollections = await this.collectionService.decryptMany(collections);
+        .map((r) =>
+          Collection.fromCollectionData(new CollectionData(r as ApiCollectionDetailsResponse)),
+        );
+      const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
+      if (orgKeys == null) {
+        throw new Error("Organization keys not found.");
+      }
+      let decCollections = await firstValueFrom(
+        this.collectionService.decryptMany$(collections, orgKeys),
+      );
       if (options.search != null && options.search.trim() !== "") {
         decCollections = CliUtils.searchCollections(decCollections, options.search);
       }
@@ -198,13 +252,22 @@ export class ListCommand {
     if (!Utils.isGuid(options.organizationId)) {
       return Response.badRequest("`" + options.organizationId + "` is not a GUID.");
     }
-    const organization = await this.organizationService.getFromState(options.organizationId);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
+    if (!userId) {
+      return Response.badRequest("No user found.");
+    }
+    const organization = await firstValueFrom(
+      this.organizationService
+        .organizations$(userId)
+        .pipe(map((organizatons) => organizatons.find((o) => o.id == options.organizationId))),
+    );
     if (organization == null) {
       return Response.error("Organization not found.");
     }
 
     try {
-      const response = await this.organizationUserService.getAllUsers(options.organizationId);
+      const response = await this.organizationUserApiService.getAllUsers(options.organizationId);
       const res = new ListResponse(
         response.data.map((r) => {
           const u = new OrganizationUserResponse();
@@ -215,7 +278,7 @@ export class ListCommand {
           u.type = r.type;
           u.twoFactorEnabled = r.twoFactorEnabled;
           return u;
-        })
+        }),
       );
       return Response.success(res);
     } catch (e) {
@@ -224,7 +287,12 @@ export class ListCommand {
   }
 
   private async listOrganizations(options: Options) {
-    let organizations = await this.organizationService.getAll();
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
+    if (!userId) {
+      return Response.badRequest("No user found.");
+    }
+    let organizations = await firstValueFrom(this.organizationService.memberOrganizations$(userId));
 
     if (options.search != null && options.search.trim() !== "") {
       organizations = CliUtils.searchOrganizations(organizations, options.search);
@@ -232,6 +300,17 @@ export class ListCommand {
 
     const res = new ListResponse(organizations.map((o) => new OrganizationResponse(o)));
     return Response.success(res);
+  }
+
+  /**
+   * Checks if the cipher passes the state filter options.
+   * @returns true if the cipher matches the requested state
+   */
+  private matchesStateOptions(c: CipherView, options: Options): boolean {
+    const passesTrashFilter = options.trash === c.isDeleted;
+    const passesArchivedFilter = options.archived === c.isArchived;
+
+    return passesTrashFilter && passesArchivedFilter;
   }
 }
 
@@ -242,6 +321,7 @@ class Options {
   search: string;
   url: string;
   trash: boolean;
+  archived: boolean;
 
   constructor(passedOptions: Record<string, any>) {
     this.organizationId = passedOptions?.organizationid || passedOptions?.organizationId;
@@ -250,5 +330,6 @@ class Options {
     this.search = passedOptions?.search;
     this.url = passedOptions?.url;
     this.trash = CliUtils.convertBooleanOption(passedOptions?.trash);
+    this.archived = CliUtils.convertBooleanOption(passedOptions?.archived);
   }
 }

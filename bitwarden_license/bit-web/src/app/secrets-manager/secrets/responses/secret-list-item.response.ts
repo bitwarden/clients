@@ -9,6 +9,8 @@ export class SecretListItemResponse extends BaseResponse {
   creationDate: string;
   revisionDate: string;
   projects: SecretProjectResponse[];
+  read: boolean;
+  write: boolean;
 
   constructor(response: any) {
     super(response);
@@ -17,6 +19,8 @@ export class SecretListItemResponse extends BaseResponse {
     this.name = this.getResponseProperty("Key");
     this.creationDate = this.getResponseProperty("CreationDate");
     this.revisionDate = this.getResponseProperty("RevisionDate");
+    this.read = this.getResponseProperty("Read");
+    this.write = this.getResponseProperty("Write");
 
     const project = this.getResponseProperty("projects");
     this.projects = project == null ? null : project.map((k: any) => new SecretProjectResponse(k));

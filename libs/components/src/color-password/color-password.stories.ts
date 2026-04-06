@@ -1,12 +1,29 @@
-import { Meta, Story } from "@storybook/angular";
+import { applicationConfig, Meta, StoryObj } from "@storybook/angular";
+
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 
 import { ColorPasswordComponent } from "./color-password.component";
 
-const examplePassword = "Wq$Jk😀7jDX#rS5Sdi!z";
+const examplePassword = "Wq$Jk😀7jlI  DX#rS5Sdi!z0O ";
 
 export default {
   title: "Component Library/Color Password",
   component: ColorPasswordComponent,
+  decorators: [
+    applicationConfig({
+      providers: [
+        {
+          provide: PlatformUtilsService,
+          useValue: {
+            // eslint-disable-next-line
+            copyToClipboard: (text: string) => console.log(`${text} copied to clipboard`),
+          },
+        },
+      ],
+    }),
+  ],
   args: {
     password: examplePassword,
     showCount: false,
@@ -14,39 +31,45 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/6fvTDa3zfvgWdizLQ7nSTP/Numbered-Password",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=21540-46261&t=b5tDKylm5sWm2yKo-4",
     },
   },
 } as Meta;
 
-const Template: Story<ColorPasswordComponent> = (args: ColorPasswordComponent) => ({
-  props: args,
-  template: `
-  <bit-color-password class="tw-text-base" [password]="password" [showCount]="showCount"></bit-color-password>
-  `,
-});
+type Story = StoryObj<ColorPasswordComponent>;
 
-const WrappedTemplate: Story<ColorPasswordComponent> = (args: ColorPasswordComponent) => ({
-  props: args,
-  template: `
-  <div class="tw-max-w-32">
-    <bit-color-password class="tw-text-base" [password]="password" [showCount]="showCount"></bit-color-password>
-  </div>
-  `,
-});
-
-export const ColorPassword = Template.bind({});
-
-export const WrappedColorPassword = WrappedTemplate.bind({});
-
-export const ColorPasswordCount = Template.bind({});
-ColorPasswordCount.args = {
-  password: examplePassword,
-  showCount: true,
+export const ColorPassword: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-color-password ${formatArgsForCodeSnippet<ColorPasswordComponent>(args)}></bit-color-password>
+    `,
+  }),
 };
 
-export const WrappedColorPasswordCount = WrappedTemplate.bind({});
-WrappedColorPasswordCount.args = {
-  password: examplePassword,
-  showCount: true,
+export const WrappedColorPassword: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="tw-max-w-32">
+        <bit-color-password ${formatArgsForCodeSnippet<ColorPasswordComponent>(args)}></bit-color-password>
+      </div>
+    `,
+  }),
+};
+
+export const ColorPasswordCount: Story = {
+  ...ColorPassword,
+  args: {
+    password: examplePassword,
+    showCount: true,
+  },
+};
+
+export const WrappedColorPasswordCount: Story = {
+  ...WrappedColorPassword,
+  args: {
+    password: examplePassword,
+    showCount: true,
+  },
 };

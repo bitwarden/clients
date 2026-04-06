@@ -1,0 +1,29 @@
+<div class="tw-flex tw-justify-between tw-mb-2 tw-pb-2 tw-mt-6">
+  <h2 bitTypography="h2">
+    {{ "billingHistory" | i18n }}
+  </h2>
+</div>
+<ng-container *ngIf="!firstLoaded && loading">
+  <i
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
+    title="{{ 'loading' | i18n }}"
+    aria-hidden="true"
+  ></i>
+  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+</ng-container>
+<ng-container *ngIf="openInvoices || paidInvoices || transactions">
+  <app-billing-history
+    [openInvoices]="openInvoices"
+    [paidInvoices]="paidInvoices"
+    [transactions]="transactions"
+  ></app-billing-history>
+  <button
+    type="button"
+    bitButton
+    buttonType="secondary"
+    (click)="load()"
+    *ngIf="hasAdditionalHistory"
+  >
+    {{ "loadMore" | i18n }}
+  </button>
+</ng-container>

@@ -1,0 +1,16 @@
+<form [formGroup]="recoverDeleteForm" [bitSubmit]="submit">
+  <p bitTypography="body1">{{ "deleteRecoverDesc" | i18n }}</p>
+  <bit-form-field>
+    <bit-label>{{ "emailAddress" | i18n }}</bit-label>
+    <input bitInput appAutofocus appInputVerbatim="false" type="email" formControlName="email" />
+  </bit-form-field>
+  <hr />
+  <div class="tw-flex tw-gap-2">
+    <button type="submit" bitButton bitFormButton buttonType="primary" [block]="true">
+      {{ "submit" | i18n }}
+    </button>
+    <a bitButton buttonType="secondary" routerLink="/login" [block]="true">
+      {{ "cancel" | i18n }}
+    </a>
+  </div>
+</form>

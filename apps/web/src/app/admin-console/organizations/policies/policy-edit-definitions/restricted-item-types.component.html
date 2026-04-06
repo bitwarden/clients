@@ -1,0 +1,6 @@
+<bit-form-control>
+  <input type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
+  <bit-label>{{ "turnOn" | i18n }}</bit-label>
+</bit-form-control>
+<!-- To allow for multiple item types we can add a data formGroup, iterate over the
+ cipher types as checkboxes/multi-select and use that as a means to track which types are restricted -->

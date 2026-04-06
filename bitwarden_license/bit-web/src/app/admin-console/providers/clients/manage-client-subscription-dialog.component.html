@@ -1,0 +1,57 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog dialogSize="large" [loading]="loading">
+    <span bitDialogTitle>
+      {{ "manageSeats" | i18n }}
+      <small class="tw-text-muted">{{ dialogParams.organization.organizationName }}</small>
+    </span>
+    <div bitDialogContent>
+      <p>{{ "manageSeatsDescription" | i18n }}</p>
+      <bit-form-field disableMargin>
+        <bit-label>
+          {{ "assignedSeats" | i18n }}
+        </bit-label>
+        <input
+          type="number"
+          bitInput
+          formControlName="assignedSeats"
+          [min]="dialogParams.organization.occupiedSeats"
+        />
+        <bit-hint class="tw-text-muted" *ngIf="!isServiceUserWithPurchasedSeats">
+          <div
+            class="tw-grid tw-grid-flow-col tw-gap-1 tw-grid-cols-1"
+            [ngClass]="{
+              'tw-grid-rows-1': additionalSeatsPurchased === 0,
+              'tw-grid-rows-2': purchasingSeats || sellingSeats,
+            }"
+          >
+            <span class="tw-col-span-1">
+              {{ unassignedSeats }} {{ "unassignedSeatsDescription" | i18n | lowercase }}
+            </span>
+            <span *ngIf="purchasingSeats" class="tw-col-span-1"
+              >{{ additionalSeatsPurchased }}
+              {{ "purchaseSeatDescription" | i18n | lowercase }}</span
+            >
+            <span *ngIf="sellingSeats" class="tw-col-span-1"
+              >{{ purchasedSeatsRemoved }} {{ "purchasedSeatsRemoved" | i18n | lowercase }}</span
+            >
+          </div>
+        </bit-hint>
+        <bit-hint *ngIf="isServiceUserWithPurchasedSeats"></bit-hint>
+      </bit-form-field>
+    </div>
+    <ng-container bitDialogFooter>
+      <button
+        bitButton
+        bitFormButton
+        buttonType="primary"
+        type="submit"
+        [disabled]="formGroup.invalid"
+      >
+        {{ "save" | i18n }}
+      </button>
+      <button bitButton buttonType="secondary" type="button" [bitDialogClose]="ResultType.Closed">
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

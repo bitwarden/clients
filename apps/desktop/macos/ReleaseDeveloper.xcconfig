@@ -1,0 +1,11 @@
+//
+//  ReleaseDeveloper.xcconfig
+//  desktop
+//
+//  Created by Nathan Ansel on 2/20/25.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+CODE_SIGN_IDENTITY = Developer ID Application
+PROVISIONING_PROFILE_SPECIFIER = Bitwarden Desktop Autofill Extension Developer Dis

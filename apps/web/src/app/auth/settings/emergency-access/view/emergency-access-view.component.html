@@ -1,0 +1,50 @@
+<h1 bitTypography="h1">{{ "vault" | i18n }}</h1>
+
+<div class="tw-mt-6">
+  <ng-container *ngIf="ciphers.length">
+    <bit-table>
+      <ng-template body>
+        <tr bitRow *ngFor="let currentCipher of ciphers">
+          <td bitCell>
+            <app-vault-icon [cipher]="currentCipher"></app-vault-icon>
+          </td>
+          <td bitCell class="tw-w-full">
+            <a
+              bitLink
+              href="#"
+              appStopClick
+              (click)="selectCipher(currentCipher)"
+              title="{{ 'editItem' | i18n }}"
+              >{{ currentCipher.name }}</a
+            >
+            <ng-container *ngIf="currentCipher.organizationId">
+              <bit-icon
+                name="bwi-collection-shared"
+                class="tw-ml-1"
+                appStopProp
+                [ariaLabel]="'shared' | i18n"
+              ></bit-icon>
+            </ng-container>
+            <ng-container *ngIf="currentCipher.hasAttachments">
+              <bit-icon
+                name="bwi-paperclip"
+                class="tw-ml-1"
+                appStopProp
+                [ariaLabel]="'attachments' | i18n"
+              ></bit-icon>
+            </ng-container>
+            <br />
+            <small class="tw-text-xs">{{ currentCipher.subTitle }}</small>
+          </td>
+        </tr>
+      </ng-template>
+    </bit-table>
+  </ng-container>
+  <ng-container *ngIf="!loaded">
+    <bit-icon
+      name="bwi-spinner"
+      class="bwi-spin tw-text-muted"
+      [ariaLabel]="'loading' | i18n"
+    ></bit-icon>
+  </ng-container>
+</div>

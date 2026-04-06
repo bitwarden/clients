@@ -1,0 +1,31 @@
+<bit-section [formGroup]="sendOptionsForm" disableMargin>
+  <bit-section-header>
+    <h2 class="tw-mt-4" bitTypography="h6">{{ "additionalOptions" | i18n }}</h2>
+  </bit-section-header>
+  <bit-card>
+    <bit-form-field>
+      <bit-label>{{ "limitSendViews" | i18n }}</bit-label>
+      <input bitInput type="number" formControlName="maxAccessCount" min="1" />
+      <bit-hint>{{ "limitSendViewsHint" | i18n }}</bit-hint>
+      @if (shouldShowCount) {
+        <bit-hint>&nbsp;{{ "limitSendViewsCount" | i18n: viewsLeft }}</bit-hint>
+      }
+    </bit-form-field>
+
+    @if (!disableHideEmail || originalSendView?.hideEmail) {
+      <bit-form-control>
+        <input
+          [disabled]="disableHideEmail && !sendOptionsForm.get('hideEmail').value"
+          bitCheckbox
+          type="checkbox"
+          formControlName="hideEmail"
+        />
+        <bit-label>{{ "hideYourEmail" | i18n }}</bit-label>
+      </bit-form-control>
+    }
+    <bit-form-field disableMargin>
+      <bit-label>{{ "privateNote" | i18n }}</bit-label>
+      <textarea bitInput rows="3" formControlName="notes"></textarea>
+    </bit-form-field>
+  </bit-card>
+</bit-section>

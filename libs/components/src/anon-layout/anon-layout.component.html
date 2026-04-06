@@ -1,0 +1,40 @@
+<bit-landing-layout [hideBackgroundIllustration]="hideBackgroundIllustration()">
+  <bit-landing-header [hideLogo]="hideLogo()">
+    <ng-content select="[slot=header-actions]"></ng-content>
+  </bit-landing-header>
+
+  <bit-landing-content [maxWidth]="maxWidth()">
+    <bit-landing-hero [icon]="icon()" [title]="title()" [subtitle]="subtitle()"></bit-landing-hero>
+    @if (hideCardWrapper()) {
+      <div class="tw-mb-6 sm:tw-mb-10">
+        <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
+      </div>
+    } @else {
+      <bit-landing-card>
+        <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
+      </bit-landing-card>
+    }
+    <div class="tw-flex tw-flex-col tw-items-center">
+      <ng-content select="[slot=secondary]"></ng-content>
+    </div>
+  </bit-landing-content>
+
+  @if (!hideFooter()) {
+    <bit-landing-footer>
+      @if (showReadonlyHostname()) {
+        <div bitTypography="body2">{{ "accessing" | i18n }} {{ hostname }}</div>
+      } @else {
+        <ng-content select="[slot=environment-selector]"></ng-content>
+      }
+
+      @if (!hideYearAndVersion) {
+        <div bitTypography="body2">&copy; {{ year }} Bitwarden Inc.</div>
+        <div bitTypography="body2">{{ version }}</div>
+      }
+    </bit-landing-footer>
+  }
+</bit-landing-layout>
+
+<ng-template #defaultContent>
+  <ng-content></ng-content>
+</ng-template>

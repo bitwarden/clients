@@ -1,8 +1,4 @@
-<div class="tw-flex tw-w-full">
-  <aside class="tw-min-h-screen tw-w-60 tw-bg-background-alt3">
-    <router-outlet name="sidebar"></router-outlet>
-  </aside>
-  <main class="tw-min-h-screen tw-flex-1 tw-bg-background-alt tw-p-6">
-    <router-outlet></router-outlet>
-  </main>
-</div>
+<app-layout>
+  <router-outlet name="sidebar" slot="side-nav"></router-outlet>
+  <router-outlet></router-outlet>
+</app-layout>

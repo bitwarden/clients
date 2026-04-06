@@ -1,0 +1,67 @@
+import {
+  Meta,
+  Story,
+  Canvas,
+  Primary,
+  Controls,
+  Title,
+  Description,
+} from "@storybook/addon-docs/blocks";
+
+import * as stories from "./link.stories";
+
+<Meta of={stories} />
+
+```ts
+import { LinkModule } from "@bitwarden/components";
+```
+
+<Title>Link / Text button</Title>
+<Description />
+
+<Primary />
+<Controls />
+
+## Variants
+
+You can use one of the following variants by providing it as the `linkType` input:
+
+- @deprecated `primary` => use `default` instead
+- @deprecated `secondary` => use `subtle` instead
+- `default` - most common, uses brand color
+- `subtle` - matches the main text color
+- `contrast` - for high contrast against a dark background (or a light background in dark mode)
+- `light` - always a light color, even in dark mode
+- `warning` - used in association with warning callouts/banners
+- `success` - used in association with success callouts/banners
+- `danger` - used in association with danger callouts/banners
+
+## Sizes
+
+If you want to display a link with a smaller text size, apply the `tw-text-sm` class. This will
+match the `body2` variant of the Typography directive.
+
+## With Icon
+
+Use the `startIcon` and `endIcon` inputs to add a Bitwarden icon (`bwi-*`) before or after the link
+label. Do not use a `<bit-icon>` component inside the link as this may not have the correct styling
+and spacing.
+
+### Icon before the label
+
+```html
+<a bitLink startIcon="bwi-plus-circle">Add item</a>
+```
+
+### Icon after the label
+
+```html
+<a bitLink endIcon="bwi-angle-right">Next</a>
+```
+
+<Canvas of={stories.WithIcons} />
+
+## Accessibility
+
+- Make sure to only use the Link on backgrounds that maintain the WCAG color contrast ratios.
+- Be sure to select the correct element type (anchor or button) for the intended action.

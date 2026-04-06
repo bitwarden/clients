@@ -1,0 +1,24 @@
+{
+  "urls": {
+    "icons": "https://icons.euqa.bitwarden.pw",
+    "notifications": "https://notifications.euqa.bitwarden.pw",
+    "scim": "https://scim.euqa.bitwarden.pw"
+  },
+  "additionalRegions": [
+    {
+      "key": "USQA",
+      "domain": "qa.bitwarden.pw",
+      "urls": {
+        "webVault": "https://vault.qa.bitwarden.pw"
+      }
+    },
+    {
+      "key": "EUQA",
+      "domain": "euqa.bitwarden.pw",
+      "urls": {
+        "webVault": "https://vault.euqa.bitwarden.pw"
+      }
+    }
+  ],
+  "flags": {}
+}

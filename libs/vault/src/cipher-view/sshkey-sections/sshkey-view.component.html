@@ -1,0 +1,73 @@
+<section class="tw-mb-5 bit-compact:tw-mb-4">
+  <bit-section-header>
+    <h2 bitTypography="h6">{{ "typeSshKey" | i18n }}</h2>
+  </bit-section-header>
+  <read-only-cipher-card>
+    <bit-form-field>
+      <bit-label>{{ "sshPrivateKey" | i18n }}</bit-label>
+      <input
+        readonly
+        bitInput
+        [value]="sshKey.privateKey"
+        aria-readonly="true"
+        type="password"
+        data-testid="private-key"
+      />
+      <button
+        bitSuffix
+        type="button"
+        bitIconButton
+        bitPasswordInputToggle
+        data-testid="toggle-privateKey"
+        [(toggled)]="revealSshKey"
+      ></button>
+      <button
+        bitIconButton="bwi-clone"
+        bitSuffix
+        type="button"
+        [label]="'copyPrivateKey' | i18n"
+        [appCopyClick]="sshKey.privateKey"
+        showToast
+        [valueLabel]="'sshPrivateKey' | i18n"
+      ></button>
+    </bit-form-field>
+    <bit-form-field>
+      <bit-label>{{ "sshPublicKey" | i18n }}</bit-label>
+      <input
+        readonly
+        bitInput
+        [value]="sshKey.publicKey"
+        aria-readonly="true"
+        data-testid="public-key"
+      />
+      <button
+        bitIconButton="bwi-clone"
+        bitSuffix
+        type="button"
+        [label]="'copyPublicKey' | i18n"
+        [appCopyClick]="sshKey.publicKey"
+        showToast
+        [valueLabel]="'sshPublicKey' | i18n"
+      ></button>
+    </bit-form-field>
+    <bit-form-field>
+      <bit-label>{{ "sshFingerprint" | i18n }}</bit-label>
+      <input
+        readonly
+        bitInput
+        [value]="sshKey.keyFingerprint"
+        aria-readonly="true"
+        data-testid="fingerprint"
+      />
+      <button
+        bitIconButton="bwi-clone"
+        bitSuffix
+        type="button"
+        [label]="'copyFingerprint' | i18n"
+        [appCopyClick]="sshKey.keyFingerprint"
+        showToast
+        [valueLabel]="'sshFingerprint' | i18n"
+      ></button>
+    </bit-form-field>
+  </read-only-cipher-card>
+</section>

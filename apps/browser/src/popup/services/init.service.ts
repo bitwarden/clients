@@ -1,39 +1,46 @@
-import { Injectable } from "@angular/core";
+import { inject, Inject, Injectable, DOCUMENT } from "@angular/core";
 
-import { AbstractThemingService } from "@bitwarden/angular/services/theming/theming.service.abstraction";
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { LogService as LogServiceAbstraction } from "@bitwarden/common/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
+import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 
-import { BrowserStateService as StateServiceAbstraction } from "../../services/abstractions/browser-state.service";
-
-import { PopupUtilsService } from "./popup-utils.service";
+import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
+import { PopupSizeService } from "../../platform/popup/layout/popup-size.service";
+import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-view-cache.service";
 
 @Injectable()
 export class InitService {
+  private sizeService = inject(PopupSizeService);
+
   constructor(
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
-    private popupUtilsService: PopupUtilsService,
-    private stateService: StateServiceAbstraction,
+    private stateService: StateService,
+    private twoFactorService: TwoFactorService,
     private logService: LogServiceAbstraction,
-    private themingService: AbstractThemingService
+    private themingService: AbstractThemingService,
+    private sdkLoadService: SdkLoadService,
+    private viewCacheService: PopupViewCacheService,
+    private readonly migrationRunner: MigrationRunner,
+    @Inject(DOCUMENT) private document: Document,
   ) {}
 
   init() {
     return async () => {
-      await this.stateService.init();
-
-      if (!this.popupUtilsService.inPopup(window)) {
-        window.document.body.classList.add("body-full");
-      } else if (window.screen.availHeight < 600) {
-        window.document.body.classList.add("body-xs");
-      } else if (window.screen.availHeight <= 800) {
-        window.document.body.classList.add("body-sm");
-      }
+      await this.sdkLoadService.loadAndInit();
+      await this.migrationRunner.waitForCompletion(); // Browser background is responsible for migrations
+      await this.i18nService.init();
+      this.twoFactorService.init();
+      await this.viewCacheService.init();
+      await this.sizeService.init();
 
       const htmlEl = window.document.documentElement;
-      await this.themingService.monitorThemeChanges();
+      this.themingService.applyThemeChangesTo(this.document);
       htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
 
       // Workaround for slow performance on external monitors on Chrome + MacOS
@@ -41,7 +48,7 @@ export class InitService {
       if (
         this.platformUtilsService.isChrome() &&
         navigator.platform.indexOf("Mac") > -1 &&
-        this.popupUtilsService.inPopup(window) &&
+        BrowserPopupUtils.inPopup(window) &&
         (window.screenLeft < 0 ||
           window.screenTop < 0 ||
           window.screenLeft > window.screen.width ||

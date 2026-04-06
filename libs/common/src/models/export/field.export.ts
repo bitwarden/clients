@@ -1,8 +1,9 @@
-import { FieldType } from "../../enums/fieldType";
-import { LinkedIdType } from "../../enums/linkedIdType";
-import { EncString } from "../domain/enc-string";
-import { Field as FieldDomain } from "../domain/field";
-import { FieldView } from "../view/field.view";
+import { EncString } from "../../key-management/crypto/models/enc-string";
+import { FieldType, LinkedIdType } from "../../vault/enums";
+import { Field as FieldDomain } from "../../vault/models/domain/field";
+import { FieldView } from "../../vault/models/view/field.view";
+
+import { safeGetString } from "./utils";
 
 export class FieldExport {
   static template(): FieldExport {
@@ -23,29 +24,24 @@ export class FieldExport {
 
   static toDomain(req: FieldExport, domain = new FieldDomain()) {
     domain.type = req.type;
-    domain.value = req.value != null ? new EncString(req.value) : null;
-    domain.name = req.name != null ? new EncString(req.name) : null;
+    domain.value = req.value != null ? new EncString(req.value) : undefined;
+    domain.name = req.name != null ? new EncString(req.name) : undefined;
     domain.linkedId = req.linkedId;
     return domain;
   }
 
-  name: string;
-  value: string;
-  type: FieldType;
-  linkedId: LinkedIdType;
+  name?: string;
+  value?: string;
+  type: FieldType = FieldType.Text;
+  linkedId?: LinkedIdType;
 
   constructor(o?: FieldView | FieldDomain) {
     if (o == null) {
       return;
     }
 
-    if (o instanceof FieldView) {
-      this.name = o.name;
-      this.value = o.value;
-    } else {
-      this.name = o.name?.encryptedString;
-      this.value = o.value?.encryptedString;
-    }
+    this.name = safeGetString(o.name);
+    this.value = safeGetString(o.value);
     this.type = o.type;
     this.linkedId = o.linkedId;
   }

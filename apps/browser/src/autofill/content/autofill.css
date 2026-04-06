@@ -1,0 +1,43 @@
+﻿@-webkit-keyframes bitwardenfill {
+  0% {
+    -webkit-transform: scale(1, 1);
+  }
+
+  50% {
+    -webkit-transform: scale(1.2, 1.2);
+  }
+
+  100% {
+    -webkit-transform: scale(1, 1);
+  }
+}
+
+@-moz-keyframes bitwardenfill {
+  0% {
+    transform: scale(1, 1);
+  }
+
+  50% {
+    transform: scale(1.2, 1.2);
+  }
+
+  100% {
+    transform: scale(1, 1);
+  }
+}
+
+span[data-bwautofill].com-bitwarden-browser-animated-fill {
+  display: inline-block;
+}
+
+.com-bitwarden-browser-animated-fill {
+  animation: bitwardenfill 200ms ease-in-out 0ms 1;
+  -webkit-animation: bitwardenfill 200ms ease-in-out 0ms 1;
+}
+
+@media (prefers-reduced-motion) {
+  .com-bitwarden-browser-animated-fill {
+    animation: none;
+    -webkit-animation: none;
+  }
+}

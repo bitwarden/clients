@@ -1,0 +1,47 @@
+import { Meta, Story, Controls } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./icon.stories";
+
+<Meta of={stories} />
+
+```ts
+import { IconModule } from "@bitwarden/components";
+```
+
+# Icon
+
+The `bit-icon` component renders Bitwarden Web Icons (bwi) using icon font classes.
+
+## Basic Usage
+
+```html
+<bit-icon name="bwi-lock" />
+```
+
+## Icon Names
+
+All available icon names are defined in the `BitwardenIcon` type. Icons use the `bwi-*` naming
+convention (e.g., `bwi-lock`, `bwi-user`, `bwi-key`).
+
+## Accessibility
+
+By default, icons are decorative and marked with `aria-hidden="true"`. To make an icon accessible,
+provide an `ariaLabel`:
+
+```html
+<bit-icon name="bwi-lock" [ariaLabel]="'Secure lock'" />
+```
+
+## Styling
+
+The component renders as an inline element. Apply standard CSS classes or styles to customize
+appearance:
+
+```html
+<bit-icon name="bwi-lock" class="tw-text-primary-500 tw-text-2xl" />
+```
+
+## Note on SVG Icons
+
+For SVG illustrations (not font icons), use the `bit-svg` component instead. See the Svg component
+documentation for details.

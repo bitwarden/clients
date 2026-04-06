@@ -1,12 +1,13 @@
 import { isDataSource } from "@angular/cdk/collections";
+import { CommonModule } from "@angular/common";
 import {
   AfterContentChecked,
   Component,
-  ContentChild,
   Directive,
-  Input,
   OnDestroy,
   TemplateRef,
+  input,
+  contentChild,
 } from "@angular/core";
 import { Observable } from "rxjs";
 
@@ -20,31 +21,48 @@ export class TableBodyDirective {
   constructor(public readonly template: TemplateRef<any>) {}
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-table",
   templateUrl: "./table.component.html",
+  imports: [CommonModule],
 })
 export class TableComponent implements OnDestroy, AfterContentChecked {
-  @Input() dataSource: TableDataSource<any>;
+  readonly dataSource = input<TableDataSource<any>>();
+  readonly layout = input<"auto" | "fixed">("auto");
 
-  @ContentChild(TableBodyDirective) templateVariable: TableBodyDirective;
+  readonly templateVariable = contentChild(TableBodyDirective);
 
-  protected rows: Observable<readonly any[]>;
+  protected rows$?: Observable<any[]>;
 
   private _initialized = false;
 
+  get tableClass() {
+    return [
+      "tw-w-full",
+      "tw-leading-normal",
+      "tw-text-main",
+      "tw-border-collapse",
+      "tw-text-start",
+      this.layout() === "auto" ? "tw-table-auto" : "tw-table-fixed",
+    ];
+  }
+
   ngAfterContentChecked(): void {
-    if (!this._initialized && isDataSource(this.dataSource)) {
+    const dataSource = this.dataSource();
+    if (!this._initialized && isDataSource(dataSource)) {
       this._initialized = true;
 
-      const dataStream = this.dataSource.connect();
-      this.rows = dataStream;
+      const dataStream = dataSource.connect();
+      this.rows$ = dataStream;
     }
   }
 
   ngOnDestroy(): void {
-    if (isDataSource(this.dataSource)) {
-      this.dataSource.disconnect();
+    const dataSource = this.dataSource();
+    if (isDataSource(dataSource)) {
+      dataSource.disconnect();
     }
   }
 }

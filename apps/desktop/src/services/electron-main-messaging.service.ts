@@ -1,13 +1,22 @@
-import { app, dialog, ipcMain, Menu, MenuItem, nativeTheme, session } from "electron";
+import * as path from "path";
 
-import { MessagingService } from "@bitwarden/common/abstractions/messaging.service";
-import { ThemeType } from "@bitwarden/common/enums/themeType";
+import { app, dialog, ipcMain, Menu, MenuItem, nativeTheme, Notification } from "electron";
+
+import { ThemeType } from "@bitwarden/common/platform/enums";
+import { MessageSender, CommandDefinition } from "@bitwarden/common/platform/messaging";
+// eslint-disable-next-line no-restricted-imports -- Using implementation helper in implementation
+import { getCommand } from "@bitwarden/common/platform/messaging/internal";
+import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 
 import { WindowMain } from "../main/window.main";
+import { SafeShell } from "../platform/main/safe-shell.main";
 import { RendererMenuItem } from "../utils";
 
-export class ElectronMainMessagingService implements MessagingService {
-  constructor(private windowMain: WindowMain, private onMessage: (message: any) => void) {
+export class ElectronMainMessagingService implements MessageSender {
+  constructor(
+    private windowMain: WindowMain,
+    private shell: SafeShell,
+  ) {
     ipcMain.handle("appVersion", () => {
       return app.getVersion();
     });
@@ -31,7 +40,7 @@ export class ElectronMainMessagingService implements MessagingService {
               click: () => {
                 resolve(index);
               },
-            })
+            }),
           );
         });
         menu.popup({
@@ -47,21 +56,39 @@ export class ElectronMainMessagingService implements MessagingService {
       return windowMain.win?.isVisible();
     });
 
-    ipcMain.handle("getCookie", async (event, options) => {
-      return await session.defaultSession.cookies.get(options);
+    ipcMain.handle("loginRequest", async (event, options) => {
+      const alert = new Notification({
+        title: options.alertTitle,
+        body: options.alertBody,
+        closeButtonText: options.buttonText,
+        icon: path.join(__dirname, "images/icon.png"),
+      });
+
+      alert.addListener("click", () => {
+        this.windowMain.win.show();
+      });
+
+      alert.show();
+    });
+
+    ipcMain.handle("launchUri", async (event, uri) => {
+      void this.shell.openExternal(uri, UrlType.CipherUri);
     });
 
     nativeTheme.on("updated", () => {
       windowMain.win?.webContents.send(
         "systemThemeUpdated",
-        nativeTheme.shouldUseDarkColors ? ThemeType.Dark : ThemeType.Light
+        nativeTheme.shouldUseDarkColors ? ThemeType.Dark : ThemeType.Light,
       );
     });
   }
 
-  send(subscriber: string, arg: any = {}) {
-    const message = Object.assign({}, { command: subscriber }, arg);
-    this.onMessage(message);
+  send<T extends Record<string, unknown>>(
+    commandDefinition: CommandDefinition<T> | string,
+    arg: T | Record<string, unknown> = {},
+  ) {
+    const command = getCommand(commandDefinition);
+    const message = Object.assign({}, { command: command }, arg);
     if (this.windowMain.win != null) {
       this.windowMain.win.webContents.send("messagingService", message);
     }

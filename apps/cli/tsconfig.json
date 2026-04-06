@@ -1,21 +1,4 @@
 {
-  "compilerOptions": {
-    "pretty": true,
-    "moduleResolution": "node",
-    "target": "ES2016",
-    "module": "es6",
-    "noImplicitAny": true,
-    "allowSyntheticDefaultImports": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "allowJs": true,
-    "sourceMap": true,
-    "baseUrl": ".",
-    "paths": {
-      "@bitwarden/common/spec/*": ["../../libs/common/spec/*"],
-      "@bitwarden/common/*": ["../../libs/common/src/*"],
-      "@bitwarden/node/*": ["../../libs/node/src/*"]
-    }
-  },
+  "extends": "../../tsconfig.base",
   "include": ["src", "src/**/*.spec.ts"]
 }

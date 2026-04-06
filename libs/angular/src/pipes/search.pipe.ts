@@ -1,9 +1,12 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Pipe, PipeTransform } from "@angular/core";
 
 type PropertyValueFunction<T> = (item: T) => { toString: () => string };
 
 @Pipe({
   name: "search",
+  standalone: false,
 })
 export class SearchPipe implements PipeTransform {
   transform<T>(
@@ -11,21 +14,21 @@ export class SearchPipe implements PipeTransform {
     searchText: string,
     prop1?: keyof T,
     prop2?: keyof T,
-    prop3?: keyof T
+    prop3?: keyof T,
   ): T[];
   transform<T>(
     items: T[],
     searchText: string,
     prop1?: PropertyValueFunction<T>,
     prop2?: PropertyValueFunction<T>,
-    prop3?: PropertyValueFunction<T>
+    prop3?: PropertyValueFunction<T>,
   ): T[];
   transform<T>(
     items: T[],
     searchText: string,
     prop1?: keyof T | PropertyValueFunction<T>,
     prop2?: keyof T | PropertyValueFunction<T>,
-    prop3?: keyof T | PropertyValueFunction<T>
+    prop3?: keyof T | PropertyValueFunction<T>,
   ): T[] {
     if (items == null || items.length === 0) {
       return [];

@@ -3,26 +3,36 @@ import { DataSource } from "@angular/cdk/collections";
 import { BehaviorSubject, combineLatest, map, Observable, Subscription } from "rxjs";
 
 export type SortDirection = "asc" | "desc";
-export type SortFn = (a: any, b: any) => number;
+export type SortFn = (a: any, b: any, direction?: SortDirection) => number;
 export type Sort = {
   column?: string;
   direction: SortDirection;
   fn?: SortFn;
 };
 
+export type FilterFn<T> = (data: T) => boolean;
+
 // Loosely based on CDK TableDataSource
 //  https://github.com/angular/components/blob/main/src/material/table/table-data-source.ts
 export class TableDataSource<T> extends DataSource<T> {
   private readonly _data: BehaviorSubject<T[]>;
   private readonly _sort: BehaviorSubject<Sort>;
+  private readonly _filter = new BehaviorSubject<string | FilterFn<T>>(() => true);
   private readonly _renderData = new BehaviorSubject<T[]>([]);
-
   private _renderChangesSubscription: Subscription | null = null;
+
+  /**
+   * The filtered set of data that has been matched by the filter string, or all the data if there
+   * is no filter. Useful for knowing the set of data the table represents.
+   * For example, a 'selectAll()' function would likely want to select the set of filtered data
+   * shown to the user rather than all the data.
+   */
+  filteredData?: T[];
 
   constructor() {
     super();
-    this._data = new BehaviorSubject([]);
-    this._sort = new BehaviorSubject({ direction: "asc" });
+    this._data = new BehaviorSubject([] as T[]);
+    this._sort = new BehaviorSubject<Sort>({ direction: "asc" } as Sort);
   }
 
   get data() {
@@ -30,7 +40,13 @@ export class TableDataSource<T> extends DataSource<T> {
   }
 
   set data(data: T[]) {
-    this._data.next(data ? [...data] : []);
+    data = Array.isArray(data) ? data : [];
+    this._data.next(data);
+    // Normally the `filteredData` is updated by the re-render
+    // subscription, but that won't happen if it's inactive.
+    if (!this._renderChangesSubscription) {
+      this.filterData(data);
+    }
   }
 
   set sort(sort: Sort) {
@@ -41,7 +57,24 @@ export class TableDataSource<T> extends DataSource<T> {
     return this._sort.value;
   }
 
-  connect(): Observable<readonly T[]> {
+  /**
+   * Filter to apply to the `data`.
+   *
+   * If a string is provided, it will be converted to a filter using {@link simpleStringFilter}
+   **/
+  get filter() {
+    return this._filter.value;
+  }
+  set filter(filter: string | FilterFn<T>) {
+    this._filter.next(filter);
+    // Normally the `filteredData` is updated by the re-render
+    // subscription, but that won't happen if it's inactive.
+    if (!this._renderChangesSubscription) {
+      this.filterData(this.data);
+    }
+  }
+
+  connect(): Observable<T[]> {
     if (!this._renderChangesSubscription) {
       this.updateChangeSubscription();
     }
@@ -55,20 +88,34 @@ export class TableDataSource<T> extends DataSource<T> {
   }
 
   private updateChangeSubscription() {
-    const orderedData = combineLatest([this._data, this._sort]).pipe(
-      map(([data]) => this.orderData(data))
+    const filteredData = combineLatest([this._data, this._filter]).pipe(
+      map(([data]) => this.filterData(data)),
+    );
+
+    const orderedData = combineLatest([filteredData, this._sort]).pipe(
+      map(([data, sort]) => this.orderData(data, sort)),
     );
 
     this._renderChangesSubscription?.unsubscribe();
     this._renderChangesSubscription = orderedData.subscribe((data) => this._renderData.next(data));
   }
 
-  private orderData(data: T[]): T[] {
-    if (!this.sort) {
+  private filterData(data: T[]): T[] {
+    const filter =
+      typeof this.filter === "string"
+        ? TableDataSource.simpleStringFilter(this.filter)
+        : this.filter;
+    this.filteredData = this.filter == null ? data : data.filter((obj) => filter(obj));
+
+    return this.filteredData;
+  }
+
+  private orderData(data: T[], sort: Sort): T[] {
+    if (!sort) {
       return data;
     }
 
-    return this.sortData(data, this.sort);
+    return this.sortData(data, sort);
   }
 
   /**
@@ -111,7 +158,7 @@ export class TableDataSource<T> extends DataSource<T> {
    */
   protected sortData(data: T[], sort: Sort): T[] {
     const column = sort.column;
-    const direction = sort.direction;
+    const directionModifier = sort.direction === "asc" ? 1 : -1;
     if (!column) {
       return data;
     }
@@ -119,7 +166,7 @@ export class TableDataSource<T> extends DataSource<T> {
     return data.sort((a, b) => {
       // If a custom sort function is provided, use it instead of the default.
       if (sort.fn) {
-        return sort.fn(a, b) * (direction === "asc" ? 1 : -1);
+        return sort.fn(a, b, sort.direction) * directionModifier;
       }
 
       let valueA = this.sortingDataAccessor(a, column);
@@ -140,6 +187,10 @@ export class TableDataSource<T> extends DataSource<T> {
         }
       }
 
+      if (typeof valueA === "string" && typeof valueB === "string") {
+        return valueA.localeCompare(valueB) * directionModifier;
+      }
+
       // If both valueA and valueB exist (truthy), then compare the two. Otherwise, check if
       // one value exists while the other doesn't. In this case, existing value should come last.
       // This avoids inconsistent results when comparing values to undefined/null.
@@ -158,7 +209,44 @@ export class TableDataSource<T> extends DataSource<T> {
         comparatorResult = -1;
       }
 
-      return comparatorResult * (direction === "asc" ? 1 : -1);
+      return comparatorResult * directionModifier;
     });
   }
+
+  /**
+   * Modified from https://github.com/angular/components/blob/main/src/material/table/table-data-source.ts
+   * License: MIT
+   * Copyright (c) 2022 Google LLC.
+   *
+   * @param filter the string to search for
+   * @returns a function that checks if a data object matches the provided `filter` string. Each data object
+   * is converted to a string of its properties and returns true if the filter has
+   * at least one occurrence in that string. The filter string has its whitespace
+   * trimmed and the match is case-insensitive.
+   */
+  static readonly simpleStringFilter = <T>(filter: string): FilterFn<T> => {
+    return (data: T): boolean => {
+      if (!filter) {
+        return true;
+      }
+
+      // Transform the data into a lowercase string of all property values.
+      const dataStr = Object.keys(data as unknown as Record<string, any>)
+        .reduce((currentTerm: string, key: string) => {
+          // Use an obscure Unicode character to delimit the words in the concatenated string.
+          // This avoids matches where the values of two columns combined will match the user's query
+          // (e.g. `Flute` and `Stop` will match `Test`). The character is intended to be something
+          // that has a very low chance of being typed in by somebody in a text field. This one in
+          // particular is "White up-pointing triangle with dot" from
+          // https://en.wikipedia.org/wiki/List_of_Unicode_characters
+          return currentTerm + (data as unknown as Record<string, any>)[key] + "◬";
+        }, "")
+        .toLowerCase();
+
+      // Transform the filter by converting it to lowercase and removing whitespace.
+      const transformedFilter = filter.trim().toLowerCase();
+
+      return dataStr.indexOf(transformedFilter) != -1;
+    };
+  };
 }

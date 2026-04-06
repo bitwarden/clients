@@ -1,5 +1,7 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { LoginExport } from "@bitwarden/common/models/export/login.export";
-import { LoginView } from "@bitwarden/common/models/view/login.view";
+import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
 export class LoginResponse extends LoginExport {
   passwordRevisionDate: Date;

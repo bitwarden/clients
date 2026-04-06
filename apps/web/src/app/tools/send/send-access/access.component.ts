@@ -1,0 +1,77 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ActivatedRoute } from "@angular/router";
+
+import { SendAccessToken } from "@bitwarden/common/auth/send-access";
+import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/send-access.request";
+import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response/send-access.response";
+
+import { SharedModule } from "../../../shared";
+
+import { SendAuthComponent } from "./send-auth.component";
+import { SendViewComponent } from "./send-view.component";
+
+const SendViewState = Object.freeze({
+  View: "view",
+  Auth: "auth",
+} as const);
+type SendViewState = (typeof SendViewState)[keyof typeof SendViewState];
+
+@Component({
+  selector: "app-send-access",
+  templateUrl: "access.component.html",
+  imports: [SendAuthComponent, SendViewComponent, SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class AccessComponent implements OnInit {
+  readonly viewState = signal<SendViewState | null>(SendViewState.Auth);
+  id: string;
+  key: string;
+
+  sendAccessToken: SendAccessToken | null = null;
+  sendAccessResponse: SendAccessResponse | null = null;
+  sendAccessRequest: SendAccessRequest = new SendAccessRequest();
+
+  constructor(
+    private route: ActivatedRoute,
+    private destroyRef: DestroyRef,
+  ) {}
+
+  ngOnInit() {
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      this.id = params.sendId;
+      this.key = params.key;
+
+      // when pasting sequential Send URLs into the browser,
+      // Angular reuses the SendAuthComponent instance
+      // Reset state so child components are recreated with fresh data
+      this.sendAccessResponse = null;
+      this.sendAccessToken = null;
+      this.sendAccessRequest = new SendAccessRequest();
+
+      // Temporarily set viewState to null to destroy the current child component,
+      // then set it back to Auth on the next tick to recreate it with the new id/key.
+      this.viewState.set(null);
+      setTimeout(() => this.viewState.set(SendViewState.Auth));
+    });
+  }
+
+  onAuthRequired() {
+    this.viewState.set(SendViewState.Auth);
+  }
+
+  onAccessGranted(event: {
+    response?: SendAccessResponse;
+    request?: SendAccessRequest;
+    accessToken?: SendAccessToken;
+  }) {
+    this.sendAccessResponse = event.response;
+    this.sendAccessRequest = event.request;
+    this.sendAccessToken = event.accessToken;
+    this.viewState.set(SendViewState.View);
+  }
+}

@@ -1,0 +1,74 @@
+import { Meta, Description, Canvas, Primary, Controls, Title } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./avatar.stories";
+
+<Meta of={stories} />
+
+```ts
+import { AvatarModule } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Static
+
+By default, the avatar component is non-interactive. Use the avatar component as an atom in a larger
+molecule like a list item, table, or card to help users differentiate between multiple accounts in a
+list.
+
+If the avatar is not a clickable element, there are no hover or focus states.
+
+## Interactive
+
+The Avatar can be used as a button. Use the avatar component as a button to open a secondary menu
+like an account switcher or dropdown.
+
+When the avatar is used as a button, there are hover and focus states for accessibility. Although it
+is rare for an avatar button to be inactive, this state is supported as well.
+
+<Canvas of={stories.Interactive} />
+
+### Inactive
+
+<Canvas of={stories.Inactive} />
+
+## Sizes
+
+There are multiple sizes available for the Avatar: `"2xl" | "xl" | "lg" | "base" | "sm"`
+
+<Canvas of={stories.Sizes} />
+
+## Color
+
+The avatar color can be set 3 ways. The color is generated using the following order of priority:
+
+| Method         | Input   | Accepted inputs                                                                     |
+| -------------- | ------- | ----------------------------------------------------------------------------------- |
+| Default colors | `color` | `"teal" \| "coral" \| "brand" \| "green" \| "purple"`                               |
+| Custom color   | `color` | Css colors like a hex code                                                          |
+| ID             | `id`    | Unique string identifier                                                            |
+| Text           | `text`  | String whose first letters are displayed inside the avatar, usually the user's name |
+
+### Default colors
+
+<Canvas of={stories.DefaultColors} />
+
+### Custom color
+
+<Canvas of={stories.CustomColor} />
+
+### Color by ID
+
+<Canvas of={stories.ColorByID} />
+
+### Color by Text
+
+<Canvas of={stories.ColorByText} />
+
+## Accessibility
+
+Avatar background color should have 3.1:1 contrast with its background.

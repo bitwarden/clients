@@ -1,13 +1,10 @@
 import "core-js/stable";
-require("zone.js/dist/zone");
+import "core-js/proposals/explicit-resource-management";
+import "zone.js";
 
 if (process.env.NODE_ENV === "production") {
   // Production
 } else {
   // Development and test
   Error["stackTraceLimit"] = Infinity;
-  require("zone.js/dist/long-stack-trace-zone");
 }
-
-// Other polyfills
-require("date-input-polyfill");

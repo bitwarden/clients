@@ -1,105 +1,112 @@
-import { coerceBooleanProperty } from "@angular/cdk/coercion";
-import { Input, HostBinding, Component } from "@angular/core";
+import { Component, inject, ElementRef, computed, input, model } from "@angular/core";
 
-import { ButtonLikeAbstraction, ButtonType } from "../shared/button-like.abstraction";
+import { AriaDisableDirective } from "../a11y";
+import { BaseButtonDirective } from "../shared/base-button.directive";
+import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
+import { BitwardenIcon } from "../shared/icon";
+import { SpinnerComponent } from "../spinner";
+import { ariaDisableElement } from "../utils";
 
-const focusRing = [
-  "focus-visible:tw-ring",
-  "focus-visible:tw-ring-offset-2",
-  "focus-visible:tw-ring-primary-700",
-  "focus-visible:tw-z-10",
-];
+export type ButtonSize = "default" | "small" | "large";
 
-const buttonStyles: Record<ButtonType, string[]> = {
-  primary: [
-    "tw-border-primary-500",
-    "tw-bg-primary-500",
-    "!tw-text-contrast",
-    "hover:tw-bg-primary-700",
-    "hover:tw-border-primary-700",
-    "disabled:tw-bg-primary-500/60",
-    "disabled:tw-border-primary-500/60",
-    "disabled:!tw-text-contrast/60",
-    "disabled:tw-bg-clip-padding",
-    "disabled:tw-cursor-not-allowed",
-    ...focusRing,
-  ],
-  secondary: [
-    "tw-bg-transparent",
-    "tw-border-text-muted",
-    "!tw-text-muted",
-    "hover:tw-bg-text-muted",
-    "hover:tw-border-text-muted",
-    "hover:!tw-text-contrast",
-    "disabled:tw-bg-transparent",
-    "disabled:tw-border-text-muted/60",
-    "disabled:!tw-text-muted/60",
-    "disabled:tw-cursor-not-allowed",
-    ...focusRing,
-  ],
-  danger: [
-    "tw-bg-transparent",
-    "tw-border-danger-500",
-    "!tw-text-danger",
-    "hover:tw-bg-danger-500",
-    "hover:tw-border-danger-500",
-    "hover:!tw-text-contrast",
-    "disabled:tw-bg-transparent",
-    "disabled:tw-border-danger-500/60",
-    "disabled:!tw-text-danger/60",
-    "disabled:tw-cursor-not-allowed",
-    ...focusRing,
-  ],
-  unstyled: [],
-};
-
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "button[bitButton], a[bitButton]",
   templateUrl: "button.component.html",
   providers: [{ provide: ButtonLikeAbstraction, useExisting: ButtonComponent }],
+  imports: [SpinnerComponent],
+  host: {
+    "[class]": "classList()",
+  },
+  hostDirectives: [
+    AriaDisableDirective,
+    {
+      directive: BaseButtonDirective,
+      inputs: ["loading", "disabled", "buttonType", "block"],
+    },
+  ],
 })
 export class ButtonComponent implements ButtonLikeAbstraction {
-  @HostBinding("class") get classList() {
-    return [
-      "tw-font-semibold",
-      "tw-py-1.5",
-      "tw-px-3",
-      "tw-rounded",
-      "tw-transition",
-      "tw-border",
-      "tw-border-solid",
-      "tw-text-center",
-      "hover:tw-no-underline",
-      "focus:tw-outline-none",
-    ]
-      .concat(this.block ? ["tw-w-full", "tw-block"] : ["tw-inline-block"])
-      .concat(buttonStyles[this.buttonType ?? "secondary"]);
+  private baseButton = inject(BaseButtonDirective);
+  private el = inject(ElementRef<HTMLButtonElement>);
+
+  // Expose loading and disabled from base directive for ButtonLikeAbstraction
+  readonly loading = this.baseButton.loading;
+  readonly disabled = this.baseButton.disabled;
+
+  /**
+   * Bitwarden icon displayed **before** the button label.
+   * Spacing between the icon and label is handled automatically.
+   */
+  readonly startIcon = input<BitwardenIcon | undefined>(undefined);
+
+  /**
+   * Bitwarden icon (`bwi-*`) displayed **after** the button label.
+   * Spacing between the label and icon is handled automatically.
+   */
+  readonly endIcon = input<BitwardenIcon | undefined>(undefined);
+  readonly size = model<ButtonSize>("default");
+
+  readonly startIconClasses = computed(() => {
+    return ["bwi", this.startIcon()];
+  });
+
+  readonly endIconClasses = computed(() => {
+    return ["bwi", this.endIcon()];
+  });
+
+  protected get showLoadingStyle() {
+    return this.baseButton.showLoadingStyle;
   }
 
-  @HostBinding("attr.disabled")
-  get disabledAttr() {
-    const disabled = this.disabled != null && this.disabled !== false;
-    return disabled || this.loading ? true : null;
-  }
+  protected readonly classList = computed(() => {
+    const classes: string[] = [];
 
-  @Input() buttonType: ButtonType;
+    // Add border-radius style
+    classes.push("tw-rounded-xl");
 
-  private _block = false;
+    // Add block/inline styles
+    if (this.baseButton.block()) {
+      classes.push("tw-w-full", "tw-block");
+    } else {
+      classes.push("tw-inline-block");
+    }
 
-  @Input()
-  get block(): boolean {
-    return this._block;
-  }
+    // Add size styles (color and disabled styles are applied by BaseButtonDirective)
+    classes.push(...getButtonSizeStyles(this.size()));
 
-  set block(value: boolean | "") {
-    this._block = coerceBooleanProperty(value);
-  }
+    return classes.join(" ");
+  });
 
-  @Input() loading = false;
-
-  @Input() disabled = false;
-
-  setButtonType(value: "primary" | "secondary" | "danger" | "unstyled") {
-    this.buttonType = value;
+  constructor() {
+    ariaDisableElement(this.el.nativeElement, this.baseButton.disabledAttr);
   }
 }
+
+const getButtonSizeStyles = (size: ButtonSize): string[] => {
+  const buttonSizeStyles: Record<ButtonSize, string[]> = {
+    // 1px to account for 1px border. This ensures the overall size of the button remains consistent with icon buttons
+    small: [
+      "tw-pt-[calc(theme(spacing.2)_-_1px)]",
+      "tw-pb-[calc(theme(spacing.2)_-_1px)]",
+      "tw-px-3",
+      "tw-text-xs/4",
+    ],
+    // 625rem = spacing2.5. I could not use the value directly in the calc
+    default: [
+      "tw-pt-[calc(0.625rem_-_1px)]",
+      "tw-pb-[calc(0.625rem_-_1px)]",
+      "tw-px-4",
+      "tw-text-sm/5",
+    ],
+    large: [
+      "tw-pt-[calc(theme(spacing.3)_-_1px)]",
+      "tw-pb-[calc(theme(spacing.3)_-_1px)]",
+      "tw-px-4",
+      "tw-text-base/6",
+    ],
+  };
+
+  return buttonSizeStyles[size] || buttonSizeStyles.default;
+};

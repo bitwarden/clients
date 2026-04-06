@@ -1,0 +1,25 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog>
+    <span bitDialogTitle>
+      {{ "lastPassMFARequired" | i18n }}
+    </span>
+
+    <div bitDialogContent>
+      <p>{{ descriptionI18nKey | i18n }}</p>
+      <bit-form-field class="!tw-mb-0">
+        <bit-label>{{ "passcode" | i18n }}</bit-label>
+        <input bitInput type="text" formControlName="passcode" appAutofocus appInputVerbatim />
+        <bit-hint>{{ "confirmIdentity" | i18n }}</bit-hint>
+      </bit-form-field>
+    </div>
+
+    <ng-container bitDialogFooter>
+      <button bitButton buttonType="primary" type="submit" bitFormButton>
+        <span>{{ "continue" | i18n }}</span>
+      </button>
+      <button bitButton bitDialogClose="cancel" buttonType="secondary" type="button" bitFormButton>
+        <span>{{ "cancel" | i18n }}</span>
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

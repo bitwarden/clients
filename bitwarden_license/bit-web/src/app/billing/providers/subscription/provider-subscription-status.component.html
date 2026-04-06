@@ -1,0 +1,23 @@
+<ng-container>
+  <bit-callout *ngIf="data.callout" [type]="data.callout.severity" [title]="data.callout.header">
+    <p>{{ data.callout.body }}</p>
+  </bit-callout>
+  <dl class="tw-grid tw-grid-flow-col tw-grid-rows-2">
+    <dt>{{ "billingPlan" | i18n }}</dt>
+    <dd>{{ plan | i18n }}</dd>
+    <ng-container *ngIf="data.status && data.date">
+      <dt>{{ data.status.label }}</dt>
+      <dd>
+        <span class="tw-capitalize">
+          {{ data.status.value }}
+        </span>
+      </dd>
+      <dt>
+        {{ data.date.label | titlecase }}
+      </dt>
+      <dd>
+        {{ data.date.value | date: "mediumDate" }}
+      </dd>
+    </ng-container>
+  </dl>
+</ng-container>

@@ -47,7 +47,7 @@ $modal-sm: 300px !default;
 $modal-transition: transform 0.3s ease-out !default;
 
 $close-font-size: $font-size-base * 1.5 !default;
-$close-font-weight: bold !default;
+$close-font-weight: 500 !default;
 $close-color: $black !default;
 $close-text-shadow: 0 1px 0 $white !default;
 
@@ -218,7 +218,7 @@ $close-text-shadow: 0 1px 0 $white !default;
 
   h5 {
     font-size: $font-size-base;
-    font-weight: bold;
+    font-weight: 500;
     display: flex;
     align-items: center;
 

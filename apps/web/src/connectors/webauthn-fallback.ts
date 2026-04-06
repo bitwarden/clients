@@ -1,15 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { b64Decode, getQsParam } from "./common";
 import { buildDataString, parseWebauthnJson } from "./common-webauthn";
-
-require("./webauthn.scss");
+import { TranslationService } from "./translation.service";
 
 let parsed = false;
 let webauthnJson: any;
 let parentUrl: string = null;
 let sentSuccess = false;
-let locale = "en";
-
-let locales: any = {};
+let locale: string = null;
+let localeService: TranslationService = null;
 
 function parseParameters() {
   if (parsed) {
@@ -24,7 +24,7 @@ function parseParameters() {
     parentUrl = decodeURIComponent(parentUrl);
   }
 
-  locale = getQsParam("locale").replace("-", "_");
+  locale = getQsParam("locale") ?? "en";
 
   const version = getQsParam("v");
 
@@ -50,6 +50,8 @@ function parseParametersV2() {
   let dataObj: { data: any; btnText: string } = null;
   try {
     dataObj = JSON.parse(b64Decode(getQsParam("data")));
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     error("Cannot parse data.");
     return;
@@ -61,35 +63,31 @@ function parseParametersV2() {
 document.addEventListener("DOMContentLoaded", async () => {
   parseParameters();
   try {
-    locales = await loadLocales(locale);
+    localeService = new TranslationService(locale, "locales");
   } catch {
-    // eslint-disable-next-line
-    console.error("Failed to load the locale", locale);
-    locales = await loadLocales("en");
+    error("Failed to load the provided locale " + locale);
+    localeService = new TranslationService("en", "locales");
   }
 
-  document.getElementById("msg").innerText = translate("webAuthnFallbackMsg");
-  document.getElementById("remember-label").innerText = translate("rememberMe");
+  await localeService.init();
+
+  document.getElementById("remember-label").innerText = localeService.t(
+    "dontAskAgainOnThisDeviceFor30Days",
+  );
 
   const button = document.getElementById("webauthn-button");
-  button.innerText = translate("webAuthnAuthenticate");
+  button.innerText = localeService.t("readSecurityKey");
   button.onclick = start;
 
-  document.getElementById("spinner").classList.add("d-none");
-  const content = document.getElementById("content");
-  content.classList.add("d-block");
-  content.classList.remove("d-none");
+  const titleForSmallerScreens = document.getElementById("title-smaller-screens");
+  const titleForLargerScreens = document.getElementById("title-larger-screens");
+
+  titleForSmallerScreens.innerText = localeService.t("verifyYourIdentity");
+  titleForLargerScreens.innerText = localeService.t("verifyYourIdentity");
+
+  const subtitle = document.getElementById("subtitle");
+  subtitle.innerText = localeService.t("followTheStepsBelowToFinishLoggingInWithSecurityKey");
 });
-
-async function loadLocales(newLocale: string) {
-  const filePath = `locales/${newLocale}/messages.json?cache=${process.env.CACHE_TAG}`;
-  const localesResult = await fetch(filePath);
-  return await localesResult.json();
-}
-
-function translate(id: string) {
-  return locales[id]?.message || "";
-}
 
 function start() {
   if (sentSuccess) {
@@ -97,7 +95,7 @@ function start() {
   }
 
   if (!("credentials" in navigator)) {
-    error(translate("webAuthnNotSupported"));
+    error(localeService.t("webAuthnNotSupported"));
     return;
   }
 
@@ -110,11 +108,15 @@ function start() {
   let json: any;
   try {
     json = parseWebauthnJson(webauthnJson);
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     error("Cannot parse data.");
     return;
   }
 
+  // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   initWebAuthn(json);
 }
 
@@ -133,7 +135,7 @@ async function initWebAuthn(obj: any) {
     window.postMessage({ command: "webAuthnResult", data: dataString, remember: remember }, "*");
 
     sentSuccess = true;
-    success(translate("webAuthnSuccess"));
+    success(localeService.t("webAuthnSuccess"));
   } catch (err) {
     error(err);
   }
@@ -145,20 +147,24 @@ function error(message: string) {
   el.textContent = message;
   el.classList.add("alert");
   el.classList.add("alert-danger");
+  el.classList.remove("tw-hidden");
 }
 
 function success(message: string) {
   (document.getElementById("webauthn-button") as HTMLButtonElement).disabled = true;
+  (document.getElementById("remember") as HTMLInputElement).disabled = true;
 
   const el = document.getElementById("msg");
   resetMsgBox(el);
   el.textContent = message;
   el.classList.add("alert");
   el.classList.add("alert-success");
+  el.classList.remove("tw-hidden");
 }
 
 function resetMsgBox(el: HTMLElement) {
   el.classList.remove("alert");
   el.classList.remove("alert-danger");
   el.classList.remove("alert-success");
+  el.classList.add("tw-hidden");
 }

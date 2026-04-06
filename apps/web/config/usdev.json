@@ -1,0 +1,17 @@
+{
+  "urls": {
+    "icons": "https://icons.usdev.bitwarden.pw",
+    "notifications": "https://notifications.usdev.bitwarden.pw",
+    "scim": "https://scim.usdev.bitwarden.pw"
+  },
+  "additionalRegions": [
+    {
+      "key": "USDEV",
+      "domain": "usdev.bitwarden.pw",
+      "urls": {
+        "webVault": "https://vault.usdev.bitwarden.pw"
+      }
+    }
+  ],
+  "flags": {}
+}

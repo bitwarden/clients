@@ -162,3 +162,7 @@ app-root {
     }
   }
 }
+
+.vault-v2 > .details {
+  flex-direction: column-reverse;
+}

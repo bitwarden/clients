@@ -1,52 +1,48 @@
 <ng-select
-  [items]="baseItems"
+  [items]="baseItems()"
   [(ngModel)]="selectedItems"
   (ngModelChange)="onChange($event)"
   (blur)="onBlur()"
   bindLabel="listName"
   groupBy="parentGrouping"
-  [placeholder]="placeholder"
-  [loading]="loading"
+  [placeholder]="placeholder()"
+  [loading]="loading()"
   [loadingText]="loadingText"
   notFoundText="{{ 'multiSelectNotFound' | i18n }}"
   clearAllText="{{ 'multiSelectClearAll' | i18n }}"
   [multiple]="true"
-  [selectOnTab]="true"
   [closeOnSelect]="false"
   (close)="onDropdownClosed()"
   [disabled]="disabled"
   [clearSearchOnAdd]="true"
   [labelForId]="labelForId"
+  [keyDownFn]="keyDown"
   appendTo="body"
 >
   <ng-template ng-loadingspinner-tmp>
-    <i class="bwi bwi-spinner bwi-spin tw-mr-1" [title]="loadingText" aria-hidden="true"></i>
+    <bit-spinner size="small"></bit-spinner>
   </ng-template>
   <ng-template ng-label-tmp let-item="item" let-clear="clear">
-    <button
-      type="button"
-      bitBadge
-      badgeType="primary"
-      class="tw-mr-1 disabled:tw-border-0"
+    <bit-chip
+      size="small"
+      class="tw-me-1"
+      [label]="item.labelName"
+      [startIcon]="item.icon"
       [disabled]="disabled"
-      (click)="clear(item)"
-    >
-      <i
-        *ngIf="item.icon != null"
-        class="tw-mr-1 bwi bwi-fw {{ item.icon }}"
-        aria-hidden="true"
-      ></i>
-      {{ item.labelName }}
-      <i class="bwi bwi-fw bwi-close bwi-sm tw-ml-1" aria-hidden="true"></i>
-    </button>
+      (dismissed)="clear(item)"
+    ></bit-chip>
   </ng-template>
   <ng-template ng-option-tmp let-item="item">
     <div class="tw-flex">
       <div class="tw-w-7 tw-flex-none">
-        <i *ngIf="isSelected(item)" class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
+        @if (isSelected(item)) {
+          <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
+        }
       </div>
-      <div class="tw-mr-2 tw-flex-initial">
-        <i *ngIf="item.icon != null" class="bwi bwi-fw {{ item.icon }}" aria-hidden="true"></i>
+      <div class="tw-me-2 tw-flex-initial">
+        @if (item.icon != null) {
+          <i class="bwi bwi-fw {{ item.icon }}" aria-hidden="true"></i>
+        }
       </div>
       <div class="tw-flex-1">
         {{ item.listName }}

@@ -7,10 +7,24 @@
   "dev": {
     "proxyApi": "https://api.qa.bitwarden.pw",
     "proxyIdentity": "https://identity.qa.bitwarden.pw",
-    "proxyEvents": "https://events.qa.bitwarden.pw"
+    "proxyEvents": "https://events.qa.bitwarden.pw",
+    "proxyNotifications": "https://notifications.qa.bitwarden.pw"
   },
-  "flags": {
-    "secretsManager": true,
-    "showPasswordless": true
-  }
+  "additionalRegions": [
+    {
+      "key": "USQA",
+      "domain": "qa.bitwarden.pw",
+      "urls": {
+        "webVault": "https://vault.qa.bitwarden.pw"
+      }
+    },
+    {
+      "key": "EUQA",
+      "domain": "euqa.bitwarden.pw",
+      "urls": {
+        "webVault": "https://vault.euqa.bitwarden.pw"
+      }
+    }
+  ],
+  "flags": {}
 }

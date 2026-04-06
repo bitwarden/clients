@@ -1,0 +1,43 @@
+<ng-container *ngIf="canCreateCipher() || canCreateCollection() || canCreateFolder()">
+  <div>
+    <button
+      bitButton
+      buttonType="primary"
+      type="button"
+      [bitMenuTriggerFor]="isOnlyCollectionCreation() ? null : addOptions"
+      (click)="handleButtonClick()"
+      id="newItemDropdown"
+      [appA11yTitle]="getButtonLabel() | i18n"
+      [bitPopoverAnchorFor]="coachmarkPopover()"
+      [popoverOpen]="coachmarkPopoverOpen()"
+      [position]="coachmarkPosition()"
+      [spotlight]="!!coachmarkPopover()"
+      [closeOnBackdropClick]="false"
+    >
+      <i class="bwi bwi-plus tw-me-2" aria-hidden="true"></i>
+      {{ getButtonLabel() | i18n }}
+    </button>
+    <bit-menu #addOptions aria-labelledby="newItemDropdown">
+      @for (item of cipherMenuItems$ | async; track item.type) {
+        <button type="button" bitMenuItem (click)="cipherAdded.emit(item.type)">
+          <i class="bwi {{ item.icon }}" slot="start" aria-hidden="true"></i>
+          {{ item.labelKey | i18n }}
+        </button>
+      }
+      <bit-menu-divider *ngIf="canCreateCipher()"></bit-menu-divider>
+      <button *ngIf="canCreateFolder()" type="button" bitMenuItem (click)="folderAdded.emit()">
+        <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
+        {{ "folder" | i18n }}
+      </button>
+      <button
+        *ngIf="canCreateCollection()"
+        type="button"
+        bitMenuItem
+        (click)="collectionAdded.emit()"
+      >
+        <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
+        {{ "collection" | i18n }}
+      </button>
+    </bit-menu>
+  </div>
+</ng-container>

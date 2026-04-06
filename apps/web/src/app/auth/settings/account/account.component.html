@@ -1,0 +1,54 @@
+<app-header></app-header>
+
+<bit-container>
+  <app-profile></app-profile>
+
+  <div *ngIf="showChangeEmail$ | async" class="tw-mt-16">
+    <h1 bitTypography="h1">{{ "changeEmail" | i18n }}</h1>
+    <app-change-email></app-change-email>
+  </div>
+
+  <app-danger-zone>
+    <ng-container>
+      <button
+        *ngIf="verifyNewDeviceLogin"
+        type="button"
+        bitButton
+        buttonType="danger"
+        [bitAction]="setNewDeviceLoginProtection"
+      >
+        {{ "turnOffNewDeviceLoginProtection" | i18n }}
+      </button>
+      <button
+        *ngIf="!verifyNewDeviceLogin"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        [bitAction]="setNewDeviceLoginProtection"
+      >
+        {{ "turnOnNewDeviceLoginProtection" | i18n }}
+      </button>
+    </ng-container>
+    <button type="button" bitButton buttonType="danger" (click)="deauthorizeSessions()">
+      {{ "deauthorizeSessions" | i18n }}
+    </button>
+    <button
+      *ngIf="showPurgeVault$ | async"
+      type="button"
+      bitButton
+      buttonType="danger"
+      [bitAction]="purgeVault"
+    >
+      {{ "purgeVault" | i18n }}
+    </button>
+    <button
+      *ngIf="showDeleteAccount$ | async"
+      type="button"
+      bitButton
+      buttonType="danger"
+      [bitAction]="deleteAccount"
+    >
+      {{ "deleteAccount" | i18n }}
+    </button>
+  </app-danger-zone>
+</bit-container>

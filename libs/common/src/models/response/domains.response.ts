@@ -11,7 +11,7 @@ export class DomainsResponse extends BaseResponse {
     const globalEquivalentDomains = this.getResponseProperty("GlobalEquivalentDomains");
     if (globalEquivalentDomains != null) {
       this.globalEquivalentDomains = globalEquivalentDomains.map(
-        (d: any) => new GlobalDomainResponse(d)
+        (d: any) => new GlobalDomainResponse(d),
       );
     } else {
       this.globalEquivalentDomains = [];

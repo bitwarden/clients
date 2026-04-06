@@ -1,8 +1,10 @@
-import { EncString } from "../domain/enc-string";
-import { Login as LoginDomain } from "../domain/login";
-import { LoginView } from "../view/login.view";
+import { EncString } from "../../key-management/crypto/models/enc-string";
+import { Login as LoginDomain } from "../../vault/models/domain/login";
+import { LoginView } from "../../vault/models/view/login.view";
 
+import { Fido2CredentialExport } from "./fido2-credential.export";
 import { LoginUriExport } from "./login-uri.export";
+import { safeGetString } from "./utils";
 
 export class LoginExport {
   static template(): LoginExport {
@@ -11,6 +13,7 @@ export class LoginExport {
     req.username = "jdoe";
     req.password = "myp@ssword123";
     req.totp = "JBSWY3DPEHPK3PXP";
+    req.fido2Credentials = [];
     return req;
   }
 
@@ -21,6 +24,9 @@ export class LoginExport {
     view.username = req.username;
     view.password = req.password;
     view.totp = req.totp;
+    if (req.fido2Credentials != null) {
+      view.fido2Credentials = req.fido2Credentials.map((key) => Fido2CredentialExport.toView(key));
+    }
     return view;
   }
 
@@ -28,16 +34,23 @@ export class LoginExport {
     if (req.uris != null) {
       domain.uris = req.uris.map((u) => LoginUriExport.toDomain(u));
     }
-    domain.username = req.username != null ? new EncString(req.username) : null;
-    domain.password = req.password != null ? new EncString(req.password) : null;
-    domain.totp = req.totp != null ? new EncString(req.totp) : null;
+    domain.username = req.username != null ? new EncString(req.username) : undefined;
+    domain.password = req.password != null ? new EncString(req.password) : undefined;
+    domain.totp = req.totp != null ? new EncString(req.totp) : undefined;
+    if (req.fido2Credentials != null) {
+      domain.fido2Credentials = req.fido2Credentials.map((f2) =>
+        Fido2CredentialExport.toDomain(f2),
+      );
+    }
+
     return domain;
   }
 
-  uris: LoginUriExport[];
-  username: string;
-  password: string;
-  totp: string;
+  uris?: LoginUriExport[];
+  username?: string;
+  password?: string;
+  totp?: string;
+  fido2Credentials?: Fido2CredentialExport[];
 
   constructor(o?: LoginView | LoginDomain) {
     if (o == null) {
@@ -45,21 +58,15 @@ export class LoginExport {
     }
 
     if (o.uris != null) {
-      if (o instanceof LoginView) {
-        this.uris = o.uris.map((u) => new LoginUriExport(u));
-      } else {
-        this.uris = o.uris.map((u) => new LoginUriExport(u));
-      }
+      this.uris = o.uris.map((u) => new LoginUriExport(u));
     }
 
-    if (o instanceof LoginView) {
-      this.username = o.username;
-      this.password = o.password;
-      this.totp = o.totp;
-    } else {
-      this.username = o.username?.encryptedString;
-      this.password = o.password?.encryptedString;
-      this.totp = o.totp?.encryptedString;
+    if (o.fido2Credentials != null) {
+      this.fido2Credentials = o.fido2Credentials.map((key) => new Fido2CredentialExport(key));
     }
+
+    this.username = safeGetString(o.username);
+    this.password = safeGetString(o.password);
+    this.totp = safeGetString(o.totp);
   }
 }

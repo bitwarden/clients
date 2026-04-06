@@ -1,47 +1,70 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as fs from "fs";
 import * as path from "path";
 
 import { app, ipcMain } from "electron";
+import { firstValueFrom } from "rxjs";
 
-import { StateService } from "@bitwarden/common/abstractions/state.service";
+import { autostart } from "@bitwarden/desktop-napi";
 
 import { Main } from "../main";
+import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
+import { isFlatpak, isLinux, isSnapStore } from "../utils";
 
 import { MenuUpdateRequest } from "./menu/menu.updater";
 
 const SyncInterval = 5 * 60 * 1000; // 5 minutes
 
 export class MessagingMain {
-  private syncTimeout: NodeJS.Timer;
+  private syncTimeout: NodeJS.Timeout;
 
-  constructor(private main: Main, private stateService: StateService) {}
+  constructor(
+    private main: Main,
+    private desktopSettingsService: DesktopSettingsService,
+  ) {}
 
-  init() {
+  async init() {
     this.scheduleNextSync();
-    if (process.platform === "linux") {
-      this.stateService.setOpenAtLogin(fs.existsSync(this.linuxStartupFile()));
+    if (isLinux()) {
+      // Flatpak and snap don't have access to or use the startup file. On flatpak, the autostart portal is used
+      if (!isFlatpak() && !isSnapStore()) {
+        await this.desktopSettingsService.setOpenAtLogin(fs.existsSync(this.linuxStartupFile()));
+      }
     } else {
       const loginSettings = app.getLoginItemSettings();
-      this.stateService.setOpenAtLogin(loginSettings.openAtLogin);
+      await this.desktopSettingsService.setOpenAtLogin(loginSettings.openAtLogin);
     }
-    ipcMain.on("messagingService", async (event: any, message: any) => this.onMessage(message));
+    ipcMain.on(
+      "messagingService",
+      async (event: any, message: any) => await this.onMessage(message),
+    );
   }
 
-  onMessage(message: any) {
+  async onMessage(message: any) {
     switch (message.command) {
+      case "loadurl":
+        // TODO: Remove this once fakepopup is removed from tray (just used for dev)
+        await this.main.windowMain.loadUrl(message.url, message.modal);
+        break;
       case "scheduleNextSync":
         this.scheduleNextSync();
         break;
       case "updateAppMenu":
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.main.menuMain.updateApplicationMenuState(message.updateRequest);
         this.updateTrayMenu(message.updateRequest);
         break;
       case "minimizeOnCopy":
-        this.stateService.getMinimizeOnCopyToClipboard().then((shouldMinimize) => {
-          if (shouldMinimize && this.main.windowMain.win !== null) {
+        {
+          const shouldMinimizeOnCopy = await firstValueFrom(
+            this.desktopSettingsService.minimizeOnCopy$,
+          );
+          if (shouldMinimizeOnCopy && this.main.windowMain.win !== null) {
             this.main.windowMain.win.minimize();
           }
-        });
+        }
         break;
       case "showTray":
         this.main.trayMain.showTray();
@@ -50,6 +73,8 @@ export class MessagingMain {
         this.main.trayMain.removeTray();
         break;
       case "hideToTray":
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.main.trayMain.hideToTray();
         break;
       case "addOpenAtLogin":
@@ -63,22 +88,6 @@ export class MessagingMain {
         break;
       case "getWindowIsFocused":
         this.windowIsFocused();
-        break;
-      case "enableBrowserIntegration":
-        this.main.nativeMessagingMain.generateManifests();
-        this.main.nativeMessagingMain.listen();
-        break;
-      case "enableDuckDuckGoBrowserIntegration":
-        this.main.nativeMessagingMain.generateDdgManifests();
-        this.main.nativeMessagingMain.listen();
-        break;
-      case "disableBrowserIntegration":
-        this.main.nativeMessagingMain.removeManifests();
-        this.main.nativeMessagingMain.stop();
-        break;
-      case "disableDuckDuckGoBrowserIntegration":
-        this.main.nativeMessagingMain.removeDdgManifests();
-        this.main.nativeMessagingMain.stop();
         break;
       default:
         break;
@@ -119,20 +128,24 @@ export class MessagingMain {
 
   private addOpenAtLogin() {
     if (process.platform === "linux") {
-      const data = `[Desktop Entry]
-Type=Application
-Version=${app.getVersion()}
-Name=Bitwarden
-Comment=Bitwarden startup script
-Exec=${app.getPath("exe")}
-StartupNotify=false
-Terminal=false`;
+      if (isFlatpak()) {
+        autostart.setAutostart(true, []).catch((e) => {});
+      } else {
+        const data = `[Desktop Entry]
+  Type=Application
+  Version=${app.getVersion()}
+  Name=Bitwarden
+  Comment=Bitwarden startup script
+  Exec=${app.getPath("exe")}
+  StartupNotify=false
+  Terminal=false`;
 
-      const dir = path.dirname(this.linuxStartupFile());
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir);
+        const dir = path.dirname(this.linuxStartupFile());
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir);
+        }
+        fs.writeFileSync(this.linuxStartupFile(), data);
       }
-      fs.writeFileSync(this.linuxStartupFile(), data);
     } else {
       app.setLoginItemSettings({ openAtLogin: true });
     }
@@ -140,8 +153,12 @@ Terminal=false`;
 
   private removeOpenAtLogin() {
     if (process.platform === "linux") {
-      if (fs.existsSync(this.linuxStartupFile())) {
-        fs.unlinkSync(this.linuxStartupFile());
+      if (isFlatpak()) {
+        autostart.setAutostart(false, []).catch((e) => {});
+      } else {
+        if (fs.existsSync(this.linuxStartupFile())) {
+          fs.unlinkSync(this.linuxStartupFile());
+        }
       }
     } else {
       app.setLoginItemSettings({ openAtLogin: false });

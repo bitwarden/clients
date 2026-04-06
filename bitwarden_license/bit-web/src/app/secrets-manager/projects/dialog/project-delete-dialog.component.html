@@ -1,5 +1,5 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
-  <bit-dialog dialogSize="small">
+  <bit-dialog dialogSize="default">
     <ng-container bitDialogTitle>
       <span>{{ title | i18n }}</span>
       <span class="tw-text-sm tw-normal-case tw-text-muted">
@@ -23,13 +23,13 @@
       </bit-form-field>
     </div>
 
-    <div bitDialogFooter class="tw-flex tw-gap-2">
+    <ng-container bitDialogFooter>
       <button type="submit" bitButton buttonType="danger" bitFormButton>
         {{ title | i18n }}
       </button>
       <button type="button" bitButton buttonType="secondary" bitFormButton bitDialogClose>
         {{ "cancel" | i18n }}
       </button>
-    </div>
+    </ng-container>
   </bit-dialog>
 </form>

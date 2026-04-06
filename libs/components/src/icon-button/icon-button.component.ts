@@ -1,165 +1,135 @@
-import { Component, HostBinding, Input } from "@angular/core";
+import { Component, computed, effect, ElementRef, inject, input, model } from "@angular/core";
 
+import { AriaDisableDirective } from "../a11y";
+import { setA11yTitleAndAriaLabel } from "../a11y/set-a11y-title-and-aria-label";
+import { BaseButtonDirective } from "../shared/base-button.directive";
 import { ButtonLikeAbstraction, ButtonType } from "../shared/button-like.abstraction";
+import { FocusableElement } from "../shared/focusable-element";
+import { SpinnerComponent } from "../spinner";
+import { TooltipDirective } from "../tooltip";
+import { ariaDisableElement } from "../utils";
 
-export type IconButtonType = ButtonType | "contrast" | "main" | "muted" | "light";
+type IconButtonSize = "default" | "xsmall" | "small" | "large";
 
-const focusRing = [
-  // Workaround for box-shadow with transparent offset issue:
-  // https://github.com/tailwindlabs/tailwindcss/issues/3595
-  // Remove `before:` and use regular `tw-ring` when browser no longer has bug, or better:
-  // switch to `outline` with `outline-offset` when Safari supports border radius on outline.
-  // Using `box-shadow` to create outlines is a hack and as such `outline` should be preferred.
-  "tw-relative",
-  "before:tw-content-['']",
-  "before:tw-block",
-  "before:tw-absolute",
-  "before:-tw-inset-[3px]",
-  "before:tw-rounded-md",
-  "before:tw-transition",
-  "before:tw-ring",
-  "before:tw-ring-transparent",
-  "focus-visible:tw-z-10",
-];
+/**
+  * Icon buttons are used when no text accompanies the button. It consists of an icon that may be updated to any icon in the `bwi-font`, a `title` attribute, and an `aria-label` that are added via the `label` input.
 
-const styles: Record<IconButtonType, string[]> = {
-  contrast: [
-    "tw-bg-transparent",
-    "!tw-text-contrast",
-    "tw-border-transparent",
-    "hover:tw-bg-transparent-hover",
-    "hover:tw-border-text-contrast",
-    "focus-visible:before:tw-ring-text-contrast",
-    "disabled:tw-opacity-60",
-    "disabled:hover:tw-border-transparent",
-    "disabled:hover:tw-bg-transparent",
-    ...focusRing,
-  ],
-  main: [
-    "tw-bg-transparent",
-    "!tw-text-main",
-    "tw-border-transparent",
-    "hover:tw-bg-transparent-hover",
-    "hover:tw-border-text-main",
-    "focus-visible:before:tw-ring-text-main",
-    "disabled:tw-opacity-60",
-    "disabled:hover:tw-border-transparent",
-    "disabled:hover:tw-bg-transparent",
-    ...focusRing,
-  ],
-  muted: [
-    "tw-bg-transparent",
-    "!tw-text-muted",
-    "tw-border-transparent",
-    "hover:tw-bg-transparent-hover",
-    "hover:tw-border-primary-700",
-    "focus-visible:before:tw-ring-primary-700",
-    "disabled:tw-opacity-60",
-    "disabled:hover:tw-border-transparent",
-    "disabled:hover:tw-bg-transparent",
-    ...focusRing,
-  ],
-  primary: [
-    "tw-bg-primary-500",
-    "!tw-text-contrast",
-    "tw-border-primary-500",
-    "hover:tw-bg-primary-700",
-    "hover:tw-border-primary-700",
-    "focus-visible:before:tw-ring-primary-700",
-    "disabled:tw-opacity-60",
-    "disabled:hover:tw-border-primary-500",
-    "disabled:hover:tw-bg-primary-500",
-    ...focusRing,
-  ],
-  secondary: [
-    "tw-bg-transparent",
-    "!tw-text-muted",
-    "tw-border-text-muted",
-    "hover:!tw-text-contrast",
-    "hover:tw-bg-text-muted",
-    "focus-visible:before:tw-ring-primary-700",
-    "disabled:tw-opacity-60",
-    "disabled:hover:tw-border-text-muted",
-    "disabled:hover:tw-bg-transparent",
-    "disabled:hover:!tw-text-muted",
-    "disabled:hover:tw-border-text-muted",
-    ...focusRing,
-  ],
-  danger: [
-    "tw-bg-transparent",
-    "!tw-text-danger",
-    "tw-border-danger-500",
-    "hover:!tw-text-contrast",
-    "hover:tw-bg-danger-500",
-    "focus-visible:before:tw-ring-primary-700",
-    "disabled:tw-opacity-60",
-    "disabled:hover:tw-border-danger-500",
-    "disabled:hover:tw-bg-transparent",
-    "disabled:hover:!tw-text-danger",
-    "disabled:hover:tw-border-danger-500",
-    ...focusRing,
-  ],
-  light: [
-    "tw-bg-transparent",
-    "!tw-text-alt2",
-    "tw-border-transparent",
-    "hover:tw-bg-transparent-hover",
-    "hover:tw-border-text-alt2",
-    "focus-visible:before:tw-ring-text-alt2",
-    "disabled:hover:tw-border-transparent",
-    "disabled:hover:tw-bg-transparent",
-    ...focusRing,
-  ],
-  unstyled: [],
-};
+  * The most common use of the icon button is in the banner, toast, and modal components as a close button. It can also be found in tables as the 3 dot option menu, or on navigation list items when there are options that need to be collapsed into a menu.
 
-export type IconButtonSize = "default" | "small";
-
-const sizes: Record<IconButtonSize, string[]> = {
-  default: ["tw-px-2.5", "tw-py-1.5"],
-  small: ["tw-leading-none", "tw-text-base", "tw-p-1"],
-};
-
+  * Similar to the main button components, spacing between multiple icon buttons should be .5rem.
+ */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "button[bitIconButton]:not(button[bitButton])",
   templateUrl: "icon-button.component.html",
-  providers: [{ provide: ButtonLikeAbstraction, useExisting: BitIconButtonComponent }],
+  providers: [
+    { provide: ButtonLikeAbstraction, useExisting: BitIconButtonComponent },
+    { provide: FocusableElement, useExisting: BitIconButtonComponent },
+  ],
+  imports: [SpinnerComponent],
+  host: {
+    /**
+     * When the `bitIconButton` input is dynamic from a consumer, Angular doesn't put the
+     * `bitIconButton` attribute into the DOM. We use the attribute as a css selector in
+     * a number of components, so this manual attr binding makes sure that the css selector
+     * works when the input is dynamic.
+     */
+    "[attr.bitIconButton]": "icon()",
+    "[class]": "classList()",
+  },
+  hostDirectives: [
+    AriaDisableDirective,
+    { directive: TooltipDirective, inputs: ["tooltipPosition"] },
+    {
+      directive: BaseButtonDirective,
+      inputs: ["loading", "disabled"],
+    },
+  ],
 })
-export class BitIconButtonComponent implements ButtonLikeAbstraction {
-  @Input("bitIconButton") icon: string;
+export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableElement {
+  private baseButton = inject(BaseButtonDirective);
+  private elementRef = inject(ElementRef);
+  private tooltip = inject(TooltipDirective, { host: true, optional: true });
 
-  @Input() buttonType: IconButtonType;
+  readonly icon = model.required<string>({ alias: "bitIconButton" });
 
-  @Input() size: IconButtonSize = "default";
+  /**
+   * label input will be used to set the `aria-label` attributes on the button.
+   * This is for accessibility purposes, as it provides a text alternative for the icon button.
+   *
+   * NOTE: It will also be used to set the content of the tooltip on the button if no `title` is provided.
+   */
+  readonly label = input<string>();
 
-  @HostBinding("class") get classList() {
-    return [
-      "tw-font-semibold",
-      "tw-border",
-      "tw-border-solid",
-      "tw-rounded",
-      "tw-transition",
-      "hover:tw-no-underline",
-      "focus:tw-outline-none",
-    ]
-      .concat(styles[this.buttonType ?? "main"])
-      .concat(sizes[this.size]);
+  readonly buttonType = input<ButtonType>("primaryGhost");
+
+  readonly size = model<IconButtonSize>("default");
+
+  // Expose loading and disabled from base directive for ButtonLikeAbstraction
+  readonly loading = this.baseButton.loading;
+  readonly disabled = this.baseButton.disabled;
+
+  readonly iconClass = computed(() => [this.icon(), "!tw-m-0"]);
+
+  protected get showLoadingStyle() {
+    return this.baseButton.showLoadingStyle();
   }
 
-  get iconClass() {
-    return [this.icon, "!tw-m-0"];
+  protected readonly classList = computed(() => {
+    const classes: string[] = [];
+
+    // Icon-button specific layout styles
+    classes.push("tw-relative", "tw-inline-block", "tw-align-middle", "tw-shrink-0");
+
+    // Add icon-button specific size styles (color styles are applied by BaseButtonDirective)
+    classes.push(...getIconButtonSizeStyles(this.size()));
+
+    // Add icon-button specific border-radius style
+    classes.push(getRadiusStyle(this.size()));
+
+    return classes.join(" ");
+  });
+
+  getFocusTarget() {
+    return this.elementRef.nativeElement;
   }
 
-  @HostBinding("attr.disabled")
-  get disabledAttr() {
-    const disabled = this.disabled != null && this.disabled !== false;
-    return disabled || this.loading ? true : null;
-  }
+  constructor() {
+    const element = this.elementRef.nativeElement;
 
-  @Input() loading = false;
-  @Input() disabled = false;
+    effect(() => this.baseButton.buttonType.set(this.buttonType()));
 
-  setButtonType(value: "primary" | "secondary" | "danger" | "unstyled") {
-    this.buttonType = value;
+    ariaDisableElement(element, this.baseButton.disabledAttr);
+
+    const originalTitle = element.getAttribute("title");
+
+    effect(() => {
+      setA11yTitleAndAriaLabel({
+        element: this.elementRef.nativeElement,
+        title: undefined,
+        label: this.label(),
+      });
+
+      const tooltipContent: string = originalTitle || this.label();
+
+      if (tooltipContent) {
+        this.tooltip?.tooltipContent.set(tooltipContent);
+      }
+    });
   }
 }
+
+const getIconButtonSizeStyles = (size: IconButtonSize): string[] => {
+  const iconButtonSizes: Record<IconButtonSize, string[]> = {
+    xsmall: ["tw-text-xl", "tw-size-6"],
+    small: ["tw-text-xl", "tw-size-8"],
+    default: ["tw-text-2xl", "tw-size-10"],
+    large: ["tw-text-[2rem]", "tw-size-11"],
+  };
+  return iconButtonSizes[size] || iconButtonSizes.default;
+};
+
+const getRadiusStyle = (size: IconButtonSize): string => {
+  return size === "xsmall" ? "tw-rounded" : "tw-rounded-xl";
+};

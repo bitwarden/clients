@@ -1,0 +1,42 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog>
+    <span bitDialogTitle>{{ data.apiKeyTitle | i18n }}</span>
+    <div bitDialogContent>
+      <p bitTypography="body1">{{ data.apiKeyDescription | i18n }}</p>
+      <app-user-verification-form-input formControlName="masterPassword" *ngIf="!clientSecret">
+      </app-user-verification-form-input>
+      <bit-callout type="warning" *ngIf="clientSecret">{{ data.apiKeyWarning | i18n }}</bit-callout>
+      <bit-callout
+        type="info"
+        title="{{ 'oauth2ClientCredentials' | i18n }}"
+        icon="bwi-key"
+        *ngIf="clientSecret"
+      >
+        <p bitTypography="body1" class="tw-mb-1">
+          <strong>client_id:</strong><br />
+          <code>{{ clientId }}</code>
+        </p>
+        <p bitTypography="body1" class="tw-mb-1">
+          <strong>client_secret:</strong><br />
+          <code>{{ clientSecret }}</code>
+        </p>
+        <p bitTypography="body1" class="tw-mb-1">
+          <strong>scope:</strong><br />
+          <code>{{ data.scope }}</code>
+        </p>
+        <p bitTypography="body1" class="tw-mb-0">
+          <strong>grant_type:</strong><br />
+          <code>{{ data.grantType }}</code>
+        </p>
+      </bit-callout>
+    </div>
+    <ng-container bitDialogFooter>
+      <button type="submit" buttonType="primary" *ngIf="!clientSecret" bitButton bitFormButton>
+        <span>{{ (data.isRotation ? "rotateApiKey" : "viewApiKey") | i18n }}</span>
+      </button>
+      <button type="button" bitButton bitFormButton bitDialogClose>
+        {{ "close" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>
