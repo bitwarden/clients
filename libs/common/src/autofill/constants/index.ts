@@ -151,33 +151,68 @@ export const MAX_DEEP_QUERY_RECURSION_DEPTH = 4;
 
 export const DEEP_QUERY_SELECTOR_COMBINATOR = ">>>";
 
+/**
+ * Field keys for targeting rules. These MUST match the `fieldKey` enum in
+ * the Forms Map schema.
+ */
 export const AutofillTargetingRuleTypes = {
+  // Authentication
+  username: "username",
   password: "password",
   newPassword: "newPassword",
-  username: "username",
+  oneTimeCode: "oneTimeCode",
+
+  // Name
+  fullName: "fullName",
+  honorificPrefix: "honorificPrefix",
+  firstName: "firstName",
+  middleName: "middleName",
+  lastName: "lastName",
+  honorificSuffix: "honorificSuffix",
+
+  // Contact
+  email: "email",
+  phone: "phone",
+  phoneCountryCode: "phoneCountryCode",
+  phoneAreaCode: "phoneAreaCode",
+  phoneLocal: "phoneLocal",
+  phoneExtension: "phoneExtension",
+  organization: "organization",
+
+  // Address
+  streetAddress: "streetAddress",
+  addressLine1: "addressLine1",
+  addressLine2: "addressLine2",
+  addressLine3: "addressLine3",
+  addressLevel1: "addressLevel1",
+  addressLevel2: "addressLevel2",
+  addressLevel3: "addressLevel3",
+  addressLevel4: "addressLevel4",
+  postalCode: "postalCode",
+  country: "country",
+
+  // Birthdate
+  birthdate: "birthdate",
+  birthdateDay: "birthdateDay",
+  birthdateMonth: "birthdateMonth",
+  birthdateYear: "birthdateYear",
+
+  // Payment card
   cardholderName: "cardholderName",
   cardNumber: "cardNumber",
+  cardExpirationDate: "cardExpirationDate",
   cardExpirationMonth: "cardExpirationMonth",
   cardExpirationYear: "cardExpirationYear",
-  cardExpirationDate: "cardExpirationDate",
   cardCvv: "cardCvv",
-  identityTitle: "identityTitle",
-  identityFirstName: "identityFirstName",
-  identityMiddleName: "identityMiddleName",
-  identityLastName: "identityLastName",
-  identityFullName: "identityFullName",
-  identityAddress1: "identityAddress1",
-  identityAddress2: "identityAddress2",
-  identityAddress3: "identityAddress3",
-  identityCity: "identityCity",
-  identityState: "identityState",
-  identityPostalCode: "identityPostalCode",
-  identityCountry: "identityCountry",
-  identityCompany: "identityCompany",
-  identityPhone: "identityPhone",
-  identityEmail: "identityEmail",
-  identityUsername: "identityUsername",
-  totp: "totp",
+  cardType: "cardType",
+
+  // Consent
+  consentTerms: "consentTerms",
+  consentPrivacy: "consentPrivacy",
+  consentUser: "consentUser",
+
+  // Search
+  searchTerm: "searchTerm",
 } as const;
 
 export * from "./match-patterns";

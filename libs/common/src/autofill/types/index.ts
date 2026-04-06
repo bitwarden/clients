@@ -11,7 +11,7 @@ import {
  * Format of the Forms Map resource.
  */
 export type FormsMapResource = {
-  version: string;
+  schemaVersion: string;
   hosts: TargetingRulesByDomain;
 };
 
@@ -69,18 +69,32 @@ type FormPurposeCategory =
   | "identity"
   | "payment-card"
   | "search"
-  | "subscribe";
+  | "signup";
 
 export type AutofillTargetingRuleType =
   (typeof AutofillTargetingRuleTypes)[keyof typeof AutofillTargetingRuleTypes];
 
 /**
- * Maps a selector target type to its CSS query selector string.
- * Each entry identifies a specific form concern on a page using a CSS selector.
- * Supports shadow DOM piercing via the `>>>` combinator syntax.
+ * Maps a field key to its CSS selector alternatives. Each entry identifies a
+ * specific form field on a page. Supports shadow DOM and iframe piercing via
+ * the `>>>` combinator syntax.
+ *
+ * Each value is a composite selector array: items are either a single
+ * DeepSelector (string) targeting one element, or a DeepSelectorSequence
+ * (string[]) targeting multiple elements that together compose one value
+ * (e.g. a 6-digit OTP split across 6 inputs).
  */
-type FormTargetingRules = {
-  [type in AutofillTargetingRuleType | "form"]?: DeepSelector[];
+type FormFields = {
+  [type in AutofillTargetingRuleType]?: (DeepSelector | DeepSelectorSequence)[];
+};
+
+type FormActionKey = "submit" | "save" | "next" | "previous" | "cancel" | "reset";
+
+/**
+ * Maps action keys to selector arrays for structural interactions
+ */
+type FormActions = {
+  [key in FormActionKey]?: DeepSelector[];
 };
 
 /**
@@ -92,11 +106,14 @@ export type FormContent = {
    * An optional descriptor of the form, useful for mapping separate concerns
    * (e.g. a page with both a login and registration form, mixed-purpose form, etc)
    *
-   * Note, the client logic can use these to make determinations about what _not_ to
+   * Note: the client logic can use these to make determinations about what _not_ to
    * consider as well (e.g. don't autofill search forms, newsletter sign ups)
    */
   category?: FormPurposeCategory;
-  selectors: FormTargetingRules;
+  /** Optional selector array identifying the form's container element on the page */
+  container?: DeepSelector[];
+  fields: FormFields;
+  actions?: FormActions;
 };
 
 /** A URL pathname; must start with `/` */
@@ -110,6 +127,13 @@ export type Pathname = `/${string}`;
  * - Iframe boundary: `iframe#login >>> input`
  */
 type DeepSelector = string;
+
+/**
+ * An ordered sequence of CSS selectors representing multiple elements that
+ * together compose a single value for a field (e.g. a 6-digit OTP split
+ * across 6 inputs). Order is significant.
+ */
+type DeepSelectorSequence = DeepSelector[];
 
 export type ClearClipboardDelaySetting =
   (typeof ClearClipboardDelay)[keyof typeof ClearClipboardDelay];

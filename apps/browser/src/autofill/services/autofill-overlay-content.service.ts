@@ -8,6 +8,7 @@ import {
   AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
   EVENTS,
 } from "@bitwarden/common/autofill/constants";
+import { AutofillTargetingRuleType } from "@bitwarden/common/autofill/types";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { ModifyLoginCipherFormData } from "../background/abstractions/overlay-notifications.background";
@@ -1170,7 +1171,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * bypassing heuristic qualification.
    */
   private setTargetedFieldFillType(autofillFieldData: AutofillField): void {
-    const qualifier = autofillFieldData.fieldQualifier;
+    // Targeted fields use AutofillTargetingRuleType values in fieldQualifier,
+    // which are distinct from the heuristic AutofillFieldQualifierType values.
+    const qualifier = autofillFieldData.fieldQualifier as AutofillTargetingRuleType;
 
     if (loginQualifiers.includes(qualifier)) {
       autofillFieldData.inlineMenuFillType = CipherType.Login;

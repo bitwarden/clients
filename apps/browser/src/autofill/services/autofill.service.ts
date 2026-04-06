@@ -913,7 +913,7 @@ export default class AutofillService implements AutofillServiceInterface {
     if (fieldType === "password" || fieldType === "newPassword") {
       return cipher.login?.password ?? null;
     }
-    if (fieldType === "totp") {
+    if (fieldType === "oneTimeCode") {
       return cipher.login?.totp ?? null;
     }
 
@@ -940,53 +940,50 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     // Identity fields
-    if (fieldType === "identityTitle") {
+    if (fieldType === "honorificPrefix") {
       return cipher.identity?.title ?? null;
     }
-    if (fieldType === "identityFirstName") {
+    if (fieldType === "firstName") {
       return cipher.identity?.firstName ?? null;
     }
-    if (fieldType === "identityMiddleName") {
+    if (fieldType === "middleName") {
       return cipher.identity?.middleName ?? null;
     }
-    if (fieldType === "identityLastName") {
+    if (fieldType === "lastName") {
       return cipher.identity?.lastName ?? null;
     }
-    if (fieldType === "identityFullName") {
+    if (fieldType === "fullName") {
       return cipher.identity?.fullName ?? null;
     }
-    if (fieldType === "identityAddress1") {
+    if (fieldType === "addressLine1") {
       return cipher.identity?.address1 ?? null;
     }
-    if (fieldType === "identityAddress2") {
+    if (fieldType === "addressLine2") {
       return cipher.identity?.address2 ?? null;
     }
-    if (fieldType === "identityAddress3") {
+    if (fieldType === "addressLine3") {
       return cipher.identity?.address3 ?? null;
     }
-    if (fieldType === "identityCity") {
+    if (fieldType === "addressLevel2") {
       return cipher.identity?.city ?? null;
     }
-    if (fieldType === "identityState") {
+    if (fieldType === "addressLevel1") {
       return cipher.identity?.state ?? null;
     }
-    if (fieldType === "identityPostalCode") {
+    if (fieldType === "postalCode") {
       return cipher.identity?.postalCode ?? null;
     }
-    if (fieldType === "identityCountry") {
+    if (fieldType === "country") {
       return cipher.identity?.country ?? null;
     }
-    if (fieldType === "identityCompany") {
+    if (fieldType === "organization") {
       return cipher.identity?.company ?? null;
     }
-    if (fieldType === "identityPhone") {
+    if (fieldType === "phone") {
       return cipher.identity?.phone ?? null;
     }
-    if (fieldType === "identityEmail") {
+    if (fieldType === "email") {
       return cipher.identity?.email ?? null;
-    }
-    if (fieldType === "identityUsername") {
-      return cipher.identity?.username ?? null;
     }
 
     return null;
