@@ -89,5 +89,5 @@ export class AddItemGridComponent {
     return items;
   });
 
-  constructor(private readonly restrictedItemTypesService: RestrictedItemTypesService) { }
+  constructor(private readonly restrictedItemTypesService: RestrictedItemTypesService) {}
 }

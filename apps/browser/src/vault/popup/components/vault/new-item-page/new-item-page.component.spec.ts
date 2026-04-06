@@ -97,7 +97,7 @@ describe("NewItemPageComponent", () => {
     it("adds prefillNameAndURIFromTab=true for Login cipher when not popped out", () => {
       jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
 
-      component['onCipherSelected'](CipherType.Login);
+      component["onCipherSelected"](CipherType.Login);
 
       expect(navigate).toHaveBeenCalledWith(
         ["/add-cipher"],
