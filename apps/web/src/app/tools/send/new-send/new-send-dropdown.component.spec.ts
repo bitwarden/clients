@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -27,6 +28,7 @@ describe("NewSendDropdownComponent", () => {
   const mockSendService = mock<SendService>();
   const mockPremiumUpgradePromptService = mock<PremiumUpgradePromptService>();
   const mockSendApiService = mock<SendApiService>();
+  const mockPolicyService = mock<PolicyService>();
 
   beforeAll(() => {
     mockBillingAccountProfileStateService.hasPremiumFromAnySource$.mockImplementation(() =>
@@ -35,6 +37,7 @@ describe("NewSendDropdownComponent", () => {
     mockAccountService.activeAccount$ = of({ id: "myTestAccount" } as Account);
     mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
     mockPremiumUpgradePromptService.promptForPremium.mockImplementation(async () => {});
+    mockPolicyService.policyAppliesToUser$.mockReturnValue(of(false));
   });
 
   beforeEach(async () => {
@@ -54,6 +57,7 @@ describe("NewSendDropdownComponent", () => {
         { provide: SendApiService, useValue: mockSendApiService },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: SendFormService, useValue: mock<SendFormService>() },
+        { provide: PolicyService, useValue: mockPolicyService },
         { provide: DialogService, useValue: mock<DialogService>() },
       ],
     }).compileComponents();

@@ -47,7 +47,7 @@ const queryDangerousPatterns = [
 ];
 
 declare global {
-  let bitwardenContainerService: BitwardenContainerService;
+  var bitwardenContainerService: BitwardenContainerService;
 }
 
 interface BitwardenContainerService {

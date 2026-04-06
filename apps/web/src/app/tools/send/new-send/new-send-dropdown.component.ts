@@ -7,7 +7,13 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { ButtonModule, DialogService, IconComponent, MenuModule } from "@bitwarden/components";
+import {
+  ButtonModule,
+  DialogRef,
+  DialogService,
+  IconComponent,
+  MenuModule,
+} from "@bitwarden/components";
 import {
   DefaultSendFormConfigService,
   SendAddEditDialogComponent,
@@ -41,6 +47,8 @@ export class NewSendDropdownComponent {
   /** Indicates whether the user can access premium features. */
   protected canAccessPremium$: Observable<boolean>;
 
+  private sendFormDialogRef?: DialogRef<SendItemDialogResult, SendAddEditDialogComponent>;
+
   constructor(
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private accountService: AccountService,
@@ -69,14 +77,14 @@ export class NewSendDropdownComponent {
     }
     const formConfig = await this.addEditFormConfigService.buildConfig("add", undefined, type);
     const useRefresh = await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh);
-
     if (useRefresh) {
-      const dialogRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
+      const sendFormDialogRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
         formConfig,
         closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
       });
-      if (dialogRef) {
-        const result = await lastValueFrom(dialogRef.closed);
+      if (sendFormDialogRef) {
+        this.sendFormDialogRef = sendFormDialogRef;
+        const result = await lastValueFrom(this.sendFormDialogRef.closed);
         if (result?.result === SendItemDialogResult.Saved && result?.send) {
           await this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
             data: result.send,
@@ -89,5 +97,13 @@ export class NewSendDropdownComponent {
         closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
       });
     }
+  }
+
+  async saveUnsavedSendEdits() {
+    if (this.sendFormDialogRef) {
+      const closeResult = await this.sendFormDialogRef.close();
+      return closeResult.closed;
+    }
+    return true;
   }
 }

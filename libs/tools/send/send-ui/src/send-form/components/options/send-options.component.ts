@@ -5,8 +5,6 @@ import { Component, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   TypographyModule,
   AsyncActionsModule,
@@ -49,8 +47,6 @@ import { SendFormService } from "../../abstractions/send-form.service";
 export class SendOptionsComponent implements OnInit {
   protected sendFormService = inject(SendFormService);
   private formBuilder = inject(FormBuilder);
-  private policyService = inject(PolicyService);
-  private accountService = inject(AccountService);
 
   disableHideEmail = false;
 

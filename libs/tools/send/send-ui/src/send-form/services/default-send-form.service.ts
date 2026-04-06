@@ -43,7 +43,7 @@ export class DefaultSendFormService implements SendFormService {
   sendFormConfig: SendFormConfig | null = null;
 
   originalSendView: SendView | null = null;
-  private updatedSendView: SendView;
+  private updatedSendView: SendView | null = null;
   private file: File | null = null;
 
   async decryptSend(send: Send): Promise<SendView> {
@@ -72,7 +72,7 @@ export class DefaultSendFormService implements SendFormService {
     this.file = undefined;
     this.updatedSendView = new SendView();
     if (this.sendFormConfig.mode == "add") {
-      this.originalSendView = undefined;
+      this.originalSendView = null;
       this.updatedSendView.type = this.sendFormConfig.sendType;
     } else {
       if (!this.sendFormConfig.originalSend) {
@@ -144,6 +144,8 @@ export class DefaultSendFormService implements SendFormService {
       );
       const result = await lastValueFrom(dialogRef.closed);
       if (result.result === UnsavedEditsDialogResult.Discard) {
+        this.originalSendView = null;
+        this.updatedSendView = null;
         return true;
       } else {
         return false;

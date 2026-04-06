@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { AsyncPipe, CommonModule } from "@angular/common";
-import { Component, OnDestroy, HostListener } from "@angular/core";
+import { Component, OnDestroy, HostListener, viewChildren } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -152,6 +152,8 @@ export class SendComponent implements OnDestroy {
   SendFilterType = SendFilterType;
   SendType = SendType;
 
+  private readonly newSendDropdowns = viewChildren(NewSendDropdownComponent);
+
   constructor(
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
@@ -226,21 +228,24 @@ export class SendComponent implements OnDestroy {
       return;
     }
 
+    let sendItemDialogRef: DialogRef<SendItemDialogResult, SendAddEditDialogComponent> | undefined;
     if (useRefresh) {
-      this.sendItemDialogRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
+      sendItemDialogRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
         formConfig,
         closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
       });
     } else {
-      this.sendItemDialogRef = SendAddEditDialogComponent.open(this.dialogService, {
+      sendItemDialogRef = SendAddEditDialogComponent.open(this.dialogService, {
         formConfig,
         closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
       });
     }
 
     // If we were unable to open the dialog (because the previous drawer failed to close, for example) exit immediately
-    if (!this.sendItemDialogRef) {
+    if (!sendItemDialogRef) {
       return;
+    } else {
+      this.sendItemDialogRef = sendItemDialogRef;
     }
 
     const result = await lastValueFrom(this.sendItemDialogRef.closed);
@@ -275,6 +280,15 @@ export class SendComponent implements OnDestroy {
     if (this.sendItemDialogRef) {
       const closeResult = await this.sendItemDialogRef.close();
       return closeResult.closed;
+    }
+    // This check is necessary to prevent navigation away from the Send page when the
+    // Send edit drawer was opened by either the header button or the button that shows
+    // in the Send table when there are no existing Sends.
+    for (const newSendDropdown of this.newSendDropdowns()) {
+      const closed = await newSendDropdown.saveUnsavedSendEdits();
+      if (!closed) {
+        return false;
+      }
     }
     return true;
   }
