@@ -103,8 +103,8 @@
   --color-brand-950-rgb: 22, 36, 85;
 
   /* Gray Colors */
-  --color-gray-050: #f5f7fa;
-  --color-gray-100: #e6ebf2;
+  --color-gray-050: #f2f6fa;
+  --color-gray-100: #e6ecf2;
   --color-gray-200: #d5dde8;
   --color-gray-300: #b4c2d4;
   --color-gray-400: #8496b0;
@@ -323,6 +323,18 @@
   --color-bg-accent-tertiary-soft: var(--color-purple-050);
   --color-bg-accent-tertiary-medium: var(--color-purple-100);
   --color-bg-accent-tertiary: var(--color-purple-600);
+
+  /* Avatar Background */
+  --color-bg-avatar-teal: var(--color-teal-700);
+  --color-bg-avatar-teal-hover: var(--color-teal-800);
+  --color-bg-avatar-coral: var(--color-coral-700);
+  --color-bg-avatar-coral-hover: var(--color-coral-800);
+  --color-bg-avatar-brand: var(--color-brand-700);
+  --color-bg-avatar-brand-hover: var(--color-brand-800);
+  --color-bg-avatar-green: var(--color-green-700);
+  --color-bg-avatar-green-hover: var(--color-green-800);
+  --color-bg-avatar-purple: var(--color-purple-700);
+  --color-bg-avatar-purple-hover: var(--color-purple-800);
 
   /* Hover & Overlay */
   --color-bg-hover: rgba(var(--color-gray-950-rgb), 0.05);
@@ -551,6 +563,18 @@
   --color-bg-accent-tertiary-soft: var(--color-purple-950);
   --color-bg-accent-tertiary-medium: var(--color-purple-900);
   --color-bg-accent-tertiary: var(--color-purple-600);
+
+  /* Avatar Background */
+  --color-bg-avatar-teal: var(--color-teal-700);
+  --color-bg-avatar-teal-hover: var(--color-teal-600);
+  --color-bg-avatar-coral: var(--color-coral-700);
+  --color-bg-avatar-coral-hover: var(--color-coral-600);
+  --color-bg-avatar-brand: var(--color-brand-700);
+  --color-bg-avatar-brand-hover: var(--color-brand-600);
+  --color-bg-avatar-green: var(--color-green-700);
+  --color-bg-avatar-green-hover: var(--color-green-600);
+  --color-bg-avatar-purple: var(--color-purple-700);
+  --color-bg-avatar-purple-hover: var(--color-purple-600);
 
   /* Hover & Overlay */
   --color-bg-hover: rgba(var(--color-white-rgb), 0.05);

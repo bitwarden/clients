@@ -325,6 +325,9 @@
   "applicationsMarkedAsCriticalFail": {
     "message": "Anwendungen konnten nicht als kritisch markiert werden"
   },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Das Aufheben der Markierung als kritisch ist fehlgeschlagen"
+  },
   "application": {
     "message": "Anwendung"
   },
@@ -3398,6 +3401,9 @@
   "discount": {
     "message": "Rabatt"
   },
+  "discountExpiredOnPurchase": {
+    "message": "Rabatt abgelaufen. Bitte überprüfe den Warenkorb und versuche es erneut."
+  },
   "downloadLicense": {
     "message": "Lizenz herunterladen"
   },
@@ -3804,6 +3810,15 @@
   },
   "policies": {
     "message": "Richtlinien"
+  },
+  "dataControls": {
+    "message": "Dateneinstellungen"
+  },
+  "authentication": {
+    "message": "Authentifizierung"
+  },
+  "vaultManagement": {
+    "message": "Tresor-Verwaltung"
   },
   "singleSignOn": {
     "message": "Single Sign-On"
@@ -4288,6 +4303,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "revokedEmailError": {
+    "message": "Eine oder mehrere E-Mail-Adressen gehören zu widerrufenen Mitgliedern. Stelle ihren Zugriff wieder her, um sie erneut einzuladen."
   },
   "restoredUserId": {
     "message": "Zugriff auf die Organisation für $ID$ wiederhergestellt.",
@@ -6226,6 +6244,16 @@
     "message": "Aufgrund einer Unternehmensrichtlinie kannst du ein bestehendes Send nur löschen.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControls": {
+    "message": "Send-Einstellungen"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Lege Optionen für das Erstellen und Bearbeiten von Sends fest, einschließlich der Möglichkeit, Sends zu entfernen.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Organisationsmitglieder, die die Richtlinien der Organisation verwalten können, sind von der Durchsetzung dieser Richtlinie ausgenommen."
+  },
   "sendOptions": {
     "message": "Send Einstellungen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6485,6 +6513,14 @@
   "verifyYourEmailToViewThisSend": {
     "message": "Verifiziere deine E-Mail-Adresse, um dieses Send anzuzeigen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Kein Code erhalten? Kontaktiere den Absender, um deine E-Mail-Adresse zu bestätigen oder ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Verifizierungscode erneut senden",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "Der Bitwarden Benutzer, der dieses Send erstellt hat, hat sich entschieden, seine E-Mail-Adresse zu verstecken. Du solltest sicherstellen, dass du der Quelle dieses Links vertraust, bevor du dessen Inhalt verwendest oder herunterlädst.",

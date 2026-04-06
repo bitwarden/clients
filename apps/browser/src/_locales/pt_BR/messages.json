@@ -2366,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "A senha principal que você selecionou está fraca. Você deve usar uma senha principal forte (ou uma frase secreta) para proteger a sua conta Bitwarden adequadamente. Tem certeza que deseja usar esta senha principal?"
   },
+  "rotateAccountEncKey": {
+    "message": "Rotacionar a chave de criptografia da minha conta"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotacionar chave de criptografia"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Tem certeza que quer rotacionar a chave de criptografia da sua conta?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Depois de atualizar sua chave de criptografia, é necessário se desconectar e reconectar em todos os aplicativos do Bitwarden que você está usando atualmente (como o aplicativo móvel ou as extensões do navegador). Não fazer isso (que descarrega sua nova chave de criptografia) pode resultar em corrupção de dados. Nós tentaremos desconectá-lo automaticamente, mas isso pode demorar um pouco."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Quaisquer exportações que você tem salvas que são restritas à conta se tornarão inválidas."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Há anexos de arquivos antigos no seu cofre que precisam ser corrigidos antes que você possa rotacionar a chave de criptografia da sua conta."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Consequências de rotacionar sua chave de criptografia"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Uma ou mais políticas da organização exigem que a senha principal cumpra aos seguintes requisitos:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2455,6 +2479,9 @@
   },
   "vaultTimeoutAction": {
     "message": "Ação do limite de tempo do cofre"
+  },
+  "showAtRiskPasswordNotifications": {
+    "message": "Mostrar notificações de senhas em risco"
   },
   "lock": {
     "message": "Bloquear",
