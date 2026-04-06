@@ -5,13 +5,13 @@
     class="tw-relative"
     role="dialog"
     aria-modal="true"
-    [attr.aria-label]="title()"
+    [attr.aria-label]="title() || null"
     [class.bit-popover-has-header]="headerSlot()"
   >
-    <div class="tw-overflow-hidden tw-rounded-xl tw-shadow-lg">
-      <div
-        class="tw-relative tw-z-20 tw-w-[352px] tw-break-words tw-bg-background tw-text-fg-body tw-border tw-border-solid tw-border-border-base"
-      >
+    <div
+      class="tw-overflow-hidden tw-rounded-xl tw-shadow-lg tw-border tw-border-solid tw-border-border-base"
+    >
+      <div class="tw-relative tw-z-20 tw-w-[352px] tw-break-words tw-bg-background tw-text-fg-body">
         @if (headerSlot()) {
           <div
             class="tw-h-[160px] tw-mt-2 tw-mx-2 tw-overflow-hidden tw-rounded-lg tw-bg-bg-secondary tw-flex tw-items-center tw-justify-center"
