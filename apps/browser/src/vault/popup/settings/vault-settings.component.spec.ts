@@ -57,7 +57,6 @@ describe("VaultSettingsComponent", () => {
     id: "user-id",
   });
   const mockUserCanArchive$ = new BehaviorSubject<boolean>(false);
-  const mockHasArchiveFlagEnabled$ = new BehaviorSubject<boolean>(true);
   const mockArchivedCiphers$ = new BehaviorSubject<CipherView[]>([]);
   const mockShowNudgeBadge$ = new BehaviorSubject<boolean>(false);
 
@@ -65,21 +64,15 @@ describe("VaultSettingsComponent", () => {
     return fixture.debugElement.query(By.css(`[data-test-id="${testId}"]`));
   };
 
-  const setArchiveState = (
-    canArchive: boolean,
-    archivedItems: CipherView[] = [],
-    flagEnabled = true,
-  ) => {
+  const setArchiveState = (canArchive: boolean, archivedItems: CipherView[] = []) => {
     mockUserCanArchive$.next(canArchive);
     mockArchivedCiphers$.next(archivedItems);
-    mockHasArchiveFlagEnabled$.next(flagEnabled);
     fixture.detectChanges();
   };
 
   beforeEach(async () => {
     // Reset BehaviorSubjects to initial values
     mockUserCanArchive$.next(false);
-    mockHasArchiveFlagEnabled$.next(true);
     mockArchivedCiphers$.next([]);
     mockShowNudgeBadge$.next(false);
 
@@ -87,7 +80,6 @@ describe("VaultSettingsComponent", () => {
       userCanArchive$: jest.fn().mockReturnValue(mockUserCanArchive$),
       archivedCiphers$: jest.fn().mockReturnValue(mockArchivedCiphers$),
     });
-    mockCipherArchiveService.hasArchiveFlagEnabled$ = mockHasArchiveFlagEnabled$.asObservable();
 
     await TestBed.configureTestingModule({
       imports: [VaultSettingsComponent],
@@ -175,17 +167,6 @@ describe("VaultSettingsComponent", () => {
 
       expect(archiveLink).toBeTruthy();
       expect(component["userCanArchive"]()).toBe(true);
-    });
-
-    it("hides archive link when feature flag is disabled", () => {
-      setArchiveState(false, [], false);
-
-      const archiveLink = queryByTestId("archive-link");
-      const premiumArchiveLink = queryByTestId("premium-archive-link");
-
-      expect(archiveLink).toBeNull();
-      expect(premiumArchiveLink).toBeNull();
-      expect(component["showArchiveItem"]()).toBe(false);
     });
 
     it("shows premium badge when user has no archived items and cannot archive", () => {

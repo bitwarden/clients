@@ -30,7 +30,6 @@ import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/pre
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { ItemTypes } from "@bitwarden/assets/svg";
 import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -39,7 +38,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -201,9 +200,6 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     ),
     { initialValue: false },
   );
-  readonly archiveFlagEnabled = toSignal(this.cipherArchiveService.hasArchiveFlagEnabled$, {
-    initialValue: false,
-  });
   protected itemTypesIcon = ItemTypes;
 
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
@@ -213,9 +209,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   );
 
   protected readonly submitButtonText = computed(() => {
-    return this.cipher()?.isArchived &&
-      !this.userHasPremium() &&
-      this.cipherArchiveService.hasArchiveFlagEnabled$
+    return this.cipher()?.isArchived && !this.userHasPremium()
       ? this.i18nService.t("unArchiveAndSave")
       : this.i18nService.t("save");
   });
@@ -267,15 +261,13 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
 
   async ngOnInit() {
     // Subscribe to filter changes from router params via the bridge service
-    // Use combineLatest to react to changes in both the filter and archive flag
     combineLatest([
       this.routedVaultFilterBridgeService.activeFilter$,
       this.routedVaultFilterService.filter$,
-      this.cipherArchiveService.hasArchiveFlagEnabled$,
     ])
       .pipe(
-        switchMap(([vaultFilter, routedFilter, archiveEnabled]) =>
-          from(this.applyVaultFilter(vaultFilter, routedFilter, archiveEnabled)),
+        switchMap(([vaultFilter, routedFilter]) =>
+          from(this.applyVaultFilter(vaultFilter, routedFilter)),
         ),
         takeUntil(this.componentIsDestroyed$),
       )
@@ -604,7 +596,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       }
     }
 
-    if (this.archiveFlagEnabled() && !cipher.isDeleted && !cipher.isArchived) {
+    if (!cipher.isDeleted && !cipher.isArchived) {
       menu.push({
         label: this.i18nService.t("archiveVerb"),
         click: async () => {
@@ -843,14 +835,13 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   async applyVaultFilter(
     vaultFilter: VaultFilter,
     routedFilter: Parameters<typeof createFilterFunction>[0],
-    archiveEnabled: boolean,
   ) {
     this.searchBarService.setPlaceholderText(
       this.i18nService.t(this.calculateSearchBarLocalizationString(vaultFilter)),
     );
     this.activeFilter = vaultFilter;
 
-    const filterFn = createFilterFunction(routedFilter, archiveEnabled);
+    const filterFn = createFilterFunction(routedFilter);
 
     await this.vaultItemsComponent?.reload(filterFn, vaultFilter.isDeleted, vaultFilter.isArchived);
   }

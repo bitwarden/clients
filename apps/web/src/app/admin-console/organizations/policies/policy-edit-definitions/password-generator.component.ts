@@ -13,11 +13,14 @@ import { BuiltIn, Profile } from "@bitwarden/generator-core";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 export class PasswordGeneratorPolicy extends BasePolicyEditDefinition {
   name = "passwordGenerator";
   description = "passwordGeneratorPolicyDesc";
   type = PolicyType.PasswordGenerator;
+  category = PolicyCategory.VaultManagement;
+  priority = 10;
   component = PasswordGeneratorPolicyComponent;
 }
 

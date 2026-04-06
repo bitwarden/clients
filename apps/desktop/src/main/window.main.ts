@@ -11,9 +11,11 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ThemeTypes, Theme } from "@bitwarden/common/platform/enums";
+import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 import { processisolations } from "@bitwarden/desktop-napi";
 import { BiometricStateService } from "@bitwarden/key-management";
 
+import { SafeShell } from "../platform/main/safe-shell.main";
 import { WindowState } from "../platform/models/domain/window-state";
 import { applyMainWindowStyles, applyPopupModalStyles } from "../platform/popup-modal-styles";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
@@ -49,6 +51,7 @@ export class WindowMain {
     private storageService: AbstractStorageService,
     private desktopSettingsService: DesktopSettingsService,
     private i18nService: I18nService,
+    private shell: SafeShell,
     private argvCallback: (argv: string[]) => void = null,
     private createWindowCallback: (win: BrowserWindow) => void,
   ) {}
@@ -416,6 +419,16 @@ export class WindowMain {
         command: "windowIsFocused",
         windowIsFocused: true,
       });
+    });
+
+    this.win.webContents.setWindowOpenHandler(({ url }) => {
+      // For security reasons, we redirect all requests to open new windows from the renderer process to the system browser.
+      // SafeShell will check the URL against our allowlist and log if an attempt is made to open a URL that isn't considered safe.
+
+      this.logService.debug(`Redirecting link to external browser: ${url}`);
+      void this.shell.openExternal(url, UrlType.WebUrl);
+
+      return { action: "deny" };
     });
 
     firstValueFrom(this.desktopSettingsService.preventScreenshots$)
