@@ -10,9 +10,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
-  /* Admin Console Team */
-  AutoConfirm = "pm-19934-auto-confirm-organization-users",
-
   /* Auth */
   PM27086_UpdateAuthenticationApisForInputPassword = "pm-27086-update-authentication-apis-for-input-password",
   SafariAccountSwitching = "pm-5594-safari-account-switching",
@@ -104,9 +101,6 @@ const FALSE = false as boolean;
  * Flags should be grouped by team to have visibility of ownership and cleanup.
  */
 export const DefaultFeatureFlagValue = {
-  /* Admin Console Team */
-  [FeatureFlag.AutoConfirm]: FALSE,
-
   /* Autofill */
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
