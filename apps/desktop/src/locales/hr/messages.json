@@ -2126,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "Nespremljene promjene"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "If you leave now, your changes will not be saved. Install the update later so you can stay and save your changes."
+  },
+  "installLater": {
+    "message": "Install later"
+  },
+  "continueWithInstall": {
+    "message": "Continue with install"
+  },
   "clone": {
     "message": "Kloniraj"
   },
@@ -2234,6 +2243,9 @@
   },
   "copyTOTP": {
     "message": "Kopiraj ključ autentifikatora (TOTP)"
+  },
+  "copyNotes": {
+    "message": "Copy notes"
   },
   "totpHelperTitle": {
     "message": "Učini dvostruku autentifikaciju besprijekornom"
