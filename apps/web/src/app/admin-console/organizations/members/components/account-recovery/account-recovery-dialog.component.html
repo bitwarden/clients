@@ -8,22 +8,22 @@
         <bit-label>{{ "resetMasterPassword" | i18n }}</bit-label>
       </bit-form-control>
 
-      <div *ngIf="form.value.resetMasterPassword">
+      @if (form.value.resetMasterPassword) {
         <auth-input-password
           [flow]="inputPasswordFlow"
           [masterPasswordPolicyOptions]="masterPasswordPolicyOptions$ | async"
         ></auth-input-password>
-      </div>
+      }
 
-      <div *ngIf="adminResetTwoFactorEnabled$ | async">
+      @if (adminResetTwoFactorEnabled$ | async) {
         <bit-form-control>
           <input type="checkbox" bitCheckbox formControlName="resetTwoFactor" />
           <bit-label>{{ "resetTwoStepLogin" | i18n }}</bit-label>
-          <bit-hint *ngIf="twoFactorPolicyEnabled$ | async">
-            {{ "resetTwoStepLoginDesc" | i18n }}
-          </bit-hint>
+          @if (twoFactorPolicyEnabled$ | async) {
+            <bit-hint>{{ "resetTwoStepLoginDesc" | i18n }}</bit-hint>
+          }
         </bit-form-control>
-      </div>
+      }
     </form>
   </ng-container>
 

@@ -109,9 +109,8 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
    * and/or two-step login.
    */
   async recoverAccount(request: RecoverAccountRequest): Promise<void> {
-    const apiRequest = new OrganizationUserResetPasswordRequest();
-    apiRequest.resetMasterPassword = request.resetMasterPassword;
-    apiRequest.resetTwoFactor = request.resetTwoFactor;
+    let newMasterPasswordHash: string | undefined;
+    let key: string | undefined;
 
     if (request.resetMasterPassword) {
       const resetPasswordDetails =
@@ -134,31 +133,30 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
         FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
       );
 
-      if (newApisEnabled) {
-        const passwordRequest = await this.buildResetPasswordRequestV2(
-          request.newMasterPassword,
-          request.email,
-          kdfConfig,
-          existingUserKey,
-        );
-        apiRequest.newMasterPasswordHash = passwordRequest.newMasterPasswordHash;
-        apiRequest.key = passwordRequest.key;
-      } else {
-        const passwordRequest = await this.buildMasterPasswordRequest(
-          request.newMasterPassword,
-          request.email,
-          kdfConfig,
-          existingUserKey,
-        );
-        apiRequest.newMasterPasswordHash = passwordRequest.newMasterPasswordHash;
-        apiRequest.key = passwordRequest.key;
-      }
+      ({ newMasterPasswordHash, key } = newApisEnabled
+        ? await this.buildResetPasswordRequestV2(
+            request.newMasterPassword,
+            request.email,
+            kdfConfig,
+            existingUserKey,
+          )
+        : await this.buildMasterPasswordRequest(
+            request.newMasterPassword,
+            request.email,
+            kdfConfig,
+            existingUserKey,
+          ));
     }
 
     await this.organizationUserApiService.putOrganizationUserRecoverAccount(
       request.organizationId,
       request.organizationUserId,
-      apiRequest,
+      new OrganizationUserResetPasswordRequest(
+        request.resetMasterPassword,
+        request.resetTwoFactor,
+        newMasterPasswordHash,
+        key,
+      ),
     );
   }
 

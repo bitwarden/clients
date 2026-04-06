@@ -98,15 +98,10 @@ export class AccountRecoveryDialogComponent {
   /** True when the org has the Require Two-Step Login policy enabled. */
   twoFactorPolicyEnabled$ = this.accountService.activeAccount$.pipe(
     getUserId,
-    switchMap((userId) => this.policyService.policies$(userId)),
-    map((policies) =>
-      policies.some(
-        (p) =>
-          p.type === PolicyType.TwoFactorAuthentication &&
-          p.organizationId === this.dialogData.organizationId &&
-          p.enabled,
-      ),
+    switchMap((userId) =>
+      this.policyService.policiesByType$(PolicyType.TwoFactorAuthentication, userId),
     ),
+    map((policies) => policies.some((p) => p.organizationId === this.dialogData.organizationId)),
   );
 
   adminResetTwoFactorEnabled$ = this.configService.getFeatureFlag$(FeatureFlag.AdminResetTwoFactor);
