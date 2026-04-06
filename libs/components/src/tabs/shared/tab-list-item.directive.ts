@@ -1,5 +1,5 @@
 import { FocusableOption } from "@angular/cdk/a11y";
-import { Directive, ElementRef, HostBinding, Input, input } from "@angular/core";
+import { Directive, ElementRef, Input, input } from "@angular/core";
 
 /**
  * Directive used for styling tab header items for both nav links (anchor tags)
@@ -7,6 +7,11 @@ import { Directive, ElementRef, HostBinding, Input, input } from "@angular/core"
  */
 @Directive({
   selector: "[bitTabListItem]",
+  host: {
+    "[attr.disabled]": "disabled || null",
+    "[attr.aria-selected]": "active() === true",
+    "[class]": "classList",
+  },
 })
 export class TabListItemDirective implements FocusableOption {
   readonly active = input<boolean>();
@@ -16,16 +21,6 @@ export class TabListItemDirective implements FocusableOption {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() disabled = false;
-
-  @HostBinding("attr.disabled")
-  get disabledAttr() {
-    return this.disabled || null; // native disabled attr must be null when false
-  }
-
-  @HostBinding("attr.aria-selected")
-  get ariaSelected() {
-    return this.active() === true;
-  }
 
   constructor(readonly elementRef: ElementRef) {}
 
@@ -37,7 +32,6 @@ export class TabListItemDirective implements FocusableOption {
     this.elementRef.nativeElement.click();
   }
 
-  @HostBinding("class")
   get classList(): string[] {
     return this.baseClassList
       .concat(this.active() ? this.activeClassList : [])
@@ -59,32 +53,26 @@ export class TabListItemDirective implements FocusableOption {
     return ["!tw-text-fg-body", "hover:!tw-text-fg-brand"];
   }
 
-  get baseClassList(): string[] {
-    return [
-      "tw-block",
-      "tw-relative",
-      "tw-shrink-0",
-      "tw-whitespace-nowrap",
-      "tw--mb-px",
-      "tw-pb-3",
-      "tw-text-sm",
-      "tw-font-medium",
-      "tw-transition",
-      "tw-border-0",
-      "tw-border-b-2",
-      "tw-border-transparent",
-      "tw-border-solid",
-      "tw-bg-transparent",
-      "tw-outline-none",
-      "tw-group",
-    ];
-  }
+  readonly baseClassList: string[] = [
+    "tw-block",
+    "tw-relative",
+    "tw-shrink-0",
+    "tw-whitespace-nowrap",
+    "tw--mb-px",
+    "tw-pb-3",
+    "tw-text-sm",
+    "tw-font-medium",
+    "tw-transition",
+    "tw-border-0",
+    "tw-border-b-2",
+    "tw-border-transparent",
+    "tw-border-solid",
+    "tw-bg-transparent",
+    "tw-outline-none",
+    "tw-group",
+  ];
 
-  get disabledClassList(): string[] {
-    return ["tw-cursor-not-allowed"];
-  }
+  readonly disabledClassList: string[] = ["tw-cursor-not-allowed"];
 
-  get activeClassList(): string[] {
-    return ["tw-font-semibold", "tw-border-bg-brand"];
-  }
+  readonly activeClassList: string[] = ["tw-font-semibold", "tw-border-bg-brand"];
 }
