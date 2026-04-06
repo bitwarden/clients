@@ -1,4 +1,13 @@
-import { booleanAttribute, Component, HostBinding, input, Optional, Self } from "@angular/core";
+import {
+  booleanAttribute,
+  Component,
+  ElementRef,
+  HostBinding,
+  inject,
+  input,
+  Optional,
+  Self,
+} from "@angular/core";
 import { NgControl, Validators } from "@angular/forms";
 
 import { BitFormControlAbstraction } from "../form-control";
@@ -14,6 +23,8 @@ import { BitFormControlAbstraction } from "../form-control";
   },
 })
 export class CheckboxComponent implements BitFormControlAbstraction {
+  readonly inputEl = inject<ElementRef<HTMLInputElement>>(ElementRef);
+
   @HostBinding("class")
   protected inputClasses = [
     "tw-appearance-none",

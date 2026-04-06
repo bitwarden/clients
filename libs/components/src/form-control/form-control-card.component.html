@@ -1,6 +1,7 @@
+<!-- (change) listens for events bubbling up from the projected form control (checkbox/radio) -->
 <div
   class="tw-flex tw-items-center tw-relative tw-p-4 tw-border tw-border-border-base tw-rounded-xl tw-justify-between tw-gap-4 has-[label:hover]:tw-border-border-brand-soft has-[input:focus-visible]:tw-ring-2 has-[input:focus-visible]:tw-ring-border-focus has-[input:focus-visible]:tw-border-transparent has-[input:checked]:tw-bg-bg-brand-soft"
-  (change)="inGroup && groupItem.notifyChange()"
+  (change)="onInnerChange()"
 >
   <label
     [for]="base.inputId()"
@@ -15,8 +16,8 @@
 
     <span
       class="tw-inline-flex tw-flex-col"
-      [class.tw-text-muted]="base.formControl().disabled"
-      [class.tw-text-main]="!base.formControl().disabled"
+      [class.tw-text-fg-inactive]="base.formControl().disabled"
+      [class.tw-text-fg-heading]="!base.formControl().disabled"
     >
       <span
         [id]="labelId"

@@ -49,6 +49,12 @@ export class FormControlCardComponent {
   readonly labelId = `${this.base.id}-label`;
   readonly errorId = `${this.base.id}-error`;
 
+  protected onInnerChange() {
+    if (this.inGroup) {
+      this.groupItem.notifyChange();
+    }
+  }
+
   protected get inGroup() {
     return this.groupItem.group != null && this.groupItem.value() !== undefined;
   }
@@ -86,28 +92,24 @@ export class FormControlCardComponent {
 
     effect(() => {
       const hostEl = this.base.formControlEl().nativeElement;
-      const inputId = this.base.inputId();
       const hasError = this.hasErrorSignal();
 
       const describedBy = hasError ? this.errorId : (this.hint()?.id ?? null);
 
-      if (this.switch()) {
+      const switchElement = this.switch();
+
+      if (switchElement) {
         // For SwitchComponent, use signals to set ARIA directly on the inner input,
         // avoiding a querySelector race with Angular's property binding rendering cycle
-        this.switch()?.ariaLabelledBy.set(this.labelId);
-        this.switch()?.ariaDescribedBy.set(describedBy ?? undefined);
+        switchElement.ariaLabelledBy.set(this.labelId);
+        switchElement.ariaDescribedBy.set(describedBy ?? undefined);
         hostEl.removeAttribute("aria-labelledby");
         hostEl.removeAttribute("aria-describedby");
       } else {
-        // For other controls (e.g. checkbox), the host element is the input itself
-        const inputEl = hostEl.id !== inputId ? hostEl.querySelector(`[id="${inputId}"]`) : null;
-        const el = inputEl || hostEl;
+        const el = this.base.formControl().inputEl?.nativeElement ?? hostEl;
 
-        if (inputEl) {
-          hostEl.removeAttribute("aria-labelledby");
-          hostEl.removeAttribute("aria-describedby");
-        }
-
+        hostEl.removeAttribute("aria-labelledby");
+        hostEl.removeAttribute("aria-describedby");
         el.setAttribute("aria-labelledby", this.labelId);
 
         if (describedBy) {
@@ -125,9 +127,7 @@ export class FormControlCardComponent {
       }
       const isSelected = this.groupItem.isSelected();
       const isDisabled = this.groupItem.isDisabled();
-      const el = this.base.formControlEl().nativeElement;
-      const inputEl: HTMLInputElement | null =
-        el.tagName === "INPUT" ? (el as HTMLInputElement) : el.querySelector("input");
+      const inputEl = this.base.formControl().inputEl?.nativeElement ?? null;
 
       if (inputEl) {
         inputEl.checked = isSelected;
