@@ -57,7 +57,7 @@
       role="tab"
       [hidden]="overflowTabIndex() === undefined"
       [attr.aria-hidden]="overflowTabIndex() === undefined ? 'true' : null"
-      [attr.tabindex]="overflowTabIndex() === undefined ? -1 : null"
+      [attr.tabindex]="overflowTabIndex() === undefined ? null : -1"
       [bitMenuTriggerFor]="overFlowTabsMenu"
     >
       <span [class]="tabLabelContentClasses">
