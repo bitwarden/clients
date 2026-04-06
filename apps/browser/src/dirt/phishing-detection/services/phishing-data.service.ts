@@ -585,7 +585,11 @@ export class PhishingDataService {
       throw new Error(`Full update failed: ${response.status}`);
     }
 
-    await this.indexedDbService.saveUrlsFromStream(response.body);
+    const streamSha256 = await this.indexedDbService.saveUrlsFromStream(response.body);
+
+    if (!streamSha256) {
+      throw new Error("Legacy sync stream save failed: no SHA256 returned");
+    }
 
     return {
       meta: {
