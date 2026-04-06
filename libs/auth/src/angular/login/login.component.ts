@@ -11,7 +11,7 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { firstValueFrom, Subject, take, takeUntil, skip } from "rxjs";
+import { firstValueFrom, Subject, take, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultIcon, WaveIcon } from "@bitwarden/assets/svg";
@@ -211,25 +211,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     // This SSO required check should come after email has had a chance to be pre-filled (if it
     // was found in query params or was the remembered email)
     await this.determineIfSsoRequired();
-
-    // Listen for region/environment changes after initialization.
-    // If the user switches region while on the password entry screen, we need to clear
-    // any stale authentication errors from the previous region and refresh the prelogin
-    // data (KDF settings) for the new environment.
-    this.environmentService.environment$
-      .pipe(
-        skip(1), // Skip the initial emission, only react to subsequent changes
-        takeUntil(this.destroy$),
-      )
-      .subscribe((env) => {
-        if (this.loginUiState === LoginUiState.MASTER_PASSWORD_ENTRY) {
-          // Clear previous login attempt errors as they are no longer valid for the new region
-          this.formGroup.controls.masterPassword.setErrors(null);
-          this.formGroup.controls.masterPassword.updateValueAndValidity();
-          // Fetch new prelogin data for the updated region
-          this.makePasswordPreloginCall().catch((err) => this.logService.error(err));
-        }
-      });
   }
 
   private async desktopOnInit(): Promise<void> {
