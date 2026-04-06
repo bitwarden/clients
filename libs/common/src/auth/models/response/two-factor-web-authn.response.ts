@@ -1,5 +1,5 @@
-import { Utils } from "../../../misc/utils";
 import { BaseResponse } from "../../../models/response/base.response";
+import { Utils } from "../../../platform/misc/utils";
 
 export class TwoFactorWebAuthnResponse extends BaseResponse {
   enabled: boolean;
@@ -41,7 +41,7 @@ export class ChallengeResponse extends BaseResponse implements PublicKeyCredenti
     super(response);
     this.attestation = this.getResponseProperty("attestation");
     this.authenticatorSelection = this.getResponseProperty("authenticatorSelection");
-    this.challenge = Utils.fromUrlB64ToArray(this.getResponseProperty("challenge"));
+    this.challenge = Utils.fromUrlB64ToArray(this.getResponseProperty("challenge")) as BufferSource;
     this.excludeCredentials = this.getResponseProperty("excludeCredentials").map((c: any) => {
       c.id = Utils.fromUrlB64ToArray(c.id).buffer;
       return c;

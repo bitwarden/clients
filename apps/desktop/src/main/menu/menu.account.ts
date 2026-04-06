@@ -1,8 +1,10 @@
-import { BrowserWindow, dialog, MenuItemConstructorOptions, shell } from "electron";
+import { BrowserWindow, dialog, MenuItemConstructorOptions } from "electron";
 
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { MessagingService } from "@bitwarden/common/abstractions/messaging.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 
+import { SafeShell } from "../../platform/main/safe-shell.main";
 import { isMacAppStore, isWindowsStore } from "../../utils";
 
 import { IMenubarMenu } from "./menubar";
@@ -15,14 +17,15 @@ export class AccountMenu implements IMenubarMenu {
   }
 
   get items(): MenuItemConstructorOptions[] {
-    return [
-      this.premiumMembership,
-      this.changeMasterPassword,
-      this.twoStepLogin,
-      this.fingerprintPhrase,
-      this.separator,
-      this.deleteAccount,
-    ];
+    const items = [this.premiumMembership];
+    if (this._hasMasterPassword) {
+      items.push(this.changeMasterPassword);
+    }
+    items.push(this.twoStepLogin);
+    items.push(this.fingerprintPhrase);
+    items.push(this.separator);
+    items.push(this.deleteAccount);
+    return items;
   }
 
   private readonly _i18nService: I18nService;
@@ -30,19 +33,28 @@ export class AccountMenu implements IMenubarMenu {
   private readonly _webVaultUrl: string;
   private readonly _window: BrowserWindow;
   private readonly _isLocked: boolean;
+  private readonly _hasMasterPassword: boolean;
+  // TODO: PM-32419 - remove once multi client password management is fully rolled out
+  private readonly _multiClientPasswordManagement: boolean;
 
   constructor(
     i18nService: I18nService,
     messagingService: MessagingService,
     webVaultUrl: string,
     window: BrowserWindow,
-    isLocked: boolean
+    isLocked: boolean,
+    hasMasterPassword: boolean,
+    multiClientPasswordManagement: boolean = false,
+    private shell: SafeShell,
   ) {
     this._i18nService = i18nService;
     this._messagingService = messagingService;
     this._webVaultUrl = webVaultUrl;
     this._window = window;
     this._isLocked = isLocked;
+    this._hasMasterPassword = hasMasterPassword;
+    // TODO: PM-32419 - remove once multi client password management is fully rolled out
+    this._multiClientPasswordManagement = multiClientPasswordManagement;
   }
 
   private get premiumMembership(): MenuItemConstructorOptions {
@@ -56,21 +68,32 @@ export class AccountMenu implements IMenubarMenu {
   }
 
   private get changeMasterPassword(): MenuItemConstructorOptions {
+    // TODO: PM-32419 - remove feature flag check once fully rolled out
+    if (this._multiClientPasswordManagement) {
+      return {
+        // TODO: PM-32419 - remove "changeMasterPass" translation since we now use changeMasterPassword
+        label: this.localize("changeMasterPassword"),
+        id: "changeMasterPassword",
+        click: () => this.sendMessage("openChangePasswordDialog"),
+        enabled: !this._isLocked,
+      };
+    }
+    // TODO: PM-32419 - remove old change password menu item once multi client password management is fully rolled out
     return {
       label: this.localize("changeMasterPass"),
       id: "changeMasterPass",
       click: async () => {
         const result = await dialog.showMessageBox(this._window, {
-          title: this.localize("changeMasterPass"),
-          message: this.localize("changeMasterPass"),
-          detail: this.localize("changeMasterPasswordConfirmation"),
-          buttons: [this.localize("yes"), this.localize("no")],
+          title: this.localize("continueToWebApp"),
+          message: this.localize("continueToWebApp"),
+          detail: this.localize("changeMasterPasswordOnWebConfirmation"),
+          buttons: [this.localize("continue"), this.localize("cancel")],
           cancelId: 1,
           defaultId: 0,
           noLink: true,
         });
         if (result.response === 0) {
-          shell.openExternal(this._webVaultUrl);
+          void this.shell.openExternal(this._webVaultUrl, UrlType.WebUrl);
         }
       },
       enabled: !this._isLocked,
@@ -92,7 +115,7 @@ export class AccountMenu implements IMenubarMenu {
           noLink: true,
         });
         if (result.response === 0) {
-          shell.openExternal(this._webVaultUrl);
+          void this.shell.openExternal(this._webVaultUrl, UrlType.WebUrl);
         }
       },
       enabled: !this._isLocked,

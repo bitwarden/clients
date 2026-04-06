@@ -1,8 +1,8 @@
 import { PasswordHistoryResponse } from "../response/password-history.response";
 
 export class PasswordHistoryData {
-  password: string;
-  lastUsedDate: string;
+  password!: string;
+  lastUsedDate!: string;
 
   constructor(response?: PasswordHistoryResponse) {
     if (response == null) {

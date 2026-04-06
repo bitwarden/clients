@@ -8,7 +8,7 @@ export class SsoTokenRequest extends TokenRequest {
     public codeVerifier: string,
     public redirectUri: string,
     protected twoFactor: TokenTwoFactorRequest,
-    device?: DeviceRequest
+    device?: DeviceRequest,
   ) {
     super(twoFactor, device);
   }
@@ -22,5 +22,14 @@ export class SsoTokenRequest extends TokenRequest {
     obj.redirect_uri = this.redirectUri;
 
     return obj;
+  }
+
+  static fromJSON(json: any) {
+    return Object.assign(Object.create(SsoTokenRequest.prototype), json, {
+      device: json.device ? DeviceRequest.fromJSON(json.device) : undefined,
+      twoFactor: json.twoFactor
+        ? Object.assign(new TokenTwoFactorRequest(), json.twoFactor)
+        : undefined,
+    });
   }
 }

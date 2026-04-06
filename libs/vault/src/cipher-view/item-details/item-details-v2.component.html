@@ -1,0 +1,94 @@
+<section class="tw-mb-5 bit-compact:tw-mb-4">
+  <bit-card>
+    <div
+      class="tw-flex tw-place-items-center tw-w-full"
+      [ngClass]="{
+        'tw-mb-2': allItems.length > 0,
+      }"
+    >
+      <!-- Applying width and height styles directly to synchronize icon sizing between web/browser/desktop -->
+      <div class="tw-flex tw-items-center tw-justify-center" style="width: 40px; height: 40px">
+        <app-vault-icon [cipher]="cipher()" [coloredIcon]="true"></app-vault-icon>
+      </div>
+      <h2
+        bitTypography="h4"
+        class="tw-ml-2 tw-mt-2 tw-select-auto tw-flex-1 tw-break-all tw-line-clamp-2"
+        data-testid="item-name"
+      >
+        {{ cipher().name }}
+      </h2>
+      @if (showArchiveBadge()) {
+        <span bitBadge> {{ "archived" | i18n }} </span>
+      }
+    </div>
+    <ng-container>
+      <div class="tw-flex tw-flex-col tw-mt-2 md:tw-flex-row md:tw-flex-wrap">
+        @for (item of showItems(); track item.id; let last = $last) {
+          <span
+            class="tw-flex tw-items-center tw-mt-2 tw-mr-4"
+            bitTypography="body2"
+            [attr.aria-label]="getAriaLabel(item)"
+            [ngClass]="{ 'tw-mb-2': last && hasSmallScreen() }"
+            data-testid="item-details-list"
+          >
+            @if (isOrgIcon(item)) {
+              <i
+                appOrgIcon
+                [tierType]="organization().productTierType"
+                [size]="'large'"
+                [title]="'owner' | i18n"
+              ></i>
+            } @else {
+              <i
+                class="bwi bwi-lg"
+                [ngClass]="getIconClass(item)"
+                aria-hidden="true"
+                [title]="getItemTitle(item)"
+              ></i>
+            }
+            <span aria-hidden="true" class="tw-pl-1.5">
+              {{ item.name }}
+            </span>
+          </span>
+        }
+        @if (allItems().length === 0) {
+          <span
+            class="tw-flex tw-items-center tw-mt-2 tw-mr-4"
+            bitTypography="body2"
+            [attr.aria-label]="'noneFolder' | i18n"
+          >
+            <i class="bwi bwi-folder bwi-lg" aria-hidden="true" [title]="'folder' | i18n"></i>
+            <span aria-hidden="true" class="tw-pl-1.5">
+              {{ "noneFolder" | i18n }}
+            </span>
+          </span>
+        }
+        @if (hasSmallScreen() && allItems().length > 2 && cipher().collectionIds.length > 1) {
+          <button
+            bitTypography="body2"
+            type="button"
+            bitLink
+            linkType="primary"
+            class="tw-mt-1.5"
+            (click)="toggleShowMore()"
+            *ngIf="!showAllDetails()"
+          >
+            {{ "showMore" | i18n }}
+          </button>
+          <button
+            bitTypography="body2"
+            type="button"
+            bitLink
+            linkType="primary"
+            class="tw-mt-1.5"
+            (click)="toggleShowMore()"
+            *ngIf="showAllDetails()"
+          >
+            {{ "showLess" | i18n }}
+          </button>
+        }
+      </div>
+    </ng-container>
+    <ng-content></ng-content>
+  </bit-card>
+</section>

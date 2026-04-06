@@ -1,0 +1,444 @@
+import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject, of, Subject } from "rxjs";
+
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import {
+  ButtonLocation,
+  SystemNotificationEvent,
+} from "@bitwarden/common/platform/system-notifications/system-notifications.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/user-core";
+
+import { AuthRequestAnsweringService } from "../../abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+
+import { DefaultAuthRequestAnsweringService } from "./default-auth-request-answering.service";
+import {
+  PendingAuthRequestsStateService,
+  PendingAuthUserMarker,
+} from "./pending-auth-requests.state";
+
+describe("DefaultAuthRequestAnsweringService", () => {
+  let accountService: MockProxy<AccountService>;
+  let authService: MockProxy<AuthService>;
+  let masterPasswordService: any; // MasterPasswordServiceAbstraction has many members; we only use forceSetPasswordReason$
+  let messagingService: MockProxy<MessagingService>;
+  let pendingAuthRequestsState: MockProxy<PendingAuthRequestsStateService>;
+
+  let sut: AuthRequestAnsweringService;
+
+  const userId = "9f4c3452-6a45-48af-a7d0-74d3e8b65e4c" as UserId;
+  const userAccountInfo = mockAccountInfoWith({
+    name: "User",
+    email: "user@example.com",
+  });
+  const userAccount: Account = {
+    id: userId,
+    ...userAccountInfo,
+  };
+
+  const otherUserId = "554c3112-9a75-23af-ab80-8dk3e9bl5i8e" as UserId;
+  const otherUserAccountInfo = mockAccountInfoWith({
+    name: "Other",
+    email: "other@example.com",
+  });
+  const otherUserAccount: Account = {
+    id: otherUserId,
+    ...otherUserAccountInfo,
+  };
+
+  beforeEach(() => {
+    accountService = mock<AccountService>();
+    authService = mock<AuthService>();
+    masterPasswordService = {
+      forceSetPasswordReason$: jest.fn().mockReturnValue(of(ForceSetPasswordReason.None)),
+    };
+    messagingService = mock<MessagingService>();
+    pendingAuthRequestsState = mock<PendingAuthRequestsStateService>();
+
+    // Common defaults
+    authService.activeAccountStatus$ = of(AuthenticationStatus.Locked);
+    accountService.activeAccount$ = of(userAccount);
+    accountService.accounts$ = of({
+      [userId]: userAccountInfo,
+      [otherUserId]: otherUserAccountInfo,
+    });
+
+    sut = new DefaultAuthRequestAnsweringService(
+      accountService,
+      authService,
+      masterPasswordService,
+      messagingService,
+      pendingAuthRequestsState,
+    );
+  });
+
+  describe("activeUserMeetsConditionsToShowApprovalDialog()", () => {
+    it("should return false if there is no active user", async () => {
+      // Arrange
+      accountService.activeAccount$ = of(null);
+
+      // Act
+      const result = await sut.activeUserMeetsConditionsToShowApprovalDialog(userId);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it("should return false if the active user is not the intended recipient of the auth request", async () => {
+      // Arrange
+      authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+
+      // Act
+      const result = await sut.activeUserMeetsConditionsToShowApprovalDialog(otherUserId);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it("should return false if the active user is not unlocked", async () => {
+      // Arrange
+      authService.activeAccountStatus$ = of(AuthenticationStatus.Locked);
+
+      // Act
+      const result = await sut.activeUserMeetsConditionsToShowApprovalDialog(userId);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it("should return false if the active user is required to set/change their master password", async () => {
+      // Arrange
+      masterPasswordService.forceSetPasswordReason$.mockReturnValue(
+        of(ForceSetPasswordReason.WeakMasterPassword),
+      );
+
+      // Act
+      const result = await sut.activeUserMeetsConditionsToShowApprovalDialog(userId);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it("should return true if the active user is the intended recipient of the auth request, unlocked, and not required to set/change their master password", async () => {
+      // Arrange
+      authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+
+      // Act
+      const result = await sut.activeUserMeetsConditionsToShowApprovalDialog(userId);
+
+      // Assert
+      expect(result).toBe(true);
+    });
+  });
+
+  describe("setupUnlockListenersForProcessingAuthRequests()", () => {
+    let destroy$: Subject<void>;
+    let activeAccount$: BehaviorSubject<Account>;
+    let activeAccountStatus$: BehaviorSubject<AuthenticationStatus>;
+    let authStatusForSubjects: Map<UserId, BehaviorSubject<AuthenticationStatus>>;
+    let pendingRequestMarkers: PendingAuthUserMarker[];
+
+    beforeEach(() => {
+      destroy$ = new Subject<void>();
+      activeAccount$ = new BehaviorSubject(userAccount);
+      activeAccountStatus$ = new BehaviorSubject(AuthenticationStatus.Locked);
+      authStatusForSubjects = new Map();
+      pendingRequestMarkers = [];
+
+      accountService.activeAccount$ = activeAccount$;
+      authService.activeAccountStatus$ = activeAccountStatus$;
+      authService.authStatusFor$.mockImplementation((id: UserId) => {
+        if (!authStatusForSubjects.has(id)) {
+          authStatusForSubjects.set(id, new BehaviorSubject(AuthenticationStatus.Locked));
+        }
+        return authStatusForSubjects.get(id)!;
+      });
+
+      pendingAuthRequestsState.getAll$.mockReturnValue(of([]));
+    });
+
+    afterEach(() => {
+      destroy$.next();
+      destroy$.complete();
+    });
+
+    describe("active account switching", () => {
+      it("should process pending auth requests when switching to an unlocked user", async () => {
+        // Arrange
+        authStatusForSubjects.set(otherUserId, new BehaviorSubject(AuthenticationStatus.Unlocked));
+        pendingRequestMarkers = [{ userId: otherUserId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
+
+        // Act
+        sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
+
+        // Simulate account switching to an Unlocked account
+        activeAccount$.next(otherUserAccount);
+
+        // Assert
+        await new Promise((resolve) => setTimeout(resolve, 0)); // Allows observable chain to complete before assertion
+        expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval");
+      });
+
+      it("should NOT process pending auth requests when switching to a locked user", async () => {
+        // Arrange
+        authStatusForSubjects.set(otherUserId, new BehaviorSubject(AuthenticationStatus.Locked));
+        pendingRequestMarkers = [{ userId: otherUserId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
+
+        // Act
+        sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
+        activeAccount$.next(otherUserAccount);
+
+        // Assert
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(messagingService.send).not.toHaveBeenCalled();
+      });
+
+      it("should NOT process pending auth requests when switching to a logged out user", async () => {
+        // Arrange
+        authStatusForSubjects.set(otherUserId, new BehaviorSubject(AuthenticationStatus.LoggedOut));
+        pendingRequestMarkers = [{ userId: otherUserId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
+
+        // Act
+        sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
+        activeAccount$.next(otherUserAccount);
+
+        // Assert
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(messagingService.send).not.toHaveBeenCalled();
+      });
+
+      it("should NOT process pending auth requests when active account becomes null", async () => {
+        // Arrange
+        pendingRequestMarkers = [{ userId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
+
+        // Act
+        sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
+        activeAccount$.next(null);
+
+        // Assert
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(messagingService.send).not.toHaveBeenCalled();
+      });
+
+      it("should handle multiple user switches correctly", async () => {
+        // Arrange
+        authStatusForSubjects.set(userId, new BehaviorSubject(AuthenticationStatus.Locked));
+        authStatusForSubjects.set(otherUserId, new BehaviorSubject(AuthenticationStatus.Unlocked));
+        pendingRequestMarkers = [{ userId: otherUserId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
+
+        // Act
+        sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
+
+        // Switch to unlocked user (should trigger)
+        activeAccount$.next(otherUserAccount);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        // Switch to locked user (should NOT trigger)
+        activeAccount$.next(userAccount);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        // Assert
+        expect(messagingService.send).toHaveBeenCalledTimes(1);
+      });
+
+      it("should NOT process pending auth requests when switching to an Unlocked user who is required to set/change their master password", async () => {
+        // Arrange
+        masterPasswordService.forceSetPasswordReason$.mockReturnValue(
+          of(ForceSetPasswordReason.WeakMasterPassword),
+        );
+        authStatusForSubjects.set(otherUserId, new BehaviorSubject(AuthenticationStatus.Unlocked));
+        pendingRequestMarkers = [{ userId: otherUserId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
+
+        // Act
+        sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
+        activeAccount$.next(otherUserAccount);
+
+        // Assert
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(messagingService.send).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("authentication status transitions", () => {
+      it("should process pending auth requests when active account transitions to Unlocked", async () => {
+        // Arrange
+        activeAccountStatus$.next(AuthenticationStatus.Locked);
+        pendingRequestMarkers = [{ userId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
+
+        // Act
+        sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
+        activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+
+        // Assert
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval");
+      });
+
+      it("should process pending auth requests when transitioning from LoggedOut to Unlocked", async () => {
+        // Arrange
+        activeAccountStatus$.next(AuthenticationStatus.LoggedOut);
+        pendingRequestMarkers = [{ userId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
+
+        // Act
+        sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
+        activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+
+        // Assert
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval");
+      });
+
+      it("should NOT process pending auth requests when transitioning from Unlocked to Locked", async () => {
+        // Arrange
+        activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+        pendingRequestMarkers = [{ userId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
+
+        // Act
+        sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        // Clear any calls from the initial trigger (from null -> Unlocked)
+        messagingService.send.mockClear();
+
+        activeAccountStatus$.next(AuthenticationStatus.Locked);
+
+        // Assert
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(messagingService.send).not.toHaveBeenCalled();
+      });
+
+      it("should NOT process pending auth requests when transitioning from Locked to LoggedOut", async () => {
+        // Arrange
+        activeAccountStatus$.next(AuthenticationStatus.Locked);
+        pendingRequestMarkers = [{ userId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
+
+        // Act
+        sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
+        activeAccountStatus$.next(AuthenticationStatus.LoggedOut);
+
+        // Assert
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(messagingService.send).not.toHaveBeenCalled();
+      });
+
+      it("should NOT process pending auth requests when staying in Unlocked status", async () => {
+        // Arrange
+        activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+        pendingRequestMarkers = [{ userId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
+
+        // Act
+        sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        // Clear any calls from the initial trigger (from null -> Unlocked)
+        messagingService.send.mockClear();
+
+        activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+
+        // Assert
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(messagingService.send).not.toHaveBeenCalled();
+      });
+
+      it("should handle multiple status transitions correctly", async () => {
+        // Arrange
+        activeAccountStatus$.next(AuthenticationStatus.Locked);
+        pendingRequestMarkers = [{ userId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
+
+        // Act
+        sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
+
+        // Transition to Unlocked (should trigger)
+        activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        // Transition to Locked (should NOT trigger)
+        activeAccountStatus$.next(AuthenticationStatus.Locked);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        // Transition back to Unlocked (should trigger again)
+        activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        // Assert
+        expect(messagingService.send).toHaveBeenCalledTimes(2);
+        expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval");
+      });
+
+      it("should NOT process pending auth requests when active account transitions to Unlocked but is required to set/change their master password", async () => {
+        // Arrange
+        masterPasswordService.forceSetPasswordReason$.mockReturnValue(
+          of(ForceSetPasswordReason.WeakMasterPassword),
+        );
+        activeAccountStatus$.next(AuthenticationStatus.Locked);
+        pendingRequestMarkers = [{ userId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
+
+        // Act
+        sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
+        activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+
+        // Assert
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(messagingService.send).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("subscription cleanup", () => {
+      it("should stop processing when destroy$ emits", async () => {
+        // Arrange
+        authStatusForSubjects.set(otherUserId, new BehaviorSubject(AuthenticationStatus.Unlocked));
+        pendingRequestMarkers = [{ userId: otherUserId, receivedAtMs: Date.now() }];
+        pendingAuthRequestsState.getAll$.mockReturnValue(of(pendingRequestMarkers));
+
+        // Act
+        sut.setupUnlockListenersForProcessingAuthRequests(destroy$);
+
+        // Emit destroy signal
+        destroy$.next();
+
+        // Try to trigger processing after cleanup
+        activeAccount$.next(otherUserAccount);
+        activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+
+        // Assert
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(messagingService.send).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe("handleAuthRequestNotificationClicked()", () => {
+    it("should throw an error", async () => {
+      // Arrange
+      const event: SystemNotificationEvent = {
+        id: "123",
+        buttonIdentifier: ButtonLocation.NotificationButton,
+      };
+
+      // Act
+      const promise = sut.handleAuthRequestNotificationClicked(event);
+
+      // Assert
+      await expect(promise).rejects.toThrow(
+        "handleAuthRequestNotificationClicked() not implemented for this client",
+      );
+    });
+  });
+});

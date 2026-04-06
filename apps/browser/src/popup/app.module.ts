@@ -3,87 +3,56 @@ import { DragDropModule } from "@angular/cdk/drag-drop";
 import { LayoutModule } from "@angular/cdk/layout";
 import { OverlayModule } from "@angular/cdk/overlay";
 import { ScrollingModule } from "@angular/cdk/scrolling";
-// eslint-disable-next-line import/order
 import { CurrencyPipe, DatePipe } from "@angular/common";
-
-// Register the locales for the application
-import "./locales";
-
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
-import { BitwardenToastModule } from "@bitwarden/angular/components/toastr.component";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
-import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
+import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
+import {
+  DialogModule,
+  AvatarModule,
+  ButtonModule,
+  FormFieldModule,
+  ToastModule,
+  CalloutModule,
+  LinkModule,
+} from "@bitwarden/components";
 
-import { EnvironmentComponent } from "../auth/popup/environment.component";
-import { HintComponent } from "../auth/popup/hint.component";
-import { HomeComponent } from "../auth/popup/home.component";
-import { LockComponent } from "../auth/popup/lock.component";
-import { LoginWithDeviceComponent } from "../auth/popup/login-with-device.component";
-import { LoginComponent } from "../auth/popup/login.component";
-import { RegisterComponent } from "../auth/popup/register.component";
-import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
-import { SetPasswordComponent } from "../auth/popup/set-password.component";
-import { SsoComponent } from "../auth/popup/sso.component";
-import { TwoFactorOptionsComponent } from "../auth/popup/two-factor-options.component";
-import { TwoFactorComponent } from "../auth/popup/two-factor.component";
-import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
-import { CollectionsComponent } from "../popup/vault/collections.component";
-import { ActionButtonsComponent } from "../vault/popup/components/action-buttons.component";
-import { CipherRowComponent } from "../vault/popup/components/cipher-row.component";
-import { PasswordRepromptComponent } from "../vault/popup/components/password-reprompt.component";
-import { AddEditCustomFieldsComponent } from "../vault/popup/components/vault/add-edit-custom-fields.component";
-import { AddEditComponent } from "../vault/popup/components/vault/add-edit.component";
-import { AttachmentsComponent } from "../vault/popup/components/vault/attachments.component";
-import { CurrentTabComponent } from "../vault/popup/components/vault/current-tab.component";
-import { PasswordHistoryComponent } from "../vault/popup/components/vault/password-history.component";
-import { ShareComponent } from "../vault/popup/components/vault/share.component";
-import { VaultFilterComponent } from "../vault/popup/components/vault/vault-filter.component";
-import { VaultItemsComponent } from "../vault/popup/components/vault/vault-items.component";
-import { VaultSelectComponent } from "../vault/popup/components/vault/vault-select.component";
-import { ViewCustomFieldsComponent } from "../vault/popup/components/vault/view-custom-fields.component";
-import { ViewComponent } from "../vault/popup/components/vault/view.component";
+import { AccountComponent } from "../auth/popup/account-switching/account.component";
+import { CurrentAccountComponent } from "../auth/popup/account-switching/current-account.component";
+import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
+import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
+import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
+import { PopOutComponent } from "../platform/popup/components/pop-out.component";
+import { PopupFocusWrapDirective } from "../platform/popup/components/popup-focus-wrap.directive";
+import { PopupFooterComponent } from "../platform/popup/layout/popup-footer.component";
+import { PopupHeaderComponent } from "../platform/popup/layout/popup-header.component";
+import { PopupPageComponent } from "../platform/popup/layout/popup-page.component";
+import { PopupTabNavigationComponent } from "../platform/popup/layout/popup-tab-navigation.component";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
-import { PopOutComponent } from "./components/pop-out.component";
-import { PrivateModeWarningComponent } from "./components/private-mode-warning.component";
-import { SendListComponent } from "./components/send-list.component";
-import { SetPinComponent } from "./components/set-pin.component";
-import { UserVerificationComponent } from "./components/user-verification.component";
-import { GeneratorComponent } from "./generator/generator.component";
-import { PasswordGeneratorHistoryComponent } from "./generator/password-generator-history.component";
-import { EffluxDatesComponent as SendEffluxDatesComponent } from "./send/efflux-dates.component";
-import { SendAddEditComponent } from "./send/send-add-edit.component";
-import { SendGroupingsComponent } from "./send/send-groupings.component";
-import { SendTypeComponent } from "./send/send-type.component";
+import { ExtensionAnonLayoutWrapperComponent } from "./components/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
 import { ServicesModule } from "./services/services.module";
-import { AboutComponent } from "./settings/about.component";
-import { AutofillComponent } from "./settings/autofill.component";
-import { ExcludedDomainsComponent } from "./settings/excluded-domains.component";
-import { ExportComponent } from "./settings/export.component";
-import { FolderAddEditComponent } from "./settings/folder-add-edit.component";
-import { FoldersComponent } from "./settings/folders.component";
-import { OptionsComponent } from "./settings/options.component";
-import { PremiumComponent } from "./settings/premium.component";
-import { SettingsComponent } from "./settings/settings.component";
-import { SyncComponent } from "./settings/sync.component";
-import { VaultTimeoutInputComponent } from "./settings/vault-timeout-input.component";
-import { TabsComponent } from "./tabs.component";
+import { TabsV2Component } from "./tabs-v2.component";
+
+// Register the locales for the application
+import "../platform/popup/locales";
 
 @NgModule({
   imports: [
     A11yModule,
     AppRoutingModule,
-    BitwardenToastModule.forRoot({
+    AutofillComponent,
+    AccountSecurityComponent,
+    ToastModule.forRoot({
       maxOpened: 2,
       autoDismiss: true,
       closeButton: true,
-      positionClass: "toast-bottom-full-width",
+      positionClass: "toast-top-full-width",
     }),
     BrowserAnimationsModule,
     BrowserModule,
@@ -95,63 +64,26 @@ import { TabsComponent } from "./tabs.component";
     ReactiveFormsModule,
     ScrollingModule,
     ServicesModule,
-  ],
-  declarations: [
-    ActionButtonsComponent,
-    AddEditComponent,
-    AddEditCustomFieldsComponent,
-    AppComponent,
-    AttachmentsComponent,
-    CipherRowComponent,
-    VaultItemsComponent,
-    CollectionsComponent,
-    ColorPasswordPipe,
-    ColorPasswordCountPipe,
-    CurrentTabComponent,
-    EnvironmentComponent,
-    ExcludedDomainsComponent,
-    ExportComponent,
-    FolderAddEditComponent,
-    FoldersComponent,
-    VaultFilterComponent,
-    HintComponent,
-    HomeComponent,
-    LockComponent,
-    LoginComponent,
-    LoginWithDeviceComponent,
-    OptionsComponent,
-    GeneratorComponent,
-    PasswordGeneratorHistoryComponent,
-    PasswordHistoryComponent,
-    PasswordRepromptComponent,
+    DialogModule,
+    AvatarModule,
+    AccountComponent,
+    ButtonModule,
+    NotificationsSettingsComponent,
     PopOutComponent,
-    PremiumComponent,
-    PrivateModeWarningComponent,
-    RegisterComponent,
-    SendAddEditComponent,
-    SendEffluxDatesComponent,
-    SendGroupingsComponent,
-    SendListComponent,
-    SendTypeComponent,
-    SetPasswordComponent,
-    SetPinComponent,
-    SettingsComponent,
-    ShareComponent,
-    SsoComponent,
-    SyncComponent,
-    TabsComponent,
-    TwoFactorComponent,
-    TwoFactorOptionsComponent,
-    UpdateTempPasswordComponent,
-    UserVerificationComponent,
-    VaultTimeoutInputComponent,
-    ViewComponent,
-    ViewCustomFieldsComponent,
-    RemovePasswordComponent,
-    VaultSelectComponent,
-    AboutComponent,
-    AutofillComponent,
+    PopupFocusWrapDirective,
+    PopupPageComponent,
+    PopupTabNavigationComponent,
+    PopupFooterComponent,
+    PopupHeaderComponent,
+    UserVerificationDialogComponent,
+    CurrentAccountComponent,
+    FormFieldModule,
+    ExtensionAnonLayoutWrapperComponent,
+    CalloutModule,
+    LinkModule,
   ],
+  declarations: [AppComponent, TabsV2Component],
+  exports: [CalloutModule],
   providers: [CurrencyPipe, DatePipe],
   bootstrap: [AppComponent],
 })

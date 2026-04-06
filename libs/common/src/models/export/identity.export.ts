@@ -1,6 +1,8 @@
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { Identity as IdentityDomain } from "../../vault/models/domain/identity";
 import { IdentityView } from "../../vault/models/view/identity.view";
-import { EncString } from "../domain/enc-string";
+
+import { safeGetString } from "./utils";
 
 export class IdentityExport {
   static template(): IdentityExport {
@@ -11,7 +13,6 @@ export class IdentityExport {
     req.lastName = "Doe";
     req.address1 = "123 Any St";
     req.address2 = "Apt #123";
-    req.address3 = null;
     req.city = "New York";
     req.state = "NY";
     req.postalCode = "10001";
@@ -49,89 +50,69 @@ export class IdentityExport {
   }
 
   static toDomain(req: IdentityExport, domain = new IdentityDomain()) {
-    domain.title = req.title != null ? new EncString(req.title) : null;
-    domain.firstName = req.firstName != null ? new EncString(req.firstName) : null;
-    domain.middleName = req.middleName != null ? new EncString(req.middleName) : null;
-    domain.lastName = req.lastName != null ? new EncString(req.lastName) : null;
-    domain.address1 = req.address1 != null ? new EncString(req.address1) : null;
-    domain.address2 = req.address2 != null ? new EncString(req.address2) : null;
-    domain.address3 = req.address3 != null ? new EncString(req.address3) : null;
-    domain.city = req.city != null ? new EncString(req.city) : null;
-    domain.state = req.state != null ? new EncString(req.state) : null;
-    domain.postalCode = req.postalCode != null ? new EncString(req.postalCode) : null;
-    domain.country = req.country != null ? new EncString(req.country) : null;
-    domain.company = req.company != null ? new EncString(req.company) : null;
-    domain.email = req.email != null ? new EncString(req.email) : null;
-    domain.phone = req.phone != null ? new EncString(req.phone) : null;
-    domain.ssn = req.ssn != null ? new EncString(req.ssn) : null;
-    domain.username = req.username != null ? new EncString(req.username) : null;
-    domain.passportNumber = req.passportNumber != null ? new EncString(req.passportNumber) : null;
-    domain.licenseNumber = req.licenseNumber != null ? new EncString(req.licenseNumber) : null;
+    domain.title = req.title != null ? new EncString(req.title) : undefined;
+    domain.firstName = req.firstName != null ? new EncString(req.firstName) : undefined;
+    domain.middleName = req.middleName != null ? new EncString(req.middleName) : undefined;
+    domain.lastName = req.lastName != null ? new EncString(req.lastName) : undefined;
+    domain.address1 = req.address1 != null ? new EncString(req.address1) : undefined;
+    domain.address2 = req.address2 != null ? new EncString(req.address2) : undefined;
+    domain.address3 = req.address3 != null ? new EncString(req.address3) : undefined;
+    domain.city = req.city != null ? new EncString(req.city) : undefined;
+    domain.state = req.state != null ? new EncString(req.state) : undefined;
+    domain.postalCode = req.postalCode != null ? new EncString(req.postalCode) : undefined;
+    domain.country = req.country != null ? new EncString(req.country) : undefined;
+    domain.company = req.company != null ? new EncString(req.company) : undefined;
+    domain.email = req.email != null ? new EncString(req.email) : undefined;
+    domain.phone = req.phone != null ? new EncString(req.phone) : undefined;
+    domain.ssn = req.ssn != null ? new EncString(req.ssn) : undefined;
+    domain.username = req.username != null ? new EncString(req.username) : undefined;
+    domain.passportNumber =
+      req.passportNumber != null ? new EncString(req.passportNumber) : undefined;
+    domain.licenseNumber = req.licenseNumber != null ? new EncString(req.licenseNumber) : undefined;
     return domain;
   }
 
-  title: string;
-  firstName: string;
-  middleName: string;
-  lastName: string;
-  address1: string;
-  address2: string;
-  address3: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
-  company: string;
-  email: string;
-  phone: string;
-  ssn: string;
-  username: string;
-  passportNumber: string;
-  licenseNumber: string;
+  title?: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  address1?: string;
+  address2?: string;
+  address3?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+  company?: string;
+  email?: string;
+  phone?: string;
+  ssn?: string;
+  username?: string;
+  passportNumber?: string;
+  licenseNumber?: string;
 
   constructor(o?: IdentityView | IdentityDomain) {
     if (o == null) {
       return;
     }
 
-    if (o instanceof IdentityView) {
-      this.title = o.title;
-      this.firstName = o.firstName;
-      this.middleName = o.middleName;
-      this.lastName = o.lastName;
-      this.address1 = o.address1;
-      this.address2 = o.address2;
-      this.address3 = o.address3;
-      this.city = o.city;
-      this.state = o.state;
-      this.postalCode = o.postalCode;
-      this.country = o.country;
-      this.company = o.company;
-      this.email = o.email;
-      this.phone = o.phone;
-      this.ssn = o.ssn;
-      this.username = o.username;
-      this.passportNumber = o.passportNumber;
-      this.licenseNumber = o.licenseNumber;
-    } else {
-      this.title = o.title?.encryptedString;
-      this.firstName = o.firstName?.encryptedString;
-      this.middleName = o.middleName?.encryptedString;
-      this.lastName = o.lastName?.encryptedString;
-      this.address1 = o.address1?.encryptedString;
-      this.address2 = o.address2?.encryptedString;
-      this.address3 = o.address3?.encryptedString;
-      this.city = o.city?.encryptedString;
-      this.state = o.state?.encryptedString;
-      this.postalCode = o.postalCode?.encryptedString;
-      this.country = o.country?.encryptedString;
-      this.company = o.company?.encryptedString;
-      this.email = o.email?.encryptedString;
-      this.phone = o.phone?.encryptedString;
-      this.ssn = o.ssn?.encryptedString;
-      this.username = o.username?.encryptedString;
-      this.passportNumber = o.passportNumber?.encryptedString;
-      this.licenseNumber = o.licenseNumber?.encryptedString;
-    }
+    this.title = safeGetString(o.title);
+    this.firstName = safeGetString(o.firstName);
+    this.middleName = safeGetString(o.middleName);
+    this.lastName = safeGetString(o.lastName);
+    this.address1 = safeGetString(o.address1);
+    this.address2 = safeGetString(o.address2);
+    this.address3 = safeGetString(o.address3);
+    this.city = safeGetString(o.city);
+    this.state = safeGetString(o.state);
+    this.postalCode = safeGetString(o.postalCode);
+    this.country = safeGetString(o.country);
+    this.company = safeGetString(o.company);
+    this.email = safeGetString(o.email);
+    this.phone = safeGetString(o.phone);
+    this.ssn = safeGetString(o.ssn);
+    this.username = safeGetString(o.username);
+    this.passportNumber = safeGetString(o.passportNumber);
+    this.licenseNumber = safeGetString(o.licenseNumber);
   }
 }

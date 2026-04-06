@@ -1,0 +1,11 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "bugfixes": true
+      }
+    ]
+  ],
+  "plugins": ["@angular/compiler-cli/linker/babel"]
+}

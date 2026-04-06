@@ -1,7 +1,11 @@
-<sm-header>
-  <input bitInput [placeholder]="'searchProjects' | i18n" [(ngModel)]="search" />
+<app-header>
+  <bit-search
+    [placeholder]="'searchProjects' | i18n"
+    [(ngModel)]="search"
+    class="tw-w-80"
+  ></bit-search>
   <sm-new-menu></sm-new-menu>
-</sm-header>
+</app-header>
 <sm-projects-list
   (newProjectEvent)="openNewProjectDialog()"
   (editProjectEvent)="openEditProject($event)"

@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -118,46 +118,64 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden - مدیریت کلمه عبور رایگان</value>
+    <value>مدیر کلمه عبور Bitwarden</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>یک مدیریت کننده کلمه عبور رایگان برای تمامی دستگاه‌هایتان</value>
+    <value>در خانه، محل کار، یا در حال حرکت، Bitwarden به سادگی تمامی کلمات عبور، کلیدها، و اطلاعات حساس شما را امن نگاه می‌دارد.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Bitwarden، Inc. شرکت مادر 8bit Solutions LLC است.
+    <value>شناخته‌شده به‌عنوان بهترین مدیر کلمه عبور توسط PCMag، WIRED، The Verge، CNET، G2 و دیگر منابع!
 
-به عنوان بهترین مدیر کلمه عبور توسط VERGE، US News &amp; WORLD REPORT، CNET و دیگران انتخاب شد.
+امنیت زندگی دیجیتال شما
+زندگی دیجیتال خود را ایمن کنید و با تولید و ذخیره کلمات عبور قوی و منحصر به فرد برای هر حساب کاربری، از نشت اطلاعات جلوگیری نمایید. همه چیز را در یک گاوصندوق کلمه عبور با رمزگذاری سرتاسری ذخیره کنید که فقط شما به آن دسترسی دارید.
 
-کلمه‌های عبور با تعداد نامحدود را در دستگاه‌های نامحدود از هر کجا مدیریت کنید، ذخیره کنید، ایمن کنید و به اشتراک بگذارید. Bitwarden راه حل های مدیریت رمز عبور منبع باز را به همه ارائه می دهد، چه در خانه، چه در محل کار یا در حال حرکت.
+دسترسی به داده‌های شما، در هر زمان، در هر مکان، روی هر دستگاه
+کلمات عبور را به‌صورت نامحدود روی دستگاه‌های مختلف مدیریت، ذخیره، ایمن‌سازی و به اشتراک بگذارید بدون هیچ محدودیتی.
 
-بر اساس الزامات امنیتی برای هر وب سایتی که بازدید می کنید، کلمه‌های عبور قوی، منحصر به فرد و تصادفی ایجاد کنید.
+همه باید ابزارهای ایمنی آنلاین را در اختیار داشته باشند
+از Bitwarden به‌صورت رایگان استفاده کنید، بدون تبلیغات یا فروش داده‌ها. Bitwarden باور دارد که همه باید بتوانند در فضای آنلاین ایمن بمانند. طرح‌های پریمیوم، ویژگی‌های پیشرفته‌تری ارائه می‌دهند.
 
-Bitwarden Send به سرعت اطلاعات رمزگذاری شده --- فایل ها و متن ساده - را مستقیماً به هر کسی منتقل می کند.
+توانمندسازی تیم‌ها با Bitwarden
+طرح‌های ویژه تیم‌ها و سازمان‌ها شامل ویژگی‌های حرفه‌ای برای کسب‌وکار هستند، مانند: ادغام SSO، میزبانی شخصی، ادغام با دایرکتوری و فراهم‌سازی SCIM، سیاست‌های جهانی، دسترسی API، گزارش رویدادها و موارد دیگر.
 
-Bitwarden برنامه‌های Teams و Enterprise را برای شرکت‌ها ارائه می‌دهد تا بتوانید به‌طور ایمن کلمه‌های را با همکاران خود به اشتراک بگذارید.
+از Bitwarden برای ایمن‌سازی محیط کاری و اشتراک‌گذاری اطلاعات حساس با همکاران استفاده کنید.
 
-چرا Bitwarden را انتخاب کنید:
+دلایل بیشتر برای انتخاب Bitwarden:
 
-رمزگذاری در کلاس جهانی
-کلمه‌های عبور با رمزگذاری پیشرفته (AES-256 بیت، هشتگ سالت و PBKDF2 SHA-256) محافظت می‌شوند تا داده‌های شما امن و خصوصی بمانند.
+رمزگذاری سطح جهانی
+ کلمات عبور با رمزگذاری پیشرفته سرتاسری (AES-256 بیت، هش نمکی، و PBKDF2 SHA-256) محافظت می‌شوند تا داده‌های شما امن و خصوصی باقی بمانند.
 
-تولیدکننده کلمه عبور داخلی
-بر اساس الزامات امنیتی برای هر وب سایتی که بازدید می کنید، کلمه‌های عبور قوی، منحصر به فرد و تصادفی ایجاد کنید.
+ممیزی‌های امنیتی توسط اشخاص ثالث
+ Bitwarden به‌طور منظم توسط شرکت‌های معتبر امنیتی مورد ارزیابی و تست نفوذ قرار می‌گیرد. این بررسی‌ها شامل بررسی کد منبع و تست‌های امنیتی روی IPها، سرورها و اپلیکیشن‌های وب Bitwarden است.
 
-ترجمه های جهانی
-ترجمه Bitwarden به 40 زبان وجود دارد و به لطف جامعه جهانی ما در حال رشد است.
+احراز هویت دومرحله‌ای پیشرفته (2FA)
+ ورود امن با استفاده از احراز هویت‌کننده‌های شخص ثالث، کدهای ایمیلی، یا گواهی‌نامه‌های FIDO2 WebAuthn مانند کلید امنیتی سخت‌افزاری یا کلید عبور.
 
-برنامه های کاربردی چند پلتفرمی
-داده‌های حساس را در Bitwarden Vault خود از هر مرورگر، دستگاه تلفن همراه یا سیستم عامل دسکتاپ و غیره ایمن کنید و به اشتراک بگذارید.</value>
+Bitwarden Send
+ ارسال مستقیم داده‌ها با رمزگذاری سرتاسری، با امکان محدودسازی دسترسی و مدت زمان مشاهده.
+
+مولد داخلی
+ تولید کلمات عبور بلند، پیچیده و منحصربه‌فرد و همچنین نام‌های کاربری برای هر وب‌سایتی که بازدید می‌کنید. امکان ادغام با ارائه‌دهندگان ایمیل مستعار برای حفظ بیشتر حریم خصوصی.
+
+ترجمه‌های جهانی
+ Bitwarden به بیش از ۶۰ زبان در دسترس است که توسط جامعه جهانی از طریق Crowdin ترجمه شده‌اند.
+
+اپلیکیشن‌های چند سکویی
+ ایمن‌سازی و اشتراک‌گذاری داده‌ها از طریق هر مرورگر، دستگاه موبایل یا سیستم‌عامل دسکتاپ و موارد دیگر.
+
+Bitwarden فقط کلمات عبور را ایمن نمی‌کند
+راهکارهای مدیریت اعتبارات با رمزگذاری سرتاسری از Bitwarden به سازمان‌ها کمک می‌کند تا همه چیز را ایمن کنند، از جمله اسرار توسعه‌دهنده و تجربه‌های بدون کلمات عبور.
+برای اطلاعات بیشتر درباره Bitwarden Secrets Manager و Bitwarden Passwordless.dev به وب‌سایت Bitwarden.com مراجعه کنید!
+</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>یک مدیریت کننده کلمه عبور رایگان برای تمامی دستگاه‌هایتان</value>
+    <value>در خانه، محل کار، یا در حال حرکت، Bitwarden به سادگی تمامی کلمات عبور، کلیدها، و اطلاعات حساس شما را امن نگاه می‌دارد.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
-    <value>همگام‌سازی و دسترسی به گاوصندوق خود از دستگاه های مختلف</value>
+    <value>همگام‌سازی و دسترسی به گاوصندوق خود از دستگاه‌های مختلف</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
-    <value>مدیریت تمام اطلاعات ورود و کلمه های عبورتان از یک گاوصندوق امن</value>
+    <value>مدیریت تمام اطلاعات ورود و کلمات عبورتان از یک گاوصندوق امن</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
     <value>پرکردن خودکار معتبر ورودی شما به‌صورت سریع برای هر وب‌سایتی که از آن بازدید می‌کنید</value>
@@ -166,7 +184,7 @@ Bitwarden برنامه‌های Teams و Enterprise را برای شرکت‌ه�
     <value>گاوصندوق شما نیز به راحتی از منوی راست کلیک قابل دسترسی است</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
-    <value>به صورت خودکار کلمه‌های عبور قوی، تصادفی و امن ایجاد کنید</value>
+    <value>به‌صورت خودکار کلمات عبور قوی، تصادفی و امن ایجاد کنید</value>
   </data>
   <data name="ScreenshotEdit" xml:space="preserve">
     <value>اطلاعات شما با استفاده از رمزگذاری AES-256 بیتی ایمن مدیریت می‌شود</value>

@@ -1,0 +1,57 @@
+<p>
+  {{ "organizationDataOwnershipDescContent" | i18n }}
+  <a
+    bitLink
+    href="https://bitwarden.com/resources/credential-lifecycle-management/"
+    target="_blank"
+  >
+    {{ "organizationDataOwnershipContentAnchor" | i18n }}.
+  </a>
+</p>
+
+<bit-form-control>
+  <input type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
+  <bit-label>{{ "turnOn" | i18n }}</bit-label>
+</bit-form-control>
+
+<ng-template #dialog>
+  <bit-simple-dialog background="alt">
+    <span bitDialogTitle>{{ "organizationDataOwnershipWarningTitle" | i18n }}</span>
+    <ng-container bitDialogContent>
+      <div class="tw-text-left tw-overflow-hidden">
+        {{ "organizationDataOwnershipWarningContentTop" | i18n }}
+        <div class="tw-flex tw-flex-col tw-p-2">
+          <ul class="tw-list-disc tw-pl-5 tw-space-y-2 tw-break-words tw-mb-0">
+            <li>
+              {{ "organizationDataOwnershipWarning1" | i18n }}
+            </li>
+            <li>
+              {{ "organizationDataOwnershipWarning2" | i18n }}
+            </li>
+            <li>
+              {{ "organizationDataOwnershipWarning3" | i18n }}
+            </li>
+          </ul>
+        </div>
+        {{ "organizationDataOwnershipWarningContentBottom" | i18n }}
+        <a
+          bitLink
+          href="https://bitwarden.com/resources/credential-lifecycle-management/"
+          target="_blank"
+        >
+          {{ "organizationDataOwnershipContentAnchor" | i18n }}.
+        </a>
+      </div>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <span class="tw-flex tw-gap-2">
+        <button bitButton buttonType="primary" [bitDialogClose]="true" type="submit">
+          {{ "continue" | i18n }}
+        </button>
+        <button bitButton buttonType="secondary" [bitDialogClose]="false" type="button">
+          {{ "cancel" | i18n }}
+        </button>
+      </span>
+    </ng-container>
+  </bit-simple-dialog>
+</ng-template>

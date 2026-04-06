@@ -1,4 +1,4 @@
-import { EncString } from "@bitwarden/common/models/domain/enc-string";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 
 import { LegacyMessage } from "./legacy-message";
 

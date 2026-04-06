@@ -37,7 +37,7 @@ describe("FormSelectionList", () => {
   beforeEach(() => {
     formSelectionList = new FormSelectionList<TestItemView, TestItemValue>(
       testControlFactory,
-      testCompareFn
+      testCompareFn,
     );
     testItems = [...initialTestItems];
   });
@@ -148,15 +148,15 @@ describe("FormSelectionList", () => {
 
       // Form array values should be in the same order
       expect(formSelectionList.formArray.value[0].id).toEqual(
-        formSelectionList.selectedItems[0].id
+        formSelectionList.selectedItems[0].id,
       );
 
       expect(formSelectionList.formArray.value[1].id).toEqual(
-        formSelectionList.selectedItems[1].id
+        formSelectionList.selectedItems[1].id,
       );
 
       expect(formSelectionList.formArray.value[2].id).toEqual(
-        formSelectionList.selectedItems[2].id
+        formSelectionList.selectedItems[2].id,
       );
     });
   });
@@ -180,7 +180,7 @@ describe("FormSelectionList", () => {
 
       // Value and View should still be in sync
       expect(formSelectionList.formArray.value[0].id).toEqual(
-        formSelectionList.selectedItems[0].id
+        formSelectionList.selectedItems[0].id,
       );
     });
 

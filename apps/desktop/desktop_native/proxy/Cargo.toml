@@ -1,0 +1,20 @@
+[package]
+name = "desktop_proxy"
+edition = { workspace = true }
+license = { workspace = true }
+version = { workspace = true }
+publish = { workspace = true }
+
+[dependencies]
+desktop_core = { path = "../core" }
+futures = { workspace = true }
+tokio = { workspace = true, features = ["io-std", "io-util", "macros", "rt"] }
+tokio-util = { workspace = true, features = ["codec"] }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+embed_plist = { workspace = true }
+
+[lints]
+workspace = true

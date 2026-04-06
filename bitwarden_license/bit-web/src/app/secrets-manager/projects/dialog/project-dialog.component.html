@@ -1,5 +1,5 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
-  <bit-dialog dialogSize="small">
+  <bit-dialog dialogSize="default">
     <span bitDialogTitle>{{ title | i18n }}</span>
     <span bitDialogContent>
       <div *ngIf="loading" class="tw-text-center">
@@ -7,16 +7,16 @@
       </div>
       <bit-form-field *ngIf="!loading">
         <bit-label>{{ "projectName" | i18n }}</bit-label>
-        <input formControlName="name" maxlength="1000" bitInput />
+        <input appAutofocus formControlName="name" bitInput />
       </bit-form-field>
     </span>
-    <div bitDialogFooter class="tw-flex tw-gap-2">
+    <ng-container bitDialogFooter>
       <button type="submit" bitButton buttonType="primary" bitFormButton>
         {{ "save" | i18n }}
       </button>
       <button type="button" bitButton buttonType="secondary" bitFormButton bitDialogClose>
         {{ "cancel" | i18n }}
       </button>
-    </div>
+    </ng-container>
   </bit-dialog>
 </form>

@@ -1,47 +1,46 @@
 <!-- This a higher order component that composes `NavItemComponent`  -->
-<bit-nav-item
-  [text]="text"
-  [icon]="icon"
-  [route]="route"
-  [variant]="variant"
-  (mainContentClicked)="toggle()"
-  [treeDepth]="treeDepth"
-  (mainContentClicked)="mainContentClicked.emit()"
-  [ariaLabel]="ariaLabel"
->
-  <ng-template #button>
+@if (!hideIfEmpty() || nestedNavComponents().length > 0) {
+  <bit-nav-item
+    [text]="text()"
+    [icon]="icon()"
+    [route]="route()"
+    [treeDepth]="treeDepth()"
+    [relativeTo]="relativeTo()"
+    [routerLinkActiveOptions]="routerLinkActiveOptions()"
+    (mainContentClicked)="handleMainContentClicked()"
+    [ariaLabel]="ariaLabel()"
+    [hideActiveStyles]="parentHideActiveStyles()"
+    [ariaCurrentWhenActive]="ariaCurrent()"
+    [forceActiveStyles]="forceActiveStyles()"
+  >
     <button
+      slot="start"
       type="button"
-      class="tw-ml-auto"
-      [bitIconButton]="
-        open ? 'bwi-angle-up' : variant === 'tree' ? 'bwi-angle-right' : 'bwi-angle-down'
-      "
-      [buttonType]="'main'"
+      class="tw-ms-auto"
+      [class]="!open() ? 'tw-transform tw-rotate-[-90deg]' : ''"
+      bitIconButton="bwi-down-solid"
+      buttonType="side-nav"
       (click)="toggle($event)"
-      size="small"
-      [title]="'toggleCollapse' | i18n"
-      aria-haspopup="true"
-      [attr.aria-expanded]="open.toString()"
+      size="xsmall"
+      [attr.aria-expanded]="open().toString()"
       [attr.aria-controls]="contentId"
-      [attr.aria-label]="['toggleCollapse' | i18n, text].join(' ')"
+      [label]="['toggleCollapse' | i18n, text()].join(' ')"
+      data-testid="nav-group-collapse-arrow"
     ></button>
-  </ng-template>
-
-  <!-- Show toggle to the left for trees otherwise to the right -->
-  <ng-container slot-start *ngIf="variant === 'tree'">
-    <ng-container *ngTemplateOutlet="button"></ng-container>
-  </ng-container>
-  <ng-container slot-end *ngIf="variant !== 'tree'">
-    <ng-container *ngTemplateOutlet="button"></ng-container>
-  </ng-container>
-</bit-nav-item>
-
-<!-- [attr.aria-controls] of the above button expects a unique ID on the controlled element -->
-<div
-  *ngIf="open"
-  [attr.id]="contentId"
-  [attr.aria-label]="[text, 'submenu' | i18n].join(' ')"
-  role="group"
->
-  <ng-content></ng-content>
-</div>
+    <ng-container slot="end">
+      <ng-content select="[slot=end]"></ng-content>
+    </ng-container>
+  </bit-nav-item>
+  <!-- [attr.aria-controls] of the above button expects a unique ID on the controlled element -->
+  @if (sideNavOpen()) {
+    @if (open()) {
+      <div
+        [attr.id]="contentId"
+        [attr.aria-label]="[text(), 'submenu' | i18n].join(' ')"
+        role="group"
+      >
+        <ng-content></ng-content>
+      </div>
+    }
+  }
+}

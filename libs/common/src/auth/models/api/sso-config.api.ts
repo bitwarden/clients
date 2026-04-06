@@ -1,5 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BaseResponse } from "../../../models/response/base.response";
 import {
+  MemberDecryptionType,
   OpenIdConnectRedirectBehavior,
   Saml2BindingType,
   Saml2NameIdFormat,
@@ -11,8 +14,8 @@ import { SsoConfigView } from "../view/sso-config.view";
 export class SsoConfigApi extends BaseResponse {
   static fromView(view: SsoConfigView, api = new SsoConfigApi()) {
     api.configType = view.configType;
+    api.memberDecryptionType = view.memberDecryptionType;
 
-    api.keyConnectorEnabled = view.keyConnectorEnabled;
     api.keyConnectorUrl = view.keyConnectorUrl;
 
     if (api.configType === SsoType.OpenIdConnect) {
@@ -29,6 +32,7 @@ export class SsoConfigApi extends BaseResponse {
       api.acrValues = view.openId.acrValues;
       api.expectedReturnAcrValue = view.openId.expectedReturnAcrValue;
     } else if (api.configType === SsoType.Saml2) {
+      api.spUniqueEntityId = view.saml.spUniqueEntityId;
       api.spNameIdFormat = view.saml.spNameIdFormat;
       api.spOutboundSigningAlgorithm = view.saml.spOutboundSigningAlgorithm;
       api.spSigningBehavior = view.saml.spSigningBehavior;
@@ -52,8 +56,8 @@ export class SsoConfigApi extends BaseResponse {
     return api;
   }
   configType: SsoType;
+  memberDecryptionType: MemberDecryptionType;
 
-  keyConnectorEnabled: boolean;
   keyConnectorUrl: string;
 
   // OpenId
@@ -71,6 +75,7 @@ export class SsoConfigApi extends BaseResponse {
   expectedReturnAcrValue: string;
 
   // SAML
+  spUniqueEntityId: boolean;
   spNameIdFormat: Saml2NameIdFormat;
   spOutboundSigningAlgorithm: string;
   spSigningBehavior: Saml2SigningBehavior;
@@ -95,8 +100,8 @@ export class SsoConfigApi extends BaseResponse {
     }
 
     this.configType = this.getResponseProperty("ConfigType");
+    this.memberDecryptionType = this.getResponseProperty("MemberDecryptionType");
 
-    this.keyConnectorEnabled = this.getResponseProperty("KeyConnectorEnabled");
     this.keyConnectorUrl = this.getResponseProperty("KeyConnectorUrl");
 
     this.authority = this.getResponseProperty("Authority");
@@ -112,6 +117,7 @@ export class SsoConfigApi extends BaseResponse {
     this.acrValues = this.getResponseProperty("AcrValues");
     this.expectedReturnAcrValue = this.getResponseProperty("ExpectedReturnAcrValue");
 
+    this.spUniqueEntityId = this.getResponseProperty("SpUniqueEntityId");
     this.spNameIdFormat = this.getResponseProperty("SpNameIdFormat");
     this.spOutboundSigningAlgorithm = this.getResponseProperty("SpOutboundSigningAlgorithm");
     this.spSigningBehavior = this.getResponseProperty("SpSigningBehavior");
@@ -126,10 +132,10 @@ export class SsoConfigApi extends BaseResponse {
     this.idpX509PublicCert = this.getResponseProperty("IdpX509PublicCert");
     this.idpOutboundSigningAlgorithm = this.getResponseProperty("IdpOutboundSigningAlgorithm");
     this.idpAllowUnsolicitedAuthnResponse = this.getResponseProperty(
-      "IdpAllowUnsolicitedAuthnResponse"
+      "IdpAllowUnsolicitedAuthnResponse",
     );
     this.idpDisableOutboundLogoutRequests = this.getResponseProperty(
-      "IdpDisableOutboundLogoutRequests"
+      "IdpDisableOutboundLogoutRequests",
     );
     this.idpWantAuthnRequestsSigned = this.getResponseProperty("IdpWantAuthnRequestsSigned");
   }

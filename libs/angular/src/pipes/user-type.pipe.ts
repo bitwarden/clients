@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from "@angular/core";
 
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { OrganizationUserType } from "@bitwarden/common/enums/organizationUserType";
+import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 @Pipe({
   name: "userType",
@@ -20,8 +20,6 @@ export class UserTypePipe implements PipeTransform {
         return this.i18nService.t("admin");
       case OrganizationUserType.User:
         return this.i18nService.t("user");
-      case OrganizationUserType.Manager:
-        return this.i18nService.t("manager");
       case OrganizationUserType.Custom:
         return this.i18nService.t("custom");
     }

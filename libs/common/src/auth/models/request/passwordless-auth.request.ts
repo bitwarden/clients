@@ -3,6 +3,6 @@ export class PasswordlessAuthRequest {
     readonly key: string,
     readonly masterPasswordHash: string,
     readonly deviceIdentifier: string,
-    readonly requestApproved: boolean
+    readonly requestApproved: boolean,
   ) {}
 }

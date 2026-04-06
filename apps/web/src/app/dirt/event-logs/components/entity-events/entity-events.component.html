@@ -1,0 +1,85 @@
+<bit-dialog dialogSize="large" [loading]="loading">
+  <span bitDialogTitle>
+    {{ "eventLogs" | i18n }}
+    <small class="tw-text-muted" *ngIf="name">{{ name }}</small>
+  </span>
+  <div bitDialogContent>
+    <form [formGroup]="filterFormGroup" [bitSubmit]="refreshEvents">
+      <div class="tw-flex tw-items-center tw-space-x-2">
+        <bit-form-field>
+          <bit-label>{{ "from" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="datetime-local"
+            id="start"
+            placeholder="{{ 'startDate' | i18n }}"
+            formControlName="start"
+          />
+        </bit-form-field>
+        <span class="tw-mx-2">-</span>
+        <bit-form-field>
+          <bit-label>{{ "to" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="datetime-local"
+            id="end"
+            placeholder="{{ 'endDate' | i18n }}"
+            formControlName="end"
+          />
+        </bit-form-field>
+        <button type="submit" bitButton buttonType="primary" bitFormButton>
+          <i class="bwi bwi-refresh bwi-fw" aria-hidden="true"></i>
+          {{ "refresh" | i18n }}
+        </button>
+      </div>
+    </form>
+    <hr />
+    <div *ngIf="!dataSource.data || !dataSource.data.length">
+      {{ "noEventsInList" | i18n }}
+    </div>
+    <bit-table [dataSource]="dataSource" *ngIf="dataSource?.data?.length">
+      <ng-container header>
+        <tr>
+          <th bitCell>{{ "timestamp" | i18n }}</th>
+          <th bitCell>
+            <span class="tw-sr-only">{{ "client" | i18n }}</span>
+          </th>
+          <th bitCell *ngIf="showUser">{{ "member" | i18n }}</th>
+          <th bitCell>{{ "event" | i18n }}</th>
+        </tr>
+      </ng-container>
+      <ng-template body let-rows$>
+        <tr bitRow *ngFor="let r of rows$ | async">
+          <td bitCell>{{ r.date | date: "medium" }}</td>
+          <td bitCell>
+            <i
+              class="tw-text-muted bwi bwi-lg {{ r.appIcon }}"
+              title="{{ r.appName }}, {{ r.ip }}"
+              aria-hidden="true"
+            ></i>
+            <span class="tw-sr-only">{{ r.appName }}, {{ r.ip }}</span>
+          </td>
+          <td bitCell *ngIf="showUser">
+            <span appA11yTitle="{{ r.userEmail }}">{{ r.userName }}</span>
+          </td>
+          <td bitCell [innerHTML]="r.message"></td>
+        </tr>
+      </ng-template>
+    </bit-table>
+    <button
+      bitButton
+      buttonType="secondary"
+      block
+      [bitAction]="loadMoreEvents"
+      type="button"
+      *ngIf="continuationToken"
+    >
+      {{ "loadMore" | i18n }}
+    </button>
+  </div>
+  <ng-container bitDialogFooter>
+    <button bitButton buttonType="secondary" type="button" bitDialogClose>
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

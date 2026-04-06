@@ -1,0 +1,14 @@
+{
+  "urls": {
+    "icons": "https://icons.bitwarden.eu",
+    "notifications": "https://notifications.bitwarden.eu",
+    "scim": "https://scim.bitwarden.eu"
+  },
+  "stripeKey": "pk_live_bpN0P37nMxrMQkcaHXtAybJk",
+  "braintreeKey": "production_qfbsv8kc_njj2zjtyngtjmbjd",
+  "paypal": {
+    "businessId": "4ZDA7DLUUJGMN",
+    "buttonAction": "https://www.paypal.com/cgi-bin/webscr"
+  },
+  "flags": {}
+}

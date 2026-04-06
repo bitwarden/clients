@@ -1,6 +1,6 @@
 {
-  "dev_flags": {},
+  "devFlags": {},
   "flags": {
-    "showPasswordless": true
+    "sdk": true
   }
 }

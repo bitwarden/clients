@@ -6,7 +6,7 @@ export * from "./encrypted-message-payloads/password-generate-payload";
 export * from "./encrypted-message-responses/account-status-response";
 export * from "./encrypted-message-responses/cannot-decrypt-error-response";
 export * from "./encrypted-message-responses/cipher-response";
-export * from "./encrypted-message-responses/encrypted-message-response";
+export * from "./encrypted-message-responses/message-response-data";
 export * from "./encrypted-message-responses/failure-status-response";
 export * from "./encrypted-message-responses/generate-response";
 export * from "./encrypted-message-responses/success-status-response";

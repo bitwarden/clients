@@ -1,0 +1,57 @@
+<popup-page>
+  <popup-header slot="header" pageTitle="{{ 'notifications' | i18n }}" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
+  <div class="tw-bg-background-alt">
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h6">{{ "vaultSaveOptionsTitle" | i18n }}</h2>
+      </bit-section-header>
+      <bit-card>
+        <bit-form-control>
+          <input
+            bitCheckbox
+            id="use-passkeys"
+            type="checkbox"
+            (change)="updateEnablePasskeys()"
+            [(ngModel)]="enablePasskeys"
+          />
+          <bit-label for="use-passkeys">{{ "enableUsePasskeys" | i18n }}</bit-label>
+        </bit-form-control>
+        <bit-form-control>
+          <input
+            bitCheckbox
+            id="addlogin-notification-bar"
+            type="checkbox"
+            (change)="updateAddLoginNotification()"
+            [(ngModel)]="enableAddLoginNotification"
+          />
+          <bit-label for="addlogin-notification-bar">{{
+            "enableAddLoginNotification" | i18n
+          }}</bit-label>
+        </bit-form-control>
+        <bit-form-control disableMargin>
+          <input
+            bitCheckbox
+            id="changedpass-notification-bar"
+            type="checkbox"
+            (change)="updateChangedPasswordNotification()"
+            [(ngModel)]="enableChangedPasswordNotification"
+          />
+          <bit-label for="changedpass-notification-bar">{{
+            "enableChangedPasswordNotification" | i18n
+          }}</bit-label>
+        </bit-form-control>
+      </bit-card>
+    </bit-section>
+    <bit-section disableMargin>
+      <bit-item>
+        <a bit-item-content routerLink="/excluded-domains">{{ "excludedDomains" | i18n }}</a>
+        <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+      </bit-item>
+    </bit-section>
+  </div>
+</popup-page>

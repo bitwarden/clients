@@ -1,0 +1,94 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-form-field class="tw-w-2/3">
+    <bit-label>{{ "subscriptionSeats" | i18n }}</bit-label>
+    <input bitInput id="smSeatCount" formControlName="seatCount" type="number" step="1" min="1" />
+    <bit-hint>
+      <strong>{{ "total" | i18n }}:</strong>
+      {{ formGroup.value.seatCount || 0 }} &times; {{ options.seatPrice | currency: "$" }} =
+      {{ seatTotalCost | currency: "$" }} / {{ options.interval | i18n }}
+    </bit-hint>
+  </bit-form-field>
+  <bit-form-control>
+    <bit-label>{{ "limitSubscription" | i18n }}</bit-label>
+    <input type="checkbox" bitCheckbox id="limitSmSeats" formControlName="limitSeats" />
+    <bit-hint>
+      {{ "limitSmSubscriptionDesc" | i18n }}
+    </bit-hint>
+  </bit-form-control>
+  <bit-form-field class="tw-w-2/3" *ngIf="formGroup.value.limitSeats">
+    <bit-label>{{ "maxSeatLimit" | i18n }}</bit-label>
+    <input
+      bitInput
+      id="smSeatLimit"
+      formControlName="maxAutoscaleSeats"
+      type="number"
+      step="1"
+      [min]="formGroup.value.seatCount"
+    />
+    <bit-hint>
+      <strong>{{ "maxSeatCost" | i18n }}:</strong>
+      {{ formGroup.value.maxAutoscaleSeats || 0 }} &times; {{ options.seatPrice | currency: "$" }} =
+      {{ maxSeatTotalCost | currency: "$" }} /
+      {{ options.interval | i18n }}
+    </bit-hint>
+  </bit-form-field>
+  <bit-form-field class="tw-w-2/3">
+    <bit-label>{{ "additionalMachineAccounts" | i18n }}</bit-label>
+    <input
+      bitInput
+      id="additionalServiceAccountCount"
+      formControlName="additionalServiceAccounts"
+      type="number"
+      step="1"
+      min="0"
+    />
+    <bit-hint>
+      <div>
+        {{ "includedMachineAccounts" | i18n: options.baseServiceAccountCount }}
+        {{ "addAdditionalMachineAccounts" | i18n: (monthlyServiceAccountPrice | currency: "$") }}
+      </div>
+      <div>
+        <strong>{{ "total" | i18n }}:</strong>
+        {{ formGroup.value.additionalServiceAccounts || 0 }} &times;
+        {{ options.additionalServiceAccountPrice | currency: "$" }} =
+        {{ serviceAccountTotalCost | currency: "$" }} / {{ options.interval | i18n }}
+      </div>
+    </bit-hint>
+  </bit-form-field>
+  <bit-form-control>
+    <bit-label>{{ "limitMachineAccounts" | i18n }}</bit-label>
+    <input
+      type="checkbox"
+      bitCheckbox
+      id="limitServiceAccounts"
+      formControlName="limitServiceAccounts"
+    />
+    <bit-hint>
+      {{ "limitMachineAccountsDesc" | i18n }}
+    </bit-hint>
+  </bit-form-control>
+  <bit-form-field class="tw-w-2/3" *ngIf="formGroup.value.limitServiceAccounts">
+    <bit-label>{{ "machineAccountLimit" | i18n }}</bit-label>
+    <input
+      bitInput
+      id="additionalServiceAccountLimit"
+      formControlName="maxAutoscaleServiceAccounts"
+      type="number"
+      step="1"
+      [min]="formGroup.value.additionalServiceAccounts"
+    />
+    <bit-hint>
+      <div>
+        {{ "includedMachineAccounts" | i18n: options.baseServiceAccountCount }}
+      </div>
+      <strong>{{ "maxMachineAccountCost" | i18n }}:</strong>
+      {{ maxAdditionalServiceAccounts }} &times;
+      {{ options.additionalServiceAccountPrice | currency: "$" }} =
+      {{ maxServiceAccountTotalCost | currency: "$" }} / {{ options.interval | i18n }}
+    </bit-hint>
+  </bit-form-field>
+  <button type="submit" bitButton buttonType="primary" bitFormButton>
+    {{ "save" | i18n }}
+  </button>
+  <bit-error-summary [formGroup]="formGroup" class="tw-mt-2"></bit-error-summary>
+</form>

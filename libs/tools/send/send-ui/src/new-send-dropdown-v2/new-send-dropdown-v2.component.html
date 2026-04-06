@@ -1,0 +1,19 @@
+<button bitButton [bitMenuTriggerFor]="itemOptions" [buttonType]="buttonType()" type="button">
+  @if (!hideIcon()) {
+    <i class="bwi bwi-plus tw-me-2" aria-hidden="true"></i>
+  }
+  {{ (hideIcon() ? "createSend" : "new") | i18n }}
+</button>
+<bit-menu #itemOptions>
+  <button bitMenuItem type="button" (click)="onTextSendClick()">
+    <i class="bwi bwi-file-text" slot="start" aria-hidden="true"></i>
+    {{ "sendTypeText" | i18n }}
+  </button>
+  <button bitMenuItem type="button" (click)="onFileSendClick()">
+    <div class="tw-flex tw-items-center tw-gap-2">
+      <i class="bwi bwi-file" slot="start" aria-hidden="true"></i>
+      {{ "sendTypeFile" | i18n }}
+      <app-premium-badge></app-premium-badge>
+    </div>
+  </button>
+</bit-menu>

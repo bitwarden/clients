@@ -1,11 +1,13 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec/utils";
-import { CryptoService } from "../../../abstractions/crypto.service";
-import { EncryptService } from "../../../abstractions/encrypt.service";
-import { EncString } from "../../../models/domain/enc-string";
-import { SymmetricCryptoKey } from "../../../models/domain/symmetric-crypto-key";
-import { ContainerService } from "../../../services/container.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { KeyService } from "@bitwarden/key-management";
+
+import { makeStaticByteArray, mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { AttachmentData } from "../../models/data/attachment.data";
 import { Attachment } from "../../models/domain/attachment";
 
@@ -28,13 +30,19 @@ describe("Attachment", () => {
     const attachment = new Attachment(data);
 
     expect(attachment).toEqual({
-      id: null,
-      url: null,
+      id: undefined,
+      url: undefined,
       size: undefined,
-      sizeName: null,
-      key: null,
-      fileName: null,
+      sizeName: undefined,
+      key: undefined,
+      fileName: undefined,
     });
+    expect(data.id).toBeUndefined();
+    expect(data.url).toBeUndefined();
+    expect(data.fileName).toBeUndefined();
+    expect(data.key).toBeUndefined();
+    expect(data.size).toBeUndefined();
+    expect(data.sizeName).toBeUndefined();
   });
 
   it("Convert", () => {
@@ -56,17 +64,13 @@ describe("Attachment", () => {
   });
 
   describe("decrypt", () => {
-    let cryptoService: MockProxy<CryptoService>;
+    let keyService: MockProxy<KeyService>;
     let encryptService: MockProxy<EncryptService>;
 
     beforeEach(() => {
-      cryptoService = mock<CryptoService>();
-      encryptService = mock<EncryptService>();
-
-      (window as any).bitwardenContainerService = new ContainerService(
-        cryptoService,
-        encryptService
-      );
+      const containerService = mockContainerService();
+      keyService = containerService.keyService as MockProxy<KeyService>;
+      encryptService = containerService.encryptService as MockProxy<EncryptService>;
     });
 
     it("expected output", async () => {
@@ -78,9 +82,13 @@ describe("Attachment", () => {
       attachment.key = mockEnc("key");
       attachment.fileName = mockEnc("fileName");
 
-      encryptService.decryptToBytes.mockResolvedValue(makeStaticByteArray(32));
+      encryptService.decryptFileData.mockResolvedValue(makeStaticByteArray(32));
+      encryptService.unwrapSymmetricKey.mockResolvedValue(
+        new SymmetricCryptoKey(makeStaticByteArray(64)),
+      );
 
-      const view = await attachment.decrypt(null);
+      const userKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+      const view = await attachment.decrypt(userKey);
 
       expect(view).toEqual({
         id: "id",
@@ -89,6 +97,7 @@ describe("Attachment", () => {
         sizeName: "1.1 KB",
         fileName: "fileName",
         key: expect.any(SymmetricCryptoKey),
+        encryptedKey: attachment.key,
       });
     });
 
@@ -100,33 +109,13 @@ describe("Attachment", () => {
         attachment.key = mock<EncString>();
       });
 
-      it("uses the provided key without depending on CryptoService", async () => {
+      it("uses the provided key without depending on KeyService", async () => {
         const providedKey = mock<SymmetricCryptoKey>();
 
-        await attachment.decrypt(null, providedKey);
+        await attachment.decrypt(providedKey, "");
 
-        expect(cryptoService.getKeyForUserEncryption).not.toHaveBeenCalled();
-        expect(encryptService.decryptToBytes).toHaveBeenCalledWith(attachment.key, providedKey);
-      });
-
-      it("gets an organization key if required", async () => {
-        const orgKey = mock<SymmetricCryptoKey>();
-        cryptoService.getOrgKey.calledWith("orgId").mockResolvedValue(orgKey);
-
-        await attachment.decrypt("orgId", null);
-
-        expect(cryptoService.getOrgKey).toHaveBeenCalledWith("orgId");
-        expect(encryptService.decryptToBytes).toHaveBeenCalledWith(attachment.key, orgKey);
-      });
-
-      it("gets the user's decryption key if required", async () => {
-        const userKey = mock<SymmetricCryptoKey>();
-        cryptoService.getKeyForUserEncryption.mockResolvedValue(userKey);
-
-        await attachment.decrypt(null, null);
-
-        expect(cryptoService.getKeyForUserEncryption).toHaveBeenCalled();
-        expect(encryptService.decryptToBytes).toHaveBeenCalledWith(attachment.key, userKey);
+        expect(keyService.getUserKey).not.toHaveBeenCalled();
+        expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(attachment.key, providedKey);
       });
     });
   });
@@ -136,8 +125,8 @@ describe("Attachment", () => {
       jest.spyOn(EncString, "fromJSON").mockImplementation(mockFromJson);
 
       const actual = Attachment.fromJSON({
-        key: "myKey",
-        fileName: "myFileName",
+        key: "myKey" as EncryptedString,
+        fileName: "myFileName" as EncryptedString,
       });
 
       expect(actual).toEqual({
@@ -147,8 +136,25 @@ describe("Attachment", () => {
       expect(actual).toBeInstanceOf(Attachment);
     });
 
-    it("returns null if object is null", () => {
-      expect(Attachment.fromJSON(null)).toBeNull();
+    it("returns undefined if object is null", () => {
+      expect(Attachment.fromJSON(null)).toBeUndefined();
+    });
+  });
+
+  describe("toSdkAttachment", () => {
+    it("should map to SDK Attachment", () => {
+      const attachment = new Attachment(data);
+
+      const sdkAttachment = attachment.toSdkAttachment();
+
+      expect(sdkAttachment).toEqual({
+        id: "id",
+        url: "url",
+        size: "1100",
+        sizeName: "1.1 KB",
+        fileName: "fileName",
+        key: "key",
+      });
     });
   });
 });

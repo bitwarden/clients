@@ -32,6 +32,8 @@ function log(configObj) {
 
 function loadConfig(configName) {
   try {
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     return require(`./${configName}.json`);
   } catch (e) {
     if (e instanceof Error && e.code === "MODULE_NOT_FOUND") {

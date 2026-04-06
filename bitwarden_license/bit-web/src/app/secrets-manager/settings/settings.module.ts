@@ -5,7 +5,6 @@ import { SecretsManagerSharedModule } from "../shared/sm-shared.module";
 import { SecretsManagerImportErrorDialogComponent } from "./dialog/sm-import-error-dialog.component";
 import { SecretsManagerExportComponent } from "./porting/sm-export.component";
 import { SecretsManagerImportComponent } from "./porting/sm-import.component";
-import { SecretsManagerPortingApiService } from "./services/sm-porting-api.service";
 import { SecretsManagerPortingService } from "./services/sm-porting.service";
 import { SettingsRoutingModule } from "./settings-routing.module";
 
@@ -16,6 +15,6 @@ import { SettingsRoutingModule } from "./settings-routing.module";
     SecretsManagerExportComponent,
     SecretsManagerImportErrorDialogComponent,
   ],
-  providers: [SecretsManagerPortingService, SecretsManagerPortingApiService],
+  providers: [SecretsManagerPortingService],
 })
 export class SettingsModule {}

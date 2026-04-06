@@ -1,106 +1,171 @@
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/abstractions/log.service";
-import { StateFactory } from "@bitwarden/common/factories/stateFactory";
-import { Utils } from "@bitwarden/common/misc/utils";
-import { GlobalState } from "@bitwarden/common/models/domain/global-state";
+import { firstValueFrom, map } from "rxjs";
+
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import {
+  AUTOFILL_CARD_ID,
+  AUTOFILL_ID,
+  AUTOFILL_IDENTITY_ID,
+  COPY_IDENTIFIER_ID,
+  COPY_PASSWORD_ID,
+  COPY_USERNAME_ID,
+  COPY_VERIFICATION_CODE_ID,
+  CREATE_CARD_ID,
+  CREATE_IDENTITY_ID,
+  CREATE_LOGIN_ID,
+  GENERATE_PASSWORD_ID,
+  NOOP_COMMAND_SUFFIX,
+  ROOT_ID,
+  SEPARATOR_ID,
+} from "@bitwarden/common/autofill/constants";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
-import { CachedServices } from "../../background/service_factories/factory-options";
-import {
-  i18nServiceFactory,
-  I18nServiceInitOptions,
-} from "../../background/service_factories/i18n-service.factory";
-import {
-  logServiceFactory,
-  LogServiceInitOptions,
-} from "../../background/service_factories/log-service.factory";
-import {
-  stateServiceFactory,
-  StateServiceInitOptions,
-} from "../../background/service_factories/state-service.factory";
-import { Account } from "../../models/account";
-import { BrowserStateService } from "../../services/abstractions/browser-state.service";
-
-export const ROOT_ID = "root";
-
-export const AUTOFILL_ID = "autofill";
-export const COPY_USERNAME_ID = "copy-username";
-export const COPY_PASSWORD_ID = "copy-password";
-export const COPY_VERIFICATIONCODE_ID = "copy-totp";
-export const COPY_IDENTIFIER_ID = "copy-identifier";
-
-const SEPARATOR_ID = "separator";
-export const GENERATE_PASSWORD_ID = "generate-password";
-
-export const NOOP_COMMAND_SUFFIX = "noop";
+import { InitContextMenuItems } from "./abstractions/main-context-menu-handler";
 
 export class MainContextMenuHandler {
-  //
-  private initRunning = false;
-
-  create: (options: chrome.contextMenus.CreateProperties) => Promise<void>;
+  static existingMenuItems: Set<string> = new Set();
+  initRunning = false;
+  private initContextMenuItems: InitContextMenuItems[] = [
+    {
+      id: ROOT_ID,
+      title: "Bitwarden",
+    },
+    {
+      id: AUTOFILL_ID,
+      parentId: ROOT_ID,
+      title: this.i18nService.t("autoFillLogin"),
+      requiresUnblockedUri: true,
+    },
+    {
+      id: COPY_USERNAME_ID,
+      parentId: ROOT_ID,
+      title: this.i18nService.t("copyUsername"),
+    },
+    {
+      id: COPY_PASSWORD_ID,
+      parentId: ROOT_ID,
+      title: this.i18nService.t("copyPassword"),
+    },
+    {
+      id: COPY_VERIFICATION_CODE_ID,
+      parentId: ROOT_ID,
+      title: this.i18nService.t("copyVerificationCode"),
+      requiresPremiumAccess: true,
+    },
+    {
+      id: SEPARATOR_ID + 1,
+      type: "separator",
+      parentId: ROOT_ID,
+    },
+    {
+      id: AUTOFILL_IDENTITY_ID,
+      parentId: ROOT_ID,
+      title: this.i18nService.t("autoFillIdentity"),
+      requiresUnblockedUri: true,
+    },
+    {
+      id: AUTOFILL_CARD_ID,
+      parentId: ROOT_ID,
+      title: this.i18nService.t("autoFillCard"),
+      requiresUnblockedUri: true,
+    },
+    {
+      id: SEPARATOR_ID + 2,
+      type: "separator",
+      parentId: ROOT_ID,
+      requiresUnblockedUri: true,
+    },
+    {
+      id: GENERATE_PASSWORD_ID,
+      parentId: ROOT_ID,
+      title: this.i18nService.t("generatePasswordCopied"),
+    },
+    {
+      id: COPY_IDENTIFIER_ID,
+      parentId: ROOT_ID,
+      title: this.i18nService.t("copyElementIdentifier"),
+      requiresUnblockedUri: true,
+    },
+  ];
+  private noCardsContextMenuItems: chrome.contextMenus.CreateProperties[] = [
+    {
+      id: `${AUTOFILL_CARD_ID}_NOTICE`,
+      enabled: false,
+      parentId: AUTOFILL_CARD_ID,
+      title: this.i18nService.t("noCards"),
+      type: "normal",
+    },
+    {
+      id: `${AUTOFILL_CARD_ID}_${SEPARATOR_ID}`,
+      parentId: AUTOFILL_CARD_ID,
+      type: "separator",
+    },
+    {
+      id: `${AUTOFILL_CARD_ID}_${CREATE_CARD_ID}`,
+      parentId: AUTOFILL_CARD_ID,
+      title: this.i18nService.t("addCardMenu"),
+      type: "normal",
+    },
+  ];
+  private noIdentitiesContextMenuItems: chrome.contextMenus.CreateProperties[] = [
+    {
+      id: `${AUTOFILL_IDENTITY_ID}_NOTICE`,
+      enabled: false,
+      parentId: AUTOFILL_IDENTITY_ID,
+      title: this.i18nService.t("noIdentities"),
+      type: "normal",
+    },
+    {
+      id: `${AUTOFILL_IDENTITY_ID}_${SEPARATOR_ID}`,
+      parentId: AUTOFILL_IDENTITY_ID,
+      type: "separator",
+    },
+    {
+      id: `${AUTOFILL_IDENTITY_ID}_${CREATE_IDENTITY_ID}`,
+      parentId: AUTOFILL_IDENTITY_ID,
+      title: this.i18nService.t("addIdentityMenu"),
+      type: "normal",
+    },
+  ];
+  private noLoginsContextMenuItems: chrome.contextMenus.CreateProperties[] = [
+    {
+      id: `${AUTOFILL_ID}_NOTICE`,
+      enabled: false,
+      parentId: AUTOFILL_ID,
+      title: this.i18nService.t("noMatchingLogins"),
+      type: "normal",
+    },
+    {
+      id: `${AUTOFILL_ID}_${SEPARATOR_ID}1`,
+      parentId: AUTOFILL_ID,
+      type: "separator",
+    },
+  ];
 
   constructor(
-    private stateService: BrowserStateService,
+    private tokenService: TokenService,
+    private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private i18nService: I18nService,
-    private logService: LogService
-  ) {
-    if (chrome.contextMenus) {
-      this.create = (options) => {
-        return new Promise<void>((resolve, reject) => {
-          chrome.contextMenus.create(options, () => {
-            if (chrome.runtime.lastError) {
-              reject(chrome.runtime.lastError);
-              return;
-            }
-            resolve();
-          });
-        });
-      };
-    } else {
-      this.create = (_options) => Promise.resolve();
-    }
-  }
-
-  static async mv3Create(cachedServices: CachedServices) {
-    const stateFactory = new StateFactory(GlobalState, Account);
-    const serviceOptions: StateServiceInitOptions & I18nServiceInitOptions & LogServiceInitOptions =
-      {
-        cryptoFunctionServiceOptions: {
-          win: self,
-        },
-        encryptServiceOptions: {
-          logMacFailures: false,
-        },
-        i18nServiceOptions: {
-          systemLanguage: chrome.i18n.getUILanguage(),
-        },
-        logServiceOptions: {
-          isDev: false,
-        },
-        stateMigrationServiceOptions: {
-          stateFactory: stateFactory,
-        },
-        stateServiceOptions: {
-          stateFactory: stateFactory,
-        },
-      };
-
-    return new MainContextMenuHandler(
-      await stateServiceFactory(cachedServices, serviceOptions),
-      await i18nServiceFactory(cachedServices, serviceOptions),
-      await logServiceFactory(cachedServices, serviceOptions)
-    );
-  }
+    private logService: LogService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private accountService: AccountService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
+  ) {}
 
   /**
    *
    * @returns a boolean showing whether or not items were created
    */
   async init(): Promise<boolean> {
-    const menuDisabled = await this.stateService.getDisableContextMenuItem();
-    if (menuDisabled) {
+    const menuEnabled = await firstValueFrom(this.autofillSettingsService.enableContextMenu$);
+    if (!menuEnabled) {
       await MainContextMenuHandler.removeAll();
       return false;
     }
@@ -111,65 +176,67 @@ export class MainContextMenuHandler {
     this.initRunning = true;
 
     try {
-      const create = async (options: Omit<chrome.contextMenus.CreateProperties, "contexts">) => {
-        await this.create({ ...options, contexts: ["all"] });
-      };
+      const account = await firstValueFrom(this.accountService.activeAccount$);
+      const hasPremium =
+        !!account?.id &&
+        (await firstValueFrom(
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ));
 
-      await create({
-        id: ROOT_ID,
-        title: "Bitwarden",
-      });
+      const isCardRestricted = (
+        await firstValueFrom(this.restrictedItemTypesService.restricted$)
+      ).some((rt) => rt.cipherType === CipherType.Card);
 
-      await create({
-        id: AUTOFILL_ID,
-        parentId: ROOT_ID,
-        title: this.i18nService.t("autoFill"),
-      });
+      for (const menuItem of this.initContextMenuItems) {
+        const {
+          requiresPremiumAccess,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          requiresUnblockedUri, // destructuring this out of being passed to `create`
+          ...otherOptions
+        } = menuItem;
 
-      await create({
-        id: COPY_USERNAME_ID,
-        parentId: ROOT_ID,
-        title: this.i18nService.t("copyUsername"),
-      });
+        if (requiresPremiumAccess && !hasPremium) {
+          continue;
+        }
+        if (menuItem.id?.startsWith(AUTOFILL_CARD_ID) && isCardRestricted) {
+          continue;
+        }
 
-      await create({
-        id: COPY_PASSWORD_ID,
-        parentId: ROOT_ID,
-        title: this.i18nService.t("copyPassword"),
-      });
-
-      if (await this.stateService.getCanAccessPremium()) {
-        await create({
-          id: COPY_VERIFICATIONCODE_ID,
-          parentId: ROOT_ID,
-          title: this.i18nService.t("copyVerificationCode"),
-        });
+        await MainContextMenuHandler.create({ ...otherOptions, contexts: ["all"] });
       }
-
-      await create({
-        id: SEPARATOR_ID,
-        type: "separator",
-        parentId: ROOT_ID,
-      });
-
-      await create({
-        id: GENERATE_PASSWORD_ID,
-        parentId: ROOT_ID,
-        title: this.i18nService.t("generatePasswordCopied"),
-      });
-
-      await create({
-        id: COPY_IDENTIFIER_ID,
-        parentId: ROOT_ID,
-        title: this.i18nService.t("copyElementIdentifier"),
-      });
     } catch (error) {
-      this.logService.warning(error.message);
+      if (error instanceof Error) {
+        this.logService.warning(error.message);
+      }
     } finally {
       this.initRunning = false;
     }
     return true;
   }
+
+  /**
+   * Creates a context menu item
+   *
+   * @param options - the options for the context menu item
+   */
+  private static create = async (options: chrome.contextMenus.CreateProperties) => {
+    if (!chrome.contextMenus) {
+      return;
+    }
+
+    return new Promise<void>((resolve, reject) => {
+      const itemId = chrome.contextMenus.create(options, () => {
+        if (chrome.runtime.lastError) {
+          return reject(chrome.runtime.lastError);
+        }
+        resolve();
+      });
+
+      this.existingMenuItems.add(`${itemId}`);
+
+      return itemId;
+    });
+  };
 
   static async removeAll() {
     return new Promise<void>((resolve, reject) => {
@@ -181,12 +248,16 @@ export class MainContextMenuHandler {
 
         resolve();
       });
+
+      this.existingMenuItems = new Set();
+
+      return;
     });
   }
 
   static remove(menuItemId: string) {
     return new Promise<void>((resolve, reject) => {
-      chrome.contextMenus.remove(menuItemId, () => {
+      const itemId = chrome.contextMenus.remove(menuItemId, () => {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError);
           return;
@@ -194,45 +265,81 @@ export class MainContextMenuHandler {
 
         resolve();
       });
+
+      this.existingMenuItems.delete(`${itemId}`);
+
+      return;
     });
   }
 
-  async loadOptions(title: string, id: string, url: string, cipher?: CipherView | undefined) {
-    if (cipher != null && cipher.type !== CipherType.Login) {
-      return;
-    }
-
+  async loadOptions(title: string, optionId: string, cipher?: CipherView) {
     try {
       const sanitizedTitle = MainContextMenuHandler.sanitizeContextMenuTitle(title);
 
-      const createChildItem = async (parent: string) => {
-        const menuItemId = `${parent}_${id}`;
-        return await this.create({
+      const createChildItem = async (parentId: string) => {
+        const menuItemId = `${parentId}_${optionId}`;
+
+        const itemAlreadyExists = MainContextMenuHandler.existingMenuItems.has(menuItemId);
+        if (itemAlreadyExists) {
+          return;
+        }
+
+        return await MainContextMenuHandler.create({
           type: "normal",
           id: menuItemId,
-          parentId: parent,
+          parentId,
           title: sanitizedTitle,
           contexts: ["all"],
         });
       };
 
-      if (cipher == null || !Utils.isNullOrEmpty(cipher.login.password)) {
+      if (
+        !cipher ||
+        (cipher.type === CipherType.Login &&
+          (!Utils.isNullOrEmpty(cipher.login?.username) ||
+            !Utils.isNullOrEmpty(cipher.login?.password) ||
+            !Utils.isNullOrEmpty(cipher.login?.totp)))
+      ) {
         await createChildItem(AUTOFILL_ID);
+      }
+
+      if (
+        !cipher ||
+        (cipher.type === CipherType.Login && !Utils.isNullOrEmpty(cipher.login?.password))
+      ) {
         if (cipher?.viewPassword ?? true) {
           await createChildItem(COPY_PASSWORD_ID);
         }
       }
 
-      if (cipher == null || !Utils.isNullOrEmpty(cipher.login.username)) {
+      if (
+        !cipher ||
+        (cipher.type === CipherType.Login && !Utils.isNullOrEmpty(cipher.login?.username))
+      ) {
         await createChildItem(COPY_USERNAME_ID);
       }
 
-      const canAccessPremium = await this.stateService.getCanAccessPremium();
-      if (canAccessPremium && (cipher == null || !Utils.isNullOrEmpty(cipher.login.totp))) {
-        await createChildItem(COPY_VERIFICATIONCODE_ID);
+      const account = await firstValueFrom(this.accountService.activeAccount$);
+      const canAccessPremium =
+        !!account?.id &&
+        (await firstValueFrom(
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ));
+      if (canAccessPremium && (!cipher || !Utils.isNullOrEmpty(cipher.login?.totp))) {
+        await createChildItem(COPY_VERIFICATION_CODE_ID);
+      }
+
+      if ((!cipher || cipher.type === CipherType.Card) && optionId !== CREATE_LOGIN_ID) {
+        await createChildItem(AUTOFILL_CARD_ID);
+      }
+
+      if ((!cipher || cipher.type === CipherType.Identity) && optionId !== CREATE_LOGIN_ID) {
+        await createChildItem(AUTOFILL_IDENTITY_ID);
       }
     } catch (error) {
-      this.logService.warning(error.message);
+      if (error instanceof Error) {
+        this.logService.warning(error.message);
+      }
     }
   }
 
@@ -242,16 +349,71 @@ export class MainContextMenuHandler {
 
   async noAccess() {
     if (await this.init()) {
-      const authed = await this.stateService.getIsAuthenticated();
-      await this.loadOptions(
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      const authed =
+        userId != null && (await firstValueFrom(this.tokenService.hasAccessToken$(userId)));
+      this.loadOptions(
         this.i18nService.t(authed ? "unlockVaultMenu" : "loginToVaultMenu"),
         NOOP_COMMAND_SUFFIX,
-        "<all_urls>"
-      );
+      ).catch((error) => {
+        if (error instanceof Error) {
+          return this.logService.warning(error.message);
+        }
+      });
     }
   }
 
-  async noLogins(url: string) {
-    await this.loadOptions(this.i18nService.t("noMatchingLogins"), NOOP_COMMAND_SUFFIX, url);
+  async removeBlockedUriMenuItems() {
+    try {
+      for (const menuItem of this.initContextMenuItems) {
+        if (menuItem.requiresUnblockedUri && menuItem.id) {
+          await MainContextMenuHandler.remove(menuItem.id);
+        }
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logService.warning(error.message);
+      }
+    }
+  }
+
+  async noCards() {
+    try {
+      for (const menuItem of this.noCardsContextMenuItems) {
+        await MainContextMenuHandler.create(menuItem);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logService.warning(error.message);
+      }
+    }
+  }
+
+  async noIdentities() {
+    try {
+      for (const menuItem of this.noIdentitiesContextMenuItems) {
+        await MainContextMenuHandler.create(menuItem);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logService.warning(error.message);
+      }
+    }
+  }
+
+  async noLogins() {
+    try {
+      for (const menuItem of this.noLoginsContextMenuItems) {
+        await MainContextMenuHandler.create(menuItem);
+      }
+
+      await this.loadOptions(this.i18nService.t("addLoginMenu"), CREATE_LOGIN_ID);
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logService.warning(error.message);
+      }
+    }
   }
 }

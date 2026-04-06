@@ -1,13 +1,14 @@
-import { UriMatchType } from "../../enums/uriMatchType";
+import { EncString } from "../../key-management/crypto/models/enc-string";
+import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { LoginUri as LoginUriDomain } from "../../vault/models/domain/login-uri";
 import { LoginUriView } from "../../vault/models/view/login-uri.view";
-import { EncString } from "../domain/enc-string";
+
+import { safeGetString } from "./utils";
 
 export class LoginUriExport {
   static template(): LoginUriExport {
     const req = new LoginUriExport();
     req.uri = "https://google.com";
-    req.match = null;
     return req;
   }
 
@@ -18,23 +19,24 @@ export class LoginUriExport {
   }
 
   static toDomain(req: LoginUriExport, domain = new LoginUriDomain()) {
-    domain.uri = req.uri != null ? new EncString(req.uri) : null;
+    domain.uri = req.uri != null ? new EncString(req.uri) : undefined;
+    domain.uriChecksum = req.uriChecksum != null ? new EncString(req.uriChecksum) : undefined;
     domain.match = req.match;
     return domain;
   }
 
-  uri: string;
-  match: UriMatchType = null;
+  uri?: string;
+  uriChecksum?: string;
+  match?: UriMatchStrategySetting;
 
   constructor(o?: LoginUriView | LoginUriDomain) {
     if (o == null) {
       return;
     }
 
-    if (o instanceof LoginUriView) {
-      this.uri = o.uri;
-    } else {
-      this.uri = o.uri?.encryptedString;
+    this.uri = safeGetString(o.uri);
+    if ("uriChecksum" in o) {
+      this.uriChecksum = o.uriChecksum?.encryptedString;
     }
     this.match = o.match;
   }

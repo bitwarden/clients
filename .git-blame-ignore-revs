@@ -22,3 +22,6 @@
 193434461dbd9c48fe5dcbad95693470aec422ac
 # Jslib: Monorepository https://github.com/bitwarden/clients/pull/2824/commits/d7492e3cf320410e74ebd0e0675ab994e64bd01a
 d7492e3cf320410e74ebd0e0675ab994e64bd01a
+
+# All Clients: Apply Prettier https://github.com/bitwarden/clients/pull/7014
+28de9439beb87133c8683434df952a0c0be94100

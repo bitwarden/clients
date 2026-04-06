@@ -1,5 +1,8 @@
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject, OnInit } from "@angular/core";
+
+import { DialogRef, DIALOG_DATA } from "@bitwarden/components";
 
 export interface BulkStatusDetails {
   title: string;
@@ -15,12 +18,17 @@ export class BulkOperationStatus {
   errorMessage?: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "sm-bulk-status-dialog",
   templateUrl: "./bulk-status-dialog.component.html",
+  standalone: false,
 })
 export class BulkStatusDialogComponent implements OnInit {
-  constructor(public dialogRef: DialogRef, @Inject(DIALOG_DATA) public data: BulkStatusDetails) {}
+  constructor(
+    public dialogRef: DialogRef,
+    @Inject(DIALOG_DATA) public data: BulkStatusDetails,
+  ) {}
 
   ngOnInit(): void {
     // TODO remove null checks once strictNullChecks in TypeScript is turned on.
@@ -33,7 +41,7 @@ export class BulkStatusDialogComponent implements OnInit {
     ) {
       this.dialogRef.close();
       throw new Error(
-        "The bulk status dialog was not called with the appropriate operation values."
+        "The bulk status dialog was not called with the appropriate operation values.",
       );
     }
   }

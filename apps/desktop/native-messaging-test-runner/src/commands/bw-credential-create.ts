@@ -1,13 +1,17 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import "module-alias/register";
 
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
-import { NativeMessagingVersion } from "@bitwarden/common/enums/nativeMessagingVersion";
+import { NativeMessagingVersion } from "@bitwarden/common/enums";
 
+// eslint-disable-next-line no-restricted-imports
 import { CredentialCreatePayload } from "../../../src/models/native-messaging/encrypted-message-payloads/credential-create-payload";
 import { LogUtils } from "../log-utils";
 import NativeMessageService from "../native-message.service";
+import { TestRunnerSdkLoadService } from "../sdk-load.service";
 import * as config from "../variables";
 
 const argv: any = yargs(hideBin(process.argv)).option("name", {
@@ -19,13 +23,19 @@ const argv: any = yargs(hideBin(process.argv)).option("name", {
 
 const { name } = argv;
 
+// FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async () => {
+  // Initialize SDK before using crypto functions
+  const sdkLoadService = new TestRunnerSdkLoadService();
+  await sdkLoadService.loadAndInit();
+
   const nativeMessageService = new NativeMessageService(NativeMessagingVersion.One);
   // Handshake
   LogUtils.logInfo("Sending Handshake");
   const handshakeResponse = await nativeMessageService.sendHandshake(
     config.testRsaPublicKey,
-    config.applicationName
+    config.applicationName,
   );
 
   if (!handshakeResponse.status) {
@@ -37,7 +47,10 @@ const { name } = argv;
   // Get active account userId
   const status = await nativeMessageService.checkStatus(handshakeResponse.sharedKey);
 
-  const activeUser = status.payload.filter((a) => a.active === true && a.status === "unlocked")[0];
+  const activeUser = status.payload.filter(
+    (a: { active: boolean; status: string; id: string }) =>
+      a.active === true && a.status === "unlocked",
+  )[0];
   if (activeUser === undefined) {
     LogUtils.logError("No active or unlocked user");
   }
@@ -47,7 +60,7 @@ const { name } = argv;
   const response = await nativeMessageService.credentialCreation(handshakeResponse.sharedKey, {
     name: name,
     userName: "SuperAwesomeUser",
-    password: "dolhpin",
+    password: "dolphin",
     uri: "google.com",
     userId: activeUser.id,
   } as CredentialCreatePayload);

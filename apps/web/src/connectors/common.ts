@@ -25,6 +25,31 @@ export function b64Decode(str: string, spaceAsPlus = false) {
       .call(atob(str), (c: string) => {
         return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
       })
-      .join("")
+      .join(""),
   );
+}
+
+/** Thin wrapper around document.location.replace for testability (jsdom cannot mock it). */
+export function navigateToUrl(uri: string) {
+  document.location.replace(uri);
+}
+
+function appLinkHost(): string {
+  const hostName = window.location.hostname || "";
+  if (hostName.endsWith("bitwarden.eu")) {
+    return "bitwarden.eu";
+  }
+  if (hostName.endsWith("bitwarden.pw")) {
+    return "bitwarden.pw";
+  }
+  return "bitwarden.com";
+}
+
+export function buildMobileDeeplinkUriFromParam(kind: "duo" | "webauthn"): string {
+  const scheme = (getQsParam("deeplinkScheme") || "").toLowerCase();
+  const path = `${kind}-callback`;
+  if (scheme === "https") {
+    return `https://${appLinkHost()}/${path}`;
+  }
+  return `bitwarden://${path}`;
 }

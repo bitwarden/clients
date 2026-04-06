@@ -1,159 +1,35 @@
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
+import { firstValueFrom } from "rxjs";
+
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { StateFactory } from "@bitwarden/common/factories/stateFactory";
-import { Utils } from "@bitwarden/common/misc/utils";
-import { GlobalState } from "@bitwarden/common/models/domain/global-state";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import {
-  authServiceFactory,
-  AuthServiceInitOptions,
-} from "../../auth/background/service-factories/auth-service.factory";
-import { CachedServices } from "../../background/service_factories/factory-options";
-import { searchServiceFactory } from "../../background/service_factories/search-service.factory";
-import { BrowserApi } from "../../browser/browserApi";
-import { Account } from "../../models/account";
-import {
-  cipherServiceFactory,
-  CipherServiceInitOptions,
-} from "../../vault/background/service_factories/cipher-service.factory";
+import { AutofillCipherTypeId } from "../types";
 
 import { MainContextMenuHandler } from "./main-context-menu-handler";
-
-const NOT_IMPLEMENTED = (..._args: unknown[]) => Promise.resolve();
-
-const LISTENED_TO_COMMANDS = [
-  "loggedIn",
-  "unlocked",
-  "syncCompleted",
-  "bgUpdateContextMenu",
-  "editedCipher",
-  "addedCipher",
-  "deletedCipher",
-];
 
 export class CipherContextMenuHandler {
   constructor(
     private mainContextMenuHandler: MainContextMenuHandler,
     private authService: AuthService,
-    private cipherService: CipherService
+    private cipherService: CipherService,
+    private accountService: AccountService,
   ) {}
 
-  static async create(cachedServices: CachedServices) {
-    const stateFactory = new StateFactory(GlobalState, Account);
-    let searchService: SearchService | null = null;
-    const serviceOptions: AuthServiceInitOptions & CipherServiceInitOptions = {
-      apiServiceOptions: {
-        logoutCallback: NOT_IMPLEMENTED,
-      },
-      cipherServiceOptions: {
-        searchServiceFactory: () => searchService,
-      },
-      cryptoFunctionServiceOptions: {
-        win: self,
-      },
-      encryptServiceOptions: {
-        logMacFailures: false,
-      },
-      i18nServiceOptions: {
-        systemLanguage: chrome.i18n.getUILanguage(),
-      },
-      keyConnectorServiceOptions: {
-        logoutCallback: NOT_IMPLEMENTED,
-      },
-      logServiceOptions: {
-        isDev: false,
-      },
-      platformUtilsServiceOptions: {
-        biometricCallback: () => Promise.resolve(false),
-        clipboardWriteCallback: NOT_IMPLEMENTED,
-        win: self,
-      },
-      stateMigrationServiceOptions: {
-        stateFactory: stateFactory,
-      },
-      stateServiceOptions: {
-        stateFactory: stateFactory,
-      },
-    };
-    searchService = await searchServiceFactory(cachedServices, serviceOptions);
-    return new CipherContextMenuHandler(
-      await MainContextMenuHandler.mv3Create(cachedServices),
-      await authServiceFactory(cachedServices, serviceOptions),
-      await cipherServiceFactory(cachedServices, serviceOptions)
-    );
-  }
-
-  static async tabsOnActivatedListener(
-    activeInfo: chrome.tabs.TabActiveInfo,
-    serviceCache: CachedServices
-  ) {
-    const cipherContextMenuHandler = await CipherContextMenuHandler.create(serviceCache);
-    const tab = await BrowserApi.getTab(activeInfo.tabId);
-    await cipherContextMenuHandler.update(tab.url);
-  }
-
-  static async tabsOnReplacedListener(
-    addedTabId: number,
-    removedTabId: number,
-    serviceCache: CachedServices
-  ) {
-    const cipherContextMenuHandler = await CipherContextMenuHandler.create(serviceCache);
-    const tab = await BrowserApi.getTab(addedTabId);
-    await cipherContextMenuHandler.update(tab.url);
-  }
-
-  static async tabsOnUpdatedListener(
-    tabId: number,
-    changeInfo: chrome.tabs.TabChangeInfo,
-    tab: chrome.tabs.Tab,
-    serviceCache: CachedServices
-  ) {
-    if (changeInfo.status !== "complete") {
-      return;
-    }
-    const cipherContextMenuHandler = await CipherContextMenuHandler.create(serviceCache);
-    await cipherContextMenuHandler.update(tab.url);
-  }
-
-  static async messageListener(
-    message: { command: string },
-    sender: chrome.runtime.MessageSender,
-    cachedServices: CachedServices
-  ) {
-    if (!CipherContextMenuHandler.shouldListen(message)) {
-      return;
-    }
-    const cipherContextMenuHandler = await CipherContextMenuHandler.create(cachedServices);
-    await cipherContextMenuHandler.messageListener(message);
-  }
-
-  private static shouldListen(message: { command: string }) {
-    return LISTENED_TO_COMMANDS.includes(message.command);
-  }
-
-  async messageListener(message: { command: string }, sender?: chrome.runtime.MessageSender) {
-    if (!CipherContextMenuHandler.shouldListen(message)) {
+  async update(url: string, currentUriIsBlocked: boolean = false) {
+    if (this.mainContextMenuHandler.initRunning) {
       return;
     }
 
-    const activeTabs = await BrowserApi.getActiveTabs();
-    if (!activeTabs || activeTabs.length === 0) {
-      return;
-    }
-
-    await this.update(activeTabs[0].url);
-  }
-
-  async update(url: string) {
     const authStatus = await this.authService.getAuthStatus();
     await MainContextMenuHandler.removeAll();
     if (authStatus !== AuthenticationStatus.Unlocked) {
-      // Should I pass in the auth status or even have two seperate methods for this
+      // Should I pass in the auth status or even have two separate methods for this
       // on MainContextMenuHandler
       await this.mainContextMenuHandler.noAccess();
       return;
@@ -164,33 +40,80 @@ export class CipherContextMenuHandler {
       return;
     }
 
-    const ciphers = await this.cipherService.getAllDecryptedForUrl(url);
-    ciphers.sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
-
-    if (ciphers.length === 0) {
-      await this.mainContextMenuHandler.noLogins(url);
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (activeUserId == null) {
       return;
     }
 
+    const ciphers = await this.cipherService.getAllDecryptedForUrl(url, activeUserId, [
+      CipherType.Card,
+      CipherType.Identity,
+    ]);
+    ciphers.sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
+
+    const groupedCiphers: Record<AutofillCipherTypeId, CipherView[]> = ciphers.reduce(
+      (ciphersByType, cipher) => {
+        if (!cipher?.type) {
+          return ciphersByType;
+        }
+
+        const existingCiphersOfType = ciphersByType[cipher.type as AutofillCipherTypeId] || [];
+
+        return {
+          ...ciphersByType,
+          [cipher.type]: [...existingCiphersOfType, cipher],
+        };
+      },
+      {
+        [CipherType.Login]: [],
+        [CipherType.Card]: [],
+        [CipherType.Identity]: [],
+      },
+    );
+
+    if (groupedCiphers[CipherType.Login].length === 0) {
+      await this.mainContextMenuHandler.noLogins();
+    }
+
+    if (groupedCiphers[CipherType.Identity].length === 0) {
+      await this.mainContextMenuHandler.noIdentities();
+    }
+
+    if (groupedCiphers[CipherType.Card].length === 0) {
+      await this.mainContextMenuHandler.noCards();
+    }
+
     for (const cipher of ciphers) {
-      await this.updateForCipher(url, cipher);
+      await this.updateForCipher(cipher);
+    }
+
+    if (currentUriIsBlocked) {
+      await this.mainContextMenuHandler.removeBlockedUriMenuItems();
     }
   }
 
-  private async updateForCipher(url: string, cipher: CipherView) {
+  private async updateForCipher(cipher: CipherView) {
     if (
       cipher == null ||
-      cipher.type !== CipherType.Login ||
-      cipher.reprompt !== CipherRepromptType.None
+      !new Set([CipherType.Login, CipherType.Card, CipherType.Identity] as CipherType[]).has(
+        cipher.type,
+      )
     ) {
       return;
     }
 
     let title = cipher.name;
-    if (!Utils.isNullOrEmpty(title)) {
+
+    if (cipher.type === CipherType.Login && !Utils.isNullOrEmpty(title) && cipher.login?.username) {
       title += ` (${cipher.login.username})`;
     }
 
-    await this.mainContextMenuHandler.loadOptions(title, cipher.id, url, cipher);
+    if (cipher.type === CipherType.Card && cipher.card?.subTitle) {
+      title += ` ${cipher.card.subTitle}`;
+    }
+
+    await this.mainContextMenuHandler.loadOptions(title, cipher.id, cipher);
   }
 }

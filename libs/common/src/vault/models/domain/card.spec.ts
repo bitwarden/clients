@@ -1,5 +1,10 @@
-import { mockEnc, mockFromJson } from "../../../../spec/utils";
-import { EncString } from "../../../models/domain/enc-string";
+import {
+  makeSymmetricCryptoKey,
+  mockContainerService,
+  mockEnc,
+  mockFromJson,
+} from "../../../../spec";
+import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { CardData } from "../../../vault/models/data/card.data";
 import { Card } from "../../models/domain/card";
 
@@ -22,13 +27,20 @@ describe("Card", () => {
     const card = new Card(data);
 
     expect(card).toEqual({
-      cardholderName: null,
-      brand: null,
-      number: null,
-      expMonth: null,
-      expYear: null,
-      code: null,
+      cardholderName: undefined,
+      brand: undefined,
+      number: undefined,
+      expMonth: undefined,
+      expYear: undefined,
+      code: undefined,
     });
+
+    expect(data.cardholderName).toBeUndefined();
+    expect(data.brand).toBeUndefined();
+    expect(data.number).toBeUndefined();
+    expect(data.expMonth).toBeUndefined();
+    expect(data.expYear).toBeUndefined();
+    expect(data.code).toBeUndefined();
   });
 
   it("Convert", () => {
@@ -58,12 +70,14 @@ describe("Card", () => {
     card.expYear = mockEnc("expYear");
     card.code = mockEnc("code");
 
-    const view = await card.decrypt(null);
+    const userKey = makeSymmetricCryptoKey(64);
+
+    mockContainerService();
+    const view = await card.decrypt(userKey);
 
     expect(view).toEqual({
       _brand: "brand",
       _number: "number",
-      _subTitle: null,
       cardholderName: "cardHolder",
       code: "code",
       expMonth: "expMonth",
@@ -76,12 +90,12 @@ describe("Card", () => {
       jest.spyOn(EncString, "fromJSON").mockImplementation(mockFromJson);
 
       const actual = Card.fromJSON({
-        cardholderName: "mockCardHolder",
-        brand: "mockBrand",
-        number: "mockNumber",
-        expMonth: "mockExpMonth",
-        expYear: "mockExpYear",
-        code: "mockCode",
+        cardholderName: "mockCardHolder" as EncryptedString,
+        brand: "mockBrand" as EncryptedString,
+        number: "mockNumber" as EncryptedString,
+        expMonth: "mockExpMonth" as EncryptedString,
+        expYear: "mockExpYear" as EncryptedString,
+        code: "mockCode" as EncryptedString,
       });
 
       expect(actual).toEqual({
@@ -95,8 +109,25 @@ describe("Card", () => {
       expect(actual).toBeInstanceOf(Card);
     });
 
-    it("returns null if object is null", () => {
-      expect(Card.fromJSON(null)).toBeNull();
+    it("returns undefined if object is null", () => {
+      expect(Card.fromJSON(null)).toBeUndefined();
+    });
+  });
+
+  describe("toSdkCard", () => {
+    it("should map to SDK Card", () => {
+      const card = new Card(data);
+
+      const sdkCard = card.toSdkCard();
+
+      expect(sdkCard).toEqual({
+        cardholderName: "encHolder",
+        brand: "encBrand",
+        number: "encNumber",
+        expMonth: "encMonth",
+        expYear: "encYear",
+        code: "encCode",
+      });
     });
   });
 });

@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -118,41 +118,57 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden — безплатен управител на пароли</value>
+    <value>Bitwarden — управител на пароли</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>Сигурен и свободен управител на пароли за всички устройства</value>
+    <value>У дома, на работа или на път – Битуорден защитава всички Ваши пароли, секретни ключове и лична информация.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>„Bitwarden, Inc.“ е компанията-майка на „8bit Solutions LLC“.
+    <value>Признат за най-добрия мениджър на пароли от PCMag, WIRED, The Verge, CNET, G2 и други!
 
-ОПРЕДЕЛЕН КАТО НАЙ-ДОБРИЯТ УПРАВИТЕЛ НА ПАРОЛИ ОТ „THE VERGE“, „U.S. NEWS &amp; WORLD REPORT“, „CNET“ И ОЩЕ.
+ОСИГУРЕТЕ ВАШИЯ ДИГИТАЛЕН ЖИВОТ
+Осигурете своя дигитален живот и се предпазете от пробиви на данни, като генерирате и запазите уникални, силни пароли за всеки акаунт. Поддържайте всичко в криптиран от край до край трезор с пароли, до което само вие имате достъп.
 
-Управлявайте, съхранявайте, защитавайте и споделяйте неограничен брой пароли на неограничен брой устройства  от всяка точка на света. Битуорден предоставя решение за управление на паролите с отворен код, от което може да се възползва всеки, било то у дома, на работа или на път.
+ДОСТЪП ДО ВАШИТЕ ДАННИ, НАВСЯКЪДЕ, ПО ВСЯКО ВРЕМЕ, НА ВСЯКО УСТРОЙСТВО
+Лесно управлявайте, съхранявайте, защитавайте и споделяйте неограничен брой пароли на неограничен брой устройства без ограничения.
 
-Създавайте сигурни, уникални и случайни пароли според изискванията за сигурност на всеки уеб сайт, който посещавате.
+ВСЕКИ ТРЯБВА ДА ИМА ИНСТРУМЕНТИТЕ ЗА БЕЗОПАСНОСТ ОНЛАЙН
+Използвайте Bitwarden безплатно, без реклами или продажба на данни. Bitwarden вярва, че всеки трябва да има способността да бъде в безопасност онлайн. Премиум плановете предлагат достъп до разширени функции.
 
-С Изпращанията на Битуорден можете незабавно да предавате шифрована информация под формата на файлове и обикновен текст – директно и с всекиго.
+УВЕЛИЧЕТЕ ЕФЕКТИВНОСТТА НА ВАШИТЕ ЕКИПИ С BITWARDEN
+Плановете за Екипи и Предприятия предлагат професионални бизнес функции. Някои примери включват SSO интеграция, самостоятелен хостинг, интеграция на директории и предоставяне на SCIM, глобални политики, API достъп, регистрационни файлове на събития и др.
 
-Битуорден предлага планове за екипи и големи фирми, така че служителите в компаниите да могат безопасно да споделят пароли помежду си.
+Използвайте Bitwarden, за да защитите работната си сила и да споделяте поверителна информация с колеги.
 
-Защо да изберете Битуорден:
+Още причини да изберете Bitwarden:
 
-Шифроване от най-висока класа
-Паролите са защитени със сложен шифър „от край до край“ (AES-256 bit, salted hashtag и PBKDF2 SHA-256), така че данните Ви остават да са защитени и неприкосновени.
+Криптиране от световна класа
+Паролите са защитени с усъвършенствано криптиране от край до край (AES-256 битов, засолен хеш и PBKDF2 SHA-256), така че вашите данни да останат защитени и поверителни.
 
-Вграден генератор на пароли
-Създавайте сигурни, уникални и случайни пароли според изискванията за сигурност на всеки уеб сайт, който посещавате.
+Проверки от трети страни
+Bitwarden редовно провежда цялостни проверки на сигурността от трети страни с известни фирми за сигурност. Тези годишни проверки включват оценки на програмния код и тестове за проникване в IP адреси, сървъри и уеб приложения на Bitwarden.
+
+Разширена двуфакторна автентикация
+Защитете вашето влизане с удостоверител от трета страна, изпратени по имейл кодове или идентификационни данни за FIDO2 WebAuthn, като хардуерен защитен ключ или ключ за достъп.
+
+Bitwarden Изпращане
+Предавайте данни директно на други, като същевременно поддържате криптирана сигурност от край до край и ограничавате изтичането на информация.
+
+Вграден генератор
+Създавайте дълги, сложни и различни пароли и уникални потребителски имена за всеки сайт, който посещавате. Интегрирайте с услуги за имейл псевдоними за допълнителна поверителност.
 
 Глобални преводи
-Битуорден е преведен на 40 езика и този брой не спира да расте, благодарение на нашата глобална общност.
+Bitwarden е преведен на повече от 60 езика от глобалната общност чрез Crowdin.
 
-Приложения за всяка система
-Защитете и споделяйте поверителните данни от своя трезор в Битуорден от всеки браузър, мобилно устройство или компютър.
+Междуплатформени приложения
+Защитете и споделете чувствителни данни във вашия трезор в Bitwarden от всеки браузър, мобилно устройство или настолна ОС и др.
+
+Bitwarden осигурява повече от просто пароли
+Решенията за криптирано управление на идентификационни данни от край до край на Bitwarden дават възможност на организациите да защитават всичко, включително тайни на разработчици и опит с кодове за достъп. Посетете Bitwarden.com, за да научите повече за Bitwarden Secrets Manager и Bitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>Сигурен и свободен управител на пароли за всички устройства</value>
+    <value>У дома, на работа или на път – Битуорден защитава всички Ваши пароли, секретни ключове и лична информация.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Удобен достъп до трезора, който се синхронизира от всички устройства</value>
@@ -164,7 +180,7 @@
     <value>Бързо автоматично попълване на данни и пароли във всички сайтове, които посещавате</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
-    <value>Трезорът е достъпен и от контекстното меню при щракване с дясното копче на мишката</value>
+    <value>Трезорът е достъпен и от контекстното меню при щракване с десния бутон на мишката</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
     <value>Автоматично създаване на силни, сигурни, случайни пароли</value>

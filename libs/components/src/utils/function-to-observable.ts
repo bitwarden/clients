@@ -1,6 +1,6 @@
 import { from, Observable, of, throwError } from "rxjs";
 
-import { Utils } from "@bitwarden/common/misc/utils";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 export type FunctionReturningAwaitable =
   | (() => unknown)

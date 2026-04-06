@@ -1,0 +1,112 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./callout.stories";
+
+```ts
+import { CalloutModule } from "@bitwarden/components";
+```
+
+<Meta of={stories} />
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+### With Inline Link
+
+If only a single link or CTA is needed, use the **Info** variant with an inline link. If more CTA’s
+are needed, or if a single CTA needs more prominence, use [Footer Buttons](#with-footer-buttons).
+
+<Canvas of={stories.WithInlineLink} />
+
+### With Footer Buttons
+
+Interactive Buttons can be added to the Callout footer by adding `slot="end"` to each button
+element. Ensure that `buttonType` of each Button matches the Callout `type`.
+
+_Examples_:<br/> Callouts with type "primary" - first button should use `buttonType="primary"` and
+second button should use `buttonType="primaryOutline"`<br/> Callouts with type "warning" - first
+button should use `buttonType="warning"` and second button should use `buttonType="warningOutline"`
+
+<Canvas of={stories.WithFooterButtons} />
+
+## Variants
+
+Icons should remain consistent across these types. Do not change the icon without consulting a
+designer. Use the following guidelines to help choose the correct type of callout.
+
+<Canvas of={stories.AllVariants} />
+
+### Info
+
+Use an info callout to call attention to important information the user should be aware of, but has
+low risk of the user receiving and unintended or irreversible results if they do not read the
+information.
+
+**Example:** in the Domain Claiming modal, an info callout is used to tell the user the domain will
+automatically be checked.
+
+### Subtle
+
+Use for similar cases as the info callout but when content does not need to be as prominent.
+
+### Success
+
+Use the success callout to communicate a positive messaging to the user.
+
+**Example:** a positive report results shows a success callout.
+
+The success callout may also be used for the information related to a premium membership. In this
+case, set the icon input to `bwi-star`.
+
+### Warning
+
+Use a warning callout if the user is about to perform an action that may have unintended or
+irreversible results.
+
+**Example:** the warning callout is used before the change master password and encryption key form
+to alert the user that they will be logged out.
+
+### Danger
+
+Use the danger callout to communicate an action the user is about to take is dangerous and typically
+not reversible.
+
+The danger callout can also be used to alert the user of an error or errors, such as a server side
+errors after form submit or failed communication request.
+
+## Icons
+
+A custom icon can be passed in. Otherwise, the icon will default to the icon corresponding to the
+callout type. To avoid displaying any icon, pass in `null`.
+
+### Custom Icon
+
+<Canvas of={stories.CustomIcon} />
+
+### No Icon
+
+<Canvas of={stories.NoIcon} />
+
+## No Title
+
+Pass in `null` to not display a title. If no title is provided, a default title will be used if
+callout type is `warning | danger`.
+
+<Canvas of={stories.NoTitle} />
+
+## Close Button
+
+A close button will be displayed when binding to the `(dismiss)` output.
+
+<Canvas of={stories.WithCloseButton} />
+
+## Accessibility
+
+Ensure color contrast remains WCAG compliant with the callout's background. This is especially
+important when adding `bit-link` or `bit-button` to the content area since the callout background is
+colored. Currently only the `info` and `default` callouts are WCAG compliant for the `primary`
+styling of these elements. The `secondary` `bit-link` styling may be used with the remaining
+variants.

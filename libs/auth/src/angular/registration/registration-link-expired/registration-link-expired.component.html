@@ -1,0 +1,25 @@
+<div class="tw-flex tw-flex-col tw-items-center tw-justify-center">
+  <p
+    bitTypography="body1"
+    class="tw-text-center tw-mb-3 tw-text-main"
+    id="restart_registration_body"
+  >
+    {{ "pleaseRestartRegistrationOrTryLoggingIn" | i18n }}<br />
+    {{ "youMayAlreadyHaveAnAccount" | i18n }}
+  </p>
+
+  <a
+    [block]="true"
+    type="button"
+    buttonType="primary"
+    bitButton
+    class="tw-mb-3"
+    routerLink="/signup"
+  >
+    {{ "restartRegistration" | i18n }}
+  </a>
+
+  <a [block]="true" type="button" buttonType="secondary" bitButton [routerLink]="loginRoute">
+    {{ "logIn" | i18n }}
+  </a>
+</div>

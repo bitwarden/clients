@@ -1,7 +1,8 @@
 import { BrowserWindow, MenuItemConstructorOptions } from "electron";
 
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { MessagingService } from "@bitwarden/common/abstractions/messaging.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { CipherType } from "@bitwarden/sdk-internal";
 
 import { isMac, isMacAppStore } from "../../utils";
 import { UpdaterMain } from "../updater.main";
@@ -24,6 +25,7 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
       this.addNewFolder,
       this.separator,
       this.syncVault,
+      this.importVault,
       this.exportVault,
     ];
 
@@ -51,9 +53,11 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
     updater: UpdaterMain,
     window: BrowserWindow,
     accounts: { [userId: string]: MenuAccount },
-    isLocked: boolean
+    isLocked: boolean,
+    isLockable: boolean,
+    private restrictedCipherTypes: CipherType[],
   ) {
-    super(i18nService, messagingService, updater, window, accounts, isLocked);
+    super(i18nService, messagingService, updater, window, accounts, isLocked, isLockable);
   }
 
   private get addNewLogin(): MenuItemConstructorOptions {
@@ -73,6 +77,23 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
       submenu: this.addNewItemSubmenu,
       enabled: !this._isLocked,
     };
+  }
+
+  private mapMenuItemToCipherType(itemId: string): CipherType {
+    switch (itemId) {
+      case "typeLogin":
+        return CipherType.Login;
+      case "typeCard":
+        return CipherType.Card;
+      case "typeIdentity":
+        return CipherType.Identity;
+      case "typeSecureNote":
+        return CipherType.SecureNote;
+      case "typeSshKey":
+        return CipherType.SshKey;
+      default:
+        throw new Error(`Unknown menu item id: ${itemId}`);
+    }
   }
 
   private get addNewItemSubmenu(): MenuItemConstructorOptions[] {
@@ -97,17 +118,27 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
       },
       {
         id: "typeSecureNote",
-        label: this.localize("typeSecureNote"),
+        label: this.localize("typeNote"),
         click: () => this.sendMessage("newSecureNote"),
         accelerator: "CmdOrCtrl+Shift+S",
       },
-    ];
+      {
+        id: "typeSshKey",
+        label: this.localize("typeSshKey"),
+        click: () => this.sendMessage("newSshKey"),
+        accelerator: "CmdOrCtrl+Shift+K",
+      },
+    ].filter((item) => {
+      return !this.restrictedCipherTypes?.some(
+        (restrictedType) => restrictedType === this.mapMenuItemToCipherType(item.id),
+      );
+    });
   }
 
   private get addNewFolder(): MenuItemConstructorOptions {
     return {
-      id: "addNewFolder",
-      label: this.localize("addNewFolder"),
+      id: "newFolder",
+      label: this.localize("newFolder"),
       click: () => this.sendMessage("newFolder"),
       enabled: !this._isLocked,
     };
@@ -115,17 +146,26 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
 
   private get syncVault(): MenuItemConstructorOptions {
     return {
-      id: "syncVault",
-      label: this.localize("syncVault"),
+      id: "syncNow",
+      label: this.localize("syncNow"),
       click: () => this.sendMessage("syncVault"),
+      enabled: this.hasAuthenticatedAccounts,
+    };
+  }
+
+  private get importVault(): MenuItemConstructorOptions {
+    return {
+      id: "import",
+      label: this.localize("importNoun"),
+      click: () => this.sendMessage("importVault"),
       enabled: !this._isLocked,
     };
   }
 
   private get exportVault(): MenuItemConstructorOptions {
     return {
-      id: "exportVault",
-      label: this.localize("exportVault"),
+      id: "export",
+      label: this.localize("exportNoun"),
       click: () => this.sendMessage("exportVault"),
       enabled: !this._isLocked,
     };

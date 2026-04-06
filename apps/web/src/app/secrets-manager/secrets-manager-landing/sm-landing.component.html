@@ -1,0 +1,53 @@
+<app-header></app-header>
+
+<div class="tw-grid tw-grid-cols-12 tw-gap-4">
+  <div class="tw-col-span-6">
+    <img [src]="imageSrc" class="tw-max-w-full" alt="Bitwarden" aria-hidden="true" />
+  </div>
+  <div class="tw-col-span-6 tw-mx-4">
+    <h1 bitTypography="h1">{{ "bitwardenSecretsManager" | i18n }}</h1>
+    <bit-container *ngIf="this.showSecretsManagerInformation">
+      <p bitTypography="body1">
+        {{ "developmentDevOpsAndITTeamsChooseBWSecret" | i18n }}
+      </p>
+      <ul class="tw-list-outside">
+        <li bitTypography="body1" class="tw-mb-2">
+          <b>{{ "centralizeSecretsManagement" | i18n }}</b>
+          {{ "centralizeSecretsManagementDescription" | i18n }}
+        </li>
+        <li bitTypography="body1" class="tw-mb-2">
+          <b>{{ "preventSecretLeaks" | i18n }}</b> {{ "preventSecretLeaksDescription" | i18n }}
+        </li>
+        <li bitTypography="body1" class="tw-mb-2">
+          <b>{{ "enhanceDeveloperProductivity" | i18n }}</b>
+          {{ "enhanceDeveloperProductivityDescription" | i18n }}
+        </li>
+        <li bitTypography="body1" class="tw-mb-2">
+          <b>{{ "strengthenBusinessSecurity" | i18n }}</b>
+          {{ "strengthenBusinessSecurityDescription" | i18n }}
+        </li>
+      </ul>
+    </bit-container>
+    <bit-container *ngIf="this.showGiveMembersAccessInstructions">
+      <p bitTypography="body1">
+        {{ "giveMembersAccess" | i18n }}
+      </p>
+      <ul class="tw-list-outside">
+        <li bitTypography="body1" class="tw-mb-2">
+          {{ "openYourOrganizations" | i18n }} <b>{{ "members" | i18n }}</b>
+          {{ "viewAndSelectTheMembers" | i18n }}
+        </li>
+        <li bitTypography="body1" class="tw-mb-2">
+          {{ "usingTheMenuSelect" | i18n }} <b>{{ "activateSecretsManager" | i18n }}</b>
+          {{ "toGrantAccessToSelectedMembers" | i18n }}
+        </li>
+      </ul>
+    </bit-container>
+    <button type="button" bitButton buttonType="primary" [routerLink]="tryItNowUrl">
+      {{ "tryItNow" | i18n }}
+    </button>
+    <a bitLink linkType="primary" [href]="learnMoreUrl" target="_blank" class="tw-m-5">
+      {{ "learnMore" | i18n }}
+    </a>
+  </div>
+</div>

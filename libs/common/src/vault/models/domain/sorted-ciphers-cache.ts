@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CipherView } from "../view/cipher.view";
 
 const CacheTTL = 3000;
@@ -50,7 +52,7 @@ export class SortedCiphersCache {
       setTimeout(() => {
         this.sortedCiphersByUrl.delete(url);
         this.timeouts.delete(url);
-      }, CacheTTL)
+      }, CacheTTL),
     );
   }
 }
@@ -68,7 +70,7 @@ class Ciphers {
   getLastLaunched() {
     const usedCiphers = this.ciphers.filter((cipher) => cipher.localData?.lastLaunched);
     const sortedCiphers = usedCiphers.sort(
-      (x, y) => y.localData.lastLaunched.valueOf() - x.localData.lastLaunched.valueOf()
+      (x, y) => y.localData.lastLaunched.valueOf() - x.localData.lastLaunched.valueOf(),
     );
     return sortedCiphers[0];
   }

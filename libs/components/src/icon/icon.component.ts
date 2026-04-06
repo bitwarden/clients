@@ -1,24 +1,40 @@
-import { Component, HostBinding, Input } from "@angular/core";
-import { DomSanitizer } from "@angular/platform-browser";
+import {
+  booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from "@angular/core";
 
-import { Icon, isIcon } from "./icon";
+import { BitwardenIcon } from "../shared/icon";
 
 @Component({
   selector: "bit-icon",
+  host: {
+    "[class]": "classList()",
+    "[attr.aria-hidden]": "ariaLabel() ? null : true",
+    "[attr.aria-label]": "ariaLabel()",
+  },
   template: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BitIconComponent {
-  @Input() icon: Icon;
+export class IconComponent {
+  /**
+   * The Bitwarden icon name (e.g., "bwi-lock", "bwi-user")
+   */
+  readonly name = input.required<BitwardenIcon>();
 
-  @HostBinding()
-  protected get innerHtml() {
-    if (!isIcon(this.icon)) {
-      return "";
-    }
+  /**
+   * Accessible label for the icon
+   */
+  readonly ariaLabel = input<string>();
 
-    const svg = this.icon.svg;
-    return this.domSanitizer.bypassSecurityTrustHtml(svg);
-  }
+  /**
+   * Whether the icon should use a fixed width
+   */
+  readonly fixedWidth = input(false, { transform: booleanAttribute });
 
-  constructor(private domSanitizer: DomSanitizer) {}
+  protected readonly classList = computed(() =>
+    ["bwi", this.name(), this.fixedWidth() && "bwi-fw"].filter(Boolean),
+  );
 }

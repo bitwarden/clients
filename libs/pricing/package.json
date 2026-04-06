@@ -1,0 +1,21 @@
+{
+  "name": "@bitwarden/pricing",
+  "version": "0.0.0",
+  "description": "Components and services that facilitate the retrieval and display of Bitwarden's pricing.",
+  "keywords": [
+    "bitwarden"
+  ],
+  "author": "Bitwarden Inc.",
+  "homepage": "https://bitwarden.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bitwarden/clients"
+  },
+  "license": "GPL-3.0",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "npm run clean && tsc",
+    "build:watch": "npm run clean && tsc -watch"
+  },
+  "private": true
+}

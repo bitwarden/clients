@@ -1,13 +1,14 @@
 import { FormsModule, ReactiveFormsModule, FormBuilder } from "@angular/forms";
-import { Meta, moduleMetadata, Story } from "@storybook/angular";
+import { StoryObj, Meta, moduleMetadata } from "@storybook/angular";
 
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { ButtonModule } from "../button";
 import { InputModule } from "../input/input.module";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { forbiddenCharacters } from "./bit-validators/forbidden-characters.validator";
+import { trimValidator } from "./bit-validators/trim.validator";
 import { BitFormFieldComponent } from "./form-field.component";
 import { FormFieldModule } from "./form-field.module";
 
@@ -24,6 +25,7 @@ export default {
             return new I18nMockService({
               inputForbiddenCharacters: (chars) =>
                 `The following characters are not allowed: ${chars}`,
+              inputTrimValidator: "Input must not contain only whitespace.",
             });
           },
         },
@@ -33,7 +35,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/f32LSg3jaegICkMu7rPARm/Tailwind-Component-Library-Update?node-id=1881%3A17689",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=13213-55392&t=b5tDKylm5sWm2yKo-4",
     },
   },
 } as Meta;
@@ -46,11 +48,30 @@ const template = `
     </bit-form-field>
   </form>`;
 
-export const ForbiddenCharacters: Story<BitFormFieldComponent> = (args: BitFormFieldComponent) => ({
-  props: {
-    formObj: new FormBuilder().group({
-      name: ["", forbiddenCharacters(["\\", "/", "@", "#", "$", "%", "^", "&", "*", "(", ")"])],
-    }),
-  },
-  template,
-});
+export const ForbiddenCharacters: StoryObj<BitFormFieldComponent> = {
+  render: (args) => ({
+    props: {
+      formObj: new FormBuilder().group({
+        name: ["", forbiddenCharacters(["\\", "/", "@", "#", "$", "%", "^", "&", "*", "(", ")"])],
+      }),
+    },
+    template,
+  }),
+};
+
+export const TrimValidator: StoryObj<BitFormFieldComponent> = {
+  render: (args) => ({
+    props: {
+      formObj: new FormBuilder().group({
+        name: [
+          "",
+          {
+            updateOn: "submit",
+            validators: [trimValidator],
+          },
+        ],
+      }),
+    },
+    template,
+  }),
+};

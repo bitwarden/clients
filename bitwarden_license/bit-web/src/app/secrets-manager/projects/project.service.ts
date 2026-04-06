@@ -1,12 +1,20 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { Subject } from "rxjs";
+import { filter, firstValueFrom, map, Subject, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { CryptoService } from "@bitwarden/common/abstractions/crypto.service";
-import { EncryptService } from "@bitwarden/common/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/models/domain/symmetric-crypto-key";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import {
+  DECRYPT_ERROR,
+  EncString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import { KeyService } from "@bitwarden/key-management";
 
 import { ProjectListView } from "../models/view/project-list.view";
 import { ProjectView } from "../models/view/project.view";
@@ -22,17 +30,46 @@ import { ProjectResponse } from "./models/responses/project.response";
 export class ProjectService {
   protected _project = new Subject<ProjectView>();
   project$ = this._project.asObservable();
+  private projectCache = new Map<string, Promise<ProjectView>>();
 
   constructor(
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private apiService: ApiService,
-    private encryptService: EncryptService
+    private encryptService: EncryptService,
+    private accountService: AccountService,
   ) {}
 
-  async getByProjectId(projectId: string): Promise<ProjectView> {
-    const r = await this.apiService.send("GET", "/projects/" + projectId, null, true, true);
-    const projectResponse = new ProjectResponse(r);
-    return await this.createProjectView(projectResponse);
+  private getOrganizationKey$(organizationId: string) {
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.keyService.orgKeys$(userId)),
+      filter((orgKeys) => !!orgKeys),
+      map((organizationKeysById) => organizationKeysById[organizationId as OrganizationId]),
+    );
+  }
+
+  private async getOrganizationKey(organizationId: string): Promise<SymmetricCryptoKey> {
+    return await firstValueFrom(this.getOrganizationKey$(organizationId));
+  }
+
+  async getByProjectId(projectId: string, forceRequest: boolean): Promise<ProjectView> {
+    if (forceRequest || !this.projectCache.has(projectId)) {
+      const request = this.apiService
+        .send("GET", `/projects/${projectId}`, null, true, true)
+        .then((r) => {
+          const projectResponse = new ProjectResponse(r);
+          return this.createProjectView(projectResponse);
+        })
+        .catch((err) => {
+          // remove from cache if it failed, so future calls can retry
+          this.projectCache.delete(projectId);
+          throw err;
+        });
+
+      this.projectCache.set(projectId, request);
+    }
+
+    return this.projectCache.get(projectId)!;
   }
 
   async getProjects(organizationId: string): Promise<ProjectListView[]> {
@@ -41,7 +78,7 @@ export class ProjectService {
       "/organizations/" + organizationId + "/projects",
       null,
       true,
-      true
+      true,
     );
     const results = new ListResponse(r, ProjectListItemResponse);
     return await this.createProjectsListView(organizationId, results.data);
@@ -54,7 +91,7 @@ export class ProjectService {
       "/organizations/" + organizationId + "/projects",
       request,
       true,
-      true
+      true,
     );
 
     const project = await this.createProjectView(new ProjectResponse(r));
@@ -81,22 +118,18 @@ export class ProjectService {
     });
   }
 
-  private async getOrganizationKey(organizationId: string): Promise<SymmetricCryptoKey> {
-    return await this.cryptoService.getOrgKey(organizationId);
-  }
-
   private async getProjectRequest(
     organizationId: string,
-    projectView: ProjectView
+    projectView: ProjectView,
   ): Promise<ProjectRequest> {
     const orgKey = await this.getOrganizationKey(organizationId);
     const request = new ProjectRequest();
-    request.name = await this.encryptService.encrypt(projectView.name, orgKey);
+    request.name = await this.encryptService.encryptString(projectView.name, orgKey);
 
     return request;
   }
 
-  private async createProjectView(projectResponse: ProjectResponse): Promise<ProjectView> {
+  private async createProjectView(projectResponse: ProjectResponse) {
     const orgKey = await this.getOrganizationKey(projectResponse.organizationId);
 
     const projectView = new ProjectView();
@@ -104,17 +137,23 @@ export class ProjectService {
     projectView.organizationId = projectResponse.organizationId;
     projectView.creationDate = projectResponse.creationDate;
     projectView.revisionDate = projectResponse.revisionDate;
-    projectView.name = await this.encryptService.decryptToUtf8(
-      new EncString(projectResponse.name),
-      orgKey
-    );
-
+    projectView.read = projectResponse.read;
+    projectView.write = projectResponse.write;
+    try {
+      projectView.name = await this.encryptService.decryptString(
+        new EncString(projectResponse.name),
+        orgKey,
+      );
+    } catch {
+      projectView.name = DECRYPT_ERROR;
+      projectView.decryptionError = true;
+    }
     return projectView;
   }
 
   private async createProjectsListView(
     organizationId: string,
-    projects: ProjectListItemResponse[]
+    projects: ProjectListItemResponse[],
   ): Promise<ProjectListView[]> {
     const orgKey = await this.getOrganizationKey(organizationId);
     return await Promise.all(
@@ -122,14 +161,22 @@ export class ProjectService {
         const projectListView = new ProjectListView();
         projectListView.id = s.id;
         projectListView.organizationId = s.organizationId;
-        projectListView.name = await this.encryptService.decryptToUtf8(
-          new EncString(s.name),
-          orgKey
-        );
+        projectListView.read = s.read;
+        projectListView.write = s.write;
+        try {
+          projectListView.name = await this.encryptService.decryptString(
+            new EncString(s.name),
+            orgKey,
+          );
+        } catch {
+          projectListView.name = DECRYPT_ERROR;
+          projectListView.decryptionError = true;
+        }
         projectListView.creationDate = s.creationDate;
         projectListView.revisionDate = s.revisionDate;
+        projectListView.linkable = true;
         return projectListView;
-      })
+      }),
     );
   }
 }

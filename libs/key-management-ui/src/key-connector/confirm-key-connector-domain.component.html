@@ -1,0 +1,41 @@
+@if (loading) {
+  <div class="tw-text-center">
+    <i
+      class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
+      title="{{ 'loading' | i18n }}"
+      aria-hidden="true"
+    ></i>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  </div>
+} @else {
+  @if (organizationName) {
+    <p>{{ "confirmKeyConnectorOrganizationUserDescription" | i18n }}</p>
+
+    <p class="tw-mb-0 tw-font-bold">{{ "organization" | i18n }}</p>
+    <p class="tw-mb-6">{{ organizationName }}</p>
+  } @else {
+    <p>{{ "verifyYourDomainDescription" | i18n }}</p>
+  }
+
+  <p class="tw-mb-0 tw-font-bold tw-inline-flex tw-items-center">
+    {{ "domain" | i18n }}
+    <button
+      type="button"
+      [label]="'keyConnectorDomainTooltip' | i18n"
+      tooltipPosition="above-center"
+      bitIconButton="bwi-info-circle"
+      size="small"
+    ></button>
+  </p>
+  <p class="tw-mb-6 tw-font-mono">{{ keyConnectorHostName }}</p>
+
+  <div class="tw-flex tw-flex-col tw-gap-2">
+    <button bitButton type="button" buttonType="primary" [bitAction]="confirm" [block]="true">
+      {{ "continueWithLogIn" | i18n }}
+    </button>
+
+    <button bitButton type="button" buttonType="secondary" [bitAction]="cancel" [block]="true">
+      {{ "doNotContinue" | i18n }}
+    </button>
+  </div>
+}

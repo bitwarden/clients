@@ -1,5 +1,7 @@
-import { I18nService } from "../abstractions/i18n.service";
-import { PlatformUtilsService } from "../abstractions/platformUtils.service";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { I18nService } from "../platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
 
 export class WebAuthnIFrame {
   private iframe: HTMLIFrameElement = null;
@@ -14,7 +16,7 @@ export class WebAuthnIFrame {
     private i18nService: I18nService,
     private successCallback: Function, // eslint-disable-line
     private errorCallback: Function, // eslint-disable-line
-    private infoCallback: Function // eslint-disable-line
+    private infoCallback: Function, // eslint-disable-line
   ) {
     this.connectorLink = win.document.createElement("a");
   }
@@ -23,7 +25,10 @@ export class WebAuthnIFrame {
     const params = new URLSearchParams({
       data: this.base64Encode(JSON.stringify(data)),
       parent: encodeURIComponent(this.win.document.location.href),
-      btnText: encodeURIComponent(this.i18nService.t("webAuthnAuthenticate")),
+      btnText: encodeURIComponent(this.i18nService.t("readSecurityKey")),
+      btnAwaitingInteractionText: encodeURIComponent(
+        this.i18nService.t("awaitingSecurityKeyInteraction"),
+      ),
       v: "1",
     });
 
@@ -31,7 +36,7 @@ export class WebAuthnIFrame {
       // Firefox fallback which opens the webauthn page in a new tab
       params.append("locale", this.i18nService.translationLocale);
       this.platformUtilsService.launchUri(
-        `${this.webVaultUrl}/webauthn-fallback-connector.html?${params}`
+        `${this.webVaultUrl}/webauthn-fallback-connector.html?${params}`,
       );
     } else {
       this.connectorLink.href = `${this.webVaultUrl}/webauthn-connector.html?${params}`;
@@ -63,7 +68,7 @@ export class WebAuthnIFrame {
     return btoa(
       encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => {
         return String.fromCharCode(("0x" + p1) as any);
-      })
+      }),
     );
   }
 

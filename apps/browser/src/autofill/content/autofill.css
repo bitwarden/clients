@@ -34,3 +34,10 @@ span[data-bwautofill].com-bitwarden-browser-animated-fill {
   animation: bitwardenfill 200ms ease-in-out 0ms 1;
   -webkit-animation: bitwardenfill 200ms ease-in-out 0ms 1;
 }
+
+@media (prefers-reduced-motion) {
+  .com-bitwarden-browser-animated-fill {
+    animation: none;
+    -webkit-animation: none;
+  }
+}

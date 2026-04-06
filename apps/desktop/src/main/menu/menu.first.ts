@@ -1,7 +1,7 @@
 import { BrowserWindow, dialog, MenuItem, MenuItemConstructorOptions } from "electron";
 
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { MessagingService } from "@bitwarden/common/abstractions/messaging.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
 import { isMacAppStore, isSnapStore, isWindowsStore } from "../../utils";
 import { UpdaterMain } from "../updater.main";
@@ -9,31 +9,26 @@ import { UpdaterMain } from "../updater.main";
 import { MenuAccount } from "./menu.updater";
 
 export class FirstMenu {
-  protected readonly _i18nService: I18nService;
-  protected readonly _updater: UpdaterMain;
-  protected readonly _messagingService: MessagingService;
-  protected readonly _accounts: { [userId: string]: MenuAccount };
-  protected readonly _window: BrowserWindow;
-  protected readonly _isLocked: boolean;
-
   constructor(
-    i18nService: I18nService,
-    messagingService: MessagingService,
-    updater: UpdaterMain,
-    window: BrowserWindow,
-    accounts: { [userId: string]: MenuAccount },
-    isLocked: boolean
-  ) {
-    this._i18nService = i18nService;
-    this._updater = updater;
-    this._messagingService = messagingService;
-    this._window = window;
-    this._accounts = accounts;
-    this._isLocked = isLocked;
-  }
+    protected readonly _i18nService: I18nService,
+    protected readonly _messagingService: MessagingService,
+    protected readonly _updater: UpdaterMain,
+    protected readonly _window: BrowserWindow,
+    protected readonly _accounts: { [userId: string]: MenuAccount },
+    protected readonly _isLocked: boolean,
+    protected readonly _isLockable: boolean,
+  ) {}
 
   protected get hasAccounts(): boolean {
     return this._accounts != null && Object.keys(this._accounts).length > 0;
+  }
+
+  protected get hasLockableAccounts(): boolean {
+    return this._accounts != null && Object.values(this._accounts).some((a) => a.isLockable);
+  }
+
+  protected get hasAuthenticatedAccounts(): boolean {
+    return this._accounts != null && Object.values(this._accounts).some((a) => a.isAuthenticated);
   }
 
   protected get checkForUpdates(): MenuItemConstructorOptions {
@@ -66,23 +61,29 @@ export class FirstMenu {
       id: "lock",
       label: this.localize("lockVault"),
       submenu: this.lockSubmenu,
-      enabled: this.hasAccounts,
+      enabled: this.hasLockableAccounts,
     };
   }
 
   protected get lockSubmenu(): MenuItemConstructorOptions[] {
     const value: MenuItemConstructorOptions[] = [];
     for (const userId in this._accounts) {
-      if (userId == null) {
+      if (!userId) {
+        continue;
+      }
+
+      const account = this._accounts[userId];
+
+      if (account == null || !account.isLockable) {
         continue;
       }
 
       value.push({
-        label: this._accounts[userId].email,
-        id: `lockNow_${this._accounts[userId].userId}`,
-        click: () => this.sendMessage("lockVault", { userId: this._accounts[userId].userId }),
-        enabled: !this._accounts[userId].isLocked,
-        visible: this._accounts[userId].isAuthenticated,
+        label: account.email,
+        id: `lockNow_${account.userId}`,
+        click: () => this.sendMessage("lockVault", { userId: account.userId }),
+        enabled: !account.isLocked,
+        visible: account.isAuthenticated,
       });
     }
     return value;
@@ -143,6 +144,8 @@ export class FirstMenu {
 
   protected async checkForUpdate(menuItem: MenuItem) {
     menuItem.enabled = false;
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this._updater.checkForUpdate(true);
     menuItem.enabled = true;
   }

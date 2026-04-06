@@ -1,114 +1,90 @@
-import { Component, Input, OnChanges } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { ChangeDetectionStrategy, Component, computed, input, signal } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
+import {
+  combineLatest,
+  distinctUntilChanged,
+  map,
+  tap,
+  Observable,
+  startWith,
+  pairwise,
+} from "rxjs";
 
-import { EnvironmentService } from "@bitwarden/common/abstractions/environment.service";
-import { StateService } from "@bitwarden/common/abstractions/state.service";
-import { Utils } from "@bitwarden/common/misc/utils";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-
-/**
- * Provides a mapping from supported card brands to
- * the filenames of icon that should be present in images/cards folder of clients.
- */
-const cardIcons: Record<string, string> = {
-  Visa: "card-visa",
-  Mastercard: "card-mastercard",
-  Amex: "card-amex",
-  Discover: "card-discover",
-  "Diners Club": "card-diners-club",
-  JCB: "card-jcb",
-  Maestro: "card-maestro",
-  UnionPay: "card-union-pay",
-  RuPay: "card-ru-pay",
-  Mir: "card-mir",
-};
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { buildCipherIcon, CipherIconDetails } from "@bitwarden/common/vault/icon/build-cipher-icon";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 @Component({
   selector: "app-vault-icon",
   templateUrl: "icon.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule],
 })
-export class IconComponent implements OnChanges {
-  @Input() cipher: CipherView;
-  icon: string;
-  image: string;
-  fallbackImage: string;
-  imageEnabled: boolean;
+export class IconComponent {
+  /**
+   * The cipher to display the icon for.
+   */
+  readonly cipher = input.required<CipherViewLike>();
 
-  private iconsUrl: string;
+  /**
+   * coloredIcon will adjust the size of favicons and the colors of the text icon when user is in the item details view.
+   */
+  readonly coloredIcon = input<boolean>(false);
 
-  constructor(environmentService: EnvironmentService, private stateService: StateService) {
-    this.iconsUrl = environmentService.getIconsUrl();
-  }
+  /**
+   * Optional custom size for the icon in pixels.
+   * When provided, forces explicit dimensions on the icon wrapper to prevent layout collapse at different zoom levels.
+   * If not provided, the wrapper has no explicit dimensions and relies on CSS classes (tw-size-6/24px for images).
+   * This can cause the wrapper to collapse when images are loading/hidden, especially at high browser zoom levels.
+   * Reference: default image size is tw-size-6 (24px), coloredIcon uses 36px.
+   */
+  readonly size = input<number>();
 
-  async ngOnChanges() {
-    // Components may be re-used when using cdk-virtual-scroll. Which puts the component in a weird state,
-    // to avoid this we reset all state variables.
-    this.image = null;
-    this.fallbackImage = null;
-    this.imageEnabled = !(await this.stateService.getDisableFavicon());
-    this.load();
-  }
+  readonly imageLoaded = signal(false);
 
-  protected load() {
-    switch (this.cipher.type) {
-      case CipherType.Login:
-        this.icon = "bwi-globe";
-        this.setLoginIcon();
-        break;
-      case CipherType.SecureNote:
-        this.icon = "bwi-sticky-note";
-        break;
-      case CipherType.Card:
-        this.icon = "bwi-credit-card";
-        this.setCardIcon();
-        break;
-      case CipherType.Identity:
-        this.icon = "bwi-id-card";
-        break;
-      default:
-        break;
+  /**
+   * Computed style object for icon dimensions.
+   * Centralizes the sizing logic to avoid repetition in the template.
+   */
+  protected readonly iconStyle = computed(() => {
+    if (this.coloredIcon()) {
+      return { width: "36px", height: "36px" };
     }
-  }
+    const size = this.size();
+    if (size) {
+      return { width: size + "px", height: size + "px" };
+    }
+    return {};
+  });
 
-  private setLoginIcon() {
-    if (this.cipher.login.uri) {
-      let hostnameUri = this.cipher.login.uri;
-      let isWebsite = false;
+  protected readonly data$: Observable<CipherIconDetails>;
 
-      if (hostnameUri.indexOf("androidapp://") === 0) {
-        this.icon = "bwi-android";
-        this.image = null;
-      } else if (hostnameUri.indexOf("iosapp://") === 0) {
-        this.icon = "bwi-apple";
-        this.image = null;
-      } else if (
-        this.imageEnabled &&
-        hostnameUri.indexOf("://") === -1 &&
-        hostnameUri.indexOf(".") > -1
-      ) {
-        hostnameUri = "http://" + hostnameUri;
-        isWebsite = true;
-      } else if (this.imageEnabled) {
-        isWebsite = hostnameUri.indexOf("http") === 0 && hostnameUri.indexOf(".") > -1;
-      }
+  constructor(
+    private readonly environmentService: EnvironmentService,
+    private readonly domainSettingsService: DomainSettingsService,
+  ) {
+    const iconSettings$ = combineLatest([
+      this.environmentService.environment$.pipe(map((e) => e.getIconsUrl())),
+      this.domainSettingsService.showFavicons$.pipe(distinctUntilChanged()),
+    ]).pipe(
+      map(([iconsUrl, showFavicon]) => ({ iconsUrl, showFavicon })),
+      startWith({ iconsUrl: null, showFavicon: false }), // Start with a safe default to avoid flickering icons
+      distinctUntilChanged(),
+    );
 
-      if (this.imageEnabled && isWebsite) {
-        try {
-          this.image = this.iconsUrl + "/" + Utils.getHostname(hostnameUri) + "/icon.png";
-          this.fallbackImage = "images/bwi-globe.png";
-        } catch (e) {
-          // Ignore error since the fallback icon will be shown if image is null.
+    this.data$ = combineLatest([iconSettings$, toObservable(this.cipher)]).pipe(
+      map(([{ iconsUrl, showFavicon }, cipher]) => buildCipherIcon(iconsUrl, cipher, showFavicon)),
+      startWith(null),
+      pairwise(),
+      tap(([prev, next]) => {
+        if (prev?.image !== next?.image) {
+          // The image changed, reset the loaded state to not show an empty icon
+          this.imageLoaded.set(false);
         }
-      }
-    } else {
-      this.image = null;
-    }
-  }
-
-  private setCardIcon() {
-    const brand = this.cipher.card.brand;
-    if (this.imageEnabled && brand in cardIcons) {
-      this.icon = "credit-card-icon " + cardIcons[brand];
-    }
+      }),
+      map(([_, next]) => next!),
+    );
   }
 }

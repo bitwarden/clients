@@ -1,0 +1,72 @@
+import { mock } from "jest-mock-extended";
+
+import { FakeGlobalStateProvider } from "@bitwarden/state-test-utils";
+import {
+  AbstractStorageService,
+  ObservableStorageService,
+  StorageServiceProvider,
+} from "@bitwarden/storage-core";
+import { UserId } from "@bitwarden/user-core";
+
+import { STATE_LOCK_EVENT } from "./default-state-event-registrar.service";
+import { DefaultStateEventRunnerService } from "./default-state-event-runner.service";
+
+describe("DefaultStateEventRunnerService", () => {
+  const fakeGlobalStateProvider = new FakeGlobalStateProvider();
+  const lockState = fakeGlobalStateProvider.getFake(STATE_LOCK_EVENT);
+
+  const storageServiceProvider = mock<StorageServiceProvider>();
+
+  const sut = new DefaultStateEventRunnerService(fakeGlobalStateProvider, storageServiceProvider);
+
+  describe("handleEvent", () => {
+    it("does nothing if there are no events in state", async () => {
+      const mockStorageService = mock<AbstractStorageService & ObservableStorageService>();
+      storageServiceProvider.get.mockReturnValue(["disk", mockStorageService]);
+
+      await sut.handleEvent("lock", "bff09d3c-762a-4551-9275-45b137b2f073" as UserId);
+
+      expect(lockState.nextMock).not.toHaveBeenCalled();
+    });
+
+    it("loops through and acts on all events", async () => {
+      const mockDiskStorageService = mock<AbstractStorageService & ObservableStorageService>();
+      const mockMemoryStorageService = mock<AbstractStorageService & ObservableStorageService>();
+
+      lockState.stateSubject.next([
+        {
+          state: "fakeState1",
+          key: "fakeKey1",
+          location: "disk",
+        },
+        {
+          state: "fakeState2",
+          key: "fakeKey2",
+          location: "memory",
+        },
+      ]);
+
+      storageServiceProvider.get.mockImplementation((defaultLocation, overrides) => {
+        if (defaultLocation === "disk") {
+          return [defaultLocation, mockDiskStorageService];
+        } else if (defaultLocation === "memory") {
+          return [defaultLocation, mockMemoryStorageService];
+        }
+      });
+
+      mockMemoryStorageService.get.mockResolvedValue("something");
+
+      await sut.handleEvent("lock", "bff09d3c-762a-4551-9275-45b137b2f073" as UserId);
+
+      expect(mockDiskStorageService.get).toHaveBeenCalledTimes(1);
+      expect(mockDiskStorageService.get).toHaveBeenCalledWith(
+        "user_bff09d3c-762a-4551-9275-45b137b2f073_fakeState1_fakeKey1",
+      );
+      expect(mockMemoryStorageService.get).toHaveBeenCalledTimes(1);
+      expect(mockMemoryStorageService.get).toHaveBeenCalledWith(
+        "user_bff09d3c-762a-4551-9275-45b137b2f073_fakeState2_fakeKey2",
+      );
+      expect(mockMemoryStorageService.remove).toHaveBeenCalledTimes(1);
+    });
+  });
+});

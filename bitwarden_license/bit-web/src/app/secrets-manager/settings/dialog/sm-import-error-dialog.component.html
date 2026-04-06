@@ -1,4 +1,4 @@
-<bit-dialog>
+<bit-dialog dialogSize="large">
   <span bitDialogTitle>
     {{ "importError" | i18n }}
   </span>
@@ -13,15 +13,17 @@
       </ng-container>
       <ng-template body>
         <tr bitRow *ngFor="let line of errorLines">
-          <td bitCell class="tw-break-all">[{{ line.id }}] [{{ line.type }}] {{ line.key }}</td>
+          <td bitCell class="tw-whitespace-nowrap">
+            [{{ line.id }}] [{{ line.type }}] {{ line.key }}
+          </td>
           <td bitCell>{{ line.errorMessage }}</td>
         </tr>
       </ng-template>
     </bit-table>
   </span>
-  <div bitDialogFooter>
+  <ng-container bitDialogFooter>
     <button bitButton bitDialogClose buttonType="primary" type="button">
       {{ "ok" | i18n }}
     </button>
-  </div>
+  </ng-container>
 </bit-dialog>

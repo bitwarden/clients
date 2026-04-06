@@ -1,47 +1,20 @@
 import { Observable } from "rxjs";
 
-import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
-import { AuthRequestPushNotification } from "../../models/response/notification.response";
+import { UserId } from "../../types/guid";
 import { AuthenticationStatus } from "../enums/authentication-status";
-import { AuthResult } from "../models/domain/auth-result";
-import {
-  UserApiLogInCredentials,
-  PasswordLogInCredentials,
-  SsoLogInCredentials,
-  PasswordlessLogInCredentials,
-} from "../models/domain/log-in-credentials";
-import { TokenTwoFactorRequest } from "../models/request/identity-token/token-two-factor.request";
-import { AuthRequestResponse } from "../models/response/auth-request.response";
 
 export abstract class AuthService {
-  masterPasswordHash: string;
-  email: string;
-  accessCode: string;
-  authRequestId: string;
-
-  logIn: (
-    credentials:
-      | UserApiLogInCredentials
-      | PasswordLogInCredentials
-      | SsoLogInCredentials
-      | PasswordlessLogInCredentials
-  ) => Promise<AuthResult>;
-  logInTwoFactor: (
-    twoFactor: TokenTwoFactorRequest,
-    captchaResponse: string
-  ) => Promise<AuthResult>;
-  logOut: (callback: () => void) => void;
-  makePreloginKey: (masterPassword: string, email: string) => Promise<SymmetricCryptoKey>;
-  authingWithUserApiKey: () => boolean;
-  authingWithSso: () => boolean;
-  authingWithPassword: () => boolean;
-  authingWithPasswordless: () => boolean;
-  getAuthStatus: (userId?: string) => Promise<AuthenticationStatus>;
-  authResponsePushNotifiction: (notification: AuthRequestPushNotification) => Promise<any>;
-  passwordlessLogin: (
-    id: string,
-    key: string,
-    requestApproved: boolean
-  ) => Promise<AuthRequestResponse>;
-  getPushNotifcationObs$: () => Observable<any>;
+  /** Authentication status for the active user */
+  abstract activeAccountStatus$: Observable<AuthenticationStatus>;
+  /** Authentication status for all known users */
+  abstract authStatuses$: Observable<Record<UserId, AuthenticationStatus>>;
+  /**
+   * Returns an observable authentication status for the given user id.
+   * @note userId is a required parameter, null values will always return `AuthenticationStatus.LoggedOut`
+   * @param userId The user id to check for an access token.
+   */
+  abstract authStatusFor$(userId: UserId): Observable<AuthenticationStatus>;
+  /** @deprecated use {@link activeAccountStatus$} instead */
+  abstract getAuthStatus: (userId?: string) => Promise<AuthenticationStatus>;
+  abstract logOut: (callback: () => void, userId?: string) => void;
 }

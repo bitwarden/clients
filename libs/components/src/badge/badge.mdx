@@ -1,0 +1,44 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./badge.stories";
+
+<Meta of={stories} />
+
+```ts
+import { BadgeModule } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Styles
+
+### Default / Primary
+
+The primary badge is used to indicate an active status (example: device management page) or provide
+additional information (example: type of emergency access granted).
+
+### Subtle
+
+The secondary badge style is typically is a default badge style. It is often used to indicate
+neutral information.
+
+### Success
+
+The success badge is used to indicate a positive status, OR to indicate a feature requires a Premium
+subscription. See [Premium Badge](?path=/docs/web-premium-badge--docs)
+
+### Danger
+
+The danger badge is used to indicate a negative status.
+
+### Warning
+
+The warning badge is used to indicate a status waiting on an additional action from the active user.
+
+## Accessibility
+
+Follows color WCAG color contrast guidelines for small text.

@@ -1,4 +1,6 @@
-import { ITreeNodeObject, TreeNode } from "@bitwarden/common/models/domain/tree-node";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 
 export class DynamicTreeNode<T extends ITreeNodeObject> {
   fullList: T[];

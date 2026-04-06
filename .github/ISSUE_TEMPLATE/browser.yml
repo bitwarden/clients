@@ -1,4 +1,4 @@
-name: Browser Bug Report
+name: Browser Extension Bug Report
 description: File a bug report
 labels: [bug, browser]
 body:
@@ -84,11 +84,11 @@ body:
     attributes:
       label: Browser Version
       description: What version of the browser(s) are you seeing the problem on?
-  - type: input
+  - type: textarea
     id: version
     attributes:
-      label: Build Version
-      description: What version of our software are you running? (go to "Settings" → "About" in the extension)
+      label: Environment Versions
+      description: Copy from "Settings" → "About" → "About Bitwarden" in the extension. Should include the extension version and server environment.
     validations:
       required: true
   - type: checkboxes

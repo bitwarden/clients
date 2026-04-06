@@ -1,13 +1,11 @@
-import { Utils } from "../../misc/utils";
-
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BaseResponse } from "./base.response";
 
 export class ErrorResponse extends BaseResponse {
   message: string;
   validationErrors: { [key: string]: string[] };
   statusCode: number;
-  captchaRequired: boolean;
-  captchaSiteKey: string;
 
   constructor(response: any, status: number, identityResponse?: boolean) {
     super(response);
@@ -26,8 +24,6 @@ export class ErrorResponse extends BaseResponse {
     } else if (errorModel) {
       this.message = this.getResponseProperty("Message", errorModel);
       this.validationErrors = this.getResponseProperty("ValidationErrors", errorModel);
-      this.captchaSiteKey = this.validationErrors?.HCaptcha_SiteKey?.[0];
-      this.captchaRequired = !Utils.isNullOrWhitespace(this.captchaSiteKey);
     }
     this.statusCode = status;
   }

@@ -1,0 +1,14 @@
+{
+  "usage": "Documentation: https://codescene.io/docs/guides/technical/code-health.html. Template: https://codescene.io/projects/26215/config/codehealth/export/code-health-rules.json",
+  "rule_sets": [
+    {
+      "matching_content_path": "**/*.spec.ts",
+      "rules": [
+        {
+          "name": "Code Duplication",
+          "weight": 0.0
+        }
+      ]
+    }
+  ]
+}

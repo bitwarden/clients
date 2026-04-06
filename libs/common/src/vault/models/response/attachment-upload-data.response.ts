@@ -1,5 +1,7 @@
-import { FileUploadType } from "../../../enums/fileUploadType";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BaseResponse } from "../../../models/response/base.response";
+import { FileUploadType } from "../../../platform/enums";
 
 import { CipherResponse } from "./cipher.response";
 

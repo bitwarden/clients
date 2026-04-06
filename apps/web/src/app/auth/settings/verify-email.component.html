@@ -1,0 +1,13 @@
+<bit-banner bannerType="warning" (onClose)="onDismiss.emit()">
+  {{ "verifyEmailDesc" | i18n }}
+  <button
+    id="sendBtn"
+    bitLink
+    linkType="secondary"
+    type="button"
+    buttonType="unstyled"
+    (click)="send()"
+  >
+    {{ "sendEmail" | i18n }}
+  </button>
+</bit-banner>

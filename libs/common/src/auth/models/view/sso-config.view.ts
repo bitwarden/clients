@@ -1,17 +1,23 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { View } from "../../../models/view/view";
 import {
+  MemberDecryptionType,
   OpenIdConnectRedirectBehavior,
   Saml2BindingType,
   Saml2NameIdFormat,
   Saml2SigningBehavior,
   SsoType,
 } from "../../enums/sso";
-import { SsoConfigApi } from "../api/sso-config.api";
+import { OrganizationSsoResponse } from "../response/organization-sso.response";
 
 export class SsoConfigView extends View {
+  enabled: boolean;
+  ssoIdentifier: string;
+
   configType: SsoType;
 
-  keyConnectorEnabled: boolean;
+  memberDecryptionType: MemberDecryptionType;
   keyConnectorUrl: string;
 
   openId: {
@@ -30,6 +36,7 @@ export class SsoConfigView extends View {
   };
 
   saml: {
+    spUniqueEntityId: boolean;
     spNameIdFormat: Saml2NameIdFormat;
     spOutboundSigningAlgorithm: string;
     spSigningBehavior: Saml2SigningBehavior;
@@ -48,55 +55,64 @@ export class SsoConfigView extends View {
     idpWantAuthnRequestsSigned: boolean;
   };
 
-  constructor(api: SsoConfigApi) {
+  constructor(orgSsoResponse: OrganizationSsoResponse) {
     super();
-    if (api == null) {
+
+    if (orgSsoResponse == null) {
       return;
     }
 
-    this.configType = api.configType;
+    this.enabled = orgSsoResponse.enabled;
+    this.ssoIdentifier = orgSsoResponse.identifier;
 
-    this.keyConnectorEnabled = api.keyConnectorEnabled;
-    this.keyConnectorUrl = api.keyConnectorUrl;
+    if (orgSsoResponse.data == null) {
+      return;
+    }
+
+    this.configType = orgSsoResponse.data.configType;
+    this.memberDecryptionType = orgSsoResponse.data.memberDecryptionType;
+
+    this.keyConnectorUrl = orgSsoResponse.data.keyConnectorUrl;
 
     if (this.configType === SsoType.OpenIdConnect) {
       this.openId = {
-        authority: api.authority,
-        clientId: api.clientId,
-        clientSecret: api.clientSecret,
-        metadataAddress: api.metadataAddress,
-        redirectBehavior: api.redirectBehavior,
-        getClaimsFromUserInfoEndpoint: api.getClaimsFromUserInfoEndpoint,
-        additionalScopes: api.additionalScopes,
-        additionalUserIdClaimTypes: api.additionalUserIdClaimTypes,
-        additionalEmailClaimTypes: api.additionalEmailClaimTypes,
-        additionalNameClaimTypes: api.additionalNameClaimTypes,
-        acrValues: api.acrValues,
-        expectedReturnAcrValue: api.expectedReturnAcrValue,
+        authority: orgSsoResponse.data.authority,
+        clientId: orgSsoResponse.data.clientId,
+        clientSecret: orgSsoResponse.data.clientSecret,
+        metadataAddress: orgSsoResponse.data.metadataAddress,
+        redirectBehavior: orgSsoResponse.data.redirectBehavior,
+        getClaimsFromUserInfoEndpoint: orgSsoResponse.data.getClaimsFromUserInfoEndpoint,
+        additionalScopes: orgSsoResponse.data.additionalScopes,
+        additionalUserIdClaimTypes: orgSsoResponse.data.additionalUserIdClaimTypes,
+        additionalEmailClaimTypes: orgSsoResponse.data.additionalEmailClaimTypes,
+        additionalNameClaimTypes: orgSsoResponse.data.additionalNameClaimTypes,
+        acrValues: orgSsoResponse.data.acrValues,
+        expectedReturnAcrValue: orgSsoResponse.data.expectedReturnAcrValue,
       };
     } else if (this.configType === SsoType.Saml2) {
       this.saml = {
-        spNameIdFormat: api.spNameIdFormat,
-        spOutboundSigningAlgorithm: api.spOutboundSigningAlgorithm,
-        spSigningBehavior: api.spSigningBehavior,
-        spMinIncomingSigningAlgorithm: api.spMinIncomingSigningAlgorithm,
-        spWantAssertionsSigned: api.spWantAssertionsSigned,
-        spValidateCertificates: api.spValidateCertificates,
+        spUniqueEntityId: orgSsoResponse.data.spUniqueEntityId,
+        spNameIdFormat: orgSsoResponse.data.spNameIdFormat,
+        spOutboundSigningAlgorithm: orgSsoResponse.data.spOutboundSigningAlgorithm,
+        spSigningBehavior: orgSsoResponse.data.spSigningBehavior,
+        spMinIncomingSigningAlgorithm: orgSsoResponse.data.spMinIncomingSigningAlgorithm,
+        spWantAssertionsSigned: orgSsoResponse.data.spWantAssertionsSigned,
+        spValidateCertificates: orgSsoResponse.data.spValidateCertificates,
 
-        idpEntityId: api.idpEntityId,
-        idpBindingType: api.idpBindingType,
-        idpSingleSignOnServiceUrl: api.idpSingleSignOnServiceUrl,
-        idpSingleLogoutServiceUrl: api.idpSingleLogoutServiceUrl,
-        idpX509PublicCert: api.idpX509PublicCert,
-        idpOutboundSigningAlgorithm: api.idpOutboundSigningAlgorithm,
-        idpAllowUnsolicitedAuthnResponse: api.idpAllowUnsolicitedAuthnResponse,
-        idpWantAuthnRequestsSigned: api.idpWantAuthnRequestsSigned,
+        idpEntityId: orgSsoResponse.data.idpEntityId,
+        idpBindingType: orgSsoResponse.data.idpBindingType,
+        idpSingleSignOnServiceUrl: orgSsoResponse.data.idpSingleSignOnServiceUrl,
+        idpSingleLogoutServiceUrl: orgSsoResponse.data.idpSingleLogoutServiceUrl,
+        idpX509PublicCert: orgSsoResponse.data.idpX509PublicCert,
+        idpOutboundSigningAlgorithm: orgSsoResponse.data.idpOutboundSigningAlgorithm,
+        idpAllowUnsolicitedAuthnResponse: orgSsoResponse.data.idpAllowUnsolicitedAuthnResponse,
+        idpWantAuthnRequestsSigned: orgSsoResponse.data.idpWantAuthnRequestsSigned,
 
         // Value is inverted in the view model (allow instead of disable)
         idpAllowOutboundLogoutRequests:
-          api.idpDisableOutboundLogoutRequests == null
+          orgSsoResponse.data.idpDisableOutboundLogoutRequests == null
             ? null
-            : !api.idpDisableOutboundLogoutRequests,
+            : !orgSsoResponse.data.idpDisableOutboundLogoutRequests,
       };
     }
   }

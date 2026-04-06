@@ -1,4 +1,4 @@
-import { DeviceType } from "../../../enums/deviceType";
+import { DeviceType } from "../../../enums";
 import { BaseResponse } from "../../../models/response/base.response";
 
 const RequestTimeOut = 60000 * 15; //15 Minutes
@@ -6,29 +6,33 @@ const RequestTimeOut = 60000 * 15; //15 Minutes
 export class AuthRequestResponse extends BaseResponse {
   id: string;
   publicKey: string;
-  requestDeviceType: DeviceType;
+  requestDeviceType: string;
+  requestDeviceTypeValue: DeviceType;
+  requestDeviceIdentifier: string;
   requestIpAddress: string;
-  key: string;
-  masterPasswordHash: string;
+  requestCountryName: string;
+  key: string; // Auth-request public-key encrypted user-key. Note: No sender authenticity provided!
   creationDate: string;
   requestApproved?: boolean;
-  requestFingerprint?: string;
   responseDate?: string;
   isAnswered: boolean;
   isExpired: boolean;
+  deviceId?: string; // could be null or empty
 
   constructor(response: any) {
     super(response);
     this.id = this.getResponseProperty("Id");
     this.publicKey = this.getResponseProperty("PublicKey");
     this.requestDeviceType = this.getResponseProperty("RequestDeviceType");
+    this.requestDeviceTypeValue = this.getResponseProperty("RequestDeviceTypeValue");
+    this.requestDeviceIdentifier = this.getResponseProperty("RequestDeviceIdentifier");
     this.requestIpAddress = this.getResponseProperty("RequestIpAddress");
+    this.requestCountryName = this.getResponseProperty("RequestCountryName");
     this.key = this.getResponseProperty("Key");
-    this.masterPasswordHash = this.getResponseProperty("MasterPasswordHash");
     this.creationDate = this.getResponseProperty("CreationDate");
     this.requestApproved = this.getResponseProperty("RequestApproved");
-    this.requestFingerprint = this.getResponseProperty("RequestFingerprint");
     this.responseDate = this.getResponseProperty("ResponseDate");
+    this.deviceId = this.getResponseProperty("RequestDeviceId");
 
     const requestDate = new Date(this.creationDate);
     const requestDateUTC = Date.UTC(
@@ -38,7 +42,7 @@ export class AuthRequestResponse extends BaseResponse {
       requestDate.getUTCHours(),
       requestDate.getUTCMinutes(),
       requestDate.getUTCSeconds(),
-      requestDate.getUTCMilliseconds()
+      requestDate.getUTCMilliseconds(),
     );
 
     const dateNow = new Date(Date.now());
@@ -49,7 +53,7 @@ export class AuthRequestResponse extends BaseResponse {
       dateNow.getUTCHours(),
       dateNow.getUTCMinutes(),
       dateNow.getUTCSeconds(),
-      dateNow.getUTCMilliseconds()
+      dateNow.getUTCMilliseconds(),
     );
 
     this.isExpired = dateNowUTC - requestDateUTC >= RequestTimeOut;

@@ -1,42 +1,146 @@
----
+# This workflow will run in the context of the source of the PR.
+# On a PR from a fork, the pull_request workflow is skipped because the fork will not have access to
+# secrets. To run it successfully from a fork, manually re-run the chromatic-target.yml workflow 
+# which will have run and failed on a fork. See chromatic-target.yml for re-run instructions.
+
 name: Chromatic
 
 on:
   push:
-    paths-ignore:
-      - '.github/workflows/**'
+    branches:
+      - "main"
+      - "rc"
+      - "hotfix-rc"
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_call:
+    inputs: {}
+
+permissions:
+  contents: read
 
 jobs:
+  check-event-source:
+    name: Check event and source
+    runs-on: ubuntu-24.04
+    # Only run on events other than pull_request, and if it is a pull_request event, only run if
+    # the PR comes from an internal contributor
+    # This check avoids running the workflow twice for external/forked PRs that are already running
+    # the pull_request_target workflow
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Check PR event and source
+        run: echo "This PR is from the same repository (Not a fork) or called via workflow_call."
+
   chromatic:
     name: Chromatic
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
+    needs: check-event-source
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
 
     steps:
-      - name: Set up Node
-        uses: actions/setup-node@46071b5c7a2e0c34e49c3cb8a0e792e86e18d5ea  # v2.1.5
+      - name: Check out repo
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          node-version: "16"
-
-      - name: Checkout repo
-        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f  # v2.3.4
-        with:
+          ref: ${{  github.event.pull_request.head.sha }}
           fetch-depth: 0
+          persist-credentials: false
 
-      - name: Cache npm
+      - name: Get changed files
+        id: get-changed-files
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        with:
+          filters: |
+            storyFiles:
+              - "apps/!(cli)/**"
+              - "bitwarden_license/bit-web/src/app/**"
+              - "libs/!(eslint)/**"
+              - "package.json"
+              - ".storybook/**"
+              - "apps/browser/src/autofill/content/components/**"
+
+      - name: Get Node version
+        id: retrieve-node-version
+        if: steps.get-changed-files.outputs.storyFiles == 'true'
+        run: |
+          NODE_NVMRC=$(cat .nvmrc)
+          NODE_VERSION=${NODE_NVMRC/v/''}
+          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Node
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
+        if: steps.get-changed-files.outputs.storyFiles == 'true'
+
+      - name: Cache NPM
         id: npm-cache
-        uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353  # v2.1.6
+        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
         with:
           path: "~/.npm"
           key: ${{ runner.os }}-npm-chromatic-${{ hashFiles('**/package-lock.json') }}
+        if: steps.get-changed-files.outputs.storyFiles == 'true'
 
       - name: Install Node dependencies
+        if: steps.get-changed-files.outputs.storyFiles == 'true'
         run: npm ci
 
-      - name: Publish to Chromatic
-        uses: chromaui/action@c72f0b48c8887c0ef0abe18ad865a6c1e01e73c6
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+  
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "CHROMATIC-PROJECT-TOKEN,CHROMATIC-PROJECT-TOKEN-AUTOFILL"
+  
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      # Manually build the Storybook to resolve a bug related to TurboSnap
+      - name: Build Autofill Storybook
+        if: steps.get-changed-files.outputs.storyFiles == 'true'
+        run: npm run build-storybook:autofill:ci
+
+      - name: Publish to Chromatic for Autofill
+        id: publish-chromatic-autofill
+        uses: chromaui/action@07791f8243f4cb2698bf4d00426baf4b2d1cb7e0 # v13.3.5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          projectToken: ${{ steps.get-kv-secrets.outputs.CHROMATIC-PROJECT-TOKEN-AUTOFILL }}
+          storybookBaseDir: ./apps/browser/src/autofill/content/components
+          storybookBuildDir: ./apps/browser/src/autofill/content/components/storybook-static
           exitOnceUploaded: true
           onlyChanged: true
-          externals: "[\"libs/components/**/*.scss\", \"libs/components/tailwind.config*.js\"]"
+          # Rather than use an `if` check on the whole publish step, we need to tell Chromatic to skip so that any Chromatic-spawned actions are properly skipped
+          skip: ${{ steps.get-changed-files.outputs.storyFiles == 'false' }}
+
+      # Manually build the Storybook to resolve a bug related to TurboSnap
+      - name: Build CL Storybook
+        if: steps.get-changed-files.outputs.storyFiles == 'true'
+        env:
+          AUTOFILL_CHROMATIC_URL: ${{ steps.publish-chromatic-autofill.outputs.storybookUrl }}
+        run: npm run build-storybook:ci
+
+      - name: Publish to Chromatic for CL
+        uses: chromaui/action@07791f8243f4cb2698bf4d00426baf4b2d1cb7e0 # v13.3.5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          projectToken: ${{ steps.get-kv-secrets.outputs.CHROMATIC-PROJECT-TOKEN }}
+          storybookBuildDir: ./storybook-static
+          exitOnceUploaded: true
+          onlyChanged: true
+          externals: |
+            libs/components/**/*.scss
+            libs/components/**/*.css
+            libs/components/tailwind.config*.js
+          # Rather than use an `if` check on the whole publish step, we need to tell Chromatic to skip so that any Chromatic-spawned actions are properly skipped
+          skip: ${{ steps.get-changed-files.outputs.storyFiles == 'false' }}

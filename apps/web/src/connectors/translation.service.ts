@@ -1,4 +1,6 @@
-import { TranslationService as BaseTranslationService } from "@bitwarden/common/services/translation.service";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { TranslationService as BaseTranslationService } from "@bitwarden/common/platform/services/translation.service";
 
 import { SupportedTranslationLocales } from "../translation-constants";
 

@@ -1,12 +1,19 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { CipherType } from "@bitwarden/common/vault/enums";
 export class MenuUpdateRequest {
-  hideChangeMasterPassword: boolean;
-  activeUserId: string;
-  accounts: { [userId: string]: MenuAccount };
+  activeUserId: string | null;
+  accounts: { [userId: string]: MenuAccount } | null;
+  restrictedCipherTypes: CipherType[] | null;
 }
 
 export class MenuAccount {
   isAuthenticated: boolean;
   isLocked: boolean;
+  isLockable: boolean;
   userId: string;
   email: string;
+  hasMasterPassword: boolean;
+  // TODO: PM-32419 - remove feature flag check once fully rolled out
+  multiClientPasswordManagement: boolean;
 }

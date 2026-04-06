@@ -1,34 +1,33 @@
 import { NgModule } from "@angular/core";
 
-import { LoginModule } from "../auth/login/login.module";
-import { OrganizationBadgeModule } from "../vault/individual-vault/organization-badge/organization-badge.module";
-import { VaultFilterModule } from "../vault/individual-vault/vault-filter/vault-filter.module";
+import { AuthModule } from "./auth";
+import { TrialInitiationModule } from "./billing/trial-initiation/trial-initiation.module";
+import { HeaderModule } from "./layouts/header/header.module";
+import { SharedModule } from "./shared";
+import { AccessComponent } from "./tools/send/send-access/access.component";
+import { OrganizationBadgeModule } from "./vault/individual-vault/organization-badge/organization-badge.module";
+import { VaultFilterModule } from "./vault/individual-vault/vault-filter/vault-filter.module";
 
-import { TrialInitiationModule } from "./accounts/trial-initiation/trial-initiation.module";
-import { OrganizationCreateModule } from "./organizations/create/organization-create.module";
-import { OrganizationManageModule } from "./organizations/manage/organization-manage.module";
-import { OrganizationUserModule } from "./organizations/users/organization-user.module";
-import { LooseComponentsModule, SharedModule } from "./shared";
+// Register the locales for the application
+import "./shared/locales";
 
 @NgModule({
   imports: [
     SharedModule,
-    LooseComponentsModule,
+    HeaderModule,
     TrialInitiationModule,
     VaultFilterModule,
     OrganizationBadgeModule,
-    OrganizationManageModule,
-    OrganizationUserModule,
-    OrganizationCreateModule,
-    LoginModule,
+    AuthModule,
+    AccessComponent,
   ],
   exports: [
     SharedModule,
-    LooseComponentsModule,
+    HeaderModule,
     TrialInitiationModule,
     VaultFilterModule,
     OrganizationBadgeModule,
-    LoginModule,
+    AccessComponent,
   ],
   bootstrap: [],
 })

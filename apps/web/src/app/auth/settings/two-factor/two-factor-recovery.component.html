@@ -1,0 +1,23 @@
+<bit-dialog
+  dialogSize="default"
+  [title]="'twoStepLogin' | i18n"
+  [subtitle]="'recoveryCodeTitle' | i18n"
+>
+  <ng-container *ngIf="authed" bitDialogContent>
+    <ng-container *ngIf="code">
+      <p bitTypography="body1" class="tw-text-center">{{ "twoFactorRecoveryYourCode" | i18n }}:</p>
+      <code class="tw-text-lg tw-w-full tw-flex tw-justify-center">{{ code }}</code>
+    </ng-container>
+    <ng-container *ngIf="!code">
+      {{ "twoFactorRecoveryNoCode" | i18n }}
+    </ng-container>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button bitButton type="button" buttonType="primary" (click)="print()" *ngIf="code">
+      {{ "printCode" | i18n }}
+    </button>
+    <button bitButton type="button" buttonType="secondary" bitDialogClose>
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

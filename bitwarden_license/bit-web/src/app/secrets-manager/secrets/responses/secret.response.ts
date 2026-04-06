@@ -10,6 +10,10 @@ export class SecretResponse extends BaseResponse {
   note: string;
   creationDate: string;
   revisionDate: string;
+
+  read: boolean;
+  write: boolean;
+
   projects: SecretProjectResponse[];
 
   constructor(response: any) {
@@ -21,6 +25,9 @@ export class SecretResponse extends BaseResponse {
     this.note = this.getResponseProperty("Note");
     this.creationDate = this.getResponseProperty("CreationDate");
     this.revisionDate = this.getResponseProperty("RevisionDate");
+
+    this.read = this.getResponseProperty("Read");
+    this.write = this.getResponseProperty("Write");
 
     const projects = this.getResponseProperty("Projects");
     this.projects =

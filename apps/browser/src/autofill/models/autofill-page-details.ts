@@ -5,21 +5,20 @@ import AutofillForm from "./autofill-form";
  * The details of a page that have been collected and can be used for autofill
  */
 export default class AutofillPageDetails {
+  /** Non-null asserted. */
+  title!: string;
+  /** Non-null asserted. */
+  url!: string;
+  /** Non-null asserted. */
+  documentUrl!: string;
   /**
-   * A unique identifier for the page
+   * Non-null asserted. A collection of all of the forms in the page DOM, keyed by their `opid`
    */
-  documentUUID: string;
-  title: string;
-  url: string;
-  documentUrl: string;
-  tabUrl: string;
+  forms!: { [id: string]: AutofillForm };
   /**
-   * A collection of all of the forms in the page DOM, keyed by their `opid`
+   * Non-null asserted. A collection of all the fields in the page DOM, keyed by their `opid`
    */
-  forms: { [id: string]: AutofillForm };
-  /**
-   * A collection of all the fields in the page DOM, keyed by their `opid`
-   */
-  fields: AutofillField[];
-  collectedTimestamp: number;
+  fields!: AutofillField[];
+  /** Non-null asserted. */
+  collectedTimestamp!: number;
 }

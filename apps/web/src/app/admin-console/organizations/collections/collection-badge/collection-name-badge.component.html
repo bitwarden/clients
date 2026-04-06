@@ -1,0 +1,6 @@
+<ng-container *ngFor="let c of shownCollections">
+  <span bitBadge variant="secondary">{{ c | collectionNameFromId: collections }}</span>
+</ng-container>
+<ng-container *ngIf="showXMore">
+  <span bitBadge variant="secondary">+ {{ xMoreCount }} more</span>
+</ng-container>

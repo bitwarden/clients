@@ -1,0 +1,36 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog dialogSize="default">
+    <span bitDialogTitle>
+      {{ "confirmUser" | i18n }}
+      <span class="tw-text-muted" bitTypography="body1">{{ name }}</span>
+    </span>
+    <ng-container bitDialogContent>
+      <p bitTypography="body1">
+        {{ "fingerprintEnsureIntegrityVerify" | i18n }}
+        <a
+          bitLink
+          href="https://bitwarden.com/help/fingerprint-phrase/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          {{ "learnMore" | i18n }}</a
+        >
+      </p>
+      <p bitTypography="body1">
+        <code>{{ fingerprint }}</code>
+      </p>
+      <bit-form-control>
+        <input type="checkbox" bitCheckbox formControlName="dontAskAgain" />
+        <bit-label>{{ "dontAskFingerprintAgain" | i18n }}</bit-label>
+      </bit-form-control>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button bitButton bitFormButton type="submit" buttonType="primary">
+        {{ "confirm" | i18n }}
+      </button>
+      <button bitButton bitFormButton type="button" buttonType="secondary" bitDialogClose>
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>
