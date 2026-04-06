@@ -325,6 +325,9 @@
   "applicationsMarkedAsCriticalFail": {
     "message": "Müraciətlər kritik olaraq işarələnmədi"
   },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Failed to unmark applications as critical"
+  },
   "application": {
     "message": "Tətbiq"
   },
@@ -3399,7 +3402,7 @@
     "message": "endirim"
   },
   "discountExpiredOnPurchase": {
-    "message": "Discount expired. Please review your cart total and try again."
+    "message": "Endirimin müddəti bitdi. Lütfən səbətin cəmini yoxlayıb yenidən sınayın."
   },
   "downloadLicense": {
     "message": "Lisenziyanı endir"
@@ -3809,13 +3812,13 @@
     "message": "Siyasətlər"
   },
   "dataControls": {
-    "message": "Data controls"
+    "message": "Veri kontrolları"
   },
   "authentication": {
-    "message": "Authentication"
+    "message": "Kimlik doğrulama"
   },
   "vaultManagement": {
-    "message": "Vault management"
+    "message": "Seyf idarəetməsi"
   },
   "singleSignOn": {
     "message": "Vahid daxil olma"
@@ -4300,6 +4303,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "revokedEmailError": {
+    "message": "1 or more emails belong to revoked members. Restore their access to reinvite."
   },
   "restoredUserId": {
     "message": "$ID$ üçün təşkilat erişimi bərpa edildi.",
@@ -6238,6 +6244,16 @@
     "message": "Müəssisə siyasətinə görə, yalnız mövcud \"Send\"i silə bilərsiniz.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControls": {
+    "message": "Send controls"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Organization members that can manage the organization's policies are exempt from this policy's enforcement."
+  },
   "sendOptions": {
     "message": "Send seçimləri",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6499,11 +6515,11 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "didNotReceiveCodeContactSenderOr": {
-    "message": "Didn't receive a code? Contact the sender to confirm your email address or ",
+    "message": "Kodu almamısınız? E-poçt ünvanınızı təsdiqləmək üçün göndərənlə əlaqə saxlayın və ya ",
     "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "codeResent": {
-    "message": "Resent verification code",
+    "message": "Doğrulama kodu təkrar göndərildi",
     "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -11950,7 +11966,7 @@
     "message": "Güvənilməyən şifrələmə açarları"
   },
   "atRiskPassword": {
-    "message": "At-risk password"
+    "message": "Riskli parollar"
   },
   "changeAtRiskPassword": {
     "message": "Riskli parolları dəyişdir"

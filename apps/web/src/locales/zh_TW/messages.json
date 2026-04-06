@@ -325,6 +325,9 @@
   "applicationsMarkedAsCriticalFail": {
     "message": "標記應用程式為關鍵失敗"
   },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Failed to unmark applications as critical"
+  },
   "application": {
     "message": "應用程式"
   },
@@ -3399,7 +3402,7 @@
     "message": "折扣"
   },
   "discountExpiredOnPurchase": {
-    "message": "Discount expired. Please review your cart total and try again."
+    "message": "折扣已過期。請檢查您的購物車總金額並再試一次。"
   },
   "downloadLicense": {
     "message": "下載授權證"
@@ -3809,13 +3812,13 @@
     "message": "原則"
   },
   "dataControls": {
-    "message": "Data controls"
+    "message": "資料控制"
   },
   "authentication": {
-    "message": "Authentication"
+    "message": "驗證"
   },
   "vaultManagement": {
-    "message": "Vault management"
+    "message": "私密匣管理"
   },
   "singleSignOn": {
     "message": "單一登入"
@@ -4300,6 +4303,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "revokedEmailError": {
+    "message": "1 or more emails belong to revoked members. Restore their access to reinvite."
   },
   "restoredUserId": {
     "message": "已還原 $ID$ 的組織存取權限。",
@@ -6238,6 +6244,16 @@
     "message": "由於企業原則限制，您只能刪除現有的 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControls": {
+    "message": "Send controls"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Organization members that can manage the organization's policies are exempt from this policy's enforcement."
+  },
   "sendOptions": {
     "message": "Send 選項",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6499,11 +6515,11 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "didNotReceiveCodeContactSenderOr": {
-    "message": "Didn't receive a code? Contact the sender to confirm your email address or ",
+    "message": "未收到驗證碼？請聯絡寄件者確認您的電子郵件地址，或",
     "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "codeResent": {
-    "message": "Resent verification code",
+    "message": "已重新傳送驗證碼",
     "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {

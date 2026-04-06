@@ -15,13 +15,13 @@
     "message": "Applications à risque"
   },
   "appLogoLabel": {
-    "message": "Logo Bitwarden"
+    "message": "Logo de Bitwarden"
   },
   "criticalApplications": {
     "message": "Applications critiques"
   },
   "noCriticalAppsAtRisk": {
-    "message": "Aucune application critique à risques"
+    "message": "Aucune application critique à risque"
   },
   "critical": {
     "message": "Critique ($COUNT$)",
@@ -323,6 +323,9 @@
     }
   },
   "applicationsMarkedAsCriticalFail": {
+    "message": "Échec du marquage de l'application comme étant critique"
+  },
+  "applicationsUnmarkedAsCriticalFail": {
     "message": "Échec du marquage de l'application comme étant critique"
   },
   "application": {
@@ -2671,13 +2674,13 @@
     "message": "Afficher les éléments"
   },
   "viewItemsHidePass": {
-    "message": "Afficher les éléments, les mots de passe cachés"
+    "message": "Afficher les éléments (sauf les mots de passe)"
   },
   "editItems": {
     "message": "Modifier les items"
   },
   "editItemsHidePass": {
-    "message": "Modifier les éléments, les mots de passe cachés"
+    "message": "Modifier les éléments (sauf les mots de passe)"
   },
   "disable": {
     "message": "Désactiver"
@@ -4300,6 +4303,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "revokedEmailError": {
+    "message": "1 ou plusieurs courriels appartiennent à des membres révoqués. Restaurez leur accès pour les réinviter."
   },
   "restoredUserId": {
     "message": "Accès à l'organisation restauré pour $ID$.",
@@ -6237,6 +6243,16 @@
   "sendDisabledWarning": {
     "message": "En raison d'une politique de sécurité Entreprise, vous ne pouvez que supprimer un Send existant.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendControls": {
+    "message": "Contrôles du Send"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Définir les options pour créer et éditer les Sends, y compris la possibilité de supprimer les Sends.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Les membres de l'organisation qui peuvent gérer les politiques de sécurité de l'organisation sont exemptés de l'application de cette politique de sécurité."
   },
   "sendOptions": {
     "message": "Options Send",
