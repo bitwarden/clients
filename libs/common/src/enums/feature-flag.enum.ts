@@ -79,6 +79,7 @@ export enum FeatureFlag {
   PM29437_WelcomeDialog = "pm-29437-welcome-dialog-no-ext-prompt",
   PM31039ItemActionInExtension = "pm-31039-item-action-in-extension",
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
+  PM28091AddCopyAndQuickLaunchActions = "pm-28091-add-copy-and-quick-launch-actions",
 
   /* Platform */
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
@@ -141,6 +142,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM29437_WelcomeDialog]: FALSE,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
+  [FeatureFlag.PM28091AddCopyAndQuickLaunchActions]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword]: FALSE,
