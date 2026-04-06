@@ -223,8 +223,8 @@ describe("WebVaultExtensionPromptService", () => {
       const minAgeDays = 0;
       getFeatureFlag.mockResolvedValueOnce(minAgeDays);
 
-      const exactDate = new Date();
-      exactDate.setDate(exactDate.getDate() - 30); // Exactly 30 days old
+      // Use ms-based arithmetic to avoid DST boundary issues that setDate introduces
+      const exactDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
       activeAccountSubject.next({ id: mockUserId, creationDate: exactDate });
 
       const result = await service["profileIsWithinThresholds"]();
