@@ -609,7 +609,7 @@ describe("ChipFilterComponentWithDynamicOptions", () => {
   template: `
     <bit-chip-filter
       placeholderText="Select an option"
-      placeholderIcon="bwi-filter"
+      placeholderIcon="bwi-grid"
       [options]="options()"
       [disabled]="disabled()"
       [fullWidth]="fullWidth()"
