@@ -148,7 +148,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       throw new Error("PolicyComponent not initialized.");
     }
 
-    if ((await policyComponent.confirm()) == false) {
+    if ((await policyComponent.confirm?.()) == false) {
       this.dialogRef.close();
       return;
     }
