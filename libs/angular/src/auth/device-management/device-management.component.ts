@@ -193,6 +193,7 @@ export class DeviceManagementComponent implements OnInit {
         upsertDevice.creationDate = existingDevice.creationDate;
         upsertDevice.firstLogin = new Date(existingDevice.creationDate);
         upsertDevice.id = existingDevice.id;
+        upsertDevice.isTrusted = existingDevice.response?.isTrusted ?? false;
       }
     }
 
@@ -231,14 +232,14 @@ export class DeviceManagementComponent implements OnInit {
   }
 
   private getDeviceIcon(type: DeviceType): string {
-    const defaultIcon = "bwi bwi-desktop";
+    const defaultIcon = "bwi-desktop";
     const categoryIconMap: Record<string, string> = {
-      webApp: "bwi bwi-browser",
-      desktop: "bwi bwi-desktop",
-      mobile: "bwi bwi-mobile",
-      cli: "bwi bwi-cli",
-      extension: "bwi bwi-puzzle",
-      sdk: "bwi bwi-desktop",
+      webApp: "bwi-browser",
+      desktop: "bwi-desktop",
+      mobile: "bwi-mobile",
+      cli: "bwi-cli",
+      extension: "bwi-puzzle",
+      sdk: "bwi-desktop",
     };
 
     const metadata = DeviceTypeMetadata[type];

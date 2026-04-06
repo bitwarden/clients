@@ -16,11 +16,14 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
+import { RiskOverTimeService } from "../services/risk-over-time.service";
 import { ReportLoadingComponent } from "../shared/report-loading.component";
 
 import { ActivityCardComponent } from "./activity-card.component";
 import { PasswordChangeMetricComponent } from "./activity-cards/password-change-metric.component";
 import { NewApplicationsDialogComponent } from "./application-review-dialog/new-applications-dialog.component";
+import { TimePeriod, DEFAULT_TIME_PERIOD } from "./period-selector/period-selector.types";
+import { TrendWidgetComponent, TrendWidgetViewType } from "./trend-widget/trend-widget.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -31,6 +34,7 @@ import { NewApplicationsDialogComponent } from "./application-review-dialog/new-
     SharedModule,
     ActivityCardComponent,
     PasswordChangeMetricComponent,
+    TrendWidgetComponent,
   ],
   templateUrl: "./all-activity.component.html",
 })
@@ -56,18 +60,31 @@ export class AllActivityComponent implements OnInit {
   protected trendChartEnabled = false;
   protected ReportStatusEnum = ReportStatus;
 
+  protected riskOverTimeData$ = this.riskOverTimeService.riskOverTimeData$;
+  protected isRiskOverTimeLoading$ = this.riskOverTimeService.isLoading$;
+  protected riskOverTimeError$ = this.riskOverTimeService.error$;
+
   constructor(
     protected activatedRoute: ActivatedRoute,
     protected allActivitiesService: AllActivitiesService,
     protected dataService: RiskInsightsDataService,
     private dialogService: DialogService,
     protected organizationService: OrganizationService,
+    protected riskOverTimeService: RiskOverTimeService,
   ) {}
 
   async ngOnInit(): Promise<void> {
     this.trendChartEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.AccessIntelligenceTrendChart,
     );
+
+    if (this.trendChartEnabled) {
+      this.riskOverTimeService.initialize(
+        this.organizationId(),
+        DEFAULT_TIME_PERIOD,
+        TrendWidgetViewType.Applications,
+      );
+    }
 
     this.allActivitiesService.reportSummary$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -141,6 +158,14 @@ export class AllActivityComponent implements OnInit {
       this.hasLoadedApplicationData &&
       this.totalApplicationCount > 0 &&
       this.newApplicationsCount === this.totalApplicationCount;
+  }
+
+  onTimespanChanged(timeframe: TimePeriod): void {
+    this.riskOverTimeService.setTimeframe(timeframe);
+  }
+
+  onViewChanged(dataView: TrendWidgetViewType): void {
+    this.riskOverTimeService.setDataView(dataView);
   }
 
   /**

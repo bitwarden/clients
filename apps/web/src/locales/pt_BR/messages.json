@@ -325,6 +325,9 @@
   "applicationsMarkedAsCriticalFail": {
     "message": "Falha ao marcar aplicativos como críticos"
   },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Failed to unmark applications as critical"
+  },
   "application": {
     "message": "Aplicativo"
   },
@@ -3398,6 +3401,9 @@
   "discount": {
     "message": "desconto"
   },
+  "discountExpiredOnPurchase": {
+    "message": "O desconto expirou. Revise o total do seu carrinho e tente novamente."
+  },
   "downloadLicense": {
     "message": "Baixar licença"
   },
@@ -3804,6 +3810,15 @@
   },
   "policies": {
     "message": "Políticas"
+  },
+  "dataControls": {
+    "message": "Controle de dados"
+  },
+  "authentication": {
+    "message": "Autenticação"
+  },
+  "vaultManagement": {
+    "message": "Gerenciamento do cofre"
   },
   "singleSignOn": {
     "message": "Autenticação única"
@@ -4288,6 +4303,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "revokedEmailError": {
+    "message": "1 or more emails belong to revoked members. Restore their access to reinvite."
   },
   "restoredUserId": {
     "message": "Restaurou o acesso de $ID$ à organização.",
@@ -6226,6 +6244,16 @@
     "message": "Devido a uma política corporativa, você só pode apagar um Send existente.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControls": {
+    "message": "Send controls"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Organization members that can manage the organization's policies are exempt from this policy's enforcement."
+  },
   "sendOptions": {
     "message": "Opções de Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6485,6 +6513,14 @@
   "verifyYourEmailToViewThisSend": {
     "message": "Confirme seu e-mail para ver este Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Não recebeu um código? Entre em contato com o remetente para confirmar o seu endereço de e-mail ou ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Código de verificação re-enviado",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "O usuário Bitwarden que criou este Send optou por ocultar seu endereço de e-mail. Você deve certificar-se de que confia na fonte deste link antes de usar ou baixar seu conteúdo.",

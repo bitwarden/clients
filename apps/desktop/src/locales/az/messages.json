@@ -921,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Ana parol ipucusu"
   },
+  "masterPasswordChanged": {
+    "message": "Ana parol saxlanıldı"
+  },
   "passwordStrengthScore": {
     "message": "Parolun güc xalı: $SCORE$",
     "placeholders": {
@@ -1212,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Tövsiyə edilən yeni şifrələmə ayarları, hesabınızın təhlükəsizliyini artıracaq. İndi güncəlləmək üçün ana parolunuzu daxil edin."
   },
+  "rotateAccountEncKey": {
+    "message": "Həmçinin hesabımın şifrələmə açarını da döndər"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Şifrələmə açarınızı döndərməyin təsiri"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Hesabınızın şifrələmə açarını döndərməzdən əvvəl, seyfinizdəki köhnə fayl qoşmalarını düzəltməlisiniz."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Şifrələmə açarını döndər"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Hesabınızın şifrələmə açarını döndərmək istədiyinizə əminsiniz?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Şifrələmə açarını güncəllədikdən sonra, hazırda istifadə etdiyiniz (mobil tətbiq və ya brauzer uzantıları kimi) bütün Bitwarden tətbiqlərində çıxış edib yenidən giriş etməlisiniz. Çıxış edib təkrar giriş etməmək (yeni şifrələmə açarının endirilməsi prosesi) verilərin zədələnməsi ilə nəticələnə bilər. Sizi avtomatik olaraq çıxış etməyə çalışacağıq, ancaq burada gecikmə ola bilər."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Məhdudiyyətli hesablara aid saxladığınız xaricə köçürmələr yararsız olacaq."
+  },
   "confirmIdentityToContinue": {
     "message": "Davam etmək üçün kimliyinizi təsdiqləyin"
   },
@@ -1296,8 +1320,8 @@
   "changeMasterPass": {
     "message": "Ana parolu dəyişdir"
   },
-  "masterPasswordChanged": {
-    "message": "Ana parol saxlanıldı"
+  "changeMasterPassword": {
+    "message": "Ana parolu dəyişdir"
   },
   "continueToWebApp": {
     "message": "Veb tətbiqlə davam edilsin?"
@@ -2102,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "Saxlanılmamış dəyişikliklər"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "If you leave now, your changes will not be saved. Install the update later so you can stay and save your changes."
+  },
+  "installLater": {
+    "message": "Install later"
+  },
+  "continueWithInstall": {
+    "message": "Continue with install"
+  },
   "clone": {
     "message": "Klonla"
   },
@@ -2211,6 +2244,9 @@
   "copyTOTP": {
     "message": "Kimlik doğrulayıcı açarını kopyala (TOTP)"
   },
+  "copyNotes": {
+    "message": "Notları kopyala"
+  },
   "totpHelperTitle": {
     "message": "2 addımlı doğrulamanı problemsiz edin"
   },
@@ -2299,6 +2335,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Yeni ana parolunuz siyasət tələblərini qarşılamır."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Bir və ya daha çox təşkilat siyasəti, aşağıdakı tələbləri qarşılamaq üçün ana parolu tələb edir:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Bitwarden-in tövsiyə, elan və araşdırma imkanlarını gələn qutunuzda əldə edin."
