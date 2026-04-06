@@ -1,4 +1,13 @@
-import { booleanAttribute, Component, HostBinding, input, Optional, Self } from "@angular/core";
+import {
+  booleanAttribute,
+  Component,
+  ElementRef,
+  HostBinding,
+  inject,
+  input,
+  Optional,
+  Self,
+} from "@angular/core";
 import { NgControl, Validators } from "@angular/forms";
 
 import { BitFormControlAbstraction } from "../form-control";
@@ -17,6 +26,8 @@ let nextId = 0;
   },
 })
 export class RadioInputComponent implements BitFormControlAbstraction {
+  readonly inputEl = inject<ElementRef<HTMLInputElement>>(ElementRef);
+
   readonly id = input(`bit-radio-input-${nextId++}`);
 
   @HostBinding("class")
