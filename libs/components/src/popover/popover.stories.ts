@@ -10,10 +10,12 @@ import { LinkModule } from "../link";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { PopoverAnchorForDirective } from "./popover-anchor-for.directive";
+import { PopoverComponent } from "./popover.component";
 import { PopoverModule } from "./popover.module";
 
 export default {
   title: "Component Library/Popover",
+  component: PopoverComponent,
   decorators: [
     moduleMetadata({
       imports: [PopoverModule, ButtonModule, IconModule, LinkModule],

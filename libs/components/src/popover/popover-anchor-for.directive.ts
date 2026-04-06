@@ -21,31 +21,30 @@ import { PopoverComponent } from "./popover.component";
 import { SpotlightService } from "./spotlight.service";
 
 /**
- * Directive that anchors a popover to any element for programmatic control.
- * Ideal for guided tours, tooltips, and contextual help.
- * Use `[(popoverOpen)]` for two-way binding to control visibility.
+ * Directive that anchors a popover to any element with programmatic open/close control.
+ * Use `[(popoverOpen)]` for two-way binding to control visibility from the host component.
  *
  * @example
  * Basic usage:
  * ```html
- * <div [bitPopoverAnchorFor]="tourStep" [(popoverOpen)]="showTour">
- *   Element to highlight
+ * <div [bitPopoverAnchorFor]="myPopover" [(popoverOpen)]="isOpen">
+ *   Anchor element
  * </div>
- * <bit-popover #tourStep>Tour content</bit-popover>
+ * <bit-popover #myPopover>Popover content</bit-popover>
  * ```
  *
  * @example
- * With spotlight effect for guided tours:
+ * With spotlight effect:
  * ```html
- * <div [bitPopoverAnchorFor]="tourStep"
- *      [(popoverOpen)]="showTour"
+ * <div [bitPopoverAnchorFor]="myPopover"
+ *      [(popoverOpen)]="isOpen"
  *      [spotlight]="true"
  *      [spotlightPadding]="12">
- *   Element to highlight
+ *   Anchor element
  * </div>
  * ```
  *
- * Use `PopoverTriggerForDirective` instead if the popover is meant to be manually opened by the user clicking a button.
+ * Use `PopoverTriggerForDirective` instead if the popover should open on user click.
  */
 @Directive({
   selector: "[bitPopoverAnchorFor]",
@@ -58,6 +57,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
   /** The popover component to display */
   readonly popover = input.required<PopoverComponent>({ alias: "bitPopoverAnchorFor" });
 
+  /** Whether clicking the backdrop closes the popover. Defaults to true. */
   readonly closeOnBackdropClick = input<boolean>(true);
 
   /** Preferred popover position (e.g., "right-start", "below-center") */

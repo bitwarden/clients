@@ -19,7 +19,7 @@ import { PopoverHeaderDirective } from "./popover-header.directive";
 
 /**
  * Popover component for displaying contextual content in an overlay.
- * Used with `bitPopoverAnchor` or `bitPopoverTriggerFor` directives.
+ * Used with `bitPopoverAnchorFor` or `bitPopoverTriggerFor` directives.
  */
 @Component({
   selector: "bit-popover",
