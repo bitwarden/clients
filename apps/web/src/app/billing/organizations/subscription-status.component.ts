@@ -58,8 +58,7 @@ export class SubscriptionStatusComponent {
     }
 
     const { status, cancelAtEndDate, cancelledDate } = this.subscription;
-    const pendingCancellation =
-      cancelAtEndDate || (status === "active" && !!cancelledDate);
+    const pendingCancellation = cancelAtEndDate || (status === "active" && !!cancelledDate);
 
     if (status !== "canceled" && pendingCancellation) {
       return "pending_cancellation";
