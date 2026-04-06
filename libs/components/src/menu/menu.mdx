@@ -33,29 +33,29 @@ tables.
 
 ## Action Menus
 
-- Buttons like “new”
-- Overflow buttons
-- Selecting a menu item performs an action
-- Can have a leading icon if it helps reinforce the meaning of the action
-- If one item has a leading icon, all should have a leading icon. That means if one item in the menu
-  doesn’t have a good reinforcing icon, don’t use them at all
+Action menus are used used for contextual actions such as edit, delete, copy, and similar
+operations.
+
+- Support optional leading icons and a danger-action variant for destructive operations.
+- If using leading icons, all menu items must have a leading icon; otherwise, no menu items should
+  have a leading icon.
+- Default width is 200px, max width is 400px, and max height is 400px.
+- Scrolling may occur at sizes below 400px due to screen height or other vertical size limitations.
 
 <Canvas of={stories.ActionMenu} />
 
 ## Input Menus
 
-- Single and multi-select input fields
-- Selecting a menu item makes an input
-- Display checkmark and highlight on selected item(s)
-- Parents of nested selections like folders and collections are not themselves selectable
+Input menus set the value of a form input. Selected values are displayed right away in their parent
+field, so these menus do not typically require iterative in-menu scanning. Subtle checkmarks and
+background highlights reinforce the field’s value rather than compete with it.
 
-Pass `[selectable]="true"` into input menu items in order to enable selected styles
+- Used as the options list for both single-select and multi-select input fields.
+- Their width should match the width of the parent input field or form.
+- Max height is 400px.
+- Scrolling may occur at sizes below 400px due to screen height or other vertical size limitations.
 
 <Canvas of={stories.InputMenu} />
-
-## Filter Menus
-
-<Canvas of={stories.FilterMenu} />
 
 ## Why do we have different affordances for filter menus and input menus?
 
@@ -71,6 +71,12 @@ require iterative in-menu scanning. Subtle checkmarks and background highlights 
 field’s value rather than compete with it.
 
 ## Nested Menu Items
+
+Nested menu items support hierarchical navigation within a dropdown, allowing a parent item to
+reveal a submenu of child options.
+
+Nested menus are currently used exclusively to support the filter pattern on the browser extension,
+unless adopted elsewhere. They are considered part of the input menu type for now.
 
 <Canvas of={stories.NestedMenu} />
 

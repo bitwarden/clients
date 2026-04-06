@@ -142,10 +142,10 @@ export const ActionMenu: Story = {
       </bit-menu>
 
       <div class="tw-flex tw-gap-4">
-        <div class="bit-menu-panel tw-w-[200px]">
+        <div class="tw-w-[200px]">
           <ng-container *ngTemplateOutlet="myMenu.templateRef()"></ng-container>
         </div>
-        <div class="bit-menu-panel tw-w-[200px]">
+        <div class="tw-w-[200px]">
           <ng-container *ngTemplateOutlet="noIconsMenu.templateRef()"></ng-container>
         </div>
       </div>
@@ -171,69 +171,8 @@ export const InputMenu: Story = {
         </button>
       </bit-menu>
 
-      <div class="bit-menu-panel tw-w-[200px]">
+      <div class="tw-w-[200px]">
         <ng-container *ngTemplateOutlet="inputMenu.templateRef()"></ng-container>
-      </div>
-      `,
-  }),
-};
-
-export const FilterMenu: Story = {
-  render: () => ({
-    template: /*html*/ `
-      <bit-menu #filterMenu="menuComponent">        
-        <button type="button" bitMenuItem>
-          <input type="radio" bitRadio slot="start" class="!tw-p-1" />
-          Approved
-          <span slot="end"> 100 </span>
-        </button>
-        <button type="button" bitMenuItem>
-          <input type="radio" bitRadio slot="start" class="!tw-p-1" />
-          Pending approval
-          <span slot="end"> 10 </span>
-        </button>
-        <button type="button" bitMenuItem>
-          <input type="radio" bitRadio slot="start" class="!tw-p-1" />
-          Invited
-          <span slot="end"> 15 </span>
-        </button>
-        <button type="button" bitMenuItem>
-          <input type="radio" bitRadio slot="start" class="!tw-p-1" />
-          Revoked
-          <span slot="end"> 2 </span>
-        </button>
-
-        <bit-menu-divider></bit-menu-divider>
-
-        <button type="button" bitMenuItem>
-          <input type="checkbox" bitCheckbox slot="start" />
-          Leadership
-          <span slot="end"> (456) </span>
-        </button>
-        <button type="button" bitMenuItem>
-          <input type="checkbox" bitCheckbox slot="start" />
-          Engineering
-          <span slot="end"> (456) </span>
-        </button>
-        <button type="button" bitMenuItem>
-          <input type="checkbox" bitCheckbox slot="start" />
-          Design
-          <span slot="end"> (456) </span>
-        </button>
-        <button type="button" bitMenuItem>
-          <input type="checkbox" bitCheckbox slot="start" />
-          Marketing
-          <span slot="end"> (456) </span>
-        </button>
-        <button type="button" bitMenuItem>
-          <input type="checkbox" bitCheckbox slot="start" />
-          Sales
-          <span slot="end"> (456) </span>
-        </button>
-      </bit-menu>
-
-      <div class="bit-menu-panel tw-w-[280px]">
-        <ng-container *ngTemplateOutlet="filterMenu.templateRef()"></ng-container>
       </div>
       `,
   }),
@@ -259,7 +198,7 @@ export const NestedMenu: Story = {
         </button>
       </bit-menu>
 
-      <div class="bit-menu-panel tw-w-[200px]">
+      <div class="tw-w-[200px]">
         <ng-container *ngTemplateOutlet="filterMenu.templateRef()"></ng-container>
       </div>
       `,

@@ -26,12 +26,20 @@ export class MenuItemComponent implements FocusableOption {
   protected readonly computedStyles = computed(() => {
     switch (this.variant()) {
       case "primary":
-        return ["tw-text-fg-body", "hover:tw-text-fg-heading", "hover:tw-bg-bg-brand-softer"];
+        return [
+          "tw-text-fg-body",
+          "hover:tw-text-fg-heading",
+          "hover:tw-bg-bg-brand-softer",
+          "focus-visible:tw-text-fg-heading",
+          "focus-visible:tw-bg-bg-brand-softer",
+        ];
       case "danger":
         return [
           "tw-text-fg-danger",
           "hover:tw-text-fg-danger-strong",
           "hover:tw-bg-bg-danger-soft",
+          "focus-visible:tw-text-fg-danger-strong",
+          "focus-visible:tw-bg-bg-danger-soft",
         ];
       default:
         return [];
