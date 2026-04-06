@@ -227,7 +227,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.formGroup.controls.masterPassword.setErrors(null);
           this.formGroup.controls.masterPassword.updateValueAndValidity();
           // Fetch new prelogin data for the updated region
-          this.makePasswordPreloginCall().catch((err) => this.logService.error(err));
+          this.prefetchPasswordPreloginData();
         }
       });
   }
