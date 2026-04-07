@@ -5,18 +5,24 @@
 >
   <label
     [for]="base.inputId()"
-    class="tw-absolute tw-top-0 tw-left-0 tw-size-full tw-cursor-pointer"
+    class="tw-absolute tw-top-0 tw-left-0 tw-size-full"
+    [class]="base.formControl().disabled ? 'tw-cursor-default' : 'tw-cursor-pointer'"
   ></label>
 
   <div class="tw-flex tw-items-center tw-gap-4">
     @if (icon()) {
       <!-- this positioning style to account for tile staying top aligned when text wraps -->
-      <bit-icon-tile class="tw-self-start tw-relative tw-top-[1px]" [icon]="icon()"></bit-icon-tile>
+      <bit-icon-tile
+        [variant]="base.formControl().disabled ? 'subtle' : 'primary'"
+        class="tw-self-start tw-relative tw-top-[1px]"
+        [icon]="icon()"
+      ></bit-icon-tile>
     }
 
     <span
       class="tw-inline-flex tw-flex-col"
       [class.tw-text-fg-inactive]="base.formControl().disabled"
+      [class]="base.formControl().disabled ? '[&_bit-hint]:!tw-text-fg-inactive' : ''"
       [class.tw-text-fg-heading]="!base.formControl().disabled"
     >
       <span
