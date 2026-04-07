@@ -2,7 +2,7 @@ import { ApplicationHealthView } from "@bitwarden/bit-common/dirt/access-intelli
 import { createReport } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { DrawerMemberData } from "../../models/drawer-content-data.types";
+import { DrawerMemberData } from "../models/drawer-content-data.types";
 
 /**
  * Creates a mock cipher for Storybook stories
