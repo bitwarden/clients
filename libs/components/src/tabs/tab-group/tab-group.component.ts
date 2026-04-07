@@ -26,7 +26,10 @@ import { BerryComponent } from "../../berry";
 import { IconModule } from "../../icon";
 import { MenuModule } from "../../menu";
 import { TabHeaderComponent } from "../shared/tab-header.component";
-import { TabListContainerDirective } from "../shared/tab-list-container.directive";
+import {
+  TabListContainerDirective,
+  tabListContainerGap,
+} from "../shared/tab-list-container.directive";
 import { TabListItemDirective } from "../shared/tab-list-item.directive";
 
 import { TabBodyComponent } from "./tab-body.component";
@@ -78,11 +81,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
   private readonly tabHeader = viewChild.required(TabHeaderComponent, { read: ElementRef });
   private readonly tabHeaderWidth = signal(0);
 
-  private readonly tabListContainer = viewChild.required<ElementRef>("tabListContainer");
-
   private readonly moreButton = viewChild.required<ElementRef>("moreButton");
-
-  private readonly gapBetweenTabs = signal(0);
 
   /** Cached tab widths measured before any hiding, keyed by index. */
   private readonly tabWidths = signal<number[]>([]);
@@ -101,7 +100,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
     const containerWidth = this.tabHeaderWidth();
 
     const totalTabsWidth = this.tabWidths().reduce(
-      (sum, w, i) => sum + w + (i > 0 ? this.gapBetweenTabs() : 0),
+      (sum, w, i) => sum + w + (i > 0 ? tabListContainerGap : 0),
       0,
     );
 
@@ -115,7 +114,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
     let totalWidth = 0;
     const tabWidths = this.tabWidths();
     for (let i = 0; i < tabWidths.length; i++) {
-      totalWidth += tabWidths[i] + (i > 0 ? this.gapBetweenTabs() : 0);
+      totalWidth += tabWidths[i] + (i > 0 ? tabListContainerGap : 0);
       if (totalWidth > availableWidth) {
         return i;
       }
@@ -256,10 +255,6 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
         // Skip disabled and hidden tabs to allow focus to move to "More" button on keyboard navigation
         .skipPredicate((item) => item.disabled || item.elementRef.nativeElement.hidden),
     );
-
-    this.gapBetweenTabs.set(
-      parseFloat(window.getComputedStyle(this.tabListContainer().nativeElement).gap),
-    );
   }
 
   private _clampTabIndex(index: number): number {
@@ -309,7 +304,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
 
     if (entries != null) {
       // Called by ResizeObserver — button is visible, read directly from entries
-      this.moreButtonWidth.set(entries[0].contentBoxSize[0].inlineSize + this.gapBetweenTabs());
+      this.moreButtonWidth.set(entries[0].contentBoxSize[0].inlineSize + tabListContainerGap);
       return;
     }
 
@@ -322,7 +317,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
       void window.getComputedStyle(moreButtonEl).width;
     }
 
-    this.moreButtonWidth.set(moreButtonEl.getBoundingClientRect().width + this.gapBetweenTabs());
+    this.moreButtonWidth.set(moreButtonEl.getBoundingClientRect().width + tabListContainerGap);
 
     // Hide the more button again if it was originally hidden
     if (wasHidden) {

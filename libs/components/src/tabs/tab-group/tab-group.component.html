@@ -1,5 +1,5 @@
 @let tabLabelContentClasses =
-  "tw-flex tw-items-center tw-gap-1.5 tw-rounded group-focus-visible:tw-ring-2 group-focus-visible:tw-ring-border-focus";
+  "tw-flex tw-items-center tw-gap-1.5 tw-rounded group-focus-visible/tab-list-item:tw-ring-2 group-focus-visible/tab-list-item:tw-ring-border-focus";
 
 <ng-template #tabLabelContent let-tab="tab" let-truncate="truncate">
   <span [class]="tabLabelContentClasses">
@@ -21,7 +21,6 @@
 
 <bit-tab-header>
   <div
-    #tabListContainer
     bitTabListContainer
     role="tablist"
     [attr.aria-label]="label()"
