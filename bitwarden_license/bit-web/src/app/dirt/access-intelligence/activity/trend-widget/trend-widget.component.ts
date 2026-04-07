@@ -185,6 +185,7 @@ export class TrendWidgetComponent {
 
   protected readonly lineChartConfiguration: ChartConfig = {
     xAxisType: "datetime",
+    showMinMaxDates: true,
   };
 
   protected downloadAsPNG(): void {

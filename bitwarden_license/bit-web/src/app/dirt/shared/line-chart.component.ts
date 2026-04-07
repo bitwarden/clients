@@ -56,6 +56,7 @@ export type ChartConfig = {
   yAxisLabel?: string;
   xAxisType: "datetime" | "default";
   timeDisplayFormat?: string;
+  showMinMaxDates?: boolean;
 };
 
 @Component({
@@ -83,7 +84,10 @@ export class LineChartComponent implements OnDestroy {
       if (!chart) {
         return;
       }
-      chart.options = this.buildOptions(configuration);
+      const dateRange = configuration.showMinMaxDates
+        ? this.getDateRange(untracked(() => this.lines()))
+        : undefined;
+      chart.options = this.buildOptions(configuration, dateRange);
       chart.update();
     });
 
@@ -94,6 +98,11 @@ export class LineChartComponent implements OnDestroy {
         return;
       }
       chart.data.datasets = this.mapLinesToDatasetObjects(lineData);
+      const configuration = untracked(() => this.configuration());
+      if (configuration.showMinMaxDates) {
+        const dateRange = this.getDateRange(lineData);
+        chart.options = this.buildOptions(configuration, dateRange);
+      }
       chart.update();
     });
   }
@@ -110,12 +119,14 @@ export class LineChartComponent implements OnDestroy {
       return;
     }
 
+    const dateRange = configuration.showMinMaxDates ? this.getDateRange(lineData) : undefined;
+
     const config: ChartConfiguration<"line"> = {
       type: "line",
       data: {
         datasets: this.mapLinesToDatasetObjects(lineData),
       },
-      options: this.buildOptions(configuration),
+      options: this.buildOptions(configuration, dateRange),
     };
 
     this.chart.set(new Chart(ctx, config));
@@ -123,6 +134,7 @@ export class LineChartComponent implements OnDestroy {
 
   private buildOptions(
     configuration: ChartConfig,
+    dateRange?: { min: number; max: number },
   ): NonNullable<ChartConfiguration<"line">["options"]> {
     const options: NonNullable<ChartConfiguration<"line">["options"]> = {
       responsive: true,
@@ -178,7 +190,46 @@ export class LineChartComponent implements OnDestroy {
       };
     }
 
+    // if we need to show min and max dates
+    // and we have a valid date range
+    // and the x-axis is datetime, add the min and max as ticks
+    if (configuration.showMinMaxDates && dateRange && configuration.xAxisType === "datetime") {
+      options.scales.x.afterBuildTicks = (scale) => {
+        const { min, max } = dateRange;
+
+        if (min === max) {
+          scale.ticks = [{ value: min }];
+          return;
+        }
+
+        const threshold = (max - min) * 0.1;
+        scale.ticks = scale.ticks.filter(
+          (t) => t.value > min + threshold && t.value < max - threshold,
+        );
+        scale.ticks.unshift({ value: min });
+        scale.ticks.push({ value: max });
+      };
+    }
+
+    if (
+      configuration.showMinMaxDates &&
+      configuration.xAxisType === "datetime" &&
+      options.scales?.x?.ticks
+    ) {
+      options.scales.x.ticks.maxTicksLimit = 4;
+    }
+
     return options;
+  }
+
+  private getDateRange(lines: LineData[]): { min: number; max: number } | undefined {
+    const timestamps = lines.flatMap((l) =>
+      l.pointData.map((p) => (p.x instanceof Date ? p.x.getTime() : p.x)),
+    );
+    if (!timestamps.length) {
+      return undefined;
+    }
+    return { min: Math.min(...timestamps), max: Math.max(...timestamps) };
   }
 
   private mapLinesToDatasetObjects(lines: LineData[]): ChartDataset<"line">[] {
