@@ -2,8 +2,8 @@ import { Injectable } from "@angular/core";
 
 import { LogService } from "@bitwarden/logging";
 
-import { isAccessReportSummaryData } from "../../../../../reports/risk-insights/helpers";
-import { AccessReportSummaryData } from "../../../../models";
+import { isAccessReportSummaryView } from "../../../../../reports/risk-insights/helpers";
+import { AccessReportSummaryView } from "../../../../models";
 import {
   UnsupportedVersionError,
   VersioningService,
@@ -11,14 +11,14 @@ import {
 } from "../../../abstractions/versioning.service";
 
 @Injectable()
-export class SummaryVersioningService extends VersioningService<AccessReportSummaryData> {
+export class SummaryVersioningService extends VersioningService<AccessReportSummaryView> {
   readonly currentVersion = 1;
 
   constructor(private logService: LogService) {
     super();
   }
 
-  process(json: unknown): { data: AccessReportSummaryData; wasLegacy: boolean } {
+  process(json: unknown): { data: AccessReportSummaryView; wasLegacy: boolean } {
     if (isVersionEnvelope(json)) {
       if (json.version !== this.currentVersion) {
         throw new UnsupportedVersionError(json.version);
@@ -26,25 +26,28 @@ export class SummaryVersioningService extends VersioningService<AccessReportSumm
       this.logService.debug(
         `[SummaryVersioningService] Summary blob: version ${this.currentVersion} — no transformation needed`,
       );
-      if (!isAccessReportSummaryData(json.data)) {
-        const errors = isAccessReportSummaryData.explain(json.data).join("; ");
+      if (!isAccessReportSummaryView(json.data)) {
+        const errors = isAccessReportSummaryView.explain(json.data).join("; ");
         throw new Error(`Summary data validation failed: ${errors}`);
       }
-      return { data: json.data, wasLegacy: false };
+      return { data: AccessReportSummaryView.fromJSON(json.data), wasLegacy: false };
     }
 
     // Legacy: plain object without envelope (original unversioned format)
     this.logService.warning(
-      `[SummaryVersioningService] Summary blob: unversioned (legacy) format detected — will be re-saved at version ${this.currentVersion}`,
+      `[SummaryVersioningService] Summary blob: unversioned (legacy) format detected — transforming to version ${this.currentVersion}`,
     );
-    if (!isAccessReportSummaryData(json)) {
-      const errors = isAccessReportSummaryData.explain(json).join("; ");
+    if (!isAccessReportSummaryView(json)) {
+      const errors = isAccessReportSummaryView.explain(json).join("; ");
       throw new Error(`Summary data validation failed: ${errors}`);
     }
-    return { data: json, wasLegacy: true };
+    return { data: AccessReportSummaryView.fromJSON(json), wasLegacy: true };
   }
 
-  serialize(data: AccessReportSummaryData): string {
-    return JSON.stringify({ version: this.currentVersion, data });
+  serialize(view: AccessReportSummaryView): string {
+    // Exclude `date` — it comes from the API envelope, not the blob payload
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { date: _date, ...countFields } = { ...view };
+    return JSON.stringify({ version: this.currentVersion, data: countFields });
   }
 }

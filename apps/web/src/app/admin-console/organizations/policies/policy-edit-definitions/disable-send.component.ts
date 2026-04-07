@@ -8,11 +8,14 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 export class DisableSendPolicy extends BasePolicyEditDefinition {
   name = "disableSend";
   description = "disableSendPolicyDesc";
   type = PolicyType.DisableSend;
+  category = PolicyCategory.DataControl;
+  priority = 40;
   component = DisableSendPolicyComponent;
 
   override display$(organization: Organization, configService: ConfigService): Observable<boolean> {

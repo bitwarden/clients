@@ -60,6 +60,10 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
 
     this.setPaymentInformation(request, subscription.payment);
 
+    if (subscription.coupons?.length) {
+      request.coupons = subscription.coupons;
+    }
+
     const response = await this.organizationApiService.create(request);
 
     await this.apiService.refreshIdentityToken();

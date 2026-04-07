@@ -396,10 +396,12 @@ export const Enterprise: Story = {
             cost: 1,
           },
         },
-        discount: {
-          type: DiscountTypes.PercentOff,
-          value: 25,
-        },
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 25,
+          },
+        ],
         cadence: "monthly",
         estimatedTax: 6.4,
       },

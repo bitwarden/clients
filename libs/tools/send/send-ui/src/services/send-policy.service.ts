@@ -7,7 +7,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import {} from "@bitwarden/admin-console/common";
 
 export const WhoCanAccessType = Object.freeze({
   Any: 0,

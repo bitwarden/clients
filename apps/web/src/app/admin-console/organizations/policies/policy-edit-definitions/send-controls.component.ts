@@ -16,14 +16,17 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { WhoCanAccessType } from "@bitwarden/send-ui";
-import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
+import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 export class SendControlsPolicy extends BasePolicyEditDefinition {
   name = "sendControls";
   description = "sendControlsPolicyDesc";
   type = PolicyType.SendControls;
+  category = PolicyCategory.DataControl;
+  priority = 30;
   component = SendControlsPolicyComponent;
 
   override display$(organization: Organization, configService: ConfigService): Observable<boolean> {

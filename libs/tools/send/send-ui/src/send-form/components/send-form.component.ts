@@ -12,12 +12,15 @@ import {
   Input,
   OnChanges,
   OnInit,
+  output,
   Output,
+  viewChild,
   ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
@@ -53,6 +56,7 @@ import { SendDetailsComponent } from "./send-details/send-details.component";
   imports: [
     AsyncActionsModule,
     CalloutComponent,
+    JslibModule,
     TypographyModule,
     ItemModule,
     FormFieldModule,
@@ -106,6 +110,13 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onSendUpdated = new EventEmitter<SendView>();
+
+  /**
+   * Event emitted when the user requests to open the password generator.
+   */
+  readonly openPasswordGenerator = output<void>();
+
+  readonly sendDetailsComponent = viewChild(SendDetailsComponent);
 
   /**
    * The original send being edited or cloned. Null for add mode.

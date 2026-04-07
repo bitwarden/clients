@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "திறக்கும் விருப்பத்தேர்வுகள்"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "உங்கள் வால்ட் காலக்கெடு செயலை மாற்ற ஒரு திறக்கும் முறையை அமைக்கவும்."
-  },
   "unlockMethodNeeded": {
     "message": "அமைப்புகளில் ஒரு திறக்கும் முறையை அமைக்கவும்"
   },
   "sessionTimeoutHeader": {
     "message": "அமர்வு காலக்கெடு"
-  },
-  "vaultTimeoutHeader": {
-    "message": "வால்ட் காலக்கெடு"
   },
   "otherOptions": {
     "message": "பிற விருப்பத்தேர்வுகள்"
@@ -2372,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "நீங்கள் தேர்ந்தெடுத்த முதன்மை கடவுச்சொல் பலவீனமானது. உங்கள் Bitwarden கணக்கைப் பாதுகாக்க, நீங்கள் ஒரு வலுவான முதன்மை கடவுச்சொல்லை (அல்லது ஒரு கடவுச்சொல் சொற்றொடரை) பயன்படுத்த வேண்டும். இந்த முதன்மை கடவுச்சொல்லைப் பயன்படுத்த நீங்கள் உறுதியாக இருக்கிறீர்களா?"
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2480,8 @@
   "vaultTimeoutAction": {
     "message": "பெட்டக காலக்கெடு நடவடிக்கை"
   },
-  "vaultTimeoutAction1": {
-    "message": "காலக்கெடு நடவடிக்கை"
+  "showAtRiskPasswordNotifications": {
+    "message": "Show at-risk password notifications"
   },
   "lock": {
     "message": "பூட்டு",
@@ -3229,9 +3247,6 @@
   },
   "minutes": {
     "message": "நிமிடங்கள்"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "நிறுவன கொள்கை தேவைகள் உங்கள் காலக்கெடு விருப்பங்களுக்குப் பயன்படுத்தப்பட்டுள்ளன"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "உங்கள் நிறுவன கொள்கைகள் உங்கள் அதிகபட்ச அனுமதிக்கப்பட்ட பெட்டக காலக்கெடுவை $HOURS$ மணிநேரம் மற்றும் $MINUTES$ நிமிடங்களாக அமைத்துள்ளன.",
@@ -4435,6 +4450,9 @@
   },
   "exportSuccess": {
     "message": "வால்ட் தரவு ஏற்றுமதி செய்யப்பட்டது"
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
   },
   "typePasskey": {
     "message": "பாஸ்கி"
@@ -6130,8 +6148,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6157,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
   },
   "items": {
     "message": "Items"
@@ -6178,9 +6199,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6214,8 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }
