@@ -13,11 +13,11 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { IntegrationDialogResultStatus } from "../integration-dialog-result-status";
 
 import {
-  ConnectHuntressDialogComponent,
-  HuntressConnectDialogParams,
-  HuntressConnectDialogResult,
-  openHuntressConnectDialog,
-} from "./connect-dialog-huntress.component";
+  ConnectViaHecTokenDialogComponent,
+  ConnectViaHecTokenDialogParams,
+  ConnectViaHecTokenDialogResult,
+  openConnectViaHecTokenDialog,
+} from "./connect-via-hec-token-dialog.component";
 
 beforeAll(() => {
   // Mock element.animate for jsdom
@@ -55,9 +55,9 @@ beforeAll(() => {
 });
 
 describe("ConnectHuntressDialogComponent", () => {
-  let component: ConnectHuntressDialogComponent;
-  let fixture: ComponentFixture<ConnectHuntressDialogComponent>;
-  let dialogRefMock = mock<DialogRef<HuntressConnectDialogResult>>();
+  let component: ConnectViaHecTokenDialogComponent;
+  let fixture: ComponentFixture<ConnectViaHecTokenDialogComponent>;
+  let dialogRefMock = mock<DialogRef<ConnectViaHecTokenDialogResult>>();
   const mockI18nService = mock<I18nService>();
 
   const integrationMock: Integration = {
@@ -71,12 +71,12 @@ describe("ConnectHuntressDialogComponent", () => {
     type: IntegrationType.EVENT,
   } as Integration;
 
-  const connectInfo: HuntressConnectDialogParams = {
+  const connectInfo: ConnectViaHecTokenDialogParams = {
     settings: integrationMock,
   };
 
   beforeEach(async () => {
-    dialogRefMock = mock<DialogRef<HuntressConnectDialogResult>>();
+    dialogRefMock = mock<DialogRef<ConnectViaHecTokenDialogResult>>();
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, SharedModule, BrowserAnimationsModule],
@@ -91,7 +91,7 @@ describe("ConnectHuntressDialogComponent", () => {
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ConnectHuntressDialogComponent);
+    fixture = TestBed.createComponent(ConnectViaHecTokenDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
     mockI18nService.t.mockImplementation((key) => key);
@@ -169,22 +169,22 @@ describe("ConnectHuntressDialogComponent", () => {
   });
 
   it("should return false for isUpdateAvailable when no config exists", () => {
-    component.huntressConfig = null;
+    component.hecConfiguration = null;
     expect(component.isUpdateAvailable).toBeFalsy();
   });
 
   it("should return true for isUpdateAvailable when config exists", () => {
-    component.huntressConfig = { uri: "test", token: "test" } as any;
+    component.hecConfiguration = { uri: "test", token: "test" } as any;
     expect(component.isUpdateAvailable).toBeTruthy();
   });
 
   it("should return false for canDelete when no config exists", () => {
-    component.huntressConfig = null;
+    component.hecConfiguration = null;
     expect(component.canDelete).toBeFalsy();
   });
 
   it("should return true for canDelete when config exists", () => {
-    component.huntressConfig = { uri: "test", token: "test" } as any;
+    component.hecConfiguration = { uri: "test", token: "test" } as any;
     expect(component.canDelete).toBeTruthy();
   });
 });
@@ -193,14 +193,14 @@ describe("openHuntressConnectDialog", () => {
   it("should call dialogService.open with correct params", () => {
     const dialogServiceMock = mock<DialogService>();
     const config: DialogConfig<
-      HuntressConnectDialogParams,
-      DialogRef<HuntressConnectDialogResult>
+      ConnectViaHecTokenDialogParams,
+      DialogRef<ConnectViaHecTokenDialogResult>
     > = {
       data: { settings: { name: "Huntress" } as Integration },
     } as any;
 
-    openHuntressConnectDialog(dialogServiceMock, config);
+    openConnectViaHecTokenDialog(dialogServiceMock, config);
 
-    expect(dialogServiceMock.open).toHaveBeenCalledWith(ConnectHuntressDialogComponent, config);
+    expect(dialogServiceMock.open).toHaveBeenCalledWith(ConnectViaHecTokenDialogComponent, config);
   });
 });

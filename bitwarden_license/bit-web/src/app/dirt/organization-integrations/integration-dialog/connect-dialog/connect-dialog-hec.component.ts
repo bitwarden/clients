@@ -73,6 +73,10 @@ export class ConnectHecDialogComponent implements OnInit {
     return !!this.hecConfig;
   }
 
+  get urlHelperLinkText(): string {
+    return this.connectInfo.settings.urlHelperLinkText ?? "";
+  }
+
   submit = async (): Promise<void> => {
     if (this.formGroup.invalid) {
       this.formGroup.markAllAsTouched();
