@@ -401,6 +401,7 @@
 
   --color-bg-batch-bar: var(--color-brand-900);
   --color-bg-batch-bar-hover: var(--color-brand-700);
+  --color-border-batch-bar: var(--color-brand-700);
 }
 
 .theme_light {
@@ -633,8 +634,9 @@
    * BATCH BAR CUSTOM COLORS (Dark mode)
    * ======================================== */
 
-  --color-bg-batch-bar: var(--color-brand-700);
+  --color-bg-batch-bar: var(--color-brand-100);
   --color-bg-batch-bar-hover: var(--color-brand-800);
+  --color-border-batch-bar: var(--color-brand-200);
 }
 
 @layer components {
