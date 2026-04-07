@@ -67,6 +67,12 @@ export class ScimComponent implements OnInit {
   }
 
   loadApiKey = async () => {
+    if (this.showScimKey) {
+      this.showScimKey = false;
+      this.formData.patchValue({ clientSecret: "••••••••••••••••" });
+      return;
+    }
+
     const dialogRef = ScimApiKeyDialogComponent.open(this.dialogService, {
       organizationId: this.organizationId,
       isRotation: false,
@@ -78,6 +84,7 @@ export class ScimComponent implements OnInit {
         endpointUrl: await this.getScimEndpointUrl(),
         clientSecret: result.apiKey,
       });
+      this.showScimKey = true;
     }
   };
 
@@ -151,11 +158,6 @@ export class ScimComponent implements OnInit {
     return env.getScimUrl() + "/" + this.organizationId;
   }
 
-  toggleScimKey = () => {
-    this.showScimKey = !this.showScimKey;
-    document.getElementById("clientSecret").focus();
-  };
-
   private async setConnectionFormValues(connection: OrganizationConnectionResponse<ScimConfigApi>) {
     this.existingConnectionId = connection?.id;
     if (connection !== null && connection.config?.enabled) {
@@ -163,7 +165,7 @@ export class ScimComponent implements OnInit {
       this.enabled.setValue(true);
       this.formData.setValue({
         endpointUrl: await this.getScimEndpointUrl(),
-        clientSecret: "",
+        clientSecret: "••••••••••••••••",
       });
     } else {
       this.showScimSettings = false;
