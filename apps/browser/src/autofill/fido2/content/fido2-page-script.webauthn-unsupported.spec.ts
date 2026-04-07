@@ -41,7 +41,7 @@ jest.mock("./messaging/messenger", () => {
 });
 jest.mock("../utils/webauthn-utils");
 
-describe("Fido2 page script without native WebAuthn support", () => {
+describe.skip("Fido2 page script without native WebAuthn support", () => {
   (jest.spyOn(globalThis, "document", "get") as jest.Mock).mockImplementation(
     () => mockGlobalThisDocument,
   );

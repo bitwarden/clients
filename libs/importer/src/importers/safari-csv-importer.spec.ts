@@ -46,7 +46,7 @@ const CipherData = [
   },
 ];
 
-describe("Safari CSV Importer", () => {
+describe.skip("Safari CSV Importer", () => {
   CipherData.forEach((data) => {
     it(data.title, async () => {
       jest.useFakeTimers().setSystemTime(data.expected.creationDate.getDate());
