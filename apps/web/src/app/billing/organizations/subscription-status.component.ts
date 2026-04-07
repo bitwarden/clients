@@ -53,11 +53,18 @@ export class SubscriptionStatusComponent {
   }
 
   get status(): string {
-    return this.subscription
-      ? this.subscription.status != "canceled" && this.subscription.cancelAtEndDate
-        ? "pending_cancellation"
-        : this.subscription.status
-      : "free";
+    if (!this.subscription) {
+      return "free";
+    }
+
+    const { status, cancelAtEndDate, cancelledDate } = this.subscription;
+    const pendingCancellation = cancelAtEndDate || (status === "active" && !!cancelledDate);
+
+    if (status !== "canceled" && pendingCancellation) {
+      return "pending_cancellation";
+    }
+
+    return status;
   }
 
   get subscription() {
