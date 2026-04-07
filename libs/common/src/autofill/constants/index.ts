@@ -215,4 +215,16 @@ export const AutofillTargetingRuleTypes = {
   searchTerm: "searchTerm",
 } as const;
 
+export const FormPurposeCategories = {
+  AccountCreation: "account-creation",
+  AccountLogin: "account-login",
+  AccountRecovery: "account-recovery",
+  AccountUpdate: "account-update",
+  Address: "address",
+  Identity: "identity",
+  PaymentCard: "payment-card",
+  Search: "search",
+  Signup: "signup",
+} as const;
+
 export * from "./match-patterns";
