@@ -56,6 +56,12 @@
   "collectionSubtitle": {
     "message": "Organize shared items"
   },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
+  },
+  "chooseItemToAddDesc": {
+    "message": "Select the item type you want to add to your vault."
+  },
   "folders": {
     "message": "Folders"
   },
