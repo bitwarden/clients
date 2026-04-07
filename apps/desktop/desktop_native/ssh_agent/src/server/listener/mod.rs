@@ -29,6 +29,13 @@ pub(crate) fn create_listeners() -> Result<Vec<impl Listener>> {
     Ok(vec![unix::UnixListener::new()?])
 }
 
+/// Creates the listeners for the Windows platform.
+#[cfg(windows)]
+pub(crate) fn create_listeners() -> Result<Vec<impl Listener>> {
+    // TODO: PM-30763 add named pipe here
+    Ok(vec![unix::UnixListener::new()?])
+}
+
 /// Spawns an independent tokio task for each listener in `listeners`.
 ///
 /// Each task loops calling `listener.accept()` and forwards accepted connections to `tx`.
