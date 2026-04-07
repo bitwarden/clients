@@ -913,9 +913,6 @@ export default class AutofillService implements AutofillServiceInterface {
     if (fieldType === "password" || fieldType === "newPassword") {
       return cipher.login?.password ?? null;
     }
-    if (fieldType === "oneTimeCode") {
-      return cipher.login?.totp ?? null;
-    }
 
     // Card fields
     if (fieldType === "cardholderName") {

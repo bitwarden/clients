@@ -5,7 +5,6 @@ export const loginQualifiers: AutofillTargetingRuleType[] = [
   AutofillTargetingRuleTypes.username,
   AutofillTargetingRuleTypes.password,
   AutofillTargetingRuleTypes.newPassword,
-  AutofillTargetingRuleTypes.oneTimeCode,
 ];
 
 export const cardQualifiers: AutofillTargetingRuleType[] = [
