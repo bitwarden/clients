@@ -1,16 +1,15 @@
 import { FocusKeyManager } from "@angular/cdk/a11y";
-import { coerceNumberProperty } from "@angular/cdk/coercion";
 import { NgTemplateOutlet } from "@angular/common";
 import {
   AfterContentChecked,
   AfterViewInit,
   Component,
-  Input,
   afterNextRender,
   contentChild,
   contentChildren,
   effect,
   input,
+  model,
   output,
   viewChild,
   viewChildren,
@@ -58,7 +57,6 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
   private readonly resizeObserver: ResizeObserver;
 
   private readonly _groupId: number;
-  private readonly _indexToSelect = signal<number | null>(0);
 
   /**
    * Aria label for the tab list menu
@@ -123,22 +121,10 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
     return undefined;
   });
 
-  /** The index of the active tab. */
-  // TODO: Skipped for signal migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  get selectedIndex(): number | null {
-    return this._selectedIndex();
-  }
-  set selectedIndex(value: number) {
-    this._indexToSelect.set(coerceNumberProperty(value, null));
-  }
-  private readonly _selectedIndex = signal<number | null>(null);
+  /** The index of the active tab. Supports two-way binding via `[(selectedIndex)]`. */
+  readonly selectedIndex = model(0);
 
-  /** Output to enable support for two-way binding on `[(selectedIndex)]` */
-  readonly selectedIndexChange = output<number>();
+  private readonly _selectedIndex = signal<number | null>(null);
 
   /** Event emitted when the tab selection has changed. */
   readonly selectedTabChange = output<BitTabChangeEvent>();
@@ -165,7 +151,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
     });
 
     effect(() => {
-      const indexToSelect = this._clampTabIndex(this._indexToSelect() ?? 0);
+      const indexToSelect = this._clampTabIndex(this.selectedIndex());
 
       // If the selected tab didn't explicitly change, keep the previously
       // selected tab selected/active
@@ -175,10 +161,10 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
 
         for (let i = 0; i < tabs.length; i++) {
           if (tabs[i].isActive()) {
-            // Set both _indexToSelect and _selectedIndex to avoid firing a change
+            // Set both selectedIndex and _selectedIndex to avoid firing a change
             // event which could cause an infinite loop if adding a tab within the
-            // selectedIndexChange event
-            this._indexToSelect.set(i);
+            // selectedIndex change event
+            this.selectedIndex.set(i);
             this._selectedIndex.set(i);
             selectedTab = tabs[i];
             break;
@@ -207,7 +193,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
   }
 
   selectTab(index: number) {
-    this.selectedIndex = index;
+    this.selectedIndex.set(index);
   }
 
   /**
@@ -215,8 +201,8 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
    * should be currently selected.
    */
   ngAfterContentChecked(): void {
-    const indexToSelect = this._clampTabIndex(this._indexToSelect() ?? 0);
-    this._indexToSelect.set(indexToSelect);
+    const indexToSelect = this._clampTabIndex(this.selectedIndex());
+    this.selectedIndex.set(indexToSelect);
 
     if (this._selectedIndex() != indexToSelect) {
       const isFirstRun = this._selectedIndex() == null;
@@ -234,10 +220,6 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       Promise.resolve().then(() => {
         this.tabs().forEach((tab, index) => tab.isActive.set(index === indexToSelect));
-
-        if (!isFirstRun) {
-          this.selectedIndexChange.emit(indexToSelect);
-        }
       });
 
       // Manually update the _selectedIndex and keyManager active item
