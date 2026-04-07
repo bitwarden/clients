@@ -1,5 +1,8 @@
 //! SSH agent client connection listener abstraction
 
+#[cfg(unix)]
+pub(crate) mod unix;
+
 use anyhow::Result;
 use tokio::{
     io::{AsyncRead, AsyncWrite},
@@ -18,6 +21,12 @@ pub(crate) trait Listener: Send + Sync {
 
     /// Accept a new connection
     async fn accept(&mut self) -> Result<Connection<Self::Stream>>;
+}
+
+/// Creates the listeners for the Unix platform.
+#[cfg(unix)]
+pub(crate) fn create_listeners() -> Result<Vec<impl Listener>> {
+    Ok(vec![unix::UnixListener::new()?])
 }
 
 /// Spawns an independent tokio task for each listener in `listeners`.

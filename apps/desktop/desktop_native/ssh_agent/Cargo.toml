@@ -18,10 +18,21 @@ ssh-key = { version = "=0.6.7", features = [
     "rsa",
     "rand_core",
 ] }
+sysinfo = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 tokio-util = { workspace = true }
 tracing = { workspace = true }
+
+[target.'cfg(unix)'.dependencies]
+homedir = { workspace = true }
+libc = { workspace = true }
+
+[dev-dependencies]
+mockall = { workspace = true }
+rand = { workspace = true }
+serial_test = "=3.4.0"
+tokio = { workspace = true, features = ["rt-multi-thread", "macros", "net", "io-util", "time"] }
 
 [lints]
 workspace = true
