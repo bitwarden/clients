@@ -1,5 +1,5 @@
 import { AsyncPipe, NgIf } from "@angular/common";
-import { Component, Inject, ViewChild } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Inject, viewChild } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { map, of, switchMap } from "rxjs";
 
@@ -34,12 +34,11 @@ import {
  * V2 account recovery dialog shown when the AdminResetTwoFactor feature flag is enabled.
  * Supports selectively resetting master password, two-step login, or both.
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   standalone: true,
   selector: "app-account-recovery-dialog-v2",
   templateUrl: "account-recovery-dialog-v2.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AsyncActionsModule,
     AsyncPipe,
@@ -54,17 +53,14 @@ import {
   ],
 })
 export class AccountRecoveryDialogV2Component {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild(InputPasswordComponent)
-  inputPasswordComponent: InputPasswordComponent | undefined = undefined;
+  protected readonly inputPasswordComponent = viewChild(InputPasswordComponent);
 
   /** True when the target user is exempt from policies (Admin or Owner role). */
-  private targetUserExemptFromPolicies =
+  private readonly targetUserExemptFromPolicies =
     this.dialogData.organizationUserType === OrganizationUserType.Owner ||
     this.dialogData.organizationUserType === OrganizationUserType.Admin;
 
-  masterPasswordPolicyOptions$ = this.targetUserExemptFromPolicies
+  readonly masterPasswordPolicyOptions$ = this.targetUserExemptFromPolicies
     ? of(undefined)
     : this.accountService.activeAccount$.pipe(
         getUserId,
@@ -86,7 +82,7 @@ export class AccountRecoveryDialogV2Component {
       );
 
   /** True when the org has the Require Two-Step Login policy enabled and the target user is subject to it. */
-  twoFactorPolicyEnabled$ = this.targetUserExemptFromPolicies
+  readonly twoFactorPolicyEnabled$ = this.targetUserExemptFromPolicies
     ? of(false)
     : this.accountService.activeAccount$.pipe(
         getUserId,
@@ -101,34 +97,34 @@ export class AccountRecoveryDialogV2Component {
         ),
       );
 
-  inputPasswordFlow = InputPasswordFlow.ChangePasswordDelegation;
+  readonly inputPasswordFlow = InputPasswordFlow.ChangePasswordDelegation;
 
-  protected form = this.formBuilder.group({
+  protected readonly form = this.formBuilder.group({
     resetMasterPassword: [true],
     resetTwoFactor: [false],
   });
 
   constructor(
-    @Inject(DIALOG_DATA) protected dialogData: AccountRecoveryDialogData,
-    private accountService: AccountService,
-    private dialogRef: DialogRef<AccountRecoveryDialogResultType>,
-    private formBuilder: FormBuilder,
-    private i18nService: I18nService,
-    private policyService: PolicyService,
-    private resetPasswordService: OrganizationUserResetPasswordService,
-    private toastService: ToastService,
+    @Inject(DIALOG_DATA) protected readonly dialogData: AccountRecoveryDialogData,
+    private readonly accountService: AccountService,
+    private readonly dialogRef: DialogRef<AccountRecoveryDialogResultType>,
+    private readonly formBuilder: FormBuilder,
+    private readonly i18nService: I18nService,
+    private readonly policyService: PolicyService,
+    private readonly resetPasswordService: OrganizationUserResetPasswordService,
+    private readonly toastService: ToastService,
   ) {}
 
-  handlePrimaryButtonClick = async () => {
+  readonly handlePrimaryButtonClick = async () => {
     const { resetMasterPassword, resetTwoFactor } = this.form.value;
     let newPassword: string | undefined;
 
     if (resetMasterPassword) {
-      if (!this.inputPasswordComponent) {
+      if (!this.inputPasswordComponent()) {
         throw new Error("InputPasswordComponent is not initialized");
       }
 
-      const passwordInputResult = await this.inputPasswordComponent.submit();
+      const passwordInputResult = await this.inputPasswordComponent().submit();
       if (!passwordInputResult) {
         return;
       }
@@ -158,7 +154,7 @@ export class AccountRecoveryDialogV2Component {
    * @param dialogService Instance of the dialog service that will be used to open the dialog
    * @param dialogConfig Configuration for the dialog
    */
-  static open = (
+  static readonly open = (
     dialogService: DialogService,
     dialogConfig: DialogConfig<
       AccountRecoveryDialogData,

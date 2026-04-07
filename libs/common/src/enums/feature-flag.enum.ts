@@ -12,7 +12,7 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
-  AdminResetTwoFactor = "pm-15489-admin-reset-two-factor",
+  AdminResetTwoFactor = "pm-15489-reset-two-factor-account-recovery",
 
   /* Auth */
   PM27086_UpdateAuthenticationApisForInputPassword = "pm-27086-update-authentication-apis-for-input-password",
