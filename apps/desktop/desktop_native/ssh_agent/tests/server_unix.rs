@@ -1,11 +1,10 @@
 use std::{os::unix::fs::PermissionsExt, path::PathBuf};
 
 use serial_test::serial;
-use ssh_agent::{BitwardenSSHAgent, InMemoryEncryptedKeyStore};
 use tokio::net::UnixStream;
 
 mod common;
-use common::{init_tracing, MockApprovalRequester};
+use common::{always_approving_agent, init_tracing};
 
 fn test_socket_path() -> PathBuf {
     std::env::temp_dir().join("bw-ssh-agent-test.sock")
@@ -18,21 +17,16 @@ fn set_socket_path() {
     }
 }
 
-fn make_agent() -> BitwardenSSHAgent<InMemoryEncryptedKeyStore, MockApprovalRequester> {
-    let mut requester = MockApprovalRequester::new();
-    requester.expect_request_unlock().returning(|| Ok(true));
-    requester
-        .expect_request_sign_approval()
-        .returning(|_| Ok(true));
-    BitwardenSSHAgent::new(InMemoryEncryptedKeyStore::new(), requester)
+fn setup() {
+    init_tracing();
+    set_socket_path();
 }
 
 #[serial]
 #[tokio::test(flavor = "multi_thread")]
 async fn test_start_creates_socket() {
-    init_tracing();
-    set_socket_path();
-    let mut agent = make_agent();
+    setup();
+    let mut agent = always_approving_agent();
 
     agent.start_server().unwrap();
 
@@ -43,9 +37,8 @@ async fn test_start_creates_socket() {
 #[serial]
 #[tokio::test(flavor = "multi_thread")]
 async fn test_client_can_connect() {
-    init_tracing();
-    set_socket_path();
-    let mut agent = make_agent();
+    setup();
+    let mut agent = always_approving_agent();
     agent.start_server().unwrap();
 
     // The socket is bound synchronously before start_server() returns,
@@ -62,9 +55,8 @@ async fn test_client_can_connect() {
 #[serial]
 #[tokio::test(flavor = "multi_thread")]
 async fn test_stop_clears_running_state() {
-    init_tracing();
-    set_socket_path();
-    let mut agent = make_agent();
+    setup();
+    let mut agent = always_approving_agent();
     agent.start_server().unwrap();
 
     agent.stop_server();
@@ -75,9 +67,8 @@ async fn test_stop_clears_running_state() {
 #[serial]
 #[tokio::test(flavor = "multi_thread")]
 async fn test_socket_has_user_only_permissions() {
-    init_tracing();
-    set_socket_path();
-    let mut agent = make_agent();
+    setup();
+    let mut agent = always_approving_agent();
     agent.start_server().unwrap();
 
     let permissions = std::fs::metadata(test_socket_path())
@@ -94,9 +85,8 @@ async fn test_socket_has_user_only_permissions() {
 #[serial]
 #[tokio::test(flavor = "multi_thread")]
 async fn test_server_can_restart() {
-    init_tracing();
-    set_socket_path();
-    let mut agent = make_agent();
+    setup();
+    let mut agent = always_approving_agent();
 
     agent.start_server().unwrap();
     agent.stop_server();
