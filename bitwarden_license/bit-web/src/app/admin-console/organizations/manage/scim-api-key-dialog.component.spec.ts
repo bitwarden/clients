@@ -15,6 +15,7 @@ import { ScimApiKeyDialogComponent, ScimApiKeyDialogData } from "./scim-api-key-
 
 describe("ScimApiKeyDialogComponent", () => {
   const orgId = "org-id-123";
+  const testAccess = (comp: ScimApiKeyDialogComponent) => comp as any;
 
   let dialogRef: MockProxy<DialogRef>;
   let userVerificationService: MockProxy<UserVerificationService>;
@@ -87,7 +88,7 @@ describe("ScimApiKeyDialogComponent", () => {
       );
       expect(mockRequest.type).toBe(OrganizationApiKeyType.Scim);
       expect(organizationApiService.getOrCreateApiKey).toHaveBeenCalledWith(orgId, mockRequest);
-      expect(component.clientSecret()).toBe("test-api-key");
+      expect(testAccess(component).clientSecret()).toBe("test-api-key");
     });
 
     it("closes with undefined when no clientSecret is set", () => {
@@ -130,7 +131,7 @@ describe("ScimApiKeyDialogComponent", () => {
 
       expect(organizationApiService.rotateApiKey).toHaveBeenCalledWith(orgId, mockRequest);
       expect(organizationApiService.getOrCreateApiKey).not.toHaveBeenCalled();
-      expect(component.clientSecret()).toBe("rotated-api-key");
+      expect(testAccess(component).clientSecret()).toBe("rotated-api-key");
     });
   });
 
