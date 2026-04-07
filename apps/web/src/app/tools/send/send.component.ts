@@ -22,7 +22,6 @@ import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendFilterType } from "@bitwarden/common/tools/send/types/send-filter-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { SendId } from "@bitwarden/common/types/guid";
 import {
   DialogRef,
   DialogService,
@@ -172,7 +171,7 @@ export class SendComponent implements OnDestroy {
   async editSend(send: SendView) {
     const config = await this.addEditFormConfigService.buildConfig(
       send == null ? "add" : "edit",
-      send == null ? null : (send.id as SendId),
+      send == null ? null : send.id,
       send.type,
     );
 

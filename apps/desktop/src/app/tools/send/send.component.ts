@@ -106,8 +106,8 @@ export class SendComponent {
     this.activeDrawerRef = null;
   }
 
-  protected async selectSend(sendId: string): Promise<void> {
-    const formConfig = await this.sendFormConfigService.buildConfig("edit", sendId as SendId);
+  protected async selectSend(sendId: SendId): Promise<void> {
+    const formConfig = await this.sendFormConfigService.buildConfig("edit", sendId);
 
     this.activeDrawerRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
       formConfig,

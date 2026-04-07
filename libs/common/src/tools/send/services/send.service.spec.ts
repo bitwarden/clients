@@ -23,7 +23,7 @@ import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../platform/services/container.service";
 import { SelfHostedEnvironment } from "../../../platform/services/default-environment.service";
-import { UserId } from "../../../types/guid";
+import { SendId, UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { SendFileApi } from "../models/api/send-file.api";
 import { SendTextApi } from "../models/api/send-text.api";
@@ -102,19 +102,19 @@ describe("SendService", () => {
 
   describe("get$", () => {
     it("exists", async () => {
-      const result = await firstValueFrom(sendService.get$("1"));
+      const result = await firstValueFrom(sendService.get$("1" as SendId));
 
       expect(result).toEqual(testSend("1", "Test Send"));
     });
 
     it("does not exist", async () => {
-      const result = await firstValueFrom(sendService.get$("2"));
+      const result = await firstValueFrom(sendService.get$("2" as SendId));
 
       expect(result).toBe(undefined);
     });
 
     it("updated observable", async () => {
-      const singleSendObservable = sendService.get$("1");
+      const singleSendObservable = sendService.get$("1" as SendId);
       const result = await firstValueFrom(singleSendObservable);
       expect(result).toEqual(testSend("1", "Test Send"));
 
@@ -131,7 +131,7 @@ describe("SendService", () => {
 
     it("reports a change when name changes on a new send", async () => {
       let changed = false;
-      sendService.get$("1").subscribe(() => {
+      sendService.get$("1" as SendId).subscribe(() => {
         changed = true;
       });
       const sendDataObject = testSendData("1", "Test Send 2");
@@ -161,7 +161,7 @@ describe("SendService", () => {
       );
 
       let changed = false;
-      sendService.get$("1").subscribe(() => {
+      sendService.get$("1" as SendId).subscribe(() => {
         changed = true;
       });
 
@@ -192,7 +192,7 @@ describe("SendService", () => {
       );
 
       let changed = false;
-      sendService.get$("1").subscribe(() => {
+      sendService.get$("1" as SendId).subscribe(() => {
         changed = true;
       });
 
@@ -223,7 +223,7 @@ describe("SendService", () => {
       );
 
       let changed = false;
-      sendService.get$("1").subscribe(() => {
+      sendService.get$("1" as SendId).subscribe(() => {
         changed = true;
       });
 
@@ -257,7 +257,7 @@ describe("SendService", () => {
 
       sendDataObject.file = new SendFileData(new SendFileApi({ FileName: "updated name of file" }));
       let changed = false;
-      sendService.get$("1").subscribe(() => {
+      sendService.get$("1" as SendId).subscribe(() => {
         changed = true;
       });
 
@@ -287,7 +287,7 @@ describe("SendService", () => {
       );
 
       let changed = false;
-      sendService.get$("1").subscribe(() => {
+      sendService.get$("1" as SendId).subscribe(() => {
         changed = true;
       });
 
@@ -318,7 +318,7 @@ describe("SendService", () => {
       );
 
       let changed = false;
-      sendService.get$("1").subscribe(() => {
+      sendService.get$("1" as SendId).subscribe(() => {
         changed = true;
       });
 
@@ -349,7 +349,7 @@ describe("SendService", () => {
       );
 
       let changed = false;
-      sendService.get$("1").subscribe(() => {
+      sendService.get$("1" as SendId).subscribe(() => {
         changed = true;
       });
 
@@ -382,7 +382,7 @@ describe("SendService", () => {
       );
 
       let changed = false;
-      sendService.get$("1").subscribe(() => {
+      sendService.get$("1" as SendId).subscribe(() => {
         changed = true;
       });
 
@@ -413,7 +413,7 @@ describe("SendService", () => {
 
     it("do not report a change when nothing changes on the observed send", async () => {
       let changed = false;
-      sendService.get$("1").subscribe(() => {
+      sendService.get$("1" as SendId).subscribe(() => {
         changed = true;
       });
 
@@ -435,7 +435,7 @@ describe("SendService", () => {
 
     it("reports a change when the observed send is deleted", async () => {
       let changed = false;
-      sendService.get$("1").subscribe(() => {
+      sendService.get$("1" as SendId).subscribe(() => {
         changed = true;
       });
       //it is immediately called when subscribed, we need to reset the value
@@ -462,12 +462,12 @@ describe("SendService", () => {
 
   describe("getFromState", () => {
     it("exists", async () => {
-      const result = await sendService.getFromState("1");
+      const result = await sendService.getFromState("1" as SendId);
 
       expect(result).toEqual(testSend("1", "Test Send"));
     });
     it("does not exist", async () => {
-      const result = await sendService.getFromState("2");
+      const result = await sendService.getFromState("2" as SendId);
 
       expect(result).toBe(null);
     });
@@ -566,12 +566,12 @@ describe("SendService", () => {
 
     it("Deleting on an empty sends array should not throw", async () => {
       stateProvider.activeUser.getFake(SEND_USER_ENCRYPTED).nextState(null);
-      await expect(sendService.delete("2")).resolves.not.toThrow();
+      await expect(sendService.delete("2" as SendId)).resolves.not.toThrow();
     });
 
     it("Delete multiple sends", async () => {
       await sendService.upsert(testSendData("2", "send data 2"));
-      await sendService.delete(["1", "2"]);
+      await sendService.delete(["1", "2"] as SendId[]);
       const sendsAfterDelete = await firstValueFrom(sendService.sends$);
       expect(sendsAfterDelete.length).toBe(0);
     });
@@ -584,7 +584,7 @@ describe("SendService", () => {
 
     beforeEach(() => {
       sendView = new SendView();
-      sendView.id = "sendId";
+      sendView.id = "sendId" as SendId;
       sendView.type = SendType.Text;
       sendView.name = "Test Send";
       sendView.notes = "Test Notes";

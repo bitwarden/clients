@@ -2,7 +2,7 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { Send } from "@bitwarden/common/tools/send/models/domain/send";
-import { emptyGuid, UserId } from "@bitwarden/common/types/guid";
+import { emptyGuid, SendId, UserId } from "@bitwarden/common/types/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
@@ -23,7 +23,7 @@ describe("Send", () => {
 
   beforeEach(() => {
     data = {
-      id: "id",
+      id: "id" as SendId,
       accessId: "accessId",
       type: SendType.Text,
       name: "encName",
@@ -109,7 +109,7 @@ describe("Send", () => {
     const userId = emptyGuid as UserId;
 
     const send = new Send();
-    send.id = "id";
+    send.id = "id" as SendId;
     send.accessId = "accessId";
     send.type = SendType.Text;
     send.authType = AuthType.None;
@@ -191,7 +191,7 @@ describe("Send", () => {
 
     it("should parse single email", async () => {
       const send = new Send();
-      send.id = "id";
+      send.id = "id" as SendId;
       send.type = SendType.Text;
       send.name = mockEnc("name");
       send.notes = mockEnc("notes");
@@ -205,7 +205,7 @@ describe("Send", () => {
 
     it("should parse multiple emails", async () => {
       const send = new Send();
-      send.id = "id";
+      send.id = "id" as SendId;
       send.type = SendType.Text;
       send.name = mockEnc("name");
       send.notes = mockEnc("notes");
@@ -219,7 +219,7 @@ describe("Send", () => {
 
     it("should trim whitespace from emails", async () => {
       const send = new Send();
-      send.id = "id";
+      send.id = "id" as SendId;
       send.type = SendType.Text;
       send.name = mockEnc("name");
       send.notes = mockEnc("notes");
@@ -233,7 +233,7 @@ describe("Send", () => {
 
     it("should return empty array when emails is null", async () => {
       const send = new Send();
-      send.id = "id";
+      send.id = "id" as SendId;
       send.type = SendType.Text;
       send.name = mockEnc("name");
       send.notes = mockEnc("notes");
@@ -250,7 +250,7 @@ describe("Send", () => {
 
     it("should return empty array when emails is empty string", async () => {
       const send = new Send();
-      send.id = "id";
+      send.id = "id" as SendId;
       send.type = SendType.Text;
       send.name = mockEnc("name");
       send.notes = mockEnc("notes");
@@ -280,7 +280,7 @@ describe("Send", () => {
 
     it("should return null for name when name is null", async () => {
       const send = new Send();
-      send.id = "id";
+      send.id = "id" as SendId;
       send.type = SendType.Text;
       send.name = null;
       send.notes = mockEnc("notes");
@@ -297,7 +297,7 @@ describe("Send", () => {
 
     it("should return null for notes when notes is null", async () => {
       const send = new Send();
-      send.id = "id";
+      send.id = "id" as SendId;
       send.type = SendType.Text;
       send.name = mockEnc("name");
       send.notes = null;
@@ -313,7 +313,7 @@ describe("Send", () => {
 
     it("should decrypt non-null name and notes", async () => {
       const send = new Send();
-      send.id = "id";
+      send.id = "id" as SendId;
       send.type = SendType.Text;
       send.name = mockEnc("Test Name");
       send.notes = mockEnc("Test Notes");

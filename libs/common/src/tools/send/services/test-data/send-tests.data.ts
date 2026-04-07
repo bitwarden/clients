@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
+import { SendId } from "../../../../types/guid";
 import { SendTextApi } from "../../models/api/send-text.api";
 import { SendTextData } from "../../models/data/send-text.data";
 import { SendData } from "../../models/data/send.data";
@@ -10,7 +11,7 @@ import { SendType } from "../../types/send-type";
 
 export function testSendViewData(id: string, name: string) {
   const data = new SendView({} as any);
-  data.id = id;
+  data.id = id as SendId;
   data.name = name;
   data.disabled = false;
   data.accessCount = 2;
@@ -26,7 +27,7 @@ export function testSendViewData(id: string, name: string) {
 
 export function createSendData(value: Partial<SendData> = {}) {
   const defaultSendData: Partial<SendData> = {
-    id: "1",
+    id: "1" as SendId,
     name: "Test Send",
     accessId: "123",
     type: SendType.Text,
@@ -54,7 +55,7 @@ export function createSendData(value: Partial<SendData> = {}) {
 
 export function testSendData(id: string, name: string) {
   const data = new SendData({} as any);
-  data.id = id;
+  data.id = id as SendId;
   data.name = name;
   data.disabled = false;
   data.accessCount = 2;
@@ -70,7 +71,7 @@ export function testSendData(id: string, name: string) {
 
 export function testSend(id: string, name: string) {
   const data = new Send({} as any);
-  data.id = id;
+  data.id = id as SendId;
   data.name = new EncString(name);
   data.disabled = false;
   data.accessCount = 2;

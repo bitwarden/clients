@@ -8,6 +8,7 @@ import {
   FileUploadService,
 } from "../../../platform/abstractions/file-upload/file-upload.service";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
+import { SendId } from "../../../types/guid";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendAccessRequest } from "../models/request/send-access.request";
@@ -29,7 +30,7 @@ export class SendApiService implements SendApiServiceAbstraction {
     private sendService: InternalSendService,
   ) {}
 
-  async getSend(id: string): Promise<SendResponse> {
+  async getSend(id: SendId): Promise<SendResponse> {
     const r = await this.apiService.send("GET", "/sends/" + id, null, true, true);
     return new SendResponse(r);
   }
@@ -129,7 +130,7 @@ export class SendApiService implements SendApiServiceAbstraction {
   }
 
   async renewSendFileUploadUrl(
-    sendId: string,
+    sendId: SendId,
     fileId: string,
   ): Promise<SendFileUploadDataResponse> {
     const r = await this.apiService.send(
@@ -142,16 +143,16 @@ export class SendApiService implements SendApiServiceAbstraction {
     return new SendFileUploadDataResponse(r);
   }
 
-  postSendFile(sendId: string, fileId: string, data: FormData): Promise<any> {
+  postSendFile(sendId: SendId, fileId: string, data: FormData): Promise<any> {
     return this.apiService.send("POST", "/sends/" + sendId + "/file/" + fileId, data, true, false);
   }
 
-  async putSend(id: string, request: SendRequest): Promise<SendResponse> {
+  async putSend(id: SendId, request: SendRequest): Promise<SendResponse> {
     const r = await this.apiService.send("PUT", "/sends/" + id, request, true, true);
     return new SendResponse(r);
   }
 
-  async putSendRemovePassword(id: string): Promise<SendResponse> {
+  async putSendRemovePassword(id: SendId): Promise<SendResponse> {
     const r = await this.apiService.send(
       "PUT",
       "/sends/" + id + "/remove-password",
@@ -162,7 +163,7 @@ export class SendApiService implements SendApiServiceAbstraction {
     return new SendResponse(r);
   }
 
-  deleteSend(id: string): Promise<any> {
+  deleteSend(id: SendId): Promise<any> {
     return this.apiService.send("DELETE", "/sends/" + id, null, true, false);
   }
 
@@ -174,12 +175,12 @@ export class SendApiService implements SendApiServiceAbstraction {
     return new Send(data);
   }
 
-  async delete(id: string): Promise<any> {
+  async delete(id: SendId): Promise<any> {
     await this.deleteSend(id);
     await this.sendService.delete(id);
   }
 
-  async removePassword(id: string): Promise<any> {
+  async removePassword(id: SendId): Promise<any> {
     const response = await this.putSendRemovePassword(id);
     const data = new SendData(response);
     await this.sendService.upsert(data);
@@ -237,14 +238,14 @@ export class SendApiService implements SendApiServiceAbstraction {
     };
   }
 
-  private generateRenewFileUploadUrlCallback(sendId: string, fileId: string) {
+  private generateRenewFileUploadUrlCallback(sendId: SendId, fileId: string) {
     return async () => {
       const renewResponse = await this.renewSendFileUploadUrl(sendId, fileId);
       return renewResponse?.url;
     };
   }
 
-  private generateRollbackCallback(sendId: string) {
+  private generateRollbackCallback(sendId: SendId) {
     return () => {
       return this.deleteSend(sendId);
     };

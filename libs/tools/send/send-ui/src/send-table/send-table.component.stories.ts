@@ -4,6 +4,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { SendId } from "@bitwarden/common/types/guid";
 import { TableDataSource, I18nMockService } from "@bitwarden/components";
 
 import { SendTableComponent } from "./send-table.component";
@@ -11,7 +12,7 @@ import { SendTableComponent } from "./send-table.component";
 function createMockSend(id: number, overrides: Partial<SendView> = {}): SendView {
   const send = new SendView();
 
-  send.id = `send-${id}`;
+  send.id = `send-${id}` as SendId;
   send.name = "My Send";
   send.type = SendType.Text;
   send.authType = AuthType.None;

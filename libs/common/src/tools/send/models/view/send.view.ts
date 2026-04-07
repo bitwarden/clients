@@ -4,6 +4,7 @@ import { View } from "../../../../models/view/view";
 import { Utils } from "../../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
 import { DeepJsonify } from "../../../../types/deep-jsonify";
+import { SendId } from "../../../../types/guid";
 import { AuthType } from "../../types/auth-type";
 import { SendType } from "../../types/send-type";
 import { Send } from "../domain/send";
@@ -12,7 +13,7 @@ import { SendFileView } from "./send-file.view";
 import { SendTextView } from "./send-text.view";
 
 export class SendView implements View {
-  id: string = null;
+  id: SendId = null;
   accessId: string = null;
   name: string = null;
   notes: string = null;

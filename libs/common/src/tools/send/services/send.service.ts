@@ -16,7 +16,7 @@ import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { UserId } from "../../../types/guid";
+import { SendId, UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
@@ -150,7 +150,7 @@ export class SendService implements InternalSendServiceAbstraction {
     return [send, fileData];
   }
 
-  get$(id: string): Observable<Send | undefined> {
+  get$(id: SendId): Observable<Send | undefined> {
     return this.sends$.pipe(
       distinctUntilChanged((oldSends, newSends) => {
         const oldSend = oldSends.find((oldSend) => oldSend.id === id);
@@ -212,7 +212,7 @@ export class SendService implements InternalSendServiceAbstraction {
     );
   }
 
-  async getFromState(id: string): Promise<Send> {
+  async getFromState(id: SendId): Promise<Send> {
     const [, sends] = await this.stateProvider.getEncryptedSends();
     // eslint-disable-next-line
     if (sends == null || !sends.hasOwnProperty(id)) {
@@ -280,7 +280,7 @@ export class SendService implements InternalSendServiceAbstraction {
     await this.replace(sends, userId);
   }
 
-  async delete(id: string | string[]): Promise<any> {
+  async delete(id: SendId | SendId[]): Promise<any> {
     const [userId, sends] = await this.stateProvider.getEncryptedSends();
     if (sends == null) {
       return;
@@ -292,7 +292,7 @@ export class SendService implements InternalSendServiceAbstraction {
       }
       delete sends[id];
     } else {
-      (id as string[]).forEach((i) => {
+      (id as SendId[]).forEach((i) => {
         delete sends[i];
       });
     }

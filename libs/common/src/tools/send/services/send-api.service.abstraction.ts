@@ -2,6 +2,7 @@ import { SendAccessToken } from "@bitwarden/common/auth/send-access";
 
 import { ListResponse } from "../../../models/response/list.response";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
+import { SendId } from "../../../types/guid";
 import { Send } from "../models/domain/send";
 import { SendAccessRequest } from "../models/request/send-access.request";
 import { SendRequest } from "../models/request/send.request";
@@ -12,7 +13,7 @@ import { SendResponse } from "../models/response/send.response";
 import { SendAccessView } from "../models/view/send-access.view";
 
 export abstract class SendApiService {
-  abstract getSend(id: string): Promise<SendResponse>;
+  abstract getSend(id: SendId): Promise<SendResponse>;
   abstract postSendAccess(
     id: string,
     request: SendAccessRequest,
@@ -25,10 +26,10 @@ export abstract class SendApiService {
   abstract getSends(): Promise<ListResponse<SendResponse>>;
   abstract postSend(request: SendRequest): Promise<SendResponse>;
   abstract postFileTypeSend(request: SendRequest): Promise<SendFileUploadDataResponse>;
-  abstract postSendFile(sendId: string, fileId: string, data: FormData): Promise<any>;
-  abstract putSend(id: string, request: SendRequest): Promise<SendResponse>;
-  abstract putSendRemovePassword(id: string): Promise<SendResponse>;
-  abstract deleteSend(id: string): Promise<any>;
+  abstract postSendFile(sendId: SendId, fileId: string, data: FormData): Promise<any>;
+  abstract putSend(id: SendId, request: SendRequest): Promise<SendResponse>;
+  abstract putSendRemovePassword(id: SendId): Promise<SendResponse>;
+  abstract deleteSend(id: SendId): Promise<any>;
   abstract getSendFileDownloadData(
     send: SendAccessView,
     request: SendAccessRequest,
@@ -40,10 +41,10 @@ export abstract class SendApiService {
     apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse>;
   abstract renewSendFileUploadUrl(
-    sendId: string,
+    sendId: SendId,
     fileId: string,
   ): Promise<SendFileUploadDataResponse>;
-  abstract removePassword(id: string): Promise<any>;
-  abstract delete(id: string): Promise<any>;
+  abstract removePassword(id: SendId): Promise<any>;
+  abstract delete(id: SendId): Promise<any>;
   abstract save(sendData: [Send, EncArrayBuffer]): Promise<Send>;
 }

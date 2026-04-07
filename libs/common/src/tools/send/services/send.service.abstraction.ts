@@ -6,7 +6,7 @@ import { UserKeyRotationDataProvider } from "@bitwarden/key-management";
 
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { UserId } from "../../../types/guid";
+import { SendId, UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
@@ -29,7 +29,7 @@ export abstract class SendService implements UserKeyRotationDataProvider<SendWit
    * @param id The id of the desired send
    * @returns An observable that listens to the value of the desired send
    */
-  abstract get$(id: string): Observable<Send | undefined>;
+  abstract get$(id: SendId): Observable<Send | undefined>;
   /**
    * Provides re-encrypted user sends for the key rotation process
    * @param newUserKey The new user key to use for re-encryption
@@ -48,7 +48,7 @@ export abstract class SendService implements UserKeyRotationDataProvider<SendWit
   /**
    * @deprecated Only use in CLI
    */
-  abstract getFromState(id: string): Promise<Send>;
+  abstract getFromState(id: SendId): Promise<Send>;
   /**
    * @deprecated Only use in CLI
    */
@@ -58,5 +58,5 @@ export abstract class SendService implements UserKeyRotationDataProvider<SendWit
 export abstract class InternalSendService extends SendService {
   abstract upsert(send: SendData | SendData[]): Promise<any>;
   abstract replace(sends: { [id: string]: SendData }, userId: UserId): Promise<void>;
-  abstract delete(id: string | string[]): Promise<any>;
+  abstract delete(id: SendId | SendId[]): Promise<any>;
 }

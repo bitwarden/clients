@@ -3,7 +3,7 @@
 import { firstValueFrom } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { UserId } from "@bitwarden/common/types/guid";
+import { SendId, UserId } from "@bitwarden/common/types/guid";
 
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import { Utils } from "../../../../platform/misc/utils";
@@ -17,7 +17,7 @@ import { SendFile } from "./send-file";
 import { SendText } from "./send-text";
 
 export class Send extends Domain {
-  id: string;
+  id: SendId;
   accessId: string;
   type: SendType;
   name: EncString;

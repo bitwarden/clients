@@ -32,6 +32,7 @@ import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { SendId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
@@ -59,7 +60,7 @@ interface DatePresetSelectOption {
 export class AddEditComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() sendId: string;
+  @Input() sendId: SendId;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() type: SendType;

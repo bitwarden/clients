@@ -19,7 +19,7 @@ import {
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
-import { UserId } from "../../types/guid";
+import { SendId, UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
@@ -234,12 +234,12 @@ export abstract class CoreSyncService implements SyncService {
     // TODO: once send service allows data manipulation of non-active users, this should process any received notification
     if (activeUserId === notification.userId && status !== AuthenticationStatus.LoggedOut) {
       try {
-        const localSend = await firstValueFrom(this.sendService.get$(notification.id));
+        const localSend = await firstValueFrom(this.sendService.get$(notification.id as SendId));
         if (
           (!isEdit && localSend == null) ||
           (isEdit && localSend != null && localSend.revisionDate < notification.revisionDate)
         ) {
-          const remoteSend = await this.sendApiService.getSend(notification.id);
+          const remoteSend = await this.sendApiService.getSend(notification.id as SendId);
           if (remoteSend != null) {
             await this.sendService.upsert(new SendData(remoteSend));
             this.messageSender.send("syncedUpsertedSend", { sendId: notification.id });
@@ -263,7 +263,7 @@ export abstract class CoreSyncService implements SyncService {
       activeUserId != null &&
       (await firstValueFrom(this.tokenService.hasAccessToken$(activeUserId)))
     ) {
-      await this.sendService.delete(notification.id);
+      await this.sendService.delete(notification.id as SendId);
       this.messageSender.send("syncedDeletedSend", { sendId: notification.id });
       // TODO: Update syncCompleted userId when send service allows modification of non-active users
       this.syncCompleted(true, undefined);

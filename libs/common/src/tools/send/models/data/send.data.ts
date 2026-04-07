@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { SendId } from "../../../../types/guid";
 import { AuthType } from "../../types/auth-type";
 import { SendType } from "../../types/send-type";
 import { SendResponse } from "../response/send.response";
@@ -8,7 +9,7 @@ import { SendFileData } from "./send-file.data";
 import { SendTextData } from "./send-text.data";
 
 export class SendData {
-  id: string;
+  id: SendId;
   accessId: string;
   type: SendType;
   name: string;
