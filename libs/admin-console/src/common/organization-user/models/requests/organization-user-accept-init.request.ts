@@ -13,9 +13,6 @@ export class OrganizationUserAcceptInitRequest {
     if (!key) {
       throw new Error("Organization key is required");
     }
-    if (!keys) {
-      throw new Error("Organization keys are required");
-    }
     if (!collectionName) {
       throw new Error("Collection name is required");
     }
