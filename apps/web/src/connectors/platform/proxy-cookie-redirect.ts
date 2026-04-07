@@ -1,3 +1,5 @@
+import { getLocationOrigin, setLocationHref } from "../common";
+
 /**
  * ONLY FOR SELF-HOSTED SETUPS
  * Redirects the user to the SSO cookie vendor endpoint when the window finishes loading.
@@ -7,5 +9,5 @@
  * of an authentication flow where cookies need to be set or validated through a vendor endpoint.
  */
 window.addEventListener("DOMContentLoaded", () => {
-  window.location.href = `${window.location.origin}/api/sso-cookie-vendor`;
+  setLocationHref(`${getLocationOrigin()}/api/sso-cookie-vendor`);
 });

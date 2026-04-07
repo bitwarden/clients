@@ -1,4 +1,9 @@
-import { buildMobileDeeplinkUriFromParam, getQsParam } from "./common";
+import {
+  buildMobileDeeplinkUriFromParam,
+  getLocationOrigin,
+  getQsParam,
+  setLocationHref,
+} from "./common";
 import { TranslationService } from "./translation.service";
 
 const mobileDesktopCallback = "bitwarden://duo-callback";
@@ -36,7 +41,7 @@ window.addEventListener("load", async () => {
 
     displayHandoffMessage(client);
   } else if (client === "browser") {
-    window.postMessage({ command: "duoResult", code, state }, window.location.origin);
+    window.postMessage({ command: "duoResult", code, state }, getLocationOrigin());
     displayHandoffMessage(client);
   } else if (client === "mobile") {
     document.location.replace(
@@ -102,7 +107,7 @@ export function redirectToDuoFrameless(redirectUrl: string) {
     throw new Error("Invalid redirect URL");
   }
 
-  window.location.href = redirectUrl;
+  setLocationHref(redirectUrl);
 }
 
 /**

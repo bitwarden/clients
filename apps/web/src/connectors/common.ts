@@ -34,8 +34,28 @@ export function navigateToUrl(uri: string) {
   document.location.replace(uri);
 }
 
+/** Get current page URL href for testability. */
+export function getLocationHref(): string {
+  return window.location.href;
+}
+
+/** Set location href (navigation) for testability. */
+export function setLocationHref(url: string): void {
+  window.location.href = url;
+}
+
+/** Get current origin for testability. */
+export function getLocationOrigin(): string {
+  return window.location.origin;
+}
+
+/** Get current hostname for testability. */
+export function getLocationHostname(): string {
+  return window.location.hostname || "";
+}
+
 function appLinkHost(): string {
-  const hostName = window.location.hostname || "";
+  const hostName = getLocationHostname();
   if (hostName.endsWith("bitwarden.eu")) {
     return "bitwarden.eu";
   }

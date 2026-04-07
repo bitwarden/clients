@@ -35,6 +35,7 @@ import {
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
 import { AutoFillConstants } from "./autofill-constants";
+import { LocationService } from "./location.service";
 
 export class CollectAutofillContentService implements CollectAutofillContentServiceInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
@@ -83,12 +84,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     "color",
     "range",
   ]);
+  private locationService: LocationService = new LocationService();
 
   constructor(
     private domElementVisibilityService: DomElementVisibilityService,
     private domQueryService: DomQueryService,
     private autofillOverlayContentService?: AutofillOverlayContentService,
+    locationService?: LocationService,
   ) {
+    if (locationService) {
+      this.locationService = locationService;
+    }
     let inputQuery = "input:not([data-bwignore])";
     for (const type of this.ignoredInputTypes) {
       inputQuery += `:not([type="${type}"])`;

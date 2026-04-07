@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep:*)",
+      "Bash(sed -n '80,82p; 114,116p; 150,152p; 155,157p' apps/browser/src/autofill/fido2/content/fido2-page-script.webauthn-supported.spec.ts)",
+      "Bash(sed -n '109,111p; 113,115p' apps/browser/src/autofill/fido2/content/fido2-page-script.webauthn-unsupported.spec.ts)",
+      "Bash(npm test:*)",
+      "Bash(npx jest:*)",
+      "Bash(grep -n \"location\\\\.\" apps/web/src/connectors/webauthn.ts apps/web/src/connectors/*.ts)",
+      "Bash(find:*)"
+    ]
+  }
+}

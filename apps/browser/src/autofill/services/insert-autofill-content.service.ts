@@ -17,6 +17,7 @@ import {
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { InsertAutofillContentService as InsertAutofillContentServiceInterface } from "./abstractions/insert-autofill-content.service";
 import { CollectAutofillContentService } from "./collect-autofill-content.service";
+import { LocationService } from "./location.service";
 
 class InsertAutofillContentService implements InsertAutofillContentServiceInterface {
   private readonly autofillInsertActions: AutofillInsertActions = {
@@ -25,6 +26,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
     focus_by_opid: ({ opid }) => this.handleFocusOnFieldByOpidAction(opid),
   };
   private showAnimations: boolean = true;
+  private locationService: LocationService = new LocationService();
 
   /**
    * InsertAutofillContentService constructor. Instantiates the
@@ -33,7 +35,12 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
   constructor(
     private domElementVisibilityService: DomElementVisibilityService,
     private collectAutofillContentService: CollectAutofillContentService,
-  ) {}
+    locationService?: LocationService,
+  ) {
+    if (locationService) {
+      this.locationService = locationService;
+    }
+  }
 
   /**
    * Handles autofill of the forms on the current page based on the
@@ -68,8 +75,8 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    */
   private userCancelledInsecureUrlAutofill(savedUrls?: string[] | null): boolean {
     if (
-      !savedUrls?.some((url) => url.startsWith(`https://${globalThis.location.hostname}`)) ||
-      globalThis.location.protocol !== "http:" ||
+      !savedUrls?.some((url) => url.startsWith(`https://${this.locationService.getHostname()}`)) ||
+      this.locationService.getProtocol() !== "http:" ||
       !this.isPasswordFieldWithinDocument()
     ) {
       return false;
@@ -77,7 +84,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
 
     const confirmationWarning = [
       chrome.i18n.getMessage("insecurePageWarning"),
-      chrome.i18n.getMessage("insecurePageWarningFillPrompt", [globalThis.location.hostname]),
+      chrome.i18n.getMessage("insecurePageWarningFillPrompt", [this.locationService.getHostname()]),
     ].join("\n\n");
 
     return !globalThis.confirm(confirmationWarning);

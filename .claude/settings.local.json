@@ -10,7 +10,10 @@
       "Bash(grep -r \"jest\\\\\\\\.require\" /c/Users/CarleyDiaz/Documents/GitHub/clients/libs/tools/generator/core/src --include=\"*.spec.ts\")",
       "WebSearch",
       "WebFetch(domain:github.com)",
-      "Bash(grep -n \"toBeCalled\\\\|toBeCalledWith\\\\|toBeCalledTimes\\\\|lastCalledWith\\\\|nthCalledWith\" /c/Users/CarleyDiaz/Documents/GitHub/clients/libs/tools/generator/core/src/**/*.spec.ts)"
+      "Bash(grep -n \"toBeCalled\\\\|toBeCalledWith\\\\|toBeCalledTimes\\\\|lastCalledWith\\\\|nthCalledWith\" /c/Users/CarleyDiaz/Documents/GitHub/clients/libs/tools/generator/core/src/**/*.spec.ts)",
+      "Bash(npm run:*)",
+      "Bash(grep -r \"getFeatureFlag\\\\$.mockImplementation\" apps/browser --include=\"*.spec.ts\")",
+      "Bash(grep:*)"
     ]
   }
 }
