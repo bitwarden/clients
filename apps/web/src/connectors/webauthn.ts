@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { b64Decode, buildMobileDeeplinkUriFromParam, getQsParam, navigateToUrl } from "./common";
 import { buildDataString, parseWebauthnJson } from "./common-webauthn";
+import { TranslationService } from "./translation.service";
 
 const mobileCallbackUri = "bitwarden://webauthn-callback";
 
@@ -37,6 +38,8 @@ let mobileResponse = false;
 let stopWebAuthn = false;
 let sentSuccess = false;
 let obj: any = null;
+let locale: string = null;
+let localeService: TranslationService | null = null;
 
 // For accessibility, we do not actually disable the button as it would
 // become unfocusable by a screenreader. We just make it look disabled.
@@ -61,31 +64,51 @@ const enabledBtnClasses = [
   "hover:tw-no-underline",
 ];
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  // Add translate
+  locale = getQsParam("locale") ?? navigator.language ?? "en";
+  try {
+    localeService = new TranslationService(locale, "locales");
+    await localeService.init();
+  } catch (e) {
+    console.warn("Failed to initialize translation service:", e);
+  }
+  
   init();
 });
 
+
 function setDefaultWebAuthnButtonState() {
-  if (!btnText) {
-    return;
-  }
+
 
   const button = document.getElementById("webauthn-button");
   button.onclick = executeWebAuthn;
 
-  button.innerText = decodeURI(btnText);
+  if (btnText) {
+    if (localeService && mobileResponse) {
+      button.innerText = localeService.t(btnText);
+    } else {
+      button.innerText = decodeURI(btnText);
+    }
+  }
 
   // reset back to default button state
   button.classList.remove(...disabledBtnClasses);
   button.classList.add(...enabledBtnClasses);
 }
 
+
 function setAwaitingInteractionWebAuthnButtonState() {
-  if (!btnAwaitingInteractionText) {
-    return;
-  }
   const button = document.getElementById("webauthn-button");
-  button.innerText = decodeURI(btnAwaitingInteractionText);
+
+  if (btnAwaitingInteractionText) {
+    // use translate
+    if (localeService && mobileResponse) {
+      button.innerText = localeService.t(btnAwaitingInteractionText);
+    } else {
+      button.innerText = decodeURI(btnAwaitingInteractionText);
+    }
+  }
   button.onclick = null;
 
   button.classList.remove(...enabledBtnClasses);
@@ -179,10 +202,14 @@ function start() {
 
   parseParameters();
 
-  if (headerText) {
-    const header = document.getElementById("webauthn-header");
+if (headerText) {
+  const header = document.getElementById("webauthn-header");
+  if (localeService && mobileResponse) {
+    header.innerText = localeService.t(headerText);
+  } else {
     header.innerText = decodeURI(headerText);
   }
+}
 
   setDefaultWebAuthnButtonState();
 
@@ -281,7 +308,13 @@ function info(message: string) {
 function returnButton(uri: string) {
   // provides 'return' button in case scripted navigation is blocked
   const button = document.getElementById("webauthn-button");
-  button.innerText = decodeURI(btnReturnText);
+  if (btnReturnText) {
+    if (localeService && mobileResponse) {
+      button.innerText = localeService.t(btnReturnText);
+    } else {
+      button.innerText = decodeURI(btnReturnText);
+    }
+  }
   button.onclick = () => {
     navigateToUrl(uri);
   };
