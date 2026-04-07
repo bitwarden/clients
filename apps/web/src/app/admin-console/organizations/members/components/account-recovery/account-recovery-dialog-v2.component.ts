@@ -120,11 +120,12 @@ export class AccountRecoveryDialogV2Component {
     let newPassword: string | undefined;
 
     if (resetMasterPassword) {
-      if (!this.inputPasswordComponent()) {
+      const inputPasswordComponent = this.inputPasswordComponent();
+      if (!inputPasswordComponent) {
         throw new Error("InputPasswordComponent is not initialized");
       }
 
-      const passwordInputResult = await this.inputPasswordComponent().submit();
+      const passwordInputResult = await inputPasswordComponent.submit();
       if (!passwordInputResult) {
         return;
       }
