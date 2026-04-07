@@ -30,7 +30,7 @@ describe("VaultProfileService", () => {
     });
 
     jest.useFakeTimers();
-    jest.setSystemTime(new Date("2024-02-22T00:00:00Z"));
+    jest.setSystemTime(new Date("2024-02-22T00:00:00Z").getTime());
     service = TestBed.runInInjectionContext(() => new VaultProfileService());
     service["userId"] = userId;
   });

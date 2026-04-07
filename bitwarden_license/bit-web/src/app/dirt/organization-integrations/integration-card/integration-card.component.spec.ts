@@ -102,7 +102,7 @@ describe("IntegrationCardComponent", () => {
   describe("new badge", () => {
     beforeEach(() => {
       jest.useFakeTimers();
-      jest.setSystemTime(new Date("2023-09-01"));
+      jest.setSystemTime(new Date("2023-09-01").getTime());
     });
 
     afterEach(() => {
@@ -207,7 +207,7 @@ describe("IntegrationCardComponent", () => {
   describe("showNewBadge", () => {
     beforeEach(() => {
       jest.useFakeTimers();
-      jest.setSystemTime(new Date("2024-06-01"));
+      jest.setSystemTime(new Date("2024-06-01").getTime());
     });
 
     afterEach(() => {
