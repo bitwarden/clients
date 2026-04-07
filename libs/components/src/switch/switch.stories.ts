@@ -166,6 +166,25 @@ export const FormControlCard: Story = {
   }),
 };
 
+export const InactiveFormControlCard: Story = {
+  render: () => ({
+    props: {
+      formObj: new FormGroup({
+        switch: new FormControl({ value: false, disabled: true }),
+      }),
+    },
+    template: /* HTML */ `
+      <form [formGroup]="formObj">
+        <bit-form-control-card icon="bwi-clock">
+          <bit-switch formControlName="switch"></bit-switch>
+          <bit-label>Enable feature</bit-label>
+          <bit-hint>Enabling this feature will allow you to do cool things.</bit-hint>
+        </bit-form-control-card>
+      </form>
+    `,
+  }),
+};
+
 export const FormControlCardGroup: Story = {
   render: () => ({
     template: /* HTML */ `

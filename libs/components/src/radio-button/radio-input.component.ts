@@ -45,8 +45,8 @@ export class RadioInputComponent implements BitFormControlAbstraction {
     "hover:tw-bg-bg-hover",
     "focus-visible:tw-bg-bg-hover",
     "[&>label:hover]:tw-bg-bg-hover",
-    "disabled:hover:tw-bg-bg-inactive",
-    "disabled:[&>label:hover]:tw-bg-bg-inactive",
+    "disabled:hover:tw-bg-transparent",
+    "disabled:[&>label:hover]:!tw-bg-transparent",
 
     "hover:before:tw-border-2",
     "[&>label:hover]:before:tw-border-2",
