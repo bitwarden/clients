@@ -163,9 +163,9 @@ export class MainDesktopMagnifyService {
     const mousePoint = screen.getCursorScreenPoint();
     const targetDisplay = screen.getDisplayNearestPoint(mousePoint);
 
-    // Center the 640px wide magnify window at the center of that display
+    // Set the magnify position on the screen
     const x = targetDisplay.bounds.x + (targetDisplay.bounds.width - 640) / 2;
-    const y = targetDisplay.bounds.y + (targetDisplay.bounds.height - 56) / 2;
+    const y = targetDisplay.bounds.y + (targetDisplay.bounds.height - 56) / 4;
 
     win.setPosition(Math.round(x), Math.round(y));
   }
