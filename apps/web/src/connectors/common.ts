@@ -1,3 +1,16 @@
+/**
+ * Returns true when the connector page is served from a Bitwarden-managed domain.
+ * Determined by window.location.hostname, which reflects the actual serving domain.
+ */
+export function isKnownCloudOrigin(): boolean {
+  const managedSuffixes = [".bitwarden.com", ".bitwarden.eu", ".bitwarden.pw"];
+  const hostname = window.location.hostname || "";
+  if (hostname === "localhost") {
+    return true;
+  }
+  return managedSuffixes.some((suffix) => hostname.endsWith(suffix));
+}
+
 export function getQsParam(name: string) {
   const url = window.location.href;
   // eslint-disable-next-line

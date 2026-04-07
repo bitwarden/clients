@@ -1,4 +1,9 @@
-import { getQsParam, b64Decode, buildMobileDeeplinkUriFromParam } from "./common";
+import {
+  getQsParam,
+  b64Decode,
+  buildMobileDeeplinkUriFromParam,
+  isKnownCloudOrigin,
+} from "./common";
 
 describe("common connector utilities", () => {
   describe("getQsParam", () => {
@@ -117,6 +122,62 @@ describe("common connector utilities", () => {
           "vault.bitwarden.com",
         );
         expect(buildMobileDeeplinkUriFromParam("duo")).toBe("https://bitwarden.com/duo-callback");
+      });
+    });
+  });
+
+  describe("isKnownCloudOrigin", () => {
+    function setLocation(href: string, hostname: string) {
+      Object.defineProperty(window, "location", {
+        value: { href, hostname },
+        writable: true,
+        configurable: true,
+      });
+    }
+
+    describe("recognizes Bitwarden-managed domains", () => {
+      it.each([
+        ["vault.bitwarden.com", "production .com subdomain"],
+        ["vault.bitwarden.eu", "production .eu subdomain"],
+        ["vault.qa.bitwarden.pw", "multi-level .pw subdomain"],
+      ])("returns true for %s (%s)", (hostname) => {
+        setLocation(`https://${hostname}/connector`, hostname);
+        expect(isKnownCloudOrigin()).toBe(true);
+      });
+
+      it("returns true for localhost", () => {
+        setLocation("http://localhost/connector", "localhost");
+        expect(isKnownCloudOrigin()).toBe(true);
+      });
+    });
+
+    describe("rejects unmanaged domains", () => {
+      it("returns false for a customer self-hosted domain", () => {
+        setLocation("https://vault.customer.com/connector", "vault.customer.com");
+        expect(isKnownCloudOrigin()).toBe(false);
+      });
+
+      it("returns false for a domain that contains but does not end with a managed TLD", () => {
+        setLocation("https://not-bitwarden.com/connector", "not-bitwarden.com");
+        expect(isKnownCloudOrigin()).toBe(false);
+      });
+
+      it("returns false for the bare marketing domain", () => {
+        setLocation("https://bitwarden.com/connector", "bitwarden.com");
+        expect(isKnownCloudOrigin()).toBe(false);
+      });
+
+      it("returns false when a managed TLD appears as a non-terminal segment", () => {
+        setLocation(
+          "https://vault.bitwarden.com.not-bitwarden.com/connector",
+          "vault.bitwarden.com.not-bitwarden.com",
+        );
+        expect(isKnownCloudOrigin()).toBe(false);
+      });
+
+      it("returns false for an empty hostname", () => {
+        setLocation("", "");
+        expect(isKnownCloudOrigin()).toBe(false);
       });
     });
   });
