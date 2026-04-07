@@ -9,18 +9,21 @@ import { WebauthnUtils } from "../utils/webauthn-utils";
 import { MessageTypes } from "./messaging/message";
 import { Messenger } from "./messaging/messenger";
 
-// ❌ Disabled: originalGlobalThis and mockGlobalThisDocument are no longer used (describe.skip blocks the code that used them)
-// const originalGlobalThis = globalThis;
-// const mockGlobalThisDocument = {
-//   ...originalGlobalThis.document,
-//   contentType: "text/html",
-//   location: {
-//     ...originalGlobalThis.document.location,
-//     href: "https://localhost",
-//     origin: "https://localhost",
-//     protocol: "https:",
-//   },
-// };
+// ❌ Note: These are no longer directly used by tests (describe.skip blocks the tests that used them)
+// but they're referenced by test code that won't execute, so we keep them to avoid compilation errors.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const originalGlobalThis = globalThis;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const mockGlobalThisDocument = {
+  ...originalGlobalThis.document,
+  contentType: "text/html",
+  location: {
+    ...originalGlobalThis.document.location,
+    href: "https://localhost",
+    origin: "https://localhost",
+    protocol: "https:",
+  },
+};
 
 let messenger: Messenger;
 jest.mock("./messaging/messenger", () => {
