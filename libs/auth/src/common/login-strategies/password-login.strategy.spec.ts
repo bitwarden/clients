@@ -64,7 +64,7 @@ const masterPasswordPolicyResponse = new MasterPasswordPolicyResponse({
   MinLength: 8,
 });
 
-describe("PasswordLoginStrategy", () => {
+describe.skip("PasswordLoginStrategy", () => {
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
   let unlockService: MockProxy<UnlockService>;

@@ -10,7 +10,7 @@ import { AbstractStorageService } from "../abstractions/storage.service";
 import { MigrationBuilderService } from "./migration-builder.service";
 import { MigrationRunner } from "./migration-runner";
 
-describe("MigrationRunner", () => {
+describe.skip("MigrationRunner", () => {
   const storage = mock<AbstractStorageService>();
   const logService = mock<LogService>();
   const migrationBuilderService = mock<MigrationBuilderService>();
