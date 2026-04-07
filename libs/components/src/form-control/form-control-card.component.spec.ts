@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { By } from "@angular/platform-browser";
@@ -12,11 +12,10 @@ import { FormControlCardComponent } from "./form-control-card.component";
 import { FormControlModule } from "./form-control.module";
 
 describe("FormControlCardComponent - aria-describedby reactivity", () => {
-  // TODO: Fix this the next time the file is edited.
-  // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
   @Component({
     selector: "test-host",
     imports: [ReactiveFormsModule, FormControlModule, CheckboxComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
       <form [formGroup]="formObj">
         <bit-form-control-card>

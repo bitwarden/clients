@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, effect, inject, input } from "@angular/core";
 import {
   FormsModule,
   ReactiveFormsModule,
@@ -30,35 +30,34 @@ const template = /*html*/ `
   </form>
 `;
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-example",
   template,
   imports: [FormControlModule, CheckboxModule, FormsModule, FormFieldModule, ReactiveFormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class ExampleComponent {
+  readonly checked = input<boolean>(false);
+  readonly disabled = input<boolean>(false);
+
+  private formBuilder = inject(FormBuilder);
+
   protected formObj = this.formBuilder.group({
     checkbox: [false, Validators.requiredTrue],
   });
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() set checked(value: boolean) {
-    this.formObj.patchValue({ checkbox: value });
+  constructor() {
+    effect(() => {
+      this.formObj.patchValue({ checkbox: this.checked() });
+    });
+    effect(() => {
+      if (this.disabled()) {
+        this.formObj.disable();
+      } else {
+        this.formObj.enable();
+      }
+    });
   }
-
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() set disabled(disable: boolean) {
-    if (disable) {
-      this.formObj.disable();
-    } else {
-      this.formObj.enable();
-    }
-  }
-
-  constructor(private formBuilder: FormBuilder) {}
 }
 
 export default {
