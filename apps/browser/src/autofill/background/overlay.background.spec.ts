@@ -155,6 +155,7 @@ describe("OverlayBackground", () => {
 
   beforeEach(() => {
     configService = mock<ConfigService>();
+    // @ts-expect-error - jest-mock-extended v4 has stricter generic type checking
     configService.getFeatureFlag$.mockImplementation(() => of(true));
     accountService = mockAccountServiceWith(mockUserId);
     fakeStateProvider = new FakeStateProvider(accountService);
@@ -2884,7 +2885,7 @@ describe("OverlayBackground", () => {
           { command: "closeAutofillInlineMenu", overlayElement: undefined },
           { frameId: 0 },
         );
-        expect(tabSendMessageDataSpy).toBeCalledWith(
+        expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
           sender.tab,
           "addToLockedVaultPendingNotifications",
           {

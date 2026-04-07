@@ -88,6 +88,7 @@ describe("AppearanceComponent", () => {
     setShowAtRiskPasswordNotifications.mockClear();
 
     const configService = mock<ConfigService>();
+    // @ts-expect-error - jest-mock-extended v4 has stricter generic type checking
     configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) => {
       if (flag === FeatureFlag.PM31039ItemActionInExtension) {
         return featureFlag$.asObservable();

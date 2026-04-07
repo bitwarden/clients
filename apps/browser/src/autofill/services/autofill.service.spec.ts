@@ -110,6 +110,7 @@ describe("AutofillService", () => {
 
   beforeEach(() => {
     configService = mock<ConfigService>();
+    // @ts-expect-error - jest-mock-extended v4 has stricter generic type checking
     configService.getFeatureFlag$.mockImplementation(() => of(false));
 
     // Initialize domainSettingsService BEFORE it's used

@@ -275,6 +275,7 @@ describe("VaultPopupItemsService", () => {
 
       // Assume all ciphers are autofill ciphers to test sorting
       cipherServiceMock.filterCiphersForUrl.mockImplementation(async () =>
+        // @ts-expect-error - jest-mock-extended v4 has stricter generic type checking
         Object.values(allCiphers),
       );
 
@@ -317,6 +318,7 @@ describe("VaultPopupItemsService", () => {
       const cipherList = Object.values(allCiphers);
       const searchText = "Login";
 
+      // @ts-expect-error - jest-mock-extended v4 has stricter generic type checking
       searchService.searchCiphers.mockImplementation(async () => {
         return cipherList.filter((cipher) => {
           return cipher.name.includes(searchText);
@@ -344,6 +346,7 @@ describe("VaultPopupItemsService", () => {
       const cipherList = Object.values(allCiphers);
       const searchText = "Card 2";
 
+      // @ts-expect-error - jest-mock-extended v4 has stricter generic type checking
       searchService.searchCiphers.mockImplementation(async () => {
         return cipherList.filter((cipher) => {
           return cipher.name === searchText;

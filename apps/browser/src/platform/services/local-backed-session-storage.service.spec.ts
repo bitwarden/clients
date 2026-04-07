@@ -145,6 +145,7 @@ describe("LocalBackedSessionStorage", () => {
     });
 
     it("returns the cached value when cache is populated during storage retrieval", async () => {
+      // @ts-expect-error - jest-mock-extended v4 has stricter generic type checking
       localStorage.get.mockImplementation(async () => {
         sut["cache"]["test"] = "cached-during-read";
         return encString.encryptedString;
@@ -157,6 +158,7 @@ describe("LocalBackedSessionStorage", () => {
     });
 
     it("returns the cached value when storage returns null but cache was filled", async () => {
+      // @ts-expect-error - jest-mock-extended v4 has stricter generic type checking
       localStorage.get.mockImplementation(async () => {
         sut["cache"]["test"] = "cached-during-read";
         return null;

@@ -306,6 +306,7 @@ describe("Browser Utils Service", () => {
       offscreenDocumentService.offscreenApiSupported.mockReturnValue(true);
       getManifestVersionSpy.mockReturnValue(3);
       offscreenDocumentService.withDocument.mockImplementationOnce((_, __, callback) =>
+        // @ts-expect-error - jest-mock-extended v4 has stricter generic type checking
         Promise.resolve("test"),
       );
 
@@ -329,6 +330,7 @@ describe("Browser Utils Service", () => {
       getManifestVersionSpy.mockReturnValue(3);
       jest.spyOn(BrowserApi, "sendMessageWithResponse").mockResolvedValue(1);
       offscreenDocumentService.withDocument.mockImplementationOnce((_, __, callback) =>
+        // @ts-expect-error - jest-mock-extended v4 has stricter generic type checking
         Promise.resolve(1),
       );
 
