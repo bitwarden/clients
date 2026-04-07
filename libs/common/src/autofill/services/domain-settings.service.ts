@@ -6,9 +6,12 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums/policy-type.enum";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 
 import {
   NeverDomains,
@@ -61,9 +64,9 @@ const DEFAULT_URI_MATCH_STRATEGY = new UserKeyDefinition(
   },
 );
 
-const TARGETING_RULES = new KeyDefinition<TargetingRulesByDomain>(
+const SERVER_TARGETING_RULES = KeyDefinition.record<TargetingRulesByDomain, string>(
   DOMAIN_SETTINGS_DISK,
-  "fillAssistTargetingRules",
+  "fillAssistTargetingRulesByServer",
   {
     deserializer: (value: TargetingRulesByDomain) => value ?? null,
   },
@@ -177,7 +180,6 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
   private enableFillAssistState: GlobalState<boolean>;
   readonly enableFillAssist$: Observable<boolean>;
 
-  private targetingRulesState: GlobalState<TargetingRulesByDomain>;
   readonly targetingRules$: Observable<TargetingRulesByDomain | null>;
 
   constructor(
@@ -185,6 +187,8 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     private policyService: PolicyService,
     private accountService: AccountService,
     private configService: ConfigService,
+    private environmentService: EnvironmentService,
+    private authService: AuthService,
   ) {
     this.showFaviconsState = this.stateProvider.getGlobal(SHOW_FAVICONS);
     this.showFavicons$ = this.showFaviconsState.state$.pipe(map((x) => x ?? true));
@@ -209,8 +213,14 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     this.enableFillAssistState = this.stateProvider.getGlobal(ENABLE_FILL_ASSIST);
     this.enableFillAssist$ = this.enableFillAssistState.state$.pipe(map((x) => x ?? false));
 
-    this.targetingRulesState = this.stateProvider.getGlobal(TARGETING_RULES);
-    this.targetingRules$ = this.targetingRulesState.state$.pipe(map((x) => x ?? null));
+    this.targetingRules$ = this.environmentService.environment$.pipe(
+      switchMap((env) =>
+        this.stateProvider
+          .getGlobal(SERVER_TARGETING_RULES)
+          .state$.pipe(map((records) => records?.[env.getApiUrl()] ?? null)),
+      ),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
 
     this.defaultUriMatchStrategyPolicy$ = this.accountService.activeAccount$.pipe(
       getUserId,
@@ -276,11 +286,19 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
   }
 
   async setEnableFillAssist(newValue: boolean): Promise<void> {
-    await this.enableFillAssistState.update(() => newValue);
+    await this.enableFillAssistState.update(() => newValue, {
+      shouldUpdate: (current) => current !== newValue,
+    });
   }
 
   async setTargetingRules(rules: TargetingRulesByDomain): Promise<void> {
-    await this.targetingRulesState.update(() => rules);
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const apiUrl = env.getApiUrl();
+    await this.stateProvider
+      .getGlobal(SERVER_TARGETING_RULES)
+      .update((existing) => ({ ...existing, [apiUrl]: rules }), {
+        shouldUpdate: (existing) => existing?.[apiUrl] !== rules,
+      });
   }
 
   async getTargetingRulesForUrl(url: URL["href"]): Promise<FormContent[] | null> {
@@ -296,9 +314,13 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
       return null;
     }
 
-    // Fill Assist will not be applied when the user is logged out
+    // Fill Assist requires an unlocked vault
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     if (!activeAccount) {
+      return null;
+    }
+    const authStatus = await firstValueFrom(this.authService.authStatusFor$(activeAccount.id));
+    if (authStatus !== AuthenticationStatus.Unlocked) {
       return null;
     }
 

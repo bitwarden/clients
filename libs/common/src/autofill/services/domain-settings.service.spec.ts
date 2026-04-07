@@ -1,9 +1,15 @@
-import { mock } from "jest-mock-extended";
-import { firstValueFrom, of } from "rxjs";
+import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import {
+  Environment,
+  EnvironmentService,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 
 import { FakeStateProvider, FakeAccountService, mockAccountServiceWith } from "../../../spec";
 import { Utils } from "../../platform/misc/utils";
@@ -13,6 +19,8 @@ import { TargetingRulesByDomain, FormContent } from "../types";
 
 import { DefaultDomainSettingsService, DomainSettingsService } from "./domain-settings.service";
 
+const MOCK_API_URL = "https://api.bitwarden.com";
+
 describe("DefaultDomainSettingsService", () => {
   let domainSettingsService: DomainSettingsService;
   const mockUserId = Utils.newGuid() as UserId;
@@ -20,6 +28,8 @@ describe("DefaultDomainSettingsService", () => {
   const policyService = mock<PolicyService>();
   const configService = mock<ConfigService>();
   const fakeStateProvider: FakeStateProvider = new FakeStateProvider(accountService);
+  let environmentService: MockProxy<EnvironmentService>;
+  let authService: MockProxy<AuthService>;
 
   const mockEquivalentDomains = [
     ["example.com", "exampleapp.com", "example.co.uk", "ejemplo.es"],
@@ -28,11 +38,21 @@ describe("DefaultDomainSettingsService", () => {
   ];
 
   beforeEach(() => {
+    const mockEnvironment = mock<Environment>();
+    mockEnvironment.getApiUrl.mockReturnValue(MOCK_API_URL);
+    environmentService = mock<EnvironmentService>();
+    environmentService.environment$ = new BehaviorSubject(mockEnvironment);
+
+    authService = mock<AuthService>();
+    authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+
     domainSettingsService = new DefaultDomainSettingsService(
       fakeStateProvider,
       policyService,
       accountService,
       configService,
+      environmentService,
+      authService,
     );
 
     jest.spyOn(domainSettingsService, "getUrlEquivalentDomains");

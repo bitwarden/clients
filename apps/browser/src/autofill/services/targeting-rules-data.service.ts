@@ -36,9 +36,9 @@ type TargetingRulesDataMeta = {
   timestamp: number;
 };
 
-const TARGETING_RULES_META_KEY = new KeyDefinition<TargetingRulesDataMeta>(
+const SERVER_TARGETING_RULES_META = KeyDefinition.record<TargetingRulesDataMeta, string>(
   DOMAIN_SETTINGS_DISK,
-  "fillAssistTargetingRulesMeta",
+  "fillAssistTargetingRulesMetaByServer",
   {
     deserializer: (value: TargetingRulesDataMeta) => ({
       timestamp: value?.timestamp ?? 0,
@@ -57,7 +57,7 @@ export class TargetingRulesDataService {
   // guard against accidental leaks.
   private _destroy$ = new Subject<void>();
   private _triggerUpdate$ = new Subject<void>();
-  private _metaState: GlobalState<TargetingRulesDataMeta>;
+  private _metaState: GlobalState<Record<string, TargetingRulesDataMeta>>;
 
   constructor(
     private apiService: ApiService,
@@ -68,7 +68,7 @@ export class TargetingRulesDataService {
     private globalStateProvider: GlobalStateProvider,
     private logService: LogService,
   ) {
-    this._metaState = this.globalStateProvider.get(TARGETING_RULES_META_KEY);
+    this._metaState = this.globalStateProvider.get(SERVER_TARGETING_RULES_META);
   }
 
   /**
@@ -93,17 +93,6 @@ export class TargetingRulesDataService {
       )
       .subscribe();
 
-    // Always clear rules on environment change. Rules from a previous
-    // environment must not persist, as a safety concern (e.g. switching
-    // to/from a self-hosted server).
-    this.environmentService.environment$.pipe(takeUntil(this._destroy$)).subscribe((env) => {
-      this.logService.info(
-        `[TargetingRulesDataService] Environment loaded: ${env.getHostname()}; clearing cached data.`,
-      );
-      void this.domainSettingsService.setTargetingRules({});
-      void this._metaState.update(() => ({ timestamp: 0 }));
-    });
-
     // Trigger a fetch whenever the server config changes (e.g. after
     // unlock, account switch, or environment change). The config lags
     // behind environment$, so reacting here ensures _resolveSourceUrl
@@ -111,6 +100,15 @@ export class TargetingRulesDataService {
     this.configService.serverConfig$.pipe(takeUntil(this._destroy$)).subscribe(() => {
       this._triggerUpdate$.next();
     });
+  }
+
+  private async _resetMeta(): Promise<void> {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const apiUrl = env.getApiUrl();
+    await this._metaState.update((existing) => ({
+      ...existing,
+      [apiUrl]: { timestamp: 0 },
+    }));
   }
 
   dispose(): void {
@@ -144,7 +142,7 @@ export class TargetingRulesDataService {
             // the next successful fetch.
             if (retryCount === 1) {
               void this.domainSettingsService.setTargetingRules({});
-              void this._metaState.update(() => ({ timestamp: 0 }));
+              void this._resetMeta();
             }
 
             return timer(5 * 60 * 1000); // 5 minutes
@@ -171,7 +169,11 @@ export class TargetingRulesDataService {
 
     this.logService.info("[TargetingRulesDataService] Update triggered...");
 
-    const meta = await firstValueFrom(this._metaState.state$);
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const apiUrl = env.getApiUrl();
+
+    const allMeta = await firstValueFrom(this._metaState.state$);
+    const meta = allMeta?.[apiUrl];
     const cacheAge = Date.now() - (meta?.timestamp ?? 0);
 
     if (cacheAge < TargetingRulesDataService.UPDATE_INTERVAL) {
@@ -204,7 +206,10 @@ export class TargetingRulesDataService {
     }
 
     await this.domainSettingsService.setTargetingRules(rules);
-    await this._metaState.update(() => ({ timestamp: Date.now() }));
+    await this._metaState.update((existing) => ({
+      ...existing,
+      [apiUrl]: { timestamp: Date.now() },
+    }));
 
     this.logService.info(
       `[TargetingRulesDataService] Stored ${Object.keys(rules).length} domain rule sets`,

@@ -1002,6 +1002,8 @@ export default class MainBackground {
       this.policyService,
       this.accountService,
       this.configService,
+      this.environmentService,
+      this.authService,
     );
 
     this.targetingRulesDataService = new TargetingRulesDataService(
