@@ -4,6 +4,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { SendId } from "@bitwarden/common/types/guid";
 
 import { BaseResponse } from "../../../models/response/base.response";
 
@@ -38,7 +39,7 @@ export class SendResponse implements BaseResponse {
       return null;
     }
 
-    view.id = send.id;
+    view.id = send.id as SendId;
     view.accessId = send.accessId;
     view.name = send.name;
     view.notes = send.notes;

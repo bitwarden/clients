@@ -11,6 +11,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { SendId } from "@bitwarden/common/types/guid";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { isGuid } from "@bitwarden/guid";
 
@@ -77,7 +78,7 @@ export class SendGetCommand extends DownloadCommand {
   private async getSendView(id: string): Promise<SendView | SendView[]> {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (isGuid(id)) {
-      const send = await this.sendService.getFromState(id);
+      const send = await this.sendService.getFromState(id as SendId);
       if (send != null) {
         return await send.decrypt(activeUserId);
       }

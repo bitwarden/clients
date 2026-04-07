@@ -9,6 +9,7 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { SendId } from "@bitwarden/common/types/guid";
 
 import { Response } from "../../../models/response";
 import { CliUtils } from "../../../utils";
@@ -83,7 +84,7 @@ export class SendEditCommand {
     }
 
     req.id = req.id.toLowerCase();
-    const send = await this.sendService.getFromState(req.id);
+    const send = await this.sendService.getFromState(req.id as SendId);
 
     if (send == null) {
       return Response.notFound();
