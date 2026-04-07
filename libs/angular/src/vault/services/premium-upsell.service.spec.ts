@@ -57,7 +57,7 @@ describe("PremiumUpsellService", () => {
 
   beforeEach(() => {
     jest.useFakeTimers();
-    jest.setSystemTime(currentDate);
+    jest.setSystemTime(currentDate.getTime());
 
     hasPremiumSubject = new BehaviorSubject<boolean>(false);
     accountAgeThresholdSubject = new BehaviorSubject<number>(30);

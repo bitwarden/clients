@@ -38,7 +38,7 @@ describe("Zoho Vault CSV Importer", () => {
 
   CipherData.forEach((data) => {
     it(data.title, async () => {
-      jest.useFakeTimers().setSystemTime(data.expected.creationDate);
+      jest.useFakeTimers().setSystemTime(data.expected.creationDate.getDate());
       const importer = new ZohoVaultCsvImporter();
       const result = await importer.parse(data.csv);
       expect(result != null).toBe(true);

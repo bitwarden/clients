@@ -59,7 +59,7 @@ describe("normalizeExpiryYearFormat", () => {
 
     beforeAll(() => {
       jest.useFakeTimers({ advanceTimers: true });
-      jest.setSystemTime(theDistantFuture);
+      jest.setSystemTime(theDistantFuture.getTime());
     });
 
     afterAll(() => {

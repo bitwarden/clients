@@ -120,7 +120,7 @@ const CipherData = [
 describe("Arc CSV Importer", () => {
   CipherData.forEach((data) => {
     it(data.title, async () => {
-      jest.useFakeTimers().setSystemTime(data.expected.creationDate);
+      jest.useFakeTimers().setSystemTime(data.expected.creationDate.getTime());
       const importer = new ArcCsvImporter();
       const result = await importer.parse(data.csv);
       expect(result != null).toBe(true);

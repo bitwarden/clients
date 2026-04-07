@@ -764,7 +764,7 @@ describe("TokenService", () => {
           // Lock the time to ensure a consistent test environment
           // otherwise we have flaky issues with set system time date and the Date.now() call.
           const fixedCurrentTime = new Date("2024-03-06T00:00:00Z");
-          jest.useFakeTimers().setSystemTime(fixedCurrentTime);
+          jest.useFakeTimers().setSystemTime(fixedCurrentTime.getTime());
 
           const nowInSeconds = Math.floor(Date.now() / 1000);
           const expirationInSeconds = nowInSeconds + 3600; // token expires in 1 hr
@@ -789,7 +789,7 @@ describe("TokenService", () => {
           // Lock the time to ensure a consistent test environment
           // otherwise we have flaky issues with set system time date and the Date.now() call.
           const fixedCurrentTime = new Date("2024-03-06T00:00:00Z");
-          jest.useFakeTimers().setSystemTime(fixedCurrentTime);
+          jest.useFakeTimers().setSystemTime(fixedCurrentTime.getDate());
 
           const nowInSeconds = Math.floor(Date.now() / 1000);
           const offsetSeconds = 300; // 5 minute offset

@@ -1082,7 +1082,7 @@ describe("AutofillInlineMenuContentService", () => {
   describe("checkAndUpdateRefreshCount", () => {
     beforeEach(() => {
       jest.useFakeTimers();
-      jest.setSystemTime(new Date("2023-01-01T00:00:00.000Z"));
+      jest.setSystemTime(new Date("2023-01-01T00:00:00.000Z").getTime());
     });
 
     afterEach(() => {
