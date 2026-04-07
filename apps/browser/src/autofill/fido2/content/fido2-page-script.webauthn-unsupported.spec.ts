@@ -9,17 +9,18 @@ import { WebauthnUtils } from "../utils/webauthn-utils";
 import { MessageTypes } from "./messaging/message";
 import { Messenger } from "./messaging/messenger";
 
-const originalGlobalThis = globalThis;
-const mockGlobalThisDocument = {
-  ...originalGlobalThis.document,
-  contentType: "text/html",
-  location: {
-    ...originalGlobalThis.document.location,
-    href: "https://localhost",
-    origin: "https://localhost",
-    protocol: "https:",
-  },
-};
+// ❌ Disabled: originalGlobalThis and mockGlobalThisDocument are no longer used (describe.skip blocks the code that used them)
+// const originalGlobalThis = globalThis;
+// const mockGlobalThisDocument = {
+//   ...originalGlobalThis.document,
+//   contentType: "text/html",
+//   location: {
+//     ...originalGlobalThis.document.location,
+//     href: "https://localhost",
+//     origin: "https://localhost",
+//     protocol: "https:",
+//   },
+// };
 
 let messenger: Messenger;
 jest.mock("./messaging/messenger", () => {
@@ -42,9 +43,10 @@ jest.mock("./messaging/messenger", () => {
 jest.mock("../utils/webauthn-utils");
 
 describe.skip("Fido2 page script without native WebAuthn support", () => {
-  (jest.spyOn(globalThis, "document", "get") as jest.Mock).mockImplementation(
-    () => mockGlobalThisDocument,
-  );
+  // ❌ Disabled: jsdom does not allow spying on document property (causes "not configurable" error)
+  // (jest.spyOn(globalThis, "document", "get") as jest.Mock).mockImplementation(
+  //   () => mockGlobalThisDocument,
+  // );
 
   const mockCredentialCreationOptions = createCredentialCreationOptionsMock();
   const mockCreateCredentialsResult = createCreateCredentialResultMock();
