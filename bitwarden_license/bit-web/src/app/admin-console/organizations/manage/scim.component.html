@@ -54,6 +54,14 @@
     <button
       type="button"
       bitSuffix
+      bitIconButton="bwi-key"
+      [bitAction]="loadApiKey"
+      bitFormButton
+      [label]="'viewScimApiKey' | i18n"
+    ></button>
+    <button
+      type="button"
+      bitSuffix
       bitIconButton="bwi-generate"
       [bitAction]="rotateScimKey"
       bitFormButton
