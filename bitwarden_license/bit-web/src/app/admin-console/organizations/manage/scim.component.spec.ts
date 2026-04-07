@@ -22,6 +22,8 @@ import { ScimApiKeyDialogComponent } from "./scim-api-key-dialog.component";
 import { ScimComponent } from "./scim.component";
 
 describe("ScimComponent", () => {
+  const testAccess = (comp: ScimComponent) => comp as any;
+
   let component: ScimComponent;
   let fixture: ComponentFixture<ScimComponent>;
 
@@ -266,7 +268,7 @@ describe("ScimComponent", () => {
     }));
 
     it("creates a new connection when no existing connection id", fakeAsync(() => {
-      component.existingConnectionId = null;
+      testAccess(component).existingConnectionId = null;
       component.enabled.setValue(true);
       apiService.createOrganizationConnection.mockResolvedValue(mockConnection(true));
 
