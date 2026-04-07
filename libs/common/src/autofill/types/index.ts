@@ -5,6 +5,7 @@ import {
   BrowserShortcutsUris,
   ClearClipboardDelay,
   DisablePasswordManagerUris,
+  FormPurposeCategories,
 } from "../constants";
 
 /**
@@ -60,16 +61,8 @@ type TargetingRules = {
   };
 };
 
-type FormPurposeCategory =
-  | "account-creation"
-  | "account-login"
-  | "account-recovery"
-  | "account-update"
-  | "address"
-  | "identity"
-  | "payment-card"
-  | "search"
-  | "signup";
+export type FormPurposeCategory =
+  (typeof FormPurposeCategories)[keyof typeof FormPurposeCategories];
 
 export type AutofillTargetingRuleType =
   (typeof AutofillTargetingRuleTypes)[keyof typeof AutofillTargetingRuleTypes];
@@ -103,13 +96,13 @@ type FormActions = {
  */
 export type FormContent = {
   /**
-   * An optional descriptor of the form, useful for mapping separate concerns
+   * Descriptor of the form's purpose, useful for mapping separate concerns
    * (e.g. a page with both a login and registration form, mixed-purpose form, etc)
    *
    * Note: the client logic can use these to make determinations about what _not_ to
    * consider as well (e.g. don't autofill search forms, newsletter sign ups)
    */
-  category?: FormPurposeCategory;
+  category: FormPurposeCategory;
   /** Optional selector array identifying the form's container element on the page */
   container?: DeepSelector[];
   fields: FormFields;

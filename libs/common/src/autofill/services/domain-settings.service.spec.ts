@@ -8,6 +8,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { FakeStateProvider, FakeAccountService, mockAccountServiceWith } from "../../../spec";
 import { Utils } from "../../platform/misc/utils";
 import { UserId } from "../../types/guid";
+import { FormPurposeCategories } from "../constants";
 import { TargetingRulesByDomain, FormContent } from "../types";
 
 import { DefaultDomainSettingsService, DomainSettingsService } from "./domain-settings.service";
@@ -68,6 +69,7 @@ describe("DefaultDomainSettingsService", () => {
   describe("getTargetingRulesForUrl", () => {
     const mockForms: FormContent[] = [
       {
+        category: FormPurposeCategories.AccountLogin,
         fields: {
           username: ["input#email"],
           password: ["input#pass"],
@@ -77,6 +79,7 @@ describe("DefaultDomainSettingsService", () => {
 
     const mockWwwForms: FormContent[] = [
       {
+        category: FormPurposeCategories.AccountLogin,
         fields: {
           username: ["input#www-email"],
         },
@@ -184,7 +187,12 @@ describe("DefaultDomainSettingsService", () => {
     });
 
     describe("handling for port-specific hosts", () => {
-      const portForms: FormContent[] = [{ fields: { username: ["input#green-knight"] } }];
+      const portForms: FormContent[] = [
+        {
+          category: FormPurposeCategories.AccountLogin,
+          fields: { username: ["input#green-knight"] },
+        },
+      ];
 
       it("treats example.com and example.com:8443 as distinct entries", async () => {
         await setupRules({
@@ -230,9 +238,14 @@ describe("DefaultDomainSettingsService", () => {
 
     describe("resolves pathnames", () => {
       const loginForms: FormContent[] = [
-        { fields: { username: ["input#login-user"], password: ["input#login-pass"] } },
+        {
+          category: FormPurposeCategories.AccountLogin,
+          fields: { username: ["input#login-user"], password: ["input#login-pass"] },
+        },
       ];
-      const hostnameFallbackForms: FormContent[] = [{ fields: { username: ["input#babelfish"] } }];
+      const hostnameFallbackForms: FormContent[] = [
+        { category: FormPurposeCategories.AccountLogin, fields: { username: ["input#babelfish"] } },
+      ];
 
       it("returns pathname-specific rules when pathname matches", async () => {
         await setupRules({
@@ -318,7 +331,12 @@ describe("DefaultDomainSettingsService", () => {
       });
 
       it("matches a root path rule for the domain root", async () => {
-        const rootForms: FormContent[] = [{ fields: { username: ["input.global-form-field"] } }];
+        const rootForms: FormContent[] = [
+          {
+            category: FormPurposeCategories.AccountLogin,
+            fields: { username: ["input.global-form-field"] },
+          },
+        ];
         await setupRules({
           "example.com": {
             forms: hostnameFallbackForms,
@@ -334,7 +352,12 @@ describe("DefaultDomainSettingsService", () => {
       });
 
       it("matches a root path rule when URL has no trailing slash", async () => {
-        const rootForms: FormContent[] = [{ fields: { username: ["input.global-form-field"] } }];
+        const rootForms: FormContent[] = [
+          {
+            category: FormPurposeCategories.AccountLogin,
+            fields: { username: ["input.global-form-field"] },
+          },
+        ];
         await setupRules({
           "example.com": {
             forms: hostnameFallbackForms,
@@ -350,7 +373,12 @@ describe("DefaultDomainSettingsService", () => {
       });
 
       it("uses hostname fallback for non-root paths when only root path is defined", async () => {
-        const rootForms: FormContent[] = [{ fields: { username: ["input.global-form-field"] } }];
+        const rootForms: FormContent[] = [
+          {
+            category: FormPurposeCategories.AccountLogin,
+            fields: { username: ["input.global-form-field"] },
+          },
+        ];
         await setupRules({
           "example.com": {
             forms: hostnameFallbackForms,
@@ -523,7 +551,12 @@ describe("DefaultDomainSettingsService", () => {
 
     describe("handles query strings and fragments", () => {
       it("ignores query strings when matching pathnames", async () => {
-        const loginForms: FormContent[] = [{ fields: { username: ["input#login-user"] } }];
+        const loginForms: FormContent[] = [
+          {
+            category: FormPurposeCategories.AccountLogin,
+            fields: { username: ["input#login-user"] },
+          },
+        ];
         await setupRules({
           "example.com": {
             pathnames: {
@@ -540,7 +573,12 @@ describe("DefaultDomainSettingsService", () => {
       });
 
       it("ignores fragments when matching pathnames", async () => {
-        const loginForms: FormContent[] = [{ fields: { username: ["input#login-user"] } }];
+        const loginForms: FormContent[] = [
+          {
+            category: FormPurposeCategories.AccountLogin,
+            fields: { username: ["input#login-user"] },
+          },
+        ];
         await setupRules({
           "example.com": {
             pathnames: {
@@ -557,7 +595,12 @@ describe("DefaultDomainSettingsService", () => {
       });
 
       it("ignores both query strings and fragments together", async () => {
-        const loginForms: FormContent[] = [{ fields: { username: ["input#login-user"] } }];
+        const loginForms: FormContent[] = [
+          {
+            category: FormPurposeCategories.AccountLogin,
+            fields: { username: ["input#login-user"] },
+          },
+        ];
         await setupRules({
           "example.com": {
             pathnames: {
