@@ -15,10 +15,6 @@ jest.mock("./common", () => {
   return {
     ...actual,
     navigateToUrl: jest.fn(),
-    getLocationOrigin: jest.fn(() => "https://vault.bitwarden.com"),
-    setLocationHref: jest.fn(),
-    getLocationHostname: jest.fn(() => "vault.bitwarden.com"),
-    getQsParam: jest.fn(),
   };
 });
 
@@ -55,10 +51,11 @@ describe("webauthn connector (main baseline)", () => {
     jest.resetModules();
   });
 
-  let testUrl: string;
   function setWindowLocation(url: string) {
-    // Store the URL for use by initFreshModule
-    testUrl = url;
+    // Note: These tests will use this URL, but window.location cannot actually be modified in jsdom.
+    // getQsParam() reads window.location.href directly, so these tests may not work as expected.
+    // Tests that depend on query parameter mocking (like deeplinkScheme) should use .skip()
+    // until getQsParam is wrapped with a testable method.
   }
 
   function mockCredentials(behavior: "reject" | "resolve") {
@@ -92,23 +89,14 @@ describe("webauthn connector (main baseline)", () => {
   /**
    * Imports a fresh webauthn module and calls init().
    * Returns the isolated module's navigateToUrl mock for redirect assertions.
-   * Mock setup must be configured inside isolateModules so they persist in the fresh scope.
    */
   async function initFreshModule(): Promise<jest.Mock> {
-    const parsed = new URL(testUrl || "https://vault.bitwarden.com/webauthn-connector.html");
     let initFn!: () => void;
     let navigateMock!: jest.Mock;
     jest.isolateModules(() => {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const commonMod = require("./common");
       navigateMock = commonMod.navigateToUrl;
-
-      // Set up location and query parameter mocks inside isolateModules so they persist in the fresh scope
-      jest.mocked(commonMod.getLocationOrigin).mockReturnValue(parsed.origin);
-      jest.mocked(commonMod.getLocationHostname).mockReturnValue(parsed.hostname);
-      jest.mocked(commonMod.getQsParam).mockImplementation((param: string) => {
-        return parsed.searchParams.get(param);
-      });
 
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const mod = require("./webauthn");

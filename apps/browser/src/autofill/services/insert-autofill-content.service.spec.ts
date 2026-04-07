@@ -5,6 +5,7 @@ import { EVENTS } from "@bitwarden/common/autofill/constants";
 import AutofillScript, { FillScript, FillScriptActionTypes } from "../models/autofill-script";
 import { mockQuerySelectorAllDefinedCall } from "../spec/testing-utils";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
+import * as utils from "../utils";
 
 import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
 import { AutofillOverlayContentService } from "./autofill-overlay-content.service";
@@ -86,6 +87,8 @@ describe("InsertAutofillContentService", () => {
   beforeEach(() => {
     document.body.innerHTML = mockLoginForm;
     confirmSpy = jest.spyOn(globalThis, "confirm");
+    // Mock currentlyInSandboxedIframe to return false so tests can run past the early return check
+    jest.spyOn(utils, "currentlyInSandboxedIframe").mockReturnValue(false);
     mockLocationService = {
       getHref: jest.fn(() => "https://bitwarden.com"),
       getHostname: jest.fn(() => "bitwarden.com"),
@@ -144,11 +147,14 @@ describe("InsertAutofillContentService", () => {
     });
 
     it("returns early if the script is filling within a sand boxed iframe", async () => {
+      // Clear the mock to test the actual sandboxed iframe detection
+      jest.mocked(utils.currentlyInSandboxedIframe).mockRestore();
       Object.defineProperty(globalThis, "frameElement", {
         value: {
           getAttribute: jest.fn(() => ""),
         },
         writable: true,
+        configurable: true,
       });
       jest.spyOn(insertAutofillContentService as any, "userCancelledInsecureUrlAutofill");
       jest.spyOn(insertAutofillContentService as any, "userCancelledUntrustedIframeAutofill");
@@ -163,6 +169,9 @@ describe("InsertAutofillContentService", () => {
         insertAutofillContentService["userCancelledUntrustedIframeAutofill"],
       ).not.toHaveBeenCalled();
       expect(insertAutofillContentService["runFillScriptAction"]).not.toHaveBeenCalled();
+
+      // Re-mock for subsequent tests
+      jest.spyOn(utils, "currentlyInSandboxedIframe").mockReturnValue(false);
     });
 
     it("returns early if the autofill is occurring on an insecure url and the user cancels the autofill", async () => {
