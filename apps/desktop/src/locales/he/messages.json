@@ -2126,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "שינויים שלא נשמרו"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "If you leave now, your changes will not be saved. Install the update later so you can stay and save your changes."
+  },
+  "installLater": {
+    "message": "Install later"
+  },
+  "continueWithInstall": {
+    "message": "Continue with install"
+  },
   "clone": {
     "message": "שכפול"
   },
@@ -2234,6 +2243,9 @@
   },
   "copyTOTP": {
     "message": "העתק קוד מאמת (TOTP)"
+  },
+  "copyNotes": {
+    "message": "Copy notes"
   },
   "totpHelperTitle": {
     "message": "הפוך את האימות הדו־שלבי לחלק"
