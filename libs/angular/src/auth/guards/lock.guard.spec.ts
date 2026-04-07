@@ -18,7 +18,6 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KeyService } from "@bitwarden/key-management";
 
 import { lockGuard } from "./lock.guard";
 
@@ -26,7 +25,6 @@ interface SetupParams {
   authStatus: AuthenticationStatus;
   canLock?: boolean;
   clientType?: ClientType;
-  everHadUserKey?: boolean;
   supportsDeviceTrust?: boolean;
   hasMasterPassword?: boolean;
 }
@@ -41,9 +39,6 @@ describe("lockGuard", () => {
     const vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService> =
       mock<VaultTimeoutSettingsService>();
     vaultTimeoutSettingsService.canLock.mockResolvedValue(setupParams.canLock ?? true);
-
-    const keyService: MockProxy<KeyService> = mock<KeyService>();
-    keyService.everHadUserKey$.mockReturnValue(of(setupParams.everHadUserKey ?? true));
 
     const platformUtilService: MockProxy<PlatformUtilsService> = mock<PlatformUtilsService>();
     platformUtilService.getClientType.mockReturnValue(setupParams.clientType ?? ClientType.Web);
@@ -87,7 +82,6 @@ describe("lockGuard", () => {
         { provide: MessagingService, useValue: messagingService },
         { provide: AccountService, useValue: accountService },
         { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
-        { provide: KeyService, useValue: keyService },
         { provide: PlatformUtilsService, useValue: platformUtilService },
         { provide: DeviceTrustServiceAbstraction, useValue: deviceTrustService },
         { provide: UserVerificationService, useValue: userVerificationService },
@@ -162,7 +156,6 @@ describe("lockGuard", () => {
       authStatus: AuthenticationStatus.Locked,
       canLock: true,
       clientType: ClientType.Web,
-      everHadUserKey: false,
       supportsDeviceTrust: true,
       hasMasterPassword: true,
     });
@@ -177,19 +170,17 @@ describe("lockGuard", () => {
       canLock: true,
       supportsDeviceTrust: false,
       hasMasterPassword: false,
-      everHadUserKey: true,
     });
 
     await router.navigate(["lock"]);
     expect(router.url).toBe("/lock");
   });
 
-  it("should not allow navigation to the lock route when device trust is supported and the user has not ever had a user key", async () => {
+  it("should not allow navigation to the lock route when device trust is supported and user cannot lock", async () => {
     const { router } = setup({
       authStatus: AuthenticationStatus.Locked,
-      canLock: true,
+      canLock: false,
       clientType: ClientType.Web,
-      everHadUserKey: false,
       supportsDeviceTrust: true,
       hasMasterPassword: false,
     });

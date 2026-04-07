@@ -43,10 +43,7 @@ import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/services/key-state/org-keys.state";
 import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
-import {
-  USER_EVER_HAD_USER_KEY,
-  USER_KEY,
-} from "@bitwarden/common/platform/services/key-state/user-key.state";
+import { USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
@@ -111,7 +108,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
     // Set userId to ensure we have one for the account status update
     await this.stateProvider.setUserState(USER_KEY, this.userKeyToStateObject(key), userId);
-    await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
 
     await this.storeAdditionalKeys(key, userId);
 
@@ -134,12 +130,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     await this.setUserKey(key, userId);
-  }
-
-  everHadUserKey$(userId: UserId): Observable<boolean> {
-    return this.stateProvider
-      .getUser(userId, USER_EVER_HAD_USER_KEY)
-      .state$.pipe(map((x) => x ?? false));
   }
 
   getInMemoryUserKeyFor$(userId: UserId): Observable<UserKey | null> {
@@ -454,7 +444,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.clearUserKey(userId);
     await this.clearOrgKeys(userId);
     await this.clearProviderKeys(userId);
-    await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, null, userId);
     await this.accountCryptographyStateService.clearAccountCryptographicState(userId);
   }
 

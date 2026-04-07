@@ -8,10 +8,10 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KeyService } from "@bitwarden/key-management";
 
 import { tdeDecryptionRequiredGuard } from "./tde-decryption-required.guard";
 
@@ -28,11 +28,11 @@ describe("tdeDecryptionRequiredGuard", () => {
     activeUser: Account | null,
     authStatus: AuthenticationStatus | null = null,
     tdeEnabled: boolean = false,
-    everHadUserKey: boolean = false,
+    canLock: boolean = false,
   ) => {
     const accountService = mock<AccountService>();
     const authService = mock<AuthService>();
-    const keyService = mock<KeyService>();
+    const vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     const deviceTrustService = mock<DeviceTrustServiceAbstraction>();
     const logService = mock<LogService>();
 
@@ -40,14 +40,14 @@ describe("tdeDecryptionRequiredGuard", () => {
     if (authStatus !== null) {
       authService.getAuthStatus.mockResolvedValue(authStatus);
     }
-    keyService.everHadUserKey$.mockReturnValue(of(everHadUserKey));
+    vaultTimeoutSettingsService.canLock.mockResolvedValue(canLock);
     deviceTrustService.supportsDeviceTrust$ = of(tdeEnabled);
 
     const testBed = TestBed.configureTestingModule({
       providers: [
         { provide: AccountService, useValue: accountService },
         { provide: AuthService, useValue: authService },
-        { provide: KeyService, useValue: keyService },
+        { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
         { provide: DeviceTrustServiceAbstraction, useValue: deviceTrustService },
         { provide: LogService, useValue: logService },
         provideRouter([
@@ -91,7 +91,7 @@ describe("tdeDecryptionRequiredGuard", () => {
     expect(router.url).toBe("/");
   });
 
-  it("redirects to root when user has had a user key", async () => {
+  it("redirects to root when user can lock", async () => {
     const { router } = setup(activeUser, AuthenticationStatus.Locked, true, true);
 
     await router.navigate(["protected-route"]);
@@ -99,7 +99,7 @@ describe("tdeDecryptionRequiredGuard", () => {
     expect(router.url).toBe("/");
   });
 
-  it("allows access when user is locked, TDE is enabled, and user has never had a user key", async () => {
+  it("allows access when user is locked, TDE is enabled, and user cannot lock", async () => {
     const { router } = setup(activeUser, AuthenticationStatus.Locked, true, false);
 
     const result = await router.navigate(["protected-route"]);

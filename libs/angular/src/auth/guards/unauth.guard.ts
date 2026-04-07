@@ -6,8 +6,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { KeyService } from "@bitwarden/key-management";
 
 type UnauthRoutes = {
   homepage: () => string;
@@ -27,8 +27,8 @@ async function unauthGuard(
   const accountService = inject(AccountService);
   const authService = inject(AuthService);
   const router = inject(Router);
-  const keyService = inject(KeyService);
   const deviceTrustService = inject(DeviceTrustServiceAbstraction);
+  const vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
   const logService = inject(LogService);
 
   const activeUser = await firstValueFrom(accountService.activeAccount$);
@@ -50,16 +50,16 @@ async function unauthGuard(
   const tdeEnabled = await firstValueFrom(
     deviceTrustService.supportsDeviceTrustByUserId$(activeUser.id),
   );
-  const everHadUserKey = await firstValueFrom(keyService.everHadUserKey$(activeUser.id));
+  const canLockVault = await vaultTimeoutSettingsService.canLock(activeUser.id);
 
-  // If locked, TDE is enabled, and the user hasn't decrypted yet, then redirect to the
+  // If locked, TDE is enabled, and the user has no unlock methods available, then redirect to the
   // login decryption options component.
-  if (authStatus === AuthenticationStatus.Locked && tdeEnabled && !everHadUserKey) {
+  if (authStatus === AuthenticationStatus.Locked && tdeEnabled && !canLockVault) {
     logService.info(
-      "Sending user to TDE decryption options. AuthStatus is %s. TDE support is %s. Ever had user key is %s.",
+      "Sending user to TDE decryption options. AuthStatus is %s. TDE support is %s. Can lock is %s.",
       AuthenticationStatus[authStatus],
       tdeEnabled,
-      everHadUserKey,
+      canLockVault,
     );
     return router.createUrlTree(["/login-initiated"]);
   }

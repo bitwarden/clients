@@ -79,12 +79,6 @@ export abstract class KeyService {
   abstract refreshAdditionalKeys(userId: UserId): Promise<void>;
 
   /**
-   * Observable value that returns whether or not the user has ever had a userKey,
-   * i.e. has ever been unlocked/decrypted. This is key for differentiating between TDE locked and standard locked states.
-   */
-  abstract everHadUserKey$(userId: UserId): Observable<boolean>;
-
-  /**
    * Retrieves the user key
    * @param userId The desired user
    * @returns The user key

@@ -451,10 +451,8 @@ export class AppComponent implements OnInit, OnDestroy {
                   .pipe(map((decryptionOptions) => decryptionOptions?.trustedDeviceOption != null)),
               );
 
-              const everHadUserKey = await firstValueFrom(
-                this.keyService.everHadUserKey$(message.userId),
-              );
-              if (tdeEnabled && !everHadUserKey) {
+              const canLockVault = await this.vaultTimeoutSettingsService.canLock(message.userId);
+              if (tdeEnabled && !canLockVault) {
                 await this.router.navigate(["login-initiated"]);
               } else {
                 await this.router.navigate(["lock"]);

@@ -52,7 +52,8 @@ import {
   ToastOptions,
   ToastService,
 } from "@bitwarden/components";
-import { BiometricsService, BiometricStateService, KeyService } from "@bitwarden/key-management";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
+import { BiometricsService, BiometricStateService } from "@bitwarden/key-management";
 
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { PopupCompactModeService } from "../platform/popup/layout/popup-compact-mode.service";
@@ -107,7 +108,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private biometricsService: BiometricsService,
     private deviceTrustToastService: DeviceTrustToastService,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
-    private keyService: KeyService,
+    private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private readonly destoryRef: DestroyRef,
     private readonly documentLangSetter: DocumentLangSetter,
     private popupSizeService: PopupSizeService,
@@ -188,10 +189,8 @@ export class AppComponent implements OnInit, OnDestroy {
                 .pipe(map((decryptionOptions) => decryptionOptions?.trustedDeviceOption != null)),
             );
 
-            const everHadUserKey = await firstValueFrom(
-              this.keyService.everHadUserKey$(msg.userId),
-            );
-            if (tdeEnabled && !everHadUserKey) {
+            const canLockVault = await this.vaultTimeoutSettingsService.canLock(msg.userId);
+            if (tdeEnabled && !canLockVault) {
               await this.router.navigate(["login-initiated"]);
               return;
             }

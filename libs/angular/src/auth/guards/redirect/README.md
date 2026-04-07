@@ -15,7 +15,7 @@ The `redirectGuard` will redirect the user based on the following checks, _in or
     - A user is in a TDE Locked State if they meet all 3 of the following conditions
       1. Auth status is `Locked`
       2. TDE is enabled
-      3. User has never had a user key (that is, user has not unlocked/decrypted yet)
+      3. User has no available unlock methods (master password, PIN, or biometrics)
   - **Standard Locked State** &rarr; redirect to `/lock`
 
 <br>
@@ -24,7 +24,7 @@ The `redirectGuard` will redirect the user based on the following checks, _in or
 | ----- | ------------------------------------------------------------------------------- | ------------------ |
 | 1     | `LoggedOut`                                                                     | `/login`           |
 | 2     | `Unlocked`                                                                      | `/vault`           |
-| 3     | **TDE Locked State** <br> `Locked` + <br> `tdeEnabled` + <br> `!everHadUserKey` | `/login-initiated` |
+| 3     | **TDE Locked State** <br> `Locked` + <br> `tdeEnabled` + <br> `!canLock`        | `/login-initiated` |
 | 4     | **Standard Locked State** <br> `Locked`                                         | `/lock`            |
 
 <br>

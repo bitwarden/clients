@@ -23,10 +23,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/services/key-state/org-keys.state";
 import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
-import {
-  USER_EVER_HAD_USER_KEY,
-  USER_KEY,
-} from "@bitwarden/common/platform/services/key-state/user-key.state";
+import { USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { UserKeyDefinition } from "@bitwarden/common/platform/state";
 import {
   awaitAsync,
@@ -210,49 +207,12 @@ describe("keyService", () => {
     });
   });
 
-  describe("everHadUserKey$", () => {
-    let everHadUserKeyState: FakeSingleUserState<boolean>;
-
-    beforeEach(() => {
-      everHadUserKeyState = stateProvider.singleUser.getFake(mockUserId, USER_EVER_HAD_USER_KEY);
-    });
-
-    it("should return true when stored value is true", async () => {
-      everHadUserKeyState.nextState(true);
-
-      expect(await firstValueFrom(keyService.everHadUserKey$(mockUserId))).toBe(true);
-    });
-
-    it("should return false when stored value is false", async () => {
-      everHadUserKeyState.nextState(false);
-
-      expect(await firstValueFrom(keyService.everHadUserKey$(mockUserId))).toBe(false);
-    });
-
-    it("should return false when stored value is null", async () => {
-      everHadUserKeyState.nextState(null);
-
-      expect(await firstValueFrom(keyService.everHadUserKey$(mockUserId))).toBe(false);
-    });
-  });
-
   describe("setUserKey", () => {
     let mockUserKey: UserKey;
-    let everHadUserKeyState: FakeSingleUserState<boolean>;
 
     beforeEach(() => {
       const mockRandomBytes = new Uint8Array(64) as CsprngArray;
       mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
-      everHadUserKeyState = stateProvider.singleUser.getFake(mockUserId, USER_EVER_HAD_USER_KEY);
-
-      // Initialize storage
-      everHadUserKeyState.nextState(null);
-    });
-
-    it("should set everHadUserKey if key is not null to true", async () => {
-      await keyService.setUserKey(mockUserKey, mockUserId);
-
-      expect(await firstValueFrom(everHadUserKeyState.state$)).toBe(true);
     });
 
     describe("Auto Key refresh", () => {

@@ -14,11 +14,10 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
-import { KeyService } from "@bitwarden/key-management";
 
 /**
  * Only allow access to this route if the vault is locked.
- * If TDE is enabled then the user must also have had a user key at some point.
+ * If TDE is enabled then the user must also have an available unlock method.
  * Otherwise reject navigation.
  *
  * TODO: This should return Observable<boolean | UrlTree> once we can remove all the promises
@@ -29,7 +28,6 @@ export function lockGuard(): CanActivateFn {
     routerStateSnapshot: RouterStateSnapshot,
   ) => {
     const authService = inject(AuthService);
-    const keyService = inject(KeyService);
     const deviceTrustService = inject(DeviceTrustServiceAbstraction);
     const router = inject(Router);
     const userVerificationService = inject(UserVerificationService);
@@ -76,11 +74,8 @@ export function lockGuard(): CanActivateFn {
       return true;
     }
 
-    // If authN user with TDE directly navigates to lock, reject that navigation
-    const everHadUserKey = await firstValueFrom(keyService.everHadUserKey$(activeUser.id));
-    if (tdeEnabled && !everHadUserKey) {
-      return false;
-    }
+    // Note: The canLock check above (line 58) already rejects users with no unlock methods,
+    // so TDE users without unlock methods are already handled.
 
     return true;
   };

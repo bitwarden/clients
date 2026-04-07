@@ -2,17 +2,17 @@ import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { MockProxy, mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 
 import { EmptyComponent } from "@bitwarden/angular/platform/guard/feature-flag.guard.spec";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KeyService } from "@bitwarden/key-management";
 
 import { unauthGuardFn } from "./unauth.guard";
 
@@ -29,11 +29,12 @@ describe("UnauthGuard", () => {
     activeUser: Account | null,
     authStatus: AuthenticationStatus | null = null,
     tdeEnabled: boolean = false,
-    everHadUserKey: boolean = false,
+    canLock: boolean = false,
   ) => {
     const accountService: MockProxy<AccountService> = mock<AccountService>();
     const authService: MockProxy<AuthService> = mock<AuthService>();
-    const keyService: MockProxy<KeyService> = mock<KeyService>();
+    const vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService> =
+      mock<VaultTimeoutSettingsService>();
     const deviceTrustService: MockProxy<DeviceTrustServiceAbstraction> =
       mock<DeviceTrustServiceAbstraction>();
     const logService: MockProxy<LogService> = mock<LogService>();
@@ -45,7 +46,7 @@ describe("UnauthGuard", () => {
       authService.authStatusFor$.mockReturnValue(activeAccountStatusObservable);
     }
 
-    keyService.everHadUserKey$.mockReturnValue(of(everHadUserKey));
+    vaultTimeoutSettingsService.canLock.mockResolvedValue(canLock);
     deviceTrustService.supportsDeviceTrustByUserId$.mockReturnValue(
       new BehaviorSubject<boolean>(tdeEnabled),
     );
@@ -76,7 +77,7 @@ describe("UnauthGuard", () => {
       providers: [
         { provide: AccountService, useValue: accountService },
         { provide: AuthService, useValue: authService },
-        { provide: KeyService, useValue: keyService },
+        { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
         { provide: DeviceTrustServiceAbstraction, useValue: deviceTrustService },
         { provide: LogService, useValue: logService },
       ],
@@ -113,7 +114,7 @@ describe("UnauthGuard", () => {
     expect(router.url).toBe("/unauth-guarded-route");
   });
 
-  it("should redirect to /login-initiated when locked, TDE is enabled, and the user hasn't decrypted yet", async () => {
+  it("should redirect to /login-initiated when locked, TDE is enabled, and the user cannot lock", async () => {
     const { router } = setup(activeUser, AuthenticationStatus.Locked, true, false);
 
     await router.navigateByUrl("unauth-guarded-route");
