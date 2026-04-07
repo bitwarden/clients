@@ -5,7 +5,7 @@ use ssh_agent::{BitwardenSSHAgent, InMemoryEncryptedKeyStore};
 use tokio::net::UnixStream;
 
 mod common;
-use common::MockApprovalRequester;
+use common::{init_tracing, MockApprovalRequester};
 
 fn test_socket_path() -> PathBuf {
     std::env::temp_dir().join("bw-ssh-agent-test.sock")
@@ -30,6 +30,7 @@ fn make_agent() -> BitwardenSSHAgent<InMemoryEncryptedKeyStore, MockApprovalRequ
 #[serial]
 #[tokio::test(flavor = "multi_thread")]
 async fn test_start_creates_socket() {
+    init_tracing();
     set_socket_path();
     let mut agent = make_agent();
 
@@ -42,6 +43,7 @@ async fn test_start_creates_socket() {
 #[serial]
 #[tokio::test(flavor = "multi_thread")]
 async fn test_client_can_connect() {
+    init_tracing();
     set_socket_path();
     let mut agent = make_agent();
     agent.start_server().unwrap();
@@ -60,6 +62,7 @@ async fn test_client_can_connect() {
 #[serial]
 #[tokio::test(flavor = "multi_thread")]
 async fn test_stop_clears_running_state() {
+    init_tracing();
     set_socket_path();
     let mut agent = make_agent();
     agent.start_server().unwrap();
@@ -72,6 +75,7 @@ async fn test_stop_clears_running_state() {
 #[serial]
 #[tokio::test(flavor = "multi_thread")]
 async fn test_socket_has_user_only_permissions() {
+    init_tracing();
     set_socket_path();
     let mut agent = make_agent();
     agent.start_server().unwrap();
@@ -90,6 +94,7 @@ async fn test_socket_has_user_only_permissions() {
 #[serial]
 #[tokio::test(flavor = "multi_thread")]
 async fn test_server_can_restart() {
+    init_tracing();
     set_socket_path();
     let mut agent = make_agent();
 

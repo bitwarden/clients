@@ -2,6 +2,10 @@
 
 use ssh_agent::{ApprovalError, ApprovalRequester, SignApprovalRequest};
 
+pub fn init_tracing() {
+    let _ = tracing_subscriber::fmt().with_test_writer().try_init();
+}
+
 mockall::mock! {
     pub ApprovalRequester {}
 

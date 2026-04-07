@@ -33,6 +33,7 @@ mockall = { workspace = true }
 rand = { workspace = true }
 serial_test = "=3.4.0"
 tokio = { workspace = true, features = ["rt-multi-thread", "macros", "net", "io-util", "time"] }
+tracing-subscriber = { workspace = true }
 
 [lints]
 workspace = true
