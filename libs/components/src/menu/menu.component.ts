@@ -4,7 +4,7 @@ import {
   Output,
   TemplateRef,
   EventEmitter,
-  AfterContentInit,
+  effect,
   input,
   viewChild,
   contentChildren,
@@ -20,7 +20,7 @@ import { MenuItemComponent } from "./menu-item.component";
   exportAs: "menuComponent",
   imports: [CdkTrapFocus],
 })
-export class MenuComponent implements AfterContentInit {
+export class MenuComponent {
   readonly templateRef = viewChild.required(TemplateRef);
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
@@ -32,11 +32,13 @@ export class MenuComponent implements AfterContentInit {
 
   readonly ariaLabel = input<string>();
 
-  ngAfterContentInit() {
-    if (this.ariaRole() === "menu") {
-      this.keyManager = new FocusKeyManager(this.menuItems())
-        .withWrap()
-        .skipPredicate((item) => !!item.disabled);
-    }
+  constructor() {
+    effect(() => {
+      if (this.ariaRole() === "menu") {
+        this.keyManager = new FocusKeyManager(this.menuItems())
+          .withWrap()
+          .skipPredicate((item) => !!item.disabled);
+      }
+    });
   }
 }

@@ -20,6 +20,10 @@ export class AllActivitiesService {
     totalCriticalApplicationCount: 0,
     totalAtRiskApplicationCount: 0,
     totalCriticalAtRiskApplicationCount: 0,
+    totalPasswordCount: 0,
+    totalAtRiskPasswordCount: 0,
+    totalCriticalPasswordCount: 0,
+    totalCriticalAtRiskPasswordCount: 0,
   });
   reportSummary$ = this.reportSummarySubject$.asObservable();
 

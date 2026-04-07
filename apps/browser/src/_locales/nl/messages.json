@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Ontgrendelopties"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Stel een ontgrendelingsmethode in om je kluis time-out actie te wijzigen."
-  },
   "unlockMethodNeeded": {
     "message": "Stel je ontgrendelingsmethode in in de instellingen"
   },
   "sessionTimeoutHeader": {
     "message": "Sessietime-out"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Time-out van de kluis"
   },
   "otherOptions": {
     "message": "Andere opties"
@@ -2372,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "Je hebt een zwak hoofdwachtwoord gekozen. Gebruik een sterk hoofdwachtwoord (of wachtwoordzin) om jouw Bitwarden-account goed te beschermen. Weet je zeker dat je dit hoofdwachtwoord wilt gebruiken?"
   },
+  "rotateAccountEncKey": {
+    "message": "De encryptiesleutel van mijn account ook roteren"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Encryptiesleutel roteren"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Weet je zeker dat je de encryptiesleutel van je account wilt roteren?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Na het bijwerken van je encryptiesleutel moet je je afmelden en weer aanmelden bij alle Bitwarden-applicaties die je gebruikt (zoals de mobiele app of browserextensies). Als je niet opnieuw inlogt (wat je nieuwe encryptiesleutel downloadt), kan dit gegevensbeschadiging tot gevolg hebben. We proberen je automatisch uit te loggen, maar het kan zijn dat dit met enige vertraging gebeurt."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Alle account-beperkte bewaarde exports die je hebt opgeslagen worden ongeldig."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Er zijn oude bestandsbijlagen in je kluis die aangepast moeten worden voordat je je encryptiesleutels kunt roteren."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact van het roteren van je encryptiesleutel"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Een of meer organisatiebeleidseisen stelt de volgende eisen aan je hoofdwachtwoord:"
+  },
   "pin": {
     "message": "PIN-code",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2480,8 @@
   "vaultTimeoutAction": {
     "message": "Actie bij time-out"
   },
-  "vaultTimeoutAction1": {
-    "message": "Time-out actie"
+  "showAtRiskPasswordNotifications": {
+    "message": "Meldingen voor risicovolle wachtwoorden weergeven"
   },
   "lock": {
     "message": "Vergrendelen",
@@ -3229,9 +3247,6 @@
   },
   "minutes": {
     "message": "Minuten"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Bedrijfsbeleidseisen zijn toegepast op je time-out instellingen"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Het beleid van je organisatie heeft invloed op de time-out van je kluis. De maximaal toegestane kluis time-out is $HOURS$ uur en $MINUTES$ minuten.",
@@ -4435,6 +4450,9 @@
   },
   "exportSuccess": {
     "message": "Kluisgegevens geëxporteerd"
+  },
+  "exportError": {
+    "message": "Er is een fout opgetreden tijdens het exporteren van je kluisgegevens"
   },
   "typePasskey": {
     "message": "Passkey"
@@ -6130,8 +6148,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en naleving. Klik op accepteren voor het overdragen van eigendom van je items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en regelgeving.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6157,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Klik op accepteren voor het overdragen van het eigendom van je items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Help-artikel openen over de overdracht van items"
+  },
   "acceptTransfer": {
     "message": "Overdacht accepteren"
   },
   "declineAndLeave": {
     "message": "Weigeren en verlaten"
-  },
-  "whyAmISeeingThis": {
-    "message": "Waarom zie ik dit?"
   },
   "items": {
     "message": "Items"
@@ -6178,9 +6199,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Voer meerdere e-mailadressen in door te scheiden met een komma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "E-mailverificatie vereist ten minste één e-mailadres. Om alle e-mailadressen te verwijderen, moet je het toegangstype hierboven wijzigen."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6214,8 @@
   },
   "userVerificationFailed": {
     "message": "Gebruikersverificatie is mislukt."
+  },
+  "downloadFailed": {
+    "message": "Downloaden mislukt."
   }
 }
